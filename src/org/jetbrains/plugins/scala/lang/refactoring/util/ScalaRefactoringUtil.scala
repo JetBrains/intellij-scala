@@ -291,6 +291,25 @@ object ScalaRefactoringUtil {
 
   def showChooser[T <: PsiElement](editor: Editor, elements: Array[T], pass: PsiElement => Unit, title: String,
                                    elementName: T => String, highlightParent: Boolean = false) {
+    class Selection {
+      val selectionModel = editor.getSelectionModel
+      val (start, end) = (selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
+      val scheme = editor.getColorsScheme
+      val textAttributes = new TextAttributes
+      textAttributes.setForegroundColor(scheme.getColor(EditorColors.SELECTION_FOREGROUND_COLOR))
+      textAttributes.setBackgroundColor(scheme.getColor(EditorColors.SELECTION_BACKGROUND_COLOR))
+      var selectionHighlighter: RangeHighlighter = null
+      val markupModel = editor.getMarkupModel
+
+      def addHighlighter() = if (selectionHighlighter == null) {
+        selectionHighlighter = markupModel.addRangeHighlighter(start, end, HighlighterLayer.SELECTION + 1,
+          textAttributes, HighlighterTargetArea.EXACT_RANGE)
+      }
+
+      def removeHighlighter() = if (selectionHighlighter != null) markupModel.removeHighlighter(selectionHighlighter)
+    }
+
+    val selection = new Selection
     val highlighter: ScopeHighlighter = new ScopeHighlighter(editor)
     val model: DefaultListModel[T] = new DefaultListModel
     for (element <- elements) {
@@ -318,13 +337,18 @@ object ScalaRefactoringUtil {
         highlighter.highlight(if (highlightParent) element.getParent else element, toExtract)
       }
     })
+
     JBPopupFactory.getInstance.createListPopupBuilder(list).setTitle(title).setMovable(false).setResizable(false).setRequestFocus(true).setItemChoosenCallback(new Runnable {
       def run() {
         pass(list.getSelectedValue)
       }
     }).addListener(new JBPopupAdapter {
+      override def beforeShown(event: LightweightWindowEvent): Unit = {
+        selection.addHighlighter()
+      }
       override def onClosed(event: LightweightWindowEvent) {
         highlighter.dropHighlight()
+        selection.removeHighlighter()
       }
     }).createPopup.showInBestPositionFor(editor)
   }
