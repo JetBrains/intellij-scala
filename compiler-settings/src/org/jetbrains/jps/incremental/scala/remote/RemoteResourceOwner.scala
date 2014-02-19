@@ -30,7 +30,7 @@ trait RemoteResourceOwner {
     }
   }
   
-  protected def using[A <: java.io.Closeable, B](resource: A)(block: A => B): B = {
+  protected def using[A <: { def close() }, B](resource: A)(block: A => B): B = {
     try {
       block(resource)
     } finally {
