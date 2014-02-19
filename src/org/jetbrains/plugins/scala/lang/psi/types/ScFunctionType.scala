@@ -5,7 +5,7 @@ package types
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait}
 import com.intellij.psi.PsiClass
 import impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
@@ -69,4 +69,25 @@ object ScFunctionType {
   }
 
   def isFunctionType(tp: ScType): Boolean = unapply(tp).isDefined
+}
+
+object ScTupleType {
+  def apply(components: Seq[ScType])(project: Project, scope: GlobalSearchScope): ValueType = {
+    def findClass(fullyQualifiedName: String) : Option[PsiClass] = {
+      Option(ScalaPsiManager.instance(project).getCachedClass(scope, fullyQualifiedName))
+    }
+    findClass("scala.Tuple" + components.length) match {
+      case Some(t: ScClass) =>
+        ScParameterizedType(ScType.designator(t), components)
+      case _ => types.Nothing
+    }
+  }
+
+  def unapply(tp: ScType): Option[Seq[ScType]] = {
+    ScFunctionType.extractForPrefix(tp, "scala.Tuple") match {
+      case Some((clazz, typeArgs)) if typeArgs.length > 0 =>
+        Some(typeArgs)
+      case _ => None
+    }
+  }
 }

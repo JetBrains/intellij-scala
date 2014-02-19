@@ -34,5 +34,5 @@ object B extends A {
 
 import B._
 
-/*start*/(i1, i2, i3, i4, i5, i6, i7)/*end*/
-// (Int, Int, Int, Int, Int, Int, Int)
+/*start*/(i1, i3, i4, i5, i6)/*end*/
+// (Int, Int, Int, Int, Int)

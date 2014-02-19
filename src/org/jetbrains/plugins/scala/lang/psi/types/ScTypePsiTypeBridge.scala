@@ -157,10 +157,6 @@ trait ScTypePsiTypeBridge {
       case types.Short => if (noPrimitives) javaObj else PsiType.SHORT
       case types.Null => javaObj
       case types.Nothing => javaObj
-      case tuple: ScTupleType =>
-        tuple.resolveTupleTrait(project) match {
-          case Some(tp) => toPsi(tp, project, scope) case _ => javaObj
-        }
       case ScCompoundType(Seq(typez, _*), _, _, _) => toPsi(typez, project, scope)
       case ScDesignatorType(c: ScTypeDefinition) if ScType.baseTypesQualMap.contains(c.qualifiedName) =>
         toPsi(ScType.baseTypesQualMap.get(c.qualifiedName).get, project, scope, noPrimitives, skolemToWildcard)

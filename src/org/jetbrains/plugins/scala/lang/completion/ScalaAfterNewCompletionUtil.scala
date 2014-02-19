@@ -137,7 +137,6 @@ object ScalaAfterNewCompletionUtil {
     lookupElement.setInsertHandler(new ScalaConstructorInsertHandler)
     tp match {
       case ScParameterizedType(_, tps) => lookupElement.typeParameters = tps
-      case ScTupleType(comps) => lookupElement.typeParameters = comps
       case _ =>
     }
     lookupElement
