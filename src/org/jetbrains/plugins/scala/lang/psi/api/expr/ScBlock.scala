@@ -65,9 +65,6 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
       case Some(e) =>
         val m = new mutable.HashMap[String, ScExistentialArgument]
         def existize(t: ScType): ScType = t match {
-          case fun@ScFunctionType(ret, params) => ScFunctionType(existize(ret), params.map(existize))(getProject, getResolveScope)
-          case ScTupleType(comps) =>
-            new ScTupleType(collection.immutable.Seq(comps.map({existize _}).toSeq: _*))(getProject, getResolveScope)
           case ScDesignatorType(p: ScParameter) if p.owner.isInstanceOf[ScFunctionExpr] && p.owner.asInstanceOf[ScFunctionExpr].result == Some(this) =>
             val t = existize(p.getType(TypingContext.empty).getOrAny)
             m.put(p.name, new ScExistentialArgument(p.name, Nil, t, t))

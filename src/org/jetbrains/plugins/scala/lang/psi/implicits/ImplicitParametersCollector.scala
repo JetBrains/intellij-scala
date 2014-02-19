@@ -340,7 +340,6 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
         val valueType: ScType = v.getType(TypingContext.empty).getOrAny
         topLevelTypeConstructors(valueType)
       case ScCompoundType(comps, _, _, _) => comps.flatMap(topLevelTypeConstructors).toSet
-      case t@ScTupleType(comps) => t.resolveTupleTrait(t.getProject).map(topLevelTypeConstructors(_)).getOrElse(Set(t))
       case _ => Set(tp)
     }
   }
@@ -354,7 +353,6 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
         val valueType: ScType = v.getType(TypingContext.empty).getOrAny
         1 + complexity(valueType)
       case ScCompoundType(comps, _, _, _) => comps.foldLeft(0)(_ + complexity(_))
-      case ScTupleType(comps) => 1 + comps.foldLeft(0)(_ + complexity(_))
       case _ => 1
     }
   }

@@ -16,7 +16,7 @@ import search.searches.ClassInheritorsSearch
 import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition, ScClass}
 import lang.psi.ScalaPsiUtil
 import lang.psi.types.result.TypingContext
-import lang.psi.types.{ScType, ScSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScTupleType, ScType, ScSubstitutor}
 import extensions._
 import lang.refactoring.namesSuggester.NameSuggester
 import lang.psi.api.base.patterns.{ScWildcardPattern, ScReferencePattern, ScPattern, ScCaseClause}
@@ -65,10 +65,10 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
 
 
   def nestedPatternText(expectedType: Option[ScType]): Option[String] = {
-    expectedType.flatMap(ScType.extractTupleType) match {
-      case Some(tt) =>
+    expectedType match {
+      case Some(ScTupleType(comps)) =>
         import NameSuggester.suggestNamesByType
-        val names = tt.components.map(t => suggestNamesByType(t).head)
+        val names = comps.map(t => suggestNamesByType(t).head)
         val tuplePattern = names.mkParenString
         Some(tuplePattern)
       case _ =>

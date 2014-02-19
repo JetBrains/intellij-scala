@@ -248,15 +248,6 @@ object Conformance {
       }
     }
     
-    trait TupleVisitor extends ScalaTypeVisitor {
-      override def visitTupleType(t: ScTupleType) {
-        t.resolveTupleTrait match {
-          case Some(tp) => result = conformsInner(l, tp, visited, subst, checkWeak)
-          case _ => result = (false, undefinedSubst)
-        }
-      }
-    }
-    
     trait ThisVisitor extends ScalaTypeVisitor {
       override def visitThisType(t: ScThisType) {
         val clazz = t.clazz
@@ -470,7 +461,7 @@ object Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      rightVisitor = new TupleVisitor with ThisVisitor with DesignatorVisitor
+      rightVisitor = new ThisVisitor with DesignatorVisitor
         with ParameterizedAliasVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -525,52 +516,6 @@ object Conformance {
       }
     }
 
-    override def visitTupleType(t1: ScTupleType) {
-      var rightVisitor: ScalaTypeVisitor =
-        new ValDesignatorSimplification with UndefinedSubstVisitor with AbstractVisitor
-          with ParameterizedAbstractVisitor {}
-      r.visitType(rightVisitor)
-      if (result != null) return
-
-      checkEquiv()
-      if (result != null) return
-
-      rightVisitor = new ExistentialSimplification with SkolemizeVisitor
-        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-         with TypeParameterTypeVisitor {}
-      r.visitType(rightVisitor)
-      if (result != null) return
-
-      r match {
-        case t2: ScTupleType =>
-          val comps1 = t1.components
-          val comps2 = t2.components
-          if (comps1.length != comps2.length) {
-            result = (false, undefinedSubst)
-            return
-          }
-          var i = 0
-          while (i < comps1.length) {
-            val comp1 = comps1(i)
-            val comp2 = comps2(i)
-            val t = conformsInner(comp1, comp2, HashSet.empty, undefinedSubst)
-            if (!t._1) {
-              result = (false, undefinedSubst)
-              return
-            }
-            else undefinedSubst = t._2
-            i = i + 1
-          }
-          result = (true, undefinedSubst)
-        case _ =>
-          t1.resolveTupleTrait match {
-            case Some(tp) => 
-              result = conformsInner(tp, r, visited, subst, checkWeak)
-            case _ => result = (false, undefinedSubst)
-          }
-      }
-    }
-
     override def visitCompoundType(c: ScCompoundType) {
       var rightVisitor: ScalaTypeVisitor =
         new ValDesignatorSimplification with UndefinedSubstVisitor with AbstractVisitor
@@ -583,7 +528,7 @@ object Conformance {
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
         with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-        with TypeParameterTypeVisitor with TupleVisitor with ThisVisitor with DesignatorVisitor {}
+        with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -633,7 +578,7 @@ object Conformance {
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
         with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-        with TypeParameterTypeVisitor with TupleVisitor with ThisVisitor with DesignatorVisitor with ParameterizedAliasVisitor {}
+        with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor with ParameterizedAliasVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -704,7 +649,7 @@ object Conformance {
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
         with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-        with TypeParameterTypeVisitor with TupleVisitor with ThisVisitor with DesignatorVisitor {}
+        with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -908,7 +853,7 @@ object Conformance {
       }
 
       rightVisitor = new ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-         with TupleVisitor with ThisVisitor with DesignatorVisitor {}
+         with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1258,8 +1203,7 @@ object Conformance {
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
         with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-         with TypeParameterTypeVisitor with TupleVisitor
-        with ThisVisitor with DesignatorVisitor {}
+         with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1361,7 +1305,7 @@ object Conformance {
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
         with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-         with TypeParameterTypeVisitor with TupleVisitor {}
+         with TypeParameterTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1419,7 +1363,7 @@ object Conformance {
         case _ =>
       }
 
-      rightVisitor = new TypeParameterTypeVisitor with TupleVisitor
+      rightVisitor = new TypeParameterTypeVisitor
         with ThisVisitor with DesignatorVisitor with ParameterizedAliasVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -1531,8 +1475,7 @@ object Conformance {
       }
 
       rightVisitor = new OtherNonvalueTypesVisitor with NothingNullVisitor
-        with TypeParameterTypeVisitor with TupleVisitor
-        with ThisVisitor with DesignatorVisitor {}
+        with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1554,8 +1497,7 @@ object Conformance {
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
         with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-         with TypeParameterTypeVisitor with TupleVisitor
-        with ThisVisitor with DesignatorVisitor {}
+         with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1756,7 +1698,6 @@ object Conformance {
               if (lClass.hasTypeParameters) {
                 l match {
                   case p: ScParameterizedType =>
-                  case t: ScTupleType =>
                   case _ => return (true, uSubst)
                 }
               }

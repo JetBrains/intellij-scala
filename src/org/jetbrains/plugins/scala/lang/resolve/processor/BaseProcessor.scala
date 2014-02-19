@@ -100,9 +100,9 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     classKind && getClassKindInner
   }
   def getClassKindInner = {
-    ((kinds contains ResolveTargets.CLASS) ||
-      (kinds contains ResolveTargets.OBJECT) ||
-      (kinds contains ResolveTargets.METHOD))
+    (kinds contains ResolveTargets.CLASS) ||
+            (kinds contains ResolveTargets.OBJECT) ||
+            (kinds contains ResolveTargets.METHOD)
   }
 
   //java compatibility
@@ -117,7 +117,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
             (kinds contains ResolveTargets.METHOD) //case classes get 'apply' generated
         case DeclarationKind.VARIABLE => (kinds contains ResolveTargets.VAR) || (kinds contains ResolveTargets.VAL)
         case DeclarationKind.FIELD => (kinds contains ResolveTargets.VAR) || (kinds contains ResolveTargets.VAL)
-        case DeclarationKind.METHOD => kinds contains (ResolveTargets.METHOD)
+        case DeclarationKind.METHOD => kinds contains ResolveTargets.METHOD
         case _ => false
       }
     }
@@ -240,13 +240,12 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         processElement(proj.actualElement, s, place, state)
       case StdType(name, tSuper) =>
         SyntheticClasses.get(place.getProject).byName(name) match {
-          case Some(c) => {
+          case Some(c) =>
             if (!c.processDeclarations(this, state, null, place) ||
                     !(tSuper match {
                       case Some(ts) => processType(ts, place)
                       case _ => true
                     })) return false
-          }
           case None => //nothing to do
         }
 
@@ -263,9 +262,6 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
           }
         }
         true
-      case tp@ScTupleType(comps) =>
-        tp.resolveTupleTrait(place.getProject).map(processType((_: ScType), place,
-          state.put(ScSubstitutor.key, ScSubstitutor.empty))).getOrElse(true)
       case comp@ScCompoundType(components, declarations, types, substitutor) =>
         val oldSubst = state.get(ScSubstitutor.key).getOrElse(ScSubstitutor.empty)
         val newState = state.put(ScSubstitutor.key, substitutor.followed(oldSubst))

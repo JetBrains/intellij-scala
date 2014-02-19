@@ -72,10 +72,6 @@ object BaseTypes {
             })
           case _ => Seq.empty
         }
-      case t: ScTupleType => t.resolveTupleTrait match {
-        case Some(t: ScType) => get(t, notAll)
-        case _ => Seq.empty
-      }
       case _ => Seq.empty
     }
   }
