@@ -248,7 +248,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
                     val (res, imports) = super.getTypeAfterImplicitConversion(checkImplicits, isShape, expectedOption)
                     val str = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.String")
                     val stringType = if (str != null) ScType.designator(str) else types.Any
-                    (res.map(tp => new ScTupleType(Seq(stringType, tp))(getProject, getResolveScope)), imports)
+                    (res.map(tp => ScTupleType(Seq(stringType, tp))(getProject, getResolveScope)), imports)
                   }
                 }}
             case _ => default

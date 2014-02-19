@@ -88,11 +88,6 @@ object DebuggerUtil {
       case Double => JVMNameUtil.getJVMRawText("java.lang.Double")
       case Byte => JVMNameUtil.getJVMRawText("java.lang.Byte")
       case Short => JVMNameUtil.getJVMRawText("java.lang.Short")
-      case t@ScTupleType(components) =>
-        t.resolveTupleTrait match {
-          case Some(scType) => getJVMQualifiedName(scType)
-          case None => JVMNameUtil.getJVMRawText("scala.Tuple" + components.length)
-        }
       case JavaArrayType(arg) =>
         val buff = new JVMNameBuffer()
         buff.append(getJVMQualifiedName(arg))

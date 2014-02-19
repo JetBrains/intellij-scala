@@ -256,8 +256,6 @@ trait ScTypePresentation {
           nameFun(e)
         case proj: ScProjectionType if proj != null =>
           projectionTypeText(proj, needDotType)
-        case p: ScParameterizedType if p.getTupleType != None => 
-          innerTypeText(p.getTupleType.get, needDotType)
         case ScParameterizedType(des, typeArgs) =>
           innerTypeText(des) + typeSeqText(typeArgs, "[", ", ", "]", checkWildcard = true)
         case j@JavaArrayType(arg) => 
