@@ -68,10 +68,6 @@ object Bounds {
     else {
       def lubWithExpandedAliases(t1: ScType, t2: ScType): ScType = {
         (t1, t2) match {
-          case (t1@ScTupleType(c1), ScTupleType(c2)) if c1.length == c2.length =>
-            new ScTupleType(collection.immutable.Seq(c1.toSeq.zip(c2.toSeq).map({
-              case (type1, type2) => lub(type1, type2, 0, checkWeak)
-            }).toSeq: _*))(t1.getProject, t1.getScope)
           case (ScDesignatorType(t: ScParameter), _) =>
             lub(t.getRealParameterType(TypingContext.empty).getOrAny, t2, 0, checkWeak)
           case (ScDesignatorType(t: ScTypedDefinition), _) if !t.isInstanceOf[ScObject] =>

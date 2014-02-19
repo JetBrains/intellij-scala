@@ -235,8 +235,6 @@ case class ScExistentialType(quantified : ScType,
             checkRecursive(ex.lowerBound, newSet)
             checkRecursive(ex.upperBound, newSet)
           })
-        case ScTupleType(components) =>
-          components.foreach(checkRecursive(_, rejected))
         case ScProjectionType(projected, element, _) =>
           checkRecursive(projected, rejected)
         case ScParameterizedType(designator, typeArgs) =>
@@ -278,8 +276,6 @@ case class ScExistentialType(quantified : ScType,
     if (variance == 0) return tp //optimization
     tp match {
       case _: StdType => tp
-      case t@ScTupleType(components) =>
-        ScTupleType(components.map(updateRecursive(_, rejected, variance)))(t.getProject, t.getScope)
       case c@ScCompoundType(components, decls, typeDecls, subst) =>
         val newSet = rejected ++ typeDecls.map(_.name)
         new ScCompoundType(components, decls, typeDecls, subst, c.signatureMap.map {

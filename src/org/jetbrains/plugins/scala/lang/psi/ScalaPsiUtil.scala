@@ -550,12 +550,6 @@ object ScalaPsiUtil {
         case j: JavaArrayType =>
           val parameterizedType = j.getParameterizedType(place.getProject, place.getResolveScope)
           collectParts(parameterizedType.getOrElse(return))
-        case f@ScTupleType(params) =>
-          ScType.extractClass(tp, projectOpt) match {
-            case Some(pair) => parts += tp
-            case _ =>
-          }
-          params.foreach(collectParts)
         case proj@ScProjectionType(projected, _, _) =>
           collectParts(projected)
           proj.actualElement match {
@@ -922,11 +916,6 @@ object ScalaPsiUtil {
                           if (typeArgs.length != typeParams.length) return false
                           typeArgs.zip(typeParams).forall {
                             case (tp: ScType, typeParam: ScTypeParam) => checkTypeParam(typeParam, tp)
-                          }
-                        case t: ScTupleType =>
-                          t.resolveTupleTrait match {
-                            case Some(ft) => checkTypeParam(typeParam, ft)
-                            case _ => false
                           }
                         case _ =>
                           def checkNamed(named: PsiNamedElement, typeParams: Seq[ScTypeParam]): Boolean = {

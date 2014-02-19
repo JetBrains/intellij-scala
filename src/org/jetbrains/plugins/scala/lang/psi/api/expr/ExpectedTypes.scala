@@ -169,8 +169,8 @@ private[expr] object ExpectedTypes {
         val actExpr = expr.getDeepSameElementInContext
         val index = exprs.indexOf(actExpr)
         for (tp: ScType <- tuple.expectedTypes(fromUnderscore = true)) {
-          ScType.extractTupleType(tp) match {
-            case Some(ScTupleType(comps)) if comps.length == tuple.exprs.length =>
+          tp match {
+            case ScTupleType(comps) if comps.length == tuple.exprs.length =>
               buffer += ((comps(index), None))
             case _ =>
           }
@@ -332,22 +332,22 @@ private[expr] object ExpectedTypes {
     tp match {
       case Success(ScMethodType(_, params, _), _) =>
         if (params.length == 1 && !params.apply(0).isRepeated && exprs.length > 1) {
-          ScType.extractTupleType(params.apply(0).paramType) match {
-            case Some(ScTupleType(args)) => applyForParams(args.zipWithIndex.map {
+          params.apply(0).paramType match {
+            case ScTupleType(args) => applyForParams(args.zipWithIndex.map {
               case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
             })
-            case None =>
+            case _ =>
           }
         } else applyForParams(params)
       case Success(t@ScTypePolymorphicType(ScMethodType(_, params, _), typeParams), _) =>
         val subst = t.abstractTypeSubstitutor
         val newParams = params.map(p => p.copy(paramType = subst.subst(p.paramType)))
         if (newParams.length == 1 && !newParams.apply(0).isRepeated && exprs.length > 1) {
-          ScType.extractTupleType(newParams.apply(0).paramType) match {
-            case Some(ScTupleType(args)) => applyForParams(args.zipWithIndex.map {
+          newParams.apply(0).paramType match {
+            case ScTupleType(args) => applyForParams(args.zipWithIndex.map {
               case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
             })
-            case None =>
+            case _ =>
           }
         } else applyForParams(newParams)
       case Success(t@ScTypePolymorphicType(anotherType, typeParams), _) if !forApply =>
