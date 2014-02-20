@@ -11,7 +11,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -45,7 +45,7 @@ ScalaFile
               PsiElement(val)('val')
               PsiWhiteSpace(' ')
               ListOfPatterns
-                ReferencePattern
+                ReferencePattern: x
                   PsiElement(identifier)('x')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -53,7 +53,7 @@ ScalaFile
               InfixExpression
                 Literal
                   PsiElement(integer)('2')
-                ReferenceExpression
+                ReferenceExpression: /
                   PsiElement(identifier)('/')
                 Literal
                   PsiElement(integer)('0')

@@ -7,7 +7,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -27,7 +27,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScFunctionDefinition
+        ScFunctionDefinition: this
           AnnotationsList
             <empty list>
           Modifiers
@@ -38,7 +38,7 @@ ScalaFile
           Parameters
             ParametersClause
               PsiElement(()('(')
-              Parameter
+              Parameter: a
                 AnnotationsList
                   <empty list>
                 Modifiers
@@ -47,12 +47,12 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  SimpleTypeElement
-                    CodeReferenceElement
+                  SimpleTypeElement: Int
+                    CodeReferenceElement: Int
                       PsiElement(identifier)('Int')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              Parameter
+              Parameter: b
                 AnnotationsList
                   <empty list>
                 Modifiers
@@ -61,8 +61,8 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  SimpleTypeElement
-                    CodeReferenceElement
+                  SimpleTypeElement: Int
+                    CodeReferenceElement: Int
                       PsiElement(identifier)('Int')
               PsiElement())(')')
           PsiWhiteSpace('\n  ')
@@ -73,12 +73,12 @@ ScalaFile
               PsiElement(this)('this')
               ArgumentList
                 PsiElement(()('(')
-                ReferenceExpression
+                ReferenceExpression: a
                   PsiElement(identifier)('a')
                 PsiElement())(')')
             PsiWhiteSpace('\n    ')
             AssignStatement
-              ReferenceExpression
+              ReferenceExpression: a
                 PsiElement(identifier)('a')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')

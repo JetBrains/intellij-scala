@@ -8,12 +8,12 @@ ScalaFile
     PsiElement({)('{')
     Enumerators
       Generator
-        ReferencePattern
+        ReferencePattern: a
           PsiElement(identifier)('a')
         PsiWhiteSpace(' ')
         PsiElement(<-)('<-')
         PsiWhiteSpace(' ')
-        ReferenceExpression
+        ReferenceExpression: as
           PsiElement(identifier)('as')
       PsiElement(;)(';')
       PsiWhiteSpace('\n     ')
@@ -23,7 +23,7 @@ ScalaFile
         PsiWhiteSpace(' ')
         PsiElement(<-)('<-')
         PsiWhiteSpace(' ')
-        ReferenceExpression
+        ReferenceExpression: xs
           PsiElement(identifier)('xs')
     PsiElement(})('}')
     PsiWhiteSpace(' ')

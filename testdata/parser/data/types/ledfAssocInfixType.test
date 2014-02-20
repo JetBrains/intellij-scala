@@ -1,5 +1,5 @@
 val a: A :: B = null
-------
+-----
 ScalaFile
   ScPatternDefinition
     AnnotationsList
@@ -9,20 +9,20 @@ ScalaFile
     PsiElement(val)('val')
     PsiWhiteSpace(' ')
     ListOfPatterns
-      ReferencePattern
+      ReferencePattern: a
         PsiElement(identifier)('a')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    InfixType
-      SimpleTypeElement
-        CodeReferenceElement
+    InfixType: A :: B
+      SimpleTypeElement: A
+        CodeReferenceElement: A
           PsiElement(identifier)('A')
       PsiWhiteSpace(' ')
-      CodeReferenceElement
+      CodeReferenceElement: ::
         PsiElement(identifier)('::')
       PsiWhiteSpace(' ')
-      SimpleTypeElement
-        CodeReferenceElement
+      SimpleTypeElement: B
+        CodeReferenceElement: B
           PsiElement(identifier)('B')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

@@ -1,7 +1,7 @@
 case class If[T](c: Term[Boolean], t1: Term[T], t2: Term[T]) extends Term[T]
 -----
 ScalaFile
-  ScClass
+  ScClass: If
     AnnotationsList
       <empty list>
     Modifiers
@@ -12,7 +12,7 @@ ScalaFile
     PsiElement(identifier)('If')
     TypeParameterClause
       PsiElement([)('[')
-      TypeParameter
+      TypeParameter: T
         PsiElement(identifier)('T')
       PsiElement(])(']')
     PrimaryConstructor
@@ -23,7 +23,7 @@ ScalaFile
       Parameters
         ParametersClause
           PsiElement(()('(')
-          ClassParameter
+          ClassParameter: c
             AnnotationsList
               <empty list>
             Modifiers
@@ -32,19 +32,19 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              ParametrizedTypeElement
-                SimpleTypeElement
-                  CodeReferenceElement
+              ParametrizedTypeElement: Term[Boolean]
+                SimpleTypeElement: Term
+                  CodeReferenceElement: Term
                     PsiElement(identifier)('Term')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleTypeElement
-                    CodeReferenceElement
+                  SimpleTypeElement: Boolean
+                    CodeReferenceElement: Boolean
                       PsiElement(identifier)('Boolean')
                   PsiElement(])(']')
           PsiElement(,)(',')
           PsiWhiteSpace(' ')
-          ClassParameter
+          ClassParameter: t1
             AnnotationsList
               <empty list>
             Modifiers
@@ -53,19 +53,19 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              ParametrizedTypeElement
-                SimpleTypeElement
-                  CodeReferenceElement
+              ParametrizedTypeElement: Term[T]
+                SimpleTypeElement: Term
+                  CodeReferenceElement: Term
                     PsiElement(identifier)('Term')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleTypeElement
-                    CodeReferenceElement
+                  SimpleTypeElement: T
+                    CodeReferenceElement: T
                       PsiElement(identifier)('T')
                   PsiElement(])(']')
           PsiElement(,)(',')
           PsiWhiteSpace(' ')
-          ClassParameter
+          ClassParameter: t2
             AnnotationsList
               <empty list>
             Modifiers
@@ -74,14 +74,14 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              ParametrizedTypeElement
-                SimpleTypeElement
-                  CodeReferenceElement
+              ParametrizedTypeElement: Term[T]
+                SimpleTypeElement: Term
+                  CodeReferenceElement: Term
                     PsiElement(identifier)('Term')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleTypeElement
-                    CodeReferenceElement
+                  SimpleTypeElement: T
+                    CodeReferenceElement: T
                       PsiElement(identifier)('T')
                   PsiElement(])(']')
           PsiElement())(')')
@@ -91,13 +91,13 @@ ScalaFile
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          ParametrizedTypeElement
-            SimpleTypeElement
-              CodeReferenceElement
+          ParametrizedTypeElement: Term[T]
+            SimpleTypeElement: Term
+              CodeReferenceElement: Term
                 PsiElement(identifier)('Term')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: T
+                CodeReferenceElement: T
                   PsiElement(identifier)('T')
               PsiElement(])(']')

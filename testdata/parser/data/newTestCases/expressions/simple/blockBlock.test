@@ -9,7 +9,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -36,16 +36,16 @@ ScalaFile
             PsiElement(import)('import')
             PsiWhiteSpace(' ')
             ImportExpression
-              CodeReferenceElement
-                CodeReferenceElement
-                  CodeReferenceElement
+              CodeReferenceElement: a.b.c
+                CodeReferenceElement: a.b
+                  CodeReferenceElement: a
                     PsiElement(identifier)('a')
                   PsiElement(.)('.')
                   PsiElement(identifier)('b')
                 PsiElement(.)('.')
                 PsiElement(identifier)('c')
           PsiWhiteSpace('\n    ')
-          ScFunctionDefinition
+          ScFunctionDefinition: foo
             AnnotationsList
               <empty list>
             Modifiers
@@ -64,7 +64,7 @@ ScalaFile
             Literal
               PsiElement(integer)('3')
           PsiWhiteSpace('\n    ')
-          ScClass
+          ScClass: b
             AnnotationsList
               <empty list>
             Modifiers

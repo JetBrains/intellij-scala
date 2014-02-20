@@ -3,7 +3,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -25,13 +25,13 @@ ScalaFile
         PsiWhiteSpace('\n  ')
         Tuple
           PsiElement(()('(')
-          ReferenceExpression
+          ReferenceExpression: a
             PsiElement(identifier)('a')
           PsiElement(,)(',')
-          ReferenceExpression
+          ReferenceExpression: b
             PsiElement(identifier)('b')
           PsiElement(,)(',')
-          ReferenceExpression
+          ReferenceExpression: c
             PsiElement(identifier)('c')
           PsiElement(,)(',')
           PsiElement())(')')

@@ -1,15 +1,15 @@
 @a
 
 class B
-------
+-----
 ScalaFile
   PsiErrorElement:Wrong top statement declaration
     <empty list>
   PsiElement(@)('@')
-  ReferenceExpression
+  ReferenceExpression: a
     PsiElement(identifier)('a')
   PsiWhiteSpace('\n\n')
-  ScClass
+  ScClass: B
     AnnotationsList
       <empty list>
     Modifiers

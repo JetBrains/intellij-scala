@@ -4,7 +4,7 @@ class a{
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -37,7 +37,7 @@ ScalaFile
                 PsiElement(val)('val')
                 PsiWhiteSpace(' ')
                 ListOfPatterns
-                  ReferencePattern
+                  ReferencePattern: x
                     PsiElement(identifier)('x')
                 PsiElement(=)('=')
                 Literal
@@ -50,8 +50,8 @@ ScalaFile
           ExtendsBlock
             ClassParents
               Constructor
-                SimpleTypeElement
-                  CodeReferenceElement
+                SimpleTypeElement: b
+                  CodeReferenceElement: b
                     PsiElement(identifier)('b')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

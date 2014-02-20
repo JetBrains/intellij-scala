@@ -2,22 +2,22 @@
 
 @b
 class A
-------
+-----
 ScalaFile
   PsiErrorElement:Wrong top statement declaration
     <empty list>
   PsiElement(@)('@')
-  ReferenceExpression
+  ReferenceExpression: a
     PsiElement(identifier)('a')
   PsiWhiteSpace('\n\n')
-  ScClass
+  ScClass: A
     AnnotationsList
       Annotation
         PsiElement(@)('@')
         AnnotationExpression
           Constructor
-            SimpleTypeElement
-              CodeReferenceElement
+            SimpleTypeElement: b
+              CodeReferenceElement: b
                 PsiElement(identifier)('b')
     Modifiers
       <empty list>

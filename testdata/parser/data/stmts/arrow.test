@@ -1,9 +1,9 @@
 class ArrowAssoc {
   def ?(y: B) = ->(y)
 }
-------
+-----
 ScalaFile
-  ScClass
+  ScClass: ArrowAssoc
     AnnotationsList
       <empty list>
     Modifiers
@@ -23,7 +23,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScFunctionDefinition
+        ScFunctionDefinition: ?
           AnnotationsList
             <empty list>
           Modifiers
@@ -34,7 +34,7 @@ ScalaFile
           Parameters
             ParametersClause
               PsiElement(()('(')
-              Parameter
+              Parameter: y
                 AnnotationsList
                   <empty list>
                 Modifiers
@@ -43,19 +43,19 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  SimpleTypeElement
-                    CodeReferenceElement
+                  SimpleTypeElement: B
+                    CodeReferenceElement: B
                       PsiElement(identifier)('B')
               PsiElement())(')')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           MethodCall
-            ReferenceExpression
+            ReferenceExpression: ->
               PsiElement(identifier)('->')
             ArgumentList
               PsiElement(()('(')
-              ReferenceExpression
+              ReferenceExpression: y
                 PsiElement(identifier)('y')
               PsiElement())(')')
         PsiWhiteSpace('\n')

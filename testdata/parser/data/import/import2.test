@@ -5,8 +5,8 @@ ScalaFile
     PsiElement(import)('import')
     PsiWhiteSpace(' ')
     ImportExpression
-      CodeReferenceElement
-        CodeReferenceElement
+      CodeReferenceElement: one.selector
+        CodeReferenceElement: one
           PsiElement(identifier)('one')
         PsiElement(.)('.')
         PsiElement(identifier)('selector')
@@ -14,6 +14,6 @@ ScalaFile
       ImportSelectors
         PsiElement({)('{')
         ImportSelector
-          CodeReferenceElement
+          CodeReferenceElement: import_selector
             PsiElement(identifier)('import_selector')
         PsiElement(})('}')

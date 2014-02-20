@@ -1,7 +1,7 @@
 /**
  * Evaluates the script starting with {@value #SCRIPT_START}.
  */
-------
+-----
 ScalaFile
   DocComment
     PsiElement(DOC_COMMENT_START)('/**')

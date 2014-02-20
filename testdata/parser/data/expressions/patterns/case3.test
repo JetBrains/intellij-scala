@@ -6,7 +6,7 @@ class A{
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -26,7 +26,7 @@ ScalaFile
         PsiElement({)('{')
         PsiWhiteSpace('\n ')
         MatchStatement
-          ReferenceExpression
+          ReferenceExpression: x
             PsiElement(identifier)('x')
           PsiWhiteSpace(' ')
           PsiElement(match)('match')
@@ -37,11 +37,11 @@ ScalaFile
               PsiElement(case)('case')
               PsiWhiteSpace(' ')
               ConstructorPattern
-                CodeReferenceElement
+                CodeReferenceElement: Alt
                   PsiElement(identifier)('Alt')
                 Pattern Argument List
                   PsiElement(()('(')
-                  NamingPattern
+                  NamingPattern: xs
                     PsiElement(identifier)('xs')
                     PsiWhiteSpace(' ')
                     PsiElement(@)('@')
@@ -54,11 +54,11 @@ ScalaFile
               PsiWhiteSpace(' ')
               BlockOfExpressions
                 MethodCall
-                  ReferenceExpression
+                  ReferenceExpression: traverse1
                     PsiElement(identifier)('traverse1')
                   ArgumentList
                     PsiElement(()('(')
-                    ReferenceExpression
+                    ReferenceExpression: xs
                       PsiElement(identifier)('xs')
                     PsiElement())(')')
             PsiWhiteSpace('\n ')
@@ -67,7 +67,7 @@ ScalaFile
               PsiWhiteSpace(' ')
               CompositePattern
                 ConstructorPattern
-                  CodeReferenceElement
+                  CodeReferenceElement: ELEMENTS
                     PsiElement(identifier)('ELEMENTS')
                   Pattern Argument List
                     PsiElement(()('(')
@@ -80,7 +80,7 @@ ScalaFile
                 PsiElement(identifier)('|')
                 PsiWhiteSpace(' ')
                 ConstructorPattern
-                  CodeReferenceElement
+                  CodeReferenceElement: MIXED
                     PsiElement(identifier)('MIXED')
                   Pattern Argument List
                     PsiElement(()('(')
@@ -94,14 +94,14 @@ ScalaFile
               PsiWhiteSpace(' ')
               BlockOfExpressions
                 MethodCall
-                  ReferenceExpression
-                    ReferenceExpression
+                  ReferenceExpression: c.toString
+                    ReferenceExpression: c
                       PsiElement(identifier)('c')
                     PsiElement(.)('.')
                     PsiElement(identifier)('toString')
                   ArgumentList
                     PsiElement(()('(')
-                    ReferenceExpression
+                    ReferenceExpression: sb
                       PsiElement(identifier)('sb')
                     PsiElement())(')')
           PsiWhiteSpace('\n ')

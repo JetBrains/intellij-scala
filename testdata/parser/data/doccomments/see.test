@@ -1,7 +1,7 @@
 /**
  * @see java.lang.String#concat(long myLong ,int  sd fg as )
  */
-------
+-----
 ScalaFile
   DocComment
     PsiElement(DOC_COMMENT_START)('/**')

@@ -38,7 +38,7 @@ import api.toplevel.typedef.{ScObject, ScTemplateDefinition}
  */
 
 class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSimpleTypeElement {
-  override def toString: String = "SimpleTypeElement"
+  override def toString: String = "SimpleTypeElement: " + getText
 
   def singleton = getNode.findChildByType(ScalaTokenTypes.kTYPE) != null
 

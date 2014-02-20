@@ -1,5 +1,5 @@
 new X[Int][String][Boolean]
-------
+-----
 ScalaFile
   GenericCall
     GenericCall
@@ -9,25 +9,25 @@ ScalaFile
         ExtendsBlock
           ClassParents
             Constructor
-              ParametrizedTypeElement
-                SimpleTypeElement
-                  CodeReferenceElement
+              ParametrizedTypeElement: X[Int]
+                SimpleTypeElement: X
+                  CodeReferenceElement: X
                     PsiElement(identifier)('X')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleTypeElement
-                    CodeReferenceElement
+                  SimpleTypeElement: Int
+                    CodeReferenceElement: Int
                       PsiElement(identifier)('Int')
                   PsiElement(])(']')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleTypeElement
-          CodeReferenceElement
+        SimpleTypeElement: String
+          CodeReferenceElement: String
             PsiElement(identifier)('String')
         PsiElement(])(']')
     TypeArgumentsList
       PsiElement([)('[')
-      SimpleTypeElement
-        CodeReferenceElement
+      SimpleTypeElement: Boolean
+        CodeReferenceElement: Boolean
           PsiElement(identifier)('Boolean')
       PsiElement(])(']')

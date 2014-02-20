@@ -5,9 +5,9 @@ def foo(x: Int)
   //comment
   2
 }
-------
+-----
 ScalaFile
-  ScFunctionDefinition
+  ScFunctionDefinition: foo
     AnnotationsList
       <empty list>
     Modifiers
@@ -18,7 +18,7 @@ ScalaFile
     Parameters
       ParametersClause
         PsiElement(()('(')
-        Parameter
+        Parameter: x
           AnnotationsList
             <empty list>
           Modifiers
@@ -27,8 +27,8 @@ ScalaFile
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ParameterType
-            SimpleTypeElement
-              CodeReferenceElement
+            SimpleTypeElement: Int
+              CodeReferenceElement: Int
                 PsiElement(identifier)('Int')
         PsiElement())(')')
       PsiWhiteSpace('\n')
@@ -36,7 +36,7 @@ ScalaFile
       PsiWhiteSpace('\n')
       ParametersClause
         PsiElement(()('(')
-        Parameter
+        Parameter: y
           AnnotationsList
             <empty list>
           Modifiers
@@ -45,8 +45,8 @@ ScalaFile
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ParameterType
-            SimpleTypeElement
-              CodeReferenceElement
+            SimpleTypeElement: Int
+              CodeReferenceElement: Int
                 PsiElement(identifier)('Int')
         PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -57,7 +57,7 @@ ScalaFile
         Literal
           PsiElement(integer)('1')
         PsiWhiteSpace(' ')
-        ReferenceExpression
+        ReferenceExpression: +
           PsiElement(identifier)('+')
         PsiWhiteSpace('\n  ')
         PsiComment(comment)('//comment')

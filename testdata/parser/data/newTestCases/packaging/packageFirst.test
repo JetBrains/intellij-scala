@@ -2,7 +2,7 @@ class a{}
 package a.b
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -25,8 +25,8 @@ ScalaFile
   ScPackaging
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    CodeReferenceElement
-      CodeReferenceElement
+    CodeReferenceElement: a.b
+      CodeReferenceElement: a
         PsiElement(identifier)('a')
       PsiElement(.)('.')
       PsiElement(identifier)('b')

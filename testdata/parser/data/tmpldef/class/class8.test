@@ -1,7 +1,7 @@
 class A[T] extends B
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -11,7 +11,7 @@ ScalaFile
     PsiElement(identifier)('A')
     TypeParameterClause
       PsiElement([)('[')
-      TypeParameter
+      TypeParameter: T
         PsiElement(identifier)('T')
       PsiElement(])(']')
     PrimaryConstructor
@@ -27,6 +27,6 @@ ScalaFile
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: B
+            CodeReferenceElement: B
               PsiElement(identifier)('B')

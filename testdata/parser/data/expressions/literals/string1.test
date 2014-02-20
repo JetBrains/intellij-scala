@@ -18,7 +18,7 @@ end
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: C
     AnnotationsList
       <empty list>
     Modifiers
@@ -46,7 +46,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: helloWorldUU
               PsiElement(identifier)('helloWorldUU')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

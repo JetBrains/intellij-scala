@@ -1,7 +1,7 @@
 class a @bad private[C] (b: Int)
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -16,8 +16,8 @@ ScalaFile
           PsiElement(@)('@')
           AnnotationExpression
             Constructor
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: bad
+                CodeReferenceElement: bad
                   PsiElement(identifier)('bad')
       PsiWhiteSpace(' ')
       Modifiers
@@ -30,7 +30,7 @@ ScalaFile
       Parameters
         ParametersClause
           PsiElement(()('(')
-          ClassParameter
+          ClassParameter: b
             AnnotationsList
               <empty list>
             Modifiers
@@ -39,8 +39,8 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: Int
+                CodeReferenceElement: Int
                   PsiElement(identifier)('Int')
           PsiElement())(')')
     ExtendsBlock

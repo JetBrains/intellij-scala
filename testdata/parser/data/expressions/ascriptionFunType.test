@@ -8,7 +8,7 @@ class CurriedFuncTest {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: CurriedFuncTest
     AnnotationsList
       <empty list>
     Modifiers
@@ -28,7 +28,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n\n  ')
-        ScFunctionDefinition
+        ScFunctionDefinition: func
           AnnotationsList
             <empty list>
           Modifiers
@@ -38,13 +38,13 @@ ScalaFile
           PsiElement(identifier)('func')
           TypeParameterClause
             PsiElement([)('[')
-            TypeParameter
+            TypeParameter: T
               PsiElement(identifier)('T')
             PsiElement(])(']')
           Parameters
             ParametersClause
               PsiElement(()('(')
-              Parameter
+              Parameter: i
                 AnnotationsList
                   <empty list>
                 Modifiers
@@ -53,12 +53,12 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  SimpleTypeElement
-                    CodeReferenceElement
+                  SimpleTypeElement: Int
+                    CodeReferenceElement: Int
                       PsiElement(identifier)('Int')
               PsiElement(,)(',')
               PsiWhiteSpace('  ')
-              Parameter
+              Parameter: b
                 AnnotationsList
                   <empty list>
                 Modifiers
@@ -67,12 +67,12 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  SimpleTypeElement
-                    CodeReferenceElement
+                  SimpleTypeElement: Boolean
+                    CodeReferenceElement: Boolean
                       PsiElement(identifier)('Boolean')
               PsiElement(,)(',')
               PsiWhiteSpace('  ')
-              Parameter
+              Parameter: func
                 AnnotationsList
                   <empty list>
                 Modifiers
@@ -81,24 +81,24 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  FunctionalType
-                    SimpleTypeElement
-                      CodeReferenceElement
+                  FunctionalType: T => Any
+                    SimpleTypeElement: T
+                      CodeReferenceElement: T
                         PsiElement(identifier)('T')
                     PsiWhiteSpace(' ')
                     PsiElement(=>)('=>')
                     PsiWhiteSpace(' ')
-                    SimpleTypeElement
-                      CodeReferenceElement
+                    SimpleTypeElement: Any
+                      CodeReferenceElement: Any
                         PsiElement(identifier)('Any')
               PsiElement())(')')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          ReferenceExpression
+          ReferenceExpression: func
             PsiElement(identifier)('func')
         PsiWhiteSpace('\n\n  ')
-        ScFunctionDefinition
+        ScFunctionDefinition: alias
           AnnotationsList
             <empty list>
           Modifiers
@@ -108,7 +108,7 @@ ScalaFile
           PsiElement(identifier)('alias')
           TypeParameterClause
             PsiElement([)('[')
-            TypeParameter
+            TypeParameter: T
               PsiElement(identifier)('T')
             PsiElement(])(']')
           Parameters
@@ -117,7 +117,7 @@ ScalaFile
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           MethodCall
-            ReferenceExpression
+            ReferenceExpression: func
               PsiElement(identifier)('func')
             ArgumentList
               PsiElement(()('(')
@@ -130,8 +130,8 @@ ScalaFile
                   PsiElement(_)('_')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                SimpleTypeElement
-                  CodeReferenceElement
+                SimpleTypeElement: Boolean
+                  CodeReferenceElement: Boolean
                     PsiElement(identifier)('Boolean')
               PsiElement(,)(',')
               PsiWhiteSpace('  ')
@@ -140,19 +140,19 @@ ScalaFile
                   PsiElement(_)('_')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                FunctionalType
-                  SimpleTypeElement
-                    CodeReferenceElement
+                FunctionalType: T => Any
+                  SimpleTypeElement: T
+                    CodeReferenceElement: T
                       PsiElement(identifier)('T')
                   PsiWhiteSpace(' ')
                   PsiElement(=>)('=>')
                   PsiWhiteSpace(' ')
-                  SimpleTypeElement
-                    CodeReferenceElement
+                  SimpleTypeElement: Any
+                    CodeReferenceElement: Any
                       PsiElement(identifier)('Any')
               PsiElement())(')')
         PsiWhiteSpace('\n\n  ')
-        ScFunctionDefinition
+        ScFunctionDefinition: alias2
           AnnotationsList
             <empty list>
           Modifiers
@@ -162,7 +162,7 @@ ScalaFile
           PsiElement(identifier)('alias2')
           TypeParameterClause
             PsiElement([)('[')
-            TypeParameter
+            TypeParameter: T
               PsiElement(identifier)('T')
             PsiElement(])(']')
           Parameters
@@ -171,7 +171,7 @@ ScalaFile
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           MethodCall
-            ReferenceExpression
+            ReferenceExpression: func
               PsiElement(identifier)('func')
             ArgumentList
               PsiElement(()('(')
@@ -184,8 +184,8 @@ ScalaFile
                   PsiElement(_)('_')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                SimpleTypeElement
-                  CodeReferenceElement
+                SimpleTypeElement: Boolean
+                  CodeReferenceElement: Boolean
                     PsiElement(identifier)('Boolean')
               PsiElement(,)(',')
               PsiWhiteSpace('  ')
@@ -194,19 +194,19 @@ ScalaFile
                   PsiElement(_)('_')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                ParametrizedTypeElement
-                  SimpleTypeElement
-                    CodeReferenceElement
+                ParametrizedTypeElement: Function1[T, Any]
+                  SimpleTypeElement: Function1
+                    CodeReferenceElement: Function1
                       PsiElement(identifier)('Function1')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleTypeElement
-                      CodeReferenceElement
+                    SimpleTypeElement: T
+                      CodeReferenceElement: T
                         PsiElement(identifier)('T')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleTypeElement
-                      CodeReferenceElement
+                    SimpleTypeElement: Any
+                      CodeReferenceElement: Any
                         PsiElement(identifier)('Any')
                     PsiElement(])(']')
               PsiElement())(')')

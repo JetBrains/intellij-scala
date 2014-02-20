@@ -3,7 +3,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -23,7 +23,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScValueDeclaration
+        ScValueDeclaration: x
           AnnotationsList
             <empty list>
           Modifiers
@@ -31,14 +31,14 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfIdentifiers
-            Field identifier
+            Field identifier: x
               PsiElement(identifier)('x')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          TypeWithAnnotation
-            TypeProjection
-              SimpleTypeElement
-                CodeReferenceElement
+          TypeWithAnnotation: Type#id @annot
+            TypeProjection: Type#id
+              SimpleTypeElement: Type
+                CodeReferenceElement: Type
                   PsiElement(identifier)('Type')
               PsiElement(#)('#')
               PsiElement(identifier)('id')
@@ -48,8 +48,8 @@ ScalaFile
                 PsiElement(@)('@')
                 AnnotationExpression
                   Constructor
-                    SimpleTypeElement
-                      CodeReferenceElement
+                    SimpleTypeElement: annot
+                      CodeReferenceElement: annot
                         PsiElement(identifier)('annot')
         PsiWhiteSpace(' \n')
         PsiElement(})('}')

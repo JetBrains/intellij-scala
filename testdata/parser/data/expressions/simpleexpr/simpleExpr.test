@@ -3,7 +3,7 @@ class A {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -23,15 +23,15 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ReferenceExpression
+        ReferenceExpression: (a+b).id
           ExpressionInParenthesis
             PsiElement(()('(')
             InfixExpression
-              ReferenceExpression
+              ReferenceExpression: a
                 PsiElement(identifier)('a')
-              ReferenceExpression
+              ReferenceExpression: +
                 PsiElement(identifier)('+')
-              ReferenceExpression
+              ReferenceExpression: b
                 PsiElement(identifier)('b')
             PsiElement())(')')
           PsiElement(.)('.')

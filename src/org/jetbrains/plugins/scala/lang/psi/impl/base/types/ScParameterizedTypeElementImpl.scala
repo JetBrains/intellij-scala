@@ -21,7 +21,7 @@ import com.intellij.psi.{PsiElementVisitor, PsiTypeParameterListOwner, PsiNamedE
  */
 
 class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParameterizedTypeElement {
-  override def toString: String = "ParametrizedTypeElement"
+  override def toString: String = "ParametrizedTypeElement: " + getText
 
   def typeArgList = findChildByClass(classOf[ScTypeArgs])
 

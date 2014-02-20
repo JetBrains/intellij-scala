@@ -3,7 +3,7 @@ object A {
 }
 -----
 ScalaFile
-  ScObject
+  ScObject: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -24,12 +24,12 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: global
               PsiElement(identifier)('global')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: compiler.type
+            CodeReferenceElement: compiler
               PsiElement(identifier)('compiler')
             PsiElement(.)('.')
             PsiElement(type)('type')

@@ -1,7 +1,7 @@
 trait a extends b with c {}
 -----
 ScalaFile
-  ScTrait
+  ScTrait: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -14,14 +14,14 @@ ScalaFile
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
       TraitParents
-        SimpleTypeElement
-          CodeReferenceElement
+        SimpleTypeElement: b
+          CodeReferenceElement: b
             PsiElement(identifier)('b')
         PsiWhiteSpace(' ')
         PsiElement(with)('with')
         PsiWhiteSpace(' ')
-        SimpleTypeElement
-          CodeReferenceElement
+        SimpleTypeElement: c
+          CodeReferenceElement: c
             PsiElement(identifier)('c')
       PsiWhiteSpace(' ')
       ScTemplateBody

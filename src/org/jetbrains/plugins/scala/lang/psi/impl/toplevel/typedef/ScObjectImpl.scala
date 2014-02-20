@@ -74,7 +74,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
 
   def this(stub: ScTemplateDefinitionStub) = {this (); setStub(stub); setNode(null)}
 
-  override def toString: String = if (isPackageObject) "ScPackageObject" else "ScObject"
+  override def toString: String = (if (isPackageObject) "ScPackageObject: " else "ScObject: ") + name
 
   override def getIconInner = if (isPackageObject) Icons.PACKAGE_OBJECT else Icons.OBJECT
 

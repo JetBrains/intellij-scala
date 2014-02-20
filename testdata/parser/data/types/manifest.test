@@ -14,7 +14,7 @@ object Manifest {
 }
 -----
 ScalaFile
-  ScObject
+  ScObject: Manifest
     AnnotationsList
       <empty list>
     Modifiers
@@ -35,7 +35,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: Byte
               PsiElement(identifier)('Byte')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -46,17 +46,17 @@ ScalaFile
             ExtendsBlock
               ClassParents
                 Constructor
-                  TypeInParenthesis
+                  TypeInParenthesis: (Manifest[Byte] @serializable)
                     PsiElement(()('(')
-                    TypeWithAnnotation
-                      ParametrizedTypeElement
-                        SimpleTypeElement
-                          CodeReferenceElement
+                    TypeWithAnnotation: Manifest[Byte] @serializable
+                      ParametrizedTypeElement: Manifest[Byte]
+                        SimpleTypeElement: Manifest
+                          CodeReferenceElement: Manifest
                             PsiElement(identifier)('Manifest')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleTypeElement
-                            CodeReferenceElement
+                          SimpleTypeElement: Byte
+                            CodeReferenceElement: Byte
                               PsiElement(identifier)('Byte')
                           PsiElement(])(']')
                       PsiWhiteSpace(' ')
@@ -65,15 +65,15 @@ ScalaFile
                           PsiElement(@)('@')
                           AnnotationExpression
                             Constructor
-                              SimpleTypeElement
-                                CodeReferenceElement
+                              SimpleTypeElement: serializable
+                                CodeReferenceElement: serializable
                                   PsiElement(identifier)('serializable')
                     PsiElement())(')')
               PsiWhiteSpace(' ')
               ScTemplateBody
                 PsiElement({)('{')
                 PsiWhiteSpace('\n    ')
-                ScFunctionDefinition
+                ScFunctionDefinition: erasure
                   AnnotationsList
                     <empty list>
                   Modifiers
@@ -86,10 +86,10 @@ ScalaFile
                   PsiWhiteSpace(' ')
                   PsiElement(=)('=')
                   PsiWhiteSpace(' ')
-                  ReferenceExpression
-                    ReferenceExpression
-                      ReferenceExpression
-                        ReferenceExpression
+                  ReferenceExpression: java.lang.Byte.TYPE
+                    ReferenceExpression: java.lang.Byte
+                      ReferenceExpression: java.lang
+                        ReferenceExpression: java
                           PsiElement(identifier)('java')
                         PsiElement(.)('.')
                         PsiElement(identifier)('lang')
@@ -98,7 +98,7 @@ ScalaFile
                     PsiElement(.)('.')
                     PsiElement(identifier)('TYPE')
                 PsiWhiteSpace('\n    ')
-                ScFunctionDefinition
+                ScFunctionDefinition: toString
                   AnnotationsList
                     <empty list>
                   Modifiers
@@ -115,7 +115,7 @@ ScalaFile
                   Literal
                     PsiElement(string content)('"Byte"')
                 PsiWhiteSpace('\n    ')
-                ScFunctionDefinition
+                ScFunctionDefinition: newArray
                   AnnotationsList
                     <empty list>
                   Modifiers
@@ -127,7 +127,7 @@ ScalaFile
                   Parameters
                     ParametersClause
                       PsiElement(()('(')
-                      Parameter
+                      Parameter: len
                         AnnotationsList
                           <empty list>
                         Modifiers
@@ -136,20 +136,20 @@ ScalaFile
                         PsiElement(:)(':')
                         PsiWhiteSpace(' ')
                         ParameterType
-                          SimpleTypeElement
-                            CodeReferenceElement
+                          SimpleTypeElement: Int
+                            CodeReferenceElement: Int
                               PsiElement(identifier)('Int')
                       PsiElement())(')')
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
-                  ParametrizedTypeElement
-                    SimpleTypeElement
-                      CodeReferenceElement
+                  ParametrizedTypeElement: BoxedArray[Byte]
+                    SimpleTypeElement: BoxedArray
+                      CodeReferenceElement: BoxedArray
                         PsiElement(identifier)('BoxedArray')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleTypeElement
-                        CodeReferenceElement
+                      SimpleTypeElement: Byte
+                        CodeReferenceElement: Byte
                           PsiElement(identifier)('Byte')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
@@ -161,8 +161,8 @@ ScalaFile
                     ExtendsBlock
                       ClassParents
                         Constructor
-                          SimpleTypeElement
-                            CodeReferenceElement
+                          SimpleTypeElement: BoxedByteArray
+                            CodeReferenceElement: BoxedByteArray
                               PsiElement(identifier)('BoxedByteArray')
                           ArgumentList
                             PsiElement(()('(')
@@ -172,19 +172,19 @@ ScalaFile
                               ExtendsBlock
                                 ClassParents
                                   Constructor
-                                    ParametrizedTypeElement
-                                      SimpleTypeElement
-                                        CodeReferenceElement
+                                    ParametrizedTypeElement: Array[Byte]
+                                      SimpleTypeElement: Array
+                                        CodeReferenceElement: Array
                                           PsiElement(identifier)('Array')
                                       TypeArgumentsList
                                         PsiElement([)('[')
-                                        SimpleTypeElement
-                                          CodeReferenceElement
+                                        SimpleTypeElement: Byte
+                                          CodeReferenceElement: Byte
                                             PsiElement(identifier)('Byte')
                                         PsiElement(])(']')
                                     ArgumentList
                                       PsiElement(()('(')
-                                      ReferenceExpression
+                                      ReferenceExpression: len
                                         PsiElement(identifier)('len')
                                       PsiElement())(')')
                             PsiElement())(')')
@@ -199,7 +199,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: Short
               PsiElement(identifier)('Short')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -210,17 +210,17 @@ ScalaFile
             ExtendsBlock
               ClassParents
                 Constructor
-                  TypeInParenthesis
+                  TypeInParenthesis: (Manifest[Short] @serializable)
                     PsiElement(()('(')
-                    TypeWithAnnotation
-                      ParametrizedTypeElement
-                        SimpleTypeElement
-                          CodeReferenceElement
+                    TypeWithAnnotation: Manifest[Short] @serializable
+                      ParametrizedTypeElement: Manifest[Short]
+                        SimpleTypeElement: Manifest
+                          CodeReferenceElement: Manifest
                             PsiElement(identifier)('Manifest')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleTypeElement
-                            CodeReferenceElement
+                          SimpleTypeElement: Short
+                            CodeReferenceElement: Short
                               PsiElement(identifier)('Short')
                           PsiElement(])(']')
                       PsiWhiteSpace(' ')
@@ -229,15 +229,15 @@ ScalaFile
                           PsiElement(@)('@')
                           AnnotationExpression
                             Constructor
-                              SimpleTypeElement
-                                CodeReferenceElement
+                              SimpleTypeElement: serializable
+                                CodeReferenceElement: serializable
                                   PsiElement(identifier)('serializable')
                     PsiElement())(')')
               PsiWhiteSpace(' ')
               ScTemplateBody
                 PsiElement({)('{')
                 PsiWhiteSpace('\n    ')
-                ScFunctionDefinition
+                ScFunctionDefinition: erasure
                   AnnotationsList
                     <empty list>
                   Modifiers
@@ -250,10 +250,10 @@ ScalaFile
                   PsiWhiteSpace(' ')
                   PsiElement(=)('=')
                   PsiWhiteSpace(' ')
-                  ReferenceExpression
-                    ReferenceExpression
-                      ReferenceExpression
-                        ReferenceExpression
+                  ReferenceExpression: java.lang.Short.TYPE
+                    ReferenceExpression: java.lang.Short
+                      ReferenceExpression: java.lang
+                        ReferenceExpression: java
                           PsiElement(identifier)('java')
                         PsiElement(.)('.')
                         PsiElement(identifier)('lang')
@@ -262,7 +262,7 @@ ScalaFile
                     PsiElement(.)('.')
                     PsiElement(identifier)('TYPE')
                 PsiWhiteSpace('\n    ')
-                ScFunctionDefinition
+                ScFunctionDefinition: toString
                   AnnotationsList
                     <empty list>
                   Modifiers
@@ -279,7 +279,7 @@ ScalaFile
                   Literal
                     PsiElement(string content)('"Short"')
                 PsiWhiteSpace('\n    ')
-                ScFunctionDefinition
+                ScFunctionDefinition: newArray
                   AnnotationsList
                     <empty list>
                   Modifiers
@@ -291,7 +291,7 @@ ScalaFile
                   Parameters
                     ParametersClause
                       PsiElement(()('(')
-                      Parameter
+                      Parameter: len
                         AnnotationsList
                           <empty list>
                         Modifiers
@@ -300,20 +300,20 @@ ScalaFile
                         PsiElement(:)(':')
                         PsiWhiteSpace(' ')
                         ParameterType
-                          SimpleTypeElement
-                            CodeReferenceElement
+                          SimpleTypeElement: Int
+                            CodeReferenceElement: Int
                               PsiElement(identifier)('Int')
                       PsiElement())(')')
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
-                  ParametrizedTypeElement
-                    SimpleTypeElement
-                      CodeReferenceElement
+                  ParametrizedTypeElement: BoxedArray[Short]
+                    SimpleTypeElement: BoxedArray
+                      CodeReferenceElement: BoxedArray
                         PsiElement(identifier)('BoxedArray')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleTypeElement
-                        CodeReferenceElement
+                      SimpleTypeElement: Short
+                        CodeReferenceElement: Short
                           PsiElement(identifier)('Short')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
@@ -325,8 +325,8 @@ ScalaFile
                     ExtendsBlock
                       ClassParents
                         Constructor
-                          SimpleTypeElement
-                            CodeReferenceElement
+                          SimpleTypeElement: BoxedShortArray
+                            CodeReferenceElement: BoxedShortArray
                               PsiElement(identifier)('BoxedShortArray')
                           ArgumentList
                             PsiElement(()('(')
@@ -336,19 +336,19 @@ ScalaFile
                               ExtendsBlock
                                 ClassParents
                                   Constructor
-                                    ParametrizedTypeElement
-                                      SimpleTypeElement
-                                        CodeReferenceElement
+                                    ParametrizedTypeElement: Array[Short]
+                                      SimpleTypeElement: Array
+                                        CodeReferenceElement: Array
                                           PsiElement(identifier)('Array')
                                       TypeArgumentsList
                                         PsiElement([)('[')
-                                        SimpleTypeElement
-                                          CodeReferenceElement
+                                        SimpleTypeElement: Short
+                                          CodeReferenceElement: Short
                                             PsiElement(identifier)('Short')
                                         PsiElement(])(']')
                                     ArgumentList
                                       PsiElement(()('(')
-                                      ReferenceExpression
+                                      ReferenceExpression: len
                                         PsiElement(identifier)('len')
                                       PsiElement())(')')
                             PsiElement())(')')

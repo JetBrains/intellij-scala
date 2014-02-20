@@ -3,7 +3,7 @@ package object scala {
 }
 -----
 ScalaFile
-  ScPackageObject
+  ScPackageObject: scala
     AnnotationsList
       <empty list>
     Modifiers
@@ -18,7 +18,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScTypeAliasDefinition
+        ScTypeAliasDefinition: List
           AnnotationsList
             <empty list>
           Modifiers
@@ -29,10 +29,10 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          SimpleTypeElement
-            CodeReferenceElement
-              CodeReferenceElement
-                CodeReferenceElement
+          SimpleTypeElement: collection.immuteble.List
+            CodeReferenceElement: collection.immuteble.List
+              CodeReferenceElement: collection.immuteble
+                CodeReferenceElement: collection
                   PsiElement(identifier)('collection')
                 PsiElement(.)('.')
                 PsiElement(identifier)('immuteble')

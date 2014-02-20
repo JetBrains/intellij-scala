@@ -3,7 +3,7 @@ trait Vector[N] {
 }
 -----
 ScalaFile
-  ScTrait
+  ScTrait: Vector
     AnnotationsList
       <empty list>
     Modifiers
@@ -13,7 +13,7 @@ ScalaFile
     PsiElement(identifier)('Vector')
     TypeParameterClause
       PsiElement([)('[')
-      TypeParameter
+      TypeParameter: N
         PsiElement(identifier)('N')
       PsiElement(])(']')
     PsiWhiteSpace(' ')
@@ -25,17 +25,17 @@ ScalaFile
           ExpressionInParenthesis
             PsiElement(()('(')
             InfixExpression
-              ReferenceExpression
+              ReferenceExpression: c
                 PsiElement(identifier)('c')
               PsiWhiteSpace(' ')
-              ReferenceExpression
+              ReferenceExpression: ::
                 PsiElement(identifier)('::')
               PsiWhiteSpace(' ')
-              ReferenceExpression
+              ReferenceExpression: cs
                 PsiElement(identifier)('cs')
             PsiElement())(')')
           PsiWhiteSpace(' ')
-          ReferenceExpression
+          ReferenceExpression: foldRight
             PsiElement(identifier)('foldRight')
           PsiWhiteSpace(' ')
           Literal

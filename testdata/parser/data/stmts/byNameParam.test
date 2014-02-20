@@ -3,7 +3,7 @@ object main{
 }
 -----
 ScalaFile
-  ScObject
+  ScObject: main
     AnnotationsList
       <empty list>
     Modifiers
@@ -15,7 +15,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScFunctionDeclaration
+        ScFunctionDeclaration: whileLoop
           AnnotationsList
             <empty list>
           Modifiers
@@ -27,7 +27,7 @@ ScalaFile
           Parameters
             ParametersClause
               PsiElement(()('(')
-              Parameter
+              Parameter: cond
                 AnnotationsList
                   <empty list>
                 Modifiers
@@ -38,14 +38,14 @@ ScalaFile
                 ParameterType
                   PsiElement(=>)('=>')
                   PsiWhiteSpace(' ')
-                  SimpleTypeElement
-                    CodeReferenceElement
+                  SimpleTypeElement: Boolean
+                    CodeReferenceElement: Boolean
                       PsiElement(identifier)('Boolean')
               PsiElement())(')')
             PsiWhiteSpace(' ')
             ParametersClause
               PsiElement(()('(')
-              Parameter
+              Parameter: stat
                 AnnotationsList
                   <empty list>
                 Modifiers
@@ -56,14 +56,14 @@ ScalaFile
                 ParameterType
                   PsiElement(=>)('=>')
                   PsiWhiteSpace(' ')
-                  SimpleTypeElement
-                    CodeReferenceElement
+                  SimpleTypeElement: Unit
+                    CodeReferenceElement: Unit
                       PsiElement(identifier)('Unit')
               PsiElement())(')')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: Unit
+            CodeReferenceElement: Unit
               PsiElement(identifier)('Unit')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

@@ -3,7 +3,7 @@ trait Iterable extends TypeFunction1 {
 }
 -----
 ScalaFile
-  ScTrait
+  ScTrait: Iterable
     AnnotationsList
       <empty list>
     Modifiers
@@ -16,14 +16,14 @@ ScalaFile
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
       TraitParents
-        SimpleTypeElement
-          CodeReferenceElement
+        SimpleTypeElement: TypeFunction1
+          CodeReferenceElement: TypeFunction1
             PsiElement(identifier)('TypeFunction1')
       PsiWhiteSpace(' ')
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScFunctionDeclaration
+        ScFunctionDeclaration: map
           AnnotationsList
             <empty list>
           Modifiers
@@ -33,13 +33,13 @@ ScalaFile
           PsiElement(identifier)('map')
           TypeParameterClause
             PsiElement([)('[')
-            TypeParameter
+            TypeParameter: B
               PsiElement(identifier)('B')
             PsiElement(])(']')
           Parameters
             ParametersClause
               PsiElement(()('(')
-              Parameter
+              Parameter: f
                 AnnotationsList
                   <empty list>
                 Modifiers
@@ -48,23 +48,23 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  FunctionalType
-                    SimpleTypeElement
-                      CodeReferenceElement
+                  FunctionalType: A => B
+                    SimpleTypeElement: A
+                      CodeReferenceElement: A
                         PsiElement(identifier)('A')
                     PsiWhiteSpace(' ')
                     PsiElement(=>)('=>')
                     PsiWhiteSpace(' ')
-                    SimpleTypeElement
-                      CodeReferenceElement
+                    SimpleTypeElement: B
+                      CodeReferenceElement: B
                         PsiElement(identifier)('B')
               PsiElement())(')')
           PsiWhiteSpace(' ')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          CompoundType
-            SimpleTypeElement
-              CodeReferenceElement
+          CompoundType: Container {type }
+            SimpleTypeElement: Container
+              CodeReferenceElement: Container
                 PsiElement(identifier)('Container')
             PsiWhiteSpace(' ')
             Refinement

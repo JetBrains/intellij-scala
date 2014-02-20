@@ -7,7 +7,7 @@ ScalaFile
   ScPackaging
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    CodeReferenceElement
+    CodeReferenceElement: a
       PsiElement(identifier)('a')
     PsiErrorElement:'{' expected
       <empty list>

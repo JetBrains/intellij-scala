@@ -78,7 +78,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
 
   def isConstructorReference = !getConstructor.isEmpty
 
-  override def toString: String = "CodeReferenceElement"
+  override def toString: String = "CodeReferenceElement: " + getText
 
   def getKinds(incomplete: Boolean, completion: Boolean): Set[ResolveTargets.Value] = {
     import StdKinds._

@@ -19,7 +19,7 @@ import com.intellij.psi.PsiElementVisitor
  */
 
 class ScTupleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTupleTypeElement {
-  override def toString: String = "TupleType"
+  override def toString: String = "TupleType: " + getText
 
   private var desugarizedTypeModCount: Long = 0L
   private var desugarizedType: Option[ScParameterizedTypeElement] = null

@@ -3,7 +3,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -24,16 +24,16 @@ ScalaFile
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
         GenericCall
-          ReferenceExpression
+          ReferenceExpression: foo
             PsiElement(identifier)('foo')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleTypeElement
-              CodeReferenceElement
+            SimpleTypeElement: A
+              CodeReferenceElement: A
                 PsiElement(identifier)('A')
             PsiElement(,)(',')
-            SimpleTypeElement
-              CodeReferenceElement
+            SimpleTypeElement: B
+              CodeReferenceElement: B
                 PsiElement(identifier)('B')
             PsiElement(])(']')
         PsiWhiteSpace('\n')

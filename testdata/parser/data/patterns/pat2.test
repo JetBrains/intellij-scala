@@ -3,7 +3,7 @@ object ResolveTargets {
 }
 -----
 ScalaFile
-  ScObject
+  ScObject: ResolveTargets
     AnnotationsList
       <empty list>
     Modifiers
@@ -24,7 +24,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: VAR
               PsiElement(identifier)('VAR')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -35,8 +35,8 @@ ScalaFile
             ExtendsBlock
               ClassParents
                 Constructor
-                  SimpleTypeElement
-                    CodeReferenceElement
+                  SimpleTypeElement: ResolveTargets
+                    CodeReferenceElement: ResolveTargets
                       PsiElement(identifier)('ResolveTargets')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

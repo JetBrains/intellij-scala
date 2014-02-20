@@ -20,7 +20,7 @@ class ScFieldIdImpl private () extends ScalaStubBasedElementImpl[ScFieldId] with
   def this(node: ASTNode) = {this(); setNode(node)}
   def this(stub: ScFieldIdStub) = {this(); setStub(stub); setNode(null)}
 
-  override def toString: String = "Field identifier"
+  override def toString: String = "Field identifier: " + name
 
   def getType(ctx: TypingContext) = getParent/*id list*/.getParent match {
     case typed : ScTypedDeclaration => typed.getType(ctx)

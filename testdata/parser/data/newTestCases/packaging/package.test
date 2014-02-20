@@ -4,10 +4,10 @@ ScalaFile
   ScPackaging
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    CodeReferenceElement
-      CodeReferenceElement
-        CodeReferenceElement
-          CodeReferenceElement
+    CodeReferenceElement: scala.test.org.jetbrains
+      CodeReferenceElement: scala.test.org
+        CodeReferenceElement: scala.test
+          CodeReferenceElement: scala
             PsiElement(identifier)('scala')
           PsiElement(.)('.')
           PsiElement(identifier)('test')

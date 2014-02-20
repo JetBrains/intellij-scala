@@ -7,18 +7,18 @@ object ParserBug extends Application {
     }
   }
 }
-------
+-----
 ScalaFile
   ScPackaging
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    CodeReferenceElement
-      CodeReferenceElement
+    CodeReferenceElement: foo.bar
+      CodeReferenceElement: foo
         PsiElement(identifier)('foo')
       PsiElement(.)('.')
       PsiElement(identifier)('bar')
     PsiWhiteSpace('\n\n')
-    ScObject
+    ScObject: ParserBug
       AnnotationsList
         <empty list>
       Modifiers
@@ -32,8 +32,8 @@ ScalaFile
         PsiWhiteSpace(' ')
         ClassParents
           Constructor
-            SimpleTypeElement
-              CodeReferenceElement
+            SimpleTypeElement: Application
+              CodeReferenceElement: Application
                 PsiElement(identifier)('Application')
         PsiWhiteSpace(' ')
         ScTemplateBody
@@ -50,7 +50,7 @@ ScalaFile
               PsiElement(val)('val')
               PsiWhiteSpace(' ')
               ListOfPatterns
-                ReferencePattern
+                ReferencePattern: fileAndSize
                   PsiElement(identifier)('fileAndSize')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -64,27 +64,27 @@ ScalaFile
               PsiElement(()('(')
               Enumerators
                 Generator
-                  TypedPattern
+                  TypedPattern: fAS
                     PsiElement(identifier)('fAS')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
                     TypePattern
-                      TupleType
+                      TupleType: (File, Long)
                         PsiElement(()('(')
                         TypesList
-                          SimpleTypeElement
-                            CodeReferenceElement
+                          SimpleTypeElement: File
+                            CodeReferenceElement: File
                               PsiElement(identifier)('File')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleTypeElement
-                            CodeReferenceElement
+                          SimpleTypeElement: Long
+                            CodeReferenceElement: Long
                               PsiElement(identifier)('Long')
                         PsiElement())(')')
                   PsiWhiteSpace(' ')
                   PsiElement(<-)('<-')
                   PsiWhiteSpace(' ')
-                  ReferenceExpression
+                  ReferenceExpression: fileAndSize
                     PsiElement(identifier)('fileAndSize')
               PsiElement())(')')
               PsiWhiteSpace(' ')

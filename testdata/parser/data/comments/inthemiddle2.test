@@ -7,7 +7,7 @@ ScalaFile
     Literal
       PsiElement(integer)('1')
     PsiWhiteSpace(' ')
-    ReferenceExpression
+    ReferenceExpression: +
       PsiElement(identifier)('+')
     PsiWhiteSpace(' ')
     PsiComment(BlockComment)('/*\n*/')

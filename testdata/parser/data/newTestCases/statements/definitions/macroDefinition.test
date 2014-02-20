@@ -3,7 +3,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -23,7 +23,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScMacroDefinition
+        ScMacroDefinition: foo
           AnnotationsList
             <empty list>
           Modifiers
@@ -38,8 +38,8 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(macro)('macro')
           PsiWhiteSpace(' ')
-          CodeReferenceElement
-            CodeReferenceElement
+          CodeReferenceElement: A.fooImpl
+            CodeReferenceElement: A
               PsiElement(identifier)('A')
             PsiElement(.)('.')
             PsiElement(identifier)('fooImpl')

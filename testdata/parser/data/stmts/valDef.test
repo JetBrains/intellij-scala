@@ -2,9 +2,9 @@ case class Some(x: Int){}
 object main{
   val Some(x): Int = new Some(2)
 }
-------
+-----
 ScalaFile
-  ScClass
+  ScClass: Some
     AnnotationsList
       <empty list>
     Modifiers
@@ -21,7 +21,7 @@ ScalaFile
       Parameters
         ParametersClause
           PsiElement(()('(')
-          ClassParameter
+          ClassParameter: x
             AnnotationsList
               <empty list>
             Modifiers
@@ -30,8 +30,8 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: Int
+                CodeReferenceElement: Int
                   PsiElement(identifier)('Int')
           PsiElement())(')')
     ExtendsBlock
@@ -39,7 +39,7 @@ ScalaFile
         PsiElement({)('{')
         PsiElement(})('}')
   PsiWhiteSpace('\n')
-  ScObject
+  ScObject: main
     AnnotationsList
       <empty list>
     Modifiers
@@ -60,17 +60,17 @@ ScalaFile
           PsiWhiteSpace(' ')
           ListOfPatterns
             ConstructorPattern
-              CodeReferenceElement
+              CodeReferenceElement: Some
                 PsiElement(identifier)('Some')
               Pattern Argument List
                 PsiElement(()('(')
-                ReferencePattern
+                ReferencePattern: x
                   PsiElement(identifier)('x')
                 PsiElement())(')')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: Int
+            CodeReferenceElement: Int
               PsiElement(identifier)('Int')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -81,8 +81,8 @@ ScalaFile
             ExtendsBlock
               ClassParents
                 Constructor
-                  SimpleTypeElement
-                    CodeReferenceElement
+                  SimpleTypeElement: Some
+                    CodeReferenceElement: Some
                       PsiElement(identifier)('Some')
                   ArgumentList
                     PsiElement(()('(')

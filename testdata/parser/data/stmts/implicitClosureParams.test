@@ -5,7 +5,7 @@ object test {
 }
 -----
 ScalaFile
-  ScObject
+  ScObject: test
     AnnotationsList
       <empty list>
     Modifiers
@@ -26,21 +26,21 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: f
               PsiElement(identifier)('f')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          TypeInParenthesis
+          TypeInParenthesis: (Int => Int)
             PsiElement(()('(')
-            FunctionalType
-              SimpleTypeElement
-                CodeReferenceElement
+            FunctionalType: Int => Int
+              SimpleTypeElement: Int
+                CodeReferenceElement: Int
                   PsiElement(identifier)('Int')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: Int
+                CodeReferenceElement: Int
                   PsiElement(identifier)('Int')
             PsiElement())(')')
           PsiWhiteSpace('  ')
@@ -54,13 +54,13 @@ ScalaFile
                 ParametersClause
                   PsiElement(implicit)('implicit')
                   PsiWhiteSpace(' ')
-                  Parameter
+                  Parameter: x
                     PsiElement(identifier)('x')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
               BlockOfExpressions
-                ReferenceExpression
+                ReferenceExpression: x
                   PsiElement(identifier)('x')
             PsiWhiteSpace(' ')
             PsiElement(})('}')
@@ -73,21 +73,21 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: g
               PsiElement(identifier)('g')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          TypeInParenthesis
+          TypeInParenthesis: (Int => Int)
             PsiElement(()('(')
-            FunctionalType
-              SimpleTypeElement
-                CodeReferenceElement
+            FunctionalType: Int => Int
+              SimpleTypeElement: Int
+                CodeReferenceElement: Int
                   PsiElement(identifier)('Int')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: Int
+                CodeReferenceElement: Int
                   PsiElement(identifier)('Int')
             PsiElement())(')')
           PsiWhiteSpace('  ')
@@ -98,12 +98,12 @@ ScalaFile
               ParametersClause
                 PsiElement(implicit)('implicit')
                 PsiWhiteSpace(' ')
-                Parameter
+                Parameter: x
                   PsiElement(identifier)('x')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
             PsiWhiteSpace(' ')
-            ReferenceExpression
+            ReferenceExpression: x
               PsiElement(identifier)('x')
         PsiWhiteSpace('\n  ')
         ScPatternDefinition
@@ -114,21 +114,21 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: h
               PsiElement(identifier)('h')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          TypeInParenthesis
+          TypeInParenthesis: (Int => Int)
             PsiElement(()('(')
-            FunctionalType
-              SimpleTypeElement
-                CodeReferenceElement
+            FunctionalType: Int => Int
+              SimpleTypeElement: Int
+                CodeReferenceElement: Int
                   PsiElement(identifier)('Int')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: Int
+                CodeReferenceElement: Int
                   PsiElement(identifier)('Int')
             PsiElement())(')')
           PsiWhiteSpace('  ')
@@ -146,13 +146,13 @@ ScalaFile
                 ParametersClause
                   PsiElement(implicit)('implicit')
                   PsiWhiteSpace(' ')
-                  Parameter
+                  Parameter: x
                     PsiElement(identifier)('x')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
               BlockOfExpressions
-                ReferenceExpression
+                ReferenceExpression: x
                   PsiElement(identifier)('x')
             PsiElement(})('}')
         PsiWhiteSpace('\n')

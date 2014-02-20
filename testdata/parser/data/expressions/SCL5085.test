@@ -1,8 +1,8 @@
 s"$this"
-------
+-----
 ScalaFile
   Literal
-    ReferenceExpression
+    ReferenceExpression: s
       PsiElement(interpolated string id)('s')
     PsiElement(interpolated string)('"')
     PsiElement(interpolated string injection)('$')

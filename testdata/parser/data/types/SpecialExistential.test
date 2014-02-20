@@ -1,5 +1,5 @@
 val x: Class[_ <: Test] = ???
-------
+-----
 ScalaFile
   ScPatternDefinition
     AnnotationsList
@@ -9,27 +9,27 @@ ScalaFile
     PsiElement(val)('val')
     PsiWhiteSpace(' ')
     ListOfPatterns
-      ReferencePattern
+      ReferencePattern: x
         PsiElement(identifier)('x')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    ParametrizedTypeElement
-      SimpleTypeElement
-        CodeReferenceElement
+    ParametrizedTypeElement: Class[_ <: Test]
+      SimpleTypeElement: Class
+        CodeReferenceElement: Class
           PsiElement(identifier)('Class')
       TypeArgumentsList
         PsiElement([)('[')
-        WildcardType
+        WildcardType: _ <: Test
           PsiElement(_)('_')
           PsiWhiteSpace(' ')
           PsiElement(<:)('<:')
           PsiWhiteSpace(' ')
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: Test
+            CodeReferenceElement: Test
               PsiElement(identifier)('Test')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
-    ReferenceExpression
+    ReferenceExpression: ???
       PsiElement(identifier)('???')

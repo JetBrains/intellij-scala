@@ -1,9 +1,9 @@
 object A {
   try 2 + 2 catch {case e: Throwable =>}
 }
-------
+-----
 ScalaFile
-  ScObject
+  ScObject: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -24,7 +24,7 @@ ScalaFile
               Literal
                 PsiElement(integer)('2')
               PsiWhiteSpace(' ')
-              ReferenceExpression
+              ReferenceExpression: +
                 PsiElement(identifier)('+')
               PsiWhiteSpace(' ')
               Literal
@@ -39,13 +39,13 @@ ScalaFile
                 CaseClause
                   PsiElement(case)('case')
                   PsiWhiteSpace(' ')
-                  TypedPattern
+                  TypedPattern: e
                     PsiElement(identifier)('e')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
                     TypePattern
-                      SimpleTypeElement
-                        CodeReferenceElement
+                      SimpleTypeElement: Throwable
+                        CodeReferenceElement: Throwable
                           PsiElement(identifier)('Throwable')
                   PsiWhiteSpace(' ')
                   PsiElement(=>)('=>')

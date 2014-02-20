@@ -5,7 +5,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -34,7 +34,7 @@ ScalaFile
           PsiElement())(')')
           PsiWhiteSpace('\n\n  ')
           AssignStatement
-            ReferenceExpression
+            ReferenceExpression: Expr
               PsiElement(identifier)('Expr')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')

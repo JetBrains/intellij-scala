@@ -38,7 +38,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
     this(); setStub(stub); setNode(null)
   }
 
-  override def toString: String = "Parameter"
+  override def toString: String = "Parameter: " + name
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 

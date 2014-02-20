@@ -23,9 +23,16 @@ package org.jetbrains.plugins.scala.testcases;
 
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
+import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.Assert;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,9 +41,13 @@ public abstract class BaseScalaFileSetTestCase extends ScalaFileSetTestCase {
     super(path);
   }
 
+  private File myFile = null;
+
   public abstract String transform(String testName, String[] data) throws Exception;
 
   protected void runTest(final File myTestFile) throws Throwable {
+
+    myFile = myTestFile;
 
     String content = new String(FileUtil.loadFileText(myTestFile, "UTF-8"));
     Assert.assertNotNull(content);
@@ -80,6 +91,31 @@ public abstract class BaseScalaFileSetTestCase extends ScalaFileSetTestCase {
 
     Assert.assertEquals(result.trim(), transformed.trim());
 
+    //fixTestData(..., input, transformed)
+    myFile = null;
+  }
+
+  //creates directory on dataPath1 with new fixed testData
+  private void fixTestData(String dataPath, String[] input, String result) {
+    String newDataPath = dataPath + "1";
+    Path relPath = FileSystems.getDefault().getPath(dataPath).relativize(myFile.toPath());
+    File newFile = FileSystems.getDefault().getPath(newDataPath).resolve(relPath).toFile();
+    File parentDir = newFile.getParentFile();
+    try {
+      if (!parentDir.exists()) {
+        Files.createDirectories(parentDir.toPath());
+      }
+      if (!newFile.exists()) {
+        Files.createFile(newFile.toPath());
+      }
+      BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(newFile));
+      for (String s: input) {
+        bos.write(s.getBytes());
+      }
+      bos.write("\n-----\n".getBytes());
+      bos.write(result.getBytes());
+      bos.close();
+    } catch (IOException e) {}
   }
 
 
