@@ -204,50 +204,6 @@ object CachesUtil {
     } else guard
   }
 
-  @deprecated("Use `getMappedWithRecursionPreventingWithRollback` instead")
-  def getMappedWithRecursionPreventing[Dom <: PsiElement, Data, Result](e: Dom, data: Data,
-                                                                        key: Key[CachedValue[ConcurrentHashMap[Data, Result]]],
-                                                                        builder: (Dom, Data) => Result,
-                                                                        defaultValue: => Result,
-                                                                        dependencyItem: Object): Result = {
-    var computed: CachedValue[ConcurrentHashMap[Data, Result]] = e.getUserData(key)
-    if (computed == null) {
-      val manager = CachedValuesManager.getManager(e.getProject)
-      computed = manager.createCachedValue(new CachedValueProvider[ConcurrentHashMap[Data, Result]] {
-        def compute(): CachedValueProvider.Result[ConcurrentHashMap[Data, Result]] = {
-          new CachedValueProvider.Result(new ConcurrentHashMap[Data, Result](), dependencyItem)
-        }
-      }, false)
-      e.putUserData(key, computed)
-    }
-    val map = computed.getValue
-    var result = map.get(data)
-    if (result == null) {
-      var isCache = true
-      result = {
-        val guard = getRecursionGuard(key.toString)
-        if (guard.currentStack().contains((e, data))) {
-          if (ScPackageImpl.isPackageObjectProcessing) {
-            throw new ScPackageImpl.DoNotProcessPackageObjectException
-          }
-          isCache = false
-          defaultValue
-        } else {
-          guard.doPreventingRecursion((e, data), false, new Computable[Result] {
-            def compute(): Result = builder(e, data)
-          }) match {
-            case null => defaultValue
-            case notNull => notNull
-          }
-        }
-      }
-      if (isCache) {
-        map.put(data, result)
-      }
-    }
-    result
-  }
-
   def getMappedWithRecursionPreventingWithRollback[Dom <: PsiElement, Data, Result](e: Dom, data: Data,
                                                                         key: Key[CachedValue[ConcurrentHashMap[Data, Result]]],
                                                                         builder: (Dom, Data) => Result,
