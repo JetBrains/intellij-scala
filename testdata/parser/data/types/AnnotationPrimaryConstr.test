@@ -1,9 +1,9 @@
 class A @Test() (val x: Int) {
   val y = x + 2
 }
--------
+-----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -18,8 +18,8 @@ ScalaFile
           PsiElement(@)('@')
           AnnotationExpression
             Constructor
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: Test
+                CodeReferenceElement: Test
                   PsiElement(identifier)('Test')
               ArgumentList
                 PsiElement(()('(')
@@ -30,7 +30,7 @@ ScalaFile
       Parameters
         ParametersClause
           PsiElement(()('(')
-          ClassParameter
+          ClassParameter: x
             AnnotationsList
               <empty list>
             Modifiers
@@ -41,8 +41,8 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: Int
+                CodeReferenceElement: Int
                   PsiElement(identifier)('Int')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -58,16 +58,16 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: y
               PsiElement(identifier)('y')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           InfixExpression
-            ReferenceExpression
+            ReferenceExpression: x
               PsiElement(identifier)('x')
             PsiWhiteSpace(' ')
-            ReferenceExpression
+            ReferenceExpression: +
               PsiElement(identifier)('+')
             PsiWhiteSpace(' ')
             Literal

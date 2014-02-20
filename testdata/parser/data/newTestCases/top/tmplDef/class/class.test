@@ -5,7 +5,7 @@ class d
 {}
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -23,7 +23,7 @@ ScalaFile
     ExtendsBlock
       <empty list>
   PsiWhiteSpace('\n')
-  ScClass
+  ScClass: b
     AnnotationsList
       <empty list>
     Modifiers
@@ -42,7 +42,7 @@ ScalaFile
     ExtendsBlock
       <empty list>
   PsiWhiteSpace('\n')
-  ScClass
+  ScClass: c
     AnnotationsList
       <empty list>
     Modifiers
@@ -63,7 +63,7 @@ ScalaFile
         PsiElement({)('{')
         PsiElement(})('}')
   PsiWhiteSpace('\n')
-  ScClass
+  ScClass: d
     AnnotationsList
       <empty list>
     Modifiers

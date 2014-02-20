@@ -5,7 +5,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -33,21 +33,21 @@ ScalaFile
               PsiElement(case)('case')
               PsiWhiteSpace(' ')
               ConstructorPattern
-                CodeReferenceElement
+                CodeReferenceElement: Some
                   PsiElement(identifier)('Some')
                 Pattern Argument List
                   PsiElement(()('(')
-                  ReferencePattern
+                  ReferencePattern: a
                     PsiElement(identifier)('a')
                   PsiElement(,)(',')
-                  ReferencePattern
+                  ReferencePattern: b
                     PsiElement(identifier)('b')
                   PsiElement())(')')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
               BlockOfExpressions
-                ReferenceExpression
+                ReferenceExpression: b
                   PsiElement(identifier)('b')
           PsiWhiteSpace('\n  ')
           PsiElement(})('}')

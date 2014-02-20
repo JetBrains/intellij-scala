@@ -14,7 +14,7 @@ class A {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -34,7 +34,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n    ')
-        ScFunctionDefinition
+        ScFunctionDefinition: |
           AnnotationsList
             <empty list>
           Modifiers
@@ -45,19 +45,19 @@ ScalaFile
           PsiWhiteSpace(' ')
           TypeParameterClause
             PsiElement([)('[')
-            TypeParameter
+            TypeParameter: U
               PsiElement(identifier)('U')
               PsiWhiteSpace(' ')
               PsiElement(>:)('>:')
               PsiWhiteSpace(' ')
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: T
+                CodeReferenceElement: T
                   PsiElement(identifier)('T')
             PsiElement(])(']')
           Parameters
             ParametersClause
               PsiElement(()('(')
-              Parameter
+              Parameter: q
                 AnnotationsList
                   <empty list>
                 Modifiers
@@ -68,27 +68,27 @@ ScalaFile
                 ParameterType
                   PsiElement(=>)('=>')
                   PsiWhiteSpace(' ')
-                  ParametrizedTypeElement
-                    SimpleTypeElement
-                      CodeReferenceElement
+                  ParametrizedTypeElement: Parser[U]
+                    SimpleTypeElement: Parser
+                      CodeReferenceElement: Parser
                         PsiElement(identifier)('Parser')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleTypeElement
-                        CodeReferenceElement
+                      SimpleTypeElement: U
+                        CodeReferenceElement: U
                           PsiElement(identifier)('U')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          ParametrizedTypeElement
-            SimpleTypeElement
-              CodeReferenceElement
+          ParametrizedTypeElement: Parser[U]
+            SimpleTypeElement: Parser
+              CodeReferenceElement: Parser
                 PsiElement(identifier)('Parser')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: U
+                CodeReferenceElement: U
                   PsiElement(identifier)('U')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
@@ -100,21 +100,21 @@ ScalaFile
             ExtendsBlock
               ClassParents
                 Constructor
-                  ParametrizedTypeElement
-                    SimpleTypeElement
-                      CodeReferenceElement
+                  ParametrizedTypeElement: Parser[U]
+                    SimpleTypeElement: Parser
+                      CodeReferenceElement: Parser
                         PsiElement(identifier)('Parser')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleTypeElement
-                        CodeReferenceElement
+                      SimpleTypeElement: U
+                        CodeReferenceElement: U
                           PsiElement(identifier)('U')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
               ScTemplateBody
                 PsiElement({)('{')
                 PsiWhiteSpace('\n      ')
-                ScFunctionDefinition
+                ScFunctionDefinition: apply
                   AnnotationsList
                     <empty list>
                   Modifiers
@@ -125,7 +125,7 @@ ScalaFile
                   Parameters
                     ParametersClause
                       PsiElement(()('(')
-                      Parameter
+                      Parameter: in
                         AnnotationsList
                           <empty list>
                         Modifiers
@@ -134,8 +134,8 @@ ScalaFile
                         PsiElement(:)(':')
                         PsiWhiteSpace(' ')
                         ParameterType
-                          SimpleTypeElement
-                            CodeReferenceElement
+                          SimpleTypeElement: Input
+                            CodeReferenceElement: Input
                               PsiElement(identifier)('Input')
                       PsiElement())(')')
                   PsiWhiteSpace(' ')
@@ -144,13 +144,13 @@ ScalaFile
                   MatchStatement
                     MethodCall
                       ThisReference
-                        CodeReferenceElement
+                        CodeReferenceElement: Parser
                           PsiElement(identifier)('Parser')
                         PsiElement(.)('.')
                         PsiElement(this)('this')
                       ArgumentList
                         PsiElement(()('(')
-                        ReferenceExpression
+                        ReferenceExpression: in
                           PsiElement(identifier)('in')
                         PsiElement())(')')
                     PsiWhiteSpace(' ')
@@ -162,31 +162,31 @@ ScalaFile
                       CaseClause
                         PsiElement(case)('case')
                         PsiWhiteSpace(' ')
-                        NamingPattern
+                        NamingPattern: s1
                           PsiElement(identifier)('s1')
                           PsiWhiteSpace(' ')
                           PsiElement(@)('@')
                           PsiWhiteSpace(' ')
                           StableElementPattern
-                            ReferenceExpression
+                            ReferenceExpression: Success
                               PsiElement(identifier)('Success')
                         PsiWhiteSpace(' ')
                         PsiElement(=>)('=>')
                         PsiWhiteSpace(' ')
                         BlockOfExpressions
-                          ReferenceExpression
+                          ReferenceExpression: s1
                             PsiElement(identifier)('s1')
                       PsiWhiteSpace('\n        ')
                       CaseClause
                         PsiElement(case)('case')
                         PsiWhiteSpace(' ')
-                        NamingPattern
+                        NamingPattern: e1
                           PsiElement(identifier)('e1')
                           PsiWhiteSpace(' ')
                           PsiElement(@)('@')
                           PsiWhiteSpace(' ')
                           ConstructorPattern
-                            CodeReferenceElement
+                            CodeReferenceElement: Error
                               PsiElement(identifier)('Error')
                             Pattern Argument List
                               PsiElement(()('(')
@@ -205,19 +205,19 @@ ScalaFile
                         PsiElement(=>)('=>')
                         PsiWhiteSpace(' ')
                         BlockOfExpressions
-                          ReferenceExpression
+                          ReferenceExpression: e1
                             PsiElement(identifier)('e1')
                       PsiWhiteSpace('\n        ')
                       CaseClause
                         PsiElement(case)('case')
                         PsiWhiteSpace(' ')
-                        NamingPattern
+                        NamingPattern: f1
                           PsiElement(identifier)('f1')
                           PsiWhiteSpace(' ')
                           PsiElement(@)('@')
                           PsiWhiteSpace(' ')
                           ConstructorPattern
-                            CodeReferenceElement
+                            CodeReferenceElement: Failure
                               PsiElement(identifier)('Failure')
                             Pattern Argument List
                               PsiElement(()('(')
@@ -225,7 +225,7 @@ ScalaFile
                                 PsiElement(_)('_')
                               PsiElement(,)(',')
                               PsiWhiteSpace(' ')
-                              ReferencePattern
+                              ReferencePattern: next1
                                 PsiElement(identifier)('next1')
                               PsiElement())(')')
                         PsiWhiteSpace(' ')
@@ -234,11 +234,11 @@ ScalaFile
                         BlockOfExpressions
                           MatchStatement
                             MethodCall
-                              ReferenceExpression
+                              ReferenceExpression: q
                                 PsiElement(identifier)('q')
                               ArgumentList
                                 PsiElement(()('(')
-                                ReferenceExpression
+                                ReferenceExpression: in
                                   PsiElement(identifier)('in')
                                 PsiElement())(')')
                             PsiWhiteSpace(' ')
@@ -250,13 +250,13 @@ ScalaFile
                               CaseClause
                                 PsiElement(case)('case')
                                 PsiWhiteSpace(' ')
-                                NamingPattern
+                                NamingPattern: s2
                                   PsiElement(identifier)('s2')
                                   PsiWhiteSpace(' ')
                                   PsiElement(@)('@')
                                   PsiWhiteSpace(' ')
                                   ConstructorPattern
-                                    CodeReferenceElement
+                                    CodeReferenceElement: Success
                                       PsiElement(identifier)('Success')
                                     Pattern Argument List
                                       PsiElement(()('(')
@@ -271,19 +271,19 @@ ScalaFile
                                 PsiElement(=>)('=>')
                                 PsiWhiteSpace(' ')
                                 BlockOfExpressions
-                                  ReferenceExpression
+                                  ReferenceExpression: s2
                                     PsiElement(identifier)('s2')
                               PsiWhiteSpace('\n              ')
                               CaseClause
                                 PsiElement(case)('case')
                                 PsiWhiteSpace(' ')
-                                NamingPattern
+                                NamingPattern: f2
                                   PsiElement(identifier)('f2')
                                   PsiWhiteSpace(' ')
                                   PsiElement(@)('@')
                                   PsiWhiteSpace(' ')
                                   ConstructorPattern
-                                    CodeReferenceElement
+                                    CodeReferenceElement: Failure
                                       PsiElement(identifier)('Failure')
                                     Pattern Argument List
                                       PsiElement(()('(')
@@ -291,7 +291,7 @@ ScalaFile
                                         PsiElement(_)('_')
                                       PsiElement(,)(',')
                                       PsiWhiteSpace(' ')
-                                      ReferencePattern
+                                      ReferencePattern: next2
                                         PsiElement(identifier)('next2')
                                       PsiElement())(')')
                                 PsiWhiteSpace(' ')
@@ -303,40 +303,40 @@ ScalaFile
                                     PsiWhiteSpace(' ')
                                     PsiElement(()('(')
                                     InfixExpression
-                                      ReferenceExpression
-                                        ReferenceExpression
+                                      ReferenceExpression: next2.pos
+                                        ReferenceExpression: next2
                                           PsiElement(identifier)('next2')
                                         PsiElement(.)('.')
                                         PsiElement(identifier)('pos')
                                       PsiWhiteSpace(' ')
-                                      ReferenceExpression
+                                      ReferenceExpression: <
                                         PsiElement(identifier)('<')
                                       PsiWhiteSpace(' ')
-                                      ReferenceExpression
-                                        ReferenceExpression
+                                      ReferenceExpression: next1.pos
+                                        ReferenceExpression: next1
                                           PsiElement(identifier)('next1')
                                         PsiElement(.)('.')
                                         PsiElement(identifier)('pos')
                                     PsiElement())(')')
                                     PsiWhiteSpace(' ')
-                                    ReferenceExpression
+                                    ReferenceExpression: f1
                                       PsiElement(identifier)('f1')
                                     PsiWhiteSpace(' ')
                                     PsiElement(else)('else')
                                     PsiWhiteSpace(' ')
-                                    ReferenceExpression
+                                    ReferenceExpression: f2
                                       PsiElement(identifier)('f2')
                               PsiWhiteSpace('\n              ')
                               CaseClause
                                 PsiElement(case)('case')
                                 PsiWhiteSpace(' ')
-                                NamingPattern
+                                NamingPattern: e2
                                   PsiElement(identifier)('e2')
                                   PsiWhiteSpace(' ')
                                   PsiElement(@)('@')
                                   PsiWhiteSpace(' ')
                                   ConstructorPattern
-                                    CodeReferenceElement
+                                    CodeReferenceElement: Error
                                       PsiElement(identifier)('Error')
                                     Pattern Argument List
                                       PsiElement(()('(')
@@ -344,7 +344,7 @@ ScalaFile
                                         PsiElement(_)('_')
                                       PsiElement(,)(',')
                                       PsiWhiteSpace(' ')
-                                      ReferencePattern
+                                      ReferencePattern: next2
                                         PsiElement(identifier)('next2')
                                       PsiElement())(')')
                                 PsiWhiteSpace(' ')
@@ -356,35 +356,35 @@ ScalaFile
                                     PsiWhiteSpace(' ')
                                     PsiElement(()('(')
                                     InfixExpression
-                                      ReferenceExpression
-                                        ReferenceExpression
+                                      ReferenceExpression: next2.pos
+                                        ReferenceExpression: next2
                                           PsiElement(identifier)('next2')
                                         PsiElement(.)('.')
                                         PsiElement(identifier)('pos')
                                       PsiWhiteSpace(' ')
-                                      ReferenceExpression
+                                      ReferenceExpression: <
                                         PsiElement(identifier)('<')
                                       PsiWhiteSpace(' ')
-                                      ReferenceExpression
-                                        ReferenceExpression
+                                      ReferenceExpression: next1.pos
+                                        ReferenceExpression: next1
                                           PsiElement(identifier)('next1')
                                         PsiElement(.)('.')
                                         PsiElement(identifier)('pos')
                                     PsiElement())(')')
                                     PsiWhiteSpace(' ')
-                                    ReferenceExpression
+                                    ReferenceExpression: f1
                                       PsiElement(identifier)('f1')
                                     PsiWhiteSpace(' ')
                                     PsiElement(else)('else')
                                     PsiWhiteSpace(' ')
-                                    ReferenceExpression
+                                    ReferenceExpression: e2
                                       PsiElement(identifier)('e2')
                             PsiWhiteSpace('\n        ')
                             PsiElement(})('}')
                     PsiWhiteSpace('\n      ')
                     PsiElement(})('}')
                 PsiWhiteSpace('\n      ')
-                ScFunctionDefinition
+                ScFunctionDefinition: toString
                   AnnotationsList
                     <empty list>
                   Modifiers

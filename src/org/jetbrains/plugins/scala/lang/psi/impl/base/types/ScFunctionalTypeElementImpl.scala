@@ -18,7 +18,7 @@ import com.intellij.psi.PsiElementVisitor
  */
 
 class ScFunctionalTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFunctionalTypeElement {
-  override def toString: String = "FunctionalType"
+  override def toString: String = "FunctionalType: " + getText
 
   private var desugarizedTypeModCount: Long = 0L
   private var desugarizedType: Option[ScParameterizedTypeElement] = null

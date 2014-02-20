@@ -7,7 +7,7 @@ def tryMatch =
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -26,7 +26,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n')
-        ScFunctionDefinition
+        ScFunctionDefinition: tryMatch
           AnnotationsList
             <empty list>
           Modifiers
@@ -40,7 +40,7 @@ ScalaFile
           PsiElement(=)('=')
           PsiWhiteSpace('\n      ')
           MatchStatement
-            ReferenceExpression
+            ReferenceExpression: x
               PsiElement(identifier)('x')
             PsiWhiteSpace(' ')
             PsiElement(match)('match')
@@ -52,7 +52,7 @@ ScalaFile
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
                 StableElementPattern
-                  ReferenceExpression
+                  ReferenceExpression: None
                     PsiElement(identifier)('None')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -76,20 +76,20 @@ ScalaFile
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
                 ConstructorPattern
-                  CodeReferenceElement
+                  CodeReferenceElement: Some
                     PsiElement(identifier)('Some')
                   Pattern Argument List
                     PsiElement(()('(')
                     ConstructorPattern
-                      CodeReferenceElement
+                      CodeReferenceElement: Pair
                         PsiElement(identifier)('Pair')
                       Pattern Argument List
                         PsiElement(()('(')
-                        ReferencePattern
+                        ReferencePattern: p
                           PsiElement(identifier)('p')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        ReferencePattern
+                        ReferencePattern: r
                           PsiElement(identifier)('r')
                         PsiElement())(')')
                     PsiElement())(')')

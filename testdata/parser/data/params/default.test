@@ -1,7 +1,7 @@
 def foo(x: Int = 4): Int = x
-------
+-----
 ScalaFile
-  ScFunctionDefinition
+  ScFunctionDefinition: foo
     AnnotationsList
       <empty list>
     Modifiers
@@ -12,7 +12,7 @@ ScalaFile
     Parameters
       ParametersClause
         PsiElement(()('(')
-        Parameter
+        Parameter: x
           AnnotationsList
             <empty list>
           Modifiers
@@ -21,8 +21,8 @@ ScalaFile
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ParameterType
-            SimpleTypeElement
-              CodeReferenceElement
+            SimpleTypeElement: Int
+              CodeReferenceElement: Int
                 PsiElement(identifier)('Int')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -32,11 +32,11 @@ ScalaFile
         PsiElement())(')')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    SimpleTypeElement
-      CodeReferenceElement
+    SimpleTypeElement: Int
+      CodeReferenceElement: Int
         PsiElement(identifier)('Int')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
-    ReferenceExpression
+    ReferenceExpression: x
       PsiElement(identifier)('x')

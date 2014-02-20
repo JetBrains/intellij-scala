@@ -36,7 +36,7 @@ class ScTraitImpl extends ScTypeDefinitionImpl with ScTrait with ScTypeParameter
   def this(node: ASTNode) = {this(); setNode(node)}
   def this(stub: ScTemplateDefinitionStub) = {this(); setStub(stub); setNode(null)}
 
-  override def toString: String = "ScTrait"
+  override def toString: String = "ScTrait: " + name
 
   override def getIconInner = Icons.TRAIT
 

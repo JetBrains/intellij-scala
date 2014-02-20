@@ -3,7 +3,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -45,7 +45,7 @@ ScalaFile
               XmlToken:XML_EQ('=')
               PsiElement(ScalaXmlInjectionStart)('{')
               BlockOfExpressions
-                ReferenceExpression
+                ReferenceExpression: scala
                   PsiElement(identifier)('scala')
               PsiElement(ScalaXmlInjection End)('}')
             XmlToken:XML_EMPTY_ELEMENT_END('/>')

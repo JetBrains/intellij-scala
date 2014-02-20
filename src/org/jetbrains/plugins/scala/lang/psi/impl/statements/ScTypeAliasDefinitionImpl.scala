@@ -40,7 +40,7 @@ class ScTypeAliasDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeAlias] w
     if (descriptor != null) descriptor.navigate(requestFocus)
   }
 
-  override def toString: String = "ScTypeAliasDefinition"
+  override def toString: String = "ScTypeAliasDefinition: " + name
 
   override def getPresentation: ItemPresentation = {
     new ItemPresentation() {

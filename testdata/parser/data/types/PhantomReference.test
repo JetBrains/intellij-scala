@@ -4,7 +4,7 @@ class PhantomReference[+T <: AnyRef](value: T, queue: ReferenceQueue[T]) extends
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: PhantomReference
     AnnotationsList
       <empty list>
     Modifiers
@@ -14,14 +14,14 @@ ScalaFile
     PsiElement(identifier)('PhantomReference')
     TypeParameterClause
       PsiElement([)('[')
-      TypeParameter
+      TypeParameter: T
         PsiElement(identifier)('+')
         PsiElement(identifier)('T')
         PsiWhiteSpace(' ')
         PsiElement(<:)('<:')
         PsiWhiteSpace(' ')
-        SimpleTypeElement
-          CodeReferenceElement
+        SimpleTypeElement: AnyRef
+          CodeReferenceElement: AnyRef
             PsiElement(identifier)('AnyRef')
       PsiElement(])(']')
     PrimaryConstructor
@@ -32,7 +32,7 @@ ScalaFile
       Parameters
         ParametersClause
           PsiElement(()('(')
-          ClassParameter
+          ClassParameter: value
             AnnotationsList
               <empty list>
             Modifiers
@@ -41,12 +41,12 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: T
+                CodeReferenceElement: T
                   PsiElement(identifier)('T')
           PsiElement(,)(',')
           PsiWhiteSpace(' ')
-          ClassParameter
+          ClassParameter: queue
             AnnotationsList
               <empty list>
             Modifiers
@@ -55,14 +55,14 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              ParametrizedTypeElement
-                SimpleTypeElement
-                  CodeReferenceElement
+              ParametrizedTypeElement: ReferenceQueue[T]
+                SimpleTypeElement: ReferenceQueue
+                  CodeReferenceElement: ReferenceQueue
                     PsiElement(identifier)('ReferenceQueue')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleTypeElement
-                    CodeReferenceElement
+                  SimpleTypeElement: T
+                    CodeReferenceElement: T
                       PsiElement(identifier)('T')
                   PsiElement(])(']')
           PsiElement())(')')
@@ -72,14 +72,14 @@ ScalaFile
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          ParametrizedTypeElement
-            SimpleTypeElement
-              CodeReferenceElement
+          ParametrizedTypeElement: ReferenceWrapper[T]
+            SimpleTypeElement: ReferenceWrapper
+              CodeReferenceElement: ReferenceWrapper
                 PsiElement(identifier)('ReferenceWrapper')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: T
+                CodeReferenceElement: T
                   PsiElement(identifier)('T')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
@@ -94,16 +94,16 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: underlying
               PsiElement(identifier)('underlying')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          ParametrizedTypeElement
-            SimpleTypeElement
-              CodeReferenceElement
-                CodeReferenceElement
-                  CodeReferenceElement
-                    CodeReferenceElement
+          ParametrizedTypeElement: java.lang.ref.PhantomReference[_ <: T]
+            SimpleTypeElement: java.lang.ref.PhantomReference
+              CodeReferenceElement: java.lang.ref.PhantomReference
+                CodeReferenceElement: java.lang.ref
+                  CodeReferenceElement: java.lang
+                    CodeReferenceElement: java
                       PsiElement(identifier)('java')
                     PsiElement(.)('.')
                     PsiElement(identifier)('lang')
@@ -113,13 +113,13 @@ ScalaFile
                 PsiElement(identifier)('PhantomReference')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType
+              WildcardType: _ <: T
                 PsiElement(_)('_')
                 PsiWhiteSpace(' ')
                 PsiElement(<:)('<:')
                 PsiWhiteSpace(' ')
-                SimpleTypeElement
-                  CodeReferenceElement
+                SimpleTypeElement: T
+                  CodeReferenceElement: T
                     PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
@@ -131,12 +131,12 @@ ScalaFile
             ExtendsBlock
               ClassParents
                 Constructor
-                  ParametrizedTypeElement
-                    SimpleTypeElement
-                      CodeReferenceElement
-                        CodeReferenceElement
-                          CodeReferenceElement
-                            CodeReferenceElement
+                  ParametrizedTypeElement: java.lang.ref.PhantomReference[T]
+                    SimpleTypeElement: java.lang.ref.PhantomReference
+                      CodeReferenceElement: java.lang.ref.PhantomReference
+                        CodeReferenceElement: java.lang.ref
+                          CodeReferenceElement: java.lang
+                            CodeReferenceElement: java
                               PsiElement(identifier)('java')
                             PsiElement(.)('.')
                             PsiElement(identifier)('lang')
@@ -146,20 +146,20 @@ ScalaFile
                         PsiElement(identifier)('PhantomReference')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleTypeElement
-                        CodeReferenceElement
+                      SimpleTypeElement: T
+                        CodeReferenceElement: T
                           PsiElement(identifier)('T')
                       PsiElement(])(']')
                   ArgumentList
                     PsiElement(()('(')
-                    ReferenceExpression
+                    ReferenceExpression: value
                       PsiElement(identifier)('value')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
                     GenericCall
-                      ReferenceExpression
-                        ReferenceExpression
-                          ReferenceExpression
+                      ReferenceExpression: queue.underlying.asInstanceOf
+                        ReferenceExpression: queue.underlying
+                          ReferenceExpression: queue
                             PsiElement(identifier)('queue')
                           PsiElement(.)('.')
                           PsiElement(identifier)('underlying')
@@ -167,12 +167,12 @@ ScalaFile
                         PsiElement(identifier)('asInstanceOf')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        ParametrizedTypeElement
-                          SimpleTypeElement
-                            CodeReferenceElement
-                              CodeReferenceElement
-                                CodeReferenceElement
-                                  CodeReferenceElement
+                        ParametrizedTypeElement: java.lang.ref.ReferenceQueue[T]
+                          SimpleTypeElement: java.lang.ref.ReferenceQueue
+                            CodeReferenceElement: java.lang.ref.ReferenceQueue
+                              CodeReferenceElement: java.lang.ref
+                                CodeReferenceElement: java.lang
+                                  CodeReferenceElement: java
                                     PsiElement(identifier)('java')
                                   PsiElement(.)('.')
                                   PsiElement(identifier)('lang')
@@ -182,8 +182,8 @@ ScalaFile
                               PsiElement(identifier)('ReferenceQueue')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleTypeElement
-                              CodeReferenceElement
+                            SimpleTypeElement: T
+                              CodeReferenceElement: T
                                 PsiElement(identifier)('T')
                             PsiElement(])(']')
                         PsiElement(])(']')

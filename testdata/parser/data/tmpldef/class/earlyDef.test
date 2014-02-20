@@ -9,7 +9,7 @@ class C extends {
 }
 -----
 ScalaFile
-  ScTrait
+  ScTrait: Greeting
     AnnotationsList
       <empty list>
     Modifiers
@@ -22,7 +22,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScValueDeclaration
+        ScValueDeclaration: name
           AnnotationsList
             <empty list>
           Modifiers
@@ -30,12 +30,12 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfIdentifiers
-            Field identifier
+            Field identifier: name
               PsiElement(identifier)('name')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: String
+            CodeReferenceElement: String
               PsiElement(identifier)('String')
         PsiWhiteSpace('\n  ')
         ScPatternDefinition
@@ -46,7 +46,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: msg
               PsiElement(identifier)('msg')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -54,14 +54,14 @@ ScalaFile
           InfixExpression
             Literal
               PsiElement(string content)('"How are you, "')
-            ReferenceExpression
+            ReferenceExpression: +
               PsiElement(identifier)('+')
-            ReferenceExpression
+            ReferenceExpression: name
               PsiElement(identifier)('name')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
   PsiWhiteSpace('\n')
-  ScClass
+  ScClass: C
     AnnotationsList
       <empty list>
     Modifiers
@@ -91,7 +91,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: name
               PsiElement(identifier)('name')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -105,19 +105,19 @@ ScalaFile
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: Greeting
+            CodeReferenceElement: Greeting
               PsiElement(identifier)('Greeting')
       PsiWhiteSpace(' ')
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
         MethodCall
-          ReferenceExpression
+          ReferenceExpression: println
             PsiElement(identifier)('println')
           ArgumentList
             PsiElement(()('(')
-            ReferenceExpression
+            ReferenceExpression: msg
               PsiElement(identifier)('msg')
             PsiElement())(')')
         PsiWhiteSpace('\n')

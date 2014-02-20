@@ -2,7 +2,7 @@
 type A = Int
 -----
 ScalaFile
-  ScTypeAliasDefinition
+  ScTypeAliasDefinition: A
     PsiComment(comment)('// comment')
     PsiWhiteSpace('\n')
     AnnotationsList
@@ -15,6 +15,6 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
-    SimpleTypeElement
-      CodeReferenceElement
+    SimpleTypeElement: Int
+      CodeReferenceElement: Int
         PsiElement(identifier)('Int')

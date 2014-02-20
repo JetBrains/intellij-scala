@@ -45,7 +45,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     }
   }
 
-  override def toString: String = "ReferenceExpression"
+  override def toString: String = "ReferenceExpression: " + getText
 
   def nameId: PsiElement = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 

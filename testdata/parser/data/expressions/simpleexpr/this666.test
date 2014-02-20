@@ -3,7 +3,7 @@ class Foo {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: Foo
     AnnotationsList
       <empty list>
     Modifiers
@@ -23,7 +23,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScFunctionDefinition
+        ScFunctionDefinition: bar
           AnnotationsList
             <empty list>
           Modifiers

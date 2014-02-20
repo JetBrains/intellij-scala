@@ -2,7 +2,7 @@ class a{}
 trait c {}
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -22,7 +22,7 @@ ScalaFile
         PsiElement({)('{')
         PsiElement(})('}')
   PsiWhiteSpace('\n')
-  ScTrait
+  ScTrait: c
     AnnotationsList
       <empty list>
     Modifiers

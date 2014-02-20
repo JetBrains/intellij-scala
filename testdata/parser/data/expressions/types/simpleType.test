@@ -3,7 +3,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -23,7 +23,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScFunctionDefinition
+        ScFunctionDefinition: getType
           AnnotationsList
             <empty list>
           Modifiers
@@ -36,13 +36,13 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: ScType
+            CodeReferenceElement: ScType
               PsiElement(identifier)('ScType')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          ReferenceExpression
+          ReferenceExpression: foo
             PsiElement(identifier)('foo')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

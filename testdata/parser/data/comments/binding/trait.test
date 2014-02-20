@@ -2,7 +2,7 @@
 trait A
 -----
 ScalaFile
-  ScTrait
+  ScTrait: A
     PsiComment(comment)('// comment')
     PsiWhiteSpace('\n')
     AnnotationsList

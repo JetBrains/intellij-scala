@@ -1,8 +1,8 @@
 class Context private {
 }
-------
+-----
 ScalaFile
-  ScClass
+  ScClass: Context
     AnnotationsList
       <empty list>
     Modifiers

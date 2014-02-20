@@ -7,7 +7,7 @@ object A {
 }
 -----
 ScalaFile
-  ScObject
+  ScObject: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -20,7 +20,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n    ')
-        ScFunctionDefinition
+        ScFunctionDefinition: main
           AnnotationsList
             <empty list>
           Modifiers
@@ -38,10 +38,10 @@ ScalaFile
             PsiElement({)('{')
             PsiWhiteSpace('\n        ')
             PostfixExpression
-              ReferenceExpression
+              ReferenceExpression: vla
                 PsiElement(identifier)('vla')
               PsiWhiteSpace(' ')
-              ReferenceExpression
+              ReferenceExpression: aaa
                 PsiElement(identifier)('aaa')
             PsiWhiteSpace('\n\n        ')
             Literal

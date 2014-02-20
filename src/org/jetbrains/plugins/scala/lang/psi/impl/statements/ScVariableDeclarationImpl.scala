@@ -22,7 +22,7 @@ class ScVariableDeclarationImpl extends ScalaStubBasedElementImpl[ScVariable] wi
 
   def this(stub: ScVariableStub) = {this (); setStub(stub); setNode(null)}
 
-  override def toString: String = "ScVariableDeclaration"
+  override def toString: String = "ScVariableDeclaration: " + declaredElements.map(_.name).mkString(", ")
 
   def getType(ctx: TypingContext) = wrap(typeElement) flatMap {_.getType(TypingContext.empty)}
 

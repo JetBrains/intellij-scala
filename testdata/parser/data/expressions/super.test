@@ -1,9 +1,9 @@
 class A {
   A.super.wait()
 }
-------
+-----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -24,9 +24,9 @@ ScalaFile
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
         MethodCall
-          ReferenceExpression
+          ReferenceExpression: A.super.wait
             SuperReference
-              CodeReferenceElement
+              CodeReferenceElement: A
                 PsiElement(identifier)('A')
               PsiElement(.)('.')
               PsiElement(super)('super')

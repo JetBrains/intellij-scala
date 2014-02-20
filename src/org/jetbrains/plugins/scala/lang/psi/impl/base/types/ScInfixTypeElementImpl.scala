@@ -19,7 +19,7 @@ import api.statements.params.ScTypeParam
  */
 
 class ScInfixTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScInfixTypeElement {
-  override def toString: String = "InfixType"
+  override def toString: String = "InfixType: " + getText
 
   def rOp = findChildrenByClass(classOf[ScTypeElement]) match {
     case Array(_, r) => Some(r)

@@ -2,7 +2,7 @@
 def foo = macro A.fooImpl
 -----
 ScalaFile
-  ScMacroDefinition
+  ScMacroDefinition: foo
     PsiComment(comment)('// comment')
     PsiWhiteSpace('\n')
     AnnotationsList
@@ -19,8 +19,8 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(macro)('macro')
     PsiWhiteSpace(' ')
-    CodeReferenceElement
-      CodeReferenceElement
+    CodeReferenceElement: A.fooImpl
+      CodeReferenceElement: A
         PsiElement(identifier)('A')
       PsiElement(.)('.')
       PsiElement(identifier)('fooImpl')

@@ -3,7 +3,7 @@ class C{
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: C
     AnnotationsList
       <empty list>
     Modifiers
@@ -22,7 +22,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScFunctionDefinition
+        ScFunctionDefinition: foo
           AnnotationsList
             <empty list>
           Modifiers
@@ -41,17 +41,17 @@ ScalaFile
             ExtendsBlock
               ClassParents
                 Constructor
-                  TypeInParenthesis
+                  TypeInParenthesis: (Manifest[Byte] @serializable)
                     PsiElement(()('(')
-                    TypeWithAnnotation
-                      ParametrizedTypeElement
-                        SimpleTypeElement
-                          CodeReferenceElement
+                    TypeWithAnnotation: Manifest[Byte] @serializable
+                      ParametrizedTypeElement: Manifest[Byte]
+                        SimpleTypeElement: Manifest
+                          CodeReferenceElement: Manifest
                             PsiElement(identifier)('Manifest')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleTypeElement
-                            CodeReferenceElement
+                          SimpleTypeElement: Byte
+                            CodeReferenceElement: Byte
                               PsiElement(identifier)('Byte')
                           PsiElement(])(']')
                       PsiWhiteSpace(' ')
@@ -60,8 +60,8 @@ ScalaFile
                           PsiElement(@)('@')
                           AnnotationExpression
                             Constructor
-                              SimpleTypeElement
-                                CodeReferenceElement
+                              SimpleTypeElement: serializable
+                                CodeReferenceElement: serializable
                                   PsiElement(identifier)('serializable')
                     PsiElement())(')')
               ScTemplateBody

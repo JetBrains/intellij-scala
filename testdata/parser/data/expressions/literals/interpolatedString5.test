@@ -3,7 +3,7 @@ class A {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -31,7 +31,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: a
               PsiElement(identifier)('a')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -39,20 +39,20 @@ ScalaFile
           InfixExpression
             InfixExpression
               Literal
-                ReferenceExpression
+                ReferenceExpression: s
                   PsiElement(interpolated string id)('s')
                 PsiElement(interpolated string)('"blah blah ')
                 PsiElement(interpolated string injection)('$')
-                ReferenceExpression
+                ReferenceExpression: i
                   PsiElement(identifier)('i')
                 PsiElement(interpolated string)('.length')
                 PsiElement(interpolated string end)('"')
               PsiWhiteSpace(' ')
-              ReferenceExpression
+              ReferenceExpression: +
                 PsiElement(identifier)('+')
               PsiWhiteSpace(' ')
               Literal
-                ReferenceExpression
+                ReferenceExpression: f
                   PsiElement(interpolated string id)('f')
                 PsiElement(interpolated string)('"')
                 PsiElement(interpolated string injection)('$')
@@ -63,13 +63,13 @@ ScalaFile
                       Literal
                         PsiElement(integer)('1')
                       PsiWhiteSpace(' ')
-                      ReferenceExpression
+                      ReferenceExpression: +
                         PsiElement(identifier)('+')
                       PsiWhiteSpace(' ')
                       Literal
                         PsiElement(integer)('2')
                     PsiWhiteSpace(' ')
-                    ReferenceExpression
+                    ReferenceExpression: +
                       PsiElement(identifier)('+')
                     PsiWhiteSpace(' ')
                     Literal
@@ -78,17 +78,17 @@ ScalaFile
                 PsiElement(interpolated string)('%2d')
                 PsiElement(interpolated string end)('"')
             PsiWhiteSpace(' ')
-            ReferenceExpression
+            ReferenceExpression: +
               PsiElement(identifier)('+')
             PsiWhiteSpace(' ')
             Literal
-              ReferenceExpression
+              ReferenceExpression: s
                 PsiElement(interpolated string id)('s')
               PsiElement(interpolatedmultiline string)('"""')
               PsiElement(interpolated string injection)('$')
               BlockExpression
                 PsiElement({)('{')
-                ScClass
+                ScClass: A
                   AnnotationsList
                     <empty list>
                   Modifiers

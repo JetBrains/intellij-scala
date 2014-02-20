@@ -7,7 +7,7 @@ try {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -33,7 +33,7 @@ ScalaFile
             PsiWhiteSpace(' ')
             PsiElement({)('{')
             PsiWhiteSpace('\n        ')
-            ReferenceExpression
+            ReferenceExpression: abc
               PsiElement(identifier)('abc')
             PsiWhiteSpace('\n    ')
             PsiElement(})('}')
@@ -48,11 +48,11 @@ ScalaFile
                 CaseClause
                   PsiElement(case)('case')
                   PsiWhiteSpace(' ')
-                  ReferencePattern
+                  ReferencePattern: a
                     PsiElement(identifier)('a')
                   PsiElement(=>)('=>')
                   BlockOfExpressions
-                    ReferenceExpression
+                    ReferenceExpression: b
                       PsiElement(identifier)('b')
               PsiWhiteSpace('\n    ')
               PsiElement(})('}')

@@ -12,7 +12,7 @@ trim(
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -33,8 +33,8 @@ ScalaFile
         PsiWhiteSpace('\n')
         InfixExpression
           MethodCall
-            ReferenceExpression
-              ReferenceExpression
+            ReferenceExpression: List.flatten
+              ReferenceExpression: List
                 PsiElement(identifier)('List')
               PsiElement(.)('.')
               PsiElement(identifier)('flatten')
@@ -42,42 +42,43 @@ ScalaFile
               PsiElement(()('(')
               PsiWhiteSpace('\n  ')
               MethodCall
-                ReferenceExpression
+                ReferenceExpression: List(settings.outdir, settings.classpath, settings.bootclasspath,
+       settings.extdirs, settings.encoding).map
                   MethodCall
-                    ReferenceExpression
+                    ReferenceExpression: List
                       PsiElement(identifier)('List')
                     ArgumentList
                       PsiElement(()('(')
-                      ReferenceExpression
-                        ReferenceExpression
+                      ReferenceExpression: settings.outdir
+                        ReferenceExpression: settings
                           PsiElement(identifier)('settings')
                         PsiElement(.)('.')
                         PsiElement(identifier)('outdir')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      ReferenceExpression
-                        ReferenceExpression
+                      ReferenceExpression: settings.classpath
+                        ReferenceExpression: settings
                           PsiElement(identifier)('settings')
                         PsiElement(.)('.')
                         PsiElement(identifier)('classpath')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      ReferenceExpression
-                        ReferenceExpression
+                      ReferenceExpression: settings.bootclasspath
+                        ReferenceExpression: settings
                           PsiElement(identifier)('settings')
                         PsiElement(.)('.')
                         PsiElement(identifier)('bootclasspath')
                       PsiElement(,)(',')
                       PsiWhiteSpace('\n       ')
-                      ReferenceExpression
-                        ReferenceExpression
+                      ReferenceExpression: settings.extdirs
+                        ReferenceExpression: settings
                           PsiElement(identifier)('settings')
                         PsiElement(.)('.')
                         PsiElement(identifier)('extdirs')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      ReferenceExpression
-                        ReferenceExpression
+                      ReferenceExpression: settings.encoding
+                        ReferenceExpression: settings
                           PsiElement(identifier)('settings')
                         PsiElement(.)('.')
                         PsiElement(identifier)('encoding')
@@ -89,25 +90,25 @@ ScalaFile
                   FunctionExpression
                     Parameters
                       ParametersClause
-                        Parameter
+                        Parameter: s
                           PsiElement(identifier)('s')
                     PsiWhiteSpace(' ')
                     PsiElement(=>)('=>')
                     PsiWhiteSpace(' ')
                     MethodCall
-                      ReferenceExpression
+                      ReferenceExpression: List
                         PsiElement(identifier)('List')
                       ArgumentList
                         PsiElement(()('(')
-                        ReferenceExpression
-                          ReferenceExpression
+                        ReferenceExpression: s.nme
+                          ReferenceExpression: s
                             PsiElement(identifier)('s')
                           PsiElement(.)('.')
                           PsiElement(identifier)('nme')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        ReferenceExpression
-                          ReferenceExpression
+                        ReferenceExpression: s.value
+                          ReferenceExpression: s
                             PsiElement(identifier)('s')
                           PsiElement(.)('.')
                           PsiElement(identifier)('value')
@@ -115,7 +116,7 @@ ScalaFile
                   PsiElement())(')')
               PsiElement())(')')
           PsiWhiteSpace(' ')
-          ReferenceExpression
+          ReferenceExpression: :::
             PsiElement(identifier)(':::')
           PsiWhiteSpace('\n')
           InfixExpression
@@ -125,20 +126,20 @@ ScalaFile
                 PsiElement(if)('if')
                 PsiWhiteSpace(' ')
                 PsiElement(()('(')
-                ReferenceExpression
-                  ReferenceExpression
+                ReferenceExpression: serverAddr.isEmpty
+                  ReferenceExpression: serverAddr
                     PsiElement(identifier)('serverAddr')
                   PsiElement(.)('.')
                   PsiElement(identifier)('isEmpty')
                 PsiElement())(')')
                 PsiWhiteSpace(' ')
-                ReferenceExpression
+                ReferenceExpression: Nil
                   PsiElement(identifier)('Nil')
                 PsiWhiteSpace(' ')
                 PsiElement(else)('else')
                 PsiWhiteSpace(' ')
                 MethodCall
-                  ReferenceExpression
+                  ReferenceExpression: List
                     PsiElement(identifier)('List')
                   ArgumentList
                     PsiElement(()('(')
@@ -146,36 +147,36 @@ ScalaFile
                       PsiElement(string content)('"-server"')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    ReferenceExpression
-                      ReferenceExpression
+                    ReferenceExpression: serverAddr.get
+                      ReferenceExpression: serverAddr
                         PsiElement(identifier)('serverAddr')
                       PsiElement(.)('.')
                       PsiElement(identifier)('get')
                     PsiElement())(')')
               PsiElement())(')')
             PsiWhiteSpace(' ')
-            ReferenceExpression
+            ReferenceExpression: :::
               PsiElement(identifier)(':::')
             PsiWhiteSpace('\n')
             InfixExpression
               ExpressionInParenthesis
                 PsiElement(()('(')
                 MethodCall
-                  ReferenceExpression
+                  ReferenceExpression: List(settings.debuginfo, settings.target).map
                     MethodCall
-                      ReferenceExpression
+                      ReferenceExpression: List
                         PsiElement(identifier)('List')
                       ArgumentList
                         PsiElement(()('(')
-                        ReferenceExpression
-                          ReferenceExpression
+                        ReferenceExpression: settings.debuginfo
+                          ReferenceExpression: settings
                             PsiElement(identifier)('settings')
                           PsiElement(.)('.')
                           PsiElement(identifier)('debuginfo')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        ReferenceExpression
-                          ReferenceExpression
+                        ReferenceExpression: settings.target
+                          ReferenceExpression: settings
                             PsiElement(identifier)('settings')
                           PsiElement(.)('.')
                           PsiElement(identifier)('target')
@@ -187,86 +188,87 @@ ScalaFile
                     FunctionExpression
                       Parameters
                         ParametersClause
-                          Parameter
+                          Parameter: s
                             PsiElement(identifier)('s')
                       PsiWhiteSpace(' ')
                       PsiElement(=>)('=>')
                       PsiWhiteSpace(' ')
                       InfixExpression
                         InfixExpression
-                          ReferenceExpression
-                            ReferenceExpression
+                          ReferenceExpression: s.nme
+                            ReferenceExpression: s
                               PsiElement(identifier)('s')
                             PsiElement(.)('.')
                             PsiElement(identifier)('nme')
                           PsiWhiteSpace(' ')
-                          ReferenceExpression
+                          ReferenceExpression: +
                             PsiElement(identifier)('+')
                           PsiWhiteSpace(' ')
                           Literal
                             PsiElement(string content)('":"')
                         PsiWhiteSpace(' ')
-                        ReferenceExpression
+                        ReferenceExpression: +
                           PsiElement(identifier)('+')
                         PsiWhiteSpace(' ')
-                        ReferenceExpression
-                          ReferenceExpression
+                        ReferenceExpression: s.value
+                          ReferenceExpression: s
                             PsiElement(identifier)('s')
                           PsiElement(.)('.')
                           PsiElement(identifier)('value')
                     PsiElement())(')')
                 PsiElement())(')')
               PsiWhiteSpace(' ')
-              ReferenceExpression
+              ReferenceExpression: :::
                 PsiElement(identifier)(':::')
               PsiWhiteSpace('\n')
               InfixExpression
                 MethodCall
-                  ReferenceExpression
+                  ReferenceExpression: trim
                     PsiElement(identifier)('trim')
                   ArgumentList
                     PsiElement(()('(')
                     PsiWhiteSpace('\n  ')
                     MethodCall
-                      ReferenceExpression
+                      ReferenceExpression: List(settings.debug, settings.deprecation, settings.nopredefs,
+       settings.verbose, reset, shutdown).map
                         MethodCall
-                          ReferenceExpression
+                          ReferenceExpression: List
                             PsiElement(identifier)('List')
                           ArgumentList
                             PsiElement(()('(')
-                            ReferenceExpression
-                              ReferenceExpression
+                            ReferenceExpression: settings.debug
+                              ReferenceExpression: settings
                                 PsiElement(identifier)('settings')
                               PsiElement(.)('.')
                               PsiElement(identifier)('debug')
                             PsiElement(,)(',')
                             PsiWhiteSpace(' ')
-                            ReferenceExpression
-                              ReferenceExpression
+                            ReferenceExpression: settings.deprecation
+                              ReferenceExpression: settings
                                 PsiElement(identifier)('settings')
                               PsiElement(.)('.')
                               PsiElement(identifier)('deprecation')
                             PsiElement(,)(',')
                             PsiWhiteSpace(' ')
-                            ReferenceExpression
-                              ReferenceExpression
+                            ReferenceExpression: settings.nopredefs
+                              ReferenceExpression: settings
                                 PsiElement(identifier)('settings')
                               PsiElement(.)('.')
                               PsiElement(identifier)('nopredefs')
                             PsiElement(,)(',')
                             PsiWhiteSpace('\n       ')
-                            ReferenceExpression
-                              ReferenceExpression
+                            ReferenceExpression: settings.verbose
+                              ReferenceExpression: settings
                                 PsiElement(identifier)('settings')
                               PsiElement(.)('.')
                               PsiElement(identifier)('verbose')
                             PsiElement(,)(',')
                             PsiWhiteSpace(' ')
-                            ReferenceExpression
+                            ReferenceExpression: reset
                               PsiElement(identifier)('reset')
                             PsiElement(,)(',')
                             PsiWhiteSpace(' ')
-                            ReferenceExpression
+                            ReferenceExpression: shutdown
                               PsiElement(identifier)('shutdown')
                             PsiElement())(')')
                         PsiElement(.)('.')
@@ -276,7 +278,7 @@ ScalaFile
                         FunctionExpression
                           Parameters
                             ParametersClause
-                              Parameter
+                              Parameter: s
                                 PsiElement(identifier)('s')
                           PsiWhiteSpace(' ')
                           PsiElement(=>)('=>')
@@ -285,15 +287,15 @@ ScalaFile
                             PsiElement(if)('if')
                             PsiWhiteSpace(' ')
                             PsiElement(()('(')
-                            ReferenceExpression
-                              ReferenceExpression
+                            ReferenceExpression: s.value
+                              ReferenceExpression: s
                                 PsiElement(identifier)('s')
                               PsiElement(.)('.')
                               PsiElement(identifier)('value')
                             PsiElement())(')')
                             PsiWhiteSpace(' ')
-                            ReferenceExpression
-                              ReferenceExpression
+                            ReferenceExpression: s.nme
+                              ReferenceExpression: s
                                 PsiElement(identifier)('s')
                               PsiElement(.)('.')
                               PsiElement(identifier)('nme')
@@ -305,24 +307,24 @@ ScalaFile
                         PsiElement())(')')
                     PsiElement())(')')
                 PsiWhiteSpace(' ')
-                ReferenceExpression
+                ReferenceExpression: :::
                   PsiElement(identifier)(':::')
                 PsiWhiteSpace('\n')
                 MethodCall
-                  ReferenceExpression
+                  ReferenceExpression: trim
                     PsiElement(identifier)('trim')
                   ArgumentList
                     PsiElement(()('(')
                     PsiWhiteSpace('\n  ')
                     MethodCall
-                      ReferenceExpression
+                      ReferenceExpression: List(settings.log).map
                         MethodCall
-                          ReferenceExpression
+                          ReferenceExpression: List
                             PsiElement(identifier)('List')
                           ArgumentList
                             PsiElement(()('(')
-                            ReferenceExpression
-                              ReferenceExpression
+                            ReferenceExpression: settings.log
+                              ReferenceExpression: settings
                                 PsiElement(identifier)('settings')
                               PsiElement(.)('.')
                               PsiElement(identifier)('log')
@@ -334,7 +336,7 @@ ScalaFile
                         FunctionExpression
                           Parameters
                             ParametersClause
-                              Parameter
+                              Parameter: s
                                 PsiElement(identifier)('s')
                           PsiWhiteSpace(' ')
                           PsiElement(=>)('=>')
@@ -343,9 +345,9 @@ ScalaFile
                             PsiElement(if)('if')
                             PsiWhiteSpace(' ')
                             PsiElement(()('(')
-                            ReferenceExpression
-                              ReferenceExpression
-                                ReferenceExpression
+                            ReferenceExpression: s.value.isEmpty
+                              ReferenceExpression: s.value
+                                ReferenceExpression: s
                                   PsiElement(identifier)('s')
                                 PsiElement(.)('.')
                                 PsiElement(identifier)('value')
@@ -360,23 +362,23 @@ ScalaFile
                             PsiWhiteSpace(' ')
                             InfixExpression
                               InfixExpression
-                                ReferenceExpression
-                                  ReferenceExpression
+                                ReferenceExpression: s.nme
+                                  ReferenceExpression: s
                                     PsiElement(identifier)('s')
                                   PsiElement(.)('.')
                                   PsiElement(identifier)('nme')
                                 PsiWhiteSpace(' ')
-                                ReferenceExpression
+                                ReferenceExpression: +
                                   PsiElement(identifier)('+')
                                 PsiWhiteSpace(' ')
                                 Literal
                                   PsiElement(string content)('":"')
                               PsiWhiteSpace(' ')
-                              ReferenceExpression
+                              ReferenceExpression: +
                                 PsiElement(identifier)('+')
                               PsiWhiteSpace(' ')
-                              ReferenceExpression
-                                ReferenceExpression
+                              ReferenceExpression: s.value
+                                ReferenceExpression: s
                                   PsiElement(identifier)('s')
                                 PsiElement(.)('.')
                                 PsiElement(identifier)('value')

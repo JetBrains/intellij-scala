@@ -2,14 +2,14 @@
 class a
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       Annotation
         PsiElement(@)('@')
         AnnotationExpression
           Constructor
-            SimpleTypeElement
-              CodeReferenceElement
+            SimpleTypeElement: Nullable
+              CodeReferenceElement: Nullable
                 PsiElement(identifier)('Nullable')
     Modifiers
       <empty list>

@@ -11,23 +11,23 @@ ScalaFile
     PsiElement(val)('val')
     PsiWhiteSpace(' ')
     ListOfPatterns
-      ReferencePattern
+      ReferencePattern: x
         PsiElement(identifier)('x')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    FunctionalType
-      WildcardType
+    FunctionalType: _ => String
+      WildcardType: _
         PsiElement(_)('_')
       PsiWhiteSpace(' ')
       PsiElement(=>)('=>')
       PsiWhiteSpace(' ')
-      SimpleTypeElement
-        CodeReferenceElement
+      SimpleTypeElement: String
+        CodeReferenceElement: String
           PsiElement(identifier)('String')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
-    ReferenceExpression
+    ReferenceExpression: ???
       PsiElement(identifier)('???')
   PsiWhiteSpace('\n')
   ScPatternDefinition
@@ -38,32 +38,32 @@ ScalaFile
     PsiElement(val)('val')
     PsiWhiteSpace(' ')
     ListOfPatterns
-      ReferencePattern
+      ReferencePattern: y
         PsiElement(identifier)('y')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    FunctionalType
-      TupleType
+    FunctionalType: (_, Int) => String
+      TupleType: (_, Int)
         PsiElement(()('(')
         TypesList
-          WildcardType
+          WildcardType: _
             PsiElement(_)('_')
           PsiElement(,)(',')
           PsiWhiteSpace(' ')
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: Int
+            CodeReferenceElement: Int
               PsiElement(identifier)('Int')
         PsiElement())(')')
       PsiWhiteSpace(' ')
       PsiElement(=>)('=>')
       PsiWhiteSpace(' ')
-      SimpleTypeElement
-        CodeReferenceElement
+      SimpleTypeElement: String
+        CodeReferenceElement: String
           PsiElement(identifier)('String')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
-    ReferenceExpression
+    ReferenceExpression: ???
       PsiElement(identifier)('???')
   PsiWhiteSpace('\n')
   ScPatternDefinition
@@ -74,21 +74,21 @@ ScalaFile
     PsiElement(val)('val')
     PsiWhiteSpace(' ')
     ListOfPatterns
-      ReferencePattern
+      ReferencePattern: z
         PsiElement(identifier)('z')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    FunctionalType
-      SimpleTypeElement
-        CodeReferenceElement
+    FunctionalType: String => _
+      SimpleTypeElement: String
+        CodeReferenceElement: String
           PsiElement(identifier)('String')
       PsiWhiteSpace(' ')
       PsiElement(=>)('=>')
       PsiWhiteSpace(' ')
-      WildcardType
+      WildcardType: _
         PsiElement(_)('_')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
-    ReferenceExpression
+    ReferenceExpression: ???
       PsiElement(identifier)('???')

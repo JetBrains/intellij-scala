@@ -2,7 +2,7 @@
 val a: Int
 -----
 ScalaFile
-  ScValueDeclaration
+  ScValueDeclaration: a
     PsiComment(comment)('// comment')
     PsiWhiteSpace('\n')
     AnnotationsList
@@ -12,10 +12,10 @@ ScalaFile
     PsiElement(val)('val')
     PsiWhiteSpace(' ')
     ListOfIdentifiers
-      Field identifier
+      Field identifier: a
         PsiElement(identifier)('a')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    SimpleTypeElement
-      CodeReferenceElement
+    SimpleTypeElement: Int
+      CodeReferenceElement: Int
         PsiElement(identifier)('Int')

@@ -1,6 +1,6 @@
 val x: _ :: String = ???
 val y: String :: _ = ???
-------
+-----
 ScalaFile
   ScPatternDefinition
     AnnotationsList
@@ -10,24 +10,24 @@ ScalaFile
     PsiElement(val)('val')
     PsiWhiteSpace(' ')
     ListOfPatterns
-      ReferencePattern
+      ReferencePattern: x
         PsiElement(identifier)('x')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    InfixType
-      WildcardType
+    InfixType: _ :: String
+      WildcardType: _
         PsiElement(_)('_')
       PsiWhiteSpace(' ')
-      CodeReferenceElement
+      CodeReferenceElement: ::
         PsiElement(identifier)('::')
       PsiWhiteSpace(' ')
-      SimpleTypeElement
-        CodeReferenceElement
+      SimpleTypeElement: String
+        CodeReferenceElement: String
           PsiElement(identifier)('String')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
-    ReferenceExpression
+    ReferenceExpression: ???
       PsiElement(identifier)('???')
   PsiWhiteSpace('\n')
   ScPatternDefinition
@@ -38,22 +38,22 @@ ScalaFile
     PsiElement(val)('val')
     PsiWhiteSpace(' ')
     ListOfPatterns
-      ReferencePattern
+      ReferencePattern: y
         PsiElement(identifier)('y')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    InfixType
-      SimpleTypeElement
-        CodeReferenceElement
+    InfixType: String :: _
+      SimpleTypeElement: String
+        CodeReferenceElement: String
           PsiElement(identifier)('String')
       PsiWhiteSpace(' ')
-      CodeReferenceElement
+      CodeReferenceElement: ::
         PsiElement(identifier)('::')
       PsiWhiteSpace(' ')
-      WildcardType
+      WildcardType: _
         PsiElement(_)('_')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
-    ReferenceExpression
+    ReferenceExpression: ???
       PsiElement(identifier)('???')

@@ -5,16 +5,16 @@ ScalaFile
     PsiElement(import)('import')
     PsiWhiteSpace(' ')
     ImportExpression
-      CodeReferenceElement
-        CodeReferenceElement
+      CodeReferenceElement: first.item
+        CodeReferenceElement: first
           PsiElement(identifier)('first')
         PsiElement(.)('.')
         PsiElement(identifier)('item')
     PsiElement(,)(',')
     PsiWhiteSpace(' ')
     ImportExpression
-      CodeReferenceElement
-        CodeReferenceElement
+      CodeReferenceElement: second.item
+        CodeReferenceElement: second
           PsiElement(identifier)('second')
         PsiElement(.)('.')
         PsiElement(identifier)('item')

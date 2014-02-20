@@ -5,7 +5,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -28,7 +28,7 @@ ScalaFile
         BlockExpression
           PsiElement({)('{')
           PsiWhiteSpace('\n    ')
-          ScClass
+          ScClass: b
             AnnotationsList
               <empty list>
             Modifiers

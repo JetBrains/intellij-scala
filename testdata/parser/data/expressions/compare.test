@@ -3,7 +3,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -24,7 +24,7 @@ ScalaFile
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
         MethodCall
-          ReferenceExpression
+          ReferenceExpression: 41.compare
             Literal
               PsiElement(integer)('41')
             PsiElement(.)('.')

@@ -3,7 +3,7 @@
 type A
 -----
 ScalaFile
-  ScTypeAliasDeclaration
+  ScTypeAliasDeclaration: A
     PsiComment(comment)('// comment 1')
     PsiWhiteSpace('\n')
     PsiComment(comment)('// comment 2')

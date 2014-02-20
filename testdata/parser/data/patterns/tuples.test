@@ -8,7 +8,7 @@ class C {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: C
     AnnotationsList
       <empty list>
     Modifiers
@@ -29,7 +29,7 @@ ScalaFile
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
         MatchStatement
-          ReferenceExpression
+          ReferenceExpression: x
             PsiElement(identifier)('x')
           PsiWhiteSpace(' ')
           PsiElement(match)('match')
@@ -56,7 +56,7 @@ ScalaFile
               TuplePattern
                 PsiElement(()('(')
                 ArgumentPatterns
-                  ReferencePattern
+                  ReferencePattern: t
                     PsiElement(identifier)('t')
                   PsiElement(,)(',')
                 PsiElement())(')')
@@ -73,13 +73,13 @@ ScalaFile
               TuplePattern
                 PsiElement(()('(')
                 ArgumentPatterns
-                  ReferencePattern
+                  ReferencePattern: t
                     PsiElement(identifier)('t')
                   PsiElement(,)(',')
-                  ReferencePattern
+                  ReferencePattern: s
                     PsiElement(identifier)('s')
                   PsiElement(,)(',')
-                  ReferencePattern
+                  ReferencePattern: u
                     PsiElement(identifier)('u')
                 PsiElement())(')')
               PsiWhiteSpace(' ')
@@ -95,10 +95,10 @@ ScalaFile
               TuplePattern
                 PsiElement(()('(')
                 ArgumentPatterns
-                  ReferencePattern
+                  ReferencePattern: t
                     PsiElement(identifier)('t')
                   PsiElement(,)(',')
-                  ReferencePattern
+                  ReferencePattern: s
                     PsiElement(identifier)('s')
                   PsiElement(,)(',')
                 PsiElement())(')')
