@@ -524,6 +524,7 @@ object ScalaPsiUtil {
     val projectOpt = Option(place).map(_.getProject)
     val visited: mutable.HashSet[ScType] = new mutable.HashSet[ScType]()
     val parts: mutable.Queue[ScType] = new mutable.Queue[ScType]
+
     def collectParts(tp: ScType) {
       if (visited.contains(tp)) return
       visited += tp
@@ -531,6 +532,22 @@ object ScalaPsiUtil {
         case Some(AliasType(_, _, upper)) => upper.foreach(collectParts)
         case _                            =>
       }
+
+      def collectSupers(clazz: PsiClass, subst: ScSubstitutor) {
+        clazz match {
+          case td: ScTemplateDefinition =>
+            td.superTypes.foreach {
+              tp => collectParts(subst.subst(tp))
+            }
+          case clazz: PsiClass          =>
+            clazz.getSuperTypes.foreach {
+              tp =>
+                val stp = ScType.create(tp, place.getProject, place.getResolveScope)
+                collectParts(subst.subst(stp))
+            }
+        }
+      }
+
       tp match {
         case ScDesignatorType(v: ScBindingPattern)          => v.getType(TypingContext.empty).foreach(collectParts)
         case ScDesignatorType(v: ScFieldId)                 => v.getType(TypingContext.empty).foreach(collectParts)
@@ -540,13 +557,16 @@ object ScalaPsiUtil {
           collectParts(a)
           args.foreach(collectParts)
         case p@ScParameterizedType(des, args) =>
-          ScType.extractClass(p, projectOpt) match {
-            case Some(pair) => parts += des
+          ScType.extractClassType(p, projectOpt) match {
+            case Some((clazz, subst)) =>
+              parts += des
+              collectParts(des)
+              args.foreach(collectParts)
+              collectSupers(clazz, subst)
             case _ =>
+              collectParts(des)
+              args.foreach(collectParts)
           }
-          collectParts(des)
-          args.foreach(collectParts)
-          BaseTypes.get(p, notAll = true).foreach(collectParts)
         case j: JavaArrayType =>
           val parameterizedType = j.getParameterizedType(place.getProject, place.getResolveScope)
           collectParts(parameterizedType.getOrElse(return))
@@ -558,25 +578,27 @@ object ScalaPsiUtil {
             case v: ScParameter      => v.getType(TypingContext.empty).map(proj.actualSubst.subst).foreach(collectParts)
             case _                   =>
           }
-          ScType.extractClass(tp, projectOpt) match {
-            case Some(pair) => parts += tp
+          ScType.extractClassType(tp, projectOpt) match {
+            case Some((clazz, subst)) =>
+              parts += tp
+              collectSupers(clazz, subst)
             case _          =>
           }
-          BaseTypes.get(proj, notAll = true).foreach(collectParts)
         case ScAbstractType(_, lower, upper) =>
           collectParts(lower)
           collectParts(upper)
         case ScExistentialType(quant, _) => collectParts(quant)
         case _                           =>
-          ScType.extractClass(tp, projectOpt) match {
-            case Some(pair) =>
-              val packObjects = pair.contexts.flatMap {
+          ScType.extractClassType(tp, projectOpt) match {
+            case Some((clazz, subst)) =>
+              val packObjects = clazz.contexts.flatMap {
                 case x: ScPackageLike => x.findPackageObject(place.getResolveScope).toIterator
                 case _                => Iterator()
               }
               parts += tp
               packObjects.foreach(p => parts += ScDesignatorType(p))
-              BaseTypes.get(tp, notAll = true).foreach(collectParts)
+
+              collectSupers(clazz, subst)
             case _ =>
           }
       }
@@ -628,22 +650,6 @@ object ScalaPsiUtil {
                         case _                                                    => res += ScDesignatorType(obj)
                       }
                     case _ =>
-                  }
-              }
-
-              def forSuperClass(tp: ScType, clazz: PsiClass) {
-                visited += clazz
-                collectObjects(tp)
-                visited -= clazz
-              }
-
-              clazz match {
-                case td: ScTemplateDefinition =>
-                  td.superTypes.foreach { tp => forSuperClass(subst.subst(tp), clazz) }
-                case clazz: PsiClass =>
-                  clazz.getSuperTypes.foreach { tp =>
-                    val stp = ScType.create(tp, place.getProject, place.getResolveScope)
-                    forSuperClass(subst.subst(stp), clazz)
                   }
               }
             }
