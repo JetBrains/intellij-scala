@@ -6,7 +6,7 @@ import java.io._
 import java.net._
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import com.intellij.util.{Base64Converter, PathUtil}
-import org.jetbrains.plugins.scala.compiler.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaApplicationSettings}
 import org.jetbrains.jps.incremental.scala.remote._
 import com.intellij.openapi.module.Module
 import org.jetbrains.plugins.scala
@@ -22,11 +22,13 @@ import com.intellij.openapi.progress.{ProgressManager, ProgressIndicator}
 import com.intellij.openapi.project.Project
 import com.intellij.compiler.CompilerMessageImpl
 import org.jetbrains.jps.incremental.messages.BuildMessage
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
+import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetSourceProcessor}
 import com.intellij.openapi.compiler.{CompilerPaths, CompilerMessageCategory}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.compiler.progress.CompilerTask
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
+import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
+import org.jetbrains.plugins.scala.components.WorksheetStop
 
 /**
   * User: Dmitry Naydanov
@@ -93,13 +95,16 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File) exten
     implicit def files2paths(files: Iterable[File]) = files map file2path mkString "\n"
     implicit def array2string(arr: Array[String]) = arr mkString "\n"
 
-    val client = new DummyClient(callback, module.getProject, originalFile, consumer)
+    val project = module.getProject
+    val worksheetHook = WorksheetFileHook.instance(project)
+
+    val client = new DummyClient(callback, project, originalFile, consumer)
     val compilerJar = facetCompiler
     val libraryJar = facetLibrary
+
     val extraJar = facetFiles filter {
       case a => a != compilerJar && a != libraryJar 
     }
-    
     val runnersJar = new File(s"$libCanonicalPath/scala-plugin-runners.jar")
     val compilerSettingsJar = new File(s"$libCanonicalPath/compiler-settings.jar")
     
@@ -130,11 +135,26 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File) exten
       output, 
       worksheetArgs
     )
-    
+
+    def stopper(body: => Unit) = new WorksheetStop {
+      override def stop() {
+        worksheetHook.initActions(originalFile, true)
+        body
+      }
+    }
+
+
     try {
       runType match {
-        case InProcessServer | OutOfProcessServer => 
-          send(serverAlias, arguments map (s => Base64Converter.encode(s getBytes "UTF-8")), client)
+        case InProcessServer | OutOfProcessServer =>
+          try {
+            worksheetHook.initActions(originalFile, false, Some(stopper {
+              WorksheetCompiler.ensureNotRunning(project)
+            }))
+            send(serverAlias, arguments map (s => Base64Converter.encode(s getBytes "UTF-8")), client)
+          }
+          finally worksheetHook.initActions(originalFile, true)
+
         case NonServer =>
           val eventClient = new ClientEventProcessor(client)
           
@@ -143,10 +163,12 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File) exten
             case s => Base64Converter.encode(s getBytes "UTF-8")
           }
 
-          new WorksheetNonServerRunner(module.getProject).run(encodedArgs, (text: String) => {
+          new WorksheetNonServerRunner(project).run(encodedArgs, (text: String) => {
             val event = Event.fromBytes(Base64Converter.decode(text.getBytes("UTF-8")))
             eventClient.process(event)
-          })
+          }, (process: Process) => worksheetHook.initActions(originalFile, false, Some(stopper {
+            process.destroy()
+          })), {worksheetHook.initActions(originalFile, true)})
       }
       
       ExitCode.OK
@@ -155,11 +177,13 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File) exten
         val message = "Cannot connect to compile server at %s:%s".format(address.toString, port)
         client.error(message)
         ExitCode.ABORT
+      case e: SocketException =>
+        ExitCode.OK // someone has stopped the server
       case e: UnknownHostException =>
         val message = "Unknown IP address of compile server host: " + address.toString
         client.error(message)
         ExitCode.ABORT
-    }
+    } 
   }
 
   

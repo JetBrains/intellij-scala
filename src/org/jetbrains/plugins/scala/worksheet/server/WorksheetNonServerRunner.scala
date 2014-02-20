@@ -16,6 +16,8 @@ import com.intellij.util.io.{BaseDataReader, BaseOutputReader}
 import java.util.concurrent.Future
 import org.jetbrains.plugins.scala.compiler.JDK
 import java.nio.{CharBuffer, ByteBuffer}
+import com.intellij.execution.TaskExecutor
+import com.intellij.util.Consumer
 
 /**
  * User: Dmitry Naydanov
@@ -29,7 +31,7 @@ class WorksheetNonServerRunner(project: Project) {
 
   private val jvmParameters = CompileServerLauncher.jvmParameters
   
-  def run(args: Seq[String], listener: String => Unit): Option[BaseDataReader] = {
+  def run(args: Seq[String], listener: String => Unit, stopper: Process => Unit, onEnd: => Unit): Option[Process] = {
     val sdk = Option(ProjectRootManager.getInstance(project).getProjectSdk) getOrElse {
       val all = ProjectJdkTable.getInstance.getSdksOfType(JavaSdk.getInstance())
       
@@ -55,9 +57,18 @@ class WorksheetNonServerRunner(project: Project) {
 
         val builder = new ProcessBuilder(commands.asJava)
         val process = builder.start()
+        val wait = new ProcessWaitFor(process, new TaskExecutor {
+          override def executeTask(task: Runnable): Future[_] = BaseOSProcessHandler.ExecutorServiceHolder.submit(task)
+        })
+        
+        wait.setTerminationCallback(new Consumer[Integer] {
+          override def consume(t: Integer) { onEnd }
+        })
+        
+        stopper(process)
         val reader = new BufferedReader(new InputStreamReader(process.getInputStream))
-        Some(new MyBase64StreamReader(reader, listener))
-
+        new MyBase64StreamReader(reader, listener)
+        Some(process)
     }
   }
   
