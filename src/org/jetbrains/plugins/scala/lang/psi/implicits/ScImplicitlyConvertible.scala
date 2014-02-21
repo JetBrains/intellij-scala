@@ -460,7 +460,8 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
   }
 
   private def isConformsMethod(f: ScFunction): Boolean = {
-    f.name == "conforms" && Option(f.containingClass).flatMap(cls => Option(cls.qualifiedName)).exists(_ == "scala.Predef")
+    (f.name == "conforms" || f.name == "$conforms") &&
+            Option(f.containingClass).flatMap(cls => Option(cls.qualifiedName)).exists(_ == "scala.Predef")
   }
 }
 
