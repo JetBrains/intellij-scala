@@ -46,6 +46,7 @@ import com.intellij.refactoring.HelpID
 import java.util
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 
 /**
@@ -682,27 +683,27 @@ object ScalaRefactoringUtil {
 
   @tailrec
   def findParentExpr(elem: PsiElement): ScExpression = {
-    def checkEnd(prev: PsiElement, parExpr: ScExpression): Boolean = {
+    def checkEnd(nextParent: PsiElement, parExpr: ScExpression): Boolean = {
       if (parExpr.isInstanceOf[ScBlock]) return true
-      val result: Boolean = prev match {
+      val result: Boolean = nextParent match {
         case _: ScBlock => true
         case forSt: ScForStatement if forSt.body.getOrElse(null) == parExpr => false //in this case needBraces == true
         case forSt: ScForStatement => true
         case _ => false
       }
-      result || needBraces(parExpr, prev)
+      result || needBraces(parExpr, nextParent)
     }
     val interpolated = Option(PsiTreeUtil.getParentOfType(elem, classOf[ScInterpolatedStringLiteral], false))
     val expr = interpolated getOrElse PsiTreeUtil.getParentOfType(elem, classOf[ScExpression], false)
-    val prev = previous(expr, elem.getContainingFile)
-    prev match {
-      case prevExpr: ScExpression if !checkEnd(prev, expr) => findParentExpr(prevExpr)
-      case prevExpr: ScExpression if checkEnd(prev, expr) => expr
+    val nextPar = nextParent(expr, elem.getContainingFile)
+    nextPar match {
+      case prevExpr: ScExpression if !checkEnd(nextPar, expr) => findParentExpr(prevExpr)
+      case prevExpr: ScExpression if checkEnd(nextPar, expr) => expr
       case _ => expr
     }
   }
 
-  def previous(expr: ScExpression, file: PsiFile): PsiElement = {
+  def nextParent(expr: ScExpression, file: PsiFile): PsiElement = {
     if (expr == null) file
     else expr.getParent match {
       case args: ScArgumentExprList => args.getParent
