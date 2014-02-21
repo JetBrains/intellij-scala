@@ -640,24 +640,28 @@ object ScalaRefactoringUtil {
       val leafIdentifier = file.findElementAt(start)
       val parent = leafIdentifier.getParent
       if (parent != null) parent.getParent match {
-        case pars: ScParenthesisedExpr =>
+        case pars @ ScParenthesisedExpr(inner) if !ScalaPsiUtil.needParentheses(pars, inner) =>
           val textRange = pars.getTextRange
-          document.replaceString(textRange.getStartOffset, textRange.getEndOffset, newString)
+          val afterWord = textRange.getStartOffset > 0 && {
+            val prevElemType = file.findElementAt(textRange.getStartOffset - 1).getNode.getElementType
+            ScalaTokenTypes.IDENTIFIER_TOKEN_SET.contains(prevElemType) || ScalaTokenTypes.KEYWORDS.contains(prevElemType)
+          }
+          shift = pars.getTextRange.getStartOffset - inner.getTextRange.getStartOffset + (if (afterWord) 1 else 0)
+          document.replaceString(textRange.getStartOffset, textRange.getEndOffset, (if (afterWord) " " else "") + newString)
           documentManager.commitDocument(document)
-          shift = -2
         case ScPostfixExpr(_, `parent`) =>
           //This case for block argument expression
           val textRange = parent.getTextRange
           document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "(" + newString + ")")
           documentManager.commitDocument(document)
-          shift = 2
+          shift = 1
         case _ if parent.isInstanceOf[ScReferencePattern] =>
           val textRange = parent.getTextRange
           document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "`" + newString + "`")
           documentManager.commitDocument(document)
         case _ =>
       }
-      val newStart = start + shift / 2
+      val newStart = start + shift
       val newEnd = newStart + newString.length
       val newExpr = PsiTreeUtil.findElementOfClassAtRange(file, newStart, newEnd, classOf[ScExpression])
       val newPattern = PsiTreeUtil.findElementOfClassAtOffset(file, newStart, classOf[ScPattern], true)
