@@ -18,6 +18,7 @@ import com.intellij.psi.{PsiNamedElement, PsiElement, PsiDocCommentOwner, PsiCla
 import org.jetbrains.plugins.scala.extensions.{toPsiModifierListOwnerExt, toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import collection.mutable
+import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 
 /**
  * @author Alefas
@@ -171,7 +172,11 @@ object ScalaAfterNewCompletionUtil {
                                insertHandler: InsertHandler[LookupElement], renamesMap: mutable.HashMap[String, (String, PsiNamedElement)]) {
     ScType.extractClassType(typez, Some(place.getProject)) match {
       case Some((clazz, subst)) =>
-        ClassInheritorsSearch.search(clazz, true).forEach(new Processor[PsiClass] {
+        //this change is important for Scala Worksheet/Script classes. Will not find inheritors, due to file copy.
+        val searchScope =
+          if (clazz.getUseScope.isInstanceOf[LocalSearchScope]) GlobalSearchScope.allScope(place.getProject)
+          else clazz.getUseScope
+        ClassInheritorsSearch.search(clazz, searchScope, true).forEach(new Processor[PsiClass] {
           def process(clazz: PsiClass): Boolean = {
             if (clazz.name == null || clazz.name == "") return true
             val undefines: Seq[ScUndefinedType] = clazz.getTypeParameters.map(ptp =>
