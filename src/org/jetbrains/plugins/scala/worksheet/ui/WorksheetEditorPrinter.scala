@@ -36,6 +36,7 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor) {
   private var linesCount = 0
   private var totalCount = 0
   private var insertedToOriginal = 0
+  private var prefix = ""
   @volatile private var terminated = false
   
   private var inited = false
@@ -55,8 +56,6 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor) {
   }
   
   def processLine(line: String): Boolean = {
-    if (!inited) init()
-    
     if (line.stripSuffix("\n") == WorksheetSourceProcessor.END_OUTPUT_MARKER) {
       flushBuffer()
       
@@ -69,9 +68,14 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor) {
       totalCount += 1
     } else if (isResultEnd(line)) {
       WorksheetSourceProcessor extractLineInfoFrom line match {
-        case Some((start, end)) => 
+        case Some((start, end)) =>
+          if (!inited) {
+            init()
+            if (start > 0) prefix = StringUtil.repeat("\n", start)
+          }
+          
           val differ = end - start + 1 - linesCount // inputSize - linesCount
-
+          
           if (differ > 0) {
             /*if (!cutoffPrinted)*/ outputBuffer append getNewLines(differ)
           } else if (0 > differ) {
@@ -133,14 +137,16 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor) {
   }
   
   def flushBuffer() {
+    if (!inited) init()
     if (terminated) return
-    val str = outputBuffer.toString()
+    val str = getCurrentText
     
     if (timer.isRunning) timer.stop()
     
     updateWithPersistentScroll(viewerDocument, str)
     
     outputBuffer.clear()
+    prefix = ""
 
     scala.extensions.inReadAction {
       PsiDocumentManager.getInstance(project).getPsiFile(originalEditor.getDocument) match {
@@ -153,11 +159,13 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor) {
   def midFlush() {
     if (terminated || buffed == 0) return
         
-    val str = outputBuffer.toString()
+    val str = getCurrentText
     buffed = 0
 
     updateWithPersistentScroll(viewerDocument, str)
   }
+  
+  def getCurrentText = prefix + outputBuffer.toString()
   
   private def updateWithPersistentScroll(document: Document, text: String) {//todo - to do
     extensions.invokeLater {
