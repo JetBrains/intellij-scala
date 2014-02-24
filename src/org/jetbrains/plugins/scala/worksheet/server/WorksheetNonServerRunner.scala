@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.compiler.JDK
 import java.nio.{CharBuffer, ByteBuffer}
 import com.intellij.execution.TaskExecutor
 import com.intellij.util.Consumer
+import org.jetbrains.plugins.scala.components.WorksheetProcess
 
 /**
  * User: Dmitry Naydanov
@@ -31,13 +32,13 @@ class WorksheetNonServerRunner(project: Project) {
 
   private val jvmParameters = CompileServerLauncher.jvmParameters
   
-  def run(args: Seq[String], listener: String => Unit, stopper: Process => Unit, onEnd: => Unit): Option[Process] = {
+  def run(args: Seq[String], listener: String => Unit): WorksheetProcess = {
     val sdk = Option(ProjectRootManager.getInstance(project).getProjectSdk) getOrElse {
       val all = ProjectJdkTable.getInstance.getSdksOfType(JavaSdk.getInstance())
       
       if (all.isEmpty) {
         error("No JDK available")
-        return None
+        return null
       } 
       
       all.get(0)
@@ -50,25 +51,45 @@ class WorksheetNonServerRunner(project: Project) {
     scala.compiler.findJdkByName(sdk.getName) match {
       case Left(msg) => 
         error(msg)
-        None
+        null
       case Right(jdk) =>
         val commands = ((FileUtil toCanonicalPath jdk.executable.getPath) +: "-cp" +: classPath(jdk) +: jvmParameters :+ 
           SERVER_CLASS_NAME).++(args)
 
         val builder = new ProcessBuilder(commands.asJava)
-        val process = builder.start()
-        val wait = new ProcessWaitFor(process, new TaskExecutor {
-          override def executeTask(task: Runnable): Future[_] = BaseOSProcessHandler.ExecutorServiceHolder.submit(task)
-        })
         
-        wait.setTerminationCallback(new Consumer[Integer] {
-          override def consume(t: Integer) { onEnd }
-        })
-        
-        stopper(process)
-        val reader = new BufferedReader(new InputStreamReader(process.getInputStream))
-        new MyBase64StreamReader(reader, listener)
-        Some(process)
+        new WorksheetProcess {
+          var myProcess: Option[Process] = None
+          var myCallback: Option[() => Unit] = None
+          
+          override def setTerminationCallback(callback: => Unit) {
+            myCallback = Some(() => callback)
+          }
+
+          override def run() {
+            val p = builder.start()
+            myProcess = Some(p)
+
+            val reader = new BufferedReader(new InputStreamReader(p.getInputStream))
+            new MyBase64StreamReader(reader, listener)
+            
+            myCallback map {
+              case c =>
+                val processWaitFor = new ProcessWaitFor(p, new TaskExecutor {
+                  override def executeTask(task: Runnable): Future[_] = BaseOSProcessHandler.ExecutorServiceHolder.submit(task)
+                })
+
+                processWaitFor.setTerminationCallback(new Consumer[Integer] {
+                  override def consume(t: Integer) { c() }
+                })
+            }
+          }
+
+          override def stop() {
+            myProcess foreach (_.destroy())
+            myProcess = None
+          }
+        }
     }
   }
   

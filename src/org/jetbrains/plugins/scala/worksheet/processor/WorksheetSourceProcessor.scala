@@ -10,12 +10,9 @@ import com.intellij.psi._
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import com.intellij.openapi.util.text.StringUtil
-import scala.annotation.tailrec
 import com.intellij.openapi.module.ModuleUtilCore
 import org.jetbrains.plugins.scala.config.ScalaFacet
 import scala.annotation.tailrec
-import scala.Some
-import scala.util.matching.Regex
 
 /**
  * User: Dmitry Naydanov

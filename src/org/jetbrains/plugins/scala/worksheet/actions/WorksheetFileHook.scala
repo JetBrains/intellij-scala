@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala
 import javax.swing.JPanel
 import java.awt.FlowLayout
 import com.intellij.openapi.application.ApplicationManager
-import org.jetbrains.plugins.scala.components.{WorksheetStop, StopWorksheetAction}
+import org.jetbrains.plugins.scala.components.{WorksheetProcess, StopWorksheetAction}
 import java.util
 import java.lang.ref.WeakReference
 
@@ -40,7 +40,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
 
   override def getComponentName: String = "Clean worksheet on editor close"
 
-  def initActions(file: VirtualFile, run: Boolean, stop: Option[WorksheetStop] = None) {
+  def initActions(file: VirtualFile, run: Boolean, exec: Option[WorksheetProcess] = None) {
 //    scala.extensions.inReadAction {
       if (project.isDisposed) return
 
@@ -57,7 +57,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
         
         panel.setLayout(new FlowLayout(FlowLayout.LEFT))
 
-        if (run) new RunWorksheetAction().init(panel) else stop map (new StopWorksheetAction(_).init(panel))
+        if (run) new RunWorksheetAction().init(panel) else exec map (new StopWorksheetAction(_).init(panel))
         new CleanWorksheetAction().init(panel)
         new CopyWorksheetAction().init(panel)
 

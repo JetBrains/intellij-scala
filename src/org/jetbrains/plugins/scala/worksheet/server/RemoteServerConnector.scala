@@ -28,23 +28,13 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.compiler.progress.CompilerTask
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
-import org.jetbrains.plugins.scala.components.WorksheetStop
+import org.jetbrains.plugins.scala.components.WorksheetProcess
 
 /**
   * User: Dmitry Naydanov
  * Date: 1/28/14
  */
-class RemoteServerConnector(module: Module, worksheet: File, output: File) extends RemoteResourceOwner {
-  protected val address = InetAddress.getByName(null)
-  
-  protected val port = 
-    try 
-      Integer parseInt ScalaApplicationSettings.getInstance().COMPILE_SERVER_PORT 
-    catch {
-      case e: NumberFormatException => 
-        throw new IllegalArgumentException("Bad port: " + ScalaApplicationSettings.getInstance().COMPILE_SERVER_PORT , e)
-    }
-  
+class RemoteServerConnector(module: Module, worksheet: File, output: File) {
   private val libRoot = new File(PathUtil.getJarPathForClass(getClass)).getParentFile 
   
   private val libCanonicalPath = PathUtil.getCanonicalPath(libRoot.getPath)
@@ -105,8 +95,8 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File) exten
     val extraJar = facetFiles filter {
       case a => a != compilerJar && a != libraryJar 
     }
-    val runnersJar = new File(s"$libCanonicalPath/scala-plugin-runners.jar")
-    val compilerSettingsJar = new File(s"$libCanonicalPath/compiler-settings.jar")
+    val runnersJar = new File(libCanonicalPath, "scala-plugin-runners.jar")
+    val compilerSettingsJar = new File(libCanonicalPath, "compiler-settings.jar")
     
     val additionalCp = facetFiles :+ runnersJar :+ compilerSettingsJar :+ output 
     
@@ -136,25 +126,10 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File) exten
       worksheetArgs
     )
 
-    def stopper(body: => Unit) = new WorksheetStop {
-      override def stop() {
-        worksheetHook.initActions(originalFile, true)
-        body
-      }
-    }
-
-
     try {
-      runType match {
+      val worksheetProcess = runType match {
         case InProcessServer | OutOfProcessServer =>
-          try {
-            worksheetHook.initActions(originalFile, false, Some(stopper {
-              WorksheetCompiler.ensureNotRunning(project)
-            }))
-            send(serverAlias, arguments map (s => Base64Converter.encode(s getBytes "UTF-8")), client)
-          }
-          finally worksheetHook.initActions(originalFile, true)
-
+           new WorksheetRemoteServerRunner(project).run(arguments, client)
         case NonServer =>
           val eventClient = new ClientEventProcessor(client)
           
@@ -166,23 +141,19 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File) exten
           new WorksheetNonServerRunner(project).run(encodedArgs, (text: String) => {
             val event = Event.fromBytes(Base64Converter.decode(text.getBytes("UTF-8")))
             eventClient.process(event)
-          }, (process: Process) => worksheetHook.initActions(originalFile, false, Some(stopper {
-            process.destroy()
-          })), {worksheetHook.initActions(originalFile, true)})
+          })
       }
+      
+      if (worksheetProcess == null) return ExitCode.ABORT
+      
+      worksheetHook.initActions(originalFile, false, Some(worksheetProcess))
+      worksheetProcess.setTerminationCallback({worksheetHook.initActions(originalFile, true)})
+      worksheetProcess.run()
       
       ExitCode.OK
     } catch {
-      case e: ConnectException =>
-        val message = "Cannot connect to compile server at %s:%s".format(address.toString, port)
-        client.error(message)
-        ExitCode.ABORT
       case e: SocketException =>
         ExitCode.OK // someone has stopped the server
-      case e: UnknownHostException =>
-        val message = "Unknown IP address of compile server host: " + address.toString
-        client.error(message)
-        ExitCode.ABORT
     } 
   }
 
