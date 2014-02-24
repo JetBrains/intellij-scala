@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala
 package worksheet.processor
 
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScFunction, ScPatternDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition, ScTypeAlias, ScFunction, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
@@ -75,6 +75,7 @@ object WorksheetSourceProcessor {
     val objectRes = new StringBuilder(s"def main($runPrinterName: Any) { \n val $instanceName = new $name \n")
     
     var resCount = 0
+    var assignCount = 0
     
     val eraseClassName = ".replace(\"" + instanceName + ".\", \"\")"
     val erasePrefixName = ".stripPrefix(\"" + name + "$" + name + "$\")"
@@ -216,8 +217,26 @@ object WorksheetSourceProcessor {
               objectRes append (printMethodName + "(\"" + startText + pName + ": \" + " + withTempVar(defName) + ")\n")
           }
         })
-      case comm: PsiComment => appendPsiComment(comm)
+      case varDef: ScVariableDefinition => 
+        withPrecomputeLines(varDef, {
+          varDef.declaredNames foreach {
+            case pName => 
+              objectRes append (printMethodName + "(\"" + startText + pName + ": \" + " + withTempVar(pName) + ")\n")
+          }
+        })
+//      case assign: ScAssignStmt =>
+//        val pName = assign.getLExpression.getText
+//        val lineNums = psiToLineNumbers(assign)
+//        val defName = s"get$$$$instance_$assignCount$$$$$pName"
+//        
+//        classRes append s"def $defName = { $END_GENERATED_MARKER${assign.getText}}${insertNlsFromWs(assign)}"
+//        objectRes append s"$defName; " append (printMethodName + "(\"" + "\")")
+//
+//        appendPsiLineInfo(assign, lineNums)
+//        
+//        assignCount += 1
       case imp: ScImportStmt => processImport(imp)
+      case comm: PsiComment => appendPsiComment(comm)
       case expr: ScExpression =>
         val resName = s"get$$$$instance$$$$res$resCount"
         val lineNums = psiToLineNumbers(expr)
@@ -228,9 +247,7 @@ object WorksheetSourceProcessor {
         
         resCount += 1
       case ws: PsiWhiteSpace => appendPsiWhitespace(ws)
-      case scalaPsi: ScalaPsiElement =>
-        
-      case _ => 
+      case a => 
     }
     
     classRes append "}"
