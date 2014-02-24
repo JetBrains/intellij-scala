@@ -4,6 +4,7 @@ package codeInsight.intentions.implementAbstract
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 import com.intellij.codeInsight.intention.impl.ImplementAbstractMethodAction
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 /**
  * Nikolay.Tropin
@@ -12,8 +13,8 @@ import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
   def familyName: String = new ImplementAbstractMethodAction().getFamilyName
 
-  val START = CodeInsightTestFixture.SELECTION_START_MARKER
-  val END = CodeInsightTestFixture.SELECTION_END_MARKER
+  val START = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_START
+  val END = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_END
 
   def testFromTrait() {
     val text =

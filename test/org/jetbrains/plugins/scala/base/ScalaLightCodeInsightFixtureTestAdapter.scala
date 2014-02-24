@@ -195,5 +195,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
 
 object ScalaLightCodeInsightFixtureTestAdapter {
   val CARET_MARKER = CodeInsightTestFixture.CARET_MARKER
+  val SELECTION_START = "<selection>"
+  val SELECTION_END = "</selection>"
 }
 
