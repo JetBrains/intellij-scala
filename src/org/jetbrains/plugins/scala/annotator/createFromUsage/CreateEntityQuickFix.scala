@@ -129,8 +129,19 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
     object ParentExtendsBlock {
       def unapply(e: PsiElement): Option[ScExtendsBlock] = Option(PsiTreeUtil.getParentOfType(exp, classOf[ScExtendsBlock]))
     }
+    object InstanceOfClass {
+      def unapply(expr: ScExpression): Option[PsiClass] = expr.getType().toOption match {
+        case Some(scType: ScType) =>
+          scType match {
+            case ScType.ExtractClass(aClass) => Some(aClass)
+            case t: ScType => ScType.extractDesignatorSingletonType(t).flatMap(ScType.extractClass(_, Option(expr.getProject)))
+            case _ => None
+          }
+        case _ => None
+      }
+    }
     Some(exp).collect {
-      case ScExpression.Type(ScType.ExtractClass(ScTemplateDefinition.ExtendsBlock(block))) => block
+      case InstanceOfClass(td: ScTemplateDefinition) => td.extendsBlock
       case th: ScThisReference =>
         th.refTemplate match {
           case Some(ScTemplateDefinition.ExtendsBlock(block)) => block
