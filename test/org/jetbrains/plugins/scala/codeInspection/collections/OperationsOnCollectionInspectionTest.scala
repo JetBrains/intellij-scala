@@ -9,8 +9,8 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
  * 5/21/13
  */
 abstract class OperationsOnCollectionInspectionTest extends ScalaLightCodeInsightFixtureTestAdapter {
-  val START = CodeInsightTestCase.SELECTION_START_MARKER
-  val END = CodeInsightTestCase.SELECTION_END_MARKER
+  val START = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_START
+  val END = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_END
   val annotation = InspectionBundle.message("operation.on.collection.name")
   def hint: String
 

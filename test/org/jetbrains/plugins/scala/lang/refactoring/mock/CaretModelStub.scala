@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.mock
 
-import com.intellij.openapi.editor.{Caret, VisualPosition, LogicalPosition, CaretModel}
+import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.editor.event.CaretListener
 import java.util
@@ -39,8 +39,6 @@ class CaretModelStub extends CaretModel {
 
   def isUpToDate = false
 
-  override def runForEachCaret(runnable: Runnable): Unit = ???
-
   override def setCarets(caretPositions: util.List[LogicalPosition], selections: util.List[_ <: Segment]): Unit = ???
 
   override def removeSecondaryCarets(): Unit = ???
@@ -58,4 +56,8 @@ class CaretModelStub extends CaretModel {
   override def getCurrentCaret: Caret = ???
 
   override def supportsMultipleCarets(): Boolean = false
+
+  override def runBatchCaretOperation(runnable: Runnable): Unit = ???
+
+  override def runForEachCaret(action: CaretAction): Unit = ???
 }
