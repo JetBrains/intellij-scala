@@ -48,7 +48,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
                                      title: String,
                                      replaceAll: Boolean,
                                      asVar: Boolean,
-                                     noTypeInference: Boolean)
+                                     forceInferType: Option[Boolean])
         extends InplaceVariableIntroducer[ScExpression](namedElement, editor, project, title, Array.empty[ScExpression], expr) {
 
   private var myVarCheckbox: JCheckBox = null
@@ -113,6 +113,11 @@ class ScalaInplaceVariableIntroducer(project: Project,
     PsiDocumentManager.getInstance(myProject).commitDocument(myEditor.getDocument)
   }
 
+  private def needInferType = forceInferType.getOrElse {
+    if (mySpecifyTypeChb != null) mySpecifyTypeChb.isSelected
+    else ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_EXPLICIT_TYPE
+  }
+
   protected override def getComponent: JComponent = {
 
     if (!isEnumerator) {
@@ -145,7 +150,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
       })
     }
 
-    if (types.nonEmpty && !noTypeInference) {
+    if (types.nonEmpty && forceInferType.isEmpty) {
       val selectedType = types(0)
       mySpecifyTypeChb = new NonFocusableCheckBox(ScalaBundle.message("introduce.variable.specify.type.explicitly"))
       mySpecifyTypeChb.setSelected(ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE)
@@ -214,7 +219,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
             protected def run(result: Result[Unit]): Unit = {
               commitDocument()
               setGreedyToRightToFalse()
-              if (mySpecifyTypeChb.isSelected) {
+              if (needInferType) {
                 addTypeAnnotation(selectedType)
               } else {
                 removeTypeAnnotation()
@@ -224,9 +229,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
           writeAction.execute()
           ApplicationManager.getApplication.runReadAction(new Runnable {
             def run(): Unit = {
-              if (mySpecifyTypeChb.isSelected) {
-                resetGreedyToRightBack()
-              }
+              if (needInferType) resetGreedyToRightBack()
             }
           })
         }
