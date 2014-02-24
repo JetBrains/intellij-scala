@@ -122,7 +122,7 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File) exten
       Seq(libraryJar, compilerJar) ++ extraJar, 
       findJdk, 
       worksheet,
-      (assemblyClasspath().toSeq map (f => new File(f.getCanonicalPath))) ++ additionalCp, 
+      (assemblyClasspath().toSeq map (f => new File(f.getCanonicalPath stripSuffix "!" stripSuffix "!/"))) ++ additionalCp, 
       output, 
       scalaParameters,
       javaParameters, 
