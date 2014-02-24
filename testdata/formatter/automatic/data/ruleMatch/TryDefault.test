@@ -1,0 +1,26 @@
+try {
+  something
+} catch {
+  case _ =>
+}
+------
+TRY DEFAULT
+------
+|TRY DEFAULT
+  |TRY COMPOSITE; position: 0
+    |TRY BLOCK; position: 0
+      |TRY BLOCK COMPOSITE; position: 0
+        |TRY WORD; position: 0
+        |BRACED EXPR; position: 1
+          |LEFT_BRACE; position: 0
+          |EXPR; position: 1
+          |RIGHT_BRACE; position: 2
+    |MAYBE CATCH BLOCK; position: 1
+      |CATCH BLOCK; position: 0
+        |CATCH BLOCK; position: 0
+          |CATCH WORD; position: 0
+          |BRACED MONOLITHIC CLAUSES BLOCK; position: 1
+            |BRACED MONOLITHIC CLAUSES BLOCK COMPOSITE; position: 0
+              |LEFT_BRACE; position: 0
+              |CASE CLAUSES MONOLITHIC; position: 1
+              |RIGHT_BRACE; position: 2

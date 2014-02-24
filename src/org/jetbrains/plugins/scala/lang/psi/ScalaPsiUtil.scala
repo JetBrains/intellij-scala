@@ -97,6 +97,13 @@ object ScalaPsiUtil {
     firstLeaf(firstChild)
   }
 
+  @tailrec
+  def lastLeaf(elem: PsiElement): PsiElement = {
+    val lastChild = elem.getLastChild
+    if (lastChild == null) return elem
+    lastLeaf(lastChild)
+  }
+
   def isBooleanBeanProperty(s: ScAnnotationsHolder, noResolve: Boolean = false): Boolean = {
     if (noResolve) {
       s.annotations.exists {
@@ -1031,7 +1038,7 @@ object ScalaPsiUtil {
       case _ => true
     }
   }
-  
+
   def getFirstStubOrPsiElement(elem: PsiElement): PsiElement = {
     elem match {
       case st: ScalaStubBasedElementImpl[_] if st.getStub != null =>
@@ -1144,7 +1151,7 @@ object ScalaPsiUtil {
     new Signature(x.name, Stream.empty, 0, ScSubstitutor.empty, Some(x))
 
   def superValsSignatures(x: PsiNamedElement, withSelfType: Boolean = false): Seq[Signature] = {
-    val empty = Seq.empty 
+    val empty = Seq.empty
     val typed = x match {case x: ScTypedDefinition => x case _ => return empty}
     val clazz: ScTemplateDefinition = nameContext(typed) match {
       case e @ (_: ScValue | _: ScVariable | _:ScObject) if e.getParent.isInstanceOf[ScTemplateBody] ||

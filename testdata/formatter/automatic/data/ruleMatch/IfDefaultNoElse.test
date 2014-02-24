@@ -1,0 +1,21 @@
+if (condition) {
+  if_branch
+}
+------
+IF DEFAULT
+------
+|IF DEFAULT
+  |IF DEFAULT COMPOSITE; position: 0
+    |IF COMPOSITE BLOCK; position: 0
+      |IF COMPOSITE; position: 0
+        |IF WORD; position: 0
+        |LEFT_PARENTHESIS; position: 1
+        |EXPR; position: 2
+        |RIGHT_PARENTHESIS; position: 3
+        |MAYBE BRACED EXPR; position: 4
+          |BRACED BLOCK EXPR; position: 0
+            |BRACED EXPR; position: 0
+              |LEFT_BRACE; position: 0
+              |EXPR; position: 1
+              |RIGHT_BRACE; position: 2
+    |MAYBE ELSE; position: 1

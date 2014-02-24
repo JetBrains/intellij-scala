@@ -1,0 +1,9 @@
+if (condition) {
+  if_branch
+}
+------
+if (condition) {if_branch}
+------
+if (condition) {
+  if_branch
+}

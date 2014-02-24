@@ -1,0 +1,39 @@
+match (e) {
+  case 123    => a
+  case 11     => b
+  case 324325 => c
+  case _      => d
+}
+------
+CASE CLAUSES COMPOSITE
+------
+|CASE CLAUSES COMPOSITE no settings derived for this match
+  |CASE CLAUSES; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: 2 isRelative: false type: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+    |CASE CLAUSE COMPOSITE; position: 0
+      |CASE CLAUSE; position: 0
+        |CASE WORD; position: 0
+        |PATTERN BLOCK; position: 1
+        |MAYBE GUARD; position: 2
+        |=>; position: 3
+        |BLOCK; position: 4
+    |CASE CLAUSE COMPOSITE; position: 0
+      |CASE CLAUSE; position: 0
+        |CASE WORD; position: 0
+        |PATTERN BLOCK; position: 1
+        |MAYBE GUARD; position: 2
+        |=>; position: 3
+        |BLOCK; position: 4
+    |CASE CLAUSE COMPOSITE; position: 0
+      |CASE CLAUSE; position: 0
+        |CASE WORD; position: 0
+        |PATTERN BLOCK; position: 1
+        |MAYBE GUARD; position: 2
+        |=>; position: 3
+        |BLOCK; position: 4
+    |CASE CLAUSE COMPOSITE; position: 0
+      |CASE CLAUSE; position: 0
+        |CASE WORD; position: 0
+        |PATTERN BLOCK; position: 1
+        |MAYBE GUARD; position: 2
+        |=>; position: 3
+        |BLOCK; position: 4

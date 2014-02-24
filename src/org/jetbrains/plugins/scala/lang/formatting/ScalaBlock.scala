@@ -19,17 +19,20 @@ import java.util.List
 import scaladoc.psi.api.ScDocComment
 import psi.api.toplevel.ScEarlyDefinitions
 import com.intellij.formatting._
-import com.intellij.psi.{TokenType, PsiComment, PsiErrorElement, PsiWhiteSpace}
+import com.intellij.psi._
 import psi.api.base.ScLiteral
+import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.{ScalaFormattingRuleMatcher, ScalaAutoFormatter}
 
 class ScalaBlock (val myParentBlock: ScalaBlock,
-        protected val myNode: ASTNode,
-        val myLastNode: ASTNode,
-        protected var myAlignment: Alignment,
-        protected var myIndent: Indent,
-        protected var myWrap: Wrap,
-        protected val mySettings: CodeStyleSettings)
-extends Object with ScalaTokenTypes with Block {
+                  protected val myNode: ASTNode,
+                  val myLastNode: ASTNode,
+                  protected var myAlignment: Alignment,
+                  protected var myIndent: Indent,
+                  protected var myWrap: Wrap,
+                  protected val mySettings: CodeStyleSettings)
+        extends Object with ScalaTokenTypes with Block {
 
   protected var mySubBlocks: List[Block] = null
 
@@ -43,11 +46,27 @@ extends Object with ScalaTokenTypes with Block {
     if (myLastNode == null) myNode.getTextRange
     else new TextRange(myNode.getTextRange.getStartOffset, myLastNode.getTextRange.getEndOffset)
 
-  def getIndent = myIndent
+  //TODO: replace these test stubs
+  def getIndent =
+    if (ScalaBlock.myFormatter != null) {
+      ScalaBlock.myFormatter.getIndent(this)
+    } else {
+      myIndent
+    }
 
-  def getWrap = myWrap
+  def getWrap =
+    if (ScalaBlock.myFormatter != null) {
+      ScalaBlock.myFormatter.getWrap(this)
+    } else {
+      myWrap
+    }
 
-  def getAlignment = myAlignment
+  def getAlignment =
+    if (ScalaBlock.myFormatter != null) {
+      ScalaBlock.myFormatter.getAlignment(this)
+    } else {
+      myAlignment
+    }
 
   def isLeaf = isLeaf(myNode)
 
@@ -85,7 +104,7 @@ extends Object with ScalaTokenTypes with Block {
       case _: ScBlock =>
         val grandParent = parent.getParent
         new ChildAttributes(if (grandParent != null && grandParent.isInstanceOf[ScCaseClause]) Indent.getNormalIndent
-                            else Indent.getNoneIndent, null)
+        else Indent.getNoneIndent, null)
       case _: ScIfStmt => new ChildAttributes(Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE),
         this.getAlignment)
       case x: ScDoStmt => {
@@ -109,9 +128,9 @@ extends Object with ScalaTokenTypes with Block {
     }
   }
 
-  def getSpacing(child1: Block, child2: Block) = {
-    ScalaSpacingProcessor.getSpacing(child1.asInstanceOf[ScalaBlock], child2.asInstanceOf[ScalaBlock])
-  }
+  def getSpacing(child1: Block, child2: Block) = if (ScalaBlock.myFormatter != null) {
+    ScalaBlock.myFormatter.getSpacing(child1, child2)
+  } else ScalaSpacingProcessor.getSpacing(child1.asInstanceOf[ScalaBlock], child2.asInstanceOf[ScalaBlock])
 
   def getSubBlocks(): List[Block] = {
     import collection.JavaConversions._
@@ -133,7 +152,7 @@ extends Object with ScalaTokenTypes with Block {
       return true
     var lastChild = node.getLastChildNode
     while (lastChild != null &&
-      (lastChild.getPsi.isInstanceOf[PsiWhiteSpace] || lastChild.getPsi.isInstanceOf[PsiComment])) {
+            (lastChild.getPsi.isInstanceOf[PsiWhiteSpace] || lastChild.getPsi.isInstanceOf[PsiComment])) {
       lastChild = lastChild.getTreePrev
     }
     if (lastChild == null) {
@@ -154,4 +173,114 @@ extends Object with ScalaTokenTypes with Block {
     _suggestedWrap
   }
 
+  def getPrevNonWSNode: ASTNode = {
+    @tailrec
+    def helper(node: ASTNode): ASTNode = node match {
+      case _: PsiWhiteSpace => helper(node.getTreePrev)
+      case _ => node
+    }
+    helper(myNode.getTreePrev)
+  }
+
+  def getInitialWhiteSpace: String = {
+    @tailrec
+    def getPrevNode(element: PsiElement): Option[PsiElement] = {
+      if (element == null) None
+      else element.getPrevSibling match {
+        case null => getPrevNode(element.getParent)
+        case sibling: PsiElement => Some(sibling)
+      }
+    }
+    getPrevNode(myNode.getPsi) match {
+      case Some(prevSibling) => lastLeaf(prevSibling) match {
+        case spacing: PsiWhiteSpace => spacing.getText
+        case _ => ""
+      }
+      case None => ""
+    }
+  }
+
+  def getInLineOffset: Int = {
+    val document = PsiDocumentManager.getInstance(getNode.getPsi.getProject).getDocument(getNode.getPsi.getContainingFile)
+    val startOffset = getTextRange.getStartOffset
+    startOffset - document.getLineStartOffset(document.getLineNumber(startOffset))
+  }
+
+  def isFirstInFile: Boolean = getTextRange.getStartOffset == 0
+
+  def isOnNewLine: Boolean = getInitialWhiteSpace.contains("\n") || isFirstInFile
+
+  def getLeadingWhitespaceSize: Int = {
+    val space = getInitialWhiteSpace
+    space.substring(space.lastIndexOf("\n" + 1)).length
+  }
+
+  /**
+   * Returns relative indent length with indent counted from direct parent.
+   * @return indent length in space characters
+   */
+  def getIndentFromDirectParent: Int =
+    getInitialWhiteSpace.length - myParentBlock.getInLineOffset
+
+  /**
+   * Returns relative indent length with indent counted from first ancestor located on new line.
+   * @return indent lendth in space characters
+   */
+  def getIndentFromNewlineAncestor: Option[Int] = {
+    @tailrec
+    def helper(block: ScalaBlock, startOffset: Int): Option[Int] = {
+      val parent = block.myParentBlock
+      if (parent == null) {
+        return None
+      }
+      if (parent.isOnNewLine) {
+        Some(startOffset - parent.getInLineOffset)
+      } else {
+        helper(parent, startOffset)
+      }
+    }
+    helper(this, getInLineOffset)
+  }
+
+  //  /**
+  //   * Checks whether this block crosses right margin with spacings that are currently present in the document.
+  //   * @return true if block crosses right margin, false otherwise
+  //   */
+  //  def crossesRightMargin: Boolean = crossesRightMargin(getNode)
+  //  {
+  //    val node = getNode
+  //    val lines = node.getText.split("\n")
+  //    val rightMargin: Int = getSettings.RIGHT_MARGIN
+  //    val document = PsiDocumentManager.getInstance(node.getPsi.getProject).getDocument(node.getPsi.getContainingFile)
+  //    //since block's text is continuous, sophisticated checks are required for first and last lines
+  //    //for inner lines it is enough to check whether their length is less then right margin
+  //    val firstLineCrosses = (node.getStartOffset + lines(0).length -
+  //      document.getLineStartOffset(document.getLineNumber(getTextRange.getStartOffset))) > rightMargin
+  //    val lastLineCrosses = lines(lines.size - 1).length > rightMargin
+  //    firstLineCrosses && lastLineCrosses && lines.slice(1, lines.size - 1).exists(_.length > rightMargin)
+  //  }
+
+  def crossesRightMargin: Boolean = crossesRightMargin(getPrevNonWSNode)
+
+  private def crossesRightMargin(node: ASTNode): Boolean = {
+    val lines = node.getText.split("\n")
+    val rightMargin: Int = getSettings.RIGHT_MARGIN //assumes that settings are consistent for the document
+    val document = PsiDocumentManager.getInstance(node.getPsi.getProject).getDocument(node.getPsi.getContainingFile)
+    //since block's text is continuous, sophisticated checks are required for first and last lines
+    //for inner lines it is enough to check whether their length is less then right margin
+    val firstLineCrosses = (node.getStartOffset + lines(0).length -
+            document.getLineStartOffset(document.getLineNumber(node.getTextRange.getStartOffset))) > rightMargin
+    val lastLineCrosses = lines(lines.size - 1).length > rightMargin
+    firstLineCrosses && lastLineCrosses && lines.slice(1, lines.size - 1).exists(_.length > rightMargin)
+  }
+}
+
+object ScalaBlock {
+  //TODO: remove this. This is a temporary means of testing used before serialization/deserialization is implemented properly
+  // Actually all the ScalaBlock.scala file should be rewritten as blocks should be constructed and not altered during formatting
+  protected var myFormatter: ScalaAutoFormatter = null
+
+  def initFormatter(learnRoot: ScalaBlock) = myFormatter = new ScalaAutoFormatter(ScalaFormattingRuleMatcher.getDefaultMatcher(learnRoot))
+
+  def feedFormatter(formatRoot: ScalaBlock) = myFormatter.runMatcher(formatRoot)
 }
