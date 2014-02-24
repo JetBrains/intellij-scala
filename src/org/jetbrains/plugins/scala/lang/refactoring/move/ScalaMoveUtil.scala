@@ -134,8 +134,10 @@ object ScalaMoveUtil {
   }
 
   def shiftAssociations(aClass: PsiClass, offsetChange: Int) {
-    val associations = aClass.getCopyableUserData(ASSOCIATIONS_KEY).associations
-    associations.foreach(a => a.range = a.range.shiftRight(offsetChange))
+    aClass.getCopyableUserData(ASSOCIATIONS_KEY) match {
+      case null =>
+      case as: Associations =>  as.associations.foreach(a => a.range = a.range.shiftRight(offsetChange))
+    }
   }
 
   def saveMoveDestination(@NotNull element: PsiElement, moveDestination: PsiDirectory) = {
