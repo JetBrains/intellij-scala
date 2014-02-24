@@ -739,7 +739,9 @@ object ScalaPsiUtil {
               case Some(e) => res = res ++ getExprImports(e)
               case _ =>
             }
-          case call: ScMethodCall => res = res ++ call.getImportsUsed
+          case call: ScMethodCall =>
+            res = res ++ call.getImportsUsed
+            super.visitExpression(expr)
           case ref: ScReferenceExpression =>
             for (rr <- ref.multiResolve(false) if rr.isInstanceOf[ScalaResolveResult]) {
               res = res ++ rr.asInstanceOf[ScalaResolveResult].importsUsed
