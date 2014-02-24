@@ -4,15 +4,18 @@ package worksheet.processor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScFunction, ScPatternDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScClass, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
+import com.intellij.psi._
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import com.intellij.openapi.util.text.StringUtil
 import scala.annotation.tailrec
 import com.intellij.openapi.module.ModuleUtilCore
 import org.jetbrains.plugins.scala.config.ScalaFacet
+import scala.annotation.tailrec
+import scala.Some
+import scala.util.matching.Regex
 
 /**
  * User: Dmitry Naydanov
@@ -157,11 +160,35 @@ object WorksheetSourceProcessor {
       appendAll(psi, lineNum)
     }
     
+    @inline def processImport(imp: ScImportStmt) = {
+      val text = imp.getText
+      val lineNums = psiToLineNumbers(imp)
+
+      objectRes append s"$printMethodName($macroPrinterName.printImportInfo({$text;}))\n"
+
+      val importOnlyText = "import\\s+(_root_\\s*\\.\\s*)?".r findFirstIn text map {
+        case rootImport => text stripPrefix rootImport
+      } getOrElse text
+      
+      classRes append  "import _root_."  append importOnlyText append insertNlsFromWs(imp)
+      appendPsiLineInfo(imp, lineNums)
+    }
+    
     def withTempVar(callee: String) = 
       "{val $$temp$$ = " + instanceName + "." + callee + s"; $macroPrinterName.printDefInfo(" + "$$temp$$" + ")" + 
         eraseClassName + " + \" = \" + $$temp$$.toString" + erasePrefixName + "}"
     
-    srcFile.getChildren foreach {
+    val root  = if (!isForObject(srcFile)) srcFile else {
+      ((null: PsiElement) /: srcFile.getChildren) {
+        case (a, imp: ScImportStmt) => 
+          processImport(imp)
+          a
+        case (null, obj: ScObject) => obj.extendsBlock.templateBody getOrElse srcFile
+        case (a, _) => a
+      }
+    }
+    
+    root.getChildren foreach {
       case tpe: ScTypeAlias =>
         withPrecomputeLines(tpe, {
           objectRes append withPrint(s"defined type alias ${tpe.name}")
@@ -193,14 +220,7 @@ object WorksheetSourceProcessor {
           }
         })
       case comm: PsiComment => appendPsiComment(comm)
-      case imp: ScImportStmt => 
-        val text = imp.getText
-        val lineNums = psiToLineNumbers(imp)
-        
-        objectRes append s"$printMethodName($macroPrinterName.printImportInfo({$text;}))\n"
-
-        classRes append  "import _root_."  append text.substring("import ".length) append insertNlsFromWs(imp)
-        appendPsiLineInfo(imp, lineNums)
+      case imp: ScImportStmt => processImport(imp)
       case expr: ScExpression =>
         val resName = s"get$$$$instance$$$$res$resCount"
         val lineNums = psiToLineNumbers(expr)
@@ -220,5 +240,23 @@ object WorksheetSourceProcessor {
     objectRes append (printMethodName + "(\"" + END_OUTPUT_MARKER + "\")\n") append "} \n }"
     
     Some((objectPrologue + classRes.toString() + "\n\n\n" + objectRes.toString(), name))
+  }
+  
+  private def isForObject(file: ScalaFile) = {
+    @tailrec
+    def isOk(psi: PsiElement): Boolean = psi match {
+      case null => true
+      case _: ScImportStmt | _: PsiWhiteSpace | _: PsiComment => isOk(psi.getNextSibling)
+      case _ => false
+    }
+    
+    @tailrec
+    def isObjectOk(psi: PsiElement): Boolean = psi match {
+      case _: ScImportStmt | _: PsiWhiteSpace | _: PsiComment => isObjectOk(psi.getNextSibling)
+      case _: ScObject => isOk(psi.getNextSibling)
+      case _ => false
+    }
+    
+    isObjectOk(file.getFirstChild)
   }
 }
