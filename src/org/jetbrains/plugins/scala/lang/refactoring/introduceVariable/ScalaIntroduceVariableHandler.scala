@@ -188,6 +188,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
 
     val typeName = if (varType != null) varType.canonicalText else ""
     val expression = ScalaRefactoringUtil.expressionToIntroduce(expression_)
+    val isFunExpr = expression.isInstanceOf[ScFunctionExpr]
+
     val mainRange = new TextRange(startOffset, endOffset)
     val occurrences: Array[TextRange] = if (!replaceAllOccurrences) {
       Array[TextRange](mainRange)
@@ -205,11 +207,11 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     var firstRange = replacedOccurences(0)
 
     val commonParent: PsiElement = ScalaRefactoringUtil.commonParent(file, replacedOccurences: _*)
-
     val parExpr = ScalaRefactoringUtil.findParentExpr(commonParent) match {
-      case _ childOf (block: ScBlock)
-        if expression.isInstanceOf[ScFunctionExpr] && occCount == 1 && block.statements.size == 1 =>
-        ScalaRefactoringUtil.findParentExpr(block)
+      case _ childOf ((block: ScBlock) childOf ((_) childOf (call: ScMethodCall)))
+        if isFunExpr && occCount == 1 && block.statements.size == 1 => call
+      case _ childOf ((block: ScBlock) childOf (infix: ScInfixExpr))
+        if isFunExpr && occCount == 1 && block.statements.size == 1 => infix
       case expr => expr
     }
     val nextParent: PsiElement = ScalaRefactoringUtil.nextParent(parExpr, file)
