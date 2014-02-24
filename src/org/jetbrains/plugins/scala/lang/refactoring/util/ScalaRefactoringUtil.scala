@@ -46,6 +46,7 @@ import com.intellij.refactoring.HelpID
 import java.util
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 
 /**
@@ -639,24 +640,28 @@ object ScalaRefactoringUtil {
       val leafIdentifier = file.findElementAt(start)
       val parent = leafIdentifier.getParent
       if (parent != null) parent.getParent match {
-        case pars: ScParenthesisedExpr =>
+        case pars @ ScParenthesisedExpr(inner) if !ScalaPsiUtil.needParentheses(pars, inner) =>
           val textRange = pars.getTextRange
-          document.replaceString(textRange.getStartOffset, textRange.getEndOffset, newString)
+          val afterWord = textRange.getStartOffset > 0 && {
+            val prevElemType = file.findElementAt(textRange.getStartOffset - 1).getNode.getElementType
+            ScalaTokenTypes.IDENTIFIER_TOKEN_SET.contains(prevElemType) || ScalaTokenTypes.KEYWORDS.contains(prevElemType)
+          }
+          shift = pars.getTextRange.getStartOffset - inner.getTextRange.getStartOffset + (if (afterWord) 1 else 0)
+          document.replaceString(textRange.getStartOffset, textRange.getEndOffset, (if (afterWord) " " else "") + newString)
           documentManager.commitDocument(document)
-          shift = -2
         case ScPostfixExpr(_, `parent`) =>
           //This case for block argument expression
           val textRange = parent.getTextRange
           document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "(" + newString + ")")
           documentManager.commitDocument(document)
-          shift = 2
+          shift = 1
         case _ if parent.isInstanceOf[ScReferencePattern] =>
           val textRange = parent.getTextRange
           document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "`" + newString + "`")
           documentManager.commitDocument(document)
         case _ =>
       }
-      val newStart = start + shift / 2
+      val newStart = start + shift
       val newEnd = newStart + newString.length
       val newExpr = PsiTreeUtil.findElementOfClassAtRange(file, newStart, newEnd, classOf[ScExpression])
       val newPattern = PsiTreeUtil.findElementOfClassAtOffset(file, newStart, classOf[ScPattern], true)
@@ -682,27 +687,27 @@ object ScalaRefactoringUtil {
 
   @tailrec
   def findParentExpr(elem: PsiElement): ScExpression = {
-    def checkEnd(prev: PsiElement, parExpr: ScExpression): Boolean = {
+    def checkEnd(nextParent: PsiElement, parExpr: ScExpression): Boolean = {
       if (parExpr.isInstanceOf[ScBlock]) return true
-      val result: Boolean = prev match {
+      val result: Boolean = nextParent match {
         case _: ScBlock => true
         case forSt: ScForStatement if forSt.body.getOrElse(null) == parExpr => false //in this case needBraces == true
         case forSt: ScForStatement => true
         case _ => false
       }
-      result || needBraces(parExpr, prev)
+      result || needBraces(parExpr, nextParent)
     }
     val interpolated = Option(PsiTreeUtil.getParentOfType(elem, classOf[ScInterpolatedStringLiteral], false))
     val expr = interpolated getOrElse PsiTreeUtil.getParentOfType(elem, classOf[ScExpression], false)
-    val prev = previous(expr, elem.getContainingFile)
-    prev match {
-      case prevExpr: ScExpression if !checkEnd(prev, expr) => findParentExpr(prevExpr)
-      case prevExpr: ScExpression if checkEnd(prev, expr) => expr
+    val nextPar = nextParent(expr, elem.getContainingFile)
+    nextPar match {
+      case prevExpr: ScExpression if !checkEnd(nextPar, expr) => findParentExpr(prevExpr)
+      case prevExpr: ScExpression if checkEnd(nextPar, expr) => expr
       case _ => expr
     }
   }
 
-  def previous(expr: ScExpression, file: PsiFile): PsiElement = {
+  def nextParent(expr: ScExpression, file: PsiFile): PsiElement = {
     if (expr == null) file
     else expr.getParent match {
       case args: ScArgumentExprList => args.getParent

@@ -7,7 +7,7 @@ import config.ScalaFacet
 import com.intellij.compiler.CompilerWorkspaceConfiguration
 import com.intellij.notification.{NotificationListener, NotificationType, Notification, Notifications}
 import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManager}
-import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.roots.{ModuleRootManager, CompilerModuleExtension}
 import com.intellij.openapi.ui.Messages
 import org.intellij.lang.annotations.Language
@@ -69,14 +69,13 @@ class ServerMediator(project: Project) extends ProjectComponent {
   })
 
   private def checkCompilationSettings(): Boolean = {
-    val modulesWithClashes = ModuleManager.getInstance(project).getModules.toSeq.filter { module =>
+    def hasClashes(module: Module) = ScalaFacet.findIn(module).isDefined && {
       val extension = CompilerModuleExtension.getInstance(module)
-
       val production = extension.getCompilerOutputUrl
       val test = extension.getCompilerOutputUrlForTests
-
       production == test
     }
+    val modulesWithClashes = ModuleManager.getInstance(project).getModules.toSeq.filter(hasClashes)
 
     if (modulesWithClashes.nonEmpty) {
       val result = Messages.showYesNoDialog(project,

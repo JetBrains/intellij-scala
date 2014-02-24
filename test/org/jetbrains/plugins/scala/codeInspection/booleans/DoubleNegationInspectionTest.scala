@@ -9,8 +9,8 @@ import com.intellij.codeInsight.CodeInsightTestCase
  * 4/24/13
  */
 class DoubleNegationInspectionTest extends ScalaLightCodeInsightFixtureTestAdapter{
-  val s = CodeInsightTestCase.SELECTION_START_MARKER
-  val e = CodeInsightTestCase.SELECTION_END_MARKER
+  val s = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_START
+  val e = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_END
   val annotation = "Double negation"
   val hint = "Remove double negation"
 
