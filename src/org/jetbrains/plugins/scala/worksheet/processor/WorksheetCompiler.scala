@@ -13,7 +13,6 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.actions.{CleanWorksheetAction, WorksheetFileHook}
-import org.jetbrains.plugins.scala.components.WorksheetStop
 import org.jetbrains.plugins.scala.config.ScalaFacet
 
 /**

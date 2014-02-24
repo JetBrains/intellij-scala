@@ -10,7 +10,7 @@ import com.intellij.icons.AllIcons
  * User: Dmitry Naydanov
  * Date: 2/17/14
  */
-class StopWorksheetAction(exec: WorksheetStop) extends AnAction with TopComponentAction {
+class StopWorksheetAction(exec: WorksheetProcess) extends AnAction with TopComponentAction {
   override def actionPerformed(e: AnActionEvent) {
     exec.stop()
   }
@@ -22,6 +22,10 @@ class StopWorksheetAction(exec: WorksheetStop) extends AnAction with TopComponen
   override def bundleKey = "worksheet.stop.button"
 }
 
-trait WorksheetStop {
+trait WorksheetProcess {
+  def run()
+  
   def stop()
-} 
+  
+  def setTerminationCallback(callback: => Unit)
+}
