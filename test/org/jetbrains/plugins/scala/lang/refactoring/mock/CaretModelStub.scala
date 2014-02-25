@@ -39,7 +39,7 @@ class CaretModelStub extends CaretModel {
 
   def isUpToDate = false
 
-  override def setCarets(caretPositions: util.List[LogicalPosition], selections: util.List[_ <: Segment]): Unit = ???
+  override def setCaretsAndSelections(caretPositions: util.List[LogicalPosition], selections: util.List[_ <: Segment]): Unit = ???
 
   override def removeSecondaryCarets(): Unit = ???
 
