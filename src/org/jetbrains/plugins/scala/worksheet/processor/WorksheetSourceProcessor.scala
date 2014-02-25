@@ -224,17 +224,18 @@ object WorksheetSourceProcessor {
               objectRes append (printMethodName + "(\"" + startText + pName + ": \" + " + withTempVar(pName) + ")\n")
           }
         })
-//      case assign: ScAssignStmt =>
-//        val pName = assign.getLExpression.getText
-//        val lineNums = psiToLineNumbers(assign)
-//        val defName = s"get$$$$instance_$assignCount$$$$$pName"
-//        
-//        classRes append s"def $defName = { $END_GENERATED_MARKER${assign.getText}}${insertNlsFromWs(assign)}"
-//        objectRes append s"$defName; " append (printMethodName + "(\"" + "\")")
-//
-//        appendPsiLineInfo(assign, lineNums)
-//        
-//        assignCount += 1
+      case assign: ScAssignStmt =>
+        val pName = assign.getLExpression.getText
+        val lineNums = psiToLineNumbers(assign)
+        val defName = s"get$$$$instance_$assignCount$$$$$pName"
+        
+        classRes append s"def $defName = { $END_GENERATED_MARKER${assign.getText}}${insertNlsFromWs(assign)}"
+        objectRes append s"$instanceName.$defName; " append (printMethodName + "(\"" + startText + pName + ": \" + " + 
+          withTempVar(pName) + ")\n")
+
+        appendPsiLineInfo(assign, lineNums)
+        
+        assignCount += 1
       case imp: ScImportStmt => processImport(imp)
       case comm: PsiComment => appendPsiComment(comm)
       case expr: ScExpression =>
