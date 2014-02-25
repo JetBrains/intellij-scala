@@ -21,6 +21,12 @@ import scala.collection.JavaConversions._
 import settings.ScalaProjectSettings
 import lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import java.util
+import com.intellij.concurrency.JobLauncher
+import com.intellij.util.Processor
+import com.intellij.util.containers.ConcurrentHashSet
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * User: Alexander Podkhalyuzin
@@ -40,49 +46,57 @@ class ScalaImportOptimizer extends ImportOptimizer {
       case _ => return EmptyRunnable.getInstance() 
     }
     
-    def getUnusedImports: mutable.HashSet[ImportUsed] = {
-        val usedImports = new mutable.HashSet[ImportUsed]
-        scalaFile.accept(new ScalaRecursiveElementVisitor {
-          override def visitReference(ref: ScReferenceElement) {
-            if (PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) == null) {
-              ref.multiResolve(false) foreach {
-                case scalaResult: ScalaResolveResult =>
-                  usedImports ++= scalaResult.importsUsed
-                //println(ref.getElement.getText + " -- " + scalaResult.importsUsed + " -- " + scalaResult.element)
-                case _ =>
-              }
-            }
-            super.visitReference(ref)
-          }
-
-          override def visitSimpleTypeElement(simple: ScSimpleTypeElement) {
-            simple.findImplicitParameters match {
-              case Some(parameters) =>
-                parameters.foreach {
-                  case r: ScalaResolveResult => usedImports ++= r.importsUsed
+    val getUnusedImports: mutable.HashSet[ImportUsed] = {
+      val usedImports = new ConcurrentHashSet[ImportUsed]
+      val list: util.ArrayList[PsiElement] =  new util.ArrayList[PsiElement]()
+      scalaFile.accept(new ScalaRecursiveElementVisitor {
+        override def visitElement(element: ScalaPsiElement): Unit = {
+          list.add(element)
+          super.visitElement(element)
+        }
+      })
+      val size = list.size
+      val progressManager: ProgressManager = ProgressManager.getInstance()
+      val indicator: ProgressIndicator = if (progressManager.hasProgressIndicator) progressManager.getProgressIndicator else null
+      indicator.setText2(file.getName)
+      val i = new AtomicInteger(0)
+      JobLauncher.getInstance().invokeConcurrentlyUnderProgress(list, indicator, true, true, new Processor[PsiElement] {
+        override def process(element: PsiElement): Boolean = {
+          val count: Int = i.getAndIncrement
+          if (count <= size && indicator != null) indicator.setFraction(count.toDouble / size)
+          element match {
+            case ref: ScReferenceElement =>
+              if (PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) == null) {
+                ref.multiResolve(false) foreach {
+                  case scalaResult: ScalaResolveResult => scalaResult.importsUsed.foreach(usedImports.add)
                   case _ =>
                 }
-              case _ =>
-            }
-            super.visitSimpleTypeElement(simple)
-          }
-
-          override def visitElement(element: ScalaPsiElement) {
-            val imports = element match {
-              case expression: ScExpression => {
-                checkTypeForExpression(expression)
               }
-              case _ => ScalaImportOptimizer.NO_IMPORT_USED
-            }
-            usedImports ++= imports
-            super.visitElement(element)
+            case simple: ScSimpleTypeElement =>
+              simple.findImplicitParameters match {
+                case Some(parameters) =>
+                  parameters.foreach {
+                    case r: ScalaResolveResult => r.importsUsed.foreach(usedImports.add)
+                    case _ =>
+                  }
+                case _ =>
+              }
+            case _ =>
           }
-        })
-        val unusedImports = new mutable.HashSet[ImportUsed]
-        unusedImports ++= scalaFile.getAllImportUsed
-        unusedImports --= usedImports
-        unusedImports
-      }
+          val imports = element match {
+            case expression: ScExpression => checkTypeForExpression(expression)
+            case _ => ScalaImportOptimizer.NO_IMPORT_USED
+          }
+          imports.foreach(usedImports.add)
+          true
+        }
+      })
+      val unusedImports = new mutable.HashSet[ImportUsed]
+      unusedImports ++= scalaFile.getAllImportUsed
+      unusedImports --= usedImports
+      unusedImports
+    }
+
     new Runnable {
         def run() {
           val documentManager = PsiDocumentManager.getInstance(scalaFile.getProject)
@@ -92,7 +106,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
           val unusedImports = new mutable.HashSet[ImportUsed]
           for (importUsed <- _unusedImports) {
             importUsed match {
-              case ImportExprUsed(expr) => {
+              case ImportExprUsed(expr) =>
                 val toDelete = expr.reference match {
                   case Some(ref: ScReferenceElement) =>
                     if (deleteOnlyWrongImorts) ref.multiResolve(true).isEmpty
@@ -105,20 +119,17 @@ class ScalaImportOptimizer extends ImportOptimizer {
                   if (!isLanguageFeatureImport(expr))
                     unusedImports += importUsed
                 }
-              }
-              case ImportWildcardSelectorUsed(expr) => {
+              case ImportWildcardSelectorUsed(expr) =>
                 if (expr.reference.isDefined && expr.reference.get.multiResolve(false).isEmpty) unusedImports += importUsed
                 else if (!deleteOnlyWrongImorts && !isLanguageFeatureImport(expr)) {
                   unusedImports += importUsed
                 }
-              }
-              case ImportSelectorUsed(sel) => {
+              case ImportSelectorUsed(sel) =>
                 if (sel.reference.multiResolve(false).isEmpty) unusedImports += importUsed
                 else if (!deleteOnlyWrongImorts && sel.reference.getText == sel.importedName &&
                   !isLanguageFeatureImport(PsiTreeUtil.getParentOfType(sel, classOf[ScImportExpr]))) {
                   unusedImports += importUsed
                 }
-              }
             }
           }
           
@@ -133,9 +144,9 @@ class ScalaImportOptimizer extends ImportOptimizer {
             importUsed match {
               case ImportExprUsed(expr) =>
                 plainDeleteUnused(expr)
-              case ImportWildcardSelectorUsed(expr) => {
+              case ImportWildcardSelectorUsed(expr) =>
                 expr.wildcardElement match {
-                  case Some(element: PsiElement) => {
+                  case Some(element: PsiElement) =>
                     if (expr.selectors.length == 0) {
                       plainDeleteUnused(expr)
                     } else {
@@ -149,10 +160,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
                         if (node != null) prev = node.getTreePrev
                       } while (node != null && t != ScalaTokenTypes.tCOMMA)
                     }
-                  }
                   case _ =>
                 }
-              }
               case ImportSelectorUsed(sel) => sel.getContainingFile match {
                 case scalaFile: ScalaFile => scalaFile plainDeleteSelector sel
                 case _ => sel.deleteSelector()
@@ -164,7 +173,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
           scalaFile.accept(new ScalaRecursiveElementVisitor {
             override def visitImportExpr(expr: ScImportExpr) {
               expr.selectorSet match {
-                case Some(selectors) if selectors.selectors.length == 1 - (if (selectors.hasWildcard) 1 else 0) => {
+                case Some(selectors) if selectors.selectors.length == 1 - (if (selectors.hasWildcard) 1 else 0) =>
                   if (selectors.hasWildcard) {
                     val newImportExpr = ScalaPsiElementFactory.createImportExprFromText(expr.reference match {
                       case Some(ref) => ref.getText + "._"
@@ -181,7 +190,6 @@ class ScalaImportOptimizer extends ImportOptimizer {
                       expr.replace(newImportExpr)
                     }
                   }
-                }
                 case _ =>
               }
             }
@@ -189,7 +197,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
           documentManager.commitDocument(documentManager.getDocument(scalaFile))
 
           // Sort all import sections in the file lexagraphically
-          if (ScalaProjectSettings.getInstance(scalaFile.getProject).isSortImports) {
+          if (ScalaProjectSettings.getInstance(scalaFile.getProject).isSortImports && !deleteOnlyWrongImorts) {
             val fileHolder = Seq(scalaFile.getContainingFile.asInstanceOf[ScImportsHolder])
             (PsiTreeUtil.collectElementsOfType(scalaFile, classOf[ScImportsHolder]) match {
               case null => fileHolder
