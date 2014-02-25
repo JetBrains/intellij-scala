@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections
 
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import com.intellij.psi.PsiClass
+import com.intellij.psi.{PsiDocumentManager, JavaPsiFacade, PsiClass}
 import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
@@ -11,13 +11,14 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
+import ReferenceMustBePrefixedInspection._
 
 /**
  * @author Alefas
  * @since 26.05.12
  */
 
-class ReferenceMustBePrefixedInspection extends AbstractInspection("ReferenceMustBePrefixed", "Reference must be prefixed") {
+class ReferenceMustBePrefixedInspection extends AbstractInspection(id, displayName) {
   def actionFor(holder: ProblemsHolder) = {
     case ref: ScReferenceElement if ref.qualifier == None && !ref.getParent.isInstanceOf[ScImportSelector] =>
       ref.bind() match {
@@ -35,22 +36,35 @@ class ReferenceMustBePrefixedInspection extends AbstractInspection("ReferenceMus
   }
 }
 
-class AddPrefixFix(ref: ScReferenceElement, clazz: PsiClass) extends AbstractFix("Add prefix to reference", ref) {
+object ReferenceMustBePrefixedInspection {
+  val id = "ReferenceMustBePrefixed"
+  val displayName = "Reference must be prefixed"
+}
+
+class AddPrefixFix(ref: ScReferenceElement, clazz: PsiClass) extends AbstractFix(AddPrefixFix.hint, ref) {
   def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
     if (!ref.isValid || !clazz.isValid) return
     val parts = clazz.qualifiedName.split('.')
+    val packageName = parts.dropRight(1).mkString(".")
+    val pckg = JavaPsiFacade.getInstance(clazz.getProject).findPackage(packageName)
     if (parts.length < 2) return
     val newRefText = parts.takeRight(2).mkString(".")
     ref match {
-      case ref: ScStableCodeReferenceElement =>
-        val newRef = ScalaPsiElementFactory.createReferenceFromText(newRefText, ref.getManager)
-        ref.replace(newRef)
-        newRef.bindToElement(clazz)
+      case stRef: ScStableCodeReferenceElement =>
+        stRef.replace(ScalaPsiElementFactory.createReferenceFromText(newRefText, stRef.getManager)) match {
+          case r: ScStableCodeReferenceElement => r.qualifier.foreach(_.bindToPackage(pckg, addImport = true))
+          case _ =>
+        }
       case ref: ScReferenceExpression =>
-        val newRef = ScalaPsiElementFactory.createExpressionFromText(newRefText, ref.getManager).asInstanceOf[ScReferenceExpression]
-        ref.replace(newRef)
-        newRef.bindToElement(clazz)
-      case _ => return
+        ref.replace(ScalaPsiElementFactory.createExpressionFromText(newRefText, ref.getManager)) match {
+          case ScReferenceExpression.qualifier(q: ScReferenceExpression) => q.bindToPackage(pckg, addImport = true)
+          case _ =>
+        }
+      case _ =>
     }
   }
+}
+
+object AddPrefixFix {
+  val hint = "Add prefix to reference"
 }

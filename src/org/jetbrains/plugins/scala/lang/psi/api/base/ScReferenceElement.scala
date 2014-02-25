@@ -20,6 +20,9 @@ import annotator.intention.ScalaImportTypeFix
 import toplevel.imports.ScImportSelector
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferenceElementPattern
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportExprUsed
+import com.intellij.codeInsight.PsiEquivalenceUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 
 /**
  * @author Alexander Podkhalyuzin
@@ -279,4 +282,34 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
       this.replace(ref)
     }
   }
+
+  def bindToPackage(pckg: PsiPackage, addImport: Boolean = false): PsiElement = {
+    val qualifiedName = pckg.getQualifiedName
+    extensions.inWriteAction {
+      val refText =
+        if (addImport) {
+          val importHolder = ScalaImportTypeFix.getImportHolder(ref = this, project = getProject)
+          val imported = importHolder.getAllImportUsed.exists {
+            case ImportExprUsed(expr) => expr.reference.exists { ref =>
+              ref.multiResolve(false).exists(rr => rr.getElement match {
+                case p: ScPackage => p.getQualifiedName == qualifiedName
+                case p: PsiPackage => p.getQualifiedName == qualifiedName
+                case _ => false
+              })
+            }
+            case _ => false
+          }
+          if (!imported) importHolder.addImportForPath(qualifiedName, ref = this)
+          pckg.getName
+        } else qualifiedName
+      this match {
+        case stRef: ScStableCodeReferenceElement =>
+          stRef.replace(ScalaPsiElementFactory.createReferenceFromText(refText, stRef.getManager))
+        case ref: ScReferenceExpression =>
+          ref.replace(ScalaPsiElementFactory.createExpressionFromText(refText, ref.getManager))
+        case _ => null
+      }
+    }
+  }
+
 }
