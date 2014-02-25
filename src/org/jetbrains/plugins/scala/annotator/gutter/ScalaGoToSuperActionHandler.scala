@@ -4,7 +4,6 @@ package gutter
 
 import collection.mutable.HashSet
 import com.intellij.codeInsight.navigation.NavigationUtil
-import com.intellij.codeInsight.{CodeInsightActionHandler}
 import com.intellij.ide.util.EditSourceUtil
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -16,17 +15,21 @@ import ScalaMarkerType.ScCellRenderer
 import lang.psi.api.toplevel.ScTypedDefinition
 import lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import extensions.toPsiClassExt
+import com.intellij.lang.LanguageCodeInsightActionHandler
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 08.11.2008
  */
-class ScalaGoToSuperActionHandler extends CodeInsightActionHandler {
+class ScalaGoToSuperActionHandler extends LanguageCodeInsightActionHandler {
   def startInWriteAction = false
+
+  override def isValidFor(editor: Editor, file: PsiFile): Boolean = file.isInstanceOf[ScalaFile]
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
     val offset = editor.getCaretModel.getOffset
-    val (superClasses, superSignatureElements) = ScalaGoToSuperActionHandler.findSuperElements(file, offset);
+    val (superClasses, superSignatureElements) = ScalaGoToSuperActionHandler.findSuperElements(file, offset)
 
     def popupChooser(superElements: Seq[PsiElement], title: String) {
       NavigationUtil.getPsiElementPopup[PsiElement](superElements.toArray, new ScCellRenderer, title, new PsiElementProcessor[PsiElement] {
