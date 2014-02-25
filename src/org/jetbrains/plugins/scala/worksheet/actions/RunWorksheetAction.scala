@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala
  * @since 10/17/12
  */
 
-class RunWorksheetAction extends AnAction {
+class RunWorksheetAction extends AnAction with TopComponentAction {
   def actionPerformed(e: AnActionEvent) {
     val editor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
     if (editor == null) return
@@ -42,6 +42,7 @@ class RunWorksheetAction extends AnAction {
           ApplicationManager.getApplication.invokeAndWait(new Runnable {
             override def run() {
               scala.extensions.inWriteAction {
+                CleanWorksheetAction.resetScrollModel(viewer)
                 CleanWorksheetAction.cleanWorksheet(file.getNode, editor, viewer, project)
               }
             }
@@ -145,6 +146,10 @@ class RunWorksheetAction extends AnAction {
       case e: Exception => disable()
     }
   }
-  
-  
+
+  override def actionIcon = AllIcons.Actions.Execute
+
+  override def bundleKey = "worksheet.execute.button"
+
+  override def shortcutId: Option[String] = Some("Scala.RunWorksheet")
 }

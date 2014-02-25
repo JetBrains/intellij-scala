@@ -16,7 +16,7 @@ import java.awt.BorderLayout
 import com.intellij.ui.JBSplitter
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.editor.impl.EditorImpl
-import javax.swing.DefaultBoundedRangeModel
+import javax.swing.{Icon, DefaultBoundedRangeModel}
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
  * @author Dmitry Naydanov        
  * @since 11/12/12
  */
-class CleanWorksheetAction() extends AnAction {
+class CleanWorksheetAction() extends AnAction with TopComponentAction {
 
   def actionPerformed(e: AnActionEvent) {
     val editor: Editor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
@@ -45,16 +45,7 @@ class CleanWorksheetAction() extends AnAction {
     
     invokeLater {
       inWriteAction {
-        viewer match {
-          case viewerEx: EditorImpl =>
-            val commonModel = viewerEx.getScrollPane.getVerticalScrollBar.getModel
-            viewerEx.getScrollPane.getVerticalScrollBar.setModel(
-              new DefaultBoundedRangeModel(
-                commonModel.getValue, commonModel.getExtent, commonModel.getMinimum, commonModel.getMaximum
-              )
-            )
-          case _ =>
-        }
+        CleanWorksheetAction.resetScrollModel(viewer)
         
         CleanWorksheetAction.cleanWorksheet(psiFile.getNode, editor, viewer, e.getProject)
 
@@ -90,9 +81,26 @@ class CleanWorksheetAction() extends AnAction {
       case e: Exception => disable()
     }
   }
+
+  override def actionIcon = AllIcons.Actions.GC
+
+  override def bundleKey = "worksheet.clear.button"
 }
 
 object CleanWorksheetAction {
+  def resetScrollModel(viewer: Editor) {
+    viewer match {
+      case viewerEx: EditorImpl =>
+        val commonModel = viewerEx.getScrollPane.getVerticalScrollBar.getModel
+        viewerEx.getScrollPane.getVerticalScrollBar.setModel(
+          new DefaultBoundedRangeModel(
+            commonModel.getValue, commonModel.getExtent, commonModel.getMinimum, commonModel.getMaximum
+          )
+        )
+      case _ =>
+    }
+  }
+  
   def cleanWorksheet(node: ASTNode, leftEditor: Editor, rightEditor: Editor, project: Project) {
     val leftDocument = leftEditor.getDocument
     val rightDocument = rightEditor.getDocument
