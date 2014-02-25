@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression;
 
 import com.intellij.compiler.CompilerManagerImpl;
+import com.intellij.compiler.CompilerTestUtil;
 import com.intellij.compiler.CompilerWorkspaceConfiguration;
 import com.intellij.debugger.impl.GenericDebuggerRunnerSettings;
 import com.intellij.execution.ExecutionException;
@@ -148,7 +149,7 @@ public abstract class ScalaCompilerTestCase extends JavaCodeInsightFixtureTestCa
     UIUtil.invokeAndWaitIfNeeded(new Runnable() {
       public void run() {
         try {
-          CompilerWorkspaceConfiguration.getInstance(getProject()).USE_OUT_OF_PROCESS_BUILD = false;
+          CompilerTestUtil.disableExternalCompiler(getProject());
           CompilerManager.getInstance(getProject()).make(callback);
         }
         catch (Exception e) {
