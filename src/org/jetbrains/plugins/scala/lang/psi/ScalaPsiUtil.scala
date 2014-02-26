@@ -79,6 +79,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScProjectionType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.openapi.diagnostic.Logger
+import scala.annotation.tailrec
 
 /**
  * User: Alexander Podkhalyuzin
@@ -87,6 +88,16 @@ object ScalaPsiUtil {
   def debug(message: => String)(implicit logger: Logger) {
     if (logger.isDebugEnabled) {
       logger.debug(message)
+    }
+  }
+
+  @tailrec
+  def drvTemplate(elem: PsiElement): Option[ScTemplateDefinition] = {
+    val template = PsiTreeUtil.getContextOfType(elem, true, classOf[ScTemplateDefinition])
+    if (template == null) return None
+    template.extendsBlock.templateParents match {
+      case Some(parents) if PsiTreeUtil.isContextAncestor(parents, elem, true) => drvTemplate(template)
+      case _ => Some(template)
     }
   }
 

@@ -400,10 +400,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
                 case i: ScPostfixExpr if i.operation == this =>
                   convertQualifier(i.operand.getType(TypingContext.empty))
                 case _ =>
-                  val containingClass = PsiTreeUtil.getContextOfType(this, true, classOf[ScTemplateDefinition])
-                  if (containingClass != null) {
-                    convertQualifier(containingClass.getType(TypingContext.empty))
-                  } else None
+                  for {
+                    clazz <- ScalaPsiUtil.drvTemplate(this)
+                    qualifier <- convertQualifier(clazz.getType(TypingContext.empty))
+                  } yield qualifier
               }
           }
           ResolveUtils.javaPolymorphicType(method, s, getResolveScope, returnType)
