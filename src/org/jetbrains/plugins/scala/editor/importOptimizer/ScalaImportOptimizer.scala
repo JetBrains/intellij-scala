@@ -58,7 +58,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       val size = list.size
       val progressManager: ProgressManager = ProgressManager.getInstance()
       val indicator: ProgressIndicator = if (progressManager.hasProgressIndicator) progressManager.getProgressIndicator else null
-      indicator.setText2(file.getName)
+      if (indicator != null) indicator.setText2(file.getName)
       val i = new AtomicInteger(0)
       JobLauncher.getInstance().invokeConcurrentlyUnderProgress(list, indicator, true, true, new Processor[PsiElement] {
         override def process(element: PsiElement): Boolean = {
