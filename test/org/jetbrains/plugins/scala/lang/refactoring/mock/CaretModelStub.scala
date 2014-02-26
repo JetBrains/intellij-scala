@@ -11,37 +11,35 @@ import com.intellij.openapi.util.Segment
  */
 
 class CaretModelStub extends CaretModel {
-  def getTextAttributes: TextAttributes = null
+  override def getTextAttributes: TextAttributes = null
 
-  def getVisualLineEnd: Int = 0
+  override def getVisualLineEnd: Int = 0
 
-  def getVisualLineStart: Int = 0
+  override def getVisualLineStart: Int = 0
 
-  def removeCaretListener(listener: CaretListener): Unit = {}
+  override def removeCaretListener(listener: CaretListener): Unit = {}
 
-  def addCaretListener(listener: CaretListener): Unit = {}
+  override def addCaretListener(listener: CaretListener): Unit = {}
 
-  def getOffset: Int = 0
+  override def getOffset: Int = 0
 
-  def getVisualPosition: VisualPosition = null
+  override def getVisualPosition: VisualPosition = null
 
-  def getLogicalPosition: LogicalPosition = null
+  override def getLogicalPosition: LogicalPosition = null
 
-  def moveToOffset(offset: Int, locateBeforeSoftWrap: Boolean): Unit = {}
+  override def moveToOffset(offset: Int, locateBeforeSoftWrap: Boolean): Unit = {}
 
-  def moveToOffset(offset: Int): Unit = {}
+  override def moveToOffset(offset: Int): Unit = {}
 
-  def moveToVisualPosition(pos: VisualPosition): Unit = {}
+  override def moveToVisualPosition(pos: VisualPosition): Unit = {}
 
-  def moveToLogicalPosition(pos: LogicalPosition): Unit = {}
+  override def moveToLogicalPosition(pos: LogicalPosition): Unit = {}
 
-  def moveCaretRelatively(columnShift: Int, lineShift: Int, withSelection: Boolean, blockSelection: Boolean, scrollToCaret: Boolean): Unit = {}
+  override def moveCaretRelatively(columnShift: Int, lineShift: Int, withSelection: Boolean, blockSelection: Boolean, scrollToCaret: Boolean): Unit = {}
 
-  def isUpToDate = false
+  override def isUpToDate = false
 
-  def setCaretsAndSelections(caretPositions: util.List[LogicalPosition], selections: util.List[_ <: Segment]): Unit = ???
-
-  def setCarets(caretPositions: util.List[LogicalPosition], selections: util.List[_ <: Segment]): Unit = ???
+  override def setCaretsAndSelections(caretPositions: util.List[LogicalPosition], selections: util.List[_ <: Segment]): Unit = ???
 
   override def removeSecondaryCarets(): Unit = ???
 
@@ -49,9 +47,9 @@ class CaretModelStub extends CaretModel {
 
   override def addCaret(pos: VisualPosition): Caret = ???
 
-  override def getCaretAt(pos: VisualPosition): Caret = ???
+  override def getAllCarets: util.List[Caret] = ???
 
-  override def getAllCarets: util.Collection[Caret] = ???
+  override def getCaretAt(pos: VisualPosition): Caret = ???
 
   override def getPrimaryCaret: Caret = ???
 
