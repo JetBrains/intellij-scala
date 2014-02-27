@@ -6,7 +6,7 @@ import reflect.ClassTag
 import _root_.java.io._
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import _root_.java.lang.{Boolean => JavaBoolean}
-import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.openapi.vfs.{VirtualFile, VfsUtil}
 import com.intellij.openapi.util.io.FileUtil
 
 /**
@@ -46,6 +46,16 @@ package object sbt {
   private object RichFile {
     def parent(file: File, level: Int): File =
       if (level > 0) parent(file.getParentFile, level - 1) else file
+  }
+
+  implicit class RichVirtualFile(entry: VirtualFile) {
+    def containsDirectory(name: String): Boolean = find(name).exists(_.isDirectory)
+
+    def containsFile(name: String): Boolean = find(name).exists(_.isFile)
+
+    def find(name: String): Option[VirtualFile] = Option(entry.findChild(name))
+    
+    def isFile: Boolean = !entry.isDirectory
   }
 
   implicit class RichString(path: String) {
