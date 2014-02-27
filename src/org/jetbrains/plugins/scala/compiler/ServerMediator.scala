@@ -13,6 +13,7 @@ import com.intellij.openapi.ui.Messages
 import org.intellij.lang.annotations.Language
 import javax.swing.event.HyperlinkEvent
 import extensions._
+import com.intellij.openapi.application.ApplicationManager
 
 /**
  * Pavel Fatin
@@ -37,9 +38,9 @@ class ServerMediator(project: Project) extends ProjectComponent {
             project.getComponent(classOf[FscServerManager]).removeWidget()
           }
 
-          val applicationSettings = ScalaApplicationSettings.getInstance
+          val settings = ScalaApplicationSettings.getInstance
 
-          if (applicationSettings.COMPILE_SERVER_ENABLED) {
+          if (settings.COMPILE_SERVER_ENABLED && !ApplicationManager.getApplication.isUnitTestMode) {
             invokeAndWait {
               CompileServerManager.instance(project).configureWidget()
             }
