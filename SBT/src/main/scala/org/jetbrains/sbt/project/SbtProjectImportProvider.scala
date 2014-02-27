@@ -21,14 +21,25 @@ class SbtProjectImportProvider(builder: SbtProjectImportBuilder)
     SbtProjectImportProvider.canImport(entry)
 
   override def getPathToBeImported(file: VirtualFile) =
-    if (file.isDirectory) file.getPath else file.getParent.getPath
+    SbtProjectImportProvider.projectRootOf(file).getPath
 }
 
 object SbtProjectImportProvider {
   def canImport(entry: VirtualFile): Boolean = {
-    !entry.isDirectory && entry.getName == Sbt.BuildFile ||
-      (entry.isDirectory &&
-        (Option(entry.findChild(Sbt.BuildFile)).exists(!_.isDirectory) ||
-          Option(entry.findChild(Sbt.ProjectDirectory)).exists(_.isDirectory)))
+    if (entry.isDirectory) {
+      entry.getName == Sbt.ProjectDirectory ||
+              entry.containsDirectory(Sbt.ProjectDirectory) ||
+              entry.containsFile(Sbt.BuildFile)
+    } else {
+      entry.getName == Sbt.BuildFile
+    }
+  }
+
+  def projectRootOf(entry: VirtualFile): VirtualFile = {
+    if (entry.isDirectory) {
+      if (entry.getName == Sbt.ProjectDirectory) entry.getParent else entry
+    } else {
+      entry.getParent
+    }
   }
 }
