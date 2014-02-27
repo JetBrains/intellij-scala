@@ -76,7 +76,7 @@ object ScalaBuilderDelegate {
 
   private val lock = new Object()
 
-  private def localServer = {
+  def localServer = {
     lock.synchronized {
       val server = cachedServer.getOrElse(new LocalServer())
       cachedServer = Some(server)
