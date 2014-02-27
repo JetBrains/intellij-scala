@@ -42,4 +42,8 @@ class SbtProjectOpenProcessor(builder: SbtProjectImportBuilder) extends ProjectO
 
     dialog.isOK
   }
+
+  // That's a hack to display SBT icon in the open project file chooser (this part of the IDEA API is broken)
+  // TODO Remove this when IDEA API will be properly re-designed
+  override def lookForProjectsInDirectory = false
 }
