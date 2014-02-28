@@ -114,21 +114,6 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
     isInitialized = true
   }
 
-  def typesMatch(types1 : mutable.HashMap[String, Bounds], subst1: ScSubstitutor,
-                         types2 : mutable.HashMap[String, Bounds], subst2: ScSubstitutor): Boolean = {
-    if (types1.size != types.size) false
-    else {
-      for ((name, bounds1) <- types1) {
-        types2.get(name) match {
-          case None => return false
-          case Some (bounds2) => if (!(subst1.subst(bounds1._1) equiv subst2.subst(bounds2._1)) ||
-                                     !(subst1.subst(bounds1._2) equiv subst2.subst(bounds2._2))) return false
-        }
-      }
-      true
-    }
-  }
-
   override def removeAbstracts = ScCompoundType(components.map(_.removeAbstracts), decls, typeDecls, subst)
 
   import collection.immutable.{HashSet => IHashSet}
@@ -145,9 +130,9 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
       case _ =>
         init()
         new ScCompoundType(components.map(_.recursiveUpdate(update, visited + this)), decls, typeDecls, subst, signatureMapVal.map {
-          case (signature: Signature, tp) => (signature, new Suspension[ScType](() => tp.v.recursiveUpdate(update, visited + this)))
+          case (signature: Signature, tp) => (signature, new Suspension[ScType](() => subst.subst(tp.v).recursiveUpdate(update, visited + this)))
         }, typesVal.map {
-          case (s: String, (tp1, tp2)) => (s, (tp1.recursiveUpdate(update, visited + this), tp2.recursiveUpdate(update, visited + this)))
+          case (s: String, (tp1, tp2)) => (s, (subst.subst(tp1).recursiveUpdate(update, visited + this), subst.subst(tp2).recursiveUpdate(update, visited + this)))
         }, problemsVal.toList)
     }
   }

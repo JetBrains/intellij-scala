@@ -210,10 +210,10 @@ case class ScExistentialType(quantified : ScType,
         case c@ScCompoundType(comps, decls, typeDecls, _) =>
           val newSet = rejected ++ typeDecls.map(_.name)
           comps.foreach(checkRecursive(_, newSet))
-          c.signatureMap.foreach(tuple => checkRecursive(tuple._2.v, newSet))
+          c.signatureMap.foreach(tuple => checkRecursive(c.subst.subst(tuple._2.v), newSet))
           c.types.foreach(tuple => {
-            checkRecursive(tuple._2._1, newSet)
-            checkRecursive(tuple._2._1, newSet)
+            checkRecursive(c.subst.subst(tuple._2._1), newSet)
+            checkRecursive(c.subst.subst(tuple._2._1), newSet)
           })
         case ScDesignatorType(elem) =>
           elem match {
@@ -279,9 +279,9 @@ case class ScExistentialType(quantified : ScType,
       case c@ScCompoundType(components, decls, typeDecls, subst) =>
         val newSet = rejected ++ typeDecls.map(_.name)
         new ScCompoundType(components, decls, typeDecls, subst, c.signatureMap.map {
-          case (sign, scType) => (sign, new Suspension[ScType](() => updateRecursive(scType.v, newSet, variance)))
+          case (sign, scType) => (sign, new Suspension[ScType](() => updateRecursive(c.subst.subst(scType.v), newSet, variance)))
         }, c.types.map {
-          case (s, (tp1, tp2)) => (s, (updateRecursive(tp1, newSet, variance), updateRecursive(tp2, newSet, -variance)))
+          case (s, (tp1, tp2)) => (s, (updateRecursive(c.subst.subst(tp1), newSet, variance), updateRecursive(c.subst.subst(tp2), newSet, -variance)))
         }, c.problems.toList)
       case ScProjectionType(_, _, _) => tp
       case JavaArrayType(_) => tp
