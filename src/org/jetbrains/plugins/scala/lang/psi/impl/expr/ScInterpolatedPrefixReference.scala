@@ -1,26 +1,42 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.expr
+package org.jetbrains.plugins.scala
+package lang.psi.impl.expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import com.intellij.psi.{PsiPolyVariantReference, ResolveResult, PsiElement, PsiNamedElement}
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
-import scala.Option
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import scala.Some
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolated
 
 /**
- * User: Dmitry Naydanov
- * Date: 6/29/12
+ * @author kfeodorov 
+ * @since 09.03.14.
  */
+class ScInterpolatedPrefixReference(node: ASTNode) extends ScReferenceExpressionImpl(node) {
 
-class ScInterpolatedStringPrefixReference(node: ASTNode) extends ScReferenceExpressionImpl(node) {
+  override def multiResolve(incomplete: Boolean): Array[ResolveResult]  = {
+    val parent = getParent match {
+      case p: ScInterpolated => p
+      case _ => return Array[ResolveResult]()
+    }
+
+    parent.getStringContextExpression match {
+      case Some(expr) => expr.getFirstChild.getLastChild.findReferenceAt(0) match {
+        case ref: PsiPolyVariantReference =>
+          val resolve1 = ref.multiResolve(incomplete)
+          resolve1.filter(_.getElement.isInstanceOf[ScFunction])
+        case _ => Array[ResolveResult]()
+      }
+      case _ => Array[ResolveResult]()
+    }
+  }
+
   private def psiElement = node.getPsi
-  
+
   override def advancedResolve: Option[ScalaResolveResult] = {
     if (resolve() != null) Some(new ScalaResolveResult(resolve().asInstanceOf[PsiNamedElement])) else None
   }
@@ -34,24 +50,6 @@ class ScInterpolatedStringPrefixReference(node: ASTNode) extends ScReferenceExpr
   override def resolve(): PsiElement = {
     val results = multiResolve(false)
     if (results.length == 1) results(0).asInstanceOf[ScalaResolveResult].element else null
-  }
-
-
-  override def multiResolve(incomplete: Boolean): Array[ResolveResult]  = {
-    val parent = getParent match {
-      case p: ScInterpolatedStringLiteral => p
-      case _ => return Array[ResolveResult]()
-    }
-    
-    parent.getStringContextExpression match {
-      case Some(expr) => expr.getFirstChild.getLastChild.findReferenceAt(0) match {
-        case ref: PsiPolyVariantReference =>
-          val resolve1 = ref.multiResolve(incomplete)
-          resolve1.filter(_.getElement.isInstanceOf[ScFunction])
-        case _ => Array[ResolveResult]()
-      } 
-      case _ => Array[ResolveResult]()
-    }
   }
 
   override def getCanonicalText: String = node.getText

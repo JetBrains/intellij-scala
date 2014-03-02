@@ -106,7 +106,7 @@ class FilePathReferenceProvider extends PsiReferenceProvider {
           }
         }
       }
-    }.getAllReferences.map(x => x)
+    }.getAllReferences.map(identity)
   }
 
   override def acceptsTarget(@NotNull target: PsiElement): Boolean = {

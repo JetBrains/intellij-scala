@@ -5,7 +5,7 @@ package parsing
 package patterns
 
 import com.intellij.lang.PsiBuilder
-import expressions.Literal
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Literal
 import lexer.ScalaTokenTypes
 import types.StableId
 import util.ParserUtils
@@ -92,10 +92,16 @@ object SimplePattern extends ParserNode {
       }
       case _ => {}
     }
+    if (InterpolationPattern parse builder) {
+      simplePatternMarker.done(ScalaElementTypes.INTERPOLATION_PATTERN)
+      return true
+    }
+
     if (Literal parse builder) {
       simplePatternMarker.done(ScalaElementTypes.LITERAL_PATTERN)
       return true
     }
+
     if (XmlPattern.parse(builder)) {
       simplePatternMarker.drop
       return true

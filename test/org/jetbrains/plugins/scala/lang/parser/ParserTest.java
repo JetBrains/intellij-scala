@@ -15,7 +15,6 @@
 
 package org.jetbrains.plugins.scala.lang.parser;
 
-import org.jetbrains.plugins.scala.Console;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.DebugUtil;
 import junit.framework.Test;

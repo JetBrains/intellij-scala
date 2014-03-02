@@ -173,7 +173,8 @@ object ScalaElementTypes {
   //  String literals
   val STRING_LITERAL = new ScalaElementType("String Literal")
   val INTERPOLATED_STRING_LITERAL = new ScalaElementType("Interpolated String Literal")
-  val INTERPOLATED_STRING_PREFIX_REFERENCE = new ScalaElementType("Interpolated String Prefix Reference")
+  //Not only String, but quasiquote too
+  val INTERPOLATED_PREFIX_REFERENCE = new ScalaElementType("Interpolated Prefix Reference")
   // Boolean literals
   val BOOLEAN_LITERAL = new ScalaElementType("Boolean Literal")
 
@@ -242,6 +243,7 @@ object ScalaElementTypes {
   val CASE_CLAUSE = new ScalaElementType("case clause")
   val CASE_CLAUSES = new ScalaElementType("case clauses")
   val LITERAL_PATTERN = new ScalaElementType("literal pattern")
+  val INTERPOLATION_PATTERN = new ScalaElementType("interpolation pattern")
   val REFERENCE_PATTERN = new ScReferencePatternElementType
   val STABLE_REFERENCE_PATTERN = new ScalaElementType("stable reference pattern")
   val PATTERN_IN_PARENTHESIS = new ScalaElementType("pattern in parenthesis")

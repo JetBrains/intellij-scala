@@ -15,6 +15,7 @@ import scope.PsiScopeProcessor
 import api.ScalaElementVisitor
 import tree.TokenSet
 import parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.InterpolationPattern
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -48,6 +49,7 @@ class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
         }
         expr match {
           case Some(e) if e.getStartOffsetInParent == lastParent.getStartOffsetInParent => if (!process) return false
+          case Some(e: ScInterpolationPattern) => if (!process) return false
           case _ =>
             guard match {
               case Some(g) if g.getStartOffsetInParent == lastParent.getStartOffsetInParent => if (!process) return false

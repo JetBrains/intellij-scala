@@ -16,7 +16,7 @@ import lang.psi.api.statements.{ScValue, ScFunction}
 import codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import extensions._
 import lang.psi.api.expr._
-import lang.psi.impl.expr.ScInterpolatedStringPrefixReference
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
 
 /**
  * Pavel.Fatin, 31.05.2010
@@ -110,7 +110,7 @@ trait ApplicationAnnotator {
               }
               case _ => {
                 r.problems.foreach {
-                  case MissedParametersClause(clause) if !reference.isInstanceOf[ScInterpolatedStringPrefixReference] =>
+                  case MissedParametersClause(clause) if !reference.isInstanceOf[ScInterpolatedPrefixReference] =>
                     holder.createErrorAnnotation(reference, "Missing arguments for method " + nameOf(f))
                   case _ =>
                 }

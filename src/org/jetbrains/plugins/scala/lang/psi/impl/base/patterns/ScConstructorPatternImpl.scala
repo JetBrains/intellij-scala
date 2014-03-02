@@ -105,6 +105,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
             }).toSeq : _*)), Some(this))
           case td: ScClass => Success(ScType.designator(td), Some(this))
           case obj: ScObject => Success(ScType.designator(obj), Some(this))
+            //TODO Kos
           case fun: ScFunction /*It's unapply method*/ if (fun.name == "unapply" || fun.name == "unapplySeq") &&
                   fun.parameters.length == 1 =>
             val substitutor = r.substitutor
