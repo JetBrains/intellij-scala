@@ -43,7 +43,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement,
 import com.intellij.openapi.util.{TextRange, Key}
 import collection.mutable.ArrayBuffer
 import com.intellij.codeInsight.daemon.impl.AnnotationHolderImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPrefixReference
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
 import codeInspection.caseClassParamInspection.{RemoveValFromGeneratorIntentionAction, RemoveValFromEnumeratorIntentionAction}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 import org.jetbrains.plugins.scala.lang.psi
@@ -711,7 +711,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     val injections = l.getInjections
     
     ref match {
-      case _: ScInterpolatedStringPrefixReference =>
+      case _: ScInterpolatedPrefixReference =>
       case _ => return
     }
 

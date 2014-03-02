@@ -4,13 +4,8 @@ package parser
 package parsing
 package expressions
 
-import lexer.{ScalaElementType, ScalaTokenTypes}
+import lexer.ScalaTokenTypes
 import builder.ScalaPsiBuilder
-import parser.ScalaPsiCreator.SelfPsiCreator
-import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElement
-import com.intellij.psi.tree.IElementType
-import psi.impl.expr.{ScInterpolatedStringPrefixReference, ScReferenceExpressionImpl}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -55,33 +50,7 @@ object Literal {
         }
       }
       case ScalaTokenTypes.tINTERPOLATED_STRING_ID =>
-        val prefixMarker = builder.mark()
-        builder.advanceLexer()
-        prefixMarker done ScalaElementTypes.INTERPOLATED_STRING_PREFIX_REFERENCE
-        while (!builder.eof() && builder.getTokenType != ScalaTokenTypes.tINTERPOLATED_STRING_END){
-          if (builder.getTokenType == ScalaTokenTypes.tINTERPOLATED_STRING_INJECTION) {
-            builder.advanceLexer()
-            if (!BlockExpr.parse(builder)) {
-              if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
-                val idMarker = builder.mark()
-                builder.advanceLexer()
-                idMarker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
-              } else if (builder.getTokenType == ScalaTokenTypes.kTHIS) {
-                val literalMarker = builder.mark()
-                builder.advanceLexer()
-                literalMarker.done(ScalaElementTypes.THIS_REFERENCE)
-              } else {
-                if (!builder.getTokenText.startsWith("$")) builder.error("Bad interpolated string injection")
-              }
-            }
-          } else {
-            if (builder.getTokenType == ScalaTokenTypes.tWRONG_STRING) {
-              builder.error("Wrong string literal")
-            }
-            builder.advanceLexer()
-          }
-        }
-        if (!builder.eof()) builder.advanceLexer()
+        CommonUtils.parseInterpolatedString(builder, isPattern = false)
         marker.done(ScalaElementTypes.INTERPOLATED_STRING_LITERAL)
         true
       case ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING | ScalaTokenTypes.tINTERPOLATED_STRING =>

@@ -12,7 +12,7 @@ import com.intellij.psi._
 import expr._
 import result.{Success, Failure, TypeResult, TypingContext}
 import statements.{ScFunction, ScValue, ScVariable}
-import psi.impl.base.ScStableCodeReferenceElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.base.{ScInterpolationStableCodeReferenceElementImpl, ScStableCodeReferenceElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ExpandedExtractorResolveProcessor}
@@ -57,28 +57,32 @@ trait ScPattern extends ScalaPsiElement {
     }
   }
 
-  def subpatterns: Seq[ScPattern] = {
-    if (this.isInstanceOf[ScReferencePattern]) return Seq.empty
-    findChildrenByClassScala[ScPattern](classOf[ScPattern])
+  def subpatterns: Seq[ScPattern] = this match {
+    case _: ScReferencePattern => Seq.empty
+    case _: ScInterpolationPattern => Option(findChildByClassScala[ScPatternArgumentList](classOf[ScPatternArgumentList])).map(_.patterns).getOrElse(Seq.empty)
+    case _ => findChildrenByClassScala[ScPattern](classOf[ScPattern])
   }
 
   private def resolveReferenceToExtractor(ref: ScStableCodeReferenceElement, i: Int, expected: Option[ScType],
                                           patternsNumber: Int): Option[ScType] = {
     val bind: Option[ScalaResolveResult] = ref.bind() match {
       case Some(ScalaResolveResult(_: ScBindingPattern | _: ScParameter, _)) =>
-        val refImpl = ref.asInstanceOf[ScStableCodeReferenceElementImpl]
-        val resolve = refImpl.doResolve(refImpl, new ExpandedExtractorResolveProcessor(ref, ref.refName, ref.getKinds(incomplete = false), ref.getContext match {
-          case inf: ScInfixPattern => inf.expectedType
-          case constr: ScConstructorPattern => constr.expectedType
-          case _ => None
-        }))
-        if (resolve.length != 1) None
-        else {
-          resolve(0) match {
-            case s: ScalaResolveResult => Some(s)
+      val resolve = ref match {
+        case refImpl: ScInterpolationStableCodeReferenceElementImpl => refImpl.multiResolve(false)
+        case refImpl: ScStableCodeReferenceElementImpl =>
+          refImpl.doResolve(refImpl, new ExpandedExtractorResolveProcessor(ref, ref.refName, ref.getKinds(incomplete = false), ref.getContext match {
+            case inf: ScInfixPattern => inf.expectedType
+            case constr: ScConstructorPattern => constr.expectedType
             case _ => None
-          }
+          }))
+      }
+      if (resolve.length != 1) None
+      else {
+        resolve(0) match {
+          case s: ScalaResolveResult => Some(s)
+          case _ => None
         }
+      }
       case m => m
     }
 
@@ -213,8 +217,7 @@ trait ScPattern extends ScalaPsiElement {
       case argList : ScPatternArgumentList =>
         argList.getContext match {
           case constr : ScConstructorPattern =>
-            resolveReferenceToExtractor(constr.ref, constr.args.patterns.indexWhere(_ == this), constr.expectedType,
-              argList.patterns.length)
+            resolveReferenceToExtractor(constr.ref, constr.args.patterns.indexWhere(_ == this), constr.expectedType, argList.patterns.length)
           case _ => None
         }
       case composite: ScCompositePattern => composite.expectedType
@@ -363,6 +366,8 @@ object ScPattern {
     }
 
     val level = ScalaLanguageLevel.getLanguageLevel(place)
+    //TODO KOS remove dirty hack who
+    if (place.isInstanceOf[ScInterpolationPattern]) return Seq(Any)
     if (level.isThoughScala2_11) collectFor2_11
     else {
       returnType match {

@@ -31,12 +31,11 @@ class InterpolatedStringEnterHandler extends EnterHandlerDelegateAdapter {
       caretOffset.set(caretOffset.get + moveOn)
     }
 
-
     Option(element) foreach (a =>
       if (Set(tINTERPOLATED_STRING, tINTERPOLATED_STRING_ESCAPE, tINTERPOLATED_STRING_END).contains(a.getNode.getElementType)) {
         a.getParent.getFirstChild.getNode match {
           case b: ASTNode if b.getElementType == tINTERPOLATED_STRING_ID || 
-            b.getElementType == ScalaElementTypes.INTERPOLATED_STRING_PREFIX_REFERENCE =>
+            b.getElementType == ScalaElementTypes.INTERPOLATED_PREFIX_REFERENCE =>
             
             if (a.getNode.getElementType == tINTERPOLATED_STRING_ESCAPE) {
               if (caretOffset.get - a.getTextOffset == 1) modifyOffset(1)
