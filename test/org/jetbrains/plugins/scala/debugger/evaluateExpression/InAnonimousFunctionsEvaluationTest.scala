@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala
 package debugger.evaluateExpression
 
+import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+
 /**
  * Nikolay.Tropin
  * 8/2/13
@@ -8,7 +10,7 @@ package debugger.evaluateExpression
 class InAnonimousFunctionsEvaluationTest extends ScalaDebuggerTestCase{
 
   def testFunctionValue() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
         |object Sample {
         |  def main(args: Array[String]) {
@@ -35,7 +37,7 @@ class InAnonimousFunctionsEvaluationTest extends ScalaDebuggerTestCase{
   }
 
   def testPartialFunction() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
         |object Sample {
         |  val name = "name"
@@ -67,7 +69,7 @@ class InAnonimousFunctionsEvaluationTest extends ScalaDebuggerTestCase{
   }
 
   def testFunctionExpr() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
         |object Sample {
         |  val name = "name"
@@ -98,7 +100,7 @@ class InAnonimousFunctionsEvaluationTest extends ScalaDebuggerTestCase{
   }
 
   def testForStmt() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
         |object Sample {
         |  val name = "name"

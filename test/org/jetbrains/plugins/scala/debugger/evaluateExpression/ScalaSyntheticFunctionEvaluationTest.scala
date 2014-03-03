@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
+import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 07.11.11
  */
 class ScalaSyntheticFunctionEvaluationTest extends ScalaDebuggerTestCase {
   def testIsInstanceOf() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  class A

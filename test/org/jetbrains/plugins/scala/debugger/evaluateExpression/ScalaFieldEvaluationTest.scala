@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
+import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+
 /**
  * User: Alefas
  * Date: 17.10.11
@@ -7,7 +9,7 @@ package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
 class ScalaFieldEvaluationTest extends ScalaDebuggerTestCase {
   def testStaticScalaFromPackageObject() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -24,7 +26,7 @@ class ScalaFieldEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testStaticScala() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -41,7 +43,7 @@ class ScalaFieldEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testSimpleScala() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  val x = 23
@@ -59,7 +61,7 @@ class ScalaFieldEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testSimpleJava() {
-    myFixture.addFileToProject("test/Java.java",
+    addFileToProject("test/Java.java",
       """
       |package test;
       |public class Java {
@@ -68,7 +70,7 @@ class ScalaFieldEvaluationTest extends ScalaDebuggerTestCase {
       """.stripMargin.trim()
     )
 
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  import test.Java
@@ -88,7 +90,7 @@ class ScalaFieldEvaluationTest extends ScalaDebuggerTestCase {
 
 
   def testStaticJava() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {

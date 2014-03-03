@@ -1,13 +1,15 @@
 package org.jetbrains.plugins.scala
 package debugger.evaluateExpression
 
+import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+
 /**
  * Nikolay.Tropin
  * 8/5/13
  */
 class VariablesFromPatternsEvaluationTest extends ScalaDebuggerTestCase{
   def testMatch() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
         |object Sample {
         |  val name = "name"
@@ -37,7 +39,7 @@ class VariablesFromPatternsEvaluationTest extends ScalaDebuggerTestCase{
   }
 
   def testMatchInForStmt() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
         |object Sample {
         |  val name = "name"
@@ -79,7 +81,7 @@ class VariablesFromPatternsEvaluationTest extends ScalaDebuggerTestCase{
   }
 
   def testRegexMatch() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
         |object Sample {
         |  val name = "name"
@@ -105,7 +107,7 @@ class VariablesFromPatternsEvaluationTest extends ScalaDebuggerTestCase{
   }
 
   def testMultilevel() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
         |object Sample {
         |  val name = "name"
@@ -140,7 +142,7 @@ class VariablesFromPatternsEvaluationTest extends ScalaDebuggerTestCase{
   }
 
   def testLocalInMatch() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
         |object Sample {
         |  val name = "name"
@@ -169,7 +171,7 @@ class VariablesFromPatternsEvaluationTest extends ScalaDebuggerTestCase{
   }
 
   def testAnonymousInMatch() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
         |object Sample {
         |  val name = "name"

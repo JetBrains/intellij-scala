@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
+import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 14.11.11
@@ -7,7 +9,7 @@ package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
 class NewTemplateEvaluationTest extends ScalaDebuggerTestCase {
   def testJavaLib() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -25,7 +27,7 @@ class NewTemplateEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testInnerClass() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  class Expr {}
@@ -43,7 +45,7 @@ class NewTemplateEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testOverloadingClass() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  class Expr(s: String) {
