@@ -36,5 +36,5 @@ class ScalaApplicationUsagesCollector extends AbstractApplicationUsagesCollector
 
   }
 
-  override def getGroupId: GroupDescriptor = new GroupDescriptor("Scala")
+  override def getGroupId: GroupDescriptor = GroupDescriptor.create("Scala")
 }
