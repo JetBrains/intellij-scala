@@ -26,7 +26,7 @@ import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener, Docum
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
-import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaVariableValidator, ConflictsReporter}
+import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaNamesUtil, ScalaVariableValidator, ConflictsReporter}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
@@ -60,6 +60,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
   private val myBalloonPanel: JPanel = new JPanel()
   private var nameIsValid: Boolean = true
   private val isEnumerator: Boolean = newDeclaration.isInstanceOf[ScEnumerator]
+  private val initialName = ScalaNamesUtil.scalaName(namedElement)
 
   private val myLabel = new JLabel()
   private val myLabelPanel = new JPanel()
@@ -117,6 +118,8 @@ class ScalaInplaceVariableIntroducer(project: Project,
     if (mySpecifyTypeChb != null) mySpecifyTypeChb.isSelected
     else ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_EXPLICIT_TYPE
   }
+
+  override def getInitialName: String = initialName
 
   protected override def getComponent: JComponent = {
 
@@ -291,7 +294,8 @@ class ScalaInplaceVariableIntroducer(project: Project,
             myEditor.getCaretModel.moveToOffset(myExprMarker.getEndOffset)
           }
         } else if (getDeclaration != null) {
-          myEditor.getCaretModel.moveToOffset(getDeclaration.getTextRange.getEndOffset)
+          val declaration = getDeclaration
+          myEditor.getCaretModel.moveToOffset(declaration.getTextRange.getEndOffset)
         }
       } else if (getDeclaration != null) {
         val revertInfo = editor.getUserData(ScalaIntroduceVariableHandler.REVERT_INFO)
