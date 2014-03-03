@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test
 
-import com.intellij.psi.search.{ProjectScope, GlobalSearchScope}
+import com.intellij.psi.search.GlobalSearchScope
 import org.jdom.Element
 import config.ScalaFacet
 import collection.JavaConversions._
@@ -14,7 +14,7 @@ import com.intellij.openapi.components.PathMacroManager
 import lang.psi.impl.ScalaPsiManager
 import lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import com.intellij.psi.{PsiModifierList, PsiPackage, JavaPsiFacade, PsiClass}
-import com.intellij.openapi.util.{JDOMExternalizable, Computable, JDOMExternalizer, Getter}
+import com.intellij.openapi.util.{Computable, JDOMExternalizer, Getter}
 
 import testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
 import com.intellij.execution._
@@ -369,7 +369,6 @@ abstract class AbstractTestRunConfiguration(val project: Project,
             val outputStream = new FileOutputStream(fileWithParams)
             val printer: PrintStream = new PrintStream(outputStream)
             if (getFailedTests == null) {
-              printer.println("-classpath")
               printer.println("-s")
               for (cl <- getClasses) {
                 printer.println(cl)
