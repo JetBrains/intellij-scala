@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
  */
 
 class ScalaFieldEvaluationTest extends ScalaDebuggerTestCase {
-  def testStaticScalaFromPackageObject() {
+  def testStaticScalaFromPackObj() {
     addFileToProject("Sample.scala",
       """
       |object Sample {
