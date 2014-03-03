@@ -1247,9 +1247,7 @@ object ScalaPsiUtil {
             case named: PsiNamedElement if hasStablePath(named) =>
               named match {
                 case clazz: PsiClass => replaceStablePath(stableRef, clazz.name, clazz)
-                case typeAlias: ScTypeAlias if typeAlias.containingClass != null &&
-                        Seq("scala", "scala.Predef").contains(typeAlias.containingClass.qualifiedName) =>
-                  replaceStablePath(stableRef, typeAlias.name, typeAlias)
+                case typeAlias: ScTypeAlias => replaceStablePath(stableRef, typeAlias.name, typeAlias)
                 case binding: ScBindingPattern => replaceStablePath(stableRef, binding.name, binding)
                 case _ => adjustTypes(child)
               }
