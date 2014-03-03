@@ -25,7 +25,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
   
-  def testLocalClassParameter() {
+  def testLocalClassParam() {
     addFileToProject("Sample.scala",
       """
       |class A(x: Int) {
@@ -74,7 +74,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
 
-  def testLocalFromForStatementFromOutside() {
+  def testLocalFromForStmtFromOut() {
     addFileToProject("Sample.scala",
       """
       |object Sample {
@@ -221,7 +221,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
   
-  def testLocalOuterFromClojureAndClass() {
+  def testLocalFromClojureAndClass() {
     addFileToProject("Sample.scala",
       """
         |object Sample {
@@ -360,7 +360,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
   
-  def testLocalMethodLocalMethodLocalClassLocalMethod() {
+  def testLocMethLocMethLocClassLocMeth() {
     addFileToProject("Sample.scala",
       """
       |object Sample {

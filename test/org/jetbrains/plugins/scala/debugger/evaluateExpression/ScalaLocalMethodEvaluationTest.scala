@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
  */
 
 class ScalaLocalMethodEvaluationTest extends ScalaDebuggerTestCase {
-  def testSimpleLocalFunction() {
+  def testSimple() {
     addFileToProject("Sample.scala",
       """
       |object Sample {
@@ -26,7 +26,7 @@ class ScalaLocalMethodEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
 
-  def testLocalFunctionWithParameters() {
+  def testLocalWithParameters() {
     addFileToProject("Sample.scala",
       """
       |object Sample {
@@ -45,7 +45,7 @@ class ScalaLocalMethodEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
 
-  def testSimpleLocalFunctionWithParameters() {
+  def testSimpleLocalWithParams() {
     addFileToProject("Sample.scala",
       """
       |object Sample {
@@ -64,7 +64,7 @@ class ScalaLocalMethodEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
 
-  def testSimpleLocalFunctionWithParametersWithDifferentParameters1() {
+  def testSimpleLocalWithDiffParams1() {
     addFileToProject("Sample.scala",
       """
       |object Sample {
@@ -84,7 +84,7 @@ class ScalaLocalMethodEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
 
-  def testSimpleLocalFunctionWithParametersWithDifferentParameters2() {
+  def testSimpleLocalWithDiffParams2() {
     addFileToProject("Sample.scala",
       """
       |object Sample {
@@ -104,7 +104,7 @@ class ScalaLocalMethodEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
 
-  def testSimpleLocalFunctionWithParametersWithDifferentParameters3() {
+  def testSimpleLocalWithDiffParams3() {
     addFileToProject("Sample.scala",
       """
       |object Sample {
@@ -124,7 +124,7 @@ class ScalaLocalMethodEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
 
-  def testLocalFunctionWithLocalObject() {
+  def testLocalWithLocalObject() {
     addFileToProject("Sample.scala",
       """
       |object Sample {
@@ -144,7 +144,7 @@ class ScalaLocalMethodEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
 
-  def testLocalFunctionWithField() {
+  def testLocalWithField() {
     addFileToProject("Sample.scala",
       """
       |object Sample {
@@ -218,7 +218,7 @@ class ScalaLocalMethodEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
 
-  def testLocalWithDefaultAndNamedParameters() {
+  def testLocalWithDefaultAndNamedParams() {
     addFileToProject("Sample.scala",
       """
         |object Sample {

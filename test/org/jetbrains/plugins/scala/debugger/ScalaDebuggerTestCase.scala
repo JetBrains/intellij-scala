@@ -261,7 +261,7 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestBase {
   }
 
   private def testDataBasePath: Path = {
-    val testClassName = this.getClass.getSimpleName
+    val testClassName = this.getClass.getSimpleName.stripSuffix("Test")
     val path = FileSystems.getDefault.getPath(TestUtils.getTestDataPath, "debugger", testClassName, getTestName(true))
     if (path.toFile.exists()) path
     else Files.createDirectories(path)
