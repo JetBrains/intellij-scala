@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
+import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+
 
 /**
  * User: Alefas
@@ -8,7 +10,7 @@ package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
 class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
   def testBigIntAndSorted() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -26,7 +28,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testBoxing() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -44,7 +46,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
   }
   
   def testSmartBoxing() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def foo(x: AnyVal) = 1
@@ -65,7 +67,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
   }  
 
   def testChangingFunction() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  var i = 1
@@ -88,7 +90,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testSimpleFunction() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def foo() = 2
@@ -106,7 +108,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
   }
   
   def testApplyCall() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  class A {
@@ -128,7 +130,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
   }
   
   def testCurriedFunction() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def foo(x: Int)(y: Int) = x * 2 + y
@@ -146,7 +148,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
   }
   
   def testArrayApplyFunction() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args : Array[String]) {
@@ -165,7 +167,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testOverloadedFunction() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def foo(x: Int) = 1
@@ -185,7 +187,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testImplicitConversion() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args : Array[String]) {
@@ -203,7 +205,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testSequenceArgument() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def moo(x: String*) = x.foldLeft(0)(_ + _.length())
@@ -222,7 +224,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testArrayLengthFunction() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args : Array[String]) {
@@ -241,7 +243,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testSimpleFunctionFromInner() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def foo() = 2
@@ -264,7 +266,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testLibraryFunction() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -281,7 +283,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
   }
   
   def testDynamicFunctionApplication() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |class A
       |class B extends A {
@@ -303,7 +305,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testSubstringFunction() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -321,7 +323,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testNonStaticFunction() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def foo() = 2
@@ -354,7 +356,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testDefaultAndNamedParameters() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def foo(x: Int, y: Int = 1, z: Int)(h: Int = x + y, m: Int) = x + y + z + h + m
@@ -374,7 +376,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testRepeatedParameters() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def foo(x: String*) = x.foldLeft("")(_ + _)
@@ -394,7 +396,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testImplicitParameters() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def moo(x: Int)(implicit s: String) = x + s.length()
@@ -421,7 +423,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testCaseClasses() {
-    myFixture.addFileToProject("com/Sample.scala",
+    addFileToProject("com/Sample.scala",
       """
       |package com
       |case class A(x: Int)
