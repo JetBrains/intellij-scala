@@ -252,7 +252,7 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestBase {
 
   override protected def addFileToProject(relPath: String, fileText: String) {
     val srcPath = Paths.get("src", relPath)
-    if (needMake || !checkSourceFile(srcPath.toString, fileText)) {
+    if (needMake || !checkSourceFile(srcPath, fileText)) {
       needMake = true
       val file = testDataBasePath.resolve(srcPath).toFile
       if (file.exists()) file.delete()
@@ -327,8 +327,10 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestBase {
     !needMake && checksums.keys.forall(checkFile) && getImlFile != null
   }
 
-  private def checkSourceFile(relPath: String, fileText: String): Boolean = {
-    util.Arrays.equals(checksums(relPath), MessageDigest.getInstance("MD5").digest(fileText.getBytes(StandardCharsets.UTF_8)))
+  private def checkSourceFile(relPath: Path, fileText: String): Boolean = {
+    val file = testDataBasePath.resolve(relPath).toFile
+    val oldText = scala.io.Source.fromFile(file, "UTF-8").mkString
+    oldText == fileText
   }
   
   private def checkFile(relPath: String): Boolean = {
