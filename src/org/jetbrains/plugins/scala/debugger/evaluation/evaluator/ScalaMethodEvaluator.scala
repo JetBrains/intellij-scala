@@ -59,6 +59,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
           val allMethods = referenceType.allMethods()
           allMethods.toList.collect {
             case method if !localMethod && method.name() == methodName => (method, 1)
+            case method if !localMethod && method.name().endsWith("$$" + methodName) => (method, 1) //private method, maybe from parent class
             case method if localMethod && method.name() == localMethodName => (method, 1)
             case method if localMethod && method.name.startsWith(methodName + "$") => (method, 2)
             case method if localMethod && method.name.contains(methodName + "$") => (method, 3)
