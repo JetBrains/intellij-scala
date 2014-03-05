@@ -5,31 +5,24 @@ package completion
 import psi._
 import api.base.ScReferenceElement
 import psi.api.base.patterns.ScCaseClause
-import psi.api.expr.ScBlock
 import psi.api.ScalaFile
 import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.api.base.types.ScTypeElement
-import com.intellij.lang.ASTNode;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiErrorElement;
-import com.intellij.psi.filters.ElementFilter;
-import org.jetbrains.annotations.NonNls;
+
+
+
+
+
 import com.intellij.psi._
-import codeStyle.CodeStyleSettingsManager
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
 import com.intellij.codeInsight.completion.{PrefixMatcher, CompletionParameters}
-import com.intellij.codeInsight.lookup.LookupElement
-import lang.resolve.ResolveUtils
 import refactoring.namesSuggester.NameSuggester
 import types.ScType
-import collection.mutable.{ArrayBuffer, HashMap}
-import formatting.settings.ScalaCodeStyleSettings
+import collection.mutable.ArrayBuffer
 import com.intellij.openapi.util.Key
 
 /**
@@ -110,9 +103,9 @@ object ScalaCompletionUtil {
     if (offset < 0) {
       return null
     }
-    var candidate: PsiElement = element.getContainingFile()
+    var candidate: PsiElement = element.getContainingFile
     if (candidate == null || candidate.getNode == null) return null
-    while (candidate.getNode().getChildren(null).length > 0) {
+    while (candidate.getNode.getChildren(null).length > 0) {
       candidate = candidate.findElementAt(offset)
       if (candidate == null || candidate.getNode == null) return null
     }
@@ -125,37 +118,32 @@ object ScalaCompletionUtil {
    */
   def getForAll(parent: PsiElement, leaf: PsiElement): (Boolean, Boolean) = {
     parent match {
-      case _: ScalaFile => {
-        if (leaf.getNextSibling != null && leaf.getNextSibling().getNextSibling().isInstanceOf[ScPackaging] &&
+      case _: ScalaFile =>
+        if (leaf.getNextSibling != null && leaf.getNextSibling.getNextSibling.isInstanceOf[ScPackaging] &&
                 leaf.getNextSibling.getNextSibling.getText.indexOf('{') == -1)
           return (true, false)
-      }
       case _ =>
     }
     parent match {
-      case _: ScalaFile | _: ScPackaging => {
+      case _: ScalaFile | _: ScPackaging =>
         var node = leaf.getPrevSibling
         if (node.isInstanceOf[PsiWhiteSpace]) node = node.getPrevSibling
         node match {
-          case x: PsiErrorElement => {
+          case x: PsiErrorElement =>
             val s = ErrMsg("wrong.top.statment.declaration")
             x.getErrorDescription match {
               case `s` => return (true, true)
               case _ => return (true, false)
             }
-          }
           case _ => return (true, true)
         }
-      }
-      case expr: ScReferenceExpression => {
+      case expr: ScReferenceExpression =>
         parent.getParent match {
-          case _: ScBlockExpr | _: ScTemplateBody | _: ScBlock | _: ScCaseClause => {
+          case _: ScBlockExpr | _: ScTemplateBody | _: ScBlock | _: ScCaseClause =>
             if (awful(parent, leaf))
               return (true, true)
-          }
           case _ =>
         }
-      }
       case _ =>
     }
 
