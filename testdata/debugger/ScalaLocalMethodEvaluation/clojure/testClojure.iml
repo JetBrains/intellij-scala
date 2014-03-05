@@ -14,7 +14,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
     </content>
     <orderEntry type="library" name="scala-compiler" level="project" />
-    <orderEntry type="jdk" jdkName="java version &quot;1.7.0_17&quot;" jdkType="JavaSDK" />
+    <orderEntry type="jdk" jdkName="java version &quot;1.7.0_51&quot;" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
