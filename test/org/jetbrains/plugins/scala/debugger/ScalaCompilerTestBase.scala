@@ -16,7 +16,7 @@ import com.intellij.openapi.compiler.{CompileContext, CompilerMessageCategory, C
 import javax.swing.SwingUtilities
 import scala.collection.mutable.ListBuffer
 import junit.framework.Assert
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.openapi.projectRoots._
 import org.jetbrains.plugins.scala.util.TestUtils
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
@@ -85,6 +85,15 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase {
     UIUtil.invokeAndWaitIfNeeded(new Runnable {
       def run() {
         try {
+          if (useExternalCompiler) {
+            getProject.save()
+            CompilerTestUtil.saveApplicationSettings()
+            val ioFile: File = VfsUtilCore.virtualToIoFile(myModule.getModuleFile)
+            if (!ioFile.exists) {
+              getProject.save()
+              assert(ioFile.exists, "File does not exist: " + ioFile.getPath)
+            }
+          }
           CompilerManager.getInstance(getProject).rebuild(callback)
         }
         catch {

@@ -271,6 +271,11 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestBase {
 
   def md5(file: File): Array[Byte] = {
     val md = MessageDigest.getInstance("MD5")
+    val isSource = file.getName.endsWith(".java") || file.getName.endsWith(".scala")
+    if (isSource) {
+      val text = scala.io.Source.fromFile(file, "UTF-8").mkString.replace("\r", "")
+      md.digest(text.getBytes(StandardCharsets.UTF_8))
+    }
     md.digest(Files.readAllBytes(file.toPath))
   }
   
@@ -330,7 +335,7 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestBase {
   private def checkSourceFile(relPath: Path, fileText: String): Boolean = {
     val file = testDataBasePath.resolve(relPath).toFile
     val oldText = scala.io.Source.fromFile(file, "UTF-8").mkString
-    oldText == fileText
+    oldText.replace("\r", "") == fileText.replace("\r", "")
   }
   
   private def checkFile(relPath: String): Boolean = {
