@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package typeInference
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{Unit, ScType}
 import base.{ScalaLightPlatformCodeInsightTestCaseAdapter, ScalaPsiTestCase}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiManager}
@@ -49,7 +49,10 @@ abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCa
     val addOne = if(PsiTreeUtil.getParentOfType(scalaFile.findElementAt(startOffset),classOf[ScExpression]) != null) 0 else 1 //for xml tests
     val expr: ScExpression = PsiTreeUtil.findElementOfClassAtRange(scalaFile, startOffset + addOne, endOffset, classOf[ScExpression])
     assert(expr != null, "Not specified expression in range to infer type.")
-    val typez = expr.getType(TypingContext.empty)
+    val typez = expr.getType(TypingContext.empty) match {
+      case Success(Unit, _) => expr.getTypeIgnoreBaseType(TypingContext.empty)
+      case x => x
+    }
     typez match {
       case Success(ttypez, _) =>
         val res = ScType.presentableText(ttypez)
