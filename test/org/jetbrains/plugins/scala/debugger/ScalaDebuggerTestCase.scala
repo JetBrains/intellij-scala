@@ -275,8 +275,9 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestBase {
     if (isSource) {
       val text = scala.io.Source.fromFile(file, "UTF-8").mkString.replace("\r", "")
       md.digest(text.getBytes(StandardCharsets.UTF_8))
+    } else {
+      md.digest(Files.readAllBytes(file.toPath))
     }
-    md.digest(Files.readAllBytes(file.toPath))
   }
   
   private def computeChecksums(): mutable.HashMap[String, Array[Byte]] = {
