@@ -11,6 +11,10 @@ import com.intellij.openapi.util.Segment
  */
 
 class CaretModelStub extends CaretModel {
+  override def setCaretsAndSelections(caretStates: util.List[CaretState]): Unit = ???
+
+  override def getCaretCount: Int = ???
+
   override def getTextAttributes: TextAttributes = null
 
   override def getVisualLineEnd: Int = 0
@@ -38,8 +42,6 @@ class CaretModelStub extends CaretModel {
   override def moveCaretRelatively(columnShift: Int, lineShift: Int, withSelection: Boolean, blockSelection: Boolean, scrollToCaret: Boolean): Unit = {}
 
   override def isUpToDate = false
-
-  override def setCaretsAndSelections(caretPositions: util.List[LogicalPosition], selections: util.List[_ <: Segment]): Unit = ???
 
   override def removeSecondaryCarets(): Unit = ???
 
