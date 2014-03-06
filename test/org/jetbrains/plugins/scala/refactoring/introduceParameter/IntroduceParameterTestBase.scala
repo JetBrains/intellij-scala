@@ -93,13 +93,14 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
             PsiDocumentManager.getInstance(project).commitAllDocuments()
             val (expr: ScExpression, typez: ScType) = ScalaRefactoringUtil.
                     getExpression(project, editor, scalaFile, startOffset, endOffset).get
+            val types = ScalaRefactoringUtil.addPossibleTypes(typez, expr)
             val function = PsiTreeUtil.getContextOfType(expr, true, classOf[ScFunctionDefinition])
             val methodToSearchFor: PsiMethod = SuperMethodWarningUtil.checkSuperMethod(function, RefactoringBundle.message("to.refactor"))
 
             val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr),
               function.body.getOrElse(function))
             val processor = new ScalaIntroduceParameterProcessor(project, editor, methodToSearchFor, function,
-              replaceAllOccurrences, occurrences, startOffset, endOffset, paramName, isDefaultParam, typez, expr)
+              replaceAllOccurrences, occurrences, startOffset, endOffset, paramName, isDefaultParam, types(0), expr)
             processor.run()
           }
         }
