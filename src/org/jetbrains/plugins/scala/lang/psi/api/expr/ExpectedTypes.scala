@@ -206,7 +206,8 @@ private[expr] object ExpectedTypes {
       }) =>
         v.returnTypeElement match {
           case Some(te) => v.returnType.toOption.map(x => (x, Some(te))).toArray
-          case _ => v.getInheritedReturnType .map((_, None)).toArray
+          case None if !v.hasAssign => Array((types.Unit, None))
+          case _ => v.getInheritedReturnType.map((_, None)).toArray
         }
       //default parameters
       case param: ScParameter =>
