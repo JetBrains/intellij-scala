@@ -212,8 +212,8 @@
         <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestTestFramework"/>
 
         <java.elementFinder implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses"/>
-        <java.elementFinder implementation="org.jetbrains.plugins.scala.finder.ScalaClassFinder" order="first"/>
-        <java.elementFinder implementation="org.jetbrains.plugins.scala.finder.ScalaPackageFinder" order="first"/>
+        <java.elementFinder implementation="org.jetbrains.plugins.scala.finder.ScalaClassFinder"/>
+        <java.elementFinder implementation="org.jetbrains.plugins.scala.finder.ScalaPackageFinder"/>
         <java.shortNamesCache implementation="org.jetbrains.plugins.scala.caches.ScalaShortNamesCache"/>
         <typeHierarchyProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.hierarchy.ScalaTypeHierarchyProvider"/>
         <methodHierarchyProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.hierarchy.ScalaMethodHierarchyProvider"/>
