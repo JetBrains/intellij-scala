@@ -27,7 +27,7 @@ class ScalaBlockCompositeRule(val testFunction: Block => Boolean,
     val ruleInstance = matcher.ruleInstance(parentInfo, this, top)
       if (testFunction(block)) compositeRule.check(block, Some(RuleParentInfo(ruleInstance, 0)), top, matcher) match {
       case Some(found) =>
-        Some(ruleInstance.createMatch(found))
+        Some(ruleInstance.createMatch(block, found))
       case None => None
     } else None
   }

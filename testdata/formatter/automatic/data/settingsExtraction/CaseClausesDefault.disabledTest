@@ -1,4 +1,4 @@
-match (e) {
+e match {
   case 123    => a
   case 11     => b
   case 324325 => c

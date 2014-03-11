@@ -1,0 +1,17 @@
+e match {
+  case 123 => a
+  case 1 => a
+  case 112312323 => a
+}
+------
+e match {
+case 123 => a
+case 1 => a
+case 112312323 => a
+}
+------
+e match {
+  case 123 => a
+  case 1 => a
+  case 112312323 => a
+}

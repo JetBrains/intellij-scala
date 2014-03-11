@@ -174,8 +174,10 @@ package object rule {
 
   val maybeGuard = MaybeRule(guard, "MAYBE GUARD")
 
+  val caseClauseArrowAnchor = "CASE CLAUSE ARROW ANCHOR"
+
   val caseClause = ScalaBlockCompositeRule(ScalaElementTypes.CASE_CLAUSE,
-    ScalaFormattingCompositeRule("CASE CLAUSE", caseWord, pattern, maybeGuard, `=>`, block)
+    ScalaFormattingCompositeRule("CASE CLAUSE", caseWord, pattern, maybeGuard, `=>`.anchor(caseClauseArrowAnchor), block)
     , ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "CASE CLAUSE COMPOSITE")
 
   val caseClauses = ScalaSomeRule(1, caseClause.anchor("CASE CLAUSE ANCHOR"), "CASE CLAUSES")
@@ -183,6 +185,10 @@ package object rule {
   val caseClausesComposite = ScalaBlockCompositeRule(ScalaElementTypes.CASE_CLAUSES, caseClauses, ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "CASE CLAUSES COMPOSITE")
 
   val caseClausesMonolithic = ScalaBlockRule("CASE CLAUSES MONOLITHIC", ScalaElementTypes.CASE_CLAUSES)
+
+  val matchWord = ScalaBlockRule("match", "MATCH WORD")
+
+  val matchRule = ScalaBlockCompositeRule(ScalaElementTypes.MATCH_STMT, ScalaFormattingCompositeRule("MATCH COMPOSITE", expr, matchWord, leftBrace, caseClausesMonolithic, rightBrace), ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "MATCH RULE")
 
   val bracedMonolithicClausesBlock = ScalaBlockCompositeRule(ScalaElementTypes.BLOCK_EXPR, ScalaFormattingCompositeRule("BRACED MONOLITHIC CLAUSES BLOCK COMPOSITE", leftBrace, caseClausesMonolithic, rightBrace), ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "BRACED MONOLITHIC CLAUSES BLOCK")
 

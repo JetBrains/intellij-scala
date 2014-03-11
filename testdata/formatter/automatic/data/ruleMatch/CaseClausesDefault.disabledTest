@@ -9,31 +9,31 @@ CASE CLAUSES COMPOSITE
 ------
 |CASE CLAUSES COMPOSITE
   |CASE CLAUSES; position: 0
-    |CASE CLAUSE COMPOSITE; position: 0
+    |CASE CLAUSE COMPOSITE; position: 0; anchor: CASE CLAUSE ANCHOR
       |CASE CLAUSE; position: 0
         |CASE WORD; position: 0
         |PATTERN BLOCK; position: 1
         |MAYBE GUARD; position: 2
-        |=>; position: 3
+        |=>; position: 3; anchor: CASE CLAUSE ARROW ANCHOR
         |BLOCK; position: 4
-    |CASE CLAUSE COMPOSITE; position: 0
+    |CASE CLAUSE COMPOSITE; position: 0; anchor: CASE CLAUSE ANCHOR
       |CASE CLAUSE; position: 0
         |CASE WORD; position: 0
         |PATTERN BLOCK; position: 1
         |MAYBE GUARD; position: 2
-        |=>; position: 3
+        |=>; position: 3; anchor: CASE CLAUSE ARROW ANCHOR
         |BLOCK; position: 4
-    |CASE CLAUSE COMPOSITE; position: 0
+    |CASE CLAUSE COMPOSITE; position: 0; anchor: CASE CLAUSE ANCHOR
       |CASE CLAUSE; position: 0
         |CASE WORD; position: 0
         |PATTERN BLOCK; position: 1
         |MAYBE GUARD; position: 2
-        |=>; position: 3
+        |=>; position: 3; anchor: CASE CLAUSE ARROW ANCHOR
         |BLOCK; position: 4
-    |CASE CLAUSE COMPOSITE; position: 0
+    |CASE CLAUSE COMPOSITE; position: 0; anchor: CASE CLAUSE ANCHOR
       |CASE CLAUSE; position: 0
         |CASE WORD; position: 0
         |PATTERN BLOCK; position: 1
         |MAYBE GUARD; position: 2
-        |=>; position: 3
+        |=>; position: 3; anchor: CASE CLAUSE ARROW ANCHOR
         |BLOCK; position: 4

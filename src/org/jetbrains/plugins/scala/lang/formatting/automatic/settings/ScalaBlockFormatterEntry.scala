@@ -9,8 +9,13 @@ import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock
  * @author Roman.Shein
  *         Date: 07.11.13
  */
-class ScalaBlockFormatterEntry(val spacing: SpacingInfo, val indentInfo: Option[IndentInfo],
-                               val alignment: AlignmentSetting, val wrap: WrapSetting, val instances: List[ScalaBlock], val ruleInstance: ScalaFormattingRuleInstance) {
+class ScalaBlockFormatterEntry(val spacing: SpacingInfo,
+                               val indentInfo: Option[IndentInfo],
+                               val alignment: AlignmentSetting,
+                               val wrap: WrapSetting,
+                               val instances: List[ScalaBlock],
+                               val ruleInstance: ScalaFormattingRuleInstance,
+                               val originatingFromNoSpaceChild: Boolean = false) {
   def setWrap(wrapType: WrapType) = new ScalaBlockFormatterEntry(spacing, indentInfo, alignment, new WrapSetting(wrap.needWrap, Some(wrapType)), instances, ruleInstance)
 
   override def toString = " | " + spacing.toString +
@@ -34,6 +39,9 @@ class ScalaBlockFormatterEntry(val spacing: SpacingInfo, val indentInfo: Option[
 }
 
 object ScalaBlockFormatterEntry {
+  def apply(spacing: SpacingInfo, indentInfo: IndentInfo, block: ScalaBlock,
+            ruleInstance: ScalaFormattingRuleInstance, originatingFromNoSpaceChild: Boolean): ScalaBlockFormatterEntry =
+    new ScalaBlockFormatterEntry(spacing, Some(indentInfo), AlignmentSetting(false), WrapSetting(false), List[ScalaBlock](block), ruleInstance, originatingFromNoSpaceChild)
   def apply(spacing: SpacingInfo, indentInfo: IndentInfo, block: ScalaBlock,
             ruleInstance: ScalaFormattingRuleInstance): ScalaBlockFormatterEntry =
     new ScalaBlockFormatterEntry(spacing, Some(indentInfo), AlignmentSetting(false), WrapSetting(false), List[ScalaBlock](block), ruleInstance)

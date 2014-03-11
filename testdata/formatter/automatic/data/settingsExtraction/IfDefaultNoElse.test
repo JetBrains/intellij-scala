@@ -5,17 +5,17 @@ if (condition) {
 IF DEFAULT
 ----------
 |IF DEFAULT no settings derived for this match
-  |IF DEFAULT COMPOSITE; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
-    |IF COMPOSITE BLOCK; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
-      |IF COMPOSITE; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
-        |IF WORD; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+  |IF DEFAULT COMPOSITE; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: 0 isRelative: true type: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+    |IF COMPOSITE BLOCK; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: 0 isRelative: true type: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+      |IF COMPOSITE; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: 0 isRelative: true type: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+        |IF WORD; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: 0 isRelative: true type: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
         |LEFT_PARENTHESIS; position: 1 | Spacing: 1 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
         |EXPR; position: 2 | Spacing: 0 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
         |RIGHT_PARENTHESIS; position: 3 | Spacing: 0 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
         |MAYBE BRACED EXPR; position: 4 | Spacing: 1 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
           |BRACED BLOCK EXPR; position: 0 | Spacing: 1 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
-            |BRACED EXPR; position: 0 | Spacing: 1 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
-              |LEFT_BRACE; position: 0 | Spacing: 1 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+            |BRACED EXPR; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: 0 isRelative: true type: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+              |LEFT_BRACE; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: 0 isRelative: true type: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
               |EXPR; position: 1 | Spacing: 0 newLines: min * max * actual 1 | Indent: 2 isRelative: false type: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
               |RIGHT_BRACE; position: 2 | Spacing: 0 newLines: min * max * actual 1 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
     |MAYBE ELSE; position: 1 no settings derived for this match

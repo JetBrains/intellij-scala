@@ -182,7 +182,7 @@ class ScalaBlock (val myParentBlock: ScalaBlock,
     helper(myNode.getTreePrev)
   }
 
-  def getInitialWhiteSpace: String = {
+  def getInitialSpacing: Option[PsiWhiteSpace] = {
     @tailrec
     def getPrevNode(element: PsiElement): Option[PsiElement] = {
       if (element == null) None
@@ -193,11 +193,16 @@ class ScalaBlock (val myParentBlock: ScalaBlock,
     }
     getPrevNode(myNode.getPsi) match {
       case Some(prevSibling) => lastLeaf(prevSibling) match {
-        case spacing: PsiWhiteSpace => spacing.getText
-        case _ => ""
+        case spacing: PsiWhiteSpace => Some(spacing)
+        case _ => None
       }
-      case None => ""
+      case None => None
     }
+  }
+
+  def getInitialWhiteSpace: String = getInitialSpacing match {
+    case Some(spacing) => spacing.getText
+    case one => ""
   }
 
   def getInLineOffset: Int = {
@@ -219,8 +224,13 @@ class ScalaBlock (val myParentBlock: ScalaBlock,
    * Returns relative indent length with indent counted from direct parent.
    * @return indent length in space characters
    */
-  def getIndentFromDirectParent: Int =
-    getInitialWhiteSpace.length - myParentBlock.getInLineOffset
+  def getIndentFromDirectParent: Int = {
+    val initialWS = getInitialWhiteSpace
+    initialWS.substring(initialWS.lastIndexOf("\n") match {
+      case -1 => 0
+      case lastIndex: Int => lastIndex + 1
+    }).length - myParentBlock.getInLineOffset
+  }
 
   /**
    * Returns relative indent length with indent counted from first ancestor located on new line.
@@ -228,19 +238,22 @@ class ScalaBlock (val myParentBlock: ScalaBlock,
    */
   def getIndentFromNewlineAncestor: Option[Int] = {
     @tailrec
-    def helper(block: ScalaBlock, startOffset: Int): Option[Int] = {
+    def helper(block: ScalaBlock, startOffset: Int, startLineNumber: Int): Option[Int] = {
       val parent = block.myParentBlock
       if (parent == null) {
         return None
       }
-      if (parent.isOnNewLine) {
+      if (parent.isOnNewLine && parent.getInLineOffset < startOffset) {
         Some(startOffset - parent.getInLineOffset)
       } else {
-        helper(parent, startOffset)
+        helper(parent, startOffset, startLineNumber)
       }
     }
-    helper(this, getInLineOffset)
+    helper(this, getInLineOffset, getLineNumber)
   }
+
+  def getLineNumber: Int = PsiDocumentManager.getInstance(getNode.getPsi.getProject).
+          getDocument(getNode.getPsi.getContainingFile).getLineNumber(getTextRange.getStartOffset)
 
   //  /**
   //   * Checks whether this block crosses right margin with spacings that are currently present in the document.
@@ -260,7 +273,7 @@ class ScalaBlock (val myParentBlock: ScalaBlock,
   //    firstLineCrosses && lastLineCrosses && lines.slice(1, lines.size - 1).exists(_.length > rightMargin)
   //  }
 
-  def crossesRightMargin: Boolean = crossesRightMargin(getPrevNonWSNode)
+  def crossesRightMargin: Boolean = crossesRightMargin(getNode)
 
   private def crossesRightMargin(node: ASTNode): Boolean = {
     val lines = node.getText.split("\n")

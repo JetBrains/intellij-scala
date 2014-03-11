@@ -16,7 +16,7 @@ class ScalaAutoFormatter(matcher: ScalaFormattingRuleMatcher) {
 
   private val anchorToAlignment = mutable.HashMap[ScalaFormattingRule.Anchor, Alignment]()
 
-  private def getDefaultSpacing = Spacing.getReadOnlySpacing//ScalaSpacingProcessor.COMMON_SPACING
+  private def getDefaultSpacing = Spacing.getReadOnlySpacing//Spacing.createSpacing(0, 0, 0, false, 0)//ScalaSpacingProcessor.COMMON_SPACING//
 
   private def getDefaultIndent = Indent.getNoneIndent
 
@@ -77,7 +77,7 @@ class ScalaAutoFormatter(matcher: ScalaFormattingRuleMatcher) {
             val anchor = ruleInstance.rule.anchor
             assert(anchor.isDefined)
             if (!anchorToAlignment.contains(anchor.get)) {
-              anchorToAlignment.put(anchor.get, Alignment.createAlignment())
+              anchorToAlignment.put(anchor.get, Alignment.createAlignment(true))
             }
             anchorToAlignment.get(anchor.get).get
           } else null
@@ -110,25 +110,25 @@ class ScalaAutoFormatter(matcher: ScalaFormattingRuleMatcher) {
 }
 
 object ScalaAutoFormatter {
-//  def getBlockTreeSettings(topBlock: ScalaBlock, rules: Map[String, ScalaFormattingRule]): IndentTypeSettings = {
-//    val matcher = new ScalaFormattingRuleMatcher(rules)
-//
-//    matchBlocks(topBlock, matcher, rules)
-//
-//    matcher.deriveSettings
-//  }
+  //  def getBlockTreeSettings(topBlock: ScalaBlock, rules: Map[String, ScalaFormattingRule]): IndentTypeSettings = {
+  //    val matcher = new ScalaFormattingRuleMatcher(rules)
+  //
+  //    matchBlocks(topBlock, matcher, rules)
+  //
+  //    matcher.deriveSettings
+  //  }
 
-//  private def matchBlocks(parentBlock: ScalaBlock, matcher: ScalaFormattingRuleMatcher, rules: List[ScalaFormattingRule]) {
-//    import scala.collection.JavaConversions._
-//
-//    //match all rules
-//    for (rule <- rules) {
-//      matcher.matchRule(rule, parentBlock)
-//    }
-//
-//    for (childBlock: Block <- parentBlock.getSubBlocks().toList if childBlock.isInstanceOf[ScalaBlock]) {
-//      matchBlocks(childBlock.asInstanceOf[ScalaBlock], matcher, rules)
-//    }
-//  }
+  //  private def matchBlocks(parentBlock: ScalaBlock, matcher: ScalaFormattingRuleMatcher, rules: List[ScalaFormattingRule]) {
+  //    import scala.collection.JavaConversions._
+  //
+  //    //match all rules
+  //    for (rule <- rules) {
+  //      matcher.matchRule(rule, parentBlock)
+  //    }
+  //
+  //    for (childBlock: Block <- parentBlock.getSubBlocks().toList if childBlock.isInstanceOf[ScalaBlock]) {
+  //      matchBlocks(childBlock.asInstanceOf[ScalaBlock], matcher, rules)
+  //    }
+  //  }
 
 }

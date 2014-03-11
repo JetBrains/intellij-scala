@@ -1,0 +1,20 @@
+e match {
+case 123 => a
+case 11 => b
+case 324325 => c
+case _ => d
+}
+------
+e match {
+case 123    => a
+case 11     => b
+case 324325 => c
+case _      => d
+}
+------
+e match {
+case 123 => a
+case 11 => b
+case 324325 => c
+case _ => d
+}

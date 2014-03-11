@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.RuleParent
 import scala.collection.mutable
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.ScalaFormattingRule
+import com.intellij.openapi.util.TextRange
 
 /**
  * @author Roman.Shein
@@ -33,7 +34,11 @@ class ScalaFormattingRuleInstance (val parentAndPosition: Option[RuleParentInfo]
   }
 
   override def toString = rule.toString + (parentAndPosition match {
-    case Some(parentInfo) => "; position: " + parentInfo.position
+    case Some(parentInfo) => "; position: " + parentInfo.position +
+            (rule.anchor match {
+              case Some(anchor) => "; anchor: " + anchor
+              case None => ""
+            })
     case None => ""
   })
 
@@ -42,6 +47,11 @@ class ScalaFormattingRuleInstance (val parentAndPosition: Option[RuleParentInfo]
     val rule = ScalaFormattingRuleInstance.this
 
     def getFormattingDefiningWhitespace: Option[String] = getFormattingDefiningBlock.map(_.getInitialWhiteSpace)
+
+    def getFormattingWhitespaceTextRange: Option[TextRange] = getFormattingDefiningBlock.map(_.getInitialSpacing.map(_.getTextRange)) match {
+      case Some(textRange) => textRange
+      case _ => None
+    }
 
     //TODO: make this private so ScalaBlock does not make any appearences in formatter engine
     def getFormattingDefiningBlock: Option[ScalaBlock] =
