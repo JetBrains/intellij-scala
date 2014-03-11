@@ -5,7 +5,7 @@ ScalaFile
   ScPackaging
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    CodeReferenceElement
+    CodeReferenceElement: t
       PsiElement(identifier)('t')
     PsiWhiteSpace(' ')
     PsiElement({)('{')

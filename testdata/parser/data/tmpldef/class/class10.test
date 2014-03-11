@@ -1,7 +1,7 @@
 class A (unit : Unit)
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -18,7 +18,7 @@ ScalaFile
       Parameters
         ParametersClause
           PsiElement(()('(')
-          ClassParameter
+          ClassParameter: unit
             AnnotationsList
               <empty list>
             Modifiers
@@ -28,8 +28,8 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: Unit
+                CodeReferenceElement: Unit
                   PsiElement(identifier)('Unit')
           PsiElement())(')')
     ExtendsBlock

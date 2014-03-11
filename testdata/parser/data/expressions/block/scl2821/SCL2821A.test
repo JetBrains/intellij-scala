@@ -1,7 +1,7 @@
 object test { { () => 1; () => 0} }
 -----
 ScalaFile
-  ScObject
+  ScObject: test
     AnnotationsList
       <empty list>
     Modifiers

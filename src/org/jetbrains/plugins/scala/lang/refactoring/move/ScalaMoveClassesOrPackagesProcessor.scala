@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
+import org.jetbrains.plugins.scala.extensions
 
 /**
  * Nikolay.Tropin
@@ -31,7 +32,9 @@ class ScalaMoveClassesOrPackagesProcessor(project: Project,
     else elements
 
 } with MoveClassesOrPackagesProcessor(project, expandedElements, moveDestination, searchInComments, searchInNonJavaFiles, moveCallback){
-
-  expandedElements.foreach(c => ScalaMoveUtil.saveMoveDestination(c, moveDestination.getTargetDirectory(c.getContainingFile)))
+  extensions.inWriteAction {
+    expandedElements.foreach(c =>
+      ScalaMoveUtil.saveMoveDestination(c, moveDestination.getTargetDirectory(c.getContainingFile)))
+  }
 
 }

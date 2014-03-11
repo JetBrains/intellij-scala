@@ -3,7 +3,7 @@ class a{
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -28,7 +28,7 @@ ScalaFile
           PsiElement(()('(')
           Enumerators
             Generator
-              ReferencePattern
+              ReferencePattern: i
                 PsiElement(identifier)('i')
               PsiWhiteSpace(' ')
               PsiElement(<-)('<-')
@@ -37,7 +37,7 @@ ScalaFile
                 Literal
                   PsiElement(integer)('1')
                 PsiWhiteSpace(' ')
-                ReferenceExpression
+                ReferenceExpression: until
                   PsiElement(identifier)('until')
                 PsiWhiteSpace(' ')
                 Literal
@@ -46,7 +46,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(yield)('yield')
           PsiWhiteSpace(' ')
-          ReferenceExpression
+          ReferenceExpression: i
             PsiElement(identifier)('i')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

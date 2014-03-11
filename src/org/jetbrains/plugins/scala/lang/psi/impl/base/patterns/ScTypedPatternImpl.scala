@@ -50,7 +50,7 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     }
   }
 
-  override def toString: String = "TypedPattern"
+  override def toString: String = "TypedPattern: " + name
 
   override def getType(ctx: TypingContext): TypeResult[ScType] = {
     typePattern match {

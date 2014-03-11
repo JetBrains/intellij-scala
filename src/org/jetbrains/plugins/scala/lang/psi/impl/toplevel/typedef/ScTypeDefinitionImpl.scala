@@ -195,7 +195,10 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     } else {
       val count = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
       if (javaQualName != null && count == javaQualNameModCount) return javaQualName
-      var res = qualifiedName(".", encodeName = true)
+      var res = qualifiedName(".", encodeName = true).split('.').map { s =>
+        if (s.startsWith("`") && s.endsWith("`") && s.length > 2) s.drop(1).dropRight(1)
+        else s
+      }.mkString(".")
       this match {
         case o: ScObject =>
           if (o.isPackageObject) res = res + ".package$"
@@ -247,7 +250,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
   }
 
   protected def qualifiedName(classSeparator: String, trunced: Boolean = false,
-                            encodeName: Boolean = false): String = {
+                              encodeName: Boolean = false): String = {
     // Returns prefix with convenient separator sep
     @tailrec
     def _packageName(e: PsiElement, sep: String, k: (String) => String): String = e.getContext match {

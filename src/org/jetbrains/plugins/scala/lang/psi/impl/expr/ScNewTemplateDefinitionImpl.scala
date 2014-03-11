@@ -41,10 +41,10 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
       case None => (Seq.empty, Seq.empty)
     }
 
-    val superTypes = extendsBlock.superTypes.filter(_ match {
+    val superTypes = extendsBlock.superTypes.filter {
       case ScDesignatorType(clazz: PsiClass) => clazz.qualifiedName != "scala.ScalaObject"
-      case _ => true
-    })
+      case _                                 => true
+    }
     if (superTypes.length > 1 || !holders.isEmpty || !aliases.isEmpty) {
       new Success(ScCompoundType(superTypes, holders.toList, aliases.toList, ScSubstitutor.empty), Some(this))
     } else {
@@ -63,7 +63,7 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
  override def processDeclarationsForTemplateBody(processor: PsiScopeProcessor, state: ResolveState,
                                           lastParent: PsiElement, place: PsiElement): Boolean =
   extendsBlock.templateBody match {
-    case Some(body) if (PsiTreeUtil.isContextAncestor(body, place, false)) =>
+    case Some(body) if PsiTreeUtil.isContextAncestor(body, place, false) =>
       super[ScNewTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)
     case _ => true
   }
@@ -74,10 +74,10 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
   override def getName: String = name
 
   override def getSupers: Array[PsiClass] = {
-    val direct = extendsBlock.supers.filter(_ match {
+    val direct = extendsBlock.supers.filter {
       case clazz: PsiClass => clazz.qualifiedName != "scala.ScalaObject"
-      case _ => true
-    }).toArray
+      case _               => true
+    }.toArray
     val res = new ArrayBuffer[PsiClass]
     res ++= direct
     for (sup <- direct if !res.contains(sup)) res ++= sup.getSupers

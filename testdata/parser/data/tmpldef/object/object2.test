@@ -1,7 +1,7 @@
 object a
 -----
 ScalaFile
-  ScObject
+  ScObject: a
     AnnotationsList
       <empty list>
     Modifiers

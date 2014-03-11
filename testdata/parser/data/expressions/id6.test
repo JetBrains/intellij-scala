@@ -3,7 +3,7 @@ class A {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -35,13 +35,13 @@ ScalaFile
               PsiElement(case)('case')
               PsiWhiteSpace(' ')
               ConstructorPattern
-                CodeReferenceElement
+                CodeReferenceElement: Some
                   PsiElement(identifier)('Some')
                 PsiWhiteSpace(' ')
                 Pattern Argument List
                   PsiElement(()('(')
                   StableElementPattern
-                    ReferenceExpression
+                    ReferenceExpression: `m`
                       PsiElement(identifier)('`m`')
                   PsiElement())(')')
               PsiWhiteSpace(' ')

@@ -1,7 +1,7 @@
 class a[+b,c,_[d],f >: g <% h]
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -11,34 +11,34 @@ ScalaFile
     PsiElement(identifier)('a')
     TypeParameterClause
       PsiElement([)('[')
-      TypeParameter
+      TypeParameter: b
         PsiElement(identifier)('+')
         PsiElement(identifier)('b')
       PsiElement(,)(',')
-      TypeParameter
+      TypeParameter: c
         PsiElement(identifier)('c')
       PsiElement(,)(',')
-      TypeParameter
+      TypeParameter: _
         PsiElement(_)('_')
         TypeParameterClause
           PsiElement([)('[')
-          TypeParameter
+          TypeParameter: d
             PsiElement(identifier)('d')
           PsiElement(])(']')
       PsiElement(,)(',')
-      TypeParameter
+      TypeParameter: f
         PsiElement(identifier)('f')
         PsiWhiteSpace(' ')
         PsiElement(>:)('>:')
         PsiWhiteSpace(' ')
-        SimpleTypeElement
-          CodeReferenceElement
+        SimpleTypeElement: g
+          CodeReferenceElement: g
             PsiElement(identifier)('g')
         PsiWhiteSpace(' ')
         PsiElement(<%)('<%')
         PsiWhiteSpace(' ')
-        SimpleTypeElement
-          CodeReferenceElement
+        SimpleTypeElement: h
+          CodeReferenceElement: h
             PsiElement(identifier)('h')
       PsiElement(])(']')
     PrimaryConstructor

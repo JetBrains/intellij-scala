@@ -9,9 +9,9 @@ import _root_.java.util.Comparator
 import _root_.javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import _root_.java.awt.Component
 import _root_.javax.swing.{DefaultListModel, JList}
-import com.intellij.openapi.editor.markup.RangeHighlighter
+import com.intellij.openapi.editor.markup.{HighlighterTargetArea, HighlighterLayer, TextAttributes, RangeHighlighter}
 import com.intellij.codeInsight.highlighting.HighlightManager
-import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColors}
+import com.intellij.openapi.editor.colors.{EditorColorsScheme, EditorColorsManager, EditorColors}
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
@@ -31,7 +31,7 @@ import psi.api.statements.{ScVariableDefinition, ScPatternDefinition, ScFunction
 import lang.resolve.ScalaResolveResult
 import psi.api.expr.xml.ScXmlExpr
 import psi.{ScalaPsiUtil, ScalaPsiElement}
-import psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import com.intellij.openapi.editor.{RangeMarker, VisualPosition, Editor}
 import com.intellij.openapi.actionSystem.DataContext
 import psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
@@ -46,6 +46,7 @@ import com.intellij.refactoring.HelpID
 import java.util
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 
 /**
@@ -53,7 +54,7 @@ import scala.annotation.tailrec
  * Date: 23.06.2008
  */
 
-object ScalaRefactoringUtil {      
+object ScalaRefactoringUtil {
   def trimSpacesAndComments(editor: Editor, file: PsiFile, trimComments: Boolean = true) {
     var start = editor.getSelectionModel.getSelectionStart
     var end = editor.getSelectionModel.getSelectionEnd
@@ -64,8 +65,8 @@ object ScalaRefactoringUtil {
             file.getText.charAt(start) == ' ') start = start + 1
     while (file.findElementAt(end - 1).isInstanceOf[PsiWhiteSpace] ||
             (file.findElementAt(end - 1).isInstanceOf[PsiComment] && trimComments) ||
-           file.getText.charAt(end - 1) == '\n' ||
-           file.getText.charAt(end - 1) == ' ') end = end - 1
+            file.getText.charAt(end - 1) == '\n' ||
+            file.getText.charAt(end - 1) == ' ') end = end - 1
     editor.getSelectionModel.setSelection(start, end)
   }
 
@@ -284,11 +285,32 @@ object ScalaRefactoringUtil {
   }
 
   def highlightOccurrences(project: Project, occurrences: Array[PsiElement], editor: Editor) {
-    highlightOccurrences(project, occurrences.map({el: PsiElement => el.getTextRange}), editor)
+    highlightOccurrences(project, occurrences.map({
+      el: PsiElement => el.getTextRange
+    }), editor)
   }
 
   def showChooser[T <: PsiElement](editor: Editor, elements: Array[T], pass: PsiElement => Unit, title: String,
                                    elementName: T => String, highlightParent: Boolean = false) {
+    class Selection {
+      val selectionModel = editor.getSelectionModel
+      val (start, end) = (selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
+      val scheme = editor.getColorsScheme
+      val textAttributes = new TextAttributes
+      textAttributes.setForegroundColor(scheme.getColor(EditorColors.SELECTION_FOREGROUND_COLOR))
+      textAttributes.setBackgroundColor(scheme.getColor(EditorColors.SELECTION_BACKGROUND_COLOR))
+      var selectionHighlighter: RangeHighlighter = null
+      val markupModel = editor.getMarkupModel
+
+      def addHighlighter() = if (selectionHighlighter == null) {
+        selectionHighlighter = markupModel.addRangeHighlighter(start, end, HighlighterLayer.SELECTION + 1,
+          textAttributes, HighlighterTargetArea.EXACT_RANGE)
+      }
+
+      def removeHighlighter() = if (selectionHighlighter != null) markupModel.removeHighlighter(selectionHighlighter)
+    }
+
+    val selection = new Selection
     val highlighter: ScopeHighlighter = new ScopeHighlighter(editor)
     val model: DefaultListModel[T] = new DefaultListModel
     for (element <- elements) {
@@ -316,17 +338,22 @@ object ScalaRefactoringUtil {
         highlighter.highlight(if (highlightParent) element.getParent else element, toExtract)
       }
     })
+
     JBPopupFactory.getInstance.createListPopupBuilder(list).setTitle(title).setMovable(false).setResizable(false).setRequestFocus(true).setItemChoosenCallback(new Runnable {
       def run() {
         pass(list.getSelectedValue)
       }
     }).addListener(new JBPopupAdapter {
+      override def beforeShown(event: LightweightWindowEvent): Unit = {
+        selection.addHighlighter()
+      }
       override def onClosed(event: LightweightWindowEvent) {
         highlighter.dropHighlight()
+        selection.removeHighlighter()
       }
     }).createPopup.showInBestPositionFor(editor)
   }
-  
+
   def getShortText(expr: ScalaPsiElement): String = {
     val builder = new StringBuilder
     expr match {
@@ -386,7 +413,10 @@ object ScalaRefactoringUtil {
         }
       case p: ScParenthesisedExpr =>
         builder.append("(")
-        p.expr match {case Some(expression) => builder.append(getShortText(expression)) case _ =>}
+        p.expr match {
+          case Some(expression) => builder.append(getShortText(expression))
+          case _ =>
+        }
         builder.append(")")
       case p: ScPostfixExpr =>
         builder.append(getShortText(p.operand))
@@ -430,7 +460,10 @@ object ScalaRefactoringUtil {
       case t: ScTypedStmt =>
         builder.append(getShortText(t.expr))
         builder.append(" : ")
-        builder.append(t.typeElement match {case Some(te) => te.getText case _ => "..."})
+        builder.append(t.typeElement match {
+          case Some(te) => te.getText
+          case _ => "..."
+        })
       case u: ScUnderscoreSection =>
         if (u.bindingExpr == None) builder.append("_")
         else {
@@ -456,14 +489,14 @@ object ScalaRefactoringUtil {
     editor.getDocument.getText.substring(start, end)
   }
 
-  def invokeRefactoring(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext,
-                        refactoringName: String, invokesNext: () => Unit, exprFilter: (ScExpression) => Boolean = e => true) {
+  def afterExpressionChoosing(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext,
+                        refactoringName: String, exprFilter: (ScExpression) => Boolean = e => true)(invokesNext: => Unit) {
 
     if (!editor.getSelectionModel.hasSelection) {
       val offset = editor.getCaretModel.getOffset
       val element: PsiElement = file.findElementAt(offset) match {
         case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset &&
-          w.getText.contains("\n") => file.findElementAt(offset - 1)
+                w.getText.contains("\n") => file.findElementAt(offset - 1)
         case p => p
       }
       def getExpressions: Array[ScExpression] = {
@@ -480,9 +513,8 @@ object ScalaRefactoringUtil {
       }
       val expressions = getExpressions.filter(exprFilter)
       def chooseExpression(expr: ScExpression) {
-        editor.getSelectionModel.setSelection(expr.getTextRange.getStartOffset,
-          expr.getTextRange.getEndOffset)
-        invokesNext()
+        editor.getSelectionModel.setSelection(expr.getTextRange.getStartOffset, expr.getTextRange.getEndOffset)
+        invokesNext
       }
       if (expressions.length == 0)
         editor.getSelectionModel.selectLineAtCaret()
@@ -497,7 +529,7 @@ object ScalaRefactoringUtil {
         return
       }
     }
-    invokesNext()
+    invokesNext
   }
 
   def fileEncloser(startOffset: Int, file: PsiFile): PsiElement = {
@@ -608,24 +640,28 @@ object ScalaRefactoringUtil {
       val leafIdentifier = file.findElementAt(start)
       val parent = leafIdentifier.getParent
       if (parent != null) parent.getParent match {
-        case pars: ScParenthesisedExpr =>
+        case pars @ ScParenthesisedExpr(inner) if !ScalaPsiUtil.needParentheses(pars, inner) =>
           val textRange = pars.getTextRange
-          document.replaceString(textRange.getStartOffset, textRange.getEndOffset, newString)
+          val afterWord = textRange.getStartOffset > 0 && {
+            val prevElemType = file.findElementAt(textRange.getStartOffset - 1).getNode.getElementType
+            ScalaTokenTypes.IDENTIFIER_TOKEN_SET.contains(prevElemType) || ScalaTokenTypes.KEYWORDS.contains(prevElemType)
+          }
+          shift = pars.getTextRange.getStartOffset - inner.getTextRange.getStartOffset + (if (afterWord) 1 else 0)
+          document.replaceString(textRange.getStartOffset, textRange.getEndOffset, (if (afterWord) " " else "") + newString)
           documentManager.commitDocument(document)
-          shift = -2
         case ScPostfixExpr(_, `parent`) =>
           //This case for block argument expression
           val textRange = parent.getTextRange
           document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "(" + newString + ")")
           documentManager.commitDocument(document)
-          shift = 2
+          shift = 1
         case _ if parent.isInstanceOf[ScReferencePattern] =>
           val textRange = parent.getTextRange
           document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "`" + newString + "`")
           documentManager.commitDocument(document)
         case _ =>
       }
-      val newStart = start + shift / 2
+      val newStart = start + shift
       val newEnd = newStart + newString.length
       val newExpr = PsiTreeUtil.findElementOfClassAtRange(file, newStart, newEnd, classOf[ScExpression])
       val newPattern = PsiTreeUtil.findElementOfClassAtOffset(file, newStart, classOf[ScPattern], true)
@@ -651,25 +687,27 @@ object ScalaRefactoringUtil {
 
   @tailrec
   def findParentExpr(elem: PsiElement): ScExpression = {
-    def checkEnd(prev: PsiElement, parExpr: ScExpression): Boolean = {
-      val result: Boolean = prev match {
+    def checkEnd(nextParent: PsiElement, parExpr: ScExpression): Boolean = {
+      if (parExpr.isInstanceOf[ScBlock]) return true
+      val result: Boolean = nextParent match {
         case _: ScBlock => true
         case forSt: ScForStatement if forSt.body.getOrElse(null) == parExpr => false //in this case needBraces == true
         case forSt: ScForStatement => true
         case _ => false
       }
-      result || needBraces(parExpr, prev)
+      result || needBraces(parExpr, nextParent)
     }
-    val expr = PsiTreeUtil.getParentOfType(elem, classOf[ScExpression], false)
-    val prev = previous(expr, elem.getContainingFile)
-    prev match {
-      case prevExpr: ScExpression if !checkEnd(prev, expr) => findParentExpr(prevExpr)
-      case prevExpr: ScExpression if checkEnd(prev, expr) => expr
+    val interpolated = Option(PsiTreeUtil.getParentOfType(elem, classOf[ScInterpolatedStringLiteral], false))
+    val expr = interpolated getOrElse PsiTreeUtil.getParentOfType(elem, classOf[ScExpression], false)
+    val nextPar = nextParent(expr, elem.getContainingFile)
+    nextPar match {
+      case prevExpr: ScExpression if !checkEnd(nextPar, expr) => findParentExpr(prevExpr)
+      case prevExpr: ScExpression if checkEnd(nextPar, expr) => expr
       case _ => expr
     }
   }
 
-  def previous(expr: ScExpression, file: PsiFile): PsiElement = {
+  def nextParent(expr: ScExpression, file: PsiFile): PsiElement = {
     if (expr == null) file
     else expr.getParent match {
       case args: ScArgumentExprList => args.getParent
@@ -706,7 +744,7 @@ object ScalaRefactoringUtil {
     val visitor = new ScalaRecursiveElementVisitor() {
       override def visitReferenceExpression(ref: ScReferenceExpression) {
         ref.getParent match {
-          case ScInfixExpr(_, `ref`, _)  =>
+          case ScInfixExpr(_, `ref`, _) =>
           case ScPostfixExpr(_, `ref`) =>
           case ScPrefixExpr(`ref`, _) =>
           case _ =>
@@ -758,4 +796,5 @@ object ScalaRefactoringUtil {
   private[refactoring] case class RevertInfo(fileText: String, caretOffset: Int)
 
   private[refactoring] class IntroduceException extends Exception
+
 }

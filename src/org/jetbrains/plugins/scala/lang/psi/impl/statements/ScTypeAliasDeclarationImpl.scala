@@ -42,7 +42,7 @@ class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] 
     case n => n
   }
   
-  override def toString: String = "ScTypeAliasDeclaration"
+  override def toString: String = "ScTypeAliasDeclaration: " + name
 
   def lowerBound = lowerTypeElement match {
       case Some(te) => te.getType(TypingContext.empty)

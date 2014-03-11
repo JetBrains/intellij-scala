@@ -2,7 +2,7 @@
  * @param String this is book's test
  * @param <T> strange parameter
  */
-------
+-----
 ScalaFile
   DocComment
     PsiElement(DOC_COMMENT_START)('/**')
@@ -12,7 +12,7 @@ ScalaFile
     DocTag
       PsiElement(DOC_TAG_NAME)('@param')
       PsiElement(DOC_COMMENT_DATA)(' ')
-      ScalaDocTagValue
+      ScalaDocTagValue: String
         PsiElement(DOC_TAG_VALUE_TOKEN)('String')
       PsiElement(DOC_WHITESPACE)(' ')
       PsiElement(DOC_COMMENT_DATA)('this is book's test')
@@ -22,7 +22,7 @@ ScalaFile
     DocTag
       PsiElement(DOC_TAG_NAME)('@param')
       PsiElement(DOC_COMMENT_DATA)(' ')
-      ScalaDocTagValue
+      ScalaDocTagValue: <
         PsiElement(DOC_TAG_VALUE_TOKEN)('<')
       PsiElement(DOC_COMMENT_DATA)('T> strange parameter')
       PsiElement(DOC_WHITESPACE)('\n ')

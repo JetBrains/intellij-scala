@@ -3,7 +3,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -24,21 +24,21 @@ ScalaFile
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
         AssignStatement
-          ReferenceExpression
+          ReferenceExpression: ctx1
             PsiElement(identifier)('ctx1')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           MethodCall
-            ReferenceExpression
-              ReferenceExpression
+            ReferenceExpression: ctx1.Try
+              ReferenceExpression: ctx1
                 PsiElement(identifier)('ctx1')
               PsiElement(.)('.')
               PsiElement(identifier)('Try')
             ArgumentList
               PsiElement(()('(')
               MethodCall
-                ReferenceExpression
+                ReferenceExpression: List
                   PsiElement(identifier)('List')
                 ArgumentList
                   PsiElement(()('(')
@@ -47,7 +47,7 @@ ScalaFile
                     FunctionExpression
                       Parameters
                         ParametersClause
-                          Parameter
+                          Parameter: NoSymbol
                             PsiElement(identifier)('NoSymbol')
                       PsiWhiteSpace(' ')
                       PsiElement(=>)('=>')

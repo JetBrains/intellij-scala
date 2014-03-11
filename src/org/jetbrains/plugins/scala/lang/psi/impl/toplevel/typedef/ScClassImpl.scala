@@ -52,7 +52,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
   def this(node: ASTNode) = {this(); setNode(node)}
   def this(stub: ScTemplateDefinitionStub) = {this(); setStub(stub); setNode(null)}
 
-  override def toString: String = "ScClass"
+  override def toString: String = "ScClass: " + name
 
   override def getIconInner = Icons.CLASS
 

@@ -64,7 +64,11 @@ object MethodRepr {
         Some(expr, Some(stripped(infix.getBaseExpr)), Some(infix.operation), args)
       case prefix: ScPrefixExpr => Some(expr, Some(stripped(prefix.getBaseExpr)), Some(prefix.operation), Seq())
       case postfix: ScPostfixExpr => Some(expr, Some(stripped(postfix.getBaseExpr)), Some(postfix.operation), Seq())
-      case refExpr: ScReferenceExpression => Some(expr, refExpr.qualifier, Some(refExpr), Seq())
+      case refExpr: ScReferenceExpression =>
+        refExpr.getParent match {
+          case _: ScMethodCall | _: ScGenericCall => None
+          case _ => Some(expr, refExpr.qualifier, Some(refExpr), Seq())
+        }
       case _ => None
     }
   }
@@ -115,8 +119,8 @@ object Utils {
   def isFunctionWithBooleanReturn(expr: ScExpression): Boolean = {
     expr.getType(TypingContext.empty) match {
       case Success(result, _) =>
-        ScType.extractFunctionType(result) match {
-          case Some(ScFunctionType(returnType, _)) => returnType.conforms(types.Boolean)
+        result match {
+          case ScFunctionType(returnType, _) => returnType.conforms(types.Boolean)
           case _ => false
         }
       case _ => false

@@ -4,7 +4,7 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScArgumentExprList
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScUnderscoreSection, ScArgumentExprList}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import java.lang.String
@@ -21,7 +21,7 @@ class ArgumentToBlockExpressionIntention extends PsiElementBaseIntentionAction {
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
     IntentionAvailabilityChecker.checkIntention(this, element) && (element match {
-      case Parent(list: ScArgumentExprList) if list.exprs.size == 1 => true
+      case Parent(list: ScArgumentExprList) if list.exprs.size == 1 && !list.exprs(0).isInstanceOf[ScUnderscoreSection] => true
       case _ => false
     })
   }

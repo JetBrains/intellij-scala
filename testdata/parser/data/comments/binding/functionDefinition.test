@@ -2,7 +2,7 @@
 def f = 1
 -----
 ScalaFile
-  ScFunctionDefinition
+  ScFunctionDefinition: f
     PsiComment(comment)('// comment')
     PsiWhiteSpace('\n')
     AnnotationsList

@@ -7,7 +7,6 @@ package types
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
 import builder.ScalaPsiBuilder
 
 /** 
@@ -20,16 +19,29 @@ import builder.ScalaPsiBuilder
  */
 
 object InfixType {
-  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, false)
-  def parse(builder: ScalaPsiBuilder, star: Boolean): Boolean = parse(builder,star,false)
+  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, star = false)
+  def parse(builder: ScalaPsiBuilder, star: Boolean): Boolean = parse(builder,star,isPattern = false)
   def parse(builder: ScalaPsiBuilder, star: Boolean, isPattern: Boolean): Boolean = {
     var infixTypeMarker = builder.mark
     var markerList = List[PsiBuilder.Marker]() //This list consist of markers for right-associated op
     var count = 0
     markerList = infixTypeMarker :: markerList
-    if (!CompoundType.parse(builder)) {
-      infixTypeMarker.rollbackTo()
-      return false
+    builder.getTokenType match {
+      case ScalaTokenTypes.tUNDER => //wildcard is possible for infix types, like for parameterized. No bounds possible
+        val typeMarker = builder.mark()
+        builder.advanceLexer()
+        typeMarker.done(ScalaElementTypes.WILDCARD_TYPE)
+        builder.getTokenText match {
+          case "<:" | ">:" =>
+            infixTypeMarker.rollbackTo()
+            return false
+          case _ =>
+        }
+      case _ =>
+        if (!CompoundType.parse(builder)) {
+          infixTypeMarker.rollbackTo()
+          return false
+        }
     }
     var assoc: Int = 0  //this mark associativity: left - 1, right - -1
     while (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && (!builder.newlineBeforeCurrentToken) &&
@@ -38,24 +50,18 @@ object InfixType {
       //need to know associativity
       val s = builder.getTokenText
       s.charAt(s.length-1) match {
-        case ':' => {
+        case ':' =>
           assoc match {
-            case 0 => assoc = -1
-            case 1 => {
-              builder error ScalaBundle.message("wrong.type.associativity")
-            }
-            case -1 => {}
+            case 0  => assoc = -1
+            case 1  => builder error ScalaBundle.message("wrong.type.associativity")
+            case -1 =>
           }
-        }
-        case _ => {
+        case _ =>
           assoc match {
-            case 0 => assoc = 1
-            case 1 => {}
-            case -1 => {
-              builder error ScalaBundle.message("wrong.type.associativity")
-            }
+            case 0  => assoc = 1
+            case 1  =>
+            case -1 => builder error ScalaBundle.message("wrong.type.associativity")
           }
-        }
       }
       val idMarker = builder.mark
       builder.advanceLexer() //Ate id
@@ -67,8 +73,13 @@ object InfixType {
       if (builder.twoNewlinesBeforeCurrentToken) {
         builder.error(ScalaBundle.message("compound.type.expected"))
       }
-      if (!CompoundType.parse(builder)) {
-        builder error ScalaBundle.message("compound.type.expected")
+      builder.getTokenType match {
+        case ScalaTokenTypes.tUNDER => //wildcard is possible for infix types, like for parameterized. No bounds possible
+          val typeMarker = builder.mark()
+          builder.advanceLexer()
+          typeMarker.done(ScalaElementTypes.WILDCARD_TYPE)
+        case _ =>
+          if (!CompoundType.parse(builder)) builder error ScalaBundle.message("compound.type.expected")
       }
       if (assoc == 1) {
         val newMarker = infixTypeMarker.precede
@@ -82,18 +93,18 @@ object InfixType {
         infixTypeMarker.drop()
       }
       else {
-        markerList.head.drop
+        markerList.head.drop()
         for (x: PsiBuilder.Marker <- markerList.tail) x.done(ScalaElementTypes.INFIX_TYPE)
       }
     }
     else {
       if (assoc == 1) {
-        infixTypeMarker.drop
+        infixTypeMarker.drop()
       }
       else {
-        for (x: PsiBuilder.Marker <- markerList) x.drop
+        for (x: PsiBuilder.Marker <- markerList) x.drop()
       }
     }
-    return true
+    true
   }
 }

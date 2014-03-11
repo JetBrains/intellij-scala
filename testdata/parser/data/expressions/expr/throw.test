@@ -3,7 +3,7 @@ class a{
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -25,7 +25,7 @@ ScalaFile
         ThrowStatement
           PsiElement(throw)('throw')
           PsiWhiteSpace(' ')
-          ReferenceExpression
+          ReferenceExpression: Exception
             PsiElement(identifier)('Exception')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

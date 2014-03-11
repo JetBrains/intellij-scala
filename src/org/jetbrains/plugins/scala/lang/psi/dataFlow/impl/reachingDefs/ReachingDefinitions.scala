@@ -21,8 +21,8 @@ object ReachingDefinitions {
     def isForward = true
     val fun = (i: Instruction) => (a: A) => i match {
       case dv: DefineValueInstruction => a + dv
-      case wr@ReadWriteVariableInstruction(_, ref, true) => {
-        val target: PsiElement = ref.resolve
+      case wr@ReadWriteVariableInstruction(_, ref, true) =>
+        val target: PsiElement = ref.resolve()
 
         def previousAssignments(i: Instruction) = i match {
           case DefineValueInstruction(_, named, true) => named eq target
@@ -31,7 +31,6 @@ object ReachingDefinitions {
         }
 
         a.filterNot(previousAssignments) + wr
-      }
       case _ => a
     }
   }

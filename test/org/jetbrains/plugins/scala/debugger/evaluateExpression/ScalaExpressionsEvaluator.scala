@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
+import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+
 /**
  * User: Alefas
  * Date: 19.10.11
@@ -7,7 +9,7 @@ package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
 class ScalaExpressionsEvaluator extends ScalaDebuggerTestCase {
   def testPrefixUnary() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  class U {
@@ -28,7 +30,7 @@ class ScalaExpressionsEvaluator extends ScalaDebuggerTestCase {
   }
 
   def testTupleExpr() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -45,7 +47,7 @@ class ScalaExpressionsEvaluator extends ScalaDebuggerTestCase {
   }
 
   def testSmartBoxing() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def foo[T](x: T)(y: T) = x
@@ -73,7 +75,7 @@ class ScalaExpressionsEvaluator extends ScalaDebuggerTestCase {
   }
   
   def testAssignment() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  var m = 0
@@ -101,7 +103,7 @@ class ScalaExpressionsEvaluator extends ScalaDebuggerTestCase {
   }
 
   def testThis() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -124,7 +126,7 @@ class ScalaExpressionsEvaluator extends ScalaDebuggerTestCase {
   }
 
   def testPrefixedThis() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -156,7 +158,7 @@ class ScalaExpressionsEvaluator extends ScalaDebuggerTestCase {
   }
 
   def testPostfix() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -176,7 +178,7 @@ class ScalaExpressionsEvaluator extends ScalaDebuggerTestCase {
   }
 
   def testIfUnit() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -193,7 +195,7 @@ class ScalaExpressionsEvaluator extends ScalaDebuggerTestCase {
   }
 
   def testIf() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -210,7 +212,7 @@ class ScalaExpressionsEvaluator extends ScalaDebuggerTestCase {
   }
 
   def testIfElse() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -227,7 +229,7 @@ class ScalaExpressionsEvaluator extends ScalaDebuggerTestCase {
   }
 
   def testNotNull() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -244,7 +246,7 @@ class ScalaExpressionsEvaluator extends ScalaDebuggerTestCase {
   }
 
   def testBackticks() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
         |object Sample {
         |  def main(args: Array[String]) {

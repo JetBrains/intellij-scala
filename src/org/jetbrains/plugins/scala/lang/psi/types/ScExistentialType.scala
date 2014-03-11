@@ -3,7 +3,7 @@ package lang
 package psi
 package types
 
-import _root_.scala.collection.immutable.HashSet
+import scala.collection.immutable.{Set, HashSet}
 import collection.mutable.ArrayBuffer
 import api.statements.ScTypeAlias
 import api.base.types.ScExistentialClause
@@ -12,6 +12,7 @@ import api.toplevel.typedef.ScTypeDefinition
 import api.statements.params.ScTypeParam
 import types.Conformance.AliasType
 import collection.mutable
+import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 
 /**
 * @author ilyas
@@ -142,6 +143,42 @@ case class ScExistentialType(quantified : ScType,
     var undefinedSubst = uSubst
     val simplified = simplify()
     if (this != simplified) return Equivalence.equivInner(simplified, r, undefinedSubst, falseUndef)
+    quantified match {
+      case ScParameterizedType(a: ScAbstractType, args) if !falseUndef =>
+        val subst = new ScSubstitutor(Map(a.tpt.args.zip(args).map {
+          case (tpt: ScTypeParameterType, tp: ScType) =>
+            ((tpt.param.name, ScalaPsiUtil.getPsiElementId(tpt.param)), tp)
+        }: _*), Map.empty, None)
+        val upper: ScType =
+          subst.subst(a.upper) match {
+            case ScParameterizedType(u, _) => ScExistentialType(ScParameterizedType(u, args), wildcards)
+            case u => ScExistentialType(ScParameterizedType(u, args), wildcards)
+          }
+        val t = Conformance.conformsInner(upper, r, Set.empty, undefinedSubst)
+        if (!t._1) return t
+
+        val lower: ScType =
+          subst.subst(a.lower) match {
+            case ScParameterizedType(l, _) => ScExistentialType(ScParameterizedType(l, args), wildcards)
+            case l => ScExistentialType(ScParameterizedType(l, args), wildcards)
+          }
+        return Conformance.conformsInner(r, lower, Set.empty, t._2)
+      case ScParameterizedType(a: ScUndefinedType, args) if !falseUndef =>
+        r match {
+          case ScParameterizedType(des, _) =>
+            val tpt = a.tpt
+            undefinedSubst = undefinedSubst.addLower((tpt.name, tpt.getId), des)
+            undefinedSubst = undefinedSubst.addUpper((tpt.name, tpt.getId), des)
+            return Equivalence.equivInner(ScExistentialType(ScParameterizedType(des, args), wildcards), r, undefinedSubst, falseUndef)
+          case ScExistentialType(ScParameterizedType(des, _), _) =>
+            val tpt = a.tpt
+            undefinedSubst = undefinedSubst.addLower((tpt.name, tpt.getId), des)
+            undefinedSubst = undefinedSubst.addUpper((tpt.name, tpt.getId), des)
+            return Equivalence.equivInner(ScExistentialType(ScParameterizedType(des, args), wildcards), r, undefinedSubst, falseUndef)
+          case _ => return (false, undefinedSubst) //looks like something is wrong
+        }
+      case _ =>
+    }
     r match {
       case ex: ScExistentialType => {
         val simplified = ex.simplify()
@@ -173,10 +210,10 @@ case class ScExistentialType(quantified : ScType,
         case c@ScCompoundType(comps, decls, typeDecls, _) =>
           val newSet = rejected ++ typeDecls.map(_.name)
           comps.foreach(checkRecursive(_, newSet))
-          c.signatureMap.foreach(tuple => checkRecursive(tuple._2.v, newSet))
+          c.signatureMap.foreach(tuple => checkRecursive(c.subst.subst(tuple._2.v), newSet))
           c.types.foreach(tuple => {
-            checkRecursive(tuple._2._1, newSet)
-            checkRecursive(tuple._2._1, newSet)
+            checkRecursive(c.subst.subst(tuple._2._1), newSet)
+            checkRecursive(c.subst.subst(tuple._2._1), newSet)
           })
         case ScDesignatorType(elem) =>
           elem match {
@@ -198,11 +235,6 @@ case class ScExistentialType(quantified : ScType,
             checkRecursive(ex.lowerBound, newSet)
             checkRecursive(ex.upperBound, newSet)
           })
-        case ScFunctionType(returnType, params) =>
-          checkRecursive(returnType, rejected)
-          params.foreach(checkRecursive(_, rejected))
-        case ScTupleType(components) =>
-          components.foreach(checkRecursive(_, rejected))
         case ScProjectionType(projected, element, _) =>
           checkRecursive(projected, rejected)
         case ScParameterizedType(designator, typeArgs) =>
@@ -244,17 +276,12 @@ case class ScExistentialType(quantified : ScType,
     if (variance == 0) return tp //optimization
     tp match {
       case _: StdType => tp
-      case f@ScFunctionType(returnType, params) =>
-        ScFunctionType(updateRecursive(returnType, rejected, variance),
-          params.map(updateRecursive(_, rejected, -variance)))(f.getProject, f.getScope)
-      case t@ScTupleType(components) =>
-        ScTupleType(components.map(updateRecursive(_, rejected, variance)))(t.getProject, t.getScope)
       case c@ScCompoundType(components, decls, typeDecls, subst) =>
         val newSet = rejected ++ typeDecls.map(_.name)
         new ScCompoundType(components, decls, typeDecls, subst, c.signatureMap.map {
-          case (sign, scType) => (sign, new Suspension[ScType](() => updateRecursive(scType.v, newSet, variance)))
+          case (sign, scType) => (sign, new Suspension[ScType](() => updateRecursive(c.subst.subst(scType.v), newSet, variance)))
         }, c.types.map {
-          case (s, (tp1, tp2)) => (s, (updateRecursive(tp1, newSet, variance), updateRecursive(tp2, newSet, -variance)))
+          case (s, (tp1, tp2)) => (s, (updateRecursive(c.subst.subst(tp1), newSet, variance), updateRecursive(c.subst.subst(tp2), newSet, -variance)))
         }, c.problems.toList)
       case ScProjectionType(_, _, _) => tp
       case JavaArrayType(_) => tp

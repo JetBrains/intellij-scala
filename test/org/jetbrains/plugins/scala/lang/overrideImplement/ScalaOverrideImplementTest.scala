@@ -665,7 +665,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |}
         |
         |class B extends A {
-        |  override def foo(in: B#ID[String]): B#ID[Int] = <selection>super.foo(in)</selection>
+        |  override def foo(in: ID[String]): ID[Int] = <selection>super.foo(in)</selection>
         |}
       """
     val methodName: String = "foo"
@@ -694,7 +694,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |}
         |
         |class B extends A {
-        |  override val foo: B#ID[Int] = <selection>_</selection>
+        |  override val foo: ID[Int] = <selection>_</selection>
         |}
       """
     val methodName: String = "foo"

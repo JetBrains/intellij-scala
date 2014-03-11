@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
-import api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaElementVisitor}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.{PsiElementVisitor, PsiElement}
 import com.intellij.psi.tree.{TokenSet, IElementType}
 import com.intellij.psi.impl.source.tree.{LazyParseablePsiElement, SharedImplUtil}
 import com.intellij.psi.impl.CheckUtil
 import com.intellij.extapi.psi.ASTWrapperPsiElement
+import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 
 /**
 @author ven
@@ -165,6 +166,13 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement]
         CheckUtil.checkWritable(this)
         x.deleteChildInternal(getNode)
       case _ => super.delete()
+    }
+  }
+
+  override def getUseScope: SearchScope = {
+    containingFile match {
+      case Some(file: ScalaFile) if file.isWorksheetFile || file.isScriptFile() => super.getUseScope.intersectWith(new LocalSearchScope(file))
+      case _ => super.getUseScope
     }
   }
 }

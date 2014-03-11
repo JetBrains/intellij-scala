@@ -3,7 +3,7 @@ class s {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: s
     AnnotationsList
       <empty list>
     Modifiers
@@ -31,7 +31,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: a
               PsiElement(identifier)('a')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

@@ -30,11 +30,15 @@ import scala.annotation.tailrec
  */
 
 class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScParameter {
-  def this(node: ASTNode) = {this (); setNode(node)}
+  def this(node: ASTNode) = {
+    this(); setNode(node)
+  }
 
-  def this(stub: ScParameterStub) = {this (); setStub(stub); setNode(null)}
+  def this(stub: ScParameterStub) = {
+    this(); setStub(stub); setNode(null)
+  }
 
-  override def toString: String = "Parameter"
+  override def toString: String = "Parameter: " + name
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
@@ -64,7 +68,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
             else {
               exprs(0) match {
                 case literal: ScLiteral if literal.getNode.getFirstChildNode != null &&
-                  literal.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.tSYMBOL =>
+                        literal.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.tSYMBOL =>
                   val literalText = literal.getText
                   if (literalText.length < 2) None
                   else Some(literalText.substring(1))
@@ -130,8 +134,8 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
 
   def getInitializer = null
 
-  def getType(ctx: TypingContext) : TypeResult[ScType] = {
-  //todo: this is very error prone way to calc type, when usually we need real parameter type
+  def getType(ctx: TypingContext): TypeResult[ScType] = {
+    //todo: this is very error prone way to calc type, when usually we need real parameter type
     val computeType: ScType = {
       val stub = getStub
       if (stub != null) {
@@ -147,10 +151,10 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
       } else {
         typeElement match {
           case None if baseDefaultParam =>
-             getActualDefaultExpression match {
-               case Some(t) => t.getType(TypingContext.empty).getOrNothing
-               case None => lang.psi.types.Nothing
-             }
+            getActualDefaultExpression match {
+              case Some(t) => t.getType(TypingContext.empty).getOrNothing
+              case None => lang.psi.types.Nothing
+            }
           case None => expectedParamType.map(_.unpackedType) match {
             case Some(t) => t
             case None => lang.psi.types.Nothing
@@ -162,7 +166,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
     Success(computeType, Some(this))
   }
 
-  def getType : PsiType = ScType.toPsi(getRealParameterType(TypingContext.empty).getOrNothing, getProject, getResolveScope)
+  def getType: PsiType = ScType.toPsi(getRealParameterType(TypingContext.empty).getOrNothing, getProject, getResolveScope)
 
   def expectedParamType: Option[ScType] = getContext match {
     case clause: ScParameterClause => clause.getContext.getContext match {
@@ -173,14 +177,13 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
         for (tp <- f.expectedTypes(fromUnderscore = false) if result != None) {
           @tailrec
           def applyForFunction(tp: ScType, checkDeep: Boolean) {
-            ScType.extractFunctionType(tp) match {
-              case Some(ScFunctionType(ret, _)) if checkDeep => applyForFunction(ret, checkDeep = false)
-              case Some(ScFunctionType(_, params)) if params.length == f.parameters.length =>
+            tp.removeAbstracts match {
+              case ScFunctionType(ret, _) if checkDeep => applyForFunction(ret, checkDeep = false)
+              case ScFunctionType(_, params) if params.length == f.parameters.length =>
                 val i = clause.parameters.indexOf(this)
                 if (result != null) result = None
-                else result = Some(params(i).removeAbstracts)
-              case Some(_: ScFunctionType) => //nothing to do
-              case None =>
+                else result = Some(params(i))
+              case _ =>
             }
           }
           applyForFunction(tp, ScUnderScoreSectionUtil.underscores(f).length > 0)
@@ -253,7 +256,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
   }
 
   def getActualDefaultExpression: Option[ScExpression] = {
-     val stub = getStub
+    val stub = getStub
     if (stub != null) {
       return stub.asInstanceOf[ScParameterStub].getDefaultExpr
     }
@@ -278,14 +281,14 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
           if (index != length) {
             var n = node.getTreeNext
             while (n != null && n.getElementType != ScalaTokenTypes.tRPARENTHESIS &&
-              !n.getPsi.isInstanceOf[ScParameter]) {
+                    !n.getPsi.isInstanceOf[ScParameter]) {
               toRemove += n
               n = n.getTreeNext
             }
           } else {
             var n = node.getTreePrev
             while (n != null && n.getElementType != ScalaTokenTypes.tLPARENTHESIS &&
-              !n.getPsi.isInstanceOf[ScParameter]) {
+                    !n.getPsi.isInstanceOf[ScParameter]) {
               toRemove += n
               n = n.getTreePrev
             }

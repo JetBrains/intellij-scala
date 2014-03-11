@@ -145,7 +145,7 @@ public class TestUtils {
   }
 
   public static String getMockScalazLib(ScalaSdkVersion version) {
-    return getTestDataPath() + "/" + version.getPath() + "/scalaz.jar";
+    return getTestDataPath() + "/" + version.getPath() + "/scalaz-7.0.5.jar";
   }
 
   public static String getMockScalaSrc(ScalaSdkVersion version) {

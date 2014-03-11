@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
+import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+
 /**
  * User: Alefas
  * Date: 13.10.11
  */
 class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
   def testLocal() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -23,8 +25,8 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
   
-  def testLocalClassParameter() {
-    myFixture.addFileToProject("Sample.scala",
+  def testLocalClassParam() {
+    addFileToProject("Sample.scala",
       """
       |class A(x: Int) {
       |  val h = x
@@ -52,7 +54,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testLocalFromForStatement() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -72,8 +74,8 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
 
-  def testLocalFromForStatementFromOutside() {
-    myFixture.addFileToProject("Sample.scala",
+  def testLocalFromForStmtFromOut() {
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -94,7 +96,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testParam() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def foo(x: Int) {
@@ -116,7 +118,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testLocalParam() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -136,7 +138,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
   }
   
   def testLocalOuter() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -160,7 +162,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testLocalOuterOuter() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
         |object Sample {
         |  def main(args: Array[String]) {
@@ -191,7 +193,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testLocalObjectOuter() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -219,8 +221,8 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
   
-  def testLocalOuterFromClojureAndClass() {
-    myFixture.addFileToProject("Sample.scala",
+  def testLocalFromClojureAndClass() {
+    addFileToProject("Sample.scala",
       """
         |object Sample {
         |  def main(args: Array[String]) {
@@ -254,7 +256,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testLocalMethodLocal() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
         |object Sample {
         |  def main(args: Array[String]) {
@@ -278,7 +280,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testLocalMethodLocalObject() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -300,7 +302,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testLocalMethodLocalMethodLocal() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
         |object Sample {
         |  def main(args: Array[String]) {
@@ -327,7 +329,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testLocalMethodLocalMethodLocalClass() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
         |object Sample {
         |  def main(args: Array[String]) {
@@ -358,8 +360,8 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
   
-  def testLocalMethodLocalMethodLocalClassLocalMethod() {
-    myFixture.addFileToProject("Sample.scala",
+  def testLocMethLocMethLocClassLocMeth() {
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -397,7 +399,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
   }
   
   def testLocalObjectInside() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -421,7 +423,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testLocalObjectInsideClassLevel() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
         |object Sample {
         |  def main(args: Array[String]) {

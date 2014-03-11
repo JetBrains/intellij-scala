@@ -45,7 +45,7 @@ class ScDocTagValueImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       a.name == refName || ScalaPsiUtil.convertMemberName(a.name) == ScalaPsiUtil.convertMemberName(refName)).
             map(new ScalaResolveResult(_))
 
-  override def toString = "ScalaDocTagValue"
+  override def toString = "ScalaDocTagValue: " + getText
 
   def getValue: String = getText
 

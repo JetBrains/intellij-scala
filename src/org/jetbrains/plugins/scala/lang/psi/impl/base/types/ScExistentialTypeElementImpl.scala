@@ -5,14 +5,12 @@ package impl
 package base
 package types
 
-import api.toplevel.ScNamedElement
 import psi.ScalaPsiElementImpl
 import api.base.types._
 import api.statements.{ScTypeAliasDeclaration, ScValueDeclaration}
 import com.intellij.lang.ASTNode
 
 import _root_.scala.collection.mutable.ListBuffer
-import collection.Set
 import psi.types._
 import result.{TypeResult, Success, Failure, TypingContext}
 import api.ScalaElementVisitor
@@ -24,7 +22,7 @@ import com.intellij.psi.{PsiElementVisitor, ResolveState, PsiElement}
 */
 
 class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScExistentialTypeElement {
-  override def toString: String = "ExistentialType"
+  override def toString: String = "ExistentialType: " + getText
 
   protected def innerType(ctx: TypingContext) = {
     val q = quantified.getType(ctx)
@@ -34,15 +32,14 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(no
       var buff: ListBuffer[ScExistentialArgument] = new ListBuffer
       for (decl <- clause.declarations) {
         decl match {
-          case alias: ScTypeAliasDeclaration => {
+          case alias: ScTypeAliasDeclaration =>
             val lb = alias.lowerBound
             val ub = alias.upperBound
             problems += lb; problems += ub
             buff +=  new ScExistentialArgument(alias.name,
                                                alias.typeParameters.map{tp => ScalaPsiManager.typeVariable(tp)}.toList,
                                                lb.getOrNothing, ub.getOrAny)
-          }
-          case value: ScValueDeclaration => {
+          case value: ScValueDeclaration =>
             value.typeElement match {
               case Some(te) =>
                 val ttype = te.getType(ctx)
@@ -53,7 +50,6 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(no
                 }
               case None =>
             }
-          }
           case _ =>
         }
       }

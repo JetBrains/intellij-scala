@@ -20,10 +20,10 @@ import com.intellij.openapi.command.CommandProcessor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
-import collection.mutable.{HashSet, ArrayBuffer}
+import collection.mutable.ArrayBuffer
 import psi.api.base.ScReferenceElement
-import psi.api.toplevel.typedef.ScTypeDefinition
-import psi.api.statements.{ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition, ScPatternDefinition, ScFunction, ScFunctionDefinition}
 import psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor, ScalaFile}
 import psi.api.base.patterns.ScCaseClause
 import psi.types.result.TypingContext
@@ -31,6 +31,9 @@ import com.intellij.refactoring.util.CommonRefactoringUtil
 import org.jetbrains.plugins.scala.extensions.{toPsiElementExt, Parent, toPsiNamedElementExt}
 import com.intellij.psi.codeStyle.CodeStyleManager
 import scala.annotation.tailrec
+import scala.collection.mutable
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import scala.Some
 
 /**
  * User: Alexander Podkhalyuzin
@@ -44,11 +47,10 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
     editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
     if (!file.isInstanceOf[ScalaFile]) return
-    if (!editor.getSelectionModel.hasSelection) {
-      editor.getSelectionModel.selectLineAtCaret()
-    }
 
-    invokeOnEditor(project, editor, file.asInstanceOf[ScalaFile], dataContext)
+    ScalaRefactoringUtil.afterExpressionChoosing(project, editor, file, dataContext, REFACTORING_NAME, ScalaRefactoringUtil.checkCanBeIntroduced(_)) {
+      invokeOnEditor(project, editor, file.asInstanceOf[ScalaFile], dataContext)
+    }
   }
 
   private def invokeOnEditor(project: Project, editor: Editor, file: ScalaFile, dataContext: DataContext) {
@@ -60,22 +62,29 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     ScalaRefactoringUtil.trimSpacesAndComments(editor, file, trimComments = false)
     val startElement: PsiElement = file.findElementAt(editor.getSelectionModel.getSelectionStart)
     val endElement: PsiElement = file.findElementAt(editor.getSelectionModel.getSelectionEnd - 1)
-    val elements = ScalaPsiUtil.getElementsRange(startElement, endElement).toArray
-    if (elements.length == 0) {
+    val elements = ScalaPsiUtil.getElementsRange(startElement, endElement).toArray match {
+      case Array(b: ScBlock) if !b.hasRBrace => b.children.toArray
+      case elems => elems
+    }
+    def acceptable(elem: PsiElement): Boolean = elem match {
+      case _: ScBlockStatement => true
+      case comm: PsiComment if !comm.getParent.isInstanceOf[ScMember] => true
+      case _: PsiWhiteSpace => true
+      case _ if ScalaTokenTypes.tSEMICOLON == elem.getNode.getElementType => true
+      case _ => false
+    }
+    if (elements.length == 0 || !elements.forall(acceptable) || !elements.exists(_.isInstanceOf[ScBlockStatement])) {
       showErrorMessage(ScalaBundle.message("cannot.extract.empty.message"), project, editor)
       return
     }
 
-
     def checkLastReturn(elem: PsiElement): Boolean = {
       elem match {
         case ret: ScReturnStmt => true
-        case m: ScMatchStmt => {
+        case m: ScMatchStmt =>
           m.getBranches.forall(checkLastReturn(_))
-        }
-        case f: ScIfStmt if f.elseBranch != None && f.thenBranch != None => {
+        case f: ScIfStmt if f.elseBranch != None && f.thenBranch != None =>
           checkLastReturn(f.thenBranch.get) && checkLastReturn(f.elseBranch.get)
-        }
         case block: ScBlock if block.lastExpr != None => checkLastReturn(block.lastExpr.get)
         case _ => false
       }
@@ -164,7 +173,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
       ScalaRefactoringUtil.showChooser(editor, siblings, {selectedValue =>
         invokeDialog(project, editor, elements, hasReturn, lastReturn, selectedValue,
           siblings(siblings.length - 1) == selectedValue, isLastExpressionMeaningful)
-      }, "Choose level for Extract Method", getTextForElement _, true)
+      }, "Choose level for Extract Method", getTextForElement, true)
       return
     }
     else if (siblings.length == 1) {
@@ -185,8 +194,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     while (isParentOk(parent)) {
       parent match {
         case file: ScalaFile if file.isScriptFile() => res += prev
-        case block: ScBlockExpr => res += prev
-        case tryBlcok: ScTryBlock => res += prev
+        case block: ScBlock => res += prev
         case templ: ScTemplateBody => res += prev
         case _ =>
       }
@@ -203,17 +211,9 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
   private def invokeDialog(project: Project, editor: Editor, elements: Array[PsiElement], hasReturn: Option[ScType],
                            lastReturn: Boolean, sibling: PsiElement, smallestScope: Boolean,
                            lastMeaningful: Option[ScType]) {
-    val tdScope = sibling.getParent.isInstanceOf[ScTemplateBody]
-    val info =
-    if (!smallestScope) {
-      if (tdScope)
-        ReachingDefintionsCollector.collectVariableInfo(elements.toSeq,
-          sibling.asInstanceOf[ScalaPsiElement]: ScalaPsiElement)
-      else
-        ReachingDefintionsCollector.collectVariableInfo(elements.toSeq, Seq(sibling))
-    }
-    else
-      ReachingDefintionsCollector.collectVariableInfo(elements, elements.toSeq)
+
+    val info = ReachingDefintionsCollector.collectVariableInfo(elements.toSeq, sibling.asInstanceOf[ScalaPsiElement])
+
     val input = info.inputVariables
     val output = info.outputVariables
     val settings: ScalaExtractMethodSettings = if (!ApplicationManager.getApplication.isUnitTestMode) {
@@ -234,9 +234,32 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
   }
 
   private def getTextForElement(element: PsiElement): String = {
+    def local(text: String) = ScalaBundle.message("extract.local.method", text)
     element.getParent match {
-      case _: ScTemplateBody => "Extract class method"
-      case _: ScBlock => "Extract local method"
+      case tbody: ScTemplateBody =>
+        PsiTreeUtil.getParentOfType(tbody, classOf[ScTemplateDefinition]) match {
+          case o: ScObject => s"Extract method to object ${o.name}"
+          case c: ScClass => s"Extract method to class ${c.name}"
+          case t: ScTrait => s"Extract method to trait ${t.name}"
+          case n: ScNewTemplateDefinition => "Extract method to anonymous class"
+        }
+      case _: ScTryBlock => local("try block")
+      case _: ScConstrBlock => local("constructor")
+      case b: ScBlock  =>
+        b.getParent match {
+          case f: ScFunctionDefinition => local(s"def ${f.name}")
+          case p: ScPatternDefinition if p.bindings.nonEmpty => local(s"val ${p.bindings(0).name}")
+          case v: ScVariableDefinition if v.bindings.nonEmpty => local(s"var ${v.bindings(0).name}")
+          case _: ScCaseClause => local("case clause")
+          case ifStmt: ScIfStmt =>
+            if (ifStmt.thenBranch.exists(_ == b)) local("if block")
+            else "Extract local method in else block"
+          case forStmt: ScForStatement if forStmt.body.exists(_ == b) => local("for statement")
+          case whileStmt: ScWhileStmt if whileStmt.body.exists(_ == b) => local("while statement")
+          case doSttm: ScDoStmt if doSttm.getExprBody.exists(_ == b) => local("do statement")
+          case funExpr: ScFunctionExpr if funExpr.result.exists(_ == b) => local("function expression")
+          case _ => local("code block")
+        }
       case _: ScalaFile => "Extract file method"
       case _ => "Unknown extraction"
     }
@@ -249,7 +272,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     val element = settings.elements.find(elem => elem.isInstanceOf[ScalaPsiElement]).getOrElse(return)
     val processor = new CompletionProcessor(StdKinds.refExprLastRef, element, includePrefixImports = false)
     PsiTreeUtil.treeWalkUp(processor, element, null, ResolveState.initial)
-    val allNames = new HashSet[String]()
+    val allNames = new mutable.HashSet[String]()
     allNames ++= processor.candidatesS.map(rr => rr.element.name)
     def generateFreshName(s: String): String = {
       var freshName = s

@@ -11,7 +11,7 @@ class A {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -39,7 +39,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: i
               PsiElement(identifier)('i')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -55,20 +55,20 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: a
               PsiElement(identifier)('a')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           Literal
-            ReferenceExpression
+            ReferenceExpression: s
               PsiElement(interpolated string id)('s')
             PsiElement(interpolatedmultiline string)('"""\n    ')
             PsiElement(interpolated string injection)('$')
             BlockExpression
               PsiElement({)('{')
               PsiWhiteSpace('\n      ')
-              ScClass
+              ScClass: A
                 AnnotationsList
                   <empty list>
                 Modifiers
@@ -96,17 +96,17 @@ ScalaFile
                       PsiElement(val)('val')
                       PsiWhiteSpace(' ')
                       ListOfPatterns
-                        ReferencePattern
+                        ReferencePattern: b
                           PsiElement(identifier)('b')
                       PsiWhiteSpace(' ')
                       PsiElement(=)('=')
                       PsiWhiteSpace(' ')
                       Literal
-                        ReferenceExpression
+                        ReferenceExpression: s
                           PsiElement(interpolated string id)('s')
                         PsiElement(interpolated string)('"')
                         PsiElement(interpolated string injection)('$')
-                        ReferenceExpression
+                        ReferenceExpression: i
                           PsiElement(identifier)('i')
                         PsiElement(interpolated string end)('"')
                     PsiWhiteSpace('\n      ')

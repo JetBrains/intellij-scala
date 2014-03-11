@@ -12,7 +12,7 @@ ScalaFile
     PsiElement(var)('var')
     PsiWhiteSpace(' ')
     ListOfPatterns
-      ReferencePattern
+      ReferencePattern: a
         PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

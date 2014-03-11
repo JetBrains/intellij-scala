@@ -15,7 +15,7 @@ import api.base.ScLiteral
  */
 
 class ScNameValuePairImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScNameValuePair {
-  override def toString: String = "NameValuePair"
+  override def toString: String = "NameValuePair: " + name
 
   def setValue(newValue: PsiAnnotationMemberValue): PsiAnnotationMemberValue = newValue
 

@@ -5,103 +5,89 @@ package types
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
-import api.toplevel.typedef.ScTrait
-import com.intellij.psi.{PsiManager, PsiClass}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait}
+import com.intellij.psi.PsiClass
 import impl.ScalaPsiManager
-import collection.immutable.HashSet
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import scala.annotation.tailrec
 
 /**
 * @author ilyas
 */
-case class ScFunctionType(returnType: ScType, params: Seq[ScType])(project: Project, scope: GlobalSearchScope) extends ValueType {
-  private var hash: Int = -1
-
-  override def hashCode: Int = {
-    if (hash == -1) {
-      hash = returnType.hashCode() + params.hashCode() * 31
+object ScFunctionType {
+  def apply(returnType: ScType, params: Seq[ScType])(project: Project, scope: GlobalSearchScope): ValueType = {
+    def findClass(fullyQualifiedName: String) : Option[PsiClass] = {
+      Option(ScalaPsiManager.instance(project).getCachedClass(scope, fullyQualifiedName))
     }
-    hash
+    findClass("scala.Function" + params.length) match {
+      case Some(t: ScTrait) =>
+        val typeParams = params.toList :+ returnType
+        ScParameterizedType(ScType.designator(t), typeParams)
+      case _ => types.Nothing
+    }
   }
 
-  def getProject: Project = project
+  @tailrec
+  def extractForPrefix(tp: ScType, prefix: String): Option[(ScTypeDefinition, Seq[ScType])] = {
+    tp.isAliasType match {
+      case Some(AliasType(t: ScTypeAliasDefinition, Success(lower, _), _)) => extractForPrefix(lower, prefix)
+      case _ =>
+        tp match {
+          case p: ScParameterizedType =>
+            def startsWith(clazz: PsiClass, qualNamePrefix: String) = clazz.qualifiedName != null && clazz.qualifiedName.startsWith(qualNamePrefix)
 
-  def getScope = scope
-
-  def resolveFunctionTrait: Option[ScParameterizedType] = resolveFunctionTrait(getProject)
-
-  def resolveFunctionTrait(project: Project): Option[ScParameterizedType] = {
-    def findClass(fullyQualifiedName: String) : Option[PsiClass] = {
-      Option(ScalaPsiManager.instance(project).getCachedClass(getScope, fullyQualifiedName))
+            ScType.extractClassType(p.designator) match {
+              case Some((clazz: ScTypeDefinition, sub)) if startsWith(clazz, prefix) =>
+                val result = clazz.getType(TypingContext.empty)
+                result match {
+                  case Success(t, _) =>
+                    val substituted = (sub followed p.substitutor).subst(t)
+                    substituted match {
+                      case pt: ScParameterizedType => Some((clazz, pt.typeArgs))
+                      case _ => None
+                    }
+                  case _ => None
+                }
+              case _ => None
+            }
+          case _ => None
+        }
     }
-    findClass(functionTraitName) match {
-      case Some(t: ScTrait) => {
-        val typeParams = params.toList :+ returnType
-        Some(ScParameterizedType(ScType.designator(t), typeParams))
-      }
+
+  }
+
+  def unapply(tp: ScType): Option[(ScType, Seq[ScType])] = {
+    extractForPrefix(tp, "scala.Function") match {
+      case Some((clazz, typeArgs)) if typeArgs.length > 0 =>
+        val (params, Seq(ret)) = typeArgs.splitAt(typeArgs.length - 1)
+        Some(ret, params)
       case _ => None
     }
   }
 
-  def arity: Int = params.length
+  def isFunctionType(tp: ScType): Boolean = unapply(tp).isDefined
+}
 
-  override def removeAbstracts =
-    new ScFunctionType(returnType.removeAbstracts, params.map(_.removeAbstracts))(project, scope)
-
-  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
-    if (visited.contains(this)) {
-      return update(this) match {
-        case (true, res) => res
-        case _ => this
-      }
+object ScTupleType {
+  def apply(components: Seq[ScType])(project: Project, scope: GlobalSearchScope): ValueType = {
+    def findClass(fullyQualifiedName: String) : Option[PsiClass] = {
+      Option(ScalaPsiManager.instance(project).getCachedClass(scope, fullyQualifiedName))
     }
-    val newVisited = visited + this
-    update(this) match {
-      case (true, res) => res
-      case _ =>
-        new ScFunctionType(returnType.recursiveUpdate(update, newVisited), params.map(_.recursiveUpdate(update, newVisited)))(project, scope)
+    findClass("scala.Tuple" + components.length) match {
+      case Some(t: ScClass) =>
+        ScParameterizedType(ScType.designator(t), components)
+      case _ => types.Nothing
     }
   }
 
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                                    variance: Int = 1): ScType = {
-    update(this, variance, data) match {
-      case (true, res, _) => res
-      case (_, _, newData) =>
-        new ScFunctionType(returnType.recursiveVarianceUpdateModifiable(newData, update, variance),
-          params.map(_.recursiveVarianceUpdateModifiable(newData, update, -variance)))(project, scope)
+  def unapply(tp: ScType): Option[Seq[ScType]] = {
+    ScFunctionType.extractForPrefix(tp, "scala.Tuple") match {
+      case Some((clazz, typeArgs)) if typeArgs.length > 0 =>
+        Some(typeArgs)
+      case _ => None
     }
-  }
-
-  private def functionTraitName = "scala.Function" + params.length
-
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
-    var undefinedSubst = uSubst
-    r match {
-      case ScFunctionType(rt1, params1) => {
-        if (params1.length != params.length) return (false, undefinedSubst)
-        var t = Equivalence.equivInner(returnType, rt1, undefinedSubst, falseUndef)
-        if (!t._1) return (false, undefinedSubst)
-        undefinedSubst = t._2
-        val iter1 = params.iterator
-        val iter2 = params1.iterator
-        while (iter1.hasNext) {
-          t = Equivalence.equivInner(iter1.next, iter2.next, undefinedSubst, falseUndef)
-          if (!t._1) return (false, undefinedSubst)
-          undefinedSubst = t._2
-        }
-        (true, undefinedSubst)
-      }
-      case p: ScParameterizedType => {
-        p.getFunctionType match {
-          case Some(function) => this.equivInner(function, undefinedSubst, falseUndef)
-          case _ => (false, undefinedSubst)
-        }
-      }
-      case _ => (false, undefinedSubst)
-    }
-  }
-
-  def visitType(visitor: ScalaTypeVisitor) {
-    visitor.visitFunctionType(this)
   }
 }

@@ -28,7 +28,7 @@ class ScValueDeclarationImpl extends ScalaStubBasedElementImpl[ScValue] with ScV
 
   def this(stub: ScValueStub) = {this (); setStub(stub); setNode(null)}
 
-  override def toString: String = "ScValueDeclaration"
+  override def toString: String = "ScValueDeclaration: " + declaredElements.map(_.name).mkString(", ")
 
   def declaredElements = getIdList.fieldIds
 

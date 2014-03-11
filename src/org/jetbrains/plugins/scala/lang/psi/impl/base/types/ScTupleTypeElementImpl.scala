@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import psi.types.{ScTupleType, ScType}
-import psi.types.result.{TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.Any
 import api.ScalaElementVisitor
 import com.intellij.psi.PsiElementVisitor
@@ -19,9 +19,39 @@ import com.intellij.psi.PsiElementVisitor
  */
 
 class ScTupleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTupleTypeElement {
-  override def toString: String = "TupleType"
+  override def toString: String = "TupleType: " + getText
 
-  protected def innerType(ctx: TypingContext) = collectFailures(components.map(_.getType(ctx)), Any)(new ScTupleType(_)(getProject, getResolveScope))
+  private var desugarizedTypeModCount: Long = 0L
+  private var desugarizedType: Option[ScParameterizedTypeElement] = null
+
+  def desugarizedInfixType: Option[ScParameterizedTypeElement] = {
+    def inner(): Option[ScParameterizedTypeElement] = {
+      val n = components.length
+      val newTypeText = s"_root_.scala.Tuple$n[${components.map(_.getText).mkString(", ")}]"
+      val newTypeElement = ScalaPsiElementFactory.createTypeElementFromText(newTypeText, getContext, this)
+      newTypeElement match {
+        case p: ScParameterizedTypeElement => Some(p)
+        case _ => None
+      }
+    }
+
+    synchronized {
+      val currModCount = getManager.getModificationTracker.getModificationCount
+      if (desugarizedType != null && desugarizedTypeModCount == currModCount) {
+        return desugarizedType
+      }
+      desugarizedType = inner()
+      desugarizedTypeModCount = currModCount
+      return desugarizedType
+    }
+  }
+
+  protected def innerType(ctx: TypingContext): TypeResult[ScType] = {
+    desugarizedInfixType match {
+      case Some(p) => p.getType(ctx)
+      case _ => Failure("Cannot desugarize infix type", Some(this))
+    }
+  }
 
     override def accept(visitor: ScalaElementVisitor) {
         visitor.visitTupleTypeElement(this)

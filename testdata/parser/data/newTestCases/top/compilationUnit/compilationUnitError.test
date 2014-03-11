@@ -1,7 +1,7 @@
 class a{} trait b{}
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -23,7 +23,7 @@ ScalaFile
   PsiErrorElement:';' or newline expected
     <empty list>
   PsiWhiteSpace(' ')
-  ScTrait
+  ScTrait: b
     AnnotationsList
       <empty list>
     Modifiers

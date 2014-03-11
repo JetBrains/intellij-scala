@@ -5,7 +5,7 @@ ScalaFile
     Literal
       PsiElement(float)('1.')
     PsiWhiteSpace(' ')
-    ReferenceExpression
+    ReferenceExpression: +
       PsiElement(identifier)('+')
     PsiWhiteSpace(' ')
     Literal

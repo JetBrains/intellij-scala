@@ -3,7 +3,7 @@ class a[T] {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -13,7 +13,7 @@ ScalaFile
     PsiElement(identifier)('a')
     TypeParameterClause
       PsiElement([)('[')
-      TypeParameter
+      TypeParameter: T
         PsiElement(identifier)('T')
       PsiElement(])(']')
     PrimaryConstructor
@@ -28,7 +28,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n ')
-        ScFunctionDeclaration
+        ScFunctionDeclaration: foo
           AnnotationsList
             <empty list>
           Modifiers
@@ -38,7 +38,7 @@ ScalaFile
           PsiElement(identifier)('foo')
           TypeParameterClause
             PsiElement([)('[')
-            TypeParameter
+            TypeParameter: T
               PsiElement(identifier)('T')
             PsiElement(])(']')
           Parameters

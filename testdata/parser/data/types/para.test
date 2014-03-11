@@ -3,7 +3,7 @@ class Paramorphism {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: Paramorphism
     AnnotationsList
       <empty list>
     Modifiers
@@ -23,7 +23,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScFunctionDefinition
+        ScFunctionDefinition: para
           AnnotationsList
             <empty list>
           Modifiers
@@ -33,13 +33,13 @@ ScalaFile
           PsiElement(identifier)('para')
           TypeParameterClause
             PsiElement([)('[')
-            TypeParameter
+            TypeParameter: B
               PsiElement(identifier)('B')
             PsiElement(])(']')
           Parameters
             ParametersClause
               PsiElement(()('(')
-              Parameter
+              Parameter: b
                 AnnotationsList
                   <empty list>
                 Modifiers
@@ -48,12 +48,12 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  SimpleTypeElement
-                    CodeReferenceElement
+                  SimpleTypeElement: B
+                    CodeReferenceElement: B
                       PsiElement(identifier)('B')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              Parameter
+              Parameter: f
                 AnnotationsList
                   <empty list>
                 Modifiers
@@ -62,40 +62,40 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  FunctionalType
-                    TupleType
+                  FunctionalType: (=> A, => P[A], B) => B
+                    TupleType: (=> A, => P[A], B)
                       PsiElement(()('(')
                       TypesList
                         PsiElement(=>)('=>')
                         PsiWhiteSpace(' ')
-                        SimpleTypeElement
-                          CodeReferenceElement
+                        SimpleTypeElement: A
+                          CodeReferenceElement: A
                             PsiElement(identifier)('A')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
                         PsiElement(=>)('=>')
                         PsiWhiteSpace(' ')
-                        ParametrizedTypeElement
-                          SimpleTypeElement
-                            CodeReferenceElement
+                        ParametrizedTypeElement: P[A]
+                          SimpleTypeElement: P
+                            CodeReferenceElement: P
                               PsiElement(identifier)('P')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleTypeElement
-                              CodeReferenceElement
+                            SimpleTypeElement: A
+                              CodeReferenceElement: A
                                 PsiElement(identifier)('A')
                             PsiElement(])(']')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleTypeElement
-                          CodeReferenceElement
+                        SimpleTypeElement: B
+                          CodeReferenceElement: B
                             PsiElement(identifier)('B')
                       PsiElement())(')')
                     PsiWhiteSpace(' ')
                     PsiElement(=>)('=>')
                     PsiWhiteSpace(' ')
-                    SimpleTypeElement
-                      CodeReferenceElement
+                    SimpleTypeElement: B
+                      CodeReferenceElement: B
                         PsiElement(identifier)('B')
               PsiElement())(')')
           PsiWhiteSpace(' ')

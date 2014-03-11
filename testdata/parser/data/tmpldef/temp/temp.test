@@ -4,7 +4,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -24,7 +24,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScValueDeclaration
+        ScValueDeclaration: x
           AnnotationsList
             <empty list>
           Modifiers
@@ -32,12 +32,12 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfIdentifiers
-            Field identifier
+            Field identifier: x
               PsiElement(identifier)('x')
           PsiErrorElement:Wrong value declaration
             <empty list>
         PsiWhiteSpace('\n  ')
-        ScValueDeclaration
+        ScValueDeclaration: y
           AnnotationsList
             <empty list>
           Modifiers
@@ -45,7 +45,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfIdentifiers
-            Field identifier
+            Field identifier: y
               PsiElement(identifier)('y')
           PsiErrorElement:Wrong value declaration
             <empty list>

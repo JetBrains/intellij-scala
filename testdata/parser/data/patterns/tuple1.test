@@ -3,7 +3,7 @@ class C {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: C
     AnnotationsList
       <empty list>
     Modifiers
@@ -34,10 +34,10 @@ ScalaFile
             TuplePattern
               PsiElement(()('(')
               ArgumentPatterns
-                ReferencePattern
+                ReferencePattern: a
                   PsiElement(identifier)('a')
                 PsiElement(,)(',')
-                ReferencePattern
+                ReferencePattern: b
                   PsiElement(identifier)('b')
               PsiElement())(')')
           PsiElement(=)('=')

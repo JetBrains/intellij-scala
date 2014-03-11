@@ -136,8 +136,8 @@ object ScalaClassNameCompletionContributor {
     } addTypeForCompletion(ClassTypeToImport(clazz))
 
     val prefixMatcher = result.getPrefixMatcher
-    AllClassesGetter.processJavaClasses(parameters, prefixMatcher, parameters.getInvocationCount <= 1,
-      new Consumer[PsiClass] {
+    AllClassesGetter.processJavaClasses(if (lookingForAnnotations) parameters.withInvocationCount(2) else parameters,
+      prefixMatcher, parameters.getInvocationCount <= 1, new Consumer[PsiClass] {
         def consume(psiClass: PsiClass) {
           //todo: filter according to position
           if (psiClass.isInstanceOf[PsiClassWrapper]) return

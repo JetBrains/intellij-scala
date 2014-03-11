@@ -30,6 +30,7 @@ import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
 import com.intellij.psi.util.PsiTreeUtil
+import extensions.childOf
 
 
 /**
@@ -41,12 +42,11 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
   val REFACTORING_NAME = ScalaBundle.message("introduce.variable.title")
 
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
-    def invokes() {
+    val canBeIntroduced: ScExpression => Boolean = ScalaRefactoringUtil.checkCanBeIntroduced(_)
+    ScalaRefactoringUtil.afterExpressionChoosing(project, editor, file, dataContext, "Introduce Parameter", canBeIntroduced) {
       ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
       invoke(project, editor, file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
     }
-    val canBeIntroduced: ScExpression => Boolean = ScalaRefactoringUtil.checkCanBeIntroduced(_)
-    ScalaRefactoringUtil.invokeRefactoring(project, editor, file, dataContext, "Introduce Parameter", invokes, canBeIntroduced)
   }
 
   def invoke(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int) {
@@ -91,7 +91,11 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
             import scala.collection.JavaConversions.asJavaCollection
             val suggestedNamesSet = new LinkedHashSet[String](suggestedNames.toIterable)
             val asVar = ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_IS_VAR
-            val needExplicitType = ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_EXPLICIT_TYPE
+            val forceInferType = expr match {
+              case _: ScFunctionExpr => Some(true)
+              case _ => None
+            }
+            val needExplicitType = forceInferType.getOrElse(ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_EXPLICIT_TYPE)
             val selectedType = if (needExplicitType) types(0) else null
             val introduceRunnable: Computable[PsiElement] =
               introduceVariable(startOffset, endOffset, file, editor, expr, occurrences, suggestedNames(0), selectedType,
@@ -113,7 +117,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
                     val checkedExpr = if (expr.isValid) expr else null
                     val variableIntroducer =
                       new ScalaInplaceVariableIntroducer(project, editor, checkedExpr, types, namedElement,
-                        REFACTORING_NAME, replaceAll, asVar, false)
+                        REFACTORING_NAME, replaceAll, asVar, forceInferType)
                     variableIntroducer.performInplaceRefactoring(suggestedNamesSet)
                   }
                 }
@@ -184,6 +188,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
 
     val typeName = if (varType != null) varType.canonicalText else ""
     val expression = ScalaRefactoringUtil.expressionToIntroduce(expression_)
+    val isFunExpr = expression.isInstanceOf[ScFunctionExpr]
+
     val mainRange = new TextRange(startOffset, endOffset)
     val occurrences: Array[TextRange] = if (!replaceAllOccurrences) {
       Array[TextRange](mainRange)
@@ -201,11 +207,16 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     var firstRange = replacedOccurences(0)
 
     val commonParent: PsiElement = ScalaRefactoringUtil.commonParent(file, replacedOccurences: _*)
+    val parExpr = ScalaRefactoringUtil.findParentExpr(commonParent) match {
+      case _ childOf ((block: ScBlock) childOf ((_) childOf (call: ScMethodCall)))
+        if isFunExpr && occCount == 1 && block.statements.size == 1 => call
+      case _ childOf ((block: ScBlock) childOf (infix: ScInfixExpr))
+        if isFunExpr && occCount == 1 && block.statements.size == 1 => infix
+      case expr => expr
+    }
+    val nextParent: PsiElement = ScalaRefactoringUtil.nextParent(parExpr, file)
 
-    val parExpr: ScExpression = ScalaRefactoringUtil.findParentExpr(commonParent)
-    val prev: PsiElement = ScalaRefactoringUtil.previous(parExpr, file)
-
-    val forStmtOption = forStmtIfIntroduceEnumerator(parExpr, prev, firstRange.getStartOffset)
+    val forStmtOption = forStmtIfIntroduceEnumerator(parExpr, nextParent, firstRange.getStartOffset)
     val introduceEnumerator = forStmtOption.isDefined
     val introduceEnumeratorForStmt: ScForStatement = forStmtOption.getOrElse(null)
 
@@ -245,7 +256,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       }
       else {
         val container: PsiElement = ScalaRefactoringUtil.container(parExpr, file, occCount == 1)
-        val needBraces = !parExpr.isInstanceOf[ScBlock] && ScalaRefactoringUtil.needBraces(parExpr, prev)
+        val needBraces = !parExpr.isInstanceOf[ScBlock] && ScalaRefactoringUtil.needBraces(parExpr, nextParent)
         val parent =
           if (needBraces) {
             firstRange = firstRange.shiftRight(1)

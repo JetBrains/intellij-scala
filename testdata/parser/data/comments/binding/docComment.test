@@ -4,7 +4,7 @@
 type A
 -----
 ScalaFile
-  ScTypeAliasDeclaration
+  ScTypeAliasDeclaration: A
     DocComment
       PsiElement(DOC_COMMENT_START)('/**')
       PsiElement(DOC_WHITESPACE)('\n ')

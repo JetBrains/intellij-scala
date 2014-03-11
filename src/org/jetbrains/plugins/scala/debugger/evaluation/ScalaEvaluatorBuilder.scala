@@ -409,9 +409,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       super.visitGenericCallExpression(call)
     }
 
-    def evaluateLocalMethod(resolve: PsiElement, argEvaluators: Seq[Evaluator]) {
+    def evaluateLocalMethod(fun: ScFunctionDefinition, argEvaluators: Seq[Evaluator]) {
       //local method
-      val fun = resolve.asInstanceOf[ScFunctionDefinition]
       val name = NameTransformer.encode(fun.name)
       val containingClass = if (fun.isSynthetic) fun.containingClass else getContainingClass(fun)
       if (getContextClass == null) {
@@ -450,7 +449,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         })
         myResult = new ScalaMethodEvaluator(
           thisEvaluator, name, DebuggerUtil.getFunctionJVMSignature(fun), evaluators, None,
-          DebuggerUtil.getSourcePositions(resolve.getNavigationElement), localFunctionIndex(fun))
+          DebuggerUtil.getSourcePositions(fun.getNavigationElement), localFunctionIndex(fun))
         return
       }
       throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate local method")
@@ -677,24 +676,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
     private def boxArguments(arguments: Seq[Evaluator], element: PsiElement): Seq[Evaluator] = {
       element match {
-        case constr: ScPrimaryConstructor =>
-          val res = new ArrayBuffer[Evaluator]
-          var i = 0
-          val params = constr.effectiveParameterClauses.map(_.parameters).flatten
-          while (i < arguments.length) {
-            val evaluator = arguments(i)
-            if (params.length > i) {
-              val param = params(i)
-              import org.jetbrains.plugins.scala.lang.psi.types._
-              res += (param.getType(TypingContext.empty).getOrAny match {
-                case Boolean | Int | Char | Double | Float | Long | Byte | Short => evaluator
-                case _ => boxEvaluator(evaluator)
-              })
-            } else res += evaluator
-            i = i + 1
-          }
-          res.toSeq
-        case fun: ScFunction =>
+        case fun: ScMethodLike =>
           val res = new ArrayBuffer[Evaluator]
           var i = 0
           val params = fun.effectiveParameterClauses.map(_.parameters).flatten
@@ -719,15 +701,9 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             val evaluator = arguments(i)
             if (params.length > i) {
               val param = params(i)
+              import PsiType._
               res += (param.getType match {
-                case PsiType.BOOLEAN => evaluator
-                case PsiType.INT => evaluator
-                case PsiType.CHAR => evaluator
-                case PsiType.DOUBLE => evaluator
-                case PsiType.FLOAT => evaluator
-                case PsiType.LONG => evaluator
-                case PsiType.BYTE => evaluator
-                case PsiType.SHORT => evaluator
+                case BOOLEAN | INT | CHAR | DOUBLE | FLOAT | LONG | BYTE | SHORT => evaluator
                 case _ => boxEvaluator(evaluator)
               })
             } else res += evaluator
@@ -1000,8 +976,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         myResult
       })
       resolve match {
-        case fun: ScFunction if isLocalFunction(fun) =>
-          evaluateLocalMethod(resolve,
+        case fun: ScFunctionDefinition if isLocalFunction(fun) =>
+          evaluateLocalMethod(fun,
             argumentEvaluators(fun, matchedParameters, expr, qualOption, ref, replaceWithImplicit, resolve, arguments))
         case fun: ScFunction if isClassOfFunction(fun) =>
           val clazzJVMName = expr.getContext match {
@@ -1469,7 +1445,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                       myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */, Seq.empty,
                         traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   }
-                case _ => throw new RuntimeException("Match is not exhaustive")
+                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
               }
             case None =>
               ref.bind() match {
@@ -1478,7 +1454,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   val name = NameTransformer.encode(obj.name)
                   myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, Seq.empty,
                     traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                case _ => throw new RuntimeException("Match is not exhaustive")
+                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
               }
           }
         case _: PsiMethod | _: ScSyntheticFunction =>
@@ -1500,7 +1476,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                       val name = NameTransformer.encode(named.name)
                       myResult = new ScalaFieldEvaluator(myResult, _ => true, name, true)
                   }
-                case _ => throw new RuntimeException("Match is not exhaustive")
+                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
               }
             case None =>
               ref.bind() match {
@@ -1508,7 +1484,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   val evaluator = thisOrImportedQualifierEvaluator(ref, r)
                   val name = NameTransformer.encode(named.name)
                   myResult = new ScalaFieldEvaluator(evaluator, _ => true, name, true)
-                case _ => throw new RuntimeException("Match is not exhaustive")
+                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
               }
           }
         case _: ScClassParameter | _: ScBindingPattern =>
@@ -1527,7 +1503,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                       myResult = new ScalaMethodEvaluator(myResult, name, null /* todo */, Seq.empty,
                         traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   }
-                case _ => throw new RuntimeException("Match is not exhaustive")
+                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
               }
             case None =>
               ref.bind() match {
@@ -1547,7 +1523,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                       myResult = new ScalaDuplexEvaluator(myResult, reserveEval)
                     case _ =>
                   }
-                case _ => throw new RuntimeException("Match is not exhaustive")
+                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
               }
           }
         case field: PsiField =>
@@ -1570,7 +1546,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                         myResult = new ScalaFieldEvaluator(myResult,
                           ScalaFieldEvaluator.getFilter(getContainingClass(field)), name)
                     }
-                  case _ => throw new RuntimeException("Match is not exhaustive")
+                  case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
                 }
               }
             case None =>
@@ -1580,7 +1556,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   val name = field.name
                   myResult = new ScalaFieldEvaluator(evaluator,
                     ScalaFieldEvaluator.getFilter(getContainingClass(field)), name)
-                case _ => throw new RuntimeException("Match is not exhaustive")
+                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
               }
           }
         case pack: ScPackage =>

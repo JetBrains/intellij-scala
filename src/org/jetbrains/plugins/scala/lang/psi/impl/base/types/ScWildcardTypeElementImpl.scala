@@ -21,7 +21,7 @@ import com.intellij.psi.PsiElementVisitor
 */
 
 class ScWildcardTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeBoundsOwnerImpl with ScWildcardTypeElement {
-  override def toString: String = "WildcardType"
+  override def toString: String = "WildcardType: " + getText
 
   protected def innerType(ctx: TypingContext) = {
     for {

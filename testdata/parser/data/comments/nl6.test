@@ -6,7 +6,7 @@ class AAA {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: AAA
     AnnotationsList
       <empty list>
     Modifiers
@@ -26,7 +26,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n\n  ')
-        ScFunctionDefinition
+        ScFunctionDefinition: isSideEffecting
           AnnotationsList
             <empty list>
           Modifiers
@@ -41,7 +41,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           ExpressionInParenthesis
             PsiElement(()('(')
-            ReferenceExpression
+            ReferenceExpression: boo
               PsiElement(identifier)('boo')
             PsiWhiteSpace('\n')
             PsiComment(BlockComment)('/**/')

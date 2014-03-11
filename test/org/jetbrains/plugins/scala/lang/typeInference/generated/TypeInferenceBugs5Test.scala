@@ -7,6 +7,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testAssignmentNotImported() {doTest()}
 
+  def testCyclicGetClass() {doTest()}
+
   def testDefaultParamInference() {doTest()}
 
   def testEA52539() {doTest()}
@@ -462,6 +464,22 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL6309() {doTest()}
 
   def testSCL6507() {doTest()}
+
+  def testSCL6601() {doTest()}
+
+  def testSCL6601B() {doTest()}
+
+  def testSCL6608() {doTest()}
+
+  def testSCL6608B() {doTest()}
+
+  def testSCL6658() {doTest()}
+
+  def testSCL6660() {doTest()}
+
+  def testSCL6730() {doTest()}
+
+  def testSCL6730B() {doTest()}
 
   def testSOE() {doTest()}
 

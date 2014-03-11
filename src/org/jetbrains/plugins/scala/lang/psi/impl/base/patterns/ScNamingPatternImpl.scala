@@ -27,7 +27,7 @@ class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
     }
   }
 
-  override def toString: String = "NamingPattern"
+  override def toString: String = "NamingPattern: " + name
 
   def nameId = findChildByType(TokenSets.ID_SET)
 

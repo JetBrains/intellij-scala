@@ -242,7 +242,7 @@ trait ScTypePresentation {
           ScTypePresentation.ABSTRACT_TYPE_PREFIX + tpt.name.capitalize
         case StdType(name, _) =>
           name
-        case ScFunctionType(ret, params) =>
+        case ScFunctionType(ret, params) if !t.isAliasType.isDefined =>
           typeSeqText(params, "(", ", ", ") => ") + innerTypeText(ret)
         case ScThisType(clazz: ScTypeDefinition) =>
           clazz.name + ".this" + typeTail(needDotType)
@@ -256,10 +256,6 @@ trait ScTypePresentation {
           nameFun(e)
         case proj: ScProjectionType if proj != null =>
           projectionTypeText(proj, needDotType)
-        case p: ScParameterizedType if p.getTupleType != None => 
-          innerTypeText(p.getTupleType.get, needDotType)
-        case p: ScParameterizedType if p.getFunctionType != None => 
-          innerTypeText(p.getFunctionType.get, needDotType)
         case ScParameterizedType(des, typeArgs) =>
           innerTypeText(des) + typeSeqText(typeArgs, "[", ", ", "]", checkWildcard = true)
         case j@JavaArrayType(arg) => 

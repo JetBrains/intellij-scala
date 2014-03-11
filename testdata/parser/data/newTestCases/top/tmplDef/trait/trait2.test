@@ -3,7 +3,7 @@ trait a extends b
 trait b
 -----
 ScalaFile
-  ScTrait
+  ScTrait: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -14,7 +14,7 @@ ScalaFile
     ExtendsBlock
       <empty list>
   PsiWhiteSpace('\n')
-  ScTrait
+  ScTrait: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -27,11 +27,11 @@ ScalaFile
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
       TraitParents
-        SimpleTypeElement
-          CodeReferenceElement
+        SimpleTypeElement: b
+          CodeReferenceElement: b
             PsiElement(identifier)('b')
   PsiWhiteSpace('\n')
-  ScTrait
+  ScTrait: b
     AnnotationsList
       <empty list>
     Modifiers

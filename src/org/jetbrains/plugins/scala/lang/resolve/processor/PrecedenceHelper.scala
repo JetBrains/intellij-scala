@@ -85,8 +85,10 @@ trait PrecedenceHelper[T] {
   }
 
   protected def getPrecedence(result: ScalaResolveResult): Int = {
-    if (predefObject) PrecedenceHelper.PrecedenceTypes.SCALA_PREDEF
-    else result.getPrecedence(getPlace, placePackageName)
+    specialPriority match {
+      case Some(priority) => priority
+      case None => result.getPrecedence(getPlace, placePackageName)
+    }
   }
 }
 

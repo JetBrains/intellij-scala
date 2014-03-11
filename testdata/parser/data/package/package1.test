@@ -6,15 +6,15 @@ ScalaFile
   ScPackaging
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    CodeReferenceElement
+    CodeReferenceElement: a
       PsiElement(identifier)('a')
     PsiWhiteSpace('\n\n')
     ScImportStatement
       PsiElement(import)('import')
       PsiWhiteSpace(' ')
       ImportExpression
-        CodeReferenceElement
-          CodeReferenceElement
+        CodeReferenceElement: b.c
+          CodeReferenceElement: b
             PsiElement(identifier)('b')
           PsiElement(.)('.')
           PsiElement(identifier)('c')

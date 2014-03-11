@@ -4,7 +4,7 @@ package codeInsight.intention.types
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.extensions._
 import lang.psi.ScalaPsiUtil
@@ -69,10 +69,10 @@ object Update extends Strategy {
     param.parentsInFile.findByType(classOf[ScFunctionExpr]) match {
       case Some(func) =>
         val index = func.parameters.indexOf(param)
-        func.expectedType().flatMap(ScType.extractFunctionType) match {
-          case Some(funcType) =>
-            if (index >= 0 && index < funcType.arity) {
-              val paramExpectedType = funcType.params(index)
+        func.expectedType() match {
+          case Some(ScFunctionType(_, params)) =>
+            if (index >= 0 && index < params.length) {
+              val paramExpectedType = params(index)
               val param1 = param.getParent match {
                 case x: ScParameterClause if x.parameters.length == 1 =>
                   // ensure  that the parameter is wrapped in parentheses before we add the type annotation.
@@ -82,7 +82,7 @@ object Update extends Strategy {
               }
               addTypeAnnotation(paramExpectedType, param1.getParent, param1)
             }
-          case None =>
+          case _ =>
         }
       case _ =>
     }

@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact build-on-make="true" name="ScalaPlugins">
+  <artifact name="ScalaPlugins">
     <output-path>$PROJECT_DIR$/out/cardea/artifacts/Scala</output-path>
     <root id="root">
       <element id="directory" name="lib">
@@ -28,6 +28,9 @@
         </element>
         <element id="archive" name="compiler-settings.jar">
           <element id="module-output" name="compiler-settings" />
+        </element>
+        <element id="archive" name="scala-nailgun-runner.jar">
+          <element id="module-output" name="NailgunRunners" />
         </element>
       </element>
       <element id="directory" name="launcher">

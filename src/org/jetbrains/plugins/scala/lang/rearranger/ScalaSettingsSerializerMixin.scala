@@ -8,5 +8,6 @@ import com.intellij.psi.codeStyle.arrangement.DefaultArrangementSettingsSerializ
  * Date: 19.07.13
  */
 class ScalaSettingsSerializerMixin extends DefaultArrangementSettingsSerializer.Mixin{
-  def deserializeToken(id: String) = scalaArrangementTokensByName(id)
+  def deserializeToken(id: String) =
+    getTokenById(id).getOrElse(null)
 }

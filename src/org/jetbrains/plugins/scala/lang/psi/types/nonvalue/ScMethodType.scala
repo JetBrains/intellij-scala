@@ -28,7 +28,8 @@ trait NonValueType extends ScType {
 case class Parameter(name: String, deprecatedName: Option[String], paramType: ScType, expectedType: ScType,
                      isDefault: Boolean, isRepeated: Boolean,
                      isByName: Boolean, index: Int = -1, paramInCode: Option[ScParameter] = None) {
-  def this(name: String, deprecatedName: Option[String], paramType: ScType, isDefault: Boolean, isRepeated: Boolean, isByName: Boolean, index: Int) {
+  def this(name: String, deprecatedName: Option[String], paramType: ScType, isDefault: Boolean, isRepeated: Boolean,
+           isByName: Boolean, index: Int) {
     this(name, deprecatedName, paramType, paramType, isDefault, isRepeated, isByName, index)
   }
 
@@ -47,7 +48,7 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
   }
 
   def inferValueType: ValueType = {
-    new ScFunctionType(returnType.inferValueType, params.map(p => {
+    ScFunctionType(returnType.inferValueType, params.map(p => {
       val inferredParamType = p.paramType.inferValueType
       if (!p.isRepeated) inferredParamType
       else {

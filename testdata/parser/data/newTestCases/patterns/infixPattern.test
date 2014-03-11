@@ -5,7 +5,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -34,25 +34,25 @@ ScalaFile
               PsiWhiteSpace(' ')
               InfixPattern
                 InfixPattern
-                  ReferencePattern
+                  ReferencePattern: f
                     PsiElement(identifier)('f')
                   PsiWhiteSpace(' ')
-                  CodeReferenceElement
+                  CodeReferenceElement: op
                     PsiElement(identifier)('op')
                   PsiWhiteSpace(' ')
-                  ReferencePattern
+                  ReferencePattern: f
                     PsiElement(identifier)('f')
                 PsiWhiteSpace(' ')
-                CodeReferenceElement
+                CodeReferenceElement: op
                   PsiElement(identifier)('op')
                 PsiWhiteSpace(' ')
-                ReferencePattern
+                ReferencePattern: f
                   PsiElement(identifier)('f')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
               BlockOfExpressions
-                ReferenceExpression
+                ReferenceExpression: f
                   PsiElement(identifier)('f')
           PsiWhiteSpace('\n  ')
           PsiElement(})('}')

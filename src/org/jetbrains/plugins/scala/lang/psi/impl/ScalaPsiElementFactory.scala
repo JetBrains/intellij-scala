@@ -441,7 +441,10 @@ object ScalaPsiElementFactory {
 
   def createDeclaration(typez: ScType, name: String, isVariable: Boolean,
                         expr: ScExpression, manager: PsiManager, isPresentableText: Boolean): ScMember = {
-    val typeText = if(isPresentableText) typez.presentableText else typez.canonicalText
+    val typeText =
+      if (typez == null) ""
+      else if(isPresentableText) typez.presentableText
+      else typez.canonicalText
     createDeclaration(name, typeText, isVariable, expr, manager)
   }
 
@@ -470,10 +473,11 @@ object ScalaPsiElementFactory {
       case null => ""
       case _ => stmt.getText
     }
+    val beforeColon = if (ScalaNamesUtil.isOpCharacter(name.last)) " " else ""
     val typeText =
       if (typeName != null && typeName != ""){
         createTypeElementFromText(typeName, manager) //throws an exception if type name is incorrect
-        ": " + typeName
+        s"$beforeColon: $typeName"
       }  else ""
     val keyword: String = if (isVariable) "var" else "val"
     val text = s"class a {$keyword $name$typeText = ${stmtText(expr)}"
@@ -984,12 +988,16 @@ object ScalaPsiElementFactory {
   }
 
   def createIdsListFromText(text: String, context: PsiElement, child: PsiElement): ScIdList = {
-    val valDef: ScValueDeclaration = createElementWithContext(s"val $text : Int", context, child, Dcl.parse(_))
+    val valDef = createDeclarationFromText(s"val $text : Int", context, child).asInstanceOf[ScValueDeclaration]
     if (valDef != null) {
       val res = valDef.getIdList
       res.setContext(context, child)
       res
     } else null
+  }
+
+  def createDeclarationFromText(text: String, context: PsiElement, child: PsiElement): ScDeclaration = {
+    createElementWithContext[ScDeclaration](text, context, child, Dcl.parse(_))
   }
 
   def createDocCommentFromText(text: String, manager: PsiManager): ScDocComment = {

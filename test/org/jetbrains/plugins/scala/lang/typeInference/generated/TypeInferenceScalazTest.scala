@@ -24,4 +24,6 @@ class TypeInferenceScalazTest extends TypeInferenceTestBase {
   def testSCL4468() {doTest()}
 
   def testSCL4912() {doTest()}
+
+  def testSCL6417() {doTest()}
 }

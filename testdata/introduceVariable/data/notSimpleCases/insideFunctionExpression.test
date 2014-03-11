@@ -1,0 +1,10 @@
+val x: Int => Int = { i =>
+  val c = 2 + <all>2<end>
+  i + c + 2
+}
+------
+val x: Int => Int = { i =>
+  val value: Int = 2
+  val c = value + value
+  i + c + value
+}

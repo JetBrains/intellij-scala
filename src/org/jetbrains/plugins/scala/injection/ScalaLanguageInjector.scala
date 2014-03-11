@@ -18,8 +18,6 @@ import settings._
 import editor.enterHandler.MultilineStringEnterHandler
 import collection.immutable.WrappedString
 import java.util
-import lang.psi.ScalaPsiElement
-import annotation.tailrec
 import collection.mutable
 
 import ScalaLanguageInjector.extractMultiLineStringRanges
@@ -37,16 +35,14 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
   override def elementsToInjectIn = List(classOf[ScLiteral], classOf[ScInfixExpr])
 
   override def getLanguagesToInject(registrar: MultiHostRegistrar, host: PsiElement) {
-    if (ScalaProjectSettings.getInstance(host.getProject).isDisableLangInjection) return
-
     val literals = literalsOf(host)
-    
     if (literals.isEmpty) return
+
+    if (injectUsingIntention(registrar, host, literals) || injectInInterpolation(registrar, host, literals)) return 
+
+    if (ScalaProjectSettings.getInstance(host.getProject).isDisableLangInjection) return
     
-    injectUsingAnnotation  (registrar, host, literals) || 
-      injectUsingPatterns  (registrar, host, literals) || 
-      injectUsingIntention (registrar, host, literals) || 
-      injectInInterpolation(registrar, host, literals)
+    injectUsingAnnotation(registrar, host, literals) || injectUsingPatterns(registrar, host, literals) 
   }
 
   private def literalsOf(host: PsiElement): Seq[ScLiteral] = {
@@ -312,7 +308,7 @@ object ScalaLanguageInjector {
   }
   
   def withInjectionSupport[T](action: LanguageInjectionSupport => T) = 
-    Extensions getExtensions LanguageInjectionSupport.EP_NAME find (_.getId == "scala") map (action(_))
+    Extensions getExtensions LanguageInjectionSupport.EP_NAME find (_.getId == "scala") map action
   
   def performSimpleInjection(literals: scala.Seq[ScLiteral], injectedLanguage: InjectedLanguage, 
                              injection: BaseInjection, host: PsiElement, registrar: MultiHostRegistrar,

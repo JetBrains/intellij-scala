@@ -47,7 +47,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
       assert(elementsToSurround == null || elementsToSurround.isEmpty, elementsToSurround.mkString("![", ",", "]!"))
     } else {
       assert(!elementsToSurround.isEmpty, "No elements to surround!")
-      extensions.inWriteAction {
+      extensions.startCommand(getProject, "Surround With Test") {
         SurroundWithHandler.invoke(myFixture.getProject, myFixture.getEditor, myFixture.getFile, surrounder)
       }
       myFixture.checkResult(assumedText)
@@ -195,5 +195,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
 
 object ScalaLightCodeInsightFixtureTestAdapter {
   val CARET_MARKER = CodeInsightTestFixture.CARET_MARKER
+  val SELECTION_START = "<selection>"
+  val SELECTION_END = "</selection>"
 }
 

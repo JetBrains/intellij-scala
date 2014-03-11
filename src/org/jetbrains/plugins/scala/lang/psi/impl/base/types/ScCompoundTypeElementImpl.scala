@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types
  */
 
 class ScCompoundTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScCompoundTypeElement {
-  override def toString: String = "CompoundType"
+  override def toString: String = "CompoundType: " + getText
 
   protected def innerType(ctx: TypingContext) = {
     val comps = components.map(_.getType(ctx))

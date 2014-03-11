@@ -3,7 +3,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -29,8 +29,8 @@ ScalaFile
           ExtendsBlock
             ClassParents
               Constructor
-                SimpleTypeElement
-                  CodeReferenceElement
+                SimpleTypeElement: z
+                  CodeReferenceElement: z
                     PsiElement(identifier)('z')
                 ArgumentList
                   PsiElement(()('(')
@@ -40,8 +40,8 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(with)('with')
               PsiWhiteSpace(' ')
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: h
+                CodeReferenceElement: h
                   PsiElement(identifier)('h')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
