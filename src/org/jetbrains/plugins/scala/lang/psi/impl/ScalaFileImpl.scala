@@ -457,10 +457,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     }
   }
 
-  protected override def implicitlyImportedPackages = ScalaFileImpl.DefaultImplicitlyImportedPackges
-
-  protected override def implicitlyImportedObjects = ScalaFileImpl.DefaultImplicitlyImportedObjects
-
   override protected def insertFirstImport(importSt: ScImportStmt, first: PsiElement): PsiElement = {
     if (isScriptFile) {
       first match {

@@ -24,6 +24,7 @@ import toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.extensions._
 import psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes
 
 object BaseProcessor {
   def unapply(p: BaseProcessor) = Some(p.kinds)
@@ -53,7 +54,21 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
   def changedLevel: Boolean = true
 
-  var predefObject: Boolean = false
+  private var knownPriority: Option[Int] = None
+
+  def definePriority(p: Int)(body: => Unit) {
+    val oldPriority = knownPriority
+    knownPriority = Some(p)
+    try {
+      body
+    } finally {
+      knownPriority = oldPriority
+    }
+  }
+
+  def isPredefPriority = knownPriority == Some(PrecedenceTypes.SCALA_PREDEF)
+
+  def specialPriority: Option[Int] = knownPriority
 
   protected var accessibility = true
   def doNotCheckAccessibility() {accessibility = false}
