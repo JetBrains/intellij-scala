@@ -169,13 +169,11 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
                   case Some(expected) =>
                     expected match {
                       case ScFunctionType(_, params) =>
-                      case p: ScParameterizedType if p.getFunctionType != None =>
                       case _ =>
                         expected.isAliasType match {
                           case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) =>
                             ta.aliasedType match {
                               case Success(ScFunctionType(_, _), _) =>
-                              case Success(p: ScParameterizedType, _) if p.getFunctionType != None =>
                               case _ => res = updateType(retType)
                             }
                           case _ => res = updateType(retType)
@@ -307,8 +305,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
         ScalaPsiUtil.isAnonymousExpression(expr) match {
           case (-1, _) => (Nothing, "")
           case (i, expr: ScFunctionExpr) =>
-            (new ScFunctionType(expr.result.map(_.getShape(ignoreAssign = true)._1).getOrElse(Nothing), Seq.fill(i)(Any))(getProject, getResolveScope), "")
-          case (i, _) => (new ScFunctionType(Nothing, Seq.fill(i)(Any))(getProject, getResolveScope), "")
+            (ScFunctionType(expr.result.map(_.getShape(ignoreAssign = true)._1).getOrElse(Nothing), Seq.fill(i)(Any))(getProject, getResolveScope), "")
+          case (i, _) => (ScFunctionType(Nothing, Seq.fill(i)(Any))(getProject, getResolveScope), "")
         }
       case _ => (Nothing, "")
     }

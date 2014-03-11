@@ -227,6 +227,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
       case (ScParameterizedType(designator, typeArgs), ScParameterizedType(designator1, typeArgs1)) => {
         var t = Equivalence.equivInner(designator, designator1, undefinedSubst, falseUndef)
         if (!t._1) return (false, undefinedSubst)
+        undefinedSubst = t._2
         if (typeArgs.length != typeArgs1.length) return (false, undefinedSubst)
         val iterator1 = typeArgs.iterator
         val iterator2 = typeArgs1.iterator
@@ -238,23 +239,6 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
         (true, undefinedSubst)
       }
       case _ => (false, undefinedSubst)
-    }
-  }
-
-  def getTupleType: Option[ScTupleType] = {
-    getStandardType("scala.Tuple") match {
-      case Some((clazz, typeArgs)) if typeArgs.length > 0 =>
-        Some(new ScTupleType(typeArgs)(clazz.getProject, clazz.getResolveScope))
-      case _ => None
-    }
-  }
-
-  def getFunctionType: Option[ScFunctionType] = {
-    getStandardType("scala.Function") match {
-      case Some((clazz, typeArgs)) if typeArgs.length > 0 =>
-        val (params, Seq(ret)) = typeArgs.splitAt(typeArgs.length - 1)
-        Some(new ScFunctionType(ret, params)(clazz.getProject, clazz.getResolveScope))
-      case _ => None
     }
   }
 

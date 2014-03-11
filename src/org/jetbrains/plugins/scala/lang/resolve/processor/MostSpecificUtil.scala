@@ -20,7 +20,8 @@ import org.jetbrains.plugins.scala.extensions.toPsiMemberExt
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -50,6 +51,18 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
       case Some(rr) => new InnerScalaResolveResult(rr.element, rr.implicitConversionClass, r, subst, implicitCase = true)
       case None => new InnerScalaResolveResult(r.element, r.implicitConversionClass, r, subst, implicitCase = true)
     }}, noImplicit = true).map(_.repr)
+  }
+
+  def nextSpecificForImplicitParameters(filterRest: Option[ScalaResolveResult],
+                                        rest: Seq[ScalaResolveResult]): (Option[ScalaResolveResult], Seq[ScalaResolveResult]) = {
+    def update(r: ScalaResolveResult): InnerScalaResolveResult[ScalaResolveResult] = {
+      r.innerResolveResult match {
+        case Some(rr) => new InnerScalaResolveResult(rr.element, rr.implicitConversionClass, r, ScSubstitutor.empty, implicitCase = true)
+        case None => new InnerScalaResolveResult(r.element, r.implicitConversionClass, r, ScSubstitutor.empty, implicitCase = true)
+      }
+    }
+    val (next, r) = nextSpecificGeneric(filterRest.map(update), rest.map(update))
+    (next.map(_.repr), r.map(_.repr))
   }
 
   def mostSpecificForImplicit(applicable: Set[ImplicitResolveResult]): Option[ImplicitResolveResult] = {
@@ -222,24 +235,22 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     }
   }
 
+  /**
+   * c1 is a subclass of c2, or
+   * c1 is a companion object of a class derived from c2, or
+   * c2 is a companion object of a class fromwhich c1 is derived.
+   * @return true is c1 is derived from c2, false if c1 or c2 is None
+   */
   def isDerived(c1: Option[PsiClass], c2: Option[PsiClass]): Boolean = {
     (c1, c2) match {
       case (Some(clazz1), Some(clazz2)) =>
         if (clazz1 == clazz2) return false
         if (ScalaPsiUtil.cachedDeepIsInheritor(clazz1, clazz2)) return true
-        ScalaPsiUtil.getCompanionModule(clazz1) match {
-          case Some(companion1) => if (ScalaPsiUtil.cachedDeepIsInheritor(companion1, clazz2)) return true
-          case _ =>
+        (clazz1, clazz2) match {
+          case (clazz1: ScObject, _) => isDerived(ScalaPsiUtil.getCompanionModule(clazz1), Some(clazz2))
+          case (_, clazz2: ScObject) => isDerived(Some(clazz1), ScalaPsiUtil.getCompanionModule(clazz2))
+          case _ => false
         }
-        ScalaPsiUtil.getCompanionModule(clazz2) match {
-          case Some(companion2) => if (ScalaPsiUtil.cachedDeepIsInheritor(clazz1, companion2)) return true
-          case _ =>
-        }
-        (ScalaPsiUtil.getCompanionModule(clazz1), ScalaPsiUtil.getCompanionModule(clazz2)) match {
-          case (Some(companion1), Some(companion2)) => if (ScalaPsiUtil.cachedDeepIsInheritor(companion1, companion2)) return true
-          case _ =>
-        }
-        false
       case _ => false
     }
   }
@@ -281,6 +292,29 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     val result = calc(checkImplicits = false)
     if (!noImplicit && result.isEmpty) calc(checkImplicits = true)
     else result
+  }
+
+  private def nextSpecificGeneric[T](filterRest: Option[InnerScalaResolveResult[T]],
+                                     rest: Seq[InnerScalaResolveResult[T]]): (Option[InnerScalaResolveResult[T]], Seq[InnerScalaResolveResult[T]]) = {
+
+    val filteredRest = filterRest match {
+      case Some(r) => rest.filter(!isMoreSpecific(r, _, checkImplicits = false))
+      case _ => rest
+    }
+    if (filteredRest.isEmpty) return (None, Seq.empty)
+    if (filteredRest.length == 1) return (Some(filteredRest.head), Seq.empty)
+    var found = filteredRest.head
+    val iter = filteredRest.tail.iterator
+    val out: ArrayBuffer[InnerScalaResolveResult[T]] = new ArrayBuffer[InnerScalaResolveResult[T]]()
+
+    while (iter.hasNext) {
+      val res = iter.next()
+      if (isMoreSpecific(res, found, checkImplicits = false)) {
+        out += found
+        found = res
+      } else out += res
+    }
+    (Some(found), out.toSeq)
   }
 
   //todo: implement existential dual

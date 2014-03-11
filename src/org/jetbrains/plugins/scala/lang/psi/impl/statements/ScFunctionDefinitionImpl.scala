@@ -123,7 +123,7 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
   
   protected def needCheckProcessingDeclarationsForBody = true
 
-  override def toString: String = "ScFunctionDefinition"
+  override def toString: String = "ScFunctionDefinition: " + name
 
   def returnTypeInner: TypeResult[ScType] = returnTypeElement match {
     case None if !hasAssign => Success(Unit, Some(this))

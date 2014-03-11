@@ -1,8 +1,8 @@
 class a
 class b
-------
+-----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -20,7 +20,7 @@ ScalaFile
     ExtendsBlock
       <empty list>
   PsiWhiteSpace('\n')
-  ScClass
+  ScClass: b
     AnnotationsList
       <empty list>
     Modifiers

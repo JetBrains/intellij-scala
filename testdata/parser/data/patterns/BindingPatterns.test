@@ -11,7 +11,7 @@ object A {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: Some
     AnnotationsList
       <empty list>
     Modifiers
@@ -28,7 +28,7 @@ ScalaFile
       Parameters
         ParametersClause
           PsiElement(()('(')
-          ClassParameter
+          ClassParameter: n
             AnnotationsList
               <empty list>
             Modifiers
@@ -37,8 +37,8 @@ ScalaFile
             PsiWhiteSpace(' ')
             PsiElement(:)(':')
             ParameterType
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: int
+                CodeReferenceElement: int
                   PsiElement(identifier)('int')
           PsiElement())(')')
     ExtendsBlock
@@ -47,7 +47,7 @@ ScalaFile
         PsiWhiteSpace('\n')
         PsiElement(})('}')
   PsiWhiteSpace('\n')
-  ScClass
+  ScClass: Some2
     AnnotationsList
       <empty list>
     Modifiers
@@ -70,7 +70,7 @@ ScalaFile
         PsiWhiteSpace('\n')
         PsiElement(})('}')
   PsiWhiteSpace('\n')
-  ScObject
+  ScObject: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -91,7 +91,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: x
               PsiElement(identifier)('x')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -99,7 +99,7 @@ ScalaFile
           Literal
             PsiElement(integer)('1')
         PsiWhiteSpace('\n  ')
-        ScFunctionDefinition
+        ScFunctionDefinition: foo
           AnnotationsList
             <empty list>
           Modifiers
@@ -115,7 +115,7 @@ ScalaFile
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           MatchStatement
-            ReferenceExpression
+            ReferenceExpression: a
               PsiElement(identifier)('a')
             PsiWhiteSpace(' ')
             PsiElement(match)('match')
@@ -126,16 +126,16 @@ ScalaFile
               CaseClause
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
-                NamingPattern
+                NamingPattern: x
                   PsiElement(identifier)('x')
                   PsiElement(@)('@')
                   TuplePattern
                     PsiElement(()('(')
                     ArgumentPatterns
-                      ReferencePattern
+                      ReferencePattern: y
                         PsiElement(identifier)('y')
                       PsiElement(,)(',')
-                      ReferencePattern
+                      ReferencePattern: z
                         PsiElement(identifier)('z')
                     PsiElement())(')')
                 PsiWhiteSpace(' ')
@@ -149,15 +149,15 @@ ScalaFile
               CaseClause
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
-                NamingPattern
+                NamingPattern: x
                   PsiElement(identifier)('x')
                   PsiElement(@)('@')
                   ConstructorPattern
-                    CodeReferenceElement
+                    CodeReferenceElement: Some
                       PsiElement(identifier)('Some')
                     Pattern Argument List
                       PsiElement(()('(')
-                      ReferencePattern
+                      ReferencePattern: y
                         PsiElement(identifier)('y')
                       PsiElement())(')')
                 PsiWhiteSpace(' ')

@@ -1,7 +1,7 @@
 /**
  * @author Alexnder
  */
-------
+-----
 ScalaFile
   DocComment
     PsiElement(DOC_COMMENT_START)('/**')

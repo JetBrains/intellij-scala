@@ -3,7 +3,7 @@ class A{
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -27,14 +27,14 @@ ScalaFile
           FunctionExpression
             Parameters
               ParametersClause
-                Parameter
+                Parameter: x
                   PsiElement(identifier)('x')
                   PsiWhiteSpace(' ')
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
                   ParameterType
-                    SimpleTypeElement
-                      CodeReferenceElement
+                    SimpleTypeElement: String
+                      CodeReferenceElement: String
                         PsiElement(identifier)('String')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')

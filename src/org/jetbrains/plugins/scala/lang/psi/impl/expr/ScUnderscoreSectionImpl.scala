@@ -45,24 +45,22 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           case _ => ref.getNonValueType(TypingContext.empty)
         }
       case Some(expr) => expr.getNonValueType(TypingContext.empty)
-      case None => {
+      case None =>
         getContext match {
-          case typed: ScTypedStmt => {
+          case typed: ScTypedStmt =>
             overExpr match {
-              case Some(`typed`) => {
+              case Some(`typed`) =>
                 typed.typeElement match {
                   case Some(te) => return te.getType(TypingContext.empty)
                   case _ => return Failure("Typed statement is not complete for underscore section", Some(this))
                 }
-              }
               case _ => return typed.getType(TypingContext.empty)
             }
-          }
           case _ =>
         }
         overExpr match {
           case None => Failure("No type inferred", None)
-          case Some(expr: ScExpression) => {
+          case Some(expr: ScExpression) =>
             val unders = ScUnderScoreSectionUtil.underscores(expr)
             var startOffset = if (expr.getTextRange != null) expr.getTextRange.getStartOffset else 0
             var e: PsiElement = this
@@ -76,23 +74,22 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             var forEqualsParamLength: Boolean = false //this is for working completion
             for (tp <- expr.expectedTypes(fromUnderscore = false) if result != None) {
 
-              def processFunctionType(tp: ScFunctionType) {
-                import tp.params
+              def processFunctionType(params: Seq[ScType]) {
                 if (result != null) {
                   if (params.length == unders.length && !forEqualsParamLength) {
-                    result = Some(params(i).removeAbstracts)
+                    result = Some(params(i))
                     forEqualsParamLength = true
                   } else if (params.length == unders.length) result = None
                 }
-                else if (params.length > unders.length) result = Some(params(i).removeAbstracts)
+                else if (params.length > unders.length) result = Some(params(i))
                 else {
-                  result = Some(params(i).removeAbstracts)
+                  result = Some(params(i))
                   forEqualsParamLength = true
                 }
               }
 
-              ScType.extractFunctionType(tp) match {
-                case Some(ft@ScFunctionType(_, params)) if params.length >= unders.length => processFunctionType(ft)
+              tp.removeAbstracts match {
+                case ScFunctionType(_, params) if params.length >= unders.length => processFunctionType(params)
                 case _ =>
               }
             }
@@ -106,9 +103,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               case None => Failure("No type inferred", None)
               case Some(t) => Success(t, None)
             }
-          }
         }
-      }
     }
   }
 

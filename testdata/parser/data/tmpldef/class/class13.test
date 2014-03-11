@@ -1,7 +1,7 @@
 case class ServerThread(socket: Socket) extends Thread("ServerThread")
 -----
 ScalaFile
-  ScClass
+  ScClass: ServerThread
     AnnotationsList
       <empty list>
     Modifiers
@@ -18,7 +18,7 @@ ScalaFile
       Parameters
         ParametersClause
           PsiElement(()('(')
-          ClassParameter
+          ClassParameter: socket
             AnnotationsList
               <empty list>
             Modifiers
@@ -27,8 +27,8 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: Socket
+                CodeReferenceElement: Socket
                   PsiElement(identifier)('Socket')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -37,8 +37,8 @@ ScalaFile
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: Thread
+            CodeReferenceElement: Thread
               PsiElement(identifier)('Thread')
           ArgumentList
             PsiElement(()('(')

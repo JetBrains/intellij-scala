@@ -5,7 +5,7 @@ class Dsl {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: Dsl
     AnnotationsList
       <empty list>
     Modifiers
@@ -33,7 +33,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: boo
               PsiElement(identifier)('boo')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -42,7 +42,7 @@ ScalaFile
             Parameters
               ParametersClause
                 PsiElement(()('(')
-                Parameter
+                Parameter: ven
                   AnnotationsList
                     <empty list>
                   PsiElement(identifier)('ven')
@@ -50,15 +50,15 @@ ScalaFile
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
                   ParameterType
-                    SimpleTypeElement
-                      CodeReferenceElement
+                    SimpleTypeElement: Ven
+                      CodeReferenceElement: Ven
                         PsiElement(identifier)('Ven')
                 PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
             PsiWhiteSpace(' ')
-            ReferenceExpression
-              ReferenceExpression
+            ReferenceExpression: ven.foo
+              ReferenceExpression: ven
                 PsiElement(identifier)('ven')
               PsiElement(.)('.')
               PsiElement(identifier)('foo')

@@ -4,6 +4,6 @@ object ScalazProblem {
   val x:Validation[String, Int] = 1.success
   val y:Validation[String, Int] = "wrong".fail
 
-  /*start*/(x.liftFailNel |@| y.liftFailNel) {(a, b) => a + b}/*end*/
+  /*start*/(x |@| y) {(a, b) => a + b}/*end*/
 }
-//({type λ[α] = Validation[NonEmptyList[String], α]})#λ[Int]
+//(Unapply[Apply, Validation[String, Int]] {type M[X] = Validation[String, X]; type A = Int})#M[Int]

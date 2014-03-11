@@ -38,18 +38,9 @@ abstract class OptimizeImportsTestBase extends ScalaLightPlatformCodeInsightTest
     var res: String = null
     var lastPsi = TreeUtil.findLastLeaf(scalaFile.getNode).getPsi
 
-    try {
-      if (getTestName(true).startsWith("sorted")) {
-        ScalaProjectSettings.getInstance(getProjectAdapter).setSortImports(true)
-      }
-      ScalaUtils.runWriteActionDoNotRequestConfirmation(new ScalaImportOptimizer().processFile(scalaFile), getProjectAdapter, "Test")
-      res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")
-    }
-    catch {
-      case e: Exception => {
-        assert(assertion = false, message = e.getMessage + "\n" + e.getStackTrace)
-      }
-    }
+    if (getTestName(true).startsWith("sorted")) ScalaProjectSettings.getInstance(getProjectAdapter).setSortImports(true)
+    ScalaUtils.runWriteActionDoNotRequestConfirmation(new ScalaImportOptimizer().processFile(scalaFile), getProjectAdapter, "Test")
+    res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")
 
     lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
     val text = lastPsi.getText

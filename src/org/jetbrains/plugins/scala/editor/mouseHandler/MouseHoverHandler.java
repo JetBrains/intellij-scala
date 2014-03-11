@@ -176,6 +176,13 @@ public class MouseHoverHandler extends AbstractProjectComponent {
               myDocumentationManager.updateToolwindowContext();
             }
           }
+
+          @Override
+          public void caretAdded(CaretEvent e) {}
+
+          @Override
+          public void caretRemoved(CaretEvent e) {}
+
         }, project);
       }
     });

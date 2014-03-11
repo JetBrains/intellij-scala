@@ -74,7 +74,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
 
   def this(stub: ScTemplateDefinitionStub) = {this (); setStub(stub); setNode(null)}
 
-  override def toString: String = if (isPackageObject) "ScPackageObject" else "ScObject"
+  override def toString: String = (if (isPackageObject) "ScPackageObject: " else "ScObject: ") + name
 
   override def getIconInner = if (isPackageObject) Icons.PACKAGE_OBJECT else Icons.OBJECT
 
@@ -187,13 +187,14 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
   private def getModuleField: Option[PsiField] = {
     val count = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
     if (moduleField != null && moduleFieldModCount == count) return moduleField
-    val fieldOption = if (getQualifiedName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this)))) None else {
-      val field: LightField = new LightField(getManager, JavaPsiFacade.getInstance(getProject).getElementFactory.createFieldFromText(
-        "public final static " + getQualifiedName + " MODULE$", this
-      ), this)
-      field.setNavigationElement(this)
-      Some(field)
-    }
+    val fieldOption =
+      if (getQualifiedName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this)))) None else {
+        val field: LightField = new LightField(getManager, JavaPsiFacade.getInstance(getProject).getElementFactory.createFieldFromText(
+          "public final static " + getQualifiedName + " MODULE$", this
+        ), this)
+        field.setNavigationElement(this)
+        Some(field)
+      }
     moduleField = fieldOption
     moduleFieldModCount = count
     fieldOption

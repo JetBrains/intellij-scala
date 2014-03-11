@@ -3,7 +3,7 @@ object A {
 }
 -----
 ScalaFile
-  ScObject
+  ScObject: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -16,7 +16,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScFunctionDeclaration
+        ScFunctionDeclaration: named
           AnnotationsList
             <empty list>
           Modifiers
@@ -30,7 +30,7 @@ ScalaFile
               PsiElement())(')')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement
+          SimpleTypeElement: this.type
             ThisReference
               PsiElement(this)('this')
             PsiElement(.)('.')

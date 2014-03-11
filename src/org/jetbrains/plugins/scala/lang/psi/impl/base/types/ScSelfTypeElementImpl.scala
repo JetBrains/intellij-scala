@@ -25,7 +25,7 @@ class ScSelfTypeElementImpl extends ScalaStubBasedElementImpl[ScSelfTypeElement]
 
   def this(stub: ScSelfTypeElementStub) = {this (); setStub(stub); setNode(null)}
 
-  override def toString: String = "SelfType"
+  override def toString: String = "SelfType: " + name
 
   def nameId = findChildByType(TokenSets.SELF_TYPE_ID)
 

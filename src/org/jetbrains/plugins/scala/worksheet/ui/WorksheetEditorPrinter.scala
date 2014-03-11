@@ -13,7 +13,7 @@ import javax.swing.{Timer, JComponent, JLayeredPane}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.{PsiWhiteSpace, PsiManager, PsiDocumentManager}
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import java.awt.event.{ActionEvent, ActionListener}
@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala
  * User: Dmitry Naydanov
  * Date: 1/20/14
  */
-class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor) {
+class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, file: ScalaFile) {
   private val project = originalEditor.getProject
   private val originalDocument = originalEditor.getDocument
   private val viewerDocument = worksheetViewer.getDocument
@@ -70,8 +70,13 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor) {
       WorksheetSourceProcessor extractLineInfoFrom line match {
         case Some((start, end)) =>
           if (!inited) {
-            init()
-            if (start > 0) prefix = StringUtil.repeat("\n", start)
+            val first = init()
+            val diffBetweenFirst = first map {
+              case i => Math.min(i, start)
+            } getOrElse start
+
+
+            if (diffBetweenFirst > 0) prefix = StringUtil.repeat("\n", diffBetweenFirst)
           }
           
           val differ = end - start + 1 - linesCount // inputSize - linesCount
@@ -113,7 +118,7 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor) {
     false
   }
   
-  private def init() {
+  private def init(): Option[Int] = {
     inited = true
 
     (originalEditor, worksheetViewer) match {
@@ -125,6 +130,14 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor) {
         }
       case _ =>
     }
+
+    if (file != null) {
+      var s = file.getFirstChild
+
+      while (s.isInstanceOf[PsiWhiteSpace]) s = s.getNextSibling
+
+      if (s != null) Some(s.getTextRange.getStartOffset) else None
+    } else None
   }
   
   private def isResultEnd(line: String) = line startsWith WorksheetSourceProcessor.END_TOKEN_MARKER
@@ -172,9 +185,8 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor) {
       extensions.inWriteAction {
         val scroll = originalEditor.getScrollingModel.getVerticalScrollOffset
         val worksheetScroll = worksheetViewer.getScrollingModel.getVerticalScrollOffset
-        
+
         document.setText(text)
-        
         commitDocument(document)
 
         originalEditor.getScrollingModel.scrollVertically(scroll)
@@ -219,7 +231,12 @@ object WorksheetEditorPrinter {
   }
 
   def newWorksheetUiFor(editor: Editor, virtualFile: VirtualFile) = 
-    new WorksheetEditorPrinter(editor,  createWorksheetViewer(editor, virtualFile))
+    new WorksheetEditorPrinter(editor,  createWorksheetViewer(editor, virtualFile),
+      PsiManager getInstance editor.getProject findFile virtualFile match {
+        case scalaFile: ScalaFile => scalaFile
+        case _ => null
+      }
+    )
   
   def createWorksheetViewer(editor: Editor, virtualFile: VirtualFile, modelSync: Boolean = false): Editor = {
     val editorComponent = editor.getComponent

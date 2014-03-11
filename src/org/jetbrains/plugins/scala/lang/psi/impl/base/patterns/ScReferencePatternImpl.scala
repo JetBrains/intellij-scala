@@ -41,7 +41,7 @@ class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScRefe
 
   def isWildcard: Boolean = findChildByType(ScalaTokenTypes.tUNDER) != null
 
-  override def toString: String = "ReferencePattern"
+  override def toString: String = "ReferencePattern: " + name
 
   override def getType(ctx: TypingContext) = {
     expectedType match {

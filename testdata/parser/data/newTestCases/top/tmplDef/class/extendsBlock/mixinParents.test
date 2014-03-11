@@ -1,7 +1,7 @@
 class a extends C @t(b) with D {val d = -f}
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -22,9 +22,9 @@ ScalaFile
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          TypeWithAnnotation
-            SimpleTypeElement
-              CodeReferenceElement
+          TypeWithAnnotation: C @t(b)
+            SimpleTypeElement: C
+              CodeReferenceElement: C
                 PsiElement(identifier)('C')
             PsiWhiteSpace(' ')
             AnnotationsList
@@ -32,19 +32,19 @@ ScalaFile
                 PsiElement(@)('@')
                 AnnotationExpression
                   Constructor
-                    SimpleTypeElement
-                      CodeReferenceElement
+                    SimpleTypeElement: t
+                      CodeReferenceElement: t
                         PsiElement(identifier)('t')
                     ArgumentList
                       PsiElement(()('(')
-                      ReferenceExpression
+                      ReferenceExpression: b
                         PsiElement(identifier)('b')
                       PsiElement())(')')
         PsiWhiteSpace(' ')
         PsiElement(with)('with')
         PsiWhiteSpace(' ')
-        SimpleTypeElement
-          CodeReferenceElement
+        SimpleTypeElement: D
+          CodeReferenceElement: D
             PsiElement(identifier)('D')
       PsiWhiteSpace(' ')
       ScTemplateBody
@@ -57,14 +57,14 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: d
               PsiElement(identifier)('d')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           PrefixExpression
-            ReferenceExpression
+            ReferenceExpression: -
               PsiElement(identifier)('-')
-            ReferenceExpression
+            ReferenceExpression: f
               PsiElement(identifier)('f')
         PsiElement(})('}')

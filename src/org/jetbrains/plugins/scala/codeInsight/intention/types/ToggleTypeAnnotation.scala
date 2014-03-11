@@ -11,7 +11,7 @@ import lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.extensions._
 import params.ScParameter
 import lang.psi.api.expr.ScFunctionExpr
-import lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
@@ -90,13 +90,13 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
             return true
           } else {
             val index = func.parameters.indexOf(param)
-            func.expectedType().flatMap(ScType.extractFunctionType) match {
-              case Some(funcType) =>
-                if (index >= 0 && index < funcType.arity) {
+            func.expectedType() match {
+              case Some(ScFunctionType(_, params)) =>
+                if (index >= 0 && index < params.length) {
                   strategy.addToParameter(param)
                   return true
                 }
-              case None =>
+              case _ =>
             }
           }
         case _ =>

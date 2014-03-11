@@ -3,7 +3,7 @@ object y{
 }
 -----
 ScalaFile
-  ScObject
+  ScObject: y
     AnnotationsList
       <empty list>
     Modifiers
@@ -24,16 +24,16 @@ ScalaFile
           PsiWhiteSpace(' ')
           ListOfPatterns
             ConstructorPattern
-              CodeReferenceElement
+              CodeReferenceElement: Some
                 PsiElement(identifier)('Some')
               Pattern Argument List
                 PsiElement(()('(')
-                ReferencePattern
+                ReferencePattern: x
                   PsiElement(identifier)('x')
                 PsiElement())(')')
           PsiElement(:)(':')
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: Int
+            CodeReferenceElement: Int
               PsiElement(identifier)('Int')
           PsiElement(=)('=')
           UnderscoreSection

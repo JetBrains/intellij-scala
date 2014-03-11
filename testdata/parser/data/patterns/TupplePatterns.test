@@ -7,7 +7,7 @@ object A{
 }
 -----
 ScalaFile
-  ScObject
+  ScObject: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -19,7 +19,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScFunctionDefinition
+        ScFunctionDefinition: foo
           AnnotationsList
             <empty list>
           Modifiers
@@ -35,7 +35,7 @@ ScalaFile
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           MatchStatement
-            ReferenceExpression
+            ReferenceExpression: a
               PsiElement(identifier)('a')
             PsiWhiteSpace(' ')
             PsiElement(match)('match')
@@ -98,7 +98,7 @@ ScalaFile
                 TuplePattern
                   PsiElement(()('(')
                   ArgumentPatterns
-                    ReferencePattern
+                    ReferencePattern: x
                       PsiElement(identifier)('x')
                     PsiElement(,)(',')
                     LiteralPattern

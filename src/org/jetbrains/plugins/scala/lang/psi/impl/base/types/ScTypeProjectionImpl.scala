@@ -26,20 +26,19 @@ import extensions.toPsiMemberExt
 * Date: 13.03.2008
 */
 class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScTypeProjection {
-  override def toString: String = "TypeProjection"
+
+  override def toString: String = "TypeProjection: " + getText
 
   protected def innerType(ctx: TypingContext) = {
     bind() match {
-      case Some(ScalaResolveResult(elem, subst)) => {
+      case Some(ScalaResolveResult(elem, subst)) =>
         val te: TypeResult[ScType] = typeElement.getType(ctx)
         te match {
-          case Success(ScDesignatorType(pack: PsiPackage), a) => {
+          case Success(ScDesignatorType(pack: PsiPackage), a) =>
             Success(ScType.designator(elem), Some(this))
-          }
           case _ =>
             te map {ScProjectionType(_, elem, superReference = false)}
         }
-      }
       case _ => Failure("Cannot Resolve reference", Some(this))
     }
   }

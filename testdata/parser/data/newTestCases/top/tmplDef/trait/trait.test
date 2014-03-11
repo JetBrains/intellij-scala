@@ -1,7 +1,7 @@
 trait a[b <: c] extends {val d = 2} with F with G {}
 -----
 ScalaFile
-  ScTrait
+  ScTrait: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -11,13 +11,13 @@ ScalaFile
     PsiElement(identifier)('a')
     TypeParameterClause
       PsiElement([)('[')
-      TypeParameter
+      TypeParameter: b
         PsiElement(identifier)('b')
         PsiWhiteSpace(' ')
         PsiElement(<:)('<:')
         PsiWhiteSpace(' ')
-        SimpleTypeElement
-          CodeReferenceElement
+        SimpleTypeElement: c
+          CodeReferenceElement: c
             PsiElement(identifier)('c')
       PsiElement(])(']')
     PsiWhiteSpace(' ')
@@ -34,7 +34,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: d
               PsiElement(identifier)('d')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -46,14 +46,14 @@ ScalaFile
       PsiElement(with)('with')
       PsiWhiteSpace(' ')
       TraitParents
-        SimpleTypeElement
-          CodeReferenceElement
+        SimpleTypeElement: F
+          CodeReferenceElement: F
             PsiElement(identifier)('F')
         PsiWhiteSpace(' ')
         PsiElement(with)('with')
         PsiWhiteSpace(' ')
-        SimpleTypeElement
-          CodeReferenceElement
+        SimpleTypeElement: G
+          CodeReferenceElement: G
             PsiElement(identifier)('G')
       PsiWhiteSpace(' ')
       ScTemplateBody

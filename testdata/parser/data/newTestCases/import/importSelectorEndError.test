@@ -5,17 +5,17 @@ ScalaFile
     PsiElement(import)('import')
     PsiWhiteSpace(' ')
     ImportExpression
-      CodeReferenceElement
+      CodeReferenceElement: a
         PsiElement(identifier)('a')
       PsiElement(.)('.')
       ImportSelectors
         PsiElement({)('{')
         ImportSelector
-          CodeReferenceElement
+          CodeReferenceElement: a
             PsiElement(identifier)('a')
         PsiElement(,)(',')
         ImportSelector
-          CodeReferenceElement
+          CodeReferenceElement: b
             PsiElement(identifier)('b')
         PsiElement(,)(',')
         PsiElement(_)('_')

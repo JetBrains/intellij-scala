@@ -4,7 +4,7 @@ class A{
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -23,7 +23,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScFunctionDefinition
+        ScFunctionDefinition: getIterator
           AnnotationsList
             <empty list>
           Modifiers
@@ -36,10 +36,13 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          ReferenceExpression
-            ReferenceExpression
-              ReferenceExpression
-                ReferenceExpression
+          ReferenceExpression: nodes
+    	  . filter . map . elements
+            ReferenceExpression: nodes
+    	  . filter . map
+              ReferenceExpression: nodes
+    	  . filter
+                ReferenceExpression: nodes
                   PsiElement(identifier)('nodes')
                 PsiWhiteSpace('\n    \t  ')
                 PsiElement(.)('.')

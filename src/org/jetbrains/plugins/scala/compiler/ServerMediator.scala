@@ -7,12 +7,13 @@ import config.ScalaFacet
 import com.intellij.compiler.CompilerWorkspaceConfiguration
 import com.intellij.notification.{NotificationListener, NotificationType, Notification, Notifications}
 import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManager}
-import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.roots.{ModuleRootManager, CompilerModuleExtension}
 import com.intellij.openapi.ui.Messages
 import org.intellij.lang.annotations.Language
 import javax.swing.event.HyperlinkEvent
 import extensions._
+import com.intellij.openapi.application.ApplicationManager
 
 /**
  * Pavel Fatin
@@ -29,21 +30,6 @@ class ServerMediator(project: Project) extends ProjectComponent {
 
       if (scalaProject) {
         if (externalCompiler) {
-          if (firstCompilation && ScalaApplicationSettings.getInstance.SHOW_EXTERNAL_COMPILER_INTRO) {
-            val title = "Using an external Scala compiler"
-
-            @Language("HTML")
-            val message =
-              "<html><body>" +
-              "<a href='http://blog.jetbrains.com/scala/2012/12/28/a-new-way-to-compile/'>More info...</a> | " +
-              "<a href=''>Don't show this again</a>" +
-              "</body></html>"
-
-            Notifications.Bus.notify(new Notification("scala", title, message, NotificationType.INFORMATION, LinkHandler))
-
-            firstCompilation = false
-          }
-
           invokeAndWait {
             if (!checkCompilationSettings()) {
               return false
@@ -52,9 +38,9 @@ class ServerMediator(project: Project) extends ProjectComponent {
             project.getComponent(classOf[FscServerManager]).removeWidget()
           }
 
-          val applicationSettings = ScalaApplicationSettings.getInstance
+          val settings = ScalaApplicationSettings.getInstance
 
-          if (applicationSettings.COMPILE_SERVER_ENABLED) {
+          if (settings.COMPILE_SERVER_ENABLED && !ApplicationManager.getApplication.isUnitTestMode) {
             invokeAndWait {
               CompileServerManager.instance(project).configureWidget()
             }
@@ -84,14 +70,13 @@ class ServerMediator(project: Project) extends ProjectComponent {
   })
 
   private def checkCompilationSettings(): Boolean = {
-    val modulesWithClashes = ModuleManager.getInstance(project).getModules.toSeq.filter { module =>
+    def hasClashes(module: Module) = ScalaFacet.findIn(module).isDefined && {
       val extension = CompilerModuleExtension.getInstance(module)
-
       val production = extension.getCompilerOutputUrl
       val test = extension.getCompilerOutputUrlForTests
-
       production == test
     }
+    val modulesWithClashes = ModuleManager.getInstance(project).getModules.toSeq.filter(hasClashes)
 
     if (modulesWithClashes.nonEmpty) {
       val result = Messages.showYesNoDialog(project,
@@ -134,13 +119,4 @@ class ServerMediator(project: Project) extends ProjectComponent {
   def projectOpened() {}
 
   def projectClosed() {}
-}
-
-object LinkHandler extends NotificationListener.Adapter {
-  def hyperlinkActivated(notification: Notification, e: HyperlinkEvent) {
-    Option(e.getURL).map(DesktopUtils.browse).getOrElse {
-      ScalaApplicationSettings.getInstance.SHOW_EXTERNAL_COMPILER_INTRO = false
-    }
-    notification.expire()
-  }
 }

@@ -11,7 +11,7 @@ import com.intellij.psi.{PsiManager, PsiFile}
 import lang.psi.api.ScalaFile
 import lang.psi.impl.ScalaPsiElementFactory
 import decompiler.DecompilerUtil.DecompilationResult
-import com.intellij.openapi.project.{Project, ProjectManager}
+import com.intellij.openapi.project.{DefaultProjectFactory, Project, ProjectManager}
 import reflect.NameTransformer
 import scala.annotation.tailrec
 import java.io.IOException
@@ -33,7 +33,7 @@ object ScClsStubBuilderFactory {
   
   def canBeProcessed(file: VirtualFile, bytes: => Array[Byte]): Boolean = {
     val name: String = file.getNameWithoutExtension
-    if (name.endsWith("$")) {
+    if (name.contains("$")) {
       val parent: VirtualFile = file.getParent
       @tailrec
       def checkName(name: String): Boolean = {
@@ -48,9 +48,11 @@ object ScClsStubBuilderFactory {
         while (newName.endsWith("$")) newName = newName.dropRight(1)
         checkName(newName)
       }
-      if (checkName(name.dropRight(1))) return true
+
+      checkName(name)
+    } else {
+      DecompilerUtil.isScalaFile(file, bytes)
     }
-    DecompilerUtil.isScalaFile(file, bytes)
   }
 }
 
@@ -63,7 +65,8 @@ class ScClsStubBuilderFactory extends ClsStubBuilderFactory[ScalaFile] {
 
   override def buildFileStub(vFile: VirtualFile, bytes: Array[Byte], project: Project): PsiFileStub[ScalaFile] = {
     val DecompilationResult(_, source, text, _) = DecompilerUtil.decompile(vFile, bytes)
-    val file = ScalaPsiElementFactory.createScalaFile(text.replace("\r", ""), PsiManager.getInstance(project))
+    val file = ScalaPsiElementFactory.createScalaFile(text.replace("\r", ""),
+      PsiManager.getInstance(DefaultProjectFactory.getInstance().getDefaultProject))
 
     val adj = file.asInstanceOf[CompiledFileAdjuster]
     adj.setCompiled(c = true)
@@ -80,39 +83,5 @@ class ScClsStubBuilderFactory extends ClsStubBuilderFactory[ScalaFile] {
     ScClsStubBuilderFactory.canBeProcessed(file, bytes)
   }
 
-  def isInnerClass(file: VirtualFile): Boolean = {
-    if (file.getExtension != "class") return false
-    val name: String = file.getNameWithoutExtension
-    val parent: VirtualFile = file.getParent
-    isInner(name, new ParentDirectory(parent))
-  }
-
-  private def isInner(name: String, directory: Directory): Boolean = {
-    if (name.endsWith("$") && directory.contains(name.dropRight(1))) {
-      return false //let's handle it separately to avoid giving it for Java.
-    }
-    isInner(NameTransformer.decode(name), 0, directory)
-  }
-
-  private def isInner(name: String, from: Int, directory: Directory): Boolean = {
-    val index: Int = name.indexOf('$', from)
-    index != -1 && (containsPart(directory, name, index) || isInner(name, index + 1, directory))
-  }
-
-  private def containsPart(directory: Directory, name: String, endIndex: Int): Boolean = {
-    endIndex > 0 && directory.contains(name.substring(0, endIndex))
-  }
-
-  private trait Directory {
-    def contains(name: String): Boolean
-  }
-
-  private class ParentDirectory(dir: VirtualFile) extends Directory {
-    def contains(name: String): Boolean = {
-      if (dir == null) return false
-      !dir.getChildren.forall(child =>
-        child.getExtension != "class" || NameTransformer.decode(child.getNameWithoutExtension) == name
-      )
-    }
-  }
+  def isInnerClass(file: VirtualFile): Boolean = false
 }

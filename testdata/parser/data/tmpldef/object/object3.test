@@ -5,14 +5,14 @@ ScalaFile
     PsiElement(import)('import')
     PsiWhiteSpace(' ')
     ImportExpression
-      CodeReferenceElement
-        CodeReferenceElement
+      CodeReferenceElement: a.q
+        CodeReferenceElement: a
           PsiElement(identifier)('a')
         PsiElement(.)('.')
         PsiElement(identifier)('q')
   PsiElement(;)(';')
   PsiWhiteSpace(' ')
-  ScObject
+  ScObject: Object
     AnnotationsList
       <empty list>
     Modifiers

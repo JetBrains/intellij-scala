@@ -23,9 +23,9 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
 
   def isWildcard: Boolean
 
-  override def getUseScope = {
+  abstract override def getUseScope = {
     val block = PsiTreeUtil.getContextOfType(this, true, classOf[ScBlock])
-    if (block != null) new LocalSearchScope(block) else ResolveScopeManager.getElementUseScope(this)
+    if (block != null) new LocalSearchScope(block) else super.getUseScope
   }
 
   protected def getEnclosingVariable: Option[ScVariable] = {

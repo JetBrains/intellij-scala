@@ -28,6 +28,7 @@ import util.PsiTreeUtil
 import settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{TypeAliasToImport, ClassTypeToImport}
+import org.jetbrains.plugins.scala.extensions
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -78,7 +79,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
 
   def isConstructorReference = !getConstructor.isEmpty
 
-  override def toString: String = "CodeReferenceElement"
+  override def toString: String = "CodeReferenceElement: " + getText
 
   def getKinds(incomplete: Boolean, completion: Boolean): Set[ResolveTargets.Value] = {
     import StdKinds._
@@ -212,10 +213,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
                 val refToMember = ScalaPsiElementFactory.createReferenceFromText(refToClass.getText + "." + binding.name, getManager)
                 this.replace(refToMember).asInstanceOf[ScReferenceElement]
             }
-          case pckg: PsiPackage =>
-            //todo: check imports?
-            val refToPackage = ScalaPsiElementFactory.createReferenceFromText(pckg.getQualifiedName, getManager)
-            this.replace(refToPackage).asInstanceOf[ScReferenceElement]
+          case pckg: PsiPackage => bindToPackage(pckg)
           case _ => throw new IncorrectOperationException("Cannot bind to anything but class or package")
         }
       }

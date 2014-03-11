@@ -20,6 +20,7 @@ import com.intellij.psi.tree.TokenSet
 import lexer.ScalaTokenTypes
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import scala.collection.mutable
 
 /**
  * Author: ilyas, alefas
@@ -45,12 +46,11 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           if (throwable == null) return Failure("Cannot find Throwable class", Some(this))
           return Success(ScParameterizedType(ScDesignatorType(fun), Seq(ScDesignatorType(throwable), clausesType)), Some(this))
         case _ =>
-          val et = expectedType(false).getOrElse(return Failure("Cannot infer type without expected type", Some(this)))
-          return ScType.extractFunctionType(et) match {
-            case Some(f@ScFunctionType(_, params)) =>
-              Success(new ScFunctionType(clausesType, params.map(_.removeVarianceAbstracts(1)))(f.getProject, f.getScope),
-                Some(this))
-            case None =>
+          val et = expectedType(fromUnderscore = false).getOrElse(return Failure("Cannot infer type without expected type", Some(this)))
+          return et match {
+            case f@ScFunctionType(_, params) =>
+              Success(ScFunctionType(clausesType, params.map(_.removeVarianceAbstracts(1)))(getProject, getResolveScope), Some(this))
+            case _ =>
               ScType.extractPartialFunctionType(et) match {
                 case Some((des, param, _)) =>
                   Success(ScParameterizedType(des, Seq(param.removeVarianceAbstracts(1), clausesType)), Some(this))
@@ -62,13 +62,9 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
     }
     val inner = lastExpr match {
       case None => Unit
-      case Some(e) => {
-        val m = new HashMap[String, ScExistentialArgument]
+      case Some(e) =>
+        val m = new mutable.HashMap[String, ScExistentialArgument]
         def existize(t: ScType): ScType = t match {
-          case fun@ScFunctionType(ret, params) => new ScFunctionType(existize(ret),
-            collection.immutable.Seq(params.map({existize _}).toSeq: _*))(fun.getProject, fun.getScope)
-          case ScTupleType(comps) =>
-            new ScTupleType(collection.immutable.Seq(comps.map({existize _}).toSeq: _*))(getProject, getResolveScope)
           case ScDesignatorType(p: ScParameter) if p.owner.isInstanceOf[ScFunctionExpr] && p.owner.asInstanceOf[ScFunctionExpr].result == Some(this) =>
             val t = existize(p.getType(TypingContext.empty).getOrAny)
             m.put(p.name, new ScExistentialArgument(p.name, Nil, t, t))
@@ -109,7 +105,6 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
         }
         val t = existize(e.getType(TypingContext.empty).getOrAny)
         if (m.size == 0) t else new ScExistentialType(t, m.values.toList).simplify()
-      }
     }
     Success(inner, Some(this))
   }

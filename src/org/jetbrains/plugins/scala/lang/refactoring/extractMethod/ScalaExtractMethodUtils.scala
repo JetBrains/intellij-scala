@@ -150,7 +150,7 @@ object ScalaExtractMethodUtils {
     val visitor = new ScalaRecursiveElementVisitor() {
       override def visitReference(ref: ScReferenceElement) {
         ref.bind() match {
-          case Some(ScalaResolveResult(named: PsiNamedElement, subst: ScSubstitutor)) =>{
+          case Some(ScalaResolveResult(named: PsiNamedElement, subst: ScSubstitutor)) =>
             if (named.getContainingFile == method.getContainingFile && named.getTextOffset < offset &&
                     !named.name.startsWith("_")) {
               val oldName = named.name
@@ -164,35 +164,28 @@ object ScalaExtractMethodUtils {
                     }
                   }
                   ref.getParent match {
-                    case sect: ScUnderscoreSection if param.isFunction => {
+                    case sect: ScUnderscoreSection if param.isFunction =>
                       val newRef = ScalaPsiElementFactory.createExpressionFromText(param.newName, method.getManager)
                       sect.getParent.getNode.replaceChild(sect.getNode, newRef.getNode)
-                    }
-                    case _ if param.isEmptyParamFunction => {
+                    case _ if param.isEmptyParamFunction =>
                       ref.getParent match {
                         case ref: ScReferenceElement if ref.refName == "apply" => tail()
                         case call: ScMethodCall => tail()
-                        case _ => {
-                          ref.asInstanceOf[ScExpression].expectedType().flatMap(ScType.extractFunctionType) match {
+                        case _ =>
+                          ref.asInstanceOf[ScExpression].expectedType() match {
                             case Some(ScFunctionType(_, params)) if params.length == 0 => tail()
-                            case _ => {
+                            case _ =>
                               //we need to replace by method call
                               val newRef = ScalaPsiElementFactory.createExpressionFromText(param.newName + "()", method.getManager)
                               ref.getParent.getNode.replaceChild(ref.getNode, newRef.getNode)
-                            }
                           }
-                        }
                       }
-                    }
-                    case _ => {
-                      tail()
-                    }
+                    case _ => tail()
                   }
                   break = true
                 }
               }
             }
-          }
           case _ =>
         }
         super.visitReference(ref)
@@ -273,7 +266,7 @@ object ScalaExtractMethodUtils {
     val retType = definition.getType(TypingContext.empty).getOrNothing
     val tp = definition match {
       case fun: ScFunction if fun.paramClauses.clauses.length == 0 =>
-        new ScFunctionType(retType, Seq.empty)(definition.getProject, definition.getResolveScope)
+        ScFunctionType(retType, Seq.empty)(definition.getProject, definition.getResolveScope)
       case _ => retType
     }
     val param = new FakePsiParameter(definition.getManager, ScalaFileType.SCALA_LANGUAGE, new Parameter("", None, tp, false, false, false, -1), definition.name)

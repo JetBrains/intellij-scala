@@ -122,7 +122,7 @@ class ScalaGenerationInfo(classMember: PsiElementClassMember[_ <: PsiDocCommentO
         else "super."
     }
     def paramText(param: PsiParameter) = {
-      val name = ScalaNamesUtil.changeKeyword(param.name)
+      val name = ScalaNamesUtil.changeKeyword(param.name).toOption.getOrElse("")
       val whitespace = if (name.endsWith("_")) " " else ""
       name + (if (param.isVarArgs) whitespace + ": _*" else "")
     }
@@ -163,9 +163,13 @@ class ScalaGenerationInfo(classMember: PsiElementClassMember[_ <: PsiDocCommentO
       case _ => return
     }
 
-    member match {
-      case n: Navigatable => n.navigate(true)
-      case _ =>
+    val offset = member.getTextRange.getStartOffset
+    val point = editor.visualPositionToXY(editor.offsetToVisualPosition(offset))
+    if (!editor.getScrollingModel.getVisibleArea.contains(point)) {
+      member match {
+        case n: Navigatable => n.navigate(true)
+        case _ =>
+      }
     }
 
     body match {

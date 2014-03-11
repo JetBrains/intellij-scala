@@ -9,8 +9,8 @@ import com.intellij.codeInsight.CodeInsightTestCase
  * 4/24/13
  */
 class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdapter {
-  val s = CodeInsightTestCase.SELECTION_START_MARKER
-  val e = CodeInsightTestCase.SELECTION_END_MARKER
+  val s = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_START
+  val e = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_END
   val annotation = "Simplify boolean expression"
 
   private def check(text: String) {

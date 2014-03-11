@@ -5,9 +5,9 @@ ScalaFile
     PsiElement(import)('import')
     PsiWhiteSpace(' ')
     ImportExpression
-      CodeReferenceElement
+      CodeReferenceElement: a.this.a
         ThisReference
-          CodeReferenceElement
+          CodeReferenceElement: a
             PsiElement(identifier)('a')
           PsiElement(.)('.')
           PsiElement(this)('this')

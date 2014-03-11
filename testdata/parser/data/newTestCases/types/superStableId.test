@@ -1,9 +1,9 @@
 class a {
   val x: id.super[C].id.Type
 }
-------
+-----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -23,7 +23,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScValueDeclaration
+        ScValueDeclaration: x
           AnnotationsList
             <empty list>
           Modifiers
@@ -31,15 +31,15 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfIdentifiers
-            Field identifier
+            Field identifier: x
               PsiElement(identifier)('x')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement
-            CodeReferenceElement
-              CodeReferenceElement
+          SimpleTypeElement: id.super[C].id.Type
+            CodeReferenceElement: id.super[C].id.Type
+              CodeReferenceElement: id.super[C].id
                 SuperReference
-                  CodeReferenceElement
+                  CodeReferenceElement: id
                     PsiElement(identifier)('id')
                   PsiElement(.)('.')
                   PsiElement(super)('super')

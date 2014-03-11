@@ -1,7 +1,7 @@
 class A[+T]
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -11,7 +11,7 @@ ScalaFile
     PsiElement(identifier)('A')
     TypeParameterClause
       PsiElement([)('[')
-      TypeParameter
+      TypeParameter: T
         PsiElement(identifier)('+')
         PsiElement(identifier)('T')
       PsiElement(])(']')

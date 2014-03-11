@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
+import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+
 /**
  * User: Alefas
  * Date: 20.10.11
@@ -7,7 +9,7 @@ package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
 class ScalaThisAndSuperEvaluationTest extends ScalaDebuggerTestCase {
   def testTraitThis() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  trait Z {
@@ -29,14 +31,14 @@ class ScalaThisAndSuperEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testSuperInvocation() {
-    myFixture.addFileToProject("A.scala",
+    addFileToProject("A.scala",
       """
       |class A {
       |  def foo = 1
       |}
       """.stripMargin.trim()
     )
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample extends A {
       |  def main(args: Array[String]) {
@@ -53,14 +55,14 @@ class ScalaThisAndSuperEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testInvocationFromInner() {
-    myFixture.addFileToProject("A.scala",
+    addFileToProject("A.scala",
       """
       |class A {
       |  def foo = 1
       |}
       """.stripMargin.trim()
     )
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample extends A {
       |  trait Z {
@@ -82,14 +84,14 @@ class ScalaThisAndSuperEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testThisInvocationFromInner() {
-    myFixture.addFileToProject("A.scala",
+    addFileToProject("A.scala",
       """
       |class A {
       |  def foo = 1
       |}
       """.stripMargin.trim()
     )
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample extends A {
       |  trait Z {
@@ -111,14 +113,14 @@ class ScalaThisAndSuperEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testThisInvocationFromInnerClass() {
-    myFixture.addFileToProject("A.scala",
+    addFileToProject("A.scala",
       """
       |class A {
       |  def foo = 1
       |}
       """.stripMargin.trim()
     )
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |class Simple extends A {
       |  trait Z {
@@ -146,14 +148,14 @@ class ScalaThisAndSuperEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testSuperInvocationFromInner() {
-    myFixture.addFileToProject("A.scala",
+    addFileToProject("A.scala",
       """
       |class A {
       |  def foo = 1
       |}
       """.stripMargin.trim()
     )
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample extends A {
       |  trait Z {
@@ -175,14 +177,14 @@ class ScalaThisAndSuperEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testSuperTraitInvocationFromInner() {
-    myFixture.addFileToProject("A.scala",
+    addFileToProject("A.scala",
       """
       |trait A {
       |  def foo = 1
       |}
       """.stripMargin.trim()
     )
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |class Simple extends A {
       |  trait Z {
@@ -209,14 +211,14 @@ class ScalaThisAndSuperEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testSuperTraitInvocation() {
-    myFixture.addFileToProject("A.scala",
+    addFileToProject("A.scala",
       """
       |class A {
       |  def foo = 1
       |}
       """.stripMargin.trim()
     )
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample extends A {
       |  def main(args: Array[String]) {
@@ -233,14 +235,14 @@ class ScalaThisAndSuperEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testOuterSuperInnerTraitInvocation() {
-    myFixture.addFileToProject("A.scala",
+    addFileToProject("A.scala",
       """
       |class A {
       |  def foo = 1
       |}
       """.stripMargin.trim()
     )
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |trait IOI {
       |  def ioi = 2
@@ -273,14 +275,14 @@ class ScalaThisAndSuperEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testInnerOuterEtc() {
-    myFixture.addFileToProject("A.scala",
+    addFileToProject("A.scala",
       """
       |class A {
       |  def foo = 1
       |}
       """.stripMargin.trim()
     )
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  class Outer extends A {

@@ -153,7 +153,12 @@ object Conformance {
               case (tpt: ScTypeParameterType, tp: ScType) =>
                 ((tpt.param.name, ScalaPsiUtil.getPsiElementId(tpt.param)), tp)
             }: _*), Map.empty, None)
-            result = conformsInner(l, subst.subst(a.lower), visited, undefinedSubst, checkWeak)
+            val lower: ScType =
+              subst.subst(a.lower) match {
+                case ScParameterizedType(lower, _) => ScParameterizedType(lower, p.typeArgs)
+                case lower => ScParameterizedType(lower, p.typeArgs)
+              }
+            result = conformsInner(l, lower, visited, undefinedSubst, checkWeak)
           case _ =>
         }
       }
@@ -240,24 +245,6 @@ object Conformance {
     trait TypeParameterTypeVisitor extends ScalaTypeVisitor {
       override def visitTypeParameterType(tpt: ScTypeParameterType) {
         result = conformsInner(l, tpt.upper.v, HashSet.empty, undefinedSubst)
-      }
-    }
-    
-    trait TupleVisitor extends ScalaTypeVisitor {
-      override def visitTupleType(t: ScTupleType) {
-        t.resolveTupleTrait match {
-          case Some(tp) => result = conformsInner(l, tp, visited, subst, checkWeak)
-          case _ => result = (false, undefinedSubst)
-        }
-      }
-    }
-    
-    trait FunctionVisitor extends ScalaTypeVisitor {
-      override def visitFunctionType(f: ScFunctionType) {
-        f.resolveFunctionTrait match {
-          case Some(tp) => result = conformsInner(l, tp, visited, subst, checkWeak)
-          case _ => result = (false, undefinedSubst)
-        }
       }
     }
     
@@ -474,7 +461,7 @@ object Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      rightVisitor = new TupleVisitor with FunctionVisitor with ThisVisitor with DesignatorVisitor
+      rightVisitor = new ThisVisitor with DesignatorVisitor
         with ParameterizedAliasVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -529,74 +516,6 @@ object Conformance {
       }
     }
 
-    override def visitFunctionType(f: ScFunctionType) {
-      var rightVisitor: ScalaTypeVisitor =
-        new ValDesignatorSimplification with UndefinedSubstVisitor with AbstractVisitor
-          with ParameterizedAbstractVisitor {}
-      r.visitType(rightVisitor)
-      if (result != null) return
-
-      checkEquiv()
-      if (result != null) return
-
-      rightVisitor = new ExistentialSimplification with SkolemizeVisitor
-        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-         with TypeParameterTypeVisitor with TupleVisitor {}
-      r.visitType(rightVisitor)
-      if (result != null) return
-
-      f.resolveFunctionTrait match {
-        case Some(tp) => result = conformsInner(tp, r, visited, subst, checkWeak)
-        case _ => result = (false, undefinedSubst)
-      }
-    }
-
-    override def visitTupleType(t1: ScTupleType) {
-      var rightVisitor: ScalaTypeVisitor =
-        new ValDesignatorSimplification with UndefinedSubstVisitor with AbstractVisitor
-          with ParameterizedAbstractVisitor {}
-      r.visitType(rightVisitor)
-      if (result != null) return
-
-      checkEquiv()
-      if (result != null) return
-
-      rightVisitor = new ExistentialSimplification with SkolemizeVisitor
-        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-         with TypeParameterTypeVisitor {}
-      r.visitType(rightVisitor)
-      if (result != null) return
-
-      r match {
-        case t2: ScTupleType =>
-          val comps1 = t1.components
-          val comps2 = t2.components
-          if (comps1.length != comps2.length) {
-            result = (false, undefinedSubst)
-            return
-          }
-          var i = 0
-          while (i < comps1.length) {
-            val comp1 = comps1(i)
-            val comp2 = comps2(i)
-            val t = conformsInner(comp1, comp2, HashSet.empty, undefinedSubst)
-            if (!t._1) {
-              result = (false, undefinedSubst)
-              return
-            }
-            else undefinedSubst = t._2
-            i = i + 1
-          }
-          result = (true, undefinedSubst)
-        case _ =>
-          t1.resolveTupleTrait match {
-            case Some(tp) => 
-              result = conformsInner(tp, r, visited, subst, checkWeak)
-            case _ => result = (false, undefinedSubst)
-          }
-      }
-    }
-
     override def visitCompoundType(c: ScCompoundType) {
       var rightVisitor: ScalaTypeVisitor =
         new ValDesignatorSimplification with UndefinedSubstVisitor with AbstractVisitor
@@ -609,8 +528,7 @@ object Conformance {
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
         with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-         with TypeParameterTypeVisitor with TupleVisitor with FunctionVisitor 
-        with ThisVisitor with DesignatorVisitor {}
+        with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -660,8 +578,7 @@ object Conformance {
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
         with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-         with TypeParameterTypeVisitor with TupleVisitor with FunctionVisitor 
-        with ThisVisitor with DesignatorVisitor with ParameterizedAliasVisitor {}
+        with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor with ParameterizedAliasVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -732,8 +649,7 @@ object Conformance {
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
         with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-         with TypeParameterTypeVisitor with TupleVisitor with FunctionVisitor 
-        with ThisVisitor with DesignatorVisitor {}
+        with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -889,14 +805,26 @@ object Conformance {
 
       p.designator match {
         case a: ScAbstractType =>
-          a.upper match {
-            case ScParameterizedType(upper, _) =>
-              result = conformsInner(upper, r, visited, undefinedSubst, checkWeak)
-              return
-            case upper => //todo: looks weird...
-              result = conformsInner(upper, r, visited, undefinedSubst, checkWeak)
-              return
+          val subst = new ScSubstitutor(Map(a.tpt.args.zip(p.typeArgs).map {
+            case (tpt: ScTypeParameterType, tp: ScType) =>
+              ((tpt.param.name, ScalaPsiUtil.getPsiElementId(tpt.param)), tp)
+          }: _*), Map.empty, None)
+          val upper: ScType =
+            subst.subst(a.upper) match {
+              case ScParameterizedType(upper, _) => ScParameterizedType(upper, p.typeArgs)
+              case upper => ScParameterizedType(upper, p.typeArgs)
+            }
+          result = conformsInner(upper, r, visited, undefinedSubst, checkWeak)
+          if (result._1) {
+            val lower: ScType =
+              subst.subst(a.lower) match {
+                case ScParameterizedType(lower, _) => ScParameterizedType(lower, p.typeArgs)
+                case lower => ScParameterizedType(lower, p.typeArgs)
+              }
+            val t = conformsInner(r, lower, visited, result._2, checkWeak)
+            if (t._1) result = t
           }
+          return
         case _ =>
       }
 
@@ -925,21 +853,11 @@ object Conformance {
       }
 
       rightVisitor = new ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-         with TupleVisitor with FunctionVisitor with ThisVisitor with DesignatorVisitor {}
+         with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
       p.designator match {
-        case a: ScAbstractType =>
-          val subst = new ScSubstitutor(Map(a.tpt.args.zip(p.typeArgs).map {
-            case (tpt: ScTypeParameterType, tp: ScType) =>
-              ((tpt.param.name, ScalaPsiUtil.getPsiElementId(tpt.param)), tp)
-          }: _*), Map.empty, None)
-          result = conformsInner(subst.subst(a.upper), r, visited, undefinedSubst, checkWeak)
-          if (result._1) {
-            val t = conformsInner(r, subst.subst(a.lower), visited, result._2, checkWeak)
-            if (t._1) result = t
-          }
         case proj: ScProjectionType if proj.actualElement.isInstanceOf[ScTypeAlias] =>
           val args = p.typeArgs
           val a = proj.actualElement.asInstanceOf[ScTypeAlias]
@@ -1168,6 +1086,35 @@ object Conformance {
               result = checkParameterizedType(owner1.tpt.args.map(_.param).iterator, args1, args2replace,
                 undefinedSubst, visited, checkWeak)
               return
+            case (_, owner2: ScUndefinedType) =>
+              val parameterType = owner2.tpt
+              var anotherType: ScType = ScParameterizedType(des1, parameterType.args)
+              var args1replace = args1
+              if (args1.length != args2.length) {
+                ScType.extractClassType(l) match {
+                  case Some((clazz, classSubst)) =>
+                    val t: (Boolean, ScType) = parentWithArgNumber(clazz, classSubst, args2.length)
+                    if (!t._1) {
+                      result = (false, undefinedSubst)
+                      return
+                    }
+                    t._2 match {
+                      case ScParameterizedType(newDes, newArgs) =>
+                        args1replace = newArgs
+                        anotherType = ScParameterizedType(newDes, parameterType.args)
+                      case _ =>
+                        result = (false, undefinedSubst)
+                        return
+                    }
+                  case _ =>
+                    result = (false, undefinedSubst)
+                    return
+                }
+              }
+              undefinedSubst = undefinedSubst.addUpper((owner2.tpt.name, owner2.tpt.getId), anotherType)
+              result = checkParameterizedType(owner2.tpt.args.map(_.param).iterator, args1, args1replace,
+                undefinedSubst, visited, checkWeak)
+              return
             case _ if des1 equiv des2 =>
               if (args1.length != args2.length) {
                 result = (false, undefinedSubst)
@@ -1256,8 +1203,7 @@ object Conformance {
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
         with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-         with TypeParameterTypeVisitor with TupleVisitor with FunctionVisitor 
-        with ThisVisitor with DesignatorVisitor {}
+         with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1359,7 +1305,7 @@ object Conformance {
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
         with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-         with TypeParameterTypeVisitor with TupleVisitor with FunctionVisitor {}
+         with TypeParameterTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1417,7 +1363,7 @@ object Conformance {
         case _ =>
       }
 
-      rightVisitor = new TypeParameterTypeVisitor with TupleVisitor with FunctionVisitor 
+      rightVisitor = new TypeParameterTypeVisitor
         with ThisVisitor with DesignatorVisitor with ParameterizedAliasVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -1529,8 +1475,7 @@ object Conformance {
       }
 
       rightVisitor = new OtherNonvalueTypesVisitor with NothingNullVisitor
-        with TypeParameterTypeVisitor with TupleVisitor with FunctionVisitor
-        with ThisVisitor with DesignatorVisitor {}
+        with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1552,8 +1497,7 @@ object Conformance {
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
         with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-         with TypeParameterTypeVisitor with TupleVisitor with FunctionVisitor 
-        with ThisVisitor with DesignatorVisitor {}
+         with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1754,8 +1698,6 @@ object Conformance {
               if (lClass.hasTypeParameters) {
                 l match {
                   case p: ScParameterizedType =>
-                  case f: ScFunctionType =>
-                  case t: ScTupleType =>
                   case _ => return (true, uSubst)
                 }
               }

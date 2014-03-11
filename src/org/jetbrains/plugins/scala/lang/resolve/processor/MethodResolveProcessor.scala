@@ -168,8 +168,7 @@ object MethodResolveProcessor {
         case fun: ScFun if fun.paramClauses.isEmpty => return ConformanceExtResult(Seq.empty)
         case _ =>
       }
-      val expectedFunctionType: Option[ScFunctionType] = expectedOption().flatMap(ScType.extractFunctionType)
-      expectedFunctionType match {
+      expectedOption() match {
         case Some(ScFunctionType(retType, params)) => {
           val args = params.map(new Expression(_))
           Compatibility.compatible(fun, substitutor, List(args), checkWithImplicits = false,

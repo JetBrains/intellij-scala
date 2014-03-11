@@ -60,22 +60,14 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     }
   }
 
+
+
   def drvTemplate: Option[ScTemplateDefinition] = reference match {
     case Some(q) => q.bind() match {
       case Some(ScalaResolveResult(td : ScTypeDefinition, _)) => Some(td)
       case _ => None
     }
-    case None => {
-      val template = PsiTreeUtil.getContextOfType(this, true, classOf[ScTemplateDefinition])
-      if (template == null) return None
-      template.extendsBlock.templateParents match {
-        case Some(parents) if PsiTreeUtil.isContextAncestor(parents, this, true) => {
-          val ptemplate = PsiTreeUtil.getContextOfType(template, true, classOf[ScTemplateDefinition])
-          if (ptemplate == null) None else Some(ptemplate)
-        }
-        case _ => Some(template)
-      }
-    }
+    case None => ScalaPsiUtil.drvTemplate(this)
   }
 
   def staticSuper: Option[ScType] = {

@@ -240,16 +240,14 @@ trait ScPattern extends ScalaPsiElement {
             case _ =>
           }
 
-          tuple.expectedType.flatMap {et0 =>
-            ScType.extractTupleType(et0) match {
-              case Some(ScTupleType(comps)) =>
-                for ((t, p) <- comps.iterator.zip(patternList.patterns.iterator)) {
-                  if (p == this) return Some(t)
-                }
-                None
-              case None if et0 == types.AnyRef || et0 == types.Any => Some(types.Any)
-              case None => None
-            }
+          tuple.expectedType.flatMap {
+            case ScTupleType(comps)                       =>
+              for ((t, p) <- comps.iterator.zip(patternList.patterns.iterator)) {
+                if (p == this) return Some(t)
+              }
+              None
+            case et0 if et0 == types.AnyRef || et0 == types.Any => Some(types.Any)
+            case _                                              => None
           }
         case _: ScXmlPattern =>
           val nodeClass: PsiClass = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.xml.Node")
@@ -275,15 +273,15 @@ trait ScPattern extends ScalaPsiElement {
         case b : ScBlockExpr =>
           b.expectedType(fromUnderscore = false) match {
             case Some(et) =>
-              ScType.extractFunctionType(et) match {
-                case Some(ScFunctionType(_, Seq())) => Some(types.Unit)
-                case Some(ScFunctionType(_, Seq(p0))) => Some(p0.removeAbstracts)
-                case Some(ScFunctionType(_, params)) =>
-                  val tt = new ScTupleType(params.map(_.removeAbstracts))(getProject, getResolveScope)
+              et.removeAbstracts match {
+                case ScFunctionType(_, Seq()) => Some(types.Unit)
+                case ScFunctionType(_, Seq(p0)) => Some(p0)
+                case ScFunctionType(_, params) =>
+                  val tt = ScTupleType(params)(getProject, getResolveScope)
                   Some(tt)
-                case None =>
+                case _ =>
                   ScType.extractPartialFunctionType(et) match {
-                    case Some((des, param, _)) => Some(param.removeAbstracts)
+                    case Some((des, param, _)) => Some(param)
                     case None => None
                   }
               }
@@ -387,11 +385,6 @@ object ScPattern {
                 }
                 args(0) match {
                   case ScTupleType(comps) => comps
-                  case p: ScParameterizedType =>
-                    p.getTupleType match {
-                      case Some(ScTupleType(comps)) => comps
-                      case _ => checkProduct(p)
-                    }
                   case tp => checkProduct(tp)
                 }
               } else Seq.empty

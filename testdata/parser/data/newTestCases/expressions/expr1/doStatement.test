@@ -4,7 +4,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -27,13 +27,13 @@ ScalaFile
         DoStatement
           PsiElement(do)('do')
           PsiWhiteSpace(' ')
-          ReferenceExpression
+          ReferenceExpression: work
             PsiElement(identifier)('work')
           PsiWhiteSpace('\n  ')
           PsiElement(while)('while')
           PsiWhiteSpace(' ')
           PsiElement(()('(')
-          ReferenceExpression
+          ReferenceExpression: alive
             PsiElement(identifier)('alive')
           PsiElement())(')')
         PsiWhiteSpace('\n')

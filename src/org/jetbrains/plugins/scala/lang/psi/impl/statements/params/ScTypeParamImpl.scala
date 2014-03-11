@@ -33,7 +33,7 @@ class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScType
   def this(node: ASTNode) = {this(); setNode(node)}
   def this(stub: ScTypeParamStub) = {this(); setStub(stub); setNode(null)}
 
-  override def toString: String = "TypeParameter"
+  override def toString: String = "TypeParameter: " + name
 
   def getOffsetInFile: Int = {
     val stub = getStub

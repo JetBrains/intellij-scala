@@ -3,7 +3,7 @@ object s{
 }
 -----
 ScalaFile
-  ScObject
+  ScObject: s
     AnnotationsList
       <empty list>
     Modifiers
@@ -15,7 +15,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScTypeAliasDeclaration
+        ScTypeAliasDeclaration: T
           AnnotationsList
             <empty list>
           Modifiers
@@ -25,13 +25,13 @@ ScalaFile
           PsiElement(identifier)('T')
           TypeParameterClause
             PsiElement([)('[')
-            TypeParameter
+            TypeParameter: S
               PsiElement(identifier)('S')
             PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(<:)('<:')
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: Int
+            CodeReferenceElement: Int
               PsiElement(identifier)('Int')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

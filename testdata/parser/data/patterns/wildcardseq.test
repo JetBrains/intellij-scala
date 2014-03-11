@@ -7,7 +7,7 @@ class AAA {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: AAA
     AnnotationsList
       <empty list>
     Modifiers
@@ -40,14 +40,14 @@ ScalaFile
               PsiElement(case)('case')
               PsiWhiteSpace(' ')
               ConstructorPattern
-                CodeReferenceElement
+                CodeReferenceElement: List
                   PsiElement(identifier)('List')
                 Pattern Argument List
                   PsiElement(()('(')
-                  ReferencePattern
+                  ReferencePattern: a
                     PsiElement(identifier)('a')
                   PsiElement(,)(',')
-                  NamingPattern
+                  NamingPattern: foo
                     PsiElement(identifier)('foo')
                     PsiWhiteSpace(' ')
                     PsiElement(@)('@')

@@ -4,7 +4,7 @@ object main{
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: Some
     AnnotationsList
       <empty list>
     Modifiers
@@ -21,7 +21,7 @@ ScalaFile
       Parameters
         ParametersClause
           PsiElement(()('(')
-          ClassParameter
+          ClassParameter: x
             AnnotationsList
               <empty list>
             Modifiers
@@ -30,8 +30,8 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: Int
+                CodeReferenceElement: Int
                   PsiElement(identifier)('Int')
           PsiElement())(')')
     ExtendsBlock
@@ -39,7 +39,7 @@ ScalaFile
         PsiElement({)('{')
         PsiElement(})('}')
   PsiWhiteSpace('\n')
-  ScObject
+  ScObject: main
     AnnotationsList
       <empty list>
     Modifiers
@@ -51,7 +51,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScValueDeclaration
+        ScValueDeclaration: Some
           AnnotationsList
             <empty list>
           Modifiers
@@ -59,12 +59,12 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfIdentifiers
-            Field identifier
+            Field identifier: Some
               PsiElement(identifier)('Some')
           PsiErrorElement:Wrong value declaration
             <empty list>
         PsiElement(()('(')
-        ReferenceExpression
+        ReferenceExpression: x
           PsiElement(identifier)('x')
         PsiErrorElement:';' or newline expected
           <empty list>
@@ -73,7 +73,7 @@ ScalaFile
           <empty list>
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        ReferenceExpression
+        ReferenceExpression: Int
           PsiElement(identifier)('Int')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

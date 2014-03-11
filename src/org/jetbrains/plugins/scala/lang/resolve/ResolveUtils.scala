@@ -85,7 +85,7 @@ object ResolveUtils {
           })
 
   def methodType(m : PsiMethod, s : ScSubstitutor, scope: GlobalSearchScope) =
-    new ScFunctionType(s.subst(ScType.create(m.getReturnType, m.getProject, scope)),
+    ScFunctionType(s.subst(ScType.create(m.getReturnType, m.getProject, scope)),
       collection.immutable.Seq(m.getParameterList.getParameters.map({
         p => val pt = p.getType
         //scala hack: Objects in java are modelled as Any in scala

@@ -1,9 +1,9 @@
 trait ReplyableReactor extends Replyable[Any, Any] {
   _: ReplyReactor =>
 }
-------
+-----
 ScalaFile
-  ScTrait
+  ScTrait: ReplyableReactor
     AnnotationsList
       <empty list>
     Modifiers
@@ -16,31 +16,31 @@ ScalaFile
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
       TraitParents
-        ParametrizedTypeElement
-          SimpleTypeElement
-            CodeReferenceElement
+        ParametrizedTypeElement: Replyable[Any, Any]
+          SimpleTypeElement: Replyable
+            CodeReferenceElement: Replyable
               PsiElement(identifier)('Replyable')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleTypeElement
-              CodeReferenceElement
+            SimpleTypeElement: Any
+              CodeReferenceElement: Any
                 PsiElement(identifier)('Any')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleTypeElement
-              CodeReferenceElement
+            SimpleTypeElement: Any
+              CodeReferenceElement: Any
                 PsiElement(identifier)('Any')
             PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        SelfType
+        SelfType: _
           PsiElement(_)('_')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: ReplyReactor
+            CodeReferenceElement: ReplyReactor
               PsiElement(identifier)('ReplyReactor')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')

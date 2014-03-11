@@ -5,7 +5,7 @@ object A /**/ { /**
 */  }
 -----
 ScalaFile
-  ScObject
+  ScObject: A
     AnnotationsList
       <empty list>
     Modifiers

@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.debugger.friendlyCollections
 
-import org.jetbrains.plugins.scala.debugger.evaluateExpression.ScalaDebuggerTestCase
 import org.jetbrains.plugins.scala.debugger.ui.ListLikeCollectionNodeRenderer
 import com.intellij.debugger.ui.tree.render.{ChildrenBuilder, DescriptorLabelListener}
 import com.intellij.debugger.ui.impl.FrameVariablesTree
@@ -8,6 +7,7 @@ import com.intellij.debugger.ui.impl.watch.{NodeDescriptorImpl, DebuggerTree, Lo
 import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContextImpl}
 import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptorFactory, NodeManager, ValueDescriptor}
 import java.util
+import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
 
 /**
  * User: Dmitry Naydanov
@@ -71,7 +71,7 @@ class ScalaFriendlyCollectionDisplayingTest extends ScalaDebuggerTestCase {
   protected def genericWatchTest(fileText: String, breakpointPos: Int, collectionName: String, 
                                  collectionLength: Int, collectionClass: String) {
     import junit.framework.Assert._
-    myFixture.addFileToProject(COMMON_FILE_NAME, fileText )      
+    addFileToProject(COMMON_FILE_NAME, fileText)
     addBreakpoint(COMMON_FILE_NAME, breakpointPos)
     runDebugger("Main"){
       waitForBreakpoint()

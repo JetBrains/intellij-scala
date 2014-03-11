@@ -5,11 +5,15 @@ import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExtern
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import com.intellij.openapi.module.{Module, ModifiableModuleModel, ModuleType}
 import com.intellij.ide.util.projectWizard.ModuleBuilder
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import java.io.File
-import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.io.{FileUtilRt, FileUtil}
 import javax.swing.Icon
 import org.jetbrains.sbt.project.SbtProjectSystem
+import com.intellij.openapi.roots.ModifiableRootModel
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
+import com.intellij.openapi.externalSystem.settings.{ExternalSystemSettingsListener, AbstractExternalSystemSettings}
 
 /**
  * User: Dmitry Naydanov
@@ -46,6 +50,29 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
   }
 
   override def getNodeIcon: Icon = Sbt.Icon
+
+  override def setupRootModel(model: ModifiableRootModel) {
+    val contentPath = getContentEntryPath
+    if (StringUtil isEmpty contentPath) return
+
+    val contentRootDir = new File(contentPath)
+    FileUtilRt createDirectory contentRootDir
+
+    val fileSystem = LocalFileSystem.getInstance
+    val vContentRootDir = fileSystem refreshAndFindFileByIoFile contentRootDir
+    if (vContentRootDir == null) return
+
+    model addContentEntry vContentRootDir
+    model.inheritSdk()
+    val settings =
+      ExternalSystemApiUtil.getSettings(model.getProject, SbtProjectSystem.Id).
+        asInstanceOf[AbstractExternalSystemSettings[_ <: AbstractExternalSystemSettings[_, SbtProjectSettings, _],
+        SbtProjectSettings, _ <: ExternalSystemSettingsListener[SbtProjectSettings]]]
+//    model.commit()
+
+    getExternalProjectSettings setExternalProjectPath getContentEntryPath
+    settings linkProject getExternalProjectSettings
+  }
 }
 
 object SbtModuleBuilder {

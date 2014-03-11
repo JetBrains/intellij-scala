@@ -3,7 +3,7 @@ object reifiers {
 }
 -----
 ScalaFile
-  ScObject
+  ScObject: reifiers
     AnnotationsList
       <empty list>
     Modifiers
@@ -16,7 +16,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScValueDeclaration
+        ScValueDeclaration: symbols
           AnnotationsList
             <empty list>
           Modifiers
@@ -24,13 +24,13 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfIdentifiers
-            Field identifier
+            Field identifier: symbols
               PsiElement(identifier)('symbols')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement
+          SimpleTypeElement: aaa.this.type
             ThisReference
-              CodeReferenceElement
+              CodeReferenceElement: aaa
                 PsiElement(identifier)('aaa')
               PsiElement(.)('.')
               PsiElement(this)('this')

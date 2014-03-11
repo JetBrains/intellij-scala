@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
+import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+
 /**
  * User: Alefas
  * Date: 15.10.11
@@ -7,7 +9,7 @@ package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
 class ScalaObjectEvaluationTest extends ScalaDebuggerTestCase {
   def testSimpleObject() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -26,7 +28,7 @@ class ScalaObjectEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testQualifiedObject() {
-    myFixture.addFileToProject("qual/Sample.scala",
+    addFileToProject("qual/Sample.scala",
       """
       |package qual
       |
@@ -34,7 +36,7 @@ class ScalaObjectEvaluationTest extends ScalaDebuggerTestCase {
       """.stripMargin.trim()
     )
 
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -51,7 +53,7 @@ class ScalaObjectEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testJavaConversions() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -68,7 +70,7 @@ class ScalaObjectEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testCaseClassObject() {
-    myFixture.addFileToProject("qual/Sample.scala",
+    addFileToProject("qual/Sample.scala",
       """
       |package qual
       |
@@ -76,7 +78,7 @@ class ScalaObjectEvaluationTest extends ScalaDebuggerTestCase {
       """.stripMargin.trim()
     )
 
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -93,7 +95,7 @@ class ScalaObjectEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testStableInnerObject() {
-    myFixture.addFileToProject("qual/Sample.scala",
+    addFileToProject("qual/Sample.scala",
       """
       |package qual
       |
@@ -103,7 +105,7 @@ class ScalaObjectEvaluationTest extends ScalaDebuggerTestCase {
       """.stripMargin.trim()
     )
 
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -120,7 +122,7 @@ class ScalaObjectEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testInnerClassObject() {
-    myFixture.addFileToProject("qual/Sample.scala",
+    addFileToProject("qual/Sample.scala",
       """
       |package qual
       |
@@ -130,7 +132,7 @@ class ScalaObjectEvaluationTest extends ScalaDebuggerTestCase {
       """.stripMargin.trim()
     )
 
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -148,7 +150,7 @@ class ScalaObjectEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testInnerClassObjectFromObject() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  class S {

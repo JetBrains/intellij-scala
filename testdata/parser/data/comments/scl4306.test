@@ -2,12 +2,12 @@ List(1,2,3).foreach { _.toString }
 
 // foo
 { println("done") }
--------
+-----
 ScalaFile
   MethodCall
-    ReferenceExpression
+    ReferenceExpression: List(1,2,3).foreach
       MethodCall
-        ReferenceExpression
+        ReferenceExpression: List
           PsiElement(identifier)('List')
         ArgumentList
           PsiElement(()('(')
@@ -27,7 +27,7 @@ ScalaFile
       BlockExpression
         PsiElement({)('{')
         PsiWhiteSpace(' ')
-        ReferenceExpression
+        ReferenceExpression: _.toString
           UnderscoreSection
             PsiElement(_)('_')
           PsiElement(.)('.')
@@ -41,7 +41,7 @@ ScalaFile
     PsiElement({)('{')
     PsiWhiteSpace(' ')
     MethodCall
-      ReferenceExpression
+      ReferenceExpression: println
         PsiElement(identifier)('println')
       ArgumentList
         PsiElement(()('(')

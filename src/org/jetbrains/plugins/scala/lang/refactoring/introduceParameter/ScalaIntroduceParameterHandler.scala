@@ -33,12 +33,11 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
   val REFACTORING_NAME = ScalaBundle.message("introduce.parameter.title")
 
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
-    def invokes() {
+    val canBeIntroduced: (ScExpression) => Boolean = ScalaRefactoringUtil.checkCanBeIntroduced(_)
+    ScalaRefactoringUtil.afterExpressionChoosing(project, editor, file, dataContext, "Introduce Parameter", canBeIntroduced) {
       ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
       invoke(project, editor, file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
     }
-    val canBeIntroduced: (ScExpression) => Boolean = ScalaRefactoringUtil.checkCanBeIntroduced(_)
-    ScalaRefactoringUtil.invokeRefactoring(project, editor, file, dataContext, "Introduce Parameter", invokes, canBeIntroduced)
   }
 
   def invoke(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int) {

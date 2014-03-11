@@ -37,7 +37,7 @@ class ScMacroDefinitionImpl extends ScFunctionImpl with ScMacroDefinition {
     true
   }
 
-  override def toString: String = "ScMacroDefinition"
+  override def toString: String = "ScMacroDefinition: " + name
 
   def returnTypeInner: TypeResult[ScType] = returnTypeElement match {
     case None => Success(types.Any, Some(this)) // TODO look up type from the macro impl.

@@ -31,7 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.extensions.Parent
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypedDefinition, ScNamedElement}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
 import extensions.childOf
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
@@ -144,7 +144,7 @@ class ScalaInlineHandler extends InlineHandler {
       } else settings
     }
     element match {
-      case typedDef: ScTypedDefinition if ScType.extractFunctionType(typedDef.getType().getOrAny).exists(_.arity > 0) =>
+      case typedDef: ScTypedDefinition if ScFunctionType.unapply(typedDef.getType().getOrAny).exists(_._2.length > 0) =>
         showErrorHint(ScalaBundle.message("cannot.inline.anonymous.function"), "element")
       case named: ScNamedElement if !usedInSameClassOnly(named) =>
         showErrorHint(ScalaBundle.message("cannot.inline.used.outside.class"), "member")

@@ -9,7 +9,7 @@ ScalaFile
   ScPackaging
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    CodeReferenceElement
+    CodeReferenceElement: org
       PsiElement(identifier)('org')
     PsiWhiteSpace(' ')
     PsiElement({)('{')
@@ -18,8 +18,8 @@ ScalaFile
       PsiElement(import)('import')
       PsiWhiteSpace(' ')
       ImportExpression
-        CodeReferenceElement
-          CodeReferenceElement
+        CodeReferenceElement: com.ert
+          CodeReferenceElement: com
             PsiElement(identifier)('com')
           PsiElement(.)('.')
           PsiElement(identifier)('ert')
@@ -30,8 +30,8 @@ ScalaFile
       PsiElement(import)('import')
       PsiWhiteSpace(' ')
       ImportExpression
-        CodeReferenceElement
-          CodeReferenceElement
+        CodeReferenceElement: com.ert
+          CodeReferenceElement: com
             PsiElement(identifier)('com')
           PsiElement(.)('.')
           PsiElement(identifier)('ert')

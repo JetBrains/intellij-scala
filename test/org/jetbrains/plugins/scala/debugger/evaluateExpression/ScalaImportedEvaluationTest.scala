@@ -1,13 +1,15 @@
 package org.jetbrains.plugins.scala
 package debugger.evaluateExpression
 
+import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+
 /**
  * Nikolay.Tropin
  * 12/9/13
  */
 class ScalaImportedEvaluationTest extends ScalaDebuggerTestCase{
   def testImportFromObject() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
         |object Sample {
         |  def main(args: Array[String]) {
@@ -17,7 +19,7 @@ class ScalaImportedEvaluationTest extends ScalaDebuggerTestCase{
         |}
       """.stripMargin.trim()
     )
-    myFixture.addFileToProject("Stuff.scala",
+    addFileToProject("Stuff.scala",
       """
         |package test
         |object Stuff {
@@ -36,7 +38,7 @@ class ScalaImportedEvaluationTest extends ScalaDebuggerTestCase{
   }
 
   def testImportFromPackageObject() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
         |object Sample {
         |  def main(args: Array[String]) {
@@ -46,7 +48,7 @@ class ScalaImportedEvaluationTest extends ScalaDebuggerTestCase{
         |}
       """.stripMargin.trim()
     )
-    myFixture.addFileToProject("package.scala",
+    addFileToProject("package.scala",
       """
         |package test
         |package object stuff {
@@ -64,7 +66,7 @@ class ScalaImportedEvaluationTest extends ScalaDebuggerTestCase{
   }
 
   def testImportVal() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
         |object Sample {
         |  def main(args: Array[String]) {
@@ -90,7 +92,7 @@ class ScalaImportedEvaluationTest extends ScalaDebuggerTestCase{
   }
 
   def testImportProjectionType() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
         |object Sample {
         |
@@ -126,7 +128,7 @@ class ScalaImportedEvaluationTest extends ScalaDebuggerTestCase{
   }
 
   def testImportJava() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
         |object Sample {
         |  def main(args: Array[String]) {
@@ -142,7 +144,7 @@ class ScalaImportedEvaluationTest extends ScalaDebuggerTestCase{
         |}
       """.stripMargin.trim()
     )
-    myFixture.addFileToProject("test/JavaClass.java",
+    addFileToProject("test/JavaClass.java",
       """
         |package test;
         |
@@ -178,14 +180,14 @@ class ScalaImportedEvaluationTest extends ScalaDebuggerTestCase{
   }
 
   def testImportedImplicits() {
-    myFixture.addFileToProject("implicits/package.scala",
+    addFileToProject("implicits/package.scala",
       """
         |package object implicits {
         |  implicit def intToString(x: Int) = x.toString + x.toString
         |  implicit val implicitInt: Int = 0
         |}
       """.stripMargin.trim)
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
         |import implicits._
         |object Sample {

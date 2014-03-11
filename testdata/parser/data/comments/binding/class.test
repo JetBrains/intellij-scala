@@ -2,7 +2,7 @@
 class A
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     PsiComment(comment)('// comment')
     PsiWhiteSpace('\n')
     AnnotationsList

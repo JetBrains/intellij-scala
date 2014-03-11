@@ -13,13 +13,14 @@ import com.intellij.codeInsight.navigation.NavigationUtil
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaration
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import javax.swing.Icon
 import org.jetbrains.annotations.NotNull
 import scala.collection.mutable
 import java.util
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes
 
 /**
  * Nikolay.Tropin
@@ -27,7 +28,7 @@ import com.intellij.refactoring.rename.RenamePsiElementProcessor
  */
 object RenameSuperMembersUtil {
 
-  val superMembersToRename =  mutable.Set[PsiElement]()
+  val superMembersToRename = mutable.Set[PsiElement]()
 
   def chooseSuper(named: ScNamedElement): PsiNamedElement = {
     var chosen: PsiNamedElement = null
@@ -43,9 +44,12 @@ object RenameSuperMembersUtil {
 
   def chooseAndProcessSuper(named: ScNamedElement, processor: PsiElementProcessor[PsiNamedElement], editor: Editor) {
 
-    val superMembers = allSuperMembers(named, withSelfType = false)
+    val superMembers = named match {
+      case _: ScTypeAlias => allSuperTypes(named, withSelfType = false)
+      case _ => allSuperMembers(named, withSelfType = false)
+    }
     val maxSuperMembers = findMaxSuperMembers(superMembers)
-    if (maxSuperMembers.isEmpty || maxSuperMembers == Seq(named))  {
+    if (maxSuperMembers.isEmpty || maxSuperMembers == Seq(named)) {
       processor.execute(named)
       return
     }
@@ -158,8 +162,24 @@ object RenameSuperMembersUtil {
   }
 
   @NotNull
+  def allSuperTypes(named: ScNamedElement, withSelfType: Boolean): Seq[PsiNamedElement] = {
+    val typeAlias = ScalaPsiUtil.nameContext(named) match {
+      case t: ScTypeAlias => t
+      case _ => return Seq()
+    }
+    val aClass = typeAlias.containingClass
+    if (aClass == null) return Seq()
+    val types =
+      if (withSelfType) TypeDefinitionMembers.getSelfTypeTypes(aClass)
+      else TypeDefinitionMembers.getTypes(aClass)
+    val forName = types.forName(named.name)._1
+    val typeAliases = forName.filter(ta => ScalaNamesUtil.scalaName(ta._1) == named.name)
+    typeAliases.flatMap(ta => ta._2.supers.map(_.info))
+  }
+
+  @NotNull
   private def findMaxSuperMembers(elements: Seq[PsiNamedElement]): Seq[PsiNamedElement] = {
-    def elementWithContainingClass(elem: PsiNamedElement): Option[(PsiClass, PsiNamedElement)] = {
+    def elementWithContainingClass(elem: PsiNamedElement) = {
       ScalaPsiUtil.nameContext(elem) match {
         case sm: ScMember => Option(sm.containingClass, elem)
         case m: PsiMember => Option((m.getContainingClass, elem))
@@ -168,7 +188,7 @@ object RenameSuperMembersUtil {
     }
     val classToElement = elements.flatMap(elementWithContainingClass).toMap
     val classes = classToElement.keys
-    val maxClasses = classes.filter(maxClass => !classes.exists(maxClass.isInheritor(_, /*deep = */true)))
+    val maxClasses = classes.filter(maxClass => !classes.exists(maxClass.isInheritor(_, /*deep = */ true)))
     maxClasses.flatMap(classToElement.get).toSeq
   }
 }

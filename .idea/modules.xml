@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/NailgunRunners/NailgunRunners.iml" filepath="$PROJECT_DIR$/NailgunRunners/NailgunRunners.iml" />
       <module fileurl="file://$PROJECT_DIR$/Runners/Runners.iml" filepath="$PROJECT_DIR$/Runners/Runners.iml" />
       <module fileurl="file://$PROJECT_DIR$/SBT/SBT.iml" filepath="$PROJECT_DIR$/SBT/SBT.iml" />
       <module fileurl="file://$PROJECT_DIR$/ScalaCommunity.iml" filepath="$PROJECT_DIR$/ScalaCommunity.iml" />

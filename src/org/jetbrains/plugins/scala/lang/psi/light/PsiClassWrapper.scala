@@ -269,7 +269,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
     definition match {
       case o: ScObject =>
         baseClass.getQualifiedName == "java.lang.Object" ||
-          (baseClass.getQualifiedName == "scala.ScalaObject" && !baseClass.isDeprecated)
+                (baseClass.getQualifiedName == "scala.ScalaObject" && !baseClass.isDeprecated)
       case _ => false
     }
   }
@@ -278,7 +278,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
     definition match {
       case o: ScObject =>
         baseClass.getQualifiedName == "java.lang.Object" ||
-          (baseClass.getQualifiedName == "scala.ScalaObject" && !baseClass.isDeprecated)
+                (baseClass.getQualifiedName == "scala.ScalaObject" && !baseClass.isDeprecated)
       case _ => false
     }
   }
@@ -331,10 +331,6 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
   }
 
   override def getParent: PsiElement = definition.getParent
-
-  override def isPhysical: Boolean = {
-    definition.isPhysical
-  }
 
   override def getResolveScope: GlobalSearchScope = {
     definition.getResolveScope

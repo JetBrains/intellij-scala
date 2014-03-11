@@ -71,9 +71,9 @@ trait RemoteResourceOwner {
   }
 
   protected def createChunks(command: String, args: Seq[String]): Seq[Chunk] = {
-    args.map(s => Chunk(NGConstants.CHUNKTYPE_ARGUMENT, toBytes(s))) :+
-      Chunk(NGConstants.CHUNKTYPE_WORKINGDIRECTORY, toBytes(currentDirectory)) :+
-      Chunk(NGConstants.CHUNKTYPE_COMMAND, toBytes(command))
+    args.map(s => Chunk(NGConstants.CHUNKTYPE_ARGUMENT.toChar, toBytes(s))) :+
+      Chunk(NGConstants.CHUNKTYPE_WORKINGDIRECTORY.toChar, toBytes(currentDirectory)) :+
+      Chunk(NGConstants.CHUNKTYPE_COMMAND.toChar, toBytes(command))
   }
 
   private def toBytes(s: String) = s.getBytes
