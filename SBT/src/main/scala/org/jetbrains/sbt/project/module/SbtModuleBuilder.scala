@@ -3,7 +3,7 @@ package project.module
 
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
-import com.intellij.openapi.module.{Module, ModifiableModuleModel, ModuleType}
+import com.intellij.openapi.module.{JavaModuleType, Module, ModifiableModuleModel, ModuleType}
 import com.intellij.ide.util.projectWizard.ModuleBuilder
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import java.io.File
@@ -24,7 +24,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
   def getTemplateConfigName(settings: SbtProjectSettings): String = null
 
-  def getModuleType: ModuleType[_ <: ModuleBuilder] = SbtModuleType.instance
+  def getModuleType: ModuleType[_ <: ModuleBuilder] = JavaModuleType.getModuleType
 
   override def createModule(moduleModel: ModifiableModuleModel): Module = {
     createSbtStub()
@@ -70,8 +70,12 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
         SbtProjectSettings, _ <: ExternalSystemSettingsListener[SbtProjectSettings]]]
 //    model.commit()
 
-    getExternalProjectSettings setExternalProjectPath getContentEntryPath
-    settings linkProject getExternalProjectSettings
+    val externalProjectSettings = getExternalProjectSettings
+
+    externalProjectSettings setExternalProjectPath getContentEntryPath
+    externalProjectSettings setCreateEmptyContentRootDirectories true //create empty dirs anyway as src in our template is empty
+
+    settings linkProject externalProjectSettings
   }
 }
 

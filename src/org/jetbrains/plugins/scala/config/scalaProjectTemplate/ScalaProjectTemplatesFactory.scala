@@ -12,7 +12,8 @@ import javax.swing.Icon
 class ScalaProjectTemplatesFactory extends ProjectTemplatesFactory {
   def getGroups: Array[String] = Array("Scala")
 
-  def createTemplates(group: String, context: WizardContext): Array[ProjectTemplate] = Array[ProjectTemplate](new ScalaProjectTemplate)
+  def createTemplates(group: String, context: WizardContext): Array[ProjectTemplate] =
+    if (group == "Scala") Array[ProjectTemplate](new ScalaProjectTemplate) else Array.empty
 
-  override def getGroupIcon(group: String): Icon = null
+  override def getGroupIcon(group: String): Icon = org.jetbrains.plugins.scala.icons.Icons.SCALA_SMALL_LOGO
 }
