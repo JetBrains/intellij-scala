@@ -46,15 +46,14 @@ object WorksheetSourceProcessor {
     
     val name = s"A$$A$iterNumber"
     val instanceName = s"inst$$A$$A"
-    val pk = "package "
-    val scln = " ; "
-
-    val packageStatement = Option(srcFile.getContainingDirectory) flatMap {
+    val packOpt = Option(srcFile.getContainingDirectory) flatMap {
       case dir => Option(JavaDirectoryService.getInstance().getPackage(dir))
     } collect {
       case psiPackage: PsiPackage if !psiPackage.getQualifiedName.trim.isEmpty =>
-        pk + psiPackage.getQualifiedName + scln
-    } getOrElse ""
+        psiPackage.getQualifiedName
+    }
+
+    val packStmt = packOpt map ("package " + _ + " ; ") getOrElse ""
 
     //val macroPrinterName = "MacroPrinter210" // "worksheet$$macro$$printer"
     
@@ -76,7 +75,7 @@ object WorksheetSourceProcessor {
 
     val ifDocument = ifEditor map (_.getDocument)
     val classPrologue = name // s"$name ${if (iterNumber > 0) s"extends A${iterNumber - 1}" }" //todo disabled until I implement incremental code generation
-    val objectPrologue = s"${packageStatement}import _root_.org.jetbrains.plugins.scala.worksheet.$macroPrinterName\n\n object $name { \n"
+    val objectPrologue = s"${packStmt}import _root_.org.jetbrains.plugins.scala.worksheet.$macroPrinterName\n\n object $name { \n"
     
     val startText = ""
     
@@ -265,7 +264,7 @@ object WorksheetSourceProcessor {
 
     Some(
       (objectPrologue + classRes.toString() + "\n\n\n" + objectRes.toString(),
-      packageStatement.stripPrefix(pk).stripSuffix(scln) + "." + name)
+      packOpt.map(_ + ".").getOrElse("") + name)
     )
   }
   
