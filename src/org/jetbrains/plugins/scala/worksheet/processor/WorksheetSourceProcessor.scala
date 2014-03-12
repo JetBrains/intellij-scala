@@ -46,8 +46,17 @@ object WorksheetSourceProcessor {
     
     val name = s"A$$A$iterNumber"
     val instanceName = s"inst$$A$$A"
-    
-//    val macroPrinterName = "MacroPrinter210" // "worksheet$$macro$$printer"
+    val pk = "package "
+    val scln = " ; "
+
+    val packageStatement = Option(srcFile.getContainingDirectory) flatMap {
+      case dir => Option(JavaDirectoryService.getInstance().getPackage(dir))
+    } collect {
+      case psiPackage: PsiPackage if !psiPackage.getQualifiedName.trim.isEmpty =>
+        pk + psiPackage.getQualifiedName + scln
+    } getOrElse ""
+
+    //val macroPrinterName = "MacroPrinter210" // "worksheet$$macro$$printer"
     
     val macroPrinterName = Option(ModuleUtilCore.findModuleForFile(srcFile.getVirtualFile, srcFile.getProject)) flatMap {
       case module => ScalaFacet findIn module flatMap {
@@ -67,7 +76,7 @@ object WorksheetSourceProcessor {
 
     val ifDocument = ifEditor map (_.getDocument)
     val classPrologue = name // s"$name ${if (iterNumber > 0) s"extends A${iterNumber - 1}" }" //todo disabled until I implement incremental code generation
-    val objectPrologue = s"import _root_.org.jetbrains.plugins.scala.worksheet.$macroPrinterName\n\n object $name { \n"
+    val objectPrologue = s"${packageStatement}import _root_.org.jetbrains.plugins.scala.worksheet.$macroPrinterName\n\n object $name { \n"
     
     val startText = ""
     
@@ -253,8 +262,11 @@ object WorksheetSourceProcessor {
     
     classRes append "}"
     objectRes append (printMethodName + "(\"" + END_OUTPUT_MARKER + "\")\n") append "} \n }"
-    
-    Some((objectPrologue + classRes.toString() + "\n\n\n" + objectRes.toString(), name))
+
+    Some(
+      (objectPrologue + classRes.toString() + "\n\n\n" + objectRes.toString(),
+      packageStatement.stripPrefix(pk).stripSuffix(scln) + "." + name)
+    )
   }
   
   private def isForObject(file: ScalaFile) = {
