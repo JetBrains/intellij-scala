@@ -13,6 +13,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.module.ModuleUtilCore
 import org.jetbrains.plugins.scala.config.ScalaFacet
 import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 /**
  * User: Dmitry Naydanov
@@ -133,7 +134,13 @@ object WorksheetSourceProcessor {
     }
     
     @inline def appendDeclaration(psi: ScalaPsiElement) {
-      classRes append psi.getText append insertNlsFromWs(psi)
+      val txt = psi match {
+        case valDef: ScPatternDefinition if !valDef.getModifierList.has(ScalaTokenTypes.kLAZY) =>
+          "lazy " + valDef.getText
+        case a => a.getText
+      }
+
+      classRes append txt append insertNlsFromWs(psi)
     }
     
     @inline def appendPsiComment(comment: PsiComment) {
@@ -180,8 +187,8 @@ object WorksheetSourceProcessor {
       appendPsiLineInfo(imp, lineNums)
     }
     
-    def withTempVar(callee: String) = 
-      "{val $$temp$$ = " + instanceName + "." + callee + s"; $macroPrinterName.printDefInfo(" + "$$temp$$" + ")" + 
+    def withTempVar(callee: String, withInstance: Boolean = true) =
+      "{val $$temp$$ = " + (if (withInstance) instanceName + "." else "") + callee + s"; $macroPrinterName.printDefInfo(" + "$$temp$$" + ")" +
         eraseClassName + " + \" = \" + $$temp$$.toString" + erasePrefixName + "}"
     
     val root  = if (!isForObject(srcFile)) srcFile else {
@@ -225,13 +232,23 @@ object WorksheetSourceProcessor {
               objectRes append (printMethodName + "(\"" + startText + pName + ": \" + " + withTempVar(defName) + ")\n")
           }
         })
-      case varDef: ScVariableDefinition => 
-        withPrecomputeLines(varDef, {
-          varDef.declaredNames foreach {
-            case pName => 
-              objectRes append (printMethodName + "(\"" + startText + pName + ": \" + " + withTempVar(pName) + ")\n")
-          }
-        })
+      case varDef: ScVariableDefinition =>
+        val lineNum = psiToLineNumbers(varDef)
+
+        val txt = varDef.expr.map {
+          case expr =>
+            "var " + varDef.declaredElements.map(_.name).mkString("(", ",", ")") + s" = { import $instanceName._; " + expr.getText + ";}"
+        } getOrElse varDef.getText
+
+        objectRes.append(txt).append(";")
+        varDef.declaredNames foreach {
+          case pName =>
+            objectRes append (
+              printMethodName + "(\"" + startText + pName + ": \" + " + withTempVar(pName, false) + ")\n"
+            )
+        }
+
+        appendPsiLineInfo(varDef, lineNum)
       case assign: ScAssignStmt =>
         val pName = assign.getLExpression.getText
         val lineNums = psiToLineNumbers(assign)
