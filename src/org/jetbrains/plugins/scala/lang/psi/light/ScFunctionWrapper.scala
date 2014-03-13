@@ -31,7 +31,7 @@ class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor, isJavaVararg
       case e: Exception => elementFactory.createMethodFromText("public void FAILED_TO_DECOMPILE_METHOD() {}", containingClass)
     }
   }
-} with LightMethod(constr.getManager, method, containingClass) with LightScalaMethod {
+} with LightMethodAdapter(constr.getManager, method, containingClass) with LightScalaMethod {
   override def getNavigationElement: PsiElement = constr.getNavigationElement
 
   override def canNavigate: Boolean = constr.canNavigate
@@ -87,7 +87,7 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
       case e: Exception => elementFactory.createMethodFromText("public void FAILED_TO_DECOMPILE_METHOD() {}", containingClass)
     }
   }
-} with LightMethod(function.getManager, method, containingClass) with LightScalaMethod {
+} with LightMethodAdapter(function.getManager, method, containingClass) with LightScalaMethod {
   override def getNavigationElement: PsiElement = function.getNavigationElement
 
   override def canNavigate: Boolean = function.canNavigate
