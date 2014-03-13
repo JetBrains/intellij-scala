@@ -8,8 +8,10 @@ import com.intellij.openapi.util.text.StringUtil
  */
 
 object InterpolatedStringFormatter extends StringFormatter {
-  def format(parts: Seq[StringPart]) = {
-    val content = formatContent(parts)
+  def format(parts: Seq[StringPart]) = format(parts, toMultiline = false)
+
+  def format(parts: Seq[StringPart], toMultiline: Boolean) = {
+    val content = formatContent(parts, toMultiline)
     val prefix = {
       val formattingRequired = parts.exists {
         case it: Injection => it.isFormattingRequired
@@ -17,11 +19,13 @@ object InterpolatedStringFormatter extends StringFormatter {
       }
       if (formattingRequired) "f" else "s"
     }
-    prefix + '"' + content + '"'
+    val quote = if (toMultiline) "\"\"\"" else "\""
+    s"$prefix$quote$content$quote"
   }
 
-  def formatContent(parts: Seq[StringPart]): String = {
+  def formatContent(parts: Seq[StringPart], toMultiline: Boolean = false): String = {
     val strings = parts.collect {
+      case Text(s) if toMultiline => s
       case Text(s) => StringUtil.escapeStringCharacters(s.replaceAll("\\$", "\\$\\$"))
       case it: Injection =>
         val text = it.value
