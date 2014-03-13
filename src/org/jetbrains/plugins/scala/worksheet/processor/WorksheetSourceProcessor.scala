@@ -209,7 +209,7 @@ object WorksheetSourceProcessor {
       case fun: ScFunction =>
         withPrecomputeLines(fun, {
           objectRes append (printMethodName + "(\"" + fun.getName + ": \" + " + macroPrinterName +
-            ".printDefInfo(" + instanceName + "." + fun.getName + " _)" + eraseClassName + ")\n")
+            s".printGeneric({import $instanceName._ ;" + fun.getText + " })" + eraseClassName + ")\n")
         })
       case tpeDef: ScTypeDefinition =>
         withPrecomputeLines(tpeDef, {
