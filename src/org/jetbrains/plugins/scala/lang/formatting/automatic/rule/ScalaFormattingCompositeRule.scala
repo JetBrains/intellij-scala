@@ -11,11 +11,18 @@ import scala.Some
  * @author Roman.Shein
  *         Date: 09.09.13
  */
-class ScalaFormattingCompositeRule(val composingConditions: List[ScalaFormattingRule],
+class ScalaFormattingCompositeRule private (val composingConditionsIds: List[String],
                                    val indentType: Option[IndentType.IndentType],
                                    val priority: Int,
                                    val id: String,
                                    val anchor: Option[Anchor] = None) extends ScalaFormattingRule {
+
+  def composingConditions = composingConditionsIds.map(getRule)
+
+  def this(composingConditions: List[ScalaFormattingRule],
+  indentType: Option[IndentType.IndentType],
+  priority: Int,
+  id: String) = this(composingConditions.map(_.id), indentType, priority, id, None)
 
   override def checkSome(blocks: List[Block],
                          parentAndPosition: Option[RuleParentInfo],
@@ -44,8 +51,9 @@ class ScalaFormattingCompositeRule(val composingConditions: List[ScalaFormatting
               }
             }
           }) match {
-            case (None, _, _) => (block :: before, Some(ruleInstance.createMatch(found)), tail.tail, true)
+            case (None, _, true) => (block :: before, Some(ruleInstance.createMatch(found)), tail.tail, true)
             case (Some(innerFound), innerTail, _) => (before, Some(ruleInstance.createMatch(innerFound)), innerTail, false)
+            case _ => (before, None, tail, false)
           }
         } else {
           (before, found, tail, false)
@@ -73,10 +81,14 @@ class ScalaFormattingCompositeRule(val composingConditions: List[ScalaFormatting
 
   override def getPriority: Int = priority
 
-  override def anchor(anchor: Anchor) = new ScalaFormattingCompositeRule(composingConditions, indentType, priority, id, Some(anchor))
+  override def anchor(anchor: Anchor) = registerAnchor(new ScalaFormattingCompositeRule(composingConditionsIds, indentType, priority, id+"|-"+anchor, Some(anchor)))
 }
 
 object ScalaFormattingCompositeRule {
-  def apply(id: String, conditions: ScalaFormattingRule*) = new ScalaFormattingCompositeRule(conditions.toList, None, ScalaFormattingRule.RULE_PRIORITY_DEFAULT, id)
-  def apply(priority: Int, id: String,  conditions: ScalaFormattingRule*) = new ScalaFormattingCompositeRule(conditions.toList, None, priority, id)
+  def apply(id: String, conditions: ScalaFormattingRule*) = addRule(
+    new ScalaFormattingCompositeRule(conditions.toList, None, ScalaFormattingRule.RULE_PRIORITY_DEFAULT, id)
+  )
+  def apply(priority: Int, id: String,  conditions: ScalaFormattingRule*) = addRule(
+    new ScalaFormattingCompositeRule(conditions.toList, None, priority, id)
+  )
 }

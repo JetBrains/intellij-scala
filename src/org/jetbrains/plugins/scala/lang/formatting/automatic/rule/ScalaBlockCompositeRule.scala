@@ -14,11 +14,18 @@ import scala.Some
  * @author Roman.Shein
  *         Date: 27.11.13
  */
-class ScalaBlockCompositeRule(val testFunction: Block => Boolean,
-                              val compositeRule: ScalaFormattingRule,
+class ScalaBlockCompositeRule private (val testFunction: Block => Boolean,
+                              val compositeRuleId: String,
                               val priority: Int,
                               val id: String,
                               val anchor: Option[Anchor] = None) extends ScalaFormattingRule {
+  def compositeRule = getRule(compositeRuleId)
+
+  def this(testFunction: Block => Boolean,
+  compositeRule: ScalaFormattingRule,
+  priority: Int,
+  id: String) = this(testFunction, compositeRule.id, priority, id, None)
+
   //this is  a transparent wrapper, only the underlying composite rule will be visible
   override def check(block: ScalaBlock,
           parentInfo: Option[RuleParentInfo],
@@ -76,29 +83,32 @@ class ScalaBlockCompositeRule(val testFunction: Block => Boolean,
 
   override def getPriority: Int = priority
 
-  override def anchor(anchor: Anchor) = new ScalaBlockCompositeRule(testFunction, compositeRule, priority, id, Some(anchor))
+  override def anchor(anchor: Anchor) = registerAnchor(new ScalaBlockCompositeRule(testFunction, compositeRuleId, priority, id+"|-"+anchor, Some(anchor)))
 
 }
 
 object ScalaBlockCompositeRule {
-  def apply(expectedText: String, compositeRule: ScalaFormattingRule, priority: Int, id: String) = new ScalaBlockCompositeRule(
-  {
+  def apply(expectedText: String, compositeRule: ScalaFormattingRule, priority: Int, id: String) = addRule(
+    new ScalaBlockCompositeRule(
+  {(_: Block) match {
     case scalaBlock: ScalaBlock => scalaBlock.getNode.getText == expectedText
     case _ => false
-  }, compositeRule, priority, id
-  )
+  }}, compositeRule, priority, id
+  ))
 
-  def apply(expectedType: IElementType, compositeRule: ScalaFormattingRule, priority: Int, id: String) = new ScalaBlockCompositeRule(
-  {
+  def apply(expectedType: IElementType, compositeRule: ScalaFormattingRule, priority: Int, id: String) = addRule(
+    new ScalaBlockCompositeRule(
+  {(_: Block) match {
     case scalaBlock: ScalaBlock => scalaBlock.getNode.getElementType == expectedType
     case _ => false
-  }, compositeRule, priority, id
-  )
+  }}, compositeRule, priority, id
+  ))
 
-  def apply(compositeRule: ScalaFormattingRule, priority: Int, id: String, expectedTypes: List[IElementType]) = new ScalaBlockCompositeRule(
-  {
+  def apply(compositeRule: ScalaFormattingRule, priority: Int, id: String, expectedTypes: List[IElementType]) = addRule(
+    new ScalaBlockCompositeRule(
+  {(_: Block) match {
     case scalaBlock: ScalaBlock => expectedTypes.contains(scalaBlock.getNode.getElementType)
     case _ => false
-  }, compositeRule, priority, id
-  )
+  }}, compositeRule, priority, id
+  ))
 }

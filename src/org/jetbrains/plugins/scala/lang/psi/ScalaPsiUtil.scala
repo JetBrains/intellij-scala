@@ -54,7 +54,7 @@ import scala.collection.{mutable, Set, Seq}
 import scala.util.control.ControlThrowable
 import scala.annotation.tailrec
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.lang.java.JavaLanguage
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import com.intellij.openapi.util.TextRange
@@ -102,6 +102,15 @@ object ScalaPsiUtil {
     val lastChild = elem.getLastChild
     if (lastChild == null) return elem
     lastLeaf(lastChild)
+  }
+
+  @tailrec
+  def getPrevPsi(element: PsiElement): Option[PsiElement] = {
+    if (element == null) None
+    else element.getPrevSibling match {
+      case null => getPrevPsi(element.getParent)
+      case sibling: PsiElement => Some(sibling)
+    }
   }
 
   def isBooleanBeanProperty(s: ScAnnotationsHolder, noResolve: Boolean = false): Boolean = {

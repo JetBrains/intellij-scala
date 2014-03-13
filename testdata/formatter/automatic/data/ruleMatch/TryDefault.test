@@ -17,7 +17,7 @@ TRY DEFAULT
           |RIGHT_BRACE; position: 2
     |MAYBE CATCH BLOCK; position: 1
       |CATCH BLOCK; position: 0
-        |CATCH BLOCK; position: 0
+        |CATCH RULE; position: 0
           |CATCH WORD; position: 0
           |BRACED MONOLITHIC CLAUSES BLOCK; position: 1
             |BRACED MONOLITHIC CLAUSES BLOCK COMPOSITE; position: 0

@@ -34,11 +34,7 @@ class ScalaFormattingRuleInstance (val parentAndPosition: Option[RuleParentInfo]
   }
 
   override def toString = rule.toString + (parentAndPosition match {
-    case Some(parentInfo) => "; position: " + parentInfo.position +
-            (rule.anchor match {
-              case Some(anchor) => "; anchor: " + anchor
-              case None => ""
-            })
+    case Some(parentInfo) => "; position: " + parentInfo.position
     case None => ""
   })
 
@@ -48,20 +44,14 @@ class ScalaFormattingRuleInstance (val parentAndPosition: Option[RuleParentInfo]
 
     def getFormattingDefiningWhitespace: Option[String] = getFormattingDefiningBlock.map(_.getInitialWhiteSpace)
 
-    def getFormattingWhitespaceTextRange: Option[TextRange] = getFormattingDefiningBlock.map(_.getInitialSpacing.map(_.getTextRange)) match {
-      case Some(textRange) => textRange
-      case _ => None
-    }
+    def getFormattingWhitespaceTextRange: Option[TextRange] = getFormattingDefiningBlock.map(_.getInitialSpacing.map(_.getTextRange)).flatten
 
     //TODO: make this private so ScalaBlock does not make any appearences in formatter engine
     def getFormattingDefiningBlock: Option[ScalaBlock] =
       formatBlock match {
         case Some(valBlock) => Some(valBlock)
         case _ => childMatches.foldRight(None: Option[ScalaBlock])((childMatch, acc) => //fold right since children are in reversed order
-          acc match {
-            case Some(res) => Some(res)
-            case None => childMatch.getFormattingDefiningBlock
-          })
+          acc.map(Some(_)).getOrElse(childMatch.getFormattingDefiningBlock))
       }
 
     def getSubRules: List[ScalaFormattingRuleInstance#RuleMatch] = childMatches//.map(_.getSubRules).flatten

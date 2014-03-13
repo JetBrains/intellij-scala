@@ -139,7 +139,7 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
     if (arg1.ruleInstance.rule.id == "CASE CLAUSE COMPOSITE") {
       println("unifySpacingAndIndents: " + arg1 + " " + arg2 + " | " + arg1.ruleInstance.rule.id)
     }
-    assert(arg1.ruleInstance == arg2.ruleInstance)
+    assert(arg1.ruleInstance.rule == arg2.ruleInstance.rule)
 
     //first, try to unify indents
     val indentInfo = (arg1.indentInfo, arg2.indentInfo) match {
@@ -380,10 +380,6 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
 //      for ()
 //    }
 
-    for (entry <- rulesToSpacingDefiningBlocks) {
-
-    }
-
     //now every spacing belongs only to one ruleInstance
     for ((topRule, childRules) <- topRulesToSubRules) {
       val possibleSettings = mutable.Map[ScalaFormattingRuleInstance, List[(ScalaBlock, List[ScalaBlockFormatterEntry])]]()
@@ -429,16 +425,20 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
   }
 
   def wrapTypeApplicable(block: ScalaBlock, wrapType: WrapType, sameFormattingBlocks: List[List[ScalaBlock]]): Boolean = {
+    //TODO: precalculate settings for clusters
+    val blockCluster = sameFormattingBlocks.find(_.contains(block)).getOrElse(List(block))
     wrapType match {
       case WrapType.ALWAYS =>
-        block.isOnNewLine
+        blockCluster.forall(_.isOnNewLine)
       case WrapType.CHOP_DOWN_IF_LONG =>
         //either current block does not need wrap or all the other blocks must be wrapped as well
-        !block.crossesRightMargin || sameFormattingBlocks.find(_.contains(block)).getOrElse(List[ScalaBlock](block)).forall(_.isOnNewLine) //TODO: get rid of double-checks for blocks here, maybe just store data in some map to get rid of recalculation of '.isOnNewLine'
+        blockCluster.forall(!_.wouldCrossRightMargin) || blockCluster.forall(_.isOnNewLine)
       case WrapType.NORMAL =>
-        !block.crossesRightMargin || block.isOnNewLine
+        blockCluster.forall((block) => !block.wouldCrossRightMargin || block.isOnNewLine)
+//        !block.crossesRightMargin || block.isOnNewLine
       case WrapType.NONE =>
-        !block.crossesRightMargin || !block.isOnNewLine
+        blockCluster.forall((block) => !block.wouldCrossRightMargin || !block.isOnNewLine)
+//        !block.crossesRightMargin || !block.isOnNewLine
     }
   }
 }
@@ -460,8 +460,8 @@ object ScalaFormattingRuleMatcher {
       rule.ifDefault.id -> rule.ifDefault,
       rule.caseClausesComposite.id -> rule.caseClausesComposite,
       rule.tryDefault.id -> rule.tryDefault,
-      rule.matchRule.id -> rule.matchRule
-      //rule.idChainDefault.id -> rule.idChainDefault
+      rule.matchRule.id -> rule.matchRule,
+      rule.idChainDefault.id -> rule.idChainDefault
     )
     //Map[String, ScalaFormattingRule](rule.caseClausesComposite.id -> rule.caseClausesComposite)
   }

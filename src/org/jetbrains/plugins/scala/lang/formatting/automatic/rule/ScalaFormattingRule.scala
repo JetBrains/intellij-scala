@@ -21,7 +21,10 @@ trait ScalaFormattingRule {
    * @param blocks
    * @return
    */
-  def check(blocks: List[Block], parentAndPosition:Option[RuleParentInfo], top: ScalaFormattingRule, matcher: ScalaFormattingRuleMatcher): Option[RuleMatch] = checkSome(blocks, parentAndPosition, top, matcher) match {
+  def check(blocks: List[Block],
+            parentAndPosition:Option[RuleParentInfo],
+            top: ScalaFormattingRule,
+            matcher: ScalaFormattingRuleMatcher): Option[RuleMatch] = checkSome(blocks, parentAndPosition, top, matcher) match {
     case Some((before, found, after)) /*if before.size == 0 && after.size == 0*/ => Some(found)
     case _ => None
   }

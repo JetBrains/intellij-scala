@@ -13,13 +13,21 @@ import scala.Some
  * @author Roman.Shein
  *         Date: 09.09.13
  */
-class ScalaSomeRule(val minimalCount: Int,
-                    val innerCondition: ScalaFormattingRule,
+class ScalaSomeRule private (val minimalCount: Int,
+                    val innerConditionId: String,
                     val indentType: Option[IndentType],
                     val priority: Int,
                     val id: String,
                     val anchor: Option[Anchor] = None)
         extends ScalaFormattingRule {
+
+  def innerCondition = getRule(innerConditionId)
+
+  def this(minimalCount: Int,
+  innerCondition: ScalaFormattingRule,
+  indentType: Option[IndentType],
+  priority: Int,
+  id: String) = this(minimalCount, innerCondition.id, indentType, priority, id)
 
   override def checkSome(blocks: List[Block],
                          parentInfo: Option[RuleParentInfo],
@@ -62,10 +70,11 @@ class ScalaSomeRule(val minimalCount: Int,
 
   override def getPriority: Int = priority
 
-  override def anchor(anchor: Anchor) = new ScalaSomeRule(minimalCount, innerCondition, indentType, priority, id, Some(anchor))
+  override def anchor(anchor: Anchor) = registerAnchor(new ScalaSomeRule(minimalCount, innerConditionId, indentType, priority, id+"|-"+anchor, Some(anchor)))
 }
 
 object ScalaSomeRule {
-  def apply(minimalCount: Int, innerCondition: ScalaFormattingRule, id: String): ScalaSomeRule =
+  def apply(minimalCount: Int, innerCondition: ScalaFormattingRule, id: String) = addRule(
     new ScalaSomeRule(minimalCount, innerCondition, None, ScalaFormattingRule.RULE_PRIORITY_DEFAULT, id)
+  )
 }

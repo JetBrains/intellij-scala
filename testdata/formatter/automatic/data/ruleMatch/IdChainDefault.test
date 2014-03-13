@@ -1,0 +1,14 @@
+a.b.c
+------
+ID CHAIN DEFAULT
+------
+|ID CHAIN DEFAULT
+  |ID CHAIN COMPOSITE; position: 0
+    |ID CHAIN HEAD; position: 0
+      |ID CHAIN HEAD COMPOSITE; position: 0
+        |ID|-ID CHAIN ANCHOR; position: 0
+        |DOT; position: 1
+      |ID CHAIN HEAD COMPOSITE; position: 0
+        |ID|-ID CHAIN ANCHOR; position: 0
+        |DOT; position: 1
+    |ID|-ID CHAIN ANCHOR; position: 1

@@ -10,11 +10,18 @@ import scala.Some
  * @author Roman.Shein
  *         Date: 12.09.13
  */
-class MaybeRule(val inner: ScalaFormattingRule,
+class MaybeRule private (val innerId: String,
                 val indentType: Option[IndentType.IndentType],
                 val priority: Int,
                 val id: String,
                 val anchor: Option[Anchor] = None) extends ScalaFormattingRule{
+
+  private def this(innerRule: ScalaFormattingRule,
+      indentType: Option[IndentType.IndentType],
+      priority: Int,
+      id: String) = this(innerRule.id, indentType, priority, id, None)
+
+  def inner = getRule(innerId)
 
   override def checkSome(blocks: List[Block],
                          parentAndPosition: Option[RuleParentInfo],
@@ -40,12 +47,12 @@ class MaybeRule(val inner: ScalaFormattingRule,
 
   override def getPriority: Int = priority
 
-  override def anchor(anchor: Anchor) = new MaybeRule(inner, indentType, priority, id, Some(anchor))
+  override def anchor(anchor: Anchor) = registerAnchor(new MaybeRule(innerId, indentType, priority, id + "|-" + anchor, Some(anchor)))
 
 }
 
 object MaybeRule {
   //def apply() = new MaybeRule()
-  def apply(inner: ScalaFormattingRule, id: String) = new MaybeRule(inner, None, inner.getPriority, id)
-  def apply(inner: ScalaFormattingRule, indentType: IndentType.IndentType, id: String) = new MaybeRule(inner, Some(indentType), inner.getPriority, id)
+  def apply(inner: ScalaFormattingRule, id: String) = addRule(new MaybeRule(inner, None, inner.getPriority, id))
+  def apply(inner: ScalaFormattingRule, indentType: IndentType.IndentType, id: String) = addRule(new MaybeRule(inner, Some(indentType), inner.getPriority, id))
 }

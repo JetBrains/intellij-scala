@@ -10,15 +10,22 @@ import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.ScalaFormattin
  * @author Roman.Shein
  *         Date: 12.09.13
  * Representation of OR regular expression construct for rules.
- * @param composingConditions
+ * @param composingConditionsIds
  * @param indentType
  * @param priority
  */
-class OrRule(val composingConditions: List[ScalaFormattingRule],
+class OrRule private (val composingConditionsIds: List[String],
              val indentType: Option[IndentType.IndentType],
-             priority: Int,
+             val priority: Int,
              val id: String,
              val anchor: Option[Anchor] = None) extends ScalaFormattingRule{
+
+  def composingConditions = composingConditionsIds.map(getRule)
+
+  def this(composingConditions: List[ScalaFormattingRule],
+  indentType: Option[IndentType.IndentType],
+  priority: Int,
+  id: String) = this(composingConditions.map(_.id), indentType, priority, id, None)
 
   override def checkSome(blocks: List[Block],
                          parentInfo: Option[RuleParentInfo],
@@ -51,9 +58,14 @@ class OrRule(val composingConditions: List[ScalaFormattingRule],
 
   override def getPriority: Int = priority
 
-  override def anchor(anchor: Anchor) = new OrRule(composingConditions, indentType, priority, id, Some(anchor))
+  override def anchor(anchor: Anchor) = registerAnchor(new OrRule(composingConditionsIds, indentType, priority, id+"|-"+anchor, Some(anchor)))
 }
 
 object OrRule {
-  def apply(id: String, indentType: IndentType.IndentType, conditions: ScalaFormattingRule*) = new OrRule(conditions.toList, Some(indentType), ScalaFormattingRule.RULE_PRIORITY_DEFAULT, id)
+  def apply(id: String, indentType: IndentType.IndentType, conditions: List[String]) =
+    addRule(new OrRule(conditions.toList, Some(indentType), ScalaFormattingRule.RULE_PRIORITY_DEFAULT, id))
+  def apply(id: String, indentType: IndentType.IndentType, conditions: ScalaFormattingRule*) =
+    addRule(new OrRule(conditions.toList, Some(indentType), ScalaFormattingRule.RULE_PRIORITY_DEFAULT, id))
+  def apply(id: String, conditions: ScalaFormattingRule*) =
+    addRule(new OrRule(conditions.toList, None, ScalaFormattingRule.RULE_PRIORITY_DEFAULT, id))
 }

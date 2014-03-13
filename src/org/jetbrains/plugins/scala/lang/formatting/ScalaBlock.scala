@@ -24,6 +24,7 @@ import psi.api.base.ScLiteral
 import scala.annotation.tailrec
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.{ScalaFormattingRuleMatcher, ScalaAutoFormatter}
+import scala.Some
 
 class ScalaBlock (val myParentBlock: ScalaBlock,
                   protected val myNode: ASTNode,
@@ -183,15 +184,7 @@ class ScalaBlock (val myParentBlock: ScalaBlock,
   }
 
   def getInitialSpacing: Option[PsiWhiteSpace] = {
-    @tailrec
-    def getPrevNode(element: PsiElement): Option[PsiElement] = {
-      if (element == null) None
-      else element.getPrevSibling match {
-        case null => getPrevNode(element.getParent)
-        case sibling: PsiElement => Some(sibling)
-      }
-    }
-    getPrevNode(myNode.getPsi) match {
+    getPrevPsi(myNode.getPsi) match {
       case Some(prevSibling) => lastLeaf(prevSibling) match {
         case spacing: PsiWhiteSpace => Some(spacing)
         case _ => None
@@ -273,18 +266,20 @@ class ScalaBlock (val myParentBlock: ScalaBlock,
   //    firstLineCrosses && lastLineCrosses && lines.slice(1, lines.size - 1).exists(_.length > rightMargin)
   //  }
 
-  def crossesRightMargin: Boolean = crossesRightMargin(getNode)
-
-  private def crossesRightMargin(node: ASTNode): Boolean = {
-    val lines = node.getText.split("\n")
-    val rightMargin: Int = getSettings.RIGHT_MARGIN //assumes that settings are consistent for the document
-    val document = PsiDocumentManager.getInstance(node.getPsi.getProject).getDocument(node.getPsi.getContainingFile)
-    //since block's text is continuous, sophisticated checks are required for first and last lines
-    //for inner lines it is enough to check whether their length is less then right margin
-    val firstLineCrosses = (node.getStartOffset + lines(0).length -
-            document.getLineStartOffset(document.getLineNumber(node.getTextRange.getStartOffset))) > rightMargin
-    val lastLineCrosses = lines(lines.size - 1).length > rightMargin
-    firstLineCrosses && lastLineCrosses && lines.slice(1, lines.size - 1).exists(_.length > rightMargin)
+  def wouldCrossRightMargin: Boolean = getPrevPsi(myNode.getPsi) match {
+    case Some(psi) =>
+      val document = PsiDocumentManager.getInstance(getNode.getPsi.getProject).getDocument(getNode.getPsi.getContainingFile)
+//      val myLineNumber = document.getLineNumber(myNode.getTextRange.getStartOffset)
+      val psiTextRange = psi.getTextRange
+      val prevLineOffset = if (psi.isInstanceOf[PsiWhiteSpace]) psiTextRange.getStartOffset else psiTextRange.getEndOffset
+//      val psiLineNumber = document.getLineNumber(prevLineOffset)
+//      if (myLineNumber == psiLineNumber && getNode.getTextRange.getEndOffset - document.getLineStartOffset(document.getLineNumber(prevLineOffset)) > getSettings.RIGHT_MARGIN) return false
+      val text = getNode.getText
+      val newLine = text.indexOf("\n")
+      val length = if (newLine >= 0) text.substring(0, newLine).length else text.length
+      val resultingOffset = prevLineOffset + length
+      resultingOffset - document.getLineStartOffset(document.getLineNumber(prevLineOffset)) > getSettings.RIGHT_MARGIN
+    case None => false
   }
 }
 

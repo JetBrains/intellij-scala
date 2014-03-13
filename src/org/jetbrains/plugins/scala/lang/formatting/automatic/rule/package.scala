@@ -4,6 +4,7 @@ package lang.formatting.automatic
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.{ScalaFormattingRuleInstance, IndentType}
 import com.intellij.psi.tree.IElementType
+import scala.collection.mutable
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScReferencePatternElementType
 
@@ -89,6 +90,25 @@ package object rule {
     ScalaElementTypes.REFINEMENT
   ) //TODO: do I really need all these patterns here?
 
+  private val rulesByNames = mutable.Map[String, ScalaFormattingRule]()
+
+  def addRule(rule: ScalaFormattingRule) = {
+    assert(!rulesByNames.contains(rule.id))
+    rulesByNames.put(rule.id, rule)
+    rule
+  }
+
+  def registerAnchor(rule: ScalaFormattingRule) = {
+    if (!rulesByNames.contains(rule.id)) {
+      rulesByNames.put(rule.id, rule)
+    } else {
+      assert(rulesByNames.get(rule.id).get == rule)
+    }
+    rule
+  }
+
+  def getRule(id: String): ScalaFormattingRule = rulesByNames.get(id).get
+
   //first, define simple block rules
   val leftBracket = ScalaBlockRule("[", "LEFT_BRACKET")
 
@@ -136,7 +156,7 @@ package object rule {
 
   val bracedBlockExpr = ScalaBlockCompositeRule(bracedExpr, ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "BRACED BLOCK EXPR", exprElementTypes) // BLOCK_EXPR?
 
-  val maybeBlockExpr = new OrRule(List[ScalaFormattingRule](bracedBlockExpr, expr), None, ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "MAYBE BRACED EXPR")
+  val maybeBlockExpr = OrRule("MAYBE BRACED EXPR", bracedBlockExpr, expr)
 
   val maybeExpr = MaybeRule(expr,
     IndentType.NormalIndent,
@@ -192,7 +212,7 @@ package object rule {
 
   val bracedMonolithicClausesBlock = ScalaBlockCompositeRule(ScalaElementTypes.BLOCK_EXPR, ScalaFormattingCompositeRule("BRACED MONOLITHIC CLAUSES BLOCK COMPOSITE", leftBrace, caseClausesMonolithic, rightBrace), ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "BRACED MONOLITHIC CLAUSES BLOCK")
 
-  val catchRule = ScalaFormattingCompositeRule("CATCH BLOCK", catchWord, bracedMonolithicClausesBlock)
+  val catchRule = ScalaFormattingCompositeRule("CATCH RULE", catchWord, bracedMonolithicClausesBlock)
 
   val catchBlock = ScalaBlockCompositeRule(ScalaElementTypes.CATCH_BLOCK, catchRule, ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "CATCH BLOCK")
 
@@ -227,7 +247,7 @@ package object rule {
   val idChainDefault = ScalaBlockCompositeRule(ScalaElementTypes.REFERENCE_EXPRESSION,
     ScalaFormattingCompositeRule(
       "ID CHAIN COMPOSITE",
-      ScalaSomeRule(0,
+      ScalaSomeRule(1,
         ScalaFormattingCompositeRule(
           "ID CHAIN HEAD COMPOSITE",
           idRule.anchor(idChainAnchor),
@@ -238,4 +258,17 @@ package object rule {
     ScalaFormattingRule.RULE_PRIORITY_DEFAULT,
     "ID CHAIN DEFAULT"
   )
+
+//  val idChainDefaultId = "ID CHAIN DEFAULT"
+//
+//  val idChainDefault = ScalaBlockCompositeRule(ScalaElementTypes.REFERENCE_EXPRESSION,
+//    ScalaFormattingCompositeRule(
+//      "ID CHAIN COMPOSITE",
+//      OrRule("ID CHAIN OR", IndentType.ContinuationIndent, List(idChainDefaultId, idRule.anchor(idChainAnchor).id)),
+//      dot,
+//      idRule.anchor(idChainAnchor)
+//    ),
+//    ScalaFormattingRule.RULE_PRIORITY_DEFAULT,
+//    idChainDefaultId
+//  )
 }
