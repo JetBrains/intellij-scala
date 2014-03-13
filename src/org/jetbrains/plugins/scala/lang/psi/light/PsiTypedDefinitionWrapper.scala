@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypedDefinition, ScModifierListOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
-import util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 
 /**
@@ -46,7 +46,7 @@ class PsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition, isStatic
       case e: Exception => elementFactory.createMethodFromText("public void FAILED_TO_DECOMPILE_METHOD() {}", containingClass)
     }
   }
-} with LightMethod(typedDefinition.getManager, method, containingClass) with LightScalaMethod {
+} with LightMethodAdapter(typedDefinition.getManager, method, containingClass) with LightScalaMethod {
   override def getNavigationElement: PsiElement = typedDefinition
 
   override def canNavigate: Boolean = typedDefinition.canNavigate
