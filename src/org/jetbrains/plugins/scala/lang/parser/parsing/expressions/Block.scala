@@ -23,22 +23,36 @@ import com.intellij.psi.tree.IElementType
 object Block {
 
   def parse(builder: ScalaPsiBuilder) {
-    while (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
-      val rollMarker = builder.mark
-      if (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
-        rollMarker.rollbackTo()
+    if (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
+      var hasSemicolon = false
+      var rollbackMarker = builder.mark()
+
+      def updateSemicolon() {
         builder.getTokenType match {
-          case ScalaTokenTypes.tSEMICOLON => {
-            builder.advanceLexer()
-          }
-          case _ => {
-            if (!builder.newlineBeforeCurrentToken)
-              builder error ErrMsg("semi.expected")
-          }
+          case ScalaTokenTypes.tSEMICOLON =>
+            hasSemicolon = true
+            while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) {
+              builder.advanceLexer()
+            }
+          case _ => if (builder.newlineBeforeCurrentToken) hasSemicolon = true
         }
-      } else {
-        rollMarker.rollbackTo()
       }
+
+      updateSemicolon()
+
+      while (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
+        if (!hasSemicolon) {
+          rollbackMarker.rollbackTo()
+          builder error ErrMsg("semi.expected")
+          hasSemicolon = true
+          rollbackMarker = builder.mark()
+        } else {
+          updateSemicolon()
+          rollbackMarker.drop()
+          rollbackMarker = builder.mark()
+        }
+      }
+      rollbackMarker.drop()
     }
   }
 
