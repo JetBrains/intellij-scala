@@ -10,6 +10,6 @@ package patterns
 * Patterns, introduced by case classes or extractors
 */
 trait ScConstructorPattern extends ScPattern {
-  def args: ScPatternArgumentList
+  def args: ScPatternArgumentList = findChildByClassScala(classOf[ScPatternArgumentList])
   def ref: ScStableCodeReferenceElement = findChildByClassScala(classOf[ScStableCodeReferenceElement])
 }

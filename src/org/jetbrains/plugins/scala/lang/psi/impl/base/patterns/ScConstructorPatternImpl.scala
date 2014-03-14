@@ -34,9 +34,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
 
   override def toString: String = "ConstructorPattern"
 
-  def args = findChildByClass(classOf[ScPatternArgumentList])
-
-  override def subpatterns : Seq[ScPattern]= if (args != null) args.patterns else Seq.empty
+  override def subpatterns: Seq[ScPattern] = if (args != null) args.patterns else Seq.empty
 
   override def isIrrefutableFor(t: Option[ScType]): Boolean = {
     if (t == None) return false
@@ -105,7 +103,6 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
             }).toSeq : _*)), Some(this))
           case td: ScClass => Success(ScType.designator(td), Some(this))
           case obj: ScObject => Success(ScType.designator(obj), Some(this))
-            //TODO Kos
           case fun: ScFunction /*It's unapply method*/ if (fun.name == "unapply" || fun.name == "unapplySeq") &&
                   fun.parameters.length == 1 =>
             val substitutor = r.substitutor

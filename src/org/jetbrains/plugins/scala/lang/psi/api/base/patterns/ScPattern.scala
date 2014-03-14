@@ -24,7 +24,6 @@ import toplevel.typedef.ScTemplateDefinition
 import extensions.toPsiClassExt
 import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
 import scala.annotation.tailrec
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{TypeParameter, Parameter}
 import scala.collection.immutable.Set
 
 /**
@@ -59,7 +58,6 @@ trait ScPattern extends ScalaPsiElement {
 
   def subpatterns: Seq[ScPattern] = this match {
     case _: ScReferencePattern => Seq.empty
-    case _: ScInterpolationPattern => Option(findChildByClassScala[ScPatternArgumentList](classOf[ScPatternArgumentList])).map(_.patterns).getOrElse(Seq.empty)
     case _ => findChildrenByClassScala[ScPattern](classOf[ScPattern])
   }
 
@@ -68,7 +66,7 @@ trait ScPattern extends ScalaPsiElement {
     val bind: Option[ScalaResolveResult] = ref.bind() match {
       case Some(ScalaResolveResult(_: ScBindingPattern | _: ScParameter, _)) =>
       val resolve = ref match {
-        case refImpl: ScInterpolationStableCodeReferenceElementImpl => refImpl.multiResolve(false)
+        case refImpl: ScInterpolationStableCodeReferenceElementImpl => refImpl.multiResolve(false)//TODO KOS return expected type?
         case refImpl: ScStableCodeReferenceElementImpl =>
           refImpl.doResolve(refImpl, new ExpandedExtractorResolveProcessor(ref, ref.refName, ref.getKinds(incomplete = false), ref.getContext match {
             case inf: ScInfixPattern => inf.expectedType
@@ -366,8 +364,10 @@ object ScPattern {
     }
 
     val level = ScalaLanguageLevel.getLanguageLevel(place)
-    //TODO KOS remove dirty hack who
-    if (place.isInstanceOf[ScInterpolationPattern]) return Seq(Any)
+    place match {
+      case p: ScInterpolationPattern => return InterpreterUtil.interpret(p)
+      case _ => ()
+    }
     if (level.isThoughScala2_11) collectFor2_11
     else {
       returnType match {
