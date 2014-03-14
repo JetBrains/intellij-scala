@@ -1,0 +1,2714 @@
+private[spire] trait OrderProduct22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V] extends Order[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)] with EqProduct22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V] {
+  implicit def structure1: Order[A]
+  implicit def structure2: Order[B]
+  implicit def structure3: Order[C]
+  implicit def structure4: Order[D]
+  implicit def structure5: Order[E]
+  implicit def structure6: Order[F]
+  implicit def structure7: Order[G]
+  implicit def structure8: Order[H]
+  implicit def structure9: Order[I]
+  implicit def structure10: Order[J]
+  implicit def structure11: Order[K]
+  implicit def structure12: Order[L]
+  implicit def structure13: Order[M]
+  implicit def structure14: Order[N]
+  implicit def structure15: Order[O]
+  implicit def structure16: Order[P]
+  implicit def structure17: Order[Q]
+  implicit def structure18: Order[R]
+  implicit def structure19: Order[S]
+  implicit def structure20: Order[T]
+  implicit def structure21: Order[U]
+  implicit def structure22: Order[V]
+  def compare(x0: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V), x1: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)): Int = {
+    var cmp: Int = 0
+    cmp = structure1.compare(x0._1, x1._1)
+    if (cmp != 0) cmp else {
+      cmp = structure2.compare(x0._2, x1._2)
+      if (cmp != 0) cmp else {
+        cmp = structure3.compare(x0._3, x1._3)
+        if (cmp != 0) cmp else {
+          cmp = structure4.compare(x0._4, x1._4)
+          if (cmp != 0) cmp else {
+            cmp = structure5.compare(x0._5, x1._5)
+            if (cmp != 0) cmp else {
+              cmp = structure6.compare(x0._6, x1._6)
+              if (cmp != 0) cmp else {
+                cmp = structure7.compare(x0._7, x1._7)
+                if (cmp != 0) cmp else {
+                  cmp = structure8.compare(x0._8, x1._8)
+                  if (cmp != 0) cmp else {
+                    cmp = structure9.compare(x0._9, x1._9)
+                    if (cmp != 0) cmp else {
+                      cmp = structure10.compare(x0._10, x1._10)
+                      if (cmp != 0) cmp else {
+                        cmp = structure11.compare(x0._11, x1._11)
+                        if (cmp != 0) cmp else {
+                          cmp = structure12.compare(x0._12, x1._12)
+                          if (cmp != 0) cmp else {
+                            cmp = structure13.compare(x0._13, x1._13)
+                            if (cmp != 0) cmp else {
+                              cmp = structure14.compare(x0._14, x1._14)
+                              if (cmp != 0) cmp else {
+                                cmp = structure15.compare(x0._15, x1._15)
+                                if (cmp != 0) cmp else {
+                                  cmp = structure16.compare(x0._16, x1._16)
+                                  if (cmp != 0) cmp else {
+                                    cmp = structure17.compare(x0._17, x1._17)
+                                    if (cmp != 0) cmp else {
+                                      cmp = structure18.compare(x0._18, x1._18)
+                                      if (cmp != 0) cmp else {
+                                        cmp = structure19.compare(x0._19, x1._19)
+                                        if (cmp != 0) cmp else {
+                                          cmp = structure20.compare(x0._20, x1._20)
+                                          if (cmp != 0) cmp else {
+                                            cmp = structure21.compare(x0._21, x1._21)
+                                            if (cmp != 0) cmp else {
+                                              cmp = structure22.compare(x0._22, x1._22)
+                                              if (cmp != 0) cmp else {
+                                                0
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+}
+  override def eqv(x0: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V), x1: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)): Boolean = super.eqv(x0, x1)
+}
+------
+ScalaFile
+  ScTrait: OrderProduct22
+    AnnotationsList
+      <empty list>
+    Modifiers
+      AccessModifier
+        PsiElement(private)('private')
+        PsiElement([)('[')
+        PsiElement(identifier)('spire')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('OrderProduct22')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: B
+        PsiElement(identifier)('B')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: C
+        PsiElement(identifier)('C')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: D
+        PsiElement(identifier)('D')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: G
+        PsiElement(identifier)('G')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: H
+        PsiElement(identifier)('H')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: I
+        PsiElement(identifier)('I')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: J
+        PsiElement(identifier)('J')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: K
+        PsiElement(identifier)('K')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: L
+        PsiElement(identifier)('L')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: M
+        PsiElement(identifier)('M')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: N
+        PsiElement(identifier)('N')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: O
+        PsiElement(identifier)('O')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: P
+        PsiElement(identifier)('P')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Q
+        PsiElement(identifier)('Q')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: R
+        PsiElement(identifier)('R')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: S
+        PsiElement(identifier)('S')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: U
+        PsiElement(identifier)('U')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: V
+        PsiElement(identifier)('V')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TraitParents
+        ParametrizedTypeElement: Order[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)]
+          SimpleTypeElement: Order
+            CodeReferenceElement: Order
+              PsiElement(identifier)('Order')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TupleType: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)
+              PsiElement(()('(')
+              TypesList
+                SimpleTypeElement: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement: D
+                  CodeReferenceElement: D
+                    PsiElement(identifier)('D')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement: G
+                  CodeReferenceElement: G
+                    PsiElement(identifier)('G')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement: H
+                  CodeReferenceElement: H
+                    PsiElement(identifier)('H')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement: I
+                  CodeReferenceElement: I
+                    PsiElement(identifier)('I')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement: J
+                  CodeReferenceElement: J
+                    PsiElement(identifier)('J')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement: K
+                  CodeReferenceElement: K
+                    PsiElement(identifier)('K')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement: L
+                  CodeReferenceElement: L
+                    PsiElement(identifier)('L')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement: M
+                  CodeReferenceElement: M
+                    PsiElement(identifier)('M')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement: N
+                  CodeReferenceElement: N
+                    PsiElement(identifier)('N')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement: O
+                  CodeReferenceElement: O
+                    PsiElement(identifier)('O')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement: P
+                  CodeReferenceElement: P
+                    PsiElement(identifier)('P')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement: Q
+                  CodeReferenceElement: Q
+                    PsiElement(identifier)('Q')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement: S
+                  CodeReferenceElement: S
+                    PsiElement(identifier)('S')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement: U
+                  CodeReferenceElement: U
+                    PsiElement(identifier)('U')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement: V
+                  CodeReferenceElement: V
+                    PsiElement(identifier)('V')
+              PsiElement())(')')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(with)('with')
+        PsiWhiteSpace(' ')
+        ParametrizedTypeElement: EqProduct22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V]
+          SimpleTypeElement: EqProduct22
+            CodeReferenceElement: EqProduct22
+              PsiElement(identifier)('EqProduct22')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleTypeElement: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleTypeElement: B
+              CodeReferenceElement: B
+                PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleTypeElement: C
+              CodeReferenceElement: C
+                PsiElement(identifier)('C')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleTypeElement: D
+              CodeReferenceElement: D
+                PsiElement(identifier)('D')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleTypeElement: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleTypeElement: F
+              CodeReferenceElement: F
+                PsiElement(identifier)('F')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleTypeElement: G
+              CodeReferenceElement: G
+                PsiElement(identifier)('G')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleTypeElement: H
+              CodeReferenceElement: H
+                PsiElement(identifier)('H')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleTypeElement: I
+              CodeReferenceElement: I
+                PsiElement(identifier)('I')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleTypeElement: J
+              CodeReferenceElement: J
+                PsiElement(identifier)('J')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleTypeElement: K
+              CodeReferenceElement: K
+                PsiElement(identifier)('K')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleTypeElement: L
+              CodeReferenceElement: L
+                PsiElement(identifier)('L')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleTypeElement: M
+              CodeReferenceElement: M
+                PsiElement(identifier)('M')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleTypeElement: N
+              CodeReferenceElement: N
+                PsiElement(identifier)('N')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleTypeElement: O
+              CodeReferenceElement: O
+                PsiElement(identifier)('O')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleTypeElement: P
+              CodeReferenceElement: P
+                PsiElement(identifier)('P')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleTypeElement: Q
+              CodeReferenceElement: Q
+                PsiElement(identifier)('Q')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleTypeElement: R
+              CodeReferenceElement: R
+                PsiElement(identifier)('R')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleTypeElement: S
+              CodeReferenceElement: S
+                PsiElement(identifier)('S')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleTypeElement: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleTypeElement: U
+              CodeReferenceElement: U
+                PsiElement(identifier)('U')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleTypeElement: V
+              CodeReferenceElement: V
+                PsiElement(identifier)('V')
+            PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: structure1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('structure1')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedTypeElement: Order[A]
+            SimpleTypeElement: Order
+              CodeReferenceElement: Order
+                PsiElement(identifier)('Order')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleTypeElement: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: structure2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('structure2')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedTypeElement: Order[B]
+            SimpleTypeElement: Order
+              CodeReferenceElement: Order
+                PsiElement(identifier)('Order')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleTypeElement: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: structure3
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('structure3')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedTypeElement: Order[C]
+            SimpleTypeElement: Order
+              CodeReferenceElement: Order
+                PsiElement(identifier)('Order')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleTypeElement: C
+                CodeReferenceElement: C
+                  PsiElement(identifier)('C')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: structure4
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('structure4')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedTypeElement: Order[D]
+            SimpleTypeElement: Order
+              CodeReferenceElement: Order
+                PsiElement(identifier)('Order')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleTypeElement: D
+                CodeReferenceElement: D
+                  PsiElement(identifier)('D')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: structure5
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('structure5')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedTypeElement: Order[E]
+            SimpleTypeElement: Order
+              CodeReferenceElement: Order
+                PsiElement(identifier)('Order')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleTypeElement: E
+                CodeReferenceElement: E
+                  PsiElement(identifier)('E')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: structure6
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('structure6')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedTypeElement: Order[F]
+            SimpleTypeElement: Order
+              CodeReferenceElement: Order
+                PsiElement(identifier)('Order')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleTypeElement: F
+                CodeReferenceElement: F
+                  PsiElement(identifier)('F')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: structure7
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('structure7')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedTypeElement: Order[G]
+            SimpleTypeElement: Order
+              CodeReferenceElement: Order
+                PsiElement(identifier)('Order')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleTypeElement: G
+                CodeReferenceElement: G
+                  PsiElement(identifier)('G')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: structure8
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('structure8')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedTypeElement: Order[H]
+            SimpleTypeElement: Order
+              CodeReferenceElement: Order
+                PsiElement(identifier)('Order')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleTypeElement: H
+                CodeReferenceElement: H
+                  PsiElement(identifier)('H')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: structure9
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('structure9')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedTypeElement: Order[I]
+            SimpleTypeElement: Order
+              CodeReferenceElement: Order
+                PsiElement(identifier)('Order')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleTypeElement: I
+                CodeReferenceElement: I
+                  PsiElement(identifier)('I')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: structure10
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('structure10')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedTypeElement: Order[J]
+            SimpleTypeElement: Order
+              CodeReferenceElement: Order
+                PsiElement(identifier)('Order')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleTypeElement: J
+                CodeReferenceElement: J
+                  PsiElement(identifier)('J')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: structure11
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('structure11')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedTypeElement: Order[K]
+            SimpleTypeElement: Order
+              CodeReferenceElement: Order
+                PsiElement(identifier)('Order')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleTypeElement: K
+                CodeReferenceElement: K
+                  PsiElement(identifier)('K')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: structure12
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('structure12')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedTypeElement: Order[L]
+            SimpleTypeElement: Order
+              CodeReferenceElement: Order
+                PsiElement(identifier)('Order')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleTypeElement: L
+                CodeReferenceElement: L
+                  PsiElement(identifier)('L')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: structure13
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('structure13')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedTypeElement: Order[M]
+            SimpleTypeElement: Order
+              CodeReferenceElement: Order
+                PsiElement(identifier)('Order')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleTypeElement: M
+                CodeReferenceElement: M
+                  PsiElement(identifier)('M')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: structure14
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('structure14')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedTypeElement: Order[N]
+            SimpleTypeElement: Order
+              CodeReferenceElement: Order
+                PsiElement(identifier)('Order')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleTypeElement: N
+                CodeReferenceElement: N
+                  PsiElement(identifier)('N')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: structure15
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('structure15')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedTypeElement: Order[O]
+            SimpleTypeElement: Order
+              CodeReferenceElement: Order
+                PsiElement(identifier)('Order')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleTypeElement: O
+                CodeReferenceElement: O
+                  PsiElement(identifier)('O')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: structure16
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('structure16')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedTypeElement: Order[P]
+            SimpleTypeElement: Order
+              CodeReferenceElement: Order
+                PsiElement(identifier)('Order')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleTypeElement: P
+                CodeReferenceElement: P
+                  PsiElement(identifier)('P')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: structure17
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('structure17')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedTypeElement: Order[Q]
+            SimpleTypeElement: Order
+              CodeReferenceElement: Order
+                PsiElement(identifier)('Order')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleTypeElement: Q
+                CodeReferenceElement: Q
+                  PsiElement(identifier)('Q')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: structure18
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('structure18')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedTypeElement: Order[R]
+            SimpleTypeElement: Order
+              CodeReferenceElement: Order
+                PsiElement(identifier)('Order')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleTypeElement: R
+                CodeReferenceElement: R
+                  PsiElement(identifier)('R')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: structure19
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('structure19')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedTypeElement: Order[S]
+            SimpleTypeElement: Order
+              CodeReferenceElement: Order
+                PsiElement(identifier)('Order')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleTypeElement: S
+                CodeReferenceElement: S
+                  PsiElement(identifier)('S')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: structure20
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('structure20')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedTypeElement: Order[T]
+            SimpleTypeElement: Order
+              CodeReferenceElement: Order
+                PsiElement(identifier)('Order')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleTypeElement: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: structure21
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('structure21')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedTypeElement: Order[U]
+            SimpleTypeElement: Order
+              CodeReferenceElement: Order
+                PsiElement(identifier)('Order')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleTypeElement: U
+                CodeReferenceElement: U
+                  PsiElement(identifier)('U')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: structure22
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('structure22')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedTypeElement: Order[V]
+            SimpleTypeElement: Order
+              CodeReferenceElement: Order
+                PsiElement(identifier)('Order')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleTypeElement: V
+                CodeReferenceElement: V
+                  PsiElement(identifier)('V')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: compare
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('compare')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x0
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x0')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  TupleType: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleTypeElement: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: D
+                        CodeReferenceElement: D
+                          PsiElement(identifier)('D')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: E
+                        CodeReferenceElement: E
+                          PsiElement(identifier)('E')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: F
+                        CodeReferenceElement: F
+                          PsiElement(identifier)('F')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: G
+                        CodeReferenceElement: G
+                          PsiElement(identifier)('G')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: H
+                        CodeReferenceElement: H
+                          PsiElement(identifier)('H')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: I
+                        CodeReferenceElement: I
+                          PsiElement(identifier)('I')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: J
+                        CodeReferenceElement: J
+                          PsiElement(identifier)('J')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: K
+                        CodeReferenceElement: K
+                          PsiElement(identifier)('K')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: L
+                        CodeReferenceElement: L
+                          PsiElement(identifier)('L')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: M
+                        CodeReferenceElement: M
+                          PsiElement(identifier)('M')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: N
+                        CodeReferenceElement: N
+                          PsiElement(identifier)('N')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: O
+                        CodeReferenceElement: O
+                          PsiElement(identifier)('O')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: P
+                        CodeReferenceElement: P
+                          PsiElement(identifier)('P')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: Q
+                        CodeReferenceElement: Q
+                          PsiElement(identifier)('Q')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: S
+                        CodeReferenceElement: S
+                          PsiElement(identifier)('S')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: U
+                        CodeReferenceElement: U
+                          PsiElement(identifier)('U')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: V
+                        CodeReferenceElement: V
+                          PsiElement(identifier)('V')
+                    PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: x1
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x1')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  TupleType: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleTypeElement: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: D
+                        CodeReferenceElement: D
+                          PsiElement(identifier)('D')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: E
+                        CodeReferenceElement: E
+                          PsiElement(identifier)('E')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: F
+                        CodeReferenceElement: F
+                          PsiElement(identifier)('F')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: G
+                        CodeReferenceElement: G
+                          PsiElement(identifier)('G')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: H
+                        CodeReferenceElement: H
+                          PsiElement(identifier)('H')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: I
+                        CodeReferenceElement: I
+                          PsiElement(identifier)('I')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: J
+                        CodeReferenceElement: J
+                          PsiElement(identifier)('J')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: K
+                        CodeReferenceElement: K
+                          PsiElement(identifier)('K')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: L
+                        CodeReferenceElement: L
+                          PsiElement(identifier)('L')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: M
+                        CodeReferenceElement: M
+                          PsiElement(identifier)('M')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: N
+                        CodeReferenceElement: N
+                          PsiElement(identifier)('N')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: O
+                        CodeReferenceElement: O
+                          PsiElement(identifier)('O')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: P
+                        CodeReferenceElement: P
+                          PsiElement(identifier)('P')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: Q
+                        CodeReferenceElement: Q
+                          PsiElement(identifier)('Q')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: S
+                        CodeReferenceElement: S
+                          PsiElement(identifier)('S')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: U
+                        CodeReferenceElement: U
+                          PsiElement(identifier)('U')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: V
+                        CodeReferenceElement: V
+                          PsiElement(identifier)('V')
+                    PsiElement())(')')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleTypeElement: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScVariableDefinition
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(var)('var')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: cmp
+                  PsiElement(identifier)('cmp')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleTypeElement: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              Literal
+                PsiElement(integer)('0')
+            PsiWhiteSpace('\n    ')
+            AssignStatement
+              ReferenceExpression: cmp
+                PsiElement(identifier)('cmp')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: structure1.compare
+                  ReferenceExpression: structure1
+                    PsiElement(identifier)('structure1')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('compare')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: x0._1
+                    ReferenceExpression: x0
+                      PsiElement(identifier)('x0')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('_1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: x1._1
+                    ReferenceExpression: x1
+                      PsiElement(identifier)('x1')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('_1')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            IfStatement
+              PsiElement(if)('if')
+              PsiWhiteSpace(' ')
+              PsiElement(()('(')
+              InfixExpression
+                ReferenceExpression: cmp
+                  PsiElement(identifier)('cmp')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: !=
+                  PsiElement(identifier)('!=')
+                PsiWhiteSpace(' ')
+                Literal
+                  PsiElement(integer)('0')
+              PsiElement())(')')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: cmp
+                PsiElement(identifier)('cmp')
+              PsiWhiteSpace(' ')
+              PsiElement(else)('else')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                AssignStatement
+                  ReferenceExpression: cmp
+                    PsiElement(identifier)('cmp')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: structure2.compare
+                      ReferenceExpression: structure2
+                        PsiElement(identifier)('structure2')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('compare')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: x0._2
+                        ReferenceExpression: x0
+                          PsiElement(identifier)('x0')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('_2')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: x1._2
+                        ReferenceExpression: x1
+                          PsiElement(identifier)('x1')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('_2')
+                      PsiElement())(')')
+                PsiWhiteSpace('\n      ')
+                IfStatement
+                  PsiElement(if)('if')
+                  PsiWhiteSpace(' ')
+                  PsiElement(()('(')
+                  InfixExpression
+                    ReferenceExpression: cmp
+                      PsiElement(identifier)('cmp')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: !=
+                      PsiElement(identifier)('!=')
+                    PsiWhiteSpace(' ')
+                    Literal
+                      PsiElement(integer)('0')
+                  PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: cmp
+                    PsiElement(identifier)('cmp')
+                  PsiWhiteSpace(' ')
+                  PsiElement(else)('else')
+                  PsiWhiteSpace(' ')
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n        ')
+                    AssignStatement
+                      ReferenceExpression: cmp
+                        PsiElement(identifier)('cmp')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      MethodCall
+                        ReferenceExpression: structure3.compare
+                          ReferenceExpression: structure3
+                            PsiElement(identifier)('structure3')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('compare')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: x0._3
+                            ReferenceExpression: x0
+                              PsiElement(identifier)('x0')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('_3')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: x1._3
+                            ReferenceExpression: x1
+                              PsiElement(identifier)('x1')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('_3')
+                          PsiElement())(')')
+                    PsiWhiteSpace('\n        ')
+                    IfStatement
+                      PsiElement(if)('if')
+                      PsiWhiteSpace(' ')
+                      PsiElement(()('(')
+                      InfixExpression
+                        ReferenceExpression: cmp
+                          PsiElement(identifier)('cmp')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: !=
+                          PsiElement(identifier)('!=')
+                        PsiWhiteSpace(' ')
+                        Literal
+                          PsiElement(integer)('0')
+                      PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: cmp
+                        PsiElement(identifier)('cmp')
+                      PsiWhiteSpace(' ')
+                      PsiElement(else)('else')
+                      PsiWhiteSpace(' ')
+                      BlockExpression
+                        PsiElement({)('{')
+                        PsiWhiteSpace('\n          ')
+                        AssignStatement
+                          ReferenceExpression: cmp
+                            PsiElement(identifier)('cmp')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          MethodCall
+                            ReferenceExpression: structure4.compare
+                              ReferenceExpression: structure4
+                                PsiElement(identifier)('structure4')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('compare')
+                            ArgumentList
+                              PsiElement(()('(')
+                              ReferenceExpression: x0._4
+                                ReferenceExpression: x0
+                                  PsiElement(identifier)('x0')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('_4')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: x1._4
+                                ReferenceExpression: x1
+                                  PsiElement(identifier)('x1')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('_4')
+                              PsiElement())(')')
+                        PsiWhiteSpace('\n          ')
+                        IfStatement
+                          PsiElement(if)('if')
+                          PsiWhiteSpace(' ')
+                          PsiElement(()('(')
+                          InfixExpression
+                            ReferenceExpression: cmp
+                              PsiElement(identifier)('cmp')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: !=
+                              PsiElement(identifier)('!=')
+                            PsiWhiteSpace(' ')
+                            Literal
+                              PsiElement(integer)('0')
+                          PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: cmp
+                            PsiElement(identifier)('cmp')
+                          PsiWhiteSpace(' ')
+                          PsiElement(else)('else')
+                          PsiWhiteSpace(' ')
+                          BlockExpression
+                            PsiElement({)('{')
+                            PsiWhiteSpace('\n            ')
+                            AssignStatement
+                              ReferenceExpression: cmp
+                                PsiElement(identifier)('cmp')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=)('=')
+                              PsiWhiteSpace(' ')
+                              MethodCall
+                                ReferenceExpression: structure5.compare
+                                  ReferenceExpression: structure5
+                                    PsiElement(identifier)('structure5')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('compare')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  ReferenceExpression: x0._5
+                                    ReferenceExpression: x0
+                                      PsiElement(identifier)('x0')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('_5')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: x1._5
+                                    ReferenceExpression: x1
+                                      PsiElement(identifier)('x1')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('_5')
+                                  PsiElement())(')')
+                            PsiWhiteSpace('\n            ')
+                            IfStatement
+                              PsiElement(if)('if')
+                              PsiWhiteSpace(' ')
+                              PsiElement(()('(')
+                              InfixExpression
+                                ReferenceExpression: cmp
+                                  PsiElement(identifier)('cmp')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: !=
+                                  PsiElement(identifier)('!=')
+                                PsiWhiteSpace(' ')
+                                Literal
+                                  PsiElement(integer)('0')
+                              PsiElement())(')')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: cmp
+                                PsiElement(identifier)('cmp')
+                              PsiWhiteSpace(' ')
+                              PsiElement(else)('else')
+                              PsiWhiteSpace(' ')
+                              BlockExpression
+                                PsiElement({)('{')
+                                PsiWhiteSpace('\n              ')
+                                AssignStatement
+                                  ReferenceExpression: cmp
+                                    PsiElement(identifier)('cmp')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(=)('=')
+                                  PsiWhiteSpace(' ')
+                                  MethodCall
+                                    ReferenceExpression: structure6.compare
+                                      ReferenceExpression: structure6
+                                        PsiElement(identifier)('structure6')
+                                      PsiElement(.)('.')
+                                      PsiElement(identifier)('compare')
+                                    ArgumentList
+                                      PsiElement(()('(')
+                                      ReferenceExpression: x0._6
+                                        ReferenceExpression: x0
+                                          PsiElement(identifier)('x0')
+                                        PsiElement(.)('.')
+                                        PsiElement(identifier)('_6')
+                                      PsiElement(,)(',')
+                                      PsiWhiteSpace(' ')
+                                      ReferenceExpression: x1._6
+                                        ReferenceExpression: x1
+                                          PsiElement(identifier)('x1')
+                                        PsiElement(.)('.')
+                                        PsiElement(identifier)('_6')
+                                      PsiElement())(')')
+                                PsiWhiteSpace('\n              ')
+                                IfStatement
+                                  PsiElement(if)('if')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(()('(')
+                                  InfixExpression
+                                    ReferenceExpression: cmp
+                                      PsiElement(identifier)('cmp')
+                                    PsiWhiteSpace(' ')
+                                    ReferenceExpression: !=
+                                      PsiElement(identifier)('!=')
+                                    PsiWhiteSpace(' ')
+                                    Literal
+                                      PsiElement(integer)('0')
+                                  PsiElement())(')')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: cmp
+                                    PsiElement(identifier)('cmp')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(else)('else')
+                                  PsiWhiteSpace(' ')
+                                  BlockExpression
+                                    PsiElement({)('{')
+                                    PsiWhiteSpace('\n                ')
+                                    AssignStatement
+                                      ReferenceExpression: cmp
+                                        PsiElement(identifier)('cmp')
+                                      PsiWhiteSpace(' ')
+                                      PsiElement(=)('=')
+                                      PsiWhiteSpace(' ')
+                                      MethodCall
+                                        ReferenceExpression: structure7.compare
+                                          ReferenceExpression: structure7
+                                            PsiElement(identifier)('structure7')
+                                          PsiElement(.)('.')
+                                          PsiElement(identifier)('compare')
+                                        ArgumentList
+                                          PsiElement(()('(')
+                                          ReferenceExpression: x0._7
+                                            ReferenceExpression: x0
+                                              PsiElement(identifier)('x0')
+                                            PsiElement(.)('.')
+                                            PsiElement(identifier)('_7')
+                                          PsiElement(,)(',')
+                                          PsiWhiteSpace(' ')
+                                          ReferenceExpression: x1._7
+                                            ReferenceExpression: x1
+                                              PsiElement(identifier)('x1')
+                                            PsiElement(.)('.')
+                                            PsiElement(identifier)('_7')
+                                          PsiElement())(')')
+                                    PsiWhiteSpace('\n                ')
+                                    IfStatement
+                                      PsiElement(if)('if')
+                                      PsiWhiteSpace(' ')
+                                      PsiElement(()('(')
+                                      InfixExpression
+                                        ReferenceExpression: cmp
+                                          PsiElement(identifier)('cmp')
+                                        PsiWhiteSpace(' ')
+                                        ReferenceExpression: !=
+                                          PsiElement(identifier)('!=')
+                                        PsiWhiteSpace(' ')
+                                        Literal
+                                          PsiElement(integer)('0')
+                                      PsiElement())(')')
+                                      PsiWhiteSpace(' ')
+                                      ReferenceExpression: cmp
+                                        PsiElement(identifier)('cmp')
+                                      PsiWhiteSpace(' ')
+                                      PsiElement(else)('else')
+                                      PsiWhiteSpace(' ')
+                                      BlockExpression
+                                        PsiElement({)('{')
+                                        PsiWhiteSpace('\n                  ')
+                                        AssignStatement
+                                          ReferenceExpression: cmp
+                                            PsiElement(identifier)('cmp')
+                                          PsiWhiteSpace(' ')
+                                          PsiElement(=)('=')
+                                          PsiWhiteSpace(' ')
+                                          MethodCall
+                                            ReferenceExpression: structure8.compare
+                                              ReferenceExpression: structure8
+                                                PsiElement(identifier)('structure8')
+                                              PsiElement(.)('.')
+                                              PsiElement(identifier)('compare')
+                                            ArgumentList
+                                              PsiElement(()('(')
+                                              ReferenceExpression: x0._8
+                                                ReferenceExpression: x0
+                                                  PsiElement(identifier)('x0')
+                                                PsiElement(.)('.')
+                                                PsiElement(identifier)('_8')
+                                              PsiElement(,)(',')
+                                              PsiWhiteSpace(' ')
+                                              ReferenceExpression: x1._8
+                                                ReferenceExpression: x1
+                                                  PsiElement(identifier)('x1')
+                                                PsiElement(.)('.')
+                                                PsiElement(identifier)('_8')
+                                              PsiElement())(')')
+                                        PsiWhiteSpace('\n                  ')
+                                        IfStatement
+                                          PsiElement(if)('if')
+                                          PsiWhiteSpace(' ')
+                                          PsiElement(()('(')
+                                          InfixExpression
+                                            ReferenceExpression: cmp
+                                              PsiElement(identifier)('cmp')
+                                            PsiWhiteSpace(' ')
+                                            ReferenceExpression: !=
+                                              PsiElement(identifier)('!=')
+                                            PsiWhiteSpace(' ')
+                                            Literal
+                                              PsiElement(integer)('0')
+                                          PsiElement())(')')
+                                          PsiWhiteSpace(' ')
+                                          ReferenceExpression: cmp
+                                            PsiElement(identifier)('cmp')
+                                          PsiWhiteSpace(' ')
+                                          PsiElement(else)('else')
+                                          PsiWhiteSpace(' ')
+                                          BlockExpression
+                                            PsiElement({)('{')
+                                            PsiWhiteSpace('\n                    ')
+                                            AssignStatement
+                                              ReferenceExpression: cmp
+                                                PsiElement(identifier)('cmp')
+                                              PsiWhiteSpace(' ')
+                                              PsiElement(=)('=')
+                                              PsiWhiteSpace(' ')
+                                              MethodCall
+                                                ReferenceExpression: structure9.compare
+                                                  ReferenceExpression: structure9
+                                                    PsiElement(identifier)('structure9')
+                                                  PsiElement(.)('.')
+                                                  PsiElement(identifier)('compare')
+                                                ArgumentList
+                                                  PsiElement(()('(')
+                                                  ReferenceExpression: x0._9
+                                                    ReferenceExpression: x0
+                                                      PsiElement(identifier)('x0')
+                                                    PsiElement(.)('.')
+                                                    PsiElement(identifier)('_9')
+                                                  PsiElement(,)(',')
+                                                  PsiWhiteSpace(' ')
+                                                  ReferenceExpression: x1._9
+                                                    ReferenceExpression: x1
+                                                      PsiElement(identifier)('x1')
+                                                    PsiElement(.)('.')
+                                                    PsiElement(identifier)('_9')
+                                                  PsiElement())(')')
+                                            PsiWhiteSpace('\n                    ')
+                                            IfStatement
+                                              PsiElement(if)('if')
+                                              PsiWhiteSpace(' ')
+                                              PsiElement(()('(')
+                                              InfixExpression
+                                                ReferenceExpression: cmp
+                                                  PsiElement(identifier)('cmp')
+                                                PsiWhiteSpace(' ')
+                                                ReferenceExpression: !=
+                                                  PsiElement(identifier)('!=')
+                                                PsiWhiteSpace(' ')
+                                                Literal
+                                                  PsiElement(integer)('0')
+                                              PsiElement())(')')
+                                              PsiWhiteSpace(' ')
+                                              ReferenceExpression: cmp
+                                                PsiElement(identifier)('cmp')
+                                              PsiWhiteSpace(' ')
+                                              PsiElement(else)('else')
+                                              PsiWhiteSpace(' ')
+                                              BlockExpression
+                                                PsiElement({)('{')
+                                                PsiWhiteSpace('\n                      ')
+                                                AssignStatement
+                                                  ReferenceExpression: cmp
+                                                    PsiElement(identifier)('cmp')
+                                                  PsiWhiteSpace(' ')
+                                                  PsiElement(=)('=')
+                                                  PsiWhiteSpace(' ')
+                                                  MethodCall
+                                                    ReferenceExpression: structure10.compare
+                                                      ReferenceExpression: structure10
+                                                        PsiElement(identifier)('structure10')
+                                                      PsiElement(.)('.')
+                                                      PsiElement(identifier)('compare')
+                                                    ArgumentList
+                                                      PsiElement(()('(')
+                                                      ReferenceExpression: x0._10
+                                                        ReferenceExpression: x0
+                                                          PsiElement(identifier)('x0')
+                                                        PsiElement(.)('.')
+                                                        PsiElement(identifier)('_10')
+                                                      PsiElement(,)(',')
+                                                      PsiWhiteSpace(' ')
+                                                      ReferenceExpression: x1._10
+                                                        ReferenceExpression: x1
+                                                          PsiElement(identifier)('x1')
+                                                        PsiElement(.)('.')
+                                                        PsiElement(identifier)('_10')
+                                                      PsiElement())(')')
+                                                PsiWhiteSpace('\n                      ')
+                                                IfStatement
+                                                  PsiElement(if)('if')
+                                                  PsiWhiteSpace(' ')
+                                                  PsiElement(()('(')
+                                                  InfixExpression
+                                                    ReferenceExpression: cmp
+                                                      PsiElement(identifier)('cmp')
+                                                    PsiWhiteSpace(' ')
+                                                    ReferenceExpression: !=
+                                                      PsiElement(identifier)('!=')
+                                                    PsiWhiteSpace(' ')
+                                                    Literal
+                                                      PsiElement(integer)('0')
+                                                  PsiElement())(')')
+                                                  PsiWhiteSpace(' ')
+                                                  ReferenceExpression: cmp
+                                                    PsiElement(identifier)('cmp')
+                                                  PsiWhiteSpace(' ')
+                                                  PsiElement(else)('else')
+                                                  PsiWhiteSpace(' ')
+                                                  BlockExpression
+                                                    PsiElement({)('{')
+                                                    PsiWhiteSpace('\n                        ')
+                                                    AssignStatement
+                                                      ReferenceExpression: cmp
+                                                        PsiElement(identifier)('cmp')
+                                                      PsiWhiteSpace(' ')
+                                                      PsiElement(=)('=')
+                                                      PsiWhiteSpace(' ')
+                                                      MethodCall
+                                                        ReferenceExpression: structure11.compare
+                                                          ReferenceExpression: structure11
+                                                            PsiElement(identifier)('structure11')
+                                                          PsiElement(.)('.')
+                                                          PsiElement(identifier)('compare')
+                                                        ArgumentList
+                                                          PsiElement(()('(')
+                                                          ReferenceExpression: x0._11
+                                                            ReferenceExpression: x0
+                                                              PsiElement(identifier)('x0')
+                                                            PsiElement(.)('.')
+                                                            PsiElement(identifier)('_11')
+                                                          PsiElement(,)(',')
+                                                          PsiWhiteSpace(' ')
+                                                          ReferenceExpression: x1._11
+                                                            ReferenceExpression: x1
+                                                              PsiElement(identifier)('x1')
+                                                            PsiElement(.)('.')
+                                                            PsiElement(identifier)('_11')
+                                                          PsiElement())(')')
+                                                    PsiWhiteSpace('\n                        ')
+                                                    IfStatement
+                                                      PsiElement(if)('if')
+                                                      PsiWhiteSpace(' ')
+                                                      PsiElement(()('(')
+                                                      InfixExpression
+                                                        ReferenceExpression: cmp
+                                                          PsiElement(identifier)('cmp')
+                                                        PsiWhiteSpace(' ')
+                                                        ReferenceExpression: !=
+                                                          PsiElement(identifier)('!=')
+                                                        PsiWhiteSpace(' ')
+                                                        Literal
+                                                          PsiElement(integer)('0')
+                                                      PsiElement())(')')
+                                                      PsiWhiteSpace(' ')
+                                                      ReferenceExpression: cmp
+                                                        PsiElement(identifier)('cmp')
+                                                      PsiWhiteSpace(' ')
+                                                      PsiElement(else)('else')
+                                                      PsiWhiteSpace(' ')
+                                                      BlockExpression
+                                                        PsiElement({)('{')
+                                                        PsiWhiteSpace('\n                          ')
+                                                        AssignStatement
+                                                          ReferenceExpression: cmp
+                                                            PsiElement(identifier)('cmp')
+                                                          PsiWhiteSpace(' ')
+                                                          PsiElement(=)('=')
+                                                          PsiWhiteSpace(' ')
+                                                          MethodCall
+                                                            ReferenceExpression: structure12.compare
+                                                              ReferenceExpression: structure12
+                                                                PsiElement(identifier)('structure12')
+                                                              PsiElement(.)('.')
+                                                              PsiElement(identifier)('compare')
+                                                            ArgumentList
+                                                              PsiElement(()('(')
+                                                              ReferenceExpression: x0._12
+                                                                ReferenceExpression: x0
+                                                                  PsiElement(identifier)('x0')
+                                                                PsiElement(.)('.')
+                                                                PsiElement(identifier)('_12')
+                                                              PsiElement(,)(',')
+                                                              PsiWhiteSpace(' ')
+                                                              ReferenceExpression: x1._12
+                                                                ReferenceExpression: x1
+                                                                  PsiElement(identifier)('x1')
+                                                                PsiElement(.)('.')
+                                                                PsiElement(identifier)('_12')
+                                                              PsiElement())(')')
+                                                        PsiWhiteSpace('\n                          ')
+                                                        IfStatement
+                                                          PsiElement(if)('if')
+                                                          PsiWhiteSpace(' ')
+                                                          PsiElement(()('(')
+                                                          InfixExpression
+                                                            ReferenceExpression: cmp
+                                                              PsiElement(identifier)('cmp')
+                                                            PsiWhiteSpace(' ')
+                                                            ReferenceExpression: !=
+                                                              PsiElement(identifier)('!=')
+                                                            PsiWhiteSpace(' ')
+                                                            Literal
+                                                              PsiElement(integer)('0')
+                                                          PsiElement())(')')
+                                                          PsiWhiteSpace(' ')
+                                                          ReferenceExpression: cmp
+                                                            PsiElement(identifier)('cmp')
+                                                          PsiWhiteSpace(' ')
+                                                          PsiElement(else)('else')
+                                                          PsiWhiteSpace(' ')
+                                                          BlockExpression
+                                                            PsiElement({)('{')
+                                                            PsiWhiteSpace('\n                            ')
+                                                            AssignStatement
+                                                              ReferenceExpression: cmp
+                                                                PsiElement(identifier)('cmp')
+                                                              PsiWhiteSpace(' ')
+                                                              PsiElement(=)('=')
+                                                              PsiWhiteSpace(' ')
+                                                              MethodCall
+                                                                ReferenceExpression: structure13.compare
+                                                                  ReferenceExpression: structure13
+                                                                    PsiElement(identifier)('structure13')
+                                                                  PsiElement(.)('.')
+                                                                  PsiElement(identifier)('compare')
+                                                                ArgumentList
+                                                                  PsiElement(()('(')
+                                                                  ReferenceExpression: x0._13
+                                                                    ReferenceExpression: x0
+                                                                      PsiElement(identifier)('x0')
+                                                                    PsiElement(.)('.')
+                                                                    PsiElement(identifier)('_13')
+                                                                  PsiElement(,)(',')
+                                                                  PsiWhiteSpace(' ')
+                                                                  ReferenceExpression: x1._13
+                                                                    ReferenceExpression: x1
+                                                                      PsiElement(identifier)('x1')
+                                                                    PsiElement(.)('.')
+                                                                    PsiElement(identifier)('_13')
+                                                                  PsiElement())(')')
+                                                            PsiWhiteSpace('\n                            ')
+                                                            IfStatement
+                                                              PsiElement(if)('if')
+                                                              PsiWhiteSpace(' ')
+                                                              PsiElement(()('(')
+                                                              InfixExpression
+                                                                ReferenceExpression: cmp
+                                                                  PsiElement(identifier)('cmp')
+                                                                PsiWhiteSpace(' ')
+                                                                ReferenceExpression: !=
+                                                                  PsiElement(identifier)('!=')
+                                                                PsiWhiteSpace(' ')
+                                                                Literal
+                                                                  PsiElement(integer)('0')
+                                                              PsiElement())(')')
+                                                              PsiWhiteSpace(' ')
+                                                              ReferenceExpression: cmp
+                                                                PsiElement(identifier)('cmp')
+                                                              PsiWhiteSpace(' ')
+                                                              PsiElement(else)('else')
+                                                              PsiWhiteSpace(' ')
+                                                              BlockExpression
+                                                                PsiElement({)('{')
+                                                                PsiWhiteSpace('\n                              ')
+                                                                AssignStatement
+                                                                  ReferenceExpression: cmp
+                                                                    PsiElement(identifier)('cmp')
+                                                                  PsiWhiteSpace(' ')
+                                                                  PsiElement(=)('=')
+                                                                  PsiWhiteSpace(' ')
+                                                                  MethodCall
+                                                                    ReferenceExpression: structure14.compare
+                                                                      ReferenceExpression: structure14
+                                                                        PsiElement(identifier)('structure14')
+                                                                      PsiElement(.)('.')
+                                                                      PsiElement(identifier)('compare')
+                                                                    ArgumentList
+                                                                      PsiElement(()('(')
+                                                                      ReferenceExpression: x0._14
+                                                                        ReferenceExpression: x0
+                                                                          PsiElement(identifier)('x0')
+                                                                        PsiElement(.)('.')
+                                                                        PsiElement(identifier)('_14')
+                                                                      PsiElement(,)(',')
+                                                                      PsiWhiteSpace(' ')
+                                                                      ReferenceExpression: x1._14
+                                                                        ReferenceExpression: x1
+                                                                          PsiElement(identifier)('x1')
+                                                                        PsiElement(.)('.')
+                                                                        PsiElement(identifier)('_14')
+                                                                      PsiElement())(')')
+                                                                PsiWhiteSpace('\n                              ')
+                                                                IfStatement
+                                                                  PsiElement(if)('if')
+                                                                  PsiWhiteSpace(' ')
+                                                                  PsiElement(()('(')
+                                                                  InfixExpression
+                                                                    ReferenceExpression: cmp
+                                                                      PsiElement(identifier)('cmp')
+                                                                    PsiWhiteSpace(' ')
+                                                                    ReferenceExpression: !=
+                                                                      PsiElement(identifier)('!=')
+                                                                    PsiWhiteSpace(' ')
+                                                                    Literal
+                                                                      PsiElement(integer)('0')
+                                                                  PsiElement())(')')
+                                                                  PsiWhiteSpace(' ')
+                                                                  ReferenceExpression: cmp
+                                                                    PsiElement(identifier)('cmp')
+                                                                  PsiWhiteSpace(' ')
+                                                                  PsiElement(else)('else')
+                                                                  PsiWhiteSpace(' ')
+                                                                  BlockExpression
+                                                                    PsiElement({)('{')
+                                                                    PsiWhiteSpace('\n                                ')
+                                                                    AssignStatement
+                                                                      ReferenceExpression: cmp
+                                                                        PsiElement(identifier)('cmp')
+                                                                      PsiWhiteSpace(' ')
+                                                                      PsiElement(=)('=')
+                                                                      PsiWhiteSpace(' ')
+                                                                      MethodCall
+                                                                        ReferenceExpression: structure15.compare
+                                                                          ReferenceExpression: structure15
+                                                                            PsiElement(identifier)('structure15')
+                                                                          PsiElement(.)('.')
+                                                                          PsiElement(identifier)('compare')
+                                                                        ArgumentList
+                                                                          PsiElement(()('(')
+                                                                          ReferenceExpression: x0._15
+                                                                            ReferenceExpression: x0
+                                                                              PsiElement(identifier)('x0')
+                                                                            PsiElement(.)('.')
+                                                                            PsiElement(identifier)('_15')
+                                                                          PsiElement(,)(',')
+                                                                          PsiWhiteSpace(' ')
+                                                                          ReferenceExpression: x1._15
+                                                                            ReferenceExpression: x1
+                                                                              PsiElement(identifier)('x1')
+                                                                            PsiElement(.)('.')
+                                                                            PsiElement(identifier)('_15')
+                                                                          PsiElement())(')')
+                                                                    PsiWhiteSpace('\n                                ')
+                                                                    IfStatement
+                                                                      PsiElement(if)('if')
+                                                                      PsiWhiteSpace(' ')
+                                                                      PsiElement(()('(')
+                                                                      InfixExpression
+                                                                        ReferenceExpression: cmp
+                                                                          PsiElement(identifier)('cmp')
+                                                                        PsiWhiteSpace(' ')
+                                                                        ReferenceExpression: !=
+                                                                          PsiElement(identifier)('!=')
+                                                                        PsiWhiteSpace(' ')
+                                                                        Literal
+                                                                          PsiElement(integer)('0')
+                                                                      PsiElement())(')')
+                                                                      PsiWhiteSpace(' ')
+                                                                      ReferenceExpression: cmp
+                                                                        PsiElement(identifier)('cmp')
+                                                                      PsiWhiteSpace(' ')
+                                                                      PsiElement(else)('else')
+                                                                      PsiWhiteSpace(' ')
+                                                                      BlockExpression
+                                                                        PsiElement({)('{')
+                                                                        PsiWhiteSpace('\n                                  ')
+                                                                        AssignStatement
+                                                                          ReferenceExpression: cmp
+                                                                            PsiElement(identifier)('cmp')
+                                                                          PsiWhiteSpace(' ')
+                                                                          PsiElement(=)('=')
+                                                                          PsiWhiteSpace(' ')
+                                                                          MethodCall
+                                                                            ReferenceExpression: structure16.compare
+                                                                              ReferenceExpression: structure16
+                                                                                PsiElement(identifier)('structure16')
+                                                                              PsiElement(.)('.')
+                                                                              PsiElement(identifier)('compare')
+                                                                            ArgumentList
+                                                                              PsiElement(()('(')
+                                                                              ReferenceExpression: x0._16
+                                                                                ReferenceExpression: x0
+                                                                                  PsiElement(identifier)('x0')
+                                                                                PsiElement(.)('.')
+                                                                                PsiElement(identifier)('_16')
+                                                                              PsiElement(,)(',')
+                                                                              PsiWhiteSpace(' ')
+                                                                              ReferenceExpression: x1._16
+                                                                                ReferenceExpression: x1
+                                                                                  PsiElement(identifier)('x1')
+                                                                                PsiElement(.)('.')
+                                                                                PsiElement(identifier)('_16')
+                                                                              PsiElement())(')')
+                                                                        PsiWhiteSpace('\n                                  ')
+                                                                        IfStatement
+                                                                          PsiElement(if)('if')
+                                                                          PsiWhiteSpace(' ')
+                                                                          PsiElement(()('(')
+                                                                          InfixExpression
+                                                                            ReferenceExpression: cmp
+                                                                              PsiElement(identifier)('cmp')
+                                                                            PsiWhiteSpace(' ')
+                                                                            ReferenceExpression: !=
+                                                                              PsiElement(identifier)('!=')
+                                                                            PsiWhiteSpace(' ')
+                                                                            Literal
+                                                                              PsiElement(integer)('0')
+                                                                          PsiElement())(')')
+                                                                          PsiWhiteSpace(' ')
+                                                                          ReferenceExpression: cmp
+                                                                            PsiElement(identifier)('cmp')
+                                                                          PsiWhiteSpace(' ')
+                                                                          PsiElement(else)('else')
+                                                                          PsiWhiteSpace(' ')
+                                                                          BlockExpression
+                                                                            PsiElement({)('{')
+                                                                            PsiWhiteSpace('\n                                    ')
+                                                                            AssignStatement
+                                                                              ReferenceExpression: cmp
+                                                                                PsiElement(identifier)('cmp')
+                                                                              PsiWhiteSpace(' ')
+                                                                              PsiElement(=)('=')
+                                                                              PsiWhiteSpace(' ')
+                                                                              MethodCall
+                                                                                ReferenceExpression: structure17.compare
+                                                                                  ReferenceExpression: structure17
+                                                                                    PsiElement(identifier)('structure17')
+                                                                                  PsiElement(.)('.')
+                                                                                  PsiElement(identifier)('compare')
+                                                                                ArgumentList
+                                                                                  PsiElement(()('(')
+                                                                                  ReferenceExpression: x0._17
+                                                                                    ReferenceExpression: x0
+                                                                                      PsiElement(identifier)('x0')
+                                                                                    PsiElement(.)('.')
+                                                                                    PsiElement(identifier)('_17')
+                                                                                  PsiElement(,)(',')
+                                                                                  PsiWhiteSpace(' ')
+                                                                                  ReferenceExpression: x1._17
+                                                                                    ReferenceExpression: x1
+                                                                                      PsiElement(identifier)('x1')
+                                                                                    PsiElement(.)('.')
+                                                                                    PsiElement(identifier)('_17')
+                                                                                  PsiElement())(')')
+                                                                            PsiWhiteSpace('\n                                    ')
+                                                                            IfStatement
+                                                                              PsiElement(if)('if')
+                                                                              PsiWhiteSpace(' ')
+                                                                              PsiElement(()('(')
+                                                                              InfixExpression
+                                                                                ReferenceExpression: cmp
+                                                                                  PsiElement(identifier)('cmp')
+                                                                                PsiWhiteSpace(' ')
+                                                                                ReferenceExpression: !=
+                                                                                  PsiElement(identifier)('!=')
+                                                                                PsiWhiteSpace(' ')
+                                                                                Literal
+                                                                                  PsiElement(integer)('0')
+                                                                              PsiElement())(')')
+                                                                              PsiWhiteSpace(' ')
+                                                                              ReferenceExpression: cmp
+                                                                                PsiElement(identifier)('cmp')
+                                                                              PsiWhiteSpace(' ')
+                                                                              PsiElement(else)('else')
+                                                                              PsiWhiteSpace(' ')
+                                                                              BlockExpression
+                                                                                PsiElement({)('{')
+                                                                                PsiWhiteSpace('\n                                      ')
+                                                                                AssignStatement
+                                                                                  ReferenceExpression: cmp
+                                                                                    PsiElement(identifier)('cmp')
+                                                                                  PsiWhiteSpace(' ')
+                                                                                  PsiElement(=)('=')
+                                                                                  PsiWhiteSpace(' ')
+                                                                                  MethodCall
+                                                                                    ReferenceExpression: structure18.compare
+                                                                                      ReferenceExpression: structure18
+                                                                                        PsiElement(identifier)('structure18')
+                                                                                      PsiElement(.)('.')
+                                                                                      PsiElement(identifier)('compare')
+                                                                                    ArgumentList
+                                                                                      PsiElement(()('(')
+                                                                                      ReferenceExpression: x0._18
+                                                                                        ReferenceExpression: x0
+                                                                                          PsiElement(identifier)('x0')
+                                                                                        PsiElement(.)('.')
+                                                                                        PsiElement(identifier)('_18')
+                                                                                      PsiElement(,)(',')
+                                                                                      PsiWhiteSpace(' ')
+                                                                                      ReferenceExpression: x1._18
+                                                                                        ReferenceExpression: x1
+                                                                                          PsiElement(identifier)('x1')
+                                                                                        PsiElement(.)('.')
+                                                                                        PsiElement(identifier)('_18')
+                                                                                      PsiElement())(')')
+                                                                                PsiWhiteSpace('\n                                      ')
+                                                                                IfStatement
+                                                                                  PsiElement(if)('if')
+                                                                                  PsiWhiteSpace(' ')
+                                                                                  PsiElement(()('(')
+                                                                                  InfixExpression
+                                                                                    ReferenceExpression: cmp
+                                                                                      PsiElement(identifier)('cmp')
+                                                                                    PsiWhiteSpace(' ')
+                                                                                    ReferenceExpression: !=
+                                                                                      PsiElement(identifier)('!=')
+                                                                                    PsiWhiteSpace(' ')
+                                                                                    Literal
+                                                                                      PsiElement(integer)('0')
+                                                                                  PsiElement())(')')
+                                                                                  PsiWhiteSpace(' ')
+                                                                                  ReferenceExpression: cmp
+                                                                                    PsiElement(identifier)('cmp')
+                                                                                  PsiWhiteSpace(' ')
+                                                                                  PsiElement(else)('else')
+                                                                                  PsiWhiteSpace(' ')
+                                                                                  BlockExpression
+                                                                                    PsiElement({)('{')
+                                                                                    PsiWhiteSpace('\n                                        ')
+                                                                                    AssignStatement
+                                                                                      ReferenceExpression: cmp
+                                                                                        PsiElement(identifier)('cmp')
+                                                                                      PsiWhiteSpace(' ')
+                                                                                      PsiElement(=)('=')
+                                                                                      PsiWhiteSpace(' ')
+                                                                                      MethodCall
+                                                                                        ReferenceExpression: structure19.compare
+                                                                                          ReferenceExpression: structure19
+                                                                                            PsiElement(identifier)('structure19')
+                                                                                          PsiElement(.)('.')
+                                                                                          PsiElement(identifier)('compare')
+                                                                                        ArgumentList
+                                                                                          PsiElement(()('(')
+                                                                                          ReferenceExpression: x0._19
+                                                                                            ReferenceExpression: x0
+                                                                                              PsiElement(identifier)('x0')
+                                                                                            PsiElement(.)('.')
+                                                                                            PsiElement(identifier)('_19')
+                                                                                          PsiElement(,)(',')
+                                                                                          PsiWhiteSpace(' ')
+                                                                                          ReferenceExpression: x1._19
+                                                                                            ReferenceExpression: x1
+                                                                                              PsiElement(identifier)('x1')
+                                                                                            PsiElement(.)('.')
+                                                                                            PsiElement(identifier)('_19')
+                                                                                          PsiElement())(')')
+                                                                                    PsiWhiteSpace('\n                                        ')
+                                                                                    IfStatement
+                                                                                      PsiElement(if)('if')
+                                                                                      PsiWhiteSpace(' ')
+                                                                                      PsiElement(()('(')
+                                                                                      InfixExpression
+                                                                                        ReferenceExpression: cmp
+                                                                                          PsiElement(identifier)('cmp')
+                                                                                        PsiWhiteSpace(' ')
+                                                                                        ReferenceExpression: !=
+                                                                                          PsiElement(identifier)('!=')
+                                                                                        PsiWhiteSpace(' ')
+                                                                                        Literal
+                                                                                          PsiElement(integer)('0')
+                                                                                      PsiElement())(')')
+                                                                                      PsiWhiteSpace(' ')
+                                                                                      ReferenceExpression: cmp
+                                                                                        PsiElement(identifier)('cmp')
+                                                                                      PsiWhiteSpace(' ')
+                                                                                      PsiElement(else)('else')
+                                                                                      PsiWhiteSpace(' ')
+                                                                                      BlockExpression
+                                                                                        PsiElement({)('{')
+                                                                                        PsiWhiteSpace('\n                                          ')
+                                                                                        AssignStatement
+                                                                                          ReferenceExpression: cmp
+                                                                                            PsiElement(identifier)('cmp')
+                                                                                          PsiWhiteSpace(' ')
+                                                                                          PsiElement(=)('=')
+                                                                                          PsiWhiteSpace(' ')
+                                                                                          MethodCall
+                                                                                            ReferenceExpression: structure20.compare
+                                                                                              ReferenceExpression: structure20
+                                                                                                PsiElement(identifier)('structure20')
+                                                                                              PsiElement(.)('.')
+                                                                                              PsiElement(identifier)('compare')
+                                                                                            ArgumentList
+                                                                                              PsiElement(()('(')
+                                                                                              ReferenceExpression: x0._20
+                                                                                                ReferenceExpression: x0
+                                                                                                  PsiElement(identifier)('x0')
+                                                                                                PsiElement(.)('.')
+                                                                                                PsiElement(identifier)('_20')
+                                                                                              PsiElement(,)(',')
+                                                                                              PsiWhiteSpace(' ')
+                                                                                              ReferenceExpression: x1._20
+                                                                                                ReferenceExpression: x1
+                                                                                                  PsiElement(identifier)('x1')
+                                                                                                PsiElement(.)('.')
+                                                                                                PsiElement(identifier)('_20')
+                                                                                              PsiElement())(')')
+                                                                                        PsiWhiteSpace('\n                                          ')
+                                                                                        IfStatement
+                                                                                          PsiElement(if)('if')
+                                                                                          PsiWhiteSpace(' ')
+                                                                                          PsiElement(()('(')
+                                                                                          InfixExpression
+                                                                                            ReferenceExpression: cmp
+                                                                                              PsiElement(identifier)('cmp')
+                                                                                            PsiWhiteSpace(' ')
+                                                                                            ReferenceExpression: !=
+                                                                                              PsiElement(identifier)('!=')
+                                                                                            PsiWhiteSpace(' ')
+                                                                                            Literal
+                                                                                              PsiElement(integer)('0')
+                                                                                          PsiElement())(')')
+                                                                                          PsiWhiteSpace(' ')
+                                                                                          ReferenceExpression: cmp
+                                                                                            PsiElement(identifier)('cmp')
+                                                                                          PsiWhiteSpace(' ')
+                                                                                          PsiElement(else)('else')
+                                                                                          PsiWhiteSpace(' ')
+                                                                                          BlockExpression
+                                                                                            PsiElement({)('{')
+                                                                                            PsiWhiteSpace('\n                                            ')
+                                                                                            AssignStatement
+                                                                                              ReferenceExpression: cmp
+                                                                                                PsiElement(identifier)('cmp')
+                                                                                              PsiWhiteSpace(' ')
+                                                                                              PsiElement(=)('=')
+                                                                                              PsiWhiteSpace(' ')
+                                                                                              MethodCall
+                                                                                                ReferenceExpression: structure21.compare
+                                                                                                  ReferenceExpression: structure21
+                                                                                                    PsiElement(identifier)('structure21')
+                                                                                                  PsiElement(.)('.')
+                                                                                                  PsiElement(identifier)('compare')
+                                                                                                ArgumentList
+                                                                                                  PsiElement(()('(')
+                                                                                                  ReferenceExpression: x0._21
+                                                                                                    ReferenceExpression: x0
+                                                                                                      PsiElement(identifier)('x0')
+                                                                                                    PsiElement(.)('.')
+                                                                                                    PsiElement(identifier)('_21')
+                                                                                                  PsiElement(,)(',')
+                                                                                                  PsiWhiteSpace(' ')
+                                                                                                  ReferenceExpression: x1._21
+                                                                                                    ReferenceExpression: x1
+                                                                                                      PsiElement(identifier)('x1')
+                                                                                                    PsiElement(.)('.')
+                                                                                                    PsiElement(identifier)('_21')
+                                                                                                  PsiElement())(')')
+                                                                                            PsiWhiteSpace('\n                                            ')
+                                                                                            IfStatement
+                                                                                              PsiElement(if)('if')
+                                                                                              PsiWhiteSpace(' ')
+                                                                                              PsiElement(()('(')
+                                                                                              InfixExpression
+                                                                                                ReferenceExpression: cmp
+                                                                                                  PsiElement(identifier)('cmp')
+                                                                                                PsiWhiteSpace(' ')
+                                                                                                ReferenceExpression: !=
+                                                                                                  PsiElement(identifier)('!=')
+                                                                                                PsiWhiteSpace(' ')
+                                                                                                Literal
+                                                                                                  PsiElement(integer)('0')
+                                                                                              PsiElement())(')')
+                                                                                              PsiWhiteSpace(' ')
+                                                                                              ReferenceExpression: cmp
+                                                                                                PsiElement(identifier)('cmp')
+                                                                                              PsiWhiteSpace(' ')
+                                                                                              PsiElement(else)('else')
+                                                                                              PsiWhiteSpace(' ')
+                                                                                              BlockExpression
+                                                                                                PsiElement({)('{')
+                                                                                                PsiWhiteSpace('\n                                              ')
+                                                                                                AssignStatement
+                                                                                                  ReferenceExpression: cmp
+                                                                                                    PsiElement(identifier)('cmp')
+                                                                                                  PsiWhiteSpace(' ')
+                                                                                                  PsiElement(=)('=')
+                                                                                                  PsiWhiteSpace(' ')
+                                                                                                  MethodCall
+                                                                                                    ReferenceExpression: structure22.compare
+                                                                                                      ReferenceExpression: structure22
+                                                                                                        PsiElement(identifier)('structure22')
+                                                                                                      PsiElement(.)('.')
+                                                                                                      PsiElement(identifier)('compare')
+                                                                                                    ArgumentList
+                                                                                                      PsiElement(()('(')
+                                                                                                      ReferenceExpression: x0._22
+                                                                                                        ReferenceExpression: x0
+                                                                                                          PsiElement(identifier)('x0')
+                                                                                                        PsiElement(.)('.')
+                                                                                                        PsiElement(identifier)('_22')
+                                                                                                      PsiElement(,)(',')
+                                                                                                      PsiWhiteSpace(' ')
+                                                                                                      ReferenceExpression: x1._22
+                                                                                                        ReferenceExpression: x1
+                                                                                                          PsiElement(identifier)('x1')
+                                                                                                        PsiElement(.)('.')
+                                                                                                        PsiElement(identifier)('_22')
+                                                                                                      PsiElement())(')')
+                                                                                                PsiWhiteSpace('\n                                              ')
+                                                                                                IfStatement
+                                                                                                  PsiElement(if)('if')
+                                                                                                  PsiWhiteSpace(' ')
+                                                                                                  PsiElement(()('(')
+                                                                                                  InfixExpression
+                                                                                                    ReferenceExpression: cmp
+                                                                                                      PsiElement(identifier)('cmp')
+                                                                                                    PsiWhiteSpace(' ')
+                                                                                                    ReferenceExpression: !=
+                                                                                                      PsiElement(identifier)('!=')
+                                                                                                    PsiWhiteSpace(' ')
+                                                                                                    Literal
+                                                                                                      PsiElement(integer)('0')
+                                                                                                  PsiElement())(')')
+                                                                                                  PsiWhiteSpace(' ')
+                                                                                                  ReferenceExpression: cmp
+                                                                                                    PsiElement(identifier)('cmp')
+                                                                                                  PsiWhiteSpace(' ')
+                                                                                                  PsiElement(else)('else')
+                                                                                                  PsiWhiteSpace(' ')
+                                                                                                  BlockExpression
+                                                                                                    PsiElement({)('{')
+                                                                                                    PsiWhiteSpace('\n                                                ')
+                                                                                                    Literal
+                                                                                                      PsiElement(integer)('0')
+                                                                                                    PsiWhiteSpace('\n                                              ')
+                                                                                                    PsiElement(})('}')
+                                                                                                PsiWhiteSpace('\n                                            ')
+                                                                                                PsiElement(})('}')
+                                                                                            PsiWhiteSpace('\n                                          ')
+                                                                                            PsiElement(})('}')
+                                                                                        PsiWhiteSpace('\n                                        ')
+                                                                                        PsiElement(})('}')
+                                                                                    PsiWhiteSpace('\n                                      ')
+                                                                                    PsiElement(})('}')
+                                                                                PsiWhiteSpace('\n                                    ')
+                                                                                PsiElement(})('}')
+                                                                            PsiWhiteSpace('\n                                  ')
+                                                                            PsiElement(})('}')
+                                                                        PsiWhiteSpace('\n                                ')
+                                                                        PsiElement(})('}')
+                                                                    PsiWhiteSpace('\n                              ')
+                                                                    PsiElement(})('}')
+                                                                PsiWhiteSpace('\n                            ')
+                                                                PsiElement(})('}')
+                                                            PsiWhiteSpace('\n                          ')
+                                                            PsiElement(})('}')
+                                                        PsiWhiteSpace('\n                        ')
+                                                        PsiElement(})('}')
+                                                    PsiWhiteSpace('\n                      ')
+                                                    PsiElement(})('}')
+                                                PsiWhiteSpace('\n                    ')
+                                                PsiElement(})('}')
+                                            PsiWhiteSpace('\n                  ')
+                                            PsiElement(})('}')
+                                        PsiWhiteSpace('\n                ')
+                                        PsiElement(})('}')
+                                    PsiWhiteSpace('\n              ')
+                                    PsiElement(})('}')
+                                PsiWhiteSpace('\n            ')
+                                PsiElement(})('}')
+                            PsiWhiteSpace('\n          ')
+                            PsiElement(})('}')
+                        PsiWhiteSpace('\n        ')
+                        PsiElement(})('}')
+                    PsiWhiteSpace('\n      ')
+                    PsiElement(})('}')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+            PsiWhiteSpace('\n')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: eqv
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('eqv')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x0
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x0')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  TupleType: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleTypeElement: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: D
+                        CodeReferenceElement: D
+                          PsiElement(identifier)('D')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: E
+                        CodeReferenceElement: E
+                          PsiElement(identifier)('E')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: F
+                        CodeReferenceElement: F
+                          PsiElement(identifier)('F')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: G
+                        CodeReferenceElement: G
+                          PsiElement(identifier)('G')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: H
+                        CodeReferenceElement: H
+                          PsiElement(identifier)('H')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: I
+                        CodeReferenceElement: I
+                          PsiElement(identifier)('I')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: J
+                        CodeReferenceElement: J
+                          PsiElement(identifier)('J')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: K
+                        CodeReferenceElement: K
+                          PsiElement(identifier)('K')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: L
+                        CodeReferenceElement: L
+                          PsiElement(identifier)('L')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: M
+                        CodeReferenceElement: M
+                          PsiElement(identifier)('M')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: N
+                        CodeReferenceElement: N
+                          PsiElement(identifier)('N')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: O
+                        CodeReferenceElement: O
+                          PsiElement(identifier)('O')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: P
+                        CodeReferenceElement: P
+                          PsiElement(identifier)('P')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: Q
+                        CodeReferenceElement: Q
+                          PsiElement(identifier)('Q')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: S
+                        CodeReferenceElement: S
+                          PsiElement(identifier)('S')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: U
+                        CodeReferenceElement: U
+                          PsiElement(identifier)('U')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: V
+                        CodeReferenceElement: V
+                          PsiElement(identifier)('V')
+                    PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: x1
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x1')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  TupleType: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleTypeElement: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: D
+                        CodeReferenceElement: D
+                          PsiElement(identifier)('D')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: E
+                        CodeReferenceElement: E
+                          PsiElement(identifier)('E')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: F
+                        CodeReferenceElement: F
+                          PsiElement(identifier)('F')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: G
+                        CodeReferenceElement: G
+                          PsiElement(identifier)('G')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: H
+                        CodeReferenceElement: H
+                          PsiElement(identifier)('H')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: I
+                        CodeReferenceElement: I
+                          PsiElement(identifier)('I')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: J
+                        CodeReferenceElement: J
+                          PsiElement(identifier)('J')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: K
+                        CodeReferenceElement: K
+                          PsiElement(identifier)('K')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: L
+                        CodeReferenceElement: L
+                          PsiElement(identifier)('L')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: M
+                        CodeReferenceElement: M
+                          PsiElement(identifier)('M')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: N
+                        CodeReferenceElement: N
+                          PsiElement(identifier)('N')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: O
+                        CodeReferenceElement: O
+                          PsiElement(identifier)('O')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: P
+                        CodeReferenceElement: P
+                          PsiElement(identifier)('P')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: Q
+                        CodeReferenceElement: Q
+                          PsiElement(identifier)('Q')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: S
+                        CodeReferenceElement: S
+                          PsiElement(identifier)('S')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: U
+                        CodeReferenceElement: U
+                          PsiElement(identifier)('U')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleTypeElement: V
+                        CodeReferenceElement: V
+                          PsiElement(identifier)('V')
+                    PsiElement())(')')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleTypeElement: Boolean
+            CodeReferenceElement: Boolean
+              PsiElement(identifier)('Boolean')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: super.eqv
+              SuperReference
+                PsiElement(super)('super')
+              PsiElement(.)('.')
+              PsiElement(identifier)('eqv')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: x0
+                PsiElement(identifier)('x0')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: x1
+                PsiElement(identifier)('x1')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
