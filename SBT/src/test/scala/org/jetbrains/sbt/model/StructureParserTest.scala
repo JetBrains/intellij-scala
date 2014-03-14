@@ -58,6 +58,7 @@ object StructureParserTest {
       organization = "some-organization",
       version = "1.2.3",
       base = new File("$BASE"),
+      target = new File(new File("$BASE"), "target"),
       build,
       configurations = Seq(configuration),
       java = Some(java),
