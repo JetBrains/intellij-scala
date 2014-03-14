@@ -8,7 +8,13 @@ import com.intellij.openapi.util.text.StringUtil
  */
 
 object InterpolatedStringFormatter extends StringFormatter {
-  def format(parts: Seq[StringPart]) = format(parts, toMultiline = false)
+  def format(parts: Seq[StringPart]) = {
+    val toMultiline = parts.exists {
+      case Text(s) => s.contains("\n")
+      case _ => false
+    }
+    format(parts, toMultiline)
+  }
 
   def format(parts: Seq[StringPart], toMultiline: Boolean) = {
     val content = formatContent(parts, toMultiline)
@@ -42,7 +48,7 @@ object InterpolatedStringFormatter extends StringFormatter {
     val ind = parts.indexOf(it)
     if (ind + 1 < parts.size) {
       parts(ind + 1) match {
-        case Text(s) => return s.isEmpty || s.startsWith(" ")
+        case Text(s) => return s.isEmpty || s.charAt(0).isWhitespace
         case _ =>  true
       }
     }

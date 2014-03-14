@@ -78,13 +78,10 @@ class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
       case interpolated: ScInterpolatedStringLiteral =>
         val prefix = interpolated.reference.map(_.getText).getOrElse("")
         var toReplace: PsiElement = interpolated
-        val parts = literal.getParent match {
-          case elem @ WithStrippedMargin(`literal`, marginChar) =>
-            toReplace = elem
-            StripMarginParser.parse(elem).getOrElse(Nil)
-          case _ childOf (elem @ WithStrippedMargin(`literal`, marginChar)) =>
-            toReplace = elem
-            StripMarginParser.parse(elem).getOrElse(Nil)
+        val parts = literal match {
+          case WithStrippedMargin(expr, marginChar) =>
+            toReplace = expr
+            StripMarginParser.parse(literal).getOrElse(Nil)
           case _ => InterpolatedStringParser.parse(interpolated).getOrElse(Nil)
         }
         val content = InterpolatedStringFormatter.formatContent(parts, toMultiline = false)
@@ -94,13 +91,10 @@ class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
         toReplace.replace(newLiteral)
       case _ =>
         var toReplace: PsiElement = literal
-        val parts = literal.getParent match {
-          case elem @ WithStrippedMargin(`literal`, marginChar) =>
-            toReplace = elem
-            StripMarginParser.parse(elem).getOrElse(Nil)
-          case _ childOf (elem @ WithStrippedMargin(`literal`, marginChar)) =>
-            toReplace = elem
-            StripMarginParser.parse(elem).getOrElse(Nil)
+        val parts = literal match {
+          case WithStrippedMargin(expr, marginChar) =>
+            toReplace = expr
+            StripMarginParser.parse(literal).getOrElse(Nil)
           case _ =>
             literal.getValue match {
               case s: String => List(Text(s))
