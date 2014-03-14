@@ -62,4 +62,6 @@ class CaretModelStub extends CaretModel {
   override def runBatchCaretOperation(runnable: Runnable): Unit = ???
 
   override def runForEachCaret(action: CaretAction): Unit = ???
+
+  override def getCaretsAndSelections: util.List[CaretState] = ???
 }
