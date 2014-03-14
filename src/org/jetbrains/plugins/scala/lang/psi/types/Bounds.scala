@@ -20,7 +20,12 @@ object Bounds {
     seq.reduce((l: ScType, r: ScType) => lub(l,r))
   }
 
-  private class Options(val tp: ScType) {
+  private class Options(_tp: ScType) extends {
+    val tp = _tp match {
+      case ex: ScExistentialType => ex.skolem
+      case tp => tp
+    }
+  } with AnyRef {
     val extract: Option[(PsiClass, ScSubstitutor)] = ScType.extractClassType(tp)
     def isEmpty = extract == None
     val projectionOption: Option[ScType] = ScType.projectionOption(tp)
