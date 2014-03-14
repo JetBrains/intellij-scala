@@ -1,0 +1,8 @@
+val x = 0
+val a = s"""blah$x blah<caret>""".stripMargin
+-----
+val x = 0
+val a =
+  s"""blah$x blah
+      |<caret>
+   """.stripMargin

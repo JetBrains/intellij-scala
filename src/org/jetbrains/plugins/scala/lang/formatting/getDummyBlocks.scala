@@ -516,7 +516,7 @@ object getDummyBlocks {
     val validAlignment = Alignment.createAlignment(true)
     val wrap: Wrap = Wrap.createWrap(WrapType.NONE, true)
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    val marginChar = MultilineStringEnterHandler.getMarginChar(node.getPsi)
+    val marginChar = "" + MultilineStringEnterHandler.getMarginChar(node.getPsi)
     val marginIndent = scalaSettings.MULTI_LINE_STRING_MARGIN_INDENT
 
     val indent = Indent.getNoneIndent
