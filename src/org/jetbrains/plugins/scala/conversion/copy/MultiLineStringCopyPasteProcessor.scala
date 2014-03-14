@@ -25,7 +25,7 @@ class MultiLineStringCopyPasteProcessor extends CopyPastePreProcessor {
     if (element == null || element.getNode.getElementType != ScalaTokenTypes.tMULTILINE_STRING ||
       element.getTextRange.getStartOffset > startOffsets(0) || element.getTextRange.getEndOffset < endOffsets(0)) return null
 
-    val marginChar = MultilineStringEnterHandler.getMarginChar(element).charAt(0)
+    val marginChar = MultilineStringEnterHandler.getMarginChar(element)
 
     text stripMargin marginChar
   }

@@ -5,8 +5,9 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import lang.psi.api.expr.{ScExpression, ScInfixExpr}
 import lang.psi.types.result.TypingContext
-import lang.psi.types.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScProjectionType, ScDesignatorType}
 import extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 
 /**
  * Pavel Fatin
@@ -28,8 +29,9 @@ object StringConcatenationParser extends StringParser {
     case it => FormattedStringParser.parse(it).map(_.toList).getOrElse(Injection(it, None) :: Nil)
   }
 
-  private def isString(exp: ScExpression) = exp.getType(TypingContext.empty).toOption match {
+  def isString(exp: ScExpression) = exp.getType(TypingContext.empty).toOption match {
     case Some(ScDesignatorType(element)) => element.name == "String"
+    case Some(ScProjectionType(ScDesignatorType(predef), ta: ScTypeAlias, _))  => predef.name == "Predef" && ta.name == "String"
     case _ => false
   }
 }
