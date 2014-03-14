@@ -2,6 +2,7 @@
   <library name="community-plugins">
     <CLASSES>
       <root url="file://$CARDEA_HOME$/plugins/copyright/lib" />
+      <root url="file://$CARDEA_HOME$/plugins/gradle/lib" />
       <root url="file://$CARDEA_HOME$/plugins/IntelliLang/lib" />
       <root url="file://$CARDEA_HOME$/plugins/java-i18n/lib" />
       <root url="file://$CARDEA_HOME$/plugins/maven/lib" />
@@ -10,6 +11,7 @@
     <JAVADOC />
     <SOURCES />
     <jarDirectory url="file://$CARDEA_HOME$/plugins/copyright/lib" recursive="false" />
+    <jarDirectory url="file://$CARDEA_HOME$/plugins/gradle/lib" recursive="false" />
     <jarDirectory url="file://$CARDEA_HOME$/plugins/IntelliLang/lib" recursive="false" />
     <jarDirectory url="file://$CARDEA_HOME$/plugins/java-i18n/lib" recursive="false" />
     <jarDirectory url="file://$CARDEA_HOME$/plugins/maven/lib" recursive="false" />

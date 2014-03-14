@@ -5,7 +5,7 @@ import java.io.File
 
 case class Structure(projects: Seq[Project], repository: Option[Repository])
 
-case class Project(id: String, name: String, organization: String, version: String, base: File, build: Build, configurations: Seq[Configuration], java: Option[Java], scala: Option[Scala], dependencies: Dependencies)
+case class Project(id: String, name: String, organization: String, version: String, base: File, target: File, build: Build, configurations: Seq[Configuration], java: Option[Java], scala: Option[Scala], dependencies: Dependencies)
 
 case class Build(imports: Seq[String], classes: Seq[File], docs: Seq[File], sources: Seq[File])
 
