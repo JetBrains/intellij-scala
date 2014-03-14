@@ -22,7 +22,7 @@ object Sbt {
 
   val BuildModuleName = "SBT module"
 
-  val BuildModuleDescription = "Create empty SBT project"
+  val BuildModuleDescription = "SBT modules are used to mark content roots and to provide libraries for SBT project definitions"
 
   val BuildLibraryName = "sbt-and-plugins"
 
