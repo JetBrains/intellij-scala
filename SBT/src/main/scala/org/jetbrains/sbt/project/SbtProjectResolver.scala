@@ -177,7 +177,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result.storePaths(ExternalSystemSourceType.TEST, testSources.map(_.path))
     result.storePaths(ExternalSystemSourceType.TEST_RESOURCE, testResources.map(_.path))
 
-    result.storePath(ExternalSystemSourceType.EXCLUDED, project.target.path)
+    // We cannot exclude the whole ./target/ directory because of generated sources
+//    result.storePath(ExternalSystemSourceType.EXCLUDED, project.target.path)
 
     result
   }
