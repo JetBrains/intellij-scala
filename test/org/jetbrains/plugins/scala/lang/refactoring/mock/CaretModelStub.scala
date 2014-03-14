@@ -58,9 +58,9 @@ class CaretModelStub extends CaretModel {
 
   override def supportsMultipleCarets(): Boolean = false
 
-  override def getCaretsAndSelections: util.List[CaretState] = ???
-
   override def runBatchCaretOperation(runnable: Runnable): Unit = ???
 
   override def runForEachCaret(action: CaretAction): Unit = ???
+
+  override def getCaretsAndSelections: util.List[CaretState] = ???
 }
