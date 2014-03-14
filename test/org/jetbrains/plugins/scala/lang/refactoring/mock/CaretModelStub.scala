@@ -4,7 +4,6 @@ import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.editor.event.CaretListener
 import java.util
-import com.intellij.openapi.util.Segment
 
 /**
  * Pavel Fatin
@@ -58,6 +57,8 @@ class CaretModelStub extends CaretModel {
   override def getCurrentCaret: Caret = ???
 
   override def supportsMultipleCarets(): Boolean = false
+
+  override def getCaretsAndSelections: util.List[CaretState] = ???
 
   override def runBatchCaretOperation(runnable: Runnable): Unit = ???
 
