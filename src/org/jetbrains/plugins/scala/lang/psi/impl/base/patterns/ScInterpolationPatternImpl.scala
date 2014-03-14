@@ -4,14 +4,14 @@ package lang.psi.impl.base.patterns
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
-import org.jetbrains.plugins.scala.lang.psi.impl.base.{ScLiteralEscaper, PassthroughLiteralEscaper, ScInterpolationStableCodeReferenceElementImpl}
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScInterpolationStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.psi.impl.source.tree.injected.StringLiteralEscaper
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 
 /**
  * @author kfeodorov
@@ -19,22 +19,16 @@ import com.intellij.psi.impl.source.tree.injected.StringLiteralEscaper
  */
 class ScInterpolationPatternImpl (_node: ASTNode) extends ScalaPsiElementImpl(_node) with ScInterpolationPattern {
 
-  override def toString: String = "InterpolationPattern"
-
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
       case _ => super.accept(visitor)
     }
   }
-//TODO KOS
-//  override def getType(ctx: TypingContext) = { see ScConstructorPatternImpl implementation
-//    getLiteral.getType(TypingContext.empty)
-//  }
 
+  override def toString: String = "InterpolationPattern"
+  override def subpatterns: Seq[ScPattern] = Option(findChildByClassScala[ScPatternArgumentList](classOf[ScPatternArgumentList])).map(_.patterns).getOrElse(Seq.empty)
   override val node: ASTNode = _node
-
-  override def args: ScPatternArgumentList = findChildByClass(classOf[ScPatternArgumentList])
 
   override def ref: ScStableCodeReferenceElement = {
     val prefix = findChildByClass(classOf[ScInterpolatedPrefixReference])

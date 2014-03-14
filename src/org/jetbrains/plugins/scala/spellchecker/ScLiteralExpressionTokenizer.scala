@@ -10,8 +10,6 @@ import com.intellij.codeInsight.AnnotationUtil
 import java.util.Collections
 import com.intellij.spellchecker.inspections.PlainTextSplitter
 import lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.impl.base.{ScInterpolatedStringLiteralImpl, ScLiteralImpl}
-import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScInterpolationPatternImpl
 
 /**
  * @author Ksenia.Sautina
