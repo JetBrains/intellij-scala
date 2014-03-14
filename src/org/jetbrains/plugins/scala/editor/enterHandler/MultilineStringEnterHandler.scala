@@ -5,21 +5,19 @@ import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegateAdapter
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegate.Result
 import lang.psi.api.ScalaFile
-import lang.lexer.ScalaTokenTypes
 import lang.formatting.settings.ScalaCodeStyleSettings
 import com.intellij.openapi.util.{Ref, TextRange}
 import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScReferenceElement, ScLiteral}
-import com.intellij.psi.{PsiElement, PsiDocumentManager, PsiFile}
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import com.intellij.psi.PsiFile
 import lang.psi.api.expr._
-import collection.mutable.ArrayBuffer
-import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler
 import com.intellij.codeInsight.CodeInsightSettings
-import org.jetbrains.plugins.scala.extensions.toPsiElementExt
-import MultilineStringEnterHandler._
+import org.jetbrains.plugins.scala.util.MultilineStringUtil
+import MultilineStringUtil._
 import org.jetbrains.plugins.scala.format.StringConcatenationParser
+import org.jetbrains.plugins.scala.util.MultilineStringSettings
 
 /**
  * User: Dmitry Naydanov
@@ -71,22 +69,17 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
     if (!wasInMultilineString) return Result.Continue
     wasInMultilineString = false
 
-    val settings = CodeStyleSettingsManager.getInstance(element.getProject).getCurrentSettings
-    val scalaSettings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
-    
     val marginChar = getMarginChar(element)
-    val useTabs = settings useTabCharacter ScalaFileType.SCALA_FILE_TYPE
-    val tabSize = settings getTabSize ScalaFileType.SCALA_FILE_TYPE
-    val mlIndentSize = scalaSettings.MULTI_LINE_STRING_MARGIN_INDENT
+
+    val settings = new MultilineStringSettings(project)
+    import settings._
 
     val literal = findParentMLString(element).getOrElse(return Result.Continue)
     val literalOffset = literal.getTextRange.getStartOffset
     val firstMLQuote = interpolatorPrefix(literal) + multilineQuotes
     val firstMLQuoteLength = firstMLQuote.length
 
-    if (scalaSettings.MULTILINE_STRING_SUPORT == ScalaCodeStyleSettings.MULTILINE_STRING_NONE ||
-      offset - literalOffset < firstMLQuoteLength) return Result.Continue
-
+    if (supportLevel == ScalaCodeStyleSettings.MULTILINE_STRING_NONE || offset - literalOffset < firstMLQuoteLength) return Result.Continue
 
     def getLineByNumber(number: Int): String =
       document.getText(new TextRange(document.getLineStartOffset(number), document.getLineEndOffset(number)))
@@ -115,13 +108,6 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
       }
     }
 
-    def selectBySettings[T](ifIndent: => T)(ifAll: => T): T = {
-      scalaSettings.MULTILINE_STRING_SUPORT match {
-        case ScalaCodeStyleSettings.MULTILINE_STRING_QUOTES_AND_INDENT => ifIndent
-        case ScalaCodeStyleSettings.MULTILINE_STRING_ALL => ifAll
-      }
-    }
-
     def forceIndent(offset: Int, indent: Int, marginChar: Option[Char]) {
       val lineNumber = document.getLineNumber(offset)
       val lineStart = document.getLineStartOffset(lineNumber)
@@ -137,22 +123,8 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
       val currentLine = getLineByNumber(prevLineNumber + 1)
       val nextLine = if (document.getLineCount > prevLineNumber + 2) getLineByNumber(prevLineNumber + 2) else ""
 
-      def prefixLength(line: String) = if (useTabs) {
-        val tabsCount = line prefixLength (_ == '\t')
-        tabsCount*tabSize + line.substring(tabsCount).prefixLength(_ == ' ')
-      } else {
-        line prefixLength (_ == ' ')
-      }
       def prevLinePrefixAfterDelimiter(offsetInLine: Int): Int =
         if (prevLine.length > offsetInLine) prevLine.substring(offsetInLine).prefixLength(c => c == ' ' || c == '\t') else 0
-
-      def getPrefix(line: String) = getSmartSpaces(prefixLength(line))
-      def insertStripMargin() {
-        if (needAddStripMargin(element, "" + marginChar)) {
-          document.insertString(literal.getTextRange.getEndOffset,
-            if (marginChar == '|') ".stripMargin" else ".stripMargin(\'" + marginChar + "\')")
-        }
-      }
 
       val wasSingleLine = literal.getText.indexOf("\n") == literal.getText.lastIndexOf("\n")
       val lines = literal.getText.split("\n")
@@ -167,11 +139,9 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
           case ScInfixExpr(expr, op, `literal`) if op.refName == "+" && StringConcatenationParser.isString(expr) => Option(expr)
           case _ => None
         }
-        val needInsertNLBefore =
-          (!trimmedStartLine.startsWith(firstMLQuote) || inConcatenation.isDefined) &&
-            scalaSettings.MULTI_LINE_QUOTES_ON_NEW_LINE
+        val needInsertNLBefore = (!trimmedStartLine.startsWith(firstMLQuote) || inConcatenation.isDefined) && quotesOnNewLine
 
-        selectBySettings()(insertStripMargin())
+        selectBySettings()(insertStripMargin(document, literal, marginChar))
 
         val prevIndent =
           if (inConcatenation.isDefined) inConcatenation.map { expr =>
@@ -182,19 +152,19 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
           else prefixLength(prevLine)
 
         val needInsertIndentInt =
-          if (needInsertNLBefore && !inConcatenation.isDefined) settings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).INDENT_SIZE
+          if (needInsertNLBefore && !inConcatenation.isDefined) regularIndent
           else 0
 
         if (needInsertNLBefore) {
           insertNewLine(literalOffset, prevIndent + needInsertIndentInt, trimPreviousLine = true)
         }
 
-        val indentSize = prevIndent + needInsertIndentInt + interpolatorPrefixLength(literal) + mlIndentSize
+        val indentSize = prevIndent + needInsertIndentInt + interpolatorPrefixLength(literal) + marginIndent
 
         if (literal.getText.substring(offset - literalOffset) == multilineQuotes) {
           forceIndent(caretOffset, indentSize, marginCharOpt)
           caretMarker.setGreedyToRight(false)
-          insertNewLine(caretOffset, indentSize - mlIndentSize, trimPreviousLine = false)
+          insertNewLine(caretOffset, indentSize - marginIndent, trimPreviousLine = false)
           caretMarker.setGreedyToRight(true)
         } else {
           forceIndent(caretOffset, indentSize, marginCharOpt)
@@ -218,7 +188,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
 
         val prefixStriped = prevLine.substring(wsPrefix)
         
-        if (scalaSettings.MULTILINE_STRING_SUPORT == ScalaCodeStyleSettings.MULTILINE_STRING_QUOTES_AND_INDENT ||
+        if (supportLevel == ScalaCodeStyleSettings.MULTILINE_STRING_QUOTES_AND_INDENT ||
           !prefixStriped.startsWith(Seq(marginChar)) && !prefixStriped.startsWith(firstMLQuote) ||
                 !lines.map(_.trim).exists(_.startsWith(Seq(marginChar)))) {
           if (prevLineStartOffset < literalOffset) {
@@ -270,132 +240,4 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
 
     Result.Stop
   }
-}
-
-object MultilineStringEnterHandler {
-  val multilineQuotes = "\"\"\""
-  val multilineQuotesLength = multilineQuotes.length
-
-  def inMultilineString(element: PsiElement): Boolean = {
-    if (element == null) return false
-    element.getNode.getElementType match {
-      case ScalaTokenTypes.tMULTILINE_STRING | ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING => true
-      case ScalaTokenTypes.tINTERPOLATED_STRING_END | ScalaTokenTypes.tINTERPOLATED_STRING_INJECTION |
-           ScalaTokenTypes.tINTERPOLATED_STRING_ESCAPE =>
-        element.getParent match {
-          case lit: ScLiteral if lit.isMultiLineString => true
-          case _ => false
-        }
-      case _ => false
-    }
-  }
-
-  def needAddMethodCallToMLString(stringElement: PsiElement, methodName: String): Boolean = {
-    var parent = stringElement.getParent
-
-    do {
-      parent match {
-        case ref: ScReferenceElement => //if (ref.nameId.getText == methodName) return false
-        case l: ScLiteral => if (!l.isMultiLineString) return false
-        case i: ScInfixExpr => if (i.operation.getText == methodName) return false
-        case call: ScMethodCall =>
-          if (Option(call.getEffectiveInvokedExpr).forall {
-            case expr: ScExpression => expr.getText endsWith "." + methodName
-            case _ => false
-          }) return false
-        case _: ScParenthesisedExpr =>
-        case _ => return true
-      }
-
-      parent = parent.getParent
-    } while (parent != null)
-
-    true
-  }
-
-  def needAddStripMargin(element: PsiElement, marginChar: String) = {
-    def hasMarginChars(element: PsiElement) = element.getText.replace("\r", "").split("\n[ \t]*\\|").length > 1
-
-    findAllMethodCallsOnMLString(element, "stripMargin").isEmpty && !hasMarginChars(element)
-  }
-
-  def getMarginChar(element: PsiElement): Char = {
-    val calls = findAllMethodCallsOnMLString(element, "stripMargin")
-    val defaultMargin = CodeStyleSettingsManager.getInstance(element.getProject).getCurrentSettings.
-      getCustomSettings(classOf[ScalaCodeStyleSettings]).MARGIN_CHAR
-
-
-    if (calls.isEmpty) return defaultMargin
-
-    calls.apply(0).headOption match {
-      case Some(ScLiteral(c: Character)) => c
-      case _ => defaultMargin
-    }
-  }
-
-  def findAllMethodCallsOnMLString(stringElement: PsiElement, methodName: String): Array[Array[ScExpression]] = {
-    val calls = new ArrayBuffer[Array[ScExpression]]()
-    def callsArray = calls.toArray
-
-    var prevParent: PsiElement = findParentMLString(stringElement).getOrElse(return Array.empty)
-    var parent = prevParent.getParent
-
-    do {
-      parent match {
-        case lit: ScLiteral => if (!lit.isMultiLineString) return Array.empty
-        case inf: ScInfixExpr =>
-          if (inf.operation.getText == methodName){
-            if (prevParent != parent.getFirstChild) return callsArray
-            calls += Array(inf.rOp)
-          }
-        case call: ScMethodCall =>
-          call.getEffectiveInvokedExpr match {
-            case ref: ScReferenceExpression if ref.refName == methodName => calls += call.args.exprsArray
-            case _ =>
-          }
-        case exp: ScReferenceExpression =>
-          if (!exp.getParent.isInstanceOf[ScMethodCall]) {
-            calls += Array[ScExpression]()
-          }
-        case _: ScParenthesisedExpr =>
-        case _ => return callsArray
-      }
-
-      prevParent = parent
-      parent = parent.getParent
-    } while (parent != null)
-
-    callsArray
-  }
-
-  def findParentMLString(element: PsiElement): Option[ScLiteral] = {
-    (Iterator(element) ++ element.parentsInFile).collect {
-      case lit: ScLiteral if lit.isMultiLineString => lit
-    }.toStream.headOption
-  }
-
-  def isMLString(element: PsiElement): Boolean = element match {
-    case lit: ScLiteral if lit.isMultiLineString => true
-    case _ => false
-  }
-
-  def interpolatorPrefixLength(literal: ScLiteral) = interpolatorPrefix(literal).length
-
-  def interpolatorPrefix(literal: ScLiteral) = literal match {
-    case isl: ScInterpolatedStringLiteral if isl.reference.isDefined => isl.reference.get.refName
-    case _ => ""
-  }
-
-  def containsArgs(currentArgs: Array[Array[ScExpression]], argsToFind: String*): Boolean = {
-    val myArgs = argsToFind.sorted
-
-    for (arg <- currentArgs) {
-      val argsString = arg.map(_.getText).sorted
-
-      if (myArgs.sameElements(argsString) || myArgs.reverse.sameElements(argsString)) return true
-    }
-
-    false
-  }
-
 }

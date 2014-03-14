@@ -35,9 +35,9 @@ import refactoring.util.ScalaNamesUtil
 import scaladoc.lexer.ScalaDocTokenType
 import parser.ScalaElementTypes
 import psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.editor.enterHandler.MultilineStringEnterHandler
 import extensions._
 import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.formatting.processors.ScalaSpacingProcessor")
@@ -279,7 +279,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
     leftPsi match {
       case l: ScLiteral if l.isMultiLineString && rightNode == leftNode =>
-        val marginChar = MultilineStringEnterHandler.getMarginChar(leftPsi)
+        val marginChar = MultilineStringUtil.getMarginChar(leftPsi)
 
         if (leftString == marginChar && rightString != "\"\"\"" && rightString != marginChar) {
           return Spacing.getReadOnlySpacing

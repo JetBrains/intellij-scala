@@ -16,6 +16,8 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.format._
 import org.jetbrains.plugins.scala.extensions.childOf
+import org.jetbrains.plugins.scala.util.MultilineStringUtil._
+import org.jetbrains.plugins.scala.format.Text
 
 class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
   def getFamilyName: String = "Regular/Multi-line String conversion"
@@ -34,17 +36,22 @@ class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
     }
   }
 
+
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
     val lit: ScLiteral = PsiTreeUtil.getParentOfType(element, classOf[ScLiteral], false)
     if (lit == null || !lit.isString) return
     if (!FileModificationService.getInstance.preparePsiElementForWrite(element)) return
     val containingFile = element.getContainingFile
+
     if (lit.isMultiLineString) multilineToRegular(lit)
-    else regularToMultiline(lit)
+    else regularToMultiline(lit, editor)
+
     UndoUtil.markPsiFileForUndo(containingFile)
   }
 
-  def regularToMultiline(literal: ScLiteral) {
+  def regularToMultiline(literal: ScLiteral, editor: Editor) {
+    val document = editor.getDocument
+
     literal match {
       case interpolated: ScInterpolatedStringLiteral =>
         val prefix = interpolated.reference.map(_.getText).getOrElse("")
@@ -53,15 +60,16 @@ class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
         val quote = "\"\"\""
         val text = s"$prefix$quote$content$quote"
         val newLiteral = ScalaPsiElementFactory.createExpressionFromText(text, literal.getManager)
-        interpolated.replace(newLiteral)
+        val replaced = interpolated.replace(newLiteral)
+        addMarginsAndFormatMLString(replaced, document)
       case _ =>
         literal.getValue match {
           case s: String =>
-            val newString = ScalaPsiElementFactory.createExpressionFromText("\"\"\"" + s + "\"\"\"", literal.getManager)
-            literal.replace(newString)
+            val newString = ScalaPsiElementFactory.createExpressionFromText("\"\"\"" + s.replace("\r", "") + "\"\"\"", literal.getManager)
+            val replaced = literal.replace(newString)
+            addMarginsAndFormatMLString(replaced, document)
           case _ => Nil
         }
-
     }
   }
 
@@ -107,5 +115,6 @@ class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
           case _ =>
         }
     }
+
   }
 }
