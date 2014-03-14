@@ -1,0 +1,423 @@
+if (1) a else {
+  a = a
+  if (1) a else {
+    a = a
+    if (1) a else {
+      a = a
+      if (1) a else {
+        a = a
+        if (1) a else {
+          a = a
+          if (1) a else {
+            a = a
+            if (1) a else {
+              a = a
+              if (1) a else {
+                a = a
+                if (1) a else {
+                  a = a
+                  if (1) a else {
+                    a = a
+                    if (1) a else {
+                      a = a
+                      if (1) a else {
+                        a = a
+                        if (1) a else {
+                          a = a
+                          if (1) a else {
+                            a = a //that's all
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+-------
+ScalaFile
+  IfStatement
+    PsiElement(if)('if')
+    PsiWhiteSpace(' ')
+    PsiElement(()('(')
+    Literal
+      PsiElement(integer)('1')
+    PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    PsiElement(else)('else')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      AssignStatement
+        ReferenceExpression: a
+          PsiElement(identifier)('a')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: a
+          PsiElement(identifier)('a')
+      PsiWhiteSpace('\n  ')
+      IfStatement
+        PsiElement(if)('if')
+        PsiWhiteSpace(' ')
+        PsiElement(()('(')
+        Literal
+          PsiElement(integer)('1')
+        PsiElement())(')')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: a
+          PsiElement(identifier)('a')
+        PsiWhiteSpace(' ')
+        PsiElement(else)('else')
+        PsiWhiteSpace(' ')
+        BlockExpression
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          AssignStatement
+            ReferenceExpression: a
+              PsiElement(identifier)('a')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: a
+              PsiElement(identifier)('a')
+          PsiWhiteSpace('\n    ')
+          IfStatement
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            PsiElement(()('(')
+            Literal
+              PsiElement(integer)('1')
+            PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: a
+              PsiElement(identifier)('a')
+            PsiWhiteSpace(' ')
+            PsiElement(else)('else')
+            PsiWhiteSpace(' ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n      ')
+              AssignStatement
+                ReferenceExpression: a
+                  PsiElement(identifier)('a')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: a
+                  PsiElement(identifier)('a')
+              PsiWhiteSpace('\n      ')
+              IfStatement
+                PsiElement(if)('if')
+                PsiWhiteSpace(' ')
+                PsiElement(()('(')
+                Literal
+                  PsiElement(integer)('1')
+                PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: a
+                  PsiElement(identifier)('a')
+                PsiWhiteSpace(' ')
+                PsiElement(else)('else')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n        ')
+                  AssignStatement
+                    ReferenceExpression: a
+                      PsiElement(identifier)('a')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: a
+                      PsiElement(identifier)('a')
+                  PsiWhiteSpace('\n        ')
+                  IfStatement
+                    PsiElement(if)('if')
+                    PsiWhiteSpace(' ')
+                    PsiElement(()('(')
+                    Literal
+                      PsiElement(integer)('1')
+                    PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: a
+                      PsiElement(identifier)('a')
+                    PsiWhiteSpace(' ')
+                    PsiElement(else)('else')
+                    PsiWhiteSpace(' ')
+                    BlockExpression
+                      PsiElement({)('{')
+                      PsiWhiteSpace('\n          ')
+                      AssignStatement
+                        ReferenceExpression: a
+                          PsiElement(identifier)('a')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: a
+                          PsiElement(identifier)('a')
+                      PsiWhiteSpace('\n          ')
+                      IfStatement
+                        PsiElement(if)('if')
+                        PsiWhiteSpace(' ')
+                        PsiElement(()('(')
+                        Literal
+                          PsiElement(integer)('1')
+                        PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: a
+                          PsiElement(identifier)('a')
+                        PsiWhiteSpace(' ')
+                        PsiElement(else)('else')
+                        PsiWhiteSpace(' ')
+                        BlockExpression
+                          PsiElement({)('{')
+                          PsiWhiteSpace('\n            ')
+                          AssignStatement
+                            ReferenceExpression: a
+                              PsiElement(identifier)('a')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=)('=')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: a
+                              PsiElement(identifier)('a')
+                          PsiWhiteSpace('\n            ')
+                          IfStatement
+                            PsiElement(if)('if')
+                            PsiWhiteSpace(' ')
+                            PsiElement(()('(')
+                            Literal
+                              PsiElement(integer)('1')
+                            PsiElement())(')')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: a
+                              PsiElement(identifier)('a')
+                            PsiWhiteSpace(' ')
+                            PsiElement(else)('else')
+                            PsiWhiteSpace(' ')
+                            BlockExpression
+                              PsiElement({)('{')
+                              PsiWhiteSpace('\n              ')
+                              AssignStatement
+                                ReferenceExpression: a
+                                  PsiElement(identifier)('a')
+                                PsiWhiteSpace(' ')
+                                PsiElement(=)('=')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: a
+                                  PsiElement(identifier)('a')
+                              PsiWhiteSpace('\n              ')
+                              IfStatement
+                                PsiElement(if)('if')
+                                PsiWhiteSpace(' ')
+                                PsiElement(()('(')
+                                Literal
+                                  PsiElement(integer)('1')
+                                PsiElement())(')')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: a
+                                  PsiElement(identifier)('a')
+                                PsiWhiteSpace(' ')
+                                PsiElement(else)('else')
+                                PsiWhiteSpace(' ')
+                                BlockExpression
+                                  PsiElement({)('{')
+                                  PsiWhiteSpace('\n                ')
+                                  AssignStatement
+                                    ReferenceExpression: a
+                                      PsiElement(identifier)('a')
+                                    PsiWhiteSpace(' ')
+                                    PsiElement(=)('=')
+                                    PsiWhiteSpace(' ')
+                                    ReferenceExpression: a
+                                      PsiElement(identifier)('a')
+                                  PsiWhiteSpace('\n                ')
+                                  IfStatement
+                                    PsiElement(if)('if')
+                                    PsiWhiteSpace(' ')
+                                    PsiElement(()('(')
+                                    Literal
+                                      PsiElement(integer)('1')
+                                    PsiElement())(')')
+                                    PsiWhiteSpace(' ')
+                                    ReferenceExpression: a
+                                      PsiElement(identifier)('a')
+                                    PsiWhiteSpace(' ')
+                                    PsiElement(else)('else')
+                                    PsiWhiteSpace(' ')
+                                    BlockExpression
+                                      PsiElement({)('{')
+                                      PsiWhiteSpace('\n                  ')
+                                      AssignStatement
+                                        ReferenceExpression: a
+                                          PsiElement(identifier)('a')
+                                        PsiWhiteSpace(' ')
+                                        PsiElement(=)('=')
+                                        PsiWhiteSpace(' ')
+                                        ReferenceExpression: a
+                                          PsiElement(identifier)('a')
+                                      PsiWhiteSpace('\n                  ')
+                                      IfStatement
+                                        PsiElement(if)('if')
+                                        PsiWhiteSpace(' ')
+                                        PsiElement(()('(')
+                                        Literal
+                                          PsiElement(integer)('1')
+                                        PsiElement())(')')
+                                        PsiWhiteSpace(' ')
+                                        ReferenceExpression: a
+                                          PsiElement(identifier)('a')
+                                        PsiWhiteSpace(' ')
+                                        PsiElement(else)('else')
+                                        PsiWhiteSpace(' ')
+                                        BlockExpression
+                                          PsiElement({)('{')
+                                          PsiWhiteSpace('\n                    ')
+                                          AssignStatement
+                                            ReferenceExpression: a
+                                              PsiElement(identifier)('a')
+                                            PsiWhiteSpace(' ')
+                                            PsiElement(=)('=')
+                                            PsiWhiteSpace(' ')
+                                            ReferenceExpression: a
+                                              PsiElement(identifier)('a')
+                                          PsiWhiteSpace('\n                    ')
+                                          IfStatement
+                                            PsiElement(if)('if')
+                                            PsiWhiteSpace(' ')
+                                            PsiElement(()('(')
+                                            Literal
+                                              PsiElement(integer)('1')
+                                            PsiElement())(')')
+                                            PsiWhiteSpace(' ')
+                                            ReferenceExpression: a
+                                              PsiElement(identifier)('a')
+                                            PsiWhiteSpace(' ')
+                                            PsiElement(else)('else')
+                                            PsiWhiteSpace(' ')
+                                            BlockExpression
+                                              PsiElement({)('{')
+                                              PsiWhiteSpace('\n                      ')
+                                              AssignStatement
+                                                ReferenceExpression: a
+                                                  PsiElement(identifier)('a')
+                                                PsiWhiteSpace(' ')
+                                                PsiElement(=)('=')
+                                                PsiWhiteSpace(' ')
+                                                ReferenceExpression: a
+                                                  PsiElement(identifier)('a')
+                                              PsiWhiteSpace('\n                      ')
+                                              IfStatement
+                                                PsiElement(if)('if')
+                                                PsiWhiteSpace(' ')
+                                                PsiElement(()('(')
+                                                Literal
+                                                  PsiElement(integer)('1')
+                                                PsiElement())(')')
+                                                PsiWhiteSpace(' ')
+                                                ReferenceExpression: a
+                                                  PsiElement(identifier)('a')
+                                                PsiWhiteSpace(' ')
+                                                PsiElement(else)('else')
+                                                PsiWhiteSpace(' ')
+                                                BlockExpression
+                                                  PsiElement({)('{')
+                                                  PsiWhiteSpace('\n                        ')
+                                                  AssignStatement
+                                                    ReferenceExpression: a
+                                                      PsiElement(identifier)('a')
+                                                    PsiWhiteSpace(' ')
+                                                    PsiElement(=)('=')
+                                                    PsiWhiteSpace(' ')
+                                                    ReferenceExpression: a
+                                                      PsiElement(identifier)('a')
+                                                  PsiWhiteSpace('\n                        ')
+                                                  IfStatement
+                                                    PsiElement(if)('if')
+                                                    PsiWhiteSpace(' ')
+                                                    PsiElement(()('(')
+                                                    Literal
+                                                      PsiElement(integer)('1')
+                                                    PsiElement())(')')
+                                                    PsiWhiteSpace(' ')
+                                                    ReferenceExpression: a
+                                                      PsiElement(identifier)('a')
+                                                    PsiWhiteSpace(' ')
+                                                    PsiElement(else)('else')
+                                                    PsiWhiteSpace(' ')
+                                                    BlockExpression
+                                                      PsiElement({)('{')
+                                                      PsiWhiteSpace('\n                          ')
+                                                      AssignStatement
+                                                        ReferenceExpression: a
+                                                          PsiElement(identifier)('a')
+                                                        PsiWhiteSpace(' ')
+                                                        PsiElement(=)('=')
+                                                        PsiWhiteSpace(' ')
+                                                        ReferenceExpression: a
+                                                          PsiElement(identifier)('a')
+                                                      PsiWhiteSpace('\n                          ')
+                                                      IfStatement
+                                                        PsiElement(if)('if')
+                                                        PsiWhiteSpace(' ')
+                                                        PsiElement(()('(')
+                                                        Literal
+                                                          PsiElement(integer)('1')
+                                                        PsiElement())(')')
+                                                        PsiWhiteSpace(' ')
+                                                        ReferenceExpression: a
+                                                          PsiElement(identifier)('a')
+                                                        PsiWhiteSpace(' ')
+                                                        PsiElement(else)('else')
+                                                        PsiWhiteSpace(' ')
+                                                        BlockExpression
+                                                          PsiElement({)('{')
+                                                          PsiWhiteSpace('\n                            ')
+                                                          AssignStatement
+                                                            ReferenceExpression: a
+                                                              PsiElement(identifier)('a')
+                                                            PsiWhiteSpace(' ')
+                                                            PsiElement(=)('=')
+                                                            PsiWhiteSpace(' ')
+                                                            ReferenceExpression: a
+                                                              PsiElement(identifier)('a')
+                                                          PsiWhiteSpace(' ')
+                                                          PsiComment(comment)('//that's all')
+                                                          PsiWhiteSpace('\n                          ')
+                                                          PsiElement(})('}')
+                                                      PsiWhiteSpace('\n                        ')
+                                                      PsiElement(})('}')
+                                                  PsiWhiteSpace('\n                      ')
+                                                  PsiElement(})('}')
+                                              PsiWhiteSpace('\n                    ')
+                                              PsiElement(})('}')
+                                          PsiWhiteSpace('\n                  ')
+                                          PsiElement(})('}')
+                                      PsiWhiteSpace('\n                ')
+                                      PsiElement(})('}')
+                                  PsiWhiteSpace('\n              ')
+                                  PsiElement(})('}')
+                              PsiWhiteSpace('\n            ')
+                              PsiElement(})('}')
+                          PsiWhiteSpace('\n          ')
+                          PsiElement(})('}')
+                      PsiWhiteSpace('\n        ')
+                      PsiElement(})('}')
+                  PsiWhiteSpace('\n      ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n    ')
+              PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
