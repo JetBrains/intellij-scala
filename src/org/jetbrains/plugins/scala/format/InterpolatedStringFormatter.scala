@@ -25,7 +25,7 @@ object InterpolatedStringFormatter extends StringFormatter {
 
   def formatContent(parts: Seq[StringPart], toMultiline: Boolean = false): String = {
     val strings = parts.collect {
-      case Text(s) if toMultiline => s
+      case Text(s) if toMultiline => s.replace("\r", "")
       case Text(s) => StringUtil.escapeStringCharacters(s.replaceAll("\\$", "\\$\\$"))
       case it: Injection =>
         val text = it.value

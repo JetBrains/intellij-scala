@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
 import lang.lexer.ScalaTokenTypes
-import editor.enterHandler.MultilineStringEnterHandler
+import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 /**
  * User: Dmitry Naydanov
@@ -18,8 +18,8 @@ class AddReplaceSlashRToMLStringIntention extends PsiElementBaseIntentionAction 
     if (element == null || element.getNode == null || element.getText == null || 
       element.getNode.getElementType != ScalaTokenTypes.tMULTILINE_STRING || !element.getText.contains("\n")) return false
 
-    val calls = MultilineStringEnterHandler.findAllMethodCallsOnMLString(element, "replace")
-    !MultilineStringEnterHandler.containsArgs(calls, """"\r"""", "\"\"")
+    val calls = MultilineStringUtil.findAllMethodCallsOnMLString(element, "replace")
+    !MultilineStringUtil.containsArgs(calls, """"\r"""", "\"\"")
   }
 
   def getFamilyName: String = """Add .replace("\r","")"""
