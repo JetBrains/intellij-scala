@@ -5,7 +5,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockExpr
-import com.intellij.psi.tree.IElementType
 import com.intellij.lang.PsiBuilder
 
 /**

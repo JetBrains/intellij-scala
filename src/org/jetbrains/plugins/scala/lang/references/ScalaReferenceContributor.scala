@@ -3,7 +3,7 @@ package lang
 package references
 
 import com.intellij.patterns.PlatformPatterns
-import psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScInterpolated, ScLiteral}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.util.containers.ContainerUtil
 import com.intellij.openapi.module.{ModuleUtilCore, Module}
@@ -17,6 +17,7 @@ import com.intellij.psi._
 import impl.source.resolve.reference.impl.providers.{FileReference, FileReferenceSet}
 import com.intellij.openapi.diagnostic.Logger
 import extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPattern
 
 class ScalaReferenceContributor extends PsiReferenceContributor {
 
@@ -122,18 +123,24 @@ class FilePathReferenceProvider extends PsiReferenceProvider {
   }
 
   @NotNull def getReferencesByElement(@NotNull element: PsiElement, @NotNull context: ProcessingContext): Array[PsiReference] = {
-    var text: String = null
     element match {
+      case interpolated: ScInterpolationPattern =>
+        val refs = interpolated.getReferencesToStringParts
+        val start: Int = refs.headOption.map{_.getElement.getTextOffset}.getOrElse(1)
+        return refs.flatMap{r => getReferencesByElement(r.getElement, r.getCanonicalText, r.getElement.getTextOffset - start + 1, soft = true)}
+      case interpolatedString: ScInterpolatedStringLiteral =>
+        val refs = interpolatedString.getReferencesToStringParts
+        return refs.flatMap{r => getReferencesByElement(r.getElement, r.getCanonicalText, 1, soft = true)}
       case literal: ScLiteral =>
         literal.getValue match {
-          case s: String =>
-            text = s
+          case text: String =>
+            if (text == null) return PsiReference.EMPTY_ARRAY
+            return getReferencesByElement(element, text, 1, soft = true)
           case _ =>
         }
       case _ =>
     }
-    if (text == null) return PsiReference.EMPTY_ARRAY
-    getReferencesByElement(element, text, 1, soft = true)
+    PsiReference.EMPTY_ARRAY
   }
 
   private final val myEndingSlashNotAllowed: Boolean = false
