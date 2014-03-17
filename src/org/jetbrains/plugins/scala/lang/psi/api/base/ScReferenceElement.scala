@@ -22,7 +22,9 @@ import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeTo
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferenceElementPattern
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportExprUsed
 import com.intellij.codeInsight.PsiEquivalenceUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import com.intellij.psi.util.PsiTreeUtil
 
 /**
  * @author Alexander Podkhalyuzin
@@ -79,6 +81,15 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
   }
 
   def isReferenceTo(element: PsiElement): Boolean = {
+    element match {
+      case cp: ScClassParameter =>
+      case param: ScParameter if !PsiTreeUtil.isContextAncestor(param.owner, this, true) =>
+        getParent match {
+          case ScAssignStmt(left, _) if left == this =>
+          case _ => return false
+        }
+      case _ =>
+    }
     val iterator = multiResolve(false).iterator
     while (iterator.hasNext) {
       val resolved = iterator.next()
