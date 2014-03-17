@@ -7,6 +7,7 @@
       <root url="file://$CARDEA_HOME$/plugins/java-i18n/lib" />
       <root url="file://$CARDEA_HOME$/plugins/maven/lib" />
       <root url="file://$CARDEA_HOME$/plugins/properties/lib" />
+      <root url="file://$CARDEA_HOME$/plugins/Groovy/lib" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
