@@ -208,35 +208,37 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   def getType(ctx: TypingContext) = {
     returnType match {
-      case Success(tp: ScType, _) => {
+      case Success(tp: ScType, _) =>
         var res: TypeResult[ScType] = Success(tp, None)
         var i = paramClauses.clauses.length - 1
         while (i >= 0) {
           val cl = paramClauses.clauses.apply(i)
           val paramTypes = cl.parameters.map(_.getType(ctx))
           res match {
-            case Success(t: ScType, _) => {
+            case Success(t: ScType, _) =>
               res = collectFailures(paramTypes, Nothing)(ScFunctionType(t, _)(getProject, getResolveScope))
-            }
             case _ =>
           }
           i = i - 1
         }
         res
-      }
       case x => x
     }
   }
 
   override def getUseScope: SearchScope = {
+    val isPrivate = getModifierList.accessModifier match {
+      case Some(mod)  => mod.isUnqualifiedPrivateOrThis
+      case _ => false
+    }
     getParent match {
+      case _: ScTemplateBody if isPrivate && containingClass != null => ScalaPsiUtil.withCompanionSearchScope(containingClass)
       case _: ScTemplateBody => super.getUseScope
-      case _ => {
+      case _ =>
         var el: PsiElement = getParent
         while (el != null && !el.isInstanceOf[ScBlock] && !el.isInstanceOf[ScMember]) el = el.getParent
         if (el != null) new LocalSearchScope(el)
         else super.getUseScope
-      }
     }
   }
 
@@ -334,9 +336,8 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
           if (!cl.isImplicit) {
             val paramTypes = cl.parameters.map(_.getType(ctx))
             res match {
-              case Success(t: ScType, _) => {
+              case Success(t: ScType, _) =>
                 res = collectFailures(paramTypes, Nothing)(ScFunctionType(t, _)(getProject, getResolveScope))
-              }
               case _ =>
             }
           }
