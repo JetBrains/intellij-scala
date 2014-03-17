@@ -303,14 +303,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         s.subst(fun.polymorphicType(optionResult))
       case Some(result @ ScalaResolveResult(fun: ScFunction, s)) =>
         val functionType = s.subst(fun.polymorphicType())
-        if (result.isDynamic) {
-          functionType match {
-            case methodType: ScMethodType => methodType.returnType
-            case it => it
-          }
-        } else {
-          functionType
-        }
+        if (result.isDynamic) ResolvableReferenceExpression.getDynamicReturn(functionType)
+        else functionType
       case Some(ScalaResolveResult(param: ScParameter, s)) if param.isRepeatedParameter =>
         val seqClass = ScalaPsiManager.instance(getProject).getCachedClass("scala.collection.Seq", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
         val result = param.getType(TypingContext.empty)

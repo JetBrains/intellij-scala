@@ -38,7 +38,7 @@ import com.intellij.psi.util._
 import formatting.settings.ScalaCodeStyleSettings
 import com.intellij.openapi.roots.{ProjectRootManager, ProjectFileIndex}
 import lang.resolve.processor._
-import lang.resolve.{ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ResolveUtils, ScalaResolveResult}
 import com.intellij.psi.impl.light.LightModifierList
 import scala.collection.immutable.Stream
 import com.intellij.psi.impl.source.PsiFileImpl
@@ -382,9 +382,20 @@ object ScalaPsiUtil {
   }
 
   def processTypeForUpdateOrApplyCandidates(call: MethodInvocation, tp: ScType, isShape: Boolean,
-                                            noImplicits: Boolean): Array[ScalaResolveResult] = {
+                                            noImplicits: Boolean, isDynamic: Boolean): Array[ScalaResolveResult] = {
+    def approveDynamic(tp: ScType): Boolean = {
+      if (!isDynamic) return true
+      val cachedClass = ScalaPsiManager.instance(call.getProject).getCachedClass(call.getResolveScope, "scala.Dynamic")
+      if (cachedClass == null) return false
+      val dynamicType = ScDesignatorType(cachedClass)
+      tp.conforms(dynamicType)
+    }
+
     val isUpdate = call.isUpdateCall
-    val methodName = if (isUpdate) "update" else "apply"
+    val methodName =
+      if (isDynamic) ResolvableReferenceExpression.getDynamicNameForMethodInvocation(call)
+      else if (isUpdate) "update"
+      else "apply"
     val args: Seq[ScExpression] = call.argumentExpressions ++ (
             if (isUpdate) call.getContext.asInstanceOf[ScAssignStmt].getRExpression match {
               case Some(x) => Seq[ScExpression](x)
@@ -410,17 +421,19 @@ object ScalaPsiUtil {
       case ScTypePolymorphicType(_, tps) => tps
       case _ => Seq.empty
     }.getOrElse(Seq.empty)
-    val processor = new MethodResolveProcessor(expr, methodName, args :: Nil, typeArgs, typeParams,
-      isShapeResolve = isShape, enableTupling = true)
+    val emptyStringExpression = ScalaPsiElementFactory.createExpressionFromText("\"\"", call.getManager)
+    val processor = new MethodResolveProcessor(expr, methodName, if (!isDynamic) args :: Nil
+      else List(List(emptyStringExpression), args), typeArgs, typeParams,
+      isShapeResolve = isShape, enableTupling = true, isDynamic = isDynamic)
     var candidates: Set[ScalaResolveResult] = Set.empty
     exprTp match {
       case ScTypePolymorphicType(internal, typeParam) if !typeParam.isEmpty &&
         !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[ScUndefinedType] =>
-        processor.processType(internal, call.getEffectiveInvokedExpr, ResolveState.initial())
+        if (approveDynamic(internal)) processor.processType(internal, call.getEffectiveInvokedExpr, ResolveState.initial())
         candidates = processor.candidatesS
       case _ =>
     }
-    if (candidates.isEmpty) {
+    if (candidates.isEmpty && approveDynamic(exprTp.inferValueType)) {
       processor.processType(exprTp.inferValueType, call.getEffectiveInvokedExpr, ResolveState.initial)
       candidates = processor.candidatesS
     }
@@ -448,30 +461,36 @@ object ScalaPsiUtil {
   def processTypeForUpdateOrApply(tp: ScType, call: MethodInvocation,
                                   isShape: Boolean): Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[PsiElement])] = {
 
-    def checkCandidates(withImplicits: Boolean): Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[PsiElement])] = {
-      val candidates: Array[ScalaResolveResult] = processTypeForUpdateOrApplyCandidates(call, tp, isShape, noImplicits = !withImplicits)
+    def checkCandidates(withImplicits: Boolean, withDynamic: Boolean = false): Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[PsiElement])] = {
+      val candidates: Array[ScalaResolveResult] = processTypeForUpdateOrApplyCandidates(call, tp, isShape, noImplicits = !withImplicits, isDynamic = withDynamic)
       PartialFunction.condOpt(candidates) {
         case Array(r@ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
+          def update(tp: ScType): ScType = {
+            if (r.isDynamic) ResolvableReferenceExpression.getDynamicReturn(tp)
+            else tp
+          }
           val res = fun match {
-            case fun: ScFun => (s.subst(fun.polymorphicType), r.importsUsed, r.implicitFunction, Some(fun))
-            case fun: ScFunction => (s.subst(fun.polymorphicType()), r.importsUsed, r.implicitFunction, Some(fun))
-            case meth: PsiMethod => (ResolveUtils.javaPolymorphicType(meth, s, call.getResolveScope), r.importsUsed,
-              r.implicitFunction, Some(fun))
+            case fun: ScFun => (update(s.subst(fun.polymorphicType)), r.importsUsed, r.implicitFunction, Some(fun))
+            case fun: ScFunction => (update(s.subst(fun.polymorphicType())), r.importsUsed, r.implicitFunction, Some(fun))
+            case meth: PsiMethod => (update(ResolveUtils.javaPolymorphicType(meth, s, call.getResolveScope)),
+              r.importsUsed, r.implicitFunction, Some(fun))
           }
         call.getInvokedExpr.getNonValueType(TypingContext.empty) match {
           case Success(ScTypePolymorphicType(_, typeParams), _) =>
             res.copy(_1 = res._1 match {
               case ScTypePolymorphicType(internal, typeParams2) =>
                 ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2))
-              case _ =>
-                ScTypePolymorphicType(res._1, typeParams)
+              case _ => ScTypePolymorphicType(res._1, typeParams)
             })
           case _ => res
         }
       }
     }
 
-    checkCandidates(withImplicits = false).orElse(checkCandidates(withImplicits = true))
+    checkCandidates(withImplicits = false).orElse(checkCandidates(withImplicits = true)).orElse {
+        //let's check dynamic type
+        checkCandidates(withImplicits = false, withDynamic = true)
+    }
   }
 
   /**
