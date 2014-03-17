@@ -64,6 +64,8 @@ class ScalaApplicationUsagesCollector extends AbstractApplicationUsagesCollector
       checkLibrary("play.api.mvc", s"Play2 for Scala|$isPlayInstalled")
       checkLibrary("akka.actor", "Akka for Scala")
       checkLibrary("utest", "uTest")
+      checkLibrary("junit", "JUnit for Scala")
+      checkLibrary("org.testng", "TestNG for Scala")
     } else {
       checkLibrary("play.api.mvc", s"Play2 for Java|$isPlayInstalled")
       checkLibrary("akka.actor", "Akka for Java")
