@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import api.statements._
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.search.{SearchScope, LocalSearchScope, GlobalSearchScope}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPatternArgumentList, ScBindingPattern, ScReferencePattern, ScCaseClause}
 import stubs.ScModifiersStub
 import types.Compatibility.Expression
@@ -1424,6 +1424,13 @@ object ScalaPsiUtil {
         }
         None
       case _ => None
+    }
+  }
+
+  def withCompanionSearchScope(clazz: PsiClass): SearchScope = {
+    getBaseCompanionModule(clazz) match {
+      case Some(companion) => new LocalSearchScope(clazz).union(new LocalSearchScope(companion))
+      case None => new LocalSearchScope(clazz)
     }
   }
 
