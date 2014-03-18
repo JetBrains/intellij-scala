@@ -22,7 +22,9 @@ import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeTo
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferenceElementPattern
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportExprUsed
 import com.intellij.codeInsight.PsiEquivalenceUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import com.intellij.psi.util.PsiTreeUtil
 
 /**
  * @author Alexander Podkhalyuzin
@@ -69,16 +71,25 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
   def isSoft: Boolean = false
 
   def handleElementRename(newElementName: String): PsiElement = {
-    val needBackticks = patternNeedBackticks(newElementName) || ScalaNamesUtil.isKeyword(newElementName)
-    val newName = if (needBackticks) "`" + newElementName + "`" else newElementName
-    if (!ScalaNamesUtil.isIdentifier(newName)) return this
+    if (!ScalaNamesUtil.isIdentifier(newElementName)) return this
     val id = nameId.getNode
     val parent = id.getTreeParent
-    parent.replaceChild(id, ScalaPsiElementFactory.createIdentifier(newName, getManager))
+    val needBackticks = patternNeedBackticks(newElementName)
+    parent.replaceChild(id,
+      ScalaPsiElementFactory.createIdentifier(if (needBackticks) "`" + newElementName + "`" else newElementName, getManager))
     this
   }
 
   def isReferenceTo(element: PsiElement): Boolean = {
+    element match {
+      case cp: ScClassParameter =>
+      case param: ScParameter if !PsiTreeUtil.isContextAncestor(param.owner, this, true) =>
+        getParent match {
+          case ScAssignStmt(left, _) if left == this =>
+          case _ => return false
+        }
+      case _ =>
+    }
     val iterator = multiResolve(false).iterator
     while (iterator.hasNext) {
       val resolved = iterator.next()
@@ -282,34 +293,4 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
       this.replace(ref)
     }
   }
-
-  def bindToPackage(pckg: PsiPackage, addImport: Boolean = false): PsiElement = {
-    val qualifiedName = pckg.getQualifiedName
-    extensions.inWriteAction {
-      val refText =
-        if (addImport) {
-          val importHolder = ScalaImportTypeFix.getImportHolder(ref = this, project = getProject)
-          val imported = importHolder.getAllImportUsed.exists {
-            case ImportExprUsed(expr) => expr.reference.exists { ref =>
-              ref.multiResolve(false).exists(rr => rr.getElement match {
-                case p: ScPackage => p.getQualifiedName == qualifiedName
-                case p: PsiPackage => p.getQualifiedName == qualifiedName
-                case _ => false
-              })
-            }
-            case _ => false
-          }
-          if (!imported) importHolder.addImportForPath(qualifiedName, ref = this)
-          pckg.getName
-        } else qualifiedName
-      this match {
-        case stRef: ScStableCodeReferenceElement =>
-          stRef.replace(ScalaPsiElementFactory.createReferenceFromText(refText, stRef.getManager))
-        case ref: ScReferenceExpression =>
-          ref.replace(ScalaPsiElementFactory.createExpressionFromText(refText, ref.getManager))
-        case _ => null
-      }
-    }
-  }
-
 }
