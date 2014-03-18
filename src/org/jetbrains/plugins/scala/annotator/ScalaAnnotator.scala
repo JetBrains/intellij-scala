@@ -123,11 +123,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         super.visitExpression(expr)
       }
 
-      override def visitExistentialTypeElement(exist: ScExistentialTypeElement): Unit = {
-
-        super.visitExistentialTypeElement(exist)
-      }
-
       override def visitReferenceExpression(ref: ScReferenceExpression) {
         referencePart(ref)
         visitExpression(ref)
