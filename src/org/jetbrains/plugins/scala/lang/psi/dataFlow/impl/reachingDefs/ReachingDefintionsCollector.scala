@@ -94,8 +94,7 @@ object ReachingDefintionsCollector {
       import ScalaPsiElementFactory.{createExpressionWithContextFromText, createDeclarationFromText}
       val resolvesAtNewPlace = elem match {
         case _: PsiMethod | _: ScFun =>
-          checkResolve(createExpressionWithContextFromText(elem.name + " _", place.getContext, place).getFirstChild) ||
-          checkResolve(createExpressionWithContextFromText(elem.getText + " _", place.getContext, place))
+          checkResolve(createExpressionWithContextFromText(elem.name + " _", place.getContext, place).getFirstChild)
         case _: ScTypeAlias | _: ScTypeDefinition =>
           val decl = createDeclarationFromText(s"val dummyVal: ${elem.name}", place.getContext, place).asInstanceOf[ScValueDeclaration]
           decl.typeElement match {
@@ -103,8 +102,7 @@ object ReachingDefintionsCollector {
             case _ => false
           }
         case _ =>
-          checkResolve(createExpressionWithContextFromText(elem.name, place.getContext, place)) ||
-          checkResolve(createExpressionWithContextFromText(elem.getText, place.getContext, place))
+          checkResolve(createExpressionWithContextFromText(elem.name, place.getContext, place))
       }
       isInstanceMethod || isSynthetic || resolvesAtNewPlace
     }

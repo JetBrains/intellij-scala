@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 import org.jetbrains.plugins.scala.extensions
 import javax.swing.{JCheckBox, JPanel}
 import java.awt.FlowLayout
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.{ModalityState, ApplicationManager}
 import org.jetbrains.plugins.scala.components.{WorksheetProcess, StopWorksheetAction}
 import java.util
 import java.lang.ref.WeakReference
@@ -30,9 +30,11 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
   override def initComponent() {}
 
   override def projectClosed() {
-    scala.extensions.invokeLater {
-      WorksheetViewerInfo.invalidate()
-    }
+    ApplicationManager.getApplication.invokeAndWait(new Runnable {
+      def run() {
+        WorksheetViewerInfo.invalidate()
+      }
+    }, ModalityState.any())
   }
 
   override def projectOpened() {

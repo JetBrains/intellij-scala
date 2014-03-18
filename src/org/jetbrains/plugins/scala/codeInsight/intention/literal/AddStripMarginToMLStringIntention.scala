@@ -6,9 +6,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
 import lang.lexer.ScalaTokenTypes
-import editor.enterHandler.MultilineStringEnterHandler
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 /**
  * User: Dmitry Naydanov
@@ -20,7 +20,7 @@ class AddStripMarginToMLStringIntention extends PsiElementBaseIntentionAction{
     if (element == null || element.getNode == null || element.getNode.getElementType != ScalaTokenTypes.tMULTILINE_STRING ||
             !element.getText.contains("\n")) return false
 
-    MultilineStringEnterHandler.needAddStripMargin(element, getMarginChar(project))
+    MultilineStringUtil.needAddStripMargin(element, getMarginChar(project))
   }
   def getFamilyName: String = "Add .stripMargin"
 

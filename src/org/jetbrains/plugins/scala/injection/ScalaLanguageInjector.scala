@@ -15,7 +15,6 @@ import lang.psi.api.base.{ScInterpolatedStringLiteral, ScReferenceElement, ScLit
 import lang.psi.ScalaPsiUtil.readAttribute
 import org.jetbrains.plugins.scala.extensions._
 import settings._
-import editor.enterHandler.MultilineStringEnterHandler
 import collection.immutable.WrappedString
 import java.util
 import collection.mutable
@@ -25,6 +24,7 @@ import org.intellij.plugins.intelliLang.inject.config.BaseInjection
 import lang.psi.impl.expr.ScInterpolatedStringPrefixReference
 import lang.psi.api.statements.params.ScParameter
 import annotation.tailrec
+import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 /**
  * @author Pavel Fatin
@@ -272,7 +272,7 @@ object ScalaLanguageInjector {
 
     val rangesCollected = mutable.MutableList[TextRange]()
     val extractedText = range substring literal.getText
-    val margin = MultilineStringEnterHandler getMarginChar literal
+    val margin = MultilineStringUtil.getMarginChar(literal)
 
     var count = 0
     val lines = new WrappedString(extractedText).lines

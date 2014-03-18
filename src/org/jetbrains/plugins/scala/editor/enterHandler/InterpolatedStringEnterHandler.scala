@@ -10,8 +10,9 @@ import com.intellij.openapi.editor.actionSystem.EditorActionHandler
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.Ref
 import com.intellij.lexer.StringLiteralLexer
-import com.intellij.psi.{StringEscapesTokenTypes, PsiFile}
+import com.intellij.psi.{PsiElement, StringEscapesTokenTypes, PsiFile}
 import lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 
 /**
  * User: Dmitry Naydanov
@@ -31,13 +32,17 @@ class InterpolatedStringEnterHandler extends EnterHandlerDelegateAdapter {
       caretOffset.set(caretOffset.get + moveOn)
     }
 
+    def isMLString(element: PsiElement) = element match {
+      case lit: ScLiteral => lit.isMultiLineString
+      case _ => false
+    }
 
     Option(element) foreach (a =>
       if (Set(tINTERPOLATED_STRING, tINTERPOLATED_STRING_ESCAPE, tINTERPOLATED_STRING_END).contains(a.getNode.getElementType)) {
         a.getParent.getFirstChild.getNode match {
           case b: ASTNode if b.getElementType == tINTERPOLATED_STRING_ID || 
             b.getElementType == ScalaElementTypes.INTERPOLATED_STRING_PREFIX_REFERENCE =>
-            
+
             if (a.getNode.getElementType == tINTERPOLATED_STRING_ESCAPE) {
               if (caretOffset.get - a.getTextOffset == 1) modifyOffset(1)
             } else {
@@ -55,6 +60,8 @@ class InterpolatedStringEnterHandler extends EnterHandlerDelegateAdapter {
 
 
             extensions.inWriteAction {
+              if (isMLString(a.getParent)) return Result.Continue
+
               caretOffset.set(caretOffset.get + 3)
               caretAdvance.set(b.getTextLength + 1)
               editor.getDocument.insertString(offset, "\" +" + b.getText + "\"")

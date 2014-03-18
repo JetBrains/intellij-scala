@@ -21,11 +21,12 @@
     <description>Plugin for Scala language support</description>
     <version>VERSION</version>
     <vendor url="http://www.jetbrains.com" logo="/org/jetbrains/plugins/scala/images/scala-small-logo.png">JetBrains Inc.</vendor>
-    <idea-version since-build="134.1445" until-build="135.0"/>
+    <idea-version since-build="135.281" until-build="136.0"/>
     <depends optional="true" config-file="scala-maven-integration.xml">org.jetbrains.idea.maven</depends>
     <depends optional="true" config-file="intellilang-scala-support.xml">org.intellij.intelliLang</depends>
     <depends optional="true" config-file="copyright.xml">com.intellij.copyright</depends>
     <depends optional="true" config-file="scala-i18n.xml">com.intellij.properties</depends>
+    <depends optional="true" config-file="scala-gradle-integration.xml">org.jetbrains.plugins.gradle</depends>
 
     <xi:include href="/META-INF/scala-plugin-common.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="/META-INF/SBT.xml" xpointer="xpointer(/idea-plugin/*)"/>

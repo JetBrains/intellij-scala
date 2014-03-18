@@ -39,7 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import highlighter.{DefaultHighlighter, AnnotatorHighlighter}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScTypeProjection, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import com.intellij.openapi.util.{TextRange, Key}
 import collection.mutable.ArrayBuffer
 import com.intellij.codeInsight.daemon.impl.AnnotationHolderImpl
@@ -48,6 +48,12 @@ import codeInspection.caseClassParamInspection.{RemoveValFromGeneratorIntentionA
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 import org.jetbrains.plugins.scala.lang.psi
 import com.intellij.openapi.roots.ProjectFileIndex
+import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
+import scala.Some
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.WriteValueUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ReadValueUsed
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 
 /**
  * User: Alexander Podkhalyuzin

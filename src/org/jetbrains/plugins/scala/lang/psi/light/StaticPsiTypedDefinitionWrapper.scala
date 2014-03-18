@@ -24,7 +24,7 @@ class StaticPsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition,
       case e: Exception => elementFactory.createMethodFromText("public void FAILED_TO_DECOMPILE_METHOD() {}", containingClass)
     }
   }
-} with LightMethod(typedDefinition.getManager, method, containingClass) with LightScalaMethod {
+} with LightMethodAdapter(typedDefinition.getManager, method, containingClass) with LightScalaMethod {
   override def getNavigationElement: PsiElement = typedDefinition
 
   override def canNavigate: Boolean = typedDefinition.canNavigate

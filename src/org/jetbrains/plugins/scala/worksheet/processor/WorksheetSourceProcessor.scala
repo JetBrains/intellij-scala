@@ -13,6 +13,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.module.ModuleUtilCore
 import org.jetbrains.plugins.scala.config.ScalaFacet
 import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 /**
  * User: Dmitry Naydanov
@@ -46,8 +47,16 @@ object WorksheetSourceProcessor {
     
     val name = s"A$$A$iterNumber"
     val instanceName = s"inst$$A$$A"
-    
-//    val macroPrinterName = "MacroPrinter210" // "worksheet$$macro$$printer"
+    val packOpt = Option(srcFile.getContainingDirectory) flatMap {
+      case dir => Option(JavaDirectoryService.getInstance().getPackage(dir))
+    } collect {
+      case psiPackage: PsiPackage if !psiPackage.getQualifiedName.trim.isEmpty =>
+        psiPackage.getQualifiedName
+    }
+
+    val packStmt = packOpt map ("package " + _ + " ; ") getOrElse ""
+
+    //val macroPrinterName = "MacroPrinter210" // "worksheet$$macro$$printer"
     
     val macroPrinterName = Option(ModuleUtilCore.findModuleForFile(srcFile.getVirtualFile, srcFile.getProject)) flatMap {
       case module => ScalaFacet findIn module flatMap {
@@ -67,7 +76,7 @@ object WorksheetSourceProcessor {
 
     val ifDocument = ifEditor map (_.getDocument)
     val classPrologue = name // s"$name ${if (iterNumber > 0) s"extends A${iterNumber - 1}" }" //todo disabled until I implement incremental code generation
-    val objectPrologue = s"import _root_.org.jetbrains.plugins.scala.worksheet.$macroPrinterName\n\n object $name { \n"
+    val objectPrologue = s"${packStmt}import _root_.org.jetbrains.plugins.scala.worksheet.$macroPrinterName\n\n object $name { \n"
     
     val startText = ""
     
@@ -125,7 +134,13 @@ object WorksheetSourceProcessor {
     }
     
     @inline def appendDeclaration(psi: ScalaPsiElement) {
-      classRes append psi.getText append insertNlsFromWs(psi)
+      val txt = psi match {
+        case valDef: ScPatternDefinition if !valDef.getModifierList.has(ScalaTokenTypes.kLAZY) =>
+          "lazy " + valDef.getText
+        case a => a.getText
+      }
+
+      classRes append txt append insertNlsFromWs(psi)
     }
     
     @inline def appendPsiComment(comment: PsiComment) {
@@ -172,8 +187,8 @@ object WorksheetSourceProcessor {
       appendPsiLineInfo(imp, lineNums)
     }
     
-    def withTempVar(callee: String) = 
-      "{val $$temp$$ = " + instanceName + "." + callee + s"; $macroPrinterName.printDefInfo(" + "$$temp$$" + ")" + 
+    def withTempVar(callee: String, withInstance: Boolean = true) =
+      "{val $$temp$$ = " + (if (withInstance) instanceName + "." else "") + callee + s"; $macroPrinterName.printDefInfo(" + "$$temp$$" + ")" +
         eraseClassName + " + \" = \" + $$temp$$.toString" + erasePrefixName + "}"
     
     val root  = if (!isForObject(srcFile)) srcFile else {
@@ -194,7 +209,7 @@ object WorksheetSourceProcessor {
       case fun: ScFunction =>
         withPrecomputeLines(fun, {
           objectRes append (printMethodName + "(\"" + fun.getName + ": \" + " + macroPrinterName +
-            ".printDefInfo(" + instanceName + "." + fun.getName + " _)" + eraseClassName + ")\n")
+            s".printGeneric({import $instanceName._ ;" + fun.getText + " })" + eraseClassName + ")\n")
         })
       case tpeDef: ScTypeDefinition =>
         withPrecomputeLines(tpeDef, {
@@ -217,13 +232,23 @@ object WorksheetSourceProcessor {
               objectRes append (printMethodName + "(\"" + startText + pName + ": \" + " + withTempVar(defName) + ")\n")
           }
         })
-      case varDef: ScVariableDefinition => 
-        withPrecomputeLines(varDef, {
-          varDef.declaredNames foreach {
-            case pName => 
-              objectRes append (printMethodName + "(\"" + startText + pName + ": \" + " + withTempVar(pName) + ")\n")
-          }
-        })
+      case varDef: ScVariableDefinition =>
+        val lineNum = psiToLineNumbers(varDef)
+
+        val txt = varDef.expr.map {
+          case expr =>
+            "var " + varDef.declaredElements.map(_.name).mkString("(", ",", ")") + s" = { import $instanceName._; " + expr.getText + ";}"
+        } getOrElse varDef.getText
+
+        objectRes.append(txt).append(";")
+        varDef.declaredNames foreach {
+          case pName =>
+            objectRes append (
+              printMethodName + "(\"" + startText + pName + ": \" + " + withTempVar(pName, false) + ")\n"
+            )
+        }
+
+        appendPsiLineInfo(varDef, lineNum)
       case assign: ScAssignStmt =>
         val pName = assign.getLExpression.getText
         val lineNums = psiToLineNumbers(assign)
@@ -253,8 +278,11 @@ object WorksheetSourceProcessor {
     
     classRes append "}"
     objectRes append (printMethodName + "(\"" + END_OUTPUT_MARKER + "\")\n") append "} \n }"
-    
-    Some((objectPrologue + classRes.toString() + "\n\n\n" + objectRes.toString(), name))
+
+    Some(
+      (objectPrologue + classRes.toString() + "\n\n\n" + objectRes.toString(),
+      packOpt.map(_ + ".").getOrElse("") + name)
+    )
   }
   
   private def isForObject(file: ScalaFile) = {

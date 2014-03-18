@@ -106,6 +106,29 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
       evalEquals("foo", "2")
     }
   }
+
+  def testPrivateMethods() {
+    addFileToProject("Sample.scala",
+      """
+        |import Sample._
+        |object Sample {
+        |  private def foo() = 2
+        |  def main(args: Array[String]) {
+        |    "stop here"
+        |  }
+        |}
+        |class Sample {
+        |  private def bar() = 1
+        |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 4)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("foo", "2")
+      evalEquals("new Sample().bar()", "1")
+    }
+  }
   
   def testApplyCall() {
     addFileToProject("Sample.scala",

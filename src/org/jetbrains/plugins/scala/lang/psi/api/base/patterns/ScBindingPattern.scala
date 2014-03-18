@@ -7,11 +7,11 @@ package patterns
 
 import com.intellij.navigation.NavigationItem
 import com.intellij.psi.impl.ResolveScopeManager
-import com.intellij.psi.search.LocalSearchScope
+import com.intellij.psi.search.{SearchScope, LocalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import statements._
 import toplevel.templates.ScTemplateBody
-import toplevel.{ScEarlyDefinitions, ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScEarlyDefinitions, ScNamedElement, ScTypedDefinition}
 import toplevel.typedef.{ScTemplateDefinition, ScMember, ScTypeDefinition}
 import com.intellij.psi.javadoc.PsiDocComment
 import extensions.toPsiNamedElementExt
@@ -23,7 +23,16 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
 
   def isWildcard: Boolean
 
-  abstract override def getUseScope = {
+  abstract override def getUseScope: SearchScope = {
+    nameContext match {
+      case member: ScMember =>
+        member.getModifierList.accessModifier match {
+          case Some(mod) if mod.isUnqualifiedPrivateOrThis && member.containingClass != null =>
+            return ScalaPsiUtil.withCompanionSearchScope(member.containingClass)
+          case _ =>
+        }
+      case _ =>
+    }
     val block = PsiTreeUtil.getContextOfType(this, true, classOf[ScBlock])
     if (block != null) new LocalSearchScope(block) else super.getUseScope
   }
