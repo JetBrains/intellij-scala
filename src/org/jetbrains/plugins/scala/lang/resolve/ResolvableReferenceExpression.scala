@@ -428,25 +428,13 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
           val emptyStringExpression = ScalaPsiElementFactory.createExpressionFromText("\"\"", e.getManager)
           import ResolvableReferenceExpression._
           val name = callOption match {
-            case Some(call) =>
-              call.argumentExpressions.find {
-                case a: ScAssignStmt =>
-                  a.getLExpression match {
-                    case r: ScReferenceExpression if r.qualifier.isEmpty => true
-                    case _ => false
-                  }
-                case _ => false
-              } match {
-                case Some(_) => APPLY_DYNAMIC_NAMED
-                case _ => APPLY_DYNAMIC
-              }
+            case Some(call) => getDynamicNameForMethodInvocation(call)
             case _ =>
               reference.getContext match {
                 case a: ScAssignStmt if a.getLExpression == reference => UPDATE_DYNAMIC
                 case _ => SELECT_DYNAMIC
               }
           }
-          val isNamed = name.endsWith(NAMED)
 
           val newProcessor = new MethodResolveProcessor(e, name , List(List(emptyStringExpression),
             argumentExpressions.toSeq.flatten), mrp.typeArgElements, mrp.prevTypeInfo, mrp.kinds, mrp.expectedOption,
@@ -509,4 +497,26 @@ object ResolvableReferenceExpression {
   val SELECT_DYNAMIC = "selectDynamic"
   val UPDATE_DYNAMIC = "updateDynamic"
   val NAMED = "Named"
+
+  def getDynamicReturn(tp: ScType): ScType = {
+    tp match {
+      case ScTypePolymorphicType(mt: ScMethodType, typeArgs) => ScTypePolymorphicType(mt.returnType, typeArgs)
+      case mt: ScMethodType => mt.returnType
+      case _ => tp
+    }
+  }
+  
+  def getDynamicNameForMethodInvocation(call: MethodInvocation): String = {
+    call.argumentExpressions.find {
+      case a: ScAssignStmt =>
+        a.getLExpression match {
+          case r: ScReferenceExpression if r.qualifier.isEmpty => true
+          case _ => false
+        }
+      case _ => false
+    } match {
+      case Some(_) => APPLY_DYNAMIC_NAMED
+      case _ => APPLY_DYNAMIC
+    }
+  }
 }

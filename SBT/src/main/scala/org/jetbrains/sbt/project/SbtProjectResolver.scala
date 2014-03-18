@@ -140,7 +140,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def internalNameFor(scala: Scala) = "SBT:: " + nameFor(scala)
 
   private def createModule(project: Project, moduleFilesDirectory: File): ModuleNode = {
-    val result = new ModuleNode(StdModuleTypes.JAVA.getId, project.id, project.name,
+    // TODO use both ID and Name when related flaws in the External System will be fixed
+    val result = new ModuleNode(StdModuleTypes.JAVA.getId, project.id, project.id,
       moduleFilesDirectory.path, project.base.path)
 
     result.setInheritProjectCompileOutputPath(false)
@@ -177,6 +178,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result.storePaths(ExternalSystemSourceType.TEST, testSources.map(_.path))
     result.storePaths(ExternalSystemSourceType.TEST_RESOURCE, testResources.map(_.path))
 
+    // We cannot exclude the whole ./target/ directory because of generated sources
+//    result.storePath(ExternalSystemSourceType.EXCLUDED, project.target.path)
+
     result
   }
 
@@ -202,7 +206,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val name = project.name + Sbt.BuildModuleSuffix
     val path = project.base.path + "/project"
 
-    val result = new ModuleNode(SbtModuleType.instance.getId, id, name, moduleFilesDirectory.path, path)
+    // TODO use both ID and Name when related flaws in the External System will be fixed
+    val result = new ModuleNode(SbtModuleType.instance.getId, id, id, moduleFilesDirectory.path, path)
 
     result.setInheritProjectCompileOutputPath(false)
     result.setCompileOutputPath(ExternalSystemSourceType.SOURCE, path + "/target/idea-classes")

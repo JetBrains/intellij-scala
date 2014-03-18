@@ -1,0 +1,6 @@
+val a = foo"""blah blah<caret>"""
+-----
+val a =
+  foo"""blah blah
+        <caret>
+     """

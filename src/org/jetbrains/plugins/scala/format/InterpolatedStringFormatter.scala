@@ -9,7 +9,15 @@ import com.intellij.openapi.util.text.StringUtil
 
 object InterpolatedStringFormatter extends StringFormatter {
   def format(parts: Seq[StringPart]) = {
-    val content = formatContent(parts)
+    val toMultiline = parts.exists {
+      case Text(s) => s.contains("\n")
+      case _ => false
+    }
+    format(parts, toMultiline)
+  }
+
+  def format(parts: Seq[StringPart], toMultiline: Boolean) = {
+    val content = formatContent(parts, toMultiline)
     val prefix = {
       val formattingRequired = parts.exists {
         case it: Injection => it.isFormattingRequired
@@ -17,11 +25,13 @@ object InterpolatedStringFormatter extends StringFormatter {
       }
       if (formattingRequired) "f" else "s"
     }
-    prefix + '"' + content + '"'
+    val quote = if (toMultiline) "\"\"\"" else "\""
+    s"$prefix$quote$content$quote"
   }
 
-  def formatContent(parts: Seq[StringPart]): String = {
+  def formatContent(parts: Seq[StringPart], toMultiline: Boolean = false): String = {
     val strings = parts.collect {
+      case Text(s) if toMultiline => s.replace("\r", "")
       case Text(s) => StringUtil.escapeStringCharacters(s.replaceAll("\\$", "\\$\\$"))
       case it: Injection =>
         val text = it.value
@@ -38,7 +48,7 @@ object InterpolatedStringFormatter extends StringFormatter {
     val ind = parts.indexOf(it)
     if (ind + 1 < parts.size) {
       parts(ind + 1) match {
-        case Text(s) => return s.isEmpty || s.startsWith(" ")
+        case Text(s) => return s.isEmpty || s.charAt(0).isWhitespace
         case _ =>  true
       }
     }

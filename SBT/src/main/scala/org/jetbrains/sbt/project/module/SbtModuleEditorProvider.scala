@@ -5,8 +5,7 @@ import com.intellij.openapi.roots.ui.configuration._
 import com.intellij.openapi.module.{ModuleType, ModuleConfigurationEditor}
 
 /**
- * User: Dmitry Naydanov
- * Date: 11/22/13
+ * @author Pavel Fatin
  */
 class SbtModuleEditorProvider extends ModuleConfigurationEditorProvider {
   def createEditors(state: ModuleConfigurationState) = {

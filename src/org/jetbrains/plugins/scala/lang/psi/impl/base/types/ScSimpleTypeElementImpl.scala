@@ -265,13 +265,13 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     reference match {
       case Some(ref) =>
         def updateForParameterized(subst: ScSubstitutor, elem: PsiNamedElement,
-                                    p: ScParameterizedTypeElement): ScType = {
+                                    p: ScParameterizedTypeElement): (ScType, ScSubstitutor) = {
           val tp = elem match {
             case ta: ScTypeAliasDefinition =>
-              ta.aliasedType.getOrElse(return types.Nothing)
+              ta.aliasedType.getOrElse(return (types.Nothing, ScSubstitutor.empty))
             case clazz: PsiClass =>
               parametrise(ScSimpleTypeElementImpl.calculateReferenceType(ref, shapesOnly = false).
-                getOrElse(return types.Nothing), clazz, subst)
+                getOrElse(return (types.Nothing, ScSubstitutor.empty)), clazz, subst)
           }
           val res = subst.subst(tp)
           val typeParameters: Seq[TypeParameter] = elem match {
@@ -281,7 +281,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.length > 0 =>
               ptp.getTypeParameters.toSeq.map(ptp => new TypeParameter(ptp.name,
                 types.Nothing, types.Any, ptp)) //todo: add lower and upper bound
-            case _ => return res
+            case _ => return (res, ScSubstitutor.empty)
           }
 
           val zipped = p.typeArgList.typeArgs.zip(typeParameters)
@@ -290,16 +290,16 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                     arg.getType(TypingContext.empty).getOrAny)
           },
             Map.empty, None)
-          appSubst.subst(res)
+          (appSubst.subst(res), appSubst)
         }
         val constrRef = ref.isConstructorReference && !noConstructor
 
-        def updateImplicitsWithoutLocalTypeInference(r: TypeResult[ScType]): TypeResult[ScType] = {
+        def updateImplicitsWithoutLocalTypeInference(r: TypeResult[ScType], ss: ScSubstitutor): TypeResult[ScType] = {
           r.map {
             tp =>
               ref.bind() match {
                 case Some(r@ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor)) =>
-                  val (params, lastImplicit) = getConstructorParams(method, subst)
+                  val (params, lastImplicit) = getConstructorParams(method, subst.followed(ss))
                   updateImplicits(tp, withExpected = false, params = params, lastImplicit = lastImplicit)
                   tp
                 case _ => tp
@@ -315,21 +315,25 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           case Array(ScalaResolveResult(to: ScTypeParametersOwner, subst: ScSubstitutor))
             if constrRef && to.isInstanceOf[PsiNamedElement] &&
               (to.typeParameters.length == 0 || getContext.isInstanceOf[ScParameterizedTypeElement]) =>
-            updateImplicitsWithoutLocalTypeInference(getContext match {
+            val (tp, ss) = getContext match {
               case p: ScParameterizedTypeElement if !to.isInstanceOf[ScTypeAliasDeclaration] =>
-                Success(updateForParameterized(subst, to.asInstanceOf[PsiNamedElement], p), Some(this))
+                val (parameterized, ss) = updateForParameterized(subst, to.asInstanceOf[PsiNamedElement], p)
+                (Success(parameterized, Some(this)), ss)
               case _ =>
-                ScSimpleTypeElementImpl.calculateReferenceType(ref, shapesOnly = false)
-            })
+                (ScSimpleTypeElementImpl.calculateReferenceType(ref, shapesOnly = false), ScSubstitutor.empty)
+            }
+            updateImplicitsWithoutLocalTypeInference(tp, ss)
           case Array(ScalaResolveResult(to: PsiTypeParameterListOwner, subst: ScSubstitutor))
             if constrRef && to.isInstanceOf[PsiNamedElement] &&
               (to.getTypeParameters.length == 0 || getContext.isInstanceOf[ScParameterizedTypeElement]) =>
-            updateImplicitsWithoutLocalTypeInference(getContext match {
+            val (result, ss) = getContext match {
               case p: ScParameterizedTypeElement if !to.isInstanceOf[ScTypeAliasDeclaration] =>
-                Success(updateForParameterized(subst, to.asInstanceOf[PsiNamedElement], p), Some(this))
+                val (parameterized, ss) = updateForParameterized(subst, to.asInstanceOf[PsiNamedElement], p)
+                (Success(parameterized, Some(this)), ss)
               case _ =>
-                ScSimpleTypeElementImpl.calculateReferenceType(ref, shapesOnly = false)
-            })
+                (ScSimpleTypeElementImpl.calculateReferenceType(ref, shapesOnly = false), ScSubstitutor.empty)
+            }
+            updateImplicitsWithoutLocalTypeInference(result, ss)
           case _ => //resolve constructor with local type inference
             ref.bind() match {
               case Some(r@ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor)) if !noConstructor =>

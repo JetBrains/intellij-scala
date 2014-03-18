@@ -1,0 +1,14 @@
+val a =
+  ("""
+      |  blah blah
+      |  blah blah
+   """ + s"""<caret>""").stripMargin
+-----
+val a =
+  ("""
+      |  blah blah
+      |  blah blah
+   """ +
+   s"""
+       |<caret>
+    """).stripMargin
