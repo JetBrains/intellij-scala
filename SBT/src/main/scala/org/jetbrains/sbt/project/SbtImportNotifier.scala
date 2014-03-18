@@ -22,6 +22,7 @@ import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataMan
 import java.util.Collections
 import com.intellij.openapi.editor.ex.{FocusChangeListener, EditorEx}
 import com.intellij.openapi.editor.Editor
+import scala.Predef
 
 /**
  * User: Dmitry Naydanov
@@ -72,8 +73,9 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
   
   private def checkNoImport(forFile: String) {
     val sbtSettings = getSbtSettings getOrElse { return }
-    
-    if (sbtSettings.getLinkedProjectSettings(getExternalProject(forFile)) == null) {
+
+    val myExternalProject = getExternalProject(forFile)
+    if (myExternalProject != null && sbtSettings.getLinkedProjectSettings(myExternalProject) == null) {//todo what if project == null
       builder(SbtImportNotifier noImportMessage forFile).setTitle("Import project").setHandler {
         case "import" =>
           val projectSettings = new Settings
