@@ -1439,7 +1439,7 @@ object ScalaPsiUtil {
     def hasStablePathInner(m: PsiMember): Boolean = {
       m.getContext match {
         case f: PsiFile => return true
-        case p: ScPackaging => return true
+        case _: ScPackaging | _: PsiPackage => return true
         case _ =>
       }
       m.containingClass match {
@@ -1453,6 +1453,7 @@ object ScalaPsiUtil {
 
     nameContext(o) match {
       case member: PsiMember => hasStablePathInner(member)
+      case _: ScPackaging | _: PsiPackage => true
       case _ => false
     }
   }
