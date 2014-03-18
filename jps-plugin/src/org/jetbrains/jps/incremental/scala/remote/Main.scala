@@ -138,8 +138,7 @@ object Main {
                 e, arguments.compilationData.sources.headOption.orNull.getName, className + "$" + className
               ).printStackTrace(new PrintStream(myOut, false))
             case e: Exception =>
-              client worksheetOutput (e.getMessage + "\n")
-              client worksheetOutput e.getStackTrace.mkString("\n")
+              client trace e
           } finally {
             myOut.flush()
           }
