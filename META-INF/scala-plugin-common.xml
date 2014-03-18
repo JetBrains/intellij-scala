@@ -423,6 +423,11 @@
         </intentionAction>
 
         <intentionAction>
+          <category>Scala/Import</category>
+          <className>org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportStableMemberIntention</className>
+        </intentionAction>
+
+        <intentionAction>
             <category>Scala/Expressions</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.ConvertFromInfixExpressionIntention</className>
         </intentionAction>
