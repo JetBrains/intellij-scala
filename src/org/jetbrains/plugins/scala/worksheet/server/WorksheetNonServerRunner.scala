@@ -60,10 +60,10 @@ class WorksheetNonServerRunner(project: Project) {
         
         new WorksheetProcess {
           var myProcess: Option[Process] = None
-          var myCallback: Option[() => Unit] = None
-          
-          override def setTerminationCallback(callback: => Unit) {
-            myCallback = Some(() => callback)
+          var myCallbacks: Seq[() => Unit] = Seq.empty
+
+          override def addTerminationCallback(callback: => Unit) {
+            myCallbacks = myCallbacks :+ (() => callback)
           }
 
           override def run() {
@@ -72,17 +72,15 @@ class WorksheetNonServerRunner(project: Project) {
 
             val reader = new BufferedReader(new InputStreamReader(p.getInputStream))
             new MyBase64StreamReader(reader, listener)
-            
-            myCallback map {
-              case c =>
-                val processWaitFor = new ProcessWaitFor(p, new TaskExecutor {
-                  override def executeTask(task: Runnable): Future[_] = BaseOSProcessHandler.ExecutorServiceHolder.submit(task)
-                })
+            val processWaitFor = new ProcessWaitFor(p, new TaskExecutor {
+              override def executeTask(task: Runnable): Future[_] = BaseOSProcessHandler.ExecutorServiceHolder.submit(task)
+            })
 
-                processWaitFor.setTerminationCallback(new Consumer[Integer] {
-                  override def consume(t: Integer) { c() }
-                })
-            }
+            processWaitFor.setTerminationCallback(new Consumer[Integer] {
+              override def consume(t: Integer) {
+                myCallbacks.foreach(c => c())
+              }
+            })
           }
 
           override def stop() {

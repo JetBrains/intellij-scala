@@ -7,17 +7,18 @@ import com.intellij.openapi.fileEditor._
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.editor.ex.EditorEx
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
-import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.{PsiManager, PsiDocumentManager}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 import org.jetbrains.plugins.scala.extensions
-import org.jetbrains.plugins.scala
-import javax.swing.JPanel
+import javax.swing.{JCheckBox, JPanel}
 import java.awt.FlowLayout
 import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.plugins.scala.components.{WorksheetProcess, StopWorksheetAction}
 import java.util
 import java.lang.ref.WeakReference
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
+import javax.swing.event.{ChangeEvent, ChangeListener}
 
 /**
  * User: Dmitry Naydanov
@@ -40,30 +41,48 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
 
   override def getComponentName: String = "Clean worksheet on editor close"
 
-  def initActions(file: VirtualFile, run: Boolean, exec: Option[WorksheetProcess] = None) {
-//    scala.extensions.inReadAction {
-      if (project.isDisposed) return
+  def initTopComponent(file: VirtualFile, run: Boolean, exec: Option[WorksheetProcess] = None) {
+    if (project.isDisposed) return
 
-      val myFileEditorManager = FileEditorManager.getInstance(project)
-      val editors = myFileEditorManager.getAllEditors(file)
+    val myFileEditorManager = FileEditorManager.getInstance(project)
+    val editors = myFileEditorManager.getAllEditors(file)
 
-      for (editor <- editors) {
-        WorksheetFileHook.getAndRemovePanel(file) map {
-          case ref => 
-            val p = ref.get()
-            if (p != null) myFileEditorManager.removeTopComponent(editor, p)
-        }
-        val panel = new WorksheetFileHook.MyPanel(file)
-        
-        panel.setLayout(new FlowLayout(FlowLayout.LEFT))
+    for (editor <- editors) {
+      WorksheetFileHook.getAndRemovePanel(file) map {
+        case ref =>
+          val p = ref.get()
 
-        if (run) new RunWorksheetAction().init(panel) else exec map (new StopWorksheetAction(_).init(panel))
-        new CleanWorksheetAction().init(panel)
-        new CopyWorksheetAction().init(panel)
-
-        myFileEditorManager.addTopComponent(editor, panel)
+          ApplicationManager.getApplication.invokeLater(new Runnable {
+            override def run() {
+              if (p != null) myFileEditorManager.removeTopComponent(editor, p)
+            }
+          })
       }
-//    }
+      val panel = new WorksheetFileHook.MyPanel(file)
+
+      panel.setLayout(new FlowLayout(FlowLayout.LEFT))
+
+      if (run) new RunWorksheetAction().init(panel) else exec map (new StopWorksheetAction(_).init(panel))
+      new CleanWorksheetAction().init(panel)
+      new CopyWorksheetAction().init(panel)
+
+      extensions.inReadAction {
+        Option(PsiManager getInstance project findFile file) map {
+          case psiFile =>
+            val makeBeforeRun = new JCheckBox("Make project", WorksheetCompiler isMakeBeforeRun psiFile)
+            makeBeforeRun.addChangeListener(new ChangeListener {
+              override def stateChanged(e: ChangeEvent) {
+                WorksheetCompiler.setMakeBeforeRun(psiFile, makeBeforeRun.isSelected)
+              }
+            })
+            panel.add(makeBeforeRun)
+        }
+      }
+
+
+      myFileEditorManager.addTopComponent(editor, panel)
+
+    }
   }
 
   private object WorksheetEditorListener extends FileEditorManagerListener {
@@ -74,7 +93,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
     override def fileOpened(source: FileEditorManager, file: VirtualFile) {
       if (ScalaFileType.WORKSHEET_EXTENSION != file.getExtension) return
       
-      WorksheetFileHook.this.initActions(file, true)
+      WorksheetFileHook.this.initTopComponent(file, run = true)
       loadEvaluationResult(source, file)
     }
     
@@ -86,7 +105,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
             PsiDocumentManager getInstance project getPsiFile ext.getDocument match {
               case scalaFile: ScalaFile => WorksheetEditorPrinter.loadWorksheetEvaluation(scalaFile) foreach {
                 case result if !result.isEmpty =>
-                  val viewer = WorksheetEditorPrinter.createWorksheetViewer(ext, file, true)
+                  val viewer = WorksheetEditorPrinter.createWorksheetViewer(ext, file, modelSync = true)
                   val document = viewer.getDocument
 
                   extensions.inWriteAction {

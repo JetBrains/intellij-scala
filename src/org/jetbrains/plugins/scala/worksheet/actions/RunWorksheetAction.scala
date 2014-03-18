@@ -4,23 +4,30 @@ package worksheet.actions
 import com.intellij.openapi.actionSystem.{AnActionEvent, AnAction}
 import lang.psi.api.ScalaFile
 import com.intellij.execution._
-import com.intellij.execution.configurations.{RunProfileState, ConfigurationTypeUtil}
-import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ExecutionEnvironment}
-import com.intellij.openapi.ui.Messages
-import com.intellij.util.ActionRunner
-import org.jetbrains.plugins.scala.worksheet.runconfiguration.{WorksheetViewerInfo, WorksheetRunConfigurationFactory, WorksheetRunConfiguration, WorksheetConfigurationType}
+import com.intellij.execution.configurations.JavaParameters
+import com.intellij.util.PathUtil
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.keymap.{KeymapUtil, KeymapManager}
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
-import com.intellij.execution.ui.RunContentDescriptor
-import com.intellij.execution.impl.DefaultJavaProgramRunner
+import com.intellij.execution.ui.ConsoleViewContentType
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 import com.intellij.openapi.application.{ModalityState, ApplicationManager}
 import org.jetbrains.plugins.scala
+import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import com.intellij.openapi.roots.{ModuleRootManager, ProjectFileIndex}
+import org.jetbrains.plugins.scala.config.{Libraries, CompilerLibraryData, ScalaFacet}
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.projectRoots.{JdkUtil, JavaSdkType}
+import org.jetbrains.plugins.scala.compiler.ScalacSettings
+import org.jetbrains.plugins.scala.worksheet.MacroPrinter
+import com.intellij.execution.process.{ProcessEvent, ProcessAdapter, OSProcessHandler}
+import com.intellij.ide.util.EditorHelper
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
+import com.intellij.openapi.util.Key
 
 /**
  * @author Ksenia.Sautina
@@ -29,14 +36,21 @@ import org.jetbrains.plugins.scala
  */
 
 class RunWorksheetAction extends AnAction with TopComponentAction {
+  private val runnerClassName = "org.jetbrains.plugins.scala.worksheet.MyWorksheetRunner"
+
   def actionPerformed(e: AnActionEvent) {
-    val editor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
+    runCompiler(e.getProject)
+  }
+  
+  def runCompiler(project: Project) {
+    val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
+
     if (editor == null) return
-    val psiFile: PsiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(editor.getDocument)
+
+    val psiFile: PsiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
     psiFile match {
       case file: ScalaFile if file.isWorksheetFile =>
         val viewer = WorksheetViewerInfo getViewer editor
-        val project = e.getProject
 
         if (viewer != null) {
           ApplicationManager.getApplication.invokeAndWait(new Runnable {
@@ -49,73 +63,111 @@ class RunWorksheetAction extends AnAction with TopComponentAction {
           }, ModalityState.any())
         }
 
-
-        new WorksheetCompiler().compileAndRun(editor, file, (className: String, addToCp: String) => {
-          ApplicationManager.getApplication invokeLater new Runnable {
-            override def run() {
-              executeWorksheet(file.getName, project, file.getContainingFile.getVirtualFile, className, addToCp)
+        def runnable() = {
+          new WorksheetCompiler().compileAndRun(editor, file, (className: String, addToCp: String) => {
+            ApplicationManager.getApplication invokeLater new Runnable {
+              override def run() {
+                executeWorksheet(file.getName, project, file.getContainingFile, className, addToCp)
+              }
             }
-          }
-        }, Option(editor))
+          }, Option(editor))
+        }
+
+        if (WorksheetCompiler isMakeBeforeRun psiFile) {
+          CompilerManager.getInstance(project).make(
+            getModuleFor(file),
+            new CompileStatusNotification {
+              override def finished(aborted: Boolean, errors: Int, warnings: Int, compileContext: CompileContext) {
+                if (!aborted && errors == 0) runnable()
+              }
+            })
+        } else runnable()
       case _ =>
     }
   }
 
-  def executeWorksheet(name: String, project: Project, virtualFile: VirtualFile, mainClassName: String, addToCp: String): Boolean = {
-    val runManagerEx = RunManagerEx.getInstanceEx(project)
-    val configurationType = ConfigurationTypeUtil.findConfigurationType(classOf[WorksheetConfigurationType])
-    val settings = runManagerEx.getConfigurationSettings(configurationType)
+  def executeWorksheet(name: String, project: Project, file: PsiFile, mainClassName: String, addToCp: String) {
+    val virtualFile = file.getVirtualFile
+    val params = createParameters(getModuleFor(file), mainClassName, Option(project.getBaseDir) map (_.getPath) getOrElse "", addToCp, "",
+      virtualFile.getCanonicalPath) //todo extract default java options??
 
-    def execute(setting: RunnerAndConfigurationSettings) {
-      val configuration = setting.getConfiguration.asInstanceOf[WorksheetRunConfiguration]
-      configuration.worksheetField = virtualFile.getCanonicalPath
-      configuration.classToRunField = mainClassName
-      configuration.addCpField = addToCp
-      configuration.setName("WS: " + name)
-      runManagerEx.setSelectedConfiguration(setting)
-      val runExecutor = DefaultRunExecutor.getRunExecutorInstance
-      val runner: DefaultJavaProgramRunner = new DefaultJavaProgramRunner {
-        override protected def doExecute(project: Project, state: RunProfileState,
-                               contentToReuse: RunContentDescriptor, env: ExecutionEnvironment): RunContentDescriptor = {
-          val descriptor = super.doExecute(project, state, contentToReuse, env)
-          descriptor.setActivateToolWindowWhenAdded(false)
-          descriptor
-        }
-      }
-      
-      if (runner != null) {
-        try {
-          val builder: ExecutionEnvironmentBuilder = new ExecutionEnvironmentBuilder(project, runExecutor)
-          builder.setRunnerAndSettings(runner, setting)
-          runner.execute(builder.build())
-        }
-        catch {
-          case e: ExecutionException =>
-            Messages.showErrorDialog(project, e.getMessage, ExecutionBundle.message("error.common.title"))
-        }
-      }
-    }
-    for (setting <- settings) {
-      ActionRunner.runInsideReadAction(new ActionRunner.InterruptibleRunnable {
-        def run() {
-          execute(setting)
-        }
-      })
-      return true
-    }
-    ActionRunner.runInsideReadAction(new ActionRunner.InterruptibleRunnable {
-      def run() {
-        val factory: WorksheetRunConfigurationFactory =
-          configurationType.getConfigurationFactories.apply(0).asInstanceOf[WorksheetRunConfigurationFactory]
-        val setting = RunManagerEx.getInstanceEx(project).createConfiguration(name, factory)
-
-        runManagerEx.setTemporaryConfiguration(setting)
-        execute(setting)
-      }
-    })
-    false
+    setUpUiAndRun(params.createOSProcessHandler(), file)
   }
 
+  private def createParameters(module: Module, mainClassName: String,
+                               workingDirectory: String, additionalCp: String, consoleArgs: String, worksheetField: String) =  {
+    import _root_.scala.collection.JavaConverters._
+
+    if (module == null) throw new ExecutionException("Module is not specified")
+    
+    val project = module.getProject
+
+    val facet = ScalaFacet.findIn(module).getOrElse {
+      throw new ExecutionException("No Scala facet configured for module " + module.getName)
+    }
+
+    val rootManager = ModuleRootManager.getInstance(module)
+    val sdk = rootManager.getSdk
+    if (sdk == null || !sdk.getSdkType.isInstanceOf[JavaSdkType]) {
+      throw CantRunException.noJdkForModule(module)
+    }
+
+    val params = new JavaParameters()
+    val files =
+      if (facet.fsc) {
+        val settings = ScalacSettings.getInstance(project)
+        val lib: Option[CompilerLibraryData] = Libraries.findBy(settings.COMPILER_LIBRARY_NAME,
+          settings.COMPILER_LIBRARY_LEVEL, project)
+        lib match {
+          case Some(compilerLib) => compilerLib.files
+          case _ => facet.files
+        }
+      } else facet.files
+    params.getClassPath.addAllFiles(files.asJava)
+    params.setUseDynamicClasspath(JdkUtil.useDynamicClasspath(project))
+    params.setUseDynamicVMOptions(JdkUtil.useDynamicVMOptions())
+    params.getClassPath.add(PathUtil.getJarPathForClass(classOf[_root_.org.jetbrains.plugins.scala.worksheet.MyWorksheetRunner]))
+    params.setWorkingDirectory(workingDirectory)
+    params.setMainClass(runnerClassName)
+    params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
+
+    params.getClassPath.add(PathUtil.getJarPathForClass(classOf[MacroPrinter]))
+    params.getClassPath.add(additionalCp)
+    params.getProgramParametersList addParametersString worksheetField
+    if (!consoleArgs.isEmpty) params.getProgramParametersList addParametersString consoleArgs
+    params.getProgramParametersList prepend mainClassName //IMPORTANT! this must be first program argument
+
+    params
+  }
+
+  private def setUpUiAndRun(handler: OSProcessHandler, file: PsiFile) {
+    val virtualFile = file.getVirtualFile
+
+    val editor = EditorHelper openInEditor file
+
+    val worksheetPrinter = WorksheetEditorPrinter.newWorksheetUiFor(editor, virtualFile)
+
+    val myProcessListener: ProcessAdapter = new ProcessAdapter {
+      override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
+        val text = event.getText
+        if (ConsoleViewContentType.NORMAL_OUTPUT == ConsoleViewContentType.getConsoleViewType(outputType)) {
+          worksheetPrinter processLine text
+        }
+      }
+
+      override def processTerminated(event: ProcessEvent): Unit = {
+        worksheetPrinter.flushBuffer()
+      }
+    }
+
+    worksheetPrinter.scheduleWorksheetUpdate()
+    handler.addProcessListener(myProcessListener)
+
+    handler.startNotify()
+  }
+
+  private def getModuleFor(file: PsiFile) = ProjectFileIndex.SERVICE getInstance file.getProject getModuleForFile file.getVirtualFile
+  
   override def update(e: AnActionEvent) {
     val presentation = e.getPresentation
     presentation.setIcon(AllIcons.Actions.Execute)

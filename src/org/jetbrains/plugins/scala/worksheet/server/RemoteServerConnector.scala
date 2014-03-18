@@ -6,7 +6,7 @@ import java.io._
 import java.net._
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import com.intellij.util.{Base64Converter, PathUtil}
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaApplicationSettings}
+import org.jetbrains.plugins.scala.compiler.ScalaApplicationSettings
 import org.jetbrains.jps.incremental.scala.remote._
 import com.intellij.openapi.module.Module
 import org.jetbrains.plugins.scala
@@ -22,20 +22,23 @@ import com.intellij.openapi.progress.{ProgressManager, ProgressIndicator}
 import com.intellij.openapi.project.Project
 import com.intellij.compiler.CompilerMessageImpl
 import org.jetbrains.jps.incremental.messages.BuildMessage
-import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetSourceProcessor}
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
 import com.intellij.openapi.compiler.{CompilerPaths, CompilerMessageCategory}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.compiler.progress.CompilerTask
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
-import org.jetbrains.plugins.scala.components.WorksheetProcess
+import com.intellij.openapi.application.ApplicationManager
 
 /**
   * User: Dmitry Naydanov
  * Date: 1/28/14
  */
 class RemoteServerConnector(module: Module, worksheet: File, output: File) {
-  private val libRoot = new File(PathUtil.getJarPathForClass(getClass)).getParentFile 
+  private val libRoot = {
+    if (ApplicationManager.getApplication.isUnitTestMode)
+      new File("../out/cardea/artifacts/Scala/lib") else new File(PathUtil.getJarPathForClass(getClass)).getParentFile
+  }
   
   private val libCanonicalPath = PathUtil.getCanonicalPath(libRoot.getPath)
   
@@ -80,7 +83,7 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File) {
    */
   def compileAndRun(callback: Runnable, originalFile: VirtualFile, consumer: OuterCompilerInterface, 
                     worksheetClassName: String, runType: WorksheetMakeType): ExitCode = {
-    implicit def file2path(file: File) = FileUtil.toCanonicalPath(file.getPath)
+    implicit def file2path(file: File) = FileUtil.toCanonicalPath(file.getAbsolutePath)
     implicit def option2string(opt: Option[String]) = opt getOrElse ""
     implicit def files2paths(files: Iterable[File]) = files map file2path mkString "\n"
     implicit def array2string(arr: Array[String]) = arr mkString "\n"
@@ -101,7 +104,7 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File) {
     val additionalCp = facetFiles :+ runnersJar :+ compilerSettingsJar :+ output 
     
     val worksheetArgs = 
-      if (runType != OutOfProcessServer) Array(worksheetClassName, runnersJar.getPath, output.getPath) ++ outputDirs 
+      if (runType != OutOfProcessServer) Array(worksheetClassName, runnersJar.getAbsolutePath, output.getAbsolutePath) ++ outputDirs
       else Array.empty[String]
 
     val arguments = Seq[String](
@@ -146,8 +149,8 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File) {
       
       if (worksheetProcess == null) return ExitCode.ABORT
       
-      worksheetHook.initActions(originalFile, false, Some(worksheetProcess))
-      worksheetProcess.setTerminationCallback({worksheetHook.initActions(originalFile, true)})
+      worksheetHook.initTopComponent(originalFile, run = false, Some(worksheetProcess))
+      worksheetProcess.addTerminationCallback({worksheetHook.initTopComponent(originalFile, run = true)})
       worksheetProcess.run()
       
       ExitCode.OK
