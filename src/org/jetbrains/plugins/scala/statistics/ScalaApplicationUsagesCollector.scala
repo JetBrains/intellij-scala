@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import com.intellij.psi.JavaPsiFacade
 import com.intellij.ide.plugins.PluginManager
 import com.intellij.openapi.extensions.PluginId
+import com.intellij.openapi.projectRoots.{JavaSdk, JdkUtil}
+import com.intellij.openapi.roots.ModuleRootManager
 
 /**
  * @author Alefas
@@ -24,10 +26,16 @@ class ScalaApplicationUsagesCollector extends AbstractApplicationUsagesCollector
 
     //collecting Scala version
     var scala_version: Option[String] = None
+    var java_version: Option[String] = None
     for (module <- ModuleManager.getInstance(project).getModules) {
       ScalaFacet.findIn(module) match {
         case Some(facet) =>
           scala_version = Some(facet.version)
+        case _ =>
+      }
+
+      ModuleRootManager.getInstance(module).getSdk match {
+        case jsdk: JavaSdk => java_version = Option(jsdk.getVersionString)
         case _ =>
       }
     }
@@ -66,6 +74,10 @@ class ScalaApplicationUsagesCollector extends AbstractApplicationUsagesCollector
       checkLibrary("utest", "uTest")
       checkLibrary("junit", "JUnit for Scala")
       checkLibrary("org.testng", "TestNG for Scala")
+
+      java_version.foreach {
+        case version: String => set += new UsageDescriptor(s"Java version: $version", 1)
+      }
     } else {
       checkLibrary("play.api.mvc", s"Play2 for Java|$isPlayInstalled")
       checkLibrary("akka.actor", "Akka for Java")
