@@ -41,7 +41,8 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
       import selectionModel._
       val a: Option[(ScExpression, Array[ScType])] = ScalaRefactoringUtil.getExpression(file.getProject, editor, file, getSelectionStart, getSelectionEnd)
       a.foreach {
-        case (expr, Array(tpe, _)) =>
+        case (expr, arr) if arr.nonEmpty =>
+          val tpe = arr.head
           val tpeWithoutImplicits = expr.getTypeWithoutImplicits(TypingContext.empty).toOption
           val tpeWithoutImplicitsText = tpeWithoutImplicits.map(_.presentableText)
 
