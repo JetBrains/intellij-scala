@@ -55,11 +55,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       ScalaRefactoringUtil.checkFile(file, project, editor, REFACTORING_NAME)
 
-      val (expr: ScExpression, scType: ScType) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
+      val (expr: ScExpression, types: Array[ScType]) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
               getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, REFACTORING_NAME))
-
-      val types = ScalaRefactoringUtil.addPossibleTypes(scType, expr)
-              .map(ScalaRefactoringUtil.replaceSingletonTypes)
 
       ScalaRefactoringUtil.checkCanBeIntroduced(expr, showErrorMessage(_, project, editor, REFACTORING_NAME))
 
@@ -335,10 +332,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     PsiDocumentManager.getInstance(project).commitAllDocuments()
     ScalaRefactoringUtil.checkFile(file, project, editor, REFACTORING_NAME)
 
-    val (expr: ScExpression, scType: ScType) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
+    val (expr: ScExpression, types: Array[ScType]) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
             getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, REFACTORING_NAME))
-
-    val types = ScalaRefactoringUtil.addPossibleTypes(scType, expr)
 
     ScalaRefactoringUtil.checkCanBeIntroduced(expr, showErrorMessage(_, project, editor, REFACTORING_NAME))
 
