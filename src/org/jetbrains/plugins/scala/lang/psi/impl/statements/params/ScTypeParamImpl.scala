@@ -93,7 +93,7 @@ class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScType
 
   def owner  = getContext.getContext.asInstanceOf[ScTypeParametersOwner]
 
-  override def getUseScope  = new LocalSearchScope(owner)
+  override def getUseScope  = new LocalSearchScope(owner).intersectWith(super.getUseScope)
 
   def nameId = findLastChildByType(TokenSets.ID_SET)
 
