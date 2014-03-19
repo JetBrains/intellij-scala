@@ -26,11 +26,13 @@ class SpacingInfo(val spacesCount: Int, val minLineBreaksCount: Option[Int], val
 
   override def equals(other :Any) = other match {
     case info: SpacingInfo => info.spacesCount == spacesCount &&
-            info.spacesCount == minLineBreaksCount &&
+            info.minLineBreaksCount == minLineBreaksCount &&
             info.maxLineBreaksCount  == maxLineBreaksCount &&
             info.lineBreaksCount == lineBreaksCount
     case _ => false
   }
+
+  override def hashCode = spacesCount + lineBreaksCount
 }
 
 object SpacingInfo {

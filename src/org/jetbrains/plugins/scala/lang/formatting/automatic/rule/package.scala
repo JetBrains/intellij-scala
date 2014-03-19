@@ -109,6 +109,8 @@ package object rule {
 
   def getRule(id: String): ScalaFormattingRule = rulesByNames.get(id).get
 
+  def containsRule(id: String): Boolean = rulesByNames.contains(id)
+
   //first, define simple block rules
   val leftBracket = ScalaBlockRule("[", "LEFT_BRACKET")
 

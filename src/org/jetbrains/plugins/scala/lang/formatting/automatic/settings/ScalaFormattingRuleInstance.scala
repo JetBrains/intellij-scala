@@ -11,7 +11,7 @@ import com.intellij.openapi.util.TextRange
  * @author Roman.Shein
  *         Date: 19.11.13
  */
-class ScalaFormattingRuleInstance (val parentAndPosition: Option[RuleParentInfo], val rule: ScalaFormattingRule, val root: ScalaFormattingRule) {
+class ScalaFormattingRuleInstance(val parentAndPosition: Option[RuleParentInfo], val rule: ScalaFormattingRule, val root: ScalaFormattingRule) {
 
   def position = parentAndPosition match {
     case Some(value) => Some(value.position)
@@ -51,7 +51,7 @@ class ScalaFormattingRuleInstance (val parentAndPosition: Option[RuleParentInfo]
       formatBlock match {
         case Some(valBlock) => Some(valBlock)
         case _ => childMatches.foldRight(None: Option[ScalaBlock])((childMatch, acc) => //fold right since children are in reversed order
-          acc.map(Some(_)).getOrElse(childMatch.getFormattingDefiningBlock))
+          acc.map(Some(_)).getOrElse(childMatch.getFormattingDefiningBlock)) //TODO: check if this Some is idea bug
       }
 
     def getSubRules: List[ScalaFormattingRuleInstance#RuleMatch] = childMatches//.map(_.getSubRules).flatten
@@ -61,7 +61,7 @@ class ScalaFormattingRuleInstance (val parentAndPosition: Option[RuleParentInfo]
       for (i <- 1 to offset) res.append(" ")
       res.append("|" + rule.toString)
       settings match {
-        case Some(_settings) => _settings.getEntryForRule(rule) match {
+        case Some(_settings) => _settings.getEntryForRule(rule).flatten match {
           case Some(entry) => res.append(entry.toString)
           case _ => res.append(" no settings derived for this match")
         }
