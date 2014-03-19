@@ -24,7 +24,7 @@ object IntroduceVariableTestUtil {
   def extract2[T,U](x: (T, U)): U = x._2
 
   def getValidator(project: Project, editor: Editor, file: ScalaFile, startOffset: Int, endOffset: Int): ScalaVariableValidator = {
-    val (expr: ScExpression, typez: ScType) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).get
+    val (expr: ScExpression, _) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).get
 
     val fileEncloser = if (file.isScriptFile()) file
     else {

@@ -91,9 +91,9 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
           ScalaRefactoringUtil.afterExpressionChoosing(project, editor, scalaFile, null, "Introduce Variable") {
             ScalaRefactoringUtil.trimSpacesAndComments(editor, scalaFile)
             PsiDocumentManager.getInstance(project).commitAllDocuments()
-            val (expr: ScExpression, typez: ScType) = ScalaRefactoringUtil.
-                    getExpression(project, editor, scalaFile, startOffset, endOffset).get
-            val types = ScalaRefactoringUtil.addPossibleTypes(typez, expr)
+            val (expr: ScExpression, types: Array[ScType]) =
+              ScalaRefactoringUtil.getExpression(project, editor, scalaFile, startOffset, endOffset).get
+
             val function = PsiTreeUtil.getContextOfType(expr, true, classOf[ScFunctionDefinition])
             val methodToSearchFor: PsiMethod = SuperMethodWarningUtil.checkSuperMethod(function, RefactoringBundle.message("to.refactor"))
 
