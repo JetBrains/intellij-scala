@@ -429,12 +429,16 @@ object ScalaPsiUtil {
     exprTp match {
       case ScTypePolymorphicType(internal, typeParam) if !typeParam.isEmpty &&
         !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[ScUndefinedType] =>
-        if (approveDynamic(internal)) processor.processType(internal, call.getEffectiveInvokedExpr, ResolveState.initial())
+        if (approveDynamic(internal)) {
+          val state: ResolveState = ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, internal)
+          processor.processType(internal, call.getEffectiveInvokedExpr, state)
+        }
         candidates = processor.candidatesS
       case _ =>
     }
     if (candidates.isEmpty && approveDynamic(exprTp.inferValueType)) {
-      processor.processType(exprTp.inferValueType, call.getEffectiveInvokedExpr, ResolveState.initial)
+      val state: ResolveState = ResolveState.initial.put(BaseProcessor.FROM_TYPE_KEY, exprTp.inferValueType)
+      processor.processType(exprTp.inferValueType, call.getEffectiveInvokedExpr, state)
       candidates = processor.candidatesS
     }
 
@@ -450,6 +454,7 @@ object ScalaPsiUtil {
             case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
             case _ =>
           }
+          state = state.put(BaseProcessor.FROM_TYPE_KEY, res.tp)
           processor.processType(res.getTypeWithDependentSubstitutor, expr, state)
         case _ =>
       }
