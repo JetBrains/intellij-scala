@@ -1960,4 +1960,11 @@ object ScalaPsiUtil {
     }
   }
 
+  def intersectScopes(scope: SearchScope, scopeOption: Option[SearchScope]) = {
+    scopeOption match {
+      case Some(s) => s.intersectWith(scope)
+      case None => scope
+    }
+  }
+
 }

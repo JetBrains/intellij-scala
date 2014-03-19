@@ -226,22 +226,6 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
     }
   }
 
-  override def getUseScope: SearchScope = {
-    val isPrivate = getModifierList.accessModifier match {
-      case Some(mod)  => mod.isUnqualifiedPrivateOrThis
-      case _ => false
-    }
-    getParent match {
-      case _: ScTemplateBody if isPrivate && containingClass != null => ScalaPsiUtil.withCompanionSearchScope(containingClass)
-      case _: ScTemplateBody => super.getUseScope
-      case _ =>
-        var el: PsiElement = getParent
-        while (el != null && !el.isInstanceOf[ScBlock] && !el.isInstanceOf[ScMember]) el = el.getParent
-        if (el != null) new LocalSearchScope(el)
-        else super.getUseScope
-    }
-  }
-
   override protected def isSimilarMemberForNavigation(m: ScMember, strictCheck: Boolean) = m match {
     case f: ScFunction => f.name == name && {
       if (strictCheck) new PhysicalSignature(this, ScSubstitutor.empty).

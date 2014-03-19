@@ -18,6 +18,8 @@ import expr.{ScArgumentExprList, ScFunctionExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.lang.java.lexer.JavaLexer
 import com.intellij.pom.java.LanguageLevel
+import com.intellij.psi.search.{LocalSearchScope, GlobalSearchScope}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 
 /**
  * @author Alexander Podkhalyuzin
@@ -77,5 +79,16 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
     val res = super.getName
     if (JavaLexer.isKeyword(res, LanguageLevel.HIGHEST)) "_" + res
     else res
+  }
+
+  abstract override def getUseScope = {
+    val specificScope = getDeclarationScope match {
+      case null => GlobalSearchScope.EMPTY_SCOPE
+      case expr: ScFunctionExpr => new LocalSearchScope(expr)
+      case clazz: ScClass if clazz.isCase => clazz.getUseScope
+      case clazz: ScClass if this.isInstanceOf[ScClassParameter] => clazz.getUseScope //for named parameters
+      case d => d.getUseScope
+    }
+    specificScope.intersectWith(super.getUseScope)
   }
 }
