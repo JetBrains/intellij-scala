@@ -116,7 +116,7 @@ object ScalaRefactoringUtil {
     scType.recursiveUpdate(replaceSingleton)
   }
 
-  def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[(ScExpression, ScType)] = {
+  def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[(ScExpression, Array[ScType])] = {
     val element = PsiTreeUtil.findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScExpression])
     if (element == null || element.getTextRange.getStartOffset != startOffset || element.getTextRange.getEndOffset != endOffset) {
       val rangeText = file.getText.substring(startOffset, endOffset)
@@ -125,7 +125,7 @@ object ScalaRefactoringUtil {
         case Some(expression: ScInfixExpr) =>
           val op1 = expression.operation
           if (ScalaRefactoringUtil.ensureFileWritable(project, file)) {
-            var res: Option[(ScExpression, ScType)] = None
+            var res: Option[(ScExpression, Array[ScType])] = None
             ScalaUtils.runWriteAction(new Runnable {
               def run() {
                 val document = editor.getDocument
@@ -172,7 +172,8 @@ object ScalaRefactoringUtil {
       case (ReferenceToFunction(func), ScFunctionType(returnType, _)) if (func: ScFunction).parameters.isEmpty => returnType
       case _ => cachedType
     }
-    Some((element, exprType))
+    val types = addPossibleTypes(exprType, element).map(replaceSingletonTypes)
+    Some((element, types))
   }
 
   def expressionToIntroduce(expr: ScExpression): ScExpression = {
