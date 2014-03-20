@@ -1,0 +1,5 @@
+<spot>import scala.math._</spot>
+
+object Example {
+  val someValue = <spot>floor</spot>(<spot>Pi</spot> * <spot>E</spot>)
+}

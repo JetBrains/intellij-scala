@@ -118,6 +118,22 @@ class ImportStableMemberIntentionTest extends ScalaIntentionTestBase {
     doTest(text, result)
   }
 
+  def testNesting() {
+    val text =
+      """
+        |object A {
+        |  math <caret>floor math.floor(math Pi)
+        |}
+      """.stripMargin
+    val result =
+      """import scala.math.floor
+        |
+        |object A {
+        |  floor(floor(math Pi))
+        |}""".stripMargin
+    doTest(text, result)
+  }
+
   def testPostfix() {
     val text =
       """object A {
@@ -161,6 +177,35 @@ class ImportStableMemberIntentionTest extends ScalaIntentionTestBase {
         |  <caret>fill(new Array[Int](1), 1)
         |}""".stripMargin
     doTest(text, result)
+  }
+
+  def testNonStatic() {
+    val text =
+      """object A {
+        |  math.Pi.<caret>toString
+        |}
+      """.stripMargin
+    checkIntentionIsNotAvailable(text)
+  }
+
+  def testInfixNonStatic() {
+    val text =
+      """object A {
+        |  math.Pi <caret>+ 1
+        |}
+      """.stripMargin
+    checkIntentionIsNotAvailable(text)
+  }
+
+  def testInImport() {
+    val text =
+      """import math.<caret>E
+        |
+        |object A {
+        |  math.Pi
+        |}
+      """.stripMargin
+    checkIntentionIsNotAvailable(text)
   }
 
 }

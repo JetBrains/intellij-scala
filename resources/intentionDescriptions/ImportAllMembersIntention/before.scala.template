@@ -1,0 +1,3 @@
+object Example {
+  val someValue = <spot>math.floor</spot>(<spot>math.Pi</spot> * <spot>math.E</spot>)
+}
