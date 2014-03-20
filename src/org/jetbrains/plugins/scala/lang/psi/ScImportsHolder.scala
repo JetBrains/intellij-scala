@@ -200,18 +200,12 @@ trait ScImportsHolder extends ScalaPsiElement {
   }
 
   def addImportForPsiNamedElement(elem: PsiNamedElement, ref: PsiElement, cClass: Option[PsiClass] = None) {
-    ScalaPsiUtil.nameContext(elem) match {
-      case memb: PsiMember =>
-        val containingClass = cClass.getOrElse(memb.containingClass)
-        if (containingClass != null && containingClass.qualifiedName != null) {
-          ref match {
-            case ref: ScReferenceElement =>
-              if (!ref.isValid || ref.isReferenceTo(elem)) return
-            case _ =>
-          }
-          val qual = Seq(containingClass.qualifiedName, elem.name).filter(_ != "").mkString(".")
-          addImportForPath(qual)
-        }
+    def needImport = ref match {
+      case ref: ScReferenceElement => ref.isValid && !ref.isReferenceTo(elem)
+      case _ => false
+    }
+    ScalaNamesUtil.qualifiedName(elem) match {
+      case Some(qual) if needImport => addImportForPath(qual)
       case _ =>
     }
   }
@@ -233,8 +227,7 @@ trait ScImportsHolder extends ScalaPsiElement {
         val qualifier = expr.qualifier
         if (qualifier != null) { //in case "import scala" it can be null
           val qn = qualifier.resolve() match {
-            case pack: PsiPackage => pack.getQualifiedName
-            case clazz: PsiClass => clazz.qualifiedName
+            case named: PsiNamedElement => ScalaNamesUtil.qualifiedName(named).getOrElse("")
             case _ => ""
           }
           if (qn == classPackageQualifier) {
@@ -443,16 +436,7 @@ trait ScImportsHolder extends ScalaPsiElement {
             //let's try to fix it by adding all before imports explicitly
             candidatesBefore.get(s).getOrElse(collection.immutable.HashSet.empty[PsiNamedElement]).foreach {
               case c: PsiClass => pathes += c.qualifiedName
-              case c: PsiNamedElement =>
-                ScalaPsiUtil.nameContext(c) match {
-                  case memb: PsiMember =>
-                    val containingClass = memb.containingClass
-                    if (containingClass != null && containingClass.qualifiedName != null) {
-                      val qual = Seq(containingClass.qualifiedName, c.name).filter(_ != "").mkString(".")
-                      pathes += qual
-                    }
-                  case _ =>
-                }
+              case c: PsiNamedElement => pathes ++= ScalaNamesUtil.qualifiedName(c)
             }
             for (path <- pathes) {
               addImportForPath(path, ref, explicitly = true)

@@ -1,4 +1,3 @@
-import scala.math
 <spot>import scala.math.Pi</spot>
 
 object Example {
