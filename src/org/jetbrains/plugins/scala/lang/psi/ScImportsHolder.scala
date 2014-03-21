@@ -33,6 +33,7 @@ import collection.mutable.ArrayBuffer
 import com.intellij.psi.stubs.StubElement
 import collection.mutable
 import scala.annotation.tailrec
+import com.intellij.lang.ASTNode
 
 trait ScImportsHolder extends ScalaPsiElement {
 
@@ -569,37 +570,37 @@ trait ScImportsHolder extends ScalaPsiElement {
   }
 
   def deleteImportStmt(stmt: ScImportStmt) {
-    val remove = getNode.removeChild _
+    def remove(node: ASTNode) = getNode.removeChild(node)
+    def shortenWhitespace(node: ASTNode) {
+      if (node == null) return
+      if (node.getText.count(_ == '\n') >= 2) {
+        val nl = ScalaPsiElementFactory.createNewLine(getManager, node.getText.replaceFirst("[\n]", ""))
+        getNode.replaceChild(node, nl.getNode)
+      }
+    }
+    def removeWhitespace(node: ASTNode) {
+      if (node == null) return
+      if (node.getPsi.isInstanceOf[PsiWhiteSpace]) {
+        if (node.getText.count(_ == '\n') < 2) remove(node)
+        else shortenWhitespace(node)
+      }
+    }
+    def removeSemicolonAndWhitespace(node: ASTNode) {
+      if (node == null) return
+      if (node.getElementType == ScalaTokenTypes.tSEMICOLON) {
+        removeWhitespace(node.getTreeNext)
+        remove(node)
+      }
+      else removeWhitespace(node)
+    }
+
     val node = stmt.getNode
     val next = node.getTreeNext
-    if (next == null) {
-      remove(node)
-    } else if (next.getPsi.isInstanceOf[PsiWhiteSpace]) {
-      if (next.getText.count(_ == '\n') < 2)
-        remove(next)
-      else {
-        val nl = ScalaPsiElementFactory.createNewLine(getManager, next.getText.replaceFirst("[\n]", ""))
-        getNode.replaceChild(next, nl.getNode)
-      }
-      remove(node)
-    } else if (next.getElementType == ScalaTokenTypes.tSEMICOLON) {
-      val nextnext = next.getTreeNext
-      if (nextnext == null) {
-        remove(next)
-        remove(node)
-      }
-      else if (next.isInstanceOf[PsiWhiteSpace] && next.getText.contains("\n")) {
-        remove(nextnext)
-        remove(next)
-        remove(node)
-      } else {
-        remove(node)
-        remove(next)
-      }
-    }
-    else {
-      remove(node)
-    }
+    val prev = node.getTreePrev
+
+    removeSemicolonAndWhitespace(next)
+    remove(node)
+    shortenWhitespace(prev)
   }
 }
 
