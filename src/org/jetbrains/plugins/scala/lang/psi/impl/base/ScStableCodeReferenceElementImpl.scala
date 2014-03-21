@@ -166,11 +166,11 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
             } else getParent match {
               case importExpr: ScImportExpr if !importExpr.singleWildcard && !importExpr.selectorSet.isDefined =>
                 val holder = PsiTreeUtil.getParentOfType(this, classOf[ScImportsHolder])
+                importExpr.deleteExpr()
                 c match {
                   case ClassTypeToImport(clazz) => holder.addImportForClass(clazz)
                   case ta => holder.addImportForPath(ta.qualifiedName)
                 }
-                importExpr.deleteExpr()
               //todo: so what to return? probable PIEAE after such code invocation
               case _ =>
                 return safeBindToElement(qname, {
