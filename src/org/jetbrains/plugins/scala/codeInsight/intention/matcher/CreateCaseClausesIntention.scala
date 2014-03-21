@@ -11,7 +11,7 @@ import collection.Seq
 import java.lang.String
 import lang.psi.types.{ScSubstitutor, ScType}
 import lang.psi.ScalaPsiUtil
-import com.intellij.codeInsight.{FileModificationService, CodeInsightUtilBase}
+import com.intellij.codeInsight.FileModificationService
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject, ScClass}
 import lang.psi.api.base.patterns.{ScPattern, ScCaseClause}
@@ -28,7 +28,7 @@ final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     findSurroundingMatch(element) match {
       case Some((_, scrutineeType)) =>
-        setText(getFamilyName + " for variants of " + scrutineeType)
+        setText(getFamilyName + scrutineeType)
         true
       case None =>
         false
@@ -47,7 +47,8 @@ final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
   }
 
 
-  private def addMatchClausesForSealedClass(matchStmt: ScMatchStmt, expr: ScExpression, cls: ScClass)(project: Project, editor: Editor, element: PsiElement) {
+  private def addMatchClausesForSealedClass(matchStmt: ScMatchStmt, expr: ScExpression, cls: ScTypeDefinition)
+                                           (project: Project, editor: Editor, element: PsiElement) {
     val inheritors = inheritorsOf(cls)
     val (caseClauseTexts, bindTos) = inheritors.map(caseClauseText).unzip
     val newMatchStmt = ScalaPsiElementFactory.createMatch(expr.getText, caseClauseTexts, element.getManager)
@@ -55,14 +56,28 @@ final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
     bindReferences(newMatchStmt, bindTos)
   }
 
-  private def addMatchClausesForEnum(matchStmt: ScMatchStmt, expr: ScExpression, cls: PsiClass)(project: Project, editor: Editor, element: PsiElement) {
+  private def addMatchClausesForEnum(matchStmt: ScMatchStmt, expr: ScExpression, cls: PsiClass)
+                                    (project: Project, editor: Editor, element: PsiElement) {
     val enumConsts: Array[PsiEnumConstant] = cls.getFields.collect {
       case enumConstant: PsiEnumConstant => enumConstant
     }
     val caseClauseTexts = enumConsts.map(ec => "case %s.%s =>".format(cls.name, ec.name))
     val newMatchStmt = ScalaPsiElementFactory.createMatch(expr.getText, caseClauseTexts, element.getManager)
     matchStmt.replace(newMatchStmt)
-    bindReferences(newMatchStmt, (_ => cls))
+    bindReferences(newMatchStmt, _ => cls)
+  }
+
+  private def addMatchClausesForCaseClassesAndObjects(matchStmt: ScMatchStmt, expr: ScExpression, cls: PsiClass)
+                                           (project: Project, editor: Editor, element: PsiElement) {
+    val inheritors = inheritorsOf(cls).filter(inh => inh.isCase || inh.isObject)
+    val (withoutDefault, bindTos) = inheritors.map(caseClauseText).unzip
+    val defaultCaseClauseText = "case _ =>"
+    val caseClauseTexts =
+      if (withoutDefault.nonEmpty) withoutDefault :+ defaultCaseClauseText
+      else Seq(s"\n$defaultCaseClauseText //could not find inherited objects or case classes\n")
+    val newMatchStmt = ScalaPsiElementFactory.createMatch(expr.getText, caseClauseTexts, element.getManager)
+    matchStmt.replace(newMatchStmt)
+    bindReferences(newMatchStmt, bindTos)
   }
 
   private def bindReferences(newMatchStmt: ScMatchStmt, bindTargets: Int => PsiNamedElement) {
@@ -82,7 +97,7 @@ final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
     ref.bindToElement(bindTo)
   }
 
-  private def inheritorsOf(cls: ScClass): Seq[ScTypeDefinition] = {
+  private def inheritorsOf(cls: PsiClass): Seq[ScTypeDefinition] = {
     val found: Array[ScTypeDefinition] = ClassInheritorsSearch.search(cls, cls.getResolveScope, false).toArray(PsiClass.EMPTY_ARRAY).collect {
       case x: ScTypeDefinition => x
     }
@@ -115,7 +130,6 @@ final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
     (text, bindTo)
   }
 
-
   /**
    * @return (matchStmt, matchExpression, matchExpressionClass)
    */
@@ -126,8 +140,12 @@ final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
                 flatMap(t => ScType.extractClassType(t, Some(element.getProject)))
 
         classType match {
-          case Some((cls: ScClass, subst)) if cls.hasModifierProperty("sealed") => Some(addMatchClausesForSealedClass(x, x.expr.get, cls), "Sealed Type")
-          case Some((cls: PsiClass, subst)) if cls.isEnum => Some(addMatchClausesForEnum(x, x.expr.get, cls), "Java Enumeration")
+          case Some((cls: ScTypeDefinition, _)) if cls.hasModifierProperty("sealed") =>
+            Some(addMatchClausesForSealedClass(x, x.expr.get, cls), " for variants of sealed type")
+          case Some((cls: PsiClass, _)) if cls.isEnum =>
+            Some(addMatchClausesForEnum(x, x.expr.get, cls), " for variants of java enum")
+          case Some((cls: PsiClass, _)) if !cls.hasFinalModifier =>
+            Some(addMatchClausesForCaseClassesAndObjects(x, x.expr.get, cls), " for inherited objects and case classes")
           case _ => None
         }
       case _ => None
