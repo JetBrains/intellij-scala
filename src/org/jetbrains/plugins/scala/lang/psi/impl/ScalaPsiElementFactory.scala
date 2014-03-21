@@ -145,7 +145,7 @@ object ScalaPsiElementFactory {
     try {
       createExpressionWithContextFromText(text, context, context)
     } catch {
-      case e: Throwable => throw new IncorrectOperationException
+      case e: Throwable => throw new IncorrectOperationException(s"Cannot create expression from text $text")
     }
   }
 
@@ -325,10 +325,15 @@ object ScalaPsiElementFactory {
 
   def createIdentifier(name: String, manager: PsiManager): ASTNode = {
     val text = "package " + (if (!ScalaNamesUtil.isKeyword(name)) name else "`" + name + "`")
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
-      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    dummyFile.getNode.getLastChildNode.getLastChildNode.getLastChildNode
+    try {
+      val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+              createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
+                ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+      dummyFile.getNode.getLastChildNode.getLastChildNode.getLastChildNode
+    }
+    catch {
+      case t: Throwable => throw new IllegalArgumentException(s"Cannot create identifier from text $name")
+    }
   }
 
   def createModifierFromText(name: String, manager: PsiManager): ASTNode = {
@@ -359,10 +364,18 @@ object ScalaPsiElementFactory {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    val imp: ScImportStmt = dummyFile.getFirstChild.asInstanceOf[ScImportStmt]
-    val expr: ScImportExpr = imp.importExprs.apply(0)
-    val ref = expr.reference match {case Some(x) => x case None => return null}
-    ref
+    try {
+      val imp: ScImportStmt = dummyFile.getFirstChild.asInstanceOf[ScImportStmt]
+      val expr: ScImportExpr = imp.importExprs.apply(0)
+      val ref = expr.reference match {
+        case Some(x) => x
+        case None => return null
+      }
+      ref
+    }
+    catch {
+      case t: Throwable => throw new IllegalArgumentException(s"Cannot create reference with text $name")
+    }
   }
 
   def createImportStatementFromClass(holder: ScImportsHolder, clazz: PsiClass, manager: PsiManager): ScImportStmt = {
