@@ -138,7 +138,21 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
   override def performInplaceRename(): Boolean = {
     val names = new util.LinkedHashSet[String]()
     names.add(initialName)
-    performInplaceRefactoring(names)
+    try performInplaceRefactoring(names)
+    catch {
+      case t: Throwable =>
+        val element = getVariable
+        val subst = getSubstituted
+        val offset = editor.getCaretModel.getOffset
+        val text = editor.getDocument.getText
+        val aroundCaret = text.substring(offset - 50, offset) + "<caret>" + text.substring(offset, offset + 50)
+        val message =
+          s"""Could not perform inplace rename:
+             |element to rename: $element ${element.getName}
+             |substituted: $subst
+             |around caret: $aroundCaret""".stripMargin
+        throw new Throwable(message, t)
+    }
   }
 }
 object ScalaMemberInplaceRenamer {
