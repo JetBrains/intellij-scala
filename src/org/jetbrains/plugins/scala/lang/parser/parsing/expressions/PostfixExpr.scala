@@ -18,9 +18,9 @@ import builder.ScalaPsiBuilder
  */
 
 object PostfixExpr {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder, isPattern: Boolean = false): Boolean = {
     val postfixMarker = builder.mark
-    if (!InfixExpr.parse(builder)) {
+    if (!InfixExpr.parse(builder, isPattern)) {
       postfixMarker.drop
       return false
     }
@@ -28,7 +28,7 @@ object PostfixExpr {
       case ScalaTokenTypes.tIDENTIFIER if !builder.newlineBeforeCurrentToken => {
         val refMarker = builder.mark
         builder.advanceLexer //Ate id
-        refMarker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
+        refMarker.done(if (isPattern) ScalaElementTypes.REFERENCE_PATTERN else ScalaElementTypes.REFERENCE_EXPRESSION)
         /*builder.getTokenType match {
           case ScalaTokenTypes.tLINE_TERMINATOR => {
             if (LineTerminator(builder.getTokenText)) builder.advanceLexer

@@ -22,10 +22,10 @@ import com.intellij.psi.tree.IElementType
 
 object Block {
 
-  def parse(builder: ScalaPsiBuilder) {
-    while (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
+  def parse(builder: ScalaPsiBuilder, isPattern: Boolean) {
+    while (!ResultExpr.parse(builder) && BlockStat.parse(builder, isPattern)) {
       val rollMarker = builder.mark
-      if (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
+      if (!ResultExpr.parse(builder) && BlockStat.parse(builder, isPattern)) {
         rollMarker.rollbackTo()
         builder.getTokenType match {
           case ScalaTokenTypes.tSEMICOLON => {
@@ -42,7 +42,7 @@ object Block {
     }
   }
 
-  private def parseImpl(builder: ScalaPsiBuilder): Int = {
+  private def parseImpl(builder: ScalaPsiBuilder, isPattern: Boolean): Int = {
     var i: Int = 0
 
     var tts: List[IElementType] = Nil
@@ -54,7 +54,7 @@ object Block {
         i = i + 1
         tts ::= builder.getTokenType
       } else {
-        if (BlockStat.parse(builder)) {
+        if (BlockStat.parse(builder, isPattern)) {
           i = i + 1
           tts ::= builder.getTokenType
         } else {
@@ -67,9 +67,9 @@ object Block {
     i
   }
 
-  def parse(builder: ScalaPsiBuilder, hasBrace: Boolean): Boolean = parse(builder, hasBrace, needNode = false)
+  def parse(builder: ScalaPsiBuilder, hasBrace: Boolean, isPattern: Boolean): Boolean = parse(builder, hasBrace, needNode = false, isPattern)
 
-  def parse(builder: ScalaPsiBuilder, hasBrace: Boolean, needNode: Boolean): Boolean = {
+  def parse(builder: ScalaPsiBuilder, hasBrace: Boolean, needNode: Boolean, isPattern: Boolean): Boolean = {
     if (hasBrace) {
       val blockMarker = builder.mark
       builder.getTokenType match {
@@ -82,13 +82,13 @@ object Block {
           return false
         }
       }
-      ParserUtils.parseLoopUntilRBrace(builder, () => parse(builder))
+      ParserUtils.parseLoopUntilRBrace(builder, () => parse(builder, isPattern))
       builder.restoreNewlinesState
       blockMarker.done(ScalaElementTypes.BLOCK_EXPR)
     }
     else {
       val bm = builder.mark()
-      val count = parseImpl(builder)
+      val count = parseImpl(builder, isPattern)
       if (count > 1) {
         bm.done(ScalaElementTypes.BLOCK)
       } else {

@@ -27,7 +27,7 @@ object ResultExpr {
     def parseFunctionEnd() = builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE => {
         builder.advanceLexer() //Ate =>
-        Block parse (builder, false, true)
+        Block parse (builder, hasBrace = false, needNode = true, isPattern = false)
         backupMarker.drop()
         resultMarker.done(ScalaElementTypes.FUNCTION_EXPR)
         true

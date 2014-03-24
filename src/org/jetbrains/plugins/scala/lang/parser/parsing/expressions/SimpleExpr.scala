@@ -33,7 +33,7 @@ import builder.ScalaPsiBuilder
  */
 
 object SimpleExpr extends ParserNode with ScalaTokenTypes {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder, isPattern: Boolean): Boolean = {
     val simpleMarker = builder.mark
     var newMarker: PsiBuilder.Marker = null
     var state: Boolean = false //false means SimpleExpr, true SimpleExpr1
@@ -109,7 +109,7 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
         state = true
         if (!Literal.parse(builder)) {
           if (!XmlExpr.parse(builder)) {
-            if (!Path.parse(builder, ScalaElementTypes.REFERENCE_EXPRESSION)) {
+            if (!Path.parse(builder, if (isPattern) ScalaElementTypes.REFERENCE_PATTERN else ScalaElementTypes.REFERENCE_EXPRESSION)) {
               simpleMarker.drop
               return false
             }
@@ -139,7 +139,7 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
             case ScalaTokenTypes.tIDENTIFIER => {
               builder.advanceLexer //Ate id
               val tMarker = marker.precede
-              marker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
+              marker.done(if (isPattern) ScalaElementTypes.REFERENCE_PATTERN else ScalaElementTypes.REFERENCE_EXPRESSION)
               subparse(tMarker)
             }
             case _ => {

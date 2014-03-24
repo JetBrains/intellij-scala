@@ -50,7 +50,7 @@ object CaseClause {
         return true
       }
     }
-    if (!Block.parse(builder, hasBrace = false, needNode = true)) {
+    if (!Block.parse(builder, hasBrace = false, needNode = true, isPattern = false)) {
       builder error ErrMsg("wrong.expression")
     }
     caseClauseMarker.done(ScalaElementTypes.CASE_CLAUSE)

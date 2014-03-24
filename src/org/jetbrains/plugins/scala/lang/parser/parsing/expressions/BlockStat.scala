@@ -27,7 +27,7 @@ import parser.util.ParserPatcher
  */
 
 object BlockStat {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder, isPattern: Boolean = false): Boolean = {
     val tokenType = builder.getTokenType
     
     val patcher = ParserPatcher.getSuitablePatcher(builder)
@@ -58,7 +58,7 @@ object BlockStat {
       }
       case _ if patcher.parse(builder) => parse(builder)
       case _ => {
-        if (!Expr1.parse(builder)) {
+        if (!Expr1.parse(builder, isPattern)) {
           if (!Def.parse(builder, false, true)) {
             if (!TmplDef.parse(builder)) {
               if (Dcl.parse(builder)) {
