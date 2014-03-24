@@ -43,7 +43,7 @@ object NameValuePair {
         builder error ScalaBundle.message("assign.expected")
       }
     }
-    if (!PrefixExpr.parse(builder)) {
+    if (!PrefixExpr.parse(builder, isPattern = false)) {
       builder error ScalaBundle.message("wrong.expression")
     }
     nameMarker.done(ScalaElementTypes.NAME_VALUE_PAIR)

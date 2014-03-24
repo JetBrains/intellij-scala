@@ -27,7 +27,7 @@ object ScalaExpr {
       }
       case _ => return false
     }
-    if (!Block.parse(builder, false, true)) {
+    if (!Block.parse(builder, false, needNode = true, isPattern = false)) {
       builder error ErrMsg("xml.scala.expression.exected")
     }
     while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) {

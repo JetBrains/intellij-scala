@@ -83,7 +83,7 @@ object FunDef {
               faultMarker.rollbackTo()
               return false
             }
-            Block.parse(builder, hasBrace = true)
+            Block.parse(builder, hasBrace = true, isPattern = false)
             faultMarker.drop()
             true
           }

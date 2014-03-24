@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import _root_.scala.collection.mutable._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 
 /**
 * @author ilyas
@@ -18,6 +19,10 @@ class ScPatternArgumentListImpl(node: ASTNode) extends ScalaPsiElementImpl (node
 
   override def toString: String = "Pattern Argument List"
 
-  def patterns = findChildrenByClass(classOf[ScPattern]).toSeq
+  def patterns = {
+    val children: Seq[ScPattern] = findChildrenByClassScala[ScPattern](classOf[ScPattern])
+    val grandChildrenInBlockExpr: Seq[ScPattern] = this.getChildren.filter{_.isInstanceOf[ScBlockExpr]}.flatMap{s => s.getChildren.filter(_.isInstanceOf[ScPattern]).map{_.asInstanceOf[ScPattern]}}
+    children ++ grandChildrenInBlockExpr
+  }
 
 }

@@ -23,7 +23,7 @@ import builder.ScalaPsiBuilder
 
 object InfixExpr {
   import util.ParserUtils._
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder, isPattern: Boolean = false): Boolean = {
 
     type MStack[X] = _root_.scala.collection.mutable.Stack[X]
 
@@ -32,7 +32,7 @@ object InfixExpr {
     val infixMarker = builder.mark
     var backupMarker = builder.mark
     var count = 0
-    if (!PrefixExpr.parse(builder)) {
+    if (!PrefixExpr.parse(builder, isPattern)) {
       backupMarker.drop
       infixMarker.drop
       return false
@@ -66,7 +66,7 @@ object InfixExpr {
       val setMarker = builder.mark
       val opMarker = builder.mark
       builder.advanceLexer //Ate id
-      opMarker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
+      opMarker.done(if (isPattern) ScalaElementTypes.REFERENCE_PATTERN else ScalaElementTypes.REFERENCE_EXPRESSION)
       if (builder.twoNewlinesBeforeCurrentToken) {
         setMarker.rollbackTo
         count = 0
@@ -75,7 +75,7 @@ object InfixExpr {
       } else {
         backupMarker.drop
         backupMarker = builder.mark
-        if (!PrefixExpr.parse(builder)) {
+        if (!PrefixExpr.parse(builder, isPattern)) {
           setMarker.rollbackTo
           count = 0
           exitOf = false

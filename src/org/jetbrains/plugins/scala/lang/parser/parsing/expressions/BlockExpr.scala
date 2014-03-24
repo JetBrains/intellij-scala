@@ -19,7 +19,7 @@ import parser.util.{ParserPatcher, ParserUtils}
  *             | '{' Block '}'
  */
 object BlockExpr {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder, isPattern: Boolean = false): Boolean = {
     if (ParserPatcher.getSuitablePatcher(builder).parse(builder)) return true
     val blockExprMarker = builder.mark
     builder.getTokenType match {
@@ -41,7 +41,7 @@ object BlockExpr {
             case ScalaTokenTypes.kCLASS |
                  ScalaTokenTypes.kOBJECT => {
                backMarker.rollbackTo()
-              Block parse builder
+              Block.parse(builder, isPattern)
             }
             case _ => {
               backMarker.rollbackTo()
@@ -50,7 +50,7 @@ object BlockExpr {
           }
         }
         case _ => {
-          Block parse builder
+          Block.parse(builder, isPattern)
         }
       }
     }

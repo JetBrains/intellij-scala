@@ -38,7 +38,7 @@ import types.Path
  *                | Path
  */
 object Expr1 {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder, isPattern: Boolean = false): Boolean = {
     val exprMarker = builder.mark
     builder.getTokenType match {
     //----------------------if statement------------------------//
@@ -126,7 +126,7 @@ object Expr1 {
             builder.advanceLexer() //Ate {
             builder.enableNewlines
             def foo() {
-              if (!Block.parse(builder, false)) {
+              if (!Block.parse(builder, hasBrace = false, isPattern = isPattern)) {
                 builder error ErrMsg("block.expected")
               }
             }
@@ -134,7 +134,7 @@ object Expr1 {
             builder.restoreNewlinesState
           }
           case _ => {
-            if (!Block.parse(builder, false)) {
+            if (!Block.parse(builder, hasBrace = false, isPattern = isPattern)) {
               builder error ErrMsg("block.expected")
             }
           }
@@ -306,7 +306,7 @@ object Expr1 {
       
       //---------other cases--------------//
       case _ => {
-        if (!PostfixExpr.parse(builder)) {
+        if (!PostfixExpr.parse(builder, isPattern)) {
           exprMarker.rollbackTo()
           return false
         }

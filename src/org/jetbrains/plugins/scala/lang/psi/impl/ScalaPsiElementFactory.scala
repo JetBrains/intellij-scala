@@ -307,7 +307,7 @@ object ScalaPsiElementFactory {
   }
 
   def createBlockExpressionWithoutBracesFromText(text: String, manager: PsiManager): ScBlockImpl = {
-    createElement(text, manager, Block.parse(_, hasBrace = false, needNode = true))
+    createElement(text, manager, Block.parse(_, hasBrace = false, needNode = true, isPattern = false))
   }
 
 
