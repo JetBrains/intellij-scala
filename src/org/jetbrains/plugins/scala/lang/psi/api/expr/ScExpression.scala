@@ -153,7 +153,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
               }
             }
             if (!isMethodInvocation()) { //it is not updated according to expected type, let's do it
-            val oldRes = res
+              val oldRes = res
               try {
                 tryUpdateRes(checkExpectedType = true)
               } catch {
