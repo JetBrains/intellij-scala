@@ -1,5 +1,5 @@
 package org.jetbrains.sbt
-package project.module
+package project.template
 
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
 import org.jetbrains.sbt.project.settings.SbtProjectSettings

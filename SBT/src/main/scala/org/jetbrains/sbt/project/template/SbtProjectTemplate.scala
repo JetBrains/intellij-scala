@@ -1,5 +1,5 @@
 package org.jetbrains.sbt
-package project.module
+package project.template
 
 import com.intellij.platform.ProjectTemplate
 import javax.swing.Icon
