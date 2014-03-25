@@ -31,6 +31,7 @@ public interface Icons {
   //todo worksheet logo
   Icon WORKSHEET_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala16.png");
   Icon SCALA_SMALL_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala-small-logo.png");
+  Icon SCALA_24 = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala24.png");
   Icon SCRIPT_FILE_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_script_icon.png");
   Icon BIG_ICON = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala32.png");
 
