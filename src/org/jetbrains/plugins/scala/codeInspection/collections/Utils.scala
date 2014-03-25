@@ -187,7 +187,7 @@ object Utils {
   }
 
   @tailrec
-  private def isUndescore(expr: ScExpression): Boolean = {
+  private def isUndescore(expr: ScExpression): Boolean = { //todo: more or less duplicate of ScUnderscoreSectionUtil.isUnderscore
     stripped(expr) match {
       case ScParenthesisedExpr(inner) => isUndescore(inner)
       case typed: ScTypedStmt if typed.expr.isInstanceOf[ScUnderscoreSection] => true

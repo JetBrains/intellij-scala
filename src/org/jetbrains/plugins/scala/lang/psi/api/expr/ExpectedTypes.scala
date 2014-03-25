@@ -117,7 +117,7 @@ private[expr] object ExpectedTypes {
           case ref: ScReferenceExpression if (!a.getContext.isInstanceOf[ScArgumentExprList] && !(
             a.getContext.isInstanceOf[ScInfixArgumentExpression] && a.getContext.asInstanceOf[ScInfixArgumentExpression].isCall)) ||
                   ref.qualifier.isDefined ||
-                  expr.isInstanceOf[ScUnderscoreSection] /* See SCL-3512, SCL-3525, SCL-4809, SCL-6785 */ =>
+                  ScUnderScoreSectionUtil.isUnderscore(expr) /* See SCL-3512, SCL-3525, SCL-4809, SCL-6785 */ =>
             ref.bind() match {
               case Some(ScalaResolveResult(named: PsiNamedElement, subst: ScSubstitutor)) =>
                 ScalaPsiUtil.nameContext(named) match {
