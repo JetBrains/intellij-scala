@@ -12,6 +12,7 @@ object InterpolatedStringFormatter extends StringFormatter {
   def format(parts: Seq[StringPart]) = {
     val toMultiline = parts.exists {
       case Text(s) => s.contains("\n")
+      case i: Injection => i.value == "\n"
       case _ => false
     }
     format(parts, toMultiline)
