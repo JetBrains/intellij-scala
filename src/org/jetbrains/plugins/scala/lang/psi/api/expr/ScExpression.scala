@@ -188,10 +188,10 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
 
             res match {
               case ScTypePolymorphicType(ScMethodType(retType, params, _), tp) if params.length == 0  &&
-                      !this.isInstanceOf[ScUnderscoreSection] =>
+                      !ScUnderScoreSectionUtil.isUnderscore(this) =>
                 removeMethodType(retType, t => ScTypePolymorphicType(t, tp))
               case ScMethodType(retType, params, _) if params.length == 0 &&
-                      !this.isInstanceOf[ScUnderscoreSection] =>
+                      !ScUnderScoreSectionUtil.isUnderscore(this) =>
                 removeMethodType(retType)
               case _ =>
             }
