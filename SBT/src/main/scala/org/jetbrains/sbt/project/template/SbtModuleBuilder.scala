@@ -21,18 +21,26 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
   def getModuleType = JavaModuleType.getModuleType
 
   override def createModule(moduleModel: ModifiableModuleModel) = {
-    val directory = getModuleFileDirectory.toFile
+    val root = getModuleFileDirectory.toFile
     
-    if (directory.exists) {
-      createProjectTemplateIn(directory, getName)
+    if (root.exists) {
+      createProjectTemplateIn(root, getName)
+      updateModulePath()
     }
-    
+
     super.createModule(moduleModel)
   }
+
+  // TODO customize the path in UI when IDEA-122951 will be implemented
+  private def updateModulePath() {
+    val file = getModuleFilePath.toFile
+    val path = file.getParent + "/" + Sbt.ModulesDirectory + "/" + file.getName.toLowerCase
+    setModuleFilePath(path)
+  }
   
-  private def createProjectTemplateIn(directory: File, name: String) {
-    val buildFile = directory / Sbt.BuildFile
-    val projectDir = directory / Sbt.ProjectDirectory
+  private def createProjectTemplateIn(root: File, name: String) {
+    val buildFile = root / Sbt.BuildFile
+    val projectDir = root / Sbt.ProjectDirectory
     val pluginsFile = projectDir / Sbt.PluginsFile
 
     if (!buildFile.createNewFile() ||
