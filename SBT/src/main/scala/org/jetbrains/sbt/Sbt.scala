@@ -20,6 +20,8 @@ object Sbt {
 
   val ProjectDescription = "SBT project"
 
+  val ProjectLongDescription = "Project backed by SBT"
+
   val BuildModuleSuffix = "-build"
 
   val BuildModuleName = "SBT module"

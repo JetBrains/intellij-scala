@@ -1,16 +1,23 @@
 package org.jetbrains.sbt
 package project.template
 
-import com.intellij.platform.{ProjectTemplate, ProjectTemplatesFactory}
+import com.intellij.platform.ProjectTemplatesFactory
 import com.intellij.ide.util.projectWizard.WizardContext
+import SbtProjectTemplateFactory._
 
 /**
- * User: Dmitry.Naydanov
+ * User: Dmitry.Naydanov, Pavel Fatin
  * Date: 11.03.14.
  */
 class SbtProjectTemplateFactory extends ProjectTemplatesFactory {
-  override def createTemplates(group: String, context: WizardContext): Array[ProjectTemplate] =
-    if (group == "Scala") Array(new SbtProjectTemplate) else Array.empty
+  override def getGroups = Array(ScalaGroup)
 
-  override def getGroups: Array[String] = Array("Scala")
+  override def createTemplates(group: String, context: WizardContext) = group match {
+    case ScalaGroup => Array(new SbtProjectTemplate())
+    case _ => Array.empty
+  }
+}
+
+private object SbtProjectTemplateFactory {
+  val ScalaGroup = "Scala"
 }
