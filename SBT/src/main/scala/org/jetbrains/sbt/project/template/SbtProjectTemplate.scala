@@ -2,22 +2,19 @@ package org.jetbrains.sbt
 package project.template
 
 import com.intellij.platform.ProjectTemplate
-import javax.swing.Icon
-import com.intellij.ide.util.projectWizard.AbstractModuleBuilder
-import com.intellij.openapi.ui.ValidationInfo
 
 /**
- * User: Dmitry.Naydanov
+ * User: Dmitry.Naydanov, Pavel Fatin
  * Date: 11.03.14.
  */
 class SbtProjectTemplate extends ProjectTemplate {
-  override def validateSettings(): ValidationInfo = null
+  override def getName = Sbt.ProjectDescription
 
-  override def createModuleBuilder(): AbstractModuleBuilder = new SbtModuleBuilder
+  override def getDescription = Sbt.ProjectLongDescription
 
-  override def getIcon: Icon = Sbt.Icon
+  override def getIcon = Sbt.Icon
 
-  override def getDescription: String = "Project backed by SBT"
+  override def createModuleBuilder() = new SbtModuleBuilder()
 
-  override def getName: String = "SBT Project"
+  override def validateSettings() = null
 }
