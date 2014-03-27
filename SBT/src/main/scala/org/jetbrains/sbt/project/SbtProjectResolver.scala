@@ -158,13 +158,13 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def createContentRoot(project: Project): ContentRootNode = {
-    val productinSources = relevantRootPathsIn(project, "compile")(_.sources)
+    val productionSources = relevantRootPathsIn(project, "compile")(_.sources)
     val productionResources = relevantRootPathsIn(project, "compile")(_.resources)
     val testSources = relevantRootPathsIn(project, "test")(_.sources)
     val testResources = relevantRootPathsIn(project, "test")(_.resources)
 
     val commonRoot = {
-      val allRoots = productinSources ++ productionResources ++ testSources ++ testResources :+ project.base
+      val allRoots = productionSources ++ productionResources ++ testSources ++ testResources :+ project.base
 
       canonicalCommonAncestorOf(allRoots).getOrElse(throw new ExternalSystemException(
         "Cannot determine common root in project: " +  project.name))
@@ -172,7 +172,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val result = new ContentRootNode(commonRoot.path)
 
-    result.storePaths(ExternalSystemSourceType.SOURCE, productinSources.map(_.path))
+    result.storePaths(ExternalSystemSourceType.SOURCE, productionSources.map(_.path))
     result.storePaths(ExternalSystemSourceType.RESOURCE, productionResources.map(_.path))
 
     result.storePaths(ExternalSystemSourceType.TEST, testSources.map(_.path))
