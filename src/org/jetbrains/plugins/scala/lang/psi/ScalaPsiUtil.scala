@@ -1324,6 +1324,11 @@ object ScalaPsiUtil {
     }
   }
 
+  def allMethods(clazz: PsiClass): Iterable[PhysicalSignature] =
+    TypeDefinitionMembers.getSignatures(clazz).allFirstSeq().flatMap(_.filter {
+      case (_, n) => n.info.isInstanceOf[PhysicalSignature]}).
+            map { case (_, n) => n.info.asInstanceOf[PhysicalSignature] }
+
   def getMethodsForName(clazz: PsiClass, name: String): Seq[PhysicalSignature] = {
     (for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(clazz).forName(name)._1
           if clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static")) yield n).toSeq

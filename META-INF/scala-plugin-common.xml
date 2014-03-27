@@ -104,6 +104,7 @@
         <psi.referenceContributor implementation="org.jetbrains.plugins.scala.lang.references.ScalaReferenceContributor"/>
         <codeInsight.overrideMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaOverrideMethodsHandler"/>
         <codeInsight.implementMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaImplementMethodsHandler"/>
+        <codeInsight.delegateMethods language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.delegate.ScalaGenerateDelegateHandler"/>
         <methodImplementor implementation="org.jetbrains.plugins.scala.overrideImplement.ScalaMethodImplementor"/>
         <lookup.charFilter implementation="org.jetbrains.plugins.scala.lang.completion.ScalaCharFilter"/>
         <lang.findUsagesProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider"/>
@@ -132,7 +133,7 @@
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaMethodProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.PrepareRenameScalaMethodProcessor" order="last"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaPackageProcessor" order="first"/>
-        <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaValsProcessor" order="first"/>
+        <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaVariableProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameLightProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaClassProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaSyntheticParamProcessor" order="first"/>

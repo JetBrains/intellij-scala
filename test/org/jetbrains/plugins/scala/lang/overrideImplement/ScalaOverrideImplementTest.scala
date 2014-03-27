@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
  * @since 14.05.12
  */
 class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
-  protected def rootFilePath(): String = TestUtils.getTestDataPath + "/override/"
 
   def runTest(methodName: String, fileText: String, expectedText: String, isImplement: Boolean,
               needsInferType: Boolean = true) {

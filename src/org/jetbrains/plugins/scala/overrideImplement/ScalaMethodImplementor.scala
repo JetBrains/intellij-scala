@@ -26,7 +26,7 @@ class ScalaMethodImplementor extends MethodImplementor {
       member <- ScalaOIUtil.getMembersToImplement(td).collect {case mm: ScMethodMember if mm.getElement == method => mm}
     } yield {
       val specifyType = ScalaApplicationSettings.getInstance().SPECIFY_RETURN_TYPE_EXPLICITLY
-      val body = ScalaGenerationInfo.defaultValue(member.returnType, inClass.getContainingFile)
+      val body = ScalaGenerationInfo.defaultValue(member.scType, inClass.getContainingFile)
       ScalaPsiElementFactory.createOverrideImplementMethod(member.sign, inClass.getManager, needsOverrideModifier = true, specifyType, body)
     }).toArray
   }
