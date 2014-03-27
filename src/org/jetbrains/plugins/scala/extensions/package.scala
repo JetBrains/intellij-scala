@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import java.io.Closeable
-import com.intellij.openapi.command.CommandProcessor
+import com.intellij.openapi.command.{WriteCommandAction, CommandProcessor}
 
 /**
   * Pavel Fatin
@@ -74,6 +74,12 @@ package object extensions {
   def inWriteAction[T](body: => T): T = {
     ApplicationManager.getApplication.runWriteAction(new Computable[T] {
       def compute: T = body
+    })
+  }
+
+  def inWriteCommandAction[T](project: Project)(body: => T): T = {
+    WriteCommandAction.runWriteCommandAction(project, new Computable[T] {
+      override def compute(): T = body
     })
   }
 
