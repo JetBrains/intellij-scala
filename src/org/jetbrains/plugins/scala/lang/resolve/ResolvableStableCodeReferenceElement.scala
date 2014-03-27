@@ -19,7 +19,7 @@ import com.intellij.openapi.progress.ProgressManager
 import util.{PsiModificationTracker, PsiTreeUtil}
 import caches.CachesUtil
 import psi.api.{ScPackage, ScalaFile}
-import psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import scaladoc.psi.api.ScDocResolvableCodeReference
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import psi.api.base.types.ScTypeElement

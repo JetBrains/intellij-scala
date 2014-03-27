@@ -20,13 +20,14 @@ import reflect.NameTransformer
 import com.intellij.openapi.diagnostic.Logger
 import types._
 import caches.CachesUtil
-import lang.resolve.processor.{ImplicitProcessor, BaseProcessor}
+import lang.resolve.processor.BaseProcessor
 import psi.ScalaPsiUtil.convertMemberName
 import api.toplevel.{ScNamedElement, ScModifierListOwner, ScTypedDefinition}
 import api.base.{ScAccessModifier, ScFieldId, ScPrimaryConstructor}
 import extensions.toPsiNamedElementExt
 import caches.CachesUtil.MyOptionalProvider
-import api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 
 /**
  * @author ven
@@ -521,7 +522,7 @@ object TypeDefinitionMembers {
     ))
   }
 
-  def getSignatures(clazz: PsiClass): SMap = {
+  def getSignatures(clazz: PsiClass, place: Option[PsiElement] = None): SMap = {
     clazz match {
       case o: ScObject =>
         val qual = o.qualifiedName
@@ -530,9 +531,37 @@ object TypeDefinitionMembers {
         }
       case _ =>
     }
-    get(clazz, signaturesKey, new MyOptionalProvider(clazz, {c: PsiClass => SignatureNodes.build(c)})(
+    val ans = get(clazz, signaturesKey, new MyOptionalProvider(clazz, {c: PsiClass => SignatureNodes.build(c)})(
       ScalaPsiUtil.getDependentItem(clazz)
     ))
+    place.map {
+      case _: ScInterpolatedPrefixReference =>
+        val allowedNames = ans.keySet
+        for (child <- clazz.getChildren) {
+          child match {
+            case n: ScExtendsBlock =>
+              val children = n.getFirstChild.getChildren
+              for (c <- children) {
+                c match {
+                  case o: ScObject =>
+                    if (allowedNames.contains(o.name)) {
+                      val add = get(o, signaturesKey, new MyOptionalProvider(clazz, {c: PsiClass => SignatureNodes.build(c)})(ScalaPsiUtil.getDependentItem(o)))
+                      ans ++= add
+                    }
+                  case c: ScClass =>
+                    if (allowedNames.contains(c.name)) {
+                      val add = get(c, signaturesKey, new MyOptionalProvider(clazz, {c: PsiClass => SignatureNodes.build(c)})(ScalaPsiUtil.getDependentItem(c)))
+                      ans ++= add
+                    }
+                  case _ =>
+                }
+              }
+            case _ =>
+          }
+        }
+      case _ =>
+    }
+    ans
   }
 
   def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType], place: PsiElement): PMap = {
@@ -619,7 +648,7 @@ object TypeDefinitionMembers {
 
     if (BaseProcessor.isImplicitProcessor(processor) && !clazz.isInstanceOf[ScTemplateDefinition]) return true
 
-    if (!privateProcessDeclarations(processor, state, lastParent, place, () => getSignatures(clazz),
+    if (!privateProcessDeclarations(processor, state, lastParent, place, () => getSignatures(clazz, Option(place)),
       () => getParameterlessSignatures(clazz), () => getTypes(clazz), isSupers = false,
       isObject = clazz.isInstanceOf[ScObject], signaturesForJava = () => signaturesForJava,
       syntheticMethods = () => syntheticMethods)) return false

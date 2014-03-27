@@ -322,7 +322,8 @@ case class ScThisType(clazz: ScTemplateDefinition) extends ValueType {
  * It can be whether singleton type (v.type) or simple type (java.lang.String).
  * element can be any stable element, class, value or type alias
  */
-case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
+case class
+ScDesignatorType(element: PsiNamedElement) extends ValueType {
   override protected def isAliasTypeInner: Option[AliasType] = {
     element match {
       case ta: ScTypeAlias if ta.typeParameters.length == 0 =>
