@@ -590,15 +590,20 @@ object ScalaPsiElementFactory {
     (extendToken, templateParents)
   }
 
-  def createOverrideImplementMethod(sign: PhysicalSignature, manager: PsiManager, needsOverrideModifier: Boolean,
-                                   needsInferType: Boolean, body: String): ScFunction = {
-    val text = "class a {\n  " + getOverrideImplementSign(sign, body, needsOverrideModifier, needsInferType) + "\n}"
+  def createMethodFromSignature(sign: PhysicalSignature, manager: PsiManager, needsInferType: Boolean, body: String): ScFunction = {
+    val text = "class a {\n  " + methodFromSignatureText(sign, body, needsInferType) + "\n}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.typeDefinitions(0)
     val function = classDef.functions(0)
     function
+  }
+
+  def createOverrideImplementMethod(sign: PhysicalSignature, manager: PsiManager, needsOverrideModifier: Boolean,
+                                    needsInferType: Boolean, body: String): ScFunction = {
+    val fun = createMethodFromSignature(sign, manager, needsInferType, body)
+    addModifiersFromSignature(fun, sign, needsOverrideModifier)
   }
 
   def createOverrideImplementType(alias: ScTypeAlias, substitutor: ScSubstitutor, manager: PsiManager,
@@ -650,8 +655,28 @@ object ScalaPsiElementFactory {
     }
   }
 
-  private def getOverrideImplementSign(sign: PhysicalSignature, body: String, isOverride: Boolean,
-                                       needsInferType: Boolean): String = {
+  private def addModifiersFromSignature(function: ScFunction, sign: PhysicalSignature, addOverride: Boolean): ScFunction = {
+    sign.method match {
+      case fun: ScFunction =>
+        function.getModifierList.replace(fun.getModifierList)
+        if (!fun.hasModifierProperty("override") && addOverride) function.setModifierProperty("override", value = true)
+      case m: PsiMethod =>
+        var hasOverride = false
+        if (m.getModifierList.getNode != null)
+          for (modifier <- m.getModifierList.getNode.getChildren(null); modText = modifier.getText) {
+            modText match {
+              case "override" => hasOverride = true; function.setModifierProperty("override", value = true)
+              case "protected" => function.setModifierProperty("protected", value = true)
+              case "final" => function.setModifierProperty("final", value = true)
+              case _ =>
+            }
+          }
+        if (addOverride && !hasOverride) function.setModifierProperty("override", value = true)
+    }
+    function
+  }
+
+  private def methodFromSignatureText(sign: PhysicalSignature, body: String, needsInferType: Boolean): String = {
     val builder = mutable.StringBuilder.newBuilder
     val method = sign.method
     // do not substitute aliases
@@ -660,8 +685,6 @@ object ScalaPsiElementFactory {
       case method: ScFunction =>
         builder ++= method.getFirstChild.getText
         if (builder.nonEmpty) builder ++= "\n"
-        if (!method.hasModifierProperty("override") && isOverride) builder ++= "override "
-        builder ++= method.getModifierList.getText + " "
         builder ++= "def " + method.name
         //adding type parameters
         if (method.typeParameters.length > 0) {
@@ -722,17 +745,6 @@ object ScalaPsiElementFactory {
         }
         builder ++= retAndBody
       case _ =>
-        var hasOverride = false
-        if (method.getModifierList.getNode != null)
-        for (modifier <- method.getModifierList.getNode.getChildren(null); m = modifier.getText) {
-          m match {
-            case "override" => hasOverride = true; builder ++= "override "
-            case "protected" => builder ++= "protected "
-            case "final" => builder ++= "final "
-            case _ =>
-          }
-        }
-        if (isOverride && !hasOverride) builder ++= "override "
         builder ++= "def " + ScalaNamesUtil.changeKeyword(method.name)
         if (method.hasTypeParameters) {
           val params = method.getTypeParameters
