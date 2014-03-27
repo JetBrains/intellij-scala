@@ -10,18 +10,17 @@ import com.intellij.usageView.UsageInfo
 import psi.api.statements.{ScValue, ScVariable}
 import psi.impl.search.ScalaOverridingMemberSearcher
 import psi.ScalaPsiUtil
-import psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import psi.api.toplevel.{ScTypedDefinition, ScNamedElement}
 import com.intellij.openapi.util.text.StringUtil
 import psi.fake.FakePsiMethod
 import extensions.toPsiNamedElementExt
 import com.intellij.refactoring.rename.RenameJavaMemberProcessor
-import com.intellij.psi.{PsiReference, PsiElement, PsiNamedElement}
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 import psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.search.{GlobalSearchScope, PsiElementProcessor, LocalSearchScope}
+import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import com.intellij.openapi.util.Pass
 import java.util
@@ -32,10 +31,10 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
  * Date: 21.11.2008
  */
 
-class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
+class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaRenameProcessor {
   override def canProcessElement(element: PsiElement): Boolean = element match {
     case c: ScNamedElement => ScalaPsiUtil.nameContext(c) match {
-      case _: ScVariable | _: ScValue | _: ScClassParameter => true
+      case _: ScVariable | _: ScValue | _: ScParameter => true
       case method: FakePsiMethod => true
       case _ => false
     }
@@ -106,14 +105,6 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
         false
       }
     }, editor)
-  }
-
-  override def setToSearchInComments(element: PsiElement, enabled: Boolean) {
-    ScalaApplicationSettings.getInstance().RENAME_SEARCH_IN_COMMENTS_AND_STRINGS = enabled
-  }
-
-  override def isToSearchInComments(psiElement: PsiElement): Boolean = {
-    ScalaApplicationSettings.getInstance().RENAME_SEARCH_IN_COMMENTS_AND_STRINGS
   }
 
   override def renameElement(element: PsiElement, newName: String, usages: Array[UsageInfo], listener: RefactoringElementListener) {
