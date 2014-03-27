@@ -12,10 +12,10 @@ import com.intellij.psi._
 import expr._
 import result.{Success, Failure, TypeResult, TypingContext}
 import statements.{ScFunction, ScValue, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.impl.base.{ScInterpolationStableCodeReferenceElementImpl, ScStableCodeReferenceElementImpl}
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import lang.resolve._
-import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ExpandedExtractorResolveProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.processor.{InterpolatedExtractorResolveProcessor, CompletionProcessor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScTypeParam, ScParameter}
 import caches.CachesUtil
 import psi.impl.ScalaPsiManager
@@ -66,9 +66,8 @@ trait ScPattern extends ScalaPsiElement {
     val bind: Option[ScalaResolveResult] = ref.bind() match {
       case Some(ScalaResolveResult(_: ScBindingPattern | _: ScParameter, _)) =>
       val resolve = ref match {
-        case refImpl: ScInterpolationStableCodeReferenceElementImpl => refImpl.multiResolve(false)//TODO KOS return expected type?
         case refImpl: ScStableCodeReferenceElementImpl =>
-          refImpl.doResolve(refImpl, new ExpandedExtractorResolveProcessor(ref, ref.refName, ref.getKinds(incomplete = false), ref.getContext match {
+          refImpl.doResolve(refImpl, new InterpolatedExtractorResolveProcessor(ref, ref.refName, ref.getKinds(incomplete = false), ref.getContext match {
             case inf: ScInfixPattern => inf.expectedType
             case constr: ScConstructorPattern => constr.expectedType
             case _ => None

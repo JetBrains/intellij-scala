@@ -16,7 +16,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.PsiElement
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScInfixPattern, ScConstructorPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScInterpolationPattern, ScBindingPattern, ScInfixPattern, ScConstructorPattern}
 import api.base.types.{ScParameterizedTypeElement, ScInfixTypeElement, ScSimpleTypeElement}
 import impl.source.tree.LeafPsiElement
 import processor.CompletionProcessor
@@ -108,6 +108,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
         else if (ste.singleton) stableQualRef
         else stableClass
       case _: ScTypeAlias => stableClass
+      case _: ScInterpolationPattern => stableImportSelector
       case _: ScConstructorPattern => objectOrValue
       case _: ScInfixPattern => objectOrValue
       case _: ScThisReference | _: ScSuperReference => stableClassOrObject

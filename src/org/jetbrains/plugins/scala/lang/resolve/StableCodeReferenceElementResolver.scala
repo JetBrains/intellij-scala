@@ -4,19 +4,10 @@ package resolve
 
 import com.intellij.psi.impl.source.resolve.ResolveCache
 import processor._
-import psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScInterpolationPattern, ScConstructorPattern, ScInfixPattern}
 import psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import psi.types.Compatibility.Expression
-import psi.api.expr.{ScSuperReference, ScThisReference}
-import psi.api.base.types.{ScInfixTypeElement, ScSimpleTypeElement, ScParameterizedTypeElement}
-import psi.api.statements.{ScMacroDefinition, ScTypeAlias}
-import com.intellij.psi.util.PsiTreeUtil
-import psi.ScalaPsiUtil
-import psi.api.toplevel.ScTypeBoundsOwner
-import psi.api.statements.params.ScTypeParam
-import psi.api.base.{ScMethodLike, ScStableCodeReferenceElement}
-import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import psi.api.base.ScStableCodeReferenceElement
 
 class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenceElement, shapeResolve: Boolean,
                                           allConstructorResults: Boolean, noConstructorResolve: Boolean)
@@ -38,6 +29,8 @@ class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenc
         new CollectAllForImportProcessor(kinds, ref, reference.refName)
       case e: ScImportExpr if e.singleWildcard => new ResolveProcessor(kinds, ref, reference.refName)
       case _: ScImportSelector => new CollectAllForImportProcessor(kinds, ref, reference.refName)
+      case constr: ScInterpolationPattern =>
+        new InterpolatedExtractorResolveProcessor(ref, reference.refName, kinds, constr.expectedType)
       case constr: ScConstructorPattern =>
         new ExtractorResolveProcessor(ref, reference.refName, kinds, constr.expectedType)
       case infix: ScInfixPattern => new ExtractorResolveProcessor(ref, reference.refName, kinds, infix.expectedType)

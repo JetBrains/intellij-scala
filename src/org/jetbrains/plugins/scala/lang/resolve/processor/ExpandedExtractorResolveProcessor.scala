@@ -72,3 +72,4 @@ class ExpandedExtractorResolveProcessor(ref: ScReferenceElement,
     true
   }
 }
+
