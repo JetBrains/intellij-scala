@@ -81,7 +81,10 @@ class MethodResolveProcessor(override val ref: PsiElement,
               isAccessible = accessible && isAccessible(m, ref), isForwardReference = forwardReference)}).filter {
             case r => !accessibility || r.isAccessible
           }
-          addResults(seq)
+          if (seq.nonEmpty) addResults(seq)
+          else addResult(new ScalaResolveResult(named, s, getImports(state), nameShadow, implicitConversionClass,
+            implicitFunction = implFunction, implicitType = implType, isNamedParameter = isNamedParameter,
+            fromType = fromType, isAccessible = accessible, isForwardReference = forwardReference))
         case synthetic: ScSyntheticFunction =>
           addResult(new ScalaResolveResult(synthetic, s, getImports(state), nameShadow, implicitConversionClass,
             implicitFunction = implFunction, implicitType = implType, fromType = fromType, isAccessible = accessible,

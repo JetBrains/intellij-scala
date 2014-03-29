@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
-import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceExpression
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ResolvableReferenceExpression}
 import scala.collection
 
 /**
@@ -104,7 +104,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
    */
   def isApplyOrUpdateCall: Boolean = applyOrUpdateElement.isDefined
 
-  def applyOrUpdateElement: Option[PsiElement] = {
+  def applyOrUpdateElement: Option[ScalaResolveResult] = {
     getUpdatableUserData(MethodInvocation.APPLY_OR_UPDATE_KEY)(None)
   }
 
@@ -257,14 +257,14 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       }
     }
     var res: ScType = checkApplication(invokedType, args()).getOrElse {
-      var (processedType, importsUsed, implicitFunction, applyOrUpdateElement) =
+      var (processedType, importsUsed, implicitFunction, applyOrUpdateResult) =
         ScalaPsiUtil.processTypeForUpdateOrApply(invokedType, this, isShape = false).getOrElse {
           (types.Nothing, Set.empty[ImportUsed], None, this.applyOrUpdateElement)
         }
       if (useExpectedType) {
         updateAccordingToExpectedType(Success(processedType, None)).foreach(x => processedType = x)
       }
-      setApplyOrUpdate(applyOrUpdateElement)
+      setApplyOrUpdate(applyOrUpdateResult)
       setImportsUsed(importsUsed)
       setImplicitFunction(implicitFunction)
       checkApplication(processedType, args(includeUpdateCall = true)).getOrElse {
@@ -307,7 +307,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     putUserData(MethodInvocation.IMPLICIT_FUNCTION_KEY, (modCount, opt))
   }
 
-  def setApplyOrUpdate(opt: Option[PsiElement]) {
+  def setApplyOrUpdate(opt: Option[ScalaResolveResult]) {
     val modCount: Long = getManager.getModificationTracker.getModificationCount
     putUserData(MethodInvocation.APPLY_OR_UPDATE_KEY, (modCount, opt))
   }
@@ -335,5 +335,5 @@ object MethodInvocation {
   private val MATCHED_PARAMETERS_VAR_KEY: Key[(Long, Seq[(Parameter, ScExpression)])] = Key.create("matched.parameter.var.key")
   private val IMPORTS_USED_KEY: Key[(Long, collection.Set[ImportUsed])] = Key.create("imports.used.method.invocation.key")
   private val IMPLICIT_FUNCTION_KEY: Key[(Long, Option[PsiNamedElement])] = Key.create("implicit.function.method.invocation.key")
-  private val APPLY_OR_UPDATE_KEY: Key[(Long, Option[PsiElement])] = Key.create("apply.or.update.key")
+  private val APPLY_OR_UPDATE_KEY: Key[(Long, Option[ScalaResolveResult])] = Key.create("apply.or.update.key")
 }

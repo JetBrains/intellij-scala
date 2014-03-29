@@ -30,7 +30,7 @@ trait ApplicationAnnotator {
       }
       if (!r.isApplicable) {
         r.element match {
-          case f@(_: ScFunction | _: PsiMethod | _: ScSyntheticFunction) => {
+          case f@(_: ScFunction | _: PsiMethod | _: ScSyntheticFunction) =>
             reference.getContext match {
               case genCall: ScGenericCall =>
                 val missing = for (MissedTypeParameter(p) <- r.problems) yield p.name
@@ -50,7 +50,7 @@ trait ApplicationAnnotator {
                   case _ =>
                     //holder.createErrorAnnotation(call.argsElement, "Not applicable to " + signatureOf(f))
                 }
-              case call: MethodInvocation => {
+              case call: MethodInvocation =>
                 val missed =
                   for (MissedValueParameter(p) <- r.problems) yield p.name + ": " + p.paramType.presentableText
 
@@ -101,22 +101,19 @@ trait ApplicationAnnotator {
                       //TODO investigate case when assignment is null. It's possible when new Expression(ScType)
                     }
                   case WrongTypeParameterInferred => //todo: ?
-                  case ElementApplicabilityProblem(element, actual, expected) => 
-                    holder.createErrorAnnotation(element, ScalaBundle.message("return.expression.does.not.conform", 
-                      actual.presentableText, expected.presentableText)) 
-                  case a => 
+                  case ElementApplicabilityProblem(element, actual, expected) =>
+                    holder.createErrorAnnotation(element, ScalaBundle.message("return.expression.does.not.conform",
+                      actual.presentableText, expected.presentableText))
+                  case a =>
                     holder.createErrorAnnotation(call.argsElement, "Not applicable to " + signatureOf(f))
                 }
-              }
-              case _ => {
+              case _ =>
                 r.problems.foreach {
                   case MissedParametersClause(clause) if !reference.isInstanceOf[ScInterpolatedStringPrefixReference] =>
                     holder.createErrorAnnotation(reference, "Missing arguments for method " + nameOf(f))
                   case _ =>
                 }
-              }
             }
-          }
           case _ =>
         }
       }
@@ -148,13 +145,17 @@ trait ApplicationAnnotator {
     }
   }
 
-  def annotateMethodCall(call: ScMethodCall, holder: AnnotationHolder) {
+  def annotateMethodInvocation(call: MethodInvocation, holder: AnnotationHolder) {
     //do we need to check it:
     call.getEffectiveInvokedExpr match {
       case ref: ScReferenceElement =>
         ref.bind() match {
           case Some(r) if r.notCheckedResolveResult || r.isDynamic => //it's unhandled case
-          case _ => return //it's definetely handled case
+          case _ =>
+            call.applyOrUpdateElement match {
+              case Some(r) if r.isDynamic => //it's still unhandled
+              case _ => return //it's definetely handled case
+            }
         }
       case _ => //unhandled case (only ref expressions was checked)
     }
