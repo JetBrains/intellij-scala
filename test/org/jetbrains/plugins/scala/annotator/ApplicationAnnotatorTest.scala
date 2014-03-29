@@ -130,7 +130,7 @@ class ApplicationAnnotatorTest extends SimpleTestCase {
       }
 
       file.depthFirst.filterByType(classOf[ScMethodCall]).foreach {
-        annotator.annotateMethodCall(_, mock)
+        annotator.annotateMethodInvocation(_, mock)
       }
 
       mock.annotations

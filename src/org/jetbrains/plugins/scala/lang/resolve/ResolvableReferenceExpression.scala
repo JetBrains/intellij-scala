@@ -127,31 +127,37 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     assign.getContext match { //trying to resolve naming parameter
       case args: ScArgumentExprList =>
         args.callReference match {
-          case Some(callReference) =>
-            processAnyAssignment(args.exprs, callReference, args.invocationCount, ref, assign, processor)
+          case Some(callReference) if args.getContext.isInstanceOf[MethodInvocation] =>
+            processAnyAssignment(args.exprs, args.getContext.asInstanceOf[MethodInvocation], callReference,
+              args.invocationCount, ref, assign, processor)
           case None => processConstructorReference(args, ref, assign, processor)
         }
       case tuple: ScTuple => tuple.getContext match {
         case inf: ScInfixExpr if inf.getArgExpr == tuple =>
-          processAnyAssignment(tuple.exprs, inf.operation, 1, ref, assign, processor)
+          processAnyAssignment(tuple.exprs, inf, inf.operation, 1, ref, assign, processor)
         case _ =>
       }
       case p: ScParenthesisedExpr => p.getContext match {
         case inf: ScInfixExpr if inf.getArgExpr == p =>
-          processAnyAssignment(p.expr.toSeq, inf.operation, 1, ref, assign, processor)
+          processAnyAssignment(p.expr.toSeq, inf, inf.operation, 1, ref, assign, processor)
         case _ =>
       }
       case _ =>
     }
   }
 
-  def processAnyAssignment(exprs: Seq[ScExpression], callReference: ScReferenceExpression, invocationCount: Int,
+  def processAnyAssignment(exprs: Seq[ScExpression], call: MethodInvocation, callReference: ScReferenceExpression, invocationCount: Int,
                              ref: ResolvableReferenceExpression, assign: PsiElement, processor: BaseProcessor) {
     for (variant <- callReference.multiResolve(false)) {
       def processResult(r: ScalaResolveResult) = r match {
         case ScalaResolveResult(fun: ScFunction, subst) if r.isDynamic &&
           fun.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED =>
-          //Just ignore it
+          //add synthetic parameter
+          processor.execute(ScalaPsiElementFactory.createParameterFromText(ref.refName, getManager), ResolveState.initial())
+        case ScalaResolveResult(named, subst) if call.applyOrUpdateElement.exists(_.isDynamic) &&
+          call.applyOrUpdateElement.get.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED =>
+          //add synthetic parameter
+          processor.execute(ScalaPsiElementFactory.createParameterFromText(ref.refName, getManager), ResolveState.initial())
         case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) =>
           if (!processor.isInstanceOf[CompletionProcessor]) {
             fun.getParamByName(ref.refName, invocationCount - 1) match { //todo: why -1?
