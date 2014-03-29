@@ -307,13 +307,13 @@ case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
          ptp match {case tp: ScTypeParam =>
              new Suspension[ScType]({() => s.subst(tp.lowerBound.getOrNothing)})
            case _ => new Suspension[ScType]({() => s.subst(
-             ScCompoundType(collection.immutable.Seq(ptp.getExtendsListTypes.map(ScType.create(_, ptp.getProject)).toSeq ++
-                   ptp.getImplementsListTypes.map(ScType.create(_, ptp.getProject)).toSeq: _*), Seq.empty, Seq.empty, ScSubstitutor.empty))
+             ScCompoundType(ptp.getExtendsListTypes.map(ScType.create(_, ptp.getProject)).toSeq ++
+                   ptp.getImplementsListTypes.map(ScType.create(_, ptp.getProject)).toSeq, Map.empty, Map.empty))
          })},
          ptp match {case tp: ScTypeParam =>
              new Suspension[ScType]({() => s.subst(tp.upperBound.getOrAny)})
            case _ => new Suspension[ScType]({() => s.subst(
-             ScCompoundType(ptp.getSuperTypes.map(ScType.create(_, ptp.getProject)).toSeq, Seq.empty, Seq.empty, ScSubstitutor.empty))
+             ScCompoundType(ptp.getSuperTypes.map(ScType.create(_, ptp.getProject)).toSeq, Map.empty, Map.empty))
          })}, ptp)
   }
 

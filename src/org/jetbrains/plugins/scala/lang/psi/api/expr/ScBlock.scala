@@ -9,7 +9,6 @@ import statements.{ScDeclaredElementsHolder, ScTypeAlias}
 import toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClauses, ScCaseClause}
 import types.result.{Failure, Success, TypingContext, TypeResult}
-import collection.mutable.HashMap
 import toplevel.ScTypedDefinition
 import com.intellij.psi.util.PsiTreeUtil
 import impl.{ScalaPsiManager, ScalaPsiElementFactory}
@@ -91,16 +90,19 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
             case _ => t
           }
           case proj@ScProjectionType(p, elem, s) => new ScProjectionType(existize(p), elem, s)
-          case ScCompoundType(comps, decls, types, s) =>
-            new ScCompoundType(collection.immutable.Seq(comps.map({existize _}).toSeq: _*), decls, types, s)
+          case ScCompoundType(comps, signatureMap, typesMap) =>
+            new ScCompoundType(comps.map(existize), signatureMap.map {
+              case (signature: Signature, tp) => (signature, existize(tp))
+            }, typesMap.map {
+              case (s, (tp1, tp2, ta)) => (s, (existize(tp1), existize(tp2), ta))
+            })
           case JavaArrayType(arg) => JavaArrayType(existize(arg))
           case ScParameterizedType(des, typeArgs) =>
-            new ScParameterizedType(existize(des), collection.immutable.Seq(typeArgs.map({existize _}).toSeq: _*))
-          case ex@ScExistentialType(q, wildcards) => {
+            new ScParameterizedType(existize(des), typeArgs.map(existize))
+          case ex@ScExistentialType(q, wildcards) =>
             new ScExistentialType(existize(q), wildcards.map {
               ex => new ScExistentialArgument(ex.name, ex.args, existize(ex.lowerBound), existize(ex.upperBound))
             })
-          }
           case _ => t
         }
         val t = existize(e.getType(TypingContext.empty).getOrAny)
@@ -111,16 +113,15 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
 
   private def leastClassType(t : ScTemplateDefinition): ScType = {
     val (holders, aliases): (Seq[ScDeclaredElementsHolder], Seq[ScTypeAlias]) = t.extendsBlock.templateBody match {
-      case Some(b: ScTemplateBody) => {
+      case Some(b: ScTemplateBody) =>
         // jzaugg: Without these type annotations, a class cast exception occured above. I'm not entirely sure why.
         (b.holders: Seq[ScDeclaredElementsHolder], b.aliases: Seq[ScTypeAlias])
-      }
       case None => (Seq.empty, Seq.empty)
     }
 
     val superTypes = t.extendsBlock.superTypes
     if (superTypes.length > 1 || !holders.isEmpty || !aliases.isEmpty) {
-      new ScCompoundType(superTypes, holders.toList, aliases.toList, ScSubstitutor.empty)
+      ScCompoundType.fromPsi(superTypes, holders.toList, aliases.toList, ScSubstitutor.empty)
     } else superTypes(0)
   }
 

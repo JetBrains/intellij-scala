@@ -587,7 +587,7 @@ object ScalaPsiUtil {
         case ScDesignatorType(v: ScBindingPattern)          => v.getType(TypingContext.empty).foreach(collectParts)
         case ScDesignatorType(v: ScFieldId)                 => v.getType(TypingContext.empty).foreach(collectParts)
         case ScDesignatorType(p: ScParameter)               => p.getType(TypingContext.empty).foreach(collectParts)
-        case ScCompoundType(comps, _, _, _)                 => comps.foreach(collectParts)
+        case ScCompoundType(comps, _, _)                 => comps.foreach(collectParts)
         case p@ScParameterizedType(a: ScAbstractType, args) =>
           collectParts(a)
           args.foreach(collectParts)

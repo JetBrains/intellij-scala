@@ -76,8 +76,8 @@ case class ScExistentialType(quantified : ScType,
                 case _ => (true, tp, rejected)
               }
             } else (true, tp, rejected)
-          case c@ScCompoundType(components, decls, typeDecls, subst) =>
-            val newSet = rejected ++ typeDecls.map(_.name)
+          case c@ScCompoundType(components, _, typeMap) =>
+            val newSet = rejected ++ typeMap.map(_._1)
             (false, c, newSet)
           case ex@ScExistentialType(_quantified, _wildcards) =>
             val newSet = if (ex ne this) rejected ++ ex.wildcards.map(_.name) else rejected //todo: for wildcards add ex.wildcards
@@ -207,13 +207,13 @@ case class ScExistentialType(quantified : ScType,
           checkRecursive(tpt, rejected)
           checkRecursive(lower, rejected)
           checkRecursive(upper, rejected)
-        case c@ScCompoundType(comps, decls, typeDecls, _) =>
-          val newSet = rejected ++ typeDecls.map(_.name)
+        case c@ScCompoundType(comps, signatureMap, typeMap) =>
+          val newSet = rejected ++ typeMap.map(_._1)
           comps.foreach(checkRecursive(_, newSet))
-          c.signatureMap.foreach(tuple => checkRecursive(c.subst.subst(tuple._2.v), newSet))
-          c.types.foreach(tuple => {
-            checkRecursive(c.subst.subst(tuple._2._1), newSet)
-            checkRecursive(c.subst.subst(tuple._2._1), newSet)
+          signatureMap.foreach(tuple => checkRecursive(tuple._2, newSet))
+          typeMap.foreach(tuple => {
+            checkRecursive(tuple._2._1, newSet)
+            checkRecursive(tuple._2._1, newSet)
           })
         case ScDesignatorType(elem) =>
           elem match {
@@ -276,13 +276,14 @@ case class ScExistentialType(quantified : ScType,
     if (variance == 0) return tp //optimization
     tp match {
       case _: StdType => tp
-      case c@ScCompoundType(components, decls, typeDecls, subst) =>
-        val newSet = rejected ++ typeDecls.map(_.name)
-        new ScCompoundType(components, decls, typeDecls, subst, c.signatureMap.map {
-          case (sign, scType) => (sign, new Suspension[ScType](() => updateRecursive(c.subst.subst(scType.v), newSet, variance)))
-        }, c.types.map {
-          case (s, (tp1, tp2)) => (s, (updateRecursive(c.subst.subst(tp1), newSet, variance), updateRecursive(c.subst.subst(tp2), newSet, -variance)))
-        }, c.problems.toList)
+      case c@ScCompoundType(components, signatureMap, typeMap) =>
+        val newSet = rejected ++ typeMap.map(_._1)
+        new ScCompoundType(components, signatureMap.map {
+          case (s, sctype) => (new Signature(s.name, s.typesEval.map(_.map(updateRecursive(_, newSet, variance))), s.paramLength, s.typeParams,
+            s.substitutor, s.namedElement, s.hasRepeatedParam), updateRecursive(sctype, newSet, variance))
+        }, typeMap.map {
+          case (s, (tp1, tp2, ta)) => (s, (updateRecursive(tp1, newSet, variance), updateRecursive(tp2, newSet, -variance), ta))
+        })
       case ScProjectionType(_, _, _) => tp
       case JavaArrayType(_) => tp
       case ScParameterizedType(designator, typeArgs) =>

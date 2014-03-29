@@ -14,7 +14,7 @@ import collection.mutable.ArrayBuffer
 
 class Signature(val name: String, val typesEval: List[Stream[ScType]], val paramLength: List[Int],
                 val typeParams: Array[PsiTypeParameter], val substitutor: ScSubstitutor,
-                val namedElement: Option[PsiNamedElement]) {
+                val namedElement: Option[PsiNamedElement], val hasRepeatedParam: Seq[Int] = Seq.empty) {
 
   def this(name: String, stream: Stream[ScType], paramLength: Int, substitutor: ScSubstitutor,
            namedElement: Option[PsiNamedElement]) =
@@ -22,7 +22,7 @@ class Signature(val name: String, val typesEval: List[Stream[ScType]], val param
 
   private def types: List[Stream[ScType]] = typesEval
 
-  def substitutedTypes: List[Stream[ScType]] = types.map(ScalaPsiUtil.getTypesStream(_, substitutor.subst _))
+  def substitutedTypes: List[Stream[ScType]] = types.map(ScalaPsiUtil.getTypesStream(_, substitutor.subst))
 
   def equiv(other: Signature): Boolean = {
     def fieldCheck(other: Signature): Boolean = {
@@ -112,15 +112,13 @@ class Signature(val name: String, val typesEval: List[Stream[ScType]], val param
   }
 
   def isJava: Boolean = false
-
-  def hasRepeatedParam: Seq[Int] = Seq.empty
 }
 
 
 
 import com.intellij.psi.PsiMethod
 object PhysicalSignature {
-  private def typesEval(method: PsiMethod): List[Stream[ScType]] = method match {
+  def typesEval(method: PsiMethod): List[Stream[ScType]] = method match {
     case fun: ScFunction =>
       fun.effectiveParameterClauses.map(clause => ScalaPsiUtil.getTypesStream(clause.parameters)).toList
     case _ => List(ScalaPsiUtil.getTypesStream(method.getParameterList match {
@@ -129,17 +127,12 @@ object PhysicalSignature {
     }))
   }
 
-  private def paramLength(method: PsiMethod): List[Int] = method match {
+  def paramLength(method: PsiMethod): List[Int] = method match {
     case fun: ScFunction => fun.effectiveParameterClauses.map(_.parameters.length).toList
     case _ => List(method.getParameterList.getParametersCount)
   }
-}
 
-class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubstitutor)
-        extends Signature(method.name, PhysicalSignature.typesEval(method), PhysicalSignature.paramLength(method),
-          method.getTypeParameters, substitutor, Some(method)) {
-
-  override def hasRepeatedParam: Seq[Int] = {
+  def hasRepeatedParam(method: PsiMethod): Seq[Int] = {
     method.getParameterList match {
       case p: ScParameters =>
         val params = p.params
@@ -157,7 +150,11 @@ class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubst
         Seq.empty
     }
   }
+}
 
+class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubstitutor)
+        extends Signature(method.name, PhysicalSignature.typesEval(method), PhysicalSignature.paramLength(method),
+          method.getTypeParameters, substitutor, Some(method), PhysicalSignature.hasRepeatedParam(method)) {
   def updateThisType(thisType: ScType): PhysicalSignature = updateSubst(_.addUpdateThisType(thisType))
 
   def updateSubst(f: ScSubstitutor => ScSubstitutor): PhysicalSignature = new PhysicalSignature(method, f(substitutor))
