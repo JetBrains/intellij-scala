@@ -86,7 +86,15 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
   }
   def followed(s: ScSubstitutor): ScSubstitutor = followed(s, 0)
 
+  def isUpdateThisSubst: Option[ScType] = {
+    if (tvMap.size + aliasesMap.size == 0 && !myDependentMethodTypesFunDefined) updateThisType
+    else None
+  }
+
   private def followed(s: ScSubstitutor, level: Int): ScSubstitutor = {
+    if (level > 200) {
+      "stop here"
+    }
     if (level > ScSubstitutor.followLimit)
       throw new RuntimeException("Too much followers for substitutor: " + this.toString)
     if (follower == null && tvMap.size + aliasesMap.size  == 0 && updateThisType == None && !myDependentMethodTypesFunDefined) s
@@ -121,12 +129,13 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     t match {
       case p@ScProjectionType(proj, element, s) =>
         val res = new ScProjectionType(substInternal(proj), element, s)
-        if (!s) {
+        res
+        /*if (!s) {
           val actualElement = p.actualElement
           if (actualElement.isInstanceOf[ScTypeDefinition] &&
             actualElement != res.actualElement) res.copy(superReference = true)
           else res
-        } else res
+        } else res*/
       case m@ScMethodType(retType, params, isImplicit) => new ScMethodType(substInternal(retType),
         params.map(p => p.copy(paramType = substInternal(p.paramType), expectedType = substInternal(p.expectedType))), isImplicit)(m.project, m.scope)
       case ScTypePolymorphicType(internalType, typeParameters) => {
@@ -164,7 +173,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
                             else null
                           case _ =>
                             selfType match {
-                              case ScCompoundType(types, _, _, _) =>
+                              case ScCompoundType(types, _, _) =>
                                 val iter = types.iterator
                                 while (iter.hasNext) {
                                   val tps = iter.next()
@@ -191,7 +200,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
                   update(named.getType(TypingContext.empty).getOrAny)
                 case _ =>
                   typez match {
-                    case ScCompoundType(types, _, _, _) =>
+                    case ScCompoundType(types, _, _) =>
                       val iter = types.iterator
                       while (iter.hasNext) {
                         val tps = iter.next()
@@ -334,12 +343,16 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
         new ScExistentialType(substCopy.substInternal(q),
           wildcards.map(_.subst(this)))
       }
-      case comp@ScCompoundType(comps, decls, typeDecls, substitutor) =>
+      case comp@ScCompoundType(comps, signatureMap, typeMap) =>
         val substCopy = new ScSubstitutor(tvMap, aliasesMap, updateThisType)
         substCopy.myDependentMethodTypesFun = myDependentMethodTypesFun
         substCopy.myDependentMethodTypesFunDefined = myDependentMethodTypesFunDefined
         substCopy.myDependentMethodTypes = myDependentMethodTypes
-        ScCompoundType(comps.map(substInternal(_)), decls, typeDecls, substitutor.followed(substCopy))
+        ScCompoundType(comps.map(substInternal), signatureMap.map {
+          case (s: Signature, tp: ScType) =>
+            (new Signature(s.name, s.typesEval.map(_.map(substInternal)), s.paramLength, s.typeParams,
+              s.substitutor, s.namedElement, s.hasRepeatedParam), substInternal(tp))
+        }, typeMap)
       case ScDesignatorType(param: ScParameter) if !getDependentMethodTypes.isEmpty =>
         getDependentMethodTypes.find {
           case (parameter: Parameter, tp: ScType) =>

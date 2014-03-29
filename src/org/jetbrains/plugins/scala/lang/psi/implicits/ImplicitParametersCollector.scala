@@ -342,7 +342,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
 
   private def coreType(tp: ScType): ScType = {
     tp match {
-      case ScCompoundType(comps, _, _, subst) => abstractsToUpper(ScCompoundType(comps, Seq.empty, Seq.empty, subst)).removeUndefines()
+      case ScCompoundType(comps, _, _) => abstractsToUpper(ScCompoundType(comps, Map.empty, Map.empty)).removeUndefines()
       case ScExistentialType(quant, wilds) => abstractsToUpper(ScExistentialType(quant.recursiveUpdate {
         case tp@ScTypeVariable(name) => wilds.find(_.name == name).map(w => (true, w.upperBound)).getOrElse((false, tp))
         case tp@ScDesignatorType(element) => element match {
@@ -370,7 +370,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
       case ScDesignatorType(v: ScTypedDefinition) =>
         val valueType: ScType = v.getType(TypingContext.empty).getOrAny
         topLevelTypeConstructors(valueType)
-      case ScCompoundType(comps, _, _, _) => comps.flatMap(topLevelTypeConstructors).toSet
+      case ScCompoundType(comps, _, _) => comps.flatMap(topLevelTypeConstructors).toSet
       case _ => Set(tp)
     }
   }
@@ -383,7 +383,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
       case ScDesignatorType(v: ScTypedDefinition) =>
         val valueType: ScType = v.getType(TypingContext.empty).getOrAny
         1 + complexity(valueType)
-      case ScCompoundType(comps, _, _, _) => comps.foldLeft(0)(_ + complexity(_))
+      case ScCompoundType(comps, _, _) => comps.foldLeft(0)(_ + complexity(_))
       case _ => 1
     }
   }

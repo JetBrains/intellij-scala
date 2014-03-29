@@ -117,14 +117,14 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
     }
   }
 
-  private val substitorOffset = substituted.getTextRange.getStartOffset
+  private val substitutorOffset = substituted.getTextRange.getStartOffset
 
   override def getSubstituted: PsiElement = {
     val subst = super.getSubstituted
     if (subst != null && subst.getText == substituted.getText) subst
     else {
       val psiFile: PsiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(myEditor.getDocument)
-      if (psiFile != null) PsiTreeUtil.getParentOfType(psiFile.findElementAt(substitorOffset), classOf[PsiNameIdentifierOwner])
+      if (psiFile != null) PsiTreeUtil.getParentOfType(psiFile.findElementAt(substitutorOffset), classOf[PsiNameIdentifierOwner])
       else null
     }
 

@@ -134,19 +134,19 @@ trait ScTypePresentation {
     }
 
     def compoundTypeText(compType: ScCompoundType): String = {
-      val ScCompoundType(comps, decls, typeDecls, s) = compType
-      def typeText0(tp: ScType) = innerTypeText(s.subst(tp))
+      val ScCompoundType(comps, signatureMap, typeMap) = compType
+      def typeText0(tp: ScType) = innerTypeText(tp)
 
       val componentsText = if (comps.isEmpty) Nil else Seq(comps.map(innerTypeText(_)).mkString(" with "))
 
-      val declsTexts = (decls ++ typeDecls).flatMap {
-        //todo: make it better including substitution
+      //todo:
+      val declsTexts = ""/*(signatureMap ++ typeMap).flatMap {
         case fun: ScFunction =>
           val paramClauses = fun.paramClauses.clauses.map(_.parameters.map(param =>
             ScalaDocumentationProvider.parseParameter(param, typeText0)).mkString("(", ", ", ")")).mkString("")
           val retType = fun.returnType.map {
             tp =>
-              val scType: ScType = s.subst(tp)
+              val scType: ScType = tp
               if (!compType.equiv(scType)) typeText0(tp) else "this.type"
           }.getOrElse("")
           Seq(s"def ${fun.name}$paramClauses$retType")
@@ -164,7 +164,7 @@ trait ScTypePresentation {
           })
         case ta: ScTypeAlias =>
           val paramsText = if (ta.typeParameters.length > 0)
-            ta.typeParameters.map(typeParamText(_, s)).mkString("[", ", ", "]")
+            ta.typeParameters.map(typeParamText(_, ScSubstitutor.empty)).mkString("[", ", ", "]")
           else ""
           val decl = s"type ${ta.name}$paramsText"
           val defnText = ta match {
@@ -189,7 +189,7 @@ trait ScTypePresentation {
           }
           Seq(decl + defnText)
         case _ => Seq.empty[String]
-      }
+      }*/
 
       val refinementText = if (declsTexts.isEmpty) Nil else Seq(declsTexts.mkString("{", "; ", "}"))
 

@@ -44,7 +44,7 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(no
               case Some(te) =>
                 val ttype = te.getType(ctx)
                 problems += ttype
-                val t = ScCompoundType(Seq(ttype.getOrAny, Singleton), Seq.empty, Seq.empty, ScSubstitutor.empty)
+                val t = ScCompoundType(Seq(ttype.getOrAny, Singleton), Map.empty, Map.empty)
                 for (declared <- value.declaredElements) {
                   buff += ScExistentialArgument(declared.name, Nil, Nothing, t)
                 }

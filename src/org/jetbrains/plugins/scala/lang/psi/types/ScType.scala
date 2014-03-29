@@ -42,7 +42,7 @@ match {
  case Short =>
  case ScFunctionType(returnType, params) =>
  case ScTupleType(components) =>
- case ScCompoundType(components, decls, typeDecls, subst) =>
+ case ScCompoundType(components, decls, typeDecls) =>
  case ScProjectionType(projected, element, subst) =>
  case JavaArrayType(arg) =>
  case ScParameterizedType(designator, typeArgs) =>

@@ -200,25 +200,9 @@ object TypeDefinitionMembers {
     }
 
     def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement]) {
-      val subst = cp.subst
-      def addSignature(s: Signature) {
-        map addToMap (s, new Node(s, subst))
-      }
-      for (decl <- cp.decls) {
-        decl match {
-          case fun: ScFunction if isBridge(place, fun) && fun.parameters.isEmpty => {
-            val sign = new PhysicalSignature(fun, subst)
-            addSignature(sign)
-          }
-          case _var: ScVariable if isBridge(place, _var) =>
-            for (dcl <- _var.declaredElements) {
-              addSignature(new Signature(dcl.name, Stream.empty, 0, subst, Some(dcl)))
-            }
-          case _val: ScValue if isBridge(place, _val) =>
-            for (dcl <- _val.declaredElements) {
-              addSignature(new Signature(dcl.name, Stream.empty, 0, subst, Some(dcl)))
-            }
-          case _ =>
+      for ((sign, _) <- cp.signatureMap) {
+        if (sign.paramLength == 0 && !sign.namedElement.exists { case m: PsiMember => isBridge(place, m) case _ => false }) {
+          map addToMap (sign, new Node(sign, ScSubstitutor.empty))
         }
       }
     }
@@ -277,8 +261,8 @@ object TypeDefinitionMembers {
     }
 
     def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement]) {
-      for (alias <- cp.typeDecls if isBridge(place, alias)) {
-        map addToMap (alias, new Node(alias, cp.subst))
+      for ((name, (lower, upper, alias)) <- cp.typesMap if isBridge(place, alias)) {
+        map addToMap (alias, new Node(alias, ScSubstitutor.empty))
       }
     }
   }
@@ -458,27 +442,9 @@ object TypeDefinitionMembers {
     }
 
     def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement]) {
-      val subst = cp.subst
-      def addSignature(s: Signature) {
-        map addToMap (s, new Node(s, subst))
-      }
-      for (decl <- cp.decls) {
-        decl match {
-          case fun: ScFunction if isBridge(place, fun) => {
-            val sign = new PhysicalSignature(fun, subst)
-            addSignature(sign)
-          }
-          case _var: ScVariable if isBridge(place, _var) =>
-            for (dcl <- _var.declaredElements) {
-              lazy val t = dcl.getType(TypingContext.empty).getOrAny
-              addSignature(new Signature(dcl.name, Stream.empty, 0, subst, Some(dcl)))
-              addSignature(new Signature(dcl.name + "_=", ScalaPsiUtil.getSingletonStream(t), 1, subst, Some(dcl)))
-            }
-          case _val: ScValue if isBridge(place, _val) =>
-            for (dcl <- _val.declaredElements) {
-              addSignature(new Signature(dcl.name, Stream.empty, 0, subst, Some(dcl)))
-            }
-          case _ =>
+      for ((sign, _) <- cp.signatureMap) {
+        if (!sign.namedElement.exists { case m: PsiMember => isBridge(place, m) case _ => false }) {
+          map addToMap (sign, new Node(sign, ScSubstitutor.empty))
         }
       }
     }

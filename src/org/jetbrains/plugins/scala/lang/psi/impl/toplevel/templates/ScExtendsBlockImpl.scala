@@ -94,7 +94,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     val buffer = new ListBuffer[ScType]
     def addType(t: ScType) {
       t match {
-        case ScCompoundType(comps, _, _, _) => comps.foreach {addType _}
+        case ScCompoundType(comps, _, _) => comps.foreach {addType _}
         case _ => buffer += t
       }
     }
