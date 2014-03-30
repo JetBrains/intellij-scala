@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="scala-library">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/Soft/scala/lib/scala-library.jar!/" />
+      <root url="jar://$USER_HOME$/Soft/scala/lib/scala-reflect.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/soft/scala/src/scala-library-src.jar!/" />
+      <root url="jar://$USER_HOME$/soft/scala/src/scala-reflect-src.jar!/" />
+    </SOURCES>
+  </library>
+</component>
