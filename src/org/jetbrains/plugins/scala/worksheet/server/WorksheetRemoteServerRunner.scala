@@ -28,10 +28,10 @@ class WorksheetRemoteServerRunner(project: Project) extends RemoteResourceOwner 
   def run(arguments: Seq[String], client: Client) = new WorksheetProcess {
     val COUNT = 5
 
-    var callbacks: Seq[() => Unit] = Seq.empty
+    var callback: Option[() => Unit] = None
 
-    override def addTerminationCallback(callback: => Unit) {
-      this.callbacks = this.callbacks :+ (() => callback)
+    override def setTerminationCallback(callback: => Unit) {
+      this.callback = Some(() => callback)
     }
 
     override def run() {
@@ -55,7 +55,7 @@ class WorksheetRemoteServerRunner(project: Project) extends RemoteResourceOwner 
         case e: UnknownHostException =>
           val message = "Unknown IP address of compile server host: " + address.toString
           client.error(message)
-      } finally callbacks.foreach(a => a())
+      } finally callback.foreach(a => a())
     }
 
     override def stop() {
