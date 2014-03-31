@@ -4,6 +4,7 @@
     <root id="root">
       <element id="directory" name="lib">
         <element id="library" level="project" name="evo-inflector-0.6" />
+        <element id="library" level="project" name="chatter-bot-api" />
         <element id="library" level="project" name="main-scala-library" />
         <element id="library" level="project" name="scalatest-finders" />
         <element id="archive" name="scala-plugin-runners.jar">
