@@ -37,18 +37,19 @@ class WorksheetRemoteServerRunner(project: Project) extends RemoteResourceOwner 
     override def run() {
       val encodedArgs = arguments map (s => Base64Converter.encode(s getBytes "UTF-8"))
 
-      try
-        for (i <- 1 to (COUNT - 1)) {
+      try {
+        for (i <- 0 until (COUNT - 1)) {
           try {
+            Thread.sleep(i*20)
             send(serverAlias, encodedArgs, client)
             return
           } catch {
-            case _: ConnectException =>
+            case _: ConnectException => Thread.sleep(100)
           }
-
-          send(serverAlias, encodedArgs, client)
         }
-      catch {
+
+        send(serverAlias, encodedArgs, client)
+      } catch {
         case e: ConnectException =>
           val message = "Cannot connect to compile server at %s:%s".format(address.toString, port)
           client.error(message)
