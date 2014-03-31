@@ -11,9 +11,9 @@ object HoconTokenType extends TokenType {
 
   case object RBrace extends HoconTokenType("RBRACE")
 
-  case object LSquare extends HoconTokenType("LSQUARE")
+  case object LBracket extends HoconTokenType("LBRACKET")
 
-  case object RSquare extends HoconTokenType("RSQUARE")
+  case object RBracket extends HoconTokenType("RBRACKET")
 
   case object Colon extends HoconTokenType("COLON")
 
@@ -22,6 +22,8 @@ object HoconTokenType extends TokenType {
   case object Equals extends HoconTokenType("EQUALS")
 
   case object PlusEquals extends HoconTokenType("PLUS_EQUALS")
+
+  case object Dot extends HoconTokenType("DOT")
 
   case object NewLine extends HoconTokenType("NEWLINE")
 
@@ -37,14 +39,14 @@ object HoconTokenType extends TokenType {
 
   case object Comment extends HoconTokenType("COMMENT")
 
-  case object Number extends HoconTokenType("NUMBER")
+  case object Integer extends HoconTokenType("INTEGER")
+
+  case object Decimal extends HoconTokenType("DECIMAL")
 
   case object UnquotedString extends HoconTokenType("UNQUOTED_STRING")
 
   case object QuotedString extends HoconTokenType("QUOTED_STRING")
 
   case object MultilineString extends HoconTokenType("MULTILINE_STRING")
-
-  case object WhitespaceString extends HoconTokenType("WHITESPACE_STRING")
 
 }
