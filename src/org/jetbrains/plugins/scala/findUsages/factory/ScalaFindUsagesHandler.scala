@@ -178,4 +178,6 @@ class ScalaFindUsagesHandler(element: PsiElement) extends FindUsagesHandler(elem
     }
     true
   }
+
+  override def isSearchForTextOccurencesAvailable(psiElement: PsiElement, isSingleFile: Boolean): Boolean = !isSingleFile
 }
