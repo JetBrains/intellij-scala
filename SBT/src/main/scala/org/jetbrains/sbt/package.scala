@@ -41,6 +41,12 @@ package object sbt {
     def canonicalFile: File = new File(canonicalPath)
 
     def url: String = VfsUtil.getUrlForLibraryRoot(file)
+    
+    def isAncestorOf(aFile: File): Boolean = FileUtil.isAncestor(file, aFile, true)
+
+    def isUnder(root: File): Boolean = FileUtil.isAncestor(root, file, true)
+
+    def isOutsideOf(root: File): Boolean = !FileUtil.isAncestor(root, file, false)
   }
 
   private object RichFile {

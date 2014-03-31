@@ -14,9 +14,15 @@ object Sbt {
 
   val BuildFile = "build.sbt"
 
+  val PluginsFile = "plugins.sbt"
+
   val ProjectDirectory = "project"
 
+  val ModulesDirectory = ".idea/modules"
+
   val ProjectDescription = "SBT project"
+
+  val ProjectLongDescription = "Project backed by SBT"
 
   val BuildModuleSuffix = "-build"
 
