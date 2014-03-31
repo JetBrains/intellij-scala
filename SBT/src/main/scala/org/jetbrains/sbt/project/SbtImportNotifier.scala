@@ -74,9 +74,8 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
     
     def refresh() {
       FileDocumentManager.getInstance.saveAllDocuments()
-      
-      ExternalSystemUtil.refreshProject(project, SbtProjectSystem.Id, getExternalProject(forFile),
-        SbtImportNotifier.EmptyCallback, false, ProgressExecutionMode.IN_BACKGROUND_ASYNC, true)
+
+      ExternalSystemUtil.refreshProjects(project, SbtProjectSystem.Id, false, ProgressExecutionMode.IN_BACKGROUND_ASYNC)
     }
 
     if (externalProjectPath == null) return
@@ -267,9 +266,4 @@ object SbtImportNotifier {
                             | <a href="ftp://ignore">Ignore</a><br>
                           """.stripMargin
   
-  private object EmptyCallback extends ExternalProjectRefreshCallback {
-    def onFailure(errorMessage: String, errorDetails: String) {}
-
-    def onSuccess(externalProject: DataNode[ProjectData]) {}
-  }
 }
