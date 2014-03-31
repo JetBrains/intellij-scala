@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package overrideImplement
 
-import com.intellij.codeInsight.generation.{GenerationInfoBase, PsiElementClassMember}
+import com.intellij.codeInsight.generation.GenerationInfoBase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScSubstitutor}
@@ -21,9 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.config.ScalaVersionUtil._
 import org.jetbrains.plugins.scala.lang.psi.types.result.Failure
-import scala.Some
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import com.intellij.openapi.application.ApplicationManager
 
@@ -32,7 +30,7 @@ import com.intellij.openapi.application.ApplicationManager
  * Nikolay.Tropin
  * 12/25/13
  */
-class ScalaGenerationInfo(classMember: PsiElementClassMember[_ <: PsiDocCommentOwner])
+class ScalaGenerationInfo(classMember: ClassMember)
         extends GenerationInfoBase {
 
   private var myMember: PsiMember = classMember.getElement
@@ -54,7 +52,7 @@ class ScalaGenerationInfo(classMember: PsiElementClassMember[_ <: PsiDocCommentO
         val method: PsiMethod = member.getElement
         val sign = member.sign.updateSubst(addUpdateThisType(_, templDef))
 
-        val isImplement = member.isImplement
+        val isImplement = !member.needsOverride
         val templateName =
           if (isImplement) ScalaFileTemplateUtil.SCALA_IMPLEMENTED_METHOD_TEMPLATE
           else ScalaFileTemplateUtil.SCALA_OVERRIDDEN_METHOD_TEMPLATE
@@ -63,7 +61,7 @@ class ScalaGenerationInfo(classMember: PsiElementClassMember[_ <: PsiDocCommentO
 
         val properties = new Properties()
 
-        val returnType = member.returnType
+        val returnType = member.scType
 
         val standardValue = ScalaPsiElementFactory.getStandardValue(returnType)
         properties.setProperty(FileTemplate.ATTRIBUTE_RETURN_TYPE, ScType.presentableText(returnType))
@@ -83,7 +81,7 @@ class ScalaGenerationInfo(classMember: PsiElementClassMember[_ <: PsiDocCommentO
       case member: ScAliasMember =>
         val alias = member.getElement
         val substitutor = addUpdateThisType(member.substitutor, templDef)
-        val needsOverride = !member.isImplement || addOverrideToImplemented
+        val needsOverride = member.needsOverride || addOverrideToImplemented
         val m = ScalaPsiElementFactory.createOverrideImplementType(alias, substitutor, alias.getManager, needsOverride)
         val added = templDef.addMember(m, Option(anchor))
         myMember = added
@@ -91,14 +89,14 @@ class ScalaGenerationInfo(classMember: PsiElementClassMember[_ <: PsiDocCommentO
       case _: ScValueMember | _: ScVariableMember =>
         val isVal = classMember match {case _: ScValueMember => true case _: ScVariableMember => false}
         val value = classMember match {case x: ScValueMember => x.element case x: ScVariableMember => x.element}
-        val (origSubstitutor, isImplement) = classMember match {
-          case x: ScValueMember => (x.substitutor, x.isImplement)
-          case x: ScVariableMember => (x.substitutor, x.isImplement)
+        val (origSubstitutor, needsOverride) = classMember match {
+          case x: ScValueMember => (x.substitutor, x.needsOverride)
+          case x: ScVariableMember => (x.substitutor, x.needsOverride)
         }
         val substitutor = addUpdateThisType(origSubstitutor, templDef)
-        val needsOverride = !isImplement || addOverrideToImplemented
+        val addOverride = needsOverride || addOverrideToImplemented
         val m = ScalaPsiElementFactory.createOverrideImplementVariable(value, substitutor, value.getManager,
-          needsOverride, isVal, needsInferType)
+          addOverride, isVal, needsInferType)
         val added = templDef.addMember(m, Option(anchor))
         myMember = added
         ScalaPsiUtil.adjustTypes(added)

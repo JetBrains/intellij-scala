@@ -15,7 +15,10 @@ object FormattedStringFormatter extends StringFormatter {
     val bindings = parts.collect {
       case Text(s) => (StringUtil.escapeStringCharacters(s), None)
       case injection @ Injection(expression, specifier) =>
-        if (injection.isLiteral && specifier.isEmpty) (injection.value, None) else {
+        if (injection.isLiteral && specifier.isEmpty)
+          if (injection.value == "%") ("%%", None)
+          else (injection.value, None)
+        else {
           val format = specifier.map(_.format)
                   .getOrElse("%" + injection.expressionType.map(letterFor).getOrElse('s'))
           val argument = if (injection.isComplexBlock) injection.text else injection.value

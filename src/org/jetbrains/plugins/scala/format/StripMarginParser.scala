@@ -17,14 +17,14 @@ object StripMarginParser extends StringParser {
   override def parse(element: PsiElement): Option[Seq[StringPart]] = Some(element) collect {
     case Both(lit: ScInterpolatedStringLiteral, WithStrippedMargin(_, marginChar)) =>
       val parts = InterpolatedStringParser.parse(lit, checkStripMargin = false).getOrElse(return None)
-      parts.map {
+      parts.flatMap {
         case Text(s) =>
           val stripped = s.stripMargin(marginChar)
-          Text(stripped)
-        case part => part
+          Text(stripped).withEscapedPercent(element.getManager)
+        case part => List(part)
       }
     case Both(lit: ScLiteral, WithStrippedMargin(_, marginChar)) =>
-      List(Text(lit.getValue.toString.stripMargin(marginChar)))
+      Text(lit.getValue.toString.stripMargin(marginChar)).withEscapedPercent(element.getManager)
   }
 
 }

@@ -35,7 +35,7 @@ import com.intellij.psi.search.searches.ReferencesSearch
  * Date: 21.11.2008
  */
 
-class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
+class RenameScalaMethodProcessor extends RenameJavaMethodProcessor with ScalaRenameProcessor {
   override def canProcessElement(element: PsiElement): Boolean = RenameScalaMethodProcessor.canProcessElement(element)
 
   override def findReferences(element: PsiElement) = ScalaRenameUtil.findReferences(element)
@@ -57,14 +57,6 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
   }
 
   def capitalize(text: String): String = Character.toUpperCase(text.charAt(0)) + text.substring(1)
-
-  override def setToSearchInComments(element: PsiElement, enabled: Boolean) {
-    ScalaApplicationSettings.getInstance().RENAME_SEARCH_IN_COMMENTS_AND_STRINGS = enabled
-  }
-
-  override def isToSearchInComments(psiElement: PsiElement): Boolean = {
-    ScalaApplicationSettings.getInstance().RENAME_SEARCH_IN_COMMENTS_AND_STRINGS
-  }
 
   override def renameElement(psiElement: PsiElement, newName: String, usages: Array[UsageInfo], listener: RefactoringElementListener) {
     ScalaRenameUtil.doRenameGenericNamedElement(psiElement, newName, usages, listener)
