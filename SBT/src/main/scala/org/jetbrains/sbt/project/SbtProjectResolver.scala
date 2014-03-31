@@ -34,15 +34,15 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val data = StructureParser.parse(xml, new File(System.getProperty("user.home")))
 
-    convert(data).toDataNode
+    convert(path, data).toDataNode
   }
 
-  private def convert(data: Structure): Node[ProjectData] = {
+  private def convert(root: String, data: Structure): Node[ProjectData] = {
     val projects = data.projects
 
     val project = data.projects.headOption.getOrElse(throw new RuntimeException("No root project found"))
 
-    val projectNode = createProject(project)
+    val projectNode = new ProjectNode(project.name, root, root)
 
     val javaHome = project.java.flatMap(_.home).getOrElse(new File(System.getProperty("java.home")))
     val javacOptions = project.java.map(_.options).getOrElse(Seq.empty)
@@ -65,7 +65,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     projectNode.addAll(libraries ++ compilerLibraries)
 
-    val moduleFilesDirectory = projectNode.getIdeProjectFileDirectoryPath.toFile / ".idea" / "modules"
+    val moduleFilesDirectory = new File(root + "/" + Sbt.ModulesDirectory)
 
     val moduleNodes: Seq[ModuleNode] = projects.map { project =>
       val moduleNode = createModule(project, moduleFilesDirectory)
@@ -97,12 +97,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val basePackage = Some(project.organization).filter(_.contains(".")).mkString
 
     new ScalaFacetNode(scala.version, basePackage, internalNameFor(scala), scala.options)
-  }
-
-  private def createProject(project: Project): ProjectNode = {
-    val result = new ProjectNode(project.base.path, project.base.path)
-    result.setName(project.name)
-    result
   }
 
   private def createUnresolvedLibrary(moduleId: ModuleId): LibraryNode = {
