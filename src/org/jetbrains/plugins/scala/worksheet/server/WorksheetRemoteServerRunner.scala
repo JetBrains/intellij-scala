@@ -26,6 +26,8 @@ class WorksheetRemoteServerRunner(project: Project) extends RemoteResourceOwner 
     }
   
   def run(arguments: Seq[String], client: Client) = new WorksheetProcess {
+    val COUNT = 5
+
     var callbacks: Seq[() => Unit] = Seq.empty
 
     override def addTerminationCallback(callback: => Unit) {
@@ -33,8 +35,19 @@ class WorksheetRemoteServerRunner(project: Project) extends RemoteResourceOwner 
     }
 
     override def run() {
+      val encodedArgs = arguments map (s => Base64Converter.encode(s getBytes "UTF-8"))
+
       try
-        send(serverAlias, arguments map (s => Base64Converter.encode(s getBytes "UTF-8")), client)
+        for (i <- 1 to (COUNT - 1)) {
+          try {
+            send(serverAlias, encodedArgs, client)
+            return
+          } catch {
+            case _: ConnectException =>
+          }
+
+          send(serverAlias, encodedArgs, client)
+        }
       catch {
         case e: ConnectException =>
           val message = "Cannot connect to compile server at %s:%s".format(address.toString, port)
