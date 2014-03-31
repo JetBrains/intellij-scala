@@ -158,13 +158,13 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def createContentRoot(project: Project): ContentRootNode = {
-    val productinSources = relevantRootPathsIn(project, "compile")(_.sources)
+    val productionSources = relevantRootPathsIn(project, "compile")(_.sources)
     val productionResources = relevantRootPathsIn(project, "compile")(_.resources)
     val testSources = relevantRootPathsIn(project, "test")(_.sources)
     val testResources = relevantRootPathsIn(project, "test")(_.resources)
 
     val commonRoot = {
-      val allRoots = productinSources ++ productionResources ++ testSources ++ testResources :+ project.base
+      val allRoots = productionSources ++ productionResources ++ testSources ++ testResources :+ project.base
 
       canonicalCommonAncestorOf(allRoots).getOrElse(throw new ExternalSystemException(
         "Cannot determine common root in project: " +  project.name))
@@ -172,14 +172,13 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val result = new ContentRootNode(commonRoot.path)
 
-    result.storePaths(ExternalSystemSourceType.SOURCE, productinSources.map(_.path))
+    result.storePaths(ExternalSystemSourceType.SOURCE, productionSources.map(_.path))
     result.storePaths(ExternalSystemSourceType.RESOURCE, productionResources.map(_.path))
 
     result.storePaths(ExternalSystemSourceType.TEST, testSources.map(_.path))
     result.storePaths(ExternalSystemSourceType.TEST_RESOURCE, testResources.map(_.path))
 
-    // We cannot exclude the whole ./target/ directory because of generated sources
-//    result.storePath(ExternalSystemSourceType.EXCLUDED, project.target.path)
+    result.storePaths(ExternalSystemSourceType.EXCLUDED, excludedDirectoriesIn(project).map(_.path))
 
     result
   }
@@ -200,6 +199,27 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def pathTo(file: File): Seq[File] =
     Option(file.getParentFile).map(pathTo).getOrElse(Seq.empty) :+ file
+
+  private def excludedDirectoriesIn(project: Project): Seq[File] = {
+    canExcludeTargetIn(project).seq(project.target) :+
+            project.base / "project" / "target" :+
+            project.base / "project" / "project" / "target"
+  }
+
+  // We cannot always exclude the whole ./target/ directory because of
+  // the generated sources, so we resort to an heuristics.
+  private def canExcludeTargetIn(project: Project): Boolean = {
+    val managedDirectories = project.configurations
+            .flatMap(configuration => configuration.sources ++ configuration.resources)
+            .filter(_.managed)
+            .map(_.file)
+
+    val defaultNames = Set("main", "test")
+
+    val relevantDirectories = managedDirectories.filter(file => file.exists || !defaultNames.contains(file.getName))
+
+    relevantDirectories.forall(_.isOutsideOf(project.target))
+  }
 
   private def createBuildModule(project: Project, moduleFilesDirectory: File): ModuleNode = {
     val id = project.id + Sbt.BuildModuleSuffix
