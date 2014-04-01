@@ -17,6 +17,7 @@
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
+        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.chat.ChatEnterHandler"/>
         <statistics.usagesCollector
                 implementation="org.jetbrains.plugins.scala.statistics.ScalaApplicationUsagesCollector" />
         <lang.rearranger language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger"/>
@@ -884,6 +885,9 @@
     </application-components>
 
     <project-components>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.chat.ChatProjectComponent</implementation-class>
+        </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.editor.mouseHandler.MouseHoverHandler</implementation-class>
         </component>
