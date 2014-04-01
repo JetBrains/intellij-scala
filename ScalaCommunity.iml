@@ -37,6 +37,7 @@
     <orderEntry type="library" name="community-plugins" level="project" />
     <orderEntry type="library" name="nailgun" level="project" />
     <orderEntry type="module" module-name="ScalaRunner" />
+    <orderEntry type="library" name="chatter-bot-api" level="project" />
   </component>
 </module>
 

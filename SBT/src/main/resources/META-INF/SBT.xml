@@ -41,7 +41,7 @@
         <moduleType id="SBT_MODULE" implementationClass="org.jetbrains.sbt.project.module.SbtModuleType"/>
         <moduleConfigurationEditorProvider implementation="org.jetbrains.sbt.project.module.SbtModuleEditorProvider"/>
 
-        <projectTemplatesFactory implementation="org.jetbrains.sbt.project.module.SbtProjectTemplateFactory"/>
+        <projectTemplatesFactory implementation="org.jetbrains.sbt.project.template.SbtProjectTemplateFactory"/>
 
         <applicationConfigurable instance="org.jetbrains.sbt.settings.SbtConfigurable"/>
         
