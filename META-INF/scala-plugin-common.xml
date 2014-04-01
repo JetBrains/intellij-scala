@@ -927,9 +927,6 @@
       <component>
           <implementation-class>org.jetbrains.plugins.scala.compiler.ServerMediator</implementation-class>
         </component>
-      <component>
-          <implementation-class>org.jetbrains.plugins.scala.components.WorksheetProjectComponent</implementation-class>
-        </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook</implementation-class>
         </component>
