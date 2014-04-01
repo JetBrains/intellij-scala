@@ -639,7 +639,17 @@ object ScalaPsiUtil {
       }
     }
     collectParts(tp)
-    val res: mutable.HashSet[ScType] = new mutable.HashSet
+    val res: mutable.HashMap[String, Seq[ScType]] = new mutable.HashMap
+    def addResult(fqn: String, tp: ScType): Unit = {
+      res.get(fqn) match {
+        case Some(s) =>
+          if (s.forall(!_.equiv(tp))) {
+            res.remove(fqn)
+            res += ((fqn, s :+ tp))
+          }
+        case None => res += ((fqn, Seq(tp)))
+      }
+    }
     while (!parts.isEmpty) {
       val part = parts.dequeue()
       //here we want to convert projection types to right projections
@@ -651,7 +661,7 @@ object ScalaPsiUtil {
             val obj = ScalaPsiManager.instance(place.getProject).
               getCachedClass("scala." + tp.name, place.getResolveScope, ClassCategory.OBJECT)
             obj match {
-              case o: ScObject => res += ScDesignatorType(o)
+              case o: ScObject => addResult(o.qualifiedName, ScDesignatorType(o))
               case _           =>
             }
           case ScDesignatorType(ta: ScTypeAliasDefinition) => collectObjects(ta.aliasedType.getOrAny)
@@ -675,14 +685,14 @@ object ScalaPsiUtil {
               if !visited.contains(clazz)
             } {
               clazz match {
-                case o: ScObject => res += tp
+                case o: ScObject => addResult(o.qualifiedName, tp)
                 case _           =>
                   getCompanionModule(clazz) match {
                     case Some(obj: ScObject) =>
                       tp match {
-                        case ScProjectionType(proj, _, s)                         => res += ScProjectionType(proj, obj, s)
-                        case ScParameterizedType(ScProjectionType(proj, _, s), _) => res += ScProjectionType(proj, obj, s)
-                        case _                                                    => res += ScDesignatorType(obj)
+                        case ScProjectionType(proj, _, s)                         => addResult(obj.qualifiedName, ScProjectionType(proj, obj, s))
+                        case ScParameterizedType(ScProjectionType(proj, _, s), _) => addResult(obj.qualifiedName, ScProjectionType(proj, obj, s))
+                        case _                                                    => addResult(obj.qualifiedName, ScDesignatorType(obj))
                       }
                     case _ =>
                   }
@@ -692,7 +702,7 @@ object ScalaPsiUtil {
       }
       collectObjects(part)
     }
-    res.toSeq
+    res.values.flatten.toSeq
   }
 
   def getSingletonStream[A](elem: => A): Stream[A] = {
