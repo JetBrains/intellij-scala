@@ -18,14 +18,14 @@ import data._
  */
 class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSettings] {
   def resolveProjectInfo(id: ExternalSystemTaskId, projectPath: String, isPreview: Boolean, settings: SbtExecutionSettings, listener: ExternalSystemTaskNotificationListener): DataNode[ProjectData] = {
-    val path = {
+    val root = {
       val file = new File(projectPath)
       if (file.isDirectory) file.getPath else file.getParent
     }
 
     val runner = new SbtRunner(settings.vmOptions, settings.customLauncher, settings.customVM)
 
-    val xml = runner.read(new File(path), !isPreview) { message =>
+    val xml = runner.read(new File(root), !isPreview) { message =>
       listener.onStatusChange(new ExternalSystemTaskNotificationEvent(id, message.trim))
     } match {
       case Left(errors) => throw new ExternalSystemException(errors)
@@ -34,7 +34,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val data = StructureParser.parse(xml, new File(System.getProperty("user.home")))
 
-    convert(path, data).toDataNode
+    convert(root, data).toDataNode
   }
 
   private def convert(root: String, data: Structure): Node[ProjectData] = {
@@ -151,48 +151,26 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
+  // TODO Show warnings about excluded roots when IDEA-123007 will be implemented
+  // in the External System (UI interaction API for external system project resolver).
   private def createContentRoot(project: Project): ContentRootNode = {
-    val productionSources = relevantRootPathsIn(project, "compile")(_.sources)
-    val productionResources = relevantRootPathsIn(project, "compile")(_.resources)
-    val testSources = relevantRootPathsIn(project, "test")(_.sources)
-    val testResources = relevantRootPathsIn(project, "test")(_.resources)
+    val productionSources = validRootPathsIn(project, "compile")(_.sources)
+    val productionResources = validRootPathsIn(project, "compile")(_.resources)
+    val testSources = validRootPathsIn(project, "test")(_.sources)
+    val testResources = validRootPathsIn(project, "test")(_.resources)
 
-    val commonRoot = {
-      val allRoots = productionSources ++ productionResources ++ testSources ++ testResources :+ project.base
+    val result = new ContentRootNode(project.base.path)
 
-      canonicalCommonAncestorOf(allRoots).getOrElse(throw new ExternalSystemException(
-        "Cannot determine common root in project: " +  project.name))
-    }
+    result.storePaths(ExternalSystemSourceType.SOURCE, productionSources)
+    result.storePaths(ExternalSystemSourceType.RESOURCE, productionResources)
 
-    val result = new ContentRootNode(commonRoot.path)
-
-    result.storePaths(ExternalSystemSourceType.SOURCE, productionSources.map(_.path))
-    result.storePaths(ExternalSystemSourceType.RESOURCE, productionResources.map(_.path))
-
-    result.storePaths(ExternalSystemSourceType.TEST, testSources.map(_.path))
-    result.storePaths(ExternalSystemSourceType.TEST_RESOURCE, testResources.map(_.path))
+    result.storePaths(ExternalSystemSourceType.TEST, testSources)
+    result.storePaths(ExternalSystemSourceType.TEST_RESOURCE, testResources)
 
     result.storePaths(ExternalSystemSourceType.EXCLUDED, excludedDirectoriesIn(project).map(_.path))
 
     result
   }
-
-  private def canonicalCommonAncestorOf(files: Seq[File]): Option[File] =
-    commonAncestorOf(files.map(_.canonicalFile))
-
-  private def commonAncestorOf(files: Seq[File]): Option[File] = {
-    files.map(pathTo) match {
-      case Seq() => None
-      case Seq(firstPath, subsequentPaths @ _*) =>
-        val commonPath = subsequentPaths.foldLeft(firstPath) { (acc, path) =>
-          acc.zip(path).takeWhile(p => p._1 == p._2).map(_._1)
-        }
-        commonPath.lastOption
-    }
-  }
-
-  private def pathTo(file: File): Seq[File] =
-    Option(file.getParentFile).map(pathTo).getOrElse(Seq.empty) :+ file
 
   private def excludedDirectoriesIn(project: Project): Seq[File] = {
     canExcludeTargetIn(project).seq(project.target) :+
@@ -257,12 +235,15 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  private def relevantRootPathsIn(project: Project, scope: String)
-                                 (selector: Configuration => Seq[Directory]): Seq[File] = {
-    project.configurations.find(_.id == scope)
+  private def validRootPathsIn(project: Project, scope: String)
+                              (selector: Configuration => Seq[Directory]): Seq[String] = {
+    project.configurations
+            .find(_.id == scope)
             .map(selector)
             .getOrElse(Seq.empty)
             .map(_.file)
+            .filter(_.isUnder(project.base))
+            .map(_.path)
   }
 
   private def createLibraryDependencies(dependencies: Seq[ModuleDependency])(moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyNode] = {
