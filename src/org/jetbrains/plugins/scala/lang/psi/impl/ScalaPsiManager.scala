@@ -70,6 +70,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     new ConcurrentHashMap
 
   def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
+    if (ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes) return ParameterlessNodes.build(tp, compoundTypeThisType)
     val ref = compoundTypesParameterslessNodes.get(tp, compoundTypeThisType)
     var result: PMap = if (ref == null) null else ref.get()
     if (result == null) {
