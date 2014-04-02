@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="chatter-bot-api">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/SDK/lib/chatter-bot-api.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
