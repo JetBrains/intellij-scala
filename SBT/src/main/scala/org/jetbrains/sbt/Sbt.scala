@@ -18,6 +18,8 @@ object Sbt {
 
   val ProjectDirectory = "project"
 
+  val TargetDirectory = "target"
+
   val ModulesDirectory = ".idea/modules"
 
   val ProjectDescription = "SBT project"

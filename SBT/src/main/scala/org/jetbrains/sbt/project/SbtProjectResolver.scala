@@ -167,15 +167,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result.storePaths(ExternalSystemSourceType.TEST, testSources)
     result.storePaths(ExternalSystemSourceType.TEST_RESOURCE, testResources)
 
-    result.storePaths(ExternalSystemSourceType.EXCLUDED, excludedDirectoriesIn(project).map(_.path))
+    if(canExcludeTargetIn(project)) {
+      result.storePath(ExternalSystemSourceType.EXCLUDED, project.target.path)
+    }
 
     result
-  }
-
-  private def excludedDirectoriesIn(project: Project): Seq[File] = {
-    canExcludeTargetIn(project).seq(project.target) :+
-            project.base / "project" / "target" :+
-            project.base / "project" / "project" / "target"
   }
 
   // We cannot always exclude the whole ./target/ directory because of
@@ -196,15 +192,16 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def createBuildModule(project: Project, moduleFilesDirectory: File): ModuleNode = {
     val id = project.id + Sbt.BuildModuleSuffix
     val name = project.name + Sbt.BuildModuleSuffix
-    val path = project.base.path + "/project"
+    val buildRoot = project.base / Sbt.ProjectDirectory
 
-    val result = new ModuleNode(SbtModuleType.instance.getId, id, name, moduleFilesDirectory.path, path)
+    // TODO use both ID and Name when related flaws in the External System will be fixed
+    val result = new ModuleNode(SbtModuleType.instance.getId, id, id, moduleFilesDirectory.path, buildRoot.path)
 
     result.setInheritProjectCompileOutputPath(false)
-    result.setCompileOutputPath(ExternalSystemSourceType.SOURCE, path + "/target/idea-classes")
-    result.setCompileOutputPath(ExternalSystemSourceType.TEST, path + "/target/idea-test-classes")
+    result.setCompileOutputPath(ExternalSystemSourceType.SOURCE, (buildRoot / Sbt.TargetDirectory / "idea-classes").path)
+    result.setCompileOutputPath(ExternalSystemSourceType.TEST, (buildRoot / Sbt.TargetDirectory / "idea-test-classes").path)
 
-    result.add(createBuildContentRoot(project))
+    result.add(createBuildContentRoot(buildRoot))
 
     val library = {
       val build = project.build
@@ -219,15 +216,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  private def createBuildContentRoot(project: Project): ContentRootNode = {
-    val root = project.base / "project"
+  private def createBuildContentRoot(buildRoot: File): ContentRootNode = {
+    val result = new ContentRootNode(buildRoot.path)
 
-    val result = new ContentRootNode(root.path)
+    val sourceDirs = Seq(buildRoot) // , base << 1
 
-    val sourceDirs = Seq(root) // , base << 1
-    val exludedDirs = project.configurations
-              .flatMap(it => it.sources ++ it.resources)
-              .map(_.file) :+ root / "target"
+    val exludedDirs = Seq(
+      buildRoot / Sbt.TargetDirectory,
+      buildRoot / Sbt.ProjectDirectory / Sbt.TargetDirectory)
 
     result.storePaths(ExternalSystemSourceType.SOURCE, sourceDirs.map(_.path))
     result.storePaths(ExternalSystemSourceType.EXCLUDED, exludedDirs.map(_.path))
