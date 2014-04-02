@@ -169,8 +169,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
                         (place.getProject, place.getResolveScope))).getOrElse(ret)
                       var nonValueType: TypeResult[ScType] =
                         Success(if (typeParameters.isEmpty) methodType
-                        else ScTypePolymorphicType(methodType, typeParameters.map(tp =>
-                          TypeParameter(tp.name, tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp))), Some(place))
+                        else ScTypePolymorphicType(methodType, typeParameters.map(new TypeParameter(_))), Some(place))
                       try {
                         val expected = Some(tp)
                         InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type: " + nonValueType.toString)

@@ -38,7 +38,24 @@ case class Parameter(name: String, deprecatedName: Option[String], paramType: Sc
       param.isDefaultParam, param.isRepeatedParameter, param.isCallByNameParameter, param.index, Some(param))
   }
 }
-case class TypeParameter(name: String, lowerType: ScType, upperType: ScType, ptp: PsiTypeParameter)
+case class TypeParameter(name: String, typeParams: Seq[TypeParameter], lowerType: ScType, upperType: ScType,
+                         ptp: PsiTypeParameter) {
+  def this(ptp: PsiTypeParameter) {
+    this(ptp match {
+      case tp: ScTypeParam => tp.name
+      case _ => ptp.getName
+    }, ptp match {
+      case tp: ScTypeParam => tp.typeParameters.map(new TypeParameter(_))
+      case _ => Seq.empty
+    }, ptp match {
+      case tp: ScTypeParam => tp.lowerBound.getOrNothing
+      case _ => Nothing //todo: lower type?
+    }, ptp match {
+      case tp: ScTypeParam => tp.upperBound.getOrAny
+      case _ => Any //todo: upper type?
+    }, ptp)
+  }
+}
 
 case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean)
                        (val project: Project, val scope: GlobalSearchScope) extends NonValueType {
@@ -205,7 +222,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
   }
 
   override def removeAbstracts = ScTypePolymorphicType(internalType.removeAbstracts, typeParameters.map(tp => {
-    TypeParameter(tp.name, tp.lowerType.removeAbstracts, tp.upperType.removeAbstracts, tp.ptp)
+    TypeParameter(tp.name, tp.typeParams /* todo: ? */, tp.lowerType.removeAbstracts, tp.upperType.removeAbstracts, tp.ptp)
   }))
 
   override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
@@ -220,7 +237,8 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
       case (true, res) => res
       case _ =>
         ScTypePolymorphicType(internalType.recursiveUpdate(update, newVisited), typeParameters.map(tp => {
-          TypeParameter(tp.name, tp.lowerType.recursiveUpdate(update, newVisited), tp.upperType.recursiveUpdate(update, newVisited), tp.ptp)
+          TypeParameter(tp.name, tp.typeParams /* todo: ? */, tp.lowerType.recursiveUpdate(update, newVisited),
+            tp.upperType.recursiveUpdate(update, newVisited), tp.ptp)
         }))
     }
   }
@@ -231,7 +249,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
       case (true, res, _) => res
       case (_, _, newData) =>
         ScTypePolymorphicType(internalType.recursiveVarianceUpdateModifiable(newData, update, variance), typeParameters.map(tp => {
-          TypeParameter(tp.name, tp.lowerType.recursiveVarianceUpdateModifiable(newData, update, -variance),
+          TypeParameter(tp.name, tp.typeParams /* todo: ? */, tp.lowerType.recursiveVarianceUpdateModifiable(newData, update, -variance),
             tp.upperType.recursiveVarianceUpdateModifiable(newData, update, variance), tp.ptp)
         }))
     }

@@ -9,6 +9,7 @@ import com.intellij.psi.PsiClass
 import extensions.toPsiClassExt
 import lang.psi
 import collection.mutable
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 
 /**
  * Substitutor should be meaningful only for decls and typeDecls. Components shouldn't be applied by substitutor.
@@ -22,7 +23,12 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
   override def removeAbstracts = ScCompoundType(components.map(_.removeAbstracts),
     signatureMap.map {
       case (s: Signature, tp: ScType) =>
-        (new Signature(s.name, s.typesEval.map(_.map(_.removeAbstracts)), s.paramLength, s.typeParams,
+        def updateTypeParam(tp: TypeParameter): TypeParameter = {
+          new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), tp.lowerType.removeAbstracts,
+            tp.upperType.removeAbstracts, tp.ptp)
+        }
+
+        (new Signature(s.name, s.typesEval.map(_.map(_.removeAbstracts)), s.paramLength, s.typeParams.map(updateTypeParam),
           s.substitutor, s.namedElement, s.hasRepeatedParam), tp.removeAbstracts)
     }, typesMap.map {
       case (s: String, (lower, upper, ta)) => (s, (lower.removeAbstracts, upper.removeAbstracts, ta))
@@ -40,8 +46,15 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
     update(this) match {
       case (true, res) => res
       case _ =>
+        def updateTypeParam(tp: TypeParameter): TypeParameter = {
+          new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), tp.lowerType.recursiveUpdate(update, visited + this),
+            tp.upperType.recursiveUpdate(update, visited + this), tp.ptp)
+        }
         new ScCompoundType(components.map(_.recursiveUpdate(update, visited + this)), signatureMap.map {
-          case (signature: Signature, tp) => (signature, tp.recursiveUpdate(update, visited + this))
+          case (s: Signature, tp) => (new Signature(
+            s.name, s.substitutedTypes.map(_.map(_.recursiveUpdate(update, visited + this))), s.paramLength,
+            s.typeParams.map(updateTypeParam), ScSubstitutor.empty, s.namedElement, s.hasRepeatedParam
+          ), tp.recursiveUpdate(update, visited + this))
         }, typesMap.map {
           case (s, (tp1, tp2, ta)) => (s, (tp1.recursiveUpdate(update, visited + this), tp2.recursiveUpdate(update, visited + this), ta))
         })
@@ -53,8 +66,15 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
     update(this, variance, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>
+        def updateTypeParam(tp: TypeParameter): TypeParameter = {
+          new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), tp.lowerType.recursiveVarianceUpdateModifiable(newData, update, 1),
+            tp.upperType.recursiveVarianceUpdateModifiable(newData, update, 1), tp.ptp)
+        }
         new ScCompoundType(components.map(_.recursiveVarianceUpdateModifiable(newData, update, variance)), signatureMap.map {
-          case (signature: Signature, tp) => (signature, tp.recursiveVarianceUpdateModifiable(newData, update, 1))
+          case (s: Signature, tp) => (new Signature(
+            s.name, s.substitutedTypes.map(_.map(_.recursiveVarianceUpdateModifiable(newData, update, 1))), s.paramLength,
+            s.typeParams.map(updateTypeParam), ScSubstitutor.empty, s.namedElement, s.hasRepeatedParam
+          ), tp.recursiveVarianceUpdateModifiable(newData, update, 1))
         }, typesMap.map {
           case (s, (tp1, tp2, ta)) => (s, (tp1.recursiveVarianceUpdateModifiable(newData, update, 1), tp2.recursiveVarianceUpdateModifiable(newData, update, 1), ta))
         })
@@ -151,7 +171,8 @@ object ScCompoundType {
       decl match {
         case fun: ScFunction =>
           signatureMapVal += ((new Signature(fun.name, PhysicalSignature.typesEval(fun), PhysicalSignature.paramLength(fun),
-            fun.getTypeParameters, subst, Some(fun), PhysicalSignature.hasRepeatedParam(fun)), fun.returnType.getOrAny))
+            fun.getTypeParameters.map(new TypeParameter(_)), subst, Some(fun), PhysicalSignature.hasRepeatedParam(fun)),
+            fun.returnType.getOrAny))
         case varDecl: ScVariable =>
           varDecl.typeElement match {
             case Some(te) => for (e <- varDecl.declaredElements) {
