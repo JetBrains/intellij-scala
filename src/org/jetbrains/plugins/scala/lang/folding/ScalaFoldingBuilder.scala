@@ -26,6 +26,7 @@ import parser.ScalaElementTypes
 import settings.ScalaCodeFoldingSettings
 import scala.Boolean
 import worksheet.WorksheetFoldingBuilder
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /*
 *
@@ -204,6 +205,11 @@ class ScalaFoldingBuilder extends FoldingBuilder {
   }
 
   def isCollapsedByDefault(node: ASTNode): Boolean = {
+    node.getPsi.getContainingFile match {
+      case sc: ScalaFile if sc.isWorksheetFile => return false
+      case _ =>
+    }
+
     if (node.getTreeParent.getElementType == ScalaElementTypes.FILE &&
             node.getTreePrev == null && node.getElementType != ScalaElementTypes.PACKAGING &&
             ScalaCodeFoldingSettings.getInstance().isCollapseFileHeaders) true
