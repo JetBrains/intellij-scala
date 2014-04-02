@@ -151,7 +151,7 @@ object ScCompoundType {
       decl match {
         case fun: ScFunction =>
           signatureMapVal += ((new Signature(fun.name, PhysicalSignature.typesEval(fun), PhysicalSignature.paramLength(fun),
-            fun.getTypeParameters, subst, Some(fun), PhysicalSignature.hasRepeatedParam(fun)), fun.getType(TypingContext.empty).getOrAny))
+            fun.getTypeParameters, subst, Some(fun), PhysicalSignature.hasRepeatedParam(fun)), fun.returnType.getOrAny))
         case varDecl: ScVariable =>
           varDecl.typeElement match {
             case Some(te) => for (e <- varDecl.declaredElements) {
