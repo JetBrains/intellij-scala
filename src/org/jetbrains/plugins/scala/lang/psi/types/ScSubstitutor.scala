@@ -128,10 +128,12 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
       case p@ScProjectionType(proj, element, s) =>
         new ScProjectionType(substInternal(proj), element, s)
       case m@ScMethodType(retType, params, isImplicit) => new ScMethodType(substInternal(retType),
-        params.map(p => p.copy(paramType = substInternal(p.paramType), expectedType = substInternal(p.expectedType))), isImplicit)(m.project, m.scope)
+        params.map(p => p.copy(paramType = substInternal(p.paramType),
+          expectedType = substInternal(p.expectedType))), isImplicit)(m.project, m.scope)
       case ScTypePolymorphicType(internalType, typeParameters) =>
         ScTypePolymorphicType(substInternal(internalType), typeParameters.map(tp => {
-          TypeParameter(tp.name, substInternal(tp.lowerType), substInternal(tp.upperType), tp.ptp)
+          TypeParameter(tp.name, tp.typeParams /* todo: is it important here to update? */,
+            substInternal(tp.lowerType), substInternal(tp.upperType), tp.ptp)
         }))
       case ScThisType(clazz) =>
         def hasRecursiveThisType(tp: ScType): Boolean = {
@@ -322,11 +324,17 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
         substCopy.myDependentMethodTypesFun = myDependentMethodTypesFun
         substCopy.myDependentMethodTypesFunDefined = myDependentMethodTypesFunDefined
         substCopy.myDependentMethodTypes = myDependentMethodTypes
+        def substTypeParam(tp: TypeParameter): TypeParameter = {
+          new TypeParameter(tp.name, tp.typeParams.map(substTypeParam), substInternal(tp.lowerType),
+            substInternal(tp.upperType), tp.ptp)
+        }
         ScCompoundType(comps.map(substInternal), signatureMap.map {
           case (s: Signature, tp: ScType) =>
-            (new Signature(s.name, s.typesEval.map(_.map(substInternal)), s.paramLength, s.typeParams,
+            (new Signature(s.name, s.typesEval.map(_.map(substInternal)), s.paramLength, s.typeParams.map(substTypeParam),
               s.substitutor, s.namedElement, s.hasRepeatedParam), substInternal(tp))
-        }, typeMap)
+        }, typeMap.map {
+          case (s, (lower, upper, ta)) => (s, (substInternal(lower), substInternal(upper), ta))
+        })
       case ScDesignatorType(param: ScParameter) if !getDependentMethodTypes.isEmpty =>
         getDependentMethodTypes.find {
           case (parameter: Parameter, tp: ScType) =>

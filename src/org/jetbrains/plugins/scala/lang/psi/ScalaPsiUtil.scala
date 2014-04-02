@@ -320,7 +320,7 @@ object ScalaPsiUtil {
               val mrp = processor.asInstanceOf[MethodResolveProcessor]
               val newProc = new MethodResolveProcessor(ref, refName, mrp.argumentClauses, mrp.typeArgElements,
                 implRes.element match {
-                  case fun: ScFunction if fun.hasTypeParameters => fun.typeParameters.map(tp => TypeParameter(tp.name, types.Nothing, types.Any, tp))
+                  case fun: ScFunction if fun.hasTypeParameters => fun.typeParameters.map(new TypeParameter(_))
                   case _ => Seq.empty
                 }, kinds,
                 mrp.expectedOption, mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve, noImplicitsForArgs = noImplicitsForArgs)
@@ -517,7 +517,7 @@ object ScalaPsiUtil {
             tp match {
               case t: ScTypeParameterType =>
                 if (typeParameters.exists {
-                  case TypeParameter(_, _, _, ptp) if ptp == t.param && ptp.getOwner != ownerPtp.getOwner => true
+                  case TypeParameter(_, _, _, _, ptp) if ptp == t.param && ptp.getOwner != ownerPtp.getOwner => true
                   case _ => false
                 }) res = None
               case _ =>
@@ -527,11 +527,15 @@ object ScalaPsiUtil {
           res
         }
 
-        ScTypePolymorphicType(internal, typeParameters.map {
-          case t@TypeParameter(name, lowerType, upperType, ptp) =>
-            TypeParameter(name, hasBadLinks(lowerType, ptp).getOrElse(Nothing),
-              hasBadLinks(upperType, ptp).getOrElse(Any), ptp)
-        })
+        def clearBadLinks(tps: Seq[TypeParameter]): Seq[TypeParameter] = {
+          tps.map {
+            case t@TypeParameter(name, typeParams, lowerType, upperType, ptp) =>
+              TypeParameter(name, clearBadLinks(typeParams), hasBadLinks(lowerType, ptp).getOrElse(Nothing),
+                hasBadLinks(upperType, ptp).getOrElse(Any), ptp)
+          }
+        }
+
+        ScTypePolymorphicType(internal, clearBadLinks(typeParameters))
       case _ => tp
     }
   }
@@ -908,7 +912,7 @@ object ScalaPsiUtil {
 
               if (safeCheck && !undefiningSubstitutor.subst(lower).conforms(undefiningSubstitutor.subst(upper), checkWeak = true))
                 throw new SafeCheckException
-              TypeParameter(tp.name, lower, upper, tp.ptp)
+              TypeParameter(tp.name, tp.typeParams /* doesn't important here */, lower, upper, tp.ptp)
             }))
           } else {
             typeParams.foreach {case tp =>
@@ -993,7 +997,8 @@ object ScalaPsiUtil {
                     }
                   }
                   !removeMe
-              }.map(tp => TypeParameter(tp.name, sub.subst(tp.lowerType), sub.subst(tp.upperType), tp.ptp)))
+              }.map(tp => TypeParameter(tp.name, tp.typeParams /* doesn't important here */,
+                sub.subst(tp.lowerType), sub.subst(tp.upperType), tp.ptp)))
             }
 
             un.getSubstitutor match {

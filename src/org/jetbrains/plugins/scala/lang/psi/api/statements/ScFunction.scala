@@ -53,8 +53,7 @@ trait ScFun extends ScTypeParametersOwner {
 
   def polymorphicType: ScType = {
     if (typeParameters.length == 0) methodType
-    else ScTypePolymorphicType(methodType, typeParameters.map(tp =>
-      TypeParameter(tp.name, tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp)))
+    else ScTypePolymorphicType(methodType, typeParameters.map(new TypeParameter(_)))
   }
 }
 
@@ -233,8 +232,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
    */
   def polymorphicType(result: Option[ScType] = None): ScType = {
     if (typeParameters.length == 0) methodType(result)
-    else ScTypePolymorphicType(methodType(result), typeParameters.map(tp =>
-      TypeParameter(tp.name, tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp)))
+    else ScTypePolymorphicType(methodType(result), typeParameters.map(new TypeParameter(_)))
   }
 
   /**

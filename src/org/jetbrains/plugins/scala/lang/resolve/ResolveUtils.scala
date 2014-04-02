@@ -113,8 +113,7 @@ object ResolveUtils {
   def javaPolymorphicType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope = null, returnType: Option[ScType] = None): NonValueType = {
     if (m.getTypeParameters.length == 0) javaMethodType(m, s, scope, returnType)
     else {
-      ScTypePolymorphicType(javaMethodType(m, s, scope, returnType), m.getTypeParameters.map(tp =>
-        TypeParameter(tp.name, types.Nothing, types.Any, tp))) //todo: add lower and upper bounds
+      ScTypePolymorphicType(javaMethodType(m, s, scope, returnType), m.getTypeParameters.map(new TypeParameter(_)))
     }
   }
 
