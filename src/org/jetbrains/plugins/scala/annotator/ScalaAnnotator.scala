@@ -63,7 +63,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   with ParametersAnnotator with ApplicationAnnotator
   with AssignmentAnnotator with VariableDefinitionAnnotator
   with TypedStatementAnnotator with PatternDefinitionAnnotator
-  with ConstructorPatternAnnotator with ControlFlowInspections
+  with PatternAnnotator with ControlFlowInspections
   with ConstructorAnnotator with OverridingAnnotator
   with DumbAware {
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
@@ -199,11 +199,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       }
 
       override def visitPattern(pat: ScPattern) {
-        pat match {
-          case consPat: ScConstructorPattern =>
-            annotateConstructorPattern(consPat, holder, typeAware)
-          case _ =>
-        }
+        annotatePattern(pat, holder, typeAware)
         super.visitPattern(pat)
       }
 
