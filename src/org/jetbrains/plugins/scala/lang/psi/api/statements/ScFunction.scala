@@ -64,7 +64,6 @@ trait ScFun extends ScTypeParametersOwner {
 trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwner
         with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition
         with ScDeclaredElementsHolder with ScAnnotationsHolder with ScMethodLike with ScBlockStatement {
-  private var synth = false
   private var synthNavElement: Option[PsiElement] = None
   def setSynthetic(navElement: PsiElement) {
     synthNavElement = Some(navElement)
@@ -131,39 +130,35 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def getInheritedReturnType: Option[ScType] = {
     returnTypeElement match {
       case Some(_) => returnType.toOption
-      case None => {
+      case None =>
         val superReturnType = superMethodAndSubstitutor match {
           case Some((fun: ScFunction, subst)) =>
             var typeParamSubst = ScSubstitutor.empty
             fun.typeParameters.zip(typeParameters).foreach {
-              case (oldParam: ScTypeParam, newParam: ScTypeParam) => {
+              case (oldParam: ScTypeParam, newParam: ScTypeParam) =>
                 typeParamSubst = typeParamSubst.bindT((oldParam.name, ScalaPsiUtil.getPsiElementId(oldParam)),
                   new ScTypeParameterType(newParam, subst))
-              }
             }
-            fun.returnType.toOption.map(typeParamSubst.followed(subst).subst(_))
+            fun.returnType.toOption.map(typeParamSubst.followed(subst).subst)
           case Some((fun: ScSyntheticFunction, subst)) =>
             var typeParamSubst = ScSubstitutor.empty
             fun.typeParameters.zip(typeParameters).foreach {
-              case (oldParam: ScSyntheticTypeParameter, newParam: ScTypeParam) => {
+              case (oldParam: ScSyntheticTypeParameter, newParam: ScTypeParam) =>
                 typeParamSubst = typeParamSubst.bindT((oldParam.name, ScalaPsiUtil.getPsiElementId(oldParam)),
                   new ScTypeParameterType(newParam, subst))
-              }
             }
             Some(subst.subst(fun.retType))
           case Some((fun: PsiMethod, subst)) =>
             var typeParamSubst = ScSubstitutor.empty
             fun.getTypeParameters.zip(typeParameters).foreach {
-              case (oldParam: PsiTypeParameter, newParam: ScTypeParam) => {
+              case (oldParam: PsiTypeParameter, newParam: ScTypeParam) =>
                 typeParamSubst = typeParamSubst.bindT((oldParam.name, ScalaPsiUtil.getPsiElementId(oldParam)),
                   new ScTypeParameterType(newParam, subst))
-              }
             }
             Some(typeParamSubst.followed(subst).subst(ScType.create(fun.getReturnType, getProject, getResolveScope)))
           case _ => None
         }
         superReturnType
-      }
     }
   }
 
@@ -197,15 +192,13 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     returnTypeElement match {
       case Some(ret) => ret.getType(TypingContext.empty)
       case _ if !hasAssign => Success(Unit, Some(this))
-      case _ => {
+      case _ =>
         superMethod match {
           case Some(f: ScFunction) => f.definedReturnType
-          case Some(m: PsiMethod) => {
+          case Some(m: PsiMethod) =>
             Success(ScType.create(m.getReturnType, getProject, getResolveScope), Some(this))
-          }
           case _ => Failure("No defined return type", Some(this))
         }
-      }
     }
   }
 
@@ -241,12 +234,11 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
    */
   def returnTypeElement: Option[ScTypeElement] = {
     this match {
-      case st: ScalaStubBasedElementImpl[_] => {
+      case st: ScalaStubBasedElementImpl[_] =>
         val stub = st.getStub
         if (stub != null) {
           return stub.asInstanceOf[ScFunctionStub].getReturnTypeElement
         }
-      }
       case _ =>
     }
     findChild(classOf[ScTypeElement])
@@ -369,13 +361,12 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def getGetterOrSetterFunction: Option[ScFunction] = {
     containingClass match {
-      case clazz: ScTemplateDefinition => {
+      case clazz: ScTemplateDefinition =>
         if (name.endsWith("_=")) {
           clazz.functions.find(_.name == name.substring(0, name.length - 2))
         } else if (!hasParameterClause) {
           clazz.functions.find(_.name == name + "_=")
         } else None
-      }
       case _ => None
     }
   }

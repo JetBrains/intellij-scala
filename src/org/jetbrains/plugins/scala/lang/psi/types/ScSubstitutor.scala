@@ -330,8 +330,8 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
         }
         ScCompoundType(comps.map(substInternal), signatureMap.map {
           case (s: Signature, tp: ScType) =>
-            (new Signature(s.name, s.typesEval.map(_.map(substInternal)), s.paramLength, s.typeParams.map(substTypeParam),
-              s.substitutor, s.namedElement, s.hasRepeatedParam), substInternal(tp))
+            (new Signature(s.name, s.substitutedTypes.map(_.map(substInternal)), s.paramLength, s.typeParams.map(substTypeParam),
+              ScSubstitutor.empty, s.namedElement, s.hasRepeatedParam), substInternal(tp))
         }, typeMap.map {
           case (s, (lower, upper, ta)) => (s, (substInternal(lower), substInternal(upper), ta))
         })
