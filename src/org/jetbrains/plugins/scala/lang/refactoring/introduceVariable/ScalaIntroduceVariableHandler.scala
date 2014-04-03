@@ -31,6 +31,7 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
 import com.intellij.psi.util.PsiTreeUtil
 import extensions.childOf
+import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 
 
 /**
@@ -257,8 +258,13 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
         val parent =
           if (needBraces) {
             firstRange = firstRange.shiftRight(1)
-            parExpr.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("{" + parExpr.getText + "}", file.getManager),
+            val replaced = parExpr.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("{" + parExpr.getText + "}", file.getManager),
               removeParenthesis = false)
+            replaced.getPrevSibling match {
+              case ws: PsiWhiteSpace if ws.getText.contains("\n") => ws.delete()
+              case _ =>
+            }
+            replaced
           } else container
 
         val anchor = parent.getChildren.filter(_.getTextRange.contains(firstRange)).head

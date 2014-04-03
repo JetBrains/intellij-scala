@@ -718,6 +718,7 @@ object ScalaRefactoringUtil {
 
   def needBraces(parExpr: PsiElement, prev: PsiElement): Boolean = {
     prev match {
+      case tb: ScTryBlock if !tb.hasRBrace => true
       case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions | _: ScalaFile | _: ScCaseClause => false
       case _: ScFunction => true
       case memb: ScMember if memb.getParent.isInstanceOf[ScTemplateBody] => true
