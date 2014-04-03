@@ -34,14 +34,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
   }
 
   def cannotBeCompared(type1: ScType, type2: ScType): Boolean = {
-    val Seq(class1, class2) = Seq(type1, type2).map(ScType.extractClass(_))
-    def oneIsFinal = (class1 ++ class2).exists(_.isEffectivelyFinal)
-    def notGeneric = !Seq(type1, type2).exists(_.isInstanceOf[ScTypeParameterType])
-    def notParameterized = !Seq(type1, type2).exists(_.isInstanceOf[ScParameterizedType]) //todo better checking of ScParameterizedType
-    def noConformance = {
-      lazy val (unboxed1, unboxed2) = (StdType.unboxedType(type1), StdType.unboxedType(type2))
-      !type1.conforms(type2) && !type2.conforms(type1) && !unboxed1.weakConforms(unboxed2) && !unboxed2.weakConforms(unboxed1)
-    }
-    oneIsFinal && notGeneric && notParameterized && noConformance
+    val Seq(unboxed1, unboxed2) = Seq(type1, type2).map(StdType.unboxedType)
+    ComparingUtil.isNeverSubType(unboxed1, unboxed2) && ComparingUtil.isNeverSubType(unboxed2, unboxed1)
   }
 }
