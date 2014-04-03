@@ -5,7 +5,7 @@ package types
 
 import scala.collection.immutable.{Set, HashSet}
 import collection.mutable.ArrayBuffer
-import api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import api.base.types.ScExistentialClause
 import nonvalue._
 import api.toplevel.typedef.ScTypeDefinition
@@ -210,7 +210,7 @@ case class ScExistentialType(quantified : ScType,
         case c@ScCompoundType(comps, signatureMap, typeMap) =>
           val newSet = rejected ++ typeMap.map(_._1)
           comps.foreach(checkRecursive(_, newSet))
-          signatureMap.foreach(tuple => checkRecursive(tuple._2, newSet))
+          signatureMap.foreach(tuple => checkRecursive(tuple._2, newSet)) //todo: check recursive for signatures
           typeMap.foreach(tuple => {
             checkRecursive(tuple._2._1, newSet)
             checkRecursive(tuple._2._1, newSet)
@@ -285,9 +285,15 @@ case class ScExistentialType(quantified : ScType,
         }
 
         new ScCompoundType(components, signatureMap.map {
-          case (s, sctype) => (new Signature(s.name, s.typesEval.map(_.map(updateRecursive(_, newSet, variance))), s.paramLength,
-            s.typeParams.map(updateTypeParam),
-            s.substitutor, s.namedElement, s.hasRepeatedParam), updateRecursive(sctype, newSet, -variance))
+          case (s, sctype) =>
+            val pTypes: List[Stream[ScType]] = s.substitutedTypes.map(_.map(updateRecursive(_, newSet, variance)))
+            val tParams: Array[TypeParameter] = s.typeParams.map(updateTypeParam)
+            val rt: ScType = updateRecursive(sctype, newSet, -variance)
+            (new Signature(s.name, pTypes, s.paramLength, tParams,
+              ScSubstitutor.empty, s.namedElement.map {
+                case fun: ScFunction => ScFunction.getCompoundCopy(pTypes.map(_.toList), tParams.toList, rt, fun)
+                case named => named
+              }, s.hasRepeatedParam), rt)
         }, typeMap.map {
           case (s, (tp1, tp2, ta)) => (s, (updateRecursive(tp1, newSet, variance), updateRecursive(tp2, newSet, -variance), ta))
         })

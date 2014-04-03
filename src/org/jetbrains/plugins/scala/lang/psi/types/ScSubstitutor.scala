@@ -12,6 +12,7 @@ import result.TypingContext
 import api.toplevel.typedef.ScTypeDefinition
 import collection.immutable.{HashSet, HashMap, Map}
 import api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 /**
 * @author ven
@@ -330,8 +331,14 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
         }
         ScCompoundType(comps.map(substInternal), signatureMap.map {
           case (s: Signature, tp: ScType) =>
-            (new Signature(s.name, s.substitutedTypes.map(_.map(substInternal)), s.paramLength, s.typeParams.map(substTypeParam),
-              ScSubstitutor.empty, s.namedElement, s.hasRepeatedParam), substInternal(tp))
+            val pTypes: List[Stream[ScType]] = s.substitutedTypes.map(_.map(substInternal))
+            val tParams: Array[TypeParameter] = s.typeParams.map(substTypeParam)
+            val rt: ScType = substInternal(tp)
+            (new Signature(s.name, pTypes, s.paramLength, tParams,
+              ScSubstitutor.empty, s.namedElement.map {
+                case fun: ScFunction => ScFunction.getCompoundCopy(pTypes.map(_.toList), tParams.toList, rt, fun)
+                case named => named
+              }, s.hasRepeatedParam), rt)
         }, typeMap.map {
           case (s, (lower, upper, ta)) => (s, (substInternal(lower), substInternal(upper), ta))
         })

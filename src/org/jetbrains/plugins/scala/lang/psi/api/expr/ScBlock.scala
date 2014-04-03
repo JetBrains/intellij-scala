@@ -5,7 +5,7 @@ package api
 package expr
 
 import com.intellij.psi.scope.PsiScopeProcessor
-import statements.{ScDeclaredElementsHolder, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScDeclaredElementsHolder, ScTypeAlias}
 import toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClauses, ScCaseClause}
 import types.result.{Failure, Success, TypingContext, TypeResult}
@@ -20,6 +20,7 @@ import lexer.ScalaTokenTypes
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import scala.collection.mutable
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 
 /**
  * Author: ilyas, alefas
@@ -92,7 +93,20 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           case proj@ScProjectionType(p, elem, s) => new ScProjectionType(existize(p), elem, s)
           case ScCompoundType(comps, signatureMap, typesMap) =>
             new ScCompoundType(comps.map(existize), signatureMap.map {
-              case (signature: Signature, tp) => (signature, existize(tp))
+              case (s: Signature, tp) =>
+                def updateTypeParam(tp: TypeParameter): TypeParameter = {
+                  new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), existize(tp.lowerType),
+                    existize(tp.upperType), tp.ptp)
+                }
+
+                val pTypes: List[Stream[ScType]] = s.substitutedTypes.map(_.map(existize))
+                val tParams: Array[TypeParameter] = s.typeParams.map(updateTypeParam)
+                val rt: ScType = existize(tp)
+                (new Signature(s.name, pTypes, s.paramLength, tParams,
+                  ScSubstitutor.empty, s.namedElement.map {
+                    case fun: ScFunction => ScFunction.getCompoundCopy(pTypes.map(_.toList), tParams.toList, rt, fun)
+                    case named => named
+                  }, s.hasRepeatedParam), rt)
             }, typesMap.map {
               case (s, (tp1, tp2, ta)) => (s, (existize(tp1), existize(tp2), ta))
             })
