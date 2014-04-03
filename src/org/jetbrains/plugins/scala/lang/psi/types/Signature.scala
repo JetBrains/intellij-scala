@@ -12,7 +12,7 @@ import extensions.toPsiNamedElementExt
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 
-class Signature(val name: String, val typesEval: List[Stream[ScType]], val paramLength: List[Int],
+class Signature(val name: String, private val typesEval: List[Stream[ScType]], val paramLength: List[Int],
                 val typeParams: Array[TypeParameter], val substitutor: ScSubstitutor,
                 val namedElement: Option[PsiNamedElement], val hasRepeatedParam: Seq[Int] = Seq.empty) {
 

@@ -202,7 +202,7 @@ object TypeDefinitionMembers {
     def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement]) {
       for ((sign, _) <- cp.signatureMap) {
         if (sign.paramLength == 0 && sign.namedElement.exists { case m: PsiMember => nonBridge(place, m) case _ => false }) {
-          map addToMap (sign, new Node(sign, ScSubstitutor.empty))
+          map addToMap (sign, new Node(sign, sign.substitutor))
         }
       }
     }
@@ -444,7 +444,7 @@ object TypeDefinitionMembers {
     def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement]) {
       for ((sign, _) <- cp.signatureMap) {
         if (sign.namedElement.exists { case m: PsiMember => nonBridge(place, m) case _ => false }) {
-          map addToMap (sign, new Node(sign, ScSubstitutor.empty))
+          map addToMap (sign, new Node(sign, sign.substitutor))
         }
       }
     }

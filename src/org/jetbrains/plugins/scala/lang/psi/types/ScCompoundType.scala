@@ -28,8 +28,14 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
             tp.upperType.removeAbstracts, tp.ptp)
         }
 
-        (new Signature(s.name, s.typesEval.map(_.map(_.removeAbstracts)), s.paramLength, s.typeParams.map(updateTypeParam),
-          s.substitutor, s.namedElement, s.hasRepeatedParam), tp.removeAbstracts)
+        val pTypes: List[Stream[ScType]] = s.substitutedTypes.map(_.map(_.removeAbstracts))
+        val tParams: Array[TypeParameter] = s.typeParams.map(updateTypeParam)
+        val rt: ScType = tp.removeAbstracts
+        (new Signature(s.name, pTypes, s.paramLength, tParams,
+          ScSubstitutor.empty, s.namedElement.map {
+            case fun: ScFunction => ScFunction.getCompoundCopy(pTypes.map(_.toList), tParams.toList, rt, fun)
+            case named => named
+          }, s.hasRepeatedParam), rt)
     }, typesMap.map {
       case (s: String, (lower, upper, ta)) => (s, (lower.removeAbstracts, upper.removeAbstracts, ta))
     })
@@ -51,10 +57,17 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
             tp.upperType.recursiveUpdate(update, visited + this), tp.ptp)
         }
         new ScCompoundType(components.map(_.recursiveUpdate(update, visited + this)), signatureMap.map {
-          case (s: Signature, tp) => (new Signature(
-            s.name, s.substitutedTypes.map(_.map(_.recursiveUpdate(update, visited + this))), s.paramLength,
-            s.typeParams.map(updateTypeParam), ScSubstitutor.empty, s.namedElement, s.hasRepeatedParam
-          ), tp.recursiveUpdate(update, visited + this))
+          case (s: Signature, tp) =>
+
+            val pTypes: List[Stream[ScType]] = s.substitutedTypes.map(_.map(_.recursiveUpdate(update, visited + this)))
+            val tParams: Array[TypeParameter] = s.typeParams.map(updateTypeParam)
+            val rt: ScType = tp.recursiveUpdate(update, visited + this)
+            (new Signature(
+              s.name, pTypes, s.paramLength, tParams, ScSubstitutor.empty, s.namedElement.map {
+                case fun: ScFunction => ScFunction.getCompoundCopy(pTypes.map(_.toList), tParams.toList, rt, fun)
+                case named => named
+              }, s.hasRepeatedParam
+            ), rt)
         }, typesMap.map {
           case (s, (tp1, tp2, ta)) => (s, (tp1.recursiveUpdate(update, visited + this), tp2.recursiveUpdate(update, visited + this), ta))
         })
