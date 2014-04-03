@@ -48,6 +48,8 @@ abstract class StdType(val name: String, val tSuper: Option[StdType]) extends Va
       }
     }
   }
+
+  override def isFinalType = tSuper == Some(AnyVal)
 }
 
 object StdType {

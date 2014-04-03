@@ -279,6 +279,11 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitParameterizedType(this)
   }
+
+  override def isFinalType: Boolean = designator.isFinalType && !typeArgs.exists {
+    case tp: ScTypeParameterType => tp.isConravariant || tp.isCovariant
+    case _ => false
+  }
 }
 
 object ScParameterizedType {
