@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.findUsages.factory
+package org.jetbrains.plugins.scala
+package findUsages.factory
 
 import com.intellij.find.findUsages.{AbstractFindUsagesDialog, FindUsagesOptions, FindUsagesHandler}
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiElement}
@@ -16,10 +17,9 @@ import com.intellij.util.Processor
 import com.intellij.usageView.UsageInfo
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import collection.mutable
-import org.jetbrains.plugins.scala.util.ScalaUtil
-import scala.Array
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import extensions.inReadAction
 
 /**
  * User: Alexander Podkhalyuzin
@@ -159,9 +159,8 @@ class ScalaFindUsagesHandler(element: PsiElement) extends FindUsagesHandler(elem
             }
           })
           res.foreach { c =>
-            ScalaUtil.readAction(getProject) {
-              if (!processor.process(new UsageInfo(c))) return false
-            }
+            val processed = inReadAction(processor.process(new UsageInfo(c)))
+            if (!processed) return false
           }
         }
       case _ =>
@@ -169,10 +168,9 @@ class ScalaFindUsagesHandler(element: PsiElement) extends FindUsagesHandler(elem
 
     element match {
       case function: ScFunction if !function.isLocal =>
-        ScalaUtil.readAction(getProject) {
-          for (elem <- ScalaOverridingMemberSearcher.search(function, deep = true)) {
-            if (!super.processElementUsages(elem, processor, options)) return false
-          }
+        for (elem <- ScalaOverridingMemberSearcher.search(function, deep = true)) {
+          val processed = inReadAction(super.processElementUsages(elem, processor, options))
+          if (!processed) return false
         }
       case _ =>
     }
