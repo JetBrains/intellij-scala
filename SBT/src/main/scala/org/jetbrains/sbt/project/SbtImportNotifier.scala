@@ -190,12 +190,11 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
         case _ => false
       }) expireNotification()
 
+      if (!file.isValid) return
       val psiFile = PsiManager.getInstance(project).findFile(file)
-
       if (psiFile == null) return
 
       val document = PsiDocumentManager.getInstance(project).getDocument(psiFile)
-
       if (document == null) return
 
       val listener = myMap.remove(document)
@@ -205,6 +204,7 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
     }
 
     def fileOpened(source: FileEditorManager, file: VirtualFile) {
+      if (!file.isValid) return
       if (!checkCanBeSbtFile(file)) return
       
       if (!myNoImportIgnored) checkNoImport(file.getCanonicalPath)
