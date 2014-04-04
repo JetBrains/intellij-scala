@@ -340,7 +340,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
                 case named => named
               }, s.hasRepeatedParam), rt)
         }, typeMap.map {
-          case (s, (lower, upper, ta)) => (s, (substInternal(lower), substInternal(upper), ta))
+          case (s, sign) => (s, sign.updateTypes(substInternal))
         })
       case ScDesignatorType(param: ScParameter) if !getDependentMethodTypes.isEmpty =>
         getDependentMethodTypes.find {

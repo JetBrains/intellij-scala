@@ -3,7 +3,7 @@ package lang
 package psi
 package types
 
-import api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDefinition, ScTypeAlias, ScFunction}
 import com.intellij.psi._
 import com.intellij.ide.highlighter.JavaFileType
 import util.MethodSignatureUtil
@@ -11,6 +11,37 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import extensions.toPsiNamedElementExt
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+
+case class TypeAliasSignature(name: String, typeParams: List[TypeParameter], lowerBound: ScType,
+  upperBound: ScType, isDefinition: Boolean, ta: ScTypeAlias) {
+  def this(ta: ScTypeAlias) {
+    this(ta.name, ta.typeParameters.map(new TypeParameter(_)).toList, ta.lowerBound.getOrNothing,
+      ta.upperBound.getOrAny, ta.isInstanceOf[ScTypeAliasDefinition], ta)
+  }
+
+  def updateTypes(fun: ScType => ScType, withCopy: Boolean = true): TypeAliasSignature = {
+    def updateTypeParam(tp: TypeParameter): TypeParameter = {
+      new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), fun(tp.lowerType),
+        fun(tp.upperType), tp.ptp)
+    }
+    val res = TypeAliasSignature(name, typeParams.map(updateTypeParam), fun(lowerBound), fun(upperBound), isDefinition, ta)
+
+    if (withCopy) res.copy(ta = ScTypeAlias.getCompoundCopy(res, ta))
+    else res
+  }
+
+  def updateTypesWithVariance(fun: (ScType, Int) => ScType, variance: Int, withCopy: Boolean = true): TypeAliasSignature = {
+    def updateTypeParam(tp: TypeParameter): TypeParameter = {
+      new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), fun(tp.lowerType, variance),
+        fun(tp.upperType, -variance), tp.ptp)
+    }
+    val res = TypeAliasSignature(name, typeParams.map(updateTypeParam), fun(lowerBound, variance),
+      fun(upperBound, -variance), isDefinition, ta)
+
+    if (withCopy) res.copy(ta = ScTypeAlias.getCompoundCopy(res, ta))
+    else res
+  }
+}
 
 class Signature(val name: String, private val typesEval: List[Stream[ScType]], val paramLength: List[Int],
                 val typeParams: Array[TypeParameter], val substitutor: ScSubstitutor,

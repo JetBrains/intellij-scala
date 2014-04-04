@@ -108,7 +108,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
                     case named => named
                   }, s.hasRepeatedParam), rt)
             }, typesMap.map {
-              case (s, (tp1, tp2, ta)) => (s, (existize(tp1), existize(tp2), ta))
+              case (s, sign) => (s, sign.updateTypes(existize))
             })
           case JavaArrayType(arg) => JavaArrayType(existize(arg))
           case ScParameterizedType(des, typeArgs) =>

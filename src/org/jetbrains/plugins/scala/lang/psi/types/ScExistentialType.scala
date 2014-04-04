@@ -10,7 +10,6 @@ import api.base.types.ScExistentialClause
 import nonvalue._
 import api.toplevel.typedef.ScTypeDefinition
 import api.statements.params.ScTypeParam
-import types.Conformance.AliasType
 import collection.mutable
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 
@@ -30,19 +29,6 @@ case class ScExistentialType(quantified : ScType,
     res
   }
   private def boundNamesInner: List[String] = wildcards.map {_.name}
-
-  @volatile
-  private var _substitutor: ScSubstitutor = null
-
-  private def substitutor: ScSubstitutor = {
-    var res = _substitutor
-    if (res != null) return res
-    res = substitutorInner
-    _substitutor = res
-    res
-  }
-  def substitutorInner: ScSubstitutor = wildcards.foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p.name, ""),
-    ScSkolemizedType(p.name, p.args, p.lowerBound, p.upperBound))}
 
   @volatile
   private var _skolem: ScType = null
@@ -180,7 +166,7 @@ case class ScExistentialType(quantified : ScType,
       case _ =>
     }
     r match {
-      case ex: ScExistentialType => {
+      case ex: ScExistentialType =>
         val simplified = ex.simplify()
         if (ex != simplified) return Equivalence.equivInner(this, simplified, undefinedSubst, falseUndef)
         val list = wildcards.zip(ex.wildcards)
@@ -192,7 +178,6 @@ case class ScExistentialType(quantified : ScType,
           undefinedSubst = t._2
         }
         Equivalence.equivInner(skolem, ex.skolem, undefinedSubst, falseUndef) //todo: probable problems with different positions of skolemized types.
-      }
       case _ => (false, undefinedSubst)
     }
   }
@@ -212,8 +197,8 @@ case class ScExistentialType(quantified : ScType,
           comps.foreach(checkRecursive(_, newSet))
           signatureMap.foreach(tuple => checkRecursive(tuple._2, newSet)) //todo: check recursive for signatures
           typeMap.foreach(tuple => {
-            checkRecursive(tuple._2._1, newSet)
-            checkRecursive(tuple._2._1, newSet)
+            checkRecursive(tuple._2.lowerBound, newSet) //todo: check for whole signature?
+            checkRecursive(tuple._2.upperBound, newSet)
           })
         case ScDesignatorType(elem) =>
           elem match {
@@ -295,7 +280,7 @@ case class ScExistentialType(quantified : ScType,
                 case named => named
               }, s.hasRepeatedParam), rt)
         }, typeMap.map {
-          case (s, (tp1, tp2, ta)) => (s, (updateRecursive(tp1, newSet, variance), updateRecursive(tp2, newSet, -variance), ta))
+          case (s, sign) => (s, sign.updateTypesWithVariance(updateRecursive(_, newSet, _), variance))
         })
       case ScProjectionType(_, _, _) => tp
       case JavaArrayType(_) => tp
