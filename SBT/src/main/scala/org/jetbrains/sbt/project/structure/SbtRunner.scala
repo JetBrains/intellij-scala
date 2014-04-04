@@ -51,8 +51,9 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customVM: 
 
             try {
               val process = Runtime.getRuntime.exec(processCommands.toArray, null, directory)
-              val errors = handle(process, listener).map(new SbtException(_))
-              errors.toLeft(XML.load(structureFile.toURI.toURL))
+              val output = handle(process, listener)
+              (structureFile.length > 0).either(
+                XML.load(structureFile.toURI.toURL))(new SbtException(output))
             } catch {
               case e: Exception => Left(e)
             }
@@ -61,8 +62,7 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customVM: 
     }
   }
 
-  private def handle(process: Process, listener: (String) => Unit): Option[String] = {
-    var hasErrors = false
+  private def handle(process: Process, listener: (String) => Unit): String = {
     val output = new StringBuilder()
 
     val processListener: (OutputType, String) => Unit = {
@@ -72,14 +72,10 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customVM: 
           writer.println("q")
           writer.close()
         } else {
-          if (text.startsWith("[error]")) {
-            hasErrors = true
-          }
           output.append(text)
           listener(text)
         }
       case (OutputType.StdErr, text) =>
-        hasErrors = true
         output.append(text)
         listener(text)
     }
@@ -90,7 +86,7 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customVM: 
 
     handler.waitFor()
 
-    hasErrors.option(output.toString())
+    output.toString()
   }
 
   private def path(file: File): String = file.getAbsolutePath.replace('\\', '/')
