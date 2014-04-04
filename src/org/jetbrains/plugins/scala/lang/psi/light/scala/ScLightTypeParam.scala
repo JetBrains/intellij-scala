@@ -21,7 +21,7 @@ class ScLightTypeParam(t: TypeParameter, tParam: ScTypeParam)
 
   override def upperBound: TypeResult[ScType] = Success(t.upperType, Some(this))
 
-  override def lowerBound: TypeResult[ScType] = Success(t.upperType, Some(this))
+  override def lowerBound: TypeResult[ScType] = Success(t.lowerType, Some(this))
 
   override def getIndex: Int = tParam.getIndex
 
