@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.refactoring.extractMethod;
 
-import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.project.Project;
@@ -10,19 +9,13 @@ import com.intellij.refactoring.util.ParameterTablePanel;
 import com.intellij.refactoring.util.VariableData;
 import com.intellij.ui.EditorTextField;
 import org.jetbrains.plugins.scala.ScalaBundle;
-import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.lang.psi.PresentationUtil;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
-import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector;
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo;
-import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext;
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ExtractMethodParameter;
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ExtractMethodReturn;
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodSettings;
@@ -33,8 +26,6 @@ import scala.Option;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.util.ArrayList;
 
 /**
@@ -166,8 +157,8 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
 
   private void setupParametersPanel() {
     ArrayList<VariableData> data = new ArrayList<VariableData>();
-    for (int i = 0; i < myInput.length; ++i) {
-      VariableData d = ScalaExtractMethodUtils.convertVariableData(myInput[i], myElements);
+    for (VariableInfo aMyInput : myInput) {
+      VariableData d = ScalaExtractMethodUtils.convertVariableData(aMyInput, myElements);
       if (d != null) data.add(d);
     }
     parameterTablePanel = new ScalaParameterTablePanel(myProject, data.toArray(

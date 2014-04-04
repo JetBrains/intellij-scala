@@ -25,6 +25,7 @@ import psi.types.nonvalue.Parameter
 import psi.types._
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 import com.intellij.openapi.project.Project
+import java.util
 
 /**
  * User: Alexander Podkhalyuzin
@@ -89,7 +90,7 @@ object ScalaExtractMethodUtils {
     }
     if (!settings.lastReturn) {
       settings.returnType match {
-        case Some(psi.types.Unit) => {
+        case Some(psi.types.Unit) =>
           if (settings.returns.length == 1) {
             builder.append("\n(false, Some(").append(settings.returns(0).oldParamName).append("))")
           }
@@ -97,8 +98,7 @@ object ScalaExtractMethodUtils {
             builder.append("\n(false, Some(").append(settings.returns.map(_.oldParamName).mkString("(", ", ", ")")).
               append("))")
           } else builder.append("\nfalse")
-        }
-        case Some(tp) => {
+        case Some(_) =>
           if (settings.returns.length == 1) {
             builder.append("\n(None, Some(").append(settings.returns(0).oldParamName).append("))")
           }
@@ -106,15 +106,13 @@ object ScalaExtractMethodUtils {
             builder.append("\n(None, Some(").append(settings.returns.map(_.oldParamName).mkString("(", ", ", ")")).
               append("))")
           } else builder.append("\nNone")
-        }
-        case _ => {
+        case _ =>
           if (settings.returns.length == 1) {
             builder.append("\n").append(settings.returns(0).oldParamName)
           }
           else if (settings.returns.length > 1) {
             builder.append("\n").append(settings.returns.map(_.oldParamName).mkString("(", ", ", ")"))
           }
-        }
       }
     }
     builder.append("\n}")
@@ -141,9 +139,7 @@ object ScalaExtractMethodUtils {
     returnVisitor.visitElement(method: ScalaPsiElement)
 
     settings.returnType match {
-      case Some(tp) => {
-
-      }
+      case Some(_) =>
       case _ => //Nothing to do
     }
 
@@ -197,7 +193,7 @@ object ScalaExtractMethodUtils {
     val newVisitor = new ScalaRecursiveElementVisitor() {
       override def visitElement(element: ScalaPsiElement) {
         element match {
-          case named: PsiNamedElement if named != method && named.getTextOffset < offset => {
+          case named: PsiNamedElement if named != method && named.getTextOffset < offset =>
             var break = false
             for (param <- settings.parameters if !break) {
               if (param.oldName == named.name) {
@@ -207,7 +203,6 @@ object ScalaExtractMethodUtils {
                 break = true
               }
             }
-          }
           case _ =>
         }
         super.visitElement(element)
@@ -295,28 +290,25 @@ object ScalaExtractMethodUtils {
       return prepareResult(lastMeaningful.get)
     }
     returnType match {
-      case Some(psi.types.Unit) => {
+      case Some(psi.types.Unit) =>
         if (returns.length == 0) (false, "Boolean")
         else if (returns.length == 1) (false, "(Boolean, Option[" + ScType.presentableText(returns.apply(0).returnType) + "])")
         else (false, "(Boolean, Option[" + returns.map(r => ScType.presentableText(r.returnType)).mkString("(", ", ", ")") + "])")
-      }
-      case Some(tp) => {
+      case Some(tp) =>
         if (returns.length == 0) (false, "Option[" + ScType.presentableText(tp) + "]")
         else if (returns.length == 1) (false, "(Option[" + ScType.presentableText(tp) +
                 "], Option[" + ScType.presentableText(returns.apply(0).returnType) + "])")
         else (false, "(Option[" + ScType.presentableText(tp) +"]," +
                 " Option[" + returns.map(r => ScType.presentableText(r.returnType)).mkString("(", ", ", ")") + "])")
-      }
-      case None => {
+      case None =>
         if (returns.length == 1) prepareResult(returns.apply(0).returnType)
         else if (returns.length == 0) (true, "Unit")
         else (false, returns.map(r => ScType.presentableText(r.returnType)).mkString("(", ", ", ")"))
-      }
     }
   }
 
   def getParameter(d: VariableData, variableData: ScalaVariableData): ExtractMethodParameter = {
-    new ExtractMethodParameter(d.variable.name, d.name, false, (d.`type`.asInstanceOf[FakePsiType]).tp,
+    new ExtractMethodParameter(d.variable.name, d.name, false, d.`type`.asInstanceOf[FakePsiType].tp,
         variableData.isMutable, d.passAsParameter, variableData.vari.isInstanceOf[ScFunction],
         variableData.vari.isInstanceOf[ScFunction] && variableData.vari.asInstanceOf[ScFunction].parameters.length == 0,
         ScalaPsiUtil.nameContext(variableData.vari) match {
@@ -348,7 +340,7 @@ object ScalaExtractMethodUtils {
   }
 
   def getReturns(myOutput: Array[VariableInfo], elements: Array[PsiElement]): Array[ExtractMethodReturn] = {
-    val list: ArrayList[ExtractMethodReturn] = new ArrayList[ExtractMethodReturn]
+    val list: util.ArrayList[ExtractMethodReturn] = new util.ArrayList[ExtractMethodReturn]
     for (info <- myOutput) {
       val data: ScalaVariableData = ScalaExtractMethodUtils.convertVariableData(info, elements).asInstanceOf[ScalaVariableData]
       val tp: FakePsiType = data.`type`.asInstanceOf[FakePsiType]
