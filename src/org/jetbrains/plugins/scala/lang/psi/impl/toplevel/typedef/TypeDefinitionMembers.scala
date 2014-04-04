@@ -261,7 +261,7 @@ object TypeDefinitionMembers {
     }
 
     def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement]) {
-      for ((name, (lower, upper, alias)) <- cp.typesMap if nonBridge(place, alias)) {
+      for ((name, TypeAliasSignature(_, _, _, _, _, alias)) <- cp.typesMap if nonBridge(place, alias)) {
         map addToMap (alias, new Node(alias, ScSubstitutor.empty))
       }
     }

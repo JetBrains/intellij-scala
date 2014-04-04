@@ -550,9 +550,9 @@ object Conformance {
         processor.getResult
       }
 
-      def workWithTypeAlias(lower: ScType, upper: ScType, ta: ScTypeAlias): Boolean = {
-        val processor = new CompoundTypeCheckTypeAliasProcessor(lower,upper, ta, undefinedSubst, ScSubstitutor.empty)
-        processor.processType(r, ta)
+      def workWithTypeAlias(sign: TypeAliasSignature): Boolean = {
+        val processor = new CompoundTypeCheckTypeAliasProcessor(sign, undefinedSubst, ScSubstitutor.empty)
+        processor.processType(r, sign.ta)
         undefinedSubst = processor.getUndefinedSubstitutor
         processor.getResult
       }
@@ -564,16 +564,8 @@ object Conformance {
       }) && c.signatureMap.forall {
         case (s: Signature, retType) if s.namedElement.isDefined => workWithSignature(s, retType)
       } && c.typesMap.forall {
-        case (s: String, (lower, upper, ta)) => workWithTypeAlias(lower, upper, ta)
-      }
-
-        /*&& c.signatureMap.forall {
-          case fun: ScFunction => workWith(fun)
-          case v: ScValue => v.declaredElements forall (decl => workWith(decl))
-          case v: ScVariable => v.declaredElements forall (decl => workWith(decl))
-        } && c.typesMap.forall(typeMember => {
-          workWith(typeMember)
-        })*/, undefinedSubst)
+        case (s, sign) => workWithTypeAlias(sign)
+      }, undefinedSubst)
     }
 
     override def visitProjectionType(proj: ScProjectionType) {

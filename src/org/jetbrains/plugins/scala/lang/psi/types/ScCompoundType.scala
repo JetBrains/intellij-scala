@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
  * Substitutor should be meaningful only for decls and typeDecls. Components shouldn't be applied by substitutor.
  */
 case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, ScType],
-                          typesMap: Map[String, (ScType, ScType, ScTypeAlias)]) extends ValueType {
+                          typesMap: Map[String, TypeAliasSignature]) extends ValueType {
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitCompoundType(this)
   }
@@ -37,7 +37,7 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
             case named => named
           }, s.hasRepeatedParam), rt)
     }, typesMap.map {
-      case (s: String, (lower, upper, ta)) => (s, (lower.removeAbstracts, upper.removeAbstracts, ta))
+      case (s: String, sign) => (s, sign.updateTypes(_.removeAbstracts))
     })
 
   import collection.immutable.{HashSet => IHashSet}
@@ -69,7 +69,7 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
               }, s.hasRepeatedParam
             ), rt)
         }, typesMap.map {
-          case (s, (tp1, tp2, ta)) => (s, (tp1.recursiveUpdate(update, visited + this), tp2.recursiveUpdate(update, visited + this), ta))
+          case (s, sign) => (s, sign.updateTypes(_.recursiveUpdate(update, visited + this)))
         })
     }
   }
@@ -89,7 +89,7 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
             s.typeParams.map(updateTypeParam), ScSubstitutor.empty, s.namedElement, s.hasRepeatedParam
           ), tp.recursiveVarianceUpdateModifiable(newData, update, 1))
         }, typesMap.map {
-          case (s, (tp1, tp2, ta)) => (s, (tp1.recursiveVarianceUpdateModifiable(newData, update, 1), tp2.recursiveVarianceUpdateModifiable(newData, update, 1), ta))
+          case (s, sign) => (s, sign.updateTypes(_.recursiveVarianceUpdateModifiable(newData, update, 1)))
         })
     }
   }
@@ -133,10 +133,10 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
             types2.get(name) match {
               case None => return (false, undefinedSubst)
               case Some (bounds2) =>
-                var t = Equivalence.equivInner(bounds1._1, bounds2._1, undefinedSubst, falseUndef)
+                var t = Equivalence.equivInner(bounds1.lowerBound, bounds2.lowerBound, undefinedSubst, falseUndef)
                 if (!t._1) return (false, undefinedSubst)
                 undefinedSubst = t._2
-                t = Equivalence.equivInner(bounds1._2, bounds2._2, undefinedSubst, falseUndef)
+                t = Equivalence.equivInner(bounds1.upperBound, bounds2.upperBound, undefinedSubst, falseUndef)
                 if (!t._1) return (false, undefinedSubst)
                 undefinedSubst = t._2
             }
@@ -173,10 +173,10 @@ object ScCompoundType {
         else length.hashCode()
       }
     }
-    val typesVal = new mutable.HashMap[String, (ScType, ScType, ScTypeAlias)]
+    val typesVal = new mutable.HashMap[String, TypeAliasSignature]
 
     for (typeDecl <- typeDecls) {
-      typesVal += ((typeDecl.name, (typeDecl.lowerBound.getOrNothing, typeDecl.upperBound.getOrAny, typeDecl)))
+      typesVal += ((typeDecl.name, new TypeAliasSignature(typeDecl)))
     }
 
 

@@ -147,12 +147,9 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
   }
 }
 
-class CompoundTypeCheckTypeAliasProcessor(lower: ScType, upper: ScType, ta: ScTypeAlias,
-                                          undefSubst: ScUndefinedSubstitutor, substitutor: ScSubstitutor)
+class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: ScUndefinedSubstitutor, substitutor: ScSubstitutor)
   extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS) {
-  private val typeParameters: Seq[ScTypeParam] = ta.typeParameters
-
-  private val name = ta.name
+  private val name = sign.name
 
   private var trueResult = false
 
@@ -170,18 +167,18 @@ class CompoundTypeCheckTypeAliasProcessor(lower: ScType, upper: ScType, ta: ScTy
 
     var undef = undefSubst
 
-    def checkTypeParameters(tp1: PsiTypeParameter, tp2: ScTypeParam, variance: Int = 1): Boolean = {
+    def checkTypeParameters(tp1: PsiTypeParameter, tp2: TypeParameter, variance: Int = 1): Boolean = {
       tp1 match {
         case tp1: ScTypeParam =>
-          if (tp1.typeParameters.length != tp2.typeParameters.length) return false
-          val iter = tp1.typeParameters.zip(tp2.typeParameters).iterator
+          if (tp1.typeParameters.length != tp2.typeParams.length) return false
+          val iter = tp1.typeParameters.zip(tp2.typeParams).iterator
           while (iter.hasNext) {
             val (tp1, tp2) = iter.next()
             if (!checkTypeParameters(tp1, tp2, -variance)) return false
           }
           //lower type
           val lower1 = tp1.lowerBound.getOrNothing
-          val lower2 = substitutor.subst(tp2.lowerBound.getOrNothing)
+          val lower2 = substitutor.subst(tp2.lowerType)
           var t = Conformance.conformsInner(
             if (variance == 1) lower2
             else lower1,
@@ -191,7 +188,7 @@ class CompoundTypeCheckTypeAliasProcessor(lower: ScType, upper: ScType, ta: ScTy
           undef = t._2
 
           val upper1 = tp1.upperBound.getOrAny
-          val upper2 = substitutor.subst(tp2.upperBound.getOrAny)
+          val upper2 = substitutor.subst(tp2.upperType)
           t = Conformance.conformsInner(
             if (variance == 1) upper1
             else upper2,
@@ -203,7 +200,7 @@ class CompoundTypeCheckTypeAliasProcessor(lower: ScType, upper: ScType, ta: ScTy
           //todo: view?
           true
         case _ =>
-          if (tp2.typeParameters.length > 0) return false
+          if (tp2.typeParams.length > 0) return false
           //todo: check bounds?
           true
       }
@@ -212,29 +209,29 @@ class CompoundTypeCheckTypeAliasProcessor(lower: ScType, upper: ScType, ta: ScTy
     //let's check type parameters
     element match {
       case o: ScTypeParametersOwner =>
-        if (o.typeParameters.length != typeParameters.length) return true
-        val iter = o.typeParameters.zip(typeParameters).iterator
+        if (o.typeParameters.length != sign.typeParams.length) return true
+        val iter = o.typeParameters.zip(sign.typeParams).iterator
         while (iter.hasNext) {
           val (tp1, tp2) = iter.next()
           if (!checkTypeParameters(tp1, tp2)) return true
         }
       case p: PsiTypeParameterListOwner =>
-        if (p.getTypeParameters.length != typeParameters.length) return true
-        val iter = p.getTypeParameters.toSeq.zip(typeParameters).iterator
+        if (p.getTypeParameters.length != sign.typeParams.length) return true
+        val iter = p.getTypeParameters.toSeq.zip(sign.typeParams).iterator
         while (iter.hasNext) {
           val (tp1, tp2) = iter.next()
           if (!checkTypeParameters(tp1, tp2)) return true
         }
-      case _ => if (typeParameters.length > 0) return true
+      case _ => if (sign.typeParams.length > 0) return true
     }
 
     def checkDeclarationForTypeAlias(tp: ScTypeAlias): Boolean = {
-      ta match {
+      sign.ta match {
         case _: ScTypeAliasDeclaration =>
           var t = Conformance.conformsInner(subst.subst(tp.lowerBound.getOrNothing),
-            substitutor.subst(lower), Set.empty, undef)
+            substitutor.subst(sign.lowerBound), Set.empty, undef)
           if (t._1) {
-            t = Conformance.conformsInner(substitutor.subst(upper),
+            t = Conformance.conformsInner(substitutor.subst(sign.upperBound),
               subst.subst(tp.upperBound.getOrAny), Set.empty, t._2)
             if (t._1) {
               trueResult = true
@@ -250,10 +247,10 @@ class CompoundTypeCheckTypeAliasProcessor(lower: ScType, upper: ScType, ta: ScTy
 
     element match {
       case tp: ScTypeAliasDefinition =>
-        ta match {
+        sign.ta match {
           case _: ScTypeAliasDefinition =>
             val t = Equivalence.equivInner(subst.subst(tp.aliasedType.getOrNothing),
-              substitutor.subst(lower), undef, falseUndef = false)
+              substitutor.subst(sign.lowerBound), undef, falseUndef = false)
             if (t._1) {
               undef = t._2
               trueResult = true
