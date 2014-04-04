@@ -160,8 +160,8 @@ object PatternAnnotator {
 
     matching.weakConforms(matched) || ((matching, matched) match {
       case (arrayType(arg1), arrayType(arg2)) => matchesPattern(arg1, arg2)
-      case (_, ScParameterizedType(des, typeArgs)) =>
-        val newtp = abstraction(des)
+      case (_, parameterized: ScParameterizedType) =>
+        val newtp = abstraction(parameterized)
         !matched.equiv(newtp) && matching.weakConforms(newtp)
       case _ => false
     })
