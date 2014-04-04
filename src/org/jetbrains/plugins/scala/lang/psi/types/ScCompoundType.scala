@@ -187,21 +187,16 @@ object ScCompoundType {
             fun.getTypeParameters.map(new TypeParameter(_)), subst, Some(fun), PhysicalSignature.hasRepeatedParam(fun)),
             fun.returnType.getOrAny))
         case varDecl: ScVariable =>
-          varDecl.typeElement match {
-            case Some(te) => for (e <- varDecl.declaredElements) {
-              val varType = te.getType(TypingContext.empty(varDecl.declaredElements))
-              signatureMapVal += ((new Signature(e.name, Stream.empty, 0, subst, Some(e)), varType.getOrAny))
-              signatureMapVal += ((new Signature(e.name + "_=", Stream(varType.getOrAny), 1, subst, Some(e)), psi.types.Unit)) //setter
-            }
-            case None =>
+          for (e <- varDecl.declaredElements) {
+            val varType = e.getType(TypingContext.empty)
+            signatureMapVal += ((new Signature(e.name, Stream.empty, 0, subst, Some(e)), varType.getOrAny))
+            signatureMapVal += ((new Signature(e.name + "_=", Stream(varType.getOrAny), 1, subst, Some(e)), psi.types.Unit)) //setter
           }
-        case valDecl: ScValue => valDecl.typeElement match {
-          case Some(te) => for (e <- valDecl.declaredElements) {
-            val valType = te.getType(TypingContext.empty(valDecl.declaredElements))
+        case valDecl: ScValue =>
+          for (e <- valDecl.declaredElements) {
+            val valType = e.getType(TypingContext.empty)
             signatureMapVal += ((new Signature(e.name, Stream.empty, 0, subst, Some(e)), valType.getOrAny))
           }
-          case None =>
-        }
       }
     }
 

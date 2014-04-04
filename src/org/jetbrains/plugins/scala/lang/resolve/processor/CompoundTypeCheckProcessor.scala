@@ -6,11 +6,12 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, StdKinds}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScTypeAliasDefinition, ScTypeAlias, ScFunction}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypedDefinition, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScParameter}
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 /**
  * @author Alexander Podkhalyuzin
@@ -124,13 +125,16 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
 
     element match {
       case _: ScBindingPattern | _: ScFieldId | _: ScParameter =>
-        lazy val bType = subst.subst(element match {
+        val rt = subst.subst(element match {
           case b: ScBindingPattern => b.getType(TypingContext.empty).getOrNothing
           case f: ScFieldId => f.getType(TypingContext.empty).getOrNothing
-          case fun: ScFunction => fun.returnType.getOrNothing
           case param: ScParameter => param.getType(TypingContext.empty).getOrNothing
         })
-        //todo:
+        val dcl: ScTypedDefinition = element.asInstanceOf[ScTypedDefinition]
+        val isVar = dcl.isVar
+        if (!checkSignature(new Signature(dcl.name, Stream.empty, 0, subst, Some(dcl)), Array.empty, rt)) return false
+        if (isVar && !checkSignature(new Signature(dcl.name + "_=", ScalaPsiUtil.getSingletonStream(rt), 1, subst, Some(dcl)),
+          Array.empty, Unit)) return false
       case method: PsiMethod =>
         val sign1 = new PhysicalSignature(method, subst)
         if (!checkSignature(sign1, method.getTypeParameters, method match {
