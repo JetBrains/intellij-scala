@@ -4,7 +4,6 @@ package psi
 package types
 
 import com.intellij.psi._
-import result.TypingContext
 import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition, ScObject}
@@ -16,6 +15,8 @@ import refactoring.util.{ScalaNamesUtil, ScTypeUtil}
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 
 trait ScTypePresentation {
   def presentableText(t: ScType) = typeText(t, _.name, {
@@ -139,57 +140,52 @@ trait ScTypePresentation {
 
       val componentsText = if (comps.isEmpty) Nil else Seq(comps.map(innerTypeText(_)).mkString(" with "))
 
-      //todo:
-      val declsTexts = ""/*(signatureMap ++ typeMap).flatMap {
-        case fun: ScFunction =>
-          val paramClauses = fun.paramClauses.clauses.map(_.parameters.map(param =>
+      val declsTexts = (signatureMap ++ typeMap).flatMap {
+        case (s: Signature, rt: ScType) if s.namedElement.nonEmpty && s.namedElement.get.isInstanceOf[ScFunction] =>
+          val fun = s.namedElement.get.asInstanceOf[ScFunction]
+          val funCopy = ScFunction.getCompoundCopy(s.substitutedTypes.map(_.toList), s.typeParams.toList, rt, fun)
+          val paramClauses = funCopy.paramClauses.clauses.map(_.parameters.map(param =>
             ScalaDocumentationProvider.parseParameter(param, typeText0)).mkString("(", ", ", ")")).mkString("")
-          val retType = fun.returnType.map {
-            tp =>
-              val scType: ScType = tp
-              if (!compType.equiv(scType)) typeText0(tp) else "this.type"
-          }.getOrElse("")
-          Seq(s"def ${fun.name}$paramClauses$retType")
-        case v: ScValue =>
-          v.declaredElements.map(td => {
-            val scType: ScType = td.getType(TypingContext.empty).getOrAny
-            val text = if (!compType.equiv(scType)) typeText0(scType) else "this.type"
-            s"val ${td.name}: $text"
-          })
-        case v: ScVariable =>
-          v.declaredElements.map(td => {
-            val scType: ScType = td.getType(TypingContext.empty).getOrAny
-            val text = if (!compType.equiv(scType)) typeText0(scType) else "this.type"
-            s"var ${td.name}: $text"
-          })
-        case ta: ScTypeAlias =>
+          val retType = if (!compType.equiv(rt)) typeText0(rt) else "this.type"
+          val typeParams = if (funCopy.typeParameters.length > 0)
+            funCopy.typeParameters.map(typeParamText(_, ScSubstitutor.empty)).mkString("[", ", ", "]")
+          else ""
+          Seq(s"def ${s.name}$typeParams$paramClauses$retType")
+        case (s: Signature, rt: ScType) if s.namedElement.nonEmpty && s.namedElement.get.isInstanceOf[ScTypedDefinition] =>
+          if (s.paramLength.sum > 0) Seq.empty
+          else {
+            s.namedElement match {
+              case Some(bp: ScBindingPattern) =>
+                val b = ScBindingPattern.getCompoundCopy(rt, bp)
+                Seq((if (b.isVar) "var " else "val ") + b.name + " : " + typeText0(rt))
+              case Some(fi: ScFieldId) =>
+                val f = ScFieldId.getCompoundCopy(rt, fi)
+                Seq((if (f.isVar) "var " else "val ") + f.name + " : " + typeText0(rt))
+              case _ => Seq.empty
+            }
+          }
+          Seq.empty
+        case (s: String, sign: TypeAliasSignature) =>
+          val ta = ScTypeAlias.getCompoundCopy(sign, sign.ta)
           val paramsText = if (ta.typeParameters.length > 0)
             ta.typeParameters.map(typeParamText(_, ScSubstitutor.empty)).mkString("[", ", ", "]")
           else ""
           val decl = s"type ${ta.name}$paramsText"
           val defnText = ta match {
             case tad: ScTypeAliasDefinition =>
-              compType.types.get(tad.name) match {
-                case Some((lower, upper)) =>
-                  s" = ${typeText0(s.subst(upper))}"
-                case _ =>
-                  tad.aliasedType.map {
-                    case psi.types.Nothing => ""
-                    case tpe => s" = ${typeText0(tpe)}"
-                  }.getOrElse("")
-              }
+              tad.aliasedType.map {
+                case psi.types.Nothing => ""
+                case tpe => s" = ${typeText0(tpe)}"
+              }.getOrElse("")
             case _ =>
-              val (lowerBound, upperBound) = compType.types.get(ta.name) match {
-                case Some((lower, upper)) => (s.subst(lower), s.subst(upper))
-                case _ => (ta.lowerBound.getOrNothing, ta.upperBound.getOrAny)
-              }
+              val (lowerBound, upperBound) = (ta.lowerBound.getOrNothing, ta.upperBound.getOrAny)
               val lowerText = if (lowerBound == psi.types.Nothing) "" else s" >: ${typeText0(lowerBound)}"
               val upperText = if (upperBound == psi.types.Any) "" else s" <: ${typeText0(upperBound)}"
               lowerText + upperText
           }
           Seq(decl + defnText)
-        case _ => Seq.empty[String]
-      }*/
+        case _ => Seq.empty
+      }
 
       val refinementText = if (declsTexts.isEmpty) Nil else Seq(declsTexts.mkString("{", "; ", "}"))
 

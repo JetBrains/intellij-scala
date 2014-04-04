@@ -10,6 +10,8 @@ import extensions.toPsiClassExt
 import lang.psi
 import collection.mutable
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 
 /**
  * Substitutor should be meaningful only for decls and typeDecls. Components shouldn't be applied by substitutor.
@@ -34,6 +36,8 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
         (new Signature(s.name, pTypes, s.paramLength, tParams,
           ScSubstitutor.empty, s.namedElement.map {
             case fun: ScFunction => ScFunction.getCompoundCopy(pTypes.map(_.toList), tParams.toList, rt, fun)
+            case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
+            case f: ScFieldId => ScFieldId.getCompoundCopy(rt, f)
             case named => named
           }, s.hasRepeatedParam), rt)
     }, typesMap.map {
@@ -65,6 +69,8 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
             (new Signature(
               s.name, pTypes, s.paramLength, tParams, ScSubstitutor.empty, s.namedElement.map {
                 case fun: ScFunction => ScFunction.getCompoundCopy(pTypes.map(_.toList), tParams.toList, rt, fun)
+                case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
+                case f: ScFieldId => ScFieldId.getCompoundCopy(rt, f)
                 case named => named
               }, s.hasRepeatedParam
             ), rt)

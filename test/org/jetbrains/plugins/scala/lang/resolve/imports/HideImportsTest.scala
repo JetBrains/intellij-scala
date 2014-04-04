@@ -6,26 +6,21 @@ package imports
 
 import com.intellij.psi.PsiPolyVariantReference
 import java.lang.String
-import util.TestUtils
-import junit.framework.Assert
+import org.junit.Assert
 
 class HideImportsTest extends ScalaResolveTestCase {
   override def folderPath: String = super.folderPath() + "resolve/imports/simple/"
 
-  def printResults(imports: ScalaObject) {
-  }
-
   def testHidePredefImplicit() {
     findReferenceAtCaret() match {
-      case r: PsiPolyVariantReference => {
+      case r: PsiPolyVariantReference =>
         val results = r.multiResolve(false)
 
         assert(results.length == 1)
         val res = results(0)
         assert(res.isInstanceOf[ScalaResolveResult])
         val srr = res.asInstanceOf[ScalaResolveResult]
-        Assert.assertEquals("def caPitalize: Int", srr.element.getText)
-      }
+        Assert.assertEquals("caPitalize", srr.element.getName)
       case _ => throw new Exception("Wrong reference!")
     }
   }

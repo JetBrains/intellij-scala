@@ -55,6 +55,10 @@ case class TypeParameter(name: String, typeParams: Seq[TypeParameter], lowerType
       case _ => Any //todo: upper type?
     }, ptp)
   }
+
+  def update(fun: ScType => ScType): TypeParameter = {
+    new TypeParameter(name, typeParams.map(_.update(fun)), fun(lowerType), fun(upperType), ptp)
+  }
 }
 
 case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean)
