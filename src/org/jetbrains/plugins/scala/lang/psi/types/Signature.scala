@@ -44,7 +44,7 @@ case class TypeAliasSignature(name: String, typeParams: List[TypeParameter], low
 }
 
 class Signature(val name: String, private val typesEval: List[Stream[ScType]], val paramLength: List[Int],
-                val typeParams: Array[TypeParameter], val substitutor: ScSubstitutor,
+                private val tParams: Array[TypeParameter], val substitutor: ScSubstitutor,
                 val namedElement: Option[PsiNamedElement], val hasRepeatedParam: Seq[Int] = Seq.empty) {
 
   def this(name: String, stream: Stream[ScType], paramLength: Int, substitutor: ScSubstitutor,
@@ -54,6 +54,8 @@ class Signature(val name: String, private val typesEval: List[Stream[ScType]], v
   private def types: List[Stream[ScType]] = typesEval
 
   def substitutedTypes: List[Stream[ScType]] = types.map(ScalaPsiUtil.getTypesStream(_, substitutor.subst))
+
+  def typeParams: Array[TypeParameter] = tParams.map(_.update(substitutor.subst))
 
   def equiv(other: Signature): Boolean = {
     def fieldCheck(other: Signature): Boolean = {
@@ -91,9 +93,6 @@ class Signature(val name: String, private val typesEval: List[Stream[ScType]], v
     var undefSubst = uSubst
     if (paramLength != other.paramLength && !(paramLength.sum == 0 && other.paramLength.sum == 0)) return (false, undefSubst)
     if (hasRepeatedParam != other.hasRepeatedParam) return (false, undefSubst)
-    if (other.name == "collectNavigationMarkers") {
-      "stop here"
-    }
     val unified1 = unify(substitutor, typeParams, typeParams)
     val unified2 = unify(other.substitutor, typeParams, other.typeParams)
     val clauseIterator = substitutedTypes.iterator

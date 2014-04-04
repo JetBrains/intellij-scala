@@ -68,6 +68,12 @@ class ScLightFunctionDeclaration(pTypes: List[List[ScType]], tParams: List[TypeP
 
   override def annotations: Seq[ScAnnotation] = fun.annotations
 
+  override def navigate(requestFocus: Boolean): Unit = fun.navigate(requestFocus)
+
+  override def canNavigate: Boolean = fun.canNavigate
+
+  override def canNavigateToSource: Boolean = fun.canNavigateToSource
+
   override protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
     throw new UnsupportedOperationException("Operation on light function")
 
