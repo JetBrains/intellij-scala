@@ -722,10 +722,6 @@
                          displayName="Abstract Value in Trait" groupName="Scala: General"
                          shortName="AbstractValueInTrait" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.sbt.SbtFileStructureInspection"
-                         displayName="SBT Light Configuration File Structure" groupName="Scala: General"
-                         shortName="SbtFileStructure" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.semicolon.ScalaUnnecessarySemicolonInspection"
                          displayName="Scala unnecessary semicolon inspection" groupName="Scala: General"
                          shortName="ScalaUnnecessarySemicolon" level="WARNING"
