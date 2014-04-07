@@ -97,12 +97,6 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
       }
     }
 
-    this match {
-      case scalaFile: ScalaFileImpl =>
-        if (!SbtFile.processDeclarations(scalaFile, processor, state, lastParent, place)) return false    
-      case _ =>
-    }
-
     if (isScriptProcessed) {
       val syntheticValueIterator = SyntheticClasses.get(getProject).getScriptSyntheticValues.iterator
       while (syntheticValueIterator.hasNext) {
