@@ -129,7 +129,13 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
   protected def substInternal(t: ScType) : ScType = {
     t match {
       case p@ScProjectionType(proj, element, s) =>
-        new ScProjectionType(substInternal(proj), element, s)
+        val res = new ScProjectionType(substInternal(proj), element, s)
+        if (!s) {
+          val actualElement = p.actualElement
+          if (actualElement.isInstanceOf[ScTypeDefinition] &&
+            actualElement != res.actualElement) res.copy(superReference = true)
+          else res
+        } else res
       case m@ScMethodType(retType, params, isImplicit) => new ScMethodType(substInternal(retType),
         params.map(p => p.copy(paramType = substInternal(p.paramType),
           expectedType = substInternal(p.expectedType))), isImplicit)(m.project, m.scope)
