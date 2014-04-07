@@ -93,9 +93,6 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
   }
 
   private def followed(s: ScSubstitutor, level: Int): ScSubstitutor = {
-    if (level > 200) {
-      "stop here"
-    }
     if (level > ScSubstitutor.followLimit)
       throw new RuntimeException("Too much followers for substitutor: " + this.toString)
     if (follower == null && tvMap.size + aliasesMap.size  == 0 && updateThisType == None && !myDependentMethodTypesFunDefined) s
