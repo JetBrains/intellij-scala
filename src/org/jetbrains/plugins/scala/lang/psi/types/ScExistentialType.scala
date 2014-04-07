@@ -89,7 +89,7 @@ case class ScExistentialType(quantified : ScType,
   }
 
   override def removeAbstracts = ScExistentialType(quantified.removeAbstracts, 
-    wildcards.map(_.removeAbstracts))
+    wildcards.map(_.withoutAbstracts))
 
   override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
     if (visited.contains(this)) {
@@ -197,10 +197,19 @@ case class ScExistentialType(quantified : ScType,
         case c@ScCompoundType(comps, signatureMap, typeMap) =>
           val newSet = rejected ++ typeMap.map(_._1)
           comps.foreach(checkRecursive(_, newSet))
-          signatureMap.foreach(tuple => checkRecursive(tuple._2, newSet)) //todo: check recursive for signatures
-          typeMap.foreach(tuple => {
-            checkRecursive(tuple._2.lowerBound, newSet) //todo: check for whole signature?
-            checkRecursive(tuple._2.upperBound, newSet)
+          signatureMap.foreach {
+            case (s, rt) =>
+              s.substitutedTypes.foreach(_.foreach(checkRecursive(_, newSet)))
+              s.typeParams.foreach {
+                case tParam: TypeParameter => 
+                  tParam.update {
+                    case tp: ScType => checkRecursive(tp, newSet); tp
+                  }
+              }
+              checkRecursive(rt, newSet)
+          }
+          typeMap.foreach(_._2.updateTypes {
+            case tp: ScType => checkRecursive(tp, newSet); tp
           })
         case ScDesignatorType(elem) =>
           elem match {
@@ -465,7 +474,7 @@ case class ScExistentialArgument(name : String, args : List[ScTypeParameterType]
                                  lowerBound : ScType, upperBound : ScType) {
   def unpack = new ScSkolemizedType(name, args, lowerBound, upperBound)
 
-  def removeAbstracts: ScExistentialArgument = ScExistentialArgument(name, args, lowerBound.removeAbstracts, upperBound.removeAbstracts)
+  def withoutAbstracts: ScExistentialArgument = ScExistentialArgument(name, args, lowerBound.removeAbstracts, upperBound.removeAbstracts)
 
   def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScExistentialArgument = {
     ScExistentialArgument(name, args, lowerBound.recursiveUpdate(update, visited), upperBound.recursiveUpdate(update, visited))
