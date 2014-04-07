@@ -13,7 +13,7 @@ import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 
 case class TypeAliasSignature(name: String, typeParams: List[TypeParameter], lowerBound: ScType,
-  upperBound: ScType, isDefinition: Boolean, ta: ScTypeAlias) {
+                              upperBound: ScType, isDefinition: Boolean, ta: ScTypeAlias) {
   def this(ta: ScTypeAlias) {
     this(ta.name, ta.typeParameters.map(new TypeParameter(_)).toList, ta.lowerBound.getOrNothing,
       ta.upperBound.getOrAny, ta.isInstanceOf[ScTypeAliasDefinition], ta)
@@ -40,6 +40,24 @@ case class TypeAliasSignature(name: String, typeParams: List[TypeParameter], low
 
     if (withCopy) res.copy(ta = ScTypeAlias.getCompoundCopy(res, ta))
     else res
+  }
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[TypeAliasSignature]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: TypeAliasSignature =>
+      (that canEqual this) &&
+        name == that.name &&
+        typeParams == that.typeParams &&
+        lowerBound == that.lowerBound &&
+        upperBound == that.upperBound &&
+        isDefinition == that.isDefinition
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(name, typeParams, lowerBound, upperBound, isDefinition)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
 }
 
