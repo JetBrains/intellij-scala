@@ -91,6 +91,8 @@ trait ScType {
 
   final def isStable: Boolean = ScType.isStable(this)
 
+  def isFinalType: Boolean = false
+
   def inferValueType: ValueType
 
   def unpackedType: ScType = {

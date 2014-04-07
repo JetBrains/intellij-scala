@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 
 import com.intellij.openapi.util.Computable
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.{Result, ApplicationManager}
 import extensions.implementation._
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.openapi.project.Project
@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import java.io.Closeable
 import com.intellij.openapi.command.{WriteCommandAction, CommandProcessor}
+import org.jetbrains.annotations.NotNull
 
 /**
   * Pavel Fatin
@@ -77,10 +78,15 @@ package object extensions {
     })
   }
 
-  def inWriteCommandAction[T](project: Project)(body: => T): T = {
-    WriteCommandAction.runWriteCommandAction(project, new Computable[T] {
+  def inWriteCommandAction[T](project: Project, commandName: String = "Undefined")(body: => T): T = {
+    val computable = new Computable[T] {
       override def compute(): T = body
-    })
+    }
+    new WriteCommandAction[T](project, commandName) {
+      protected def run(@NotNull result: Result[T]) {
+        result.setResult(computable.compute())
+      }
+    }.execute.getResultObject
   }
 
   def inReadAction[T](body: => T): T = {
