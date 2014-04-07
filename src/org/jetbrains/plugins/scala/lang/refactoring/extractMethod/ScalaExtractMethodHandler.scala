@@ -1,11 +1,12 @@
-package org.jetbrains.plugins.scala.lang
+package org.jetbrains.plugins.scala
+package lang
 package refactoring.extractMethod
 
-import _root_.com.intellij.psi._
-import _root_.org.jetbrains.annotations.Nullable
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
-import _root_.org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
-import _root_.org.jetbrains.plugins.scala.lang.resolve.StdKinds
+import com.intellij.psi._
+import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
+import org.jetbrains.plugins.scala.lang.resolve.StdKinds
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.{ScrollType, Editor}
@@ -16,11 +17,10 @@ import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import com.intellij.openapi.command.CommandProcessor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
-import collection.mutable.ArrayBuffer
+import scala.collection.mutable.ArrayBuffer
 import psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition, ScPatternDefinition, ScFunction, ScFunctionDefinition}
@@ -28,11 +28,12 @@ import psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor, ScalaFile}
 import psi.api.base.patterns.ScCaseClause
 import psi.types.result.TypingContext
 import com.intellij.refactoring.util.CommonRefactoringUtil
-import org.jetbrains.plugins.scala.extensions.{toPsiElementExt, Parent, toPsiNamedElementExt, inWriteCommandAction}
 import com.intellij.psi.codeStyle.CodeStyleManager
 import scala.annotation.tailrec
 import scala.collection.mutable
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import extensions._
+import com.intellij.lang.ASTNode
 
 /**
  * User: Alexander Podkhalyuzin
@@ -215,20 +216,19 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
 
     val input = info.inputVariables
     val output = info.outputVariables
-    val settings: ScalaExtractMethodSettings = if (!ApplicationManager.getApplication.isUnitTestMode) {
-
-      val dialog = new ScalaExtractMethodDialog(project, elements, hasReturn, lastReturn, sibling, sibling,
-        input.toArray, output.toArray, lastMeaningful)
-      dialog.show()
-      if (!dialog.isOK) {
-        return
+    val settings: ScalaExtractMethodSettings =
+      if (!ApplicationManager.getApplication.isUnitTestMode) {
+        val dialog = new ScalaExtractMethodDialog(project, elements, hasReturn, lastReturn, sibling, sibling,
+          input.toArray, output.toArray, lastMeaningful)
+        dialog.show()
+        if (!dialog.isOK) return
+        dialog.getSettings
       }
-      dialog.getSettings
-    } else {
-      new ScalaExtractMethodSettings("testMethodName", ScalaExtractMethodUtils.getParameters(input.toArray, elements),
-        ScalaExtractMethodUtils.getReturns(output.toArray, elements), "", sibling, sibling,
-        elements, hasReturn, lastReturn, lastMeaningful)
-    }
+      else {
+        new ScalaExtractMethodSettings("testMethodName", ScalaExtractMethodUtils.getParameters(input.toArray, elements),
+          ScalaExtractMethodUtils.getReturns(output.toArray, elements), "", sibling, sibling,
+          elements, hasReturn, lastReturn, lastMeaningful)
+      }
     performRefactoring(settings, editor)
   }
 
@@ -265,10 +265,11 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
   }
 
   private def performRefactoring(settings: ScalaExtractMethodSettings, editor: Editor) {
-
-
     val method = ScalaExtractMethodUtils.createMethodFromSettings(settings)
+    if (method == null) return
     val element = settings.elements.find(elem => elem.isInstanceOf[ScalaPsiElement]).getOrElse(return)
+
+    val manager = method.getManager
     val processor = new CompletionProcessor(StdKinds.refExprLastRef, element, includePrefixImports = false)
     PsiTreeUtil.treeWalkUp(processor, element, null, ResolveState.initial)
     val allNames = new mutable.HashSet[String]()
@@ -293,97 +294,105 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
                 "  case Some(" + xFreshName + ") => return " + xFreshName + "\n  case None =>\n}"
         case None => s
       }
-      ScalaPsiElementFactory.createExpressionFromText(exprText, method.getManager)
+      ScalaPsiElementFactory.createExpressionFromText(exprText, manager)
     }
 
-    if (method == null) return
-
-    PsiDocumentManager.getInstance(editor.getProject).commitDocument(editor.getDocument)
-
-    inWriteCommandAction(editor.getProject, REFACTORING_NAME) {
-
+    def insertMethod() {
+      def addChild(node: ASTNode, nextSibling: PsiElement) = nextSibling.getParent.getNode.addChild(node, nextSibling.getNode)
       settings.nextSibling match {
-        case s@Parent(_: ScTemplateBody) =>
+        case s childOf (_: ScTemplateBody) =>
           // put the extract method *below* the current code if it is added to a template body.
           val nextSibling = s.getNextSiblingNotWhitespaceComment
-          s.getParent.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(method.getManager), nextSibling.getNode)
-          s.getParent.getNode.addChild(method.getNode, nextSibling.getNode)
-          s.getParent.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(method.getManager), nextSibling.getNode)
+          addChild(ScalaPsiElementFactory.createNewLineNode(manager), nextSibling)
+          addChild(method.getNode, nextSibling)
+          addChild(ScalaPsiElementFactory.createNewLineNode(manager), nextSibling)
         case s =>
-          s.getParent.getNode.addChild(method.getNode, s.getNode)
-          s.getParent.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(method.getManager), s.getNode)
+          addChild(method.getNode, s)
+          addChild(ScalaPsiElementFactory.createNewLineNode(manager), s)
       }
-      val methodCall = new StringBuilder(settings.methodName)
-      if (settings.parameters.exists(p => p.passAsParameter)) {
-        val paramStrings = new ArrayBuffer[String]
-        for (param <- settings.parameters if param.passAsParameter) {
-          paramStrings += param.oldName + (if (param.isFunction) " _" else "")
-        }
-        methodCall.append(paramStrings.mkString("(", ", ", ")"))
-      }
-      if (settings.lastReturn) {
-        val expr = ScalaPsiElementFactory.createExpressionFromText("return " + methodCall.toString, method.getManager)
-        settings.elements.apply(0).replace(expr)
-      } else if (settings.returns.length == 0) {
-        settings.elements.apply(0).replace(getMatchForReturn(methodCall.toString()))
-      } else if (settings.returns.length == 1) {
-        val ret = settings.returns.apply(0)
-        val exprText = if (settings.returnType == None) methodCall.toString() else tFreshName + "._2.get"
-        val stmt: PsiElement = if (ret.needNewDefinition) {
-          ScalaPsiElementFactory.createDeclaration(ret.returnType, ret.oldParamName, !ret.isVal,
-            exprText, method.getManager, isPresentableText = true)
-        } else {
-          ScalaPsiElementFactory.createExpressionFromText(ret.oldParamName + " = " +
-                  exprText, settings.elements.apply(0).getManager)
-        }
+    }
+
+    def insertMethodCall() {
+      val params = settings.parameters.filter(_.passAsParameter)
+              .map(param => param.oldName + (if (param.isFunction) " _" else ""))
+
+      val paramText = if (params.nonEmpty) params.mkString("(", ", ", ")") else ""
+      val methodCallText = s"${settings.methodName}$paramText"
+
+      def insertCallStatement(stmt: PsiElement) {
         val before = settings.elements.apply(0)
         def addNode(elem: PsiElement) {before.getParent.getNode.addChild(elem.getNode, before.getNode)}
         if (settings.returnType != None) {
-          val decl = ScalaPsiElementFactory.createDeclaration(null, tFreshName, isVariable = false, methodCall.toString(), method.getManager, isPresentableText = true)
-          val nl1 = ScalaPsiElementFactory.createNewLineNode(decl.getManager).getPsi
-          val nl2 = ScalaPsiElementFactory.createNewLineNode(decl.getManager).getPsi
+          val decl = ScalaPsiElementFactory.createDeclaration(null, tFreshName, isVariable = false, methodCallText, manager, isPresentableText = true)
+          val nl1 = ScalaPsiElementFactory.createNewLineNode(manager).getPsi
+          val nl2 = ScalaPsiElementFactory.createNewLineNode(manager).getPsi
           val matcher = getMatchForReturn(tFreshName + "._1")
           addNode(decl); addNode(nl2); addNode(matcher); addNode(nl1)
         }
         addNode(stmt)
         before.getParent.getNode.removeChild(before.getNode)
-      } else {
-        val exprText = if (settings.returnType == None) methodCall.toString() else tFreshName + "._2.get"
-        val stmt = ScalaPsiElementFactory.createDeclaration(null, rFreshName, isVariable = false, exprText, method.getManager, isPresentableText = true)
-        val before = settings.elements.apply(0)
-        def addNodeBack(elem: PsiElement) {before.getParent.getNode.addChild(elem.getNode, before.getNode)}
-        if (settings.returnType != None) {
-          val decl = ScalaPsiElementFactory.createDeclaration(null, tFreshName, isVariable = false, methodCall.toString(), method.getManager, isPresentableText = true)
-          val nl1 = ScalaPsiElementFactory.createNewLineNode(decl.getManager).getPsi
-          val nl2 = ScalaPsiElementFactory.createNewLineNode(decl.getManager).getPsi
-          val matcher = getMatchForReturn(tFreshName + "._1")
-          addNodeBack(decl); addNodeBack(nl2); addNodeBack(matcher); addNodeBack(nl1)
-        }
-        addNodeBack(stmt)
-        before.getParent.getNode.removeChild(before.getNode)
-        var lastElem: PsiElement = stmt
+      }
+      
+      def insertExtractorsFromTupleReturn(element: PsiElement){
+        var lastElem: PsiElement = element
         def addNode(elem: PsiElement) {
           lastElem.getParent.getNode.addChild(elem.getNode, lastElem.getNextSibling.getNode)
           lastElem = elem
         }
         var count = 1
         for (ret <- settings.returns) {
-          addNode(ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi)
-          if (ret.needNewDefinition) {
-            addNode(ScalaPsiElementFactory.createDeclaration(ret.returnType, ret.oldParamName,
-              !ret.isVal, rFreshName + "._" + count, lastElem.getManager, isPresentableText = true))
-          } else {
-            addNode(ScalaPsiElementFactory.createExpressionFromText(ret.oldParamName + " = " + rFreshName +
-                    "._" + count, stmt.getManager))
-          }
+          val extrText = s"$rFreshName._$count"
+          val stmt = 
+            if (ret.needNewDefinition)
+              ScalaPsiElementFactory.createDeclaration(ret.returnType, ret.oldParamName, !ret.isVal, extrText, manager, isPresentableText = true)
+            else 
+              ScalaPsiElementFactory.createExpressionFromText(ret.oldParamName + " = " + extrText, manager)
+          
+          addNode(ScalaPsiElementFactory.createNewLineNode(manager).getPsi)
+          addNode(stmt)
           count += 1
         }
       }
-      var i = 1
-      while (i < settings.elements.length) {
-        settings.elements.apply(i).getParent.getNode.removeChild(settings.elements.apply(i).getNode)
-        i = i + 1
+
+      if (settings.lastReturn) {
+        val expr = ScalaPsiElementFactory.createExpressionFromText("return " + methodCallText, manager)
+        settings.elements.apply(0).replace(expr)
+      } 
+      else if (settings.returns.length == 0) {
+        settings.elements.apply(0).replace(getMatchForReturn(methodCallText))
+      } 
+      else if (settings.returns.length == 1) {
+        val ret = settings.returns.apply(0)
+        val exprText = if (settings.returnType == None) methodCallText else tFreshName + "._2.get"
+        val stmt: PsiElement = if (ret.needNewDefinition) {
+          ScalaPsiElementFactory.createDeclaration(ret.returnType, ret.oldParamName, !ret.isVal,
+            exprText, manager, isPresentableText = true)
+        } else {
+          ScalaPsiElementFactory.createExpressionFromText(s"${ret.oldParamName} = $exprText", manager)
+        }
+        insertCallStatement(stmt)
+      } 
+      else {
+        val exprText = if (settings.returnType == None) methodCallText else tFreshName + "._2.get"
+        val stmt = ScalaPsiElementFactory.createDeclaration(null, rFreshName, isVariable = false, 
+          exprText, manager, isPresentableText = true)
+        
+        insertCallStatement(stmt)
+        insertExtractorsFromTupleReturn(stmt)
       }
+    }
+
+    def removeReplacedElements() {
+      settings.elements.drop(1).foreach(e => e.getParent.getNode.removeChild(e.getNode))
+    }
+
+    PsiDocumentManager.getInstance(editor.getProject).commitDocument(editor.getDocument)
+
+    inWriteCommandAction(editor.getProject, REFACTORING_NAME) {
+
+      insertMethod()
+      insertMethodCall()
+      removeReplacedElements()
 
       ScalaPsiUtil.adjustTypes(method)
 
