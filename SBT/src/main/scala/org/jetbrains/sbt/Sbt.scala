@@ -38,6 +38,8 @@ object Sbt {
 
   val StructurePluginVersion = "2.3.2"
 
+  val DefinitionHolderClasses = Seq("sbt.Plugin", "sbt.Build")
+
   lazy val Icon = IconLoader.getIcon("/sbt.png")
 
   lazy val FileIcon = IconLoader.getIcon("/sbt-file.png")

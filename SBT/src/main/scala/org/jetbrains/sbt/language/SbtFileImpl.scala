@@ -1,11 +1,15 @@
 package org.jetbrains.sbt
 package language
 
-import com.intellij.psi.{PsiElement, ResolveState, FileViewProvider}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
+import com.intellij.psi.{PsiClass, PsiElement, ResolveState, FileViewProvider}
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaFileImpl}
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.openapi.module.{ModuleManager, ModuleUtilCore}
+import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
 import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
+import com.intellij.psi.search.searches.ClassInheritorsSearch
+import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import com.intellij.psi.search.GlobalSearchScope
+import collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -23,14 +27,27 @@ class SbtFileImpl(provider: FileViewProvider) extends ScalaFileImpl(provider, Sb
 
   override def implicitlyImportedPackages = super.implicitlyImportedPackages :+ "sbt"
 
-  override def implicitlyImportedObjects = super.implicitlyImportedObjects ++ Seq("sbt", "sbt.Process", "sbt.Keys")
+  override def implicitlyImportedObjects = super.implicitlyImportedObjects ++ Seq("sbt", "sbt.Process", "sbt.Keys") ++
+          localObjectsWithDefinitions.map(_.qualifiedName)
 
-  override def getFileResolveScope = {
-    val manager = ModuleManager.getInstance(getProject)
+  private def localObjectsWithDefinitions: Seq[PsiClass] = {
+    projectDefinitionModule.fold(Seq.empty[PsiClass]) { module =>
+      val manager = ScalaPsiManager.instance(getProject)
 
-    Option(ModuleUtilCore.findModuleForPsiElement(this))
-      .flatMap(module => Option(manager.findModuleByName(module.getName + Sbt.BuildModuleSuffix)))
-      .map(_.getModuleWithLibrariesScope)
-      .getOrElse(super.getFileResolveScope)
+      val moduleScope = module.getModuleScope
+      val moduleWithLibrariesScope = module.getModuleWithLibrariesScope
+
+      Sbt.DefinitionHolderClasses.flatMap(manager.getCachedClasses(moduleWithLibrariesScope, _))
+              .flatMap(ClassInheritorsSearch.search(_, moduleScope, true).findAll.asScala)
+    }
+  }
+
+  override def getFileResolveScope: GlobalSearchScope =
+    projectDefinitionModule.fold(super.getFileResolveScope)(_.getModuleWithLibrariesScope)
+
+  private def projectDefinitionModule: Option[Module] = {
+    Option(ModuleUtilCore.findModuleForPsiElement(this)).flatMap { module =>
+      Option(ModuleManager.getInstance(getProject).findModuleByName(module.getName + Sbt.BuildModuleSuffix))
+    }
   }
 }
