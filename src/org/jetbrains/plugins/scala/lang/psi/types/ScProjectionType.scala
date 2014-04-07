@@ -3,23 +3,24 @@ package lang
 package psi
 package types
 
-import impl.toplevel.synthetic.ScSyntheticClass
+import psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import api.toplevel.typedef._
-import api.statements.{ScVariable, ScValue, ScTypeAliasDefinition, ScTypeAlias}
-import result.{TypingContext, Success}
+import api.statements.{ScValue, ScTypeAliasDefinition, ScTypeAlias}
+import result.TypingContext
 import api.toplevel.ScTypedDefinition
-import resolve.processor.ResolveProcessor
+import lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ResolveTargets}
-import com.intellij.psi.{PsiElement, PsiClass, ResolveState, PsiNamedElement}
+import com.intellij.psi._
 import extensions.{toObjectExt, toPsiClassExt}
 import collection.immutable.HashSet
 import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
-import impl.toplevel.templates.ScTemplateBodyImpl
+import psi.impl.toplevel.templates.ScTemplateBodyImpl
 import api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
 import scala.collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
 
 /**
  * @author ilyas
@@ -262,6 +263,11 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement,
     }
   }
 
+  override def isFinalType = actualElement match {
+    case cl: PsiClass if cl.isEffectivelyFinal => true
+    case _ => false
+  }
+
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitProjectionType(this)
   }
@@ -400,5 +406,10 @@ case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
 
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitDesignatorType(this)
+  }
+
+  override def isFinalType = element match {
+    case cl: PsiClass if cl.isEffectivelyFinal => true
+    case _ => false
   }
 }

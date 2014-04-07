@@ -207,7 +207,7 @@ object ScalaRefactoringUtil {
     if (enclosingContainer == element) occurrences += enclosingContainer.asInstanceOf[ScExpression]
     else
       for (child <- enclosingContainer.getChildren) {
-        if (PsiEquivalenceUtil.areElementsEquivalent(child, element, comparator, false)) {
+        if (PsiEquivalenceUtil.areElementsEquivalent(child, element)) {
           child match {
             case x: ScExpression =>
               x.getParent match {
@@ -256,21 +256,6 @@ object ScalaRefactoringUtil {
     val map = new util.HashMap[String, ScType]
     myTypes.foreach(myType => map.put(ScType.presentableText(myType), myType))
     map
-  }
-
-  private val comparator = new Comparator[PsiElement]() {
-    def compare(element1: PsiElement, element2: PsiElement): Int = {
-      (element1, element2) match {
-        case _ if element1 == element2 => 0
-        case (par1: ScParameter, par2: ScParameter) =>
-          val name1 = par1.name
-          val name2 = par2.name
-          if (name1 != null && name2 != null) name1 compareTo name2
-          else 1
-        case _ => 1
-
-      }
-    }
   }
 
   def highlightOccurrences(project: Project, occurrences: Array[TextRange], editor: Editor) {
@@ -718,6 +703,7 @@ object ScalaRefactoringUtil {
 
   def needBraces(parExpr: PsiElement, prev: PsiElement): Boolean = {
     prev match {
+      case tb: ScTryBlock if !tb.hasRBrace => true
       case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions | _: ScalaFile | _: ScCaseClause => false
       case _: ScFunction => true
       case memb: ScMember if memb.getParent.isInstanceOf[ScTemplateBody] => true
