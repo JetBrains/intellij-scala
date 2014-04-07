@@ -86,7 +86,7 @@ object ReachingDefintionsCollector {
         case _ => false
       })
       val isInstanceMethod = elem match {
-        case fun: ScFunction => fun.isInstance && !fun.containingClass.isInstanceOf[ScObject]
+        case fun: ScFunction => fun.isInstance
         case m: PsiMethod => !m.hasModifierPropertyScala("static")
         case _ => false
       }
@@ -99,6 +99,8 @@ object ReachingDefintionsCollector {
       val resolvesAtNewPlace = elem match {
         case _: PsiMethod | _: ScFun =>
           checkResolve(createExpressionWithContextFromText(elem.name + " _", place.getContext, place).getFirstChild)
+        case _: ScObject =>
+          checkResolve(createExpressionWithContextFromText(elem.name, place.getContext, place))
         case _: ScTypeAlias | _: ScTypeDefinition =>
           val decl = createDeclarationFromText(s"val dummyVal: ${elem.name}", place.getContext, place).asInstanceOf[ScValueDeclaration]
           decl.typeElement match {
