@@ -164,7 +164,6 @@ trait ScTypePresentation {
               case _ => Seq.empty
             }
           }
-          Seq.empty
         case (s: String, sign: TypeAliasSignature) =>
           val ta = ScTypeAlias.getCompoundCopy(sign, sign.ta)
           val paramsText = if (ta.typeParameters.length > 0)
