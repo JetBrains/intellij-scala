@@ -409,24 +409,13 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   def packagingRanges: Seq[TextRange] =
     depthFirst.filterByType(classOf[ScPackaging]).flatMap(_.reference).map(_.getTextRange).toList
 
-  // Special case for SBT 0.10 "build.sbt" files: they should be typed as though they are in the "project" module,
-  // even though they are located in the other modules.
   def getFileResolveScope: GlobalSearchScope = {
-    def default: GlobalSearchScope = {
-      val vFile = getOriginalFile.getVirtualFile
-      if (vFile == null) GlobalSearchScope.allScope(getProject)
-      else {
-        val resolveScopeManager = ResolveScopeManager.getInstance(getProject)
-        resolveScopeManager.getDefaultResolveScope(vFile)
-      }
+    val vFile = getOriginalFile.getVirtualFile
+    if (vFile == null) GlobalSearchScope.allScope(getProject)
+    else {
+      val resolveScopeManager = ResolveScopeManager.getInstance(getProject)
+      resolveScopeManager.getDefaultResolveScope(vFile)
     }
-    if (SbtFile.isSbtFile(this)) {
-      SbtFile.findSbtProjectModule(getProject) match {
-        case Some(module) =>
-          module.getModuleWithLibrariesScope
-        case None => default
-      }
-    } else default
   }
 
   def ignoreReferencedElementAccessibility(): Boolean = true //todo: ?
