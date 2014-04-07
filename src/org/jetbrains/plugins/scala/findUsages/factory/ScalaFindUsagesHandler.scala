@@ -17,7 +17,6 @@ import com.intellij.usageView.UsageInfo
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import collection.mutable
 import org.jetbrains.plugins.scala.util.ScalaUtil
-import scala.Array
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 

@@ -70,9 +70,7 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     }
     clazz match {
       case tp: ScTypeParametersOwner if tp.typeParameters.length > 0 =>
-        val params: Seq[TypeParameter] = tp.typeParameters.map(tp =>
-          new TypeParameter(tp.name,
-            tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp))
+        val params: Seq[TypeParameter] = tp.typeParameters.map(new TypeParameter(_))
         Success(ScTypePolymorphicType(res, params), Some(this))
       case _ => Success(res, Some(this))
     }

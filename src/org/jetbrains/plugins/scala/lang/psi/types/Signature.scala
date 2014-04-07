@@ -3,18 +3,49 @@ package lang
 package psi
 package types
 
-import api.statements.ScFunction
-import psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDefinition, ScTypeAlias, ScFunction}
 import com.intellij.psi._
 import com.intellij.ide.highlighter.JavaFileType
 import util.MethodSignatureUtil
-import api.statements.params.ScParameters
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import extensions.toPsiNamedElementExt
 import collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 
-class Signature(val name: String, val typesEval: List[Stream[ScType]], val paramLength: List[Int],
-                val typeParams: Array[PsiTypeParameter], val substitutor: ScSubstitutor,
-                val namedElement: Option[PsiNamedElement]) {
+case class TypeAliasSignature(name: String, typeParams: List[TypeParameter], lowerBound: ScType,
+  upperBound: ScType, isDefinition: Boolean, ta: ScTypeAlias) {
+  def this(ta: ScTypeAlias) {
+    this(ta.name, ta.typeParameters.map(new TypeParameter(_)).toList, ta.lowerBound.getOrNothing,
+      ta.upperBound.getOrAny, ta.isInstanceOf[ScTypeAliasDefinition], ta)
+  }
+
+  def updateTypes(fun: ScType => ScType, withCopy: Boolean = true): TypeAliasSignature = {
+    def updateTypeParam(tp: TypeParameter): TypeParameter = {
+      new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), fun(tp.lowerType),
+        fun(tp.upperType), tp.ptp)
+    }
+    val res = TypeAliasSignature(name, typeParams.map(updateTypeParam), fun(lowerBound), fun(upperBound), isDefinition, ta)
+
+    if (withCopy) res.copy(ta = ScTypeAlias.getCompoundCopy(res, ta))
+    else res
+  }
+
+  def updateTypesWithVariance(fun: (ScType, Int) => ScType, variance: Int, withCopy: Boolean = true): TypeAliasSignature = {
+    def updateTypeParam(tp: TypeParameter): TypeParameter = {
+      new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), fun(tp.lowerType, variance),
+        fun(tp.upperType, -variance), tp.ptp)
+    }
+    val res = TypeAliasSignature(name, typeParams.map(updateTypeParam), fun(lowerBound, variance),
+      fun(upperBound, -variance), isDefinition, ta)
+
+    if (withCopy) res.copy(ta = ScTypeAlias.getCompoundCopy(res, ta))
+    else res
+  }
+}
+
+class Signature(val name: String, private val typesEval: List[Stream[ScType]], val paramLength: List[Int],
+                private val tParams: Array[TypeParameter], val substitutor: ScSubstitutor,
+                val namedElement: Option[PsiNamedElement], val hasRepeatedParam: Seq[Int] = Seq.empty) {
 
   def this(name: String, stream: Stream[ScType], paramLength: Int, substitutor: ScSubstitutor,
            namedElement: Option[PsiNamedElement]) =
@@ -22,7 +53,9 @@ class Signature(val name: String, val typesEval: List[Stream[ScType]], val param
 
   private def types: List[Stream[ScType]] = typesEval
 
-  def substitutedTypes: List[Stream[ScType]] = types.map(ScalaPsiUtil.getTypesStream(_, substitutor.subst _))
+  def substitutedTypes: List[Stream[ScType]] = types.map(ScalaPsiUtil.getTypesStream(_, substitutor.subst))
+
+  def typeParams: Array[TypeParameter] = tParams.map(_.update(substitutor.subst))
 
   def equiv(other: Signature): Boolean = {
     def fieldCheck(other: Signature): Boolean = {
@@ -55,12 +88,11 @@ class Signature(val name: String, val typesEval: List[Stream[ScType]], val param
 
   def paramTypesEquivExtended(other: Signature, uSubst: ScUndefinedSubstitutor,
                               falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    import Signature._
+
     var undefSubst = uSubst
     if (paramLength != other.paramLength && !(paramLength.sum == 0 && other.paramLength.sum == 0)) return (false, undefSubst)
     if (hasRepeatedParam != other.hasRepeatedParam) return (false, undefSubst)
-    if (other.name == "collectNavigationMarkers") {
-      "stop here"
-    }
     val unified1 = unify(substitutor, typeParams, typeParams)
     val unified2 = unify(other.substitutor, typeParams, other.typeParams)
     val clauseIterator = substitutedTypes.iterator
@@ -91,17 +123,6 @@ class Signature(val name: String, val typesEval: List[Stream[ScType]], val param
     (true, undefSubst)
   }
 
-  protected def unify(subst: ScSubstitutor, tps1: Array[PsiTypeParameter], tps2: Array[PsiTypeParameter]) = {
-    var res = subst
-    val iterator1 = tps1.iterator
-    val iterator2 = tps2.iterator
-    while (iterator1.hasNext && iterator2.hasNext) {
-      val (tp1, tp2) = (iterator1.next(), iterator2.next())
-      res = res bindT ((tp2.name, ScalaPsiUtil.getPsiElementId(tp2)), ScalaPsiManager.typeVariable(tp1))
-    }
-    res
-  }
-
   override def equals(that: Any) = that match {
     case s: Signature => equiv(s)
     case _ => false
@@ -112,15 +133,32 @@ class Signature(val name: String, val typesEval: List[Stream[ScType]], val param
   }
 
   def isJava: Boolean = false
+}
 
-  def hasRepeatedParam: Seq[Int] = Seq.empty
+object Signature {
+  def unify(subst: ScSubstitutor, tps1: Array[TypeParameter], tps2: Array[TypeParameter]) = {
+    var res = subst
+    val iterator1 = tps1.iterator
+    val iterator2 = tps2.iterator
+    while (iterator1.hasNext && iterator2.hasNext) {
+      val (tp1, tp2) = (iterator1.next(), iterator2.next())
+
+      def toTypeParameterType(tp: TypeParameter): ScTypeParameterType = {
+        new ScTypeParameterType(tp.name, tp.typeParams.map(toTypeParameterType).toList, new Suspension[ScType](tp.lowerType),
+          new Suspension[ScType](tp.upperType), tp.ptp)
+      }
+
+      res = res bindT ((tp2.name, ScalaPsiUtil.getPsiElementId(tp2.ptp)), toTypeParameterType(tp1))
+    }
+    res
+  }
 }
 
 
 
 import com.intellij.psi.PsiMethod
 object PhysicalSignature {
-  private def typesEval(method: PsiMethod): List[Stream[ScType]] = method match {
+  def typesEval(method: PsiMethod): List[Stream[ScType]] = method match {
     case fun: ScFunction =>
       fun.effectiveParameterClauses.map(clause => ScalaPsiUtil.getTypesStream(clause.parameters)).toList
     case _ => List(ScalaPsiUtil.getTypesStream(method.getParameterList match {
@@ -129,17 +167,12 @@ object PhysicalSignature {
     }))
   }
 
-  private def paramLength(method: PsiMethod): List[Int] = method match {
+  def paramLength(method: PsiMethod): List[Int] = method match {
     case fun: ScFunction => fun.effectiveParameterClauses.map(_.parameters.length).toList
     case _ => List(method.getParameterList.getParametersCount)
   }
-}
 
-class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubstitutor)
-        extends Signature(method.name, PhysicalSignature.typesEval(method), PhysicalSignature.paramLength(method),
-          method.getTypeParameters, substitutor, Some(method)) {
-
-  override def hasRepeatedParam: Seq[Int] = {
+  def hasRepeatedParam(method: PsiMethod): Seq[Int] = {
     method.getParameterList match {
       case p: ScParameters =>
         val params = p.params
@@ -157,7 +190,11 @@ class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubst
         Seq.empty
     }
   }
+}
 
+class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubstitutor)
+        extends Signature(method.name, PhysicalSignature.typesEval(method), PhysicalSignature.paramLength(method),
+          method.getTypeParameters.map(new TypeParameter(_)), substitutor, Some(method), PhysicalSignature.hasRepeatedParam(method)) {
   def updateThisType(thisType: ScType): PhysicalSignature = updateSubst(_.addUpdateThisType(thisType))
 
   def updateSubst(f: ScSubstitutor => ScSubstitutor): PhysicalSignature = new PhysicalSignature(method, f(substitutor))
