@@ -139,7 +139,7 @@ object NameSuggester {
       case JavaArrayType(arg) => addPlurals(arg)
       case ScParameterizedType(des, typeArgs) =>
         generateNamesByType(des)
-      case ScCompoundType(comps, _, _, _) => {
+      case ScCompoundType(comps, _, _) => {
         if (comps.size > 0) generateNamesByType(comps(0))
       }
       case _ =>

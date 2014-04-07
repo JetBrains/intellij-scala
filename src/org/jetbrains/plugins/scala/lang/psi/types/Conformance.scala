@@ -12,7 +12,6 @@ import api.toplevel.typedef.ScTypeDefinition
 import _root_.scala.collection.immutable.HashSet
 
 import collection.{immutable, mutable, Seq}
-import lang.resolve.processor.CompoundTypeCheckProcessor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext, TypeResult}
 import api.base.patterns.ScBindingPattern
 import api.base.ScFieldId
@@ -27,6 +26,7 @@ import com.intellij.psi._
 import collection.mutable.ArrayBuffer
 import api.base.types.ScExistentialClause
 import decompiler.DecompilerUtil
+import org.jetbrains.plugins.scala.lang.resolve.processor.{CompoundTypeCheckTypeAliasProcessor, CompoundTypeCheckSignatureProcessor}
 
 object Conformance {
   /**
@@ -543,27 +543,29 @@ object Conformance {
       T                             === t2
       U1	with	. . .	with	Un       === comps1
       Un                            === compn*/
-        val comps = c.components
-        val decls = c.decls
-        val typeMembers = c.typeDecls
-        val compoundSubst = c.subst
-        def workWith(t: ScNamedElement): Boolean = {
-          val processor = new CompoundTypeCheckProcessor(t, undefinedSubst, compoundSubst)
-          processor.processType(r, t)
-          undefinedSubst = processor.getUndefinedSubstitutor
-          processor.getResult
-        }
-        result = (comps.forall(comp => {
-          val t = conformsInner(comp, r, HashSet.empty, undefinedSubst)
-          undefinedSubst = t._2
-          t._1
-        }) && decls.forall {
-          case fun: ScFunction => workWith(fun)
-          case v: ScValue => v.declaredElements forall (decl => workWith(decl))
-          case v: ScVariable => v.declaredElements forall (decl => workWith(decl))
-        } && typeMembers.forall(typeMember => {
-          workWith(typeMember)
-        }), undefinedSubst)
+      def workWithSignature(s: Signature, retType: ScType): Boolean = {
+        val processor = new CompoundTypeCheckSignatureProcessor(s,retType, undefinedSubst, s.substitutor)
+        processor.processType(r, s.namedElement.get)
+        undefinedSubst = processor.getUndefinedSubstitutor
+        processor.getResult
+      }
+
+      def workWithTypeAlias(sign: TypeAliasSignature): Boolean = {
+        val processor = new CompoundTypeCheckTypeAliasProcessor(sign, undefinedSubst, ScSubstitutor.empty)
+        processor.processType(r, sign.ta)
+        undefinedSubst = processor.getUndefinedSubstitutor
+        processor.getResult
+      }
+
+      result = (c.components.forall(comp => {
+        val t = conformsInner(comp, r, HashSet.empty, undefinedSubst)
+        undefinedSubst = t._2
+        t._1
+      }) && c.signatureMap.forall {
+        case (s: Signature, retType) if s.namedElement.isDefined => workWithSignature(s, retType)
+      } && c.typesMap.forall {
+        case (s, sign) => workWithTypeAlias(sign)
+      }, undefinedSubst)
     }
 
     override def visitProjectionType(proj: ScProjectionType) {

@@ -8,7 +8,6 @@ import com.intellij.psi.PsiElement
 import com.intellij.find.findUsages.{FindUsagesHandlerFactory, FindUsagesHandler}
 import org.jetbrains.plugins.scala.lang.psi.light._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import scala.Array
 import com.intellij.openapi.ui.Messages
 import org.jetbrains.plugins.scala.{extensions, ScalaBundle}
 import javax.swing.SwingUtilities
