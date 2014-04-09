@@ -10,7 +10,7 @@ import collection.mutable.ListBuffer
 import api.toplevel.ScEarlyDefinitions
 import com.intellij.lang.ASTNode
 import com.intellij.psi.impl.source.tree.SharedImplUtil
-import com.intellij.psi.{PsiElement, PsiClass}
+import com.intellij.psi.{PsiFileFactory, PsiManager, PsiElement, PsiClass}
 import parser.ScalaElementTypes
 import api.toplevel.templates._
 import psi.types._
@@ -29,6 +29,9 @@ import scala.Some
 import psi.types.ScCompoundType
 import com.intellij.psi.stubs.StubElement
 import annotation.tailrec
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -325,6 +328,21 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
         JavaArrayFactoryUtil.ScEarlyDefinitionsFactory)
       array.headOption
     } else findChild(classOf[ScEarlyDefinitions])
+  }
+
+  override def addEarlyDefinitions(): ScEarlyDefinitions = {
+    earlyDefinitions.getOrElse {
+      val text = "class A extends {} with B {}"
+      val templDef = ScalaPsiElementFactory.createTemplateDefinitionFromText(text, getParentByStub.getContext, getParentByStub)
+      val extBlock = templDef.extendsBlock
+      val kExtends = extBlock.children.find(_.getNode.getElementType == ScalaTokenTypes.kEXTENDS).get
+      val kWith = extBlock.children.find(_.getNode.getElementType == ScalaTokenTypes.kWITH).get
+      val firstElem = if (templateParents.isEmpty) kExtends else kExtends.getNextSibling
+      val anchor = if (templateParents.isEmpty) getFirstChild else templateParents.get
+      this.addRangeBefore(firstElem, kWith, anchor)
+
+      earlyDefinitions.get
+    }
   }
 
   def isUnderCaseClass: Boolean = getParentByStub match {
