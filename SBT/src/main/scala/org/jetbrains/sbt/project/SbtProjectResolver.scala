@@ -129,7 +129,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  private def nameFor(scala: Scala) = s"scala-compiler:${scala.version}"
+  private def nameFor(scala: Scala) = s"scala-compiler-bundle:${scala.version}"
 
   private def internalNameFor(scala: Scala) = "SBT:: " + nameFor(scala)
 
