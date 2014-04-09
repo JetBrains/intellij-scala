@@ -66,7 +66,7 @@ object ScalaGradleDataService {
     val compilerVersion = classpath.find(_.getName.startsWith("scala-compiler"))
             .flatMap(readProperty(_, "compiler.properties", "version.number"))
 
-    "Gradle: scala-compiler" + compilerVersion.fold("")("-" + _)
+    "Gradle: scala-compiler-bundle" + compilerVersion.fold("")("-" + _)
   }
 
   def createLibraryIn(project: Project)(name: String, classpath: Set[File]): Library = {
