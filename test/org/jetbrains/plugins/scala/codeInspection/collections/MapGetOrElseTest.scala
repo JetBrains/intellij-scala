@@ -11,11 +11,11 @@ class MapGetOrElseTest extends OperationsOnCollectionInspectionTest {
   val hint: String = InspectionBundle.message("map.getOrElse.hint")
 
   def test_1() {
-    val selected = s"None.${START}map(x => x + 1).getOrElse(0)$END"
+    val selected = s"None.${START}map(x => 1).getOrElse(0)$END"
     check(selected)
 
-    val text = "None.map(x => x + 1).getOrElse(0)"
-    val result = "None.fold(0)(x => x + 1)"
+    val text = "None.map(x => 1).getOrElse(0)"
+    val result = "None.fold(0)(x => 1)"
     testFix(text, result, hint)
   }
 
