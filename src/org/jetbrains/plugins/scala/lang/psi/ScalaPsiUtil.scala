@@ -1992,4 +1992,24 @@ object ScalaPsiUtil {
     }
   }
 
+  def addStatementBefore(stmt: ScBlockStatement, parent: PsiElement, anchorOpt: Option[PsiElement]): ScBlockStatement = {
+    val anchor = anchorOpt match {
+      case Some(a) => a
+      case None =>
+        val last = parent.getLastChild
+        if (ScalaPsiUtil.isLineTerminator(last.getPrevSibling)) last.getPrevSibling
+        else last
+    }
+    def addBefore(e: PsiElement) = parent.addBefore(e, anchor)
+    val anchorEndsLine = ScalaPsiUtil.isLineTerminator(anchor)
+    if (anchorEndsLine) addBefore(ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi)
+
+    val addedStmt = addBefore(stmt).asInstanceOf[ScBlockStatement]
+
+    if (!anchorEndsLine) addBefore(ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi)
+    else anchor.replace(ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi)
+
+    addedStmt
+  }
+
 }
