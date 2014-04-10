@@ -1,30 +1,31 @@
-package org.jetbrains.plugins.scala.lang
-package refactoring.extractMethod
+package org.jetbrains.plugins.scala
+package lang.refactoring.extractMethod
 
-import com.intellij.psi._
-import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ExtractMethodParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScFunction}
+import scala.collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
+import com.intellij.psi.{PsiAnnotation, PsiPrimitiveType, PsiNamedElement, PsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypedDefinition, ScNamedElement, ScTypeParametersOwner}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import com.intellij.refactoring.util.VariableData
-import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScFunctionType, ScSubstitutor, Unit}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
+import com.intellij.refactoring.util.VariableData
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import java.lang.String
-import collection.mutable.ArrayBuffer
-import psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
-import psi.api.toplevel.{ScTypeParametersOwner, ScNamedElement, ScTypedDefinition}
-import psi.api.expr._
-import psi.api.statements.{ScValue, ScFunction}
-import psi.api.statements.params.{ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import scala.util.Sorting
-import psi.types.nonvalue.Parameter
-import psi.types._
-import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 import java.util
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import extensions._
+import org.jetbrains.plugins.scala.lang.refactoring.util.duplicates.ScalaVariableData
 
 /**
  * User: Alexander Podkhalyuzin
@@ -187,19 +188,8 @@ object ScalaExtractMethodUtils {
     method
   }
 
-  class FakePsiType(val tp: ScType) extends PsiPrimitiveType("fakeForScala", PsiAnnotation.EMPTY_ARRAY) {
-    override def getPresentableText: String = ScType.presentableText(tp)
-  }
-
-  class ScalaVariableData(val vari: ScTypedDefinition, val isMutable: Boolean, val isInsideOfElements: Boolean, 
-                          val tp: ScType, val param: FakePsiParameter)
-          extends VariableData(param, new FakePsiType(tp)) {
-    passAsParameter = true
-    name = param.name
-  }
-
   @Nullable
-  def convertVariableData(variable: VariableInfo, elements: Array[PsiElement]): VariableData = {
+  def convertVariableData(variable: VariableInfo, elements: Array[PsiElement]): ScalaVariableData = {
     var isMutable = false
     if (!variable.element.isInstanceOf[ScTypedDefinition]) return null
     val definition = variable.element.asInstanceOf[ScTypedDefinition]
@@ -235,8 +225,7 @@ object ScalaExtractMethodUtils {
         ScFunctionType(retType, Seq.empty)(definition.getProject, definition.getResolveScope)
       case _ => retType
     }
-    val param = new FakePsiParameter(definition.getManager, ScalaFileType.SCALA_LANGUAGE, new Parameter("", None, tp, false, false, false, -1), definition.name)
-    new ScalaVariableData(definition, isMutable, isInside, tp, param)
+    new ScalaVariableData(definition, isMutable, isInside, tp)
   }
 
   /**
@@ -288,26 +277,6 @@ object ScalaExtractMethodUtils {
     }
   }
 
-  def getParameter(d: VariableData, variableData: ScalaVariableData): ExtractMethodParameter = {
-    val isEmptyParamFun = variableData.vari.isInstanceOf[ScFunction] && variableData.vari.asInstanceOf[ScFunction].parameters.length == 0
-    val isCallByName = ScalaPsiUtil.nameContext(variableData.vari) match {
-      case v: ScValue if v.hasModifierProperty("lazy") => true
-      case p: ScParameter if p.isCallByNameParameter => true
-      case _ => false
-    }
-    ExtractMethodParameter(
-      oldName = d.variable.name,
-      newName = d.name,
-      isRef = false,
-      tp = d.`type`.asInstanceOf[FakePsiType].tp,
-      needMirror = variableData.isMutable,
-      passAsParameter = d.passAsParameter,
-      isFunction = variableData.vari.isInstanceOf[ScFunction],
-      isEmptyParamFunction = isEmptyParamFun,
-      isCallByNameParameter = isCallByName
-    )
-  }
-
   /**
    * methods for Unit tests
    */
@@ -320,9 +289,7 @@ object ScalaExtractMethodUtils {
     val data = buffer.toArray
     var list: ArrayBuffer[ExtractMethodParameter] = new ArrayBuffer[ExtractMethodParameter]
     for (d <- data) {
-      val variableData: ScalaVariableData = d.asInstanceOf[ScalaVariableData]
-      var param: ExtractMethodParameter = getParameter(d, variableData)
-      list += param
+      list += ExtractMethodParameter.from(d.asInstanceOf[ScalaVariableData])
     }
     val res = list.toArray
     Sorting.stableSort[ExtractMethodParameter](res, (p1: ExtractMethodParameter, p2: ExtractMethodParameter) => {p1.oldName < p2.oldName})
@@ -332,12 +299,8 @@ object ScalaExtractMethodUtils {
   def getReturns(myOutput: Array[VariableInfo], elements: Array[PsiElement]): Array[ExtractMethodReturn] = {
     val list: util.ArrayList[ExtractMethodReturn] = new util.ArrayList[ExtractMethodReturn]
     for (info <- myOutput) {
-      val data: ScalaVariableData = ScalaExtractMethodUtils.convertVariableData(info, elements).asInstanceOf[ScalaVariableData]
-      val tp: FakePsiType = data.`type`.asInstanceOf[FakePsiType]
-      val aReturn: ExtractMethodReturn = new ExtractMethodReturn(info.element.name, tp.tp, data.isInsideOfElements,
-        ScalaPsiUtil.nameContext(info.element).isInstanceOf[ScValue] ||
-          ScalaPsiUtil.nameContext(info.element).isInstanceOf[ScFunction])
-      list.add(aReturn)
+      val data: ScalaVariableData = ScalaExtractMethodUtils.convertVariableData(info, elements)
+      list.add(ExtractMethodReturn.from(data))
     }
     list.toArray(new Array[ExtractMethodReturn](list.size))
   }
