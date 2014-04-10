@@ -21,6 +21,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ExtractMethodR
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodSettings;
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
+import org.jetbrains.plugins.scala.lang.refactoring.util.duplicates.FakePsiType;
+import org.jetbrains.plugins.scala.lang.refactoring.util.duplicates.ScalaVariableData;
 import scala.Option;
 
 import javax.swing.*;
@@ -193,8 +195,8 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     VariableData[] data = parameterTablePanel.getVariableData();
     ArrayList<ExtractMethodParameter> list = new ArrayList<ExtractMethodParameter>();
     for (VariableData d : data) {
-      ScalaExtractMethodUtils.ScalaVariableData variableData = (ScalaExtractMethodUtils.ScalaVariableData) d;
-      ExtractMethodParameter param = ScalaExtractMethodUtils.getParameter(d, variableData);
+      ScalaVariableData variableData = (ScalaVariableData) d;
+      ExtractMethodParameter param = ExtractMethodParameter.from(variableData);
       list.add(param);
     }
     return list.toArray(new ExtractMethodParameter[list.size()]);
@@ -203,18 +205,8 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   public ExtractMethodReturn[] getReturns() {
     ArrayList<ExtractMethodReturn> list = new ArrayList<ExtractMethodReturn>();
     for (VariableInfo info : myOutput) {
-      ScalaExtractMethodUtils.ScalaVariableData data =
-          (ScalaExtractMethodUtils.ScalaVariableData) ScalaExtractMethodUtils.convertVariableData(info, myElements);
-      ScalaExtractMethodUtils.FakePsiType tp = (ScalaExtractMethodUtils.FakePsiType) data.type;
-      String name = info.element().getName();
-      if (info.element() instanceof ScNamedElement) {
-        ScNamedElement named = (ScNamedElement) info.element();
-        name = named.name();
-      }
-      ExtractMethodReturn aReturn = new ExtractMethodReturn(name, tp.tp(),
-          data.isInsideOfElements(), ScalaPsiUtil.nameContext(info.element()) instanceof ScValue ||
-          ScalaPsiUtil.nameContext(info.element()) instanceof ScFunction);
-      list.add(aReturn);
+      ScalaVariableData data = ScalaExtractMethodUtils.convertVariableData(info, myElements);
+      list.add(ExtractMethodReturn.from(data));
     }
     return list.toArray(new ExtractMethodReturn[list.size()]);
   }
