@@ -21,7 +21,11 @@ class HoconLexer extends LexerBase {
   }
 
   trait TokenMatcher {
-    def matchToken(seq: CharSequence, state: State): Option[(Int, IElementType, State)]
+    def matchToken(seq: CharSequence, state: State): Option[Int]
+
+    def token: IElementType
+
+    def transition: State => State
   }
 
   case class LiteralTokenMatcher(str: String,
@@ -32,7 +36,7 @@ class HoconLexer extends LexerBase {
 
     def matchToken(seq: CharSequence, state: State) =
       if (condition(state) && seq.startsWith(str))
-        Some((str.length, token, transition(state)))
+        Some(str.length)
       else None
   }
 
@@ -44,7 +48,7 @@ class HoconLexer extends LexerBase {
 
     def matchToken(seq: CharSequence, state: State) =
       if (condition(state))
-        regex.findPrefixMatchOf(seq).map(m => (m.end, token, transition(state)))
+        regex.findPrefixMatchOf(seq).map(_.end)
       else None
   }
 
@@ -75,7 +79,7 @@ class HoconLexer extends LexerBase {
     RegexTokenMatcher( """\$\{(\?)?""".r, RefStart, always, forceState(Reference)),
     LiteralTokenMatcher("}", RefEnd, hasFlag(Reference), forceState(SimpleValue)),
     LiteralTokenMatcher("}", RBrace, always, forceState(SimpleValue)),
-    LiteralTokenMatcher("[", LBracket, requireState(Initial), forceState(Initial)),
+    LiteralTokenMatcher("[", LBracket, doesntHaveFlag(Reference), forceState(Initial)),
     LiteralTokenMatcher("]", RBracket, always, forceState(SimpleValue)),
     LiteralTokenMatcher(":", Colon, hasFlag(SimpleValue), forceState(Initial)),
     LiteralTokenMatcher(",", Comma, hasFlag(SimpleValue), forceState(Initial)),
@@ -83,20 +87,18 @@ class HoconLexer extends LexerBase {
     LiteralTokenMatcher("+=", PlusEquals, hasFlag(SimpleValue), forceState(Initial)),
     LiteralTokenMatcher(".", Dot, always, s => simpleValueIfInitial(s)),
     LiteralTokenMatcher("\n", NewLine, hasFlag(SimpleValue), forceState(Initial)),
-    LiteralTokenMatcher("null", Null, always, s => simpleValueIfInitial(s) & ~Number),
-    LiteralTokenMatcher("true", True, always, s => simpleValueIfInitial(s) & ~Number),
-    LiteralTokenMatcher("false", False, always, s => simpleValueIfInitial(s) & ~Number),
     RegexTokenMatcher( """(//|#)[^\n]*""".r, Comment, always, identity),
     RegexTokenMatcher( """([0-9]+)((e|E)(\+|-)?[0-9]+)?""".r, Decimal, hasFlag(Number), s => simpleValueIfInitial(s) & ~Number),
     RegexTokenMatcher( """-?(0|[1-9][0-9]*)""".r, Integer, always, s => simpleValueIfInitial(s) | Number),
-    UnquotedStringMatcher,
+    UnquotedCharsMatcher,
     RegexTokenMatcher("\"{3}([^\"]|\"{1,2}[^\"])*\"{3,}".r, MultilineString, always, s => simpleValueIfInitial(s) & ~Number),
     RegexTokenMatcher( """"([^"\\]|\\(["\\bfnrt]|u[0-9A-Fa-f]{4}))*"""".r, QuotedString, always, s => simpleValueIfInitial(s) & ~Number),
     RegexTokenMatcher(".".r, TokenType.BAD_CHARACTER, always, modify(remove = Number))
   )
 
+  val stateTransitions = matchers.map(m => (m.token, m.transition)).toMap
+
   val forbidden = """$"{}[]:=,+#`^?!@*&\"""
-  val special = "."
   val specialWhitespace = "\u00A0\u2007\u202F\uFEFF"
 
   def isHoconWhitespace(char: Char) = char.isWhitespace || specialWhitespace.contains(char)
@@ -104,20 +106,26 @@ class HoconLexer extends LexerBase {
   def isCStyleComment(seq: CharSequence, index: Int) =
     seq.subSequence(index, seq.length).startsWith("//")
 
-  def continuesUnquotedString(seq: CharSequence, index: Int) = index < seq.length && {
+  def continuesUnquotedChars(seq: CharSequence, index: Int) = index < seq.length && {
     val char = seq.charAt(index)
-    !special.contains(char) && !forbidden.contains(char) && !isHoconWhitespace(char) && !isCStyleComment(seq, index)
+    char != '.' && !forbidden.contains(char) && !isHoconWhitespace(char) && !isCStyleComment(seq, index)
   }
 
-  object UnquotedStringMatcher extends TokenMatcher {
+  object UnquotedCharsMatcher extends TokenMatcher {
     def matchToken(seq: CharSequence, state: State) =
       if (seq.length > 0 && !seq.charAt(0).isDigit && seq.charAt(0) != '-') {
         var c = 0
-        while (continuesUnquotedString(seq, c)) {
+        while (continuesUnquotedChars(seq, c)) {
           c += 1
         }
-        if (c > 0) Some((c, UnquotedString, simpleValueIfInitial(state) & ~Number)) else None
+        if (c > 0) Some(c) else None
       } else None
+
+
+    def token = UnquotedChars
+
+    def transition =
+      state => simpleValueIfInitial(state) & ~Number
   }
 
   object WhitespaceMatcher extends TokenMatcher {
@@ -129,9 +137,14 @@ class HoconLexer extends LexerBase {
         c += 1
       }
       if (c > 0) {
-        Some((c, TokenType.WHITE_SPACE, state & ~Number))
+        Some(c)
       } else None
     }
+
+    def token = TokenType.WHITE_SPACE
+
+    def transition =
+      modify(remove = Number)
   }
 
   private var input: CharSequence = _
@@ -151,13 +164,17 @@ class HoconLexer extends LexerBase {
     val seq = input.subSequence(tokenStart, endOffset)
     if (seq.length > 0) {
 
-      def findMatch(matchers: List[TokenMatcher]): (Int, IElementType, State) =
-        matchers.head.matchToken(seq, state) match {
-          case Some(result) => result
-          case _ => findMatch(matchers.tail)
-        }
+      val newState = if (token != null) stateTransitions(token)(state) else state
 
-      val (length, newToken, newState) = findMatch(matchers)
+      def findMatch(matchers: List[TokenMatcher]): (Int, IElementType) = {
+        val head :: tail = matchers
+        head.matchToken(seq, newState) match {
+          case Some(result) => (result, head.token)
+          case _ => findMatch(tail)
+        }
+      }
+
+      val (length, newToken) = findMatch(matchers)
 
       tokenEnd = tokenStart + length
       token = newToken

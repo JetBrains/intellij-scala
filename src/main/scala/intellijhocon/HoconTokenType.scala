@@ -7,6 +7,8 @@ sealed class HoconTokenType(debugString: String) extends IElementType(debugStrin
 
 object HoconTokenType extends TokenType {
 
+  val Whitespace = TokenType.WHITE_SPACE
+
   case object LBrace extends HoconTokenType("LBRACE")
 
   case object RBrace extends HoconTokenType("RBRACE")
@@ -31,19 +33,13 @@ object HoconTokenType extends TokenType {
 
   case object RefEnd extends HoconTokenType("REF_END")
 
-  case object Null extends HoconTokenType("NULL")
-
-  case object True extends HoconTokenType("TRUE")
-
-  case object False extends HoconTokenType("FALSE")
-
   case object Comment extends HoconTokenType("COMMENT")
 
   case object Integer extends HoconTokenType("INTEGER")
 
   case object Decimal extends HoconTokenType("DECIMAL")
 
-  case object UnquotedString extends HoconTokenType("UNQUOTED_STRING")
+  case object UnquotedChars extends HoconTokenType("UNQUOTED_CHARS")
 
   case object QuotedString extends HoconTokenType("QUOTED_STRING")
 
