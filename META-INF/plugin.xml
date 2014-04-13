@@ -6,6 +6,7 @@
   <extensions defaultExtensionNs="com.intellij">
     <fileTypeFactory implementation="intellijhocon.HoconFileTypeFactory"/>
     <lang.syntaxHighlighterFactory key="HOCON" implementationClass="intellijhocon.HoconSyntaxHighlighterFactory"/>
+    <lang.parserDefinition language="HOCON" implementationClass="intellijhocon.HoconParserDefinition"/>
   </extensions>
 
 </idea-plugin>
