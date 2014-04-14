@@ -22,6 +22,7 @@ import extensions._
 import com.intellij.openapi.application.ApplicationManager
 import scala.collection.JavaConversions._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
+import com.intellij.codeInsight.generation.{ClassMember => JClassMember}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -78,8 +79,9 @@ object ScalaOIUtil {
     val selectedMembers = ListBuffer[ClassMember]()
     if (!ApplicationManager.getApplication.isUnitTestMode) {
 
-      val chooser = new ScalaMemberChooser[ClassMember](classMembers.toArray, false, true, isImplement, true, project)
+      val chooser = new ScalaMemberChooser[ClassMember](classMembers.toArray, false, true, isImplement, true, clazz)
       chooser.setTitle(if (isImplement) ScalaBundle.message("select.method.implement") else ScalaBundle.message("select.method.override"))
+      if (isImplement) chooser.selectElements(classMembers.toArray[JClassMember])
       chooser.show()
 
       val elements = chooser.getSelectedElements
@@ -101,10 +103,10 @@ object ScalaOIUtil {
     ScalaUtils.runWriteAction(new Runnable {
       def run() {
         import scala.collection.JavaConversions._
-
-        val genInfos = selectedMembers.map(new ScalaGenerationInfo(_))
+        val sortedMembers = ScalaMemberChooser.sorted(selectedMembers, clazz)
+        val genInfos = sortedMembers.map(new ScalaGenerationInfo(_))
         val anchor = getAnchor(editor.getCaretModel.getOffset, clazz)
-        val inserted = GenerateMembersUtil.insertMembersBeforeAnchor(clazz, anchor.getOrElse(null), genInfos)
+        val inserted = GenerateMembersUtil.insertMembersBeforeAnchor(clazz, anchor.getOrElse(null), genInfos.reverse)
         inserted.headOption.foreach(_.positionCaret(editor, toEditMethodBody = true))
       }
     }, clazz.getProject, if (isImplement) "Implement method" else "Override method")
