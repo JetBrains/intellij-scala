@@ -137,7 +137,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     val members = toMethodMembers(candidates, place)
 
     if (!ApplicationManager.getApplication.isUnitTestMode) {
-      val chooser = new ScalaMemberChooser[ScMethodMember](members.toArray, false, true, false, true, project)
+      val chooser = new ScalaMemberChooser[ScMethodMember](members.toArray, false, true, false, true, aClass)
       chooser.setTitle(CodeInsightBundle.message("generate.delegate.method.chooser.title"))
       chooser.show()
       if (chooser.getExitCode != DialogWrapper.OK_EXIT_CODE) return null
@@ -170,7 +170,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     val elements: Array[ClassMember] = targetElements(file, editor)
     if (elements == null || elements.length == 0) return null
     if (!ApplicationManager.getApplication.isUnitTestMode) {
-      val chooser = new ScalaMemberChooser(elements, false, false, false, false, project)
+      val chooser = new ScalaMemberChooser(elements, false, false, false, false, classAtOffset(editor.getCaretModel.getOffset, file))
       chooser.setTitle(CodeInsightBundle.message("generate.delegate.target.chooser.title"))
       chooser.show()
       if (chooser.getExitCode != DialogWrapper.OK_EXIT_CODE) return null
