@@ -26,18 +26,15 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{SyntheticNa
 object ReachingDefintionsCollector {
   import ReachingDefinitions.{A => RDSet, _}
 
-  def collectVariableInfo(elements: Seq[PsiElement], place: ScalaPsiElement): FragmentVariableInfos =
-    collectVariableInfo(elements, visibilityFilter(place))
   /**
    * @param elements a fragment to analyze
-   * @param isVisible since Extract Method refactoring is in fact RDC's main client, it should define if we need to
+   * @param place since Extract Method refactoring is in fact RDC's main client, it should define if we need to
    *                  use captured variable as an argument
    */
-  def collectVariableInfo(elements: Seq[PsiElement], isVisible: (PsiNamedElement) => Boolean): FragmentVariableInfos = {
+  def collectVariableInfo(elements: Seq[PsiElement], place: ScalaPsiElement): FragmentVariableInfos = {
     import PsiTreeUtil._
-    val isInFragment = ancestorFilter(elements)
-    // for every reference element, define is it's definition in scope
-    val inputInfos = getInputInfo(elements, isInFragment, isVisible)
+    // for every reference element, define if it's definition is in scope
+    val inputInfos = getInputInfo(elements, place)
 
     // CFG -> DFA
     val commonParent = findCommonParent(elements: _*)
@@ -52,7 +49,7 @@ object ReachingDefintionsCollector {
     val dfaResult = engine.performDFA
 
     // instructions in given fragment
-    val fragmentInstructions = filterByFragment(cfg, isInFragment)
+    val fragmentInstructions = filterByFragment(cfg, elements)
 
     // for every WRITE or VAL define, if it escapes `elements' or not
     // i.e. if there instructions with greater numbers, which are "reached" by WRITE
@@ -66,68 +63,56 @@ object ReachingDefintionsCollector {
     FragmentVariableInfos(inputInfos, outputInfos)
   }
 
-  private def ancestorFilter(elements: Seq[PsiElement]) = new ((PsiElement) => Boolean) {
-    val cache: mutable.Map[PsiElement, Boolean] = new mutable.HashMap[PsiElement, Boolean]
-
-    def apply(elem: PsiElement): Boolean = {
-      if (elem == null) return false
-      cache.getOrElseUpdate(elem, elements.exists(e => PsiTreeUtil.isAncestor(e, elem, false)))
-    }
-  }
-
   //defines if the given PsiNamedElement is visible at `place`
-  private def visibilityFilter(place: ScalaPsiElement) = new ((PsiNamedElement) => Boolean) {
-    val cache: mutable.Map[PsiElement, Boolean] = new mutable.HashMap[PsiElement, Boolean]
-
-    def apply(elem: PsiNamedElement): Boolean = {
-      def checkResolve(ref: PsiElement) = cache.getOrElseUpdate(ref, ref match {
-        case r: ScReferenceElement =>
-          r.multiResolve(false).map(_.getElement).exists(PsiEquivalenceUtil.areElementsEquivalent(_, elem))
-        case _ => false
-      })
-      val isInstanceMethod = elem match {
-        case fun: ScFunction => fun.isInstance
-        case m: PsiMethod => !m.hasModifierPropertyScala("static")
-        case _ => false
-      }
-      val isSynthetic = elem match {
-        case _: SyntheticNamedElement => true
-        case fun: ScFunction => fun.isSynthetic
-        case _ => false
-      }
-      import ScalaPsiElementFactory.{createExpressionWithContextFromText, createDeclarationFromText}
-      val resolvesAtNewPlace = elem match {
-        case _: PsiMethod | _: ScFun =>
-          checkResolve(createExpressionWithContextFromText(elem.name + " _", place.getContext, place).getFirstChild)
-        case _: ScObject =>
-          checkResolve(createExpressionWithContextFromText(elem.name, place.getContext, place))
-        case _: ScTypeAlias | _: ScTypeDefinition =>
-          val decl = createDeclarationFromText(s"val dummyVal: ${elem.name}", place.getContext, place).asInstanceOf[ScValueDeclaration]
-          decl.typeElement match {
-            case Some(st: ScSimpleTypeElement) => st.reference.exists(checkResolve)
-            case _ => false
-          }
-        case _ =>
-          checkResolve(createExpressionWithContextFromText(elem.name, place.getContext, place))
-      }
-      isInstanceMethod || isSynthetic || resolvesAtNewPlace
+  private def isVisible(element: PsiNamedElement, place: ScalaPsiElement): Boolean = {
+    def checkResolve(ref: PsiElement) = ref match {
+      case r: ScReferenceElement =>
+        r.multiResolve(false).map(_.getElement).exists(PsiEquivalenceUtil.areElementsEquivalent(_, element))
+      case _ => false
     }
+    val isInstanceMethod = element match {
+      case fun: ScFunction => fun.isInstance
+      case m: PsiMethod => !m.hasModifierPropertyScala("static")
+      case _ => false
+    }
+    val isSynthetic = element match {
+      case _: SyntheticNamedElement => true
+      case fun: ScFunction => fun.isSynthetic
+      case _ => false
+    }
+    import ScalaPsiElementFactory.{createExpressionWithContextFromText, createDeclarationFromText}
+    val resolvesAtNewPlace = element match {
+      case _: PsiMethod | _: ScFun =>
+        checkResolve(createExpressionWithContextFromText(element.name + " _", place.getContext, place).getFirstChild)
+      case _: ScObject =>
+        checkResolve(createExpressionWithContextFromText(element.name, place.getContext, place))
+      case _: ScTypeAlias | _: ScTypeDefinition =>
+        val decl = createDeclarationFromText(s"val dummyVal: ${element.name}", place.getContext, place)
+                .asInstanceOf[ScValueDeclaration]
+        decl.typeElement match {
+          case Some(st: ScSimpleTypeElement) => st.reference.exists(checkResolve)
+          case _ => false
+        }
+      case _ =>
+        checkResolve(createExpressionWithContextFromText(element.name, place.getContext, place))
+    }
+    isInstanceMethod || isSynthetic || resolvesAtNewPlace
   }
 
-  private def filterByFragment(cfg: Seq[Instruction], checker: (PsiElement) => Boolean) = cfg.filter(i =>
+  private def isInFragment(element: PsiElement, fragment: Seq[PsiElement]) = fragment.exists(_.isAncestorOf(element))
+
+  private def filterByFragment(cfg: Seq[Instruction], fragment: Seq[PsiElement]) = cfg.filter(i =>
     i.element match {
       case None => false
-      case Some(e) => checker(e)
+      case Some(e) => isInFragment(e, fragment)
     })
 
-  private def getInputInfo(elements: Seq[PsiElement],
-                           isInFragment: (PsiElement) => Boolean,
-                           isVisible: (PsiNamedElement) => Boolean): Iterable[VariableInfo] = {
+  private def getInputInfo(elements: Seq[PsiElement], place: ScalaPsiElement): Iterable[VariableInfo] = {
     val inputDefs = new ArrayBuffer[VariableInfo]
 
     def isInClosure(elem: PsiElement) = {
       val parent = PsiTreeUtil.getParentOfType(elem, classOf[ScFunctionExpr], classOf[ScFunction])
-      parent != null && isInFragment(parent)
+      parent != null && isInFragment(parent, elements)
     }
 
     val visitor = new ScalaRecursiveElementVisitor {
@@ -137,7 +122,7 @@ object ReachingDefintionsCollector {
           case _ =>
             val element = ref.resolve()
             element match {
-              case named: PsiNamedElement if !isInFragment(named) && !isVisible(named) &&
+              case named: PsiNamedElement if !isInFragment(named, elements) && !isVisible(named, place) &&
                       !inputDefs.map(_.element).contains(named) =>
                 val isReferenceParameter = isInClosure(ref) && ScalaPsiUtil.isLValue(ref)
                 inputDefs += VariableInfo(named, isReferenceParameter)
