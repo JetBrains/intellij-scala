@@ -1,17 +1,13 @@
 package org.jetbrains.plugins.scala
 package overrideImplement
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScType, PhysicalSignature, ScSubstitutor}
 import com.intellij.psi._
 import com.intellij.codeInsight.generation.PsiElementClassMember
-import com.intellij.codeInsight.generation.MemberChooserObject
-import com.intellij.codeInsight.generation.ClassMember
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import lang.psi.api.toplevel.ScTypedDefinition
 import lang.psi.ScalaPsiUtil
 import lang.psi.types._
 import lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 /**
 * User: Alexander Podkhalyuzin
