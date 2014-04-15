@@ -40,6 +40,8 @@ object Sbt {
 
   val DefinitionHolderClasses = Seq("sbt.Plugin", "sbt.Build")
 
+  val DefaultImplicitImports = Seq("sbt._", "Process._", "Keys._")
+
   lazy val Icon = IconLoader.getIcon("/sbt.png")
 
   lazy val FileIcon = IconLoader.getIcon("/sbt-file.png")
