@@ -15,8 +15,8 @@ import types.{ScType, Unit}
 import types.result.{TypingContext, Success, TypeResult}
 import com.intellij.openapi.progress.ProgressManager
 import api.base.types.ScTypeElement
-import psi.controlFlow.Instruction
-import psi.controlFlow.impl.ScalaControlFlowBuilder
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.{ScControlFlowPolicy, Instruction}
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{AllVariablesControlFlowPolicy, ScalaControlFlowBuilder}
 import api.ScalaElementVisitor
 import api.statements.params.ScParameter
 import api.base.ScReferenceElement
@@ -165,10 +165,10 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
 
   private var myControlFlow: Seq[Instruction] = null
 
-  def getControlFlow(cached: Boolean) = {
+  override def getControlFlow(cached: Boolean, policy: ScControlFlowPolicy = AllVariablesControlFlowPolicy) = {
     if (!cached || myControlFlow == null) body match {
       case Some(e) =>
-        val builder = new ScalaControlFlowBuilder(null, null)
+        val builder = new ScalaControlFlowBuilder(null, null, policy)
         myControlFlow = builder.buildControlflow(e)
       case _ => myControlFlow = Seq.empty
     }

@@ -8,8 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import api.statements.params.{ScParameter, ScParameters}
 import types.result.TypingContext
-import psi.controlFlow.impl.ScalaControlFlowBuilder
-import psi.controlFlow.Instruction
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{AllVariablesControlFlowPolicy, ScalaControlFlowBuilder}
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.{ScControlFlowPolicy, Instruction}
 import api.ScalaElementVisitor
 import types._
 import com.intellij.psi._
@@ -60,10 +60,10 @@ class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   private var myControlFlow: Seq[Instruction] = null
 
-  def getControlFlow(cached: Boolean) = {
+  override def getControlFlow(cached: Boolean, policy: ScControlFlowPolicy = AllVariablesControlFlowPolicy) = {
     if (!cached || myControlFlow == null) result match {
       case Some(e) => {
-        val builder = new ScalaControlFlowBuilder(null, null)
+        val builder = new ScalaControlFlowBuilder(null, null, policy)
         myControlFlow = builder.buildControlflow(e)
       }
       case None => myControlFlow = Seq.empty

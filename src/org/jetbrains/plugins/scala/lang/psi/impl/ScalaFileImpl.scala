@@ -9,7 +9,7 @@ import api.expr.ScExpression
 import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import psi.stubs.ScFileStub
 import com.intellij.extapi.psi.PsiFileBase
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.{ScControlFlowPolicy, Instruction}
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable
 import api.toplevel.ScToplevelElement
 import com.intellij.openapi.vfs.VirtualFile
 import api.{FileDeclarationsHolder, ScControlFlowOwner, ScalaFile}
-import psi.controlFlow.impl.ScalaControlFlowBuilder
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{AllVariablesControlFlowPolicy, ScalaControlFlowBuilder}
 import decompiler.{DecompilerUtil, CompiledFileAdjuster}
 import collection.mutable.ArrayBuffer
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
@@ -381,9 +381,9 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
 
   private var myControlFlow: Seq[Instruction] = null
 
-  def getControlFlow(cached: Boolean) = {
+  def getControlFlow(cached: Boolean, policy: ScControlFlowPolicy = AllVariablesControlFlowPolicy) = {
     if (!cached || myControlFlow == null) {
-      val builder = new ScalaControlFlowBuilder(null, null)
+      val builder = new ScalaControlFlowBuilder(null, null, policy)
       myControlFlow = builder.buildControlflow(this)
     }
     myControlFlow

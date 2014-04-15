@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.dataFlow.DfaEngine
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import collection.mutable.ArrayBuffer
 import com.intellij.psi.{PsiClass, PsiMethod, PsiNamedElement, PsiElement}
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{ReadWriteVariableInstruction, DefineValueInstruction}
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{LocalsControlFlowPolicy, ReadWriteVariableInstruction, DefineValueInstruction}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValueDeclaration, ScTypeAlias, ScFun, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
@@ -44,7 +44,7 @@ object ReachingDefintionsCollector {
         elements.map(_.getContainingFile.getName).mkString("(", ", ", ")")
       throw new RuntimeException(message)
     }
-    val cfg = cfowner.getControlFlow(cached = false) //todo: make cache more right to not get PsiInvalidAccess
+    val cfg = cfowner.getControlFlow(cached = false, policy = LocalsControlFlowPolicy) //todo: make cache more right to not get PsiInvalidAccess
     val engine = new DfaEngine(cfg, ReachingDefinitionsInstance, ReachingDefinitionsLattice)
     val dfaResult = engine.performDFA
 
