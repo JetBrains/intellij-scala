@@ -213,6 +213,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     result.add(library)
 
+    result.add(createSbtModuleData(project))
+
     result
   }
 
@@ -229,6 +231,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result.storePaths(ExternalSystemSourceType.EXCLUDED, exludedDirs.map(_.path))
 
     result
+  }
+
+  def createSbtModuleData(project: Project): SbtModuleNode = {
+    val imports = project.build.imports.flatMap(_.substring(7).split(", "))
+    new SbtModuleNode(imports)
   }
 
   private def validRootPathsIn(project: Project, scope: String)
