@@ -13,9 +13,11 @@ class ScalaDelegateMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdapt
 
   def runTest(fileText: String, expectedText: String, specifyType: Boolean = true) {
     configureFromFileTextAdapter("dummy.scala", fileText.replace("\r", "").stripMargin.trim)
+    val oldSpecifyType = ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY
     ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY = specifyType
     new ScalaGenerateDelegateHandler().invoke(getProjectAdapter, getEditorAdapter, getFileAdapter)
     checkResultByText(expectedText.replace("\r", "").stripMargin.trim)
+    ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY = oldSpecifyType
   }
 
   def testVal() {
