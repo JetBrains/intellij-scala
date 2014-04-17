@@ -86,15 +86,21 @@ object ReachingDefintionsCollector {
         case _ => false
       })
       val isInstanceMethod = elem match {
-        case fun: ScFunction => fun.isInstance && !fun.containingClass.isInstanceOf[ScObject]
+        case fun: ScFunction => fun.isInstance
         case m: PsiMethod => !m.hasModifierPropertyScala("static")
         case _ => false
       }
-      val isSynthetic = elem.isInstanceOf[SyntheticNamedElement]
+      val isSynthetic = elem match {
+        case _: SyntheticNamedElement => true
+        case fun: ScFunction => fun.isSynthetic
+        case _ => false
+      }
       import ScalaPsiElementFactory.{createExpressionWithContextFromText, createDeclarationFromText}
       val resolvesAtNewPlace = elem match {
         case _: PsiMethod | _: ScFun =>
           checkResolve(createExpressionWithContextFromText(elem.name + " _", place.getContext, place).getFirstChild)
+        case _: ScObject =>
+          checkResolve(createExpressionWithContextFromText(elem.name, place.getContext, place))
         case _: ScTypeAlias | _: ScTypeDefinition =>
           val decl = createDeclarationFromText(s"val dummyVal: ${elem.name}", place.getContext, place).asInstanceOf[ScValueDeclaration]
           decl.typeElement match {

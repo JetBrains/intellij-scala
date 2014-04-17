@@ -28,12 +28,11 @@ import psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor, ScalaFile}
 import psi.api.base.patterns.ScCaseClause
 import psi.types.result.TypingContext
 import com.intellij.refactoring.util.CommonRefactoringUtil
-import org.jetbrains.plugins.scala.extensions.{toPsiElementExt, Parent, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{toPsiElementExt, Parent, toPsiNamedElementExt, inWriteCommandAction}
 import com.intellij.psi.codeStyle.CodeStyleManager
 import scala.annotation.tailrec
 import scala.collection.mutable
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import scala.Some
 
 /**
  * User: Alexander Podkhalyuzin
@@ -298,103 +297,100 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     }
 
     if (method == null) return
-    val runnable = new Runnable {
-      def run() {
-        PsiDocumentManager.getInstance(editor.getProject).commitDocument(editor.getDocument)
 
-        settings.nextSibling match {
-          case s@Parent(_: ScTemplateBody) =>
-            // put the extract method *below* the current code if it is added to a template body.
-            val nextSibling = s.getNextSiblingNotWhitespaceComment
-            s.getParent.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(method.getManager), nextSibling.getNode)
-            s.getParent.getNode.addChild(method.getNode, nextSibling.getNode)
-            s.getParent.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(method.getManager), nextSibling.getNode)
-          case s =>
-            s.getParent.getNode.addChild(method.getNode, s.getNode)
-            s.getParent.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(method.getManager), s.getNode)
+    PsiDocumentManager.getInstance(editor.getProject).commitDocument(editor.getDocument)
+
+    inWriteCommandAction(editor.getProject, REFACTORING_NAME) {
+
+      settings.nextSibling match {
+        case s@Parent(_: ScTemplateBody) =>
+          // put the extract method *below* the current code if it is added to a template body.
+          val nextSibling = s.getNextSiblingNotWhitespaceComment
+          s.getParent.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(method.getManager), nextSibling.getNode)
+          s.getParent.getNode.addChild(method.getNode, nextSibling.getNode)
+          s.getParent.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(method.getManager), nextSibling.getNode)
+        case s =>
+          s.getParent.getNode.addChild(method.getNode, s.getNode)
+          s.getParent.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(method.getManager), s.getNode)
+      }
+      val methodCall = new StringBuilder(settings.methodName)
+      if (settings.parameters.exists(p => p.passAsParameter)) {
+        val paramStrings = new ArrayBuffer[String]
+        for (param <- settings.parameters if param.passAsParameter) {
+          paramStrings += param.oldName + (if (param.isFunction) " _" else "")
         }
-        val methodCall = new StringBuilder(settings.methodName)
-        if (settings.parameters.exists(p => p.passAsParameter)) {
-          val paramStrings = new ArrayBuffer[String]
-          for (param <- settings.parameters if param.passAsParameter) {
-            paramStrings += param.oldName + (if (param.isFunction) " _" else "")
-          }
-          methodCall.append(paramStrings.mkString("(", ", ", ")"))
-        }
-        if (settings.lastReturn) {
-          val expr = ScalaPsiElementFactory.createExpressionFromText("return " + methodCall.toString, method.getManager)
-          settings.elements.apply(0).replace(expr)
-        } else if (settings.returns.length == 0) {
-          settings.elements.apply(0).replace(getMatchForReturn(methodCall.toString()))
-        } else if (settings.returns.length == 1) {
-          val ret = settings.returns.apply(0)
-          val exprText = if (settings.returnType == None) methodCall.toString() else tFreshName + "._2.get"
-          val stmt: PsiElement = if (ret.needNewDefinition) {
-            ScalaPsiElementFactory.createDeclaration(ret.returnType, ret.oldParamName, !ret.isVal,
-              exprText, method.getManager, isPresentableText = true)
-          } else {
-            ScalaPsiElementFactory.createExpressionFromText(ret.oldParamName + " = " +
-                    exprText, settings.elements.apply(0).getManager)
-          }
-          val before = settings.elements.apply(0)
-          def addNode(elem: PsiElement) {before.getParent.getNode.addChild(elem.getNode, before.getNode)}
-          if (settings.returnType != None) {
-            val decl = ScalaPsiElementFactory.createDeclaration(null, tFreshName, isVariable = false, methodCall.toString(), method.getManager, isPresentableText = true)
-            val nl1 = ScalaPsiElementFactory.createNewLineNode(decl.getManager).getPsi
-            val nl2 = ScalaPsiElementFactory.createNewLineNode(decl.getManager).getPsi
-            val matcher = getMatchForReturn(tFreshName + "._1")
-            addNode(decl); addNode(nl2); addNode(matcher); addNode(nl1)
-          }
-          addNode(stmt)
-          before.getParent.getNode.removeChild(before.getNode)
+        methodCall.append(paramStrings.mkString("(", ", ", ")"))
+      }
+      if (settings.lastReturn) {
+        val expr = ScalaPsiElementFactory.createExpressionFromText("return " + methodCall.toString, method.getManager)
+        settings.elements.apply(0).replace(expr)
+      } else if (settings.returns.length == 0) {
+        settings.elements.apply(0).replace(getMatchForReturn(methodCall.toString()))
+      } else if (settings.returns.length == 1) {
+        val ret = settings.returns.apply(0)
+        val exprText = if (settings.returnType == None) methodCall.toString() else tFreshName + "._2.get"
+        val stmt: PsiElement = if (ret.needNewDefinition) {
+          ScalaPsiElementFactory.createDeclaration(ret.returnType, ret.oldParamName, !ret.isVal,
+            exprText, method.getManager, isPresentableText = true)
         } else {
-          val exprText = if (settings.returnType == None) methodCall.toString() else tFreshName + "._2.get"
-          val stmt = ScalaPsiElementFactory.createDeclaration(null, rFreshName, isVariable = false, exprText, method.getManager, isPresentableText = true)
-          val before = settings.elements.apply(0)
-          def addNodeBack(elem: PsiElement) {before.getParent.getNode.addChild(elem.getNode, before.getNode)}
-          if (settings.returnType != None) {
-            val decl = ScalaPsiElementFactory.createDeclaration(null, tFreshName, isVariable = false, methodCall.toString(), method.getManager, isPresentableText = true)
-            val nl1 = ScalaPsiElementFactory.createNewLineNode(decl.getManager).getPsi
-            val nl2 = ScalaPsiElementFactory.createNewLineNode(decl.getManager).getPsi
-            val matcher = getMatchForReturn(tFreshName + "._1")
-            addNodeBack(decl); addNodeBack(nl2); addNodeBack(matcher); addNodeBack(nl1)
-          }
-          addNodeBack(stmt)
-          before.getParent.getNode.removeChild(before.getNode)
-          var lastElem: PsiElement = stmt
-          def addNode(elem: PsiElement) {
-            lastElem.getParent.getNode.addChild(elem.getNode, lastElem.getNextSibling.getNode)
-            lastElem = elem
-          }
-          var count = 1
-          for (ret <- settings.returns) {
-            addNode(ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi)
-            if (ret.needNewDefinition) {
-              addNode(ScalaPsiElementFactory.createDeclaration(ret.returnType, ret.oldParamName,
-                !ret.isVal, rFreshName + "._" + count, lastElem.getManager, isPresentableText = true))
-            } else {
-              addNode(ScalaPsiElementFactory.createExpressionFromText(ret.oldParamName + " = " + rFreshName +
-                      "._" + count, stmt.getManager))
-            }
-            count += 1
-          }
+          ScalaPsiElementFactory.createExpressionFromText(ret.oldParamName + " = " +
+                  exprText, settings.elements.apply(0).getManager)
         }
-        var i = 1
-        while (i < settings.elements.length) {
-          settings.elements.apply(i).getParent.getNode.removeChild(settings.elements.apply(i).getNode)
-          i = i + 1
+        val before = settings.elements.apply(0)
+        def addNode(elem: PsiElement) {before.getParent.getNode.addChild(elem.getNode, before.getNode)}
+        if (settings.returnType != None) {
+          val decl = ScalaPsiElementFactory.createDeclaration(null, tFreshName, isVariable = false, methodCall.toString(), method.getManager, isPresentableText = true)
+          val nl1 = ScalaPsiElementFactory.createNewLineNode(decl.getManager).getPsi
+          val nl2 = ScalaPsiElementFactory.createNewLineNode(decl.getManager).getPsi
+          val matcher = getMatchForReturn(tFreshName + "._1")
+          addNode(decl); addNode(nl2); addNode(matcher); addNode(nl1)
         }
+        addNode(stmt)
+        before.getParent.getNode.removeChild(before.getNode)
+      } else {
+        val exprText = if (settings.returnType == None) methodCall.toString() else tFreshName + "._2.get"
+        val stmt = ScalaPsiElementFactory.createDeclaration(null, rFreshName, isVariable = false, exprText, method.getManager, isPresentableText = true)
+        val before = settings.elements.apply(0)
+        def addNodeBack(elem: PsiElement) {before.getParent.getNode.addChild(elem.getNode, before.getNode)}
+        if (settings.returnType != None) {
+          val decl = ScalaPsiElementFactory.createDeclaration(null, tFreshName, isVariable = false, methodCall.toString(), method.getManager, isPresentableText = true)
+          val nl1 = ScalaPsiElementFactory.createNewLineNode(decl.getManager).getPsi
+          val nl2 = ScalaPsiElementFactory.createNewLineNode(decl.getManager).getPsi
+          val matcher = getMatchForReturn(tFreshName + "._1")
+          addNodeBack(decl); addNodeBack(nl2); addNodeBack(matcher); addNodeBack(nl1)
+        }
+        addNodeBack(stmt)
+        before.getParent.getNode.removeChild(before.getNode)
+        var lastElem: PsiElement = stmt
+        def addNode(elem: PsiElement) {
+          lastElem.getParent.getNode.addChild(elem.getNode, lastElem.getNextSibling.getNode)
+          lastElem = elem
+        }
+        var count = 1
+        for (ret <- settings.returns) {
+          addNode(ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi)
+          if (ret.needNewDefinition) {
+            addNode(ScalaPsiElementFactory.createDeclaration(ret.returnType, ret.oldParamName,
+              !ret.isVal, rFreshName + "._" + count, lastElem.getManager, isPresentableText = true))
+          } else {
+            addNode(ScalaPsiElementFactory.createExpressionFromText(ret.oldParamName + " = " + rFreshName +
+                    "._" + count, stmt.getManager))
+          }
+          count += 1
+        }
+      }
+      var i = 1
+      while (i < settings.elements.length) {
+        settings.elements.apply(i).getParent.getNode.removeChild(settings.elements.apply(i).getNode)
+        i = i + 1
+      }
 
-        val manager = CodeStyleManager.getInstance(method.getProject)
-        manager.reformat(method)
-      }
+      ScalaPsiUtil.adjustTypes(method)
+
+      val manager = CodeStyleManager.getInstance(method.getProject)
+      manager.reformat(method)
+      editor.getSelectionModel.removeSelection()
     }
-    CommandProcessor.getInstance.executeCommand(editor.getProject, new Runnable {
-      def run() {
-        ApplicationManager.getApplication.runWriteAction(runnable)
-        editor.getSelectionModel.removeSelection()
-      }
-    }, REFACTORING_NAME, null)
   }
 
   private def showErrorMessage(text: String, project: Project, editor: Editor) {

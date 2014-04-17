@@ -5,11 +5,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import Utils._
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType, ScParameterizedType, ScDesignatorType}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
 import scala.Some
 
 /**
@@ -32,18 +31,18 @@ abstract class SimplificationType(inspection: OperationOnCollectionInspection) {
 
   def createSimplification(methodToBuildFrom: MethodRepr,
                            parentExpr: ScExpression,
-                           argText: String,
+                           args: Seq[ScExpression],
                            newMethodName: String): List[Simplification] = {
     val rangeInParent = methodToBuildFrom.rightRangeInParent(parentExpr)
     methodToBuildFrom.itself match {
-      case ScInfixExpr(left, _, right) =>
-        List(new Simplification(s"${left.getText} $newMethodName $argText", hint, rangeInParent))
-      case _: ScMethodCall =>
+      case ScInfixExpr(left, _, right) if args.size == 1 =>
+        List(new Simplification(s"${left.getText} $newMethodName ${args(0).getText}", hint, rangeInParent))
+      case _: ScMethodCall | _: ScInfixExpr =>
         methodToBuildFrom.optionalBase match {
           case Some(baseExpr) =>
             val baseText = baseExpr.getText
-            val arg = bracedArg(methodToBuildFrom, argText)
-            List(new Simplification(s"$baseText.$newMethodName$arg", hint, rangeInParent))
+            val argsText = bracedArgs(args)
+            List(new Simplification(s"$baseText.$newMethodName$argsText", hint, rangeInParent))
           case _ => Nil
         }
       case _ => Nil
@@ -77,6 +76,17 @@ abstract class SimplificationType(inspection: OperationOnCollectionInspection) {
     case _ if argText == "" => ""
     case _ => s"($argText)"
   }
+
+  private def bracedArgs(args: Seq[ScExpression]) = {
+    args.map {
+      case p: ScParenthesisedExpr if p.expr.isDefined => p.expr.get
+      case other => other
+    } match {
+      case Seq(_: ScBlock) => args(0).getText
+      case _ if args.size == 0 => ""
+      case stripped => stripped.map(_.getText).mkString("(", ")(", ")")
+    }
+  }
 }
 
 class MapGetOrElseFalse(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
@@ -93,7 +103,7 @@ class MapGetOrElseFalse(inspection: OperationOnCollectionInspection) extends Sim
               checkResolve(lastRef, likeOptionClasses) &&
               checkResolve(secondRef, likeOptionClasses) =>
 
-          createSimplification(second, last.itself, second.args(0), "exists")
+          createSimplification(second, last.itself, second.args, "exists")
       case _ => Nil
     }
   }
@@ -110,7 +120,7 @@ class FindIsDefined(inspection: OperationOnCollectionInspection) extends Simplif
               checkResolve(lastRef, likeOptionClasses) &&
               checkResolve(secondRef, likeCollectionClasses) =>
 
-          createSimplification(second, last.itself, second.args(0), "exists")
+          createSimplification(second, last.itself, second.args, "exists")
       case _ => Nil
     }
   }
@@ -131,7 +141,7 @@ class FindNotEqualsNone(inspection: OperationOnCollectionInspection) extends Sim
                 checkResolve(lastArgs(0), Array("scala.None")) &&
                 checkResolve(secondRef, likeCollectionClasses) =>
 
-          createSimplification(second, last.itself, second.args(0), "exists")
+          createSimplification(second, last.itself, second.args, "exists")
       case _ => Nil
     }
   }
@@ -149,7 +159,7 @@ class FilterHeadOption(inspection: OperationOnCollectionInspection) extends Simp
               checkResolve(lastRef, likeCollectionClasses) &&
               checkResolve(secondRef, likeCollectionClasses) =>
 
-          createSimplification(second, last.itself, second.args(0), "find")
+          createSimplification(second, last.itself, second.args, "find")
       case _ => Nil
     }
   }
@@ -192,7 +202,7 @@ class FoldLeftSum(inspection: OperationOnCollectionInspection) extends Simplific
               checkResolve(secondRef, likeCollectionClasses) &&
               checkNotString(second.optionalBase) =>
 
-        createSimplification(second, last.itself, "", "sum")
+        createSimplification(second, last.itself, Nil, "sum")
       case _ => Nil
     }
   }
@@ -210,10 +220,9 @@ class FoldLeftTrueAnd(inspection: OperationOnCollectionInspection) extends Simpl
               last.args.size == 1 &&
               checkResolve(secondRef, likeCollectionClasses) =>
 
-          val funcArg = andWithSomeFunction(last.args(0))
-          if (funcArg.isDefined)
-            createSimplification(second, last.itself, funcArg.get, "forall")
-          else Nil
+        andWithSomeFunction(last.args(0)).toList.flatMap { fun =>
+          createSimplification(second, last.itself, Seq(fun), "forall")
+        }
       case _ => Nil
     }
   }
@@ -229,7 +238,7 @@ class FilterSize(inspection: OperationOnCollectionInspection) extends Simplifica
               secondRef.refName == "filter" &&
               checkResolve(lastRef, likeCollectionClasses) &&
               checkResolve(secondRef, likeCollectionClasses) =>
-        createSimplification(second, last.itself, second.args(0), "count")
+        createSimplification(second, last.itself, second.args, "count")
       case _ => Nil
     }
   }
@@ -250,4 +259,27 @@ class SortFilter(inspection: OperationOnCollectionInspection) extends Simplifica
       case _ => Nil
     }
   }
+}
+
+class MapGetOrElse(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
+  def hint = InspectionBundle.message("map.getOrElse.hint")
+
+  override def getSimplification(last: MethodRepr, second: MethodRepr): List[Simplification] = {
+    (last.optionalMethodRef, second.optionalMethodRef) match {
+      case (Some(lastRef), Some(secondRef)) if lastRef.refName == "getOrElse" &&
+              secondRef.refName == "map" &&
+              checkResolve(lastRef, likeOptionClasses) &&
+              checkResolve(secondRef, likeOptionClasses) &&
+              suitableTypes(second.args(0), last.args(0))=>
+        createSimplification(second, last.itself, last.args ++ second.args, "fold")
+      case _ => Nil
+    }
+  }
+
+    def suitableTypes(mapArg: ScExpression, goeArg: ScExpression): Boolean = {
+      mapArg.getType() match {
+        case Success(ScFunctionType(retType, _), _) => retType.conforms(goeArg.getType().getOrNothing)
+        case _ => false
+      }
+    }
 }

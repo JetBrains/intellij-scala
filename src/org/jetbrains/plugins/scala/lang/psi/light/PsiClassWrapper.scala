@@ -344,14 +344,6 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
     "PsiClassWrapper(" + definition.toString + ")"
   }
 
-  override def isEquivalentTo(another: PsiElement): Boolean = {
-    another match {
-      case wrapper: PsiClassWrapper =>
-        wrapper.definition.isEquivalentTo(definition)
-      case _ => false
-    }
-  }
-
   override def getIcon(flags: Int): Icon = {
     definition.getIcon(flags)
   }
@@ -397,5 +389,9 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
   def getTypeParameterList: PsiTypeParameterList = null
 
   def getTypeParameters: Array[PsiTypeParameter] = Array.empty
+
+  override def isEquivalentTo(another: PsiElement): Boolean = {
+    PsiClassImplUtil.isClassEquivalentTo(this, another)
+  }
 }
 

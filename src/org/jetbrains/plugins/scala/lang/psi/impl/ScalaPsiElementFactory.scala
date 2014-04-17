@@ -28,7 +28,7 @@ import lexer.{ScalaTokenTypes, ScalaLexer}
 import stubs.StubElement
 import types._
 import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
-import api.toplevel.typedef.{ScObject, ScTypeDefinition, ScMember}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScObject, ScTypeDefinition, ScMember}
 import parser.parsing.top.TmplDef
 import parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
 import parser.parsing.top.params.{ClassParamClause, ImplicitClassParamClause}
@@ -1019,6 +1019,10 @@ object ScalaPsiElementFactory {
       res.setContext(context, child)
       res
     } else null
+  }
+
+  def createTemplateDefinitionFromText(text: String, context: PsiElement, child: PsiElement): ScTemplateDefinition = {
+    createElementWithContext[ScTemplateDefinition](text, context, child, TmplDef.parse(_))
   }
 
   def createDeclarationFromText(text: String, context: PsiElement, child: PsiElement): ScDeclaration = {

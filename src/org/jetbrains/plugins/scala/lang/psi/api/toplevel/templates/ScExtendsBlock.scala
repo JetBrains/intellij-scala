@@ -6,7 +6,7 @@ package toplevel
 package templates
 
 import base.types.ScSelfTypeElement
-import com.intellij.psi.PsiClass
+import com.intellij.psi.{PsiElement, PsiClass}
 import psi.ScalaPsiElement
 import statements.{ScFunction, ScTypeAlias}
 import typedef.{ScTypeDefinition, ScMember}
@@ -51,6 +51,8 @@ trait ScExtendsBlock extends ScalaPsiElement {
   def selfType : Option[ScType]
   
   def isUnderCaseClass: Boolean
+
+  def addEarlyDefinitions(): ScEarlyDefinitions
 
 }
 

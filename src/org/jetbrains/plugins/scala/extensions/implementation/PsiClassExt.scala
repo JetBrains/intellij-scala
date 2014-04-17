@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala
 package extensions.implementation
 
-import com.intellij.psi.{PsiMethod, PsiClass}
-import lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
+import com.intellij.psi.{PsiModifier, PsiMethod, PsiClass}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScClass, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 
 /**
  * User: Alefas
@@ -24,5 +25,12 @@ class PsiClassExt(clazz: PsiClass) {
       case c: ScClass => c.constructors
       case _ => clazz.getConstructors
     }
+  }
+
+  def isEffectivelyFinal: Boolean = clazz match {
+    case scClass: ScClass => scClass.hasFinalModifier
+    case _: ScObject => true
+    case synth: ScSyntheticClass if !Seq("AnyRef", "AnyVal").contains(synth.className) => true //wrappers for value types
+    case _ => clazz.hasModifierProperty(PsiModifier.FINAL)
   }
 }
