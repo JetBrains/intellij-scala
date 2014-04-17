@@ -379,15 +379,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
 
   override def findReferenceAt(offset: Int): PsiReference = super.findReferenceAt(offset)
 
-  private var myControlFlow: Seq[Instruction] = null
-
-  def getControlFlow(cached: Boolean, policy: ScControlFlowPolicy = AllVariablesControlFlowPolicy) = {
-    if (!cached || myControlFlow == null) {
-      val builder = new ScalaControlFlowBuilder(null, null, policy)
-      myControlFlow = builder.buildControlflow(this)
-    }
-    myControlFlow
-  }
+  override def controlFlowScope(): Option[ScalaPsiElement] = Some(this)
 
   def getClassNames: util.Set[String] = {
     val res = new util.HashSet[String]
