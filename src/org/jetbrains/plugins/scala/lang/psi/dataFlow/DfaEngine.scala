@@ -12,7 +12,7 @@ final class DfaEngine[E](cfg: Seq[Instruction],
                    l: Semilattice[E]) {
 
   def performDFA: collection.mutable.Map[Instruction, E] = {
-    val initial = for (v <- cfg) yield (v, l.bottom) // (vertex, after)
+    val initial: Seq[(Instruction, E)] = for (v <- cfg) yield (v, l.bottom) // (vertex, after)
     val after = mutable.HashMap(initial: _*)
     val forward = dfa.isForward
 
@@ -21,7 +21,7 @@ final class DfaEngine[E](cfg: Seq[Instruction],
       val v = workList.iterator.next
       workList.remove(v)
 
-      val fv = dfa.fun(v)
+      val fv = dfa.fun(v) _
       val newAfter = fv(l.join((if (forward) v.pred() else v.succ()).map(after(_))))
       if (!l.eq(newAfter, after(v))) {
         after(v) = newAfter
