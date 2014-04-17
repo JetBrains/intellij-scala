@@ -8,9 +8,11 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariableDefinition, ScPatternDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScParameterOwner, ScFunction, ScVariableDefinition, ScPatternDefinition}
 import collection.mutable.ArrayBuffer
 import scala.collection.mutable
+import com.intellij.psi.{PsiElement, PsiNamedElement}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 
 /**
  * @author ilyas
@@ -120,7 +122,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   override def visitPatternDefinition(pattern: ScPatternDefinition) {
     pattern.expr.foreach(_.accept(this))
     for (b <- pattern.bindings if policy.isElementAccepted(b)) {
-      val instr = new DefineValueInstruction(inc, b, false)
+      val instr = new DefinitionInstruction(inc, b, DefinitionType.VAL)
       checkPendingEdges(instr)
       addNode(instr)
     }
@@ -129,7 +131,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   override def visitVariableDefinition(variable: ScVariableDefinition) {
     variable.expr.foreach(_.accept(this))
     for (b <- variable.bindings if policy.isElementAccepted(b)) {
-      val instr = new DefineValueInstruction(inc, b, true)
+      val instr = new DefinitionInstruction(inc, b, DefinitionType.VAR)
       checkPendingEdges(instr)
       addNode(instr)
     }
@@ -137,8 +139,8 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
 
   override def visitReferenceExpression(ref: ScReferenceExpression) {
     ref.qualifier match {
-      case None if policy.isElementAccepted(ref.resolve()) =>
-        val instr = new ReadWriteVariableInstruction(inc, ref, ScalaPsiUtil.isLValue(ref))
+      case None =>
+        val instr = new ReadWriteVariableInstruction(inc, ref, policy.usedVariable(ref), ScalaPsiUtil.isLValue(ref))
         addNode(instr)
         checkPendingEdges(instr)
       case Some(qual) => qual.accept(this)
@@ -175,7 +177,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   override def visitCaseClause(cc: ScCaseClause) {
     cc.pattern match {
       case Some(p) => for (b <- p.bindings if policy.isElementAccepted(b)) {
-        val instr = new DefineValueInstruction(inc, b, false)
+        val instr = new DefinitionInstruction(inc, b, DefinitionType.VAL)
         checkPendingEdges(instr)
         addNode(instr)
       }
@@ -251,7 +253,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   override def visitPattern(pat: ScPattern) {
     pat match {
       case b: ScBindingPattern if policy.isElementAccepted(b) =>
-        val instr = new DefineValueInstruction(inc, b, false)
+        val instr = new DefinitionInstruction(inc, b, DefinitionType.VAL)
         checkPendingEdges(instr)
         addNode(instr)
       case _ => super.visitPattern(pat)
@@ -333,7 +335,9 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     interruptFlow()
   }
 
-  override def visitFunctionExpression(stmt: ScFunctionExpr) { /* Do not visit closures */ }
+  override def visitFunctionExpression(stmt: ScFunctionExpr) {
+    addFreeVariables(stmt)
+  }
 
   override def visitTypeDefintion(typedef: ScTypeDefinition) { /* Do not visit inner classes either */ }
 
@@ -345,7 +349,43 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitFunction(fun: ScFunction) { /* Yep, do not visit functions as well :) */ }
+  override def visitFunction(fun: ScFunction) {
+    if (policy.isElementAccepted(fun)) {
+      val instr = new DefinitionInstruction(inc, fun, DefinitionType.DEF)
+      checkPendingEdges(instr)
+      addNode(instr)
+    }
+    addFreeVariables(fun)
+  }
+
+  private def addFreeVariables(paramOwner: ScalaPsiElement) {
+    val parameters = paramOwner match {
+      case owner: ScParameterOwner => owner.parameters
+      case ScFunctionExpr(params, _) => params
+      case _ => return
+    }
+    val collectedRefs = ArrayBuffer[ScReferenceExpression]()
+    val visitor = new ScalaRecursiveElementVisitor {
+      override def visitReferenceExpression(ref: ScReferenceExpression) {
+        if (ref.qualifier.nonEmpty) return
+
+        ref.resolve() match {
+          case p: ScParameter if parameters.contains(p) =>
+          case named: PsiNamedElement if !PsiTreeUtil.isAncestor(paramOwner, named, false) && policy.isElementAccepted(named) =>
+            collectedRefs += ref
+          case _ =>
+        }
+      }
+    }
+
+    paramOwner.accept(visitor)
+
+    for (ref <- collectedRefs) {
+      val instr = new ReadWriteVariableInstruction(inc, ref, policy.usedVariable(ref), ScalaPsiUtil.isLValue(ref))
+      addNode(instr)
+      checkPendingEdges(instr)
+    }
+  }
 
   override def visitThrowExpression(throwStmt: ScThrowStmt) {
     val isNodeNeeded = myHead == null || (myHead.element match {
