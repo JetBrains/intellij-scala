@@ -324,8 +324,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
       case f: ScFunction if f.isConstructor =>
         f.containingClass match {
           case td: ScTypeDefinition if td.hasTypeParameters =>
-            ScTypePolymorphicType(f.methodType, td.typeParameters.map(tp =>
-              TypeParameter(tp.name, tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp)))
+            ScTypePolymorphicType(f.methodType, td.typeParameters.map(new TypeParameter(_)))
           case _ => f.polymorphicType()
         }
       case f: ScFunction => f.polymorphicType()

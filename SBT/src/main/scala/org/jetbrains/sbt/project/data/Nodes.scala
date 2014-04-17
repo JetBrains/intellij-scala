@@ -89,6 +89,15 @@ class ScalaFacetNode(val data: ScalaFacetData)
   protected def key = ScalaFacetData.Key
 }
 
+class SbtModuleNode(val data: SbtModuleData)
+        extends Node[SbtModuleData] {
+  def this(imports: Seq[String]) {
+    this(new SbtModuleData(SbtProjectSystem.Id, imports))
+  }
+
+  protected def key = SbtModuleData.Key
+}
+
 abstract class Node[T] {
   private var children = Vector.empty[Node[_]]
 

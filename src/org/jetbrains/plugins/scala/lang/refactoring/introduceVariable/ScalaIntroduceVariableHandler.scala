@@ -31,6 +31,8 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
 import com.intellij.psi.util.PsiTreeUtil
 import extensions.childOf
+import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock}
 
 
 /**
@@ -252,19 +254,44 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
         createdDeclaration = replaceRangeByDeclaration(replacedOccurences(0), createdDeclaration)
       }
       else {
-        val container: PsiElement = ScalaRefactoringUtil.container(parExpr, file, occCount == 1)
-        val needBraces = !parExpr.isInstanceOf[ScBlock] && ScalaRefactoringUtil.needBraces(parExpr, nextParent)
-        val parent =
-          if (needBraces) {
-            firstRange = firstRange.shiftRight(1)
-            parExpr.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("{" + parExpr.getText + "}", file.getManager),
-              removeParenthesis = false)
-          } else container
+        object inExtendsBlock {
+          def unapply(e: PsiElement): Option[ScExtendsBlock] = {
+            e match {
+              case extBl: ScExtendsBlock =>
+                Some(extBl)
+              case elem if PsiTreeUtil.getParentOfType(elem, classOf[ScClassParents]) != null =>
+                PsiTreeUtil.getParentOfType(elem, classOf[ScExtendsBlock]) match {
+                  case _ childOf (_: ScNewTemplateDefinition) => None
+                  case extBl => Some(extBl)
+                }
+              case _ => None
+            }
+          }
+        }
 
-        val anchor = parent.getChildren.filter(_.getTextRange.contains(firstRange)).head
+        var needFormatting = false
+        val parent = commonParent match {
+          case inExtendsBlock(extBl) =>
+            needFormatting = true
+            extBl.addEarlyDefinitions()
+          case _ =>
+            val container = ScalaRefactoringUtil.container(parExpr, file)
+            val needBraces = !parExpr.isInstanceOf[ScBlock] && ScalaRefactoringUtil.needBraces(parExpr, nextParent)
+            if (needBraces) {
+              firstRange = firstRange.shiftRight(1)
+              val replaced = parExpr.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("{" + parExpr.getText + "}", file.getManager),
+                removeParenthesis = false)
+              replaced.getPrevSibling match {
+                case ws: PsiWhiteSpace if ws.getText.contains("\n") => ws.delete()
+                case _ =>
+              }
+              replaced
+            } else container
+        }
+        val anchor = parent.getChildren.find(_.getTextRange.contains(firstRange)).getOrElse(parent.getLastChild)
         if (anchor != null) {
-          createdDeclaration = parent.addBefore(createdDeclaration, anchor).asInstanceOf[ScMember]
-          parent.addBefore(ScalaPsiElementFactory.createNewLineNode(anchor.getManager, "\n").getPsi, anchor)
+          createdDeclaration = ScalaPsiUtil.addStatementBefore(createdDeclaration.asInstanceOf[ScBlockStatement], parent, Some(anchor))
+          CodeEditUtil.markToReformat(parent.getNode, needFormatting)
         } else throw new IntroduceException
       }
     }

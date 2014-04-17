@@ -157,8 +157,8 @@ object MethodResolveProcessor {
       undefinedSubstitutor(elementForUndefining, s, proc).followed(ScalaPsiUtil.undefineSubstitutor(prevTypeInfo))
 
     val typeParameters: Seq[TypeParameter] = prevTypeInfo ++ (element match {
-      case fun: ScFunction => fun.typeParameters.map(tp => TypeParameter(tp.name, tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp))
-      case fun: PsiMethod => fun.getTypeParameters.map(ptp => TypeParameter(ptp.getName, Nothing, Any, ptp)).toSeq //todo: add lower and upper bounds
+      case fun: ScFunction => fun.typeParameters.map(new TypeParameter(_))
+      case fun: PsiMethod => fun.getTypeParameters.map(new TypeParameter(_)).toSeq
       case _ => Seq.empty
     })
 
@@ -242,7 +242,7 @@ object MethodResolveProcessor {
           else if (typeParamCount < typeArgCount)
             typeArgElements.drop(typeParamCount).map(ExcessTypeArgument)
           else
-            tp.typeParameters.drop(typeArgCount).map(ptp => MissedTypeParameter(TypeParameter(ptp.name, /*TODO*/Nothing, Any, ptp)))
+            tp.typeParameters.drop(typeArgCount).map(ptp => MissedTypeParameter(new TypeParameter(ptp)))
           new ConformanceExtResult(problems)
         } else {
           Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits,
@@ -257,7 +257,7 @@ object MethodResolveProcessor {
           else if (typeParamCount < typeArgCount)
             typeArgElements.drop(typeParamCount).map(ExcessTypeArgument)
           else
-            tp.getTypeParameters.drop(typeArgCount).map(ptp => MissedTypeParameter(TypeParameter(ptp.name, /*TODO*/Nothing, Any, ptp)))
+            tp.getTypeParameters.drop(typeArgCount).map(ptp => MissedTypeParameter(new TypeParameter(ptp)))
           new ConformanceExtResult(problems)
         } else {
           val args = argumentClauses.headOption.toList
@@ -286,7 +286,7 @@ object MethodResolveProcessor {
             }
             hasRecursiveTypeParameters
           }
-          for (TypeParameter(name, lowerType, upperType, tParam) <- typeParameters) {
+          for (TypeParameter(name, typeParams, lowerType, upperType, tParam) <- typeParameters) {
             if (lowerType != Nothing) {
               val substedLower = s.subst(unSubst.subst(lowerType))
               if (!hasRecursiveTypeParameters(substedLower)) {

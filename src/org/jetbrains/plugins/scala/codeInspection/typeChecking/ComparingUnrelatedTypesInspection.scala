@@ -4,13 +4,12 @@ package codeInspection.typeChecking
 import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, AbstractInspection}
 import ComparingUnrelatedTypesInspection._
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
-import com.intellij.psi.{PsiModifier, PsiClass, PsiElement}
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.lang.psi.types._
 import result.Success
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScObject, ScClass}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import extensions.toPsiClassExt
 
 /**
  * Nikolay.Tropin
@@ -35,22 +34,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
   }
 
   def cannotBeCompared(type1: ScType, type2: ScType): Boolean = {
-    val Seq(class1, class2) = Seq(type1, type2).map(ScType.extractClass(_))
-    def isFinal(psiClass: Option[PsiClass]) = psiClass.getOrElse(null) match {
-      case scClass: ScClass => scClass.hasFinalModifier
-      case _: ScObject => true
-      case _: ScTemplateDefinition => false
-      case _: ScSyntheticClass => true //wrappers for value types
-      case clazz: PsiClass => clazz.hasModifierProperty(PsiModifier.FINAL)
-      case _ => false
-    }
-    def oneIsFinal = isFinal(class1) || isFinal(class2)
-    def notGeneric = !Seq(type1, type2).exists(_.isInstanceOf[ScTypeParameterType])
-    def notParameterized = !Seq(type1, type2).exists(_.isInstanceOf[ScParameterizedType]) //todo better checking of ScParameterizedType
-    def noConformance = {
-      lazy val (unboxed1, unboxed2) = (StdType.unboxedType(type1), StdType.unboxedType(type2))
-      !type1.conforms(type2) && !type2.conforms(type1) && !unboxed1.weakConforms(unboxed2) && !unboxed2.weakConforms(unboxed1)
-    }
-    oneIsFinal && notGeneric && notParameterized && noConformance
+    val Seq(unboxed1, unboxed2) = Seq(type1, type2).map(StdType.unboxedType)
+    ComparingUtil.isNeverSubType(unboxed1, unboxed2) && ComparingUtil.isNeverSubType(unboxed2, unboxed1)
   }
 }

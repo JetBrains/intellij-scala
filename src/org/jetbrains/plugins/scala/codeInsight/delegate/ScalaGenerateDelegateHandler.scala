@@ -38,10 +38,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
 
   type ClassMember = overrideImplement.ClassMember
 
-  override def isValidFor(editor: Editor, file: PsiFile): Boolean = {
-    val elements = targetElements(file, editor)
-    elements != null && elements.length > 0
-  }
+  override def isValidFor(editor: Editor, file: PsiFile): Boolean = hasTargetElements(file, editor)
 
   override def invoke(@NotNull project: Project, @NotNull editor: Editor, @NotNull file: PsiFile) {
     if (!CodeInsightUtilBase.prepareEditorForWrite(editor)) return
@@ -137,7 +134,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     val members = toMethodMembers(candidates, place)
 
     if (!ApplicationManager.getApplication.isUnitTestMode) {
-      val chooser = new ScalaMemberChooser[ScMethodMember](members.toArray, false, true, false, true, project)
+      val chooser = new ScalaMemberChooser[ScMethodMember](members.toArray, false, true, false, true, aClass)
       chooser.setTitle(CodeInsightBundle.message("generate.delegate.method.chooser.title"))
       chooser.show()
       if (chooser.getExitCode != DialogWrapper.OK_EXIT_CODE) return null
@@ -170,7 +167,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     val elements: Array[ClassMember] = targetElements(file, editor)
     if (elements == null || elements.length == 0) return null
     if (!ApplicationManager.getApplication.isUnitTestMode) {
-      val chooser = new ScalaMemberChooser(elements, false, false, false, false, project)
+      val chooser = new ScalaMemberChooser(elements, false, false, false, false, classAtOffset(editor.getCaretModel.getOffset, file))
       chooser.setTitle(CodeInsightBundle.message("generate.delegate.target.chooser.title"))
       chooser.show()
       if (chooser.getExitCode != DialogWrapper.OK_EXIT_CODE) return null
@@ -184,34 +181,43 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
   }
 
   private def targetElements(file: PsiFile, editor: Editor): Array[ClassMember] = {
-    val closestClass = classAtOffset(editor.getCaretModel.getOffset, file)
-    if (closestClass == null) return null
-    var td = closestClass
-    val result: ArrayBuffer[ClassMember] = ArrayBuffer()
-    while (td != null) {
-      result ++= targetsInClass(td).filter(member => !PsiTreeUtil.isAncestor(member.getElement, closestClass, false))
-      td = PsiTreeUtil.getParentOfType(td, classOf[ScTemplateDefinition], true)
-    }
-    result.toArray
+    parentClasses(file, editor).flatMap(targetsIn).toArray
   }
 
-  private def targetsInClass(clazz: ScTemplateDefinition): Seq[ClassMember] = {
+  private def hasTargetElements(file: PsiFile, editor: Editor): Boolean = {
+    parentClasses(file, editor).exists(hasTargetsIn)
+  }
+
+  private def targetsIn(clazz: ScTemplateDefinition): Seq[ClassMember] = {
     //todo add ScObjectMember for targets
-    val allMembers = ScalaOIUtil.toMembers(ScalaOIUtil.allMembers(clazz, withSelfType = true).toSeq, isImplement = false)
-    allMembers.filter {
-      case ta: ScAliasMember => false
-      case typed: ScalaTypedMember if typed.scType == types.Unit => false
-      case method: ScMethodMember =>
-        method.getElement match {
-          case m: PsiMethod if {val cl = m.getContainingClass; cl != null && cl.getQualifiedName == CommonClassNames.JAVA_LANG_OBJECT} => false
-          case f: ScFunction => (f.isParameterless || f.isEmptyParen) && ResolveUtils.isAccessible(f, clazz, forCompletion = false)
-          case m: PsiMethod => m.isAccessor && ResolveUtils.isAccessible(m, clazz, forCompletion = false)
-          case _ => false
-        }
-      case v @ (_: ScValueMember | _: ScVariableMember | _: JavaFieldMember)
-        if ResolveUtils.isAccessible(v.getElement, clazz, forCompletion = false) => true
-      case _ => false
+    val allMembers = ScalaOIUtil.allMembers(clazz, withSelfType = true)
+            .flatMap(ScalaOIUtil.toClassMember(_, isImplement = false))
+    allMembers.toSeq.filter(canBeTargetInClass(_, clazz))
+  }
+
+  private def hasTargetsIn(clazz: ScTemplateDefinition): Boolean = {
+    for {
+      m <- ScalaOIUtil.allMembers(clazz, withSelfType = true)
+      cm <- ScalaOIUtil.toClassMember(m, isImplement = false)
+    } {
+      if (canBeTargetInClass(cm, clazz)) return true
     }
+    false
+  }
+
+  private def canBeTargetInClass(member: ClassMember, clazz: ScTemplateDefinition): Boolean = member match {
+    case ta: ScAliasMember => false
+    case typed: ScalaTypedMember if typed.scType == types.Unit => false
+    case method: ScMethodMember =>
+      method.getElement match {
+        case m: PsiMethod if {val cl = m.getContainingClass; cl != null && cl.getQualifiedName == CommonClassNames.JAVA_LANG_OBJECT} => false
+        case f: ScFunction => (f.isParameterless || f.isEmptyParen) && ResolveUtils.isAccessible(f, clazz, forCompletion = false)
+        case m: PsiMethod => m.isAccessor && ResolveUtils.isAccessible(m, clazz, forCompletion = false)
+        case _ => false
+      }
+    case v @ (_: ScValueMember | _: ScVariableMember | _: JavaFieldMember)
+      if ResolveUtils.isAccessible(v.getElement, clazz, forCompletion = false) => true
+    case _ => false
   }
 
   private def classAtOffset(offset: Int, file: PsiFile) = {
@@ -220,5 +226,11 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     else td
   }
 
+  private def parentClasses(file: PsiFile, editor: Editor): Seq[ScTemplateDefinition] = {
+    val closestClass = classAtOffset(editor.getCaretModel.getOffset, file)
+    if (closestClass == null) return Seq.empty
+
+    closestClass +: closestClass.parentsInFile.toSeq.collect {case td: ScTemplateDefinition => td}
+  }
 
 }

@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import com.intellij.psi.impl.light.LightMethod
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import com.intellij.psi._
@@ -10,10 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefiniti
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import scala.Some
-import scala.Int
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import scala.Boolean
 import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
 
 class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor, isJavaVarargs: Boolean = false) extends {
@@ -155,7 +151,7 @@ object ScFunctionWrapper {
           tp.upperTypeElement match {
             case Some(tParam) =>
               val classes = new ArrayBuffer[PsiClass]()
-              tp.upperBound.map(subst.subst(_)) match {
+              tp.upperBound.map(subst.subst) match {
                 case Success(tp: ScCompoundType, _) =>
                   tp.components.foreach {
                     case tp: ScType => ScType.extractClass(tp, Some(function.getProject)) match {

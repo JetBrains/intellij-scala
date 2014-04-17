@@ -4,7 +4,6 @@ package project.structure
 import java.io.{FileNotFoundException, PrintWriter, File}
 import scala.xml.{Elem, XML}
 import com.intellij.execution.process.OSProcessHandler
-import com.intellij.openapi.util.io.FileUtil
 
 /**
  * @author Pavel Fatin
@@ -23,59 +22,47 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customVM: 
 
   private def check(entity: String, file: File) = (!file.exists()).option(s"$entity does not exist: $file")
 
-  /* It's rather tricky to launch the SBT plugin from a command line.
-
-     There're various OS/JRE-dependent issues with quotes
-     see (https://www.google.ru/search?q=processbuilder+quotes),
-     so we have to use a temporary files to pass commands to SBT.
-
-     Another problem is that the SBT's "apply" command is unable
-     to correctly parse classpath entries with spaces,
-     so we have to use a "safe" copy of the plugin JAR. */
   private def read0(directory: File, download: Boolean, listener: (String) => Unit) = {
-    usingTempFile("sbt-structure", ".xml") { structureFile =>
-      usingTempFile("sbt-commands", ".lst") { commandsFile =>
-        usingTempDirectory("sbt-global-plugins", null) { globalPluginsDirectory =>
-        usingTempDirectory("sbt-global-settings", null) { globalSettingsDirectory =>
-          val commandName = if (download) "read-project-and-repository" else "read-project"
-//          val commandName = "read-project-and-repository" //todo: enable presentation mode, when it will be fixed
+    usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
+      usingTempFile("sbt-commands", Some(".lst")) { commandsFile =>
+        usingTempDirectory("sbt-global-plugins") { globalPluginsDirectory =>
+          usingTempDirectory("sbt-global-settings") { globalSettingsDirectory =>
 
-          FileUtil.writeToFile(new File(globalPluginsDirectory.getPath, "build.sbt"),
-            """resolvers += "sbt-releases" at "http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"
+            writeLinesTo(new File(globalPluginsDirectory, "build.sbt"),
+              """resolvers += "sbt-releases" at "http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"""",
+              "",
+              s"""addSbtPlugin("org.jetbrains" % "sbt-structure" % "${Sbt.StructurePluginVersion}")""")
 
-              addSbtPlugin("org.jetbrains" % "sbt-structure" % "2.3.1")""".replace("\r", ""))
+            writeLinesTo(commandsFile,
+              s"""set artifactPath := file("${path(structureFile)}")""",
+              if (download) "read-project-and-repository" else "read-project")
 
-          writeLinesTo(commandsFile,
-            s"set artifactPath := file(\042${path(structureFile)}\042)",
-            commandName
-          )
+            val processCommands =
+              path(JavaVM) +:
+//                    "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005" +:
+                      "-Djline.terminal=jline.UnsupportedTerminal" +:
+                      "-Dsbt.log.noformat=true" +:
+                      s"-Dsbt.global.plugins=${globalPluginsDirectory.canonicalPath}" +:
+                      s"-Dsbt.global.settings=${globalSettingsDirectory.canonicalPath}" +:
+                      vmOptions :+
+                      "-jar" :+
+                      path(SbtLauncher) :+
+                      s"< ${path(commandsFile)}"
 
-          val processCommands =
-            path(JavaVM) +:
-                    //              "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005" +:
-                    "-Djline.terminal=jline.UnsupportedTerminal" +:
-                    "-Dsbt.log.noformat=true" +:
-                    s"-Dsbt.global.plugins=${globalPluginsDirectory.getCanonicalPath}" +:
-                    s"-Dsbt.global.settings=${globalSettingsDirectory.getCanonicalPath}" +:
-                    vmOptions :+
-                    "-jar" :+
-                    path(SbtLauncher) :+
-                    s"< ${path(commandsFile)}"
-
-          try {
-            val process = Runtime.getRuntime.exec(processCommands.toArray, null, directory)
-            val errors = handle(process, listener).map(new SbtException(_))
-            errors.toLeft(XML.load(structureFile.toURI.toURL))
-          } catch {
-            case e: Exception => Left(e)
-          }
-        }}
+            try {
+              val process = Runtime.getRuntime.exec(processCommands.toArray, null, directory)
+              val output = handle(process, listener)
+              (structureFile.length > 0).either(
+                XML.load(structureFile.toURI.toURL))(new SbtException(output))
+            } catch {
+              case e: Exception => Left(e)
+            }
+          }}
       }
     }
   }
 
-  private def handle(process: Process, listener: (String) => Unit): Option[String] = {
-    var hasErrors = false
+  private def handle(process: Process, listener: (String) => Unit): String = {
     val output = new StringBuilder()
 
     val processListener: (OutputType, String) => Unit = {
@@ -85,14 +72,10 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customVM: 
           writer.println("q")
           writer.close()
         } else {
-          if (text.startsWith("[error]")) {
-            hasErrors = true
-          }
           output.append(text)
           listener(text)
         }
       case (OutputType.StdErr, text) =>
-        hasErrors = true
         output.append(text)
         listener(text)
     }
@@ -103,7 +86,7 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customVM: 
 
     handler.waitFor()
 
-    hasErrors.option(output.toString())
+    output.toString()
   }
 
   private def path(file: File): String = file.getAbsolutePath.replace('\\', '/')
