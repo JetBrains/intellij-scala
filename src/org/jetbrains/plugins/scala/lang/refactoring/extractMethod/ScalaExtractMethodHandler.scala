@@ -21,10 +21,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import scala.collection.mutable.ArrayBuffer
-import psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition, ScPatternDefinition, ScFunction, ScFunctionDefinition}
-import psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaRecursiveElementVisitor, ScalaFile}
 import psi.api.base.patterns.ScCaseClause
 import psi.types.result.TypingContext
 import com.intellij.refactoring.util.CommonRefactoringUtil
@@ -34,6 +34,9 @@ import scala.collection.mutable
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import extensions._
 import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.psi.search.LocalSearchScope
 
 /**
  * User: Alexander Podkhalyuzin
@@ -62,21 +65,12 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     ScalaRefactoringUtil.trimSpacesAndComments(editor, file, trimComments = false)
     val startElement: PsiElement = file.findElementAt(editor.getSelectionModel.getSelectionStart)
     val endElement: PsiElement = file.findElementAt(editor.getSelectionModel.getSelectionEnd - 1)
-    val elements = ScalaPsiUtil.getElementsRange(startElement, endElement).toArray match {
-      case Array(b: ScBlock) if !b.hasRBrace => b.children.toArray
+    val elements = ScalaPsiUtil.getElementsRange(startElement, endElement) match {
+      case Seq(b: ScBlock) if !b.hasRBrace => b.children.toSeq
       case elems => elems
     }
-    def acceptable(elem: PsiElement): Boolean = elem match {
-      case _: ScBlockStatement => true
-      case comm: PsiComment if !comm.getParent.isInstanceOf[ScMember] => true
-      case _: PsiWhiteSpace => true
-      case _ if ScalaTokenTypes.tSEMICOLON == elem.getNode.getElementType => true
-      case _ => false
-    }
-    if (elements.length == 0 || !elements.forall(acceptable) || !elements.exists(_.isInstanceOf[ScBlockStatement])) {
-      showErrorMessage(ScalaBundle.message("cannot.extract.empty.message"), project, editor)
-      return
-    }
+
+    if (showNotPossibleWarnings(elements, project, editor)) return
 
     def checkLastReturn(elem: PsiElement): Boolean = {
       elem match {
@@ -105,79 +99,50 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
         case _ => true
       }
     }
-    var i = elements.length - 1
-    while (!elements(i).isInstanceOf[ScalaPsiElement] && i > 0) i = i -1
-    val lastReturn = checkLastReturn(elements(i))
-    val isLastExpressionMeaningful: Option[ScType] = {
-      if (lastReturn) None
-      else if (checkLastExpressionMeaningful(elements(i)))
-        Some(elements(i).asInstanceOf[ScExpression].getType(TypingContext.empty).getOrAny)
-      else None
-    }
-    var hasReturn: Option[ScType] = None
-    val fun = PsiTreeUtil.getParentOfType(elements(0), classOf[ScFunctionDefinition])
-    for (element <- elements if fun != null && hasReturn == None) {
-      if (element.isInstanceOf[ScSelfInvocation]) {
-        showErrorMessage(ScalaBundle.message("cannot.extract.self.invocation"), project, editor)
-        return
-      }
 
-      def checkReturn(ret: ScReturnStmt) {
-        val newFun = PsiTreeUtil.getParentOfType(ret, classOf[ScFunctionDefinition])
-        if (newFun == fun) {
-          hasReturn = Some(fun.returnType.getOrElse(psi.types.Unit: ScType))
-        }
-      }
+    def returnType: Option[ScType] = {
+      val fun = PsiTreeUtil.getParentOfType(elements(0), classOf[ScFunctionDefinition])
+      if (fun == null) return None
+      var result: Option[ScType] = None
       val visitor = new ScalaRecursiveElementVisitor {
         override def visitReturnStatement(ret: ScReturnStmt) {
-          checkReturn(ret)
-        }
-      }
-      element match {
-        case element: ScalaPsiElement => visitor.visitElement(element)
-        case _ =>
-      }
-      element match {
-        case returnStmt: ScReturnStmt => checkReturn(returnStmt)
-        case _ =>
-      }
-    }
-    var stopAtScope: PsiElement = null
-    val visitor = new ScalaRecursiveElementVisitor {
-      override def visitReference(ref: ScReferenceElement) {
-        def attachElement(elem: PsiElement) {
-          if (elem.getContainingFile != ref.getContainingFile) return
-          if (elem.getTextOffset >= elements(0).getTextRange.getStartOffset &&
-              elem.getTextOffset <= elements(elements.length - 1).getTextRange.getEndOffset) return
-          if (stopAtScope == null) stopAtScope = elem.getParent
-          else {
-            if (stopAtScope.getTextRange.contains(elem.getTextRange)) stopAtScope = elem.getParent
+          val newFun = PsiTreeUtil.getParentOfType(ret, classOf[ScFunctionDefinition])
+          if (newFun == fun) {
+            result = Some(fun.returnType.getOrElse(psi.types.Unit))
           }
         }
-        ref.resolve() match {
-          case td: ScTypeDefinition => attachElement(td)
-          case fun: ScFunction if fun.typeParameters.length > 0 => attachElement(fun)
-          case _ =>
-        }
       }
+      for (element <- elements if result == None) {
+        element.accept(visitor)
+      }
+      result
     }
-    for (element <- elements if element.isInstanceOf[ScalaPsiElement])
-      element.asInstanceOf[ScalaPsiElement].accept(visitor: ScalaElementVisitor)
-    if (stopAtScope == null) stopAtScope = file
+
+    val lastScalaElem = elements.reverse.find(_.isInstanceOf[ScalaPsiElement]).get
+    val lastReturn = checkLastReturn(lastScalaElem)
+    val isLastExpressionMeaningful: Option[ScType] = {
+      if (lastReturn) None
+      else if (checkLastExpressionMeaningful(lastScalaElem))
+        Some(lastScalaElem.asInstanceOf[ScExpression].getType(TypingContext.empty).getOrAny)
+      else None
+    }
+    val hasReturn: Option[ScType] = returnType
+    val stopAtScope: PsiElement = findScopeBound(elements).getOrElse(file)
     val siblings: Array[PsiElement] = getSiblings(elements(0), stopAtScope)
     if (siblings.length == 0) return
+    val array = elements.toArray
     if (ApplicationManager.getApplication.isUnitTestMode && siblings.length > 0) {
-      invokeDialog(project, editor, elements, hasReturn, lastReturn, siblings(0), siblings.length == 1,
+      invokeDialog(project, editor, array, hasReturn, lastReturn, siblings(0), siblings.length == 1,
         isLastExpressionMeaningful)
     } else if (siblings.length > 1) {
       ScalaRefactoringUtil.showChooser(editor, siblings, {selectedValue =>
-        invokeDialog(project, editor, elements, hasReturn, lastReturn, selectedValue,
+        invokeDialog(project, editor, array, hasReturn, lastReturn, selectedValue,
           siblings(siblings.length - 1) == selectedValue, isLastExpressionMeaningful)
       }, "Choose level for Extract Method", getTextForElement, true)
       return
     }
     else if (siblings.length == 1) {
-      invokeDialog(project, editor, elements, hasReturn, lastReturn, siblings(0), smallestScope = true, isLastExpressionMeaningful)
+      invokeDialog(project, editor, array, hasReturn, lastReturn, siblings(0), smallestScope = true, isLastExpressionMeaningful)
     }
   }
 
@@ -208,14 +173,71 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     res.toArray.reverse
   }
 
+  private def findScopeBound(elements: Seq[PsiElement]): Option[PsiElement] = {
+    val commonParent = PsiTreeUtil.findCommonParent(elements: _*)
+
+    def scopeBound(ref: ScReferenceElement): Option[PsiElement] = {
+      val fromThisRef: Option[ScTemplateDefinition] = ref.qualifier match {
+        case Some(thisRef: ScThisReference) => thisRef.refTemplate
+        case Some(_) => return None
+        case None => None
+      }
+      val defScope: Option[PsiElement] = fromThisRef.orElse {
+        ref.resolve() match {
+          case primConstr: ScPrimaryConstructor =>
+            primConstr.containingClass match {
+              case clazz: ScClass =>
+                if (clazz.isLocal) clazz.parent
+                else clazz.containingClass.toOption
+              case _ => None
+            }
+          case member: ScMember if !member.isLocal => member.containingClass.toOption
+          case td: ScTypeDefinition if td.isLocal => td.parent
+          case member: PsiMember => member.containingClass.toOption
+          case _ => return None
+        }
+      }
+      defScope match {
+        case Some(clazz: PsiClass) =>
+          commonParent.parentsInFile.collectFirst {
+            case td: ScTemplateDefinition if td == clazz || td.isInheritor(clazz, deep = true) => td
+          }
+        case local @ Some(_) => local
+        case _ =>
+          PsiTreeUtil.getParentOfType(commonParent, classOf[ScPackaging]).toOption
+                  .orElse(commonParent.containingFile)
+      }
+    }
+
+    var result: PsiElement = commonParent.getContainingFile
+    val visitor = new ScalaRecursiveElementVisitor {
+      override def visitReference(ref: ScReferenceElement) {
+        scopeBound(ref) match {
+          case Some(bound: PsiElement) if PsiTreeUtil.isAncestor(result, bound, true) => result = bound
+          case _ =>
+        }
+      }
+    }
+    elements.foreach {
+      case elem: ScalaPsiElement => elem.accept(visitor)
+      case _ =>
+    }
+    Option(result)
+  }
+
+
   private def invokeDialog(project: Project, editor: Editor, elements: Array[PsiElement], hasReturn: Option[ScType],
                            lastReturn: Boolean, sibling: PsiElement, smallestScope: Boolean,
                            lastMeaningful: Option[ScType]) {
 
-    val info = ReachingDefintionsCollector.collectVariableInfo(elements.toSeq, sibling.asInstanceOf[ScalaPsiElement])
+    val info = ReachingDefintionsCollector.collectVariableInfo(elements, sibling.asInstanceOf[ScalaPsiElement])
 
     val input = info.inputVariables
     val output = info.outputVariables
+    if (output.exists(_.element.isInstanceOf[ScFunctionDefinition])) {
+      showErrorMessage(ScalaBundle.message("cannot.extract.used.function.definition"), project, editor)
+      return
+    }
     val settings: ScalaExtractMethodSettings =
       if (!ApplicationManager.getApplication.isUnitTestMode) {
         val dialog = new ScalaExtractMethodDialog(project, elements, hasReturn, lastReturn, sibling, sibling,
@@ -400,6 +422,59 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
       manager.reformat(method)
       editor.getSelectionModel.removeSelection()
     }
+  }
+
+  private def showNotPossibleWarnings(elements: Seq[PsiElement], project: Project, editor: Editor): Boolean = {
+    def errors(elem: PsiElement): Option[String] = elem match {
+      case _: ScBlockStatement => None
+      case comm: PsiComment if !comm.getParent.isInstanceOf[ScMember] => None
+      case _: PsiWhiteSpace => None
+      case _ if ScalaTokenTypes.tSEMICOLON == elem.getNode.getElementType => None
+      case typedef: ScTypeDefinition => checkTypeDefUsages(typedef)
+      case _: ScSelfInvocation => ScalaBundle.message("cannot.extract.self.invocation").toOption
+      case _ => ScalaBundle.message("cannot.extract.empty.message").toOption
+    }
+
+    def checkTypeDefUsages(typedef: ScTypeDefinition): Option[String] = {
+      val scope = new LocalSearchScope(PsiTreeUtil.getParentOfType(typedef, classOf[ScControlFlowOwner], true))
+      val refs = ReferencesSearch.search(typedef, scope).findAll()
+      import scala.collection.JavaConverters.collectionAsScalaIterableConverter
+      for {
+        ref <- refs.asScala
+        if !elements.exists(PsiTreeUtil.isAncestor(_, ref.getElement, false))
+      } {
+        return ScalaBundle.message("cannot.extract.used.type.definition").toOption
+      }
+      None
+    }
+
+    val messages = elements.flatMap(errors)
+    if (messages.nonEmpty) {
+      showErrorMessage(messages.mkString("\n"), project, editor)
+      return true
+    }
+
+    if (elements.length == 0 || !elements.exists(_.isInstanceOf[ScBlockStatement])) {
+      showErrorMessage(ScalaBundle.message("cannot.extract.empty.message"), project, editor)
+      return true
+    }
+
+    var typeDefMessage: Option[String] = None
+    for (element <- elements) {
+      val visitor = new ScalaRecursiveElementVisitor {
+        override def visitTypeDefintion(typedef: ScTypeDefinition) {
+          typeDefMessage = checkTypeDefUsages(typedef)
+        }
+      }
+      element.accept(visitor)
+      typeDefMessage match {
+        case Some(m) =>
+          showErrorMessage(m, project, editor)
+          return true
+        case None =>
+      }
+    }
+    false
   }
 
   private def showErrorMessage(text: String, project: Project, editor: Editor) {
