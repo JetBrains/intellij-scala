@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
  * 2014-04-10
  */
 class ScalaVariableData(val element: ScTypedDefinition,
-                        val isMutable: Boolean,
                         val isInsideOfElements: Boolean,
                         val scType: ScType) 
         extends {

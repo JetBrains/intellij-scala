@@ -1,27 +1,24 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.extractMethod
 
-import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ExtractMethodParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import scala.collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
-import com.intellij.psi.{PsiAnnotation, PsiPrimitiveType, PsiNamedElement, PsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import com.intellij.psi.{PsiNamedElement, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypedDefinition, ScNamedElement, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScFunctionType, ScSubstitutor, Unit}
-import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
 import com.intellij.refactoring.util.VariableData
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import scala.util.Sorting
 import java.util
 import extensions._
@@ -49,28 +46,17 @@ object ScalaExtractMethodUtils {
     }
     val typeParamsText = if (tp.length != 0) tp.reverse.map(_.getText).mkString("[", ", ", "]") else ""
 
-    def paramText(param: ExtractMethodParameter): String = {
-      val name = if (!param.needMirror) param.oldName else s"_${param.newName}"
-      val colon = if (ScalaNamesUtil.isOpCharacter(name.last)) " : " else ": "
-      val byNameArrow = if (param.isCallByNameParameter) "=> " else ""
-      val typeText = param.tp.presentableText
-      s"$name$colon$byNameArrow$typeText"
-    }
+    def paramText(param: ExtractMethodParameter): String = typedName(param.oldName, param.tp, param.isCallByNameParameter)
 
     val parameters = settings.parameters.filter(_.passAsParameter).map(paramText)
     val paramsText = if (parameters.nonEmpty) parameters.mkString("(", ", ",")") else ""
 
     val retType = if (settings.calcReturnTypeIsUnit) "" else s": ${settings.calcReturnTypeText} ="
 
-    def notPassedOrWithMirrorParamText(param: ExtractMethodParameter) = {
-      val keyword = if (param.needMirror) "var " else "val "
-      val name = param.oldName
-      val colon = if (ScalaNamesUtil.isOpCharacter(name.last)) " : " else ": "
-      val typeText = param.tp.presentableText
-      val expr = if (!param.passAsParameter) "_" else if (param.needMirror) s"_${param.newName}"
-      s"$keyword$name$colon$typeText = $expr\n"
+    val notPassedParams = settings.parameters.filter(p => !p.passAsParameter).map { p =>
+      val nameAndType = typedName(p.oldName, p.tp)
+      s"val $nameAndType = _\n"
     }
-    val notPassedParams = settings.parameters.filter(p => !p.passAsParameter || p.needMirror).map(notPassedOrWithMirrorParamText)
     val notPassedParamsText = notPassedParams.mkString
 
     val elementsToAdd: Iterator[PsiElement] = settings.elements.toSeq match {
@@ -79,21 +65,32 @@ object ScalaExtractMethodUtils {
     }
     val elementsText = elementsToAdd.map(_.getText).mkString("")
 
+    def byOutputsSize(ifZero: => String, ifOne: => String, ifMany: => String): String = {
+      settings.outputs.length match {
+        case 0 => ifZero
+        case 1 => ifOne
+        case _ => ifMany
+      }
+    }
+
     val returnText =
       if (settings.lastReturn) ""
       else {
-        def params = settings.returns.map(_.oldParamName).mkString("(", ", ", ")")
-        def byReturnsSize(ifZero: => String, ifOne: => String, ifMany: => String): String = {
-          settings.returns.length match {
-            case 0 => ifZero
-            case 1 => ifOne
-            case _ => ifMany
-          }
-        }
+        def params = settings.outputs.map(_.oldParamName).mkString("(", ", ", ")")
+
         settings.returnType match {
-          case Some(psi.types.Unit) => byReturnsSize("\nfalse", s"\n(false, Some$params)", s"\n(false, Some($params))")
-          case Some(_) => byReturnsSize("\nNone", s"\n(None, Some$params)", s"\n(false, Some($params))")
-          case _ => byReturnsSize("", s"\n${settings.returns(0).oldParamName}", s"\n$params")
+          case Some(psi.types.Unit) => byOutputsSize(
+            "\nfalse",
+            s"\nSome$params",
+            s"\nSome($params)")
+          case Some(_) => byOutputsSize(
+            "\nNone",
+            s"\nRight$params",
+            s"\nRight($params)")
+          case _ => byOutputsSize(
+            "",
+            s"\n${settings.outputs(0).oldParamName}",
+            s"\n$params")
         }
       }
 
@@ -105,16 +102,21 @@ object ScalaExtractMethodUtils {
     val returnVisitor = new ScalaRecursiveElementVisitor {
       override def visitReturnStatement(ret: ScReturnStmt) {
         if (ret.returnFunction != Some(method)) return
-        val text = ret.expr match {
-          case Some(t) if !settings.lastReturn => s"Some(${t.getText})"
-          case Some(t) => t.getText
-          case _ if !settings.lastReturn => "true"
-          case _ => ""
+        val retExprText = ret.expr.map(_.getText).mkString
+        val newText = settings.returnType match {
+          case Some(psi.types.Unit) => byOutputsSize(
+            "true",
+            "None",
+            "None"
+          )
+          case Some(_) => byOutputsSize(
+            s"Some($retExprText)",
+            s"Left($retExprText)",
+            s"Left($retExprText)"
+          )
+          case None => "" //should not occur
         }
-        val retText =
-          if (settings.returns.length == 0 || settings.lastReturn) s"return $text"
-          else s"return ($text, None)"
-        val retElem = ScalaPsiElementFactory.createExpressionFromText(retText, ret.getManager)
+        val retElem = ScalaPsiElementFactory.createExpressionFromText(s"return $newText", ret.getManager)
         ret.replace(retElem)
         super.visitReturnStatement(ret)
       }
@@ -190,30 +192,9 @@ object ScalaExtractMethodUtils {
 
   @Nullable
   def convertVariableData(variable: VariableInfo, elements: Array[PsiElement]): ScalaVariableData = {
-    var isMutable = false
     if (!variable.element.isInstanceOf[ScTypedDefinition]) return null
     val definition = variable.element.asInstanceOf[ScTypedDefinition]
 
-    def checkIsMutable(ref: ScReferenceElement) {
-      if (ScalaPsiUtil.isLValue(ref)) {
-        ref.bind() match {
-          case Some(ScalaResolveResult(elem, _)) if elem == definition => isMutable = true
-          case _ =>
-        }
-      }
-    }
-
-    val visitor = new ScalaRecursiveElementVisitor {
-      override def visitReference(ref: ScReferenceElement) {
-        checkIsMutable(ref)
-        super.visitReference(ref)
-      }
-    }
-    for (element <- elements if element.isInstanceOf[ScalaPsiElement] && !isMutable) {
-      element match {
-        case spe: ScalaPsiElement => spe.accept(visitor: ScalaElementVisitor)
-      }
-    }
     val isInside = if (elements.length > 0) {
       val startOffset = elements(0).getTextRange.getStartOffset
       val endOffset = elements(elements.length - 1).getTextRange.getEndOffset
@@ -225,55 +206,62 @@ object ScalaExtractMethodUtils {
         ScFunctionType(retType, Seq.empty)(definition.getProject, definition.getResolveScope)
       case _ => retType
     }
-    new ScalaVariableData(definition, isMutable, isInside, tp)
+    new ScalaVariableData(definition, isInside, tp)
   }
 
   /**
    * @return returnTypePresentableText
    */
-  def calcReturnType(returnType: Option[ScType], returns: Array[ExtractMethodReturn], lastReturn: Boolean,
-                     lastMeaningful: Option[ScType]): String = calcReturnTypeExt(returnType, returns, lastReturn, lastMeaningful)._2
+  def calcReturnType(returnStmtType: Option[ScType], outputs: Array[ExtractMethodOutput], lastReturn: Boolean,
+                     lastMeaningful: Option[ScType]): String = calcReturnTypeExt(returnStmtType, outputs, lastReturn, lastMeaningful)._2
 
   /**
    * @return (isUnit, returnTypePresentableText)
    */
-  def calcReturnTypeExt(returnType: Option[ScType], returns: Array[ExtractMethodReturn], lastReturn: Boolean,
+  def calcReturnTypeExt(returnStmtType: Option[ScType], outputs: Array[ExtractMethodOutput], lastReturn: Boolean,
                      lastMeaningful: Option[ScType]): (Boolean, String) = {
     def prepareResult(t: ScType) = {
       val isUnit = t == Unit
       (isUnit, ScType.presentableText(t))
     }
     if (lastReturn) {
-      return prepareResult(returnType.get)
+      return prepareResult(returnStmtType.get)
     }
-    if (returns.length == 0 && returnType == None && lastMeaningful != None) {
+    if (outputs.length == 0 && returnStmtType == None && lastMeaningful != None) {
       return prepareResult(lastMeaningful.get)
     }
-    def byReturnsSize[T](ifZero: => T, ifOne: => T, ifMany: => T): T = {
-      returns.length match {
+    def byOutputsSize[T](ifZero: => T, ifOne: => T, ifMany: => T): T = {
+      outputs.length match {
         case 0 => ifZero
         case 1 => ifOne
         case _ => ifMany
       }
     }
-    def tupleTypeText = returns.map(_.returnType.presentableText).mkString("(", ", ", ")")
-    def typeText = returns(0).returnType.presentableText
-    returnType match {
-      case Some(psi.types.Unit) => byReturnsSize(
+    val outputType = outputTypeText(outputs)
+    returnStmtType match {
+      case Some(psi.types.Unit) => byOutputsSize(
         (false, "Boolean"),
-        (false, s"(Boolean, Option[$typeText])"),
-        (false, s"(Boolean, Option[$tupleTypeText])")
+        (false, s"Option[$outputType]"),
+        (false, s"Option[$outputType]")
       )
-      case Some(tp) => byReturnsSize(
+      case Some(tp) => byOutputsSize(
         (false, s"Option[${tp.presentableText}]"),
-        (false, s"(Option[${tp.presentableText}], Option[$typeText])"),
-        (false, s"(Option[${tp.presentableText}], Option[$tupleTypeText])")
+        (false, s"Either[${tp.presentableText}, $outputType]"),
+        (false, s"Either[${tp.presentableText}, $outputType]")
       )
-      case None => byReturnsSize(
+      case None => byOutputsSize(
         (true, "Unit"),
-        prepareResult(returns(0).returnType),
-        (false, tupleTypeText)
+        prepareResult(outputs(0).returnType),
+        (false, outputType)
       )
+    }
+  }
+
+  def outputTypeText(outputs: Array[ExtractMethodOutput]) = {
+    outputs.length match {
+      case 0 => ""
+      case 1 => outputs(0).returnType.presentableText
+      case _ => outputs.map(_.returnType.presentableText).mkString("(", ", ", ")")
     }
   }
 
@@ -296,12 +284,18 @@ object ScalaExtractMethodUtils {
     res
   }
 
-  def getReturns(myOutput: Array[VariableInfo], elements: Array[PsiElement]): Array[ExtractMethodReturn] = {
-    val list: util.ArrayList[ExtractMethodReturn] = new util.ArrayList[ExtractMethodReturn]
+  def getReturns(myOutput: Array[VariableInfo], elements: Array[PsiElement]): Array[ExtractMethodOutput] = {
+    val list: util.ArrayList[ExtractMethodOutput] = new util.ArrayList[ExtractMethodOutput]
     for (info <- myOutput) {
       val data: ScalaVariableData = ScalaExtractMethodUtils.convertVariableData(info, elements)
-      list.add(ExtractMethodReturn.from(data))
+      list.add(ExtractMethodOutput.from(data))
     }
-    list.toArray(new Array[ExtractMethodReturn](list.size))
+    list.toArray(new Array[ExtractMethodOutput](list.size))
+  }
+
+  def typedName(name: String, scType: ScType, byName: Boolean = false) = {
+    val colon = if (ScalaNamesUtil.isOpCharacter(name.last)) " : " else ": "
+    val byNameArrow = if (byName) "=> " else ""
+    s"$name$colon$byNameArrow${scType.canonicalText}"
   }
 }

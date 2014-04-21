@@ -10,10 +10,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue}
  * Date: 30.03.2010
  */
 
-case class ExtractMethodReturn(oldParamName: String, returnType: ScType, needNewDefinition: Boolean, 
+case class ExtractMethodOutput(oldParamName: String, returnType: ScType, needNewDefinition: Boolean,
                                isVal: Boolean)
 
-object ExtractMethodReturn {
+object ExtractMethodOutput {
 
   def from(variableData: ScalaVariableData) = {
     val element = variableData.element
@@ -21,6 +21,6 @@ object ExtractMethodReturn {
       case _: ScValue | _: ScFunction => true
       case _ => false
     }
-    ExtractMethodReturn(element.name, variableData.scType, variableData.isInsideOfElements, isVal)
+    ExtractMethodOutput(element.name, variableData.scType, variableData.isInsideOfElements, isVal)
   }
 }
