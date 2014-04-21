@@ -1261,6 +1261,10 @@ object ScalaPsiUtil {
     while (parent != null && !isAppropriatePsiElement(parent)) parent = parent.getParent
     parent
   }
+  
+  object inNameContext {
+    def unapply(x: PsiNamedElement): Option[PsiElement] = nameContext(x).toOption
+  }
 
   def getEmptyModifierList(manager: PsiManager): PsiModifierList =
     new LightModifierList(manager, ScalaFileType.SCALA_LANGUAGE)
