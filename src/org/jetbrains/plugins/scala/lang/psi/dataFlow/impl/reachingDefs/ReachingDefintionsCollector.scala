@@ -105,15 +105,10 @@ object ReachingDefintionsCollector {
       reaching match {
         case DefinitionInstruction(_, named, _) if !buffer.contains(named) && (named == definitionToRead) =>
           buffer += named
-        case ReadWriteVariableInstruction(_, _, Some(target), true) => target match {
-          case named: PsiNamedElement if !buffer.contains(named) && (named == definitionToRead) =>
-            buffer += named
-          case _ =>
-        }
         case _ =>
       }
     }
-    buffer.map(VariableInfo)
+    buffer.sortBy(_.getTextRange.getStartOffset).map(VariableInfo)
   }
 
   def computeInputVaribles(innerInstructions: Seq[Instruction]): Iterable[VariableInfo] = {
@@ -126,7 +121,7 @@ object ReachingDefintionsCollector {
         buffer += definition
       case _ =>
     }
-    buffer.map(VariableInfo)
+    buffer.toSeq.sortBy(_.getTextRange.getStartOffset).map(VariableInfo)
   }
 
 
