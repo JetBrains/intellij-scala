@@ -9,19 +9,14 @@ import com.intellij.refactoring.util.ParameterTablePanel;
 import com.intellij.refactoring.util.VariableData;
 import com.intellij.ui.EditorTextField;
 import org.jetbrains.plugins.scala.ScalaBundle;
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ExtractMethodParameter;
-import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ExtractMethodReturn;
+import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ExtractMethodOutput;
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodSettings;
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
-import org.jetbrains.plugins.scala.lang.refactoring.util.duplicates.FakePsiType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.duplicates.ScalaVariableData;
 import scala.Option;
 
@@ -202,13 +197,13 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     return list.toArray(new ExtractMethodParameter[list.size()]);
   }
 
-  public ExtractMethodReturn[] getReturns() {
-    ArrayList<ExtractMethodReturn> list = new ArrayList<ExtractMethodReturn>();
+  public ExtractMethodOutput[] getReturns() {
+    ArrayList<ExtractMethodOutput> list = new ArrayList<ExtractMethodOutput>();
     for (VariableInfo info : myOutput) {
       ScalaVariableData data = ScalaExtractMethodUtils.convertVariableData(info, myElements);
-      list.add(ExtractMethodReturn.from(data));
+      list.add(ExtractMethodOutput.from(data));
     }
-    return list.toArray(new ExtractMethodReturn[list.size()]);
+    return list.toArray(new ExtractMethodOutput[list.size()]);
   }
 
   private String getMethodName() {

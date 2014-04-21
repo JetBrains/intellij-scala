@@ -11,8 +11,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
  * Date: 30.03.2010
  */
 
-case class ExtractMethodParameter(oldName: String, newName: String, isRef: Boolean, tp: ScType,
-                                  needMirror: Boolean, passAsParameter: Boolean, isFunction: Boolean,
+case class ExtractMethodParameter(oldName: String, newName: String, tp: ScType,
+                                  passAsParameter: Boolean, isFunction: Boolean,
                                   isEmptyParamFunction: Boolean, isCallByNameParameter: Boolean)
 
 object ExtractMethodParameter {
@@ -31,9 +31,7 @@ object ExtractMethodParameter {
     ExtractMethodParameter(
       oldName = element.name,
       newName = variableData.name,
-      isRef = false,
       tp = variableData.scType,
-      needMirror = variableData.isMutable,
       passAsParameter = variableData.passAsParameter,
       isFunction = element.isInstanceOf[ScFunction],
       isEmptyParamFunction = isEmptyParamFun,
