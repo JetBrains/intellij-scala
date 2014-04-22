@@ -32,6 +32,7 @@ class SbtExternalSystemManager
 
     classpath.add(jarWith[this.type])
     classpath.add(jarWith[scala.App])
+    classpath.add(jarWith[scala.xml.Node])
 
 //    val vmParameters = parameters.getVMParametersList
 //    vmParameters.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
