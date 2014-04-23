@@ -10,6 +10,6 @@ else {
 3(8) element: ReturnStatement
 4(5) READ b
 5(8) element: ReturnStatement
-6(7) READ b
-7(8) READ println
+6(7) READ println
+7(8) READ b
 8() element: None

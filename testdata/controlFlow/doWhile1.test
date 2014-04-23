@@ -6,7 +6,7 @@ a
 -----
 0(1) element: None
 1(2) VAR a
-2(3) element: DoStatement
+2(3,8) element: DoStatement
 3(4) READ +
 4(5) READ a
 5(6,8) WRITE a

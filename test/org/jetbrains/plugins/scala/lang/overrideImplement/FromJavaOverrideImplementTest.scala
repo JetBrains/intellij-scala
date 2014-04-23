@@ -6,6 +6,7 @@ import com.intellij.testFramework.fixtures.{ModuleFixture, JavaCodeInsightFixtur
 import junit.framework.Assert.assertEquals
 import com.intellij.testFramework.builders.JavaModuleFixtureBuilder
 import com.intellij.testFramework.IdeaTestUtil
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /**
  * Nikolay.Tropin
@@ -21,8 +22,11 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
               isImplement: Boolean, needsInferType: Boolean = true) {
     myFixture.addFileToProject("JavaDummy.java", javaText.stripMargin.trim)
     val scalaFile = myFixture.configureByText("ScalaDummy.scala", scalaText.replace("\r", "").stripMargin.trim)
+    val oldSpecifyRetType = ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY
+    ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY = needsInferType
     ScalaOIUtil.invokeOverrideImplement(myFixture.getProject, myFixture.getEditor, scalaFile, isImplement, methodName)
     assertEquals(expectedText.replace("\r", "").stripMargin.trim, scalaFile.getText.stripMargin.trim)
+    ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY = oldSpecifyRetType
   }
 
   def testVarargImplement() {
@@ -85,7 +89,7 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
     val expectedText =
       """
         |class Child extends JavaDummy {
-        |  override def `def`(`val`: Int): Unit = super.`def`(`val`)
+        |  override def `def`(`val`: Int) = super.`def`(`val`)
         |}
       """
     runTest("def", javaText, scalaText, expectedText, isImplement = false, needsInferType = false)
