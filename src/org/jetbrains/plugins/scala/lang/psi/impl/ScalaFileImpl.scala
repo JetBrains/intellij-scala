@@ -469,6 +469,25 @@ object ScalaFileImpl {
 
   val DefaultImplicitlyImportedObjects = Seq("scala.Predef", "scala" /* package object*/)
 
+  /**
+   * @param place actual place, can be null, if null => false
+   * @return true, if place is out of source content root, or in Scala Worksheet.
+   */
+  def isProcessLocalClasses(place: PsiElement): Boolean = {
+    if (place == null) return false
+    val containingFile: PsiFile = place.getContainingFile
+    if (containingFile == null) return false
+    containingFile match {
+      case s: ScalaFile =>
+        if (s.isWorksheetFile) return true
+        val file: VirtualFile = s.getVirtualFile
+        if (file == null) return false
+        val index = ProjectRootManager.getInstance(place.getProject).getFileIndex
+        !index.isInSourceContent(file)
+      case _ => false
+    }
+  }
+
   def pathIn(root: PsiElement): List[List[String]] =
     packagingsIn(root).map(packaging => toVector(packaging.getPackageName))
 

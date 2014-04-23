@@ -185,7 +185,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
       if (!checkPackages(predefPackages)) return false
     }
 
-    if (lastParent != null && !ScalaPsiUtil.isInSourceContent(lastParent).getOrElse(true) &&
+    if (ScalaFileImpl.isProcessLocalClasses(lastParent) &&
       !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
 
     true
