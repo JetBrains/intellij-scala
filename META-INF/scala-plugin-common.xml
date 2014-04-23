@@ -827,6 +827,10 @@
                        displayName="Match statement convertible to partial function" groupName="Scala: General"
                        shortName="MatchToPartialFunction" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUnreachableCodeInspection"
+                       displayName="Unreachable code" groupName="Scala: General"
+                       shortName="ScalaUnreachableCode" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
 
 
 

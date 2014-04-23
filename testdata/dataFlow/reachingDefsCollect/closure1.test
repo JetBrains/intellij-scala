@@ -21,5 +21,3 @@ Parameter: i
 ReferencePattern: j
 ReferencePattern: k
 OUTPUT:
-ReferencePattern: j
-ReferencePattern: k
