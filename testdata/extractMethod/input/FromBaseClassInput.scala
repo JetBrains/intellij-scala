@@ -27,14 +27,14 @@ object Bug {
     class B extends C {
       def foo() = {
         /*start*/
-        testMethodName(x)
+        testMethodName
         /*end*/
       }
-    }
-  }
 
-  def testMethodName(x: Int): Int = {
-    x + 1
+      def testMethodName: Int = {
+        x + 1
+      }
+    }
   }
 }
 */

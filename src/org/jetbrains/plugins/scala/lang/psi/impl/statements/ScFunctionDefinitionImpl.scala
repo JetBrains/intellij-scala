@@ -15,8 +15,6 @@ import types.{ScType, Unit}
 import types.result.{TypingContext, Success, TypeResult}
 import com.intellij.openapi.progress.ProgressManager
 import api.base.types.ScTypeElement
-import psi.controlFlow.Instruction
-import psi.controlFlow.impl.ScalaControlFlowBuilder
 import api.ScalaElementVisitor
 import api.statements.params.ScParameter
 import api.base.ScReferenceElement
@@ -102,6 +100,8 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
     }
     assignment.foreach(_.delete())
   }
+
+  override def controlFlowScope: Option[ScalaPsiElement] = body
 
   override def getBody: FakePsiCodeBlock = body match {
     case Some(b) => new FakePsiCodeBlock(b) // Needed so that LineBreakpoint.canAddLineBreakpoint allows line breakpoints on one-line method definitions
