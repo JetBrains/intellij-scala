@@ -85,6 +85,15 @@ import scala.annotation.tailrec
  * User: Alexander Podkhalyuzin
  */
 object ScalaPsiUtil {
+  def isInSourceContent(e: PsiElement): Option[Boolean] = {
+    val containingFile: PsiFile = e.getContainingFile
+    if (containingFile == null) return None
+    val file = containingFile.getVirtualFile
+    if (file == null) return None
+    val index = ProjectRootManager.getInstance(e.getProject).getFileIndex
+    Some(index.isInSourceContent(file))
+  }
+
   def debug(message: => String)(implicit logger: Logger) {
     if (logger.isDebugEnabled) {
       logger.debug(message)
