@@ -101,8 +101,6 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
     assignment.foreach(_.delete())
   }
 
-  override def controlFlowScope: Option[ScalaPsiElement] = body
-
   override def getBody: FakePsiCodeBlock = body match {
     case Some(b) => new FakePsiCodeBlock(b) // Needed so that LineBreakpoint.canAddLineBreakpoint allows line breakpoints on one-line method definitions
     case None => null

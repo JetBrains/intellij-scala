@@ -4,14 +4,11 @@ package psi
 package api
 package statements
 
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi._
 import com.intellij.util.containers.ConcurrentHashMap
 import light.{PsiClassWrapper, StaticTraitScFunctionWrapper}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.ScalaControlFlowBuilder
 import org.jetbrains.plugins.scala.extensions.{Parent, &&, toRichIterator, ElementText}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -90,17 +87,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
     case _ => RecursionType.OrdinaryRecursion
   }
 
-  private var myControlFlow: Seq[Instruction] = null
-
-  def getControlFlow(cached: Boolean) = {
-    if (!cached || myControlFlow == null) body match {
-      case Some(e) =>
-        val builder = new ScalaControlFlowBuilder(null, null)
-        myControlFlow = builder.buildControlflow(e)
-      case _ => myControlFlow = Seq.empty
-    }
-    myControlFlow
-  }
+  override def controlFlowScope: Option[ScalaPsiElement] = body
 
   def isSecondaryConstructor: Boolean = name == "this"
 
