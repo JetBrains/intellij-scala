@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticNam
  * Nikolay.Tropin
  * 2014-04-14
  */
-object LocalsControlFlowPolicy extends ScControlFlowPolicy {
+object ExtractMethodControlFlowPolicy extends ScControlFlowPolicy {
   override def isElementAccepted(named: PsiNamedElement): Boolean = {
     if (named.isInstanceOf[SyntheticNamedElement]) return false
 

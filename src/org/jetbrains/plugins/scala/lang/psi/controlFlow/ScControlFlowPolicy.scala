@@ -15,5 +15,4 @@ trait ScControlFlowPolicy {
     case named: PsiNamedElement if isElementAccepted(named) => Some(named)
     case _ => None
   }
-
 }
