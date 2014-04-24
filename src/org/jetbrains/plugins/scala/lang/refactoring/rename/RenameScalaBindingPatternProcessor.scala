@@ -14,7 +14,7 @@ import java.util
  * 1/20/14
  */
 
-class RenameScalaBindingPatternProcessor extends RenamePsiElementProcessor {
+class RenameScalaBindingPatternProcessor extends RenamePsiElementProcessor with ScalaRenameProcessor {
   def canProcessElement(element: PsiElement): Boolean = element match {
     case pattern: ScBindingPattern =>
       ScalaPsiUtil.nameContext(pattern) match {

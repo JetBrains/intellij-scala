@@ -11,8 +11,8 @@ import java.io.File
  */
 class ProjectNode(val data: ProjectData)
   extends Node[ProjectData] {
-  def this(ideProjectFileDirectoryPath: String, linkedExternalProjectPath: String) {
-    this(new ProjectData(SbtProjectSystem.Id, ideProjectFileDirectoryPath, linkedExternalProjectPath))
+  def this(name: String, ideProjectFileDirectoryPath: String, linkedExternalProjectPath: String) {
+    this(new ProjectData(SbtProjectSystem.Id, name, ideProjectFileDirectoryPath, linkedExternalProjectPath))
   }
 
   protected def key = ProjectKeys.PROJECT
@@ -87,6 +87,15 @@ class ScalaFacetNode(val data: ScalaFacetData)
   }
 
   protected def key = ScalaFacetData.Key
+}
+
+class SbtModuleNode(val data: SbtModuleData)
+        extends Node[SbtModuleData] {
+  def this(imports: Seq[String]) {
+    this(new SbtModuleData(SbtProjectSystem.Id, imports))
+  }
+
+  protected def key = SbtModuleData.Key
 }
 
 abstract class Node[T] {

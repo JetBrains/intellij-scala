@@ -16,6 +16,7 @@ import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
 import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * Nikolay.Tropin
@@ -150,7 +151,7 @@ object Utils {
     }
   }
 
-  def andWithSomeFunction(expr: ScExpression): Option[String] = {
+  def andWithSomeFunction(expr: ScExpression): Option[ScExpression] = {
     def isIndependentOf(expr: ScExpression, parameter: ScParameter): Boolean = {
       var result = true
       val name = parameter.getName
@@ -172,7 +173,8 @@ object Utils {
               case (leftRef: ScReferenceExpression, right: ScExpression)
                 if leftRef.resolve() == x && isIndependentOf(right, x) =>
                 val secondArgName = y.getName
-                Some(secondArgName + " => " + right.getText)
+                val funExprText = secondArgName + " => " + right.getText
+                Some(ScalaPsiElementFactory.createExpressionFromText(funExprText, expr.getManager))
               case _ => None
             }
           case _ => None

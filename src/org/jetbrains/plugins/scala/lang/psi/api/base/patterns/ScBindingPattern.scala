@@ -17,6 +17,9 @@ import com.intellij.psi.javadoc.PsiDocComment
 import extensions.toPsiNamedElementExt
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForStatement, ScGenerator, ScEnumerator, ScBlock}
+import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.light.scala.ScLightBindingPattern
 
 trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinition with NavigationItem with PsiDocCommentOwner {
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
@@ -114,6 +117,16 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
     nameContext match {
       case owner: PsiModifierListOwner => owner.hasModifierProperty(name)
       case _ => false
+    }
+  }
+}
+
+object ScBindingPattern {
+  @tailrec
+  def getCompoundCopy(rt: ScType, b: ScBindingPattern): ScBindingPattern = {
+    b match {
+      case light: ScLightBindingPattern => getCompoundCopy(rt, light.b)
+      case definition: ScBindingPattern  => new ScLightBindingPattern(rt, definition)
     }
   }
 }

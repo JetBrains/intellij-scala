@@ -46,7 +46,7 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
       case _                                 => true
     }
     if (superTypes.length > 1 || !holders.isEmpty || !aliases.isEmpty) {
-      new Success(ScCompoundType(superTypes, holders.toList, aliases.toList, ScSubstitutor.empty), Some(this))
+      new Success(ScCompoundType.fromPsi(superTypes, holders.toList, aliases.toList, ScSubstitutor.empty), Some(this))
     } else {
       extendsBlock.templateParents match {
         case Some(tp) if tp.typeElements.length == 1 =>

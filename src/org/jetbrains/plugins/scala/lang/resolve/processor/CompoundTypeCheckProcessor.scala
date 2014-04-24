@@ -6,23 +6,22 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, StdKinds}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScTypeAliasDefinition, ScTypeAlias, ScFunction}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScNamedElement}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypedDefinition, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScParameter}
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
-class CompoundTypeCheckProcessor(decl: ScNamedElement, undefSubst: ScUndefinedSubstitutor, substitutor: ScSubstitutor)
+class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
+                                 undefSubst: ScUndefinedSubstitutor, substitutor: ScSubstitutor)
         extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS) {
-  private val typeParameters: Seq[ScTypeParam] = decl match {
-    case o: ScTypeParametersOwner => o.typeParameters
-    case _ => Seq.empty
-  }
+
+  private val name = s.name
 
   private var trueResult = false
 
@@ -36,22 +35,22 @@ class CompoundTypeCheckProcessor(decl: ScNamedElement, undefSubst: ScUndefinedSu
     if (!element.isInstanceOf[PsiNamedElement]) return true
     val namedElement = element.asInstanceOf[PsiNamedElement]
     val subst = getSubst(state)
-    if (namedElement.name != decl.name) return true
+    if (namedElement.name != name) return true
 
     var undef = undefSubst
 
-    def checkTypeParameters(tp1: PsiTypeParameter, tp2: ScTypeParam, variance: Int = 1): Boolean = {
+    def checkTypeParameters(tp1: PsiTypeParameter, tp2: TypeParameter, variance: Int = 1): Boolean = {
       tp1 match {
         case tp1: ScTypeParam =>
-          if (tp1.typeParameters.length != tp2.typeParameters.length) return false
-          val iter = tp1.typeParameters.zip(tp2.typeParameters).iterator
+          if (tp1.typeParameters.length != tp2.typeParams.length) return false
+          val iter = tp1.typeParameters.zip(tp2.typeParams).iterator
           while (iter.hasNext) {
             val (tp1, tp2) = iter.next()
             if (!checkTypeParameters(tp1, tp2, -variance)) return false
           }
           //lower type
           val lower1 = tp1.lowerBound.getOrNothing
-          val lower2 = substitutor.subst(tp2.lowerBound.getOrNothing)
+          val lower2 = substitutor.subst(tp2.lowerType)
           var t = Conformance.conformsInner(
             if (variance == 1) lower2
             else lower1,
@@ -61,7 +60,7 @@ class CompoundTypeCheckProcessor(decl: ScNamedElement, undefSubst: ScUndefinedSu
           undef = t._2
 
           val upper1 = tp1.upperBound.getOrAny
-          val upper2 = substitutor.subst(tp2.upperBound.getOrAny)
+          val upper2 = substitutor.subst(tp2.upperType)
           t = Conformance.conformsInner(
             if (variance == 1) upper1
             else upper2,
@@ -73,7 +72,7 @@ class CompoundTypeCheckProcessor(decl: ScNamedElement, undefSubst: ScUndefinedSu
           //todo: view?
           true
         case _ =>
-          if (tp2.typeParameters.length > 0) return false
+          if (tp2.typeParams.length > 0) return false
           //todo: check bounds?
           true
       }
@@ -82,29 +81,157 @@ class CompoundTypeCheckProcessor(decl: ScNamedElement, undefSubst: ScUndefinedSu
     //let's check type parameters
     element match {
       case o: ScTypeParametersOwner =>
-        if (o.typeParameters.length != typeParameters.length) return true
-        val iter = o.typeParameters.zip(typeParameters).iterator
+        if (o.typeParameters.length != s.typeParams.length) return true
+        val iter = o.typeParameters.zip(s.typeParams).iterator
         while (iter.hasNext) {
           val (tp1, tp2) = iter.next()
           if (!checkTypeParameters(tp1, tp2)) return true
         }
       case p: PsiTypeParameterListOwner =>
-        if (p.getTypeParameters.length != typeParameters.length) return true
-        val iter = p.getTypeParameters.toSeq.zip(typeParameters).iterator
+        if (p.getTypeParameters.length != s.typeParams.length) return true
+        val iter = p.getTypeParameters.toSeq.zip(s.typeParams).iterator
         while (iter.hasNext) {
           val (tp1, tp2) = iter.next()
           if (!checkTypeParameters(tp1, tp2)) return true
         }
-      case _ => if (typeParameters.length > 0) return true
+      case _ => if (s.typeParams.length > 0) return true
+    }
+
+    def checkSignature(sign1: Signature, typeParams: Array[PsiTypeParameter], returnType: ScType): Boolean = {
+      import Signature.unify
+
+      val sign2 = s
+      var t = sign1.paramTypesEquivExtended(sign2, undef, falseUndef = false)
+      if (!t._1) return true
+      undef = t._2
+      innerUndefinedSubstitutor = undef
+
+      val typeParams = sign1.typeParams
+      val otherTypeParams = s.typeParams
+      val unified1 = unify(subst, typeParams, typeParams)
+      val unified2 = unify(substitutor, typeParams, otherTypeParams)
+
+      val bType = unified1.subst(subst.subst(returnType))
+      val gType = unified2.subst(substitutor.subst(retType))
+      t = Conformance.conformsInner(gType, bType, Set.empty, undef)
+      if (t._1) {
+        trueResult = true
+        undef = t._2
+        innerUndefinedSubstitutor = undef
+        return false
+      }
+      true
+    }
+
+    element match {
+      case _: ScBindingPattern | _: ScFieldId | _: ScParameter =>
+        val rt = subst.subst(element match {
+          case b: ScBindingPattern => b.getType(TypingContext.empty).getOrNothing
+          case f: ScFieldId => f.getType(TypingContext.empty).getOrNothing
+          case param: ScParameter => param.getType(TypingContext.empty).getOrNothing
+        })
+        val dcl: ScTypedDefinition = element.asInstanceOf[ScTypedDefinition]
+        val isVar = dcl.isVar
+        if (!checkSignature(new Signature(dcl.name, Stream.empty, 0, subst, Some(dcl)), Array.empty, rt)) return false
+        if (isVar && !checkSignature(new Signature(dcl.name + "_=", ScalaPsiUtil.getSingletonStream(rt), 1, subst, Some(dcl)),
+          Array.empty, Unit)) return false
+      case method: PsiMethod =>
+        val sign1 = new PhysicalSignature(method, subst)
+        if (!checkSignature(sign1, method.getTypeParameters, method match {
+          case fun: ScFunction => fun.returnType.getOrNothing
+          case method: PsiMethod => ScType.create(method.getReturnType, method.getProject, method.getResolveScope)
+        })) return false
+      case _ =>
+    }
+    true
+  }
+}
+
+class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: ScUndefinedSubstitutor, substitutor: ScSubstitutor)
+  extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS) {
+  private val name = sign.name
+
+  private var trueResult = false
+
+  def getResult: Boolean = trueResult
+
+  private var innerUndefinedSubstitutor = undefSubst
+
+  def getUndefinedSubstitutor = innerUndefinedSubstitutor
+
+  def execute(element: PsiElement, state: ResolveState): Boolean = {
+    if (!element.isInstanceOf[PsiNamedElement]) return true
+    val namedElement = element.asInstanceOf[PsiNamedElement]
+    val subst = getSubst(state)
+    if (namedElement.name != name) return true
+
+    var undef = undefSubst
+
+    def checkTypeParameters(tp1: PsiTypeParameter, tp2: TypeParameter, variance: Int = 1): Boolean = {
+      tp1 match {
+        case tp1: ScTypeParam =>
+          if (tp1.typeParameters.length != tp2.typeParams.length) return false
+          val iter = tp1.typeParameters.zip(tp2.typeParams).iterator
+          while (iter.hasNext) {
+            val (tp1, tp2) = iter.next()
+            if (!checkTypeParameters(tp1, tp2, -variance)) return false
+          }
+          //lower type
+          val lower1 = tp1.lowerBound.getOrNothing
+          val lower2 = substitutor.subst(tp2.lowerType)
+          var t = Conformance.conformsInner(
+            if (variance == 1) lower2
+            else lower1,
+            if (variance == 1) lower1
+            else lower2, Set.empty, undef)
+          if (!t._1) return false
+          undef = t._2
+
+          val upper1 = tp1.upperBound.getOrAny
+          val upper2 = substitutor.subst(tp2.upperType)
+          t = Conformance.conformsInner(
+            if (variance == 1) upper1
+            else upper2,
+            if (variance == 1) upper2
+            else upper1, Set.empty, undef)
+          if (!t._1) return false
+          undef = t._2
+
+          //todo: view?
+          true
+        case _ =>
+          if (tp2.typeParams.length > 0) return false
+          //todo: check bounds?
+          true
+      }
+    }
+
+    //let's check type parameters
+    element match {
+      case o: ScTypeParametersOwner =>
+        if (o.typeParameters.length != sign.typeParams.length) return true
+        val iter = o.typeParameters.zip(sign.typeParams).iterator
+        while (iter.hasNext) {
+          val (tp1, tp2) = iter.next()
+          if (!checkTypeParameters(tp1, tp2)) return true
+        }
+      case p: PsiTypeParameterListOwner =>
+        if (p.getTypeParameters.length != sign.typeParams.length) return true
+        val iter = p.getTypeParameters.toSeq.zip(sign.typeParams).iterator
+        while (iter.hasNext) {
+          val (tp1, tp2) = iter.next()
+          if (!checkTypeParameters(tp1, tp2)) return true
+        }
+      case _ => if (sign.typeParams.length > 0) return true
     }
 
     def checkDeclarationForTypeAlias(tp: ScTypeAlias): Boolean = {
-      decl match {
-        case ta: ScTypeAliasDeclaration =>
+      sign.ta match {
+        case _: ScTypeAliasDeclaration =>
           var t = Conformance.conformsInner(subst.subst(tp.lowerBound.getOrNothing),
-            substitutor.subst(ta.lowerBound.getOrNothing), Set.empty, undef)
+            substitutor.subst(sign.lowerBound), Set.empty, undef)
           if (t._1) {
-            t = Conformance.conformsInner(substitutor.subst(ta.upperBound.getOrAny),
+            t = Conformance.conformsInner(substitutor.subst(sign.upperBound),
               subst.subst(tp.upperBound.getOrAny), Set.empty, t._2)
             if (t._1) {
               trueResult = true
@@ -119,90 +246,23 @@ class CompoundTypeCheckProcessor(decl: ScNamedElement, undefSubst: ScUndefinedSu
     }
 
     element match {
-      case _: ScBindingPattern | _: ScFieldId | _: ScFunction | _: ScParameter if !element.isInstanceOf[ScFunction] ||
-        !element.asInstanceOf[ScFunction].hasParameterClause =>
-        lazy val bType = subst.subst(element match {
-          case b: ScBindingPattern => b.getType(TypingContext.empty).getOrNothing
-          case f: ScFieldId => f.getType(TypingContext.empty).getOrNothing
-          case fun: ScFunction => fun.returnType.getOrNothing
-          case param: ScParameter => param.getType(TypingContext.empty).getOrNothing
-        })
-        val gType = substitutor.subst(decl match {
-          case g: ScBindingPattern => g.getType(TypingContext.empty).getOrAny
-          case g: ScFieldId => g.getType(TypingContext.empty).getOrAny
-          case fun: ScFunction if !fun.hasParameterClause => fun.returnType.getOrAny
-          case param: ScParameter => param.getType(TypingContext.empty).getOrAny
-          case _ => return true
-        })
-        val t = Conformance.conformsInner(gType, bType, Set.empty, undef)
-        if (t._1) {
-          trueResult = true
-          undef = t._2
-          innerUndefinedSubstitutor = undef
-          return false
-        }
-      case method: PsiMethod =>
-        val anotherMethod = decl match {
-          case fun: ScFunction if !fun.hasParameterClause => return true
-          case meth: PsiMethod => meth
-          case _ => return true
-        }
-        val sign1 = new PhysicalSignature(method, subst)
-        val sign2 = new PhysicalSignature(decl.asInstanceOf[PsiMethod], substitutor)
-        var t = sign1.paramTypesEquivExtended(sign2, undef, false)
-        if (!t._1) return true
-        undef = t._2
-        innerUndefinedSubstitutor = undef
-
-        val typeParams = method.getTypeParameters
-        val otherTypeParams = decl.asInstanceOf[PsiMethod].getTypeParameters
-        val unified1 = unify(subst, typeParams, typeParams)
-        val unified2 = unify(substitutor, typeParams, otherTypeParams)
-
-        val bType = unified1.subst(subst.subst(method match {
-          case fun: ScFunction => fun.returnType.getOrNothing
-          case method: PsiMethod => ScType.create(method.getReturnType, method.getProject, method.getResolveScope)
-        }))
-        val gType = unified2.subst(substitutor.subst(decl match {
-          case fun: ScFunction => fun.returnType.getOrNothing
-          case method: PsiMethod => ScType.create(method.getReturnType, method.getProject, method.getResolveScope)
-        }))
-        t = Conformance.conformsInner(gType, bType, Set.empty, undef)
-        if (t._1) {
-          trueResult = true
-          undef = t._2
-          innerUndefinedSubstitutor = undef
-          return false
-        }
       case tp: ScTypeAliasDefinition =>
-        decl match {
-          case td: ScTypeAliasDefinition =>
+        sign.ta match {
+          case _: ScTypeAliasDefinition =>
             val t = Equivalence.equivInner(subst.subst(tp.aliasedType.getOrNothing),
-              substitutor.subst(td.aliasedType.getOrNothing), undef, falseUndef = false)
+              substitutor.subst(sign.lowerBound), undef, falseUndef = false)
             if (t._1) {
               undef = t._2
               trueResult = true
               innerUndefinedSubstitutor = undef
               return false
             }
-          case ta: ScTypeAliasDeclaration => if (checkDeclarationForTypeAlias(tp)) return false
+          case _: ScTypeAliasDeclaration => if (checkDeclarationForTypeAlias(tp)) return false
           case _ =>
         }
-      case tp: ScTypeAliasDeclaration =>
-        if (checkDeclarationForTypeAlias(tp)) return false
+      case tp: ScTypeAliasDeclaration => if (checkDeclarationForTypeAlias(tp)) return false
       case _ =>
     }
     true
-  }
-
-  private def unify(subst: ScSubstitutor, tps1: Array[PsiTypeParameter], tps2: Array[PsiTypeParameter]) = {
-    var res = subst
-    val iterator1 = tps1.iterator
-    val iterator2 = tps2.iterator
-    while (iterator1.hasNext && iterator2.hasNext) {
-      val (tp1, tp2) = (iterator1.next(), iterator2.next())
-      res = res bindT ((tp2.name, ScalaPsiUtil.getPsiElementId(tp2)), ScalaPsiManager.typeVariable(tp1))
-    }
-    res
   }
 }

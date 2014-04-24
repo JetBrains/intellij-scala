@@ -462,8 +462,9 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
         case tr: ScTryStmt =>
           calculateReturns0(tr.tryBlock)
           tr.catchBlock match {
-            case Some(cBlock) => cBlock.expression.foreach(calculateReturns0)
-            case None =>
+            case Some(ScCatchBlock(caseCl)) =>
+              caseCl.caseClauses.flatMap(_.expr).foreach(calculateReturns0)
+            case _ =>
           }
         case block: ScBlock =>
           block.lastExpr match {

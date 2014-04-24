@@ -51,10 +51,6 @@ class ScTypeParamClauseImpl extends ScalaStubBasedElementImpl[ScTypeParamClause]
     }
   }
 
-  def getTypeParameters: Array[PsiTypeParameter] = typeParameters.toArray
-
-  def getTypeParameterIndex(typeParameter: PsiTypeParameter): Int = typeParameters.indexOf(typeParameter)
-
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
     if (!processor.isInstanceOf[BaseProcessor]) {
       for (param <- typeParameters) {

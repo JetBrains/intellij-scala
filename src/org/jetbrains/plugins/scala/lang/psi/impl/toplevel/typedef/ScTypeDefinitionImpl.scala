@@ -155,7 +155,6 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
 
   override def isLocal: Boolean = {
     val stub: StubElement[_ <: PsiElement] = this match {
-      case file: PsiFileImpl => file.getStub
       case st: ScalaStubBasedElementImpl[_] => st.getStub
       case _ => null
     }

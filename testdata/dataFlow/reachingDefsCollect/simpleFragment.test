@@ -15,5 +15,4 @@ INPUT:
 Parameter: i
 ReferencePattern: k
 OUTPUT:
-ReferencePattern: k
 ReferencePattern: r

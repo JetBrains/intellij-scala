@@ -41,17 +41,23 @@ trait ScTypePsiTypeBridge {
               case _ => c
             }
             val tps = clazz.getTypeParameters
-            def constructTypeForClass(clazz: PsiClass): ScType = {
+            def constructTypeForClass(clazz: PsiClass, withTypeParameters: Boolean = false): ScType = {
               clazz match {
                 case wrapper: PsiClassWrapper => return constructTypeForClass(wrapper.definition)
                 case _ =>
               }
               val containingClass: PsiClass = clazz.containingClass
-              if (containingClass == null) {
-                ScDesignatorType(clazz)
-              } else {
-                ScProjectionType(constructTypeForClass(containingClass), clazz, superReference = false)
-              }
+              val res =
+                if (containingClass == null) ScDesignatorType(clazz)
+                else {
+                  ScProjectionType(constructTypeForClass(containingClass, withTypeParameters = true), clazz, superReference = false)
+                }
+              if (withTypeParameters) {
+                val typeParameters: Array[PsiTypeParameter] = clazz.getTypeParameters
+                if (typeParameters.length > 0) {
+                  ScParameterizedType(res, typeParameters.map(ptp => new ScTypeParameterType(ptp, ScSubstitutor.empty)))
+                } else res
+              } else res
             }
             val des = constructTypeForClass(clazz)
             val substitutor = result.getSubstitutor
@@ -65,7 +71,7 @@ trait ScTypePsiTypeBridge {
                     arrayOfTypes.length match {
                       case 0 => types.Any
                       case 1 => create(arrayOfTypes.apply(0), project, scope, deep + 1)
-                      case _ => ScCompoundType(arrayOfTypes.map(create(_, project, scope, deep + 1)), Seq.empty, Seq.empty, ScSubstitutor.empty)
+                      case _ => ScCompoundType(arrayOfTypes.map(create(_, project, scope, deep + 1)), Map.empty, Map.empty)
                     })
               }}): _*)).unpackedType
               case _ =>
@@ -157,7 +163,7 @@ trait ScTypePsiTypeBridge {
       case types.Short => if (noPrimitives) javaObj else PsiType.SHORT
       case types.Null => javaObj
       case types.Nothing => javaObj
-      case ScCompoundType(Seq(typez, _*), _, _, _) => toPsi(typez, project, scope)
+      case ScCompoundType(Seq(typez, _*), _, _) => toPsi(typez, project, scope)
       case ScDesignatorType(c: ScTypeDefinition) if ScType.baseTypesQualMap.contains(c.qualifiedName) =>
         toPsi(ScType.baseTypesQualMap.get(c.qualifiedName).get, project, scope, noPrimitives, skolemToWildcard)
       case ScDesignatorType(c: PsiClass) => createType(c)

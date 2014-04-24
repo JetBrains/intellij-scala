@@ -42,7 +42,7 @@ match {
  case Short =>
  case ScFunctionType(returnType, params) =>
  case ScTupleType(components) =>
- case ScCompoundType(components, decls, typeDecls, subst) =>
+ case ScCompoundType(components, decls, typeDecls) =>
  case ScProjectionType(projected, element, subst) =>
  case JavaArrayType(arg) =>
  case ScParameterizedType(designator, typeArgs) =>
@@ -90,6 +90,8 @@ trait ScType {
   def isValue: Boolean
 
   final def isStable: Boolean = ScType.isStable(this)
+
+  def isFinalType: Boolean = false
 
   def inferValueType: ValueType
 
