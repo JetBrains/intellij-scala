@@ -155,14 +155,14 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
           //add synthetic parameter
           if (!processor.isInstanceOf[CompletionProcessor]) {
             val state: ResolveState = ResolveState.initial().put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
-            processor.execute(ScalaPsiElementFactory.createParameterFromText(ref.refName, getManager), state)
+            processor.execute(ScalaPsiElementFactory.createParameterFromText(ref.refName + ": Any", getManager), state)
           }
         case ScalaResolveResult(named, subst) if call.applyOrUpdateElement.exists(_.isDynamic) &&
           call.applyOrUpdateElement.get.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED =>
           //add synthetic parameter
           if (!processor.isInstanceOf[CompletionProcessor]) {
             val state: ResolveState = ResolveState.initial().put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
-            processor.execute(ScalaPsiElementFactory.createParameterFromText(ref.refName, getManager), state)
+            processor.execute(ScalaPsiElementFactory.createParameterFromText(ref.refName + ": Any", getManager), state)
           }
         case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) =>
           if (!processor.isInstanceOf[CompletionProcessor]) {
