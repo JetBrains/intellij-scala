@@ -10,7 +10,7 @@ import caches.ScalaShortNamesCacheManager
  * @author Alefas
  * @since 06.11.12
  */
-class RenameScalaPackageProcessor extends RenamePsiPackageProcessor {
+class RenameScalaPackageProcessor extends RenamePsiPackageProcessor with ScalaRenameProcessor {
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]) {
     element match {
       case p: PsiPackage =>

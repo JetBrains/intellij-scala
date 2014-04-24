@@ -14,9 +14,17 @@ object Sbt {
 
   val BuildFile = "build.sbt"
 
+  val PluginsFile = "plugins.sbt"
+
   val ProjectDirectory = "project"
 
+  val TargetDirectory = "target"
+
+  val ModulesDirectory = ".idea/modules"
+
   val ProjectDescription = "SBT project"
+
+  val ProjectLongDescription = "Project backed by SBT"
 
   val BuildModuleSuffix = "-build"
 
@@ -27,6 +35,12 @@ object Sbt {
   val BuildLibraryName = "sbt-and-plugins"
 
   val UnmanagedLibraryName = "unmanaged-jars"
+
+  val StructurePluginVersion = "2.3.2"
+
+  val DefinitionHolderClasses = Seq("sbt.Plugin", "sbt.Build")
+
+  val DefaultImplicitImports = Seq("sbt._", "Process._", "Keys._")
 
   lazy val Icon = IconLoader.getIcon("/sbt.png")
 

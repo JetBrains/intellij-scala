@@ -159,14 +159,11 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
       val typeParameters: Seq[TypeParameter] = parentElement match {
         case tp: ScTypeParametersOwner if constrTypParameters.length > 0 =>
-          constrTypParameters.map(tp => new TypeParameter(tp.name,
-                tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp))
+          constrTypParameters.map(new TypeParameter(_))
         case tp: ScTypeParametersOwner if tp.typeParameters.length > 0 =>
-          tp.typeParameters.map(tp => new TypeParameter(tp.name,
-                tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp))
+          tp.typeParameters.map(new TypeParameter(_))
         case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.length > 0 =>
-          ptp.getTypeParameters.toSeq.map(ptp => new TypeParameter(ptp.name,
-            types.Nothing, types.Any, ptp)) //todo: add lower and upper bound
+          ptp.getTypeParameters.toSeq.map(new TypeParameter(_))
         case _ =>
           updateImplicits(tp, withExpected = false, params = params, lastImplicit = lastImplicit)
           return res
@@ -276,11 +273,9 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           val res = subst.subst(tp)
           val typeParameters: Seq[TypeParameter] = elem match {
             case tp: ScTypeParametersOwner if tp.typeParameters.length > 0 =>
-              tp.typeParameters.map(tp => new TypeParameter(tp.name,
-                    tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp))
+              tp.typeParameters.map(new TypeParameter(_))
             case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.length > 0 =>
-              ptp.getTypeParameters.toSeq.map(ptp => new TypeParameter(ptp.name,
-                types.Nothing, types.Any, ptp)) //todo: add lower and upper bound
+              ptp.getTypeParameters.toSeq.map(new TypeParameter(_))
             case _ => return (res, ScSubstitutor.empty)
           }
 

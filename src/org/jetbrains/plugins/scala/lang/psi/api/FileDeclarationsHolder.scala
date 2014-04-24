@@ -19,7 +19,7 @@ import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import lang.psi.types.result.TypingContext
 import lang.psi.types.ScType
 import caches.ScalaShortNamesCacheManager
-import lang.psi.{ScImportsHolder, ScDeclarationSequenceHolder}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScImportsHolder, ScDeclarationSequenceHolder}
 import com.intellij.psi.search.GlobalSearchScope
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes
@@ -95,12 +95,6 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
           }
         }
       }
-    }
-
-    this match {
-      case scalaFile: ScalaFileImpl =>
-        if (!SbtFile.processDeclarations(scalaFile, processor, state, lastParent, place)) return false    
-      case _ =>
     }
 
     if (isScriptProcessed) {
@@ -190,6 +184,9 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
 
       if (!checkPackages(predefPackages)) return false
     }
+
+    if (ScalaFileImpl.isProcessLocalClasses(lastParent) &&
+      !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
 
     true
   }

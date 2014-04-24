@@ -14,6 +14,7 @@ import com.intellij.openapi.module.ModuleUtilCore
 import org.jetbrains.plugins.scala.config.ScalaFacet
 import scala.annotation.tailrec
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import scala.collection.mutable
 
 /**
  * User: Dmitry Naydanov
@@ -56,6 +57,7 @@ object WorksheetSourceProcessor {
 
     val packStmt = packOpt map ("package " + _ + " ; ") getOrElse ""
 
+    val importStmts = mutable.ArrayBuffer[String]()
     //val macroPrinterName = "MacroPrinter210" // "worksheet$$macro$$printer"
     
     val macroPrinterName = Option(ModuleUtilCore.findModuleForFile(srcFile.getVirtualFile, srcFile.getProject)) flatMap {
@@ -183,7 +185,7 @@ object WorksheetSourceProcessor {
         case rootImport => text stripPrefix rootImport
       } getOrElse text
       
-      classRes append  "import _root_."  append importOnlyText append insertNlsFromWs(imp)
+      importStmts.+=("import _root_." + importOnlyText + insertNlsFromWs(imp)) // classRes append  "import _root_."  append importOnlyText append insertNlsFromWs(imp)
       appendPsiLineInfo(imp, lineNums)
     }
     
@@ -244,7 +246,7 @@ object WorksheetSourceProcessor {
         varDef.declaredNames foreach {
           case pName =>
             objectRes append (
-              printMethodName + "(\"" + startText + pName + ": \" + " + withTempVar(pName, false) + ")\n"
+              printMethodName + "(\"" + startText + pName + ": \" + " + withTempVar(pName, withInstance = false) + ")\n"
             )
         }
 
@@ -280,7 +282,7 @@ object WorksheetSourceProcessor {
     objectRes append (printMethodName + "(\"" + END_OUTPUT_MARKER + "\")\n") append "} \n }"
 
     Some(
-      (objectPrologue + classRes.toString() + "\n\n\n" + objectRes.toString(),
+      (objectPrologue + importStmts.mkString(";") + classRes.toString() + "\n\n\n" + objectRes.toString(),
       packOpt.map(_ + ".").getOrElse("") + name)
     )
   }

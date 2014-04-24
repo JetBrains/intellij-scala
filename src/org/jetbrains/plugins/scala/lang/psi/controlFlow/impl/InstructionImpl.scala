@@ -6,6 +6,7 @@ import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import com.intellij.psi.PsiNamedElement
 
 /**
  * @author ilyas
@@ -48,19 +49,20 @@ sealed class InstructionImpl(override val num: Int,
   })
 }
 
-case class DefineValueInstruction(override val num: Int,
+case class DefinitionInstruction(override val num: Int,
                                   namedElement: ScNamedElement,
-                                  mutable: Boolean)
+                                  defType: DefinitionType)
         extends InstructionImpl(num, Some(namedElement)) {
   private val myName = namedElement.name
 
   def getName = myName
 
-  override protected def getPresentation = (if (mutable) "VAR " else "VAL ") + getName
+  override protected def getPresentation = s"${defType.name} $getName"
 }
 
 case class ReadWriteVariableInstruction(override val num: Int,
                                     ref: ScReferenceExpression,
+                                    variable: Option[PsiNamedElement],
                                     write: Boolean)
         extends InstructionImpl(num, Some(ref)) {
   private val myName = ref.getText

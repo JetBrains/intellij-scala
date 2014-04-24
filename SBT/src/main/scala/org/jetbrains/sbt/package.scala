@@ -41,6 +41,12 @@ package object sbt {
     def canonicalFile: File = new File(canonicalPath)
 
     def url: String = VfsUtil.getUrlForLibraryRoot(file)
+    
+    def isAncestorOf(aFile: File): Boolean = FileUtil.isAncestor(file, aFile, true)
+
+    def isUnder(root: File): Boolean = FileUtil.isAncestor(root, file, true)
+
+    def isOutsideOf(root: File): Boolean = !FileUtil.isAncestor(root, file, false)
   }
 
   private object RichFile {
@@ -121,8 +127,8 @@ package object sbt {
     }
   }
 
-  def usingTempFile[T](prefix: String, suffix: String)(block: File => T): T = {
-    val file = FileUtil.createTempFile(prefix, suffix, true)
+  def usingTempFile[T](prefix: String, suffix: Option[String] = None)(block: File => T): T = {
+    val file = FileUtil.createTempFile(prefix, suffix.orNull, true)
     try {
       block(file)
     } finally {
@@ -130,8 +136,8 @@ package object sbt {
     }
   }
 
-  def usingTempDirectory[T](prefix: String, suffix: String)(block: File => T): T = {
-    val dir = FileUtil.createTempDirectory(prefix, suffix, true)
+  def usingTempDirectory[T](prefix: String, suffix: Option[String] = None)(block: File => T): T = {
+    val dir = FileUtil.createTempDirectory(prefix, suffix.orNull, true)
     try {
       block(dir)
     } finally {
@@ -142,7 +148,7 @@ package object sbt {
   def usingSafeCopyOf[T](file: File)(block: File => T): T = {
     if (file.getAbsolutePath.contains(" ")) {
       val (prefix, suffix) = parse(file.getName)
-      usingTempFile(prefix, suffix) { tempFile =>
+      usingTempFile(prefix, Some(suffix)) { tempFile =>
         copy(file, tempFile)
         block(tempFile)
       }

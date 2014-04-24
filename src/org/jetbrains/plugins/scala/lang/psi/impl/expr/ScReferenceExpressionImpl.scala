@@ -368,7 +368,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
                   val actualType = tp match {
                     case ScThisType(clazz) => ScDesignatorType(clazz)
                     case ScDesignatorType(o: ScObject) => Any
-                    case ScCompoundType(comps, _, _, _) =>
+                    case ScCompoundType(comps, _, _) =>
                       if (comps.length == 0) Any
                       else ScTypeUtil.removeTypeDesignator(comps(0)).getOrElse(Any)
                     case _ => ScTypeUtil.removeTypeDesignator(tp).getOrElse(Any)

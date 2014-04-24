@@ -23,7 +23,7 @@ import com.intellij.openapi.ui.DialogWrapper
  * User: Jason Zaugg
  */
 
-class RenameScalaTypeAliasProcessor extends RenameJavaMemberProcessor {
+class RenameScalaTypeAliasProcessor extends RenameJavaMemberProcessor with ScalaRenameProcessor {
   override def canProcessElement(element: PsiElement): Boolean = element.isInstanceOf[ScTypeAlias]
 
   override def findReferences(element: PsiElement) = ScalaRenameUtil.findReferences(element)
@@ -34,7 +34,7 @@ class RenameScalaTypeAliasProcessor extends RenameJavaMemberProcessor {
 
   override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[PsiElement]) {
     val named = element match {
-      case named: ScNamedElement => named;
+      case named: ScNamedElement => named
       case _ => return
     }
     RenameSuperMembersUtil.chooseAndProcessSuper(named, new PsiElementProcessor[PsiNamedElement] {
