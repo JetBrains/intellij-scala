@@ -1,4 +1,4 @@
-class SimpleOutput {
+class ChangeLocalVar {
   def foo {
     var i = 23
     /*start*/
@@ -8,19 +8,16 @@ class SimpleOutput {
   }
 }
 /*
-class SimpleOutput {
+class ChangeLocalVar {
   def foo {
     var i = 23
     /*start*/
-    i = testMethodName(i)
+    def testMethodName {
+      i = 24
+    }
+    testMethodName
     /*end*/
     val j = i
-  }
-
-  def testMethodName(_i: Int): Int = {
-    var i: Int = _i
-    i = 24
-    i
   }
 }
 */
