@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package resolve
 
-import _root_.com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.ProgressManager
 import processor._
 import psi.implicits.ScImplicitlyConvertible
 import psi.api.toplevel.imports.usages.ImportUsed
@@ -23,7 +23,6 @@ import caches.CachesUtil
 import psi.types.result.{Success, TypingContext}
 import psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import psi.types._
-import extensions.toPsiNamedElementExt
 import psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import annotation.tailrec
 import psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
@@ -228,7 +227,10 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
             } else {
               if (args.invocationCount == 1) {
                 val methods: ArrayBuffer[PsiAnnotationMethod] = new ArrayBuffer[PsiAnnotationMethod] ++
-                  clazz.getMethods.toSeq.flatMap(f => f match {case f: PsiAnnotationMethod => Seq(f) case _ => Seq.empty})
+                  clazz.getMethods.toSeq.flatMap {
+                    case f: PsiAnnotationMethod => Seq(f)
+                    case _ => Seq.empty
+                  }
                 val exprs = args.exprs
                 var i = 0
                 def tail() {
