@@ -19,7 +19,7 @@ import com.intellij.psi.{PsiElement, ResolveState}
 * Time: 9:38:36
 */
 
-trait ScTemplateBody extends ScalaPsiElement {
+trait ScTemplateBody extends ScalaPsiElement with ScControlFlowOwner {
   def members: Array[ScMember]
 
   def holders: Array[ScDeclaredElementsHolder]

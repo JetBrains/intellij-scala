@@ -118,7 +118,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement,
       }
 
       element match {
-        case a: ScTypeAlias => {
+        case a: ScTypeAlias =>
           val name = a.name
           import ResolveTargets._
           val proc = resolveProcessor(ValueSet(CLASS), name)
@@ -127,8 +127,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement,
           if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
             Some(candidates(0).element, emptySubst followed candidates(0).substitutor)
           } else None
-        }
-        case d: ScTypedDefinition if d.isStable => {
+        case d: ScTypedDefinition if d.isStable =>
           val name = d.name
           import ResolveTargets._
 
@@ -138,17 +137,24 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement,
           if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
             Some(candidates(0).element, emptySubst followed candidates(0).substitutor)
           } else None
-        }
-        case d: ScTypeDefinition => {
+        case d: ScTypeDefinition =>
           val name = d.name
           import ResolveTargets._
-          val proc = resolveProcessor(ValueSet(CLASS), name)//ScObject in ScTypedDefinition case.
+          val proc = resolveProcessor(ValueSet(CLASS), name) //ScObject in ScTypedDefinition case.
           proc.processType(projected, resolvePlace, ResolveState.initial)
           val candidates = proc.candidates
           if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
             Some(candidates(0).element, emptySubst followed candidates(0).substitutor)
           } else None
-        }
+        case d: PsiClass =>
+          val name = d.getName
+          import ResolveTargets._
+          val proc = resolveProcessor(ValueSet(CLASS), name) //ScObject in ScTypedDefinition case.
+          proc.processType(projected, resolvePlace, ResolveState.initial)
+          val candidates = proc.candidates
+          if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
+            Some(candidates(0).element, emptySubst followed candidates(0).substitutor)
+          } else None
         case _ => None
       }
     }
@@ -206,7 +212,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement,
             }
           case _ => (false, uSubst)
         }
-      case proj2@ScProjectionType(p1, element1, _) => {
+      case proj2@ScProjectionType(p1, element1, _) =>
         proj2.actualElement match {
           case a: ScTypeAliasDefinition =>
             r.isAliasType match {
@@ -246,7 +252,6 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement,
           return (false, uSubst)
         }
         Equivalence.equivInner(projected, p1, uSubst, falseUndef)
-      }
       case ScThisType(clazz) =>
         element match {
           case o: ScObject => (false, uSubst)

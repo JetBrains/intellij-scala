@@ -15,8 +15,6 @@ import types.{ScType, Unit}
 import types.result.{TypingContext, Success, TypeResult}
 import com.intellij.openapi.progress.ProgressManager
 import api.base.types.ScTypeElement
-import psi.controlFlow.Instruction
-import psi.controlFlow.impl.ScalaControlFlowBuilder
 import api.ScalaElementVisitor
 import api.statements.params.ScParameter
 import api.base.ScReferenceElement

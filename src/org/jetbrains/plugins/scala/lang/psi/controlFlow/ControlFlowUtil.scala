@@ -25,7 +25,7 @@ object ControlFlowUtil {
         val currentSucc = new ArrayBuffer[Instruction]
         for (n <- next if !currentSet.contains(n)) {
           currentSucc ++= n.succ
-          currentSet + n
+          currentSet += n
         }
         inner(currentSucc, currentSet)
       }

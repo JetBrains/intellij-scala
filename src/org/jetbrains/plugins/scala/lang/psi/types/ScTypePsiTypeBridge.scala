@@ -41,17 +41,23 @@ trait ScTypePsiTypeBridge {
               case _ => c
             }
             val tps = clazz.getTypeParameters
-            def constructTypeForClass(clazz: PsiClass): ScType = {
+            def constructTypeForClass(clazz: PsiClass, withTypeParameters: Boolean = false): ScType = {
               clazz match {
                 case wrapper: PsiClassWrapper => return constructTypeForClass(wrapper.definition)
                 case _ =>
               }
               val containingClass: PsiClass = clazz.containingClass
-              if (containingClass == null) {
-                ScDesignatorType(clazz)
-              } else {
-                ScProjectionType(constructTypeForClass(containingClass), clazz, superReference = false)
-              }
+              val res =
+                if (containingClass == null) ScDesignatorType(clazz)
+                else {
+                  ScProjectionType(constructTypeForClass(containingClass, withTypeParameters = true), clazz, superReference = false)
+                }
+              if (withTypeParameters) {
+                val typeParameters: Array[PsiTypeParameter] = clazz.getTypeParameters
+                if (typeParameters.length > 0) {
+                  ScParameterizedType(res, typeParameters.map(ptp => new ScTypeParameterType(ptp, ScSubstitutor.empty)))
+                } else res
+              } else res
             }
             val des = constructTypeForClass(clazz)
             val substitutor = result.getSubstitutor

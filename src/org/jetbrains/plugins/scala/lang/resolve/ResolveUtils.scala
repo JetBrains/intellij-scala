@@ -125,6 +125,11 @@ object ResolveUtils {
           case memb: ScMember => return isAccessible(memb, place)
           case _ => return true
         }
+      //todo: ugly workaround, probably FakePsiMethod is better to remove?
+      case f: FakePsiMethod => f.navElement match {
+        case memb: PsiMember => return isAccessible(memb, place)
+        case _ =>
+      }
       case _ =>
     }
     if (place.getLanguage == JavaLanguage.INSTANCE) {
@@ -139,7 +144,7 @@ object ResolveUtils {
         place.getContainingFile match {
           case file: ScalaFile if file.isCompiled =>
           case _ if !member.isInstanceOf[ScMember] =>
-            member = memb.getOriginalElement.asInstanceOf[PsiMember]
+            member = member.getOriginalElement.asInstanceOf[PsiMember]
           case _ => //todo: is it neccessary? added to avoid performance and other problems
         }
       case _ =>

@@ -3,7 +3,6 @@ package annotator
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.psi.util.PsiTreeUtil
-import controlFlow.ControlFlowInspections
 import createFromUsage._
 import importsTracker._
 import lang.psi.api.statements._
@@ -63,9 +62,9 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   with ParametersAnnotator with ApplicationAnnotator
   with AssignmentAnnotator with VariableDefinitionAnnotator
   with TypedStatementAnnotator with PatternDefinitionAnnotator
-  with PatternAnnotator with ControlFlowInspections
-  with ConstructorAnnotator with OverridingAnnotator
-  with DumbAware {
+  with PatternAnnotator with ConstructorAnnotator
+  with OverridingAnnotator with DumbAware {
+
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
     val compiled = element.getContainingFile match {
       case file: ScalaFile => file.isCompiled

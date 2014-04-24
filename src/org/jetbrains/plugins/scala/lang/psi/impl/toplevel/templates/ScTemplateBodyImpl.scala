@@ -78,4 +78,6 @@ class ScTemplateBodyImpl extends ScalaStubBasedElementImpl[ScTemplateBody] with 
     }
     super.processDeclarations(processor, state, lastParent, place)
   }
+
+  override def controlFlowScope: Option[ScalaPsiElement] = Some(this)
 }
