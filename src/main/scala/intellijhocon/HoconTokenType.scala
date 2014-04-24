@@ -25,7 +25,7 @@ object HoconTokenType extends TokenType {
 
   case object PlusEquals extends HoconTokenType("PLUS_EQUALS")
 
-  case object Dot extends HoconTokenType("DOT")
+  case object Period extends HoconTokenType("DOT")
 
   case object NewLine extends HoconTokenType("NEWLINE")
 
@@ -34,10 +34,6 @@ object HoconTokenType extends TokenType {
   case object RefEnd extends HoconTokenType("REF_END")
 
   case object Comment extends HoconTokenType("COMMENT")
-
-  case object Integer extends HoconTokenType("INTEGER")
-
-  case object Decimal extends HoconTokenType("DECIMAL")
 
   case object UnquotedChars extends HoconTokenType("UNQUOTED_CHARS")
 
