@@ -153,11 +153,17 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
         case ScalaResolveResult(fun: ScFunction, subst) if r.isDynamic &&
           fun.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED =>
           //add synthetic parameter
-          processor.execute(ScalaPsiElementFactory.createParameterFromText(ref.refName, getManager), ResolveState.initial())
+          if (!processor.isInstanceOf[CompletionProcessor]) {
+            val state: ResolveState = ResolveState.initial().put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
+            processor.execute(ScalaPsiElementFactory.createParameterFromText(ref.refName, getManager), state)
+          }
         case ScalaResolveResult(named, subst) if call.applyOrUpdateElement.exists(_.isDynamic) &&
           call.applyOrUpdateElement.get.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED =>
           //add synthetic parameter
-          processor.execute(ScalaPsiElementFactory.createParameterFromText(ref.refName, getManager), ResolveState.initial())
+          if (!processor.isInstanceOf[CompletionProcessor]) {
+            val state: ResolveState = ResolveState.initial().put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
+            processor.execute(ScalaPsiElementFactory.createParameterFromText(ref.refName, getManager), state)
+          }
         case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) =>
           if (!processor.isInstanceOf[CompletionProcessor]) {
             fun.getParamByName(ref.refName, invocationCount - 1) match { //todo: why -1?
