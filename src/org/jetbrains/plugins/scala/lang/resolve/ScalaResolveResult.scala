@@ -4,14 +4,12 @@ package resolve
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.types._
-import com.intellij.psi.util.PsiTreeUtil
 import psi.ScalaPsiUtil
 import psi.impl.toplevel.synthetic.ScSyntheticClass
 import psi.api.toplevel.typedef.ScObject
 import psi.api.base.patterns.ScBindingPattern
 import psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportUsed}
 import extensions.{toPsiClassExt, toPsiNamedElementExt}
-import psi.api.statements.params.ScClassParameter
 import psi.api.toplevel.ScNamedElement
 
 object ScalaResolveResult {
@@ -139,7 +137,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
         val q = qualifier.substring(0, index)
         if (q == "java.lang") JAVA_LANG
         else if (q == "scala") SCALA
-        else OTHER_MEMBERS
+        else if (q == placePackageName) OTHER_MEMBERS
+        else PACKAGE_LOCAL
       }
       if (importsUsed.size == 0) {
         ScalaPsiUtil.nameContext(getActualElement) match {
@@ -152,7 +151,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
             return getPackagePrecedence(qualifier)
           case clazz: PsiClass =>
             return getClazzPrecedence(clazz)
-          case memb@(_: ScBindingPattern | _: PsiMember) => {
+          case memb@(_: ScBindingPattern | _: PsiMember) =>
             val clazzStub = ScalaPsiUtil.getContextOfType(getActualElement, false, classOf[PsiClass])
             val clazz: PsiClass = clazzStub match {
               case clazz: PsiClass => clazz
@@ -165,10 +164,18 @@ class ScalaResolveResult(val element: PsiNamedElement,
                 case "scala.Predef" => return SCALA_PREDEF
                 case "scala.LowPriorityImplicits" => return SCALA_PREDEF
                 case "scala" => return SCALA
-                case _ => OTHER_MEMBERS
+                case _ =>
+                  clazz match {
+                    case o: ScObject if o.isPackageObject =>
+                      var q = o.qualifiedName
+                      val packageSuffix: String = ".`package`"
+                      if (q.endsWith(packageSuffix)) q = q.substring(0, q.length - packageSuffix.length)
+                      if (q == placePackageName) return OTHER_MEMBERS
+                      else return PACKAGE_LOCAL
+                    case _ => return OTHER_MEMBERS
+                  }
               }
             }
-          }
           case _ =>
         }
         return OTHER_MEMBERS
