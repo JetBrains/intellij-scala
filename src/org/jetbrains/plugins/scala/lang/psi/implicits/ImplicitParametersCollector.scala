@@ -25,7 +25,6 @@ import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import scala.collection
-import scala.collection
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -89,7 +88,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
             case _ =>
           }
           addResult(new ScalaResolveResult(param, subst, getImports(state)))
-        case patt: ScBindingPattern => {
+        case patt: ScBindingPattern =>
           val memb = ScalaPsiUtil.getContextOfType(patt, true, classOf[ScValue], classOf[ScVariable])
           memb match {
             case memb: ScMember if memb.hasModifierProperty("implicit") =>
@@ -97,13 +96,11 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
               addResult(new ScalaResolveResult(named, subst, getImports(state)))
             case _ =>
           }
-        }
-        case function: ScFunction if function.hasModifierProperty("implicit") => {
+        case function: ScFunction if function.hasModifierProperty("implicit") =>
           if (isPredefPriority || (ScImplicitlyConvertible.checkFucntionIsEligible(function, place) &&
               ResolveUtils.isAccessible(function, getPlace))) {
             addResult(new ScalaResolveResult(named, subst, getImports(state)))
           }
-        }
         case _ =>
       }
       true
@@ -129,18 +126,17 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
               case _ => None
             }
           case patt: ScBindingPattern
-            if !PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(patt), place, false) => {
+            if !PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(patt), place, false) =>
             patt.getType(TypingContext.empty) match {
               case Success(pattType: ScType, _) =>
                 if (!subst.subst(pattType).conforms(tp)) None
                 else Some(c, subst)
               case _ => None
             }
-          }
-          case fun: ScFunction if !PsiTreeUtil.isContextAncestor(fun, place, false) => {
-            val oneImplicit = fun.paramClauses.clauses.length == 1 && fun.paramClauses.clauses.apply(0).isImplicit
+          case fun: ScFunction if !PsiTreeUtil.isContextAncestor(fun, place, false) =>
+            val oneImplicit = fun.effectiveParameterClauses.length == 1 && fun.effectiveParameterClauses.apply(0).isImplicit
             //to avoid checking implicit functions in case of simple implicit parameter search
-            if (!oneImplicit && fun.paramClauses.clauses.length > 0) {
+            if (!oneImplicit && fun.effectiveParameterClauses.length > 0) {
               clazz match {
                 case Some(cl) =>
                   val clause = fun.paramClauses.clauses(0)
@@ -154,7 +150,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
             }
 
             fun.getTypeNoImplicits(TypingContext.empty) match {
-              case Success(funType: ScType, _) => {
+              case Success(funType: ScType, _) =>
                 def checkType(ret: ScType): Option[(ScalaResolveResult, ScSubstitutor)] = {
                   def compute(): Option[(ScalaResolveResult, ScSubstitutor)] = {
                     InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, check function: " + fun.name)
@@ -253,10 +249,8 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
                     case _ => None
                   }
                 }
-              }
               case _ => None
             }
-          }
           case _ => None
         }
       }
@@ -275,7 +269,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
             case Some(c) =>
               candidatesSeq = rest
               forMap(c, withLocalTypeInference, checkFast = false) match {
-                case Some(res) =>
+                case Some(res) if res._1.problems.isEmpty =>
                   lastResult = Some(c)
                   results += res
                 case _ => lastResult = None

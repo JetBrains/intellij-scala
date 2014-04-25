@@ -204,8 +204,13 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
       override def visitMethodCallExpression(call: ScMethodCall) {
         checkMethodCallImplicitConversion(call, holder)
-        if (typeAware) annotateMethodCall(call, holder)
+        if (typeAware) annotateMethodInvocation(call, holder)
         super.visitMethodCallExpression(call)
+      }
+
+      override def visitInfixExpression(infix: ScInfixExpr): Unit = {
+        if (typeAware) annotateMethodInvocation(infix, holder)
+        super.visitInfixExpression(infix)
       }
 
       override def visitSelfInvocation(self: ScSelfInvocation) {

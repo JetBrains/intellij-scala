@@ -306,8 +306,9 @@ object ScalaPsiUtil {
       e.getTypeWithoutImplicits(TypingContext.empty).map(_.isInstanceOf[ValType]).getOrElse(false)
     val kinds = processor.kinds
     var implicitMap: Seq[ImplicitResolveResult] = Seq.empty
-    def checkImplicits(secondPart: Boolean, noApplicability: Boolean, noImplicitsForArgs: Boolean = noImplicitsForArgs) {
+    def checkImplicits(secondPart: Boolean, noApplicability: Boolean, withoutImplicitsForArgs: Boolean = noImplicitsForArgs) {
       lazy val args = processor match {
+        case _ if !noImplicitsForArgs => Seq.empty
         case m: MethodResolveProcessor => m.argumentClauses.flatMap(_.map(
           _.getTypeAfterImplicitConversion(checkImplicits = false, isShape = m.isShapeResolve, None)._1.getOrAny
         ))
@@ -332,7 +333,7 @@ object ScalaPsiUtil {
                   case fun: ScFunction if fun.hasTypeParameters => fun.typeParameters.map(new TypeParameter(_))
                   case _ => Seq.empty
                 }, kinds,
-                mrp.expectedOption, mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve, noImplicitsForArgs = noImplicitsForArgs)
+                mrp.expectedOption, mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve, noImplicitsForArgs = withoutImplicitsForArgs)
               val tp = implRes.tp
               newProc.processType(tp, e, ResolveState.initial)
               val candidates = newProc.candidatesS.filter(_.isApplicable)
@@ -365,13 +366,13 @@ object ScalaPsiUtil {
     checkImplicits(secondPart = false, noApplicability = false)
     if (implicitMap.size > 1) {
       val oldMap = implicitMap
-      checkImplicits(secondPart = false, noApplicability = false, noImplicitsForArgs = true)
+      checkImplicits(secondPart = false, noApplicability = false, withoutImplicitsForArgs = true)
       if (implicitMap.isEmpty) implicitMap = oldMap
     } else if (implicitMap.isEmpty) {
       checkImplicits(secondPart = true, noApplicability = false)
       if (implicitMap.size > 1) {
         val oldMap = implicitMap
-        checkImplicits(secondPart = false, noApplicability = false, noImplicitsForArgs = true)
+        checkImplicits(secondPart = false, noApplicability = false, withoutImplicitsForArgs = true)
         if (implicitMap.isEmpty) implicitMap = oldMap
       } else if (implicitMap.isEmpty) checkImplicits(secondPart = false, noApplicability = true)
     }
@@ -472,10 +473,10 @@ object ScalaPsiUtil {
     candidates.toArray
   }
 
-  def processTypeForUpdateOrApply(tp: ScType, call: MethodInvocation,
-                                  isShape: Boolean): Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[PsiElement])] = {
+  def processTypeForUpdateOrApply(tp: ScType, call: MethodInvocation, isShape: Boolean):
+      Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[ScalaResolveResult])] = {
 
-    def checkCandidates(withImplicits: Boolean, withDynamic: Boolean = false): Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[PsiElement])] = {
+    def checkCandidates(withImplicits: Boolean, withDynamic: Boolean = false): Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[ScalaResolveResult])] = {
       val candidates: Array[ScalaResolveResult] = processTypeForUpdateOrApplyCandidates(call, tp, isShape, noImplicits = !withImplicits, isDynamic = withDynamic)
       PartialFunction.condOpt(candidates) {
         case Array(r@ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
@@ -484,10 +485,10 @@ object ScalaPsiUtil {
             else tp
           }
           val res = fun match {
-            case fun: ScFun => (update(s.subst(fun.polymorphicType)), r.importsUsed, r.implicitFunction, Some(fun))
-            case fun: ScFunction => (update(s.subst(fun.polymorphicType())), r.importsUsed, r.implicitFunction, Some(fun))
+            case fun: ScFun => (update(s.subst(fun.polymorphicType)), r.importsUsed, r.implicitFunction, Some(r))
+            case fun: ScFunction => (update(s.subst(fun.polymorphicType())), r.importsUsed, r.implicitFunction, Some(r))
             case meth: PsiMethod => (update(ResolveUtils.javaPolymorphicType(meth, s, call.getResolveScope)),
-              r.importsUsed, r.implicitFunction, Some(fun))
+              r.importsUsed, r.implicitFunction, Some(r))
           }
         call.getInvokedExpr.getNonValueType(TypingContext.empty) match {
           case Success(ScTypePolymorphicType(_, typeParams), _) =>
@@ -885,7 +886,8 @@ object ScalaPsiUtil {
     val abstractSubst = ScTypePolymorphicType(retType, typeParams).abstractTypeSubstitutor
     val paramsWithUndefTypes = params.map(p => p.copy(paramType = s.subst(p.paramType),
       expectedType = abstractSubst.subst(p.paramType)))
-    val c = Compatibility.checkConformanceExt(checkNames = true, paramsWithUndefTypes, exprs, checkWithImplicits = true, isShapesResolve = false)
+    val c = Compatibility.checkConformanceExt(checkNames = true, paramsWithUndefTypes, exprs, checkWithImplicits = true,
+      isShapesResolve = false)
     val tpe = if (c.problems.isEmpty) {
       var un: ScUndefinedSubstitutor = c.undefSubst
       val subst = c.undefSubst
