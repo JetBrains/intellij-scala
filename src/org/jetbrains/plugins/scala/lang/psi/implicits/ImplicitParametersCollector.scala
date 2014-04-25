@@ -134,9 +134,9 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
               case _ => None
             }
           case fun: ScFunction if !PsiTreeUtil.isContextAncestor(fun, place, false) =>
-            val oneImplicit = fun.paramClauses.clauses.length == 1 && fun.paramClauses.clauses.apply(0).isImplicit
+            val oneImplicit = fun.effectiveParameterClauses.length == 1 && fun.effectiveParameterClauses.apply(0).isImplicit
             //to avoid checking implicit functions in case of simple implicit parameter search
-            if (!oneImplicit && fun.paramClauses.clauses.length > 0) {
+            if (!oneImplicit && fun.effectiveParameterClauses.length > 0) {
               clazz match {
                 case Some(cl) =>
                   val clause = fun.paramClauses.clauses(0)
@@ -269,7 +269,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
             case Some(c) =>
               candidatesSeq = rest
               forMap(c, withLocalTypeInference, checkFast = false) match {
-                case Some(res) =>
+                case Some(res) if res._1.problems.isEmpty =>
                   lastResult = Some(c)
                   results += res
                 case _ => lastResult = None
