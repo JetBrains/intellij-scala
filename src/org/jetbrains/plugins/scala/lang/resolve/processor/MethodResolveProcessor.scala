@@ -81,7 +81,10 @@ class MethodResolveProcessor(override val ref: PsiElement,
               isAccessible = accessible && isAccessible(m, ref), isForwardReference = forwardReference)}).filter {
             case r => !accessibility || r.isAccessible
           }
-          addResults(seq)
+          if (seq.nonEmpty) addResults(seq)
+          else addResult(new ScalaResolveResult(named, s, getImports(state), nameShadow, implicitConversionClass,
+            implicitFunction = implFunction, implicitType = implType, isNamedParameter = isNamedParameter,
+            fromType = fromType, isAccessible = accessible, isForwardReference = forwardReference))
         case synthetic: ScSyntheticFunction =>
           addResult(new ScalaResolveResult(synthetic, s, getImports(state), nameShadow, implicitConversionClass,
             implicitFunction = implFunction, implicitType = implType, fromType = fromType, isAccessible = accessible,
@@ -110,10 +113,11 @@ class MethodResolveProcessor(override val ref: PsiElement,
   }
 
   private def collectCandidates(input: Set[ScalaResolveResult]): Set[ScalaResolveResult] = {
-      if (!isShapeResolve && enableTupling && argumentClauses.length > 0) {
+    if (input.isEmpty) return input
+    if (!isShapeResolve && enableTupling && argumentClauses.length > 0) {
       isShapeResolve = true
       val cand1 = MethodResolveProcessor.candidates(this, input)
-      if (cand1.size == 0 || cand1.forall(_.tuplingUsed)) {
+      if (!isDynamic && (cand1.size == 0 || cand1.forall(_.tuplingUsed))) {
         //tupling ok
         isShapeResolve = false
         val oldArg = argumentClauses
@@ -190,7 +194,8 @@ object MethodResolveProcessor {
     def constructorCompatibility(constr: ScMethodLike with PsiNamedElement): ConformanceExtResult = {
       val classTypeParmeters: Seq[ScTypeParam] = constr.getClassTypeParameters.map(_.typeParameters).getOrElse(Seq())
       if (typeArgElements.length == 0 || typeArgElements.length == classTypeParmeters.length) {
-        Compatibility.compatible(constr, substitutor, argumentClauses, checkWithImplicits, ref.getResolveScope, isShapeResolve)
+        Compatibility.compatible(constr, substitutor, argumentClauses, checkWithImplicits, ref.getResolveScope,
+          isShapeResolve)
       } else {
         ConformanceExtResult(Seq(new ApplicabilityProblem("2")))
       }

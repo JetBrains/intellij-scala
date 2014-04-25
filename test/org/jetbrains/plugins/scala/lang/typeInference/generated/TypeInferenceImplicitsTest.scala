@@ -13,6 +13,8 @@ class TypeInferenceImplicitsTest extends TypeInferenceTestBase {
 
   def testImplicitCallScl1024() {doTest()}
 
+  def testImplicitClass1() {doTest()}
+
   def testImplicitConversionReturnTypeBasedOnParameterType() {doTest()}
 
   def testImplicitParamClause() {doTest()}

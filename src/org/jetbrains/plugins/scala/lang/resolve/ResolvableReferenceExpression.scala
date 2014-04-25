@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package resolve
 
-import _root_.com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.ProgressManager
 import processor._
 import psi.implicits.ScImplicitlyConvertible
 import psi.api.toplevel.imports.usages.ImportUsed
@@ -23,7 +23,6 @@ import caches.CachesUtil
 import psi.types.result.{Success, TypingContext}
 import psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import psi.types._
-import extensions.toPsiNamedElementExt
 import psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import annotation.tailrec
 import psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
@@ -127,31 +126,43 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     assign.getContext match { //trying to resolve naming parameter
       case args: ScArgumentExprList =>
         args.callReference match {
-          case Some(callReference) =>
-            processAnyAssignment(args.exprs, callReference, args.invocationCount, ref, assign, processor)
+          case Some(callReference) if args.getContext.isInstanceOf[MethodInvocation] =>
+            processAnyAssignment(args.exprs, args.getContext.asInstanceOf[MethodInvocation], callReference,
+              args.invocationCount, ref, assign, processor)
           case None => processConstructorReference(args, ref, assign, processor)
         }
       case tuple: ScTuple => tuple.getContext match {
         case inf: ScInfixExpr if inf.getArgExpr == tuple =>
-          processAnyAssignment(tuple.exprs, inf.operation, 1, ref, assign, processor)
+          processAnyAssignment(tuple.exprs, inf, inf.operation, 1, ref, assign, processor)
         case _ =>
       }
       case p: ScParenthesisedExpr => p.getContext match {
         case inf: ScInfixExpr if inf.getArgExpr == p =>
-          processAnyAssignment(p.expr.toSeq, inf.operation, 1, ref, assign, processor)
+          processAnyAssignment(p.expr.toSeq, inf, inf.operation, 1, ref, assign, processor)
         case _ =>
       }
       case _ =>
     }
   }
 
-  def processAnyAssignment(exprs: Seq[ScExpression], callReference: ScReferenceExpression, invocationCount: Int,
+  def processAnyAssignment(exprs: Seq[ScExpression], call: MethodInvocation, callReference: ScReferenceExpression, invocationCount: Int,
                              ref: ResolvableReferenceExpression, assign: PsiElement, processor: BaseProcessor) {
     for (variant <- callReference.multiResolve(false)) {
       def processResult(r: ScalaResolveResult) = r match {
         case ScalaResolveResult(fun: ScFunction, subst) if r.isDynamic &&
           fun.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED =>
-          //Just ignore it
+          //add synthetic parameter
+          if (!processor.isInstanceOf[CompletionProcessor]) {
+            val state: ResolveState = ResolveState.initial().put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
+            processor.execute(ScalaPsiElementFactory.createParameterFromText(ref.refName + ": Any", getManager), state)
+          }
+        case ScalaResolveResult(named, subst) if call.applyOrUpdateElement.exists(_.isDynamic) &&
+          call.applyOrUpdateElement.get.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED =>
+          //add synthetic parameter
+          if (!processor.isInstanceOf[CompletionProcessor]) {
+            val state: ResolveState = ResolveState.initial().put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
+            processor.execute(ScalaPsiElementFactory.createParameterFromText(ref.refName + ": Any", getManager), state)
+          }
         case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) =>
           if (!processor.isInstanceOf[CompletionProcessor]) {
             fun.getParamByName(ref.refName, invocationCount - 1) match { //todo: why -1?
@@ -216,7 +227,10 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
             } else {
               if (args.invocationCount == 1) {
                 val methods: ArrayBuffer[PsiAnnotationMethod] = new ArrayBuffer[PsiAnnotationMethod] ++
-                  clazz.getMethods.toSeq.flatMap(f => f match {case f: PsiAnnotationMethod => Seq(f) case _ => Seq.empty})
+                  clazz.getMethods.toSeq.flatMap {
+                    case f: PsiAnnotationMethod => Seq(f)
+                    case _ => Seq.empty
+                  }
                 val exprs = args.exprs
                 var i = 0
                 def tail() {

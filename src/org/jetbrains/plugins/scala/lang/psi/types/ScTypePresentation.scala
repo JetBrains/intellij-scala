@@ -150,7 +150,7 @@ trait ScTypePresentation {
           val typeParams = if (funCopy.typeParameters.length > 0)
             funCopy.typeParameters.map(typeParamText(_, ScSubstitutor.empty)).mkString("[", ", ", "]")
           else ""
-          Seq(s"def ${s.name}$typeParams$paramClauses$retType")
+          Seq(s"def ${s.name}$typeParams$paramClauses: $retType")
         case (s: Signature, rt: ScType) if s.namedElement.nonEmpty && s.namedElement.get.isInstanceOf[ScTypedDefinition] =>
           if (s.paramLength.sum > 0) Seq.empty
           else {
