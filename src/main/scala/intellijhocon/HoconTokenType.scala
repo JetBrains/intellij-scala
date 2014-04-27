@@ -7,38 +7,40 @@ sealed class HoconTokenType(debugString: String) extends IElementType(debugStrin
 
 object HoconTokenType extends TokenType {
 
-  val Whitespace = TokenType.WHITE_SPACE
+  val Whitespace = new HoconTokenType("WHITESPACE")
 
-  case object LBrace extends HoconTokenType("LBRACE")
+  val BadCharacter = new HoconTokenType("BAD_CHARACTER")
 
-  case object RBrace extends HoconTokenType("RBRACE")
+  val LBrace = new HoconTokenType("LBRACE")
 
-  case object LBracket extends HoconTokenType("LBRACKET")
+  val RBrace = new HoconTokenType("RBRACE")
 
-  case object RBracket extends HoconTokenType("RBRACKET")
+  val LBracket = new HoconTokenType("LBRACKET")
 
-  case object Colon extends HoconTokenType("COLON")
+  val RBracket = new HoconTokenType("RBRACKET")
 
-  case object Comma extends HoconTokenType("COMMA")
+  val Colon = new HoconTokenType("COLON")
 
-  case object Equals extends HoconTokenType("EQUALS")
+  val Comma = new HoconTokenType("COMMA")
 
-  case object PlusEquals extends HoconTokenType("PLUS_EQUALS")
+  val Equals = new HoconTokenType("EQUALS")
 
-  case object Period extends HoconTokenType("DOT")
+  val PlusEquals = new HoconTokenType("PLUS_EQUALS")
 
-  case object NewLine extends HoconTokenType("NEWLINE")
+  val Period = new HoconTokenType("DOT")
 
-  case object RefStart extends HoconTokenType("REF_START")
+  val NewLine = new HoconTokenType("NEWLINE")
 
-  case object RefEnd extends HoconTokenType("REF_END")
+  val RefStart = new HoconTokenType("REF_START")
 
-  case object Comment extends HoconTokenType("COMMENT")
+  val RefEnd = new HoconTokenType("REF_END")
 
-  case object UnquotedChars extends HoconTokenType("UNQUOTED_CHARS")
+  val Comment = new HoconTokenType("COMMENT")
 
-  case object QuotedString extends HoconTokenType("QUOTED_STRING")
+  val UnquotedChars = new HoconTokenType("UNQUOTED_CHARS")
 
-  case object MultilineString extends HoconTokenType("MULTILINE_STRING")
+  val QuotedString = new HoconTokenType("QUOTED_STRING")
+
+  val MultilineString = new HoconTokenType("MULTILINE_STRING")
 
 }
