@@ -19,7 +19,7 @@ object HoconSyntaxHighlighter extends SyntaxHighlighter {
   import DefaultLanguageHighlighterColors._
 
   private val tokenHighlights = Map[IElementType, Array[TextAttributesKey]](
-    TokenType.BAD_CHARACTER -> Array(HighlighterColors.BAD_CHARACTER),
+    BadCharacter -> Array(HighlighterColors.BAD_CHARACTER),
     QuotedString -> Array(STRING),
     MultilineString -> Array(STRING),
     Comment -> Array(LINE_COMMENT),

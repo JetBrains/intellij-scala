@@ -2,7 +2,6 @@ package intellijhocon
 
 import com.intellij.lexer.LexerBase
 import scala.util.matching.Regex
-import com.intellij.psi.TokenType
 import com.intellij.psi.tree.IElementType
 
 class HoconLexer extends LexerBase {
@@ -73,22 +72,22 @@ class HoconLexer extends LexerBase {
   val matchers = List(
     WhitespaceMatcher,
     new LiteralTokenMatcher("{", LBrace, doesntHaveFlag(Reference), forceState(Initial)),
-    new RegexTokenMatcher( """\$\{(\?)?""".r, RefStart, always, forceState(Reference)),
+    new RegexTokenMatcher( """\$\{(\?)?""".r, RefStart, always, forceState(SimpleValue | Reference)),
     new LiteralTokenMatcher("}", RefEnd, hasFlag(Reference), forceState(SimpleValue)),
-    new LiteralTokenMatcher("}", RBrace, always, forceState(SimpleValue)),
-    new LiteralTokenMatcher("[", LBracket, always, forceState(Initial)),
-    new LiteralTokenMatcher("]", RBracket, always, forceState(SimpleValue)),
-    new LiteralTokenMatcher(":", Colon, always, forceState(Initial)),
-    new LiteralTokenMatcher(",", Comma, always, forceState(Initial)),
-    new LiteralTokenMatcher("=", Equals, always, forceState(Initial)),
-    new LiteralTokenMatcher("+=", PlusEquals, always, forceState(Initial)),
+    new LiteralTokenMatcher("}", RBrace, doesntHaveFlag(Reference), forceState(SimpleValue)),
+    new LiteralTokenMatcher("[", LBracket, doesntHaveFlag(Reference), forceState(Initial)),
+    new LiteralTokenMatcher("]", RBracket, doesntHaveFlag(Reference), forceState(SimpleValue)),
+    new LiteralTokenMatcher(":", Colon, doesntHaveFlag(Reference), forceState(Initial)),
+    new LiteralTokenMatcher(",", Comma, doesntHaveFlag(Reference), forceState(Initial)),
+    new LiteralTokenMatcher("=", Equals, doesntHaveFlag(Reference), forceState(Initial)),
+    new LiteralTokenMatcher("+=", PlusEquals, doesntHaveFlag(Reference), forceState(Initial)),
     new LiteralTokenMatcher(".", Period, always, simpleValueIfInitial),
     new LiteralTokenMatcher("\n", NewLine, hasFlag(SimpleValue), forceState(Initial)),
     new RegexTokenMatcher( """(//|#)[^\n]*""".r, Comment, always, identity),
     UnquotedCharsMatcher,
-    new RegexTokenMatcher("\"{3}([^\"]|\"{1,2}[^\"])*(\"{3,}|$)".r, MultilineString, always, simpleValueIfInitial),
+    new RegexTokenMatcher("\"{3}([^\"]+|\"{1,2}[^\"])*(\"{3,}|$)".r, MultilineString, always, simpleValueIfInitial),
     QuotedStringMatcher,
-    new RegexTokenMatcher(".".r, TokenType.BAD_CHARACTER, always, identity)
+    new RegexTokenMatcher(".".r, BadCharacter, always, identity)
   )
 
   val matchersByToken = matchers.map(m => (m.token, m)).toMap
@@ -136,7 +135,7 @@ class HoconLexer extends LexerBase {
       simpleValueIfInitial(state)
   }
 
-  object WhitespaceMatcher extends TokenMatcher(TokenType.WHITE_SPACE) {
+  object WhitespaceMatcher extends TokenMatcher(Whitespace) {
     def matchToken(seq: CharSequence, state: State) = {
       var c = 0
       val acceptNewlines = state == Initial
