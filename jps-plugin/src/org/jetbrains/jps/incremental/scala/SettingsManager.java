@@ -1,7 +1,7 @@
 package org.jetbrains.jps.incremental.scala;
 
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.jps.cmdline.ProjectDescriptor;
+import org.jetbrains.jps.model.JpsProject;
 import org.jetbrains.jps.incremental.scala.model.*;
 import org.jetbrains.jps.model.JpsGlobal;
 import org.jetbrains.jps.model.ex.JpsElementChildRoleBase;
@@ -61,9 +61,5 @@ public class SettingsManager {
       }
     }
     return libraries;
-  }
-
-  public static ProjectSettings getProjectSettings(ProjectDescriptor projectDescriptor) {
-    return new ProjectSetingsImpl(projectDescriptor); //todo use real settings
   }
 }

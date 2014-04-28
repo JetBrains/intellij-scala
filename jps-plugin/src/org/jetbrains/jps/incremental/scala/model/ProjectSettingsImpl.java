@@ -19,7 +19,11 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
     myState = state;
   }
 
-  public Order getCompileOrder() {
+  public IncrementalityType getIncrementalityType() {
+    return myState.incrementalityType;
+  }
+
+  public CompileOrder getCompileOrder() {
     return myState.compileOrder;
   }
 
@@ -92,7 +96,9 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
   }
 
   public static class State {
-    public Order compileOrder = Order.Mixed;
+    public IncrementalityType incrementalityType = IncrementalityType.IDEA;
+
+    public CompileOrder compileOrder = CompileOrder.Mixed;
 
     public boolean warnings = true;
 

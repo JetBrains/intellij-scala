@@ -12,6 +12,7 @@ import com.intellij.openapi.project.Project
   new Storage(file = PROJECT_FILE),
   new Storage(file = PROJECT_CONFIG_DIR + "/scala_compiler.xml", scheme = StorageScheme.DIRECTORY_BASED)))
 class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettingsState]{
+  var incrementalityType: IncrementalityType = _
   var compileOrder: CompileOrder = _
   var warnings: Boolean = _
   var deprecationWarnings: Boolean = _
@@ -26,6 +27,7 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
   loadState(new ScalaCompilerSettingsState())
 
   def loadState(state: ScalaCompilerSettingsState) {
+    incrementalityType = state.incrementalityType
     compileOrder = state.compileOrder
     warnings = state.warnings
     deprecationWarnings = state.deprecationWarnings
@@ -40,6 +42,7 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
   
   def getState = {
     val state = new ScalaCompilerSettingsState()
+    state.incrementalityType = incrementalityType
     state.compileOrder = compileOrder
     state.warnings = warnings
     state.deprecationWarnings = deprecationWarnings

@@ -10,12 +10,12 @@ import org.jetbrains.jps.model.java.JpsJavaSdkType
 import collection.JavaConverters._
 import org.jetbrains.jps.builders.java.JavaBuilderUtil
 import org.jetbrains.jps.incremental.scala.model.LibrarySettings
-import org.jetbrains.plugin.scala.compiler.IncrementalType
+import org.jetbrains.jps.incremental.scala.model.IncrementalityType
 
 /**
  * @author Pavel Fatin
  */
-case class CompilerData(compilerJars: Option[CompilerJars], javaHome: Option[File], incrementalType: IncrementalType)
+case class CompilerData(compilerJars: Option[CompilerJars], javaHome: Option[File], incrementalType: IncrementalityType)
 
 object CompilerData {
   def from(context: CompileContext, chunk: ModuleChunk): Either[String, CompilerData] = {
@@ -51,7 +51,7 @@ object CompilerData {
           Either.cond(directory.exists, Some(directory), "JDK home directory does not exists: " + directory)
         }
 
-        val incrementalType = SettingsManager.getProjectSettings(project).incrementalType
+        val incrementalType = SettingsManager.getProjectSettings(project.getProject).getIncrementalityType
 
         javaHome.map(CompilerData(jars, _, incrementalType))
       }

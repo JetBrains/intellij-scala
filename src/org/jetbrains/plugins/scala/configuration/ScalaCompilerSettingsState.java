@@ -9,6 +9,8 @@ import java.util.Arrays;
  * @author Pavel Fatin
  */
 public class ScalaCompilerSettingsState {
+  public IncrementalityType incrementalityType = IncrementalityType.IDEA;
+
   public CompileOrder compileOrder = CompileOrder.Mixed;
 
   public boolean warnings = true;

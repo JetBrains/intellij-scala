@@ -1,9 +1,19 @@
 package org.jetbrains.plugins.scala.configuration;
 
 /**
- * Nikolay.Tropin
- * 11/18/13
+ * @author Pavel Fatin
  */
-public enum IncrementalityType {
-  SBT, IDEA
+public enum IncrementalityType implements Named  {
+  IDEA("IDEA"),
+  SBT("SBT");
+
+  private String myName;
+
+  IncrementalityType(String name) {
+    myName = name;
+  }
+
+  public String getName() {
+    return myName;
+  }
 }

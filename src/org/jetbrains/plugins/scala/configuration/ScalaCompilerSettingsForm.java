@@ -22,10 +22,14 @@ public class ScalaCompilerSettingsForm {
   private JCheckBox myExplainTypeErrors;
   private JCheckBox myContinuations;
   private JComboBox<CompileOrder> myCompileOrder;
+  private JComboBox<IncrementalityType> myIncrementalityType;
 
   private MyPathEditor myPluginsEditor = new MyPathEditor(new FileChooserDescriptor(true, false, true, true, false, true));
 
   public ScalaCompilerSettingsForm() {
+    myIncrementalityType.setRenderer(new NamedValueRenderer());
+    myIncrementalityType.setModel(new DefaultComboBoxModel<IncrementalityType>(IncrementalityType.values()));
+
     myCompileOrder.setRenderer(new NamedValueRenderer());
     myCompileOrder.setModel(new DefaultComboBoxModel<CompileOrder>(CompileOrder.values()));
 
@@ -38,6 +42,7 @@ public class ScalaCompilerSettingsForm {
 
   public ScalaCompilerSettingsState getState() {
     ScalaCompilerSettingsState state = new ScalaCompilerSettingsState();
+    state.incrementalityType = (IncrementalityType) myIncrementalityType.getSelectedItem();
     state.compileOrder = (CompileOrder) myCompileOrder.getSelectedItem();
     state.warnings = myWarnings.isSelected();
     state.deprecationWarnings = myDeprecationWarnings.isSelected();
@@ -52,6 +57,7 @@ public class ScalaCompilerSettingsForm {
   }
 
   public void setState(ScalaCompilerSettingsState state) {
+    myIncrementalityType.setSelectedItem(state.incrementalityType);
     myCompileOrder.setSelectedItem(state.compileOrder);
     myWarnings.setSelected(state.warnings);
     myDeprecationWarnings.setSelected(state.deprecationWarnings);

@@ -6,7 +6,7 @@ import org.jetbrains.jps.incremental.{ProjectBuildException, FSCache, CompileCon
 import org.jetbrains.jps.builders.java.JavaBuilderUtil
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage}
 import scala.collection.JavaConverters._
-import org.jetbrains.plugin.scala.compiler.IncrementalType
+import org.jetbrains.jps.incremental.scala.model.IncrementalityType
 
 /**
  * Nikolay.Tropin
@@ -15,9 +15,9 @@ import org.jetbrains.plugin.scala.compiler.IncrementalType
 class IncrementalTypeChecker(context: CompileContext) {
 
   def checkAndUpdate() {
-    val settings = SettingsManager.getProjectSettings(context.getProjectDescriptor)
+    val settings = SettingsManager.getProjectSettings(context.getProjectDescriptor.getProject)
     val previousIncrementalType = getPreviousIncrementalType
-    val incrType = settings.incrementalType
+    val incrType = settings.getIncrementalityType
     previousIncrementalType match {
       case _ if JavaBuilderUtil.isForcedRecompilationAllJavaModules(context) => //isRebiuld
         setPreviousIncrementalType(incrType)
@@ -39,7 +39,7 @@ class IncrementalTypeChecker(context: CompileContext) {
     deleteProjectSystemDirectory()
   }
 
-  def setPreviousIncrementalType(incrType: IncrementalType) {
+  def setPreviousIncrementalType(incrType: IncrementalityType) {
     storageFile.foreach { file =>
       val parentDir = file.getParentFile
       if (!parentDir.exists()) parentDir.mkdirs()
@@ -76,11 +76,11 @@ class IncrementalTypeChecker(context: CompileContext) {
     }
   }
 
-  private def getPreviousIncrementalType: Option[IncrementalType] = {
+  private def getPreviousIncrementalType: Option[IncrementalityType] = {
     storageFile.filter(_.exists).flatMap { file =>
       using(new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) { in =>
         try {
-          Some(IncrementalType.valueOf(in.readUTF()))
+          Some(IncrementalityType.valueOf(in.readUTF()))
         } catch {
           case _: IOException => None
         }

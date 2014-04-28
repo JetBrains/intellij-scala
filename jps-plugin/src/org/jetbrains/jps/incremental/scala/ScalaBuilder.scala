@@ -11,7 +11,8 @@ import scala.collection.JavaConverters._
 import java.util
 import ScalaBuilder._
 import org.jetbrains.jps.model.module.JpsModule
-import org.jetbrains.plugin.scala.compiler.{CompileOrder, IncrementalType}
+import org.jetbrains.jps.incremental.scala.model.CompileOrder
+import org.jetbrains.jps.incremental.scala.model.IncrementalityType
 
 /**
  * Nikolay.Tropin
@@ -45,14 +46,14 @@ class ScalaBuilder(category: BuilderCategory, @NotNull delegate: ScalaBuilderDel
     if (!isScalaProject(project)) return true
     if (chunk.isDefined && !hasScalaModules(chunk.get)) return true
 
-    val projectSettings = SettingsManager.getProjectSettings(context.getProjectDescriptor)
+    val projectSettings = SettingsManager.getProjectSettings(context.getProjectDescriptor.getProject)
 
-    projectSettings.incrementalType match {
-      case IncrementalType.SBT if delegate != SbtBuilder => true
-      case IncrementalType.IDEA =>
+    projectSettings.getIncrementalityType match {
+      case IncrementalityType.SBT if delegate != SbtBuilder => true
+      case IncrementalityType.IDEA =>
         if (delegate != IdeaIncrementalBuilder) return true
 
-        projectSettings.compileOrder match {
+        projectSettings.getCompileOrder match {
           case CompileOrder.JavaThenScala if getCategory == BuilderCategory.SOURCE_PROCESSOR => true
           case (CompileOrder.ScalaThenJava | CompileOrder.Mixed) if getCategory == BuilderCategory.OVERWRITING_TRANSLATOR => true
           case _ => false
@@ -69,7 +70,7 @@ object ScalaBuilder {
 
   private def hasScalaFacets(modules: util.Collection[JpsModule]): Boolean = {
     import scala.collection.JavaConversions._
-    modules.exists(SettingsManager.getFacetSettings(_) != null)
+    modules.exists(SettingsManager.hasScalaSdk)
   }
 
 }

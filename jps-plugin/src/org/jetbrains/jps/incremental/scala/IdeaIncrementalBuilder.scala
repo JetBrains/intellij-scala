@@ -11,7 +11,7 @@ import org.jetbrains.jps.incremental.ModuleLevelBuilder.{ExitCode, OutputConsume
 import org.jetbrains.jps.incremental.scala.local.IdeClientIdea
 import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.ModuleChunk
-import org.jetbrains.plugin.scala.compiler.CompileOrder
+import org.jetbrains.jps.incremental.scala.model.CompileOrder
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.Processor
 
@@ -71,7 +71,7 @@ object IdeaIncrementalBuilder extends ScalaBuilderDelegate {
 
     val project = context.getProjectDescriptor
 
-    val compileOrder = SettingsManager.getProjectSettings(project).compileOrder
+    val compileOrder = SettingsManager.getProjectSettings(project.getProject).getCompileOrder
     val extensionsToCollect = compileOrder match {
       case CompileOrder.Mixed => List(".scala", ".java")
       case _ => List(".scala")
