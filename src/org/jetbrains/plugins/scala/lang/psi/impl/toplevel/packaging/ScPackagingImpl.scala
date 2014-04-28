@@ -23,7 +23,7 @@ import com.intellij.openapi.project.DumbService
 import caches.ScalaShortNamesCacheManager
 import types.result.TypingContext
 import types.ScType
-import lang.resolve.processor.{ResolveProcessor, BaseProcessor}
+import lang.resolve.processor.BaseProcessor
 
 /**
  * @author Alexander Podkhalyuzin, Pavel Fatin
@@ -54,7 +54,13 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
 
   def getPackageName = ownNamePart
 
-  def isExplicit = findChildByType(ScalaTokenTypes.tLBRACE) != null
+  def isExplicit: Boolean = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScPackageContainerStub].isExplicit
+    }
+    findChildByType(ScalaTokenTypes.tLBRACE) != null
+  }
 
   def ownNamePart: String = {
     val stub = getStub
@@ -70,10 +76,9 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
       return stub.asInstanceOf[ScPackageContainerStub].prefix
     }
     def parentPackageName(e: PsiElement): String = e.getParent match {
-      case p: ScPackaging => {
+      case p: ScPackaging =>
         val _packName = parentPackageName(p)
         if (_packName.length > 0) _packName + "." + p.getPackageName else p.getPackageName
-      }
       case f: ScalaFileImpl => "" //f.getPackageName
       case null => ""
       case parent => parentPackageName(parent)
@@ -141,6 +146,9 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
     if (lastParent != null && lastParent.getContext == this) {
       if (!super[ScImportsHolder].processDeclarations(processor,
         state, lastParent, place)) return false
+
+      if (ScalaFileImpl.isProcessLocalClasses(lastParent) &&
+        !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
     }
 
     true

@@ -64,4 +64,10 @@ class SelectionModelStub extends SelectionModel {
   def getSelectionEnd: Int = 0
 
   def getSelectionStart: Int = 0
+
+  override def removeSelection(allCarets: Boolean): Unit = ???
+
+  override def hasSelection(anyCaret: Boolean): Boolean = ???
+
+  override def getSelectedText(allCarets: Boolean): String = ???
 }

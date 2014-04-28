@@ -37,10 +37,23 @@ object LightUtil {
             case _ => Seq.empty
           }
         }
-        if (classes.length == 0) ""
-        else {
-          classes.mkString(" throws ", ", ", " ")
-        }
+        if (classes.length == 0) {
+          annotation.constructor.typeArgList match {
+            case Some(args) =>
+              val classes = args.typeArgs.map(_.getType(TypingContext.empty)).filter(_.isDefined).map(_.get).flatMap { arg =>
+                ScType.toPsi(arg, holder.getProject, holder.getResolveScope) match {
+                  case c: PsiClassType =>
+                    c.resolve() match {
+                      case clazz: PsiClass => Seq(clazz.getQualifiedName)
+                      case _ => Seq.empty
+                    }
+                  case _ => Seq.empty
+                }
+              }
+              if (!classes.isEmpty) classes.mkString(" throws ", ", ", " ")
+              else ""
+          }
+        } else classes.mkString(" throws ", ", ", " ")
       case _ => ""
     }
   }

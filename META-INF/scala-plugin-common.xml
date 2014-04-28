@@ -13,11 +13,14 @@
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
+        <statistics.usagesCollector
+                implementation="org.jetbrains.plugins.scala.statistics.ScalaApplicationUsagesCollector" />
         <project.converterProvider implementation="org.jetbrains.plugins.scala.converter.ScalaProjectConverterProvider"/>
         <lang.rearranger language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger"/>
-        <compileServer.plugin classpath="scala-library.jar;jps/nailgun.jar;jps/scala-jps-plugin.jar;jps/sbt-interface.jar;jps/incremental-compiler.jar;jps/jline.jar"/>
+        <compileServer.plugin classpath="scala-library.jar;compiler-settings.jar;jps/nailgun.jar;jps/scala-jps-plugin.jar;jps/sbt-interface.jar;jps/incremental-compiler.jar;jps/jline.jar"/>
         <!--<moduleBuilder builderClass="org.jetbrains.plugins.scala.config.scalaProjectTemplate.ScalaModuleBuilder"/>-->
         <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveClassesOrPackagesHandler" order="first"/>
+        <refactoring.moveAllClassesInFileHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaClassesInFileHandler" order="last"/>
         <statementUpDownMover implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaStatementMover"/>
         <debugger.codeFragmentFactory implementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory"/>
         <debugger.positionManagerFactory implementation="org.jetbrains.plugins.scala.debugger.ScalaPositionManagerFactory"/>
@@ -26,6 +29,7 @@
         <treeCopyHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeUtilSupport"/>
         <iconProvider implementation="org.jetbrains.plugins.scala.components.ScalaIconProvider"/>
         <colorSettingsPage implementation="org.jetbrains.plugins.scala.highlighter.ScalaColorsAndFontsPage"/>
+        <editorSmartKeysConfigurable instance="org.jetbrains.plugins.scala.settings.ScalaEditorSmartKeysConfigurable"/>
         <codeFoldingOptionsProvider instance="org.jetbrains.plugins.scala.editor.codeFolding.ScalaCodeFoldingOptionsProvider"/>
         <langCodeStyleSettingsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaLanguageCodeStyleSettingsProvider"/>
         <projectConfigurable instance="org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable"/>
@@ -80,21 +84,23 @@
                       implementationClass="org.jetbrains.plugins.scala.lang.completion.statistician.ScalaCompletionStatistician"/>
         <lookup.actionProvider implementation="org.jetbrains.plugins.scala.lang.completion.ScalaImportStaticLookupActionProvider"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaContainingClassWiegher"
-                 id="scalaContainingClassWeigher" order="before scalaParameterCompletionWeigher"/>
+                 id="scalaContainingClassWeigher" order="after prefix, before scalaParameterCompletionWeigher"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaMethodCompletionWeigher"
-                 id="scalaMethodCompletionWeigher" order="after negativeStats, before stats"/>
+                 id="scalaMethodCompletionWeigher" order="after prefix, before proximity"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaParameterCompletionWeigher"
-                 id="scalaParameterCompletionWeigher" order="after scalaMethodCompletionWeigher, before stats"/>
+                 id="scalaParameterCompletionWeigher" order="after scalaMethodCompletionWeigher, before proximity"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaClassesCompletionWeigher"
-                 id="scalaClassesCompletionWeigher" order="before proximity"/>
+                 id="scalaClassesCompletionWeigher" order="after prefix, before proximity"/>
         <weigher key="proximity" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaClassObjectWeigher"
                  id="scalaClassObjectWeigher" order="before samePsiMember"/>
         <weigher key="proximity" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaExplicitlyImportedWeigher"
                  id="scalaExplicitlyImportedWeigher" order="before explicitlyImported"/>
         <psi.referenceContributor implementation="org.jetbrains.plugins.scala.lang.references.ScalaReferenceContributor"/>
         <codeInsight.overrideMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaOverrideMethodsHandler"/>
-        <lookup.charFilter implementation="org.jetbrains.plugins.scala.lang.completion.ScalaCharFilter"/>
         <codeInsight.implementMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaImplementMethodsHandler"/>
+        <codeInsight.delegateMethods language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.delegate.ScalaGenerateDelegateHandler"/>
+        <methodImplementor implementation="org.jetbrains.plugins.scala.overrideImplement.ScalaMethodImplementor"/>
+        <lookup.charFilter implementation="org.jetbrains.plugins.scala.lang.completion.ScalaCharFilter"/>
         <lang.findUsagesProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider"/>
         <usageTypeProvider implementation="org.jetbrains.plugins.scala.lang.findUsages.ScalaUsageTypeProvider"/>
         <importFilteringRule implementation="org.jetbrains.plugins.scala.lang.findUsages.ScalaImportFilteringRule"/>
@@ -118,18 +124,23 @@
         <debugger.jvmSmartStepIntoHandler implementation="org.jetbrains.plugins.scala.debugger.ScalaSmartStepIntoHandler"/>
         <lang.documentationProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaMethodProcessor" order="first"/>
+        <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.PrepareRenameScalaMethodProcessor" order="last"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaPackageProcessor" order="first"/>
-        <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaValsProcessor" order="first"/>
+        <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaVariableProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameLightProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaClassProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaSyntheticParamProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaTypeAliasProcessor" order="first"/>
+        <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaBindingPatternProcessor" order="first"/>
         <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.XmlRenameHandler" />
-        <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaInplaceRenameHandler" order="first" />
+        <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaMemberInplaceRenameHandler" order="first" />
+        <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaLocalInplaceRenameHandler" order="first" />
         <nameSuggestionProvider implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.ScalaNameSuggestionProvider" order="last"/>
         <definitionsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.MethodImplementationsSearch"/>
+        <overridingMethodsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher" order="first"/>
         <antCustomCompiler implementation="org.jetbrains.plugins.scala.ant.ScalaAntCustomCompilerProvider"/>
         <refactoring.moveClassHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaClassHandler" order="first"/>
+        <refactoring.elementListenerProvider implementation="org.jetbrains.plugins.scala.runner.ScalaRunConfigurationRefactoringListenerProvider"/>
         <!--<moveFileHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaFileHandler" order="first"/>-->
         <refactoring.inlineHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.inline.ScalaInlineHandler"/>
         <refactoring.introduceParameterMethodUsagesProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterMethodUsagesProcessor"/>
@@ -162,7 +173,7 @@
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.typeDef.ObjectTraitReferenceSearcher"/>
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.apply.ApplyMethodSearcher"/>
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.apply.UnapplyMethodSearcher"/>
-        <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.vals.JavaValsUsagesSearcher"/>
+        <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.vals.JavaValsUsagesSearcher" order="last"/>
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.function.JavaFunctionUsagesSearcher"/>
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.setter.SetterMethodSearcher"/>
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.ScalaAliasedImportedElementSearcher"/>
@@ -183,6 +194,7 @@
 
         <defaultLiveTemplatesProvider implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaDefaultLiveTemplatesProvider"/>
         <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaLiveTemplateContextType"/>
+        <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaXmlContextType"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaVariableOfTypeMacro"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.SuggestScalaVariableNameMacro"/>
 
@@ -194,8 +206,8 @@
         <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestTestFramework"/>
 
         <java.elementFinder implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses"/>
-        <java.elementFinder implementation="org.jetbrains.plugins.scala.finder.ScalaClassFinder" order="first"/>
-        <java.elementFinder implementation="org.jetbrains.plugins.scala.finder.ScalaPackageFinder" order="first"/>
+        <java.elementFinder implementation="org.jetbrains.plugins.scala.finder.ScalaClassFinder"/>
+        <java.elementFinder implementation="org.jetbrains.plugins.scala.finder.ScalaPackageFinder"/>
         <java.shortNamesCache implementation="org.jetbrains.plugins.scala.caches.ScalaShortNamesCache"/>
         <typeHierarchyProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.hierarchy.ScalaTypeHierarchyProvider"/>
         <methodHierarchyProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.hierarchy.ScalaMethodHierarchyProvider"/>
@@ -215,13 +227,13 @@
 
         <configurationType implementation="org.jetbrains.plugins.scala.script.ScalaScriptConfigurationType"/>
         <configurationType implementation="org.jetbrains.plugins.scala.console.ScalaConsoleConfigurationType"/>
-        <configurationType implementation="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetConfigurationType"/>
+        <actionPromoter implementation="org.jetbrains.plugins.scala.console.ExecuteInConsoleActionPromoter"/>
 
         <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2ConfigurationType"/>
         <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationType"/>
 
-        <configurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2ConfigurationProducer"/>
-        <configurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationProducer"/>
+        <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2ConfigurationProducer"/>
+        <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationProducer"/>
 
         <configurationProducer implementation="org.jetbrains.plugins.scala.runner.ScalaApplicationConfigurationProducer"/>
 
@@ -236,6 +248,7 @@
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScImplicitObjectKey"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScImplicitsKey"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScPackageObjectIndex"/>
+        <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScShortNamePackageObjectIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScFullPackagingNameIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScFunctionNameIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScFunctionNameToClassIndex"/>
@@ -274,7 +287,8 @@
 
         <!--Extensions for class-files treatment-->
         <clsStubBuilderFactory implementation="org.jetbrains.plugins.scala.decompiler.ScClsStubBuilderFactory"/>
-        <contentBasedClassFileProcessor implementation="org.jetbrains.plugins.scala.decompiler.ScContentBasedClassFileProcessor"/>
+        <contentBasedClassFileProcessor implementation="org.jetbrains.plugins.scala.decompiler.ScContentBasedClassFileProcessor" order="first"/>
+        <contentBasedClassFileProcessor implementation="org.jetbrains.plugins.scala.decompiler.ScContentBasedClassFileProcessorHack" order="last"/>
         <lang.fileViewProviderFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.decompiler.ScClassFileViewProviderFactory"/>
 
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
@@ -404,6 +418,16 @@
         <intentionAction>
             <category>Scala/Import</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportAdditionalIdentifiersIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+          <category>Scala/Import</category>
+          <className>org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportStableMemberIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+          <category>Scala/Import</category>
+          <className>org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportAllMembersIntention</className>
         </intentionAction>
 
         <intentionAction>
@@ -705,10 +729,6 @@
                          displayName="Abstract Value in Trait" groupName="Scala: General"
                          shortName="AbstractValueInTrait" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.sbt.SbtFileStructureInspection"
-                         displayName="SBT Light Configuration File Structure" groupName="Scala: General"
-                         shortName="SbtFileStructure" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.semicolon.ScalaUnnecessarySemicolonInspection"
                          displayName="Scala unnecessary semicolon inspection" groupName="Scala: General"
                          shortName="ScalaUnnecessarySemicolon" level="WARNING"
@@ -800,6 +820,11 @@
                        displayName="Match statement convertible to partial function" groupName="Scala: General"
                        shortName="MatchToPartialFunction" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUnreachableCodeInspection"
+                       displayName="Unreachable code" groupName="Scala: General"
+                       shortName="ScalaUnreachableCode" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+
 
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
@@ -888,7 +913,7 @@
           <implementation-class>org.jetbrains.plugins.scala.compiler.ServerMediator</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.plugins.scala.components.WorksheetProjectComponent</implementation-class>
+            <implementation-class>org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook</implementation-class>
         </component>
         <component>
           <implementation-class>org.jetbrains.plugins.scala.configuration.ScalaProjectEvents</implementation-class>
@@ -988,6 +1013,11 @@
                 description="Generate equals() and hashCode() methods">
           <add-to-group group-id="GenerateGroup"/>
         </action>
+        <action id="Scala.GenerateCompanionObject"
+              class="org.jetbrains.plugins.scala.codeInsight.generation.ScalaGenerateCompanionObjectAction" text="Companion object"
+              description="Generate companion object">
+        <add-to-group group-id="GenerateGroup"/>
+      </action>
       </actions>
 
 </idea-plugin>

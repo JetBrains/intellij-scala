@@ -18,7 +18,7 @@ import com.intellij.psi.PsiElementVisitor
  */
 
 class ScAnnotTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScAnnotTypeElement {
-  override def toString: String = "TypeWithAnnotation"
+  override def toString: String = "TypeWithAnnotation: " + getText
 
   protected def innerType(ctx: TypingContext) = typeElement.getType(ctx)
 

@@ -22,15 +22,15 @@ class LocalServer extends Server {
     }
 
     if (!client.isCanceled) {
-      client.progress("Searching for changed files...")
       compiler.compile(compilationData, client)
     }
 
+    client.compilationEnd()
     ExitCode.OK
   }
 
   private def compilerFactoryFrom(sbtData: SbtData): CompilerFactory = cachedCompilerFactory.getOrElse {
-    val factory = new CachingFactory(new CompilerFactoryImpl(sbtData), 5, 5)
+    val factory = new CachingFactory(new CompilerFactoryImpl(sbtData), 5, 5, 5)
     cachedCompilerFactory = Some(factory)
     factory
   }
@@ -38,7 +38,7 @@ class LocalServer extends Server {
 
 object LocalServer {
   private def createAnalysisStore(cacheFile: File): AnalysisStore = {
-    import sbinary.DefaultProtocol.{immutableMapFormat, immutableSetFormat, StringFormat, tuple2Format}
+    import sbinary.DefaultProtocol.{immutableMapFormat, immutableSetFormat, StringFormat, tuple2Format} //need for implicits
     import sbt.inc.AnalysisFormats._
     val store = FileBasedStore(cacheFile)(AnalysisFormats.analysisFormat, AnalysisFormats.setupFormat)
     AnalysisStore.sync(AnalysisStore.cached(store))

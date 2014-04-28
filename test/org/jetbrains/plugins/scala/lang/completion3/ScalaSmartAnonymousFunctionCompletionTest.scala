@@ -223,7 +223,7 @@ foo[X]((x: X) =><caret>)
   def testAliasType() {
     val fileText =
       """
-      |type T >: Int => String
+      |type T = Int => String
       |def zoo(p: T) {}
       |zoo(<caret>)
       """.stripMargin.replaceAll("\r", "").trim()
@@ -232,7 +232,7 @@ foo[X]((x: X) =><caret>)
 
     val resultText =
       """
-      |type T >: Int => String
+      |type T = Int => String
       |def zoo(p: T) {}
       |zoo((i: Int) =><caret>)
       """.stripMargin.replaceAll("\r", "").trim()

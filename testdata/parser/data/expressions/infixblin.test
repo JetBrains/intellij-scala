@@ -3,7 +3,7 @@ def foo = "Scala_String " + testo + " " +
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -23,7 +23,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n')
-        ScFunctionDefinition
+        ScFunctionDefinition: foo
           AnnotationsList
             <empty list>
           Modifiers
@@ -42,19 +42,19 @@ ScalaFile
                 Literal
                   PsiElement(string content)('"Scala_String "')
                 PsiWhiteSpace(' ')
-                ReferenceExpression
+                ReferenceExpression: +
                   PsiElement(identifier)('+')
                 PsiWhiteSpace(' ')
-                ReferenceExpression
+                ReferenceExpression: testo
                   PsiElement(identifier)('testo')
               PsiWhiteSpace(' ')
-              ReferenceExpression
+              ReferenceExpression: +
                 PsiElement(identifier)('+')
               PsiWhiteSpace(' ')
               Literal
                 PsiElement(string content)('" "')
             PsiWhiteSpace(' ')
-            ReferenceExpression
+            ReferenceExpression: +
               PsiElement(identifier)('+')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

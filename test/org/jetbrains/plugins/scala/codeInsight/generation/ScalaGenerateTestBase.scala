@@ -19,7 +19,7 @@ abstract class ScalaGenerateTestBase extends ScalaLightCodeInsightFixtureTestAda
     val caretModel = myFixture.getEditor.getCaretModel
     caretModel.moveToOffset(caretIndex)
     val file: PsiFile = myFixture.getFile
-    extensions.inWriteAction {
+    extensions.startCommand(getProject, "Generate Action Test") {
       handler.invoke(getProject, myFixture.getEditor, file)
     }
     if (checkCaret) {

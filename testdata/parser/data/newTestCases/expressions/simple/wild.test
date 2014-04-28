@@ -3,7 +3,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -27,11 +27,11 @@ ScalaFile
           Literal
             PsiElement(integer)('2')
           PsiWhiteSpace(' ')
-          ReferenceExpression
+          ReferenceExpression: +
             PsiElement(identifier)('+')
           PsiWhiteSpace(' ')
           UnderscoreSection
-            ReferenceExpression
+            ReferenceExpression: x
               PsiElement(identifier)('x')
             PsiWhiteSpace(' ')
             PsiElement(_)('_')

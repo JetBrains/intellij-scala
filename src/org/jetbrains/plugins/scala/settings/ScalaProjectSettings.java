@@ -29,29 +29,31 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private String BASE_PACKAGE = "";
   private boolean IMPORT_SHORTEST_PATH_FOR_AMBIGUOUS_REFERENCES = true;
   private int CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = 5;
-  private int SHIFT = 80;
-  private int OUTPUT_LIMIT = 35;
   private boolean ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = false;
   private boolean ADD_FULL_QUALIFIED_IMPORTS = true;
   private boolean SORT_IMPORTS = false;
   private boolean IMPORTS_MEMBERS_USING_UNDERSCORE = true;
-
   private boolean SEARCH_ALL_SYMBOLS = false;
+
   private boolean ENABLE_JAVA_TO_SCALA_CONVERSION = true;
   private boolean DONT_SHOW_CONVERSION_DIALOG = false;
-
   private boolean SHOW_IMPLICIT_CONVERSIONS = true;
+
   private boolean SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS = false;
   private boolean INCLUDE_BLOCK_EXPRESSIONS = false;
   private boolean INCLUDE_LITERALS = false;
-
   private boolean IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES = false;
-  private boolean TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = false;
-  private boolean DISABLE_LANGUAGE_INJECTION = false;
-  private boolean DISABLE_I18N = false;
-  private boolean DONT_CACHE_COMPOUND_TYPES = false;
 
+  private boolean TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = false;
+  private boolean DISABLE_LANGUAGE_INJECTION = true;
+  private boolean DISABLE_I18N = true;
+  private boolean DONT_CACHE_COMPOUND_TYPES = false;
   private boolean SCALA_CLASSES_PRIORITY = true;
+
+  //WORKSHEET
+  private int SHIFT = 80;
+  private int OUTPUT_LIMIT = 35;
+  private boolean IN_PROCESS_MODE = true;
 
   private Map<String, String> INTERPOLATED_INJECTION_MAPPING = new HashMap<String, String>();
 
@@ -366,19 +368,27 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     for (String pattern : patterns) {
       if (pattern.startsWith(EXCLUDE_PREFIX)) {
         String s = pattern.substring(EXCLUDE_PREFIX.length());
-        if (s.endsWith("._")) {
-          if (s.substring(0, s.lastIndexOf('.')).equals(qualName.substring(0, qualName.lastIndexOf('.')))) {
-            return false;
-          }
-        } else if (s.equals(qualName)) return false;
-      } else {
-        if (pattern.endsWith("._")) {
-          if (pattern.substring(0, pattern.lastIndexOf('.')).equals(qualName.substring(0, qualName.lastIndexOf('.')))) {
-            res = true;
-          }
-        } else if (pattern.equals(qualName)) res = true;
+        if (fitToUnderscorePattern(s, qualName) || s.equals(qualName))
+          return false;
+      }
+      else {
+        if (fitToUnderscorePattern(pattern, qualName) || pattern.equals(qualName))
+          res = true;
       }
     }
     return res;
+  }
+
+  private static boolean fitToUnderscorePattern(String pattern, String qualName) {
+    return pattern.endsWith("._") && qualName.contains(".") &&
+        pattern.substring(0, pattern.lastIndexOf('.')).equals(qualName.substring(0, qualName.lastIndexOf('.')));
+  }
+
+  public boolean isInProcessMode() {
+    return IN_PROCESS_MODE;
+  }
+
+  public void setInProcessMode(boolean inProcess) {
+    this.IN_PROCESS_MODE = inProcess;
   }
 }

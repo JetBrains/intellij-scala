@@ -4,7 +4,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -24,7 +24,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScTypeAliasDeclaration
+        ScTypeAliasDeclaration: A
           AnnotationsList
             <empty list>
           Modifiers
@@ -35,10 +35,10 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(<:)('<:')
           PsiWhiteSpace(' ')
-          CompoundType
+          CompoundType: {type X}
             Refinement
               PsiElement({)('{')
-              ScTypeAliasDeclaration
+              ScTypeAliasDeclaration: X
                 AnnotationsList
                   <empty list>
                 Modifiers
@@ -48,7 +48,7 @@ ScalaFile
                 PsiElement(identifier)('X')
               PsiElement(})('}')
         PsiWhiteSpace('\n  ')
-        ScTypeAliasDefinition
+        ScTypeAliasDefinition: B
           AnnotationsList
             <empty list>
           Modifiers
@@ -59,11 +59,11 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          TypeProjection
-            TypeInParenthesis
+          TypeProjection: (A)#X
+            TypeInParenthesis: (A)
               PsiElement(()('(')
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: A
+                CodeReferenceElement: A
                   PsiElement(identifier)('A')
               PsiElement())(')')
             PsiElement(#)('#')

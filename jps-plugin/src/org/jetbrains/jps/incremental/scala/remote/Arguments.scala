@@ -2,21 +2,25 @@ package org.jetbrains.jps.incremental.scala
 package remote
 
 import data._
-import model.Order
 import java.io.File
 import Arguments._
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.plugin.scala.compiler.{CompileOrder, IncrementalType}
 
 /**
  * @author Pavel Fatin
  */
-case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData) {
+case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData, worksheetFiles: Seq[String]) {
   def asStrings: Seq[String] = {
     val (outputs, caches) = compilationData.outputToCacheMap.toSeq.unzip
+
+    val (sourceRoots, outputDirs) = compilationData.outputGroups.unzip
 
     val compilerJarPaths = compilerData.compilerJars.map(jars => filesToPaths(jars.library +: jars.compiler +: jars.extra))
 
     val javaHomePath = compilerData.javaHome.map(fileToPath)
+
+    val incrementalType = compilerData.incrementalType
 
     Seq(
       fileToPath(sbtData.interfaceJar),
@@ -33,7 +37,11 @@ case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationDa
       compilationData.order.toString,
       fileToPath(compilationData.cacheFile),
       filesToPaths(outputs),
-      filesToPaths(caches)
+      filesToPaths(caches),
+      incrementalType.name,
+      filesToPaths(sourceRoots),
+      filesToPaths(outputDirs), 
+      sequenceToString(worksheetFiles)
     )
   }
 }
@@ -57,7 +65,11 @@ object Arguments {
     order,
     PathToFile(cacheFile),
     PathsToFiles(outputs),
-    PathsToFiles(caches)) =>
+    PathsToFiles(caches),
+    incrementalTypeName,
+    PathsToFiles(sourceRoots),
+    PathsToFiles(outputDirs), 
+    StringToSequence(worksheetClass)) =>
 
       val sbtData = SbtData(interfaceJar, sourceJar, interfacesHome, javaClassVersion)
 
@@ -70,13 +82,18 @@ object Arguments {
         case PathToFile(file) => file
       }
 
-      val compilerData = CompilerData(compilerJars, javaHome)
+      val incrementalType = IncrementalType.valueOf(incrementalTypeName)
+
+      val compilerData = CompilerData(compilerJars, javaHome, incrementalType)
 
       val outputToCacheMap = outputs.zip(caches).toMap
 
-      val compilationData = CompilationData(sources, classpath, output, scalaOptions, javaOptions, Order.valueOf(order), cacheFile, outputToCacheMap)
+      val outputGroups = sourceRoots zip outputDirs
 
-      Arguments(sbtData, compilerData, compilationData)
+      val compilationData = CompilationData(sources, classpath, output, scalaOptions, javaOptions, CompileOrder.valueOf(order), cacheFile, outputToCacheMap, outputGroups)
+
+
+      Arguments(sbtData, compilerData, compilationData, worksheetClass)
   }
 
   private def fileToPath(file: File): String = FileUtil.toCanonicalPath(file.getPath)

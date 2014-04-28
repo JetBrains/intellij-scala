@@ -24,16 +24,19 @@
       <excludeFolder url="file://$MODULE_DIR$/SDK/NikaSDK" />
       <excludeFolder url="file://$MODULE_DIR$/SDK/TrunkSDK" />
       <excludeFolder url="file://$MODULE_DIR$/classes" />
+      <excludeFolder url="file://$MODULE_DIR$/out" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="Runners" />
+    <orderEntry type="module" module-name="compiler-settings" />
     <orderEntry type="library" name="main-scala-library" level="project" />
     <orderEntry type="library" name="scalatest-finders" level="project" />
     <orderEntry type="library" name="evo-inflector-0.6" level="project" />
     <orderEntry type="library" name="idea-full" level="project" />
     <orderEntry type="library" name="community-plugins" level="project" />
     <orderEntry type="library" name="nailgun" level="project" />
+    <orderEntry type="module" module-name="ScalaRunner" />
   </component>
 </module>
 

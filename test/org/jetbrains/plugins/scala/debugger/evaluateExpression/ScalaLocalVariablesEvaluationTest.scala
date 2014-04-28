@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
+import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+
 /**
  * User: Alefas
  * Date: 13.10.11
  */
 class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
   def testLocal() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -23,8 +25,8 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
   
-  def testLocalClassParameter() {
-    myFixture.addFileToProject("Sample.scala",
+  def testLocalClassParam() {
+    addFileToProject("Sample.scala",
       """
       |class A(x: Int) {
       |  val h = x
@@ -52,7 +54,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testLocalFromForStatement() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -72,8 +74,8 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
 
-  def testLocalFromForStatementFromOutside() {
-    myFixture.addFileToProject("Sample.scala",
+  def testLocalFromForStmtFromOut() {
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -94,7 +96,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testParam() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def foo(x: Int) {
@@ -116,7 +118,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testLocalParam() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -136,7 +138,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
   }
   
   def testLocalOuter() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -160,36 +162,38 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testLocalOuterOuter() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    val x = 1
-      |    val runnable = new Runnable {
-      |      def run() {
-      |        val runnable = new Runnable {
-      |          def run() {
-      |            x
-      |            "stop here"
-      |          }
-      |        }
-      |        runnable.run()
-      |      }
-      |    }
-      |    runnable.run()
-      |  }
-      |}
+        |object Sample {
+        |  def main(args: Array[String]) {
+        |    val x = 1
+        |    var y = "a"
+        |    val runnable = new Runnable {
+        |      def run() {
+        |        val runnable = new Runnable {
+        |          def run() {
+        |            x
+        |            "stop here"
+        |          }
+        |        }
+        |        runnable.run()
+        |      }
+        |    }
+        |    runnable.run()
+        |  }
+        |}
       """.stripMargin.trim()
     )
-    addBreakpoint("Sample.scala", 8)
+    addBreakpoint("Sample.scala", 9)
     runDebugger("Sample") {
       waitForBreakpoint()
       evalEquals("x", "1")
+      evalEquals("y", "a")
     }
   }
 
   def testLocalObjectOuter() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -217,62 +221,66 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
   
-  def testLocalOuterFromClojureAndClass() {
-    myFixture.addFileToProject("Sample.scala",
+  def testLocalFromClojureAndClass() {
+    addFileToProject("Sample.scala",
       """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    val x = 1
-      |    val runnable = new Runnable {
-      |      def run() {
-      |        val foo = () => {
-      |          val runnable = new Runnable {
-      |            def run() {
-      |              x
-      |              "stop here"
-      |            }
-      |          }
-      |          runnable.run()
-      |        }
-      |        foo()
-      |      }
-      |    }
-      |    runnable.run()
-      |  }
-      |}
+        |object Sample {
+        |  def main(args: Array[String]) {
+        |    val x = 1
+        |    var y = "a"
+        |    val runnable = new Runnable {
+        |      def run() {
+        |        val foo = () => {
+        |          val runnable = new Runnable {
+        |            def run() {
+        |              x
+        |              "stop here"
+        |            }
+        |          }
+        |          runnable.run()
+        |        }
+        |        foo()
+        |      }
+        |    }
+        |    runnable.run()
+        |  }
+        |}
       """.stripMargin.trim()
     )
-    addBreakpoint("Sample.scala", 8)
+    addBreakpoint("Sample.scala", 9)
     runDebugger("Sample") {
       waitForBreakpoint()
       evalEquals("x", "1")
+      evalEquals("y", "a")
     }
   }
 
   def testLocalMethodLocal() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    val x: Int = 1
-      |    def foo(y: Int) {
-      |      "stop here"
-      |      x
-      |    }
-      |    foo(2)
-      |  }
-      |}
+        |object Sample {
+        |  def main(args: Array[String]) {
+        |    val x: Int = 1
+        |    var s = "a"
+        |    def foo(y: Int) {
+        |      "stop here"
+        |      x
+        |    }
+        |    foo(2)
+        |  }
+        |}
       """.stripMargin.trim()
     )
-    addBreakpoint("Sample.scala", 4)
+    addBreakpoint("Sample.scala", 5)
     runDebugger("Sample") {
       waitForBreakpoint()
       evalEquals("x", "1")
+      evalEquals("s", "a")
     }
   }
 
   def testLocalMethodLocalObject() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -294,62 +302,66 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testLocalMethodLocalMethodLocal() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    val x = 1
-      |    def foo(y: Int) {
-      |      def foo(y: Int) {
-      |        "stop here"
-      |         x
-      |      }
-      |      foo(y)
-      |    }
-      |    foo(2)
-      |  }
-      |}
+        |object Sample {
+        |  def main(args: Array[String]) {
+        |    val x = 1
+        |    var s = "a"
+        |    def foo(y: Int) {
+        |      def foo(y: Int) {
+        |        "stop here"
+        |         x
+        |      }
+        |      foo(y)
+        |    }
+        |    foo(2)
+        |  }
+        |}
       """.stripMargin.trim()
     )
-    addBreakpoint("Sample.scala", 5)
+    addBreakpoint("Sample.scala", 6)
     runDebugger("Sample") {
       waitForBreakpoint()
       evalEquals("x", "1")
+      evalEquals("s", "a")
     }
   }
 
   def testLocalMethodLocalMethodLocalClass() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    val x = 1
-      |    def foo(y: Int) {
-      |      def foo(y: Int) {
-      |        class A {
-      |          def foo() {
-      |           "stop here"
-      |            x
-      |          }
-      |        }
-      |        new A().foo()
-      |      }
-      |      foo(y)
-      |    }
-      |    foo(2)
-      |  }
-      |}
+        |object Sample {
+        |  def main(args: Array[String]) {
+        |    val x = 1
+        |    var s = "a"
+        |    def foo(y: Int) {
+        |      def foo(y: Int) {
+        |        class A {
+        |          def foo() {
+        |           "stop here"
+        |            s + x
+        |          }
+        |        }
+        |        new A().foo()
+        |      }
+        |      foo(y)
+        |    }
+        |    foo(2)
+        |  }
+        |}
       """.stripMargin.trim()
     )
-    addBreakpoint("Sample.scala", 7)
+    addBreakpoint("Sample.scala", 8)
     runDebugger("Sample") {
       waitForBreakpoint()
       evalEquals("x", "1")
+      evalEquals("s", "a")
     }
   }
   
-  def testLocalMethodLocalMethodLocalClassLocalMethod() {
-    myFixture.addFileToProject("Sample.scala",
+  def testLocMethLocMethLocClassLocMeth() {
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -387,7 +399,7 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
   }
   
   def testLocalObjectInside() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
       |object Sample {
       |  def main(args: Array[String]) {
@@ -411,31 +423,33 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
   }
 
   def testLocalObjectInsideClassLevel() {
-    myFixture.addFileToProject("Sample.scala",
+    addFileToProject("Sample.scala",
       """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    class Local {
-      |      def foo() {
-      |        val x = 1
-      |        object X {
-      |          def foo(y: Int) {
-      |            "stop here"
-      |             x
-      |          }
-      |        }
-      |        X.foo(2)
-      |      }
-      |    }
-      |    new Local().foo()
-      |  }
-      |}
+        |object Sample {
+        |  def main(args: Array[String]) {
+        |    class Local {
+        |      def foo() {
+        |        val x = 1
+        |        var s = "a"
+        |        object X {
+        |          def foo(y: Int) {
+        |            "stop here"
+        |             x
+        |          }
+        |        }
+        |        X.foo(2)
+        |      }
+        |    }
+        |    new Local().foo()
+        |  }
+        |}
       """.stripMargin.trim()
     )
-    addBreakpoint("Sample.scala", 7)
+    addBreakpoint("Sample.scala", 8)
     runDebugger("Sample") {
       waitForBreakpoint()
       evalEquals("x", "1")
+      evalEquals("s", "a")
     }
   }
 }

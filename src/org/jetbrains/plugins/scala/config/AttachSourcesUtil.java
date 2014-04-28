@@ -28,7 +28,6 @@ import com.intellij.util.containers.HashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 
 import javax.swing.*;
 import java.awt.*;

@@ -74,7 +74,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
 
   def this(stub: ScTemplateDefinitionStub) = {this (); setStub(stub); setNode(null)}
 
-  override def toString: String = if (isPackageObject) "ScPackageObject" else "ScObject"
+  override def toString: String = (if (isPackageObject) "ScPackageObject: " else "ScObject: ") + name
 
   override def getIconInner = if (isPackageObject) Icons.PACKAGE_OBJECT else Icons.OBJECT
 
@@ -187,13 +187,14 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
   private def getModuleField: Option[PsiField] = {
     val count = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
     if (moduleField != null && moduleFieldModCount == count) return moduleField
-    val fieldOption = if (getQualifiedName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this)))) None else {
-      val field: LightField = new LightField(getManager, JavaPsiFacade.getInstance(getProject).getElementFactory.createFieldFromText(
-        "public final static " + getQualifiedName + " MODULE$", this
-      ), this)
-      field.setNavigationElement(this)
-      Some(field)
-    }
+    val fieldOption =
+      if (getQualifiedName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this)))) None else {
+        val field: LightField = new LightField(getManager, JavaPsiFacade.getInstance(getProject).getElementFactory.createFieldFromText(
+          "public final static " + getQualifiedName + " MODULE$", this
+        ), this)
+        field.setNavigationElement(this)
+        Some(field)
+      }
     moduleField = fieldOption
     moduleFieldModCount = count
     fieldOption
@@ -238,9 +239,9 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
         case (t, node) => node.info.namedElement match {
           case Some(fun: ScFunction) if !fun.isConstructor && fun.containingClass.isInstanceOf[ScTrait] &&
             fun.isInstanceOf[ScFunctionDefinition] =>
-            res += fun.getFunctionWrapper(isStatic = false, isInterface = false, cClass = Some(getClazz(fun.containingClass.asInstanceOf[ScTrait])))
+            res ++= fun.getFunctionWrappers(isStatic = false, isInterface = false, cClass = Some(getClazz(fun.containingClass.asInstanceOf[ScTrait])))
           case Some(fun: ScFunction) if !fun.isConstructor =>
-            res += fun.getFunctionWrapper(isStatic = false, isInterface = fun.isInstanceOf[ScFunctionDeclaration])
+            res ++= fun.getFunctionWrappers(isStatic = false, isInterface = fun.isInstanceOf[ScFunctionDeclaration])
           case Some(method: PsiMethod) if !method.isConstructor => res += method
           case Some(t: ScTypedDefinition) if t.isVal || t.isVar ||
             (t.isInstanceOf[ScClassParameter] && t.asInstanceOf[ScClassParameter].isCaseClassVal) =>

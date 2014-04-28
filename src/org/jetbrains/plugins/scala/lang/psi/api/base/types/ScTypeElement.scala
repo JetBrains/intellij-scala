@@ -7,10 +7,9 @@ package types
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types._
-import com.intellij.openapi.progress.ProgressManager
 import caches.CachesUtil
 import result.{Failure, TypeResult, TypingContext, TypingContextOwner}
-import com.intellij.psi.util.{PsiTreeUtil, PsiModificationTracker}
+import com.intellij.psi.util.PsiModificationTracker
 import statements.params.ScTypeParam
 
 /**
@@ -24,6 +23,11 @@ trait ScTypeElement extends ScalaPsiElement with TypingContextOwner {
         this, elem => elem.innerType(ctx)
       )(PsiModificationTracker.MODIFICATION_COUNT), Failure("Recursive type of type element", Some(this)))
   }
+
+
+  override def toString: String = super.toString
+
+  def getTypeNoConstructor(ctx: TypingContext): TypeResult[ScType] = getType(ctx)
 
   def getNonValueType(ctx: TypingContext): TypeResult[ScType] = innerType(ctx)
 

@@ -1,18 +1,18 @@
 1 infix 2 $ 3
-------
+-----
 ScalaFile
   InfixExpression
     InfixExpression
       Literal
         PsiElement(integer)('1')
       PsiWhiteSpace(' ')
-      ReferenceExpression
+      ReferenceExpression: infix
         PsiElement(identifier)('infix')
       PsiWhiteSpace(' ')
       Literal
         PsiElement(integer)('2')
     PsiWhiteSpace(' ')
-    ReferenceExpression
+    ReferenceExpression: $
       PsiElement(identifier)('$')
     PsiWhiteSpace(' ')
     Literal

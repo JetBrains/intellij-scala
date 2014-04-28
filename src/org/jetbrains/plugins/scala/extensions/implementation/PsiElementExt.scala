@@ -114,7 +114,7 @@ trait PsiElementExt {
   def depthFirst(predicate: PsiElement => Boolean): Iterator[PsiElement] =
     new DepthFirstIterator(repr, predicate)
 
-  def breadthFirst: Iterator[PsiElement] = depthFirst(DefaultPredicate)
+  def breadthFirst: Iterator[PsiElement] = breadthFirst(DefaultPredicate)
 
   def breadthFirst(predicate: PsiElement => Boolean): Iterator[PsiElement] =
     new BreadthFirstIterator(repr, predicate)

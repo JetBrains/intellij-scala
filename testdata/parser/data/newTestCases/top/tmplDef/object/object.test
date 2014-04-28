@@ -5,7 +5,7 @@ object c {
 }
 -----
 ScalaFile
-  ScObject
+  ScObject: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -16,7 +16,7 @@ ScalaFile
     ExtendsBlock
       <empty list>
   PsiWhiteSpace('\n')
-  ScObject
+  ScObject: b
     AnnotationsList
       <empty list>
     Modifiers
@@ -30,11 +30,11 @@ ScalaFile
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: a
+            CodeReferenceElement: a
               PsiElement(identifier)('a')
   PsiWhiteSpace('\n')
-  ScObject
+  ScObject: c
     AnnotationsList
       <empty list>
     Modifiers

@@ -4,13 +4,12 @@ package codeInspection.typeChecking
 import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, AbstractInspection}
 import ComparingUnrelatedTypesInspection._
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
-import com.intellij.psi.{PsiModifier, PsiClass, PsiElement}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScObject, ScClass}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import org.jetbrains.plugins.scala.lang.psi.types._
+import result.Success
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import extensions.toPsiClassExt
 
 /**
  * Nikolay.Tropin
@@ -24,7 +23,7 @@ object ComparingUnrelatedTypesInspection {
 
 class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId, inspectionName){
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case MethodRepr(expr, Some(left), Some(oper), Seq(right)) if Seq("==", "!=") contains oper.refName =>
+    case MethodRepr(expr, Some(left), Some(oper), Seq(right)) if Seq("==", "!=", "ne", "eq", "equals") contains oper.refName =>
       //getType() for the reference on the left side returns singleton type, little hack here
       val leftOnTheRight = ScalaPsiElementFactory.createExpressionWithContextFromText(left.getText, right.getParent, right)
       Seq(leftOnTheRight, right) map (_.getType()) match {
@@ -35,15 +34,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
   }
 
   def cannotBeCompared(type1: ScType, type2: ScType): Boolean = {
-    val Seq(class1, class2) = Seq(type1, type2).map(ScType.extractClass(_))
-    def isFinal(psiClass: Option[PsiClass]) = psiClass.getOrElse(null) match {
-      case scClass: ScClass => scClass.hasFinalModifier
-      case _: ScObject => true
-      case _: ScTemplateDefinition => false
-      case _: ScSyntheticClass => true //wrappers for value types
-      case clazz: PsiClass => clazz.hasModifierProperty(PsiModifier.FINAL)
-      case _ => false
-    }
-    (isFinal(class1) || isFinal(class2)) && !type1.weakConforms(type2) && !type2.weakConforms(type1)
+    val Seq(unboxed1, unboxed2) = Seq(type1, type2).map(StdType.unboxedType)
+    ComparingUtil.isNeverSubType(unboxed1, unboxed2) && ComparingUtil.isNeverSubType(unboxed2, unboxed1)
   }
 }

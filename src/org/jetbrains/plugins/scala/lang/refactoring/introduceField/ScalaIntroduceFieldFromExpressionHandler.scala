@@ -32,10 +32,9 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       ScalaRefactoringUtil.checkFile(file, project, editor, REFACTORING_NAME)
 
-      val (expr: ScExpression, scType: ScType) = getExpression(project, editor, file, startOffset, endOffset).
+      val (expr: ScExpression, types: Array[ScType]) = getExpression(project, editor, file, startOffset, endOffset).
               getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, REFACTORING_NAME))
-      val types = ScalaRefactoringUtil.addPossibleTypes(scType, expr)
-              .map(ScalaRefactoringUtil.replaceSingletonTypes)
+
       afterClassChoosing[ScExpression](expr, types, project, editor, file, "Choose class for Introduce Field") {
         convertExpressionToField
       }
@@ -46,12 +45,11 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
   }
 
   override def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
-    def invokes() {
+    val canBeIntroduced: (ScExpression) => Boolean = ScalaRefactoringUtil.checkCanBeIntroduced(_)
+    ScalaRefactoringUtil.afterExpressionChoosing(project, editor, file, dataContext, REFACTORING_NAME, canBeIntroduced) {
       ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
       invoke(project, editor, file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
     }
-    val canBeIntroduced: (ScExpression) => Boolean = ScalaRefactoringUtil.checkCanBeIntroduced(_)
-    ScalaRefactoringUtil.invokeRefactoring(project, editor, file, dataContext, REFACTORING_NAME, invokes, canBeIntroduced)
   }
 
   override def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext) {

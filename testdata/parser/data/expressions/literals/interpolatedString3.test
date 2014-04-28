@@ -18,20 +18,20 @@ ScalaFile
     PsiElement(val)('val')
     PsiWhiteSpace(' ')
     ListOfPatterns
-      ReferencePattern
+      ReferencePattern: a
         PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
     Literal
-      ReferenceExpression
+      ReferenceExpression: s
         PsiElement(interpolated string id)('s')
       PsiElement(interpolated string)('"blah blah ')
       PsiElement(interpolated string injection)('$')
       BlockExpression
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScClass
+        ScClass: B
           AnnotationsList
             <empty list>
           Modifiers
@@ -47,7 +47,7 @@ ScalaFile
             Parameters
               ParametersClause
                 PsiElement(()('(')
-                ClassParameter
+                ClassParameter: i
                   AnnotationsList
                     <empty list>
                   Modifiers
@@ -56,8 +56,8 @@ ScalaFile
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
                   ParameterType
-                    SimpleTypeElement
-                      CodeReferenceElement
+                    SimpleTypeElement: Int
+                      CodeReferenceElement: Int
                         PsiElement(identifier)('Int')
                 PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -73,15 +73,15 @@ ScalaFile
                 PsiElement(val)('val')
                 PsiWhiteSpace(' ')
                 ListOfPatterns
-                  ReferencePattern
+                  ReferencePattern: a
                     PsiElement(identifier)('a')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
                 PsiWhiteSpace(' ')
-                ReferenceExpression
+                ReferenceExpression: i
                   PsiElement(identifier)('i')
               PsiWhiteSpace('\n\n    ')
-              ScFunctionDefinition
+              ScFunctionDefinition: f
                 AnnotationsList
                   <empty list>
                 Modifiers
@@ -95,8 +95,8 @@ ScalaFile
                     PsiElement())(')')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                SimpleTypeElement
-                  CodeReferenceElement
+                SimpleTypeElement: B
+                  CodeReferenceElement: B
                     PsiElement(identifier)('B')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -111,9 +111,9 @@ ScalaFile
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')
         PsiWhiteSpace('\n  ')
-        ReferenceExpression
+        ReferenceExpression: (new B(1)).f().a
           MethodCall
-            ReferenceExpression
+            ReferenceExpression: (new B(1)).f
               ExpressionInParenthesis
                 PsiElement(()('(')
                 NewTemplateDefinition
@@ -122,8 +122,8 @@ ScalaFile
                   ExtendsBlock
                     ClassParents
                       Constructor
-                        SimpleTypeElement
-                          CodeReferenceElement
+                        SimpleTypeElement: B
+                          CodeReferenceElement: B
                             PsiElement(identifier)('B')
                         ArgumentList
                           PsiElement(()('(')

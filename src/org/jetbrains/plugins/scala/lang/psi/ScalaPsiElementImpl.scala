@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
-import api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaElementVisitor}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.{PsiElementVisitor, PsiElement}
 import com.intellij.psi.tree.{TokenSet, IElementType}
 import com.intellij.psi.impl.source.tree.{LazyParseablePsiElement, SharedImplUtil}
 import com.intellij.psi.impl.CheckUtil
 import com.intellij.extapi.psi.ASTWrapperPsiElement
+import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 
 /**
 @author ven

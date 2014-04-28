@@ -2,9 +2,9 @@ class a {
   val x = 2 ?
   val y = 3
 }
-------
+-----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -32,7 +32,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: x
               PsiElement(identifier)('x')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -41,7 +41,7 @@ ScalaFile
             Literal
               PsiElement(integer)('2')
             PsiWhiteSpace(' ')
-            ReferenceExpression
+            ReferenceExpression: ?
               PsiElement(identifier)('?')
         PsiWhiteSpace('\n  ')
         ScPatternDefinition
@@ -52,7 +52,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: y
               PsiElement(identifier)('y')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

@@ -8,7 +8,7 @@ object main{
 }
 -----
 ScalaFile
-  ScObject
+  ScObject: main
     AnnotationsList
       <empty list>
     Modifiers
@@ -20,7 +20,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScFunctionDefinition
+        ScFunctionDefinition: sum
           AnnotationsList
             <empty list>
           Modifiers
@@ -31,7 +31,7 @@ ScalaFile
           Parameters
             ParametersClause
               PsiElement(()('(')
-              Parameter
+              Parameter: args
                 AnnotationsList
                   <empty list>
                 Modifiers
@@ -40,8 +40,8 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  SimpleTypeElement
-                    CodeReferenceElement
+                  SimpleTypeElement: Int
+                    CodeReferenceElement: Int
                       PsiElement(identifier)('Int')
                   PsiElement(identifier)('*')
               PsiElement())(')')
@@ -59,7 +59,7 @@ ScalaFile
               PsiElement(var)('var')
               PsiWhiteSpace(' ')
               ListOfPatterns
-                ReferencePattern
+                ReferencePattern: result
                   PsiElement(identifier)('result')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -73,29 +73,29 @@ ScalaFile
               PsiElement(()('(')
               Enumerators
                 Generator
-                  ReferencePattern
+                  ReferencePattern: arg
                     PsiElement(identifier)('arg')
                   PsiWhiteSpace(' ')
                   PsiElement(<-)('<-')
                   PsiWhiteSpace(' ')
-                  ReferenceExpression
-                    ReferenceExpression
+                  ReferenceExpression: args.elements
+                    ReferenceExpression: args
                       PsiElement(identifier)('args')
                     PsiElement(.)('.')
                     PsiElement(identifier)('elements')
               PsiElement())(')')
               PsiWhiteSpace('\n      ')
               InfixExpression
-                ReferenceExpression
+                ReferenceExpression: result
                   PsiElement(identifier)('result')
                 PsiWhiteSpace(' ')
-                ReferenceExpression
+                ReferenceExpression: +=
                   PsiElement(identifier)('+=')
                 PsiWhiteSpace(' ')
-                ReferenceExpression
+                ReferenceExpression: arg
                   PsiElement(identifier)('arg')
             PsiWhiteSpace('\n    ')
-            ReferenceExpression
+            ReferenceExpression: result
               PsiElement(identifier)('result')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')

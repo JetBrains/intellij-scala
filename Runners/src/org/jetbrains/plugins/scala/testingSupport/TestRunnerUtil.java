@@ -1,15 +1,9 @@
 package org.jetbrains.plugins.scala.testingSupport;
 
-import org.scalatest.*;
 import org.specs2.execute.Details;
 import org.specs2.execute.FailureDetails;
-import scala.None$;
-import scala.Option;
-import scala.collection.immutable.Map;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
@@ -41,7 +35,7 @@ public class TestRunnerUtil {
   }
 
   public static String actualExpectedAttrsSpecs2(String message, Details details) {
-    String actualExpectedAttrs = "";
+    String actualExpectedAttrs;
     if (details != null && details instanceof FailureDetails) {
       FailureDetails failureDetails = (FailureDetails) details;
       String actual = failureDetails.actual();

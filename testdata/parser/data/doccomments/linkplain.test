@@ -1,7 +1,7 @@
 /**
  * @linkplain scala.collection.Set#apply
  */
-------
+-----
 ScalaFile
   DocComment
     PsiElement(DOC_COMMENT_START)('/**')

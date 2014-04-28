@@ -1,7 +1,7 @@
 class a(b: Int, @good lazy val c)
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -17,7 +17,7 @@ ScalaFile
       Parameters
         ParametersClause
           PsiElement(()('(')
-          ClassParameter
+          ClassParameter: b
             AnnotationsList
               <empty list>
             Modifiers
@@ -26,19 +26,19 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: Int
+                CodeReferenceElement: Int
                   PsiElement(identifier)('Int')
           PsiElement(,)(',')
           PsiWhiteSpace(' ')
-          ClassParameter
+          ClassParameter: c
             AnnotationsList
               Annotation
                 PsiElement(@)('@')
                 AnnotationExpression
                   Constructor
-                    SimpleTypeElement
-                      CodeReferenceElement
+                    SimpleTypeElement: good
+                      CodeReferenceElement: good
                         PsiElement(identifier)('good')
             PsiWhiteSpace(' ')
             Modifiers

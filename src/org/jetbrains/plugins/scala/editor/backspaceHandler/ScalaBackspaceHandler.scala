@@ -45,7 +45,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       val openingTag = element.getParent.asInstanceOf[ScXmlStartTag]
       val closingTag = openingTag.getClosingTag
 
-      if (closingTag != null && closingTag.getText.substring(2, closingTag.getTextLength - 1) == openingTag.getTagName) {
+      if (closingTag != null && closingTag.getTextLength > 3 && closingTag.getText.substring(2, closingTag.getTextLength - 1) == openingTag.getTagName) {
         extensions.inWriteAction {
           val offsetInName = editor.getCaretModel.getOffset - element.getTextOffset + 1
           editor.getDocument.deleteString(closingTag.getTextOffset + offsetInName, closingTag.getTextOffset + offsetInName + 1)

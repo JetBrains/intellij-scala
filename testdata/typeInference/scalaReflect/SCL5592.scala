@@ -6,4 +6,4 @@ object SCL5592 {
     /*start*/currentMirror.runtimeClass(symbol)/*end*/
   }
 }
-//runtime.universe.type#RuntimeClass
+//runtime.universe.RuntimeClass

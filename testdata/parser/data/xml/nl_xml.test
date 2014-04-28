@@ -4,7 +4,7 @@ class AAA {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: AAA
     AnnotationsList
       <empty list>
     Modifiers
@@ -32,7 +32,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: anchor
               PsiElement(identifier)('anchor')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -43,7 +43,7 @@ ScalaFile
               XmlToken:XML_NAME('a')
               XmlToken:XML_EMPTY_ELEMENT_END('/>')
         PsiWhiteSpace('\n  ')
-        ScFunctionDeclaration
+        ScFunctionDeclaration: foo
           AnnotationsList
             <empty list>
           Modifiers

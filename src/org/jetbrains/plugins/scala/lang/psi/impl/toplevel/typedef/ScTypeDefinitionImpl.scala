@@ -30,15 +30,15 @@ import types._
 import api.base.ScModifierList
 import api.toplevel.ScToplevelElement
 import result.{TypeResult, Failure, Success, TypingContext}
-import util.{PsiUtil, PsiTreeUtil}
+import com.intellij.psi.util.{PsiUtil, PsiTreeUtil}
 import collection.Seq
 import api.expr.ScBlock
 import api.toplevel.templates.{ScTemplateParents, ScExtendsBlock, ScTemplateBody}
-import reflect.NameTransformer
 import extensions.toPsiNamedElementExt
 import com.intellij.lang.java.JavaLanguage
 import conversion.JavaToScala
 import scala.annotation.tailrec
+import scala.reflect.NameTransformer
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplateDefinition] with ScTypeDefinition with PsiClassFake {
   override def hasTypeParameters: Boolean = typeParameters.length > 0
@@ -155,7 +155,6 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
 
   override def isLocal: Boolean = {
     val stub: StubElement[_ <: PsiElement] = this match {
-      case file: PsiFileImpl => file.getStub
       case st: ScalaStubBasedElementImpl[_] => st.getStub
       case _ => null
     }
@@ -195,7 +194,10 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     } else {
       val count = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
       if (javaQualName != null && count == javaQualNameModCount) return javaQualName
-      var res = qualifiedName(".", encodeName = true)
+      var res = qualifiedName(".", encodeName = true).split('.').map { s =>
+        if (s.startsWith("`") && s.endsWith("`") && s.length > 2) s.drop(1).dropRight(1)
+        else s
+      }.mkString(".")
       this match {
         case o: ScObject =>
           if (o.isPackageObject) res = res + ".package$"
@@ -247,7 +249,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
   }
 
   protected def qualifiedName(classSeparator: String, trunced: Boolean = false,
-                            encodeName: Boolean = false): String = {
+                              encodeName: Boolean = false): String = {
     // Returns prefix with convenient separator sep
     @tailrec
     def _packageName(e: PsiElement, sep: String, k: (String) => String): String = e.getContext match {
@@ -264,16 +266,24 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
       case parent: ScTemplateBody => _packageName(parent, sep, k)
       case parent: ScExtendsBlock => _packageName(parent, sep, k)
       case parent: ScTemplateParents => _packageName(parent, sep, k)
-      case parent => _packageName(parent, sep, identity _)
+      case parent => _packageName(parent, sep, identity)
     }
 
-    val packageName = _packageName(this, classSeparator, identity _)
+    val packageName = _packageName(this, classSeparator, identity)
     packageName + transformName(encodeName, name)
   }
 
   override def getPresentation: ItemPresentation = {
+    val presentableName = this match {
+      case o: ScObject if o.isPackageObject && o.name == "`package`" =>
+        val packageName = o.qualifiedName.stripSuffix(".`package`")
+        val index = packageName.lastIndexOf('.')
+        if (index < 0) packageName else packageName.substring(index + 1, packageName.size)
+      case _ => name
+    }
+
     new ItemPresentation() {
-      def getPresentableText: String = name
+      def getPresentableText: String = presentableName
 
       def getTextAttributesKey: TextAttributesKey = null
 
@@ -353,7 +363,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
 
   def signaturesByName(name: String): Seq[PhysicalSignature] = {
     (for ((s: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(this).forName(name)._1) yield s).toSeq ++
-            syntheticMembers.filter(_.name == name).map(new PhysicalSignature(_, ScSubstitutor.empty))
+            syntheticMethodsNoOverride.filter(_.name == name).map(new PhysicalSignature(_, ScSubstitutor.empty))
   }
 
   override def getNameIdentifier: PsiIdentifier = {

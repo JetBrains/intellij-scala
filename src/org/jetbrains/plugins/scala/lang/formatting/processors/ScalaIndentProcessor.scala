@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
-import com.intellij.psi.PsiComment
+import com.intellij.psi.{PsiWhiteSpace, PsiComment}
 import psi.api.toplevel.ScEarlyDefinitions
 import scaladoc.psi.api.ScDocComment
 import extensions._
@@ -62,6 +62,8 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
               case _: ScExpression => Indent.getNormalIndent
               case _ => Indent.getNoneIndent
             }
+          case Some(e) if child.isInstanceOf[PsiComment] => Indent.getNormalIndent
+          //the above case is a hack added to fix SCL-6803; probably will backfire with unintended indents
           case _ => Indent.getNoneIndent
         }
       }
@@ -194,12 +196,24 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       }
       case _: ScParenthesisedExpr | _: ScParenthesisedPattern | _: ScParenthesisedExpr =>
         Indent.getContinuationWithoutFirstIndent(settings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION)
+//      case paramClause : ScParameterClause if child.getTreePrev != null && child.getTreePrev.getPsi.isInstanceOf[PsiWhiteSpace] && child.getTreePrev.getText.contains("\n") =>
+//        Indent.getContinuationIndent(true)
       case _: ScParameters | _: ScParameterClause | _: ScPattern | _: ScTemplateParents |
               _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScTypeArgs => {
         Indent.getContinuationWithoutFirstIndent
       }
       case _: ScArgumentExprList => {
-        if (child.getElementType != ScalaTokenTypes.tRPARENTHESIS &&
+        val refExpr = node.getTreePrev.getPsi
+        if (refExpr.getText.contains("\n")) {
+          //ugly hack for SCL-3859
+          if (child.getElementType != ScalaTokenTypes.tRPARENTHESIS &&
+                  child.getElementType != ScalaTokenTypes.tLPARENTHESIS) {
+            val indentSettings = settings.getIndentOptions
+            Indent.getSpaceIndent(indentSettings.CONTINUATION_INDENT_SIZE + indentSettings.INDENT_SIZE)
+          } else {
+            Indent.getContinuationWithoutFirstIndent
+          }
+        } else if (child.getElementType != ScalaTokenTypes.tRPARENTHESIS &&
             child.getElementType != ScalaTokenTypes.tLPARENTHESIS)
           Indent.getNormalIndent(settings.ALIGN_MULTILINE_METHOD_BRACKETS)
         else Indent.getNoneIndent

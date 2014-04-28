@@ -3,7 +3,7 @@ def INT_| = 42
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -23,7 +23,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n')
-        ScFunctionDefinition
+        ScFunctionDefinition: INT_|
           AnnotationsList
             <empty list>
           Modifiers

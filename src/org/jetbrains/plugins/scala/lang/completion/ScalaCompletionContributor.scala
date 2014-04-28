@@ -57,10 +57,10 @@ class ScalaCompletionContributor extends CompletionContributor {
       if (afterNewPattern.accepts(parameters.getPosition, context)) {
         val element = parameters.getPosition
         val newExpr: ScNewTemplateDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScNewTemplateDefinition])
-        newExpr.expectedTypes().map(tp => tp match {
+        newExpr.expectedTypes().map {
           case ScAbstractType(_, lower, upper) => upper
-          case _ => tp
-        })
+          case tp                              => tp
+        }
       } else Array.empty
       //if prefix is capitalized, class name completion is enabled
       val classNameCompletion = shouldRunClassNameCompletion(parameters, result.getPrefixMatcher)

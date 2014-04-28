@@ -21,7 +21,6 @@ import api.base.types.{ScParameterizedTypeElement, ScInfixTypeElement, ScSimpleT
 import impl.source.tree.LeafPsiElement
 import processor.CompletionProcessor
 import api.ScalaElementVisitor
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import api.statements.{ScMacroDefinition, ScTypeAlias}
 import api.expr.{ScSuperReference, ScThisReference}
 import annotator.intention.ScalaImportTypeFix
@@ -29,6 +28,7 @@ import util.PsiTreeUtil
 import settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{TypeAliasToImport, ClassTypeToImport}
+import org.jetbrains.plugins.scala.extensions
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -63,25 +63,23 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
 
   def getConstructor = {
     getContext match {
-      case s: ScSimpleTypeElement => {
+      case s: ScSimpleTypeElement =>
         s.getContext match {
-          case p: ScParameterizedTypeElement => {
+          case p: ScParameterizedTypeElement =>
             p.getContext match {
               case constr: ScConstructor => Some(constr)
               case _ => None
             }
-          }
           case constr: ScConstructor => Some(constr)
           case _ => None
         }
-      }
       case _ => None
     }
   }
 
   def isConstructorReference = !getConstructor.isEmpty
 
-  override def toString: String = "CodeReferenceElement"
+  override def toString: String = "CodeReferenceElement: " + getText
 
   def getKinds(incomplete: Boolean, completion: Boolean): Set[ResolveTargets.Value] = {
     import StdKinds._
@@ -168,11 +166,11 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
             } else getParent match {
               case importExpr: ScImportExpr if !importExpr.singleWildcard && !importExpr.selectorSet.isDefined =>
                 val holder = PsiTreeUtil.getParentOfType(this, classOf[ScImportsHolder])
+                importExpr.deleteExpr()
                 c match {
                   case ClassTypeToImport(clazz) => holder.addImportForClass(clazz)
                   case ta => holder.addImportForPath(ta.qualifiedName)
                 }
-                importExpr.deleteExpr()
               //todo: so what to return? probable PIEAE after such code invocation
               case _ =>
                 return safeBindToElement(qname, {
@@ -215,7 +213,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
                 val refToMember = ScalaPsiElementFactory.createReferenceFromText(refToClass.getText + "." + binding.name, getManager)
                 this.replace(refToMember).asInstanceOf[ScReferenceElement]
             }
-          case _ => throw new IncorrectOperationException("Cannot bind to anything but class")
+          case pckg: PsiPackage => bindToPackage(pckg)
+          case _ => throw new IncorrectOperationException("Cannot bind to anything but class or package")
         }
       }
     }

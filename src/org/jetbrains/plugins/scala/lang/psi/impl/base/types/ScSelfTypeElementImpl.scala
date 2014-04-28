@@ -25,7 +25,7 @@ class ScSelfTypeElementImpl extends ScalaStubBasedElementImpl[ScSelfTypeElement]
 
   def this(stub: ScSelfTypeElementStub) = {this (); setStub(stub); setNode(null)}
 
-  override def toString: String = "SelfType"
+  override def toString: String = "SelfType: " + name
 
   def nameId = findChildByType(TokenSets.SELF_TYPE_ID)
 
@@ -37,7 +37,7 @@ class ScSelfTypeElementImpl extends ScalaStubBasedElementImpl[ScSelfTypeElement]
         for {
           templateType <- parent.getType(ctx)
           selfType <- ste.getType(ctx)
-          ct = ScCompoundType(Seq(templateType, selfType), Seq.empty, Seq.empty, ScSubstitutor.empty)
+          ct = ScCompoundType(Seq(templateType, selfType), Map.empty, Map.empty)
         } yield ct
       }
       case None => parent.getType(ctx)

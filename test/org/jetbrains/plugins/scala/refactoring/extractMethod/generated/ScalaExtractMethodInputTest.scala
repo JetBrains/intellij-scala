@@ -18,6 +18,8 @@ class ScalaExtractMethodInputTest extends ScalaExtractMethodTestBase {
 
   def testDefNoParamInput = doTest
 
+  def testFromBaseClassInput = doTest
+
   def testFunType = doTest
 
   def testFunTypeParam = doTest
@@ -36,6 +38,8 @@ class ScalaExtractMethodInputTest extends ScalaExtractMethodTestBase {
   def testInsideClojure = doTest
 
   def testLazyInput = doTest
+
+  def testSCL6882 = doTest
 
   //TODO
 //  def testTypeAliasInput = doTest

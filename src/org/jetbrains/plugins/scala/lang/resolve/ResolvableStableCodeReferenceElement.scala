@@ -32,19 +32,18 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
   private object ShapesResolverAllConstructors extends StableCodeReferenceElementResolver(this, true, true, false)
 
   def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
-//    ResolveCache.getInstance(getProject).resolveWithCaching(this, Resolver, true, incomplete)
     CachesUtil.getMappedWithRecursionPreventingWithRollback[ResolvableStableCodeReferenceElement, Boolean, Array[ResolveResult]](
       this, incomplete, CachesUtil.RESOLVE_KEY, Resolver.resolve, Array.empty, PsiModificationTracker.MODIFICATION_COUNT)
   }
 
   protected def processQualifierResolveResult(res: ResolveResult, processor: BaseProcessor, ref: ScStableCodeReferenceElement) {
     res match {
-      case r@ScalaResolveResult(td: ScTypeDefinition, substitutor) => {
+      case r@ScalaResolveResult(td: ScTypeDefinition, substitutor) =>
         td match {
           case obj: ScObject =>
             val fromType = r.fromType match {
               case Some(fType) => Success(ScProjectionType(fType, obj, superReference = false), Some(this))
-              case _ => td.getType(TypingContext.empty).map(substitutor.subst(_))
+              case _ => td.getType(TypingContext.empty).map(substitutor.subst)
             }
             var state = ResolveState.initial.put(ScSubstitutor.key, substitutor)
             if (fromType.isDefined) {
@@ -56,22 +55,19 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
           case _: ScClass | _: ScTrait =>
             td.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, substitutor), null, ResolvableStableCodeReferenceElement.this)
         }
-      }
       case ScalaResolveResult(typed: ScTypedDefinition, s) =>
         val fromType = s.subst(typed.getType(TypingContext.empty).getOrElse(return))
         processor.processType(fromType, this, ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, fromType))
       case ScalaResolveResult(field: PsiField, s) =>
         processor.processType(s.subst(ScType.create(field.getType, getProject, getResolveScope)), this)
-      case ScalaResolveResult(clazz: PsiClass, s) => {
+      case ScalaResolveResult(clazz: PsiClass, s) =>
         processor.processType(new ScDesignatorType(clazz, true), this) //static Java import
-      }
       case ScalaResolveResult(pack: ScPackage, s) =>
         pack.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, s),
           null, ResolvableStableCodeReferenceElement.this)
-      case other: ScalaResolveResult => {
+      case other: ScalaResolveResult =>
         other.element.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, other.substitutor),
           null, ResolvableStableCodeReferenceElement.this)
-      }
       case _ =>
     }
   }
@@ -87,7 +83,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
           case stmt: ScImportStmt =>
             stmt.importExprs.foreach {
               case expr: ScImportExpr => expr.reference match {
-                case Some(ref) => ref.resolve()
+                case Some(reference) => reference.resolve()
                 case None => expr.qualifier.resolve()
               }
             }
@@ -131,7 +127,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
   protected def processQualifier(ref: ScStableCodeReferenceElement, processor: BaseProcessor) {
     _qualifier() match {
-      case None => {
+      case None =>
         def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
           ProgressManager.checkCanceled()
           place match {
@@ -140,7 +136,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
               // this allows the type elements in a context or view bound to be path-dependent types, based on parameters.
               // See ScalaPsiUtil.syntheticParamClause and StableCodeReferenceElementResolver#computeEffectiveParameterClauses
               treeWalkUp(p.analog.get, lastParent)
-            case p => {
+            case p =>
               if (!p.processDeclarations(processor,
                 ResolveState.initial,
                 lastParent, ref)) return
@@ -149,19 +145,16 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
                 case _ => if (!processor.changedLevel) return
               }
               treeWalkUp(place.getContext, place)
-            }
           }
         }
         treeWalkUp(ref, null)
-      }
       case Some(q: ScDocResolvableCodeReference) =>
         q.multiResolve(incomplete = true).foreach(processQualifierResolveResult(_, processor, ref))
-      case Some(q: ScStableCodeReferenceElement) => {
+      case Some(q: ScStableCodeReferenceElement) =>
         q.bind() match {
           case Some(res) => processQualifierResolveResult(res, processor, ref)
           case _ =>
         }
-      }
       case Some(thisQ: ScThisReference) => for (ttype <- thisQ.getType(TypingContext.empty)) processor.processType(ttype, this)
       case Some(superQ: ScSuperReference) => ResolveUtils.processSuperReference(superQ, processor, this)
     }
@@ -169,9 +162,8 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
   private def _qualifier() = {
     getContext match {
-      case sel: ScImportSelector => {
+      case sel: ScImportSelector =>
         sel.getContext /*ScImportSelectors*/.getContext.asInstanceOf[ScImportExpr].reference
-      }
       case _ => pathQualifier
     }
   }

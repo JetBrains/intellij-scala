@@ -13,12 +13,14 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.fileEditor.FileEditorManager
 import lang.psi.api.ScalaFile
+import scala.Predef
+import javax.swing.Icon
 
 /**
  * @author Ksenia.Sautina
  * @since 12/6/12
  */
-class CopyWorksheetAction extends AnAction {
+class CopyWorksheetAction extends AnAction with TopComponentAction {
   def actionPerformed(e: AnActionEvent) {
     val editor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
     if (editor == null) return
@@ -50,7 +52,7 @@ class CopyWorksheetAction extends AnAction {
       val editor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
       val psiFile: PsiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(editor.getDocument)
       psiFile match {
-        case sf: ScalaFile if (sf.isWorksheetFile) => enable()
+        case sf: ScalaFile if sf.isWorksheetFile => enable()
         case _ => disable()
       }
     } catch {
@@ -105,4 +107,7 @@ class CopyWorksheetAction extends AnAction {
     buffer.toString()
   }
 
+  override def actionIcon = AllIcons.Actions.Copy
+
+  override def bundleKey = "worksheet.copy.button"
 }

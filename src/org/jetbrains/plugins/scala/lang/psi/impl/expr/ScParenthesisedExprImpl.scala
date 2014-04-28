@@ -22,10 +22,9 @@ class ScParenthesisedExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   protected override def innerType(ctx: TypingContext) = {
     expr match {
-      case Some(x: ScExpression) => {
+      case Some(x: ScExpression) =>
         val res = x.getNonValueType(ctx)
         res
-      }
       case _ => Failure("No expression in parentheseses", Some(this))
     }
   }

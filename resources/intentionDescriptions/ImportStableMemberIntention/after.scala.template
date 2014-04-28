@@ -1,0 +1,5 @@
+<spot>import scala.math.Pi</spot>
+
+object Example {
+  val piSquared = <spot>Pi</spot> * <spot>Pi</spot>
+}

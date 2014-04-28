@@ -5,7 +5,7 @@ object A {
 }
 -----
 ScalaFile
-  ScObject
+  ScObject: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -24,15 +24,15 @@ ScalaFile
           PsiElement(()('(')
           Enumerators
             Generator
-              ReferencePattern
+              ReferencePattern: b
                 PsiElement(identifier)('b')
               PsiWhiteSpace(' ')
               PsiElement(<-)('<-')
               PsiWhiteSpace(' ')
-              ReferenceExpression
-                ReferenceExpression
-                  ReferenceExpression
-                    ReferenceExpression
+              ReferenceExpression: m.code.blocks.toList
+                ReferenceExpression: m.code.blocks
+                  ReferenceExpression: m.code
+                    ReferenceExpression: m
                       PsiElement(identifier)('m')
                     PsiElement(.)('.')
                     PsiElement(identifier)('code')
@@ -46,22 +46,22 @@ ScalaFile
               TuplePattern
                 PsiElement(()('(')
                 ArgumentPatterns
-                  ReferencePattern
+                  ReferencePattern: g
                     PsiElement(identifier)('g')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  ReferencePattern
+                  ReferencePattern: k
                     PsiElement(identifier)('k')
                 PsiElement())(')')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
               PsiWhiteSpace(' ')
               MethodCall
-                ReferenceExpression
+                ReferenceExpression: genAndKill
                   PsiElement(identifier)('genAndKill')
                 ArgumentList
                   PsiElement(()('(')
-                  ReferenceExpression
+                  ReferenceExpression: b
                     PsiElement(identifier)('b')
                   PsiElement())(')')
           PsiElement())(')')

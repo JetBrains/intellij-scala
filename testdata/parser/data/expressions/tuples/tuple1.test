@@ -7,7 +7,7 @@ class C {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: C
     AnnotationsList
       <empty list>
     Modifiers
@@ -35,7 +35,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: b
               PsiElement(identifier)('b')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -54,7 +54,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: a
               PsiElement(identifier)('a')
           PsiElement(=)('=')
           UnitExpression
@@ -69,7 +69,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: c
               PsiElement(identifier)('c')
           PsiElement(=)('=')
           Tuple
@@ -87,7 +87,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: d
               PsiElement(identifier)('d')
           PsiElement(=)('=')
           Tuple
@@ -107,7 +107,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: e
               PsiElement(identifier)('e')
           PsiElement(=)('=')
           Tuple

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 
 import com.intellij.openapi.util.Computable
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.{Result, ApplicationManager}
 import extensions.implementation._
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.openapi.project.Project
@@ -14,6 +14,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import java.io.Closeable
+import com.intellij.openapi.command.{WriteCommandAction, CommandProcessor}
+import org.jetbrains.annotations.NotNull
 
 /**
   * Pavel Fatin
@@ -58,11 +61,32 @@ package object extensions {
   }
 
   implicit def regexToRichRegex(r: Regex) = new RegexExt(r)
+  
+  def startCommand(project: Project, commandName: String)(body: => Unit): Unit = {
+    CommandProcessor.getInstance.executeCommand(project, new Runnable {
+      def run() {
+        inWriteAction {
+          body
+        }
+      }
+    }, commandName, null)
+  }
 
   def inWriteAction[T](body: => T): T = {
     ApplicationManager.getApplication.runWriteAction(new Computable[T] {
       def compute: T = body
     })
+  }
+
+  def inWriteCommandAction[T](project: Project, commandName: String = "Undefined")(body: => T): T = {
+    val computable = new Computable[T] {
+      override def compute(): T = body
+    }
+    new WriteCommandAction[T](project, commandName) {
+      protected def run(@NotNull result: Result[T]) {
+        result.setResult(computable.compute())
+      }
+    }.execute.getResultObject
   }
 
   def inReadAction[T](body: => T): T = {
@@ -142,6 +166,14 @@ package object extensions {
           ScType.create(paramType, param.getProject, param.getResolveScope, paramTopLevel = true,
             treatJavaObjectAsAny = treatJavaObjectAsAny)
       }
+    }
+  }
+
+  def using[A <: Closeable, B](resource: A)(block: A => B): B = {
+    try {
+      block(resource)
+    } finally {
+      resource.close()
     }
   }
 }

@@ -4,7 +4,7 @@ class a{
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -30,7 +30,7 @@ ScalaFile
           InfixExpression
             Literal
               PsiElement(true)('true')
-            ReferenceExpression
+            ReferenceExpression: ==
               PsiElement(identifier)('==')
             Literal
               PsiElement(false)('false')

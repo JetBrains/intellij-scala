@@ -145,7 +145,7 @@ ScalaFile
     DocTag
       PsiElement(DOC_TAG_NAME)('@tparam')
       PsiElement(DOC_COMMENT_DATA)(' ')
-      ScalaDocTagValue
+      ScalaDocTagValue: N
         PsiElement(DOC_TAG_VALUE_TOKEN)('N')
       PsiElement(DOC_WHITESPACE)('      ')
       PsiElement(DOC_COMMENT_DATA)('the type of elements contained by the ')
@@ -160,7 +160,7 @@ ScalaFile
     DocTag
       PsiElement(DOC_TAG_NAME)('@tparam')
       PsiElement(DOC_COMMENT_DATA)(' ')
-      ScalaDocTagValue
+      ScalaDocTagValue: NewTo
         PsiElement(DOC_TAG_VALUE_TOKEN)('NewTo')
       PsiElement(DOC_WHITESPACE)('  ')
       PsiElement(DOC_COMMENT_DATA)('the type of collection produced by the ')
@@ -175,7 +175,7 @@ ScalaFile
     DocTag
       PsiElement(DOC_TAG_NAME)('@param')
       PsiElement(DOC_COMMENT_DATA)(' ')
-      ScalaDocTagValue
+      ScalaDocTagValue: other
         PsiElement(DOC_TAG_VALUE_TOKEN)('other')
       PsiElement(DOC_WHITESPACE)('   ')
       PsiElement(DOC_COMMENT_DATA)('the other builder')

@@ -17,6 +17,8 @@ import base.ScPrimaryConstructor
 import statements.params.ScClassParameter
 import statements.ScFunction
 import psi.stubs.ScMemberOrLocal
+import com.intellij.psi.search.{LocalSearchScope, SearchScope}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 
 /**
   * @author Alexander Podkhalyuzin
@@ -154,5 +156,19 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     case _ => this
   }
 
-
+  abstract override def getUseScope: SearchScope = {
+    ScalaPsiUtil.intersectScopes(super.getUseScope, this match {
+      case m if m.getModifierList.accessModifier.exists(mod => mod.isPrivate && mod.isThis) =>
+        Option(m.containingClass).map(new LocalSearchScope(_))
+      case m if m.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis) =>
+        Option(m.containingClass).map(ScalaPsiUtil.withCompanionSearchScope)
+      case _ =>
+        val blockOrMember = PsiTreeUtil.getContextOfType(this, true, classOf[ScBlock], classOf[ScMember])
+        blockOrMember match {
+          case null => None
+          case block: ScBlock => Some(new LocalSearchScope(block))
+          case member: ScMember => Some(member.getUseScope)
+        }
+    })
+  }
 }

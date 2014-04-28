@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.debugger
 
 import com.intellij.debugger.actions.{JvmSmartStepIntoHandler, SmartStepTarget, MethodSmartStepTarget}
 import com.intellij.debugger.SourcePosition
-import java.util.{List => JList}
+import java.util.{List => JList, Collections}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -14,11 +14,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, S
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScDesignatorType, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import scala.collection.JavaConverters._
+import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
+import scala.Some
+import scala.Int
+import scala.Boolean
+import com.intellij.util.Range
 
 /**
  * User: Alexander Podkhalyuzin
@@ -27,8 +32,32 @@ import scala.collection.JavaConverters._
 
 class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
   override def findSmartStepTargets(position: SourcePosition): JList[SmartStepTarget] = {
-    val targets: List[SmartStepTarget] = findReferencedMethodsScala(position).map(new MethodSmartStepTarget(_))
-    targets.asJava
+    val line: Int = position.getLine
+    if (line < 0) {
+      return Collections.emptyList[SmartStepTarget]
+    }
+    val file: PsiFile = position.getFile
+    val vFile: VirtualFile = file.getVirtualFile
+    if (vFile == null) {
+      return Collections.emptyList[SmartStepTarget]
+    }
+    val doc: Document = FileDocumentManager.getInstance.getDocument(vFile)
+    if (doc == null) return Collections.emptyList[SmartStepTarget]
+    if (line >= doc.getLineCount) {
+      return Collections.emptyList[SmartStepTarget]
+    }
+    val startOffset: Int = doc.getLineStartOffset(line)
+    val offset: Int = CharArrayUtil.shiftForward(doc.getCharsSequence, startOffset, " \t")
+    val element: PsiElement = file.findElementAt(offset)
+
+    if (element != null) {
+      val lines: Range[Integer] = new Range[Integer](doc.getLineNumber(element.getTextOffset), doc.getLineNumber(element.getTextOffset + element.getTextLength))
+      val targets: List[SmartStepTarget] = findReferencedMethodsScala(position).map { method =>
+        new MethodSmartStepTarget(method, null, null, true, lines)
+      }
+      return targets.asJava
+    }
+    Collections.emptyList[SmartStepTarget]
   }
 
   def isAvailable(position: SourcePosition): Boolean = {
@@ -63,10 +92,10 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
         val tuple = (expr.getImplicitConversions()._1, expr.getImplicitConversions()._2)
         tuple match {
           case (_, Some(f: PsiMethod)) => methods += f
-          case (_, Some(t: ScTypedStmt)) => ScType.extractFunctionType(t.getType(TypingContext.empty).getOrAny) match {
-            case Some(f) =>
-              f.resolveFunctionTrait match {
-                case Some(ScParameterizedType(ScDesignatorType(funTrait: ScTrait), _)) =>
+          case (_, Some(t: ScTypedStmt)) => t.getType(TypingContext.empty).getOrAny match {
+            case f@ScFunctionType(_, _) =>
+              f match {
+                case ScParameterizedType(ScDesignatorType(funTrait: ScTrait), _) =>
                   ScType.extractClass(t.getType(TypingContext.empty).get) match {
                     case Some(clazz: ScTypeDefinition) =>
                       val funApply = funTrait.functionsByName("apply").apply(0)
@@ -123,7 +152,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
               case _ =>
             }
           case f: ScForStatement =>
-            f.getDesugarisedExpr match {
+            f.getDesugarizedExpr match {
               case Some(expr) =>
                 expr.accept(new MethodsVisitor)
                 return

@@ -3,7 +3,6 @@ package annotator
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.psi.util.PsiTreeUtil
-import controlFlow.ControlFlowInspections
 import createFromUsage._
 import importsTracker._
 import lang.psi.api.statements._
@@ -39,7 +38,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import highlighter.{DefaultHighlighter, AnnotatorHighlighter}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScTypeProjection, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import com.intellij.openapi.util.{TextRange, Key}
 import collection.mutable.ArrayBuffer
 import com.intellij.codeInsight.daemon.impl.AnnotationHolderImpl
@@ -48,6 +47,12 @@ import codeInspection.caseClassParamInspection.{RemoveValFromGeneratorIntentionA
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 import org.jetbrains.plugins.scala.lang.psi
 import com.intellij.openapi.roots.ProjectFileIndex
+import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
+import scala.Some
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.WriteValueUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ReadValueUsed
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 
 /**
  * User: Alexander Podkhalyuzin
@@ -57,9 +62,9 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   with ParametersAnnotator with ApplicationAnnotator
   with AssignmentAnnotator with VariableDefinitionAnnotator
   with TypedStatementAnnotator with PatternDefinitionAnnotator
-  with ConstructorPatternAnnotator with ControlFlowInspections
-  with ConstructorAnnotator with OverridingAnnotator
-  with DumbAware {
+  with PatternAnnotator with ConstructorAnnotator
+  with OverridingAnnotator with DumbAware {
+
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
     val compiled = element.getContainingFile match {
       case file: ScalaFile => file.isCompiled
@@ -85,7 +90,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       }
 
       override def visitParameterizedTypeElement(parameterized: ScParameterizedTypeElement) {
-        val tp = parameterized.typeElement.getType(TypingContext.empty)
+        val tp = parameterized.typeElement.getTypeNoConstructor(TypingContext.empty)
         tp match {
           case Success(res, _) =>
             ScType.extractDesignated(res, withoutAliases = false) match {
@@ -166,6 +171,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
       override def visitAnnotation(annotation: ScAnnotation) {
         checkAnnotationType(annotation, holder)
+        PrivateBeanProperty.annotate(annotation, holder)
         super.visitAnnotation(annotation)
       }
 
@@ -192,11 +198,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       }
 
       override def visitPattern(pat: ScPattern) {
-        pat match {
-          case consPat: ScConstructorPattern =>
-            annotateConstructorPattern(consPat, holder, typeAware)
-          case _ =>
-        }
+        annotatePattern(pat, holder, typeAware)
         super.visitPattern(pat)
       }
 
@@ -426,10 +428,10 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
               case t: ScTryStmt =>
                 t.expectedTypeEx(fromUnderscore = false) match {
                   case Some((tp: ScType, _)) if tp equiv psi.types.Unit => //do nothing
-                  case Some((tp: ScType, typeElement)) => {
+                  case Some((tp: ScType, typeElement)) =>
                     import org.jetbrains.plugins.scala.lang.psi.types._
                     val returnType = candidates(0) match {
-                      case ScalaResolveResult(fun: ScFunction, subst) => fun.returnType.map(subst.subst(_))
+                      case ScalaResolveResult(fun: ScFunction, subst) => fun.returnType.map(subst.subst)
                       case _ => return
                     }
                     val expectedType = Success(tp, None)
@@ -446,7 +448,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                         }
                       }
                     }
-                  }
                   case _ => //do nothing
                 }
               case _ =>
@@ -465,7 +466,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                                   checkWrite: Boolean) {
     val named = resolveResult.getActualElement
     val file = element.getContainingFile
-    if (named.isValid && named.getContainingFile == file) {
+    if (named.isValid && named.getContainingFile == file &&
+            !PsiTreeUtil.isAncestor(named, element, true)) { //to filter recursive usages
       val value: ValueUsed = element match {
         case ref: ScReferenceExpression if checkWrite &&
                 ScalaPsiUtil.isPossiblyAssignment(ref.asInstanceOf[PsiElement]) => WriteValueUsed(named)
@@ -561,27 +563,23 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       val resolveResult = resolve(0).asInstanceOf[ScalaResolveResult]
       refElement match {
         case e: ScReferenceExpression if e.getParent.isInstanceOf[ScPrefixExpr] &&
-                e.getParent.asInstanceOf[ScPrefixExpr].operation == e => {
+                e.getParent.asInstanceOf[ScPrefixExpr].operation == e =>
           resolveResult.implicitFunction match {
-            case Some(fun) => {
+            case Some(fun) =>
               val pref = e.getParent.asInstanceOf[ScPrefixExpr]
               val expr = pref.operand
               highlightImplicitMethod(expr, resolveResult, refElement, fun, holder)
-            }
             case _ =>
           }
-        }
         case e: ScReferenceExpression if e.getParent.isInstanceOf[ScInfixExpr] &&
-                e.getParent.asInstanceOf[ScInfixExpr].operation == e => {
+                e.getParent.asInstanceOf[ScInfixExpr].operation == e =>
           resolveResult.implicitFunction match {
-            case Some(fun) => {
+            case Some(fun) =>
               val inf = e.getParent.asInstanceOf[ScInfixExpr]
               val expr = if (inf.isLeftAssoc) inf.rOp else inf.lOp
               highlightImplicitMethod(expr, resolveResult, refElement, fun, holder)
-            }
             case _ =>
           }
-        }
         case _ =>
       }
     }
@@ -647,13 +645,12 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   private def checkSelfInvocation(self: ScSelfInvocation, holder: AnnotationHolder) {
     self.bind match {
       case Some(elem) =>
-      case None => {
+      case None =>
         if (isAdvancedHighlightingEnabled(self)) {
           val annotation: Annotation = holder.createErrorAnnotation(self.thisElement,
             "Cannot find constructor for this call")
           annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
         }
-      }
     }
   }
 
@@ -671,11 +668,10 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             resolve.length == 1) {
       val resolveResult = resolve(0).asInstanceOf[ScalaResolveResult]
       resolveResult.implicitFunction match {
-        case Some(fun) => {
+        case Some(fun) =>
           val qualifier = refElement.qualifier.get
           val expr = qualifier.asInstanceOf[ScExpression]
           highlightImplicitMethod(expr, resolveResult, refElement, fun, holder)
-        }
         case _ =>
       }
     }
@@ -791,7 +787,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         case i: ScIfStmt if i.elseBranch != None =>
         case fun: ScFunctionExpr =>
         case tr: ScTryStmt =>
-        case _ => {
+        case _ =>
           expr.getParent match {
             case a: ScAssignStmt if a.getRExpression == Some(expr) && a.isDynamicNamedAssignment => return
             case args: ScArgumentExprList => return
@@ -815,11 +811,11 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
           expr.expectedTypeEx(fromUnderscore) match {
             case Some((tp: ScType, _)) if tp equiv psi.types.Unit => //do nothing
-            case Some((tp: ScType, typeElement)) => {
+            case Some((tp: ScType, typeElement)) =>
               import org.jetbrains.plugins.scala.lang.psi.types._
               val expectedType = Success(tp, None)
               implicitFunction match {
-                case Some(fun) => {
+                case Some(fun) =>
                   //todo:
                   /*val typeFrom = expr.getType(TypingContext.empty).getOrElse(Any)
                   val typeTo = exprType.getOrElse(Any)
@@ -827,7 +823,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                   val range = expr.getTextRange
                   showImplicitUsageAnnotation(exprText, typeFrom, typeTo, fun, range, holder,
                     EffectType.LINE_UNDERSCORE, Color.LIGHT_GRAY)*/
-                }
                 case None => //do nothing
               }
               val conformance = ScalaAnnotator.smartCheckConformance(expectedType, exprType)
@@ -853,10 +848,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                   }
                 }
               }
-            }
             case _ => //do nothing
           }
-        }
       }
     }
     if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr)) {
@@ -867,7 +860,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
   private def checkExpressionImplicitParameters(expr: ScExpression, holder: AnnotationHolder) {
     expr.findImplicitParameters match {
-      case Some(seq) => {
+      case Some(seq) =>
         for (resolveResult <- seq) {
           if (resolveResult != null) {
             ImportTracker.getInstance(expr.getProject).registerUsedImports(
@@ -875,7 +868,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             registerUsedElement(expr, resolveResult, checkWrite = false)
           }
         }
-      }
       case _ =>
     }
   }
@@ -905,16 +897,14 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   private def checkExplicitTypeForReturnStatement(ret: ScReturnStmt, holder: AnnotationHolder) {
     val fun: ScFunction = PsiTreeUtil.getParentOfType(ret, classOf[ScFunction])
     fun match {
-      case null => {
+      case null =>
         val error = ScalaBundle.message("return.outside.method.definition")
         val annotation: Annotation = holder.createErrorAnnotation(ret.returnKeyword, error)
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-      }
-      case _ if !fun.hasAssign || fun.returnType.exists(_ == psi.types.Unit) => {
+      case _ if !fun.hasAssign || fun.returnType.exists(_ == psi.types.Unit) =>
         return
-      }
       case _ => fun.returnTypeElement match {
-        case Some(x: ScTypeElement) => {
+        case Some(x: ScTypeElement) =>
           import org.jetbrains.plugins.scala.lang.psi.types._
           val funType = fun.returnType
           funType match {
@@ -926,7 +916,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             case None => ExpressionTypeResult(Success(psi.types.Unit, None), Set.empty, None)
           }
           ImportTracker.getInstance(ret.getProject).registerUsedImports(ret.getContainingFile.asInstanceOf[ScalaFile], importUsed)
-        }
         case _ =>
       }
     }

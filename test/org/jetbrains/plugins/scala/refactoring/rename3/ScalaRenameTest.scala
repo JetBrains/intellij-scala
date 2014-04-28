@@ -24,11 +24,11 @@ class ScalaRenameTest extends ScalaRenameTestBase {
   def testVarAndSetters() = doTest()
 
   def testSettersWithoutVar() = {
-    try {doTest()}
-    catch {
-      case e: RuntimeException if e.getMessage endsWith "is not an identifier." =>
+      try {doTest()}
+      catch {
+        case e: RuntimeException if e.getMessage endsWith "is not an identifier." =>
+      }
     }
-  }
 
   def testSettersWithoutVar2() = {
     try {doTest("NameAfterRename_=")}
@@ -44,4 +44,8 @@ class ScalaRenameTest extends ScalaRenameTestBase {
   def testOverrideDef() = doTest()
 
   def testMethodArgument() = doTest()
+
+  def testMultipleBaseMembers() = doTest()
+
+  def testTypeAlias() = doTest()
 }

@@ -1,7 +1,7 @@
 class a(b: c[d])
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -17,7 +17,7 @@ ScalaFile
       Parameters
         ParametersClause
           PsiElement(()('(')
-          ClassParameter
+          ClassParameter: b
             AnnotationsList
               <empty list>
             Modifiers
@@ -26,14 +26,14 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              ParametrizedTypeElement
-                SimpleTypeElement
-                  CodeReferenceElement
+              ParametrizedTypeElement: c[d]
+                SimpleTypeElement: c
+                  CodeReferenceElement: c
                     PsiElement(identifier)('c')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleTypeElement
-                    CodeReferenceElement
+                  SimpleTypeElement: d
+                    CodeReferenceElement: d
                       PsiElement(identifier)('d')
                   PsiElement(])(']')
           PsiElement())(')')

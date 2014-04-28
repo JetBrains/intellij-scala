@@ -13,7 +13,7 @@ class A {
     for {
       i <- 1 to 10
       if i != 5
-      value: Any = i - 5
+      value: Int = i - 5
       j = i / value
     } yield j
   }

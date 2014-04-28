@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package components
 
 import org.intellij.lang.annotations.Language
-import javax.swing.event.HyperlinkEvent
-import org.jetbrains.plugins.scala.DesktopUtils
 import com.intellij.openapi.wm.{StatusBarWidget, WindowManager, StatusBar}
 import com.intellij.openapi.wm.StatusBarWidget.PlatformType
 import org.jetbrains.plugins.scala.icons.Icons
@@ -17,6 +15,7 @@ import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.util._
 import com.intellij.openapi.components._
 import com.intellij.notification._
+import org.jetbrains.plugins.scala.util.NotificationUtil
 import configuration._
 
 @State(name = "HighlightingAdvisor", storages = Array(
@@ -86,14 +85,12 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
   private def configureWidget() {
     (applicable, installed) match {
       case (true, true) => // do nothing
-      case (true, false) => {
+      case (true, false) =>
         bar.addWidget(Widget, project)
         installed = true
-      }
-      case (false, true) => {
+      case (false, true) =>
         bar.removeWidget(Widget.ID)
         installed = false
-      }
       case (false, false) => // do nothing
     }
   }
@@ -105,9 +102,11 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
   }
 
   private def notify(title: String, message: String, notificationType: NotificationType) {
-    val notification = new Notification("scala", title, message, notificationType, HyperlinkListener)
-    Notifications.Bus.register("scala", NotificationDisplayType.BALLOON)
-    Notifications.Bus.notify(notification, project)
+    NotificationUtil.builder(project, message) setNotificationType notificationType setTitle title setHandler {
+      case "enable" => enabled = true
+      case "disable" => enabled = false
+      case _ =>
+    }
   }
 
   def toggle() {
@@ -149,9 +148,8 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
     context.doWhenDone(new AsyncResult.Handler[DataContext]() {
       def run(v: DataContext) {
         CommonDataKeys.EDITOR_EVEN_IF_INACTIVE.getData(v) match {
-          case editor: EditorEx => {
+          case editor: EditorEx =>
             FileContentUtil.reparseFiles(project, Seq(editor.getVirtualFile), true)
-          }
           case _ => // do nothing
         }
       }
@@ -159,34 +157,6 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
   }
 
   private def bar = WindowManager.getInstance.getStatusBar(project)
-
-  private object HyperlinkListener extends NotificationListener {
-    def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent) {
-      event match {
-        case Link(url) => DesktopUtils.browse(url)
-        case Action("enable") => {
-          notification.expire()
-          enabled = true
-        }
-        case Action("disable") => {
-          notification.expire()
-          enabled = false
-        }
-      }
-    }
-  }
-
-  private object Link {
-    def unapply(event: HyperlinkEvent) = Option(event.getURL).map(_.getProtocol).collect {
-      case "http" => event.getURL
-    }
-  }
-
-  private object Action {
-    def unapply(event: HyperlinkEvent) = Option(event.getURL).map(_.getProtocol).collect {
-      case "ftp" => event.getURL.getHost
-    }
-  }
 
   private object Widget extends StatusBarWidget {
     def ID = "TypeAwareHighlighting"

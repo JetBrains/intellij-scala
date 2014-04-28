@@ -5,7 +5,7 @@ object TestFoo {
 }
 -----
 ScalaFile
-  ScObject
+  ScObject: TestFoo
     AnnotationsList
       <empty list>
     Modifiers
@@ -18,7 +18,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScFunctionDefinition
+        ScFunctionDefinition: main
           AnnotationsList
             <empty list>
           Modifiers
@@ -29,7 +29,7 @@ ScalaFile
           Parameters
             ParametersClause
               PsiElement(()('(')
-              Parameter
+              Parameter: args
                 AnnotationsList
                   <empty list>
                 Modifiers
@@ -38,14 +38,14 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  ParametrizedTypeElement
-                    SimpleTypeElement
-                      CodeReferenceElement
+                  ParametrizedTypeElement: Array[String]
+                    SimpleTypeElement: Array
+                      CodeReferenceElement: Array
                         PsiElement(identifier)('Array')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleTypeElement
-                        CodeReferenceElement
+                      SimpleTypeElement: String
+                        CodeReferenceElement: String
                           PsiElement(identifier)('String')
                       PsiElement(])(']')
               PsiElement())(')')
@@ -60,13 +60,13 @@ ScalaFile
                 Literal
                   PsiElement(string content)('""')
                 PsiWhiteSpace(' ')
-                ReferenceExpression
+                ReferenceExpression: contains
                   PsiElement(identifier)('contains')
                 PsiWhiteSpace(' ')
                 Literal
                   PsiElement(string content)('""')
               PsiWhiteSpace('     ')
-              ReferenceExpression
+              ReferenceExpression: ASD
                 PsiElement(identifier)('ASD')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')

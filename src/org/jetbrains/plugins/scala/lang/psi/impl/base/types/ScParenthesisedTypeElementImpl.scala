@@ -18,7 +18,7 @@ import com.intellij.psi.PsiElementVisitor
 */
 
 class ScParenthesisedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScParenthesisedTypeElement{
-  override def toString: String = "TypeInParenthesis"
+  override def toString: String = "TypeInParenthesis: " + getText
 
   protected def innerType(ctx: TypingContext) = {
     typeElement match {

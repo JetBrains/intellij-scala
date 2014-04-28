@@ -3,7 +3,7 @@ def f(): String = {
 }
 -----
 ScalaFile
-  ScFunctionDefinition
+  ScFunctionDefinition: f
     AnnotationsList
       <empty list>
     Modifiers
@@ -17,8 +17,8 @@ ScalaFile
         PsiElement())(')')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    SimpleTypeElement
-      CodeReferenceElement
+    SimpleTypeElement: String
+      CodeReferenceElement: String
         PsiElement(identifier)('String')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -27,11 +27,11 @@ ScalaFile
       PsiElement({)('{')
       PsiWhiteSpace('\n  ')
       Literal
-        ReferenceExpression
+        ReferenceExpression: s
           PsiElement(interpolated string id)('s')
         PsiElement(interpolatedmultiline string)('"""blah blah ')
         PsiElement(interpolated string injection)('$')
-        ReferenceExpression
+        ReferenceExpression: a
           PsiElement(identifier)('a')
         PsiElement(interpolatedmultiline string)(' blah ')
         PsiElement(interpolated string injection)('$')
@@ -39,19 +39,19 @@ ScalaFile
           PsiElement({)('{')
           InfixExpression
             InfixExpression
-              ReferenceExpression
+              ReferenceExpression: a
                 PsiElement(identifier)('a')
               PsiWhiteSpace(' ')
-              ReferenceExpression
+              ReferenceExpression: +
                 PsiElement(identifier)('+')
               PsiWhiteSpace(' ')
-              ReferenceExpression
+              ReferenceExpression: b
                 PsiElement(identifier)('b')
             PsiWhiteSpace(' ')
-            ReferenceExpression
+            ReferenceExpression: +
               PsiElement(identifier)('+')
             PsiWhiteSpace(' ')
-            ReferenceExpression
+            ReferenceExpression: c
               PsiElement(identifier)('c')
           PsiElement(})('}')
         PsiElement(interpolated string end)('"""')

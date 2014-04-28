@@ -3,7 +3,7 @@ class A {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -31,13 +31,13 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: a
               PsiElement(identifier)('a')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           Literal
-            ReferenceExpression
+            ReferenceExpression: f
               PsiElement(interpolated string id)('f')
             PsiElement(interpolated string)('"')
             PsiElement(interpolated string injection)('$')
@@ -45,7 +45,7 @@ ScalaFile
               PsiElement({)('{')
               MethodCall
                 MethodCall
-                  ReferenceExpression
+                  ReferenceExpression: (for (i <- 1 until 100) yield i).foldLeft
                     ExpressionInParenthesis
                       PsiElement(()('(')
                       ForStatement
@@ -54,7 +54,7 @@ ScalaFile
                         PsiElement(()('(')
                         Enumerators
                           Generator
-                            ReferencePattern
+                            ReferencePattern: i
                               PsiElement(identifier)('i')
                             PsiWhiteSpace(' ')
                             PsiElement(<-)('<-')
@@ -63,7 +63,7 @@ ScalaFile
                               Literal
                                 PsiElement(integer)('1')
                               PsiWhiteSpace(' ')
-                              ReferenceExpression
+                              ReferenceExpression: until
                                 PsiElement(identifier)('until')
                               PsiWhiteSpace(' ')
                               Literal
@@ -72,7 +72,7 @@ ScalaFile
                         PsiWhiteSpace(' ')
                         PsiElement(yield)('yield')
                         PsiWhiteSpace(' ')
-                        ReferenceExpression
+                        ReferenceExpression: i
                           PsiElement(identifier)('i')
                       PsiElement())(')')
                     PsiElement(.)('.')
@@ -88,7 +88,7 @@ ScalaFile
                     UnderscoreSection
                       PsiElement(_)('_')
                     PsiWhiteSpace(' ')
-                    ReferenceExpression
+                    ReferenceExpression: +
                       PsiElement(identifier)('+')
                     PsiWhiteSpace(' ')
                     UnderscoreSection

@@ -1,6 +1,6 @@
 new ASDGASDF()
 (x, timestamp)
-------
+-----
 ScalaFile
   NewTemplateDefinition
     PsiElement(new)('new')
@@ -8,8 +8,8 @@ ScalaFile
     ExtendsBlock
       ClassParents
         Constructor
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: ASDGASDF
+            CodeReferenceElement: ASDGASDF
               PsiElement(identifier)('ASDGASDF')
           ArgumentList
             PsiElement(()('(')
@@ -17,10 +17,10 @@ ScalaFile
   PsiWhiteSpace('\n')
   Tuple
     PsiElement(()('(')
-    ReferenceExpression
+    ReferenceExpression: x
       PsiElement(identifier)('x')
     PsiElement(,)(',')
     PsiWhiteSpace(' ')
-    ReferenceExpression
+    ReferenceExpression: timestamp
       PsiElement(identifier)('timestamp')
     PsiElement())(')')

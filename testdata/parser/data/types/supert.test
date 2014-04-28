@@ -1,7 +1,7 @@
 class MapProjection extends super.MapProjection
 -----
 ScalaFile
-  ScClass
+  ScClass: MapProjection
     AnnotationsList
       <empty list>
     Modifiers
@@ -22,8 +22,8 @@ ScalaFile
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: super.MapProjection
+            CodeReferenceElement: super.MapProjection
               SuperReference
                 PsiElement(super)('super')
               PsiElement(.)('.')

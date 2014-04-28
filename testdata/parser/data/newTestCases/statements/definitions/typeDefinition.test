@@ -6,7 +6,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -26,7 +26,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScTypeAliasDefinition
+        ScTypeAliasDefinition: id
           AnnotationsList
             <empty list>
           Modifiers
@@ -37,14 +37,14 @@ ScalaFile
           PsiWhiteSpace(' ')
           TypeParameterClause
             PsiElement([)('[')
-            TypeParameter
+            TypeParameter: T
               PsiElement(identifier)('T')
             PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: Type
+            CodeReferenceElement: Type
               PsiElement(identifier)('Type')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

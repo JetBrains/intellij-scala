@@ -56,7 +56,7 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
 
             val extendsText = {
               try {
-                if (typeParameters.isEmpty) {
+                if (typeParameters.isEmpty && constructor.get.effectiveParameterClauses.length == 1) {
                   val typeElementText =
                     constructor.get.effectiveParameterClauses.map {
                       clause =>

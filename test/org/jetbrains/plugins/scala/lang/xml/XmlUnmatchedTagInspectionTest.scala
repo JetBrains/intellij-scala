@@ -14,7 +14,8 @@ import base.ScalaLightCodeInsightFixtureTestAdapter
 class XmlUnmatchedTagInspectionTest extends ScalaLightCodeInsightFixtureTestAdapter {
   val noOpeningTagError = ScalaBundle.message("xml.no.opening.tag")
   val noClosingTagError = ScalaBundle.message("xml.no.closing.tag")
-  import CodeInsightTestCase.{SELECTION_START_MARKER, SELECTION_END_MARKER}
+  val s = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_START
+  val e = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_END
 
 
   private def check(text: String, annotation: String) {
@@ -23,13 +24,13 @@ class XmlUnmatchedTagInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
 
 
   def testSimpleClosingError() {
-    val text = "val xml = <aaa>blah blah" + SELECTION_START_MARKER + "</aab>" + SELECTION_END_MARKER
+    val text = "val xml = <aaa>blah blah" + s + "</aab>" + e
 
     check(text, noOpeningTagError)
   }
 
   def testSimpleOpeningError() {
-    val text = "val xml = " + SELECTION_START_MARKER + "<sdgdsjh attr1=\"1\">" + SELECTION_END_MARKER + "blah lbah</asfgsd>"
+    val text = "val xml = " + s + "<sdgdsjh attr1=\"1\">" + e + "blah lbah</asfgsd>"
 
     check(text, noClosingTagError)
   }
@@ -40,7 +41,7 @@ class XmlUnmatchedTagInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
         val xml = <aaa attr="1" attr2="2">
                     <bbb>blah blah</bbb>
                     <ccc attr="100500">
-                      """ + SELECTION_START_MARKER + """<ddd>""" + SELECTION_END_MARKER + """
+                      """ + s + """<ddd>""" + e + """
                         blah
                       </dde>
                     </ccc>
@@ -58,7 +59,7 @@ class XmlUnmatchedTagInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
                     <ccc attr="100500">
                       <ddd>
                         blah
-                      """ + SELECTION_START_MARKER + """</dde>""" + SELECTION_END_MARKER + """
+                      """ + s + """</dde>""" + e + """
                     </ccc>
                   </aaa>
       """
@@ -71,7 +72,7 @@ class XmlUnmatchedTagInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
       """
         <a>blah</a> match {
           case <b>blah</b> =>
-          case <aa><bb><cc>{e@_*}</cc>""" + SELECTION_START_MARKER + """</dd>""" + SELECTION_END_MARKER + """</aa> =>
+          case <aa><bb><cc>{e@_*}</cc>""" + s + """</dd>""" + e + """</aa> =>
           case _ =>
         }
       """

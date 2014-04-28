@@ -5,6 +5,7 @@ package api
 package expr
 
 import base.patterns.ScCaseClauses
+import com.intellij.psi.PsiElement
 
 /**
 * @author Alexander Podkhalyuzin

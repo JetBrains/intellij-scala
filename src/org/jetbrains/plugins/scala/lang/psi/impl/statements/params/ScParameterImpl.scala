@@ -7,23 +7,16 @@ package params
 
 import psi.stubs._
 import api.statements.params._
-import api.statements._
-import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import lexer.ScalaTokenTypes
 import com.intellij.lang.ASTNode
-import com.intellij.psi.util._
 import toplevel.synthetic.JavaIdentifier
 import com.intellij.psi._
 import api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import result.{Failure, Success, TypingContext, TypeResult}
-import api.toplevel.typedef.ScClass
-import types.Conformance.AliasType
 import api.base.types.ScTypeElement
 import collection.mutable.ArrayBuffer
 import api.ScalaElementVisitor
-import collection.mutable
-import collection.immutable.HashSet
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 
 /**
@@ -31,11 +24,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
  */
 
 class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScParameter {
-  def this(node: ASTNode) = {this (); setNode(node)}
+  def this(node: ASTNode) = {
+    this(); setNode(node)
+  }
 
-  def this(stub: ScParameterStub) = {this (); setStub(stub); setNode(null)}
+  def this(stub: ScParameterStub) = {
+    this(); setStub(stub); setNode(null)
+  }
 
-  override def toString: String = "Parameter"
+  override def toString: String = "Parameter: " + name
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
@@ -45,9 +42,8 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
       return stub.asInstanceOf[ScParameterStub].isCallByNameParameter
     }
     paramType match {
-      case Some(paramType) => {
+      case Some(paramType) =>
         paramType.isCallByNameParameter
-      }
       case _ => false
     }
   }
@@ -66,7 +62,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
             else {
               exprs(0) match {
                 case literal: ScLiteral if literal.getNode.getFirstChildNode != null &&
-                  literal.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.tSYMBOL =>
+                        literal.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.tSYMBOL =>
                   val literalText = literal.getText
                   if (literalText.length < 2) None
                   else Some(literalText.substring(1))
@@ -78,27 +74,10 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
     }
   }
 
-  def getRealParameterType(ctx: TypingContext): TypeResult[ScType] = {
-    if (!isRepeatedParameter) return getType(ctx)
-    getType(ctx) match {
-      case f@Success(tp: ScType, elem) => {
-        val seq = ScalaPsiManager.instance(getProject).getCachedClass("scala.collection.Seq", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
-        if (seq != null) {
-          Success(new ScParameterizedType(ScType.designator(seq), Seq(tp)), elem)
-        } else f
-      }
-      case f => f
-    }
-  }
-
   def nameId = {
     val id = findChildByType(ScalaTokenTypes.tIDENTIFIER)
     if (id == null) findChildByType(ScalaTokenTypes.tUNDER) else id
   }
-
-  def paramType: Option[ScParameterType] = findChild(classOf[ScParameterType])
-
-  def getDeclarationScope = PsiTreeUtil.getParentOfType(this, classOf[ScParameterOwner], classOf[ScFunctionExpr])
 
   def getTypeElement = null
 
@@ -113,30 +92,8 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
     }
   }
 
-  override def getUseScope = {
-    getDeclarationScope match {
-      case null => GlobalSearchScope.EMPTY_SCOPE
-      case expr: ScFunctionExpr => new LocalSearchScope(expr)
-      case clazz: ScClass if clazz.isCase => clazz.getUseScope
-      case clazz: ScClass if isInstanceOf[ScClassParameter] && !asInstanceOf[ScClassParameter].isVal &&
-              !asInstanceOf[ScClassParameter].isVar => {
-        new LocalSearchScope(clazz)
-      }
-      case d => d.getUseScope
-    }
-  }
-
-  def isVarArgs = isRepeatedParameter
-
-  def computeConstantValue = null
-
-  def normalizeDeclaration() {}
-
-  def hasInitializer = false
-
-  def getInitializer = null
-
-  def getType(ctx: TypingContext) : TypeResult[ScType] = {
+  def getType(ctx: TypingContext): TypeResult[ScType] = {
+    //todo: this is very error prone way to calc type, when usually we need real parameter type
     val computeType: ScType = {
       val stub = getStub
       if (stub != null) {
@@ -152,10 +109,10 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
       } else {
         typeElement match {
           case None if baseDefaultParam =>
-             getActualDefaultExpression match {
-               case Some(t) => t.getType(TypingContext.empty).getOrNothing
-               case None => lang.psi.types.Nothing
-             }
+            getActualDefaultExpression match {
+              case Some(t) => t.getType(TypingContext.empty).getOrNothing
+              case None => lang.psi.types.Nothing
+            }
           case None => expectedParamType.map(_.unpackedType) match {
             case Some(t) => t
             case None => lang.psi.types.Nothing
@@ -165,51 +122,6 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
       }
     }
     Success(computeType, Some(this))
-  }
-
-  def getType : PsiType = ScType.toPsi(getRealParameterType(TypingContext.empty).getOrNothing, getProject, getResolveScope)
-
-  def expectedParamType: Option[ScType] = getContext match {
-    case clause: ScParameterClause => clause.getContext.getContext match {
-      // For parameter of anonymous functions to infer parameter's type from an appropriate
-      // an. fun's type
-      case f: ScFunctionExpr => {
-        var result: Option[ScType] = null //strange logic to handle problems with detecting type
-        for (tp <- f.expectedTypes(false) if result != None) {
-          def applyForFunction(tp: ScType, checkDeep: Boolean) {
-            ScType.extractFunctionType(tp) match {
-              case Some(ScFunctionType(ret, _)) if checkDeep => applyForFunction(ret, false)
-              case Some(ScFunctionType(_, params)) if params.length == f.parameters.length => {
-                val i = clause.parameters.indexOf(this)
-                if (result != null) result = None
-                else result = Some(params(i).removeAbstracts)
-              }
-              case Some(_: ScFunctionType) => //nothing to do
-              case None =>
-            }
-          }
-          applyForFunction(tp, ScUnderScoreSectionUtil.underscores(f).length > 0)
-        }
-        if (result == null || result == None) result = None //todo: x => foo(x)
-        result
-      }
-      case _ => None
-    }
-  }
-
-  def getTypeNoResolve: PsiType = PsiType.VOID
-
-  def isDefaultParam: Boolean = {
-    def check(param: ScParameter, visited: HashSet[ScParameter]): Boolean = {
-      if (param.baseDefaultParam) return true
-      if (visited.contains(param)) return false
-      getSuperParameter match {
-        case Some(superParam) =>
-          check(superParam, visited + param)
-        case _ => false
-      }
-    }
-    check(this, HashSet.empty)
   }
 
   def baseDefaultParam: Boolean = {
@@ -231,49 +143,12 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
     }
   }
 
-  def getSuperParameter: Option[ScParameter] = {
-    getParent match {
-      case clause: ScParameterClause => {
-        val i = clause.parameters.indexOf(this)
-        clause.getParent match {
-          case p: ScParameters => {
-            val j = p.clauses.indexOf(clause)
-            p.getParent match {
-              case fun: ScFunction => {
-                fun.superMethod match {
-                  case Some(method: ScFunction) => {
-                    val clauses: Seq[ScParameterClause] = method.paramClauses.clauses
-                    if (j >= clauses.length) return None
-                    val parameters: Seq[ScParameter] = clauses.apply(j).parameters
-                    if (i >= parameters.length) return None
-                    Some(parameters.apply(i))
-                  }
-                  case _ => None
-                }
-              }
-              case _ => None
-            }
-          }
-          case _ => None
-        }
-      }
-      case _ => None
-    }
-  }
-
   def getActualDefaultExpression: Option[ScExpression] = {
-     val stub = getStub
+    val stub = getStub
     if (stub != null) {
       return stub.asInstanceOf[ScParameterStub].getDefaultExpr
     }
     findChild(classOf[ScExpression])
-  }
-
-  def getDefaultExpression: Option[ScExpression] = {
-    val res = getActualDefaultExpression
-    if (res == None) {
-      getSuperParameter.flatMap(_.getDefaultExpression)
-    } else res
   }
 
   def remove() {
@@ -287,14 +162,14 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
           if (index != length) {
             var n = node.getTreeNext
             while (n != null && n.getElementType != ScalaTokenTypes.tRPARENTHESIS &&
-              !n.getPsi.isInstanceOf[ScParameter]) {
+                    !n.getPsi.isInstanceOf[ScParameter]) {
               toRemove += n
               n = n.getTreeNext
             }
           } else {
             var n = node.getTreePrev
             while (n != null && n.getElementType != ScalaTokenTypes.tLPARENTHESIS &&
-              !n.getPsi.isInstanceOf[ScParameter]) {
+                    !n.getPsi.isInstanceOf[ScParameter]) {
               toRemove += n
               n = n.getTreePrev
             }

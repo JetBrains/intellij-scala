@@ -1,39 +1,66 @@
 package org.jetbrains.plugins.scala.lang.refactoring.mock
 
-import com.intellij.openapi.editor.{VisualPosition, LogicalPosition, CaretModel}
+import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.editor.event.CaretListener
+import java.util
 
 /**
  * Pavel Fatin
  */
 
 class CaretModelStub extends CaretModel {
-  def getTextAttributes: TextAttributes = null
+  override def setCaretsAndSelections(caretStates: util.List[CaretState]): Unit = ???
 
-  def getVisualLineEnd: Int = 0
+  override def getCaretCount: Int = ???
 
-  def getVisualLineStart: Int = 0
+  override def getTextAttributes: TextAttributes = null
 
-  def removeCaretListener(listener: CaretListener): Unit = {}
+  override def getVisualLineEnd: Int = 0
 
-  def addCaretListener(listener: CaretListener): Unit = {}
+  override def getVisualLineStart: Int = 0
 
-  def getOffset: Int = 0
+  override def removeCaretListener(listener: CaretListener): Unit = {}
 
-  def getVisualPosition: VisualPosition = null
+  override def addCaretListener(listener: CaretListener): Unit = {}
 
-  def getLogicalPosition: LogicalPosition = null
+  override def getOffset: Int = 0
 
-  def moveToOffset(offset: Int, locateBeforeSoftWrap: Boolean): Unit = {}
+  override def getVisualPosition: VisualPosition = null
 
-  def moveToOffset(offset: Int): Unit = {}
+  override def getLogicalPosition: LogicalPosition = null
 
-  def moveToVisualPosition(pos: VisualPosition): Unit = {}
+  override def moveToOffset(offset: Int, locateBeforeSoftWrap: Boolean): Unit = {}
 
-  def moveToLogicalPosition(pos: LogicalPosition): Unit = {}
+  override def moveToOffset(offset: Int): Unit = {}
 
-  def moveCaretRelatively(columnShift: Int, lineShift: Int, withSelection: Boolean, blockSelection: Boolean, scrollToCaret: Boolean): Unit = {}
+  override def moveToVisualPosition(pos: VisualPosition): Unit = {}
 
-  def isUpToDate = false
+  override def moveToLogicalPosition(pos: LogicalPosition): Unit = {}
+
+  override def moveCaretRelatively(columnShift: Int, lineShift: Int, withSelection: Boolean, blockSelection: Boolean, scrollToCaret: Boolean): Unit = {}
+
+  override def isUpToDate = false
+
+  override def removeSecondaryCarets(): Unit = ???
+
+  override def removeCaret(caret: Caret): Boolean = ???
+
+  override def addCaret(pos: VisualPosition): Caret = ???
+
+  override def getAllCarets: util.List[Caret] = ???
+
+  override def getCaretAt(pos: VisualPosition): Caret = ???
+
+  override def getPrimaryCaret: Caret = ???
+
+  override def getCurrentCaret: Caret = ???
+
+  override def supportsMultipleCarets(): Boolean = false
+
+  override def runBatchCaretOperation(runnable: Runnable): Unit = ???
+
+  override def runForEachCaret(action: CaretAction): Unit = ???
+
+  override def getCaretsAndSelections: util.List[CaretState] = ???
 }

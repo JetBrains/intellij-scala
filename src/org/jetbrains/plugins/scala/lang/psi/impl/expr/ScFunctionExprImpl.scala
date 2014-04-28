@@ -8,8 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import api.statements.params.{ScParameter, ScParameters}
 import types.result.TypingContext
-import psi.controlFlow.impl.ScalaControlFlowBuilder
-import psi.controlFlow.Instruction
 import api.ScalaElementVisitor
 import types._
 import com.intellij.psi._
@@ -42,12 +40,11 @@ class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                                    place: PsiElement): Boolean = {
     result match {
       case Some(x) if x == lastParent || (lastParent.isInstanceOf[ScalaPsiElement] &&
-        x == lastParent.asInstanceOf[ScalaPsiElement].getDeepSameElementInContext)=> {
+        x == lastParent.asInstanceOf[ScalaPsiElement].getDeepSameElementInContext)=>
         for (p <- parameters) {
           if (!processor.execute(p, state)) return false
         }
         true
-      }
       case _ => true
     }
   }
@@ -55,20 +52,8 @@ class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   protected override def innerType(ctx: TypingContext) = {
     val paramTypes = (parameters: Seq[ScParameter]).map(_.getType(ctx))
     val resultType = result match {case Some(r) => r.getType(ctx).getOrAny case _ => Unit}
-    collectFailures(paramTypes, Nothing)(new ScFunctionType(resultType, _)(getProject, getResolveScope))
+    collectFailures(paramTypes, Nothing)(ScFunctionType(resultType, _)(getProject, getResolveScope))
   }
 
-  private var myControlFlow: Seq[Instruction] = null
-
-  def getControlFlow(cached: Boolean) = {
-    if (!cached || myControlFlow == null) result match {
-      case Some(e) => {
-        val builder = new ScalaControlFlowBuilder(null, null)
-        myControlFlow = builder.buildControlflow(e)
-      }
-      case None => myControlFlow = Seq.empty
-    }
-    myControlFlow
-  }
-
+  override def controlFlowScope: Option[ScalaPsiElement] = result
 }

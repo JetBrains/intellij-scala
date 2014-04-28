@@ -56,11 +56,12 @@ case class JavaArrayType(arg: ScType) extends ValueType {
     }
   }
 
-  override def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int): ScType = {
-    update(this, variance) match {
-      case (true, res) => res
-      case _ =>
-        JavaArrayType(arg.recursiveVarianceUpdate(update, 0))
+  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
+                                           variance: Int = 1): ScType = {
+    update(this, variance, data) match {
+      case (true, res, _) => res
+      case (_, _, newData) =>
+        JavaArrayType(arg.recursiveVarianceUpdateModifiable(newData, update, 0))
     }
   }
 
@@ -168,10 +169,11 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
     }
   }
 
-  override def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int): ScType = {
-    update(this, variance) match {
-      case (true, res) => res
-      case _ =>
+  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
+                                           variance: Int = 1): ScType = {
+    update(this, variance, data) match {
+      case (true, res, _) => res
+      case (_, _, newData) =>
         val des = ScType.extractDesignated(designator, withoutAliases = false) match {
           case Some((n: ScTypeParametersOwner, _)) =>
             n.typeParameters.map {
@@ -181,11 +183,11 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
             }
           case _ => Seq.empty
         }
-        ScParameterizedType(designator.recursiveVarianceUpdate(update, variance),
+        ScParameterizedType(designator.recursiveVarianceUpdateModifiable(newData, update, variance),
           typeArgs.zipWithIndex.map {
             case (ta, i) =>
               val v = if (i < des.length) des(i) else 0
-              ta.recursiveVarianceUpdate(update, v * variance)
+              ta.recursiveVarianceUpdateModifiable(newData, update, v * variance)
           })
     }
   }
@@ -193,6 +195,17 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     (this, r) match {
+      case (ScParameterizedType(ScAbstractType(tpt, lower, upper), args), _) =>
+        if (falseUndef) return (false, uSubst)
+        val subst = new ScSubstitutor(Map(tpt.args.zip(args).map {
+          case (tpt: ScTypeParameterType, tp: ScType) =>
+            ((tpt.param.name, ScalaPsiUtil.getPsiElementId(tpt.param)), tp)
+        }: _*), Map.empty, None)
+        var t: (Boolean, ScUndefinedSubstitutor) = Conformance.conformsInner(subst.subst(upper), r, Set.empty, uSubst)
+        if (!t._1) return (false, uSubst)
+        t = Conformance.conformsInner(r, subst.subst(lower), Set.empty, t._2)
+        if (!t._1) return (false, uSubst)
+        (true, t._2)
       case (ScParameterizedType(proj@ScProjectionType(projected, _, _), args), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
         isAliasType match {
           case Some(Conformance.AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
@@ -214,6 +227,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
       case (ScParameterizedType(designator, typeArgs), ScParameterizedType(designator1, typeArgs1)) => {
         var t = Equivalence.equivInner(designator, designator1, undefinedSubst, falseUndef)
         if (!t._1) return (false, undefinedSubst)
+        undefinedSubst = t._2
         if (typeArgs.length != typeArgs1.length) return (false, undefinedSubst)
         val iterator1 = typeArgs.iterator
         val iterator2 = typeArgs1.iterator
@@ -225,23 +239,6 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
         (true, undefinedSubst)
       }
       case _ => (false, undefinedSubst)
-    }
-  }
-
-  def getTupleType: Option[ScTupleType] = {
-    getStandardType("scala.Tuple") match {
-      case Some((clazz, typeArgs)) if typeArgs.length > 0 =>
-        Some(new ScTupleType(typeArgs)(clazz.getProject, clazz.getResolveScope))
-      case _ => None
-    }
-  }
-
-  def getFunctionType: Option[ScFunctionType] = {
-    getStandardType("scala.Function") match {
-      case Some((clazz, typeArgs)) if typeArgs.length > 0 =>
-        val (params, Seq(ret)) = typeArgs.splitAt(typeArgs.length - 1)
-        Some(new ScFunctionType(ret, params)(clazz.getProject, clazz.getResolveScope))
-      case _ => None
     }
   }
 
@@ -282,6 +279,11 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitParameterizedType(this)
   }
+
+  override def isFinalType: Boolean = designator.isFinalType && !typeArgs.exists {
+    case tp: ScTypeParameterType => tp.isConravariant || tp.isCovariant
+    case _ => false
+  }
 }
 
 object ScParameterizedType {
@@ -310,13 +312,13 @@ case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
          ptp match {case tp: ScTypeParam =>
              new Suspension[ScType]({() => s.subst(tp.lowerBound.getOrNothing)})
            case _ => new Suspension[ScType]({() => s.subst(
-             ScCompoundType(collection.immutable.Seq(ptp.getExtendsListTypes.map(ScType.create(_, ptp.getProject)).toSeq ++
-                   ptp.getImplementsListTypes.map(ScType.create(_, ptp.getProject)).toSeq: _*), Seq.empty, Seq.empty, ScSubstitutor.empty))
+             ScCompoundType(ptp.getExtendsListTypes.map(ScType.create(_, ptp.getProject)).toSeq ++
+                   ptp.getImplementsListTypes.map(ScType.create(_, ptp.getProject)).toSeq, Map.empty, Map.empty))
          })},
          ptp match {case tp: ScTypeParam =>
              new Suspension[ScType]({() => s.subst(tp.upperBound.getOrAny)})
            case _ => new Suspension[ScType]({() => s.subst(
-             ScCompoundType(ptp.getSuperTypes.map(ScType.create(_, ptp.getProject)).toSeq, Seq.empty, Seq.empty, ScSubstitutor.empty))
+             ScCompoundType(ptp.getSuperTypes.map(ScType.create(_, ptp.getProject)).toSeq, Map.empty, Map.empty))
          })}, ptp)
   }
 

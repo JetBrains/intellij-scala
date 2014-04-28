@@ -2,7 +2,8 @@ package org.jetbrains.plugins.scala
 package worksheet.runconfiguration
 
 import com.intellij.util.containers.WeakHashMap
-import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.{EditorFactory, Editor}
+import com.intellij.openapi.editor.impl.EditorImpl
 
 /**
  * @author Ksenia.Sautina
@@ -34,6 +35,23 @@ object WorksheetViewerInfo {
           allViewers.put(editor, list.filter {
             case sViewer => sViewer != viewer
           })
+      }
+    }
+  }
+  
+  def invalidate() {
+    val i = allViewers.values().iterator()
+    val factory = EditorFactory.getInstance()
+    
+    while (i.hasNext) {
+      i.next().foreach {
+        case e: EditorImpl =>
+          if (!e.isDisposed) try {
+            factory.releaseEditor(e)
+          } catch {
+            case _: Exception => //ignore
+          }
+        case _ =>
       }
     }
   }

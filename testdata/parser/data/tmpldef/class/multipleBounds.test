@@ -2,7 +2,7 @@ class MultipleBounds[M <: A <% B <% C : D : E]
 
 -----
 ScalaFile
-  ScClass
+  ScClass: MultipleBounds
     AnnotationsList
       <empty list>
     Modifiers
@@ -12,37 +12,37 @@ ScalaFile
     PsiElement(identifier)('MultipleBounds')
     TypeParameterClause
       PsiElement([)('[')
-      TypeParameter
+      TypeParameter: M
         PsiElement(identifier)('M')
         PsiWhiteSpace(' ')
         PsiElement(<:)('<:')
         PsiWhiteSpace(' ')
-        SimpleTypeElement
-          CodeReferenceElement
+        SimpleTypeElement: A
+          CodeReferenceElement: A
             PsiElement(identifier)('A')
         PsiWhiteSpace(' ')
         PsiElement(<%)('<%')
         PsiWhiteSpace(' ')
-        SimpleTypeElement
-          CodeReferenceElement
+        SimpleTypeElement: B
+          CodeReferenceElement: B
             PsiElement(identifier)('B')
         PsiWhiteSpace(' ')
         PsiElement(<%)('<%')
         PsiWhiteSpace(' ')
-        SimpleTypeElement
-          CodeReferenceElement
+        SimpleTypeElement: C
+          CodeReferenceElement: C
             PsiElement(identifier)('C')
         PsiWhiteSpace(' ')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        SimpleTypeElement
-          CodeReferenceElement
+        SimpleTypeElement: D
+          CodeReferenceElement: D
             PsiElement(identifier)('D')
         PsiWhiteSpace(' ')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        SimpleTypeElement
-          CodeReferenceElement
+        SimpleTypeElement: E
+          CodeReferenceElement: E
             PsiElement(identifier)('E')
       PsiElement(])(']')
     PrimaryConstructor

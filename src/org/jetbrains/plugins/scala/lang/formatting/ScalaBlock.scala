@@ -21,6 +21,7 @@ import psi.api.toplevel.ScEarlyDefinitions
 import com.intellij.formatting._
 import com.intellij.psi.{TokenType, PsiComment, PsiErrorElement, PsiWhiteSpace}
 import psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
 class ScalaBlock (val myParentBlock: ScalaBlock,
         protected val myNode: ASTNode,
@@ -80,9 +81,18 @@ extends Object with ScalaTokenTypes with Block {
         new ChildAttributes(Indent.getSpaceIndent(indent * indentSize), null)
       case _: ScBlockExpr | _: ScEarlyDefinitions | _: ScTemplateBody | _: ScForStatement  | _: ScWhileStmt |
            _: ScTryBlock | _: ScCatchBlock =>
-        new ChildAttributes(if (braceShifted) Indent.getNoneIndent else Indent.getNormalIndent, null)
+        new ChildAttributes(if (braceShifted) Indent.getNoneIndent else
+        if (mySubBlocks.size >= newChildIndex &&
+                mySubBlocks.get(newChildIndex - 1).isInstanceOf[ScalaBlock] &&
+                mySubBlocks.get(newChildIndex - 1).asInstanceOf[ScalaBlock].getNode.getElementType == ScalaElementTypes.CASE_CLAUSES)
+          Indent.getSpaceIndent(2 * indentSize)
+        else
+          Indent.getNormalIndent, null)
       case p : ScPackaging if p.isExplicit => new ChildAttributes(Indent.getNormalIndent, null)
-      case _: ScBlock => new ChildAttributes(Indent.getNoneIndent, null)
+      case _: ScBlock =>
+        val grandParent = parent.getParent
+        new ChildAttributes(if (grandParent != null && (grandParent.isInstanceOf[ScCaseClause] || grandParent.isInstanceOf[ScFunctionExpr])) Indent.getNormalIndent
+        else Indent.getNoneIndent, null)
       case _: ScIfStmt => new ChildAttributes(Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE),
         this.getAlignment)
       case x: ScDoStmt => {

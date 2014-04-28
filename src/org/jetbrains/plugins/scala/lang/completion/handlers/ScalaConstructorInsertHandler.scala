@@ -18,7 +18,8 @@ import com.intellij.openapi.util.Condition
 import com.intellij.psi.{PsiFile, PsiDocumentManager, PsiClass}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiModifierListOwnerExt}
+import org.jetbrains.plugins.scala.extensions._
+import scala.collection.JavaConverters._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -38,7 +39,7 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
     var endOffset = startOffset + lookupStringLength
 
     item match {
-      case ScalaLookupItem(obj: ScObject) => {
+      case ScalaLookupItem(obj: ScObject) =>
         if (context.getCompletionChar != '.') {
           document.insertString(endOffset, ".")
           endOffset += 1
@@ -54,8 +55,7 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
           })
         }
         return
-      }
-      case item@ScalaLookupItem(clazz: PsiClass) => {
+      case item@ScalaLookupItem(clazz: PsiClass) =>
         val isRenamed = item.isRenamed != None
         var hasNonEmptyParams = false
         clazz match {
@@ -74,7 +74,7 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
           endOffset += 2
           editor.getCaretModel.moveToOffset(endOffset - 1)
         } else if (item.typeParameters.length > 0) {
-          val str = item.typeParameters.map(ScType.canonicalText(_)).mkString("[", ", ", "]")
+          val str = item.typeParameters.map(ScType.canonicalText).mkString("[", ", ", "]")
           document.insertString(endOffset, str)
           endOffset += str.length()
           editor.getCaretModel.moveToOffset(endOffset)
@@ -85,8 +85,6 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
           if (!item.typeParametersProblem)
             editor.getCaretModel.moveToOffset(endOffset - 1)
         }
-
-
 
         if (clazz.isInterface || clazz.isInstanceOf[ScTrait] ||
           clazz.hasModifierPropertyScala("abstract")) {
@@ -106,15 +104,9 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
               if (elements.length == 1) {
                 val element: ScTypeElement = elements(0)
                 val ref: ScStableCodeReferenceElement = element match {
-                  case simple: ScSimpleTypeElement => simple.reference match {
-                    case Some(ref) => ref
-                    case _ => null
-                  }
+                  case simple: ScSimpleTypeElement => simple.reference.getOrElse(null)
                   case par: ScParameterizedTypeElement => par.typeElement match {
-                    case simple: ScSimpleTypeElement => simple.reference match {
-                      case Some(ref) => ref
-                      case _ => null
-                    }
+                    case simple: ScSimpleTypeElement => simple.reference.getOrElse(null)
                     case _ => null
                   }
                   case _ => null
@@ -141,22 +133,15 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
             def run() {
               val file = context.getFile
               val element = file.findElementAt(editor.getCaretModel.getOffset)
-              val parent = element.getParent
-              if (!parent.isInstanceOf[ScTemplateBody]) return
-              val extendsBlock = parent.getParent
-              if (!extendsBlock.isInstanceOf[ScExtendsBlock]) return
-              if (!extendsBlock.getParent.isInstanceOf[ScNewTemplateDefinition]) return
-              val newTemplateDef = extendsBlock.getParent.asInstanceOf[ScNewTemplateDefinition]
-              val members: Array[ClassMember] = ScalaOIUtil.toMembers(ScalaOIUtil.getMembersToImplement(newTemplateDef))
-              val membersList = new java.util.ArrayList[ClassMember]
-              for (member <- members) membersList.add(member)
-              val b = ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY
-              ScalaOIUtil.runAction(membersList, true, newTemplateDef, editor,
-                if (b != null) b.booleanValue() else true)
+              element.getParent match {
+                case (_: ScTemplateBody) childOf ((_: ScExtendsBlock) childOf (newTemplateDef: ScNewTemplateDefinition)) =>
+                  val members = ScalaOIUtil.getMembersToImplement(newTemplateDef)
+                  ScalaOIUtil.runAction(members.toSeq, isImplement = true, newTemplateDef, editor)
+                case _ => return
+              }
             }
           })
         }
-      }
       case _ =>
     }
   }

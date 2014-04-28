@@ -5,9 +5,11 @@ package util
 
 import com.intellij.openapi.application.ApplicationManager
 import lexer.{ScalaLexer, ScalaTokenTypes}
-import com.intellij.psi.{PsiNamedElement, PsiElement}
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import scala.reflect.NameTransformer
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import extensions._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -49,6 +51,19 @@ object ScalaNamesUtil {
     case psiNamed: PsiNamedElement => psiNamed.getName
   }
 
+  def qualifiedName(named: PsiNamedElement): Option[String] = {
+    ScalaPsiUtil.nameContext(named) match {
+      case pack: PsiPackage => Some(pack.getQualifiedName)
+      case clazz: PsiClass => Some(clazz.qualifiedName)
+      case memb: PsiMember =>
+        val containingClass = memb.containingClass
+        if (containingClass != null && containingClass.qualifiedName != null && memb.hasModifierProperty(PsiModifier.STATIC)) {
+          Some(Seq(containingClass.qualifiedName, named.name).filter(_ != "").mkString("."))
+        } else None
+      case _ => None
+    }
+  }
+
   object isBackticked {
     def unapply(named: ScNamedElement): Option[String] = {
       val name = named.name
@@ -69,5 +84,10 @@ object ScalaNamesUtil {
       case _ => name
     }
     NameTransformer.encode(toEncode)
+  }
+
+  def changeKeyword(s: String): String = {
+    if (ScalaNamesUtil.isKeyword(s)) "`" + s + "`"
+    else s
   }
 }

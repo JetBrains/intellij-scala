@@ -3,7 +3,7 @@ abstract class base{
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: base
     AnnotationsList
       <empty list>
     Modifiers
@@ -23,7 +23,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScTypeAliasDeclaration
+        ScTypeAliasDeclaration: f
           AnnotationsList
             <empty list>
           Modifiers
@@ -33,13 +33,13 @@ ScalaFile
           PsiElement(identifier)('f')
           PsiWhiteSpace(' ')
           PsiElement(>:)('>:')
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: Int
+            CodeReferenceElement: Int
               PsiElement(identifier)('Int')
           PsiWhiteSpace(' ')
           PsiElement(<:)('<:')
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: Any
+            CodeReferenceElement: Any
               PsiElement(identifier)('Any')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

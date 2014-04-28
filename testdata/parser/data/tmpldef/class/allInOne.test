@@ -3,7 +3,7 @@ trait Mixin extends Base {}
 object O extends Mixin {}
 -----
 ScalaFile
-  ScClass
+  ScClass: Base
     AnnotationsList
       <empty list>
     Modifiers
@@ -24,15 +24,15 @@ ScalaFile
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: Object
+            CodeReferenceElement: Object
               PsiElement(identifier)('Object')
       PsiWhiteSpace(' ')
       ScTemplateBody
         PsiElement({)('{')
         PsiElement(})('}')
   PsiWhiteSpace('\n')
-  ScTrait
+  ScTrait: Mixin
     AnnotationsList
       <empty list>
     Modifiers
@@ -45,15 +45,15 @@ ScalaFile
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
       TraitParents
-        SimpleTypeElement
-          CodeReferenceElement
+        SimpleTypeElement: Base
+          CodeReferenceElement: Base
             PsiElement(identifier)('Base')
       PsiWhiteSpace(' ')
       ScTemplateBody
         PsiElement({)('{')
         PsiElement(})('}')
   PsiWhiteSpace('\n')
-  ScObject
+  ScObject: O
     AnnotationsList
       <empty list>
     Modifiers
@@ -67,8 +67,8 @@ ScalaFile
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: Mixin
+            CodeReferenceElement: Mixin
               PsiElement(identifier)('Mixin')
       PsiWhiteSpace(' ')
       ScTemplateBody

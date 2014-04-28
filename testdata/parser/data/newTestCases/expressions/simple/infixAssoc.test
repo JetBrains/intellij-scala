@@ -3,7 +3,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -25,21 +25,21 @@ ScalaFile
         PsiWhiteSpace('\n  ')
         InfixExpression
           InfixExpression
-            ReferenceExpression
+            ReferenceExpression: a
               PsiElement(identifier)('a')
             PsiWhiteSpace(' ')
-            ReferenceExpression
+            ReferenceExpression: ::
               PsiElement(identifier)('::')
             PsiWhiteSpace(' ')
-            ReferenceExpression
+            ReferenceExpression: b
               PsiElement(identifier)('b')
             PsiErrorElement:Wrong associativity. All operators should have the same associativity
               <empty list>
           PsiWhiteSpace(' ')
-          ReferenceExpression
+          ReferenceExpression: :+
             PsiElement(identifier)(':+')
           PsiWhiteSpace(' ')
-          ReferenceExpression
+          ReferenceExpression: c
             PsiElement(identifier)('c')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

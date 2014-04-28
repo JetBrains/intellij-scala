@@ -85,7 +85,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
            isAccessible: Boolean = isAccessible, resultUndef: Option[ScUndefinedSubstitutor] = None,
            isDynamic: Boolean = isDynamic,
            isForwardReference: Boolean = isForwardReference,
-           implicitParameterType: Option[ScType] = implicitParameterType): ScalaResolveResult =
+           implicitParameterType: Option[ScType] = implicitParameterType,
+           importsUsed: collection.Set[ImportUsed] = importsUsed): ScalaResolveResult =
     new ScalaResolveResult(element, subst, importsUsed, nameShadow, implicitConversionClass, problems, boundClass,
       implicitFunction, implicitType, defaultParameterUsed, innerResolveResult, parentElement,
       isNamedParameter, fromType, tuplingUsed, isSetterFunction, isAssignment, notCheckedResolveResult,

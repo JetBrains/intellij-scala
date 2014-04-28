@@ -1,7 +1,7 @@
 class A(a:(a=>(c,d)=>e))
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -17,7 +17,7 @@ ScalaFile
       Parameters
         ParametersClause
           PsiElement(()('(')
-          ClassParameter
+          ClassParameter: a
             AnnotationsList
               <empty list>
             Modifiers
@@ -25,28 +25,28 @@ ScalaFile
             PsiElement(identifier)('a')
             PsiElement(:)(':')
             ParameterType
-              TypeInParenthesis
+              TypeInParenthesis: (a=>(c,d)=>e)
                 PsiElement(()('(')
-                FunctionalType
-                  SimpleTypeElement
-                    CodeReferenceElement
+                FunctionalType: a=>(c,d)=>e
+                  SimpleTypeElement: a
+                    CodeReferenceElement: a
                       PsiElement(identifier)('a')
                   PsiElement(=>)('=>')
-                  FunctionalType
-                    TupleType
+                  FunctionalType: (c,d)=>e
+                    TupleType: (c,d)
                       PsiElement(()('(')
                       TypesList
-                        SimpleTypeElement
-                          CodeReferenceElement
+                        SimpleTypeElement: c
+                          CodeReferenceElement: c
                             PsiElement(identifier)('c')
                         PsiElement(,)(',')
-                        SimpleTypeElement
-                          CodeReferenceElement
+                        SimpleTypeElement: d
+                          CodeReferenceElement: d
                             PsiElement(identifier)('d')
                       PsiElement())(')')
                     PsiElement(=>)('=>')
-                    SimpleTypeElement
-                      CodeReferenceElement
+                    SimpleTypeElement: e
+                      CodeReferenceElement: e
                         PsiElement(identifier)('e')
                 PsiElement())(')')
           PsiElement())(')')

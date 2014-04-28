@@ -4,7 +4,7 @@ object main{
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: Some
     AnnotationsList
       <empty list>
     Modifiers
@@ -21,7 +21,7 @@ ScalaFile
       Parameters
         ParametersClause
           PsiElement(()('(')
-          ClassParameter
+          ClassParameter: x
             AnnotationsList
               <empty list>
             Modifiers
@@ -30,8 +30,8 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: Int
+                CodeReferenceElement: Int
                   PsiElement(identifier)('Int')
           PsiElement())(')')
     ExtendsBlock
@@ -39,7 +39,7 @@ ScalaFile
         PsiElement({)('{')
         PsiElement(})('}')
   PsiWhiteSpace('\n')
-  ScObject
+  ScObject: main
     AnnotationsList
       <empty list>
     Modifiers
@@ -51,7 +51,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScValueDeclaration
+        ScValueDeclaration: x, y, z, t
           AnnotationsList
             <empty list>
           Modifiers
@@ -59,21 +59,21 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfIdentifiers
-            Field identifier
+            Field identifier: x
               PsiElement(identifier)('x')
             PsiElement(,)(',')
-            Field identifier
+            Field identifier: y
               PsiElement(identifier)('y')
             PsiElement(,)(',')
-            Field identifier
+            Field identifier: z
               PsiElement(identifier)('z')
             PsiElement(,)(',')
-            Field identifier
+            Field identifier: t
               PsiElement(identifier)('t')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: Int
+            CodeReferenceElement: Int
               PsiElement(identifier)('Int')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

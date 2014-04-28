@@ -26,18 +26,12 @@ import ScalaWrapManager._
 import psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
 import scaladoc.lexer.ScalaDocTokenType
 import scaladoc.parser.ScalaDocElementTypes
-import scaladoc.psi.api.{ScDocTag, ScDocComment}
-import scaladoc.parser.parsing.MyScaladocParsing
-import com.intellij.formatting.Alignment.Anchor
-import extensions.&&
-import collection.mutable.{ArrayBuffer, ArrayBuilder}
+import scaladoc.psi.api.ScDocTag
+import collection.mutable.ArrayBuffer
 import com.intellij.psi.{PsiErrorElement, PsiComment, PsiWhiteSpace, PsiElement}
 import com.intellij.openapi.util.{TextRange, Key}
-import scala.collection.JavaConversions._
-import formatting.getDummyBlocks.StringLineScalaBlock
 import psi.api.base.ScLiteral
-import com.intellij.formatting.Indent.Type
-import org.jetbrains.plugins.scala.editor.enterHandler.MultilineStringEnterHandler
+import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 
 object getDummyBlocks {
@@ -95,7 +89,7 @@ object getDummyBlocks {
         if node.getElementType == ScalaDocElementTypes.DOC_TAG =>
         val docTag = node.getPsi.asInstanceOf[ScDocTag]
         val tagConcernedNode = if (docTag.getValueElement != null) docTag.getValueElement.getNode else
-          (if (docTag.getNameElement != null) docTag.getNameElement.getNode else null)
+          if (docTag.getNameElement != null) docTag.getNameElement.getNode else null
 
         if (tagConcernedNode != null) {
           var hasValidData = false
@@ -520,7 +514,7 @@ object getDummyBlocks {
     val validAlignment = Alignment.createAlignment(true)
     val wrap: Wrap = Wrap.createWrap(WrapType.NONE, true)
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    val marginChar = MultilineStringEnterHandler.getMarginChar(node.getPsi)
+    val marginChar = "" + MultilineStringUtil.getMarginChar(node.getPsi)
     val marginIndent = scalaSettings.MULTI_LINE_STRING_MARGIN_INDENT
 
     val indent = Indent.getNoneIndent

@@ -5,7 +5,7 @@ class A {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -33,7 +33,7 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: a
               PsiElement(identifier)('a')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -44,19 +44,19 @@ ScalaFile
             FunctionExpression
               Parameters
                 ParametersClause
-                  Parameter
+                  Parameter: foo
                     PsiElement(identifier)('foo')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
                     ParameterType
-                      SimpleTypeElement
-                        CodeReferenceElement
+                      SimpleTypeElement: Int
+                        CodeReferenceElement: Int
                           PsiElement(identifier)('Int')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
               BlockOfExpressions
-                ReferenceExpression
+                ReferenceExpression: foo
                   PsiElement(identifier)('foo')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')

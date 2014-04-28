@@ -88,21 +88,21 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
       ScalaUtils.runWriteActionDoNotRequestConfirmation(new Runnable {
         def run() {
           editor.getSelectionModel.setSelection(startOffset, endOffset)
-          def invokes() {
+          ScalaRefactoringUtil.afterExpressionChoosing(project, editor, scalaFile, null, "Introduce Variable") {
             ScalaRefactoringUtil.trimSpacesAndComments(editor, scalaFile)
             PsiDocumentManager.getInstance(project).commitAllDocuments()
-            val (expr: ScExpression, typez: ScType) = ScalaRefactoringUtil.
-              getExpression(project, editor, scalaFile, startOffset, endOffset).get
+            val (expr: ScExpression, types: Array[ScType]) =
+              ScalaRefactoringUtil.getExpression(project, editor, scalaFile, startOffset, endOffset).get
+
             val function = PsiTreeUtil.getContextOfType(expr, true, classOf[ScFunctionDefinition])
             val methodToSearchFor: PsiMethod = SuperMethodWarningUtil.checkSuperMethod(function, RefactoringBundle.message("to.refactor"))
 
             val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr),
               function.body.getOrElse(function))
             val processor = new ScalaIntroduceParameterProcessor(project, editor, methodToSearchFor, function,
-              replaceAllOccurrences, occurrences, startOffset, endOffset, paramName, isDefaultParam, typez, expr)
+              replaceAllOccurrences, occurrences, startOffset, endOffset, paramName, isDefaultParam, types(0), expr)
             processor.run()
           }
-          ScalaRefactoringUtil.invokeRefactoring(project, editor, scalaFile, null, "Introduce Variable", invokes _)
         }
       }, project, "Test")
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim

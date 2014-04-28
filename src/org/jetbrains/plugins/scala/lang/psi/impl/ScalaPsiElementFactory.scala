@@ -28,7 +28,7 @@ import lexer.{ScalaTokenTypes, ScalaLexer}
 import stubs.StubElement
 import types._
 import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
-import api.toplevel.typedef.{ScObject, ScTypeDefinition, ScMember}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScObject, ScTypeDefinition, ScMember}
 import parser.parsing.top.TmplDef
 import parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
 import parser.parsing.top.params.{ClassParamClause, ImplicitClassParamClause}
@@ -145,7 +145,7 @@ object ScalaPsiElementFactory {
     try {
       createExpressionWithContextFromText(text, context, context)
     } catch {
-      case e: Throwable => throw new IncorrectOperationException
+      case e: Throwable => throw new IncorrectOperationException(s"Cannot create expression from text $text")
     }
   }
 
@@ -187,60 +187,16 @@ object ScalaPsiElementFactory {
 
   def createImplicitClauseFromTextWithContext(clauseText: String, manager: PsiManager,
                                               context: PsiElement): ScParameterClause = {
-    val text = clauseText
-
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder = new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text))
-    ImplicitParamClause.parse(builder)
-
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    psi match {
-      case fun: ScParameterClause =>
-        fun.asInstanceOf[ScalaPsiElement].setContext(context, contextLastChild(context))
-        fun
-      case _ => null
-    }
+    createElementWithContext(clauseText, context, contextLastChild(context), ImplicitParamClause.parse(_))
   }
 
   def createImplicitClassParamClauseFromTextWithContext(clauseText: String, manager: PsiManager,
                                                         context: PsiElement): ScParameterClause = {
-    val text = clauseText
-
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder = new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text))
-    ImplicitClassParamClause.parse(builder)
-
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    psi match {
-      case fun: ScParameterClause =>
-        fun.asInstanceOf[ScalaPsiElement].setContext(context, contextLastChild(context))
-        fun
-      case _ => null
-    }
+    createElementWithContext(clauseText, context, contextLastChild(context), ImplicitClassParamClause.parse(_))
   }
 
   def createEmptyClassParamClauseWithContext(manager: PsiManager, context: PsiElement): ScParameterClause = {
-
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder = new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, "()"))
-    ClassParamClause.parse(builder)
-
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    psi match {
-      case fun: ScParameterClause =>
-        fun.asInstanceOf[ScalaPsiElement].setContext(context, contextLastChild(context))
-        fun
-      case _ => null
-    }
+    createElementWithContext("()", context, contextLastChild(context), ClassParamClause.parse(_))
   }
 
   private def contextLastChild(context: PsiElement): PsiElement = {
@@ -351,21 +307,7 @@ object ScalaPsiElementFactory {
   }
 
   def createBlockExpressionWithoutBracesFromText(text: String, manager: PsiManager): ScBlockImpl = {
-    val context = PsiFileFactory.getInstance(manager.getProject).
-      createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
-      ScalaFileType.SCALA_FILE_TYPE, "").asInstanceOf[ScalaFile]
-    val holder: FileElement = DummyHolderFactory.createHolder(manager, context).getTreeElement
-    val builder: ScalaPsiBuilderImpl =
-      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text))
-    Block.parse(builder, hasBrace = false, needNode = true)
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    psi match {
-      case blockImpl: ScBlockImpl => blockImpl
-      case _ => null
-    }
+    createElement(text, manager, Block.parse(_, hasBrace = false, needNode = true))
   }
 
 
@@ -383,10 +325,15 @@ object ScalaPsiElementFactory {
 
   def createIdentifier(name: String, manager: PsiManager): ASTNode = {
     val text = "package " + (if (!ScalaNamesUtil.isKeyword(name)) name else "`" + name + "`")
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
-      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    dummyFile.getNode.getLastChildNode.getLastChildNode.getLastChildNode
+    try {
+      val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+              createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
+                ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+      dummyFile.getNode.getLastChildNode.getLastChildNode.getLastChildNode
+    }
+    catch {
+      case t: Throwable => throw new IllegalArgumentException(s"Cannot create identifier from text $name")
+    }
   }
 
   def createModifierFromText(name: String, manager: PsiManager): ASTNode = {
@@ -417,17 +364,25 @@ object ScalaPsiElementFactory {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    val imp: ScImportStmt = dummyFile.getFirstChild.asInstanceOf[ScImportStmt]
-    val expr: ScImportExpr = imp.importExprs.apply(0)
-    val ref = expr.reference match {case Some(x) => x case None => return null}
-    ref
+    try {
+      val imp: ScImportStmt = dummyFile.getFirstChild.asInstanceOf[ScImportStmt]
+      val expr: ScImportExpr = imp.importExprs.apply(0)
+      val ref = expr.reference match {
+        case Some(x) => x
+        case None => return null
+      }
+      ref
+    }
+    catch {
+      case t: Throwable => throw new IllegalArgumentException(s"Cannot create reference with text $name")
+    }
   }
 
   def createImportStatementFromClass(holder: ScImportsHolder, clazz: PsiClass, manager: PsiManager): ScImportStmt = {
     val qualifiedName = clazz.qualifiedName
     val packageName = holder match {
       case packaging: ScPackaging => packaging.getPackageName
-      case _ => {
+      case _ =>
         var element: PsiElement = holder
         while (element != null && !element.isInstanceOf[ScalaFile] && !element.isInstanceOf[ScPackaging])
           element = element.getParent
@@ -435,7 +390,6 @@ object ScalaPsiElementFactory {
           case packaging: ScPackaging => packaging.getPackageName
           case _ => null
         }
-      }
     }
     val name = getShortName(qualifiedName, packageName)
     val text = "import " + (if (isResolved(name, clazz, packageName, manager)) name else "_root_." + qualifiedName)
@@ -444,10 +398,9 @@ object ScalaPsiElementFactory {
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
     dummyFile.getImportStatements.headOption match {
       case Some(x) => x
-      case None => {
+      case None =>
         //cannot be
         null
-      }
     }
   }
 
@@ -475,10 +428,9 @@ object ScalaPsiElementFactory {
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
     dummyFile.getImportStatements.headOption match {
       case Some(x) => x
-      case None => {
+      case None =>
         //cannot be
         null
-      }
     }
   }
 
@@ -493,17 +445,19 @@ object ScalaPsiElementFactory {
     val extendsBlock = classDef.extendsBlock
     val parents = extendsBlock.templateParents
     (parents: @unchecked) match {
-      case Some(p) => {
+      case Some(p) =>
         val elements = p.typeElements
         (elements.head.asInstanceOf[ScSimpleTypeElement].reference: @unchecked) match {case Some(r) => r}
-      }
       case _ => throw new com.intellij.util.IncorrectOperationException()
     }
   }
 
   def createDeclaration(typez: ScType, name: String, isVariable: Boolean,
                         expr: ScExpression, manager: PsiManager, isPresentableText: Boolean): ScMember = {
-    val typeText = if(isPresentableText) typez.presentableText else typez.canonicalText
+    val typeText =
+      if (typez == null) ""
+      else if(isPresentableText) typez.presentableText
+      else typez.canonicalText
     createDeclaration(name, typeText, isVariable, expr, manager)
   }
 
@@ -532,10 +486,11 @@ object ScalaPsiElementFactory {
       case null => ""
       case _ => stmt.getText
     }
+    val beforeColon = if (ScalaNamesUtil.isOpCharacter(name.last)) " " else ""
     val typeText =
       if (typeName != null && typeName != ""){
         createTypeElementFromText(typeName, manager) //throws an exception if type name is incorrect
-        ": " + typeName
+        s"$beforeColon: $typeName"
       }  else ""
     val keyword: String = if (isVariable) "var" else "val"
     val text = s"class a {$keyword $name$typeText = ${stmtText(expr)}"
@@ -572,10 +527,13 @@ object ScalaPsiElementFactory {
 
   def createEnumerator(name: String, expr: ScExpression, manager: PsiManager, typeName: String): ScEnumerator = {
     val typeText = if (typeName == null || typeName == "") "" else ": " + typeName
-    val text = s"for {\n  i <- 1 to 239\n  $name$typeText = ${expr.getText}\n}"
+    val enumText = s"$name$typeText = ${expr.getText}"
+    val text = s"for {\n  i <- 1 to 239\n  $enumText\n}"
     val dummyFile = createScalaFile(text, manager)
     val forStmt: ScForStatement = dummyFile.getFirstChild.asInstanceOf[ScForStatement]
-    forStmt.enumerators.getOrElse(null).enumerators.apply(0)
+    forStmt.enumerators.flatMap(_.enumerators.headOption).getOrElse {
+      throw new IllegalArgumentException(s"Could not create enumerator from text:\n $enumText")
+    }
   }
 
   def createNewLine(manager: PsiManager): PsiElement = createNewLineNode(manager, "\n").getPsi
@@ -632,9 +590,8 @@ object ScalaPsiElementFactory {
     (extendToken, templateParents)
   }
 
-  def createOverrideImplementMethod(sign: PhysicalSignature, manager: PsiManager, isOverride: Boolean,
-                                   needsInferType: Boolean, body: String): ScFunction = {
-    val text = "class a {\n  " + getOverrideImplementSign(sign, body, isOverride, needsInferType) + "\n}"
+  def createMethodFromSignature(sign: PhysicalSignature, manager: PsiManager, needsInferType: Boolean, body: String): ScFunction = {
+    val text = "class a {\n  " + methodFromSignatureText(sign, body, needsInferType) + "\n}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
@@ -643,9 +600,15 @@ object ScalaPsiElementFactory {
     function
   }
 
+  def createOverrideImplementMethod(sign: PhysicalSignature, manager: PsiManager, needsOverrideModifier: Boolean,
+                                    needsInferType: Boolean, body: String): ScFunction = {
+    val fun = createMethodFromSignature(sign, manager, needsInferType, body)
+    addModifiersFromSignature(fun, sign, needsOverrideModifier)
+  }
+
   def createOverrideImplementType(alias: ScTypeAlias, substitutor: ScSubstitutor, manager: PsiManager,
-                                  isOverride: Boolean): ScTypeAlias = {
-    val text = "class a {" + getOverrideImplementTypeSign(alias, substitutor, "this.type", isOverride) + "}"
+                                  needsOverrideModifier: Boolean): ScTypeAlias = {
+    val text = "class a {" + getOverrideImplementTypeSign(alias, substitutor, "this.type", needsOverrideModifier) + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
@@ -655,8 +618,8 @@ object ScalaPsiElementFactory {
   }
 
   def createOverrideImplementVariable(variable: ScTypedDefinition, substitutor: ScSubstitutor, manager: PsiManager,
-                                      isOverride: Boolean, isVal: Boolean, needsInferType: Boolean): ScMember = {
-    val text = "class a {" + getOverrideImplementVariableSign(variable, substitutor, "_", isOverride, isVal, needsInferType) + "}"
+                                      needsOverrideModifier: Boolean, isVal: Boolean, needsInferType: Boolean): ScMember = {
+    val text = "class a {" + getOverrideImplementVariableSign(variable, substitutor, "_", needsOverrideModifier, isVal, needsInferType) + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
@@ -686,116 +649,115 @@ object ScalaPsiElementFactory {
       case None => return false
     }
     imp.resolve() match {
-      case x: PsiClass => {
+      case x: PsiClass =>
         x.qualifiedName == clazz.qualifiedName
-      }
       case _ => false
     }
   }
 
-  private def getOverrideImplementSign(sign: PhysicalSignature, body: String, isOverride: Boolean,
-                                       needsInferType: Boolean): String = {
-    var res = ""
+  private def addModifiersFromSignature(function: ScFunction, sign: PhysicalSignature, addOverride: Boolean): ScFunction = {
+    sign.method match {
+      case fun: ScFunction =>
+        function.getModifierList.replace(fun.getModifierList)
+        if (!fun.hasModifierProperty("override") && addOverride) function.setModifierProperty("override", value = true)
+      case m: PsiMethod =>
+        var hasOverride = false
+        if (m.getModifierList.getNode != null)
+          for (modifier <- m.getModifierList.getNode.getChildren(null); modText = modifier.getText) {
+            modText match {
+              case "override" => hasOverride = true; function.setModifierProperty("override", value = true)
+              case "protected" => function.setModifierProperty("protected", value = true)
+              case "final" => function.setModifierProperty("final", value = true)
+              case _ =>
+            }
+          }
+        if (addOverride && !hasOverride) function.setModifierProperty("override", value = true)
+    }
+    function
+  }
+
+  private def methodFromSignatureText(sign: PhysicalSignature, body: String, needsInferType: Boolean): String = {
+    val builder = mutable.StringBuilder.newBuilder
     val method = sign.method
     // do not substitute aliases
     val substitutor = sign.substitutor
     method match {
-      case method: ScFunction => {
-        val retType = method.returnType.toOption.map(t => substitutor.subst(t))
-
-        res = res + method.getFirstChild.getText
-        if (res != "") res = res + "\n"
-        if (!method.getModifierList.hasModifierProperty("override") && isOverride) res = res + "override "
-        res = res + method.getModifierList.getText + " "
-        res = res + "def " + method.name
+      case method: ScFunction =>
+        builder ++= method.getFirstChild.getText
+        if (builder.nonEmpty) builder ++= "\n"
+        builder ++= "def " + method.name
         //adding type parameters
         if (method.typeParameters.length > 0) {
-          def get(typeParam: ScTypeParam): String = {
-            var res: String = ""
-            res += (if (typeParam.isContravariant) "-" else if (typeParam.isCovariant) "+" else "")
-            res += typeParam.name
-            typeParam.typeParametersClause match {
-              case None =>
-              case Some(x) =>
-                val nestedTypeParamClauseText = x.typeParameters.map(get).mkString("[", ",", "]")
-                res += nestedTypeParamClauseText
+          def buildText(typeParam: ScTypeParam): String = {
+            val variance = if (typeParam.isContravariant) "-" else if (typeParam.isCovariant) "+" else ""
+            val clauseText = typeParam.typeParametersClause match {
+              case None => ""
+              case Some(x) => x.typeParameters.map(buildText).mkString("[", ",", "]")
             }
-            typeParam.lowerBound foreach {
-              case psi.types.Nothing =>
-              case x => res =  res + " >: " + ScType.canonicalText(substitutor.subst(x))
+            val lowerBoundText = typeParam.lowerBound.toOption collect {
+              case psi.types.Nothing => ""
+              case x => " >: " + ScType.canonicalText(substitutor.subst(x))
             }
-            typeParam.upperBound foreach {
-              case psi.types.Any =>
-              case x => res = res + " <: " + ScType.canonicalText(substitutor.subst(x))
+            val upperBoundText = typeParam.upperBound.toOption collect {
+              case psi.types.Any => ""
+              case x => " <: " + ScType.canonicalText(substitutor.subst(x))
             }
-            typeParam.viewBound foreach {
-              x => res = res + " <% " + ScType.canonicalText(substitutor.subst(x))
+            val viewBoundText = typeParam.viewBound map {
+              x => " <% " + ScType.canonicalText(substitutor.subst(x))
             }
-            typeParam.contextBound foreach {
-              (tp: ScType) => res = res + " : " + ScType.canonicalText(ScTypeUtil.stripTypeArgs(substitutor.subst(tp)))
+            val contextBoundText = typeParam.contextBound collect {
+              case tp: ScType => " : " + ScType.canonicalText(ScTypeUtil.stripTypeArgs(substitutor.subst(tp)))
             }
-            res
+            val boundsText = (lowerBoundText ++ upperBoundText ++ viewBoundText ++ contextBoundText).mkString
+            s"$variance${typeParam.name}$clauseText$boundsText"
           }
-          val strings = for (t <- method.typeParameters) yield get(t)
-          res += strings.mkString("[", ", ", "]")
+
+          val typeParamTexts = for (t <- method.typeParameters) yield buildText(t)
+          builder ++= typeParamTexts.mkString("[", ", ", "]")
         }
         if (method.paramClauses != null) {
           for (paramClause <- method.paramClauses.clauses) {
-            def get(param: ScParameter): String = {
-              var res: String = param.name
-              param.typeElement foreach {
-                x => res += (if (res.endsWith("_")) " " else "") + ": " +
-                  (if (param.isCallByNameParameter) "=>" else "") +
-                        ScType.canonicalText(substitutor.subst(x.getType(TypingContext.empty).getOrAny))
-                if (param.isRepeatedParameter) res += "*"
+            def buildText(param: ScParameter): String = {
+              val name = param.name
+              param.typeElement match {
+                case Some(x) =>
+                  val colon = if (ScalaNamesUtil.isIdentifier(name + ":")) " : " else ": "
+                  val typeText = ScType.canonicalText(substitutor.subst(x.getType(TypingContext.empty).getOrAny))
+                  name + colon + (if (param.isCallByNameParameter) "=>" else "") + typeText + (if (param.isRepeatedParameter) "*" else "")
+                case _ => name
               }
-              res
             }
-            val strings = for (t <- paramClause.parameters) yield get(t)
-            res += strings.mkString(if (paramClause.isImplicit) "(implicit " else "(", ", ", ")")
+            val params = for (t <- paramClause.parameters) yield buildText(t)
+            builder ++= params.mkString(if (paramClause.isImplicit) "(implicit " else "(", ", ", ")")
           }
         }
 
+        val retType = method.returnType.toOption.map(t => substitutor.subst(t))
         val retAndBody = (needsInferType, retType) match {
           case (true, Some(scType)) =>
             var text = ScType.canonicalText(scType)
             if (text == "_root_.java.lang.Object") text = "AnyRef"
-            val colon = if (method.paramClauses.clauses.isEmpty && method.typeParameters.isEmpty && ScalaNamesUtil.isIdentifier(method.name + ":")) " : " else ": "
-            colon + text + " = " + body
+            val needWhitespace = method.paramClauses.clauses.isEmpty && method.typeParameters.isEmpty && ScalaNamesUtil.isIdentifier(method.name + ":")
+            val colon = if (needWhitespace) " : " else ": "
+            s"$colon$text = $body"
           case _ =>
             " = " + body
         }
-        res += retAndBody
-      }
-      case _ => {
-        var hasOverride = false
-        if (method.getModifierList.getNode != null)
-        for (modifier <- method.getModifierList.getNode.getChildren(null); m = modifier.getText) {
-          m match {
-            case "override" => hasOverride = true
-            case "protected" => res = res + "protected "
-            case "final" => res = res + "final "
-            case _ =>
-          }
-        }
-        if (isOverride && !hasOverride) res = res + "override "
-        res = res + "def " + changeKeyword(method.name)
+        builder ++= retAndBody
+      case _ =>
+        builder ++= "def " + ScalaNamesUtil.changeKeyword(method.name)
         if (method.hasTypeParameters) {
           val params = method.getTypeParameters
           val strings = for (param <- params) yield {
-            var res = ""
-            val par: PsiTypeParameter = param
-            res = par.name
-            val types = par.getExtendsListTypes
-            if (types.length > 0) {
-              res += " <: "
-              val map: Iterable[String] = types.map((t: PsiClassType) =>
-                  ScType.canonicalText(substitutor.subst(ScType.create(t, method.getProject))))
-              res += map.mkString(" with ")
-            }
-            res
+            val extendsTypes = param.getExtendsListTypes
+            val extendsTypesText = if (extendsTypes.length > 0) {
+              val typeTexts = extendsTypes.map((t: PsiClassType) =>
+                ScType.canonicalText(substitutor.subst(ScType.create(t, method.getProject))))
+              typeTexts.mkString(" <: "," with ", "")
+            } else ""
+            param.name + extendsTypesText
           }
-          res = res + strings.mkString("[", ", ", "]")
+          builder ++= strings.mkString("[", ", ", "]")
         }
 
         import extensions.toPsiMethodExt
@@ -803,56 +765,48 @@ object ScalaPsiElementFactory {
         val paramCount = method.getParameterList.getParametersCount
         val omitParamList = paramCount == 0 && method.hasQueryLikeName
 
-        res = res + (if (omitParamList) "" else "(")
-        for (param <- method.getParameterList.getParameters) {
-          val paramName = param.name match {
-            case null => param match {case param: ClsParameterImpl => param.getStub.getName case _ => null}
-            case x => x
+        if (!omitParamList) {
+          val params = for (param <- method.getParameterList.getParameters) yield {
+            val paramName = param.name match {
+              case null => param match {case param: ClsParameterImpl => param.getStub.getName case _ => null}
+              case x => x
+            }
+            val pName: String = ScalaNamesUtil.changeKeyword(paramName)
+            val colon = if (pName.endsWith("_")) " : " else ": "
+            val scType: ScType = substitutor.subst(ScType.create(param.getTypeElement.getType, method.getProject))
+            val typeText = scType match {
+              case types.AnyRef => "scala.Any"
+              case JavaArrayType(arg: ScType) if param.isVarArgs => ScType.canonicalText(arg) + "*"
+              case _ => ScType.canonicalText(scType)
+            }
+            s"$pName$colon$typeText"
           }
-          val pName: String = changeKeyword(paramName)
-          res = res + (if (pName.endsWith("_")) pName + " " else pName) + ": "
-          val scType: ScType = substitutor.subst(ScType.create(param.getTypeElement.getType, method.getProject))
-          var text = ScType.canonicalText(scType)
-          if (text == "AnyRef") text = "scala.Any"
-          res = res + text + ", "
+          builder ++= params.mkString("(", ", ", ")")
         }
-        if (paramCount > 0) res = res.substring(0, res.length - 2)
-        res = res + (if (omitParamList) "" else ")")
+
         val retType = substitutor.subst(ScType.create(method.getReturnType, method.getProject))
-        val retAndBody = (needsInferType, retType) match {
-          case (_, _) if retType.equiv(Unit) => body
-          case (true, _) =>
-            var text = ScType.canonicalText(retType)
-            if (text == "Any") text = "AnyRef"
-            ": " + text + " = " + body
-          case (false, _) =>
-            " = " + body
-        }
-
-        res = res + retAndBody
-
-      }
+        val retAndBody =
+          if (needsInferType) {
+            val typeText = if (retType == types.Any) "AnyRef" else ScType.canonicalText(retType)
+            s": $typeText = $body"
+          } else " = " + body
+        builder ++= retAndBody
     }
-    res
-  }
-
-  private def changeKeyword(s: String): String = {
-    if (ScalaNamesUtil.isKeyword(s)) "`" + s + "`"
-    else s
+    builder.toString()
   }
 
   def getOverrideImplementTypeSign(alias: ScTypeAlias, substitutor: ScSubstitutor, body: String,
-                                   isOverride: Boolean): String = {
+                                   needsOverride: Boolean): String = {
     try {
       alias match {
-        case alias: ScTypeAliasDefinition => {
-          (if (alias.getModifierList.hasModifierProperty("override")) "" else "override ") +
-                  alias.getModifierList.getText + " type " + alias.name + " = " +
-                  ScType.canonicalText(substitutor.subst(alias.aliasedType(TypingContext.empty).getOrAny))
-        }
-        case alias: ScTypeAliasDeclaration => {
-          alias.getModifierList.getText + " type " + alias.name + " = " + body
-        }
+        case alias: ScTypeAliasDefinition =>
+          val overrideText = if (needsOverride && !alias.hasModifierProperty("override")) "override " else ""
+          val modifiersText = alias.getModifierList.getText
+          val typeText = ScType.canonicalText(substitutor.subst(alias.aliasedType(TypingContext.empty).getOrAny))
+          s"$overrideText$modifiersText type ${alias.name} = $typeText"
+        case alias: ScTypeAliasDeclaration =>
+          val overrideText = if (needsOverride) "override " else ""
+          s"$overrideText${alias.getModifierList.getText} type ${alias.name} = $body"
       }
     }
     catch {
@@ -862,21 +816,16 @@ object ScalaPsiElementFactory {
   }
 
   def getOverrideImplementVariableSign(variable: ScTypedDefinition, substitutor: ScSubstitutor,
-                                       body: String, isOverride: Boolean,
+                                       body: String, needsOverride: Boolean,
                                        isVal: Boolean, needsInferType: Boolean): String = {
-    var res = ""
-    val member = ScalaPsiUtil.nameContext(variable)
-    val m: ScModifierListOwner = member match {case m: ScModifierListOwner => m case _ => null}
-    if (isOverride && (m == null || !m.hasModifierProperty("override"))) res = res + "override "
-    if (m != null) res = res + m.getModifierList.getText + " "
-    res = res + (if (isVal) "val " else "var ")
-    res = res + variable.name
-    if (needsInferType &&
-      ScType.canonicalText(substitutor.subst(variable.getType(TypingContext.empty).getOrAny)) != "")
-      res = res + (if (res.endsWith("_")) " " else "") + ": " +
-              ScType.canonicalText(substitutor.subst(variable.getType(TypingContext.empty).getOrAny))
-    res = res + " = " + body
-    res
+    val modOwner: ScModifierListOwner = ScalaPsiUtil.nameContext(variable) match {case m: ScModifierListOwner => m case _ => null}
+    val overrideText = if (needsOverride && (modOwner == null || !modOwner.hasModifierProperty("override"))) "override " else ""
+    val modifiersText = if (modOwner != null) modOwner.getModifierList.getText + " " else ""
+    val keyword = if (isVal) "val " else "var "
+    val name = variable.name
+    val colon = if (ScalaNamesUtil.isIdentifier(name + ":")) " : " else ": "
+    val typeText = ScType.canonicalText(substitutor.subst(variable.getType(TypingContext.empty).getOrAny))
+    s"$overrideText$modifiersText$keyword$name$colon$typeText = $body"
   }
 
   private def getShortName(qualifiedName: String, packageName: String): String = {
@@ -913,90 +862,76 @@ object ScalaPsiElementFactory {
   }
 
   def createMethodWithContext(text: String, context: PsiElement, child: PsiElement): ScFunction = {
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder = new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text))
-    Def.parse(builder)
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    psi match {
-      case fun: ScFunction =>
-        fun.asInstanceOf[ScalaPsiElement].setContext(context, child)
-        fun
-      case _ => null
-    }
+    createElementWithContext(text, context, child, Def.parse(_))
   }
 
   def createObjectWithContext(text: String, context: PsiElement, child: PsiElement): ScObject = {
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder: ScalaPsiBuilderImpl =
-      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text))
-    TmplDef.parse(builder)
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    psi match {
-      case obj: ScObject =>
-        obj.asInstanceOf[ScalaPsiElement].setContext(context, child)
-        obj
-      case _ => null
-    }
+    createElementWithContext(text, context, child, TmplDef.parse(_))
   }
 
   def createReferenceFromText(text: String, context: PsiElement, child: PsiElement): ScStableCodeReferenceElement = {
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder: ScalaPsiBuilderImpl =
-      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text))
-    StableId.parse(builder, ScalaElementTypes.REFERENCE)
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    psi match {
-      case referenceElement: ScStableCodeReferenceElement =>
-        referenceElement.asInstanceOf[ScalaPsiElement].setContext(context, child)
-        referenceElement
-      case _ => null
-    }
+    createElementWithContext(text, context, child, StableId.parse(_, ScalaElementTypes.REFERENCE))
   }
 
   def createExpressionWithContextFromText(text: String, context: PsiElement, child: PsiElement): ScExpression = {
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder: ScalaPsiBuilderImpl =
-      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-      new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, s"foo($text)")) //Method call is not full to reproduce all possibilities
-    Expr.parse(builder)
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    if (psi.isInstanceOf[ScExpression]) {
-      if (!psi.isInstanceOf[ScMethodCall]) {
-        throw new RuntimeException(s"Psi is not method call for text: $text")
-      }
-      val expr = psi.asInstanceOf[ScMethodCall]
-      val res = if (expr.argumentExpressions.size > 0) expr.argumentExpressions.apply(0) else null
+    val call: ScMethodCall = createElementWithContext(s"foo($text)", context, child, Expr.parse(_))
+    if (call != null) {
+      val res = if (call.argumentExpressions.size > 0) call.argumentExpressions.apply(0) else null
       if (res != null) res.setContext(context, child)
       res
     } else null
   }
 
-  def createImportFromTextWithContext(text: String, context: PsiElement, child: PsiElement): ScImportStmt = {
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
+  def createElement[T <: ScalaPsiElement](text: String, manager: PsiManager, parse: ScalaPsiBuilder => Unit): T = {
+    val context = PsiFileFactory.getInstance(manager.getProject).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
+              ScalaFileType.SCALA_FILE_TYPE, "").asInstanceOf[ScalaFile]
+    val holder: FileElement = DummyHolderFactory.createHolder(manager, context).getTreeElement
     val builder: ScalaPsiBuilderImpl =
-      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text)) //Method call is not full to reproduce all possibilities
-    Import.parse(builder)
-    val node = builder.getTreeBuilt
+      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(manager.getProject, holder,
+        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text.trim))
+    val marker = builder.mark()
+    parse(builder)
+    while (!builder.eof()) {
+      builder.advanceLexer()
+    }
+    marker.done(ScalaElementTypes.FILE)
+    val fileNode = builder.getTreeBuilt
+    val node = fileNode.getFirstChildNode
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
     val psi = node.getPsi
     psi match {
-      case stmt: ScImportStmt =>
-        stmt.setContext(context, child)
-        stmt
-      case _ => null
+      case element: T => element
+      case _ => null.asInstanceOf[T]
     }
+  }
+
+  def createElementWithContext[T <: ScalaPsiElement](text: String, context: PsiElement, child: PsiElement,
+                                                parse: ScalaPsiBuilder => Unit): T = {
+    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
+    val builder: ScalaPsiBuilderImpl =
+      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
+        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text.trim))
+    val marker = builder.mark()
+    parse(builder)
+    while (!builder.eof()) {
+      builder.advanceLexer()
+    }
+    marker.done(ScalaElementTypes.FILE)
+    val fileNode = builder.getTreeBuilt
+    val node = fileNode.getFirstChildNode
+    holder.rawAddChildren(node.asInstanceOf[TreeElement])
+    val psi = node.getPsi
+    psi match {
+      case element: T =>
+        element.setContext(context, child)
+        element
+      case _ => null.asInstanceOf[T]
+    }
+  }
+
+  def createImportFromTextWithContext(text: String, context: PsiElement, child: PsiElement): ScImportStmt = {
+    createElementWithContext(text, context, child, Import.parse)
   }
 
   def createTypeElementFromText(text: String, manager: PsiManager): ScTypeElement = {
@@ -1039,55 +974,18 @@ object ScalaPsiElementFactory {
   }
 
   def createTypeElementFromText(text: String, context: PsiElement, child: PsiElement): ScTypeElement = {
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder: ScalaPsiBuilder =
-      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text))
-    Type.parse(builder)
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    psi match {
-      case typeElement: ScTypeElement =>
-        psi.asInstanceOf[ScalaPsiElement].setContext(context, child)
-        typeElement
-      case _ => null
-    }
+    createElementWithContext(text, context, child, Type.parse(_))
   }
 
   def createConstructorTypeElementFromText(text: String, context: PsiElement, child: PsiElement): ScTypeElement = {
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder: ScalaPsiBuilder =
-      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text))
-    Constructor.parse(builder)
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    psi match {
-      case constructor: ScConstructor =>
-        psi.asInstanceOf[ScalaPsiElement].setContext(context, child)
-        constructor.typeElement
-      case _ => null
-    }
+    val constructor: ScConstructor = createElementWithContext(text, context, child, Constructor.parse(_))
+    if (constructor != null) constructor.typeElement
+    else null
   }
 
   def createTypeParameterClauseFromTextWithContext(text: String, context: PsiElement,
                                                    child: PsiElement): ScTypeParamClause = {
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder: ScalaPsiBuilder =
-      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text))
-    TypeParamClause.parse(builder)
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    psi match {
-      case clause: ScTypeParamClause =>
-        psi.asInstanceOf[ScalaPsiElement].setContext(context, child)
-        clause
-      case _ => null
-    }
+    createElementWithContext(text, context, child, TypeParamClause.parse(_))
   }
 
   def createExistentialClauseForName(name: String, manager: PsiManager): ScExistentialClause = {
@@ -1106,37 +1004,29 @@ object ScalaPsiElementFactory {
   }
 
   def createPatterListFromText(text: String, context: PsiElement, child: PsiElement): ScPatternList = {
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder: ScalaPsiBuilderImpl =
-      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, "val " + text + " = 239"))
-    Def.parse(builder)
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    psi match {
-      case patternDef: ScPatternDefinition =>
-        val pList: ScPatternList = patternDef.pList
-        pList.asInstanceOf[ScalaPsiElement].setContext(context, child)
-        pList
-      case _ => null
-    }
+    val patternDef: ScPatternDefinition = createElementWithContext(s"val $text = 239", context, child, Def.parse(_))
+    if (patternDef != null) {
+      val res = patternDef.pList
+      res.setContext(context, child)
+      res
+    } else null
   }
 
   def createIdsListFromText(text: String, context: PsiElement, child: PsiElement): ScIdList = {
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder: ScalaPsiBuilderImpl =
-      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, "val " + text + " : Int"))
-    Dcl.parse(builder)
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    if (psi.isInstanceOf[ScPatternDefinition]) {
-      val idList: ScIdList = psi.asInstanceOf[ScValueDeclaration].getIdList
-      idList.asInstanceOf[ScalaPsiElement].setContext(context, child)
-      idList
+    val valDef = createDeclarationFromText(s"val $text : Int", context, child).asInstanceOf[ScValueDeclaration]
+    if (valDef != null) {
+      val res = valDef.getIdList
+      res.setContext(context, child)
+      res
     } else null
+  }
+
+  def createTemplateDefinitionFromText(text: String, context: PsiElement, child: PsiElement): ScTemplateDefinition = {
+    createElementWithContext[ScTemplateDefinition](text, context, child, TmplDef.parse(_))
+  }
+
+  def createDeclarationFromText(text: String, context: PsiElement, child: PsiElement): ScDeclaration = {
+    createElementWithContext[ScDeclaration](text, context, child, Dcl.parse(_))
   }
 
   def createDocCommentFromText(text: String, manager: PsiManager): ScDocComment = {

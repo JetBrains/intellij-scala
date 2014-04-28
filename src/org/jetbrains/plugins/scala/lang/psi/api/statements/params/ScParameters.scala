@@ -5,7 +5,6 @@ package api
 package statements
 package params
 
-import impl.statements.params._
 import com.intellij.psi._
 
 /**
@@ -15,9 +14,18 @@ import com.intellij.psi._
 
 trait ScParameters extends ScalaPsiElement with PsiParameterList {
 
-  def params: Seq[ScParameter]
+  def params: Seq[ScParameter] = clauses.flatMap((clause: ScParameterClause) => clause.parameters)
 
   def clauses: Seq[ScParameterClause]
 
-  def addClause(clause: ScParameterClause): ScParameters
+  def addClause(clause: ScParameterClause): ScParameters = {
+    getNode.addChild(clause.getNode)
+    this
+  }
+
+  def getParameterIndex(p: PsiParameter) = params.indexOf(List(p))
+
+  def getParametersCount = params.length
+
+  override def getParameters: Array[PsiParameter] = params.toArray
 }

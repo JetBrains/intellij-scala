@@ -44,12 +44,12 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
               val path = commentText.substring(2, commentText.length - 2)
               val classes = ScalaPsiManager.instance(getProject).getCachedClasses(getResolveScope, path)
               if (classes.length == 1) {
-                drvTemplate.exists(!_.isInheritor(classes(0), deep = false))
+                drvTemplate.exists(td => !ScalaPsiUtil.cachedDeepIsInheritor(td, classes(0)))
               } else {
                 val clazz: Option[PsiClass] = classes.find(!_.isInstanceOf[ScObject])
                 clazz match {
                   case Some(psiClass) =>
-                    drvTemplate.exists(!_.isInheritor(psiClass, deep = false))
+                    drvTemplate.exists(td => !ScalaPsiUtil.cachedDeepIsInheritor(td, psiClass))
                   case _ => false
                 }
               }
@@ -60,22 +60,14 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     }
   }
 
+
+
   def drvTemplate: Option[ScTemplateDefinition] = reference match {
     case Some(q) => q.bind() match {
       case Some(ScalaResolveResult(td : ScTypeDefinition, _)) => Some(td)
       case _ => None
     }
-    case None => {
-      val template = PsiTreeUtil.getContextOfType(this, true, classOf[ScTemplateDefinition])
-      if (template == null) return None
-      template.extendsBlock.templateParents match {
-        case Some(parents) if PsiTreeUtil.isContextAncestor(parents, this, true) => {
-          val ptemplate = PsiTreeUtil.getContextOfType(template, true, classOf[ScTemplateDefinition])
-          if (ptemplate == null) None else Some(ptemplate)
-        }
-        case _ => Some(template)
-      }
-    }
+    case None => ScalaPsiUtil.drvTemplate(this)
   }
 
   def staticSuper: Option[ScType] = {

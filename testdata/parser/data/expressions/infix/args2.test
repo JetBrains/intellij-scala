@@ -3,7 +3,7 @@ class C {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: C
     AnnotationsList
       <empty list>
     Modifiers
@@ -30,7 +30,7 @@ ScalaFile
                 Literal
                   PsiElement(integer)('1')
                 PsiWhiteSpace(' ')
-                ReferenceExpression
+                ReferenceExpression: add
                   PsiElement(identifier)('add')
                 PsiWhiteSpace(' ')
                 Tuple
@@ -42,7 +42,7 @@ ScalaFile
                     PsiElement(integer)('2')
                   PsiElement())(')')
               PsiWhiteSpace(' ')
-              ReferenceExpression
+              ReferenceExpression: sub
                 PsiElement(identifier)('sub')
               PsiWhiteSpace(' ')
               Tuple
@@ -54,18 +54,18 @@ ScalaFile
                   PsiElement(integer)('4')
                 PsiElement())(')')
             PsiWhiteSpace(' ')
-            ReferenceExpression
+            ReferenceExpression: mul
               PsiElement(identifier)('mul')
             PsiWhiteSpace(' ')
             Literal
               PsiElement(integer)('5')
           PsiWhiteSpace(' ')
-          ReferenceExpression
+          ReferenceExpression: div
             PsiElement(identifier)('div')
           PsiWhiteSpace(' ')
           BlockExpression
             PsiElement({)('{')
-            ReferenceExpression
+            ReferenceExpression: qoo
               PsiElement(identifier)('qoo')
             PsiElement(})('}')
         PsiWhiteSpace(' \n')

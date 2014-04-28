@@ -23,6 +23,7 @@ class ScalaEditorTextProvider extends EditorTextProvider {
   }
 
   def findExpression(element: PsiElement, allowMethodCalls: Boolean): Pair[PsiElement, TextRange] = {
+    if (!allowMethodCalls) return null
     val expression: PsiElement = findExpressionInner(element, allowMethodCalls)
     if (expression == null) return null
     try {
