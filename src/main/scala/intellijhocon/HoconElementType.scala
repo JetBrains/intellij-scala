@@ -26,8 +26,6 @@ object HoconElementType {
 
   object Value extends HoconElementType("VALUE")
 
-  object UnquotedString extends HoconElementType("UNQUOTED_STRING")
-
   object Number extends HoconElementType("NUMBER")
 
   object Null extends HoconElementType("NULL")
