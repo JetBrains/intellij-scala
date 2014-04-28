@@ -4,7 +4,6 @@ import com.intellij.openapi.fileTypes.{SyntaxHighlighterFactory, SyntaxHighlight
 import com.intellij.psi.tree.IElementType
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.{HighlighterColors, DefaultLanguageHighlighterColors}
-import com.intellij.psi.TokenType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 

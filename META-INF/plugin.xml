@@ -7,6 +7,9 @@
     <fileTypeFactory implementation="intellijhocon.HoconFileTypeFactory"/>
     <lang.syntaxHighlighterFactory key="HOCON" implementationClass="intellijhocon.HoconSyntaxHighlighterFactory"/>
     <lang.parserDefinition language="HOCON" implementationClass="intellijhocon.HoconParserDefinition"/>
+    <lang.braceMatcher language="HOCON" implementationClass="intellijhocon.HoconBraceMatcher"/>
+    <lang.foldingBuilder language="HOCON" implementationClass="intellijhocon.HoconFoldingBuilder"/>
+    <annotator language="HOCON" implementationClass="intellijhocon.HoconSyntaxHighlightingAnnotator"/>
   </extensions>
 
 </idea-plugin>
