@@ -47,7 +47,7 @@ abstract class ScalaBuilderDelegate {
   }
 
   private def scalaLibraryWarning(modules: Set[JpsModule], compilationData: CompilationData, client: Client) {
-    val hasScalaFacet = modules.exists(SettingsManager.getFacetSettings(_) != null)
+    val hasScalaFacet = modules.exists(SettingsManager.hasScalaSdk)
     val hasScalaLibrary = compilationData.classpath.exists(_.getName.startsWith("scala-library"))
 
     if (hasScalaFacet && !hasScalaLibrary) {

@@ -6,7 +6,7 @@ import sbt.compiler._
 import java.io.File
 import sbt.{CompileSetup, CompileOptions}
 import sbt.inc.{IncOptions, Analysis, AnalysisStore, Locate}
-import org.jetbrains.plugin.scala.compiler.CompileOrder
+import org.jetbrains.jps.incremental.scala.model.CompileOrder
 
 /**
  * @author Pavel Fatin

@@ -9,7 +9,7 @@ import sbt.compiler.{AnalyzingCompiler, AggressiveCompile, IC}
 import xsbti.{F0, Logger}
 import CompilerFactoryImpl._
 import sbt.inc.AnalysisStore
-import org.jetbrains.plugin.scala.compiler.IncrementalType
+import org.jetbrains.jps.incremental.scala.model.IncrementalityType
 
 /**
  * @author Pavel Fatin
@@ -21,7 +21,7 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
     val scalac: Option[AnalyzingCompiler] = getScalac(sbtData, compilerData.compilerJars, client)
 
     compilerData.incrementalType match {
-      case IncrementalType.SBT =>
+      case IncrementalityType.SBT =>
         val javac = {
           val scala = getScalaInstance(compilerData.compilerJars)
                   .getOrElse(new ScalaInstance("stub", null, new File(""), new File(""), Seq.empty, None))
@@ -30,7 +30,7 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
         }
         new SbtCompiler(javac, scalac, fileToStore)
         
-      case IncrementalType.IDEA =>
+      case IncrementalityType.IDEA =>
         if (scalac.isDefined) new IdeaIncrementalCompiler(scalac.get)
         else throw new IllegalStateException("Could not create scalac instance")
 

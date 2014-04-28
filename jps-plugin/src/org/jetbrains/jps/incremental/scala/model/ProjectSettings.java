@@ -6,7 +6,9 @@ import org.jetbrains.jps.model.JpsElement;
  * @author Pavel Fatin
  */
 public interface ProjectSettings extends JpsElement {
-  Order getCompileOrder();
+  IncrementalityType getIncrementalityType();
+
+  CompileOrder getCompileOrder();
 
   String[] getCompilerOptions();
 }
