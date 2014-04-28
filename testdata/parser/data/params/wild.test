@@ -3,7 +3,7 @@ class A {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -23,7 +23,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScFunctionDefinition
+        ScFunctionDefinition: foo
           AnnotationsList
             <empty list>
           Modifiers
@@ -37,8 +37,8 @@ ScalaFile
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           MethodCall
-            ReferenceExpression
-              ReferenceExpression
+            ReferenceExpression: l.map
+              ReferenceExpression: l
                 PsiElement(identifier)('l')
               PsiElement(.)('.')
               PsiElement(identifier)('map')
@@ -47,7 +47,7 @@ ScalaFile
               FunctionExpression
                 Parameters
                   ParametersClause
-                    Parameter
+                    Parameter: _
                       PsiElement(_)('_')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')

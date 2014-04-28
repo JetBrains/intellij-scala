@@ -1,23 +1,23 @@
 package scala
 @scala.serializable
 case class Tuple2[@scala.specialized +T1, @scala.specialized +T2](_1 : T1, _2 : T2)
-------
+-----
 ScalaFile
   ScPackaging
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    CodeReferenceElement
+    CodeReferenceElement: scala
       PsiElement(identifier)('scala')
     PsiWhiteSpace('\n')
-    ScClass
+    ScClass: Tuple2
       AnnotationsList
         Annotation
           PsiElement(@)('@')
           AnnotationExpression
             Constructor
-              SimpleTypeElement
-                CodeReferenceElement
-                  CodeReferenceElement
+              SimpleTypeElement: scala.serializable
+                CodeReferenceElement: scala.serializable
+                  CodeReferenceElement: scala
                     PsiElement(identifier)('scala')
                   PsiElement(.)('.')
                   PsiElement(identifier)('serializable')
@@ -30,15 +30,15 @@ ScalaFile
       PsiElement(identifier)('Tuple2')
       TypeParameterClause
         PsiElement([)('[')
-        TypeParameter
+        TypeParameter: T1
           AnnotationsList
             Annotation
               PsiElement(@)('@')
               AnnotationExpression
                 Constructor
-                  SimpleTypeElement
-                    CodeReferenceElement
-                      CodeReferenceElement
+                  SimpleTypeElement: scala.specialized
+                    CodeReferenceElement: scala.specialized
+                      CodeReferenceElement: scala
                         PsiElement(identifier)('scala')
                       PsiElement(.)('.')
                       PsiElement(identifier)('specialized')
@@ -47,15 +47,15 @@ ScalaFile
           PsiElement(identifier)('T1')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        TypeParameter
+        TypeParameter: T2
           AnnotationsList
             Annotation
               PsiElement(@)('@')
               AnnotationExpression
                 Constructor
-                  SimpleTypeElement
-                    CodeReferenceElement
-                      CodeReferenceElement
+                  SimpleTypeElement: scala.specialized
+                    CodeReferenceElement: scala.specialized
+                      CodeReferenceElement: scala
                         PsiElement(identifier)('scala')
                       PsiElement(.)('.')
                       PsiElement(identifier)('specialized')
@@ -71,7 +71,7 @@ ScalaFile
         Parameters
           ParametersClause
             PsiElement(()('(')
-            ClassParameter
+            ClassParameter: _1
               AnnotationsList
                 <empty list>
               Modifiers
@@ -81,12 +81,12 @@ ScalaFile
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
               ParameterType
-                SimpleTypeElement
-                  CodeReferenceElement
+                SimpleTypeElement: T1
+                  CodeReferenceElement: T1
                     PsiElement(identifier)('T1')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            ClassParameter
+            ClassParameter: _2
               AnnotationsList
                 <empty list>
               Modifiers
@@ -96,8 +96,8 @@ ScalaFile
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
               ParameterType
-                SimpleTypeElement
-                  CodeReferenceElement
+                SimpleTypeElement: T2
+                  CodeReferenceElement: T2
                     PsiElement(identifier)('T2')
             PsiElement())(')')
       ExtendsBlock

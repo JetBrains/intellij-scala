@@ -5,8 +5,12 @@ import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import codeInspection.{AbstractFix, AbstractInspection}
-import lang.psi.api.expr.{ScThisReference, ScReferenceExpression, ScBlockExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.extensions.childOf
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClauses, ScCaseClause}
+import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 
 /**
  * Pavel Fatin
@@ -15,6 +19,10 @@ import lang.refactoring.util.ScalaNamesUtil
 class RedundantBlockInspection extends AbstractInspection {
 
   def actionFor(holder: ProblemsHolder) = {
+    case (block: ScBlock) childOf ((blockOfExpr: ScBlock) childOf (_: ScCaseClause))
+      if block.hasRBrace && block.getFirstChild.getText == "{" &&
+              blockOfExpr.getChildren.length == 1 && !block.getChildren.exists(_.isInstanceOf[ScCaseClauses]) =>
+      holder.registerProblem(block, new TextRange(0, 1), "Remove redundant braces", new InCaseClauseQuickFix(block))
     case block: ScBlockExpr if block.getChildren.length == 3 =>
       val child: PsiElement = block.getChildren.apply(1)
       val probablyRedundant = child match {
@@ -24,11 +32,14 @@ class RedundantBlockInspection extends AbstractInspection {
       }
       if (probablyRedundant) {
         val next: PsiElement = block.getNextSibling
+        val parent = block.getParent
         val isRedundant =
-          if (next == null) true
-          else {
+        if (parent.isInstanceOf[ScArgumentExprList]) false
+        else if (next == null) true
+        else if (parent.isInstanceOf[ScInterpolatedStringLiteral] && child.getText.startsWith("_")) false //SCL-6124
+        else {
             val refName: String = child.getText + (if (next.getText.length > 0) next.getText charAt 0 else "")
-            !ScalaNamesUtil.isIdentifier(refName) && !refName.exists(_ == '$') 
+            !ScalaNamesUtil.isIdentifier(refName) && !refName.exists(_ == '$')
           }
         if (isRedundant) {
           holder.registerProblem(block, "The enclosing block is redundant", new QuickFix(block))
@@ -39,6 +50,16 @@ class RedundantBlockInspection extends AbstractInspection {
   private class QuickFix(e: PsiElement) extends AbstractFix("Unwrap the expression", e) {
     def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
       e.replace(e.getChildren.apply(1))
+    }
+  }
+  
+  private class InCaseClauseQuickFix(block: ScBlock) extends AbstractFix("Remove redundant braces", block) {
+    def doApplyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
+      val children = block.getChildren.drop(1).dropRight(1)
+      for (child <- children) {
+        block.getParent.addBefore(child, block)
+      }
+      block.delete()
     }
   }
 }

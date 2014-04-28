@@ -2,7 +2,7 @@
 def f: Int
 -----
 ScalaFile
-  ScFunctionDeclaration
+  ScFunctionDeclaration: f
     PsiComment(comment)('// comment')
     PsiWhiteSpace('\n')
     AnnotationsList
@@ -16,6 +16,6 @@ ScalaFile
       <empty list>
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    SimpleTypeElement
-      CodeReferenceElement
+    SimpleTypeElement: Int
+      CodeReferenceElement: Int
         PsiElement(identifier)('Int')

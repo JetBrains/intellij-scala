@@ -2,9 +2,8 @@ class A {
   val scala.temp.Some(foo) = null
 }
 -----
-
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -33,9 +32,9 @@ ScalaFile
           PsiWhiteSpace(' ')
           ListOfPatterns
             ConstructorPattern
-              CodeReferenceElement
-                CodeReferenceElement
-                  CodeReferenceElement
+              CodeReferenceElement: scala.temp.Some
+                CodeReferenceElement: scala.temp
+                  CodeReferenceElement: scala
                     PsiElement(identifier)('scala')
                   PsiElement(.)('.')
                   PsiElement(identifier)('temp')
@@ -43,7 +42,7 @@ ScalaFile
                 PsiElement(identifier)('Some')
               Pattern Argument List
                 PsiElement(()('(')
-                ReferencePattern
+                ReferencePattern: foo
                   PsiElement(identifier)('foo')
                 PsiElement())(')')
           PsiWhiteSpace(' ')

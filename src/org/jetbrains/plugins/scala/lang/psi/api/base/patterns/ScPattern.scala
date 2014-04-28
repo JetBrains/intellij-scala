@@ -7,7 +7,6 @@ package patterns
 
 import collection.mutable.ArrayBuffer
 import psi.types._
-import nonvalue.{TypeParameter, ScTypePolymorphicType}
 import psi.{types, ScalaPsiElement}
 import com.intellij.psi._
 import expr._
@@ -17,13 +16,15 @@ import psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ExpandedExtractorResolveProcessor}
-import statements.params.{ScTypeParam, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScTypeParam, ScParameter}
 import caches.CachesUtil
 import psi.impl.ScalaPsiManager
-import util.{PsiTreeUtil, PsiModificationTracker}
+import util.PsiModificationTracker
 import toplevel.typedef.ScTemplateDefinition
 import extensions.toPsiClassExt
 import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{TypeParameter, Parameter}
+import scala.collection.immutable.Set
 import configuration._
 
 /**
@@ -64,7 +65,7 @@ trait ScPattern extends ScalaPsiElement {
   private def resolveReferenceToExtractor(ref: ScStableCodeReferenceElement, i: Int, expected: Option[ScType],
                                           patternsNumber: Int): Option[ScType] = {
     val bind: Option[ScalaResolveResult] = ref.bind() match {
-      case Some(ScalaResolveResult(_: ScBindingPattern | _: ScParameter, _)) => {
+      case Some(ScalaResolveResult(_: ScBindingPattern | _: ScParameter, _)) =>
         val refImpl = ref.asInstanceOf[ScStableCodeReferenceElementImpl]
         val resolve = refImpl.doResolve(refImpl, new ExpandedExtractorResolveProcessor(ref, ref.refName, ref.getKinds(incomplete = false), ref.getContext match {
           case inf: ScInfixPattern => inf.expectedType
@@ -78,12 +79,40 @@ trait ScPattern extends ScalaPsiElement {
             case _ => None
           }
         }
-      }
       case m => m
     }
+
+    def calculateSubstitutor(_tp: ScType, funType: ScType, substitutor: ScSubstitutor): ScSubstitutor = {
+      val tp = _tp match {
+        case ex: ScExistentialType => ex.skolem
+        case _                     => _tp
+      }
+
+      def rightWay: ScSubstitutor = {
+        val t = Conformance.conformsInner(tp, funType, Set.empty, new ScUndefinedSubstitutor)
+        if (t._1) {
+          val undefSubst = t._2
+          undefSubst.getSubstitutor match {
+            case Some(newSubst) => newSubst.followed(substitutor)
+            case _              => substitutor
+          }
+        } else substitutor
+      }
+
+      //todo: looks quite hacky to try another direction first, do you know better? see SCL-6543
+      val t = Conformance.conformsInner(funType, tp, Set.empty, new ScUndefinedSubstitutor)
+      if (t._1) {
+        val undefSubst = t._2
+        undefSubst.getSubstitutor match {
+          case Some(newSubst) => newSubst.followed(substitutor)
+          case _              => rightWay
+        }
+      } else rightWay
+    }
+
     bind match {
       case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor)) if fun.name == "unapply" &&
-              fun.parameters.length == 1 => {
+              fun.parameters.length == 1 =>
         val subst = if (fun.typeParameters.length == 0) substitutor else {
           var undefSubst = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
             s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(new ScTypeParameterType(p,
@@ -99,20 +128,7 @@ trait ScPattern extends ScalaPsiElement {
             case _ => return None
           })
           expected match {
-            case Some(_tp) => {
-              val tp = _tp match {
-                case ex: ScExistentialType => ex.skolem
-                case _ => _tp
-              }
-              val t = Conformance.conforms(tp, funType)
-              if (t) {
-                val undefSubst = Conformance.undefinedSubst(tp, funType)
-                undefSubst.getSubstitutor match {
-                  case Some(newSubst) => newSubst.followed(substitutor)
-                  case _ => substitutor
-                }
-              } else substitutor
-            }
+            case Some(tp) => calculateSubstitutor(tp, funType, substitutor)
             case _ => substitutor
           }
         }
@@ -124,7 +140,7 @@ trait ScPattern extends ScalaPsiElement {
                 case (tp: ScTypeParameterType, variance) if parameters.contains(tp.param) =>
                   (true, if (variance == -1) substitutor.subst(tp.lower.v)
                   else substitutor.subst(tp.upper.v))
-                case (tp, _) => (false, tp)
+                case (typez, _) => (false, typez)
               }
             }
             if (subst.subst(rt).equiv(lang.psi.types.Boolean)) return None
@@ -134,31 +150,21 @@ trait ScPattern extends ScalaPsiElement {
           case _ =>
         }
         None
-      }
       case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor)) if fun.name == "unapplySeq" &&
-              fun.parameters.length == 1 => {
-         val subst = if (fun.typeParameters.length == 0) substitutor else {
-          val undefSubst = substitutor followed fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
-            s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(new ScTypeParameterType(p,
-              substitutor))))
-          val funType = undefSubst.subst(fun.parameters(0).getType(TypingContext.empty) match {
-            case Success(tp, _) => tp
-            case _ => return None
-          })
-          expected match {
-            case Some(tp) => {
-              val t = Conformance.conforms(tp, funType)
-              if (t) {
-                val undefSubst = Conformance.undefinedSubst(tp, funType)
-                undefSubst.getSubstitutor match {
-                  case Some(newSubst) => newSubst.followed(substitutor)
-                  case _ => substitutor
-                }
-              } else substitutor
-            }
-            case _ => substitutor
-          }
-        }
+              fun.parameters.length == 1 =>
+        val subst = if (fun.typeParameters.length == 0) substitutor else {
+         val undefSubst = substitutor followed fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
+           s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(new ScTypeParameterType(p,
+             substitutor))))
+         val funType = undefSubst.subst(fun.parameters(0).getType(TypingContext.empty) match {
+           case Success(tp, _) => tp
+           case _ => return None
+         })
+         expected match {
+           case Some(tp) => calculateSubstitutor(tp, funType, substitutor)
+           case _ => substitutor
+         }
+       }
         fun.returnType match {
           case Success(rt, _) =>
             val args = ScPattern.extractorParameters(subst.subst(rt), this)
@@ -172,18 +178,16 @@ trait ScPattern extends ScalaPsiElement {
               }) => true
               case _ => false
             }) match {
-              case Some(seq@ScParameterizedType(des, seqArgs)) => {
+              case Some(seq@ScParameterizedType(des, seqArgs)) =>
                 this match {
                   case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] => return Some(subst.subst(seq))
                   case _ => return Some(subst.subst(seqArgs(0)))
                 }
-              }
               case _ => return None
             }
           case _ =>
         }
         None
-      }
       case _ => None
     }
   }
@@ -206,28 +210,25 @@ trait ScPattern extends ScalaPsiElement {
           case _ => return None
         })
       }
-      case argList : ScPatternArgumentList => {
+      case argList : ScPatternArgumentList =>
         argList.getContext match {
-          case constr : ScConstructorPattern => {
+          case constr : ScConstructorPattern =>
             resolveReferenceToExtractor(constr.ref, constr.args.patterns.indexWhere(_ == this), constr.expectedType,
               argList.patterns.length)
-          }
           case _ => None
         }
-      }
       case composite: ScCompositePattern => composite.expectedType
-      case infix: ScInfixPattern => {
+      case infix: ScInfixPattern =>
         val i = if (infix.leftPattern == this) 0 else {
           if (this.isInstanceOf[ScTuplePattern]) return None
           1
         }
         resolveReferenceToExtractor(infix.refernece, i, infix.expectedType, 2)
-      }
       case par: ScParenthesisedPattern => par.expectedType
       case patternList : ScPatterns => patternList.getContext match {
-        case tuple : ScTuplePattern => {
+        case tuple : ScTuplePattern =>
           tuple.getContext match {
-            case infix: ScInfixPattern => {
+            case infix: ScInfixPattern =>
               if (infix.leftPattern != tuple) {
                 //so it's right pattern
                 val i = tuple.patternList match {
@@ -236,24 +237,19 @@ trait ScPattern extends ScalaPsiElement {
                 }
                 return resolveReferenceToExtractor(infix.refernece, i + 1, infix.expectedType, tuple.patternList.get.patterns.length + 1)
               }
-            }
             case _ =>
           }
 
-          tuple.expectedType.flatMap {et0 =>
-            ScType.extractTupleType(et0) match {
-              case Some(ScTupleType(comps)) =>
-                for ((t, p) <- comps.iterator.zip(patternList.patterns.iterator)) {
-                  if (p == this) return Some(t)
-                }
-                None
-              case None if et0 == types.AnyRef || et0 == types.Any => Some(types.Any)
-              case None => None
-            }
+          tuple.expectedType.flatMap {
+            case ScTupleType(comps)                       =>
+              for ((t, p) <- comps.iterator.zip(patternList.patterns.iterator)) {
+                if (p == this) return Some(t)
+              }
+              None
+            case et0 if et0 == types.AnyRef || et0 == types.Any => Some(types.Any)
+            case _                                              => None
           }
-
-        }
-        case _: ScXmlPattern => {
+        case _: ScXmlPattern =>
           val nodeClass: PsiClass = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.xml.Node")
           if (nodeClass == null) return None
           this match {
@@ -264,7 +260,6 @@ trait ScPattern extends ScalaPsiElement {
               Some(ScParameterizedType(ScDesignatorType(seqClass), Seq(ScDesignatorType(nodeClass))))
             case _ => Some(ScDesignatorType(nodeClass))
           }
-        }
         case _ => None
       }
       case clause: ScCaseClause => clause.getContext/*clauses*/.getContext match {
@@ -272,57 +267,55 @@ trait ScPattern extends ScalaPsiElement {
           case Some(e) => Some(e.getType(TypingContext.empty).getOrAny)
           case _ => None
         }
-        case b: ScBlockExpr if b.getContext.isInstanceOf[ScCatchBlock] => {
+        case b: ScBlockExpr if b.getContext.isInstanceOf[ScCatchBlock] =>
           val thr = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.Throwable")
           if (thr != null) Some(ScType.designator(thr)) else None
-        }
-        case b : ScBlockExpr => {
+        case b : ScBlockExpr =>
           b.expectedType(fromUnderscore = false) match {
             case Some(et) =>
-              ScType.extractFunctionType(et) match {
-                case Some(ScFunctionType(_, Seq())) => Some(types.Unit)
-                case Some(ScFunctionType(_, Seq(p0))) => Some(p0.removeAbstracts)
-                case Some(ScFunctionType(_, params)) =>
-                  val tt = new ScTupleType(params.map(_.removeAbstracts))(getProject, getResolveScope)
+              et.removeAbstracts match {
+                case ScFunctionType(_, Seq()) => Some(types.Unit)
+                case ScFunctionType(_, Seq(p0)) => Some(p0)
+                case ScFunctionType(_, params) =>
+                  val tt = ScTupleType(params)(getProject, getResolveScope)
                   Some(tt)
-                case None =>
+                case _ =>
                   ScType.extractPartialFunctionType(et) match {
-                    case Some((des, param, _)) => Some(param.removeAbstracts)
+                    case Some((des, param, _)) => Some(param)
                     case None => None
                   }
               }
             case None => None
           }
-        }
       }
       case named: ScNamingPattern => named.expectedType
-      case gen: ScGenerator => {
+      case gen: ScGenerator =>
         val analog = getAnalog
         if (analog != this) analog.expectedType
         else None
-      }
-      case enum: ScEnumerator => {
+      case enum: ScEnumerator =>
         if (enum.rvalue == null) return None
         Some(enum.rvalue.getType(TypingContext.empty) match {
           case Success(tp, _) => tp
           case _ => return None
         })
-      }
       case _ => None
     }
   }
 
   def getAnalog: ScPattern = {
     getContext match {
-      case gen: ScGenerator => {
-        val f: ScForStatement = gen.getContext.getContext.asInstanceOf[ScForStatement]
-        f.getDesugarisedExpr match {
+      case gen: ScGenerator =>
+        val f: ScForStatement = gen.getContext.getContext match {
+          case fr: ScForStatement => fr
+          case _ => return this
+        }
+        f.getDesugarizedExpr match {
           case Some(expr) =>
             if (analog != null) return analog
           case _ =>
         }
         this
-      }
       case _ => this
     }
   }
@@ -333,8 +326,7 @@ trait ScPattern extends ScalaPsiElement {
 
 object ScPattern {
   def extractorParameters(returnType: ScType, place: PsiElement): Seq[ScType] = {
-    val level = place.languageLevel
-    if (level.isSinceScala2_11) {
+    def collectFor2_11: Seq[ScType] = {
       def findMember(name: String, tp: ScType = returnType): Option[ScType] = {
         val cp = new CompletionProcessor(StdKinds.methodRef, place, forName = Some(name))
         cp.processType(tp, place)
@@ -343,6 +335,8 @@ object ScPattern {
             Seq(subst.subst(fun.returnType.getOrAny))
           case ScalaResolveResult(b: ScBindingPattern, subst) if b.name == name =>
             Seq(subst.subst(b.getType(TypingContext.empty).getOrAny))
+          case ScalaResolveResult(param: ScClassParameter, subst) if param.name == name =>
+            Seq(subst.subst(param.getType(TypingContext.empty).getOrAny))
           case _ => Seq.empty
         }.headOption
       }
@@ -366,21 +360,32 @@ object ScPattern {
       }
       collect(1)
       res.toSeq
-    } else {
+    }
+
+    val level = place.languageLevel
+    if (level.isSinceScala2_11) collectFor2_11
+    else {
       returnType match {
         case ScParameterizedType(des, args) =>
           ScType.extractClass(des) match {
             case Some(clazz) if clazz.qualifiedName == "scala.Option" ||
                     clazz.qualifiedName == "scala.Some" =>
               if (args.length == 1) {
+                def checkProduct(tp: ScType): Seq[ScType] = {
+                  val productChance = collectFor2_11
+                  if (productChance.length <= 1) Seq(tp)
+                  else {
+                    val productFqn = "scala.Product" + productChance.length
+                    (for {
+                      productClass <- Option(ScalaPsiManager.instance(place.getProject).getCachedClass(place.getResolveScope, productFqn))
+                      clazz <- ScType.extractClass(tp, Some(place.getProject))
+                    } yield clazz == productClass || clazz.isInheritor(productClass, true)).
+                            filter(identity).map(_ => productChance).getOrElse(Seq(tp))
+                  }
+                }
                 args(0) match {
                   case ScTupleType(comps) => comps
-                  case p: ScParameterizedType =>
-                    p.getTupleType match {
-                      case Some(ScTupleType(comps)) => comps
-                      case _ => Seq(p)
-                    }
-                  case tp => Seq(tp)
+                  case tp => checkProduct(tp)
                 }
               } else Seq.empty
             case _ => Seq.empty

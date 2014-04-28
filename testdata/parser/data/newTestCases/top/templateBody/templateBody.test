@@ -8,7 +8,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -32,13 +32,13 @@ ScalaFile
           PsiElement(import)('import')
           PsiWhiteSpace(' ')
           ImportExpression
-            CodeReferenceElement
-              CodeReferenceElement
+            CodeReferenceElement: a.b
+              CodeReferenceElement: a
                 PsiElement(identifier)('a')
               PsiElement(.)('.')
               PsiElement(identifier)('b')
         PsiWhiteSpace('\n\n  ')
-        ScValueDeclaration
+        ScValueDeclaration: x
           AnnotationsList
             <empty list>
           Modifiers
@@ -46,12 +46,12 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfIdentifiers
-            Field identifier
+            Field identifier: x
               PsiElement(identifier)('x')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: Int
+            CodeReferenceElement: Int
               PsiElement(identifier)('Int')
         PsiWhiteSpace('\n  ')
         ScVariableDefinition
@@ -60,8 +60,8 @@ ScalaFile
               PsiElement(@)('@')
               AnnotationExpression
                 Constructor
-                  SimpleTypeElement
-                    CodeReferenceElement
+                  SimpleTypeElement: a
+                    CodeReferenceElement: a
                       PsiElement(identifier)('a')
           PsiWhiteSpace('\n  ')
           Modifiers
@@ -70,7 +70,7 @@ ScalaFile
           PsiElement(var)('var')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: t
               PsiElement(identifier)('t')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -79,11 +79,11 @@ ScalaFile
             PsiElement(integer)('3')
         PsiWhiteSpace('\n  ')
         InfixExpression
-          ReferenceExpression
+          ReferenceExpression: x
             PsiElement(identifier)('x')
-          ReferenceExpression
+          ReferenceExpression: +
             PsiElement(identifier)('+')
-          ReferenceExpression
+          ReferenceExpression: t
             PsiElement(identifier)('t')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

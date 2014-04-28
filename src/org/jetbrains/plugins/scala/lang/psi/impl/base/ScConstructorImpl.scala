@@ -42,40 +42,34 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
   def expectedType: Option[ScType] = {
     getContext match {
-      case parents: ScClassParents => {
+      case parents: ScClassParents =>
         if (parents.typeElements.length != 1) None
         else {
           parents.getContext match {
-            case e: ScExtendsBlock => {
+            case e: ScExtendsBlock =>
               e.getContext match {
-                case n: ScNewTemplateDefinition => {
+                case n: ScNewTemplateDefinition =>
                   n.expectedType()
-                }
                 case _ => None
               }
-            }
             case _ => None
           }
         }
-      }
       case _ => None
     }
   }
 
   def newTemplate = {
     getContext match {
-      case parents: ScClassParents => {
+      case parents: ScClassParents =>
         parents.getContext match {
-          case e: ScExtendsBlock => {
+          case e: ScExtendsBlock =>
             e.getContext match {
-              case n: ScNewTemplateDefinition => {
+              case n: ScNewTemplateDefinition =>
                 Some(n)
-              }
               case _ => None
             }
-          }
         }
-      }
       case _ => None
     }
   }
@@ -124,33 +118,26 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
           ResolveUtils.javaMethodType(method, subst, getResolveScope, Some(subst.subst(tp)))
       }
       val typeParameters: Seq[TypeParameter] = r.getActualElement match {
-        case tp: ScTypeParametersOwner if tp.typeParameters.length > 0 => {
-          tp.typeParameters.map(tp =>
-            new TypeParameter(tp.name,
-              tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp))
-        }
-        case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.length > 0 => {
-          ptp.getTypeParameters.toSeq.map(ptp =>
-            new TypeParameter(ptp.name,
-              Nothing, Any, ptp)) //todo: add lower and upper bound
-        }
+        case tp: ScTypeParametersOwner if tp.typeParameters.length > 0 =>
+          tp.typeParameters.map(new TypeParameter(_))
+        case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.length > 0 =>
+          ptp.getTypeParameters.toSeq.map(new TypeParameter(_))
         case _ => return Success(res, Some(this))
       }
       s.getParent match {
-        case p: ScParameterizedTypeElement => {
+        case p: ScParameterizedTypeElement =>
           val zipped = p.typeArgList.typeArgs.zip(typeParameters)
           val appSubst = new ScSubstitutor(new HashMap[(String, String), ScType] ++ (zipped.map {
             case (arg, tp) =>
               ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), arg.getType(TypingContext.empty).getOrAny)
           }), Map.empty, None)
           Success(appSubst.subst(res), Some(this))
-        }
         case _ => Success(ScTypePolymorphicType(res, typeParameters), Some(this))
       }
     }
     def processSimple(s: ScSimpleTypeElement): Seq[TypeResult[ScType]] = {
       s.reference match {
-        case Some(ref) => {
+        case Some(ref) =>
           val buffer = new ArrayBuffer[TypeResult[ScType]]
           val resolve = if (isShape) ref.shapeResolveConstr else ref.resolveAllConstructors
           resolve.foreach(r => r match {
@@ -167,19 +154,17 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
             case _ =>
           })
           buffer.toSeq
-        }
         case _ => Seq(Failure("Hasn't reference", Some(this)))
       }
     }
 
     typeElement match {
       case s: ScSimpleTypeElement => processSimple(s)
-      case p: ScParameterizedTypeElement => {
+      case p: ScParameterizedTypeElement =>
         p.typeElement match {
           case s: ScSimpleTypeElement => processSimple(s)
           case _ => Seq.empty
         }
-      }
       case _ => Seq.empty
     }
   }

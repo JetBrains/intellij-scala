@@ -23,6 +23,22 @@ public class ScalaTestReporter implements Reporter {
     return writer.getBuffer().toString().trim();
   }
 
+  /**
+   * Try to deduce location of test in class. Only works whtn both class name and test name are provided and test name
+   * is provided in test definition as a string literal.
+   * @param classNameOption option that should contain full qualified class name
+   * @param testName name of test under consideration
+   * @return location hint in buildserver notation
+   */
+  private String getLocationHint(Option<String> classNameOption, String testName) {
+    if(classNameOption instanceof Some) {
+      String className = classNameOption.get();
+      return " locationHint='scalatest://Class:" + className + "TestName:" + escapeString(testName) + "'";
+    }
+    else
+      return "";
+  }
+
   public void apply(Event event) {
     if (event instanceof RunStarting) {
       RunStarting r = (RunStarting) event;
@@ -30,13 +46,14 @@ public class ScalaTestReporter implements Reporter {
       System.out.println("##teamcity[testCount count='" + testCount + "']");
     } else if (event instanceof TestStarting) {
       String testName = ((TestStarting) event).testName();
+      String locationHint = getLocationHint(((TestStarting) event).suiteClassName(), testName);
       System.out.println("\n##teamcity[testStarted name='" + escapeString(testName) +
-            "' captureStandardOutput='true']");
+            "'" + locationHint + " captureStandardOutput='true']");
     } else if (event instanceof TestSucceeded) {
       Option<Object> durationOption = ((TestSucceeded) event).duration();
       long duration = 0;
       if (durationOption instanceof Some) {
-        duration = ((java.lang.Long) durationOption.get()).longValue();
+        duration = (Long) durationOption.get();
       }
       String testName = ((TestSucceeded) event).testName();
 
@@ -64,7 +81,7 @@ public class ScalaTestReporter implements Reporter {
       Option<Object> durationOption = ((TestFailed) event).duration();
       long duration = 0;
       if (durationOption instanceof Some) {
-        duration = ((java.lang.Long) durationOption.get()).longValue();
+        duration = (Long) durationOption.get();
       }
       String testName = ((TestFailed) event).testName();
       String message = ((TestFailed) event).message();
@@ -88,7 +105,9 @@ public class ScalaTestReporter implements Reporter {
           "' duration='" + 0 +"']");
     } else if (event instanceof SuiteStarting) {
       String suiteName = ((SuiteStarting) event).suiteName();
-      System.out.println("\n##teamcity[testSuiteStarted name='" + escapeString(suiteName) + "']");
+      String locationHint = getLocationHint(((SuiteStarting) event).suiteClassName(), suiteName);
+      System.out.println("\n##teamcity[testSuiteStarted name='" + escapeString(suiteName) + "'" + locationHint +
+          " captureStandardOutput='true']");
     } else if (event instanceof SuiteCompleted) {
       String suiteName = ((SuiteCompleted) event).suiteName();
       System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(suiteName) + "']");

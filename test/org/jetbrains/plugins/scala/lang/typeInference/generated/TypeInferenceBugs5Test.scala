@@ -7,7 +7,11 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testAssignmentNotImported() {doTest()}
 
+  def testCyclicGetClass() {doTest()}
+
   def testDefaultParamInference() {doTest()}
+
+  def testEA52539() {doTest()}
 
   def testExistentialConformance() {doTest()}
 
@@ -24,6 +28,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testImplicitTest() {doTest()}
 
   def testInfixApply() {doTest()}
+
+  def testJavaArrayType() {doTest()}
 
   def testParametersLub() {doTest()}
 
@@ -42,6 +48,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL2292() {doTest()}
 
   def testSCL2929() {doTest()}
+
+  def testSCL2936() {doTest()}
 
   def testSCL3052() {doTest()}
 
@@ -103,6 +111,10 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL3347() {doTest()}
 
+  def testSCL3351() {doTest()}
+
+  def testSCL3354() {doTest()}
+
   def testSCL3367() {doTest()}
 
   def testSCL3590() {doTest()}
@@ -130,6 +142,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL3414G() {doTest()}
 
   def testSCL3426() {doTest()}
+
+  def testSCL3427() {doTest()}
   
   def testSCL3429() {doTest()}
 
@@ -164,6 +178,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL3549B() {doTest()}
 
   def testSCL3552() {doTest()}
+
+  def testSCL3555() {doTest()}
 
   def testSCL3565() {doTest()}
   
@@ -261,6 +277,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL4169() {doTest()}
 
+  def testSCL4186() {doTest()}
+
   def testSCL4200() {doTest()}
 
   def testSCL4276() {doTest()}
@@ -291,6 +309,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL4375() {doTest()}
 
+  def testSCL4380() {doTest()}
+
   def testSCL4389() {doTest()}
 
   def testSCL4416() {doTest()}
@@ -319,6 +339,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL4617() {doTest()}
 
+  def testSCL4650() {doTest()}
+
   def testSCL4651() {doTest()}
 
   def testSCL4656() {doTest()}
@@ -328,6 +350,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL4695() {doTest()}
 
   def testSCL4718() {doTest()}
+
+  def testSCL4740() {doTest()}
 
   def testSCL4749() {doTest()}
 
@@ -352,6 +376,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL5033() {doTest()}
 
   def testSCL5048() {doTest()}
+
+  def testSCL5048B() {doTest()}
 
   def testSCL5055() {doTest()}
 
@@ -407,9 +433,75 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL5738() {doTest()}
 
+  def testSCL5744() {doTest()}
+
   def testSCL5840() {doTest()}
 
   def testSCL5982() {doTest()}
+
+  def testSCL6022() {doTest()}
+
+  def testSCL6025() {doTest()}
+
+  def testSCL6079() {doTest()}
+
+  def testSCL6089() {doTest()}
+
+  def testSCL6091() {doTest()}
+
+  def testSCL6116() {doTest()}
+
+  def testSCL6118() {doTest()}
+
+  def testSCL6118B() {doTest()}
+
+  def testSCL6123() {doTest()}
+
+  def testSCL6169() {doTest()}
+
+  def testSCL6195() {doTest()}
+
+  def testSCL6198() {doTest()}
+
+  def testSCL6235() {doTest()}
+
+  def testSCL6259() {doTest()}
+
+  def testSCL6304() {doTest()}
+
+  def testSCL6309() {doTest()}
+
+  def testSCL6386() {doTest()}
+
+  def testSCL6507() {doTest()}
+
+  def testSCL6541() {doTest()}
+
+  def testSCL6549() {doTest()}
+
+  def testSCL6601() {doTest()}
+
+  def testSCL6601B() {doTest()}
+
+  def testSCL6608() {doTest()}
+
+  def testSCL6608B() {doTest()}
+
+  def testSCL6658() {doTest()}
+
+  def testSCL6660() {doTest()}
+
+  def testSCL6667() {doTest()}
+
+  def testSCL6730() {doTest()}
+
+  def testSCL6730B() {doTest()}
+
+  def testSCL6786() {doTest()}
+
+  def testSCL6787() {doTest()}
+
+  def testSCL6885() {doTest()}
 
   def testSOE() {doTest()}
 

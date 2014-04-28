@@ -36,7 +36,7 @@ class ScTraitImpl extends ScTypeDefinitionImpl with ScTrait with ScTypeParameter
   def this(node: ASTNode) = {this(); setNode(node)}
   def this(stub: ScTemplateDefinitionStub) = {this(); setStub(stub); setNode(null)}
 
-  override def toString: String = "ScTrait"
+  override def toString: String = "ScTrait: " + name
 
   override def getIconInner = Icons.TRAIT
 
@@ -76,9 +76,9 @@ class ScTraitImpl extends ScTypeDefinitionImpl with ScTrait with ScTypeParameter
         case (t, node) => node.info.namedElement match {
           case Some(fun: ScFunction) if !fun.isConstructor && fun.containingClass.isInstanceOf[ScTrait] &&
             fun.isInstanceOf[ScFunctionDefinition] =>
-            res += fun.getFunctionWrapper(isStatic = false, isInterface = true)
+            res ++= fun.getFunctionWrappers(isStatic = false, isInterface = true)
           case Some(fun: ScFunction) if !fun.isConstructor =>
-            res += fun.getFunctionWrapper(isStatic = false, isInterface = true)
+            res ++= fun.getFunctionWrappers(isStatic = false, isInterface = true)
           case Some(method: PsiMethod) if !method.isConstructor =>
             res += method
           case Some(t: ScTypedDefinition) if t.isVal || t.isVar =>

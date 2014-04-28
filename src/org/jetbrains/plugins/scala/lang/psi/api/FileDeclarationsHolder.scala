@@ -19,9 +19,10 @@ import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import lang.psi.types.result.TypingContext
 import lang.psi.types.ScType
 import caches.ScalaShortNamesCacheManager
-import lang.psi.{ScImportsHolder, ScDeclarationSequenceHolder}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScImportsHolder, ScDeclarationSequenceHolder}
 import com.intellij.psi.search.GlobalSearchScope
 import collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes
 
 /**
  * User: Dmitry Naydanov
@@ -96,12 +97,6 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
       }
     }
 
-    this match {
-      case scalaFile: ScalaFileImpl =>
-        if (!SbtFile.processDeclarations(scalaFile, processor, state, lastParent, place)) return false    
-      case _ =>
-    }
-
     if (isScriptProcessed) {
       val syntheticValueIterator = SyntheticClasses.get(getProject).getScriptSyntheticValues.iterator
       while (syntheticValueIterator.hasNext) {
@@ -116,11 +111,16 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
       case _ => true
     }
 
-    if (checkPredefinedClassesAndPackages) {
-      val attachedQualifiers = new mutable.HashSet[String]()
-      val implObjIter = allImplicitlyImportedObjects(getManager, scope).iterator
+    val checkWildcardImports = processor match {
+      case r: ResolveProcessor => r.checkWildcardImports()
+      case _ => true
+    }
 
-      updateProcessor(processor) {
+    def checkObjects(objects: Seq[String], precedence: Int): Boolean = {
+      val attachedQualifiers = new mutable.HashSet[String]()
+      val implObjIter = importedObjects(getManager, scope, objects).iterator
+
+      updateProcessor(processor, precedence) {
         while (implObjIter.hasNext) {
           val clazz = implObjIter.next()
           if (!attachedQualifiers.contains(clazz.qualifiedName)) {
@@ -139,8 +139,27 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
           }
         }
       }
+      true
+    }
 
+    def checkPackages(packages: Seq[String]): Boolean = {
+      val implPIterator = packages.iterator
+      while (implPIterator.hasNext) {
+        val implP = implPIterator.next()
+        ProgressManager.checkCanceled()
+        val pack: PsiPackage = JavaPsiFacade.getInstance(getProject).findPackage(implP)
+        if (pack != null && !ResolveUtils.packageProcessDeclarations(pack, processor, state, null, place)) return false
+      }
+      true
+    }
 
+    if (checkWildcardImports) {
+      if (!checkObjects(implicitlyImportedObjects, PrecedenceTypes.WILDCARD_IMPORT)) return false
+      if (!checkPackages(implicitlyImportedPackages)) return false
+    }
+
+    if (checkPredefinedClassesAndPackages) {
+      if (!checkObjects(predefObjects, PrecedenceTypes.SCALA_PREDEF)) return false
 
       val scalaPack = ScPackageImpl.findPackage(getProject, "scala")
       val namesSet =
@@ -163,37 +182,26 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
         if (!alreadyContains(synth.name) && !processor.execute(synth, state)) return false
       }
 
-      val implPIterator = implicitlyImportedPackages.iterator
-      while (implPIterator.hasNext) {
-        val implP = implPIterator.next()
-        ProgressManager.checkCanceled()
-        val pack: PsiPackage = JavaPsiFacade.getInstance(getProject).findPackage(implP)
-        if (pack != null && !ResolveUtils.packageProcessDeclarations(pack, processor, state, null, place)) return false
-      }
+      if (!checkPackages(predefPackages)) return false
     }
+
+    if (ScalaFileImpl.isProcessLocalClasses(lastParent) &&
+      !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
 
     true
   }
 
   //method extracted due to VerifyError in Scala compiler
-  private def updateProcessor(processor: PsiScopeProcessor)(body: => Unit) {
+  private def updateProcessor(processor: PsiScopeProcessor, priority: Int)(body: => Unit) {
     processor match {
-      case b: BaseProcessor => b.predefObject = true
-      case _ =>
-    }
-    try {
-      body
-    } finally {
-      processor match {
-        case b: BaseProcessor => b.predefObject = false
-        case _ =>
-      }
+      case b: BaseProcessor => b.definePriority(priority)(body)
+      case _ => body
     }
   }
 
-  private def allImplicitlyImportedObjects(manager: PsiManager, scope: GlobalSearchScope): Seq[PsiClass] = {
+  private def importedObjects(manager: PsiManager, scope: GlobalSearchScope, objects: Seq[String]): Seq[PsiClass] = {
     val res = new ArrayBuffer[PsiClass]
-    for (obj <- implicitlyImportedObjects) {
+    for (obj <- objects) {
       res ++= ScalaPsiManager.instance(manager.getProject).getCachedClasses(scope, obj)
     }
     res.toSeq
@@ -201,7 +209,11 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
 
   protected def isScalaPredefinedClass: Boolean
 
-  protected def implicitlyImportedPackages: Seq[String]
+  protected def implicitlyImportedPackages: Seq[String] = Seq.empty
 
-  protected def implicitlyImportedObjects: Seq[String]
+  protected def implicitlyImportedObjects: Seq[String] = Seq.empty
+  
+  private def predefObjects: Seq[String] = ScalaFileImpl.DefaultImplicitlyImportedObjects
+
+  private def predefPackages: Seq[String] = ScalaFileImpl.DefaultImplicitlyImportedPackges
 }

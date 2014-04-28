@@ -1,9 +1,9 @@
 foo {x =>}
 foo {implicit x =>}
-------
+-----
 ScalaFile
   MethodCall
-    ReferenceExpression
+    ReferenceExpression: foo
       PsiElement(identifier)('foo')
     PsiWhiteSpace(' ')
     ArgumentList
@@ -12,7 +12,7 @@ ScalaFile
         FunctionExpression
           Parameters
             ParametersClause
-              Parameter
+              Parameter: x
                 PsiElement(identifier)('x')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
@@ -21,7 +21,7 @@ ScalaFile
         PsiElement(})('}')
   PsiWhiteSpace('\n')
   MethodCall
-    ReferenceExpression
+    ReferenceExpression: foo
       PsiElement(identifier)('foo')
     PsiWhiteSpace(' ')
     ArgumentList
@@ -32,7 +32,7 @@ ScalaFile
             ParametersClause
               PsiElement(implicit)('implicit')
               PsiWhiteSpace(' ')
-              Parameter
+              Parameter: x
                 PsiElement(identifier)('x')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')

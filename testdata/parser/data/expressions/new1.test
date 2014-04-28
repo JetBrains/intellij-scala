@@ -4,7 +4,7 @@ class Temp {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: Temp
     AnnotationsList
       <empty list>
     Modifiers
@@ -24,7 +24,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScVariableDeclaration
+        ScVariableDeclaration: m
           AnnotationsList
             <empty list>
           Modifiers
@@ -32,12 +32,12 @@ ScalaFile
           PsiElement(var)('var')
           PsiWhiteSpace(' ')
           ListOfIdentifiers
-            Field identifier
+            Field identifier: m
               PsiElement(identifier)('m')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: MAX
+            CodeReferenceElement: MAX
               PsiElement(identifier)('MAX')
         PsiWhiteSpace('\n  ')
         ScVariableDefinition
@@ -48,7 +48,7 @@ ScalaFile
           PsiElement(var)('var')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: foo
               PsiElement(identifier)('foo')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -61,8 +61,7 @@ ScalaFile
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
             PsiWhiteSpace(' ')
-            ReferenceExpression
+            ReferenceExpression: m
               PsiElement(identifier)('m')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
-

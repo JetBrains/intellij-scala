@@ -3,7 +3,7 @@ def f = ()
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -22,7 +22,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n')
-        ScFunctionDefinition
+        ScFunctionDefinition: f
           AnnotationsList
             <empty list>
           Modifiers

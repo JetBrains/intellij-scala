@@ -34,12 +34,20 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public boolean SHOW_IMPORT_POPUP = true;
   public int ADD_IMPORTS_ON_PASTE = CodeInsightSettings.ASK;
   public boolean RENAME_SEARCH_IN_COMMENTS_AND_STRINGS = false;
+  public boolean RENAME_SEARCH_IN_NON_CODE_FILES = false;
+
   public enum VisibilityLevel {DEFAULT, PROTECTED, PRIVATE}
   public VisibilityLevel INTRODUCE_FIELD_VISIBILITY = VisibilityLevel.DEFAULT;
+
+  public boolean ADD_OVERRIDE_TO_IMPLEMENTED = true;
 
   public boolean RENAME_COMPANION_MODULE = true;
 
   public boolean INTRODUCE_FIELD_INITIALIZE_IN_DECLARATION = true;
+
+  public boolean INSERT_MULTILINE_QUOTES = true;
+
+  public boolean MOVE_COMPANION = true;
 
   public ScalaApplicationSettings getState() {
     return this;

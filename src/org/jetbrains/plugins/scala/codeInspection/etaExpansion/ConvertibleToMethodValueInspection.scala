@@ -11,7 +11,8 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import scala.Some
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * Nikolay.Tropin
@@ -41,7 +42,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
 
   private def methodWithoutArgumentsText(expr: ScExpression): Seq[String] = expr match {
     case call: ScMethodCall => Seq(call.getEffectiveInvokedExpr.getText)
-    case ScInfixExpr(_, _, right) =>
+    case ScInfixExpr(_, oper, right) if !ScalaNamesUtil.isOperatorName(oper.refName) =>
       val infixCopy = expr.copy.asInstanceOf[ScInfixExpr]
       infixCopy.getNode.removeChild(infixCopy.rOp.getNode)
       Seq(infixCopy.getText)
@@ -52,7 +53,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
   private def isSuitableForReplace(oldExpr: ScExpression, newExprText: String): Boolean = {
     val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(newExprText, oldExpr.getContext, oldExpr)
     oldExpr.expectedType(fromUnderscore = false) match {
-      case Some(expectedType) if ScType.extractFunctionType(expectedType).isDefined =>
+      case Some(expectedType) if ScFunctionType.isFunctionType(expectedType) =>
         def conformsExpected(expr: ScExpression): Boolean = expr.getType().getOrAny conforms expectedType
         conformsExpected(oldExpr) && conformsExpected(newExpr) && oldExpr.getType().getOrAny.conforms(newExpr.getType().getOrNothing)
       case None if newExprText endsWith "_" =>

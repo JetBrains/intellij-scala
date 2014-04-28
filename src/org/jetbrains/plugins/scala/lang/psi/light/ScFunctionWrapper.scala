@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import com.intellij.psi.impl.light.LightMethod
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import com.intellij.psi._
@@ -10,20 +9,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefiniti
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import scala.Some
-import scala.Int
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import scala.Boolean
 import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
 
-class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor) extends {
+class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor, isJavaVarargs: Boolean = false) extends {
   val elementFactory = JavaPsiFacade.getInstance(constr.getProject).getElementFactory
   val containingClass = {
       val res: PsiClass = constr.containingClass
       assert(res != null, s"Method: ${constr.getText}\nhas null containing class. \nContaining file text: ${constr.getContainingFile.getText}")
       res
   }
-  val methodText = ScFunctionWrapper.methodText(constr, false, false, None)
+  val methodText = ScFunctionWrapper.methodText(constr, false, false, None, isJavaVarargs)
   val method: PsiMethod = {
     try {
       elementFactory.createMethodFromText(methodText, containingClass)
@@ -31,7 +27,7 @@ class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor) extends {
       case e: Exception => elementFactory.createMethodFromText("public void FAILED_TO_DECOMPILE_METHOD() {}", containingClass)
     }
   }
-} with LightMethod(constr.getManager, method, containingClass) with LightScalaMethod {
+} with LightMethodAdapter(constr.getManager, method, containingClass) with LightScalaMethod {
   override def getNavigationElement: PsiElement = constr.getNavigationElement
 
   override def canNavigate: Boolean = constr.canNavigate
@@ -62,7 +58,7 @@ object ScPrimaryConstructorWrapper {
  * @since 27.02.12
  */
 class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface: Boolean,
-                        cClass: Option[PsiClass]) extends {
+                        cClass: Option[PsiClass], isJavaVarargs: Boolean = false) extends {
   val elementFactory = JavaPsiFacade.getInstance(function.getProject).getElementFactory
   val containingClass = {
     if (cClass != None) cClass.get
@@ -79,7 +75,7 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
       res
     }
   }
-  val methodText = ScFunctionWrapper.methodText(function, isStatic, isInterface, cClass)
+  val methodText = ScFunctionWrapper.methodText(function, isStatic, isInterface, cClass, isJavaVarargs)
   val method: PsiMethod = {
     try {
       elementFactory.createMethodFromText(methodText, containingClass)
@@ -87,7 +83,7 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
       case e: Exception => elementFactory.createMethodFromText("public void FAILED_TO_DECOMPILE_METHOD() {}", containingClass)
     }
   }
-} with LightMethod(function.getManager, method, containingClass) with LightScalaMethod {
+} with LightMethodAdapter(function.getManager, method, containingClass) with LightScalaMethod {
   override def getNavigationElement: PsiElement = function.getNavigationElement
 
   override def canNavigate: Boolean = function.canNavigate
@@ -140,7 +136,8 @@ object ScFunctionWrapper {
   /**
    * This is for Java only.
    */
-  def methodText(function: ScMethodLike, isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass]): String = {
+  def methodText(function: ScMethodLike, isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass], 
+                 isJavaVarargs: Boolean): String = {
     val builder = new StringBuilder
 
     builder.append(JavaConversionUtil.modifiers(function, isStatic))
@@ -154,7 +151,7 @@ object ScFunctionWrapper {
           tp.upperTypeElement match {
             case Some(tParam) =>
               val classes = new ArrayBuffer[PsiClass]()
-              tp.upperBound.map(subst.subst(_)) match {
+              tp.upperBound.map(subst.subst) match {
                 case Success(tp: ScCompoundType, _) =>
                   tp.components.foreach {
                     case tp: ScType => ScType.extractClass(tp, Some(function.getProject)) match {
@@ -201,13 +198,20 @@ object ScFunctionWrapper {
 
     builder.append(function.effectiveParameterClauses.flatMap(_.parameters).map { case param =>
       val builder = new StringBuilder
-      param.getRealParameterType(TypingContext.empty) match {
+      val varargs: Boolean = param.isRepeatedParameter && isJavaVarargs
+      val tt =
+        if (varargs) param.getType(TypingContext.empty)
+        else param.getRealParameterType(TypingContext.empty)
+      tt match {
         case Success(tp, _) =>
           if (param.isCallByNameParameter) builder.append("scala.Function0<")
           builder.append(JavaConversionUtil.typeText(subst.subst(tp), function.getProject, function.getResolveScope))
           if (param.isCallByNameParameter) builder.append(">")
         case _ => builder.append("java.lang.Object")
       }
+
+      if (varargs) builder.append("...")
+
       builder.append(" ").append(param.getName)
       builder.toString()
     }.mkString("(", ", ", ")"))

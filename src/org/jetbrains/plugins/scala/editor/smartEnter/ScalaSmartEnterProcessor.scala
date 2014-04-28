@@ -20,7 +20,6 @@ import lang.psi.api.expr._
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.actionSystem.{EditorActionManager, EditorActionHandler}
 import com.intellij.openapi.actionSystem.IdeActions
-import lang.psi.api.toplevel.templates.ScTemplateBody
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.codeInsight.editorActions.smartEnter._
 import lang.psi.api.statements.ScPatternDefinition
@@ -94,7 +93,7 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
       }
 
       val queue = new util.ArrayList[PsiElement]
-      collectAllElements(atCaret, queue, true)
+      collectAllElements(atCaret, queue, rec = true)
       queue.add(atCaret)
 
       import scala.collection.JavaConversions._
@@ -190,8 +189,8 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
 
   protected override def getStatementAtCaret(editor: Editor, psiFile: PsiFile): PsiElement = {
     val atCaret: PsiElement = super.getStatementAtCaret(editor, psiFile)
-    if (atCaret.isInstanceOf[PsiWhiteSpace]) return null
-    if (("}" == atCaret.getText) && !(atCaret.getParent.isInstanceOf[PsiArrayInitializerExpression])) return null
+    if (atCaret.isInstanceOf[PsiWhiteSpace] || atCaret == null) return null
+    if (("}" == atCaret.getText) && !atCaret.getParent.isInstanceOf[PsiArrayInitializerExpression]) return null
     var statementAtCaret: PsiElement = PsiTreeUtil.getParentOfType(atCaret, classOf[ScPatternDefinition], classOf[ScIfStmt], classOf[ScWhileStmt], classOf[ScForStatement], classOf[ScCatchBlock], classOf[ScMethodCall])
     if (statementAtCaret.isInstanceOf[PsiBlockStatement]) return null
     if (statementAtCaret != null && statementAtCaret.getParent.isInstanceOf[ScForStatement]) {
@@ -243,7 +242,7 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
   }
 
   protected def plainEnter(editor: Editor) {
-    getEnterHandler.execute(editor, (editor.asInstanceOf[EditorEx]).getDataContext)
+    getEnterHandler.execute(editor, editor.asInstanceOf[EditorEx].getDataContext)
   }
 
   protected def getEnterHandler: EditorActionHandler = {

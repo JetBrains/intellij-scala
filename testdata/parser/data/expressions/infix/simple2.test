@@ -4,7 +4,7 @@ class C {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: C
     AnnotationsList
       <empty list>
     Modifiers
@@ -28,10 +28,10 @@ ScalaFile
           Literal
             PsiElement(integer)('1')
           PsiWhiteSpace(' ')
-          ReferenceExpression
+          ReferenceExpression: +
             PsiElement(identifier)('+')
           PsiWhiteSpace(' ')
-          ReferenceExpression
+          ReferenceExpression: {2}.toString
             BlockExpression
               PsiElement({)('{')
               Literal
@@ -44,7 +44,7 @@ ScalaFile
           Literal
             PsiElement(integer)('1')
           PsiWhiteSpace(' ')
-          ReferenceExpression
+          ReferenceExpression: +
             PsiElement(identifier)('+')
           PsiWhiteSpace(' ')
           BlockExpression

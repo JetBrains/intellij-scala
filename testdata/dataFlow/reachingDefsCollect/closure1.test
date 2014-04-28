@@ -17,8 +17,7 @@ def foo(i: Int) {
 }
 -----
 INPUT:
-Parameter : i
-ReferencePattern : j
-ReferencePattern : k [ref]
+Parameter: i
+ReferencePattern: j
+ReferencePattern: k
 OUTPUT:
-ReferencePattern : j

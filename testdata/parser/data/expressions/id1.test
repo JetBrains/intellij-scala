@@ -5,7 +5,7 @@ object A extends B {
 }
 -----
 ScalaFile
-  ScObject
+  ScObject: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -19,14 +19,14 @@ ScalaFile
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: B
+            CodeReferenceElement: B
               PsiElement(identifier)('B')
       PsiWhiteSpace(' ')
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScFunctionDefinition
+        ScFunctionDefinition: foo
           AnnotationsList
             <empty list>
           Modifiers
@@ -42,11 +42,11 @@ ScalaFile
           BlockExpression
             PsiElement({)('{')
             PsiWhiteSpace('\n    ')
-            ReferenceExpression
-              ReferenceExpression
-                ReferenceExpression
-                  ReferenceExpression
-                    ReferenceExpression
+            ReferenceExpression: a.b.c.d.e
+              ReferenceExpression: a.b.c.d
+                ReferenceExpression: a.b.c
+                  ReferenceExpression: a.b
+                    ReferenceExpression: a
                       PsiElement(identifier)('a')
                     PsiElement(.)('.')
                     PsiElement(identifier)('b')

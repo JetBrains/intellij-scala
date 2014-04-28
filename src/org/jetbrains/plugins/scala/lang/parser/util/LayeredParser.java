@@ -272,7 +272,7 @@ public abstract class LayeredParser implements PsiParser {
       int lookup = getIndexWithStateFlusher(steps + currentTokenNumber);
       if (eof() || lookup < 0 || lookup >= filteredTokens.size() - 1) return null;
       
-      return getValidTokenInfo(lookup).getTokenType();
+      return originalTokens.get(filteredTokens.get(lookup)).getTokenType(); //todo furhter bugs in the parser can be caused by this fix
     }
 
     @Override
@@ -595,7 +595,7 @@ public abstract class LayeredParser implements PsiParser {
       int oldOriginalNumber = filteredTokens.get(currentTokenNumber) + 1;
       ++currentTokenNumber;
 
-      if (currentTokenNumber >= filteredTokens.size() - 1) return;
+      if (currentTokenNumber >= filteredTokens.size()) return;
       int newOriginalNumber = filteredTokens.get(currentTokenNumber) - 1;
       
       for (int i = oldOriginalNumber; i <= newOriginalNumber; ++i) {

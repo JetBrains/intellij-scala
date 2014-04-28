@@ -33,12 +33,11 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
   val REFACTORING_NAME = ScalaBundle.message("introduce.parameter.title")
 
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
-    def invokes() {
+    val canBeIntroduced: (ScExpression) => Boolean = ScalaRefactoringUtil.checkCanBeIntroduced(_)
+    ScalaRefactoringUtil.afterExpressionChoosing(project, editor, file, dataContext, "Introduce Parameter", canBeIntroduced) {
       ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
       invoke(project, editor, file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
     }
-    val canBeIntroduced: (ScExpression) => Boolean = ScalaRefactoringUtil.checkCanBeIntroduced(_)
-    ScalaRefactoringUtil.invokeRefactoring(project, editor, file, dataContext, "Introduce Parameter", invokes, canBeIntroduced)
   }
 
   def invoke(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int) {
@@ -46,13 +45,12 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       ScalaRefactoringUtil.checkFile(file, project, editor, REFACTORING_NAME)
 
-      val (expr: ScExpression, scType: ScType) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
+      val (expr: ScExpression, types: Array[ScType]) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
               getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, REFACTORING_NAME))
-      val types = ScalaRefactoringUtil.addPossibleTypes(scType, expr)
 
       ScalaRefactoringUtil.checkCanBeIntroduced(expr)
 
-      chooseEnclosingMethod(project, editor, file, startOffset, endOffset, expr, types.toArray)
+      chooseEnclosingMethod(project, editor, file, startOffset, endOffset, expr, types)
     }
     catch {
       case _: IntroduceException => return

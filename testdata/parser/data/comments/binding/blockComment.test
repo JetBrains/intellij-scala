@@ -4,7 +4,7 @@
 type A
 -----
 ScalaFile
-  ScTypeAliasDeclaration
+  ScTypeAliasDeclaration: A
     PsiComment(BlockComment)('/*\n comment\n */')
     PsiWhiteSpace('\n')
     AnnotationsList

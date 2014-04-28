@@ -83,7 +83,7 @@ object ScalaIntroduceFieldHandlerBase {
   def canBeInitInLocalScope[T <: PsiElement](ifc: IntroduceFieldContext[T], replaceAll: Boolean): Boolean = {
     val occurrences = if (replaceAll) ifc.occurrences else Array(ifc.element.getTextRange)
     val parExpr: ScExpression = ScalaRefactoringUtil.findParentExpr(ScalaRefactoringUtil.commonParent(ifc.file, occurrences: _*))
-    val container = ScalaRefactoringUtil.container(parExpr, ifc.file, strict = false)
+    val container = ScalaRefactoringUtil.container(parExpr, ifc.file)
     val stmtsAndMmbrs = ScalaRefactoringUtil.statementsAndMembersInClass(ifc.aClass)
     val containerIsLocal = (Iterator(container) ++ new ParentsIterator(container)).exists(stmtsAndMmbrs.contains(_))
     if (!containerIsLocal) false
@@ -101,8 +101,8 @@ object ScalaIntroduceFieldHandlerBase {
 
     val parExpr = ScalaRefactoringUtil.findParentExpr(commonParent)
     if (parExpr == null) return None
-    val container: PsiElement = ScalaRefactoringUtil.container(parExpr, file, strict = occurences.length == 1)
-    val needBraces = !parExpr.isInstanceOf[ScBlock] && ScalaRefactoringUtil.needBraces(parExpr, ScalaRefactoringUtil.previous(parExpr, file))
+    val container: PsiElement = ScalaRefactoringUtil.container(parExpr, file)
+    val needBraces = !parExpr.isInstanceOf[ScBlock] && ScalaRefactoringUtil.needBraces(parExpr, ScalaRefactoringUtil.nextParent(parExpr, file))
     val parent =
       if (needBraces) {
         firstRange = firstRange.shiftRight(1)

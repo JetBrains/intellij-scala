@@ -1,7 +1,7 @@
 implicit implicit private class A
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers

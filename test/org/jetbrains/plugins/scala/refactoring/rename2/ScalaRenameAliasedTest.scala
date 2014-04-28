@@ -141,7 +141,7 @@ class ScalaRenameAliasedTest extends ScalaRenameTestBase {
     myFixture.configureByText("dummy.scala", fileText)
     val objectElement = myFixture.getElementAtCaret
     val usages = myFixture.findUsages(objectElement)
-    Assert.assertEquals(usages.size(), 4) // TODO should be five, usage in `new aliasedAliasName` is not found.
+    Assert.assertEquals(usages.size(), 5)
     myFixture.renameElementAtCaret("newAliasName")
 
     val resultText =
@@ -185,6 +185,32 @@ class ScalaRenameAliasedTest extends ScalaRenameTestBase {
     myFixture.checkResult(resultText)
   }
 
+  def testRenameClassWithSameNameTypeAlias() {
+    val fileText =
+      """
+        |class oldName<caret>
+        |object A {
+        |  object B { type oldName = _root_.oldName}
+        |  new B.oldName: B.oldName
+        |  new _root_.oldName: _root_.oldName
+        |}""".stripMargin('|').replaceAll("\r", "").trim()
+    myFixture.configureByText("dummy.scala", fileText)
+    val objectElement = myFixture.getElementAtCaret
+    val usages = myFixture.findUsages(objectElement)
+    Assert.assertEquals(usages.size(), 5)
+    myFixture.renameElementAtCaret("newName")
+
+    val resultText =
+      """
+        |class newName
+        |object A {
+        |  object B { type oldName = _root_.newName}
+        |  new B.oldName: B.oldName
+        |  new _root_.newName: _root_.newName
+        |}""".stripMargin('|').replaceAll("\r", "").trim()
+
+    myFixture.checkResult(resultText)
+  }
   // TODO packages.
 }
 

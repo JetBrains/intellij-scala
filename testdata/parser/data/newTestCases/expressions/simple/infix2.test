@@ -3,7 +3,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -26,24 +26,24 @@ ScalaFile
         InfixExpression
           Literal
             PsiElement(integer)('2')
-          ReferenceExpression
+          ReferenceExpression: ::
             PsiElement(identifier)('::')
           InfixExpression
             Literal
               PsiElement(integer)('3')
-            ReferenceExpression
+            ReferenceExpression: +:
               PsiElement(identifier)('+:')
             InfixExpression
               Literal
                 PsiElement(integer)('4')
-              ReferenceExpression
+              ReferenceExpression: -:
                 PsiElement(identifier)('-:')
               ExpressionInParenthesis
                 PsiElement(()('(')
                 InfixExpression
                   Literal
                     PsiElement(integer)('7')
-                  ReferenceExpression
+                  ReferenceExpression: +
                     PsiElement(identifier)('+')
                   Literal
                     PsiElement(integer)('5')

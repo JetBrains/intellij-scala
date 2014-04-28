@@ -1,7 +1,7 @@
 class a extends b
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -22,6 +22,6 @@ ScalaFile
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: b
+            CodeReferenceElement: b
               PsiElement(identifier)('b')

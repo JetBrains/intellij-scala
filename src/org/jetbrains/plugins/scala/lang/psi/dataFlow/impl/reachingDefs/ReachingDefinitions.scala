@@ -3,7 +3,7 @@ package impl.reachingDefs
 
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import collection.Iterable
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{ReadWriteVariableInstruction, DefineValueInstruction}
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{DefinitionType, ReadWriteVariableInstruction, DefinitionInstruction}
 import com.intellij.psi.PsiElement
 /**
  * @author ilyas
@@ -15,33 +15,32 @@ object ReachingDefinitions {
    * Semilattice element type:
    * the set of assignments
    */
-  type A = Set[Instruction]
+  type RDSet = Set[Instruction]
 
-  object ReachingDefinitionsInstance extends DfaInstance[A] {
+  object ReachingDefinitionsInstance extends DfaInstance[RDSet] {
     def isForward = true
-    val fun = (i: Instruction) => (a: A) => i match {
-      case dv: DefineValueInstruction => a + dv
-      case wr@ReadWriteVariableInstruction(_, ref, true) => {
-        val target: PsiElement = ref.resolve
+
+    override def fun(i: Instruction)(set: RDSet): RDSet = i match {
+      case dv: DefinitionInstruction => set + dv
+      case wr@ReadWriteVariableInstruction(_, _, Some(target), true) =>
 
         def previousAssignments(i: Instruction) = i match {
-          case DefineValueInstruction(_, named, true) => named eq target
-          case ReadWriteVariableInstruction(_, ref1, true) => ref1.resolve eq target
+          case DefinitionInstruction(_, named, DefinitionType.VAR) => named == target
+          case ReadWriteVariableInstruction(_, _, Some(target1), true) => target1 == target
           case _ => false
         }
 
-        a.filterNot(previousAssignments) + wr
-      }
-      case _ => a
+        set.filterNot(previousAssignments) + wr
+      case _ => set
     }
   }
 
-  object ReachingDefinitionsLattice extends Semilattice[A] {
-    val bottom: A = Set()
+  object ReachingDefinitionsLattice extends Semilattice[RDSet] {
+    val bottom: RDSet = Set()
 
-    def join(ins: Iterable[A]) = ins.foldLeft(bottom)(_ ++ _)
+    def join(ins: Iterable[RDSet]) = ins.foldLeft(bottom)(_ ++ _)
 
-    def eq(e1: A, e2: A) = e1 == e2 // todo is this correct?
+    def eq(e1: RDSet, e2: RDSet) = e1 == e2 // todo is this correct?
   }
 
 }

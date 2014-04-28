@@ -1,7 +1,7 @@
 class A(a: T with S with U {val i:T})
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -17,7 +17,7 @@ ScalaFile
       Parameters
         ParametersClause
           PsiElement(()('(')
-          ClassParameter
+          ClassParameter: a
             AnnotationsList
               <empty list>
             Modifiers
@@ -26,26 +26,26 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              CompoundType
-                SimpleTypeElement
-                  CodeReferenceElement
+              CompoundType: T with S with U {val i:T}
+                SimpleTypeElement: T
+                  CodeReferenceElement: T
                     PsiElement(identifier)('T')
                 PsiWhiteSpace(' ')
                 PsiElement(with)('with')
                 PsiWhiteSpace(' ')
-                SimpleTypeElement
-                  CodeReferenceElement
+                SimpleTypeElement: S
+                  CodeReferenceElement: S
                     PsiElement(identifier)('S')
                 PsiWhiteSpace(' ')
                 PsiElement(with)('with')
                 PsiWhiteSpace(' ')
-                SimpleTypeElement
-                  CodeReferenceElement
+                SimpleTypeElement: U
+                  CodeReferenceElement: U
                     PsiElement(identifier)('U')
                 PsiWhiteSpace(' ')
                 Refinement
                   PsiElement({)('{')
-                  ScValueDeclaration
+                  ScValueDeclaration: i
                     AnnotationsList
                       <empty list>
                     Modifiers
@@ -53,11 +53,11 @@ ScalaFile
                     PsiElement(val)('val')
                     PsiWhiteSpace(' ')
                     ListOfIdentifiers
-                      Field identifier
+                      Field identifier: i
                         PsiElement(identifier)('i')
                     PsiElement(:)(':')
-                    SimpleTypeElement
-                      CodeReferenceElement
+                    SimpleTypeElement: T
+                      CodeReferenceElement: T
                         PsiElement(identifier)('T')
                   PsiElement(})('}')
           PsiElement())(')')

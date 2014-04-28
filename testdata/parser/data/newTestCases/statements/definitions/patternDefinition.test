@@ -3,7 +3,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -34,25 +34,25 @@ ScalaFile
             TuplePattern
               PsiElement(()('(')
               ArgumentPatterns
-                ReferencePattern
+                ReferencePattern: a
                   PsiElement(identifier)('a')
                 PsiElement(,)(',')
-                ReferencePattern
+                ReferencePattern: b
                   PsiElement(identifier)('b')
               PsiElement())(')')
             PsiElement(,)(',')
-            ReferencePattern
+            ReferencePattern: c
               PsiElement(identifier)('c')
           PsiElement(:)(':')
-          TupleType
+          TupleType: (Int,Int)
             PsiElement(()('(')
             TypesList
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: Int
+                CodeReferenceElement: Int
                   PsiElement(identifier)('Int')
               PsiElement(,)(',')
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: Int
+                CodeReferenceElement: Int
                   PsiElement(identifier)('Int')
             PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -63,12 +63,12 @@ ScalaFile
             InfixExpression
               Literal
                 PsiElement(integer)('2')
-              ReferenceExpression
+              ReferenceExpression: +
                 PsiElement(identifier)('+')
               InfixExpression
                 Literal
                   PsiElement(integer)('1')
-                ReferenceExpression
+                ReferenceExpression: *
                   PsiElement(identifier)('*')
                 Literal
                   PsiElement(integer)('2')

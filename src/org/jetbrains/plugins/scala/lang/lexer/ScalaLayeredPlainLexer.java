@@ -14,7 +14,15 @@ public class ScalaLayeredPlainLexer extends LayeredLexer {
   public ScalaLayeredPlainLexer(boolean treatDocCommentAsBlockComment) {
     super(new ScalaSplittingLexer(treatDocCommentAsBlockComment));
 //    registerLayer(new ScalaCoreLexer(), ScalaTokenTypesEx.SCALA_PLAIN_CONTENT);
+    Boolean flagValue = null;
+    if (ourDisableLayersFlag != null) {
+      flagValue = ourDisableLayersFlag.get();
+      ourDisableLayersFlag.set(false);
+    }
     registerSelfStoppingLayer(new ScalaCoreLexer(), new IElementType[]{ScalaTokenTypesEx.SCALA_PLAIN_CONTENT}, IElementType.EMPTY_ARRAY);
+    if (ourDisableLayersFlag != null) {
+      ourDisableLayersFlag.set(flagValue);
+    }
   }
 
   public ScalaLayeredPlainLexer() {

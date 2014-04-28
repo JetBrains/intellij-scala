@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScExpression
 import psi.api.statements._
 import util.ScalaRefactoringUtil
 import com.intellij.usageView.UsageInfo
-import psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScStableCodeReferenceElement}
 import collection.JavaConverters.iterableAsScalaIterableConverter
 import com.intellij.lang.refactoring.InlineHandler.Settings
 import com.intellij.psi.{PsiReference, PsiElement}
@@ -31,7 +31,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.extensions.Parent
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypedDefinition, ScNamedElement}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
+import extensions.childOf
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * User: Alexander Podkhalyuzin
@@ -84,7 +86,12 @@ class ScalaInlineHandler extends InlineHandler {
           case _ => None
         }
         expressionOpt.foreach { expression =>
-          val newExpr = expression.replaceExpression(expr, removeParenthesis = true)
+          val replacement = expression match {
+            case _ childOf (_: ScInterpolatedStringLiteral) =>
+              ScalaPsiElementFactory.createExpressionFromText(s"{" + expr.getText + "}", expression.getManager)
+            case _ => expr
+          }
+          val newExpr = expression.replaceExpression(replacement, removeParenthesis = true)
           val project = newExpr.getProject
           val manager = FileEditorManager.getInstance(project)
           val editor = manager.getSelectedTextEditor
@@ -111,7 +118,7 @@ class ScalaInlineHandler extends InlineHandler {
 
     def getSettings(v: ScDeclaredElementsHolder, inlineTitleSuffix: String, inlineDescriptionSuffix: String): InlineHandler.Settings = {
       val bind = v.declaredElements.apply(0)
-      val refs = ReferencesSearch.search(bind).findAll.asScala
+      val refs = ReferencesSearch.search(bind, bind.getUseScope).findAll.asScala
       val inlineTitle = title(inlineTitleSuffix)
       ScalaRefactoringUtil.highlightOccurrences(element.getProject, refs.map(_.getElement).toArray, editor)
       val settings = new InlineHandler.Settings {def isOnlyOneReferenceToInline: Boolean = false}
@@ -137,7 +144,7 @@ class ScalaInlineHandler extends InlineHandler {
       } else settings
     }
     element match {
-      case typedDef: ScTypedDefinition if ScType.extractFunctionType(typedDef.getType().getOrAny).exists(_.arity > 0) =>
+      case typedDef: ScTypedDefinition if ScFunctionType.unapply(typedDef.getType().getOrAny).exists(_._2.length > 0) =>
         showErrorHint(ScalaBundle.message("cannot.inline.anonymous.function"), "element")
       case named: ScNamedElement if !usedInSameClassOnly(named) =>
         showErrorHint(ScalaBundle.message("cannot.inline.used.outside.class"), "member")
@@ -164,7 +171,7 @@ class ScalaInlineHandler extends InlineHandler {
   private def usedInSameClassOnly(named: ScNamedElement): Boolean = {
     ScalaPsiUtil.nameContext(named) match {
       case member: ScMember =>
-        ReferencesSearch.search(named).findAll.asScala.forall {
+        ReferencesSearch.search(named, named.getUseScope).findAll.asScala.forall {
           ref => member.containingClass == null || PsiTreeUtil.isAncestor(member.containingClass, ref.getElement, true)
         }
       case _ => true

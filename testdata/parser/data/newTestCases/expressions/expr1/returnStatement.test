@@ -3,7 +3,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -26,7 +26,7 @@ ScalaFile
         ReturnStatement
           PsiElement(return)('return')
           PsiWhiteSpace(' ')
-          ReferenceExpression
+          ReferenceExpression: answer
             PsiElement(identifier)('answer')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

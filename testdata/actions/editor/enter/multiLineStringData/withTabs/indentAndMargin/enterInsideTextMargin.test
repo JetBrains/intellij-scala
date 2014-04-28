@@ -5,5 +5,5 @@ object A {
 object A {
 	val a =
 		"""blah
-			| <caret>blah"""
+			| <caret>blah""".stripMargin
 }

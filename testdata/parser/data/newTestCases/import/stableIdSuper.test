@@ -5,10 +5,10 @@ ScalaFile
     PsiElement(import)('import')
     PsiWhiteSpace(' ')
     ImportExpression
-      CodeReferenceElement
-        CodeReferenceElement
+      CodeReferenceElement: a.super[g].b.c
+        CodeReferenceElement: a.super[g].b
           SuperReference
-            CodeReferenceElement
+            CodeReferenceElement: a
               PsiElement(identifier)('a')
             PsiElement(.)('.')
             PsiElement(super)('super')

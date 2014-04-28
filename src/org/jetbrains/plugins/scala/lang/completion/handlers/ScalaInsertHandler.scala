@@ -27,12 +27,11 @@ import lexer.ScalaTokenTypes
 object ScalaInsertHandler {
   def getItemParametersAndAccessorStatus(item: ScalaLookupItem): (Int, String, Boolean) = {
     item.element match {
-      case fun: ScFunction => {
+      case fun: ScFunction =>
         val clauses = fun.paramClauses.clauses
         if (clauses.length == 0) (-1, null, false)
         else if (clauses.apply(0).isImplicit) (-1, null, false)
         else (clauses(0).parameters.length, fun.name, false)
-      }
       case method: PsiMethod =>
         def isStringSpecialMethod: Boolean = {
           Set("hashCode", "length", "trim").contains(method.getName) &&
@@ -172,26 +171,10 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
     }
 
     item.element match {
-      case obj: ScObject if item.isInStableCodeReference  =>
-        if (completionChar != '.') {
-          document.insertString(endOffset, ".")
-          endOffset += 1
-          editor.getCaretModel.moveToOffset(endOffset)
-          context.setLaterRunnable(new Runnable {
-            def run() {
-              AutoPopupController.getInstance(context.getProject).scheduleAutoPopup(
-                context.getEditor, new Condition[PsiFile] {
-                  def value(t: PsiFile): Boolean = t == context.getFile
-                }
-              )
-            }
-          })
-        }
-        return
       case _: PsiClass | _: ScTypeAlias if context.getCompletionChar == '[' =>
         context.setAddCompletionChar(false)
         insertIfNeeded(placeInto = true, openChar = '[', closeChar = ']', withSpace = false, withSomeNum = false)
-      case named: PsiNamedElement if item.isNamedParameter => { //some is impossible here
+      case named: PsiNamedElement if item.isNamedParameter => //some is impossible here
         val shouldAddEqualsSign = element.getParent match {
           case ref: ScReferenceExpression =>
             ref.getParent match {
@@ -211,14 +194,13 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
           editor.getCaretModel.moveToOffset(endOffset)
         }
         return
-      }
       case _: PsiMethod if item.isInImport => moveCaretIfNeeded()
       case _: ScFun if item.isInImport => moveCaretIfNeeded()
       case fun: ScFunction if fun.name == "classOf" && fun.containingClass != null &&
         fun.containingClass.qualifiedName == "scala.Predef" =>
         context.setAddCompletionChar(false)
         insertIfNeeded(placeInto = true, openChar = '[', closeChar = ']', withSpace = false, withSomeNum = true)
-      case _: PsiMethod | _: ScFun => {
+      case _: PsiMethod | _: ScFun =>
         if (context.getCompletionChar != '[') {
           val (count, _, isAccessor) = getItemParametersAndAccessorStatus(item)
           if (count == 0 && !isAccessor) {
@@ -291,7 +273,6 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
           insertIfNeeded(placeInto = true, openChar = '[', closeChar = ']', withSpace = false, withSomeNum = false)
           //do not add () or {} in this case, use will choose what he want later
         }
-      }
       case _ => moveCaretIfNeeded()
     }
 

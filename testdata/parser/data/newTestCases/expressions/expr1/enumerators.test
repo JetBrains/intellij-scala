@@ -6,7 +6,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -32,7 +32,7 @@ ScalaFile
           PsiElement({)('{')
           Enumerators
             Generator
-              ReferencePattern
+              ReferencePattern: i
                 PsiElement(identifier)('i')
               PsiWhiteSpace(' ')
               PsiElement(<-)('<-')
@@ -41,16 +41,16 @@ ScalaFile
                 Literal
                   PsiElement(integer)('1')
                 PsiWhiteSpace(' ')
-                ReferenceExpression
+                ReferenceExpression: to
                   PsiElement(identifier)('to')
                 PsiWhiteSpace(' ')
-                ReferenceExpression
+                ReferenceExpression: n
                   PsiElement(identifier)('n')
             PsiWhiteSpace('\n      ')
             Enumerator
               PsiElement(val)('val')
               PsiWhiteSpace(' ')
-              ReferencePattern
+              ReferencePattern: x
                 PsiElement(identifier)('x')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')

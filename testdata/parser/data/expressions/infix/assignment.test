@@ -1,18 +1,18 @@
 lb += "c" -> 3
--------
+-----
 ScalaFile
   InfixExpression
-    ReferenceExpression
+    ReferenceExpression: lb
       PsiElement(identifier)('lb')
     PsiWhiteSpace(' ')
-    ReferenceExpression
+    ReferenceExpression: +=
       PsiElement(identifier)('+=')
     PsiWhiteSpace(' ')
     InfixExpression
       Literal
         PsiElement(string content)('"c"')
       PsiWhiteSpace(' ')
-      ReferenceExpression
+      ReferenceExpression: ->
         PsiElement(identifier)('->')
       PsiWhiteSpace(' ')
       Literal

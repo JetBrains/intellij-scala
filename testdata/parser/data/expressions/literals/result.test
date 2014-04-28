@@ -3,7 +3,7 @@ val foo=(a:T,b:S)=>true
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: A
     AnnotationsList
       <empty list>
     Modifiers
@@ -30,31 +30,31 @@ ScalaFile
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns
-            ReferencePattern
+            ReferencePattern: foo
               PsiElement(identifier)('foo')
           PsiElement(=)('=')
           FunctionExpression
             Parameters
               ParametersClause
                 PsiElement(()('(')
-                Parameter
+                Parameter: a
                   AnnotationsList
                     <empty list>
                   PsiElement(identifier)('a')
                   PsiElement(:)(':')
                   ParameterType
-                    SimpleTypeElement
-                      CodeReferenceElement
+                    SimpleTypeElement: T
+                      CodeReferenceElement: T
                         PsiElement(identifier)('T')
                 PsiElement(,)(',')
-                Parameter
+                Parameter: b
                   AnnotationsList
                     <empty list>
                   PsiElement(identifier)('b')
                   PsiElement(:)(':')
                   ParameterType
-                    SimpleTypeElement
-                      CodeReferenceElement
+                    SimpleTypeElement: S
+                      CodeReferenceElement: S
                         PsiElement(identifier)('S')
                 PsiElement())(')')
             PsiElement(=>)('=>')

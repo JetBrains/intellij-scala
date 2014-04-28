@@ -5,7 +5,7 @@ object impl{
 }
 -----
 ScalaFile
-  ScObject
+  ScObject: impl
     AnnotationsList
       <empty list>
     Modifiers
@@ -17,7 +17,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScFunctionDefinition
+        ScFunctionDefinition: sum
           AnnotationsList
             <empty list>
           Modifiers
@@ -27,13 +27,13 @@ ScalaFile
           PsiElement(identifier)('sum')
           TypeParameterClause
             PsiElement([)('[')
-            TypeParameter
+            TypeParameter: A
               PsiElement(identifier)('A')
             PsiElement(])(']')
           Parameters
             ParametersClause
               PsiElement(()('(')
-              Parameter
+              Parameter: xs
                 AnnotationsList
                   <empty list>
                 Modifiers
@@ -42,15 +42,15 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  SimpleTypeElement
-                    CodeReferenceElement
+                  SimpleTypeElement: List
+                    CodeReferenceElement: List
                       PsiElement(identifier)('List')
               PsiElement())(')')
             ParametersClause
               PsiElement(()('(')
               PsiElement(implicit)('implicit')
               PsiWhiteSpace(' ')
-              Parameter
+              Parameter: m
                 AnnotationsList
                   <empty list>
                 Modifiers
@@ -59,21 +59,21 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  ParametrizedTypeElement
-                    SimpleTypeElement
-                      CodeReferenceElement
+                  ParametrizedTypeElement: Monoid[A]
+                    SimpleTypeElement: Monoid
+                      CodeReferenceElement: Monoid
                         PsiElement(identifier)('Monoid')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleTypeElement
-                        CodeReferenceElement
+                      SimpleTypeElement: A
+                        CodeReferenceElement: A
                           PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: A
+            CodeReferenceElement: A
               PsiElement(identifier)('A')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -82,15 +82,15 @@ ScalaFile
             PsiElement(if)('if')
             PsiWhiteSpace(' ')
             PsiElement(()('(')
-            ReferenceExpression
-              ReferenceExpression
+            ReferenceExpression: xs.isEmpty
+              ReferenceExpression: xs
                 PsiElement(identifier)('xs')
               PsiElement(.)('.')
               PsiElement(identifier)('isEmpty')
             PsiElement())(')')
             PsiWhiteSpace(' ')
-            ReferenceExpression
-              ReferenceExpression
+            ReferenceExpression: m.unit
+              ReferenceExpression: m
                 PsiElement(identifier)('m')
               PsiElement(.)('.')
               PsiElement(identifier)('unit')
@@ -98,27 +98,27 @@ ScalaFile
             PsiElement(else)('else')
             PsiWhiteSpace(' ')
             MethodCall
-              ReferenceExpression
-                ReferenceExpression
+              ReferenceExpression: m.add
+                ReferenceExpression: m
                   PsiElement(identifier)('m')
                 PsiElement(.)('.')
                 PsiElement(identifier)('add')
               ArgumentList
                 PsiElement(()('(')
-                ReferenceExpression
-                  ReferenceExpression
+                ReferenceExpression: xs.head
+                  ReferenceExpression: xs
                     PsiElement(identifier)('xs')
                   PsiElement(.)('.')
                   PsiElement(identifier)('head')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
                 MethodCall
-                  ReferenceExpression
+                  ReferenceExpression: sum
                     PsiElement(identifier)('sum')
                   ArgumentList
                     PsiElement(()('(')
-                    ReferenceExpression
-                      ReferenceExpression
+                    ReferenceExpression: xs.tail
+                      ReferenceExpression: xs
                         PsiElement(identifier)('xs')
                       PsiElement(.)('.')
                       PsiElement(identifier)('tail')

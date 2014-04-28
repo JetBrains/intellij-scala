@@ -41,7 +41,7 @@ object BlockStat {
         builder.advanceLexer()
         return true
       }
-      case ScalaTokenTypes.kDEF | ScalaTokenTypes.kVAL | ScalaTokenTypes.kTYPE => {
+      case ScalaTokenTypes.kDEF | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR | ScalaTokenTypes.kTYPE => {
         if (!Def.parse(builder, false, true)) {
           if (Dcl.parse(builder)) {
             builder error ErrMsg("wrong.declaration.in.block")

@@ -6,7 +6,7 @@ type A
 ScalaFile
   PsiComment(comment)('// comment 1')
   PsiWhiteSpace('\n\n')
-  ScTypeAliasDeclaration
+  ScTypeAliasDeclaration: A
     PsiComment(comment)('// comment 2')
     PsiWhiteSpace('\n')
     AnnotationsList

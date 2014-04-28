@@ -249,7 +249,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
         case PARAM_TAG | TYPE_PARAM_TAG =>
           if (!ParserUtils.lookAhead(builder, builder.getTokenType, DOC_TAG_VALUE_TOKEN)) builder.error("Missing tag param")
         case SEE_TAG | AUTHOR_TAG | NOTE_TAG | RETURN_TAG | DEFINE_TAG | SINCE_TAG | VERSION_TAG |
-             USECASE_TAG | EXAMPLE_TAG | TODO_TAG =>
+             USECASE_TAG | EXAMPLE_TAG | TODO_TAG | INHERITDOC_TAG =>
           //do nothing
         case _ =>
           builder.error("unknown tag")
@@ -310,7 +310,8 @@ object MyScaladocParsing {
   val EXAMPLE_TAG = "@example"
   val DEPRECATED_TAG = "@deprecated"
   val MIGRATION_TAG = "@migration"
-  
+  val INHERITDOC_TAG = "@inheritdoc"
+
   val GROUP_TAG = "@group"
   val GROUP_NAME_TAG = "@groupname"
   val GROUP_DESC_TAG = "@groupdesc"
@@ -323,6 +324,6 @@ object MyScaladocParsing {
 
   val allTags = Set(PARAM_TAG, TYPE_PARAM_TAG, THROWS_TAG, SEE_TAG, AUTHOR_TAG, NOTE_TAG, RETURN_TAG, SINCE_TAG,
     DEFINE_TAG, VERSION_TAG, TODO_TAG, USECASE_TAG, EXAMPLE_TAG, DEPRECATED_TAG, MIGRATION_TAG, GROUP_TAG, 
-    GROUP_NAME_TAG, GROUP_DESC_TAG, GROUP_PRIO_TAG, CONSTRUCTOR_TAG)
+    GROUP_NAME_TAG, GROUP_DESC_TAG, GROUP_PRIO_TAG, CONSTRUCTOR_TAG, INHERITDOC_TAG)
   val tagsWithParameters = Set(PARAM_TAG, TYPE_PARAM_TAG, THROWS_TAG)
 }

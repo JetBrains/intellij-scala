@@ -2,6 +2,12 @@ package org.jetbrains.plugins.scala.compiler;
 
 import com.intellij.openapi.components.*;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import org.jetbrains.plugin.scala.compiler.CompileOrder;
+import org.jetbrains.plugin.scala.compiler.IncrementalType;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Pavel Fatin
@@ -11,9 +17,11 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public boolean SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER = false;
   public int SHOW_TYPE_TOOLTIP_DELAY = 500;
 
-  public boolean SHOW_EXTERNAL_COMPILER_INTRO = true;
-
   public boolean COMPILE_SERVER_ENABLED = true;
+
+  public IncrementalType INCREMENTAL_TYPE = IncrementalType.IDEA;
+  public CompileOrder COMPILE_ORDER = CompileOrder.Mixed;
+
   public String COMPILE_SERVER_PORT = "3200";
   public String COMPILE_SERVER_SDK;
   public String COMPILE_SERVER_MAXIMUM_HEAP_SIZE = "1024";

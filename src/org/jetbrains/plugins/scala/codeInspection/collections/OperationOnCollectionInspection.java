@@ -57,7 +57,9 @@ public class OperationOnCollectionInspection extends OperationOnCollectionInspec
         new FilterHeadOption(this),
         new FilterSize(this),
         new FoldLeftSum(this),
-        new FoldLeftTrueAnd(this)
+        new FoldLeftTrueAnd(this),
+        new SortFilter(this),
+        new MapGetOrElse(this)
     };
   }
 

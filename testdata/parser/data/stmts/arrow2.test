@@ -4,7 +4,7 @@ class ArrowAssoc[A](x: A) {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: ArrowAssoc
     AnnotationsList
       <empty list>
     Modifiers
@@ -14,7 +14,7 @@ ScalaFile
     PsiElement(identifier)('ArrowAssoc')
     TypeParameterClause
       PsiElement([)('[')
-      TypeParameter
+      TypeParameter: A
         PsiElement(identifier)('A')
       PsiElement(])(']')
     PrimaryConstructor
@@ -25,7 +25,7 @@ ScalaFile
       Parameters
         ParametersClause
           PsiElement(()('(')
-          ClassParameter
+          ClassParameter: x
             AnnotationsList
               <empty list>
             Modifiers
@@ -34,8 +34,8 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: A
+                CodeReferenceElement: A
                   PsiElement(identifier)('A')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -43,7 +43,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScFunctionDefinition
+        ScFunctionDefinition: ->
           AnnotationsList
             <empty list>
           Modifiers
@@ -54,13 +54,13 @@ ScalaFile
           PsiWhiteSpace(' ')
           TypeParameterClause
             PsiElement([)('[')
-            TypeParameter
+            TypeParameter: B
               PsiElement(identifier)('B')
             PsiElement(])(']')
           Parameters
             ParametersClause
               PsiElement(()('(')
-              Parameter
+              Parameter: y
                 AnnotationsList
                   <empty list>
                 Modifiers
@@ -69,44 +69,44 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  SimpleTypeElement
-                    CodeReferenceElement
+                  SimpleTypeElement: B
+                    CodeReferenceElement: B
                       PsiElement(identifier)('B')
               PsiElement())(')')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          ParametrizedTypeElement
-            SimpleTypeElement
-              CodeReferenceElement
+          ParametrizedTypeElement: Tuple2[A, B]
+            SimpleTypeElement: Tuple2
+              CodeReferenceElement: Tuple2
                 PsiElement(identifier)('Tuple2')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: A
+                CodeReferenceElement: A
                   PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: B
+                CodeReferenceElement: B
                   PsiElement(identifier)('B')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           MethodCall
-            ReferenceExpression
+            ReferenceExpression: Tuple2
               PsiElement(identifier)('Tuple2')
             ArgumentList
               PsiElement(()('(')
-              ReferenceExpression
+              ReferenceExpression: x
                 PsiElement(identifier)('x')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ReferenceExpression
+              ReferenceExpression: y
                 PsiElement(identifier)('y')
               PsiElement())(')')
         PsiWhiteSpace('\n  ')
-        ScFunctionDefinition
+        ScFunctionDefinition: ?
           AnnotationsList
             <empty list>
           Modifiers
@@ -116,13 +116,13 @@ ScalaFile
           PsiElement(identifier)('?')
           TypeParameterClause
             PsiElement([)('[')
-            TypeParameter
+            TypeParameter: B
               PsiElement(identifier)('B')
             PsiElement(])(']')
           Parameters
             ParametersClause
               PsiElement(()('(')
-              Parameter
+              Parameter: y
                 AnnotationsList
                   <empty list>
                 Modifiers
@@ -131,36 +131,36 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  SimpleTypeElement
-                    CodeReferenceElement
+                  SimpleTypeElement: B
+                    CodeReferenceElement: B
                       PsiElement(identifier)('B')
               PsiElement())(')')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          ParametrizedTypeElement
-            SimpleTypeElement
-              CodeReferenceElement
+          ParametrizedTypeElement: Tuple2[A, B]
+            SimpleTypeElement: Tuple2
+              CodeReferenceElement: Tuple2
                 PsiElement(identifier)('Tuple2')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: A
+                CodeReferenceElement: A
                   PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: B
+                CodeReferenceElement: B
                   PsiElement(identifier)('B')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           MethodCall
-            ReferenceExpression
+            ReferenceExpression: ->
               PsiElement(identifier)('->')
             ArgumentList
               PsiElement(()('(')
-              ReferenceExpression
+              ReferenceExpression: y
                 PsiElement(identifier)('y')
               PsiElement())(')')
         PsiWhiteSpace('\n')

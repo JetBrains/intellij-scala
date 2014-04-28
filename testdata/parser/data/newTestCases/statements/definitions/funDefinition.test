@@ -3,7 +3,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -23,7 +23,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScFunctionDefinition
+        ScFunctionDefinition: foo
           AnnotationsList
             <empty list>
           Modifiers
@@ -33,14 +33,14 @@ ScalaFile
           PsiElement(identifier)('foo')
           TypeParameterClause
             PsiElement([)('[')
-            TypeParameter
+            TypeParameter: T
               PsiElement(identifier)('T')
             PsiElement(])(']')
           PsiWhiteSpace(' ')
           Parameters
             ParametersClause
               PsiElement(()('(')
-              Parameter
+              Parameter: x
                 AnnotationsList
                   <empty list>
                 Modifiers
@@ -49,15 +49,15 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  SimpleTypeElement
-                    CodeReferenceElement
+                  SimpleTypeElement: T
+                    CodeReferenceElement: T
                       PsiElement(identifier)('T')
               PsiElement())(')')
           PsiWhiteSpace(' ')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement
-            CodeReferenceElement
+          SimpleTypeElement: Boolean
+            CodeReferenceElement: Boolean
               PsiElement(identifier)('Boolean')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -67,13 +67,13 @@ ScalaFile
               Literal
                 PsiElement(integer)('4')
               PsiWhiteSpace(' ')
-              ReferenceExpression
+              ReferenceExpression: ::
                 PsiElement(identifier)('::')
               PsiWhiteSpace(' ')
               Literal
                 PsiElement(integer)('3')
             PsiWhiteSpace(' ')
-            ReferenceExpression
+            ReferenceExpression: &:
               PsiElement(identifier)('&:')
             PsiWhiteSpace(' ')
             Literal

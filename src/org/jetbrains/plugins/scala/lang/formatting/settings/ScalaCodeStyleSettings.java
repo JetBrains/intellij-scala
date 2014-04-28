@@ -49,6 +49,8 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME = false;
   public boolean SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES = false;
 
+  public boolean SPACES_IN_ONE_LINE_BLOCKS = false;
+
   //xml formatting
   public boolean KEEP_XML_FORMATTING = false;
 

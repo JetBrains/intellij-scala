@@ -13,7 +13,6 @@ import stubs.StubIndex
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import com.intellij.util.{Processor, ArrayUtil}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 
 /**
  * @author ilyas
@@ -40,7 +39,7 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
       clazz match {
         case o: ScObject if isOkForJava(o) =>
           o.fakeCompanionClass match {
-            case Some(clazz) => res += clazz
+            case Some(clz) => res += clz
             case _ =>
           }
         case _ =>

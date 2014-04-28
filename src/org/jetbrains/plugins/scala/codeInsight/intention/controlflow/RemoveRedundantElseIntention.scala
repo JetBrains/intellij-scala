@@ -3,13 +3,14 @@ package org.jetbrains.plugins.scala.codeInsight.intention.controlflow
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import com.intellij.psi.{PsiManager, PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
 import com.intellij.psi.codeStyle.CodeStyleManager
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 /**
  * @author Ksenia.Sautina
@@ -54,27 +55,25 @@ class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction {
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
+    val manager: PsiManager = PsiManager.getInstance(project)
     val ifStmt: ScIfStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt], false)
     if (ifStmt == null || !ifStmt.isValid) return
 
-    val thenBranch = ifStmt.thenBranch.getOrElse(null)
-    if (thenBranch == null) return
+    val thenBranch = ifStmt.thenBranch.getOrElse(return)
     val elseKeyWord = thenBranch.getNextSiblingNotWhitespaceComment
 
-    val elseBranch = ifStmt.elseBranch.getOrElse(null)
-    if (elseBranch == null) return
-    val expr = new StringBuilder
+    val elseBranch = ifStmt.elseBranch.getOrElse(return)
 
-    elseBranch match {
-      case eb: ScBlockExpr => expr.append(eb.getText.trim.drop(1).dropRight(1))
-      case _ => expr.append("\n").append(elseBranch.getText.trim)
-    }
-    val newExpr: ScBlockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(expr.toString(), element.getManager)
+    val children = elseBranch.copy().children.toList
+    var from = children.find(_.getNode.getElementType != ScalaTokenTypes.tLBRACE).getOrElse(return)
+    if (ScalaTokenTypes.WHITES_SPACES_TOKEN_SET.contains(from.getNode.getElementType)) from = from.getNextSibling
+    val to = children.reverse.find(_.getNode.getElementType != ScalaTokenTypes.tRBRACE).getOrElse(return)
 
     inWriteAction {
       elseKeyWord.delete()
       elseBranch.delete()
-      ifStmt.getParent.addAfter(newExpr, ifStmt)
+      ifStmt.getParent.addRangeAfter(from, to, ifStmt)
+      ifStmt.getParent.addAfter(ScalaPsiElementFactory.createNewLine(manager), ifStmt)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
   }

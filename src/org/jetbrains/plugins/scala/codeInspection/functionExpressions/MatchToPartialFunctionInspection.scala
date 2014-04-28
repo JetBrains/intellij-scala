@@ -17,7 +17,10 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.LocalSearchScope
 import scala.collection.JavaConverters._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScWildcardPattern, ScPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import scala.Some
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
  * Nikolay.Tropin
@@ -25,14 +28,22 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScWildcardPattern
  */
 class MatchToPartialFunctionInspection extends AbstractInspection(inspectionId){
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case fun @ ScFunctionExpr(Seq(param), Some(ms @ ScMatchStmt(ref: ScReferenceExpression, _))) if ref.resolve() == param =>
+    case fun @ ScFunctionExpr(Seq(param), Some(ms @ ScMatchStmt(ref: ScReferenceExpression, _)))
+      if ref.resolve() == param && !(param.typeElement.isDefined && notExpectedType(fun)) =>
       registerProblem(holder, ms, fun)
-    case fun @ ScFunctionExpr(Seq(param), Some(ScBlock(ms @ ScMatchStmt(ref: ScReferenceExpression, _)))) if ref.resolve() == param =>
+    case fun @ ScFunctionExpr(Seq(param), Some(ScBlock(ms @ ScMatchStmt(ref: ScReferenceExpression, _))))
+      if ref.resolve() == param && !(param.typeElement.isDefined && notExpectedType(fun)) =>
       registerProblem(holder, ms, fun) //if fun is last statement in block, result can be block without braces
     case ms @ ScMatchStmt(und: ScUnderscoreSection, _) =>
       registerProblem(holder, ms, ms)
   }
 
+  private def notExpectedType(expr: ScExpression) = {
+    (expr.getType(), expr.expectedType()) match {
+      case (Success(tpe: ScType, _), Some(expType: ScType)) => !expType.equiv(tpe)
+      case _ => true
+    }
+  }
 
   private def registerProblem(holder: ProblemsHolder, ms: ScMatchStmt, fExprToReplace: ScExpression) = {
     def leftBraceOffset(ms: ScMatchStmt): Option[Int] = {
@@ -57,10 +68,12 @@ object MatchToPartialFunctionInspection {
 }
 
 class MatchToPartialFunctionQuickFix(matchStmt: ScMatchStmt, fExprToReplace: ScExpression)
-        extends AbstractFix(inspectionName, fExprToReplace){
+        extends AbstractFix(inspectionName, fExprToReplace) {
   def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
     val matchStmtCopy = matchStmt.copy.asInstanceOf[ScMatchStmt]
-    val leftBrace = matchStmtCopy.getCaseClauses.getPrevSiblingNotWhitespace
+    val leftBrace = matchStmtCopy.findFirstChildByType(ScalaTokenTypes.tLBRACE)
+    if (leftBrace == null) return
+
     addNamingPatterns(matchStmtCopy, needNamingPattern(matchStmt))
     matchStmtCopy.deleteChildRange(matchStmtCopy.getFirstChild, leftBrace.getPrevSibling)
     val newBlock = ScalaPsiElementFactory.createExpressionFromText(matchStmtCopy.getText, matchStmt.getManager)
@@ -70,7 +83,7 @@ class MatchToPartialFunctionQuickFix(matchStmt: ScMatchStmt, fExprToReplace: ScE
         case (argList: ScArgumentExprList) childOf (call: ScMethodCall) if argList.exprs.size == 1 =>
           val newMethCall =
             ScalaPsiElementFactory.createExpressionFromText(call.getInvokedExpr.getText + " " + newBlock.getText, fExprToReplace.getManager)
-          call.replace(newMethCall) //remove extra parentheses
+          call.replace(newMethCall)
         case block@ScBlock(`fExprToReplace`) =>
           block.replace(newBlock)
         case _ =>
@@ -99,8 +112,16 @@ class MatchToPartialFunctionQuickFix(matchStmt: ScMatchStmt, fExprToReplace: ScE
     val name = matchStmt.expr.map(_.getText).getOrElse(return)
     indexes.map(i => clauses(i).pattern).foreach {
       case Some(w: ScWildcardPattern) => w.replace(ScalaPsiElementFactory.createPatternFromText(name, matchStmt.getManager))
-      case Some(p: ScPattern) => p.replace(ScalaPsiElementFactory.createPatternFromText(s"$name @ ${p.getText}", matchStmt.getManager))
+      case Some(p: ScPattern) =>
+        val newPatternText = if (needParentheses(p)) s"$name @ (${p.getText})" else s"$name @ ${p.getText}"
+        p.replace(ScalaPsiElementFactory.createPatternFromText(newPatternText, matchStmt.getManager))
       case _ =>
     }
+  }
+
+  private def needParentheses(p: ScPattern): Boolean = p match {
+    case _: ScReferencePattern | _: ScLiteralPattern | _: ScConstructorPattern |
+         _: ScParenthesisedPattern | _: ScTuplePattern | _: ScStableReferenceElementPattern => false
+    case _ => true
   }
 }

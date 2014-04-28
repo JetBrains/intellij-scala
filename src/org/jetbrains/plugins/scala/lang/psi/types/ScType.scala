@@ -19,6 +19,7 @@ import api.toplevel.typedef.{ScTemplateDefinition, ScClass, ScObject}
 import collection.mutable
 import types.Conformance.AliasType
 import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 
 /*
 Current types for pattern matching, this approach is bad for many reasons (one of them is bad performance).
@@ -41,7 +42,7 @@ match {
  case Short =>
  case ScFunctionType(returnType, params) =>
  case ScTupleType(components) =>
- case ScCompoundType(components, decls, typeDecls, subst) =>
+ case ScCompoundType(components, decls, typeDecls) =>
  case ScProjectionType(projected, element, subst) =>
  case JavaArrayType(arg) =>
  case ScParameterizedType(designator, typeArgs) =>
@@ -89,6 +90,8 @@ trait ScType {
   def isValue: Boolean
 
   final def isStable: Boolean = ScType.isStable(this)
+
+  def isFinalType: Boolean = false
 
   def inferValueType: ValueType
 
@@ -158,7 +161,15 @@ trait ScType {
   }
 
   def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int = 1): ScType = {
-    val res = update(this, variance)
+    recursiveVarianceUpdateModifiable[Unit]((), (tp, v, T) => {
+      val (newTp, newV) = update(tp, v)
+      (newTp, newV, ())
+    }, variance)
+  }
+
+  def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
+                                           variance: Int = 1): ScType = {
+    val res = update(this, variance, data)
     if (res._1) res._2
     else this
   }
@@ -223,18 +234,6 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
         case None => None
       }
     }
-    case tuple@ScTupleType(comp) => {
-      tuple.resolveTupleTrait match {
-        case Some(clazz) => extractClassType(clazz)
-        case _ => None
-      }
-    }
-    case fun: ScFunctionType => {
-      fun.resolveFunctionTrait match {
-        case Some(tp) => extractClassType(tp)
-        case _ => None
-      }
-    }
     case std@StdType(_, _) =>
       val asClass = std.asClass(project.getOrElse(DecompilerUtil.obtainProject))
       if (asClass.isEmpty) return None
@@ -264,24 +263,11 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
         extractDesignated(proj.actualSubst.subst(result.get), withoutAliases)
       case _ => Some((proj.actualElement, proj.actualSubst))
     }
-    case p@ScParameterizedType(t1, _) => {
+    case p@ScParameterizedType(t1, _) =>
       extractDesignated(t1, withoutAliases) match {
         case Some((e, s)) => Some((e, s.followed(p.substitutor)))
         case None => None
       }
-    }
-    case tuple@ScTupleType(comp) => {
-      tuple.resolveTupleTrait match {
-        case Some(clazz) => extractDesignated(clazz, withoutAliases)
-        case _ => None
-      }
-    }
-    case fun: ScFunctionType => {
-      fun.resolveFunctionTrait match {
-        case Some(tp) => extractDesignated(tp, withoutAliases)
-        case _ => None
-      }
-    }
     case std@StdType(_, _) =>
       val asClass = std.asClass(DecompilerUtil.obtainProject)
       if (asClass.isEmpty) return None
@@ -308,12 +294,14 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
     case ScDesignatorType(v) =>
       v match {
         case o: ScObject => None
+        case p: ScParameter if p.isStable => p.getRealParameterType(TypingContext.empty).toOption
         case t: ScTypedDefinition if t.isStable => t.getType(TypingContext.empty).toOption
         case _ => None
       }
     case proj@ScProjectionType(_, elem, _) =>
       elem match {
         case o: ScObject => None
+        case p: ScParameter if p.isStable => p.getRealParameterType(TypingContext.empty).toOption.map(proj.actualSubst.subst)
         case t: ScTypedDefinition if t.isStable => t.getType(TypingContext.empty).toOption.map(proj.actualSubst.subst)
         case _ => None
       }
@@ -361,7 +349,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
         t.upperBound.flatMap(upper => expandAliases(proj.actualSubst.subst(upper)))
       case _ => Success(tp, None)
     }
-    case at: ScAbstractType => Success(at.upper, None) // ugly hack for SCL-3592
+    case at: ScAbstractType => expandAliases(at.upper) // ugly hack for SCL-3592
     case ScDesignatorType(t: ScType) => expandAliases(t)
     case ScDesignatorType(ta: ScTypeAliasDefinition) => expandAliases(ta.aliasedType(TypingContext.empty).getOrNothing)
     case t: ScTypeAliasDeclaration if t.typeParameters.isEmpty =>
@@ -387,19 +375,6 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
     }
     if (!updated) tp
     else removeAliasDefinitions(res)
-  }
-
-  def extractTupleType(tp: ScType): Option[ScTupleType] = expandAliases(tp).getOrAny match {
-    case tt: ScTupleType => Some(tt)
-    case pt: ScParameterizedType => pt.getTupleType
-    case _ => None
-  }
-
-  def extractFunctionType(tp: ScType): Option[ScFunctionType] = expandAliases(tp).getOrAny match {
-    case ft: ScFunctionType => Some(ft)
-    case pt: ScParameterizedType =>
-      pt.getFunctionType
-    case _ => None
   }
 
   /**

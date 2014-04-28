@@ -154,7 +154,7 @@ special = \u0021 | \u0023
           | \u003A
           | [\u003C-\u0040]
           | \u007E
-          | \u005C | \u002F | [:unicode_math_symbol:] | [:unicode_other_symbol:]
+          | \u005C | \u002F | [:unicode_math_symbol:] | [:unicode_other_symbol:] | \u2694
 
 
 // Vertical line
@@ -346,6 +346,11 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
       yypushback(yytext().length() - 2);
       return process(tINTERPOLATED_STRING_ESCAPE);
     }
+  }
+
+  \"\"\" (\")+ {
+    yypushback(yytext().length() - 1);
+    return process(tINTERPOLATED_MULTILINE_STRING);
   }
 
   \"\"\" {

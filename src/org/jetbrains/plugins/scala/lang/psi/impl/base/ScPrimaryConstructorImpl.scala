@@ -31,10 +31,6 @@ class ScPrimaryConstructorImpl extends ScalaStubBasedElementImpl[ScPrimaryConstr
   def this(node: ASTNode) = {this(); setNode(node)}
   def this(stub: ScPrimaryConstructorStub) = {this(); setStub(stub); setNode(null)}
 
-  override def hasAnnotation: Boolean = {
-    !(getNode.getFirstChildNode.getFirstChildNode == null)
-  }
-
   override def getIcon(flags: Int): Icon = Icons.FUNCTION
 
   //todo rewrite me!

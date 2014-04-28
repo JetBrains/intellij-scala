@@ -84,7 +84,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
           signature.foreach {
             case (t, node) =>
               node.info.namedElement match {
-                case Some(fun: ScFunction) if !fun.isConstructor => res += fun.getFunctionWrapper(isStatic = true, isInterface = false, cClass = Some(definition))
+                case Some(fun: ScFunction) if !fun.isConstructor => res ++= fun.getFunctionWrappers(isStatic = true, isInterface = false, cClass = Some(definition))
                 case Some(method: PsiMethod) if !method.isConstructor => {
                   if (method.containingClass != null && method.containingClass.qualifiedName != "java.lang.Object") {
                     res += StaticPsiMethodWrapper.getWrapper(method, this)
@@ -269,7 +269,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
     definition match {
       case o: ScObject =>
         baseClass.getQualifiedName == "java.lang.Object" ||
-          (baseClass.getQualifiedName == "scala.ScalaObject" && !baseClass.isDeprecated)
+                (baseClass.getQualifiedName == "scala.ScalaObject" && !baseClass.isDeprecated)
       case _ => false
     }
   }
@@ -278,7 +278,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
     definition match {
       case o: ScObject =>
         baseClass.getQualifiedName == "java.lang.Object" ||
-          (baseClass.getQualifiedName == "scala.ScalaObject" && !baseClass.isDeprecated)
+                (baseClass.getQualifiedName == "scala.ScalaObject" && !baseClass.isDeprecated)
       case _ => false
     }
   }
@@ -332,10 +332,6 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
 
   override def getParent: PsiElement = definition.getParent
 
-  override def isPhysical: Boolean = {
-    definition.isPhysical
-  }
-
   override def getResolveScope: GlobalSearchScope = {
     definition.getResolveScope
   }
@@ -346,14 +342,6 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
 
   override def toString: String = {
     "PsiClassWrapper(" + definition.toString + ")"
-  }
-
-  override def isEquivalentTo(another: PsiElement): Boolean = {
-    another match {
-      case wrapper: PsiClassWrapper =>
-        wrapper.definition.isEquivalentTo(definition)
-      case _ => false
-    }
   }
 
   override def getIcon(flags: Int): Icon = {
@@ -401,5 +389,9 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
   def getTypeParameterList: PsiTypeParameterList = null
 
   def getTypeParameters: Array[PsiTypeParameter] = Array.empty
+
+  override def isEquivalentTo(another: PsiElement): Boolean = {
+    PsiClassImplUtil.isClassEquivalentTo(this, another)
+  }
 }
 

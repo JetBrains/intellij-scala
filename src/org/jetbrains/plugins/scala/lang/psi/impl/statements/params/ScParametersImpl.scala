@@ -26,21 +26,8 @@ class ScParametersImpl extends ScalaStubBasedElementImpl[ScParameters] with ScPa
 
   override def toString: String = "Parameters"
 
-  def params: Seq[ScParameter] = clauses.flatMap((clause: ScParameterClause) => clause.parameters)
-
   def clauses: Seq[ScParameterClause] = {
     getStubOrPsiChildren(ScalaElementTypes.PARAM_CLAUSE, JavaArrayFactoryUtil.ScParameterClauseFactory).toSeq
-  }
-
-  def getParameterIndex(p: PsiParameter) = params.indexOf(List(p))
-
-  def getParametersCount = params.length
-
-  override def getParameters: Array[PsiParameter] = params.toArray
-
-  def addClause(clause: ScParameterClause): ScParameters = {
-    getNode.addChild(clause.getNode)
-    this
   }
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,

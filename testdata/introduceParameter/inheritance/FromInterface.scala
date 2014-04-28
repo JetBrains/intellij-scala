@@ -9,10 +9,10 @@ class B extends A {
 /*
 1
 trait A {
-  def foo(x: Int, param: Unit)
+  def foo(x: Int, param: Int)
 }
 
 class B extends A {
-  def foo(x: Int, param: Unit) = /*start*/param/*end*/
+  def foo(x: Int, param: Int) = /*start*/param/*end*/
 }
 */

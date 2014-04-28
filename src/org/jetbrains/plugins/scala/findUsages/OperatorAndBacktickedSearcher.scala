@@ -29,8 +29,8 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
       val scope = queryParameters.getEffectiveSearchScope
       val element = queryParameters.getElementToSearch
       if (!element.isValid) return true
-      val toProcess = element match {
-        case ScalaNamesUtil.isBackticked(name) => Seq((element, name), (element, s"`$name`"))
+      val toProcess: Seq[(PsiElement, String)] = element match {
+        case ScalaNamesUtil.isBackticked(name) => if (name != "") Seq((element, name), (element, s"`$name`")) else Seq((element, "``"))
         case named: ScNamedElement if named.name.exists(ScalaNamesUtil.isOpCharacter) => Seq((named, named.name))
         case _ => Nil
       }

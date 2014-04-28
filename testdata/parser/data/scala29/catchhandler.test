@@ -9,20 +9,20 @@ ScalaFile
     TryBlock
       PsiElement(try)('try')
       PsiWhiteSpace(' ')
-      ReferenceExpression
+      ReferenceExpression: a
         PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
     CatchBlock
       PsiElement(catch)('catch')
       PsiWhiteSpace(' ')
-      ReferenceExpression
+      ReferenceExpression: b
         PsiElement(identifier)('b')
   PsiWhiteSpace('\n')
   TryStatement
     TryBlock
       PsiElement(try)('try')
       PsiWhiteSpace(' ')
-      ReferenceExpression
+      ReferenceExpression: a
         PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
     CatchBlock
@@ -30,7 +30,7 @@ ScalaFile
       PsiWhiteSpace(' ')
       BlockExpression
         PsiElement({)('{')
-        ReferenceExpression
+        ReferenceExpression: b
           PsiElement(identifier)('b')
         PsiElement(})('}')
   PsiWhiteSpace('\n')
@@ -38,7 +38,7 @@ ScalaFile
     TryBlock
       PsiElement(try)('try')
       PsiWhiteSpace(' ')
-      ReferenceExpression
+      ReferenceExpression: a
         PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
     CatchBlock
@@ -46,7 +46,7 @@ ScalaFile
       PsiWhiteSpace(' ')
       ExpressionInParenthesis
         PsiElement(()('(')
-        ReferenceExpression
+        ReferenceExpression: b
           PsiElement(identifier)('b')
         PsiElement())(')')
   PsiWhiteSpace('\n')
@@ -54,13 +54,13 @@ ScalaFile
     TryBlock
       PsiElement(try)('try')
       PsiWhiteSpace(' ')
-      ReferenceExpression
+      ReferenceExpression: a
         PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
     CatchBlock
       PsiElement(catch)('catch')
       PsiWhiteSpace(' ')
-      ReferenceExpression
+      ReferenceExpression: super[X].b
         SuperReference
           PsiElement(super)('super')
           PsiElement([)('[')
@@ -73,7 +73,7 @@ ScalaFile
     TryBlock
       PsiElement(try)('try')
       PsiWhiteSpace(' ')
-      ReferenceExpression
+      ReferenceExpression: a
         PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
     CatchBlock

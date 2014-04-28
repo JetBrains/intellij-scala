@@ -6,10 +6,10 @@ ScalaFile
   ScPackaging
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    CodeReferenceElement
+    CodeReferenceElement: a
       PsiElement(identifier)('a')
     PsiWhiteSpace('\n\n')
-    ScObject
+    ScObject: b
       AnnotationsList
         <empty list>
       Modifiers

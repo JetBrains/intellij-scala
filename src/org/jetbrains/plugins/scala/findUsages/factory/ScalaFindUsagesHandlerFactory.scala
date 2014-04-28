@@ -4,14 +4,12 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import com.intellij.psi.{PsiMethod, PsiElement}
-import com.intellij.find.findUsages.{FindUsagesHandlerFactory, JavaFindUsagesHandlerFactory, JavaFindUsagesHandler, FindUsagesHandler}
+import com.intellij.psi.PsiElement
+import com.intellij.find.findUsages.{FindUsagesHandlerFactory, FindUsagesHandler}
 import org.jetbrains.plugins.scala.lang.psi.light._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import scala.Array
 import com.intellij.openapi.ui.Messages
-import org.jetbrains.plugins.scala.ScalaBundle
-import com.intellij.CommonBundle
+import org.jetbrains.plugins.scala.{extensions, ScalaBundle}
 import javax.swing.SwingUtilities
 
 /**
@@ -45,6 +43,7 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
       case _ => element
     }
     replacedElement match {
+      case function: ScFunction if function.isLocal => Array(function)
       case function: ScFunction if !forHighlightUsages =>
         val signs = function.superSignatures
         if (signs.length == 0 || signs.last.namedElement.isEmpty) Array(function)
@@ -61,14 +60,10 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
             }
           }
 
-          if (SwingUtilities.isEventDispatchThread) {
+
+          if (SwingUtilities.isEventDispatchThread) showDialog()
+          else extensions.invokeAndWait{
             showDialog()
-          } else {
-            SwingUtilities.invokeAndWait(new Runnable {
-              def run() {
-                showDialog()
-              }
-            })
           }
         }
       case _ =>

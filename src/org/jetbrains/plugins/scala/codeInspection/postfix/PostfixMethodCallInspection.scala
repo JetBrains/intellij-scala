@@ -3,13 +3,13 @@ package codeInspection
 package postfix
 
 import com.intellij.psi.PsiElement
-import org.intellij.lang.annotations.Language
 import lang.lexer.ScalaTokenTypes
 import com.intellij.openapi.project.Project
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
 import lang.psi.impl.ScalaPsiElementFactory
 import lang.psi.api.base.ScLiteral
-import lang.psi.api.expr.{ScArgumentExprList, ScInfixExpr, ScParenthesisedExpr, ScPostfixExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import extensions.childOf
 
 class PostfixMethodCallInspection extends AbstractInspection("UseOfPostfixMethodCall", "Use of postfix method call"){
 
@@ -22,6 +22,7 @@ class PostfixMethodCallInspection extends AbstractInspection("UseOfPostfixMethod
     pexpr.getContext match {
       case _: ScParenthesisedExpr => true
       case _: ScArgumentExprList => true
+      case (_: ScAssignStmt) childOf (_: ScArgumentExprList) => true //named arguments
       case _ =>
         val next = pexpr.getNextSiblingNotWhitespace
         if (next == null) return false

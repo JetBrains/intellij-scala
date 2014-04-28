@@ -3,7 +3,7 @@ class a {
 }
 -----
 ScalaFile
-  ScClass
+  ScClass: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -31,24 +31,24 @@ ScalaFile
               PsiElement(case)('case')
               PsiWhiteSpace(' ')
               CompositePattern
-                TypedPattern
+                TypedPattern: _
                   PsiElement(_)('_')
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
                   TypePattern
-                    SimpleTypeElement
-                      CodeReferenceElement
+                    SimpleTypeElement: Type
+                      CodeReferenceElement: Type
                         PsiElement(identifier)('Type')
                 PsiWhiteSpace(' ')
                 PsiElement(identifier)('|')
                 PsiWhiteSpace(' ')
-                TypedPattern
+                TypedPattern: _
                   PsiElement(_)('_')
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
                   TypePattern
-                    SimpleTypeElement
-                      CodeReferenceElement
+                    SimpleTypeElement: Type
+                      CodeReferenceElement: Type
                         PsiElement(identifier)('Type')
               PsiElement(=>)('=>')
               BlockOfExpressions

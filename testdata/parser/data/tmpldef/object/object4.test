@@ -1,7 +1,7 @@
 object a [T]
 -----
 ScalaFile
-  ScObject
+  ScObject: a
     AnnotationsList
       <empty list>
     Modifiers
@@ -15,7 +15,7 @@ ScalaFile
     <empty list>
   PsiWhiteSpace(' ')
   PsiElement([)('[')
-  ReferenceExpression
+  ReferenceExpression: T
     PsiElement(identifier)('T')
   PsiErrorElement:';' or newline expected
     <empty list>

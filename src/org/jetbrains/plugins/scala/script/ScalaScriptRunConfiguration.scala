@@ -4,7 +4,7 @@ package script
 import com.intellij.execution.configurations._
 import com.intellij.execution.filters._
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiManager
+import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.execution.runners.ExecutionEnvironment
@@ -15,6 +15,7 @@ import lang.psi.api.ScalaFile
 import com.intellij.vcsUtil.VcsUtil
 import org.jdom.Element
 import collection.JavaConversions._
+import com.intellij.refactoring.listeners.{RefactoringElementAdapter, RefactoringElementListener}
 import configuration._
 
 /**
@@ -23,7 +24,7 @@ import configuration._
  */
 
 class ScalaScriptRunConfiguration(val project: Project, val configurationFactory: ConfigurationFactory, val name: String)
-        extends ModuleBasedConfiguration[RunConfigurationModule](name, new RunConfigurationModule(project), configurationFactory) {
+        extends ModuleBasedConfiguration[RunConfigurationModule](name, new RunConfigurationModule(project), configurationFactory) with RefactoringListenerProvider {
   val SCALA_HOME = "-Dscala.home="
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
   val EMACS = "-Denv.emacs=\"%EMACS%\""
@@ -74,7 +75,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     try {
       val file: VirtualFile = VcsUtil.getVirtualFile(scriptPath)
       PsiManager.getInstance(project).findFile(file) match {
-        case f: ScalaFile if (f.isScriptFile() && !f.isWorksheetFile) =>
+        case f: ScalaFile if f.isScriptFile() && !f.isWorksheetFile =>
         case _ => fileNotFoundError()
       }
     }
@@ -88,7 +89,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     val script = VcsUtil.getVirtualFile(scriptPath)
     val state = new JavaCommandLineState(env) {
       protected override def createJavaParameters: JavaParameters = {
-        val params = new JavaParameters();
+        val params = new JavaParameters()
 
         params.setCharset(null)
         params.getVMParametersList.addParametersString(getJavaOptions)
@@ -114,8 +115,8 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
 
     val consoleBuilder = TextConsoleBuilderFactory.getInstance.createBuilder(getProject)
     consoleBuilder.addFilter(getFilter(script))
-    state.setConsoleBuilder(consoleBuilder);
-    state;
+    state.setConsoleBuilder(consoleBuilder)
+    state
   }
 
   def getModule: Module = {
@@ -178,5 +179,24 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
         } else null
       }
     }
+  }
+
+  def getRefactoringElementListener(element: PsiElement): RefactoringElementListener = element match {
+    case file: ScalaFile => new RefactoringElementAdapter {
+      def elementRenamedOrMoved(newElement: PsiElement) = {
+        newElement match {
+          case f: ScalaFile =>
+            val newPath = f.getVirtualFile.getPath
+            setScriptPath(newPath)
+          case _ =>
+        }
+      }
+
+      //todo this method does not called when undo of moving action executed
+      def undoElementMovedOrRenamed(newElement: PsiElement, oldQualifiedName: String) {
+        setScriptPath(oldQualifiedName)
+      }
+    }
+    case _ => RefactoringElementListener.DEAF
   }
 }

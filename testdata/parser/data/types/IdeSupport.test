@@ -3,7 +3,7 @@ trait IdeSupport {
 }
 -----
 ScalaFile
-  ScTrait
+  ScTrait: IdeSupport
     AnnotationsList
       <empty list>
     Modifiers
@@ -16,7 +16,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScFunctionDefinition
+        ScFunctionDefinition: unpickleIDEHook
           AnnotationsList
             <empty list>
           Modifiers
@@ -29,23 +29,23 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          TypeInParenthesis
+          TypeInParenthesis: (( => Type) => Type)
             PsiElement(()('(')
-            FunctionalType
-              TypeInParenthesis
+            FunctionalType: ( => Type) => Type
+              TypeInParenthesis: ( => Type)
                 PsiElement(()('(')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')
-                SimpleTypeElement
-                  CodeReferenceElement
+                SimpleTypeElement: Type
+                  CodeReferenceElement: Type
                     PsiElement(identifier)('Type')
                 PsiElement())(')')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
-              SimpleTypeElement
-                CodeReferenceElement
+              SimpleTypeElement: Type
+                CodeReferenceElement: Type
                   PsiElement(identifier)('Type')
             PsiElement())(')')
           PsiWhiteSpace(' ')

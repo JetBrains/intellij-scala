@@ -4,105 +4,105 @@ a = b c d
 a >= b c d
 a != b c d
 a =!= b c d
-------
+-----
 ScalaFile
   InfixExpression
-    ReferenceExpression
+    ReferenceExpression: r
       PsiElement(identifier)('r')
     PsiWhiteSpace(' ')
-    ReferenceExpression
+    ReferenceExpression: <<=
       PsiElement(identifier)('<<=')
     PsiWhiteSpace(' ')
     InfixExpression
-      ReferenceExpression
+      ReferenceExpression: a
         PsiElement(identifier)('a')
       PsiWhiteSpace(' ')
-      ReferenceExpression
+      ReferenceExpression: b
         PsiElement(identifier)('b')
       PsiWhiteSpace(' ')
-      ReferenceExpression
+      ReferenceExpression: c
         PsiElement(identifier)('c')
   PsiWhiteSpace('\n')
   InfixExpression
     InfixExpression
-      ReferenceExpression
+      ReferenceExpression: a
         PsiElement(identifier)('a')
       PsiWhiteSpace(' ')
-      ReferenceExpression
+      ReferenceExpression: <=
         PsiElement(identifier)('<=')
       PsiWhiteSpace(' ')
-      ReferenceExpression
+      ReferenceExpression: b
         PsiElement(identifier)('b')
     PsiWhiteSpace(' ')
-    ReferenceExpression
+    ReferenceExpression: c
       PsiElement(identifier)('c')
     PsiWhiteSpace(' ')
-    ReferenceExpression
+    ReferenceExpression: d
       PsiElement(identifier)('d')
   PsiWhiteSpace('\n')
   AssignStatement
-    ReferenceExpression
+    ReferenceExpression: a
       PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
     InfixExpression
-      ReferenceExpression
+      ReferenceExpression: b
         PsiElement(identifier)('b')
       PsiWhiteSpace(' ')
-      ReferenceExpression
+      ReferenceExpression: c
         PsiElement(identifier)('c')
       PsiWhiteSpace(' ')
-      ReferenceExpression
+      ReferenceExpression: d
         PsiElement(identifier)('d')
   PsiWhiteSpace('\n')
   InfixExpression
     InfixExpression
-      ReferenceExpression
+      ReferenceExpression: a
         PsiElement(identifier)('a')
       PsiWhiteSpace(' ')
-      ReferenceExpression
+      ReferenceExpression: >=
         PsiElement(identifier)('>=')
       PsiWhiteSpace(' ')
-      ReferenceExpression
+      ReferenceExpression: b
         PsiElement(identifier)('b')
     PsiWhiteSpace(' ')
-    ReferenceExpression
+    ReferenceExpression: c
       PsiElement(identifier)('c')
     PsiWhiteSpace(' ')
-    ReferenceExpression
+    ReferenceExpression: d
       PsiElement(identifier)('d')
   PsiWhiteSpace('\n')
   InfixExpression
     InfixExpression
-      ReferenceExpression
+      ReferenceExpression: a
         PsiElement(identifier)('a')
       PsiWhiteSpace(' ')
-      ReferenceExpression
+      ReferenceExpression: !=
         PsiElement(identifier)('!=')
       PsiWhiteSpace(' ')
-      ReferenceExpression
+      ReferenceExpression: b
         PsiElement(identifier)('b')
     PsiWhiteSpace(' ')
-    ReferenceExpression
+    ReferenceExpression: c
       PsiElement(identifier)('c')
     PsiWhiteSpace(' ')
-    ReferenceExpression
+    ReferenceExpression: d
       PsiElement(identifier)('d')
   PsiWhiteSpace('\n')
   InfixExpression
     InfixExpression
-      ReferenceExpression
+      ReferenceExpression: a
         PsiElement(identifier)('a')
       PsiWhiteSpace(' ')
-      ReferenceExpression
+      ReferenceExpression: =!=
         PsiElement(identifier)('=!=')
       PsiWhiteSpace(' ')
-      ReferenceExpression
+      ReferenceExpression: b
         PsiElement(identifier)('b')
     PsiWhiteSpace(' ')
-    ReferenceExpression
+    ReferenceExpression: c
       PsiElement(identifier)('c')
     PsiWhiteSpace(' ')
-    ReferenceExpression
+    ReferenceExpression: d
       PsiElement(identifier)('d')

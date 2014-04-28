@@ -1,10 +1,10 @@
 xml match {
   case <xml>{patterns @ _*} </xml> =>
 }
-------
+-----
 ScalaFile
   MatchStatement
-    ReferenceExpression
+    ReferenceExpression: xml
       PsiElement(identifier)('xml')
     PsiWhiteSpace(' ')
     PsiElement(match)('match')
@@ -22,7 +22,7 @@ ScalaFile
             XmlToken:XML_TAG_END('>')
           PsiElement(ScalaXmlInjectionStart)('{')
           ArgumentPatterns
-            NamingPattern
+            NamingPattern: patterns
               PsiElement(identifier)('patterns')
               PsiWhiteSpace(' ')
               PsiElement(@)('@')

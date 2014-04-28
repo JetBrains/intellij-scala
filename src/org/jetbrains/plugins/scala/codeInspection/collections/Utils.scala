@@ -16,6 +16,7 @@ import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
 import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * Nikolay.Tropin
@@ -64,7 +65,11 @@ object MethodRepr {
         Some(expr, Some(stripped(infix.getBaseExpr)), Some(infix.operation), args)
       case prefix: ScPrefixExpr => Some(expr, Some(stripped(prefix.getBaseExpr)), Some(prefix.operation), Seq())
       case postfix: ScPostfixExpr => Some(expr, Some(stripped(postfix.getBaseExpr)), Some(postfix.operation), Seq())
-      case refExpr: ScReferenceExpression => Some(expr, refExpr.qualifier, Some(refExpr), Seq())
+      case refExpr: ScReferenceExpression =>
+        refExpr.getParent match {
+          case _: ScMethodCall | _: ScGenericCall => None
+          case _ => Some(expr, refExpr.qualifier, Some(refExpr), Seq())
+        }
       case _ => None
     }
   }
@@ -115,8 +120,8 @@ object Utils {
   def isFunctionWithBooleanReturn(expr: ScExpression): Boolean = {
     expr.getType(TypingContext.empty) match {
       case Success(result, _) =>
-        ScType.extractFunctionType(result) match {
-          case Some(ScFunctionType(returnType, _)) => returnType.conforms(types.Boolean)
+        result match {
+          case ScFunctionType(returnType, _) => returnType.conforms(types.Boolean)
           case _ => false
         }
       case _ => false
@@ -146,7 +151,7 @@ object Utils {
     }
   }
 
-  def andWithSomeFunction(expr: ScExpression): Option[String] = {
+  def andWithSomeFunction(expr: ScExpression): Option[ScExpression] = {
     def isIndependentOf(expr: ScExpression, parameter: ScParameter): Boolean = {
       var result = true
       val name = parameter.getName
@@ -168,7 +173,8 @@ object Utils {
               case (leftRef: ScReferenceExpression, right: ScExpression)
                 if leftRef.resolve() == x && isIndependentOf(right, x) =>
                 val secondArgName = y.getName
-                Some(secondArgName + " => " + right.getText)
+                val funExprText = secondArgName + " => " + right.getText
+                Some(ScalaPsiElementFactory.createExpressionFromText(funExprText, expr.getManager))
               case _ => None
             }
           case _ => None
@@ -183,7 +189,7 @@ object Utils {
   }
 
   @tailrec
-  private def isUndescore(expr: ScExpression): Boolean = {
+  private def isUndescore(expr: ScExpression): Boolean = { //todo: more or less duplicate of ScUnderscoreSectionUtil.isUnderscore
     stripped(expr) match {
       case ScParenthesisedExpr(inner) => isUndescore(inner)
       case typed: ScTypedStmt if typed.expr.isInstanceOf[ScUnderscoreSection] => true

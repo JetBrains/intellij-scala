@@ -30,6 +30,9 @@ import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
 import com.intellij.psi.util.PsiTreeUtil
+import extensions.childOf
+import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock}
 
 
 /**
@@ -41,12 +44,11 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
   val REFACTORING_NAME = ScalaBundle.message("introduce.variable.title")
 
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
-    def invokes() {
+    val canBeIntroduced: ScExpression => Boolean = ScalaRefactoringUtil.checkCanBeIntroduced(_)
+    ScalaRefactoringUtil.afterExpressionChoosing(project, editor, file, dataContext, "Introduce Parameter", canBeIntroduced) {
       ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
       invoke(project, editor, file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
     }
-    val canBeIntroduced: ScExpression => Boolean = ScalaRefactoringUtil.checkCanBeIntroduced(_)
-    ScalaRefactoringUtil.invokeRefactoring(project, editor, file, dataContext, "Introduce Parameter", invokes, canBeIntroduced)
   }
 
   def invoke(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int) {
@@ -55,11 +57,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       ScalaRefactoringUtil.checkFile(file, project, editor, REFACTORING_NAME)
 
-      val (expr: ScExpression, scType: ScType) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
+      val (expr: ScExpression, types: Array[ScType]) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
               getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, REFACTORING_NAME))
-
-      val types = ScalaRefactoringUtil.addPossibleTypes(scType, expr)
-              .map(ScalaRefactoringUtil.replaceSingletonTypes)
 
       ScalaRefactoringUtil.checkCanBeIntroduced(expr, showErrorMessage(_, project, editor, REFACTORING_NAME))
 
@@ -91,7 +90,11 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
             import scala.collection.JavaConversions.asJavaCollection
             val suggestedNamesSet = new LinkedHashSet[String](suggestedNames.toIterable)
             val asVar = ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_IS_VAR
-            val needExplicitType = ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_EXPLICIT_TYPE
+            val forceInferType = expr match {
+              case _: ScFunctionExpr => Some(true)
+              case _ => None
+            }
+            val needExplicitType = forceInferType.getOrElse(ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_EXPLICIT_TYPE)
             val selectedType = if (needExplicitType) types(0) else null
             val introduceRunnable: Computable[PsiElement] =
               introduceVariable(startOffset, endOffset, file, editor, expr, occurrences, suggestedNames(0), selectedType,
@@ -100,8 +103,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
               def run() {
                 val newDeclaration: PsiElement = ApplicationManager.getApplication.runWriteAction(introduceRunnable)
                 val namedElement: PsiNamedElement = newDeclaration match {
-                  case holder: ScDeclaredElementsHolder if holder.declaredElements.nonEmpty => holder.declaredElements(0)
-                  case enum: ScEnumerator => enum.pattern.bindings(0)
+                  case holder: ScDeclaredElementsHolder => holder.declaredElements.headOption.getOrElse(null)
+                  case enum: ScEnumerator => enum.pattern.bindings.headOption.getOrElse(null)
+                  case _ => null
                 }
                 if (namedElement != null && namedElement.isValid) {
                   editor.getCaretModel.moveToOffset(namedElement.getTextOffset)
@@ -112,7 +116,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
                     val checkedExpr = if (expr.isValid) expr else null
                     val variableIntroducer =
                       new ScalaInplaceVariableIntroducer(project, editor, checkedExpr, types, namedElement,
-                        REFACTORING_NAME, replaceAll, asVar, false)
+                        REFACTORING_NAME, replaceAll, asVar, forceInferType)
                     variableIntroducer.performInplaceRefactoring(suggestedNamesSet)
                   }
                 }
@@ -173,8 +177,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       PsiDocumentManager.getInstance(element.getProject).commitDocument(document)
       val newEnd = start + text.length
       editor.getCaretModel.moveToOffset(newEnd)
-      val decl = PsiTreeUtil.findElementOfClassAtRange(file, start, newEnd, classOf[ScMember])
-      lazy val enum = PsiTreeUtil.findElementOfClassAtRange(file, start, newEnd, classOf[ScEnumerator])
+      val decl = PsiTreeUtil.findElementOfClassAtOffset(file, start, classOf[ScMember], /*strictStart =*/false)
+      lazy val enum = PsiTreeUtil.findElementOfClassAtOffset(file, start, classOf[ScEnumerator], /*strictStart =*/false)
       Option(decl).getOrElse(enum)
     }
 
@@ -183,6 +187,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
 
     val typeName = if (varType != null) varType.canonicalText else ""
     val expression = ScalaRefactoringUtil.expressionToIntroduce(expression_)
+    val isFunExpr = expression.isInstanceOf[ScFunctionExpr]
+
     val mainRange = new TextRange(startOffset, endOffset)
     val occurrences: Array[TextRange] = if (!replaceAllOccurrences) {
       Array[TextRange](mainRange)
@@ -200,11 +206,16 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     var firstRange = replacedOccurences(0)
 
     val commonParent: PsiElement = ScalaRefactoringUtil.commonParent(file, replacedOccurences: _*)
+    val parExpr = ScalaRefactoringUtil.findParentExpr(commonParent) match {
+      case _ childOf ((block: ScBlock) childOf ((_) childOf (call: ScMethodCall)))
+        if isFunExpr && occCount == 1 && block.statements.size == 1 => call
+      case _ childOf ((block: ScBlock) childOf (infix: ScInfixExpr))
+        if isFunExpr && occCount == 1 && block.statements.size == 1 => infix
+      case expr => expr
+    }
+    val nextParent: PsiElement = ScalaRefactoringUtil.nextParent(parExpr, file)
 
-    val parExpr: ScExpression = ScalaRefactoringUtil.findParentExpr(commonParent)
-    val prev: PsiElement = ScalaRefactoringUtil.previous(parExpr, file)
-
-    val forStmtOption = forStmtIfIntroduceEnumerator(parExpr, prev, firstRange.getStartOffset)
+    val forStmtOption = forStmtIfIntroduceEnumerator(parExpr, nextParent, firstRange.getStartOffset)
     val introduceEnumerator = forStmtOption.isDefined
     val introduceEnumeratorForStmt: ScForStatement = forStmtOption.getOrElse(null)
 
@@ -243,19 +254,44 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
         createdDeclaration = replaceRangeByDeclaration(replacedOccurences(0), createdDeclaration)
       }
       else {
-        val container: PsiElement = ScalaRefactoringUtil.container(parExpr, file, occCount == 1)
-        val needBraces = !parExpr.isInstanceOf[ScBlock] && ScalaRefactoringUtil.needBraces(parExpr, prev)
-        val parent =
-          if (needBraces) {
-            firstRange = firstRange.shiftRight(1)
-            parExpr.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("{" + parExpr.getText + "}", file.getManager),
-              removeParenthesis = false)
-          } else container
+        object inExtendsBlock {
+          def unapply(e: PsiElement): Option[ScExtendsBlock] = {
+            e match {
+              case extBl: ScExtendsBlock =>
+                Some(extBl)
+              case elem if PsiTreeUtil.getParentOfType(elem, classOf[ScClassParents]) != null =>
+                PsiTreeUtil.getParentOfType(elem, classOf[ScExtendsBlock]) match {
+                  case _ childOf (_: ScNewTemplateDefinition) => None
+                  case extBl => Some(extBl)
+                }
+              case _ => None
+            }
+          }
+        }
 
-        val anchor = parent.getChildren.filter(_.getTextRange.contains(firstRange)).head
+        var needFormatting = false
+        val parent = commonParent match {
+          case inExtendsBlock(extBl) =>
+            needFormatting = true
+            extBl.addEarlyDefinitions()
+          case _ =>
+            val container = ScalaRefactoringUtil.container(parExpr, file)
+            val needBraces = !parExpr.isInstanceOf[ScBlock] && ScalaRefactoringUtil.needBraces(parExpr, nextParent)
+            if (needBraces) {
+              firstRange = firstRange.shiftRight(1)
+              val replaced = parExpr.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("{" + parExpr.getText + "}", file.getManager),
+                removeParenthesis = false)
+              replaced.getPrevSibling match {
+                case ws: PsiWhiteSpace if ws.getText.contains("\n") => ws.delete()
+                case _ =>
+              }
+              replaced
+            } else container
+        }
+        val anchor = parent.getChildren.find(_.getTextRange.contains(firstRange)).getOrElse(parent.getLastChild)
         if (anchor != null) {
-          createdDeclaration = parent.addBefore(createdDeclaration, anchor).asInstanceOf[ScMember]
-          parent.addBefore(ScalaPsiElementFactory.createNewLineNode(anchor.getManager, "\n").getPsi, anchor)
+          createdDeclaration = ScalaPsiUtil.addStatementBefore(createdDeclaration.asInstanceOf[ScBlockStatement], parent, Some(anchor))
+          CodeEditUtil.markToReformat(parent.getNode, needFormatting)
         } else throw new IntroduceException
       }
     }
@@ -323,10 +359,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     PsiDocumentManager.getInstance(project).commitAllDocuments()
     ScalaRefactoringUtil.checkFile(file, project, editor, REFACTORING_NAME)
 
-    val (expr: ScExpression, scType: ScType) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
+    val (expr: ScExpression, types: Array[ScType]) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
             getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, REFACTORING_NAME))
-
-    val types = ScalaRefactoringUtil.addPossibleTypes(scType, expr)
 
     ScalaRefactoringUtil.checkCanBeIntroduced(expr, showErrorMessage(_, project, editor, REFACTORING_NAME))
 

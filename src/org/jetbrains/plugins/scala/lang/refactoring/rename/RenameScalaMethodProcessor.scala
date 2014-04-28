@@ -8,12 +8,12 @@ import com.intellij.ide.IdeBundle
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{Messages, DialogWrapper}
-import com.intellij.refactoring.rename.RenameJavaMethodProcessor
+import com.intellij.refactoring.rename.{RenamePsiElementProcessor, RenameJavaMethodProcessor}
 import java.awt.{GridLayout, BorderLayout}
 
 import javax.swing._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import psi.impl.search.ScalaOverridengMemberSearch
+import psi.impl.search.ScalaOverridingMemberSearcher
 import psi.api.base.ScPrimaryConstructor
 import collection.mutable.ArrayBuffer
 import psi.fake.FakePsiMethod
@@ -25,25 +25,54 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import scala.Some
 import com.intellij.usageView.UsageInfo
 import com.intellij.refactoring.listeners.RefactoringElementListener
-import org.jetbrains.plugins.scala.util.SuperMemberUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import com.intellij.psi.search.searches.ReferencesSearch
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 21.11.2008
  */
 
-class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
-  override def canProcessElement(element: PsiElement): Boolean = element match {
+class RenameScalaMethodProcessor extends RenameJavaMethodProcessor with ScalaRenameProcessor {
+  override def canProcessElement(element: PsiElement): Boolean = RenameScalaMethodProcessor.canProcessElement(element)
+
+  override def findReferences(element: PsiElement) = ScalaRenameUtil.findReferences(element)
+
+  override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = { val guess = ScalaRenameUtil.findSubstituteElement(element)
+    if (guess != element) guess else RenameSuperMembersUtil.chooseSuper(element.asInstanceOf[ScNamedElement])
+  }
+
+  override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[PsiElement]) {
+    val named = element match {case named: ScNamedElement => named; case _ => return}
+    val guess = ScalaRenameUtil.findSubstituteElement(element)
+    if (guess != element) renameCallback.pass(guess)
+    else RenameSuperMembersUtil.chooseAndProcessSuper(named, new PsiElementProcessor[PsiNamedElement] {
+      def execute(named: PsiNamedElement): Boolean = {
+        renameCallback.pass(named)
+        false
+      }
+    }, editor)
+  }
+
+  def capitalize(text: String): String = Character.toUpperCase(text.charAt(0)) + text.substring(1)
+
+  override def renameElement(psiElement: PsiElement, newName: String, usages: Array[UsageInfo], listener: RefactoringElementListener) {
+    ScalaRenameUtil.doRenameGenericNamedElement(psiElement, newName, usages, listener)
+  }
+}
+
+object RenameScalaMethodProcessor {
+  def canProcessElement(element: PsiElement): Boolean = element match {
     case _: FakePsiMethod => false
     case _: ScFunction | _:ScPrimaryConstructor => true
     case _ => false
   }
+}
 
-  override def findReferences(element: PsiElement) =
-    ScalaRenameUtil.filterAliasedReferences(super.findReferences(element))
+class PrepareRenameScalaMethodProcessor extends RenamePsiElementProcessor {
+  def canProcessElement(element: PsiElement): Boolean = RenameScalaMethodProcessor.canProcessElement(element)
 
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]) {
     val function = element match {case x: ScFunction => x case _ => return}
@@ -54,7 +83,7 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
         Some(function2)
       case _ => None
     }
-    for (elem <- ScalaOverridengMemberSearch.search(function, deep = true)) {
+    for (elem <- ScalaOverridingMemberSearcher.search(function, deep = true)) {
       allRenames.put(elem, newName)
       elem match {
         case fun: ScFunction => fun.getGetterOrSetterFunction match {
@@ -66,7 +95,7 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
     }
     for {
       setter <- getterOrSetter
-      elem <- ScalaOverridengMemberSearch.search(setter, deep = true)
+      elem <- ScalaOverridingMemberSearcher.search(setter, deep = true)
     } {
       buff += elem
     }
@@ -96,25 +125,8 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
         }
       }
     }
-
+    RenameSuperMembersUtil.prepareSuperMembers(element, newName, allRenames)
     ScalaElementToRenameContributor.getAll(element, newName, allRenames)
-  }
-
-  override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = {
-    val guess = ScalaRenameUtil.findSubstituteElement(element)
-    if (guess != element) guess else SuperMemberUtil.chooseSuper(element.asInstanceOf[ScNamedElement], "Choose element to rename")
-  }
-
-  override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[PsiElement]) {
-    val named = element match {case named: ScNamedElement => named; case _ => return}
-    val guess = ScalaRenameUtil.findSubstituteElement(element)
-    if (guess != element) renameCallback.pass(guess)
-    else SuperMemberUtil.chooseAndProcessSuper(named, new PsiElementProcessor[PsiNamedElement] {
-      def execute(named: PsiNamedElement): Boolean = {
-        renameCallback.pass(named)
-        false
-      }
-    }, "Choose element to rename", editor)
   }
 
   private class WarningDialog(project: Project, text: String) extends DialogWrapper(project, true) {
@@ -139,20 +151,6 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
       panel.add(labelsPanel, BorderLayout.CENTER)
       panel
     }
-  }
-
-  def capitalize(text: String): String = Character.toUpperCase(text.charAt(0)) + text.substring(1)
-
-  override def setToSearchInComments(element: PsiElement, enabled: Boolean) {
-    ScalaApplicationSettings.getInstance().RENAME_SEARCH_IN_COMMENTS_AND_STRINGS = enabled
-  }
-
-  override def isToSearchInComments(psiElement: PsiElement): Boolean = {
-    ScalaApplicationSettings.getInstance().RENAME_SEARCH_IN_COMMENTS_AND_STRINGS
-  }
-
-  override def renameElement(psiElement: PsiElement, newName: String, usages: Array[UsageInfo], listener: RefactoringElementListener) {
-    ScalaRenameUtil.doRenameGenericNamedElement(psiElement, newName, usages, listener)
   }
 }
 

@@ -236,8 +236,35 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
       |  class Nested
       |}
       |object C {
-      |  val x: States.<caret>
+      |  val x: States<caret>
       |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "States").get)
+    checkResultByText(resultText)
+  }
+
+  def testImportObjectCompletion() {
+    val fileText =
+      """
+        |object States {
+        |  class Nested
+        |}
+        |object C {
+        |  import St<caret>
+        |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |object States {
+        |  class Nested
+        |}
+        |object C {
+        |  import States<caret>
+        |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
     completeLookupItem(activeLookup.find(le => le.getLookupString == "States").get)
@@ -911,6 +938,21 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     completeLookupItem(activeLookup.find(le => le.getLookupString == "takeRight").get, ' ')
 
     checkResultByText(resultText)
+  }
+
+  def testTypeIsFirst() {
+    val fileText =
+      """
+        |class A {
+        |  def typeSomething = 1
+        |
+        |  type<caret>
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    complete(1, CompletionType.BASIC)
+
+    assert(getActiveLookup.getCurrentItem.getLookupString == "type", "Wrong item preselected.")
   }
 
   def testBackticks() {

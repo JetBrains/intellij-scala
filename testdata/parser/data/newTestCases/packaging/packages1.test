@@ -6,8 +6,8 @@ ScalaFile
   ScPackaging
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    CodeReferenceElement
-      CodeReferenceElement
+    CodeReferenceElement: aaa.bbb
+      CodeReferenceElement: aaa
         PsiElement(identifier)('aaa')
       PsiElement(.)('.')
       PsiElement(identifier)('bbb')
@@ -15,11 +15,11 @@ ScalaFile
     ScPackaging
       PsiElement(package)('package')
       PsiWhiteSpace(' ')
-      CodeReferenceElement
+      CodeReferenceElement: ccc
         PsiElement(identifier)('ccc')
       PsiWhiteSpace('\n')
       ScPackaging
         PsiElement(package)('package')
         PsiWhiteSpace(' ')
-        CodeReferenceElement
+        CodeReferenceElement: ddd
           PsiElement(identifier)('ddd')

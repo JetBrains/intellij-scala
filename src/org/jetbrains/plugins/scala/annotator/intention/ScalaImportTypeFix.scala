@@ -48,7 +48,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScReferenceElement) extends {
     val project = ref.getProject
   } with  HintAction {
-  def getText = ScalaBundle.message("import.with", classes(0).qualifiedName)
+  val getText = ScalaBundle.message("import.with", classes(0).qualifiedName)
 
   def getFamilyName = ScalaBundle.message("import.class")
 

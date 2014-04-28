@@ -1,0 +1,7 @@
+val a =
+  s"""foo{<caret>}"""
+-----
+val a =
+  s"""foo{
+      <caret>
+      }"""

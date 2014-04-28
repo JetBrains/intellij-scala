@@ -19,7 +19,7 @@ import api.statements.params._
 import base.ScTypeBoundsOwnerImpl
 import toplevel.synthetic.JavaIdentifier
 import icons.Icons
-import types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 import types.result.{Failure, Success}
 import extensions.toPsiNamedElementExt
 import api.toplevel.typedef.ScTemplateDefinition
@@ -33,7 +33,7 @@ class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScType
   def this(node: ASTNode) = {this(); setNode(node)}
   def this(stub: ScTypeParamStub) = {this(); setStub(stub); setNode(null)}
 
-  override def toString: String = "TypeParameter"
+  override def toString: String = "TypeParameter: " + name
 
   def getOffsetInFile: Int = {
     val stub = getStub
@@ -93,7 +93,7 @@ class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScType
 
   def owner  = getContext.getContext.asInstanceOf[ScTypeParametersOwner]
 
-  override def getUseScope  = new LocalSearchScope(owner)
+  override def getUseScope  = new LocalSearchScope(owner).intersectWith(super.getUseScope)
 
   def nameId = findLastChildByType(TokenSets.ID_SET)
 
@@ -143,7 +143,14 @@ class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScType
     // For Java
     upperBound match {
       case Success(t, _) =>
-        val psiType = ScType.toPsi(t, getProject, getResolveScope)
+        val psiType = if (hasTypeParameters) {
+          t match {
+            case ScParameterizedType(des, _) => ScType.toPsi(des, getProject, getResolveScope)
+            case _ => ScType.toPsi(t, getProject, getResolveScope)
+          }
+        } else {
+          ScType.toPsi(t, getProject, getResolveScope)
+        }
         psiType match {
           case x: PsiClassType => Array(x)
           case _ => Array() // TODO
