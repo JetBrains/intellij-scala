@@ -475,7 +475,7 @@ object ScalaFileImpl {
         val file: VirtualFile = s.getVirtualFile
         if (file == null) return false
         val index = ProjectRootManager.getInstance(place.getProject).getFileIndex
-        !index.isInSourceContent(file)
+        !(index.isInSourceContent(file) || index.isInLibraryClasses(file) || index.isInLibrarySource(file))
       case _ => false
     }
   }
