@@ -6,7 +6,7 @@ import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.lang.properties.references.PropertyReference
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import collection.mutable
+import scala.collection.mutable
 import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.ScalaI18nUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -22,31 +22,24 @@ class ScalaPropertiesReferenceProvider(myDefaultSoft: Boolean) extends PsiRefere
 
   def getReferencesByElement(element: PsiElement, context: ProcessingContext): Array[PsiReference] = {
     if (ScalaProjectSettings.getInstance(element.getProject).isDisableI18N) return Array.empty
-    var value: AnyRef = null
-    var bundleName: String = null
-    var soft: Boolean = myDefaultSoft
+
     element match {
-      case literalExpression: ScLiteral =>
-        value = literalExpression.getValue
-        val annotationParams = new mutable.HashMap[String, AnyRef]
-        annotationParams.put(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER, null)
-        if (ScalaI18nUtil.mustBePropertyKey(element.getProject, literalExpression, annotationParams)) {
-          soft = false
-          val resourceBundleName = annotationParams.get(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER).getOrElse(null)
-          if (resourceBundleName != null && resourceBundleName.isInstanceOf[PsiExpression]) {
-            val expr: PsiExpression = resourceBundleName.asInstanceOf[PsiExpression]
-            val bundleValue: AnyRef = JavaPsiFacade.getInstance(expr.getProject).getConstantEvaluationHelper.computeConstantExpression(expr)
-            bundleName = if (bundleValue == null) null else bundleValue.toString
-          }
-        }
-      case _ =>
+      case stringLiteral: ScLiteral if stringLiteral.isString =>
+        val litValue = stringLiteral.getValue match {case str: String => str; case _ => return PsiReference.EMPTY_ARRAY}
+        val annotationParams = mutable.HashMap[String, AnyRef](AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER -> null)
+
+        if (!ScalaI18nUtil.mustBePropertyKey(element.getProject, stringLiteral, annotationParams)) return PsiReference.EMPTY_ARRAY
+
+        annotationParams get AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER collect {
+          case resourceBundleName: PsiElement =>
+            val bundleValue: AnyRef = JavaPsiFacade.getInstance(
+              resourceBundleName.getProject).getConstantEvaluationHelper.computeConstantExpression(resourceBundleName)
+            val bundleName = if (bundleValue == null) null else bundleValue.toString
+            Array[PsiReference](new PropertyReference(litValue, stringLiteral, bundleName, false))
+        } getOrElse PsiReference.EMPTY_ARRAY
+
+      case _ => PsiReference.EMPTY_ARRAY
     }
-    value match {
-      case text: String =>
-        val reference: PsiReference = new PropertyReference(text, element, bundleName, soft)
-        return Array[PsiReference](reference)
-      case _ =>
-    }
-    PsiReference.EMPTY_ARRAY
+
   }
 }
