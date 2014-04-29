@@ -545,7 +545,7 @@ object Conformance {
       Un                            === compn*/
       def workWithSignature(s: Signature, retType: ScType): Boolean = {
         val processor = new CompoundTypeCheckSignatureProcessor(s,retType, undefinedSubst, s.substitutor)
-        processor.processType(r, s.namedElement.get)
+        processor.processType(r, s.namedElement)
         undefinedSubst = processor.getUndefinedSubstitutor
         processor.getResult
       }
@@ -562,7 +562,7 @@ object Conformance {
         undefinedSubst = t._2
         t._1
       }) && c.signatureMap.forall {
-        case (s: Signature, retType) if s.namedElement.isDefined => workWithSignature(s, retType)
+        case (s: Signature, retType) => workWithSignature(s, retType)
       } && c.typesMap.forall {
         case (s, sign) => workWithTypeAlias(sign)
       }, undefinedSubst)

@@ -141,8 +141,8 @@ trait ScTypePresentation {
       val componentsText = if (comps.isEmpty) Nil else Seq(comps.map(innerTypeText(_)).mkString(" with "))
 
       val declsTexts = (signatureMap ++ typeMap).flatMap {
-        case (s: Signature, rt: ScType) if s.namedElement.nonEmpty && s.namedElement.get.isInstanceOf[ScFunction] =>
-          val fun = s.namedElement.get.asInstanceOf[ScFunction]
+        case (s: Signature, rt: ScType) if s.namedElement.isInstanceOf[ScFunction] =>
+          val fun = s.namedElement.asInstanceOf[ScFunction]
           val funCopy = ScFunction.getCompoundCopy(s.substitutedTypes.map(_.toList), s.typeParams.toList, rt, fun)
           val paramClauses = funCopy.paramClauses.clauses.map(_.parameters.map(param =>
             ScalaDocumentationProvider.parseParameter(param, typeText0)).mkString("(", ", ", ")")).mkString("")
@@ -151,14 +151,14 @@ trait ScTypePresentation {
             funCopy.typeParameters.map(typeParamText(_, ScSubstitutor.empty)).mkString("[", ", ", "]")
           else ""
           Seq(s"def ${s.name}$typeParams$paramClauses: $retType")
-        case (s: Signature, rt: ScType) if s.namedElement.nonEmpty && s.namedElement.get.isInstanceOf[ScTypedDefinition] =>
+        case (s: Signature, rt: ScType) if s.namedElement.isInstanceOf[ScTypedDefinition] =>
           if (s.paramLength.sum > 0) Seq.empty
           else {
             s.namedElement match {
-              case Some(bp: ScBindingPattern) =>
+              case bp: ScBindingPattern =>
                 val b = ScBindingPattern.getCompoundCopy(rt, bp)
                 Seq((if (b.isVar) "var " else "val ") + b.name + " : " + typeText0(rt))
-              case Some(fi: ScFieldId) =>
+              case fi: ScFieldId =>
                 val f = ScFieldId.getCompoundCopy(rt, fi)
                 Seq((if (f.isVar) "var " else "val ") + f.name + " : " + typeText0(rt))
               case _ => Seq.empty

@@ -340,7 +340,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
             val tParams: Array[TypeParameter] = s.typeParams.map(substTypeParam)
             val rt: ScType = substInternal(tp)
             (new Signature(s.name, pTypes, s.paramLength, tParams,
-              ScSubstitutor.empty, s.namedElement.map {
+              ScSubstitutor.empty, s.namedElement match {
                 case fun: ScFunction => ScFunction.getCompoundCopy(pTypes.map(_.toList), tParams.toList, rt, fun)
                 case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
                 case f: ScFieldId => ScFieldId.getCompoundCopy(rt, f)

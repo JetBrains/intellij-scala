@@ -71,6 +71,8 @@ class Bug3Test extends ResolveTestBase {
   def testSCL6478() {doTest()}
   def testSCL6628() {doTest()}
   def testSCL6785() {doTest()}
+  def testSCL6825() {doTest()}
+  def testSCL6825B() {doTest()}
   def testStringInterpolatorPrefix() {doTest()}
   def testShadowedImport() {doTest()}
   def testSOE() {doTest()}

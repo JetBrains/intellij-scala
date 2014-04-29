@@ -286,7 +286,7 @@ case class ScExistentialType(quantified : ScType,
             val tParams: Array[TypeParameter] = s.typeParams.map(updateTypeParam)
             val rt: ScType = updateRecursive(sctype, newSet, -variance)
             (new Signature(s.name, pTypes, s.paramLength, tParams,
-              ScSubstitutor.empty, s.namedElement.map {
+              ScSubstitutor.empty, s.namedElement match {
                 case fun: ScFunction => ScFunction.getCompoundCopy(pTypes.map(_.toList), tParams.toList, rt, fun)
                 case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
                 case f: ScFieldId => ScFieldId.getCompoundCopy(rt, f)

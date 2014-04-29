@@ -36,46 +36,28 @@ trait OverridingAnnotator {
     }
   }
 
+  private def isConcrete(signature: Signature): Boolean = {
+    val element = ScalaPsiUtil.nameContext(signature.namedElement)
+    isConcreteElement(element)
+  }
+
   def checkOverrideMethods(method: ScFunction, holder: AnnotationHolder) {
-    def isConcrete(signature: Signature): Boolean =
-      if (signature.namedElement != None) {
-        val element = ScalaPsiUtil.nameContext(signature.namedElement.get)
-        isConcreteElement(element)
-      } else false
     checkOverrideMembers(method, method, method.superSignaturesIncludingSelfType, isConcrete, "Method", holder)
   }
 
   def checkOverrideVals(v: ScValue, holder: AnnotationHolder) {
-    def isConcrete(signature: Signature): Boolean =
-      if (signature.namedElement != None) {
-        val element = ScalaPsiUtil.nameContext(signature.namedElement.get)
-        isConcreteElement(element)
-      } else false
-
     v.declaredElements.foreach(td => {
       checkOverrideMembers(td, v, ScalaPsiUtil.superValsSignatures(td, withSelfType = true), isConcrete, "Value", holder)
     })
   }
 
   def checkOverrideVars(v: ScVariable, holder: AnnotationHolder) {
-    def isConcrete(signature: Signature): Boolean =
-      if (signature.namedElement != None) {
-        val element = ScalaPsiUtil.nameContext(signature.namedElement.get)
-        isConcreteElement(element)
-      } else false
-
     v.declaredElements.foreach(td => {
       checkOverrideMembers(td, v, ScalaPsiUtil.superValsSignatures(td, withSelfType = true), isConcrete, "Variable", holder)
     })
   }
 
   def checkOverrideClassParameters(v: ScClassParameter, holder: AnnotationHolder) {
-    def isConcrete(signature: Signature): Boolean =
-      if (signature.namedElement != None) {
-        val element = ScalaPsiUtil.nameContext(signature.namedElement.get)
-        isConcreteElement(element)
-      } else false
-
     checkOverrideMembers(v, v, ScalaPsiUtil.superValsSignatures(v, withSelfType = true), isConcrete, "Parameter", holder)
   }
 
