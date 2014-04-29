@@ -1318,7 +1318,7 @@ object ScalaPsiUtil {
   def getMethodPresentableText(method: PsiMethod, subst: ScSubstitutor = ScSubstitutor.empty): String = {
     method match {
       case method: ScFunction =>
-        ScalaElementPresentation.getMethodPresentableText(method, short = false, subst)
+        ScalaElementPresentation.getMethodPresentableText(method, fast = false, subst)
       case _ =>
         val PARAM_OPTIONS: Int = PsiFormatUtilBase.SHOW_NAME | PsiFormatUtilBase.SHOW_TYPE | PsiFormatUtilBase.TYPE_AFTER
         PsiFormatUtil.formatMethod(method, getPsiSubstitutor(subst, method.getProject, method.getResolveScope),
