@@ -63,10 +63,10 @@ case class TypeAliasSignature(name: String, typeParams: List[TypeParameter], low
 
 class Signature(val name: String, private val typesEval: List[Stream[ScType]], val paramLength: List[Int],
                 private val tParams: Array[TypeParameter], val substitutor: ScSubstitutor,
-                val namedElement: Option[PsiNamedElement], val hasRepeatedParam: Seq[Int] = Seq.empty) {
+                val namedElement: PsiNamedElement, val hasRepeatedParam: Seq[Int] = Seq.empty) {
 
   def this(name: String, stream: Stream[ScType], paramLength: Int, substitutor: ScSubstitutor,
-           namedElement: Option[PsiNamedElement]) =
+           namedElement: PsiNamedElement) =
     this(name, List(stream), List(paramLength), Array.empty, substitutor, namedElement)
 
   private def types: List[Stream[ScType]] = typesEval
@@ -77,7 +77,7 @@ class Signature(val name: String, private val typesEval: List[Stream[ScType]], v
 
   def equiv(other: Signature): Boolean = {
     def fieldCheck(other: Signature): Boolean = {
-      def isField(s: Signature) = s.namedElement.exists(_.isInstanceOf[PsiField])
+      def isField(s: Signature) = s.namedElement.isInstanceOf[PsiField]
       !isField(this) ^ isField(other)
     }
     
@@ -142,15 +142,45 @@ class Signature(val name: String, private val typesEval: List[Stream[ScType]], v
   }
 
   override def equals(that: Any) = that match {
-    case s: Signature => equiv(s)
+    case s: Signature => equiv(s) && parameterlessKind == s.parameterlessKind
     case _ => false
   }
 
+  def parameterlessKind: Int = {
+    namedElement match {
+      case f: ScFunction if !f.hasParameterClause => 1
+      case p: PsiMethod => 2
+      case _ => 3
+    }
+  }
+
   override def hashCode: Int = {
-    ScalaPsiUtil.convertMemberName(name).hashCode * 31
+    simpleHashCode * 31 + parameterlessKind
+  }
+
+  /**
+   * Use it, while building class hierarchy.
+   * Because for class hierarch def foo(): Int is the same thing as def foo: Int and val foo: Int.
+   */
+  def simpleHashCode: Int = {
+    ScalaPsiUtil.convertMemberName(name).hashCode
   }
 
   def isJava: Boolean = false
+
+  def parameterlessCompatible(other: Signature): Boolean = {
+    (namedElement, other.namedElement) match {
+      case (f1: ScFunction, f2: ScFunction) =>
+        !f1.hasParameterClause ^ f2.hasParameterClause
+      case (f1: ScFunction, p: PsiMethod) => f1.hasParameterClause
+      case (p: PsiMethod, f2: ScFunction) => f2.hasParameterClause
+      case (p1: PsiMethod, p2: PsiMethod) => true
+      case (p: PsiMethod, _) => false
+      case (_, f: ScFunction)  => !f.hasParameterClause
+      case (_, f: PsiMethod) => false
+      case _ => true
+    }
+  }
 }
 
 object Signature {
@@ -212,7 +242,7 @@ object PhysicalSignature {
 
 class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubstitutor)
         extends Signature(method.name, PhysicalSignature.typesEval(method), PhysicalSignature.paramLength(method),
-          method.getTypeParameters.map(new TypeParameter(_)), substitutor, Some(method), PhysicalSignature.hasRepeatedParam(method)) {
+          method.getTypeParameters.map(new TypeParameter(_)), substitutor, method, PhysicalSignature.hasRepeatedParam(method)) {
   def updateThisType(thisType: ScType): PhysicalSignature = updateSubst(_.addUpdateThisType(thisType))
 
   def updateSubst(f: ScSubstitutor => ScSubstitutor): PhysicalSignature = new PhysicalSignature(method, f(substitutor))

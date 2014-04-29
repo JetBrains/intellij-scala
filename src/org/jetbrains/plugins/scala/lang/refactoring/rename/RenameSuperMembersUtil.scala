@@ -157,8 +157,8 @@ object RenameSuperMembersUtil {
       if (withSelfType) TypeDefinitionMembers.getSelfTypeSignatures(aClass)
       else TypeDefinitionMembers.getSignatures(aClass)
     val allSigns = signatures.forName(named.name)._1
-    val signs = allSigns.filter(sign => sign._1.namedElement.exists(named ==))
-    signs.flatMap(sign => sign._2.supers.map(_.info.namedElement.get))
+    val signs = allSigns.filter(sign => sign._1.namedElement == named)
+    signs.flatMap(sign => sign._2.supers.map(_.info.namedElement))
   }
 
   @NotNull

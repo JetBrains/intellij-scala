@@ -25,22 +25,17 @@ object SuperMethodTestUtil {
         val signs = method.superSignatures
         val res: StringBuilder = new StringBuilder("")
         for (sign <- signs) {
-          val s = sign.namedElement match {
-            case Some(named) =>
-              ScalaPsiUtil.nameContext(named) match {
-                case member: PsiMember =>
-                  val clazz = member.containingClass
-                  if (clazz != null)
-                    clazz.qualifiedName + "."
-                  else ""
-                case _ => ""
-              }
+          val s = ScalaPsiUtil.nameContext(sign.namedElement) match {
+            case member: PsiMember =>
+              val clazz = member.containingClass
+              if (clazz != null)
+                clazz.qualifiedName + "."
+              else ""
             case _ => ""
           }
           res.append(s + (sign.namedElement match {
-                    case Some(x: ScNamedElement) => x.name
-                    case Some(x: PsiNamedElement) => x.getName
-                    case _ => "Something"
+                    case x: ScNamedElement => x.name
+                    case x: PsiNamedElement => x.getName
                   }) + "\n")
         }
         resa = if (res.toString == "") "" else res.substring(0, res.length - 1).toString

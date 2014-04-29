@@ -101,6 +101,9 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
       import Signature.unify
 
       val sign2 = s
+
+      if (!sign1.parameterlessCompatible(sign2)) return true
+
       var t = sign1.paramTypesEquivExtended(sign2, undef, falseUndef = false)
       if (!t._1) return true
       undef = t._2
@@ -132,8 +135,8 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
         })
         val dcl: ScTypedDefinition = element.asInstanceOf[ScTypedDefinition]
         val isVar = dcl.isVar
-        if (!checkSignature(new Signature(dcl.name, Stream.empty, 0, subst, Some(dcl)), Array.empty, rt)) return false
-        if (isVar && !checkSignature(new Signature(dcl.name + "_=", ScalaPsiUtil.getSingletonStream(rt), 1, subst, Some(dcl)),
+        if (!checkSignature(new Signature(dcl.name, Stream.empty, 0, subst, dcl), Array.empty, rt)) return false
+        if (isVar && !checkSignature(new Signature(dcl.name + "_=", ScalaPsiUtil.getSingletonStream(rt), 1, subst, dcl),
           Array.empty, Unit)) return false
       case method: PsiMethod =>
         val sign1 = new PhysicalSignature(method, subst)
