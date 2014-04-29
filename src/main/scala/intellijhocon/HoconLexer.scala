@@ -4,14 +4,23 @@ import com.intellij.lexer.LexerBase
 import scala.util.matching.Regex
 import com.intellij.psi.tree.IElementType
 
+object HoconLexer {
+
+  case class State(raw: Int) extends AnyVal
+
+  val Initial = State(0)
+  val Value = State(1)
+  val RefStarting = State(2)
+  val RefStarted = State(3)
+  val Reference = State(4)
+
+  val States = Array(Initial, Value, RefStarting, RefStarted, Reference)
+}
+
 class HoconLexer extends LexerBase {
-  type State = Int
 
+  import HoconLexer._
   import HoconTokenType._
-
-  val Initial = 0
-  val SimpleValue = 1
-  val Reference = 1 << 2
 
   implicit class CharSequenceOps(cs: CharSequence) {
     def startsWith(str: String) =
@@ -54,38 +63,45 @@ class HoconLexer extends LexerBase {
       transitionFun(state)
   }
 
-  def hasFlag(flag: State): State => Boolean =
-    state => (state & flag) > 0
-
-  def doesntHaveFlag(flag: State): State => Boolean =
-    state => (state & flag) == 0
-
   def forceState(state: State): State => State =
     _ => state
 
   def always: State => Boolean =
     _ => true
 
-  def simpleValueIfInitial(state: State) =
-    if (state == Initial) SimpleValue else state
+  def onContents(state: State) = state match {
+    case Initial => Value
+    case RefStarting | RefStarted => Reference
+    case _ => state
+  }
+
+  def isAnyOf(states: State*): State => Boolean =
+    states.contains
+
+  def isNoneOf(states: State*): State => Boolean =
+    !states.contains(_)
+
+  val notReference = isAnyOf(Initial, Value)
 
   val matchers = List(
     WhitespaceMatcher,
-    new LiteralTokenMatcher("{", LBrace, doesntHaveFlag(Reference), forceState(Initial)),
-    new RegexTokenMatcher( """\$\{(\?)?""".r, RefStart, always, forceState(SimpleValue | Reference)),
-    new LiteralTokenMatcher("}", RefEnd, hasFlag(Reference), forceState(SimpleValue)),
-    new LiteralTokenMatcher("}", RBrace, doesntHaveFlag(Reference), forceState(SimpleValue)),
-    new LiteralTokenMatcher("[", LBracket, doesntHaveFlag(Reference), forceState(Initial)),
-    new LiteralTokenMatcher("]", RBracket, doesntHaveFlag(Reference), forceState(SimpleValue)),
-    new LiteralTokenMatcher(":", Colon, doesntHaveFlag(Reference), forceState(Initial)),
-    new LiteralTokenMatcher(",", Comma, doesntHaveFlag(Reference), forceState(Initial)),
-    new LiteralTokenMatcher("=", Equals, doesntHaveFlag(Reference), forceState(Initial)),
-    new LiteralTokenMatcher("+=", PlusEquals, doesntHaveFlag(Reference), forceState(Initial)),
-    new LiteralTokenMatcher(".", Period, always, simpleValueIfInitial),
-    new LiteralTokenMatcher("\n", NewLine, hasFlag(SimpleValue), forceState(Initial)),
+    new RegexTokenMatcher( """\$(?=\{)""".r, Dollar, notReference, forceState(RefStarting)),
+    new LiteralTokenMatcher("{", RefLBrace, isAnyOf(RefStarting), forceState(RefStarted)),
+    new LiteralTokenMatcher("?", QMark, isAnyOf(RefStarted), forceState(Reference)),
+    new LiteralTokenMatcher("}", RefRBrace, isAnyOf(RefStarting, RefStarted, Reference), forceState(Value)),
+    new LiteralTokenMatcher("{", LBrace, notReference, forceState(Initial)),
+    new LiteralTokenMatcher("}", RBrace, notReference, forceState(Value)),
+    new LiteralTokenMatcher("[", LBracket, notReference, forceState(Initial)),
+    new LiteralTokenMatcher("]", RBracket, notReference, forceState(Value)),
+    new LiteralTokenMatcher(":", Colon, notReference, forceState(Initial)),
+    new LiteralTokenMatcher(",", Comma, notReference, forceState(Initial)),
+    new LiteralTokenMatcher("=", Equals, notReference, forceState(Initial)),
+    new LiteralTokenMatcher("+=", PlusEquals, notReference, forceState(Initial)),
+    new LiteralTokenMatcher(".", Period, always, onContents),
+    new LiteralTokenMatcher("\n", NewLine, isNoneOf(Initial), forceState(Initial)),
     new RegexTokenMatcher( """(//|#)[^\n]*""".r, Comment, always, identity),
     UnquotedCharsMatcher,
-    new RegexTokenMatcher("\"{3}([^\"]+|\"{1,2}[^\"])*(\"{3,}|$)".r, MultilineString, always, simpleValueIfInitial),
+    new RegexTokenMatcher("\"{3}([^\"]+|\"{1,2}[^\"])*(\"{3,}|$)".r, MultilineString, always, onContents),
     QuotedStringMatcher,
     new RegexTokenMatcher(".".r, BadCharacter, always, identity)
   )
@@ -107,7 +123,7 @@ class HoconLexer extends LexerBase {
 
   object QuotedStringMatcher extends TokenMatcher(QuotedString) {
     def transition(state: State) =
-      simpleValueIfInitial(state)
+      onContents(state)
 
     def matchToken(seq: CharSequence, state: State) = if (seq.charAt(0) == '\"') {
       def drain(offset: Int): Int =
@@ -132,7 +148,7 @@ class HoconLexer extends LexerBase {
     }
 
     def transition(state: State) =
-      simpleValueIfInitial(state)
+      onContents(state)
   }
 
   object WhitespaceMatcher extends TokenMatcher(Whitespace) {
@@ -148,8 +164,10 @@ class HoconLexer extends LexerBase {
       } else None
     }
 
-    def transition(state: State) =
-      state
+    def transition(state: State) = state match {
+      case RefStarting | RefStarted => Reference
+      case _ => state
+    }
   }
 
   private var input: CharSequence = _
@@ -201,7 +219,7 @@ class HoconLexer extends LexerBase {
     token
   }
 
-  def getState = state
+  def getState = state.raw
 
   def start(buffer: CharSequence, startOffset: Int, endOffset: Int, initialState: Int) = {
     this.token = null
@@ -209,6 +227,6 @@ class HoconLexer extends LexerBase {
     this.tokenStart = startOffset
     this.tokenEnd = startOffset
     this.endOffset = endOffset
-    this.state = initialState
+    this.state = States(initialState)
   }
 }

@@ -1,9 +1,10 @@
 import com.intellij.lang.java.lexer.JavaLexer
+import com.intellij.lexer.JavaHighlightingLexer
 import com.intellij.pom.java.LanguageLevel
 
 object PG {
   def main(args: Array[String]) {
-    val javaLexer = new JavaLexer(LanguageLevel.JDK_1_8)
+    val javaLexer = new JavaHighlightingLexer(LanguageLevel.JDK_1_8)
 
     javaLexer.start(
       """
@@ -11,7 +12,7 @@ object PG {
         |
         |public class Costam {
         |    public Costam() {
-        |        System.out.println("Srsly dude, wtf!");
+        |        System.out.println("Srsly dude\n, wtf!");
         |    }
         |}
         |

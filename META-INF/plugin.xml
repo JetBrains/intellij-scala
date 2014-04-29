@@ -9,6 +9,7 @@
     <lang.parserDefinition language="HOCON" implementationClass="intellijhocon.HoconParserDefinition"/>
     <lang.braceMatcher language="HOCON" implementationClass="intellijhocon.HoconBraceMatcher"/>
     <lang.foldingBuilder language="HOCON" implementationClass="intellijhocon.HoconFoldingBuilder"/>
+    <quoteHandler fileType="HOCON" className="intellijhocon.HoconQuoteHandler"/>
     <annotator language="HOCON" implementationClass="intellijhocon.HoconSyntaxHighlightingAnnotator"/>
   </extensions>
 

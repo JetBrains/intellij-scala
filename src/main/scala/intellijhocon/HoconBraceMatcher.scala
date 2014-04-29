@@ -11,11 +11,14 @@ class HoconBraceMatcher extends PairedBraceMatcher {
   def getPairs = Array(
     new BracePair(LBrace, RBrace, true),
     new BracePair(LBracket, RBracket, false),
-    new BracePair(RefStart, RefEnd, false)
+    new BracePair(RefLBrace, RefRBrace, false)
   )
 
   def isPairedBracesAllowedBeforeType(lbraceType: IElementType, contextType: IElementType) =
-    true
+    contextType match {
+      case Whitespace | Comment | NewLine | Comma | RBrace | RBracket => true
+      case _ => false
+    }
 
   def getCodeConstructStart(file: PsiFile, openingBraceOffset: Int) =
     openingBraceOffset

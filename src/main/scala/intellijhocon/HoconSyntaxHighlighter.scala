@@ -6,6 +6,8 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.{HighlighterColors, DefaultLanguageHighlighterColors}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.StringEscapesTokenTypes
+import com.intellij.lexer.{StringLiteralLexer, LayeredLexer}
 
 class HoconSyntaxHighlighterFactory extends SyntaxHighlighterFactory {
   def getSyntaxHighlighter(project: Project, virtualFile: VirtualFile) =
@@ -26,14 +28,18 @@ object HoconSyntaxHighlighter extends SyntaxHighlighter {
     RBrace -> Array(BRACES),
     LBracket -> Array(BRACKETS),
     RBracket -> Array(BRACKETS),
-    RefStart -> Array(BRACES),
-    RefEnd -> Array(BRACES),
-    Comma -> Array(COMMA)
+    RefLBrace -> Array(BRACES),
+    RefRBrace -> Array(BRACES),
+    Comma -> Array(COMMA),
+    StringEscapesTokenTypes.VALID_STRING_ESCAPE_TOKEN -> Array(VALID_STRING_ESCAPE),
+    StringEscapesTokenTypes.INVALID_CHARACTER_ESCAPE_TOKEN -> Array(INVALID_STRING_ESCAPE),
+    StringEscapesTokenTypes.INVALID_UNICODE_ESCAPE_TOKEN -> Array(INVALID_STRING_ESCAPE)
   )
 
   def getTokenHighlights(tokenType: IElementType) =
     tokenHighlights.get(tokenType).getOrElse(Array.empty)
 
-  def getHighlightingLexer =
-    new HoconLexer
+  def getHighlightingLexer = new LayeredLexer(new HoconLexer) {
+    registerSelfStoppingLayer(new StringLiteralLexer('\"', QuotedString), Array(QuotedString), IElementType.EMPTY_ARRAY)
+  }
 }
