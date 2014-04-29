@@ -10,7 +10,7 @@ import com.intellij.lang.properties.psi.impl.{PropertyStubImpl, PropertyImpl}
 import com.intellij.lang.properties.parsing.PropertiesElementTypes
 import com.intellij.psi._
 import util._
-import collection.mutable
+import scala.collection.mutable
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScMethodCall, ScExpression, ScArgumentExprList}
 import com.intellij.lang.properties.psi.{Property, PropertiesFile}
@@ -89,9 +89,9 @@ object ScalaI18nUtil {
                                @Nullable nonNlsTargets: mutable.HashSet[PsiModifierListOwner]): Boolean = {
     val expression = getToplevelExpression(project, myExpression)
     val parent: PsiElement = expression.getParent
-    if (!(parent.isInstanceOf[ScArgumentExprList])) return false
+    if (!parent.isInstanceOf[ScArgumentExprList]) return false
     var idx: Int = -1
-    val args: Array[ScExpression] = (parent.asInstanceOf[ScArgumentExprList]).exprsArray
+    val args: Array[ScExpression] = parent.asInstanceOf[ScArgumentExprList].exprsArray
     var i: Int = 0
     var flag = true
     while (i < args.length && flag) {
@@ -368,23 +368,20 @@ object ScalaI18nUtil {
   }
 
   def isValidPropertyReference(@NotNull project: Project, @NotNull expression: ScLiteral, @NotNull key: String, @NotNull outResourceBundle: Ref[String]): Boolean = {
-    val annotationAttributeValues: mutable.HashMap[String, AnyRef] = new mutable.HashMap[String, AnyRef]
+    val annotationAttributeValues = new mutable.HashMap[String, AnyRef]
     annotationAttributeValues.put(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER, null)
     if (mustBePropertyKey(project, expression, annotationAttributeValues)) {
-      val resourceBundleName: AnyRef = annotationAttributeValues.get(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER).getOrElse(null)
-      if (resourceBundleName== null || !resourceBundleName.isInstanceOf[PsiReferenceExpression]) {
-        return false
+      annotationAttributeValues get AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER exists {
+        case bundleName: PsiElement =>
+          val result = JavaPsiFacade.getInstance(bundleName.getProject).getConstantEvaluationHelper.computeConstantExpression(bundleName)
+          if (result == null) false else {
+            val bundleName = result.toString
+            outResourceBundle.set(bundleName)
+            isPropertyRef(expression, key, bundleName)
+          }
+        case _ => false
       }
-      val expr: PsiReferenceExpression = resourceBundleName.asInstanceOf[PsiReferenceExpression]
-      val value: AnyRef = JavaPsiFacade.getInstance(expr.getProject).getConstantEvaluationHelper.computeConstantExpression(expr)
-      if (value == null) {
-        return false
-      }
-      val bundleName: String = value.toString
-      outResourceBundle.set(bundleName)
-      return isPropertyRef(expression, key, bundleName)
-    }
-    true
+    } else true
   }
 
   def createProperty(project: Project, propertiesFiles: java.util.Collection[PropertiesFile], key: String, value: String) {
