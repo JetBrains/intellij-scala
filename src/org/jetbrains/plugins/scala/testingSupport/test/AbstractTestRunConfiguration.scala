@@ -36,13 +36,14 @@ import testframework.TestFrameworkRunningModel
 import lang.psi.impl.ScPackageImpl
 import extensions.toPsiClassExt
 import lang.psi.api.ScPackage
-import collection.mutable.{HashSet, ArrayBuffer}
+import collection.mutable.ArrayBuffer
 import testingSupport.test.AbstractTestRunConfiguration.PropertiesExtension
 import org.jetbrains.plugins.scala.compiler.rt.ClassRunner
 import lang.psi.api.toplevel.ScModifierListOwner
 import com.intellij.openapi.application.ApplicationManager
 import java.io.{IOException, FileOutputStream, PrintStream, File}
 import org.jetbrains.idea.maven.project.MavenProjectsManager
+import scala.collection.mutable
 
 /**
  * @author Ksenia.Sautina
@@ -153,10 +154,10 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   }
 
   def getClazz(path: String, withDependencies: Boolean): PsiClass = {
-    val classes = ScalaPsiManager.instance(project).getCachedClasses(getScope(withDependencies), path).
-      filter(!_.isInstanceOf[ScObject])
-    if (classes.isEmpty) null
-    else classes(0)
+    val classes = ScalaPsiManager.instance(project).getCachedClasses(getScope(withDependencies), path)
+    val objectClasses = classes.filter(_.isInstanceOf[ScObject])
+    val nonObjectClasses = classes.filter(!_.isInstanceOf[ScObject])
+    if (nonObjectClasses.nonEmpty) nonObjectClasses(0) else if (objectClasses.nonEmpty) objectClasses(0) else null
   }
 
   def getPackage(path: String): PsiPackage = {
@@ -259,7 +260,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           throw new RuntimeConfigurationException("Test Class is not specified")
         }
         val clazz = getClazz(getTestClassPath, withDependencies = false)
-        if (clazz == null || AbstractTestRunConfiguration.isInvalidSuite(clazz)) {
+        if (clazz == null || isInvalidSuite(clazz)) {
           throw new RuntimeConfigurationException("No Suite Class is found for Class %s in module %s".format(getTestClassPath,
             getModule.getName))
         }
@@ -282,6 +283,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     group.addEditor(ExecutionBundle.message("logs.tab.title"), new LogConfigurationPanel)
     group
   }
+
+  protected[test] def isInvalidSuite(clazz: PsiClass): Boolean = AbstractTestRunConfiguration.isInvalidSuite(clazz)
 
   override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
     def classNotFoundError() {
@@ -308,7 +311,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     if (clazz == null && pack == null) classNotFoundError()
     if (suiteClass == null)
       throw new ExecutionException(errorMessage)
-    val classes = new HashSet[PsiClass]
+    val classes = new mutable.HashSet[PsiClass]
     if (clazz != null) {
       if (ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClass)) classes += clazz
     } else {
@@ -323,7 +326,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         buffer.toSeq
       }
       for (cl <- getClasses(pack)) {
-        if (!AbstractTestRunConfiguration.isInvalidSuite(cl) && ScalaPsiUtil.cachedDeepIsInheritor(cl, suiteClass))
+        if (!isInvalidSuite(cl) && ScalaPsiUtil.cachedDeepIsInheritor(cl, suiteClass))
           classes += cl
       }
     }
@@ -400,8 +403,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
             params.getProgramParametersList.add("@" + fileWithParams.getPath)
           }
           catch {
-            case ignore: IOException => {
-            }
+            case ioException: IOException => throw new ExecutionException("Failed to create dynamic classpath file with command-line args.", ioException)
           }
         } else {
           if (getFailedTests == null) {

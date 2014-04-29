@@ -4,9 +4,6 @@ import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil;
 import org.specs2.runner.NotifierRunner;
 import testingSupport.specs2.MyNotifierRunner;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -22,7 +19,6 @@ public class JavaSpecs2Runner {
 
   public static void main(String[] args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ClassNotFoundException, InstantiationException, IOException {
     NotifierRunner runner = new NotifierRunner(new JavaSpecs2Notifier());
-    ArrayList<String> argsArray = new ArrayList<String>();
     ArrayList<String> specialArgs = new ArrayList<String>();
     ArrayList<String> classes = new ArrayList<String>();
     boolean failedUsed = false;
@@ -30,12 +26,10 @@ public class JavaSpecs2Runner {
     String testName = "";
     boolean showProgressMessages = true;
     int i = 0;
-    String[] newArgs  = getNewArgs(args);
+    String[] newArgs  = TestRunnerUtil.getNewArgs(args);
     while (i < newArgs.length) {
       if (newArgs[i].equals("-s")) {
-        argsArray.add(newArgs[i]);
         ++i;
-        argsArray.add("empty");
         while (i < newArgs.length && !newArgs[i].startsWith("-")) {
           classes.add(newArgs[i]);
           ++i;
@@ -57,7 +51,6 @@ public class JavaSpecs2Runner {
           ++i;
         }
       } else {
-        argsArray.add(newArgs[i]);
         specialArgs.add(newArgs[i]);
         ++i;
       }
@@ -88,7 +81,7 @@ public class JavaSpecs2Runner {
       throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
     List<String> runnerArgs = new ArrayList<String>();
     runnerArgs.add(className);
-    if (testName != "") runnerArgs.add(testName);
+    if (!testName.equals("")) runnerArgs.add(testName);
     runnerArgs.addAll(argsArray);
     Object runnerArgsArray = runnerArgs.toArray(new String[runnerArgs.size()]);
     boolean hasNoStartMethod = false;
@@ -131,26 +124,4 @@ public class JavaSpecs2Runner {
     }
   }
 
-  private static String[] getNewArgs(String[] args) throws IOException {
-    String[] newArgs;
-    if (args.length == 1 && args[0].startsWith("@")) {
-      String arg = args[0];
-      File file = new File(arg.substring(1));
-      if (!file.exists())
-        throw new FileNotFoundException(String.format("argument file %s could not be found", file.getName()));
-      FileReader fileReader = new FileReader(file);
-      StringBuilder buffer = new StringBuilder();
-      while (true) {
-        int ind = fileReader.read();
-        if (ind == -1) break;
-        char c = (char) ind;
-        if (c == '\r') continue;
-        buffer.append(c);
-      }
-      newArgs = buffer.toString().split("[\n]");
-    } else {
-      newArgs = args;
-    }
-    return newArgs;
-  }
 }
