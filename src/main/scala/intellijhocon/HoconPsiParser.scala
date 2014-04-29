@@ -53,7 +53,7 @@ class HoconPsiParser extends PsiParser {
   val ArrayValuesEnding = RBracket | RBrace | Eof
   val ArrayValueEnding = Comma | NewLine | ArrayValuesEnding
   val EntryPathEnding = Colon | Equals | PlusEquals | LBrace | ObjectEntryEnding
-  val ReferencePathEnding = NewLine | RefEnd | Eof
+  val ReferencePathEnding = NewLine | RefRBrace | Eof
 
   val PathElementToken = UnquotedChars | QuotedString | MultilineString
 
@@ -278,7 +278,7 @@ class HoconPsiParser extends PsiParser {
             parseObject()
           } else if (matches(LBracket)) {
             parseArray()
-          } else if (matches(RefStart)) {
+          } else if (matches(Dollar)) {
             parseReference()
           } else if (!pass(SimpleValueElement)) {
             tokenError("characters $\"{}[]:=,+#`^?!@*&\\ are forbidden in an unquoted string")
@@ -329,9 +329,11 @@ class HoconPsiParser extends PsiParser {
 
     def parseReference() {
       val marker = mark()
-      expect(RefStart)
+      expect(Dollar)
+      expect(RefLBrace)
+      pass(QMark)
       parsePath(ReferencePathEnding)
-      if (!pass(RefEnd)) {
+      if (!pass(RefRBrace)) {
         error("expected '}'")
       }
       marker.done(Reference)

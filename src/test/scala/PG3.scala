@@ -3,11 +3,7 @@ import com.typesafe.config.ConfigFactory
 object PG3 {
   def main(args: Array[String]) {
     println(ConfigFactory.parseString(
-      """
-        |a = 5
-        |b = ${a}
-        |
-      """.stripMargin).resolve.root.render)
+      "a = [{lol: 5}, 4, jklasdf]").resolve.root.render)
 
   }
 

@@ -31,9 +31,13 @@ object HoconTokenType extends TokenType {
 
   val NewLine = new HoconTokenType("NEWLINE")
 
-  val RefStart = new HoconTokenType("REF_START")
+  val Dollar = new HoconTokenType("DOLLAR")
 
-  val RefEnd = new HoconTokenType("REF_END")
+  val RefLBrace = new HoconTokenType("REF_LBRACE")
+
+  val QMark = new HoconTokenType("QMARK")
+
+  val RefRBrace = new HoconTokenType("REF_RBRACE")
 
   val Comment = new HoconTokenType("COMMENT")
 
