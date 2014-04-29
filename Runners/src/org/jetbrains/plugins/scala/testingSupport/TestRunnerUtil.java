@@ -3,6 +3,10 @@ package org.jetbrains.plugins.scala.testingSupport;
 import org.specs2.execute.Details;
 import org.specs2.execute.FailureDetails;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -101,5 +105,28 @@ public class TestRunnerUtil {
     } catch (ClassNotFoundException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public static String[] getNewArgs(String[] args) throws IOException {
+    String[] newArgs;
+    if (args.length == 1 && args[0].startsWith("@")) {
+      String arg = args[0];
+      File file = new File(arg.substring(1));
+      if (!file.exists())
+        throw new FileNotFoundException(String.format("argument file %s could not be found", file.getName()));
+      FileReader fileReader = new FileReader(file);
+      StringBuilder buffer = new StringBuilder();
+      while (true) {
+        int ind = fileReader.read();
+        if (ind == -1) break;
+        char c = (char) ind;
+        if (c == '\r') continue;
+        buffer.append(c);
+      }
+      newArgs = buffer.toString().split("[\n]");
+    } else {
+      newArgs = args;
+    }
+    return newArgs;
   }
 }
