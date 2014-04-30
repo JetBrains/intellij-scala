@@ -1,0 +1,10 @@
+class A {
+	val a = id"""<caret>"""
+}
+-----
+class A {
+	val a =
+		id"""
+				|<caret>
+			""".stripMargin
+}

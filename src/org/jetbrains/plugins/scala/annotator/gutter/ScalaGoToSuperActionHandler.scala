@@ -85,7 +85,7 @@ private object ScalaGoToSuperActionHandler {
       val supers = HashSet[NavigatablePsiElement]((if (el != null && elements.contains(el.asInstanceOf[ScTypedDefinition])) {
         ScalaPsiUtil.superValsSignatures(el.asInstanceOf[ScTypedDefinition])
       } else ScalaPsiUtil.superValsSignatures(elements(0))).flatMap(_.namedElement match {
-        case Some(n: NavigatablePsiElement) => Some(n)
+        case n: NavigatablePsiElement => Some(n)
         case _ => None
       }): _*)
       supers.toArray
@@ -94,23 +94,19 @@ private object ScalaGoToSuperActionHandler {
     element match {
       case x: ScTemplateDefinition with ScDeclaredElementsHolder =>
         (templateSupers(x), declaredElementHolderSupers(x) ++ ScalaPsiUtil.superTypeMembers(x))
-      case template: ScTemplateDefinition => {
+      case template: ScTemplateDefinition =>
         (templateSupers(template), ScalaPsiUtil.superTypeMembers(template))
-      }
-      case func: ScFunction => {
+      case func: ScFunction =>
         val supers = HashSet[NavigatablePsiElement](func.superSignatures.flatMap(_.namedElement match {
-          case Some(n: NavigatablePsiElement) => Some(n)
+          case n: NavigatablePsiElement => Some(n)
           case _ => None
         }): _*)
         (Seq(), supers.toSeq)
-      }
-      case d: ScDeclaredElementsHolder => {
+      case d: ScDeclaredElementsHolder =>
         (Seq(), declaredElementHolderSupers(d))
-      }
-      case d: ScTypeAlias => {
+      case d: ScTypeAlias =>
         val superTypeMembers = ScalaPsiUtil.superTypeMembers(d)
         (Seq(), superTypeMembers)
-      }
       case _ => (Seq.empty, Seq.empty) //Case class synthetic companion object could also implement a value member.
     }
   }

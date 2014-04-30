@@ -33,6 +33,7 @@ import collection.mutable.ArrayBuffer
 import com.intellij.psi.stubs.StubElement
 import collection.mutable
 import scala.annotation.tailrec
+import com.intellij.lang.ASTNode
 
 trait ScImportsHolder extends ScalaPsiElement {
 
@@ -200,18 +201,13 @@ trait ScImportsHolder extends ScalaPsiElement {
   }
 
   def addImportForPsiNamedElement(elem: PsiNamedElement, ref: PsiElement, cClass: Option[PsiClass] = None) {
-    ScalaPsiUtil.nameContext(elem) match {
-      case memb: PsiMember =>
-        val containingClass = cClass.getOrElse(memb.containingClass)
-        if (containingClass != null && containingClass.qualifiedName != null) {
-          ref match {
-            case ref: ScReferenceElement =>
-              if (!ref.isValid || ref.isReferenceTo(elem)) return
-            case _ =>
-          }
-          val qual = Seq(containingClass.qualifiedName, elem.name).filter(_ != "").mkString(".")
-          addImportForPath(qual)
-        }
+    def needImport = ref match {
+      case null => true
+      case ref: ScReferenceElement => ref.isValid && !ref.isReferenceTo(elem)
+      case _ => false
+    }
+    ScalaNamesUtil.qualifiedName(elem) match {
+      case Some(qual) if needImport => addImportForPath(qual)
       case _ =>
     }
   }
@@ -233,8 +229,7 @@ trait ScImportsHolder extends ScalaPsiElement {
         val qualifier = expr.qualifier
         if (qualifier != null) { //in case "import scala" it can be null
           val qn = qualifier.resolve() match {
-            case pack: PsiPackage => pack.getQualifiedName
-            case clazz: PsiClass => clazz.qualifiedName
+            case named: PsiNamedElement => ScalaNamesUtil.qualifiedName(named).getOrElse("")
             case _ => ""
           }
           if (qn == classPackageQualifier) {
@@ -443,16 +438,7 @@ trait ScImportsHolder extends ScalaPsiElement {
             //let's try to fix it by adding all before imports explicitly
             candidatesBefore.get(s).getOrElse(collection.immutable.HashSet.empty[PsiNamedElement]).foreach {
               case c: PsiClass => pathes += c.qualifiedName
-              case c: PsiNamedElement =>
-                ScalaPsiUtil.nameContext(c) match {
-                  case memb: PsiMember =>
-                    val containingClass = memb.containingClass
-                    if (containingClass != null && containingClass.qualifiedName != null) {
-                      val qual = Seq(containingClass.qualifiedName, c.name).filter(_ != "").mkString(".")
-                      pathes += qual
-                    }
-                  case _ =>
-                }
+              case c: PsiNamedElement => pathes ++= ScalaNamesUtil.qualifiedName(c)
             }
             for (path <- pathes) {
               addImportForPath(path, ref, explicitly = true)
@@ -585,37 +571,37 @@ trait ScImportsHolder extends ScalaPsiElement {
   }
 
   def deleteImportStmt(stmt: ScImportStmt) {
-    val remove = getNode.removeChild _
+    def remove(node: ASTNode) = getNode.removeChild(node)
+    def shortenWhitespace(node: ASTNode) {
+      if (node == null) return
+      if (node.getText.count(_ == '\n') >= 2) {
+        val nl = ScalaPsiElementFactory.createNewLine(getManager, node.getText.replaceFirst("[\n]", ""))
+        getNode.replaceChild(node, nl.getNode)
+      }
+    }
+    def removeWhitespace(node: ASTNode) {
+      if (node == null) return
+      if (node.getPsi.isInstanceOf[PsiWhiteSpace]) {
+        if (node.getText.count(_ == '\n') < 2) remove(node)
+        else shortenWhitespace(node)
+      }
+    }
+    def removeSemicolonAndWhitespace(node: ASTNode) {
+      if (node == null) return
+      if (node.getElementType == ScalaTokenTypes.tSEMICOLON) {
+        removeWhitespace(node.getTreeNext)
+        remove(node)
+      }
+      else removeWhitespace(node)
+    }
+
     val node = stmt.getNode
     val next = node.getTreeNext
-    if (next == null) {
-      remove(node)
-    } else if (next.getPsi.isInstanceOf[PsiWhiteSpace]) {
-      if (next.getText.count(_ == '\n') < 2)
-        remove(next)
-      else {
-        val nl = ScalaPsiElementFactory.createNewLine(getManager, next.getText.replaceFirst("[\n]", ""))
-        getNode.replaceChild(next, nl.getNode)
-      }
-      remove(node)
-    } else if (next.getElementType == ScalaTokenTypes.tSEMICOLON) {
-      val nextnext = next.getTreeNext
-      if (nextnext == null) {
-        remove(next)
-        remove(node)
-      }
-      else if (next.isInstanceOf[PsiWhiteSpace] && next.getText.contains("\n")) {
-        remove(nextnext)
-        remove(next)
-        remove(node)
-      } else {
-        remove(node)
-        remove(next)
-      }
-    }
-    else {
-      remove(node)
-    }
+    val prev = node.getTreePrev
+
+    removeSemicolonAndWhitespace(next)
+    remove(node)
+    shortenWhitespace(prev)
   }
 }
 

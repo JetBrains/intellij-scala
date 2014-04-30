@@ -104,6 +104,7 @@
         <psi.referenceContributor implementation="org.jetbrains.plugins.scala.lang.references.ScalaReferenceContributor"/>
         <codeInsight.overrideMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaOverrideMethodsHandler"/>
         <codeInsight.implementMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaImplementMethodsHandler"/>
+        <codeInsight.delegateMethods language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.delegate.ScalaGenerateDelegateHandler"/>
         <methodImplementor implementation="org.jetbrains.plugins.scala.overrideImplement.ScalaMethodImplementor"/>
         <lookup.charFilter implementation="org.jetbrains.plugins.scala.lang.completion.ScalaCharFilter"/>
         <lang.findUsagesProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider"/>
@@ -132,7 +133,7 @@
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaMethodProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.PrepareRenameScalaMethodProcessor" order="last"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaPackageProcessor" order="first"/>
-        <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaValsProcessor" order="first"/>
+        <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaVariableProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameLightProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaClassProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaSyntheticParamProcessor" order="first"/>
@@ -210,6 +211,7 @@
 
         <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2TestFramework"/>
         <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestTestFramework"/>
+	      <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestTestFramework"/>
 
         <java.elementFinder implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses"/>
         <java.elementFinder implementation="org.jetbrains.plugins.scala.finder.ScalaClassFinder"/>
@@ -234,13 +236,14 @@
         <configurationType implementation="org.jetbrains.plugins.scala.script.ScalaScriptConfigurationType"/>
         <configurationType implementation="org.jetbrains.plugins.scala.console.ScalaConsoleConfigurationType"/>
         <actionPromoter implementation="org.jetbrains.plugins.scala.console.ExecuteInConsoleActionPromoter"/>
-        <configurationType implementation="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetConfigurationType"/>
 
         <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2ConfigurationType"/>
         <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationType"/>
+	      <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationType"/>
 
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2ConfigurationProducer"/>
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationProducer"/>
+        <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationProducer"/>
 
         <configurationProducer implementation="org.jetbrains.plugins.scala.runner.ScalaApplicationConfigurationProducer"/>
 
@@ -421,6 +424,16 @@
         <intentionAction>
             <category>Scala/Import</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportAdditionalIdentifiersIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+          <category>Scala/Import</category>
+          <className>org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportStableMemberIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+          <category>Scala/Import</category>
+          <className>org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportAllMembersIntention</className>
         </intentionAction>
 
         <intentionAction>
@@ -722,10 +735,6 @@
                          displayName="Abstract Value in Trait" groupName="Scala: General"
                          shortName="AbstractValueInTrait" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.sbt.SbtFileStructureInspection"
-                         displayName="SBT Light Configuration File Structure" groupName="Scala: General"
-                         shortName="SbtFileStructure" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.semicolon.ScalaUnnecessarySemicolonInspection"
                          displayName="Scala unnecessary semicolon inspection" groupName="Scala: General"
                          shortName="ScalaUnnecessarySemicolon" level="WARNING"
@@ -816,6 +825,10 @@
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.functionExpressions.MatchToPartialFunctionInspection"
                        displayName="Match statement convertible to partial function" groupName="Scala: General"
                        shortName="MatchToPartialFunction" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUnreachableCodeInspection"
+                       displayName="Unreachable code" groupName="Scala: General"
+                       shortName="ScalaUnreachableCode" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
 
 
@@ -912,9 +925,6 @@
         </component>
       <component>
           <implementation-class>org.jetbrains.plugins.scala.compiler.ServerMediator</implementation-class>
-        </component>
-      <component>
-          <implementation-class>org.jetbrains.plugins.scala.components.WorksheetProjectComponent</implementation-class>
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook</implementation-class>

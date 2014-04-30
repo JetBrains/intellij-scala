@@ -74,14 +74,14 @@ class ScTraitImpl extends ScTypeDefinitionImpl with ScTrait with ScTypeParameter
       val signature = signatures.next()
       signature.foreach {
         case (t, node) => node.info.namedElement match {
-          case Some(fun: ScFunction) if !fun.isConstructor && fun.containingClass.isInstanceOf[ScTrait] &&
+          case fun: ScFunction if !fun.isConstructor && fun.containingClass.isInstanceOf[ScTrait] &&
             fun.isInstanceOf[ScFunctionDefinition] =>
             res ++= fun.getFunctionWrappers(isStatic = false, isInterface = true)
-          case Some(fun: ScFunction) if !fun.isConstructor =>
+          case fun: ScFunction if !fun.isConstructor =>
             res ++= fun.getFunctionWrappers(isStatic = false, isInterface = true)
-          case Some(method: PsiMethod) if !method.isConstructor =>
+          case method: PsiMethod if !method.isConstructor =>
             res += method
-          case Some(t: ScTypedDefinition) if t.isVal || t.isVar =>
+          case t: ScTypedDefinition if t.isVal || t.isVar =>
             val nodeName = node.info.name
             if (nodeName == t.name) {
               res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = true, role = SIMPLE_ROLE)

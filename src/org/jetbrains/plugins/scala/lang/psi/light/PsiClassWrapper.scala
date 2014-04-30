@@ -84,13 +84,13 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
           signature.foreach {
             case (t, node) =>
               node.info.namedElement match {
-                case Some(fun: ScFunction) if !fun.isConstructor => res ++= fun.getFunctionWrappers(isStatic = true, isInterface = false, cClass = Some(definition))
-                case Some(method: PsiMethod) if !method.isConstructor => {
+                case fun: ScFunction if !fun.isConstructor => res ++= fun.getFunctionWrappers(isStatic = true, isInterface = false, cClass = Some(definition))
+                case method: PsiMethod if !method.isConstructor => {
                   if (method.containingClass != null && method.containingClass.qualifiedName != "java.lang.Object") {
                     res += StaticPsiMethodWrapper.getWrapper(method, this)
                   }
                 }
-                case Some(t: ScTypedDefinition) if t.isVal || t.isVar =>
+                case t: ScTypedDefinition if t.isVal || t.isVar =>
                   val nodeName = node.info.name
                   if (t.name == nodeName) {
                     res += t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = SIMPLE_ROLE, cClass = Some(definition))
@@ -344,14 +344,6 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
     "PsiClassWrapper(" + definition.toString + ")"
   }
 
-  override def isEquivalentTo(another: PsiElement): Boolean = {
-    another match {
-      case wrapper: PsiClassWrapper =>
-        wrapper.definition.isEquivalentTo(definition)
-      case _ => false
-    }
-  }
-
   override def getIcon(flags: Int): Icon = {
     definition.getIcon(flags)
   }
@@ -397,5 +389,9 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
   def getTypeParameterList: PsiTypeParameterList = null
 
   def getTypeParameters: Array[PsiTypeParameter] = Array.empty
+
+  override def isEquivalentTo(another: PsiElement): Boolean = {
+    PsiClassImplUtil.isClassEquivalentTo(this, another)
+  }
 }
 

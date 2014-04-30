@@ -113,8 +113,7 @@ object ResolveUtils {
   def javaPolymorphicType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope = null, returnType: Option[ScType] = None): NonValueType = {
     if (m.getTypeParameters.length == 0) javaMethodType(m, s, scope, returnType)
     else {
-      ScTypePolymorphicType(javaMethodType(m, s, scope, returnType), m.getTypeParameters.map(tp =>
-        TypeParameter(tp.name, types.Nothing, types.Any, tp))) //todo: add lower and upper bounds
+      ScTypePolymorphicType(javaMethodType(m, s, scope, returnType), m.getTypeParameters.map(new TypeParameter(_)))
     }
   }
 
@@ -126,6 +125,11 @@ object ResolveUtils {
           case memb: ScMember => return isAccessible(memb, place)
           case _ => return true
         }
+      //todo: ugly workaround, probably FakePsiMethod is better to remove?
+      case f: FakePsiMethod => f.navElement match {
+        case memb: PsiMember => return isAccessible(memb, place)
+        case _ =>
+      }
       case _ =>
     }
     if (place.getLanguage == JavaLanguage.INSTANCE) {
@@ -140,7 +144,7 @@ object ResolveUtils {
         place.getContainingFile match {
           case file: ScalaFile if file.isCompiled =>
           case _ if !member.isInstanceOf[ScMember] =>
-            member = memb.getOriginalElement.asInstanceOf[PsiMember]
+            member = member.getOriginalElement.asInstanceOf[PsiMember]
           case _ => //todo: is it neccessary? added to avoid performance and other problems
         }
       case _ =>

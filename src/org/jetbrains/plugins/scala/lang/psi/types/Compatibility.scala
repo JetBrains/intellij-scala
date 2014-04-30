@@ -123,7 +123,7 @@ object Compatibility {
     val pairs = for(Expression(assignment @ NamedAssignStmt(name)) <- exprs) yield (name, assignment)
     val names = pairs.unzip._1
     val clashedNames = names.diff(names.distinct)
-    pairs.filter(p => clashedNames.contains(p._1)).map(_._2)    
+    pairs.filter(p => clashedNames.contains(p._1)).map(_._2)
   }
 
   case class ConformanceExtResult(problems: Seq[ApplicabilityProblem],

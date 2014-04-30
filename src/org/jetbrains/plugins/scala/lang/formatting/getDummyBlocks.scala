@@ -31,9 +31,7 @@ import collection.mutable.ArrayBuffer
 import com.intellij.psi.{PsiErrorElement, PsiComment, PsiWhiteSpace, PsiElement}
 import com.intellij.openapi.util.{TextRange, Key}
 import psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.editor.enterHandler.MultilineStringEnterHandler
-import scala.annotation.tailrec
-import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 
 object getDummyBlocks {
@@ -516,7 +514,7 @@ object getDummyBlocks {
     val validAlignment = Alignment.createAlignment(true)
     val wrap: Wrap = Wrap.createWrap(WrapType.NONE, true)
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    val marginChar = MultilineStringEnterHandler.getMarginChar(node.getPsi)
+    val marginChar = "" + MultilineStringUtil.getMarginChar(node.getPsi)
     val marginIndent = scalaSettings.MULTI_LINE_STRING_MARGIN_INDENT
 
     val indent = Indent.getNoneIndent

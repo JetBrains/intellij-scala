@@ -6,7 +6,7 @@ package statements
 package params
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import com.intellij.psi.PsiTypeParameterList
+import com.intellij.psi.{PsiTypeParameter, PsiTypeParameterList}
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -16,4 +16,8 @@ trait ScTypeParamClause extends ScalaPsiElement with PsiTypeParameterList {
   def typeParameters : Seq[ScTypeParam]
 
   def getTextByStub: String
+
+  def getTypeParameters: Array[PsiTypeParameter] = typeParameters.toArray
+
+  def getTypeParameterIndex(typeParameter: PsiTypeParameter): Int = typeParameters.indexOf(typeParameter)
 }

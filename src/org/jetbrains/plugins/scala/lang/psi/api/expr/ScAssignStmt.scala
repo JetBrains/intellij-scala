@@ -61,7 +61,7 @@ trait ScAssignStmt extends ScExpression {
     getLExpression match {
       case methodCall: ScMethodCall =>
         methodCall.applyOrUpdateElement match {
-          case Some(arrayOrUpdateElement) => arrayOrUpdateElement
+          case Some(r) => r.getActualElement
           case None => null
         }
       case left => resolveAssignment match {
@@ -87,8 +87,14 @@ trait ScAssignStmt extends ScExpression {
             m.getEffectiveInvokedExpr match {
               case r: ScReferenceExpression =>
                 r.bind() match {
-                  case Some(r) if r.isDynamic && r.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED => return true
+                  case Some(resolveResult) if resolveResult.isDynamic &&
+                    resolveResult.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED => return true
                   case _ =>
+                    m.applyOrUpdateElement match {
+                      case Some(innerResult) if innerResult.isDynamic &&
+                        innerResult.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED => return true
+                      case _ =>
+                    }
                 }
               case _ =>
             }

@@ -27,6 +27,7 @@ class Bug3Test extends ResolveTestBase {
   def testSCL3100() {doTest()}
   def testSCL3191() {doTest()}
   def testSCL3273() {doTest()}
+  def testSCL3371() {doTest()}
   def testSCL3374() {doTest()}
   def testSCL3450() {doTest()}
   def testSCL3548() {doTest()}
@@ -69,6 +70,9 @@ class Bug3Test extends ResolveTestBase {
   def testSCL5987() {doTest()}
   def testSCL6478() {doTest()}
   def testSCL6628() {doTest()}
+  def testSCL6785() {doTest()}
+  def testSCL6825() {doTest()}
+  def testSCL6825B() {doTest()}
   def testStringInterpolatorPrefix() {doTest()}
   def testShadowedImport() {doTest()}
   def testSOE() {doTest()}

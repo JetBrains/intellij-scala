@@ -13,6 +13,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 
 
 /**
@@ -85,7 +86,7 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
     while (cl != null && !cl.isInstanceOf[ScTypeDefinition]) cl = cl.getParent
     if (cl != null) {
       cl match {
-        case x: ScTypeDefinition => {
+        case x: ScTypeDefinition =>
           for (member <- x.members) {
             member match {
               case x: ScVariable => for (el <- x.declaredElements if el.name == name)
@@ -109,7 +110,6 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
               }
             case _ =>
           }
-        }
       }
     }
     buf.toArray
@@ -119,39 +119,35 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
     val buf = new ArrayBuffer[(ScNamedElement, String)]
     val parent = if (element.getPrevSibling != null) element.getPrevSibling else element.getParent
     element match {
-      case x: ScVariableDefinition => {
+      case x: ScVariableDefinition =>
         val elems = x.declaredElements
         for (elem <- elems) {
           if (elem.name == name) {
-            buf += ((elem, messageForLocal(elem.name)))
+            buf += (if (x.isLocal) (elem, messageForLocal(elem.name)) else (elem, messageForField(elem.name)))
           }
         }
-      }
-      case x: ScPatternDefinition => {
+      case x: ScPatternDefinition =>
         val elems = x.declaredElements
         for (elem <- elems) {
           if (elem.name == name) {
-            buf += ((elem, messageForLocal(elem.name)))
+            buf += (if (x.isLocal) (elem, messageForLocal(elem.name)) else (elem, messageForField(elem.name)))
           }
         }
-      }
-      case x: ScParameters => {
+      case x: ScParameters =>
         for (parameter <- x.params)
         if (parameter.name == name) {
           buf += ((parameter, messageForParameter(parameter.name)))
         }
-      }
-      case x: ScFunctionDefinition => {
+      case x: ScFunctionDefinition =>
         if (x.name == name) {
-          buf += ((x, messageForLocal(x.name)))
+          buf += (if (x.isLocal) (x, messageForLocal(x.name)) else (x, messageForField(x.name)))
         }
-      }
       case _ =>
     }
     parent match {
-      case _: ScTemplateBody | null =>
+      case _: ScPackaging | null =>
       case _ => parent.getParent match {
-        case _: ScTemplateBody =>
+        case _: ScPackaging =>
         case _ => buf ++= validateUp(parent, name)
       }
     }
@@ -195,16 +191,14 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
       while (fromDoubles != null) {
         i = i + 1
         fromDoubles match {
-          case x: ScVariableDefinition => {
+          case x: ScVariableDefinition =>
             val elems = x.declaredElements
             for (elem <- elems; if elem.name == name)
               buf += (if (x.isLocal) (elem, messageForLocal(elem.name)) else (elem, messageForField(elem.name)))
-          }
-          case x: ScPatternDefinition => {
+          case x: ScPatternDefinition =>
             val elems = x.declaredElements
             for (elem <- elems; if elem.name == name)
               buf += (if (x.isLocal) (elem, messageForLocal(elem.name)) else (elem, messageForField(elem.name)))
-          }
           case _ =>
         }
         fromDoubles = fromDoubles.getPrevSibling

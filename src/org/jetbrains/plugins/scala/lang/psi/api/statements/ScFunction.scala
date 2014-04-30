@@ -23,16 +23,28 @@ import lexer.ScalaTokenTypes
 import base.ScMethodLike
 import collection.immutable.Set
 import caches.CachesUtil
-import util.PsiModificationTracker
-import psi.impl.toplevel.synthetic.{ScSyntheticTypeParameter, ScSyntheticFunction}
+import com.intellij.psi.util.{MethodSignatureBackedByPsiMethod, PsiModificationTracker}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{JavaIdentifier, SyntheticClasses, ScSyntheticTypeParameter, ScSyntheticFunction}
 import java.lang.{ThreadLocal, String}
-import extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
 import com.intellij.util.containers.ConcurrentHashMap
 import light.ScFunctionWrapper
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import scala.collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.lang.psi.fake.{FakePsiReferenceList, FakePsiTypeParameterList}
+import org.jetbrains.plugins.scala.icons.Icons
+import com.intellij.openapi.project.DumbServiceImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import com.intellij.psi.PsiReferenceList.Role
+import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
+import com.intellij.lang.java.lexer.JavaLexer
+import com.intellij.pom.java.LanguageLevel
+import java.util
+import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightFunctionDefinition, ScLightFunctionDeclaration}
+import scala.annotation.tailrec
 
 /**
  * @author Alexander Podkhalyuzin
@@ -53,8 +65,7 @@ trait ScFun extends ScTypeParametersOwner {
 
   def polymorphicType: ScType = {
     if (typeParameters.length == 0) methodType
-    else ScTypePolymorphicType(methodType, typeParameters.map(tp =>
-      TypeParameter(tp.name, tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp)))
+    else ScTypePolymorphicType(methodType, typeParameters.map(new TypeParameter(_)))
   }
 }
 
@@ -65,7 +76,6 @@ trait ScFun extends ScTypeParametersOwner {
 trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwner
         with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition
         with ScDeclaredElementsHolder with ScAnnotationsHolder with ScMethodLike with ScBlockStatement {
-  private var synth = false
   private var synthNavElement: Option[PsiElement] = None
   def setSynthetic(navElement: PsiElement) {
     synthNavElement = Some(navElement)
@@ -132,39 +142,35 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def getInheritedReturnType: Option[ScType] = {
     returnTypeElement match {
       case Some(_) => returnType.toOption
-      case None => {
+      case None =>
         val superReturnType = superMethodAndSubstitutor match {
           case Some((fun: ScFunction, subst)) =>
             var typeParamSubst = ScSubstitutor.empty
             fun.typeParameters.zip(typeParameters).foreach {
-              case (oldParam: ScTypeParam, newParam: ScTypeParam) => {
+              case (oldParam: ScTypeParam, newParam: ScTypeParam) =>
                 typeParamSubst = typeParamSubst.bindT((oldParam.name, ScalaPsiUtil.getPsiElementId(oldParam)),
                   new ScTypeParameterType(newParam, subst))
-              }
             }
-            fun.returnType.toOption.map(typeParamSubst.followed(subst).subst(_))
+            fun.returnType.toOption.map(typeParamSubst.followed(subst).subst)
           case Some((fun: ScSyntheticFunction, subst)) =>
             var typeParamSubst = ScSubstitutor.empty
             fun.typeParameters.zip(typeParameters).foreach {
-              case (oldParam: ScSyntheticTypeParameter, newParam: ScTypeParam) => {
+              case (oldParam: ScSyntheticTypeParameter, newParam: ScTypeParam) =>
                 typeParamSubst = typeParamSubst.bindT((oldParam.name, ScalaPsiUtil.getPsiElementId(oldParam)),
                   new ScTypeParameterType(newParam, subst))
-              }
             }
             Some(subst.subst(fun.retType))
           case Some((fun: PsiMethod, subst)) =>
             var typeParamSubst = ScSubstitutor.empty
             fun.getTypeParameters.zip(typeParameters).foreach {
-              case (oldParam: PsiTypeParameter, newParam: ScTypeParam) => {
+              case (oldParam: PsiTypeParameter, newParam: ScTypeParam) =>
                 typeParamSubst = typeParamSubst.bindT((oldParam.name, ScalaPsiUtil.getPsiElementId(oldParam)),
                   new ScTypeParameterType(newParam, subst))
-              }
             }
             Some(typeParamSubst.followed(subst).subst(ScType.create(fun.getReturnType, getProject, getResolveScope)))
           case _ => None
         }
         superReturnType
-      }
     }
   }
 
@@ -198,15 +204,13 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     returnTypeElement match {
       case Some(ret) => ret.getType(TypingContext.empty)
       case _ if !hasAssign => Success(Unit, Some(this))
-      case _ => {
+      case _ =>
         superMethod match {
           case Some(f: ScFunction) => f.definedReturnType
-          case Some(m: PsiMethod) => {
+          case Some(m: PsiMethod) =>
             Success(ScType.create(m.getReturnType, getProject, getResolveScope), Some(this))
-          }
           case _ => Failure("No defined return type", Some(this))
         }
-      }
     }
   }
 
@@ -233,8 +237,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
    */
   def polymorphicType(result: Option[ScType] = None): ScType = {
     if (typeParameters.length == 0) methodType(result)
-    else ScTypePolymorphicType(methodType(result), typeParameters.map(tp =>
-      TypeParameter(tp.name, tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp)))
+    else ScTypePolymorphicType(methodType(result), typeParameters.map(new TypeParameter(_)))
   }
 
   /**
@@ -243,12 +246,11 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
    */
   def returnTypeElement: Option[ScTypeElement] = {
     this match {
-      case st: ScalaStubBasedElementImpl[_] => {
+      case st: ScalaStubBasedElementImpl[_] =>
         val stub = st.getStub
         if (stub != null) {
           return stub.asInstanceOf[ScFunctionStub].getReturnTypeElement
         }
-      }
       case _ =>
     }
     findChild(classOf[ScTypeElement])
@@ -304,8 +306,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def clauses: Option[ScParameters] = Some(paramClauses)
 
-  def parameters: Seq[ScParameter]
-
   def paramTypes: Seq[ScType] = parameters.map {_.getType(TypingContext.empty).getOrNothing}
 
   def effectiveParameterClauses: Seq[ScParameterClause] = {
@@ -329,16 +329,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def declaredElements = Seq(this)
 
-  def superMethods: Seq[PsiMethod]
-
-  def superMethod: Option[PsiMethod]
-
-  def superMethodAndSubstitutor: Option[(PsiMethod, ScSubstitutor)]
-
-  def superSignatures: Seq[Signature]
-
-  def superSignaturesIncludingSelfType: Seq[Signature]
-
   /**
    * Seek parameter with appropriate name in appropriate parameter clause.
    * @param name parameter name
@@ -360,24 +350,18 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
   }
 
-  /**
-   * Does the function have `=` between the signature and the implementation?
-   */
-  def hasAssign: Boolean
-
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitFunction(this)
   }
 
   def getGetterOrSetterFunction: Option[ScFunction] = {
     containingClass match {
-      case clazz: ScTemplateDefinition => {
+      case clazz: ScTemplateDefinition =>
         if (name.endsWith("_=")) {
           clazz.functions.find(_.name == name.substring(0, name.length - 2))
         } else if (!hasParameterClause) {
           clazz.functions.find(_.name == name + "_=")
         } else None
-      }
       case _ => None
     }
   }
@@ -406,6 +390,24 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
     this
   }
+
+  def getTypeParameters: Array[PsiTypeParameter] = {
+    val params = typeParameters
+    val size = params.length
+    val result = PsiTypeParameter.ARRAY_FACTORY.create(size)
+    var i = 0
+    while (i < size) {
+      result(i) = params(i).asInstanceOf[PsiTypeParameter]
+      i += 1
+    }
+    result
+  }
+
+  def getTypeParameterList = new FakePsiTypeParameterList(getManager, getLanguage, typeParameters.toArray, this)
+
+  def hasTypeParameters = typeParameters.length > 0
+
+  def getParameterList: ScParameters = paramClauses
 
   private val functionWrapper: ConcurrentHashMap[(Boolean, Boolean, Option[PsiClass]), (Seq[ScFunctionWrapper], Long)] =
     new ConcurrentHashMap()
@@ -442,7 +444,232 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     result
   }
 
-  def getTypeNoImplicits(ctx: TypingContext): TypeResult[ScType]
+  def parameters: Seq[ScParameter] = paramClauses.params
+
+  override def getIcon(flags: Int) = Icons.FUNCTION
+
+  def getReturnType: PsiType = {
+    if (DumbServiceImpl.getInstance(getProject).isDumb || !SyntheticClasses.get(getProject).isClassesRegistered) {
+      return null //no resolve during dumb mode or while synthetic classes is not registered
+    }
+    CachesUtil.get(
+      this, CachesUtil.PSI_RETURN_TYPE_KEY,
+      new CachesUtil.MyProvider(this, {ic: ScFunction => ic.getReturnTypeImpl})
+      (PsiModificationTracker.MODIFICATION_COUNT)
+    )
+  }
+
+  private def getReturnTypeImpl: PsiType = {
+    val tp = getType(TypingContext.empty).getOrAny
+    tp match {
+      case ScFunctionType(rt, _) => ScType.toPsi(rt, getProject, getResolveScope)
+      case _ => ScType.toPsi(tp, getProject, getResolveScope)
+    }
+  }
+
+  def superMethods: Seq[PsiMethod] = {
+    val clazz = containingClass
+    if (clazz != null) TypeDefinitionMembers.getSignatures(clazz).forName(ScalaPsiUtil.convertMemberName(name))._1.
+      get(new PhysicalSignature(this, ScSubstitutor.empty)).getOrElse(return Seq.empty).supers.
+      filter(_.info.isInstanceOf[PhysicalSignature]).map {_.info.asInstanceOf[PhysicalSignature].method}
+    else Seq.empty
+  }
+
+  def superMethod: Option[PsiMethod] = superMethodAndSubstitutor.map(_._1)
+
+  def superMethodAndSubstitutor: Option[(PsiMethod, ScSubstitutor)] = {
+    val clazz = containingClass
+    if (clazz != null) {
+      val option = TypeDefinitionMembers.getSignatures(clazz).forName(name)._1.
+        fastPhysicalSignatureGet(new PhysicalSignature(this, ScSubstitutor.empty))
+      if (option == None) return None
+      option.get.primarySuper.filter(_.info.isInstanceOf[PhysicalSignature]).
+        map(node => (node.info.asInstanceOf[PhysicalSignature].method, node.info.substitutor))
+    }
+    else None
+  }
+
+
+  def superSignatures: Seq[Signature] = {
+    val clazz = containingClass
+    val s = new PhysicalSignature(this, ScSubstitutor.empty)
+    if (clazz == null) return Seq(s)
+    val t = TypeDefinitionMembers.getSignatures(clazz).forName(ScalaPsiUtil.convertMemberName(name))._1.
+      fastPhysicalSignatureGet(s) match {
+      case Some(x) => x.supers.map {_.info}
+      case None => Seq[Signature]()
+    }
+    t
+  }
+
+  def superSignaturesIncludingSelfType: Seq[Signature] = {
+    val clazz = containingClass
+    val s = new PhysicalSignature(this, ScSubstitutor.empty)
+    if (clazz == null) return Seq(s)
+    val t = TypeDefinitionMembers.getSelfTypeSignatures(clazz).forName(ScalaPsiUtil.convertMemberName(name))._1.
+      fastPhysicalSignatureGet(s) match {
+      case Some(x) => x.supers.map {_.info}
+      case None => Seq[Signature]()
+    }
+    t
+  }
+
+
+  override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
+
+  def findDeepestSuperMethod: PsiMethod = {
+    val s = superMethods
+    if (s.length == 0) null
+    else s(s.length - 1)
+  }
+
+  def getReturnTypeElement = null
+
+  def findSuperMethods(parentClass: PsiClass) = PsiMethod.EMPTY_ARRAY
+
+  def findSuperMethods(checkAccess: Boolean) = PsiMethod.EMPTY_ARRAY
+
+  def findSuperMethods = superMethods.toArray // TODO which other xxxSuperMethods can/should be implemented?
+
+  def findDeepestSuperMethods = PsiMethod.EMPTY_ARRAY
+
+  def getReturnTypeNoResolve: PsiType = PsiType.VOID
+
+  def getPom = null
+
+  def findSuperMethodSignaturesIncludingStatic(checkAccess: Boolean) =
+    new util.ArrayList[MethodSignatureBackedByPsiMethod]()
+
+  def getSignature(substitutor: PsiSubstitutor) = MethodSignatureBackedByPsiMethod.create(this, substitutor)
+
+  //todo implement me!
+  def isVarArgs = false
+
+  def isConstructor = name == "this"
+
+  def getBody: PsiCodeBlock = null
+
+  def getThrowsList = new FakePsiReferenceList(getManager, getLanguage, Role.THROWS_LIST) {
+    override def getReferenceElements: Array[PsiJavaCodeReferenceElement] = {
+      getReferencedTypes.map {
+        tp => PsiElementFactory.SERVICE.getInstance(getProject).createReferenceElementByType(tp)
+      }
+    }
+
+    override def getReferencedTypes: Array[PsiClassType] = {
+      hasAnnotation("scala.throws") match {
+        case Some(annotation) =>
+          annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap { expr =>
+            expr.getType(TypingContext.empty) match {
+              case Success(ScParameterizedType(des, Seq(arg)), _) => ScType.extractClass(des) match {
+                case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
+                  ScType.toPsi(arg, getProject, getResolveScope) match {
+                    case c: PsiClassType => Seq(c)
+                    case _ => Seq.empty
+                  }
+                case _ => Seq.empty
+              }
+              case _ => Seq.empty
+            }
+          }.toArray
+        case _ => PsiClassType.EMPTY_ARRAY
+      }
+    }
+  }
+
+  def getType(ctx: TypingContext) = {
+    returnType match {
+      case Success(tp: ScType, _) =>
+        var res: TypeResult[ScType] = Success(tp, None)
+        var i = paramClauses.clauses.length - 1
+        while (i >= 0) {
+          val cl = paramClauses.clauses.apply(i)
+          val paramTypes = cl.parameters.map(_.getType(ctx))
+          res match {
+            case Success(t: ScType, _) =>
+              res = collectFailures(paramTypes, Nothing)(ScFunctionType(t, _)(getProject, getResolveScope))
+            case _ =>
+          }
+          i = i - 1
+        }
+        res
+      case x => x
+    }
+  }
+
+  override protected def isSimilarMemberForNavigation(m: ScMember, strictCheck: Boolean) = m match {
+    case f: ScFunction => f.name == name && {
+      if (strictCheck) new PhysicalSignature(this, ScSubstitutor.empty).
+        paramTypesEquiv(new PhysicalSignature(f, ScSubstitutor.empty))
+      else true
+    }
+    case _ => false
+  }
+
+  def hasAssign = getNode.getChildren(TokenSet.create(ScalaTokenTypes.tASSIGN)).size > 0
+
+  def getHierarchicalMethodSignature: HierarchicalMethodSignature = {
+    new HierarchicalMethodSignatureImpl(getSignature(PsiSubstitutor.EMPTY))
+  }
+
+  override def isDeprecated = {
+    hasAnnotation("scala.deprecated") != None || hasAnnotation("java.lang.Deprecated") != None
+  }
+
+  override def getName = {
+    val res = if (isConstructor && getContainingClass != null) getContainingClass.getName else super.getName
+    if (JavaLexer.isKeyword(res, LanguageLevel.HIGHEST)) "_mth" + res
+    else res
+  }
+
+  override def setName(name: String): PsiElement = {
+    if (isConstructor) this
+    else super.setName(name)
+  }
+
+  override def getOriginalElement: PsiElement = {
+    val ccontainingClass = containingClass
+    if (ccontainingClass == null) return this
+    val originalClass: PsiClass = ccontainingClass.getOriginalElement.asInstanceOf[PsiClass]
+    if (ccontainingClass eq originalClass) return this
+    if (!originalClass.isInstanceOf[ScTypeDefinition]) return this
+    val c = originalClass.asInstanceOf[ScTypeDefinition]
+    val membersIterator = c.members.iterator
+    val buf: ArrayBuffer[ScMember] = new ArrayBuffer[ScMember]
+    while (membersIterator.hasNext) {
+      val member = membersIterator.next()
+      if (isSimilarMemberForNavigation(member, strictCheck = false)) buf += member
+    }
+    if (buf.length == 0) this
+    else if (buf.length == 1) buf(0)
+    else {
+      val filter = buf.filter(isSimilarMemberForNavigation(_, strictCheck = true))
+      if (filter.length == 0) buf(0)
+      else filter(0)
+    }
+  }
+
+  def getTypeNoImplicits(ctx: TypingContext): TypeResult[ScType] = {
+    returnType match {
+      case Success(tp: ScType, _) =>
+        var res: TypeResult[ScType] = Success(tp, None)
+        var i = paramClauses.clauses.length - 1
+        while (i >= 0) {
+          val cl = paramClauses.clauses.apply(i)
+          if (!cl.isImplicit) {
+            val paramTypes = cl.parameters.map(_.getType(ctx))
+            res match {
+              case Success(t: ScType, _) =>
+                res = collectFailures(paramTypes, Nothing)(ScFunctionType(t, _)(getProject, getResolveScope))
+              case _ =>
+            }
+          }
+          i = i - 1
+        }
+        res
+      case failure => failure
+    }
+  }
 }
 
 object ScFunction {
@@ -468,4 +695,14 @@ object ScFunction {
   def isSpecial(name: String): Boolean = Name.Special(name)
 
   private val calculatedBlockKey: Key[java.lang.Boolean] = Key.create("calculated.function.returns.block")
+
+  @tailrec
+  def getCompoundCopy(pTypes: List[List[ScType]], tParams: List[TypeParameter], rt: ScType, fun: ScFunction): ScFunction = {
+    fun match {
+      case light: ScLightFunctionDeclaration => getCompoundCopy(pTypes, tParams, rt, light.fun)
+      case light: ScLightFunctionDefinition  => getCompoundCopy(pTypes, tParams, rt, light.fun)
+      case decl: ScFunctionDeclaration       => new ScLightFunctionDeclaration(pTypes, tParams, rt, decl)
+      case definition: ScFunctionDefinition  => new ScLightFunctionDefinition(pTypes, tParams, rt, definition)
+    }
+  }
 }

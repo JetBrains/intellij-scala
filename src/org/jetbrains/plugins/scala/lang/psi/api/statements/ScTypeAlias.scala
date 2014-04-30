@@ -8,11 +8,14 @@ import icons.Icons
 import javax.swing.Icon
 import psi.ScalaPsiElement
 import toplevel.ScPolymorphicElement
-import types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{TypeAliasSignature, ScType}
 import base.types.ScExistentialClause
 import lexer.ScalaTokenTypes
 import com.intellij.psi.{PsiClass, PsiElement, PsiDocCommentOwner}
 import toplevel.typedef.{ScTypeDefinition, ScDocCommentOwner, ScMember}
+import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightTypeAliasDefinition, ScLightTypeAliasDeclaration}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -53,5 +56,17 @@ trait ScTypeAlias extends ScPolymorphicElement with ScMember with ScAnnotationsH
       if (alias.name == name) return alias
     }
     this
+  }
+}
+
+object ScTypeAlias {
+  @tailrec
+  def getCompoundCopy(sign: TypeAliasSignature, ta: ScTypeAlias): ScTypeAlias = {
+    ta match {
+      case light: ScLightTypeAliasDeclaration => getCompoundCopy(sign, light.ta)
+      case light: ScLightTypeAliasDefinition  => getCompoundCopy(sign, light.ta)
+      case decl: ScTypeAliasDeclaration       => new ScLightTypeAliasDeclaration(sign, decl)
+      case definition: ScTypeAliasDefinition  => new ScLightTypeAliasDefinition(sign, definition)
+    }
   }
 }

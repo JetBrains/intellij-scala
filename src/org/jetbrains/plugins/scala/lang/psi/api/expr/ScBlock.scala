@@ -5,11 +5,10 @@ package api
 package expr
 
 import com.intellij.psi.scope.PsiScopeProcessor
-import statements.{ScDeclaredElementsHolder, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScDeclaredElementsHolder, ScTypeAlias}
 import toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClauses, ScCaseClause}
 import types.result.{Failure, Success, TypingContext, TypeResult}
-import collection.mutable.HashMap
 import toplevel.ScTypedDefinition
 import com.intellij.psi.util.PsiTreeUtil
 import impl.{ScalaPsiManager, ScalaPsiElementFactory}
@@ -21,6 +20,8 @@ import lexer.ScalaTokenTypes
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import scala.collection.mutable
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 
 /**
  * Author: ilyas, alefas
@@ -91,16 +92,34 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
             case _ => t
           }
           case proj@ScProjectionType(p, elem, s) => new ScProjectionType(existize(p), elem, s)
-          case ScCompoundType(comps, decls, types, s) =>
-            new ScCompoundType(collection.immutable.Seq(comps.map({existize _}).toSeq: _*), decls, types, s)
+          case ScCompoundType(comps, signatureMap, typesMap) =>
+            new ScCompoundType(comps.map(existize), signatureMap.map {
+              case (s: Signature, tp) =>
+                def updateTypeParam(tp: TypeParameter): TypeParameter = {
+                  new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), existize(tp.lowerType),
+                    existize(tp.upperType), tp.ptp)
+                }
+
+                val pTypes: List[Stream[ScType]] = s.substitutedTypes.map(_.map(existize))
+                val tParams: Array[TypeParameter] = s.typeParams.map(updateTypeParam)
+                val rt: ScType = existize(tp)
+                (new Signature(s.name, pTypes, s.paramLength, tParams,
+                  ScSubstitutor.empty, s.namedElement match {
+                    case fun: ScFunction => ScFunction.getCompoundCopy(pTypes.map(_.toList), tParams.toList, rt, fun)
+                    case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
+                    case f: ScFieldId => ScFieldId.getCompoundCopy(rt, f)
+                    case named => named
+                  }, s.hasRepeatedParam), rt)
+            }, typesMap.map {
+              case (s, sign) => (s, sign.updateTypes(existize))
+            })
           case JavaArrayType(arg) => JavaArrayType(existize(arg))
           case ScParameterizedType(des, typeArgs) =>
-            new ScParameterizedType(existize(des), collection.immutable.Seq(typeArgs.map({existize _}).toSeq: _*))
-          case ex@ScExistentialType(q, wildcards) => {
+            new ScParameterizedType(existize(des), typeArgs.map(existize))
+          case ex@ScExistentialType(q, wildcards) =>
             new ScExistentialType(existize(q), wildcards.map {
               ex => new ScExistentialArgument(ex.name, ex.args, existize(ex.lowerBound), existize(ex.upperBound))
             })
-          }
           case _ => t
         }
         val t = existize(e.getType(TypingContext.empty).getOrAny)
@@ -111,16 +130,15 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
 
   private def leastClassType(t : ScTemplateDefinition): ScType = {
     val (holders, aliases): (Seq[ScDeclaredElementsHolder], Seq[ScTypeAlias]) = t.extendsBlock.templateBody match {
-      case Some(b: ScTemplateBody) => {
+      case Some(b: ScTemplateBody) =>
         // jzaugg: Without these type annotations, a class cast exception occured above. I'm not entirely sure why.
         (b.holders: Seq[ScDeclaredElementsHolder], b.aliases: Seq[ScTypeAlias])
-      }
       case None => (Seq.empty, Seq.empty)
     }
 
     val superTypes = t.extendsBlock.superTypes
     if (superTypes.length > 1 || !holders.isEmpty || !aliases.isEmpty) {
-      new ScCompoundType(superTypes, holders.toList, aliases.toList, ScSubstitutor.empty)
+      ScCompoundType.fromPsi(superTypes, holders.toList, aliases.toList, ScSubstitutor.empty)
     } else superTypes(0)
   }
 

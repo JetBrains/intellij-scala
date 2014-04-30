@@ -1,0 +1,12 @@
+val a =
+  """blah blah
+     | blah blah
+     | blah blah""" + s"""blah${1} blah<caret>"""
+-----
+val a =
+  """blah blah
+     | blah blah
+     | blah blah""" +
+  s"""blah${1} blah
+      |<caret>
+   """.stripMargin

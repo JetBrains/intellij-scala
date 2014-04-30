@@ -7,6 +7,7 @@ import com.intellij.psi.tree.{TokenSet, IElementType}
 import com.intellij.psi.{PsiElementVisitor, PsiElement}
 import org.jetbrains.plugins.scala.util.monads.MonadTransformer
 import extensions.implementation.PsiElementExt
+import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 
 trait ScalaPsiElement extends PsiElement with PsiElementExt with MonadTransformer {
   protected override def repr = this
@@ -107,5 +108,12 @@ trait ScalaPsiElement extends PsiElement with PsiElementExt with MonadTransforme
     for (c <- getChildren; if c.isInstanceOf[ScalaPsiElement]) {
       c.asInstanceOf[ScalaPsiElement].accept(visitor)
     }
+  }
+
+  abstract override def getUseScope: SearchScope = {
+    ScalaPsiUtil.intersectScopes(super.getUseScope, containingFile match {
+      case Some(file: ScalaFile) if file.isWorksheetFile || file.isScriptFile() => Some(new LocalSearchScope(file))
+      case _ => None
+    })
   }
 }

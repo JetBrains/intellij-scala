@@ -54,7 +54,7 @@ object BaseTypes {
         }
       }
       case ScExistentialType(q, wilds) => get(q, notAll).map{bt => ScExistentialType(bt, wilds).simplify()}
-      case ScCompoundType(comps, _, _, _) => reduce(if (notAll) comps else comps.flatMap(comp => BaseTypes.get(comp) ++ Seq(comp)))
+      case ScCompoundType(comps, _, _) => reduce(if (notAll) comps else comps.flatMap(comp => BaseTypes.get(comp) ++ Seq(comp)))
       case proj@ScProjectionType(p, elem, _) =>
         val s = proj.actualSubst
         elem match {

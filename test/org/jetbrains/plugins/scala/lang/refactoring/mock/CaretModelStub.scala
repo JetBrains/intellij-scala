@@ -4,7 +4,6 @@ import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.editor.event.CaretListener
 import java.util
-import com.intellij.openapi.util.Segment
 
 /**
  * Pavel Fatin

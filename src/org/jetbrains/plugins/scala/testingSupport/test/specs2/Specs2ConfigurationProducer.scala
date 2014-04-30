@@ -108,12 +108,12 @@ class Specs2ConfigurationProducer extends {
     }
 
     configuration match {
-      case configuration: Specs2RunConfiguration if configuration.getTestKind() == TestKind.CLASS &&
+      case configuration: Specs2RunConfiguration if configuration.getTestKind == TestKind.CLASS &&
         testClassName == null =>
         testClassPath == configuration.getTestClassPath
-      case configuration: Specs2RunConfiguration if configuration.getTestKind() == TestKind.TEST_NAME =>
+      case configuration: Specs2RunConfiguration if configuration.getTestKind == TestKind.TEST_NAME =>
         testClassPath == configuration.getTestClassPath && testClassName != null &&
-          testClassName == configuration.getTestName()
+          testClassName == configuration.getTestName
       case _ => false
     }
   }

@@ -153,7 +153,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
               }
             }
             if (!isMethodInvocation()) { //it is not updated according to expected type, let's do it
-            val oldRes = res
+              val oldRes = res
               try {
                 tryUpdateRes(checkExpectedType = true)
               } catch {
@@ -188,10 +188,10 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
 
             res match {
               case ScTypePolymorphicType(ScMethodType(retType, params, _), tp) if params.length == 0  &&
-                      !this.isInstanceOf[ScUnderscoreSection] =>
+                      !ScUnderScoreSectionUtil.isUnderscore(this) =>
                 removeMethodType(retType, t => ScTypePolymorphicType(t, tp))
               case ScMethodType(retType, params, _) if params.length == 0 &&
-                      !this.isInstanceOf[ScUnderscoreSection] =>
+                      !ScUnderScoreSectionUtil.isUnderscore(this) =>
                 removeMethodType(retType)
               case _ =>
             }
@@ -462,8 +462,9 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
         case tr: ScTryStmt =>
           calculateReturns0(tr.tryBlock)
           tr.catchBlock match {
-            case Some(cBlock) => cBlock.expression.foreach(calculateReturns0)
-            case None =>
+            case Some(ScCatchBlock(caseCl)) =>
+              caseCl.caseClauses.flatMap(_.expr).foreach(calculateReturns0)
+            case _ =>
           }
         case block: ScBlock =>
           block.lastExpr match {
