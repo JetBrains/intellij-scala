@@ -1013,7 +1013,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
     (leftNode.getElementType, rightNode.getElementType,
             leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
-      case (ScalaTokenTypes.tFUNTYPE, _, ScalaElementTypes.FUNCTION_EXPR, _)
+      case (ScalaTokenTypes.tFUNTYPE, ScalaElementTypes.PARAM_CLAUSES, ScalaElementTypes.FUNCTION_EXPR, _) //TODO: is this even ever used?
         if !scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE =>
         if (rightString.startsWith("{")) WITH_SPACING
         else if (leftNode.getTreeParent.getTextRange.substring(fileText).contains("\n")) ON_NEW_LINE

@@ -160,13 +160,13 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   def allVals = TypeDefinitionMembers.getSignatures(this).allFirstSeq().flatMap(n => n.filter{
     case (_, x) => !x.info.isInstanceOf[PhysicalSignature] &&
       (x.info.namedElement match {
-        case Some(v) => ScalaPsiUtil.nameContext(v) match {
-          case _: ScVariable => v.name == x.info.name
-          case _: ScValue => v.name == x.info.name
-          case _ => true
-        }
-        case None => false
-      })}).map { case (_, n) => (n.info.namedElement.get, n.substitutor) }
+        case v =>
+          ScalaPsiUtil.nameContext(v) match {
+            case _: ScVariable => v.name == x.info.name
+            case _: ScValue => v.name == x.info.name
+            case _ => true
+          }
+      })}).map { case (_, n) => (n.info.namedElement, n.substitutor) }
 
   def allValsIncludingSelfType = {
     selfType match {
@@ -177,13 +177,13 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
             TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).allFirstSeq().flatMap(n => n.filter{
               case (_, x) => !x.info.isInstanceOf[PhysicalSignature] &&
                 (x.info.namedElement match {
-                  case Some(v) => ScalaPsiUtil.nameContext(v) match {
-                    case _: ScVariable => v.name == x.info.name
-                    case _: ScValue => v.name == x.info.name
-                    case _ => true
-                  }
-                  case None => false
-                })}).map { case (_, n) => (n.info.namedElement.get, n.substitutor) }
+                  case v =>
+                    ScalaPsiUtil.nameContext(v) match {
+                      case _: ScVariable => v.name == x.info.name
+                      case _: ScValue => v.name == x.info.name
+                      case _ => true
+                    }
+                })}).map { case (_, n) => (n.info.namedElement, n.substitutor) }
           case _ =>
             allVals
         }

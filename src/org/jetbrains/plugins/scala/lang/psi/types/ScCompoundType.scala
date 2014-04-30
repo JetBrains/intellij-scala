@@ -34,7 +34,7 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
         val tParams: Array[TypeParameter] = s.typeParams.map(updateTypeParam)
         val rt: ScType = tp.removeAbstracts
         (new Signature(s.name, pTypes, s.paramLength, tParams,
-          ScSubstitutor.empty, s.namedElement.map {
+          ScSubstitutor.empty, s.namedElement match {
             case fun: ScFunction => ScFunction.getCompoundCopy(pTypes.map(_.toList), tParams.toList, rt, fun)
             case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
             case f: ScFieldId => ScFieldId.getCompoundCopy(rt, f)
@@ -67,7 +67,7 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
             val tParams: Array[TypeParameter] = s.typeParams.map(updateTypeParam)
             val rt: ScType = tp.recursiveUpdate(update, visited + this)
             (new Signature(
-              s.name, pTypes, s.paramLength, tParams, ScSubstitutor.empty, s.namedElement.map {
+              s.name, pTypes, s.paramLength, tParams, ScSubstitutor.empty, s.namedElement match {
                 case fun: ScFunction => ScFunction.getCompoundCopy(pTypes.map(_.toList), tParams.toList, rt, fun)
                 case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
                 case f: ScFieldId => ScFieldId.getCompoundCopy(rt, f)
@@ -121,7 +121,7 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
         while (iterator2.hasNext) {
           val (sig, t) = iterator2.next()
           r.signatureMap.get(sig) match {
-            case None => false
+            case None => return (false, undefinedSubst)
             case Some(t1) =>
               val f = Equivalence.equivInner(t, t1, undefinedSubst, falseUndef)
               if (!f._1) return (false, undefinedSubst)
@@ -190,22 +190,24 @@ object ScCompoundType {
       decl match {
         case fun: ScFunction =>
           signatureMapVal += ((new Signature(fun.name, PhysicalSignature.typesEval(fun), PhysicalSignature.paramLength(fun),
-            fun.getTypeParameters.map(new TypeParameter(_)), subst, Some(fun), PhysicalSignature.hasRepeatedParam(fun)),
+            fun.getTypeParameters.map(new TypeParameter(_)), subst, fun, PhysicalSignature.hasRepeatedParam(fun)),
             fun.returnType.getOrAny))
         case varDecl: ScVariable =>
           for (e <- varDecl.declaredElements) {
             val varType = e.getType(TypingContext.empty)
-            signatureMapVal += ((new Signature(e.name, Stream.empty, 0, subst, Some(e)), varType.getOrAny))
-            signatureMapVal += ((new Signature(e.name + "_=", Stream(varType.getOrAny), 1, subst, Some(e)), psi.types.Unit)) //setter
+            signatureMapVal += ((new Signature(e.name, Stream.empty, 0, subst, e), varType.getOrAny))
+            signatureMapVal += ((new Signature(e.name + "_=", Stream(varType.getOrAny), 1, subst, e), psi.types.Unit)) //setter
           }
         case valDecl: ScValue =>
           for (e <- valDecl.declaredElements) {
             val valType = e.getType(TypingContext.empty)
-            signatureMapVal += ((new Signature(e.name, Stream.empty, 0, subst, Some(e)), valType.getOrAny))
+            signatureMapVal += ((new Signature(e.name, Stream.empty, 0, subst, e), valType.getOrAny))
           }
       }
     }
 
     ScCompoundType(components, signatureMapVal.toMap, typesVal.toMap)
   }
+
+  class CompoundSignature()
 }

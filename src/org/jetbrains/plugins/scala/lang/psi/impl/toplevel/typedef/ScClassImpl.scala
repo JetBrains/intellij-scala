@@ -127,18 +127,18 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
       val signature = signatures.next()
       signature.foreach {
         case (t, node) => node.info.namedElement match {
-          case Some(fun: ScFunction) if !fun.isConstructor && fun.containingClass.isInstanceOf[ScTrait] &&
+          case fun: ScFunction if !fun.isConstructor && fun.containingClass.isInstanceOf[ScTrait] &&
             fun.isInstanceOf[ScFunctionDefinition] =>
             res ++= fun.getFunctionWrappers(isStatic = false, isInterface = false,
               cClass = Some(getClazz(fun.containingClass.asInstanceOf[ScTrait])))
             names += fun.getName
-          case Some(fun: ScFunction) if !fun.isConstructor => 
+          case fun: ScFunction if !fun.isConstructor =>
             res ++= fun.getFunctionWrappers(isStatic = false, isInterface = fun.isInstanceOf[ScFunctionDeclaration])
             names += fun.getName
-          case Some(method: PsiMethod) if !method.isConstructor => 
+          case method: PsiMethod if !method.isConstructor =>
             res += method
             names += method.getName
-          case Some(t: ScTypedDefinition) if t.isVal || t.isVar ||
+          case t: ScTypedDefinition if t.isVal || t.isVar ||
             (t.isInstanceOf[ScClassParameter] && t.asInstanceOf[ScClassParameter].isCaseClassVal) =>
             val (isInterface, cClass) = t.nameContext match {
               case m: ScMember =>
@@ -204,14 +204,13 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
           signature.foreach {
             case (t, node) =>
               node.info.namedElement match {
-                case Some(fun: ScFunction) if !fun.isConstructor =>
+                case fun: ScFunction if !fun.isConstructor =>
                   fun.getFunctionWrappers(isStatic = true, isInterface = false, cClass = Some(this)).foreach(add)
-                case Some(method: PsiMethod) if !method.isConstructor => {
+                case method: PsiMethod if !method.isConstructor =>
                   if (method.containingClass != null && method.containingClass.getQualifiedName != "java.lang.Object") {
                     add(StaticPsiMethodWrapper.getWrapper(method, this))
                   }
-                }
-                case Some(t: ScTypedDefinition) if t.isVal || t.isVar =>
+                case t: ScTypedDefinition if t.isVal || t.isVar =>
                   val nodeName = node.info.name
                   if (nodeName == t.name) {
                     add(t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = SIMPLE_ROLE))

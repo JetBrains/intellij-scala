@@ -211,6 +211,7 @@
 
         <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2TestFramework"/>
         <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestTestFramework"/>
+	      <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestTestFramework"/>
 
         <java.elementFinder implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses"/>
         <java.elementFinder implementation="org.jetbrains.plugins.scala.finder.ScalaClassFinder"/>
@@ -238,9 +239,11 @@
 
         <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2ConfigurationType"/>
         <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationType"/>
+	      <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationType"/>
 
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2ConfigurationProducer"/>
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationProducer"/>
+        <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationProducer"/>
 
         <configurationProducer implementation="org.jetbrains.plugins.scala.runner.ScalaApplicationConfigurationProducer"/>
 

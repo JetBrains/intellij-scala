@@ -4,7 +4,7 @@ package resolve
 package processor
 
 import com.intellij.psi._
-import _root_.scala.collection.Set
+import scala.collection.{mutable, Set}
 import psi.api.base.patterns.ScBindingPattern
 import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.ScalaPsiUtil
@@ -13,7 +13,6 @@ import extensions.toPsiNamedElementExt
 import processor.CompletionProcessor.QualifiedName
 import psi.types.{PhysicalSignature, Signature, ScType, ScSubstitutor}
 import psi.api.statements.{ScTypeAlias, ScFunction}
-import collection.mutable.{HashSet, HashMap}
 import psi.api.toplevel.imports.usages.ImportUsed
 import completion.ScalaCompletionUtil
 
@@ -38,9 +37,9 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
                           postProcess: ScalaResolveResult => Unit = r => {},
                           val includePrefixImports: Boolean = true) extends BaseProcessor(kinds)
                                                                              with PrecedenceHelper[QualifiedName] {
-  protected val precedence: HashMap[QualifiedName, Int] = new HashMap[QualifiedName, Int]()
+  protected val precedence: mutable.HashMap[QualifiedName, Int] = new mutable.HashMap[QualifiedName, Int]()
 
-  protected val signatures: HashMap[Signature, Boolean] = new HashMap[Signature, Boolean]()
+  protected val signatures: mutable.HashMap[Signature, Boolean] = new mutable.HashMap[Signature, Boolean]()
 
   protected def getPlace: PsiElement = place
 
@@ -63,7 +62,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
       case method: PsiMethod => Some(new PhysicalSignature(method, substitutor))
       case td: ScTypeAlias => None
       case td: PsiClass => None
-      case _ => Some(new Signature(element.name, Stream.empty, 0, substitutor, Some(element)))
+      case _ => Some(new Signature(element.name, Stream.empty, 0, substitutor, element))
     }
   }
 
@@ -147,18 +146,16 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
                 implicitFunction = implFunction, isNamedParameter = isNamedParameter, fromType = fromType,
                 importsUsed = importsUsed, prefixCompletion = prefixCompletion)
               _addResult(result)
-            case bindingPattern: ScBindingPattern => {
+            case bindingPattern: ScBindingPattern =>
               val result = new ScalaResolveResult(named, substitutor, nameShadow = isRenamed,
                 implicitFunction = implFunction, isNamedParameter = isNamedParameter, fromType = fromType,
                 importsUsed = importsUsed, prefixCompletion = prefixCompletion)
               _addResult(result)
-            }
-            case _ => {
+            case _ =>
               val result = new ScalaResolveResult(named, substitutor, nameShadow = isRenamed,
                 implicitFunction = implFunction, isNamedParameter = isNamedParameter, fromType = fromType,
                 importsUsed = importsUsed, prefixCompletion = prefixCompletion)
               _addResult(result)
-            }
           }
         }
     }
