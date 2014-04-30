@@ -28,6 +28,7 @@ import com.intellij.execution.process.{ProcessEvent, ProcessAdapter, OSProcessHa
 import com.intellij.ide.util.EditorHelper
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 import com.intellij.openapi.util.Key
+import com.intellij.internal.statistic.UsageTrigger
 
 /**
  * @author Ksenia.Sautina
@@ -43,6 +44,8 @@ class RunWorksheetAction extends AnAction with TopComponentAction {
   }
   
   def runCompiler(project: Project) {
+    UsageTrigger.trigger("scala.worksheet")
+
     val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
 
     if (editor == null) return
