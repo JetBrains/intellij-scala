@@ -17,17 +17,15 @@ import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 import com.intellij.openapi.application.{ModalityState, ApplicationManager}
 import org.jetbrains.plugins.scala
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import com.intellij.openapi.roots.{ModuleRootManager, ProjectFileIndex}
-import org.jetbrains.plugins.scala.config.{Libraries, CompilerLibraryData, ScalaFacet}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.{JdkUtil, JavaSdkType}
-import org.jetbrains.plugins.scala.compiler.ScalacSettings
 import org.jetbrains.plugins.scala.worksheet.MacroPrinter
 import com.intellij.execution.process.{ProcessEvent, ProcessAdapter, OSProcessHandler}
 import com.intellij.ide.util.EditorHelper
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 import com.intellij.openapi.util.Key
+import org.jetbrains.plugins.scala.configuration._
 
 /**
  * @author Ksenia.Sautina
@@ -102,7 +100,7 @@ class RunWorksheetAction extends AnAction with TopComponentAction {
     
     val project = module.getProject
 
-    val facet = ScalaFacet.findIn(module).getOrElse {
+    val scalaSdk = module.scalaSdk.getOrElse {
       throw new ExecutionException("No Scala facet configured for module " + module.getName)
     }
 
@@ -113,16 +111,8 @@ class RunWorksheetAction extends AnAction with TopComponentAction {
     }
 
     val params = new JavaParameters()
-    val files =
-      if (facet.fsc) {
-        val settings = ScalacSettings.getInstance(project)
-        val lib: Option[CompilerLibraryData] = Libraries.findBy(settings.COMPILER_LIBRARY_NAME,
-          settings.COMPILER_LIBRARY_LEVEL, project)
-        lib match {
-          case Some(compilerLib) => compilerLib.files
-          case _ => facet.files
-        }
-      } else facet.files
+    val files = scalaSdk.compilerClasspath
+
     params.getClassPath.addAllFiles(files.asJava)
     params.setUseDynamicClasspath(JdkUtil.useDynamicClasspath(project))
     params.setUseDynamicVMOptions(JdkUtil.useDynamicVMOptions())

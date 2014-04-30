@@ -7,7 +7,6 @@ import com.intellij.openapi.project.Project
 import java.util
 import scala.collection.mutable
 import com.intellij.openapi.module.{ModuleManager, ModuleUtil, ModuleUtilCore}
-import org.jetbrains.plugins.scala.config.ScalaFacet
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import com.intellij.psi.JavaPsiFacade
@@ -15,6 +14,7 @@ import com.intellij.ide.plugins.PluginManager
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.projectRoots.{JavaSdk, JdkUtil}
 import com.intellij.openapi.roots.ModuleRootManager
+import configuration._
 
 /**
  * @author Alefas
@@ -28,10 +28,8 @@ class ScalaApplicationUsagesCollector extends AbstractApplicationUsagesCollector
     var scala_version: Option[String] = None
     var java_version: Option[String] = None
     for (module <- ModuleManager.getInstance(project).getModules) {
-      ScalaFacet.findIn(module) match {
-        case Some(facet) =>
-          scala_version = Some(facet.version)
-        case _ =>
+      module.scalaSdk.flatMap(_.compilerVersion).foreach {
+        version => scala_version = Some(version)
       }
 
       ModuleRootManager.getInstance(module).getSdk match {

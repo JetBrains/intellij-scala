@@ -22,7 +22,7 @@ import com.intellij.psi.{JavaPsiFacade, ResolveState, PsiElement, PsiClass}
 import lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory}
 import extensions.toPsiClassExt
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
-import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
+import configuration._
 
 /**
  * User: Dmitry Naydanov
@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
  */
 
 class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeReferenceElementImpl(node) with ScDocResolvableCodeReference {
-  private def is2_10plus = ScalaLanguageLevel.isThoughScala2_10(ScalaLanguageLevel getLanguageLevel this) 
+  private def is2_10plus = this.languageLevel.isSinceScala2_10
   
   override def getKinds(incomplete: Boolean, completion: Boolean) = stableImportSelector
 
