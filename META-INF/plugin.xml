@@ -13,6 +13,7 @@
     <annotator language="HOCON" implementationClass="intellijhocon.HoconSyntaxHighlightingAnnotator"/>
     <additionalTextAttributes scheme="Default" file="colorSchemes/HoconDefault.xml"/>
     <additionalTextAttributes scheme="Darcula" file="colorSchemes/HoconDarcula.xml"/>
+    <colorSettingsPage implementation="intellijhocon.HoconColorSettingsPage"/>
   </extensions>
 
 </idea-plugin>

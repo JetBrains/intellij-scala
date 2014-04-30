@@ -21,7 +21,7 @@ object HoconSyntaxHighlighter extends SyntaxHighlighter {
   private val tokenHighlights = Map[IElementType, Array[TextAttributesKey]](
     BadCharacter -> Array(HHC.BadCharacter),
     QuotedString -> Array(HHC.QuotedString),
-    MultilineString -> Array(HHC.QuotedString),
+    MultilineString -> Array(HHC.MultilineString),
     HashComment -> Array(HHC.HashComment),
     DoubleSlashComment -> Array(HHC.DoubleSlashComment),
     LBrace -> Array(HHC.Braces),
@@ -36,6 +36,8 @@ object HoconSyntaxHighlighter extends SyntaxHighlighter {
     PlusEquals -> Array(HHC.PathValueSeparator),
     Dollar -> Array(HHC.ReferenceSign),
     QMark -> Array(HHC.OptionalReferenceSign),
+    UnquotedChars -> Array(HHC.UnquotedString),
+    Period -> Array(HHC.UnquotedString),
     StringEscapesTokenTypes.VALID_STRING_ESCAPE_TOKEN -> Array(HHC.ValidStringEscape),
     StringEscapesTokenTypes.INVALID_CHARACTER_ESCAPE_TOKEN -> Array(HHC.InvalidStringEscape),
     StringEscapesTokenTypes.INVALID_UNICODE_ESCAPE_TOKEN -> Array(HHC.InvalidStringEscape)

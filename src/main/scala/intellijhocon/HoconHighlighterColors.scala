@@ -12,6 +12,7 @@ object HoconHighlighterColors {
   final val Boolean = key("HOCON_BOOLEAN", DLHC.KEYWORD)
   final val Number = key("HOCON_NUMBER", DLHC.NUMBER)
   final val QuotedString = key("HOCON_QUOTED_STRING", DLHC.STRING)
+  final val MultilineString = key("HOCON_MULTILINE_STRING", DLHC.STRING)
   final val ValidStringEscape = key("HOCON_VALID_STRING_ESCAPE", DLHC.VALID_STRING_ESCAPE)
   final val InvalidStringEscape = key("HOCON_INVALID_STRING_ESCAPE", DLHC.INVALID_STRING_ESCAPE)
   final val Brackets = key("HOCON_BRACKETS", DLHC.BRACKETS)
@@ -25,6 +26,9 @@ object HoconHighlighterColors {
   final val ReferenceSign = key("HOCON_REFERENCE_SIGN", DLHC.OPERATION_SIGN)
   final val OptionalReferenceSign = key("HOCON_OPTIONAL_REFERENCE_SIGN", DLHC.OPERATION_SIGN)
   final val UnquotedString = key("HOCON_UNQUOTED_STRING", DLHC.IDENTIFIER)
+  final val PathSeparator = key("PATH_SEPARATOR", DLHC.DOT)
+  final val PathElement = key("PATH_ELEMENT", DLHC.INSTANCE_METHOD)
+  final val ReferencePathElement = key("REFERENCE_PATH_ELEMENT", DLHC.INSTANCE_FIELD)
 
   private def key(name: String, prototype: TextAttributesKey) =
     TextAttributesKey.createTextAttributesKey(name, prototype)

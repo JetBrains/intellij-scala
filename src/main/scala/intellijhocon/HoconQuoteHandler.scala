@@ -19,5 +19,7 @@ class HoconQuoteHandler extends SimpleTokenSetQuoteHandler(HoconTokenType.Quoted
   def needParenthesesAroundConcatenation(element: PsiElement) = false
 
   def isAppropriateElementTypeForLiteral(tokenType: IElementType) =
-    tokenType != HoconTokenType.UnquotedChars
+    tokenType != HoconTokenType.UnquotedChars &&
+      tokenType != HoconTokenType.QuotedString &&
+      tokenType != HoconTokenType.MultilineString
 }
