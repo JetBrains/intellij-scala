@@ -110,6 +110,11 @@ trait ScTypePresentation {
         case _: ScObject | _: ScBindingPattern => typeTail(needDotType)
         case _ => ""
       }
+      def isInnerStaticJavaClassForParent(clazz: PsiClass): Boolean = {
+        clazz.getLanguage != ScalaFileType.SCALA_LANGUAGE &&
+          e.isInstanceOf[PsiModifierListOwner] &&
+          e.asInstanceOf[PsiModifierListOwner].getModifierList.hasModifierProperty("static")
+      }
       p match {
         case ScDesignatorType(pack: PsiPackage) =>
           nameWithPointFun(pack) + refName
@@ -123,9 +128,9 @@ trait ScTypePresentation {
           s"${innerTypeText(p, needDotType = false)}.$refName$typeTailForProjection"
         case p: ScProjectionType if p.actualElement.isInstanceOf[ScObject] || p.actualElement.isInstanceOf[ScBindingPattern] =>
           s"${projectionTypeText(p, needDotType = false)}.$refName$typeTailForProjection"
-        case ScDesignatorType(clazz: PsiClass) if clazz.getLanguage != ScalaFileType.SCALA_LANGUAGE &&
-                e.isInstanceOf[PsiModifierListOwner] &&
-                e.asInstanceOf[PsiModifierListOwner].getModifierList.hasModifierProperty("static") =>
+        case ScDesignatorType(clazz: PsiClass) if isInnerStaticJavaClassForParent(clazz) =>
+          nameWithPointFun(clazz) + refName
+        case ScParameterizedType(ScDesignatorType(clazz: PsiClass), _) if isInnerStaticJavaClassForParent(clazz) =>
           nameWithPointFun(clazz) + refName
         case _: ScCompoundType | _: ScExistentialType =>
           s"(${innerTypeText(p)})#$refName"
