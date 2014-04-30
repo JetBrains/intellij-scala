@@ -2,24 +2,35 @@ package intellijhocon
 
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.psi.PsiElement
-import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.psi.tree.TokenSet
+import com.intellij.openapi.util.TextRange
 
 class HoconSyntaxHighlightingAnnotator extends Annotator {
 
   import HoconElementType._
   import HoconTokenType._
-  import DefaultLanguageHighlighterColors._
 
   def annotate(element: PsiElement, holder: AnnotationHolder) {
     element.getNode.getElementType match {
-      case Null | Boolean =>
-        holder.createInfoAnnotation(element, null).setTextAttributes(KEYWORD)
+      case Null =>
+        holder.createInfoAnnotation(element, null).setTextAttributes(HoconHighlighterColors.Null)
+      case Boolean =>
+        holder.createInfoAnnotation(element, null).setTextAttributes(HoconHighlighterColors.Boolean)
       case Number =>
-        holder.createInfoAnnotation(element, null).setTextAttributes(NUMBER)
-      case Include | Included =>
+        holder.createInfoAnnotation(element, null).setTextAttributes(HoconHighlighterColors.Number)
+      case Include =>
         element.getNode.getChildren(TokenSet.create(UnquotedChars)).foreach {
-          child => holder.createInfoAnnotation(child, null).setTextAttributes(KEYWORD)
+          child => holder.createInfoAnnotation(child, null).setTextAttributes(HoconHighlighterColors.Include)
+        }
+      case Included =>
+        element.getNode.getChildren(TokenSet.create(UnquotedChars)).foreach { child =>
+          if (child.getChars.charAt(child.getTextLength - 1) == '(') {
+            val (start, end) = (child.getTextRange.getStartOffset, child.getTextRange.getEndOffset)
+            holder.createInfoAnnotation(new TextRange(start, end - 1), null).setTextAttributes(HoconHighlighterColors.IncludeModifier)
+            holder.createInfoAnnotation(new TextRange(end - 1, end), null).setTextAttributes(HoconHighlighterColors.IncludeModifierParens)
+          } else if (child.getTextLength == 1 && child.getChars.charAt(0) == ')') {
+            holder.createInfoAnnotation(child, null).setTextAttributes(HoconHighlighterColors.IncludeModifierParens)
+          }
         }
       case _ =>
     }

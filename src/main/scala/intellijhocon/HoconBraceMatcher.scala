@@ -16,7 +16,7 @@ class HoconBraceMatcher extends PairedBraceMatcher {
 
   def isPairedBracesAllowedBeforeType(lbraceType: IElementType, contextType: IElementType) =
     contextType match {
-      case Whitespace | Comment | NewLine | Comma | RBrace | RBracket => true
+      case Whitespace | HashComment | NewLine | Comma | RBrace | RBracket => true
       case _ => false
     }
 

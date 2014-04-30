@@ -26,7 +26,7 @@ class HoconParserDefinition extends ParserDefinition {
     TokenSet.create(QuotedString, MultilineString)
 
   def getCommentTokens: TokenSet =
-    TokenSet.create(Comment)
+    TokenSet.create(HashComment, DoubleSlashComment)
 
   def getWhitespaceTokens: TokenSet =
     TokenSet.create(Whitespace)
