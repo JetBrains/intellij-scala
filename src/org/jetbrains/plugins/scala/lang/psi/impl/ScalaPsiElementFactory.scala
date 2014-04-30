@@ -658,7 +658,8 @@ object ScalaPsiElementFactory {
   private def addModifiersFromSignature(function: ScFunction, sign: PhysicalSignature, addOverride: Boolean): ScFunction = {
     sign.method match {
       case fun: ScFunction =>
-        function.getModifierList.replace(fun.getModifierList)
+        val res = function.getModifierList.replace(fun.getModifierList)
+        if (res.getText.nonEmpty) res.getParent.addAfter(createWhitespace(fun.getManager), res)
         if (!fun.hasModifierProperty("override") && addOverride) function.setModifierProperty("override", value = true)
       case m: PsiMethod =>
         var hasOverride = false
