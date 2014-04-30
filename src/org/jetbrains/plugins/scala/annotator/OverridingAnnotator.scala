@@ -12,6 +12,9 @@ import params.ScClassParameter
 import quickfix.modifiers.{AddModifierQuickFix, RemoveModifierQuickFix}
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import org.jetbrains.plugins.scala.extensions.toPsiModifierListOwnerExt
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
+import com.intellij.internal.statistic.UsageTrigger
 
 /**
  * User: Alexander Podkhalyuzin
@@ -41,19 +44,34 @@ trait OverridingAnnotator {
     isConcreteElement(element)
   }
 
-  def checkOverrideMethods(method: ScFunction, holder: AnnotationHolder) {
-    checkOverrideMembers(method, method, method.superSignaturesIncludingSelfType, isConcrete, "Method", holder)
+  def checkStructural(element: PsiElement, supers: Seq[Any], isInSources: Boolean): Unit = {
+    if (!isInSources) return
+    element.getParent match {
+      case ref: ScRefinement =>
+        if (supers.length == 0) UsageTrigger.trigger("scala.structural.type")
+      case _ =>
+    }
   }
 
-  def checkOverrideVals(v: ScValue, holder: AnnotationHolder) {
+  def checkOverrideMethods(method: ScFunction, holder: AnnotationHolder, isInSources: Boolean) {
+    val signatures: Seq[Signature] = method.superSignaturesIncludingSelfType
+    checkStructural(method, signatures, isInSources)
+    checkOverrideMembers(method, method, signatures, isConcrete, "Method", holder)
+  }
+
+  def checkOverrideVals(v: ScValue, holder: AnnotationHolder, isInSources: Boolean) {
     v.declaredElements.foreach(td => {
-      checkOverrideMembers(td, v, ScalaPsiUtil.superValsSignatures(td, withSelfType = true), isConcrete, "Value", holder)
+      val valsSignatures: Seq[Signature] = ScalaPsiUtil.superValsSignatures(td, withSelfType = true)
+      checkStructural(v, valsSignatures, isInSources)
+      checkOverrideMembers(td, v, valsSignatures, isConcrete, "Value", holder)
     })
   }
 
-  def checkOverrideVars(v: ScVariable, holder: AnnotationHolder) {
+  def checkOverrideVars(v: ScVariable, holder: AnnotationHolder, isInSources: Boolean) {
     v.declaredElements.foreach(td => {
-      checkOverrideMembers(td, v, ScalaPsiUtil.superValsSignatures(td, withSelfType = true), isConcrete, "Variable", holder)
+      val valsSignatures: Seq[Signature] = ScalaPsiUtil.superValsSignatures(td, withSelfType = true)
+      checkStructural(v, valsSignatures, isInSources)
+      checkOverrideMembers(td, v, valsSignatures, isConcrete, "Variable", holder)
     })
   }
 
