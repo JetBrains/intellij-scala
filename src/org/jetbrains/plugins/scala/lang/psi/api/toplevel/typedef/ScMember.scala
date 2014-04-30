@@ -158,9 +158,9 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 
   abstract override def getUseScope: SearchScope = {
     ScalaPsiUtil.intersectScopes(super.getUseScope, this match {
-      case m if m.getModifierList.accessModifier.exists(mod => mod.isPrivate && mod.isThis) =>
+      case m if m.getModifierList != null && m.getModifierList.accessModifier.exists(mod => mod.isPrivate && mod.isThis) =>
         Option(m.containingClass).map(new LocalSearchScope(_))
-      case m if m.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis) =>
+      case m if m.getModifierList != null && m.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis) =>
         Option(m.containingClass).map(ScalaPsiUtil.withCompanionSearchScope)
       case _ =>
         val blockOrMember = PsiTreeUtil.getContextOfType(this, true, classOf[ScBlock], classOf[ScMember])
