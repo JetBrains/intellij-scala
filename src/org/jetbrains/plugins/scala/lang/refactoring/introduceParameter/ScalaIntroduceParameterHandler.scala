@@ -45,13 +45,12 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       ScalaRefactoringUtil.checkFile(file, project, editor, REFACTORING_NAME)
 
-      val (expr: ScExpression, scType: ScType) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
+      val (expr: ScExpression, types: Array[ScType]) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
               getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, REFACTORING_NAME))
-      val types = ScalaRefactoringUtil.addPossibleTypes(scType, expr)
 
       ScalaRefactoringUtil.checkCanBeIntroduced(expr)
 
-      chooseEnclosingMethod(project, editor, file, startOffset, endOffset, expr, types.toArray)
+      chooseEnclosingMethod(project, editor, file, startOffset, endOffset, expr, types)
     }
     catch {
       case _: IntroduceException => return

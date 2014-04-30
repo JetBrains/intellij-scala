@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package worksheet.ui
 
-import com.intellij.openapi.editor.{Document, EditorFactory, Editor}
+import com.intellij.openapi.editor.{LogicalPosition, Document, EditorFactory, Editor}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.JBSplitter
 import java.awt.{BorderLayout, Dimension}
@@ -21,6 +21,8 @@ import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala
+import com.intellij.openapi.editor.event.{CaretEvent, CaretListener}
+import java.util
 
 /**
  * User: Dmitry Naydanov
@@ -121,17 +123,9 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, fi
   private def init(): Option[Int] = {
     inited = true
 
-    (originalEditor, worksheetViewer) match {
-      case (originalImpl: EditorImpl, viewerImpl: EditorImpl) =>
-        ApplicationManager.getApplication invokeLater new Runnable {
-          override def run() {
-            viewerImpl.getScrollPane.getVerticalScrollBar setModel originalImpl.getScrollPane.getVerticalScrollBar.getModel
-          }
-        }
-      case _ =>
-    }
+    WorksheetEditorPrinter.synch(originalEditor, worksheetViewer)
 
-    if (file != null) {
+     if (file != null) {
       var s = file.getFirstChild
 
       while (s.isInstanceOf[PsiWhiteSpace]) s = s.getNextSibling
@@ -217,6 +211,50 @@ object WorksheetEditorPrinter {
   val IDLE_TIME_MLS = 1000
 
   private val LAST_WORKSHEET_RUN_RESULT = new FileAttribute("LastWorksheetRunResult", 1, false)
+
+  private val patched = new util.WeakHashMap[Editor, String]()
+
+  def getPatched = patched
+
+  private def synch(originalEditor: Editor, worksheetViewer: Editor) {
+    def createListener(recipient: Editor) = new CaretListener {
+      override def caretAdded(e: CaretEvent) {}
+
+      override def caretRemoved(e: CaretEvent) {}
+
+      override def caretPositionChanged(e: CaretEvent) {
+        if (!e.getEditor.asInstanceOf[EditorImpl].getContentComponent.hasFocus) return
+        val actualLine = Math.min(e.getNewPosition.line, recipient.getDocument.getLineCount)
+        recipient.getCaretModel.moveToLogicalPosition(new LogicalPosition(actualLine, 0))
+      }
+    }
+
+    def checkAndAdd(don: Editor, recipient: Editor) {
+      if (patched.get(don) == null) {
+        don.getCaretModel.addCaretListener(createListener(recipient))
+        patched.put(don, "")
+      }
+    }
+
+
+    (originalEditor, worksheetViewer) match {
+      case (originalImpl: EditorImpl, viewerImpl: EditorImpl) =>
+        ApplicationManager.getApplication invokeLater new Runnable {
+          override def run() {
+            checkAndAdd(originalImpl, viewerImpl)
+            checkAndAdd(viewerImpl, originalImpl)
+
+            val line = originalImpl.getCaretModel.getLogicalPosition.line
+            viewerImpl.getCaretModel.moveToLogicalPosition(
+              new LogicalPosition(Math.min(line, viewerImpl.getDocument.getLineCount), 0)
+            )
+
+            viewerImpl.getScrollPane.getVerticalScrollBar setModel originalImpl.getScrollPane.getVerticalScrollBar.getModel
+          }
+        }
+      case _ =>
+    }
+  }
   
   def saveWorksheetEvaluation(file: ScalaFile, result: String) {
     LAST_WORKSHEET_RUN_RESULT.writeAttributeBytes(file.getVirtualFile, result.getBytes)
@@ -261,10 +299,7 @@ object WorksheetEditorPrinter {
     val gutter: EditorGutterComponentEx = worksheetViewer.getGutterComponentEx
     if (gutter != null && gutter.getParent != null) gutter.getParent remove gutter
 
-    if (modelSync) {
-      worksheetViewer.getScrollPane.getVerticalScrollBar.setModel(
-        editor.asInstanceOf[EditorImpl].getScrollPane.getVerticalScrollBar.getModel)
-    }
+    if (modelSync) synch(editor, worksheetViewer)
     editor.getContentComponent.setPreferredSize(prefDim)
 
     if (!ApplicationManager.getApplication.isUnitTestMode) {

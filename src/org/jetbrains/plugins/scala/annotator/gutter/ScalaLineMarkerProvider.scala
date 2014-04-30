@@ -223,32 +223,26 @@ private object GutterUtil {
       case decl: ScFunctionDeclaration => true
       case v: ScValueDeclaration => true
       case v: ScVariableDeclaration => true
-      case _ => {
+      case _ =>
         val iter = supers.iterator
         while (iter.hasNext) {
           val s = iter.next()
-          s.namedElement match {
-            case Some(named: PsiNamedElement) =>
-              ScalaPsiUtil.nameContext(named) match {
-                case fun: ScFunctionDefinition => return true
-                case fun: ScFunction =>
-                case method: PsiMethod if !method.hasAbstractModifier => return true
-                case _: ScVariableDefinition | _: ScPatternDefinition => return true
-                case f: PsiField if !f.hasAbstractModifier => return true
-                case _: ScVariableDeclaration =>
-                case _: ScValueDeclaration =>
-                case _: ScParameter => return true
-                case _: ScTypeAliasDefinition => return true
-                case _: ScTypeAliasDeclaration =>
-                case _: PsiClass => return true
-                case _ =>
-              }
+          ScalaPsiUtil.nameContext(s.namedElement) match {
+            case fun: ScFunctionDefinition => return true
+            case fun: ScFunction =>
+            case method: PsiMethod if !method.hasAbstractModifier => return true
+            case _: ScVariableDefinition | _: ScPatternDefinition => return true
+            case f: PsiField if !f.hasAbstractModifier => return true
+            case _: ScVariableDeclaration =>
+            case _: ScValueDeclaration =>
+            case _: ScParameter => return true
+            case _: ScTypeAliasDefinition => return true
+            case _: ScTypeAliasDeclaration =>
+            case _: PsiClass => return true
             case _ =>
           }
-
         }
         false
-      }
     }
   }
 

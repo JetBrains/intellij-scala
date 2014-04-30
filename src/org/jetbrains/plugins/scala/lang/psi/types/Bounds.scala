@@ -20,7 +20,12 @@ object Bounds {
     seq.reduce((l: ScType, r: ScType) => lub(l,r))
   }
 
-  private class Options(val tp: ScType) {
+  private class Options(_tp: ScType) extends {
+    val tp = _tp match {
+      case ex: ScExistentialType => ex.skolem
+      case tp => tp
+    }
+  } with AnyRef {
     val extract: Option[(PsiClass, ScSubstitutor)] = ScType.extractClassType(tp)
     def isEmpty = extract == None
     val projectionOption: Option[ScType] = ScType.projectionOption(tp)
@@ -39,7 +44,7 @@ object Bounds {
         case (_, ScSkolemizedType(name, args, lower, upper)) => ScSkolemizedType(name, args, lub(lower, t1, checkWeak), glb(upper, t1))
         case (ex: ScExistentialType, _) => glb(ex.skolem, t2, checkWeak).unpackedType
         case (_, ex: ScExistentialType) => glb(t1, ex.skolem, checkWeak).unpackedType
-        case _ => ScCompoundType(Seq(t1, t2), Seq.empty, Seq.empty, ScSubstitutor.empty)
+        case _ => ScCompoundType(Seq(t1, t2), Map.empty, Map.empty)
       }
     }
   }
@@ -120,13 +125,13 @@ object Bounds {
           case _ =>
             val aOptions: Seq[Options] = {
               t1 match {
-                case ScCompoundType(comps1, decls1, typeDecls1, subst1) => comps1.map(new Options(_))
+                case ScCompoundType(comps1, _, _) => comps1.map(new Options(_))
                 case _ => Seq(new Options(t1))
               }
             }
             val bOptions: Seq[Options] = {
               t2 match {
-                case ScCompoundType(comps1, decls1, typeDecls1, subst1) => comps1.map(new Options(_))
+                case ScCompoundType(comps1, _, _) => comps1.map(new Options(_))
                 case _ => Seq(new Options(t2))
               }
             }
@@ -143,7 +148,7 @@ object Bounds {
                 case a: Array[ScType] if a.length == 0 => types.Any
                 case a: Array[ScType] if a.length == 1 => a(0)
                 case many =>
-                  new ScCompoundType(collection.immutable.Seq(many.toSeq: _*), Seq.empty, Seq.empty, ScSubstitutor.empty)
+                  new ScCompoundType(many.toSeq, Map.empty, Map.empty)
               }
             }
             //todo: refinement for compound types

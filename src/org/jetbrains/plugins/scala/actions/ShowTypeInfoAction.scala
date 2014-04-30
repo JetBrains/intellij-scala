@@ -39,9 +39,10 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
     val selectionModel = editor.getSelectionModel
     if (selectionModel.hasSelection) {
       import selectionModel._
-      val a: Option[(ScExpression, ScType)] = ScalaRefactoringUtil.getExpression(file.getProject, editor, file, getSelectionStart, getSelectionEnd)
+      val a: Option[(ScExpression, Array[ScType])] = ScalaRefactoringUtil.getExpression(file.getProject, editor, file, getSelectionStart, getSelectionEnd)
       a.foreach {
-        case (expr, tpe) =>
+        case (expr, arr) if arr.nonEmpty =>
+          val tpe = arr.head
           val tpeWithoutImplicits = expr.getTypeWithoutImplicits(TypingContext.empty).toOption
           val tpeWithoutImplicitsText = tpeWithoutImplicits.map(_.presentableText)
 
@@ -49,23 +50,24 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
           val expectedTypeText = expr.expectedType().map(_.presentableText)
 
           val hint = (tpeWithoutImplicitsText, expectedTypeText) match {
-            case (None, Some(expectedTypeText)) =>
+            case (None, Some(expectedText)) =>
               """|Type: %s
-                 |Expected Type: %s""".format(tpeText, expectedTypeText).stripMargin
+                 |Expected Type: %s""".format(tpeText, expectedText).stripMargin
             case (None | Some(`tpeText`), None) => tpeText
             case (Some(originalTypeText), None) =>
               """|Type:  %s
                  |Original Type: %s""".format(tpeText, originalTypeText).stripMargin
-            case (Some(tpeWithoutImplicitsText), Some(expectedTypeText)) =>
+            case (Some(withoutImplicitsText), Some(expectedText)) =>
               """|Type: %s
                  |Original Type: %s
-                 |Expected Type: %s""".format(tpeText, tpeWithoutImplicitsText, expectedTypeText).stripMargin
+                 |Expected Type: %s""".format(tpeText, withoutImplicitsText, expectedText).stripMargin
           }
 
           ScalaActionUtil.showHint(editor, hint)
+        case _ => ScalaActionUtil.showHint(editor, "Could not find type for selection")
       }
     } else {
-      val offset = TargetElementUtilBase.adjustOffset(editor.getDocument,
+      val offset = TargetElementUtilBase.adjustOffset(file, editor.getDocument,
         editor.logicalPositionToOffset(editor.getCaretModel.getLogicalPosition))
       ShowTypeInfoAction.getTypeInfoHint(editor, file, offset).foreach(ScalaActionUtil.showHint(editor, _))
     }
@@ -76,24 +78,23 @@ object ShowTypeInfoAction {
   def getTypeInfoHint(editor: Editor, file: PsiFile, offset: Int): Option[String] = {
     file.findReferenceAt(offset) match {
       case Resolved(e, subst) => typeOf(e, subst)
-      case _ => {
+      case _ =>
         val element = file.findElementAt(offset)
         if (element.getNode.getElementType != ScalaTokenTypes.tIDENTIFIER) return None
         element match {
           case Parent(p) => typeOf(p, ScSubstitutor.empty)
           case _ => None
         }
-      }
     }
   }
 
   private[this] val typeOf: (PsiElement, ScSubstitutor) => Option[String] = {
     case (p: ScPrimaryConstructor, _) => None
     case (e: ScFunction, _) if e.isConstructor => None
-    case (e: ScFunction, s) => e.returnType.toOption.map(s.subst(_)).map(_.presentableText)
-    case (e: ScBindingPattern, s) => e.getType(TypingContext.empty).toOption.map(s.subst(_)).map(_ .presentableText)
-    case (e: ScFieldId, s) => e.getType(TypingContext.empty).toOption.map(s.subst(_)).map(_ .presentableText)
-    case (e: ScParameter, s) => e.getRealParameterType(TypingContext.empty).toOption.map(s.subst(_)).map(_ .presentableText)
+    case (e: ScFunction, s) => e.returnType.toOption.map(s.subst).map(_.presentableText)
+    case (e: ScBindingPattern, s) => e.getType(TypingContext.empty).toOption.map(s.subst).map(_ .presentableText)
+    case (e: ScFieldId, s) => e.getType(TypingContext.empty).toOption.map(s.subst).map(_ .presentableText)
+    case (e: ScParameter, s) => e.getRealParameterType(TypingContext.empty).toOption.map(s.subst).map(_ .presentableText)
     case (e: PsiMethod, _) if e.isConstructor => None
     case (e: PsiMethod, s) => e.getReturnType.toOption.
             map(p => s.subst(ScType.create(p, e.getProject, e.getResolveScope))).map(_ presentableText)

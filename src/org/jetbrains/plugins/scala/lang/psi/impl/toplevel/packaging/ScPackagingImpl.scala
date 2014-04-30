@@ -146,6 +146,9 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
     if (lastParent != null && lastParent.getContext == this) {
       if (!super[ScImportsHolder].processDeclarations(processor,
         state, lastParent, place)) return false
+
+      if (ScalaFileImpl.isProcessLocalClasses(lastParent) &&
+        !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
     }
 
     true

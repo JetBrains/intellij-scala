@@ -7,6 +7,5 @@ class UnusedImportChain
 /*
 package a
 
-
 class UnusedImportChain
 */

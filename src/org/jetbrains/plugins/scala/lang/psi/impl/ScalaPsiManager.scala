@@ -29,8 +29,8 @@ import java.util.Collections
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import ParameterlessNodes.{Map => PMap}, TypeNodes.{Map => TMap}, SignatureNodes.{Map => SMap}
 import java.util
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val implicitObjectMap: ConcurrentMap[String, SofterReference[java.util.Map[GlobalSearchScope, Seq[ScObject]]]] =
@@ -70,6 +70,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     new ConcurrentHashMap
 
   def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
+    if (ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes) return ParameterlessNodes.build(tp, compoundTypeThisType)
     val ref = compoundTypesParameterslessNodes.get(tp, compoundTypeThisType)
     var result: PMap = if (ref == null) null else ref.get()
     if (result == null) {
@@ -453,10 +454,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         val lower = () => types.Nothing
         val upper = () => tp.getSuperTypes match {
           case array: Array[PsiClassType] if array.length == 1 => ScType.create(array(0), project)
-          case many => new ScCompoundType(collection.immutable.Seq(many.map {
-            ScType.create(_, project)
-          }.toSeq: _*),
-            Seq.empty, Seq.empty, ScSubstitutor.empty)
+          case many => new ScCompoundType(many.map { ScType.create(_, project) }, Map.empty, Map.empty)
         }
         val res = new ScTypeParameterType(tp.name, Nil, lower, upper, tp)
         res

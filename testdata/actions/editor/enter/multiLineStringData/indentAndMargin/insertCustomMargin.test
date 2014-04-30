@@ -1,0 +1,10 @@
+class A {
+  val a = """blah blah<caret>""".stripMargin('#')
+}
+-----
+class A {
+  val a =
+    """blah blah
+       #<caret>
+    """.stripMargin('#')
+}

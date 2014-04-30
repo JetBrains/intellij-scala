@@ -12,7 +12,7 @@ import com.intellij.psi.PsiElement
 class ScalaExtractMethodSettings(
         val methodName: String,
         val parameters: Array[ExtractMethodParameter],
-        val returns: Array[ExtractMethodReturn],
+        val outputs: Array[ExtractMethodOutput],
         val visibility: String,
         val scope: PsiElement,
         val nextSibling: PsiElement,
@@ -20,5 +20,5 @@ class ScalaExtractMethodSettings(
         val returnType: Option[ScType],
         val lastReturn: Boolean,
         val lastMeaningful: Option[ScType]) {
-  lazy val (calcReturnTypeIsUnit, calcReturnTypeText) = ScalaExtractMethodUtils.calcReturnTypeExt(returnType, returns, lastReturn, lastMeaningful)
+  lazy val (calcReturnTypeIsUnit, calcReturnTypeText) = ScalaExtractMethodUtils.calcReturnTypeExt(returnType, outputs, lastReturn, lastMeaningful)
 }

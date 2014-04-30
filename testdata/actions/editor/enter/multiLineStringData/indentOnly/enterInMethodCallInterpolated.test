@@ -1,0 +1,6 @@
+val a = s"""blah blah<caret>""".replace("\r", "")
+-----
+val a =
+  s"""blah blah
+      <caret>
+   """.replace("\r", "")

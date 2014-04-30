@@ -12,6 +12,9 @@ import params.ScClassParameter
 import quickfix.modifiers.{AddModifierQuickFix, RemoveModifierQuickFix}
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import org.jetbrains.plugins.scala.extensions.toPsiModifierListOwnerExt
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
+import com.intellij.internal.statistic.UsageTrigger
 
 /**
  * User: Alexander Podkhalyuzin
@@ -36,46 +39,43 @@ trait OverridingAnnotator {
     }
   }
 
-  def checkOverrideMethods(method: ScFunction, holder: AnnotationHolder) {
-    def isConcrete(signature: Signature): Boolean =
-      if (signature.namedElement != None) {
-        val element = ScalaPsiUtil.nameContext(signature.namedElement.get)
-        isConcreteElement(element)
-      } else false
-    checkOverrideMembers(method, method, method.superSignaturesIncludingSelfType, isConcrete, "Method", holder)
+  private def isConcrete(signature: Signature): Boolean = {
+    val element = ScalaPsiUtil.nameContext(signature.namedElement)
+    isConcreteElement(element)
   }
 
-  def checkOverrideVals(v: ScValue, holder: AnnotationHolder) {
-    def isConcrete(signature: Signature): Boolean =
-      if (signature.namedElement != None) {
-        val element = ScalaPsiUtil.nameContext(signature.namedElement.get)
-        isConcreteElement(element)
-      } else false
+  def checkStructural(element: PsiElement, supers: Seq[Any], isInSources: Boolean): Unit = {
+    if (!isInSources) return
+    element.getParent match {
+      case ref: ScRefinement =>
+        if (supers.length == 0) UsageTrigger.trigger("scala.structural.type")
+      case _ =>
+    }
+  }
 
+  def checkOverrideMethods(method: ScFunction, holder: AnnotationHolder, isInSources: Boolean) {
+    val signatures: Seq[Signature] = method.superSignaturesIncludingSelfType
+    checkStructural(method, signatures, isInSources)
+    checkOverrideMembers(method, method, signatures, isConcrete, "Method", holder)
+  }
+
+  def checkOverrideVals(v: ScValue, holder: AnnotationHolder, isInSources: Boolean) {
     v.declaredElements.foreach(td => {
-      checkOverrideMembers(td, v, ScalaPsiUtil.superValsSignatures(td, withSelfType = true), isConcrete, "Value", holder)
+      val valsSignatures: Seq[Signature] = ScalaPsiUtil.superValsSignatures(td, withSelfType = true)
+      checkStructural(v, valsSignatures, isInSources)
+      checkOverrideMembers(td, v, valsSignatures, isConcrete, "Value", holder)
     })
   }
 
-  def checkOverrideVars(v: ScVariable, holder: AnnotationHolder) {
-    def isConcrete(signature: Signature): Boolean =
-      if (signature.namedElement != None) {
-        val element = ScalaPsiUtil.nameContext(signature.namedElement.get)
-        isConcreteElement(element)
-      } else false
-
+  def checkOverrideVars(v: ScVariable, holder: AnnotationHolder, isInSources: Boolean) {
     v.declaredElements.foreach(td => {
-      checkOverrideMembers(td, v, ScalaPsiUtil.superValsSignatures(td, withSelfType = true), isConcrete, "Variable", holder)
+      val valsSignatures: Seq[Signature] = ScalaPsiUtil.superValsSignatures(td, withSelfType = true)
+      checkStructural(v, valsSignatures, isInSources)
+      checkOverrideMembers(td, v, valsSignatures, isConcrete, "Variable", holder)
     })
   }
 
   def checkOverrideClassParameters(v: ScClassParameter, holder: AnnotationHolder) {
-    def isConcrete(signature: Signature): Boolean =
-      if (signature.namedElement != None) {
-        val element = ScalaPsiUtil.nameContext(signature.namedElement.get)
-        isConcreteElement(element)
-      } else false
-
     checkOverrideMembers(v, v, ScalaPsiUtil.superValsSignatures(v, withSelfType = true), isConcrete, "Parameter", holder)
   }
 

@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
 import lang.psi.impl.ScalaPsiElementFactory
 import lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{ResolveResult, PsiNamedElement, PsiElement}
 import lang.psi.ScalaPsiUtil
 import lang.resolve.processor.ResolveProcessor
 import lang.psi.api.base.ScStableCodeReferenceElement
@@ -24,7 +24,11 @@ class VariablePatternShadowInspection extends AbstractInspection("VariablePatter
       val dummyRef: ScStableCodeReferenceElement = ScalaPsiElementFactory.createReferenceFromText(refPat.name, refPat.getContext.getContext, refPat)
       val proc = new ResolveProcessor(StdKinds.valuesRef, dummyRef, refPat.name)
       val results = dummyRef.asInstanceOf[ResolvableStableCodeReferenceElement].doResolve(dummyRef, proc)
-      if (results.nonEmpty) {
+      def isAccessible(rr: ResolveResult): Boolean = rr.getElement match {
+        case named: PsiNamedElement => proc.isAccessible(named, refPat)
+        case _ => false
+      }
+      if (results.exists(isAccessible)) {
         holder.registerProblem(refPat.nameId, getDisplayName, new ConvertToStableIdentifierPatternFix(refPat), new RenameVariablePatternFix(refPat))
       }
     }

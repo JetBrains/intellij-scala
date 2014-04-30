@@ -237,13 +237,13 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
       val signature = signatures.next()
       signature.foreach {
         case (t, node) => node.info.namedElement match {
-          case Some(fun: ScFunction) if !fun.isConstructor && fun.containingClass.isInstanceOf[ScTrait] &&
+          case fun: ScFunction if !fun.isConstructor && fun.containingClass.isInstanceOf[ScTrait] &&
             fun.isInstanceOf[ScFunctionDefinition] =>
             res ++= fun.getFunctionWrappers(isStatic = false, isInterface = false, cClass = Some(getClazz(fun.containingClass.asInstanceOf[ScTrait])))
-          case Some(fun: ScFunction) if !fun.isConstructor =>
+          case fun: ScFunction if !fun.isConstructor =>
             res ++= fun.getFunctionWrappers(isStatic = false, isInterface = fun.isInstanceOf[ScFunctionDeclaration])
-          case Some(method: PsiMethod) if !method.isConstructor => res += method
-          case Some(t: ScTypedDefinition) if t.isVal || t.isVar ||
+          case method: PsiMethod if !method.isConstructor => res += method
+          case t: ScTypedDefinition if t.isVal || t.isVar ||
             (t.isInstanceOf[ScClassParameter] && t.asInstanceOf[ScClassParameter].isCaseClassVal) =>
             val (isInterface, cClass) = t.nameContext match {
               case m: ScMember =>

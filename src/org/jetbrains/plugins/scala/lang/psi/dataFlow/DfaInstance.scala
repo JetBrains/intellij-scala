@@ -9,7 +9,8 @@ import controlFlow.Instruction
 
 trait DfaInstance[E] {
   def isForward: Boolean
-  val fun: Instruction => E => E
+  //val fun: Instruction => E => E
+  def fun(i: Instruction)(e: E): E
 }
 
 trait Semilattice[E] {

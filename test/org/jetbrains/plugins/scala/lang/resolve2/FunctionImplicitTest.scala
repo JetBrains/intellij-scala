@@ -32,6 +32,7 @@ class FunctionImplicitTest extends ResolveTestBase {
   def testImportValueImplicit = doTest
   //TODO implicitparameter
 //  def testImportValueOrdinary = doTest
+  def testNoScope = doTest
   def testObjectImplicit = doTest
   //TODO implicitparameter
 //  def testObjectOrdinary = doTest

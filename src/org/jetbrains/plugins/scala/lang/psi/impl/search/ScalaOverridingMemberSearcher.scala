@@ -92,7 +92,6 @@ object ScalaOverridingMemberSearcher {
       case x: PsiNamedElement =>
         val nameContext = ScalaPsiUtil.nameContext(x)
         if (nameContext == null || !inTemplateBodyOrEarlyDef(nameContext)) return Array[PsiNamedElement]()
-      case _: PsiMethod =>
       case _ => return Array[PsiNamedElement]()
     }
 
@@ -119,38 +118,42 @@ object ScalaOverridingMemberSearcher {
         true
       }
 
-      member match {
-        case alias: ScTypeAlias =>
-          val continue = inheritorsOfType(alias.name)
-          if (!continue) return false
-        case td: ScTypeDefinition if !td.isObject =>
-          val continue = inheritorsOfType(td.name)
-          if (!continue) return false
-        case _: PsiNamedElement =>
-          val signatures =
-            if (withSelfType) TypeDefinitionMembers.getSelfTypeSignatures(inheritor)
-            else TypeDefinitionMembers.getSignatures(inheritor)
-          val signsIterator = signatures.forName(member.name)._1.iterator
-          while (signsIterator.hasNext) {
-            val (t: Signature, node: TypeDefinitionMembers.SignatureNodes.Node) = signsIterator.next()
-            if (t.namedElement != None && PsiTreeUtil.getParentOfType(t.namedElement.get,
-              classOf[PsiClass]) == inheritor) {
-              val supersIterator = node.supers.iterator
-              while (supersIterator.hasNext) {
-                val s = supersIterator.next()
-                if (s.info.namedElement.get eq member) {
-                  buffer += t.namedElement.get
-                  return deep
+      inReadAction {
+        member match {
+          case alias: ScTypeAlias =>
+            val continue = inheritorsOfType(alias.name)
+            if (!continue) return false
+          case td: ScTypeDefinition if !td.isObject =>
+            val continue = inheritorsOfType(td.name)
+            if (!continue) return false
+          case _: PsiNamedElement =>
+            val signatures =
+              if (withSelfType) TypeDefinitionMembers.getSelfTypeSignatures(inheritor)
+              else TypeDefinitionMembers.getSignatures(inheritor)
+            val signsIterator = signatures.forName(member.name)._1.iterator
+            while (signsIterator.hasNext) {
+              val (t: Signature, node: TypeDefinitionMembers.SignatureNodes.Node) = signsIterator.next()
+              if (PsiTreeUtil.getParentOfType(t.namedElement,
+                classOf[PsiClass]) == inheritor) {
+                val supersIterator = node.supers.iterator
+                while (supersIterator.hasNext) {
+                  val s = supersIterator.next()
+                  if (s.info.namedElement eq member) {
+                    buffer += t.namedElement
+                    return deep
+                  }
                 }
               }
             }
-          }
+        }
       }
       true
     }
 
     var break = false
-    val inheritors = ClassInheritorsSearch.search(parentClass, scope, true).toArray(PsiClass.EMPTY_ARRAY)
+    val inheritors = inReadAction {
+      ClassInheritorsSearch.search(parentClass, scope, true).toArray(PsiClass.EMPTY_ARRAY)
+    }
     for (clazz <- inheritors if !break) {
       break = !process(clazz)
     }
