@@ -39,7 +39,9 @@ object HoconTokenType extends TokenType {
 
   val RefRBrace = new HoconTokenType("REF_RBRACE")
 
-  val Comment = new HoconTokenType("COMMENT")
+  val HashComment = new HoconTokenType("HASH_COMMENT")
+
+  val DoubleSlashComment = new HoconTokenType("DOUBLE_SLASH_COMMENT")
 
   val UnquotedChars = new HoconTokenType("UNQUOTED_CHARS")
 

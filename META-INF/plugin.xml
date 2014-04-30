@@ -11,6 +11,8 @@
     <lang.foldingBuilder language="HOCON" implementationClass="intellijhocon.HoconFoldingBuilder"/>
     <quoteHandler fileType="HOCON" className="intellijhocon.HoconQuoteHandler"/>
     <annotator language="HOCON" implementationClass="intellijhocon.HoconSyntaxHighlightingAnnotator"/>
+    <additionalTextAttributes scheme="Default" file="colorSchemes/HoconDefault.xml"/>
+    <additionalTextAttributes scheme="Darcula" file="colorSchemes/HoconDarcula.xml"/>
   </extensions>
 
 </idea-plugin>
