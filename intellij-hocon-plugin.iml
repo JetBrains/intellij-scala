@@ -29,6 +29,7 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" scope="TEST" name="config-1.2.0" level="project" />
   </component>
 </module>
 
