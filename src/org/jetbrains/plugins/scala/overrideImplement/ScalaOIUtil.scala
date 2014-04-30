@@ -166,7 +166,7 @@ object ScalaOIUtil {
               !x.isInstanceOf[ScFunctionDefinition])
               || x.hasModifierPropertyScala("final") => false
       case x if x.isConstructor => false
-      case method if !ResolveUtils.isAccessible(method, clazz, forCompletion = false) => false
+      case method if !ResolveUtils.isAccessible(method, clazz.extendsBlock, forCompletion = false) => false
       case method =>
         var flag = false
         if (method match {case x: ScFunction => x.parameters.length == 0 case _ => method.getParameterList.getParametersCount == 0}) {
@@ -185,9 +185,10 @@ object ScalaOIUtil {
   private def needImplement(sign: PhysicalSignature, clazz: ScTemplateDefinition, withOwn: Boolean): Boolean = {
     val m = sign.method
     val name = if (m == null) "" else m.name
+    val place = clazz.extendsBlock
     m match {
       case _ if isProductAbstractMethod(m, clazz) => false
-      case method if !ResolveUtils.isAccessible(method, clazz, forCompletion = false) => false
+      case method if !ResolveUtils.isAccessible(method, place, forCompletion = false) => false
       case x if name == "$tag" || name == "$init$" => false
       case x if !withOwn && x.containingClass == clazz => false
       case x if x.containingClass != null && x.containingClass.isInterface &&
@@ -202,7 +203,7 @@ object ScalaOIUtil {
   private def needOverride(named: PsiNamedElement, clazz: ScTemplateDefinition) = {
     ScalaPsiUtil.nameContext(named) match {
       case x: PsiModifierListOwner if x.hasModifierPropertyScala("final") => false
-      case m: PsiMember if !ResolveUtils.isAccessible(m, clazz, forCompletion = false) => false
+      case m: PsiMember if !ResolveUtils.isAccessible(m, clazz.extendsBlock, forCompletion = false) => false
       case x @ (_: ScPatternDefinition | _: ScVariableDefinition) if x.asInstanceOf[ScMember].containingClass != clazz =>
         val declaredElements = x match {case v: ScValue => v.declaredElements case v: ScVariable => v.declaredElements}
         var flag = false
@@ -228,7 +229,7 @@ object ScalaOIUtil {
 
   private def needImplement(named: PsiNamedElement, clazz: ScTemplateDefinition, withOwn: Boolean): Boolean = {
     ScalaPsiUtil.nameContext(named) match {
-      case m: PsiMember if !ResolveUtils.isAccessible(m, clazz, forCompletion = false) => false
+      case m: PsiMember if !ResolveUtils.isAccessible(m, clazz.extendsBlock, forCompletion = false) => false
       case x: ScValueDeclaration if withOwn || x.containingClass != clazz => true
       case x: ScVariableDeclaration if withOwn || x.containingClass != clazz => true
       case x: ScTypeAliasDeclaration if withOwn || x.containingClass != clazz => true
