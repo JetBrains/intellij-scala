@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScCompoundTypeElement
+import scala.collection.immutable.HashSet
 
 /**
  * Jason Zaugg
@@ -122,9 +123,13 @@ object PatternAnnotator {
     }
   }
 
-  private def abstraction(scType: ScType): ScType = {
+  private def abstraction(scType: ScType, visited: HashSet[ScType] = HashSet.empty): ScType = {
+    if (visited.contains(scType)) {
+      return scType
+    }
+    val newVisited = visited + scType
     scType.recursiveUpdate {
-      case tp: ScTypeParameterType => (true, ScAbstractType(tp, abstraction(tp.lower.v), abstraction(tp.upper.v)))
+      case tp: ScTypeParameterType => (true, ScAbstractType(tp, abstraction(tp.lower.v, newVisited), abstraction(tp.upper.v, newVisited)))
       case tpe => (false, tpe)
     }
   }

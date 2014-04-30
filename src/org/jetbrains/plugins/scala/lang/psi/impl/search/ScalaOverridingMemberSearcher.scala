@@ -133,13 +133,13 @@ object ScalaOverridingMemberSearcher {
             val signsIterator = signatures.forName(member.name)._1.iterator
             while (signsIterator.hasNext) {
               val (t: Signature, node: TypeDefinitionMembers.SignatureNodes.Node) = signsIterator.next()
-              if (t.namedElement != None && PsiTreeUtil.getParentOfType(t.namedElement.get,
+              if (PsiTreeUtil.getParentOfType(t.namedElement,
                 classOf[PsiClass]) == inheritor) {
                 val supersIterator = node.supers.iterator
                 while (supersIterator.hasNext) {
                   val s = supersIterator.next()
-                  if (s.info.namedElement.get eq member) {
-                    buffer += t.namedElement.get
+                  if (s.info.namedElement eq member) {
+                    buffer += t.namedElement
                     return deep
                   }
                 }

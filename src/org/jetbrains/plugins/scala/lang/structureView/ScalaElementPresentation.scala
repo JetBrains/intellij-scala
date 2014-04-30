@@ -41,7 +41,7 @@ object ScalaElementPresentation {
     presentableText.toString
   }
 
-  def getMethodPresentableText(function: ScFunction, short: Boolean = true,
+  def getMethodPresentableText(function: ScFunction, fast: Boolean = true,
                                subst: ScSubstitutor = ScSubstitutor.empty): String = {
     val presentableText: StringBuffer = new StringBuffer
     presentableText.append(if (!function.isConstructor) function.name else "this")
@@ -52,15 +52,22 @@ object ScalaElementPresentation {
     }
 
     if (function.paramClauses != null)
-      presentableText.append(StructureViewUtil.getParametersAsString(function.paramClauses, short, subst))
+      presentableText.append(StructureViewUtil.getParametersAsString(function.paramClauses, fast, subst))
 
-    presentableText.append(": ")
-    try {
-      val typez = subst.subst(function.returnType.getOrAny)
-      presentableText.append(ScType.presentableText(typez))
-    }
-    catch {
-      case e: IndexNotReadyException => presentableText.append("NoTypeInfo")
+    if (fast) {
+      function.returnTypeElement match {
+        case Some(rt) => presentableText.append(": ").append(rt.getText)
+        case _ => //do nothing
+      }
+    } else {
+      presentableText.append(": ")
+      try {
+        val typez = subst.subst(function.returnType.getOrAny)
+        presentableText.append(ScType.presentableText(typez))
+      }
+      catch {
+        case e: IndexNotReadyException => presentableText.append("NoTypeInfo")
+      }
     }
 
     presentableText.toString

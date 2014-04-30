@@ -100,12 +100,6 @@ class ScalaTestConfigurationProducer extends {
     }
   }
 
-  private def isInheritor(clazz: ScTypeDefinition, fqn: String): Boolean = {
-    val suiteClazz = ScalaPsiManager.instance(clazz.getProject).getCachedClass(clazz.getResolveScope, fqn)
-    if (suiteClazz == null) return false
-    ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClazz)
-  }
-
   def getLocationClassAndTest(location: Location[_ <: PsiElement]): (String, String) = {
     val element = location.getPsiElement
     var clazz: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)

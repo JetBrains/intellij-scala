@@ -4,7 +4,6 @@ package structureView
 package itemsPresentations
 package impl
 
-import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 
 /**
@@ -14,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
  */
 
 class ScalaPackagingItemPresentation(private val element: ScPackaging) extends ScalaItemPresentation(element) {
-  def getPresentableText(): String = {
-    return ScalaElementPresentation.getPackagingPresentableText(myElement.asInstanceOf[ScPackaging])
+  def getPresentableText: String = {
+    ScalaElementPresentation.getPackagingPresentableText(myElement.asInstanceOf[ScPackaging])
   }
 }
