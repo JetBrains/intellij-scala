@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>org.intellijhocon</id>
   <name>HOCON</name>
-  <description>HOCON support for IntelliJ</description>
+  <description>Enables support for HOCON (Human-Optimized Config Object Notation)</description>
 
   <extensions defaultExtensionNs="com.intellij">
     <fileTypeFactory implementation="intellijhocon.HoconFileTypeFactory"/>
