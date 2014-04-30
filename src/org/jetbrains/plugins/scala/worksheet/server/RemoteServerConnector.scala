@@ -10,9 +10,7 @@ import org.jetbrains.plugins.scala.compiler.ScalaApplicationSettings
 import org.jetbrains.jps.incremental.scala.remote._
 import com.intellij.openapi.module.Module
 import org.jetbrains.plugins.scala
-import org.jetbrains.plugins.scala.configuration.IncrementalityType
 import com.intellij.openapi.roots.{ModuleRootManager, OrderEnumerator}
-import org.jetbrains.plugins.scala.config.ScalaFacet
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.data.SbtData
 import com.intellij.openapi.util.io.FileUtil
@@ -29,6 +27,7 @@ import com.intellij.compiler.progress.CompilerTask
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import com.intellij.openapi.application.ApplicationManager
+import configuration._
 
 /**
   * User: Dmitry Naydanov
@@ -52,8 +51,8 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File) {
     case Right(data) => data
   }
   
-  private val scalaParameters = facet.compilerParameters
-  
+  private val scalaParameters = compilerSettings.parameters.mkString(" ")
+
   private val javaParameters = Array.empty[String]
 
 
@@ -92,16 +91,13 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File) {
     val worksheetHook = WorksheetFileHook.instance(project)
 
     val client = new DummyClient(callback, project, originalFile, consumer)
-    val compilerJar = facetCompiler
-    val libraryJar = facetLibrary
 
-    val extraJar = facetFiles filter {
-      case a => a != compilerJar && a != libraryJar 
-    }
+    val compilerClasspath = scalaSdk.compilerClasspath
+
     val runnersJar = new File(libCanonicalPath, "scala-plugin-runners.jar")
     val compilerSettingsJar = new File(libCanonicalPath, "compiler-settings.jar")
     
-    val additionalCp = facetFiles :+ runnersJar :+ compilerSettingsJar :+ output 
+    val additionalCp = compilerClasspath :+ runnersJar :+ compilerSettingsJar :+ output
     
     val worksheetArgs = 
       if (runType != OutOfProcessServer) Array(worksheetClassName, runnersJar.getAbsolutePath, output.getAbsolutePath) ++ outputDirs
@@ -112,14 +108,14 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File) {
       sbtData.sourceJar,
       sbtData.interfacesHome, 
       sbtData.javaClassVersion, 
-      Seq(libraryJar, compilerJar) ++ extraJar, 
+      compilerClasspath,
       findJdk, 
       worksheet,
       (assemblyClasspath().toSeq map (f => new File(f.getCanonicalPath stripSuffix "!" stripSuffix "!/"))) ++ additionalCp, 
       output, 
       scalaParameters,
       javaParameters, 
-      settings.COMPILE_ORDER.toString, 
+      compilerSettings.compileOrder.toString,
       "", //cache file
       "", 
       "", 
@@ -171,26 +167,11 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File) {
 
   private def settings = ScalaApplicationSettings.getInstance()
 
-  private def facet =
-    ScalaFacet.findIn(module) getOrElse configurationError("No Scala facet configured for module: " + module.getName)
-  
-  private def facetCompiler = 
-    facet.compiler flatMap (_.jar) getOrElse configurationError("No compiler jar for Scala Facet in module: " + module.getName)
-  
-  private def facetLibrary = 
-    facet.compiler.flatMap {
-      case c => c.files find {
-        case file if file.getName contains "library" => true
-        case _ => false
-      }
-    } getOrElse configurationError("No library jar for Scala Facet in module: " + module.getName)
-  
-  private def facetFiles = facet.compiler flatMap {
-    case compiler => compiler.jar map {
-      case j => compiler.files
-    }
-  } getOrElse Seq.empty
-  
+  private def compilerSettings = module.getProject.scalaCompilerSettigns
+
+  private def scalaSdk =
+    module.scalaSdk getOrElse configurationError("No Scala facet configured for module: " + module.getName)
+
   private def findJdk = scala.compiler.findJdkByName(settings.COMPILE_SERVER_SDK) match {
     case Right(jdk) => jdk.executable
     case Left(msg) => 

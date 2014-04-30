@@ -68,7 +68,7 @@ class ServerMediator(project: Project) extends ProjectComponent {
   })
 
   private def checkCompilationSettings(): Boolean = {
-    def hasClashes(module: Module) = ScalaFacet.findIn(module).isDefined && {
+    def hasClashes(module: Module) = module.hasScala && {
       val extension = CompilerModuleExtension.getInstance(module)
       val production = extension.getCompilerOutputUrl
       val test = extension.getCompilerOutputUrlForTests

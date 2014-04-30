@@ -12,9 +12,6 @@ import org.jetbrains.plugins.scala.compiler.{ScalaApplicationSettings, CompileSe
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.worksheet.actions.{CleanWorksheetAction, WorksheetFileHook}
-import org.jetbrains.plugins.scala.config.ScalaFacet
-import org.jetbrains.plugins.scala.extensions
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.psi.PsiFile
 
