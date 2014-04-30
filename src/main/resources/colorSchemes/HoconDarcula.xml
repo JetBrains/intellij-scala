@@ -6,4 +6,9 @@
       <option name="FOREGROUND" value="00b8bb"/>
     </value>
   </option>
+  <option name="HOCON_OPTIONAL_REFERENCE_SIGN">
+    <value>
+      <option name="FOREGROUND" value="d0d0ff"/>
+    </value>
+  </option>
 </list>
