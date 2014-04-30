@@ -23,9 +23,14 @@ class ScalaPropertiesReferenceProvider(myDefaultSoft: Boolean) extends PsiRefere
   def getReferencesByElement(element: PsiElement, context: ProcessingContext): Array[PsiReference] = {
     if (ScalaProjectSettings.getInstance(element.getProject).isDisableI18N) return Array.empty
 
+    def canBeKey(literal: ScLiteral) = literal.isString && (literal.getValue match {
+      case str: String => !str.contains(" ")
+      case _ => false
+    })
+
     element match {
-      case stringLiteral: ScLiteral if stringLiteral.isString =>
-        val litValue = stringLiteral.getValue match {case str: String => str; case _ => return PsiReference.EMPTY_ARRAY}
+      case stringLiteral: ScLiteral if canBeKey(stringLiteral) =>
+        val litValue = stringLiteral.getValue.asInstanceOf[String]
         val annotationParams = mutable.HashMap[String, AnyRef](AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER -> null)
 
         if (!ScalaI18nUtil.mustBePropertyKey(element.getProject, stringLiteral, annotationParams)) return PsiReference.EMPTY_ARRAY
