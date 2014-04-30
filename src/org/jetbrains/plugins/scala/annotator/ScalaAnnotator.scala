@@ -72,7 +72,12 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       case _ => (false, false)
     }
 
+    if (isInSources) UsageTrigger.trigger("scala.file.annotated")
+
     val typeAware = isAdvancedHighlightingEnabled(element)
+
+    if (isInSources && typeAware) UsageTrigger.trigger("scala.file.type.aware.annotated")
+
     val visitor = new ScalaElementVisitor {
       private def expressionPart(expr: ScExpression) {
         if (!compiled) {
