@@ -1,5 +1,6 @@
 .idea/workspace.xml
 .idea/highlighting.xml
+.idea/libraries
 *.class
 out
 target
