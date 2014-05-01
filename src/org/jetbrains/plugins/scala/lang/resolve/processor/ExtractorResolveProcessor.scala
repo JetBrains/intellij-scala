@@ -82,7 +82,7 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
         if (filtered.size == 0) candidates
         else if (filtered.size == 1) filtered
         else {
-          new MostSpecificUtil(ref, 1).mostSpecificForResolveResult(filtered) match {
+          new MostSpecificUtil(ref, 1).mostSpecificForResolveResult(filtered, expandInnerResult = false) match {
             case Some(r) => mutable.HashSet(r)
             case None => candidates
           }
