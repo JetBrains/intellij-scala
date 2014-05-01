@@ -14,7 +14,7 @@ class RemoveRedundantReturnInspection extends AbstractInspection("ScalaRedundant
   def actionFor(holder: ProblemsHolder) = {
     case function: ScFunctionDefinition =>
     for (body <- function.body) {
-        val returns = body.calculateReturns
+        val returns = body.calculateReturns()
         body.depthFirst(!_.isInstanceOf[ScFunction]).foreach {
           case r: ScReturnStmt =>
             if (returns.contains(r)) {

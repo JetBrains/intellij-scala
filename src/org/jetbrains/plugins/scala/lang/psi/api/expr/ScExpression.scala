@@ -34,6 +34,7 @@ import lang.resolve.processor.MostSpecificUtil
 import types.Conformance.AliasType
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
 import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.extensions.ElementText
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -455,7 +456,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
     (implicits, implicitFunction, map.filter(!_.isFromCompanion).map(_.element), map.filter(_.isFromCompanion).map(_.element))
   }
 
-  final def calculateReturns: Seq[PsiElement] = {
+  final def calculateReturns(withBooleanInfix: Boolean = false): Seq[PsiElement] = {
     val res = new ArrayBuffer[PsiElement]
     def calculateReturns0(el: PsiElement) {
       el match {
@@ -485,6 +486,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
               }
             case _ => res += i
           }
+        case infix @ ScInfixExpr(ScExpression.Type(types.Boolean), ElementText(op), right @ ScExpression.Type(types.Boolean))
+          if withBooleanInfix && (op == "&&" || op == "||") => calculateReturns0(right)
         //TODO "!contains" is a quick fix, function needs unit testing to validate its behavior
         case _ => if (!res.contains(el)) res += el
       }
