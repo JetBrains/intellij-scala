@@ -482,11 +482,13 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), HashSet[ScType]
   def getSubstitutor: Option[ScSubstitutor] = getSubstitutor(notNonable = false)
 
   val additionalNames: Set[Name] = {
-    lowerAdditionalMap.keySet ++ upperAdditionalMap.keySet
+    //We need to exclude Nothing names from this set, see SCL-5736
+    lowerAdditionalMap.filter(_._2.exists(!_.equiv(Nothing))).keySet ++ upperAdditionalMap.keySet
   }
 
   val names: Set[Name] = {
-    upperMap.keySet ++ lowerMap.keySet ++ additionalNames
+    //We need to exclude Nothing names from this set, see SCL-5736
+    upperMap.keySet ++ lowerMap.filter(_._2.exists(!_.equiv(Nothing))).keySet ++ additionalNames
   }
 
   import collection.mutable.{HashMap => MHashMap}
