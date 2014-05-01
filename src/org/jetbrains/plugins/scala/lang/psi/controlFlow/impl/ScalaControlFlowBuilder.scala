@@ -466,7 +466,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       case Some(cb) => cb.expression match {
         case Some(b: ScBlockExpr) if b.isAnonymousFunction =>
           for (t <- b.caseClauses.toSeq.flatMap(_.caseClauses)) yield CatchInfo(t)
-        case None => Nil
+        case _ => Nil
       }
     }
     myCatchedExnStack pushAll handledExnTypes
