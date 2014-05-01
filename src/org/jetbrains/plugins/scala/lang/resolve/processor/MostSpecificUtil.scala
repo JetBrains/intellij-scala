@@ -29,7 +29,8 @@ import scala.collection.mutable.ArrayBuffer
  */
 case class MostSpecificUtil(elem: PsiElement, length: Int) {
   def mostSpecificForResolveResult(applicable: Set[ScalaResolveResult],
-                                   hasTypeParametersCall: Boolean = false): Option[ScalaResolveResult] = {
+                                   hasTypeParametersCall: Boolean = false,
+                                   expandInnerResult: Boolean = true): Option[ScalaResolveResult] = {
     def isSpecialTypeParametersCase(r: ScalaResolveResult): Boolean = {
       hasTypeParametersCall && (r.element match {
         case fun: ScFunction => fun.hasTypeParameters
@@ -37,10 +38,10 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
       })
     }
     mostSpecificGeneric(applicable.map(r => r.innerResolveResult match {
-      case Some(rr) =>
+      case Some(rr) if expandInnerResult =>
         new InnerScalaResolveResult(rr.element, rr.implicitConversionClass, r, r.substitutor,
           specialTypeParametersCase = isSpecialTypeParametersCase(r))
-      case None =>
+      case _ =>
         new InnerScalaResolveResult(r.element, r.implicitConversionClass, r, r.substitutor,
           specialTypeParametersCase = isSpecialTypeParametersCase(r))
     }), noImplicit = false).map(_.repr)
