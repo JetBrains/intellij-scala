@@ -28,6 +28,7 @@ import com.intellij.ide.util.EditorHelper
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
+import com.intellij.internal.statistic.UsageTrigger
 
 /**
  * @author Ksenia.Sautina
@@ -63,6 +64,7 @@ object RunWorksheetAction {
   private val runnerClassName = "org.jetbrains.plugins.scala.worksheet.MyWorksheetRunner"
 
   def runCompiler(project: Project, auto: Boolean) {
+    UsageTrigger.trigger("scala.worksheet")
     val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
 
     if (editor == null) return
