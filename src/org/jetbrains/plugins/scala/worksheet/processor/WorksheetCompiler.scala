@@ -26,7 +26,8 @@ class WorksheetCompiler {
   /**
    * @param callback (Name, AddToClasspath)
    */
-  def compileAndRun(editor: Editor, worksheetFile: ScalaFile, callback: (String, String) => Unit, ifEditor: Option[Editor]) {
+  def compileAndRun(editor: Editor, worksheetFile: ScalaFile, callback: (String, String) => Unit,
+                    ifEditor: Option[Editor], auto: Boolean) {
     import WorksheetCompiler._
     
     val worksheetVirtual = worksheetFile.getVirtualFile
@@ -49,16 +50,18 @@ class WorksheetCompiler {
         val task = new CompilerTask(project, s"Worksheet ${worksheetFile.getName} compilation", false, false, false, false)
 
         val worksheetPrinter =
-          WorksheetEditorPrinter.newWorksheetUiFor(editor, worksheetVirtual)
+          WorksheetEditorPrinter.newWorksheetUiFor(editor, worksheetVirtual, auto)
         worksheetPrinter.scheduleWorksheetUpdate()
 
-        val consumer = new RemoteServerConnector.CompilerInterfaceImpl(task, worksheetPrinter, None)
+        val consumer = new RemoteServerConnector.CompilerInterfaceImpl(task, worksheetPrinter, None, auto)
 
         task.start(new Runnable {
           override def run() {
             try {
               //todo smth with exit code
-              new RemoteServerConnector(ModuleUtilCore.findModuleForFile(worksheetVirtual, project), tempFile, outputDir).compileAndRun(new Runnable {
+              new RemoteServerConnector(
+                ModuleUtilCore.findModuleForFile(worksheetVirtual, project), tempFile, outputDir
+              ).compileAndRun(new Runnable {
                 override def run() {
                   if (runType == OutOfProcessServer) callback(name, outputDir.getAbsolutePath)
                 }

@@ -1,10 +1,15 @@
 package org.jetbrains.plugins.scala
 package worksheet.actions
 
-import com.intellij.openapi.actionSystem.{ActionToolbar, ActionPlaces, AnAction}
+import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.actionSystem.impl.ActionButton
 import javax.swing.{JPanel, Icon}
 import com.intellij.openapi.keymap.{KeymapUtil, KeymapManager}
+import com.intellij.openapi.application.{ModalityState, ApplicationManager}
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import com.intellij.openapi.project.Project
 
 /**
  * User: Dmitry Naydanov
@@ -39,9 +44,42 @@ trait TopComponentAction {
         }
     } getOrElse genericText
 
+    val actionButton = getActionButton
+
     presentation setText text
     presentation setIcon actionIcon
-    
-    panel add getActionButton
+    presentation setEnabled true
+
+    ApplicationManager.getApplication.invokeAndWait(new Runnable {
+      override def run() {
+        panel.add(actionButton, 0)
+      }
+    }, ModalityState.any())
+  }
+
+  protected def updateInner(presentation: Presentation, project: Project) {
+    if (project == null) return
+
+    def enable() {
+      presentation setEnabled true
+      presentation setVisible true
+    }
+
+    def disable() {
+      presentation setEnabled false
+      presentation setVisible false
+    }
+
+    try {
+      val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
+      val psiFile = extensions.inReadAction(PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument))
+
+      psiFile match {
+        case sf: ScalaFile if sf.isWorksheetFile => enable()
+        case _ => disable()
+      }
+    } catch {
+      case e: Exception => disable()
+    }
   }
 }
