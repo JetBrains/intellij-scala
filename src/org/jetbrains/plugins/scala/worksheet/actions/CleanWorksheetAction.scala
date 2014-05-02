@@ -39,7 +39,7 @@ class CleanWorksheetAction() extends AnAction with TopComponentAction {
     
     if (psiFile == null || viewer == null) return
 
-    val splitPane = viewer.getComponent.getParent.asInstanceOf[JBSplitter]
+    val splitPane = viewer.getComponent.getParent
     val parent = splitPane.getParent
     if (parent == null) return
     
@@ -60,26 +60,7 @@ class CleanWorksheetAction() extends AnAction with TopComponentAction {
     val presentation = e.getPresentation
     presentation.setIcon(AllIcons.Actions.GC)
 
-    def enable() {
-      presentation.setEnabled(true)
-      presentation.setVisible(true)
-    }
-    
-    def disable() {
-      presentation.setEnabled(false)
-      presentation.setVisible(false)
-    }
-
-    try {
-      val editor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
-      val psiFile: PsiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(editor.getDocument)
-      psiFile match {
-        case sf: ScalaFile if sf.isWorksheetFile => enable()
-        case _ => disable()
-      }
-    } catch {
-      case e: Exception => disable()
-    }
+    updateInner(presentation, e.getProject)
   }
 
   override def actionIcon = AllIcons.Actions.GC

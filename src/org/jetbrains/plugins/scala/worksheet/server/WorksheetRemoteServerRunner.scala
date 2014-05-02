@@ -56,7 +56,9 @@ class WorksheetRemoteServerRunner(project: Project) extends RemoteResourceOwner 
         case e: UnknownHostException =>
           val message = "Unknown IP address of compile server host: " + address.toString
           client.error(message)
-      } finally callbacks.foreach(a => a())
+      } finally {
+        callbacks.foreach(a => a())
+      }
     }
 
     override def stop() {

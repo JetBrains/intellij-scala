@@ -148,9 +148,12 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File) {
       }
       
       if (worksheetProcess == null) return ExitCode.ABORT
-      
-      worksheetHook.initTopComponent(originalFile, run = false, Some(worksheetProcess))
-      worksheetProcess.addTerminationCallback({worksheetHook.initTopComponent(originalFile, run = true)})
+
+      worksheetHook.disableRun(originalFile, Some(worksheetProcess))
+      worksheetProcess.addTerminationCallback({worksheetHook enableRun originalFile})
+
+      WorksheetProcessManager.add(originalFile, worksheetProcess)
+
       worksheetProcess.run()
       
       ExitCode.OK
@@ -214,7 +217,7 @@ object RemoteServerConnector {
       consumer.progress(text, done)
     }
     override def trace(exception: Throwable) {
-      throw new RuntimeException(exception)
+      consumer trace exception
     }
     override def message(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]) {
       val lines = text split "\n"
@@ -229,8 +232,11 @@ object RemoteServerConnector {
         val buffer = new StringBuilder
         
         for (j <- 0 until (linesLength - 2)) buffer append lines(j) append "\n"
-        
-        buffer append lines(linesLength - 2).substring(differ) append "\n" append lines(linesLength - 1).substring(differ) append "\n"
+
+        val lines1 = lines(linesLength - 1)
+
+        buffer append lines(linesLength - 2).substring(differ) append "\n" append (
+          if (lines1.length > differ) lines1.substring(differ) else lines1) append "\n"
         buffer.toString()
       }
       
@@ -265,10 +271,13 @@ object RemoteServerConnector {
     def progress(text: String, done: Option[Float])
     
     def worksheetOutput(text: String)
+    def trace(thr: Throwable)
   }
   
-  class CompilerInterfaceImpl(task: CompilerTask, worksheetPrinter: WorksheetEditorPrinter, indicator: Option[ProgressIndicator]) extends OuterCompilerInterface {
+  class CompilerInterfaceImpl(task: CompilerTask, worksheetPrinter: WorksheetEditorPrinter,
+                              indicator: Option[ProgressIndicator], auto: Boolean = false) extends OuterCompilerInterface {
     override def progress(text: String, done: Option[Float]) {
+      if (auto) return
       val taskIndicator = ProgressManager.getInstance().getProgressIndicator
       
       if (taskIndicator != null) {
@@ -278,11 +287,16 @@ object RemoteServerConnector {
     }
 
     override def message(message: CompilerMessageImpl) {
+      if (auto) return
       task addMessage message
     }
 
     override def worksheetOutput(text: String) {
       worksheetPrinter.processLine(text)
+    }
+
+    override def trace(thr: Throwable) {
+      throw new RuntimeException(thr)
     }
   }
 }
