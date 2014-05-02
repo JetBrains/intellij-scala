@@ -29,10 +29,10 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
 
   def removeAssignment()
 
-  def getReturnUsages: Array[PsiElement] = body map (exp => {
-    (exp.depthFirst(!_.isInstanceOf[ScFunction]).filter(_.isInstanceOf[ScReturnStmt]) ++ exp.calculateReturns).
+  def returnUsages(withBooleanInfix: Boolean = false): Array[PsiElement] = body.fold(Array.empty[PsiElement])(exp => {
+    (exp.depthFirst(!_.isInstanceOf[ScFunction]).filter(_.isInstanceOf[ScReturnStmt]) ++ exp.calculateReturns(withBooleanInfix)).
       filter(_.getContainingFile == getContainingFile).toArray.distinct
-  }) getOrElse Array.empty[PsiElement]
+  })
 
   def canBeTailRecursive = getParent match {
     case (_: ScTemplateBody) && Parent(Parent(owner: ScTypeDefinition)) =>
@@ -50,15 +50,13 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
       .map(_.canonicalText).exists(_ == "_root_.scala.annotation.tailrec"))
 
   def recursiveReferences: Seq[RecursiveReference] = {
-    val resultExpressions = getReturnUsages
+    val resultExpressions = returnUsages(withBooleanInfix = true)
 
     @scala.annotation.tailrec
     def possiblyTailRecursiveCallFor(elem: PsiElement): PsiElement = elem.getParent match {
       case call: ScMethodCall => possiblyTailRecursiveCallFor(call)
       case call: ScGenericCall => possiblyTailRecursiveCallFor(call)
       case ret: ScReturnStmt => ret
-      case infix @ ScInfixExpr(ScExpression.Type(types.Boolean), ElementText(op), right @ ScExpression.Type(types.Boolean))
-        if right == elem && (op == "&&" || op == "||") => possiblyTailRecursiveCallFor(infix)
       case _ => elem
     }
 
@@ -67,7 +65,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
         case i: ScIfStmt if i.elseBranch.isEmpty =>
           i.thenBranch match {
             case Some(then) =>
-              then.calculateReturns.flatMap(expandIf) :+ elem
+              then.calculateReturns().flatMap(expandIf) :+ elem
             case _ => Seq(elem)
           }
         case _ => Seq(elem)
