@@ -7,7 +7,9 @@ sealed class HoconTokenType(debugString: String) extends IElementType(debugStrin
 
 object HoconTokenType extends TokenType {
 
-  val Whitespace = new HoconTokenType("WHITESPACE")
+  val InlineWhitespace = new HoconTokenType("INLINE_WHITESPACE")
+
+  val LineBreakingWhitespace = new HoconTokenType("LINE_BREAKING_WHITESPACE")
 
   val BadCharacter = new HoconTokenType("BAD_CHARACTER")
 
@@ -27,9 +29,7 @@ object HoconTokenType extends TokenType {
 
   val PlusEquals = new HoconTokenType("PLUS_EQUALS")
 
-  val Period = new HoconTokenType("DOT")
-
-  val NewLine = new HoconTokenType("NEWLINE")
+  val Period = new HoconTokenType("PERIOD")
 
   val Dollar = new HoconTokenType("DOLLAR")
 

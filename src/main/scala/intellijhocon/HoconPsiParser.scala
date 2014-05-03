@@ -1,12 +1,14 @@
 package intellijhocon
 
-import com.intellij.lang.{WhitespaceSkippedCallback, WhitespacesBinders, PsiBuilder, PsiParser}
+import com.intellij.lang.{WhitespacesBinders, PsiBuilder, PsiParser}
 import com.intellij.psi.tree.IElementType
 import scala.util.matching.Regex
+import com.intellij.lang.PsiBuilder.Marker
 
 class HoconPsiParser extends PsiParser {
 
   import HoconTokenType._
+  import HoconTokenSets._
   import HoconElementType._
 
   def parse(root: IElementType, builder: PsiBuilder) = {
@@ -16,249 +18,203 @@ class HoconPsiParser extends PsiParser {
     builder.getTreeBuilt
   }
 
-  class FatalParseException extends RuntimeException
-
-  trait TokenMatcher {
-    self =>
-
-    def matches(builder: PsiBuilder): Boolean
-
-    def |(otherMatcher: TokenMatcher) = new TokenMatcher {
-      def matches(builder: PsiBuilder) =
-        self.matches(builder) || otherMatcher.matches(builder)
-    }
-  }
-
-  implicit def singleTokenMatcher(tokenType: HoconTokenType) = new TokenMatcher {
-    def matches(builder: PsiBuilder) =
-      builder.getTokenType == tokenType
-  }
-
-  implicit def unquotedTokenMatcherFromString(unquoted: String) = new TokenMatcher {
-    def matches(builder: PsiBuilder) =
-      builder.getTokenType == UnquotedChars && builder.getTokenText == unquoted
-  }
-
-  implicit def unquotedTokenMatcherFromRegex(regex: Regex) = new TokenMatcher {
-    def matches(builder: PsiBuilder) =
-      builder.getTokenType == UnquotedChars && regex.pattern.matcher(builder.getTokenText).matches
-  }
-
-  object Eof extends TokenMatcher {
-    def matches(builder: PsiBuilder) = builder.eof
-  }
-
-  val ObjectEntriesEnding = RBrace | Eof
-  val ObjectEntryEnding = Comma | NewLine | ObjectEntriesEnding
-  val ArrayValuesEnding = RBracket | RBrace | Eof
-  val ArrayValueEnding = Comma | NewLine | ArrayValuesEnding
-  val EntryPathEnding = Colon | Equals | PlusEquals | LBrace | ObjectEntryEnding
-  val ReferencePathEnding = NewLine | RefRBrace | Eof
-
-  val PathElementToken = UnquotedChars | QuotedString | MultilineString
-
-  val ValueSeparator = NewLine | Comma
-  val PathValueSeparator = Colon | Equals | PlusEquals
-  val SimpleValueElement = UnquotedChars | Period | QuotedString | MultilineString
-
+  val IncludeQualifiers = Set("url(", "classpath(", "file(")
   val IntegerPattern = """-?(0|[1-9][0-9]*)""".r
   val DecimalPartPattern = """([0-9]+)((e|E)(\+|-)?[0-9]+)?""".r
 
   class Parser(builder: PsiBuilder) {
 
-    import builder._
+    def newLineBeforeCurrentToken =
+      builder.rawLookup(-1) == LineBreakingWhitespace
 
-    def withWhitespaceSkippedCallback[T](callback: WhitespaceSkippedCallback)(code: => T): T = {
-      builder.setWhitespaceSkippedCallback(callback)
-      try code finally {
-        builder.setWhitespaceSkippedCallback(null)
+    def matches(matcher: Matcher) =
+      (matcher.tokenSet.contains(builder.getTokenType) && (!matcher.requireNoNewLine || !newLineBeforeCurrentToken)) ||
+        (matcher.matchNewLine && newLineBeforeCurrentToken) || (matcher.matchEof && builder.eof)
+
+    def matchesUnquoted(str: String) =
+      matches(UnquotedChars) && builder.getTokenText == str
+
+    def matchesUnquoted(pattern: Regex) =
+      matches(UnquotedChars) && pattern.pattern.matcher(builder.getTokenText).matches
+
+    def pass(matcher: Matcher): Boolean = {
+      val result = matches(matcher)
+      if (result && (!matcher.matchNewLine || !newLineBeforeCurrentToken) && (!matcher.matchEof || !builder.eof)) {
+        builder.advanceLexer()
       }
-    }
-
-    def matches(matcher: TokenMatcher) =
-      matcher.matches(builder)
-
-    def matchesAhead(matcher: TokenMatcher, steps: Int) = {
-      val marker = mark()
-      for (_ <- 0 to steps) advanceLexer()
-      val result = matcher.matches(builder)
-      marker.rollbackTo()
       result
     }
 
-    def defaultFailure =
-      throw new FatalParseException
-
-    def expect(matcher: TokenMatcher, onFailure: => Unit = defaultFailure): Boolean = {
-      val result = matcher.matches(builder)
-      if (result)
-        advanceLexer()
-      else
-        onFailure
-      result
-    }
-
-    def errorUntil(matcher: TokenMatcher, msg: String, onlyNonEmpty: Boolean = false) {
-      val marker = mark()
-      while (!builder.eof && !matches(matcher)) {
-        advanceLexer()
-      }
-      marker.error(msg)
-    }
-
-    def errorWhileNot(matcher: TokenMatcher, errorMsg: String) {
-      if (!matches(matcher)) {
-        val marker = mark()
-        while (!builder.eof && !matches(matcher)) {
-          advanceLexer()
+    def errorUntil(matcher: Matcher, msg: String, onlyNonEmpty: Boolean = false) {
+      if (!onlyNonEmpty || !matches(matcher)) {
+        val marker = builder.mark()
+        while (!matches(matcher)) {
+          builder.advanceLexer()
         }
-        marker.error(errorMsg)
+        marker.error(msg)
       }
     }
 
     def tokenError(msg: String) {
-      val marker = mark()
-      advanceLexer()
+      val marker = builder.mark()
+      builder.advanceLexer()
       marker.error(msg)
     }
-
-    def pass(matcher: TokenMatcher) =
-      expect(matcher, onFailure = ())
 
     def parseFile() {
       if (matches(LBrace))
         parseObject()
       else
-        parseObjectEntries()
-      errorWhileNot(Eof, "expected end of file")
+        parseObjectEntries(insideObject = false)
+      errorUntil(Empty.orEof, "expected end of file", onlyNonEmpty = true)
     }
 
     def parseObject() = {
-      val marker = mark()
+      val marker = builder.mark()
 
-      expect(LBrace)
-      parseObjectEntries()
+      builder.advanceLexer()
+      parseObjectEntries(insideObject = true)
       if (!pass(RBrace)) {
-        error("expected '}'")
+        builder.error("expected '}'")
       }
 
       marker.done(Object)
     }
 
-    def parseObjectEntries() = {
-      val marker = mark()
+    def parseObjectEntries(insideObject: Boolean) = {
+      val marker = builder.mark()
 
-      while (!matches(ObjectEntriesEnding)) {
-        parseObjectEntry()
-        pass(ValueSeparator)
+      while (!matches(RBrace.orEof)) {
+        if (matches(ObjectEntryStart)) {
+          parseObjectEntry()
+          pass(Comma)
+        } else {
+          tokenError("expected object field, include" + (if (insideObject) " or '}'" else ""))
+        }
       }
 
       marker.done(ObjectEntries)
     }
 
     def parseObjectEntry() {
-      if (matches(ObjectEntryEnding)) {
-        error("expected object field or include")
+      if (matches(ValueEnding)) {
+        builder.error("expected object field or include")
         return
       }
 
-      if (matches("include"))
+      if (matchesUnquoted("include"))
         parseInclude()
       else
         parseObjectField()
-      errorWhileNot(ObjectEntryEnding, "expected new line, ',' or '}'")
+      errorUntil(ValueEnding.orNewLineOrEof, "unexpected token", onlyNonEmpty = true)
     }
 
     def parseInclude() = {
-      val marker = mark()
+      val marker = builder.mark()
 
-      expect("include")
-      pass(NewLine)
+      builder.advanceLexer()
       parseIncluded()
 
       marker.done(Include)
     }
 
     def parseIncluded() {
-      val marker = mark()
+      val marker = builder.mark()
 
       if (pass(QuotedString)) ()
-      else if (pass("url(" | "file(" | "classpath(")) {
-        if (!pass(QuotedString)) {
-          errorUntil(ObjectEntryEnding, "expected quoted string")
-        } else if (!pass(")")) {
-          errorUntil(ObjectEntryEnding, "expected ')'")
-        }
-      } else errorUntil(ObjectEntryEnding,
+      else if (IncludeQualifiers.exists(matchesUnquoted)) {
+        builder.advanceLexer()
+        if (pass(QuotedString)) {
+          if (matchesUnquoted(")")) {
+            builder.advanceLexer()
+          } else errorUntil(ValueEnding.orNewLineOrEof, "expected ')'")
+        } else errorUntil(ValueEnding.orNewLineOrEof, "expected quoted string")
+      } else errorUntil(ValueEnding.orNewLineOrEof,
         "expected quoted string, optionally wrapped in 'url(...)', 'file(...)' or 'classpath(...)'")
 
       marker.done(Included)
     }
 
     def parseObjectField(): Unit = {
-      val marker = mark()
+      val marker = builder.mark()
 
-      parsePath(EntryPathEnding)
+      parsePath(reference = false)
       if (matches(LBrace)) {
         parseObject()
       } else if (pass(PathValueSeparator)) {
-        parseValue(ObjectEntryEnding)
-      } else errorUntil(ObjectEntryEnding,
+        parseValue()
+      } else errorUntil(ValueEnding.orNewLineOrEof,
         "expected ':', '=', '+=' or object")
 
       marker.done(ObjectField)
     }
 
-    def parsePath(endingMatcher: TokenMatcher): Unit = {
-      val marker = mark()
+    def parsePath(reference: Boolean): Unit = {
+      val endingMatcher = if (reference) PathEnding.orNewLineOrEof else PathEnding.orEof
+      val pathType = if (reference) ReferencePath else Path
 
       if (matches(endingMatcher)) {
-        marker.error("expected path expression")
+        builder.error("expected path expression")
         return
       }
 
-      val elementEndingMatcher = endingMatcher | Period
-      parsePathElement(elementEndingMatcher, first = true)
-      while (pass(Period)) {
-        parsePathElement(elementEndingMatcher, first = false)
+      var pathMarker = parseKey(pathType, None)
+      while (pass(Period.noNewLine)) {
+        pathMarker = parseKey(pathType, Some(pathMarker))
       }
 
-      marker.done(Path)
     }
 
-    def parsePathElement(endingMatcher: TokenMatcher, first: Boolean): Unit = {
-      val marker = mark()
-
-      if (matches(endingMatcher)) {
-        marker.error("expected path element (use quoted \"\" if you want an empty string)")
-        return
+    def parseKey(pathType: HoconElementType, prefixPathMarker: Option[Marker]): Marker = {
+      val pathMarker = prefixPathMarker match {
+        case Some(m) => m.precede()
+        case None => builder.mark()
       }
 
-      while (!matches(endingMatcher)) {
-        expect(PathElementToken, onFailure =
-          tokenError("path element must be a concatenation of unquoted, quoted or multiline strings " +
-            "(characters $\"{}[]:=,+#`^?!@*&\\ are forbidden in an unquoted string)"))
+      val marker = builder.mark()
+
+      val first = !prefixPathMarker.isDefined
+      if (matches(KeyEnding) || (!first && matches(Empty.orNewLineOrEof))) {
+        marker.error("expected key (use quoted \"\" if you want an empty string)")
+        pathMarker.done(pathType)
+        return pathMarker
       }
 
-      marker.done(PathElement)
+      def parseKeyToken() {
+        if (!pass(KeyTokens)) {
+          tokenError("key must be a concatenation of unquoted, quoted or multiline strings " +
+            "(characters $ \" { } [ ] : = , + # ` ^ ? ! @ * & \\ are forbidden unquoted)")
+        }
+      }
+
+      parseKeyToken()
+      while (!matches(KeyEnding.orNewLineOrEof)) {
+        parseKeyToken()
+      }
+
+      marker.done(Key)
 
       val leftWhitespacesBinder =
         if (first) WhitespacesBinders.DEFAULT_LEFT_BINDER else WhitespacesBinders.GREEDY_LEFT_BINDER
       val rightWhitespacesBinder =
         if (matches(Period)) WhitespacesBinders.GREEDY_RIGHT_BINDER else WhitespacesBinders.DEFAULT_RIGHT_BINDER
       marker.setCustomEdgeTokenBinders(leftWhitespacesBinder, rightWhitespacesBinder)
+
+      pathMarker.done(pathType)
+
+      pathMarker
     }
 
-    def parseValue(endingMatcher: TokenMatcher): Unit = {
-      val marker = mark()
+    def parseValue(): Unit = {
+      val marker = builder.mark()
 
-      if (matches(endingMatcher)) {
+      if (matches(ValueEnding.orEof)) {
         marker.error("expected value")
         return
       }
 
       def tryParse(parsingCode: => Boolean, element: HoconElementType): Boolean = {
-        val marker = mark()
+        val marker = builder.mark()
         if (parsingCode) {
           marker.done(element)
           true
@@ -268,73 +224,91 @@ class HoconPsiParser extends PsiParser {
         }
       }
 
-      def tryParseNull = tryParse(pass("null") && matches(endingMatcher), Null)
-      def tryParseBoolean = tryParse(pass("true" | "false") && matches(endingMatcher), Boolean)
+      def passKeyword(kw: String) =
+        if (matchesUnquoted(kw)) {
+          builder.advanceLexer()
+          true
+        } else
+          false
+
+      val endingMatcher = ValueEnding.orNewLineOrEof
+
+      def tryParseNull = tryParse(passKeyword("null") && matches(endingMatcher), Null)
+      def tryParseBoolean = tryParse((passKeyword("true") || passKeyword("false")) && matches(endingMatcher), Boolean)
       def tryParseNumber = tryParse(passNumber() && matches(endingMatcher), Number)
 
+      def parseValuePart() {
+        if (matches(LBrace)) {
+          parseObject()
+        } else if (matches(LBracket)) {
+          parseArray()
+        } else if (matches(Dollar)) {
+          parseReference()
+        } else if (!pass(SimpleValuePart)) {
+          tokenError("characters $ \" { } [ ] : = , + # ` ^ ? ! @ * & \\ are forbidden unquoted")
+        }
+      }
+
       if (!tryParseNull && !tryParseBoolean && !tryParseNumber) {
+        parseValuePart()
         while (!matches(endingMatcher)) {
-          if (matches(LBrace)) {
-            parseObject()
-          } else if (matches(LBracket)) {
-            parseArray()
-          } else if (matches(Dollar)) {
-            parseReference()
-          } else if (!pass(SimpleValueElement)) {
-            tokenError("characters $\"{}[]:=,+#`^?!@*&\\ are forbidden in an unquoted string")
-          }
+          parseValuePart()
         }
       }
 
       marker.done(Value)
     }
 
-    def passNumber(): Boolean = matches(IntegerPattern) && {
+    def passNumber(): Boolean = matchesUnquoted(IntegerPattern) && {
       // we need to detect whitespaces between tokens forming a number to behave as if number is a single token
       val integerRawTokenIdx = builder.rawTokenIndex
-      advanceLexer()
+      builder.advanceLexer()
 
       val gotPeriod = matches(Period)
       val noPeriodWhitespace = gotPeriod && builder.rawTokenIndex == integerRawTokenIdx + 1
 
       if (gotPeriod) {
-        advanceLexer()
+        builder.advanceLexer()
       }
 
-      val gotDecimalPart = gotPeriod && matches(DecimalPartPattern)
+      val gotDecimalPart = gotPeriod && matchesUnquoted(DecimalPartPattern)
       val noDecimalPartWhitespace = gotDecimalPart && builder.rawTokenIndex() == integerRawTokenIdx + 2
 
       if (gotDecimalPart) {
-        advanceLexer()
+        builder.advanceLexer()
       }
 
       (!gotPeriod || noPeriodWhitespace) && (!gotDecimalPart || noDecimalPartWhitespace)
     }
 
     def parseArray() {
-      val marker = mark()
-      expect(LBracket)
+      val marker = builder.mark()
+      builder.advanceLexer()
 
-      while (!matches(ArrayValuesEnding)) {
-        parseValue(ArrayValueEnding)
-        pass(ValueSeparator)
+      while (!matches(ArrayElementsEnding.orEof)) {
+        if (matches(ValueStart)) {
+          parseValue()
+          pass(Comma)
+        } else {
+          tokenError("expected array element or ']'")
+        }
       }
 
       if (!pass(RBracket)) {
-        error("expected ']'")
+        builder.error("expected ']'")
       }
 
       marker.done(Array)
     }
 
     def parseReference() {
-      val marker = mark()
-      expect(Dollar)
-      expect(RefLBrace)
+      val marker = builder.mark()
+      builder.advanceLexer()
+      builder.advanceLexer()
       pass(QMark)
-      parsePath(ReferencePathEnding)
+      parsePath(reference = true)
       if (!pass(RefRBrace)) {
-        error("expected '}'")
+        builder.error("expected '}'")
       }
       marker.done(Reference)
     }

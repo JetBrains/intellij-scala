@@ -6,32 +6,34 @@ class HoconElementType(debugName: String) extends IElementType(debugName, HoconL
 
 object HoconElementType {
 
-  object HoconFileElementType extends IFileElementType("HOCON_FILE", HoconLanguage)
+  val HoconFileElementType = new IFileElementType("HOCON_FILE", HoconLanguage)
 
-  object Object extends HoconElementType("OBJECT")
+  val Object = new HoconElementType("OBJECT")
 
-  object ObjectEntries extends HoconElementType("OBJECT_ENTRIES")
+  val ObjectEntries = new HoconElementType("OBJECT_ENTRIES")
 
-  object Include extends HoconElementType("INCLUDE")
+  val Include = new HoconElementType("INCLUDE")
 
-  object Included extends HoconElementType("INCLUDED")
+  val Included = new HoconElementType("INCLUDED")
 
-  object ObjectField extends HoconElementType("OBJECT_FIELD")
+  val ObjectField = new HoconElementType("OBJECT_FIELD")
 
-  object Path extends HoconElementType("PATH")
+  val Path = new HoconElementType("PATH")
 
-  object PathElement extends HoconElementType("PATH_ELEMENT")
+  val ReferencePath = new HoconElementType("REFERENCE_PATH")
 
-  object Array extends HoconElementType("ARRAY")
+  val Key = new HoconElementType("KEY")
 
-  object Value extends HoconElementType("VALUE")
+  val Array = new HoconElementType("ARRAY")
 
-  object Number extends HoconElementType("NUMBER")
+  val Value = new HoconElementType("VALUE")
 
-  object Null extends HoconElementType("NULL")
+  val Number = new HoconElementType("NUMBER")
 
-  object Reference extends HoconElementType("REFERENCE")
+  val Null = new HoconElementType("NULL")
 
-  object Boolean extends HoconElementType("BOOLEAN")
+  val Reference = new HoconElementType("REFERENCE")
+
+  val Boolean = new HoconElementType("BOOLEAN")
 
 }
