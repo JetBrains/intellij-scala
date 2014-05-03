@@ -50,7 +50,8 @@ trait ScTypePsiTypeBridge {
               val res =
                 if (containingClass == null) ScDesignatorType(clazz)
                 else {
-                  ScProjectionType(constructTypeForClass(containingClass, withTypeParameters = true), clazz, superReference = false)
+                  ScProjectionType(constructTypeForClass(containingClass,
+                    withTypeParameters = !clazz.hasModifierProperty("static")), clazz, superReference = false)
                 }
               if (withTypeParameters) {
                 val typeParameters: Array[PsiTypeParameter] = clazz.getTypeParameters
