@@ -7,6 +7,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testAssignmentNotImported() {doTest()}
 
+  def testCloseable() {doTest()}
+
   def testCyclicGetClass() {doTest()}
 
   def testDefaultParamInference() {doTest()}
