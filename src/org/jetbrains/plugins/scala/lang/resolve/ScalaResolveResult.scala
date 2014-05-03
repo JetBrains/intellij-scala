@@ -13,6 +13,7 @@ import extensions.{toPsiClassExt, toPsiNamedElementExt}
 import psi.api.toplevel.ScNamedElement
 import scala.annotation.tailrec
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import com.intellij.psi.util.PsiTreeUtil
 
 object ScalaResolveResult {
   def empty = new ScalaResolveResult(null, ScSubstitutor.empty, Set[ImportUsed]())
@@ -188,7 +189,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
                 case "scala" => return SCALA
                 case _ =>
                   clazz match {
-                    case o: ScObject if o.isPackageObject =>
+                    case o: ScObject if o.isPackageObject  && !PsiTreeUtil.isContextAncestor(o, place, false) =>
                       var q = o.qualifiedName
                       val packageSuffix: String = ".`package`"
                       if (q.endsWith(packageSuffix)) q = q.substring(0, q.length - packageSuffix.length)
