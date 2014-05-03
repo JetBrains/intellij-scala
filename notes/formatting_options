@@ -1,0 +1,17 @@
+objects and lists formatting:
+
+- try to keep in single line
+- every entry in separate line (when multiline)
+- wrap when longer than right margin
+
+- new line after '[' or '{'
+- new line before ']' or '}'
+ * always
+ * only when multiline
+ * never
+
+- keep line breaks
+
+- comma separated values always on the same line
+- comma separated values one the same line, but wrapped if too long
+-

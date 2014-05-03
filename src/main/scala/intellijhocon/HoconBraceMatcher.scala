@@ -7,6 +7,7 @@ import com.intellij.psi.tree.IElementType
 class HoconBraceMatcher extends PairedBraceMatcher {
 
   import HoconTokenType._
+  import HoconTokenSets._
 
   def getPairs = Array(
     new BracePair(LBrace, RBrace, true),
@@ -14,11 +15,11 @@ class HoconBraceMatcher extends PairedBraceMatcher {
     new BracePair(RefLBrace, RefRBrace, false)
   )
 
+  private val AllowsPairedBraceBefore =
+    WhitespaceOrComment | Comma | RBrace | RBracket
+
   def isPairedBracesAllowedBeforeType(lbraceType: IElementType, contextType: IElementType) =
-    contextType match {
-      case Whitespace | HashComment | NewLine | Comma | RBrace | RBracket => true
-      case _ => false
-    }
+    AllowsPairedBraceBefore.contains(contextType)
 
   def getCodeConstructStart(file: PsiFile, openingBraceOffset: Int) =
     openingBraceOffset

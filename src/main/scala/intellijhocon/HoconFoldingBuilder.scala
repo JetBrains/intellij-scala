@@ -12,7 +12,7 @@ class HoconFoldingBuilder extends FoldingBuilder {
 
   def buildFoldRegions(node: ASTNode, document: Document): Array[FoldingDescriptor] = {
     val buffer = new ArrayBuffer[FoldingDescriptor]
-    def traverse(node: ASTNode): Unit = {
+    def traverse(node: ASTNode): Unit = if(node.getTextLength > 1) {
       val nodeType = node.getElementType
       if (nodeType == Object || nodeType == Array || nodeType == MultilineString) {
         buffer += new FoldingDescriptor(node, node.getTextRange)

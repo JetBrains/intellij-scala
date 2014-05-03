@@ -16,19 +16,18 @@ class HoconColorSettingsPage extends ColorSettingsPage {
        |
        |<include>include</include> <inclmod>classpath</inclmod><imparens>(</imparens><quotedstring>"included.conf"</quotedstring><imparens>)</imparens>
        |
-       |<pathel>object</pathel><dot>.</dot><pathel>subobject</pathel> <braces>{</braces>
-       |    <pathel>someList</pathel> <pathvalueseparator>=</pathvalueseparator> <brackets>[</brackets>
+       |<key>object</key><dot>.</dot><key>subobject</key> <braces>{</braces>
+       |    <key>someList</key> <pathvalueseparator>=</pathvalueseparator> <brackets>[</brackets>
        |        <null>null</null><comma>,</comma>
        |        <boolean>true</boolean><comma>,</comma>
        |        <number>123.4e5</number><comma>,</comma>
        |        <unquotedstring>unquoted string </unquotedstring><badchar>*</badchar><comma>,</comma>
        |        <quotedstring>"quo</quotedstring><validstringescape>\\n</validstringescape><quotedstring>ted</quotedstring><invalidstringescape>\\d</invalidstringescape><quotedstring> string"</quotedstring><comma>,</comma>
-       |        <refsign>$$</refsign><refbraces>{</refbraces><optrefsign>?</optrefsign><refpathel>reference</refpathel><dot>.</dot><refpathel>inner</refpathel><refbraces>}</refbraces><comma>,</comma>
+       |        <refsign>$$</refsign><refbraces>{</refbraces><optrefsign>?</optrefsign><refkey>reference</refkey><dot>.</dot><refkey>inner</refkey><refbraces>}</refbraces><comma>,</comma>
        |        <multilinestring>${"\"\"\""}multiline\n        multiline${"\"\"\""}</multilinestring>
        |    <brackets>]</brackets>
        |<braces>}</braces>
-       |
-    """.stripMargin
+       |""".stripMargin
 
   def getAdditionalHighlightingTagToDescriptorMap = Map(
     "badchar" -> HHC.BadCharacter,
@@ -53,8 +52,8 @@ class HoconColorSettingsPage extends ColorSettingsPage {
     "optrefsign" -> HHC.OptionalReferenceSign,
     "unquotedstring" -> HHC.UnquotedString,
     "dot" -> HHC.PathSeparator,
-    "pathel" -> HHC.PathElement,
-    "refpathel" -> HHC.ReferencePathElement
+    "key" -> HHC.Key,
+    "refkey" -> HHC.ReferenceKey
   ).asJava
 
   def getHighlighter =
@@ -94,7 +93,7 @@ object HoconColorSettingsPage {
     "Optional reference sign" -> HHC.OptionalReferenceSign,
     "Unquoted string" -> HHC.UnquotedString,
     "Path separator" -> HHC.PathSeparator,
-    "Path element" -> HHC.PathElement,
-    "Path element in reference" -> HHC.ReferencePathElement
+    "Key" -> HHC.Key,
+    "Key in reference" -> HHC.ReferenceKey
   ).map({ case (displayName, key) => new AttributesDescriptor(displayName, key)})
 }

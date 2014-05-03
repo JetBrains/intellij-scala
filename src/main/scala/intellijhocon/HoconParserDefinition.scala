@@ -14,7 +14,10 @@ class HoconParserDefinition extends ParserDefinition {
   import HoconTokenType._
 
   def spaceExistanceTypeBetweenTokens(left: ASTNode, right: ASTNode): SpaceRequirements =
-    SpaceRequirements.MUST
+    (left.getElementType, right.getElementType) match {
+      case (Dollar, RefLBrace) | (RefLBrace, QMark) => SpaceRequirements.MUST_NOT
+      case _ => SpaceRequirements.MAY
+    }
 
   def createFile(viewProvider: FileViewProvider): PsiFile =
     new HoconPsiFile(viewProvider)
@@ -23,13 +26,13 @@ class HoconParserDefinition extends ParserDefinition {
     new HoconPsiElement(node)
 
   def getStringLiteralElements: TokenSet =
-    TokenSet.create(QuotedString, MultilineString)
+    HoconTokenSets.StringLiteral
 
   def getCommentTokens: TokenSet =
-    TokenSet.create(HashComment, DoubleSlashComment)
+    HoconTokenSets.Comment
 
   def getWhitespaceTokens: TokenSet =
-    TokenSet.create(Whitespace)
+    HoconTokenSets.Whitespace
 
   def getFileNodeType: IFileElementType =
     HoconFileElementType
