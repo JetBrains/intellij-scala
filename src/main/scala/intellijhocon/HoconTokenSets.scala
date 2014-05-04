@@ -33,10 +33,12 @@ object HoconTokenSets {
   val ValueEnding = Comma | RBrace | RBracket
   val PathEnding = PathValueSeparator | LBrace | RefRBrace | ValueEnding
   val KeyEnding = PathEnding | Period
-  val KeyTokens = UnquotedChars | StringLiteral
+  val ValueUnquotedChars = UnquotedChars | Period
   val SimpleValuePart = UnquotedChars | Period | StringLiteral
-  val ValueStart = SimpleValuePart | LBrace | LBracket | Dollar
-  val ObjectEntryStart = UnquotedChars | StringLiteral
+  val PathStart = UnquotedChars | StringLiteral | Period | BadCharacter
+  val ReferencePathStart = PathStart | PathValueSeparator
+  val ValueStart = SimpleValuePart | LBrace | LBracket | Dollar | PathValueSeparator | BadCharacter
+  val ObjectEntryStart = PathStart | UnquotedChars
 
   case class Matcher(tokenSet: TokenSet, requireNoNewLine: Boolean, matchNewLine: Boolean, matchEof: Boolean) {
     def noNewLine = copy(requireNoNewLine = true)

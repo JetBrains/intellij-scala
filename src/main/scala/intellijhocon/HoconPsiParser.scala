@@ -24,8 +24,15 @@ class HoconPsiParser extends PsiParser {
 
   class Parser(builder: PsiBuilder) {
 
+    // beware of rollbacks!
+    var newLineSuppressedIndex: Int = 0
+
     def newLineBeforeCurrentToken =
-      builder.rawLookup(-1) == LineBreakingWhitespace
+      builder.rawTokenIndex > newLineSuppressedIndex && builder.rawLookup(-1) == LineBreakingWhitespace
+
+    def suppressNewLine() {
+      newLineSuppressedIndex = builder.rawTokenIndex
+    }
 
     def matches(matcher: Matcher) =
       (matcher.tokenSet.contains(builder.getTokenType) && (!matcher.requireNoNewLine || !newLineBeforeCurrentToken)) ||
@@ -89,7 +96,7 @@ class HoconPsiParser extends PsiParser {
           parseObjectEntry()
           pass(Comma)
         } else {
-          tokenError("expected object field, include" + (if (insideObject) " or '}'" else ""))
+          tokenError("expected object field" + (if (insideObject) ", include or '}'" else " or include"))
         }
       }
 
@@ -97,11 +104,6 @@ class HoconPsiParser extends PsiParser {
     }
 
     def parseObjectEntry() {
-      if (matches(ValueEnding)) {
-        builder.error("expected object field or include")
-        return
-      }
-
       if (matchesUnquoted("include"))
         parseInclude()
       else
@@ -138,56 +140,57 @@ class HoconPsiParser extends PsiParser {
     def parseObjectField(): Unit = {
       val marker = builder.mark()
 
-      parsePath(reference = false)
+      parsePath(Path)
       if (matches(LBrace)) {
         parseObject()
       } else if (pass(PathValueSeparator)) {
-        parseValue()
+        if (matches(ValueStart)) {
+          parseValue()
+        } else {
+          errorUntil(ValueEnding.orNewLineOrEof, "expected value for object field")
+        }
       } else errorUntil(ValueEnding.orNewLineOrEof,
         "expected ':', '=', '+=' or object")
 
       marker.done(ObjectField)
     }
 
-    def parsePath(reference: Boolean): Unit = {
-      val endingMatcher = if (reference) PathEnding.orNewLineOrEof else PathEnding.orEof
-      val pathType = if (reference) ReferencePath else Path
-
-      if (matches(endingMatcher)) {
-        builder.error("expected path expression")
-        return
+    def parsePath(pathType: HoconElementType, prefixMarker: Option[Marker] = None): Unit = {
+      val first = !prefixMarker.isDefined
+      if (first) {
+        suppressNewLine()
       }
 
-      var pathMarker = parseKey(pathType, None)
-      while (pass(Period.noNewLine)) {
-        pathMarker = parseKey(pathType, Some(pathMarker))
+      if (!matches(PathEnding.orNewLineOrEof)) {
+        if (!first) {
+          pass(Period.noNewLine)
+        }
+        val marker = prefixMarker.map(_.precede()).getOrElse(builder.mark())
+        if (!matches(KeyEnding.orNewLineOrEof)) {
+          parseKey(first)
+        } else {
+          builder.error("expected key (use quoted \"\" if you want empty key)")
+        }
+        marker.done(pathType)
+        parsePath(pathType, Some(marker))
       }
-
     }
 
-    def parseKey(pathType: HoconElementType, prefixPathMarker: Option[Marker]): Marker = {
-      val pathMarker = prefixPathMarker match {
-        case Some(m) => m.precede()
-        case None => builder.mark()
-      }
-
+    def parseKey(first: Boolean): Unit = {
       val marker = builder.mark()
 
-      val first = !prefixPathMarker.isDefined
-      if (matches(KeyEnding) || (!first && matches(Empty.orNewLineOrEof))) {
-        marker.error("expected key (use quoted \"\" if you want an empty string)")
-        pathMarker.done(pathType)
-        return pathMarker
-      }
-
       def parseKeyToken() {
-        if (!pass(KeyTokens)) {
+        if (matches(UnquotedChars)) {
+          parseAsUnquotedString(UnquotedChars.noNewLine)
+        } else if (matches(StringLiteral)) {
+          builder.advanceLexer()
+        } else {
           tokenError("key must be a concatenation of unquoted, quoted or multiline strings " +
             "(characters $ \" { } [ ] : = , + # ` ^ ? ! @ * & \\ are forbidden unquoted)")
         }
       }
 
-      parseKeyToken()
+      suppressNewLine()
       while (!matches(KeyEnding.orNewLineOrEof)) {
         parseKeyToken()
       }
@@ -197,21 +200,21 @@ class HoconPsiParser extends PsiParser {
       val leftWhitespacesBinder =
         if (first) WhitespacesBinders.DEFAULT_LEFT_BINDER else WhitespacesBinders.GREEDY_LEFT_BINDER
       val rightWhitespacesBinder =
-        if (matches(Period)) WhitespacesBinders.GREEDY_RIGHT_BINDER else WhitespacesBinders.DEFAULT_RIGHT_BINDER
+        if (matches(Period.noNewLine)) WhitespacesBinders.GREEDY_RIGHT_BINDER else WhitespacesBinders.DEFAULT_RIGHT_BINDER
       marker.setCustomEdgeTokenBinders(leftWhitespacesBinder, rightWhitespacesBinder)
+    }
 
-      pathMarker.done(pathType)
-
-      pathMarker
+    def parseAsUnquotedString(matcher: Matcher): Unit = {
+      val marker = builder.mark()
+      suppressNewLine()
+      while (matches(matcher)) {
+        builder.advanceLexer()
+      }
+      marker.done(UnquotedString)
     }
 
     def parseValue(): Unit = {
       val marker = builder.mark()
-
-      if (matches(ValueEnding.orEof)) {
-        marker.error("expected value")
-        return
-      }
 
       def tryParse(parsingCode: => Boolean, element: HoconElementType): Boolean = {
         val marker = builder.mark()
@@ -244,13 +247,17 @@ class HoconPsiParser extends PsiParser {
           parseArray()
         } else if (matches(Dollar)) {
           parseReference()
-        } else if (!pass(SimpleValuePart)) {
+        } else if (matches(ValueUnquotedChars)) {
+          parseAsUnquotedString(ValueUnquotedChars.noNewLine)
+        } else if (matches(StringLiteral)) {
+          builder.advanceLexer()
+        } else {
           tokenError("characters $ \" { } [ ] : = , + # ` ^ ? ! @ * & \\ are forbidden unquoted")
         }
       }
 
+      suppressNewLine()
       if (!tryParseNull && !tryParseBoolean && !tryParseNumber) {
-        parseValuePart()
         while (!matches(endingMatcher)) {
           parseValuePart()
         }
@@ -306,10 +313,14 @@ class HoconPsiParser extends PsiParser {
       builder.advanceLexer()
       builder.advanceLexer()
       pass(QMark)
-      parsePath(reference = true)
-      if (!pass(RefRBrace)) {
-        builder.error("expected '}'")
-      }
+      if (matches(ReferencePathStart.noNewLine)) {
+        parsePath(ReferencePath)
+        if (!pass(RefRBrace)) {
+          builder.error("expected '}'")
+        }
+      } else errorUntil(PathEnding.orNewLineOrEof, "expected path expression")
+      pass(RefRBrace)
+
       marker.done(Reference)
     }
 

@@ -28,6 +28,8 @@ object HoconElementType {
 
   val Value = new HoconElementType("VALUE")
 
+  val UnquotedString = new HoconElementType("UNQUOTED_STRING")
+
   val Number = new HoconElementType("NUMBER")
 
   val Null = new HoconElementType("NULL")
