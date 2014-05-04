@@ -1,17 +1,57 @@
-objects and lists formatting:
+Tabs and Indents:
+- Use tab character
+  - Smart tabs
+- Tab size
+- Indent
+- Continuation indent
 
-- try to keep in single line
-- every entry in separate line (when multiline)
-- wrap when longer than right margin
+Spaces:
+*Objects:
+- after '{'
+- before '}'
+- before ','
+- after ','
+*Includes
+- after left parenthesis
+- before right parenthesis
+*Object fields
+- before ':'
+- after ':'
+- before '='
+- after '='
+- before '+='
+- after '+='
+- between path and '{'
+*Lists
+- after '['
+- before ']'
+- before ','
+- after ','
+*References
+- between '${' and path
+- between '${?' and path
+- before '}'
 
-- new line after '[' or '{'
-- new line before ']' or '}'
- * always
- * only when multiline
- * never
+Wrapping and braces:
+*Keep when reformatting
+- Line breaks
+- Simple objects in one line
+- Simple lists in one line
+- Hash comments at first column
+- Double slash comments at first column
+*Ensure right margin is not exceeded
+*Braces/brackets placement ???
+*Object entries (wrap type)
+- Align when multiline
+- New line after '{'
+- Place '}' on new line
+*List elements (wrap type)
+- Align when multiline
+*Object fields with ':' (wrap type)
+- ':' on new line
+*Object fields with '=' or '+=' (wrap type)
+- '=' or '+=' on new line
+*Object fields with object value (wrap type)
 
-- keep line breaks
-
-- comma separated values always on the same line
-- comma separated values one the same line, but wrapped if too long
--
+Blank lines:
+???
