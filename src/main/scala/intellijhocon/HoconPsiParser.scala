@@ -1,12 +1,15 @@
 package intellijhocon
 
-import com.intellij.lang.{WhitespacesBinders, PsiBuilder, PsiParser}
+import com.intellij.lang.{WhitespacesAndCommentsBinder, WhitespacesBinders, PsiBuilder, PsiParser}
 import com.intellij.psi.tree.IElementType
 import scala.util.matching.Regex
 import com.intellij.lang.PsiBuilder.Marker
+import java.{util => ju, lang => jl}
+import com.intellij.lang.WhitespacesAndCommentsBinder.TokenTextGetter
 
 class HoconPsiParser extends PsiParser {
 
+  import Util._
   import HoconTokenType._
   import HoconTokenSets._
   import HoconElementType._
@@ -23,6 +26,23 @@ class HoconPsiParser extends PsiParser {
   val DecimalPartPattern = """([0-9]+)((e|E)(\+|-)?[0-9]+)?""".r
 
   class Parser(builder: PsiBuilder) {
+
+    object DocumentationCommentsBinder extends WhitespacesAndCommentsBinder {
+      override def getEdgePosition(tokens: ju.List[IElementType], atStreamEdge: Boolean, getter: TokenTextGetter) = {
+
+        def docCommentsStart(acc: Int, i: Int): Int = {
+          lazy val token = tokens.get(i)
+          lazy val whitespaceAfterHashComment = i > 0 && tokens.get(i - 1) == HashComment &&
+            token == LineBreakingWhitespace && getter.get(i).charIterator.count(_ == '\n') <= 1
+
+          if (i >= tokens.size || !WhitespaceOrComment.contains(token)) acc
+          else if (token == HashComment || whitespaceAfterHashComment) docCommentsStart(acc, i + 1)
+          else docCommentsStart(i + 1, i + 1)
+        }
+
+        docCommentsStart(0, 0)
+      }
+    }
 
     // beware of rollbacks!
     var newLineSuppressedIndex: Int = 0
@@ -101,6 +121,7 @@ class HoconPsiParser extends PsiParser {
       }
 
       marker.done(ObjectEntries)
+      marker.setCustomEdgeTokenBinders(WhitespacesBinders.GREEDY_LEFT_BINDER, WhitespacesBinders.GREEDY_RIGHT_BINDER)
     }
 
     def parseObjectEntry() {
@@ -153,6 +174,8 @@ class HoconPsiParser extends PsiParser {
         "expected ':', '=', '+=' or object")
 
       marker.done(ObjectField)
+
+      marker.setCustomEdgeTokenBinders(DocumentationCommentsBinder, WhitespacesBinders.DEFAULT_RIGHT_BINDER)
     }
 
     def parsePath(pathType: HoconElementType, prefixMarker: Option[Marker] = None): Unit = {

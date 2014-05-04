@@ -3,7 +3,7 @@ package intellijhocon
 import com.intellij.lang.folding.{FoldingDescriptor, FoldingBuilder}
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.editor.Document
-import scala.collection.mutable.ArrayBuffer
+import com.intellij.psi.tree.TokenSet
 
 class HoconFoldingBuilder extends FoldingBuilder {
 
@@ -11,21 +11,14 @@ class HoconFoldingBuilder extends FoldingBuilder {
   import HoconElementType._
 
   def buildFoldRegions(node: ASTNode, document: Document): Array[FoldingDescriptor] = {
-    val buffer = new ArrayBuffer[FoldingDescriptor]
-    def traverse(node: ASTNode): Unit = if(node.getTextLength > 1) {
-      val nodeType = node.getElementType
-      if (nodeType == Object || nodeType == Array || nodeType == MultilineString) {
-        buffer += new FoldingDescriptor(node, node.getTextRange)
-      }
-      if (node.getFirstChildNode != null) {
-        traverse(node.getFirstChildNode)
-      }
-      if (node.getTreeNext != null) {
-        traverse(node.getTreeNext)
-      }
-    }
-    traverse(node)
-    buffer.toArray
+    val foldableTypes = TokenSet.create(Object, Array, MultilineString)
+    def nodesIterator(root: ASTNode): Iterator[ASTNode] =
+      Iterator(root) ++ Iterator.iterate(root.getFirstChildNode)(_.getTreeNext).takeWhile(_ != null).flatMap(nodesIterator)
+
+    nodesIterator(node).collect {
+      case n if foldableTypes.contains(n.getElementType) && n.getTextLength > 0 =>
+        new FoldingDescriptor(n, n.getTextRange)
+    }.toArray
   }
 
   def isCollapsedByDefault(node: ASTNode) =
