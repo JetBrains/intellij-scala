@@ -755,6 +755,27 @@ object TypeDefinitionMembers {
 
 
 
+        def addSignature(sig: T#T, n: T#Node): Boolean = {
+          ProgressManager.checkCanceled()
+          def addMethod(method: PsiNamedElement): Boolean = {
+            if (checkName(method.name)) {
+              val substitutor = n.substitutor followed subst
+              if (!processor.execute(method, state.put(ScSubstitutor.key, substitutor))) return false
+            }
+            true
+          }
+          sig match {
+            case phys: PhysicalSignature if processMethods => if (!addMethod(phys.method)) return false
+            case phys: PhysicalSignature => //do nothing
+            case s: Signature if processMethods && s.namedElement.isInstanceOf[PsiMethod] =>
+              //this is compound type case
+              if (!addMethod(s.namedElement)) return false
+            case _ if processValsForScala => if (!runForValInfo(n)) return false
+            case _ => //do nothing
+          }
+          true
+        }
+
         if (decodedName != "") {
           def checkList(s: String): Boolean = {
             val l = if (!isSupers) signatures.forName(s)._1 else signatures.forName(s)._2
@@ -762,12 +783,17 @@ object TypeDefinitionMembers {
               val iterator = l.iterator
               while (iterator.hasNext) {
                 val (_, n) = iterator.next()
+                def addMethod(method: PsiNamedElement): Boolean = {
+                  val substitutor = n.substitutor followed subst
+                  processor.execute(method, state.put(ScSubstitutor.key, substitutor))
+                }
+
                 n.info match {
-                  case phys: PhysicalSignature if processMethods =>
-                    val method = phys.method
-                    val substitutor = phys.substitutor followed subst
-                    if (!processor.execute(method, state.put(ScSubstitutor.key, substitutor))) return false
+                  case phys: PhysicalSignature if processMethods => if (!addMethod(phys.method)) return false
                   case phys: PhysicalSignature => //do nothing
+                  case s: Signature if processMethods && s.namedElement.isInstanceOf[PsiMethod] =>
+                    //this is compound type case
+                    if (!addMethod(s.namedElement)) return false
                   case _ if processValsForScala =>
                     if (!runForValInfo(n)) return false
                   case _ => //do nothing
@@ -782,19 +808,7 @@ object TypeDefinitionMembers {
           val iterator = implicits.iterator
           while (iterator.hasNext) {
             val (sig, n) = iterator.next()
-            ProgressManager.checkCanceled()
-            sig match {
-              case phys: PhysicalSignature if processMethods =>
-                val method = phys.method
-                if (checkName(method.name)) {
-                  val substitutor = n.substitutor followed subst
-                  if (!processor.execute(method, state.put(ScSubstitutor.key, substitutor))) return false
-                }
-              case phys: PhysicalSignature => //do nothing
-              case _ if processValsForScala =>
-                if (!runForValInfo(n)) return false
-              case _ => //do nothing
-            }
+            if (!addSignature(sig, n)) return false
           }
         } else {
           val map = if (!isSupers) signatures.allFirstSeq() else signatures.allSecondSeq()
@@ -803,19 +817,7 @@ object TypeDefinitionMembers {
             val iterator = valuesIterator.next().iterator
             while (iterator.hasNext) {
               val (sig, n) = iterator.next()
-              ProgressManager.checkCanceled()
-              sig match {
-                case phys: PhysicalSignature if processMethods =>
-                  val method = phys.method
-                  if (checkName(method.name)) {
-                    val substitutor = n.substitutor followed subst
-                    if (!processor.execute(method, state.put(ScSubstitutor.key, substitutor))) return false
-                  }
-                case phys: PhysicalSignature => //do nothing
-                case _ if processValsForScala =>
-                  if (!runForValInfo(n)) return false
-                case _ => //do nothing
-              }
+              if (!addSignature(sig, n)) return false
             }
           }
         }
