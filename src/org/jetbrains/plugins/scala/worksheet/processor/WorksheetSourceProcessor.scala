@@ -181,11 +181,7 @@ object WorksheetSourceProcessor {
 
       objectRes append s"$printMethodName($macroPrinterName.printImportInfo({$text;}))\n"
 
-      val importOnlyText = "import\\s+(_root_\\s*\\.\\s*)?".r findFirstIn text map {
-        case rootImport => text stripPrefix rootImport
-      } getOrElse text
-      
-      importStmts.+=("import _root_." + importOnlyText + insertNlsFromWs(imp)) // classRes append  "import _root_."  append importOnlyText append insertNlsFromWs(imp)
+      importStmts += (text + insertNlsFromWs(imp))
       appendPsiLineInfo(imp, lineNums)
     }
     
