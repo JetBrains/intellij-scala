@@ -39,7 +39,7 @@ class RedundantBlockInspection extends AbstractInspection {
         else if (parent.isInstanceOf[ScInterpolatedStringLiteral] && child.getText.startsWith("_")) false //SCL-6124
         else {
             val refName: String = child.getText + (if (next.getText.length > 0) next.getText charAt 0 else "")
-            !ScalaNamesUtil.isIdentifier(refName) && !refName.exists(_ == '$')
+            !ScalaNamesUtil.isIdentifier(refName) && !refName.exists(_ == '$') && !refName.startsWith("`")
           }
         if (isRedundant) {
           holder.registerProblem(block, "The enclosing block is redundant", new QuickFix(block))

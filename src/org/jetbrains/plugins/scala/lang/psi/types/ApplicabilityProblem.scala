@@ -18,9 +18,7 @@ object ApplicabilityProblem {
 }
 
 // definition syntax problems
-case class MultipleDefinitions extends ApplicabilityProblem
-case class MultipleDefinitionVariants extends ApplicabilityProblem
-case class MalformedDefinition extends ApplicabilityProblem
+case class MalformedDefinition() extends ApplicabilityProblem
 
 // application syntax problems
 case class PositionalAfterNamedArgument(argument: ScExpression) extends ApplicabilityProblem

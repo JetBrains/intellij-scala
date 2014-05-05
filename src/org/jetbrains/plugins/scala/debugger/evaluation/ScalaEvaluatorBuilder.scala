@@ -267,6 +267,11 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             myResult
           }
           evaluatorOpt.getOrElse(ScalaLiteralEvaluator(l))
+        case _ if l.isSymbol =>
+          val value = l.getValue.asInstanceOf[Symbol].name
+          val expr = ScalaPsiElementFactory.createExpressionFromText(s"""Symbol("$value")""", l.getContext)
+          expr.accept(this)
+          myResult
         case _ => ScalaLiteralEvaluator(l)
       }
       super.visitLiteral(l)
