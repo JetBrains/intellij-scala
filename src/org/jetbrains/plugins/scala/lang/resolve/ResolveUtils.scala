@@ -342,6 +342,7 @@ object ResolveUtils {
             }
             val enclosing = ScalaPsiUtil.getContextOfType(scMember, true,
               classOf[ScalaFile], classOf[ScTemplateDefinition], classOf[ScPackaging])
+            assert(enclosing != null, s"Enclosing is null in file ${scMember.getContainingFile.getName}:\n${scMember.getContainingFile.getText}")
             if (am.isThis) {
               place match {
                 case ref: ScReferenceElement =>
