@@ -52,4 +52,29 @@ class MapGetOrElseTest extends OperationsOnCollectionInspectionTest {
       checkTextHasNoErrors(t, annotation, classOf[OperationOnCollectionInspection])
     }
   }
+
+  def test_5() {
+    val selected = s"None ${START}map {_ => 1} getOrElse {1}$END"
+    check(selected)
+    val text = "None map {_ => 1} getOrElse {1}"
+    val result = "None.fold(1)(_ => 1)"
+    testFix(text, result, hint)
+  }
+
+  def test_6() {
+    val selected = s"""Some(1) ${START}map (s => s + 1) getOrElse {
+                     |  val x = 1
+                     |  x
+                     |}$END""".stripMargin
+    check(selected)
+    val text = """Some(1) map (s => s + 1) getOrElse {
+                 |  val x = 1
+                 |  x
+                 |}""".stripMargin
+    val result = """Some(1).fold {
+                   |  val x = 1
+                   |  x
+                   |}(s => s + 1)""".stripMargin
+    testFix(text, result, hint)
+  }
 }
