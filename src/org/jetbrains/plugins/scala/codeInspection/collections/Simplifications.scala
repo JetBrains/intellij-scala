@@ -79,13 +79,11 @@ abstract class SimplificationType(inspection: OperationOnCollectionInspection) {
 
   private def bracedArgs(args: Seq[ScExpression]) = {
     args.map {
-      case p: ScParenthesisedExpr if p.expr.isDefined => p.expr.get
-      case other => other
-    } match {
-      case Seq(_: ScBlock) => args(0).getText
-      case _ if args.size == 0 => ""
-      case stripped => stripped.map(_.getText).mkString("(", ")(", ")")
-    }
+      case p: ScParenthesisedExpr if p.expr.isDefined => p.getText
+      case ScBlock(stmt: ScBlockStatement) => s"(${stmt.getText})"
+      case b: ScBlock => b.getText
+      case other => s"(${other.getText})"
+    }.mkString
   }
 }
 
