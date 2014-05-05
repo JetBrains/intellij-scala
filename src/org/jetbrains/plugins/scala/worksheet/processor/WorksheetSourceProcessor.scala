@@ -250,7 +250,7 @@ object WorksheetSourceProcessor {
       case assign: ScAssignStmt =>
         val pName = assign.getLExpression.getText
         val lineNums = psiToLineNumbers(assign)
-        val defName = s"get$$$$instance_$assignCount$$$$$pName"
+        val defName = s"`get$$$$instance_$assignCount$$$$$pName`"
         
         classRes append s"def $defName = { $END_GENERATED_MARKER${assign.getText}}${insertNlsFromWs(assign)}"
         objectRes append s"$instanceName.$defName; " append (printMethodName + "(\"" + startText + pName + ": \" + " + 
@@ -277,9 +277,9 @@ object WorksheetSourceProcessor {
     classRes append "}"
     objectRes append (printMethodName + "(\"" + END_OUTPUT_MARKER + "\")\n") append "} \n }"
 
+    val codeResult = objectPrologue + importStmts.mkString(";") + classRes.toString() + "\n\n\n" + objectRes.toString()
     Some(
-      (objectPrologue + importStmts.mkString(";") + classRes.toString() + "\n\n\n" + objectRes.toString(),
-      packOpt.map(_ + ".").getOrElse("") + name)
+      (codeResult, packOpt.map(_ + ".").getOrElse("") + name)
     )
   }
   
