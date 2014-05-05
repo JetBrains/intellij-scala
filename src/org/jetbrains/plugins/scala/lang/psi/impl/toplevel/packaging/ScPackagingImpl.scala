@@ -126,7 +126,8 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
                                   place: PsiElement): Boolean = {
     if (DumbService.getInstance(getProject).isDumb) return true
 
-    if (reference != Some(lastParent)) {
+    //If stub is not null, then we are not trying to resolve packaging reference.
+    if (getStub != null || reference != Some(lastParent)) {
       val pName = (if (prefix.length == 0) "" else prefix + ".") + getPackageName
       ProgressManager.checkCanceled()
       val p = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(pName))
