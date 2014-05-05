@@ -127,6 +127,9 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
           } catch {
             case e: Exception => null
           }
+      case ScalaTokenTypes.tSYMBOL =>
+        if (!text.startsWith('\'')) return null
+        Symbol(text.substring(1))
       case _ => null
     }
   }
@@ -155,6 +158,8 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     case ScalaTokenTypes.tMULTILINE_STRING => true
     case _ => false
   }
+
+  override def isSymbol: Boolean = getFirstChild.getNode.getElementType == ScalaTokenTypes.tSYMBOL
 
   override def getReferences: Array[PsiReference] = {
     PsiReferenceService.getService.getContributedReferences(this)

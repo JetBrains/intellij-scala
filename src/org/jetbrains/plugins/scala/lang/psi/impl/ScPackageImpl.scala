@@ -23,7 +23,7 @@ import scala.util.control.ControlThrowable
  * User: Alexander Podkhalyuzin
  * Date: 22.04.2010
  */
-class ScPackageImpl(val pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asInstanceOf[PsiManagerEx],
+class ScPackageImpl private (val pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asInstanceOf[PsiManagerEx],
         pack.getQualifiedName) with ScPackage {
   def superProcessDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                     lastParent: PsiElement, place: PsiElement): Boolean = {
