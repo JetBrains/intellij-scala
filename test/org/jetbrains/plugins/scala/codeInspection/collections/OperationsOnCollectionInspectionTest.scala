@@ -11,12 +11,11 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 abstract class OperationsOnCollectionInspectionTest extends ScalaLightCodeInsightFixtureTestAdapter {
   val START = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_START
   val END = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_END
-  val annotation = InspectionBundle.message("operation.on.collection.name")
   val inspectionClass: Class[_ <: OperationOnCollectionInspection]
   def hint: String
 
   protected def check(text: String) {
-    checkTextHasError(text, annotation, inspectionClass)
+    checkTextHasError(text, hint, inspectionClass)
   }
 
   protected def testFix(text: String, result: String, hint: String) {

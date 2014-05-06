@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.codeInspection.collections.Utils._
+import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
 import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
 
 /**
@@ -46,7 +46,7 @@ class FoldLeftSum(inspection: OperationOnCollectionInspection) extends Simplific
       case _ => false
     }
   }
-  def getSimplification(last: MethodRepr, second: MethodRepr): List[Simplification] = {
+  override def getSimplification(last: MethodRepr, second: MethodRepr): List[Simplification] = {
     (last.optionalMethodRef, second.optionalMethodRef) match {
       case (None, Some(secondRef))
         if List("foldLeft", "/:").contains(secondRef.refName) &&
