@@ -12,13 +12,14 @@ abstract class OperationsOnCollectionInspectionTest extends ScalaLightCodeInsigh
   val START = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_START
   val END = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_END
   val annotation = InspectionBundle.message("operation.on.collection.name")
+  val inspectionClass: Class[_ <: OperationOnCollectionInspection]
   def hint: String
 
   protected def check(text: String) {
-    checkTextHasError(text, annotation, classOf[OperationOnCollectionInspection])
+    checkTextHasError(text, annotation, inspectionClass)
   }
 
   protected def testFix(text: String, result: String, hint: String) {
-    testQuickFix(text.replace("\r", ""), result.replace("\r", ""), hint, classOf[OperationOnCollectionInspection])
+    testQuickFix(text.replace("\r", ""), result.replace("\r", ""), hint, inspectionClass)
   }
 }

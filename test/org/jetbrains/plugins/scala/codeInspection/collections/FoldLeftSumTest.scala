@@ -36,6 +36,8 @@ class FoldLeftSumTest extends OperationsOnCollectionInspectionTest {
 
   def test_4() {
     val text = s"""List("a").foldLeft(0)(_ + _)"""
-    checkTextHasNoErrors(text, annotation, classOf[OperationOnCollectionInspection])
+    checkTextHasNoErrors(text, annotation, inspectionClass)
   }
+
+  override val inspectionClass = classOf[FoldLeftSumInspection]
 }
