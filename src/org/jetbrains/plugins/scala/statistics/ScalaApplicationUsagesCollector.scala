@@ -76,6 +76,7 @@ class ScalaApplicationUsagesCollector extends AbstractApplicationUsagesCollector
       checkLibrary("org.testng", "TestNG for Scala")
       checkLibrary("scala.scalajs", "ScalaJS")
       checkLibrary("net.liftweb", "Lift Framework")
+      checkLibrary("spray", "Spray")
 
       java_version.foreach {
         case version: String => set += new UsageDescriptor(s"Java version: $version", 1)
