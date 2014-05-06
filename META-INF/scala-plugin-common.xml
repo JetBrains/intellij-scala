@@ -854,6 +854,10 @@
                        displayName="Exists simplifiable to contains" groupName="Scala: Collections"
                        shortName="ExistsEquals" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetOrElseNullInspection"
+                       displayName="Simplifiable getOrElse(null)" groupName="Scala: Collections"
+                       shortName="GetOrElseNull" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.etaExpansion.ConvertibleToMethodValueInspection"
                        displayName="Anonymous function convertible to a method value" groupName="Scala: General"
                        shortName="ConvertibleToMethodValue" level="WARNING"
