@@ -84,6 +84,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
           throw new ExternalSystemException("Cannot find project dependency: " + dependencyId.project))
         val data = new ModuleDependencyNode(moduleNode, dependency)
         data.setScope(scopeFor(dependencyId.configurations))
+        data.setExported(true)
         moduleNode.add(data)
       }
     }
