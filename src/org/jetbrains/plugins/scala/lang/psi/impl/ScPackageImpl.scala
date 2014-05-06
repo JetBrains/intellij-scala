@@ -124,6 +124,8 @@ class ScPackageImpl private (val pack: PsiPackage) extends PsiPackageImpl(pack.g
   override def getSubPackages(scope: GlobalSearchScope): Array[PsiPackage] = {
     super.getSubPackages(scope).map(ScPackageImpl(_))
   }
+
+  override def isValid: Boolean = true
 }
 
 object ScPackageImpl {
