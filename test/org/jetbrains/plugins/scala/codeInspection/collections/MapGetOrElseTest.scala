@@ -51,7 +51,7 @@ class MapGetOrElseTest extends OperationsOnCollectionInspectionTest {
     val text = "None.map(x => Seq(0)).getOrElse(List(0))"
     val text2 = "None.map(x => 0).getOrElse(1.1)"
     Seq(text, text2).foreach { t =>
-      checkTextHasNoErrors(t, annotation, inspectionClass)
+      checkTextHasNoErrors(t, hint, inspectionClass)
     }
   }
 

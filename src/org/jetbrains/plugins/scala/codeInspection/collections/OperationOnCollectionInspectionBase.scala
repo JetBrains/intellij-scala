@@ -50,14 +50,17 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case expr: ScExpression  =>
       for (s <- simplifications(expr)) {
-        holder.registerProblem(expr, inspectionName, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, s.rangeInParent, new OperationOnCollectionQuickFix(expr, s))
+        holder.registerProblem(expr, s.hint, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, s.rangeInParent, new OperationOnCollectionQuickFix(expr, s))
       }
   }
 
   private def simplifications(expr: ScExpression): Array[Simplification] = {
     val result = expr match {
       case MethodSeq(single) => possibleSimplificationTypes.flatMap(_.getSimplification(single))
-      case MethodSeq(last, second, _*) => possibleSimplificationTypes.flatMap(_.getSimplification(last,second))
+      case MethodSeq(last, second, _*) =>
+        possibleSimplificationTypes.flatMap {
+          st => st.getSimplification(last, second) ::: st.getSimplification(last)
+        }
       case _ => Array[Simplification]()
     }
     result

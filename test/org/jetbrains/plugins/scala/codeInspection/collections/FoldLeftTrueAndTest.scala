@@ -43,7 +43,7 @@ class FoldLeftTrueAndTest extends OperationsOnCollectionInspectionTest {
 
     val text = """def a(x: String) = false
                  |List("a").foldLeft(true) ((x,y) => x && a(x))""".stripMargin
-    checkTextHasNoErrors(text, annotation, inspectionClass)
+    checkTextHasNoErrors(text, hint, inspectionClass)
   }
 
   override val inspectionClass = classOf[FoldLeftTrueAndInspection]

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection.collections
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import Utils._
+import OperationOnCollectionsUtil._
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}

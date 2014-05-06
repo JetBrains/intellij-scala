@@ -4,7 +4,7 @@ package codeInspection.collections
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.{types, ScalaPsiUtil}
-import Utils._
+import OperationOnCollectionsUtil._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScFunctionType}
 import scala.Some
@@ -101,13 +101,11 @@ object MethodSeq {
   }
 }
 
-object Utils {
+object OperationOnCollectionsUtil {
   @tailrec
   def stripped(expr: ScExpression): ScExpression = {
     expr match {
-      case ScParenthesisedExpr(inner) =>
-        if (ScalaPsiUtil.needParentheses(expr, inner)) expr
-        else stripped(inner)
+      case ScParenthesisedExpr(inner) => stripped(inner)
       case block: ScBlock if block.statements.size == 1 =>
         block.statements(0) match {
           case inner: ScExpression => stripped(inner)
@@ -151,20 +149,20 @@ object Utils {
     }
   }
 
-  def andWithSomeFunction(expr: ScExpression): Option[ScExpression] = {
-    def isIndependentOf(expr: ScExpression, parameter: ScParameter): Boolean = {
-      var result = true
-      val name = parameter.getName
-      val visitor = new ScalaRecursiveElementVisitor() {
-        override def visitReferenceExpression(ref: ScReferenceExpression) {
-          if (ref.refName == name && ref.resolve() == parameter) result = false
-          super.visitReferenceExpression(ref)
-        }
+  def isIndependentOf(expr: ScExpression, parameter: ScParameter): Boolean = {
+    var result = true
+    val name = parameter.getName
+    val visitor = new ScalaRecursiveElementVisitor() {
+      override def visitReferenceExpression(ref: ScReferenceExpression) {
+        if (ref.refName == name && ref.resolve() == parameter) result = false
+        super.visitReferenceExpression(ref)
       }
-      expr.accept(visitor)
-      result
     }
-
+    expr.accept(visitor)
+    result
+  }
+  
+  def andWithSomeFunction(expr: ScExpression): Option[ScExpression] = {
     stripped(expr) match {
       case ScFunctionExpr(Seq(x, y), Some(result)) =>
         stripped(result) match {
@@ -180,6 +178,28 @@ object Utils {
           case _ => None
         }
       case ScInfixExpr(left, oper, right) if oper.refName == "&&" && isUndescore(left) => Some(right)
+      case _ => None
+    }
+  }
+  
+  def isEqualsWithSomeExpr(expr: ScExpression): Option[ScExpression] = {
+    stripped(expr) match {
+      case ScFunctionExpr(Seq(x), Some(result)) =>
+        stripped(result) match {
+          case ScInfixExpr(left, oper, right) if oper.refName == "==" =>
+            (stripped(left), stripped(right)) match {
+              case (leftRef: ScReferenceExpression, rightExpr)
+                if leftRef.resolve() == x && isIndependentOf(rightExpr, x) =>
+                Some(rightExpr)
+              case (leftExpr: ScExpression, rightRef: ScReferenceExpression)
+                if rightRef.resolve() == x && isIndependentOf(leftExpr, x) => 
+                Some(leftExpr)
+              case _ => None
+            }
+          case _ => None
+        }
+      case ScInfixExpr(left, oper, right) if oper.refName == "==" && isUndescore(left) => Some(right)
+      case ScInfixExpr(left, oper, right) if oper.refName == "==" && isUndescore(right) => Some(left)
       case _ => None
     }
   }

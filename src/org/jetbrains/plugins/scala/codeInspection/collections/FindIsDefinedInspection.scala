@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection.collections
 
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
-import org.jetbrains.plugins.scala.codeInspection.collections.Utils._
+import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
 
 /**
  * Nikolay.Tropin
@@ -16,7 +16,7 @@ class FindIsDefinedInspection extends OperationOnCollectionInspection{
 class FindIsDefined(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
   def hint = InspectionBundle.message("find.isDefined.hint")
 
-  def getSimplification(last: MethodRepr, second: MethodRepr): List[Simplification] = {
+  override def getSimplification(last: MethodRepr, second: MethodRepr): List[Simplification] = {
     (last.optionalMethodRef, second.optionalMethodRef) match {
       case (Some(lastRef), Some(secondRef))
         if lastRef.refName == "isDefined" &&
