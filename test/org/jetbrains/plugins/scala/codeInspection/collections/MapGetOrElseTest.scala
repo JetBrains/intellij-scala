@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 class MapGetOrElseTest extends OperationsOnCollectionInspectionTest {
   val hint: String = InspectionBundle.message("map.getOrElse.hint")
 
+  override val inspectionClass = classOf[MapGetOrElseInspection]
+
   def test_1() {
     val selected = s"None.${START}map(x => 1).getOrElse(0)$END"
     check(selected)
@@ -49,7 +51,7 @@ class MapGetOrElseTest extends OperationsOnCollectionInspectionTest {
     val text = "None.map(x => Seq(0)).getOrElse(List(0))"
     val text2 = "None.map(x => 0).getOrElse(1.1)"
     Seq(text, text2).foreach { t =>
-      checkTextHasNoErrors(t, annotation, classOf[OperationOnCollectionInspection])
+      checkTextHasNoErrors(t, annotation, inspectionClass)
     }
   }
 

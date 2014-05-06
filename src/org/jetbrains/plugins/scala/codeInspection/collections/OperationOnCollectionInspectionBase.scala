@@ -56,6 +56,7 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
 
   private def simplifications(expr: ScExpression): Array[Simplification] = {
     val result = expr match {
+      case MethodSeq(single) => possibleSimplificationTypes.flatMap(_.getSimplification(single))
       case MethodSeq(last, second, _*) => possibleSimplificationTypes.flatMap(_.getSimplification(last,second))
       case _ => Array[Simplification]()
     }
@@ -134,7 +135,7 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
         }
       }).setRemoveAction(new AnActionButtonRunnable {
         def run(t: AnActionButton) {
-          patternJBList.getSelectedIndices.foreach(listModel.removeElementAt(_))
+          patternJBList.getSelectedIndices.foreach(listModel.removeElementAt)
           resetValues()
         }
       }).disableUpDownActions.createPanel
@@ -157,9 +158,11 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
 
     val panel = new JPanel()
     panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS))
-    val chbPanel = checkBoxesPanel()
-    chbPanel.setAlignmentX(Component.LEFT_ALIGNMENT)
-    panel.add(checkBoxesPanel())
+    if (possibleSimplificationTypes.length > 1) {
+      val chbPanel = checkBoxesPanel()
+      chbPanel.setAlignmentX(Component.LEFT_ALIGNMENT)
+      panel.add(checkBoxesPanel())
+    }
     panel.add(Box.createVerticalGlue())
     panel.add(patternsPanel())
     panel
