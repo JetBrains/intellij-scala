@@ -1,0 +1,20 @@
+<html>
+<body>
+Replaces fold and reduce methods with sum, product, max or min if possible. <br/>
+Before:
+<p><code>List(1, 2, 3).foldLeft(1){(x,y) => x * y}</code><br/>
+<code>List(1, 2, 3).fold(0)(_ + _)</code><br/>
+<code>List(1, 2, 3).reduce(_ + _)</code><br/>
+<code>List(1, 2, 3).reduceLeft(_ min _)</code><br/>
+<code>List(1, 2, 3).reduce((x, y) => math.max(x, y))</code></p>
+
+<p>After:</p>
+
+<p><code>List(1, 2, 3).product</code><br/>
+<code>List(1, 2, 3).sum</code><br/>
+<code>List(1, 2, 3).sum</code><br/>
+<code>List(1, 2, 3).min</code><br/>
+<code>List(1, 2, 3).max</code></p>
+
+</body>
+</html>
