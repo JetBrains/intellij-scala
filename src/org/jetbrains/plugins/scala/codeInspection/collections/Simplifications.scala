@@ -15,7 +15,7 @@ import scala.Some
  * Nikolay.Tropin
  * 5/21/13
  */
-class Simplification(val replacementText: String, val hint: String, val rangeInParent: TextRange)
+case class Simplification(replacementText: String, hint: String, rangeInParent: TextRange)
 
 abstract class SimplificationType(inspection: OperationOnCollectionInspection) {
   def hint: String

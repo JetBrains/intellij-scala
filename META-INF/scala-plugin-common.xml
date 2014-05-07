@@ -826,6 +826,10 @@
                        displayName="Simplifiable find and isDefined" groupName="Scala: Collections"
                        shortName="FindIsDefined" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterSizeCheckInspection"
+                       displayName="Simplifiable filter and size check" groupName="Scala: Collections"
+                       shortName="FilterSizeCheck" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterSizeInspection"
                        displayName="Simplifiable filter and size" groupName="Scala: Collections"
                        shortName="FilterSize" level="WARNING"
