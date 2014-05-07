@@ -9,7 +9,7 @@ import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType, ScMethodType}
 import com.intellij.psi._
 import api.toplevel.ScTypedDefinition
 import result.TypingContext
-import api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import collection.immutable.{HashSet, HashMap, Map}
 import api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -83,7 +83,22 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     res
   }
   def addUpdateThisType(tp: ScType): ScSubstitutor = {
-    this.followed(new ScSubstitutor(Map.empty, Map.empty, Some(tp)))
+    tp match {
+      case ScThisType(template) =>
+        var zSubst = new ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(template)))
+        var placer = template.getContext
+        while (placer != null) {
+          placer match {
+            case t: ScTemplateDefinition => zSubst = zSubst.followed(
+              new ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(t)))
+            )
+            case _ =>
+          }
+          placer = placer.getContext
+        }
+        this.followed(zSubst)
+      case _ => this.followed(new ScSubstitutor(Map.empty, Map.empty, Some(tp)))
+    }
   }
   def followed(s: ScSubstitutor): ScSubstitutor = followed(s, 0)
 
@@ -109,8 +124,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
 
   def subst(t: ScType): ScType = try {
     if (follower != null) follower.subst(substInternal(t)) else substInternal(t)
-  }
-  catch {
+  } catch {
     case s: StackOverflowError =>
       throw new RuntimeException("StackOverFlow during ScSubstitutor.subst(" + t + ") this = " + this, s)
   }
@@ -152,6 +166,9 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
             case tpp => (false, tpp)
           }
           res
+        }
+        if (updateThisType.toString == "Some(NameManglers.this.type)") {
+          "stop here"
         }
         updateThisType match {
           case Some(oldTp) if !hasRecursiveThisType(oldTp) => //todo: hack to avoid infinite recursion during type substitution
