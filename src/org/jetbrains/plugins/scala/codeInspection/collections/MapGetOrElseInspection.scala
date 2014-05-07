@@ -3,12 +3,13 @@ package codeInspection.collections
 
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.config.ScalaVersionUtil
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * Nikolay.Tropin
@@ -29,7 +30,7 @@ class MapGetOrElse(inspection: OperationOnCollectionInspection) extends Simplifi
               checkScalaVersion(lastRef) &&
               checkResolve(lastRef, likeOptionClasses) &&
               checkResolve(secondRef, likeOptionClasses) &&
-              suitableTypes(second.args(0), last.args(0))=>
+              checkTypes(second.optionalBase, second.args(0), last.args(0))=>
         createSimplification(second, last.itself, last.args ++ second.args, "fold")
       case _ => Nil
     }
@@ -40,9 +41,20 @@ class MapGetOrElse(inspection: OperationOnCollectionInspection) extends Simplifi
     !isScala2_9
   }
 
-  def suitableTypes(mapArg: ScExpression, goeArg: ScExpression): Boolean = {
-    mapArg.getType() match {
-      case Success(ScFunctionType(retType, _), _) => retType.conforms(goeArg.getType().getOrNothing)
+  def checkTypes(optionalBase: Option[ScExpression], mapArg: ScExpression, getOrElseArg: ScExpression): Boolean = {
+    val baseExpr = optionalBase match {
+      case Some(e) => e
+      case _ => return false
+    }
+    val mapArgRetType = mapArg.getType() match {
+      case Success(ScFunctionType(retType, _), _) => retType
+      case _ => return false
+    }
+    val firstArgText = stripped(getOrElseArg).getText
+    val secondArgText = stripped(mapArg).getText
+    val newExprText = s"${baseExpr.getText}.fold {$firstArgText}{$secondArgText}"
+    ScalaPsiElementFactory.createExpressionFromText(newExprText, baseExpr.getContext) match {
+      case ScMethodCall(ScMethodCall(_, Seq(firstArg)), _) => mapArgRetType.conforms(firstArg.getType().getOrNothing)
       case _ => false
     }
   }

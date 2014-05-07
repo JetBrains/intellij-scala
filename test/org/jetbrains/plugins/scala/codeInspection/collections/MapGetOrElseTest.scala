@@ -79,4 +79,9 @@ class MapGetOrElseTest extends OperationsOnCollectionInspectionTest {
                    |}(s => s + 1)""".stripMargin
     testFix(text, result, hint)
   }
+
+  def test_SCL7009() {
+    val text = "None.map(_ => Seq(1)).getOrElse(Seq.empty)"
+    checkTextHasNoErrors(text, hint, inspectionClass)
+  }
 }
