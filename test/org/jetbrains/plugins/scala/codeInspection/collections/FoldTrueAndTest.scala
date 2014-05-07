@@ -19,10 +19,10 @@ class FoldTrueAndTest extends OperationsOnCollectionInspectionTest {
 
   def test_2() {
     val selected = s"""def a(x: String) = false
-                     |List("a").$START:\(true) (_ && a(_))$END""".stripMargin
+                     |List("a").$START/:(true) (_ && a(_))$END""".stripMargin
     check(selected)
     val text = """def a(x: String) = false
-                 |List("a").:\(true) (_ && a(_))""".stripMargin
+                 |List("a")./:(true) (_ && a(_))""".stripMargin
     val result = """def a(x: String) = false
                    |List("a").forall(a(_))""".stripMargin
     testFix(text, result, hint)
