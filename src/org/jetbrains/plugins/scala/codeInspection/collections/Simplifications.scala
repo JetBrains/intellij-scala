@@ -34,7 +34,7 @@ abstract class SimplificationType(inspection: OperationOnCollectionInspection) {
     methodToBuildFrom.itself match {
       case ScInfixExpr(left, _, right) if args.size == 1 =>
         List(new Simplification(s"${left.getText} $newMethodName ${args(0).getText}", hint, rangeInParent))
-      case _: ScMethodCall | _: ScInfixExpr =>
+      case _: ScMethodCall | _: ScInfixExpr | _: ScReferenceExpression =>
         methodToBuildFrom.optionalBase match {
           case Some(baseExpr) =>
             val baseText = baseExpr.getText
