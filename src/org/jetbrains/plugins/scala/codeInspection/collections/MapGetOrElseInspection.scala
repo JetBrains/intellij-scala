@@ -6,6 +6,9 @@ import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollect
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.config.ScalaVersionUtil
 
 /**
  * Nikolay.Tropin
@@ -23,12 +26,18 @@ class MapGetOrElse(inspection: OperationOnCollectionInspection) extends Simplifi
     (last.optionalMethodRef, second.optionalMethodRef) match {
       case (Some(lastRef), Some(secondRef)) if lastRef.refName == "getOrElse" &&
               secondRef.refName == "map" &&
+              checkScalaVersion(lastRef) &&
               checkResolve(lastRef, likeOptionClasses) &&
               checkResolve(secondRef, likeOptionClasses) &&
               suitableTypes(second.args(0), last.args(0))=>
         createSimplification(second, last.itself, last.args ++ second.args, "fold")
       case _ => Nil
     }
+  }
+
+  def checkScalaVersion(elem: PsiElement) = { //there is no Option.fold in Scala 2.9
+    val isScala2_9 = ScalaVersionUtil.isGeneric(elem, false, ScalaVersionUtil.SCALA_2_9)
+    !isScala2_9
   }
 
   def suitableTypes(mapArg: ScExpression, goeArg: ScExpression): Boolean = {
