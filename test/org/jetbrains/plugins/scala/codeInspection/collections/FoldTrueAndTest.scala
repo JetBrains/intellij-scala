@@ -7,8 +7,8 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
  * Nikolay.Tropin
  * 5/30/13
  */
-class FoldLeftTrueAndTest extends OperationsOnCollectionInspectionTest {
-  val hint = InspectionBundle.message("foldLeft.true.and.hint")
+class FoldTrueAndTest extends OperationsOnCollectionInspectionTest {
+  val hint = InspectionBundle.message("fold.true.and.hint")
   def test_1() {
     val selected = s"List(false).${START}foldLeft(true){_ && _}$END"
     check(selected)
@@ -19,10 +19,10 @@ class FoldLeftTrueAndTest extends OperationsOnCollectionInspectionTest {
 
   def test_2() {
     val selected = s"""def a(x: String) = false
-                     |List("a").${START}foldLeft(true) (_ && a(_))$END""".stripMargin
+                     |List("a").$START:\(true) (_ && a(_))$END""".stripMargin
     check(selected)
     val text = """def a(x: String) = false
-                 |List("a").foldLeft(true) (_ && a(_))""".stripMargin
+                 |List("a").:\(true) (_ && a(_))""".stripMargin
     val result = """def a(x: String) = false
                    |List("a").forall(a(_))""".stripMargin
     testFix(text, result, hint)
@@ -30,10 +30,10 @@ class FoldLeftTrueAndTest extends OperationsOnCollectionInspectionTest {
 
   def test_3() {
     val selected = s"""def a(x: String) = false
-                     |List("a").${START}foldLeft(true) ((x,y) => x && a(y))$END""".stripMargin
+                     |List("a").${START}fold(true) ((x,y) => x && a(y))$END""".stripMargin
     check(selected)
     val text = """def a(x: String) = false
-                 |List("a").foldLeft(true) ((x,y) => x && a(y))""".stripMargin
+                 |List("a").fold(true) ((x,y) => x && a(y))""".stripMargin
     val result = """def a(x: String) = false
                    |List("a").forall(y => a(y))""".stripMargin
     testFix(text, result, hint)
@@ -46,5 +46,5 @@ class FoldLeftTrueAndTest extends OperationsOnCollectionInspectionTest {
     checkTextHasNoErrors(text, hint, inspectionClass)
   }
 
-  override val inspectionClass = classOf[FoldLeftTrueAndInspection]
+  override val inspectionClass = classOf[FoldTrueAndInspection]
 }

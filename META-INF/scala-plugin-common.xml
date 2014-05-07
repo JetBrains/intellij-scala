@@ -834,12 +834,12 @@
                        displayName="Simplifiable find and notEquals None" groupName="Scala: Collections"
                        shortName="FindNotEqualsNone" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FoldLeftSumInspection"
-                       displayName="FoldLeft simplifiable to sum" groupName="Scala: Collections"
-                       shortName="FoldLeftSum" level="WARNING"
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SimplifiableFoldOrReduceInspection"
+                       displayName="Simplifiable fold or reduce method" groupName="Scala: Collections"
+                       shortName="SimplifiableFoldOrReduce" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FoldLeftTrueAndInspection"
-                       displayName="FoldLeft simplifiable to forall" groupName="Scala: Collections"
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FoldTrueAndInspection"
+                       displayName="Fold simplifiable to forall" groupName="Scala: Collections"
                        shortName="FoldLeftTrueAnd" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SortFilterInspection"

@@ -17,6 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
 import scala.annotation.tailrec
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import com.intellij.psi.{PsiModifier, PsiMethod}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * Nikolay.Tropin
@@ -102,6 +104,22 @@ object MethodSeq {
 }
 
 object OperationOnCollectionsUtil {
+
+  val foldMethodNames = Seq("foldLeft", "/:", "foldRight", ":\\", "fold")
+  val reduceMethodNames = Seq("reduce", "reduceLeft", "reduceRight")
+
+  def checkHasImplicitParameterFor(methodName: String, baseExpr: Option[ScExpression]): Boolean = {
+    baseExpr match {
+      case None => false
+      case Some(e) =>
+        val sumExpr = ScalaPsiElementFactory.createExpressionFromText(s"${e.getText}.$methodName", e.getManager)
+        sumExpr.findImplicitParameters match {
+          case Some(Seq(srr: ScalaResolveResult, _*)) => true
+          case _ => false
+        }
+    }
+  }
+
   @tailrec
   def stripped(expr: ScExpression): ScExpression = {
     expr match {
@@ -131,19 +149,26 @@ object OperationOnCollectionsUtil {
   }
 
   //@tailrec
-  def isSum(expr: ScExpression): Boolean = {
+  def isBinaryOp(expr: ScExpression, opName: String): Boolean = {
     stripped(expr) match {
       case ScFunctionExpr(Seq(x, y), Some(result)) =>
-        stripped(result) match {
-          case ScInfixExpr(left, oper, right) if oper.refName == "+" =>
-            (stripped(left), stripped(right)) match {
-              case (leftRef: ScReferenceExpression, rightRef: ScReferenceExpression) =>
-                Set(leftRef.resolve(), rightRef.resolve()) equals Set(x, y)
-              case _ => false
-            }
+        def checkResolve(left: ScExpression, right: ScExpression) = (stripped(left), stripped(right)) match {
+          case (leftRef: ScReferenceExpression, rightRef: ScReferenceExpression) =>
+            Set(leftRef.resolve(), rightRef.resolve()) equals Set(x, y)
           case _ => false
         }
-      case ScInfixExpr(left, oper, right) if oper.refName == "+" =>
+        stripped(result) match {
+          case ScInfixExpr(left, oper, right) if oper.refName == opName =>
+            checkResolve(left, right)
+          case ScMethodCall(refExpr: ScReferenceExpression, Seq(left, right))
+            if refExpr.refName == opName =>
+            checkResolve(left, right)
+          case _ => false
+        }
+      case ScInfixExpr(left, oper, right) if oper.refName == opName =>
+        isUndescore(stripped(left)) && isUndescore(stripped(right))
+      case ScMethodCall(refExpr: ScReferenceExpression, Seq(left, right))
+        if refExpr.refName == opName =>
         isUndescore(stripped(left)) && isUndescore(stripped(right))
       case _ => false
     }
