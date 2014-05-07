@@ -1,14 +1,23 @@
-a.b.c
+f().g(h(x)).k.l()
 ------
 ID CHAIN DEFAULT
 ------
 |ID CHAIN DEFAULT
-  |ID CHAIN COMPOSITE; position: 0
-    |ID CHAIN HEAD; position: 0
-      |ID CHAIN HEAD COMPOSITE; position: 0
-        |ID|-ID CHAIN ANCHOR; position: 0
-        |DOT; position: 1
-      |ID CHAIN HEAD COMPOSITE; position: 0
-        |ID|-ID CHAIN ANCHOR; position: 0
-        |DOT; position: 1
-    |ID|-ID CHAIN ANCHOR; position: 1
+  |ID CHAIN HEAD; position: 0
+    |ID CHAIN HEAD COMPOSITE; position: 0
+      |ID; position: 0
+      |MAYBE ARGUMENTS OF FUNCTION; position: 1
+        |ARGUMENTS OF FUNCTION; position: 0
+      |DOT; position: 2
+    |ID CHAIN HEAD COMPOSITE; position: 0
+      |ID; position: 0
+      |MAYBE ARGUMENTS OF FUNCTION; position: 1
+        |ARGUMENTS OF FUNCTION; position: 0
+      |DOT; position: 2
+    |ID CHAIN HEAD COMPOSITE; position: 0
+      |ID; position: 0
+      |MAYBE ARGUMENTS OF FUNCTION; position: 1
+      |DOT; position: 2
+  |ID; position: 1
+  |MAYBE ARGUMENTS OF FUNCTION; position: 2
+    |ARGUMENTS OF FUNCTION; position: 0

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.formatting.automatic
 
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.{ScalaFormattingRuleInstance, IndentType}
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.{RuleParentInfo, ScalaFormattingRuleInstance, IndentType}
 import com.intellij.psi.tree.IElementType
 import scala.collection.mutable
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaElementType}
@@ -18,6 +18,16 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScReferencePatternEle
  *         Date: 11.09.13
  */
 package object rule {
+
+  //anchor ids
+  val ALIGN_IF_ELSE_ANCHOR = "ALIGN_IF_ELSE"
+
+  //TAGS
+  val ALIGN_IF_ELSE_TAG_IF_WORD = "ALIGN_IF_ELSE_IF_WORD"
+  val ALIGN_IF_ELSE_TAG_ELSE_WORD = "ALIGN_IF_ELSE_ELSE_WORD"
+  val whileWordTag = "WHILE WORD"
+  val catchWordTag = "CATCH WORD"
+  val finallyWordTag = "FINALLY WORD"
 
   type RuleMatch = ScalaFormattingRuleInstance#RuleMatch
 
@@ -98,7 +108,7 @@ package object rule {
     rule
   }
 
-  def registerAnchor(rule: ScalaFormattingRule) = {
+  def registerRule(rule: ScalaFormattingRule) = {
     if (!rulesByNames.contains(rule.id)) {
       rulesByNames.put(rule.id, rule)
     } else {
@@ -142,6 +152,8 @@ package object rule {
 
   val catchWord = ScalaBlockRule("catch", "CATCH WORD")
 
+  val finallyWord = ScalaBlockRule("finally", "FINALLY WORD")
+
   val caseWord = ScalaBlockRule("case", "CASE WORD")
 
   val idRule = ScalaBlockRule("ID", ScalaTokenTypes.tIDENTIFIER)
@@ -151,6 +163,8 @@ package object rule {
   val maybeSemi = MaybeRule(semi, "MAYBE SEMICOLON")
 
   val expr = ScalaBlockRule("EXPR", exprElementTypes) //TODO: find out if it matches correctly with the grammatics
+
+  val referenceExprRule = ScalaBlockRule("REFERENCE EXPR", ScalaElementTypes.REFERENCE_EXPRESSION)
 
   val block = ScalaBlockRule("BLOCK", ScalaElementTypes.BLOCK) //TODO: find out if it matches correctly with the grammatics
 
@@ -165,7 +179,7 @@ package object rule {
     "MaybeExpr")
 
   val ifElse = ScalaFormattingCompositeRule(ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "IF ELSE",
-    maybeSemi, elseWord, maybeBlockExpr
+    maybeSemi, elseWord.alignmentAnchor(ALIGN_IF_ELSE_ANCHOR).tag(ALIGN_IF_ELSE_TAG_ELSE_WORD), maybeBlockExpr
   )
 
   val elseCompositeBlock = ScalaBlockCompositeRule("else", ifElse, ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "ELSE COMPOSITE BLOCK")
@@ -176,13 +190,13 @@ package object rule {
   )
 
   val ifComposite = ScalaFormattingCompositeRule("IF COMPOSITE",
-    ifWord, leftParenthesis, expr, rightParenthesis, maybeBlockExpr
+    ifWord.alignmentAnchor(ALIGN_IF_ELSE_ANCHOR).tag(ALIGN_IF_ELSE_TAG_IF_WORD), leftParenthesis, expr, rightParenthesis, maybeBlockExpr
   )
 
   val ifCompositeBlock = ScalaBlockCompositeRule("if", ifComposite, ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "IF COMPOSITE BLOCK")
 
   val whileComposite = ScalaFormattingCompositeRule("WHILE COMPOSITE",
-    whileWord,
+    whileWord.tag(whileWordTag),
     leftParenthesis,
     expr,
     rightParenthesis,
@@ -214,18 +228,27 @@ package object rule {
 
   val bracedMonolithicClausesBlock = ScalaBlockCompositeRule(ScalaElementTypes.BLOCK_EXPR, ScalaFormattingCompositeRule("BRACED MONOLITHIC CLAUSES BLOCK COMPOSITE", leftBrace, caseClausesMonolithic, rightBrace), ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "BRACED MONOLITHIC CLAUSES BLOCK")
 
-  val catchRule = ScalaFormattingCompositeRule("CATCH RULE", catchWord, bracedMonolithicClausesBlock)
+  val catchRule = ScalaFormattingCompositeRule("CATCH RULE", catchWord.tag(catchWordTag), bracedMonolithicClausesBlock)
 
   val catchBlock = ScalaBlockCompositeRule(ScalaElementTypes.CATCH_BLOCK, catchRule, ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "CATCH BLOCK")
+
+  val finallyRule = ScalaFormattingCompositeRule("FINALLY RULE", finallyWord.tag(finallyWordTag), expr)
+
+  val finallyBlock = ScalaBlockCompositeRule(ScalaElementTypes.FINALLY_BLOCK, finallyRule, ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "FINALLY BLOCK")
 
   val maybeCatchBlock = MaybeRule(catchBlock,
     IndentType.NormalIndent,
     "MAYBE CATCH BLOCK")
 
+  val maybeFinallyBlock = MaybeRule(finallyBlock,
+    IndentType.NormalIndent,
+    "MAYBE FINALLY BLOCK"
+  )
+
   val tryBlock = ScalaBlockCompositeRule(ScalaElementTypes.TRY_BLOCK, ScalaFormattingCompositeRule("TRY BLOCK COMPOSITE", tryWord, bracedExpr), ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "TRY BLOCK")
 
   val tryComposite = ScalaFormattingCompositeRule("TRY COMPOSITE",
-    tryBlock, maybeCatchBlock)
+    tryBlock, maybeCatchBlock, maybeFinallyBlock)
 
   //now, define resulting rules
 
@@ -245,21 +268,39 @@ package object rule {
     "TRY DEFAULT") //or maybe TRY_BLOCK ???
 
   val idChainAnchor = "ID CHAIN ANCHOR"
+  val idChainArgsAnchor = "ID CHAIN ARGS ANCHOR"
 
-  val idChainDefault = ScalaBlockCompositeRule(ScalaElementTypes.REFERENCE_EXPRESSION,
-    ScalaFormattingCompositeRule(
-      "ID CHAIN COMPOSITE",
+  val maybeArgsRule = MaybeRule(ScalaBlockRule("ARGUMENTS OF FUNCTION", ScalaElementTypes.ARG_EXPRS), "MAYBE ARGUMENTS OF FUNCTION")
+
+  val idChainDefault = ScalaFormattingCompositeRule(
+      "ID CHAIN DEFAULT",
       ScalaSomeRule(1,
         ScalaFormattingCompositeRule(
           "ID CHAIN HEAD COMPOSITE",
           idRule.anchor(idChainAnchor),
+          maybeArgsRule.anchor(idChainArgsAnchor),
           dot), "ID CHAIN HEAD"
       ),
-      idRule.anchor(idChainAnchor)
-    ), //TODO: is it really continuation?
-    ScalaFormattingRule.RULE_PRIORITY_DEFAULT,
-    "ID CHAIN DEFAULT"
-  )
+      idRule.anchor(idChainAnchor),
+      maybeArgsRule.anchor(idChainArgsAnchor)
+    )
+
+//  val callChainAnchor = "CALL CHAIN ANCHOR"
+//
+//  val callChainDefault = ScalaBlockCompositeRule(ScalaElementTypes.REFERENCE_EXPRESSION,
+//    ScalaFormattingCompositeRule(
+//      "CALL CHAIN COMPOSITE",
+//      ScalaSomeRule(1,
+//        ScalaFormattingCompositeRule(
+//          "CALL CHAIN HEAD COMPOSITE",
+//          referenceExprRule.anchor(callChainAnchor),
+//          dot), "CALL CHAIN HEAD"
+//      ),
+//      referenceExprRule.anchor(callChainAnchor)
+//    ),
+//  ScalaFormattingRule.RULE_PRIORITY_DEFAULT,
+//  "CALL CHAIN DEFAULT"
+//  )
 
 //  val idChainDefaultId = "ID CHAIN DEFAULT"
 //

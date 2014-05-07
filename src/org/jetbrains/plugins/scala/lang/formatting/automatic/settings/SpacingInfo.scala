@@ -33,6 +33,16 @@ class SpacingInfo(val spacesCount: Int, val minLineBreaksCount: Option[Int], val
   }
 
   override def hashCode = spacesCount + lineBreaksCount
+
+  def setMinLineFeeds(count: Int): SpacingInfo = new SpacingInfo(spacesCount,
+    Some(1),
+    maxLineBreaksCount,
+    if (lineBreaksCount > count) lineBreaksCount else count)
+
+  def setLineFeeds(count: Int): SpacingInfo = new SpacingInfo(spacesCount,
+    if (minLineBreaksCount.isDefined && minLineBreaksCount.get > count) Some(count) else minLineBreaksCount,
+    if (maxLineBreaksCount.isDefined && maxLineBreaksCount.get < count) Some(count) else maxLineBreaksCount,
+    count)
 }
 
 object SpacingInfo {

@@ -24,3 +24,4 @@ TRY DEFAULT
               |LEFT_BRACE; position: 0
               |CASE CLAUSES MONOLITHIC; position: 1
               |RIGHT_BRACE; position: 2
+    |MAYBE FINALLY BLOCK; position: 2

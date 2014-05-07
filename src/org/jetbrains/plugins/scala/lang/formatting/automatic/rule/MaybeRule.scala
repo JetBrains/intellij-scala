@@ -14,12 +14,15 @@ class MaybeRule private (val innerId: String,
                 val indentType: Option[IndentType.IndentType],
                 val priority: Int,
                 val id: String,
-                val anchor: Option[Anchor] = None) extends ScalaFormattingRule{
+                val structId: String,
+                val anchor: Option[Anchor] = None,
+                val tag: Option[String] = None,
+                val alignmentAnchor: Option[Anchor] = None) extends ScalaFormattingRule{
 
   private def this(innerRule: ScalaFormattingRule,
       indentType: Option[IndentType.IndentType],
       priority: Int,
-      id: String) = this(innerRule.id, indentType, priority, id, None)
+      id: String) = this(innerRule.id, indentType, priority, id, id)
 
   def inner = getRule(innerId)
 
@@ -30,8 +33,8 @@ class MaybeRule private (val innerId: String,
     println("checking maybe rule " + id)
     val ruleInstance = matcher.ruleInstance(parentAndPosition, this, top)
     inner.checkSome(blocks, Some(RuleParentInfo(ruleInstance, 0)), top, matcher) match {
-      case None                         => Some((List.empty, ruleInstance.createMatch(), blocks))
-      case Some((before, found, after)) => Some((before, ruleInstance.createMatch(found), after))
+      case Some((before, found, after)) if before.isEmpty => Some((before, ruleInstance.createMatch(found), after))
+      case _ => Some((List.empty, ruleInstance.createMatch(), blocks))
     }
   }
 
@@ -47,8 +50,27 @@ class MaybeRule private (val innerId: String,
 
   override def getPriority: Int = priority
 
-  override def anchor(anchor: Anchor) = registerAnchor(new MaybeRule(innerId, indentType, priority, id + "|-" + anchor, Some(anchor)))
+  override def anchor(anchor: Anchor) = {
+    assert(this.anchor.isEmpty)
+    assert(alignmentAnchor.isEmpty)
+    registerRule(new MaybeRule(innerId, indentType, priority, id + "|-" + anchor, structId, Some(anchor), None, Some(anchor)))
+  }
 
+  /**
+   * Adds a tag to the rule so that ruleInstance created by this concrete rule can be distinguished when building dummy
+   * rule instances. It is used for mapping between old and new formatting settings.
+   * @param tag
+   * @return
+   */
+  override def tag(tag: String): ScalaFormattingRule = registerRule(new MaybeRule(innerId, indentType, priority, id + "*" + tag, structId, None, Some(tag)))
+
+  override def childrenWithPosition: List[(ScalaFormattingRule, Int)] = {List((inner, 0))}
+
+  override def alignmentAnchor(alignmentAnchor: String): ScalaFormattingRule = {
+    assert(anchor.isEmpty)
+    assert(this.alignmentAnchor.isEmpty)
+    registerRule(new MaybeRule(innerId, indentType, priority, id + "$" + alignmentAnchor, structId, None, None, Some(alignmentAnchor)))
+  }
 }
 
 object MaybeRule {

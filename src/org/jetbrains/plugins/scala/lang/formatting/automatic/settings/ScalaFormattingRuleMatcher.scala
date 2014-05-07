@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.formatting.automatic.settings
 
-import com.intellij.formatting.{Indent, WrapType}
+import com.intellij.formatting.{Alignment, Indent, WrapType}
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule._
 import scala.collection.mutable
@@ -13,6 +13,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 
 /**
  * @author Roman.Shein
@@ -38,7 +40,7 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
 
   def getRulesSettingsStringRepresentation(ruleNames: Array[String]): String = getRulesSettingsStringRepresentation(ruleNames.toList)
 
-  def getRulesSettingsStringRepresentation(ruleNames: List[String]):String = {
+  def getRulesSettingsStringRepresentation(ruleNames: List[String]): String = {
     val settings = currentSettings
     val builder = new StringBuilder()
     for (ruleName <- ruleNames) {
@@ -46,7 +48,8 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
         case Some(rule) => topRulesToMatches.get(rule) match {
           case Some(matches) =>
             for (ruleMatch <- matches) {
-              for (ruleMatch <- matches.reverse) { //matches are concatenated to the beginning of list, so reverse in needed
+              for (ruleMatch <- matches.reverse) {
+                //matches are concatenated to the beginning of list, so reverse in needed
                 builder.append(ruleMatch.toStringWithSettings(settings))
               }
             }
@@ -198,7 +201,7 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
     res
   }
 
-  def deduceAlignments(entries: List[ScalaBlockFormatterEntry], sameFormattingBlocks: List[List[ScalaBlock]]): List[ScalaBlockFormatterEntry] = {
+  def deduceAlignments(entries: List[ScalaBlockFormatterEntry], sameFormattingBlocks: List[List[ScalaBlock]], possiblyAlignedBlocks: List[List[ScalaBlock]]): List[ScalaBlockFormatterEntry] = {
     var res = List[ScalaBlockFormatterEntry]()
     /**
      * Splits a list of blocks into a list of collections such that all blocks in each collection should have the same formatting settings.
@@ -208,7 +211,8 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
      */
     @tailrec
     def splitBlocks(blocks: List[ScalaBlock], acc: List[List[ScalaBlock]]): List[List[ScalaBlock]] = {
-      if (blocks.isEmpty) acc else {
+      if (blocks.isEmpty) acc
+      else {
         val buf = sameFormattingBlocks.find(_.contains(blocks.head)).getOrElse(List[ScalaBlock](blocks.head))
         splitBlocks(blocks.tail.filterNot(buf.contains(_)), buf :: acc)
       }
@@ -235,10 +239,11 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
   def getDefaultSettings: mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]] = //TODO: implement default settings
     mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]()
 
-  def constructFullDefaultSettings(project: Project): FormattingSettings ={
+  def constructFullDefaultSettings(project: Project): FormattingSettings = {
     val serializer = ScalaFormattingSettingsSerializer.getInstance(project)
+    if (serializer == null) return new FormattingSettings(None, None, Map())
     val serialized = serializer.getInstance
-    serialized.getOrElse(new FormattingSettings(None, None, Map()))//TODO: implement default settings
+    serialized.getOrElse(new FormattingSettings(None, None, Map())) //TODO: implement default settings
   }
 
   /**
@@ -248,7 +253,7 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
    * @return maps rules to list of possible formatter entries with known spacing size and indent size and flag signalling whether alignment or wrap are needed
    */
   def processSingleRules(rules: List[ScalaFormattingRuleInstance], settings: mutable.Map[ScalaFormattingRuleInstance, List[(ScalaBlock, List[ScalaBlockFormatterEntry])]],
-                         sameFormattingBlocks: List[List[ScalaBlock]]):
+                         sameFormattingBlocks: List[List[ScalaBlock]], possiblyAlignedBlocks: List[List[ScalaBlock]]):
   mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]] = {
     val res = getDefaultSettings
     for (ruleInstance <- rules) {
@@ -261,7 +266,7 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
             for (blockPossibleEntry <- blockPossibleEntries) {
               for (compareBlockPossibleEntry <- checkedEntries) {
                 unifySpacingsAndIndents(blockPossibleEntry, compareBlockPossibleEntry) match {
-                  case None => println("Conflict on spacing and indents unification.")//TODO: LOG THE CONFLICT SOMEHOW
+                  case None => println("Conflict on spacing and indents unification.") //TODO: LOG THE CONFLICT SOMEHOW
                   case Some(checkSetting) =>
                     println("Unification successful")
                     newCheckedSettings = checkSetting :: newCheckedSettings
@@ -270,7 +275,7 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
             }
             checkedEntries = newCheckedSettings.toSet
           }
-          res.put(ruleInstance, deduceAlignments(deduceWraps(checkedEntries.toList, sameFormattingBlocks), sameFormattingBlocks))
+          res.put(ruleInstance, deduceAlignments(deduceWraps(checkedEntries.toList, sameFormattingBlocks), sameFormattingBlocks, possiblyAlignedBlocks))
         case _ => //there were no blocks matched with this block rule, use defaults
       }
     }
@@ -320,13 +325,14 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
   def unifyClusterSpacingsAndIndents(formattingCluster: Set[ScalaFormattingRuleInstance],
                                      settings: mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]): List[ScalaBlockFormatterEntry] = {
     if (formattingCluster.isEmpty) return List()
-    var checkedSettings = settings.getOrElse(formattingCluster.head, List())
-    for (clusterRule <- formattingCluster.tail) {
-      for (clusterSetting <- settings.get(clusterRule).get.tail) {
+    val listCluster = formattingCluster.toList //TODO: this is a hack, fix it
+    var checkedSettings = settings.getOrElse(listCluster.head, List())
+    for (clusterRule <- listCluster.tail) {
+      for (clusterSetting <- settings.get(clusterRule).getOrElse(List())) {
         var newCheckedSettings = List[ScalaBlockFormatterEntry]()
         for (compareSetting <- checkedSettings) {
           unifySpacingsAndIndents(clusterSetting, compareSetting) match {
-            case None => println("Conflict in ensureSamePossibilities.")//TODO: LOG THE CONFLICT SOMEHOW
+            case None => println("Conflict in ensureSamePossibilities.") //TODO: LOG THE CONFLICT SOMEHOW
             case Some(checkSetting) => newCheckedSettings = checkSetting :: newCheckedSettings
           }
         }
@@ -346,15 +352,25 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
     res.values.toList
   }
 
-  def getSameFormattingBlocks(sameFormattingClusters: List[Set[ScalaFormattingRuleInstance]]): List[List[ScalaBlock]] = {
+  def getPossiblyAlignedClusters: List[Set[ScalaFormattingRuleInstance]] = {
+    val res = mutable.HashMap[String, Set[ScalaFormattingRuleInstance]]()
+    for (ruleInstance <- instances) {
+      ruleInstance.rule.alignmentAnchor.map(
+        (anchor) => res.put(anchor, res.getOrElse(anchor, Set[ScalaFormattingRuleInstance]()) + ruleInstance)
+      )
+    }
+    res.values.toList
+  }
+
+  def getBlocksFromClusters(clusters: List[Set[ScalaFormattingRuleInstance]]): List[List[ScalaBlock]] = {
     var res = List[List[ScalaBlock]]()
-    for (cluster <- sameFormattingClusters) {
-      var sameFormattingBlocks = List[ScalaBlock]()
+    for (cluster <- clusters) {
+      var blocks = List[ScalaBlock]()
       for (clusterRule <- cluster) {
-        sameFormattingBlocks = ruleInstancesToMatches.getOrElse(clusterRule, List()).map(_.formatBlock).filter(_.isDefined).map(_.get) :::
-                sameFormattingBlocks
+        blocks = ruleInstancesToMatches.getOrElse(clusterRule, List()).map(_.formatBlock).filter(_.isDefined).map(_.get) :::
+                blocks
       }
-      res = sameFormattingBlocks :: res
+      res = blocks :: res
     }
     res
   }
@@ -370,7 +386,9 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
     val processedRules = mutable.Set[ScalaFormattingRuleInstance]()
 
     val sameFormattingClusters = getSameFormattingClusters
-    val sameFormattingBlocks: List[List[ScalaBlock]] = getSameFormattingBlocks(sameFormattingClusters)
+    val possiblyAlignedClusters = getPossiblyAlignedClusters
+    val sameFormattingBlocks: List[List[ScalaBlock]] = getBlocksFromClusters(sameFormattingClusters)
+    val possiblyAlignedBlocks: List[List[ScalaBlock]] = getBlocksFromClusters(possiblyAlignedClusters)
 
     //now every spacing belongs only to one ruleInstance
     for ((topRule, childRules) <- topRulesToSubRules) {
@@ -388,7 +406,7 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
         rulesToUnifyBlocksFor = child :: rulesToUnifyBlocksFor
       }
       //make entries for blocks within single rule consistent
-      val singleRulesProcessed = processSingleRules(rulesToUnifyBlocksFor, possibleSettings, sameFormattingBlocks)
+      val singleRulesProcessed = processSingleRules(rulesToUnifyBlocksFor, possibleSettings, sameFormattingBlocks, possiblyAlignedBlocks)
       for (entry <- singleRulesProcessed) {
         rulesToEntries += entry
       }
@@ -397,7 +415,7 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
     //extract clusters of rules that should have the same formatting
     for (formattingCluster <- sameFormattingClusters) {
       //ensure that only entries consistent for the whole cluster are present
-      val entries = deduceAlignments(deduceWraps(unifyClusterSpacingsAndIndents(formattingCluster, rulesToEntries), sameFormattingBlocks), sameFormattingBlocks)
+      val entries = deduceAlignments(deduceWraps(unifyClusterSpacingsAndIndents(formattingCluster, rulesToEntries), sameFormattingBlocks), sameFormattingBlocks, possiblyAlignedBlocks)
       if (formattingCluster.exists(rulesToEntries.contains(_))) {
         for (ruleInstance <- formattingCluster) {
           rulesToEntries.put(ruleInstance, entries)
@@ -429,10 +447,70 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
         blockCluster.forall(!_.wouldCrossRightMargin) || blockCluster.forall(_.isOnNewLine)
       case WrapType.NORMAL =>
         blockCluster.forall((block) => !block.wouldCrossRightMargin || block.isOnNewLine)
-//        !block.crossesRightMargin || block.isOnNewLine
+      //        !block.crossesRightMargin || block.isOnNewLine
       case WrapType.NONE =>
         blockCluster.forall((block) => !block.wouldCrossRightMargin || !block.isOnNewLine)
-//        !block.crossesRightMargin || !block.isOnNewLine
+      //        !block.crossesRightMargin || !block.isOnNewLine
+    }
+  }
+
+  def convertSettings(settings: ScalaCodeStyleSettings, commonSettings: CommonCodeStyleSettings): FormattingSettings = {
+    val ruleInstanceToEntry = mutable.Map[ScalaFormattingRuleInstance, ScalaBlockFormatterEntry]()
+    def modifyEntry(instance: ScalaFormattingRuleInstance, modifier: (ScalaBlockFormatterEntry => ScalaBlockFormatterEntry)) = {
+      ruleInstanceToEntry.put(instance, modifier(ruleInstanceToEntry.getOrElse(instance, ScalaBlockFormatterEntry(instance))))
+    }
+//    def setMinLineFeeds(count: Int)(entry: ScalaBlockFormatterEntry) = entry.setSpacing(entry.spacing.setMinLineFeeds(count))
+
+    def setLineFeeds(count: Int)(entry: ScalaBlockFormatterEntry) = entry.setSpacing(entry.spacing.setLineFeeds(count))
+
+    //for every settings, build a dummy match and then try to unify them all (i.e. derive settings)
+    val ALIGN_IF_ELSE_IF_instance = ruleInstancesByTags.get(ALIGN_IF_ELSE_TAG_IF_WORD)
+    val ALIGN_IF_ELSE_ELSE_instance = ruleInstancesByTags.get(ALIGN_IF_ELSE_TAG_ELSE_WORD)
+    (ALIGN_IF_ELSE_IF_instance, ALIGN_IF_ELSE_ELSE_instance) match {
+      case (Some(ifInstance), Some(elseInstance)) =>
+        modifyEntry(ifInstance, _.setAlignment(settings.ALIGN_IF_ELSE))
+        modifyEntry(elseInstance, _.setAlignment(settings.ALIGN_IF_ELSE))
+    }
+    if (ALIGN_IF_ELSE_ELSE_instance.isDefined) {
+      modifyEntry(ALIGN_IF_ELSE_ELSE_instance.get, if (commonSettings.ELSE_ON_NEW_LINE) setLineFeeds(1) else setLineFeeds(0))
+    }
+    val whileWordInstance = ruleInstancesByTags.get(whileWordTag)
+    if (whileWordInstance.isDefined) {
+      modifyEntry(whileWordInstance.get, if (commonSettings.WHILE_ON_NEW_LINE) setLineFeeds(1) else setLineFeeds(0))
+    }
+    val catchWordInstance = ruleInstancesByTags.get(catchWordTag)
+    if (catchWordInstance.isDefined) {
+      modifyEntry(catchWordInstance.get, if (commonSettings.CATCH_ON_NEW_LINE) setLineFeeds(1) else setLineFeeds(0))
+    }
+    val finallyWordInstance = ruleInstancesByTags.get(finallyWordTag)
+    if (finallyWordInstance.isDefined) {
+      modifyEntry(finallyWordInstance.get, if (commonSettings.FINALLY_ON_NEW_LINE) setLineFeeds(1) else setLineFeeds(0))
+    }
+
+
+    //TODO: finish and test me
+    null
+  }
+
+  private val ruleInstancesByTags = mutable.Map[String, ScalaFormattingRuleInstance]()
+
+  /**
+   * Fills ruleInstances and ruleInstancesByTags with dummy instances constructed from rules. Also
+   * @param topRules
+   */
+  def buildRuleInstances(topRules: List[ScalaFormattingRule]) {
+    for (rule <- topRules) {
+      buildRuleInstances(rule, rule, None)
+    }
+  }
+
+  def buildRuleInstances(rule: ScalaFormattingRule, root: ScalaFormattingRule, parentInfo: Option[RuleParentInfo]) {
+    val instance = ruleInstance(parentInfo, rule, root)
+    rule.tag.map(ruleInstancesByTags.put(_, instance))
+    //now, process all the child rules
+    val children = rule.childrenWithPosition
+    for ((child, position) <- children) {
+      buildRuleInstances(child, root, Some(RuleParentInfo(instance, position)))
     }
   }
 }
@@ -448,7 +526,7 @@ object ScalaFormattingRuleMatcher {
   }
 
   val topRulesByIds: Map[String, ScalaFormattingRule] =
-    //first, construct default rules
+  //first, construct default rules
     Map[String, ScalaFormattingRule](
       rule.whileDefault.id -> rule.whileDefault,
       rule.ifDefault.id -> rule.ifDefault,
@@ -456,8 +534,9 @@ object ScalaFormattingRuleMatcher {
       rule.tryDefault.id -> rule.tryDefault,
       rule.matchRule.id -> rule.matchRule,
       rule.idChainDefault.id -> rule.idChainDefault
+//      rule.callChainDefault.id -> rule.callChainDefault
     )
-    //Map[String, ScalaFormattingRule](rule.caseClausesComposite.id -> rule.caseClausesComposite)
+  //Map[String, ScalaFormattingRule](rule.caseClausesComposite.id -> rule.caseClausesComposite)
 
   private def runMatcher(rootBlock: ScalaBlock) = {
     val matcher = new ScalaFormattingRuleMatcher(topRulesByIds, rootBlock.getNode.getPsi.getProject)
@@ -485,7 +564,8 @@ object ScalaFormattingRuleMatcher {
         case Some(rule) =>
           matcher.topRulesToMatches.get(rule) match {
             case Some(matches) =>
-              for (ruleMatch <- matches.reverse) { //matches are concatenated to the beginning of list, so reverse in needed
+              for (ruleMatch <- matches.reverse) {
+                //matches are concatenated to the beginning of list, so reverse in needed
                 res.append(ruleMatch.toString)
               }
             case None =>

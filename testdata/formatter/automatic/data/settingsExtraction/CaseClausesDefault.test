@@ -1,0 +1,39 @@
+e match {
+  case 123    => a
+  case 11     => b
+  case 324325 => c
+  case _      => d
+}
+------
+CASE CLAUSES COMPOSITE
+------
+|CASE CLAUSES COMPOSITE no settings derived for this match
+  |CASE CLAUSES; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: 0 isRelative: true type: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+    |CASE CLAUSE COMPOSITE; position: 0 | Spacing: 0 newLines: min * max * actual 1 | Indent: 0 isRelative: true type: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+      |CASE CLAUSE; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: 0 isRelative: true type: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+        |CASE WORD; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: 0 isRelative: true type: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+        |PATTERN BLOCK; position: 1 | Spacing: 1 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+        |MAYBE GUARD; position: 2 no settings derived for this match
+        |=>; position: 3 | Spacing: 1 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: true
+        |BLOCK; position: 4 | Spacing: 1 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+    |CASE CLAUSE COMPOSITE; position: 0 | Spacing: 0 newLines: min * max * actual 1 | Indent: 0 isRelative: true type: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+      |CASE CLAUSE; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: 0 isRelative: true type: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+        |CASE WORD; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: 0 isRelative: true type: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+        |PATTERN BLOCK; position: 1 | Spacing: 1 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+        |MAYBE GUARD; position: 2 no settings derived for this match
+        |=>; position: 3 | Spacing: 1 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: true
+        |BLOCK; position: 4 | Spacing: 1 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+    |CASE CLAUSE COMPOSITE; position: 0 | Spacing: 0 newLines: min * max * actual 1 | Indent: 0 isRelative: true type: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+      |CASE CLAUSE; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: 0 isRelative: true type: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+        |CASE WORD; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: 0 isRelative: true type: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+        |PATTERN BLOCK; position: 1 | Spacing: 1 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+        |MAYBE GUARD; position: 2 no settings derived for this match
+        |=>; position: 3 | Spacing: 1 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: true
+        |BLOCK; position: 4 | Spacing: 1 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+    |CASE CLAUSE COMPOSITE; position: 0 | Spacing: 0 newLines: min * max * actual 1 | Indent: 0 isRelative: true type: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+      |CASE CLAUSE; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: 0 isRelative: true type: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+        |CASE WORD; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: 0 isRelative: true type: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+        |PATTERN BLOCK; position: 1 | Spacing: 1 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+        |MAYBE GUARD; position: 2 no settings derived for this match
+        |=>; position: 3 | Spacing: 1 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: true
+        |BLOCK; position: 4 | Spacing: 1 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false

@@ -16,6 +16,8 @@ class ScalaAutoFormatter(matcher: ScalaFormattingRuleMatcher) {
 
   private val anchorToAlignment = mutable.HashMap[ScalaFormattingRule.Anchor, Alignment]()
 
+  private val alignmentAnchorToAlignment = mutable.HashMap[String, Alignment]()
+
   private def getDefaultSpacing = Spacing.getReadOnlySpacing//Spacing.createSpacing(0, 0, 0, false, 0)//ScalaSpacingProcessor.COMMON_SPACING//
 
   private def getDefaultIndent = Indent.getNoneIndent
@@ -74,12 +76,12 @@ class ScalaAutoFormatter(matcher: ScalaFormattingRuleMatcher) {
         case Some(entries) if !entries.isEmpty  =>
           val alignmentSetting = chooseEntry(entries).alignment
           if (alignmentSetting.needAlignment) {
-            val anchor = ruleInstance.rule.anchor
-            assert(anchor.isDefined)
-            if (!anchorToAlignment.contains(anchor.get)) {
-              anchorToAlignment.put(anchor.get, Alignment.createAlignment(true))
+            val alignmentAnchor = ruleInstance.rule.alignmentAnchor
+            assert(alignmentAnchor.isDefined)
+            if (!anchorToAlignment.contains(alignmentAnchor.get)) {
+              anchorToAlignment.put(alignmentAnchor.get, Alignment.createAlignment(true))
             }
-            anchorToAlignment.get(anchor.get).get
+            anchorToAlignment.get(alignmentAnchor.get).get
           } else null
         case _ => null
       }

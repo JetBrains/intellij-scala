@@ -18,6 +18,12 @@ class ScalaBlockFormatterEntry(val spacing: SpacingInfo,
                                val originatingFromNoSpaceChild: Boolean = false) {
   def setWrap(wrapType: WrapType) = new ScalaBlockFormatterEntry(spacing, indentInfo, alignment, new WrapSetting(wrap.needWrap, Some(wrapType)), instances, ruleInstance)
 
+  def setSpacing(spacing: SpacingInfo) = new ScalaBlockFormatterEntry(spacing, indentInfo, alignment, wrap, instances,
+  ruleInstance, originatingFromNoSpaceChild)
+
+  def setAlignment(alignmentNeeded: Boolean) = new ScalaBlockFormatterEntry(spacing, indentInfo,
+    AlignmentSetting(alignmentNeeded), wrap, instances, ruleInstance, originatingFromNoSpaceChild)
+
   override def toString = " | " + spacing.toString +
                           " | " + indentInfo.map(_.toString).getOrElse("Indent: Unknown") +
                           " | " + wrap.toString +
@@ -47,4 +53,6 @@ object ScalaBlockFormatterEntry {
     new ScalaBlockFormatterEntry(spacing, Some(indentInfo), AlignmentSetting(false), WrapSetting(false), List[ScalaBlock](block), ruleInstance)
   def apply(spacing: SpacingInfo, block: ScalaBlock, ruleInstance: ScalaFormattingRuleInstance): ScalaBlockFormatterEntry =
     new ScalaBlockFormatterEntry(spacing, None, AlignmentSetting(false), WrapSetting(false), List[ScalaBlock](block), ruleInstance)
+  def apply(ruleInstance: ScalaFormattingRuleInstance): ScalaBlockFormatterEntry =
+    new ScalaBlockFormatterEntry(null, None, null, null, List(), ruleInstance)
 }

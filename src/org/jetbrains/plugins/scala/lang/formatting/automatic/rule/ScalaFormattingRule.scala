@@ -17,6 +17,11 @@ trait ScalaFormattingRule {
   val id: String
 
   /**
+   * Value for printing: it does not take anchors and other engne-related stuff into considretion, only the rule structure.
+   */
+  val structId: String
+
+  /**
    * Check whether the given sequence of blocks complies with the rule.
    * @param blocks
    * @return
@@ -49,7 +54,7 @@ trait ScalaFormattingRule {
     }
   }
 
-  override def toString = id
+  override def toString = structId
 
   /**
    * Binds this rule to given anchor. All rules bound to the same anchor should have the same resulting formatting settings.
@@ -58,6 +63,22 @@ trait ScalaFormattingRule {
   def anchor(anchor: ScalaFormattingRule.Anchor): ScalaFormattingRule
 
   def anchor: Option[ScalaFormattingRule.Anchor]
+
+  /**
+   * Adds a tag to the rule so that ruleInstance created by this concrete rule can be distinguished when building dummy
+   * rule instances. It is used for mapping between old and new formatting settings.
+   * @param tag
+   * @return
+   */
+  def tag(tag: String): ScalaFormattingRule
+
+  def tag: Option[String]
+
+  def alignmentAnchor(alignmentAnchor: String): ScalaFormattingRule
+
+  def alignmentAnchor: Option[String]
+
+  def childrenWithPosition: List[(ScalaFormattingRule, Int)]
 }
 
 object ScalaFormattingRule {

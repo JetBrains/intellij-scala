@@ -16,8 +16,14 @@ import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.ScalaFormattin
 class ScalaBlockRule private (val testFunction: Block => Boolean,
                      val indentType: Option[IndentType.IndentType],
                      val id: String,
-                     val anchor: Option[Anchor] = None
+                     val structId: String,
+                     val anchor: Option[Anchor] = None,
+                     val tag: Option[String] = None,
+                     val alignmentAnchor: Option[String] = None
                     ) extends ScalaFormattingRule {
+
+  private def this(testFunction: Block => Boolean, indentType: Option[IndentType.IndentType], id: String) =
+    this(testFunction, indentType, id, id)
 
   override def checkSome(blocks: List[Block],
                          parentInfo: Option[RuleParentInfo],
@@ -44,7 +50,27 @@ class ScalaBlockRule private (val testFunction: Block => Boolean,
 
   override def getPriority: Int = ScalaFormattingRule.RULE_PRIORITY_DEFAULT
 
-  override def anchor(anchor: Anchor) = registerAnchor(new ScalaBlockRule(testFunction, indentType, id+"|-"+anchor, Some(anchor)))
+  override def anchor(anchor: Anchor) = {
+    assert(this.anchor.isEmpty)
+    assert(alignmentAnchor.isEmpty)
+    registerRule(new ScalaBlockRule(testFunction, indentType, id+"|-"+anchor, structId, Some(anchor), None, Some(anchor)))
+  }
+
+  /**
+   * Adds a tag to the rule so that ruleInstance created by this concrete rule can be distinguished when building dummy
+   * rule instances. It is used for mapping between old and new formatting settings.
+   * @param tag
+   * @return
+   */
+  override def tag(tag: String): ScalaFormattingRule = registerRule(new ScalaBlockRule(testFunction, indentType, id+"*"+tag, structId, None, Some(tag)))
+
+  override def childrenWithPosition: List[(ScalaFormattingRule, Int)] = List()
+
+  override def alignmentAnchor(alignmentAnchor: String) = {
+    assert(anchor.isEmpty)
+    assert(this.alignmentAnchor.isEmpty)
+    registerRule(new ScalaBlockRule(testFunction, indentType, id+"&"+alignmentAnchor, structId, None, None, Some(alignmentAnchor)))
+  }
 
 }
 

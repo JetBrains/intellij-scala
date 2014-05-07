@@ -18,7 +18,11 @@ class ScalaSomeRule private (val minimalCount: Int,
                     val indentType: Option[IndentType],
                     val priority: Int,
                     val id: String,
-                    val anchor: Option[Anchor] = None)
+                    val structId: String,
+                    val anchor: Option[Anchor] = None,
+                    val tag: Option[String] = None,
+                    val alignmentAnchor: Option[String] = None
+                    )
         extends ScalaFormattingRule {
 
   def innerCondition = getRule(innerConditionId)
@@ -27,7 +31,7 @@ class ScalaSomeRule private (val minimalCount: Int,
   innerCondition: ScalaFormattingRule,
   indentType: Option[IndentType],
   priority: Int,
-  id: String) = this(minimalCount, innerCondition.id, indentType, priority, id)
+  id: String) = this(minimalCount, innerCondition.id, indentType, priority, id, id)
 
   override def checkSome(blocks: List[Block],
                          parentInfo: Option[RuleParentInfo],
@@ -35,7 +39,7 @@ class ScalaSomeRule private (val minimalCount: Int,
                          matcher: ScalaFormattingRuleMatcher) = {
     println("checking some rule " + id)
     val ruleInstance = matcher.ruleInstance(parentInfo, this, top)
-    val (before, found, after, count, proceed) = blocks.foldLeft(List[Block](), None: Option[List[RuleMatch]], blocks, 0, true)(
+    val (before, found, after, count, _) = blocks.foldLeft(List[Block](), None: Option[List[RuleMatch]], blocks, 0, true)(
       (acc, block) => {
       val (before, found, tail, count, proceed) = acc
       if (proceed && !tail.isEmpty) {
@@ -47,9 +51,9 @@ class ScalaSomeRule private (val minimalCount: Int,
           case (Some((innerBefore, innerFound, innerAfter)), Some(foundVal)) =>
             (innerBefore ++ before, Some(innerFound :: foundVal), innerAfter, count + 1, true)
         }
-      } else (before, found, block::tail, count, proceed)
+      } else (before, found, tail, count, proceed)
     })
-    if (found.isDefined && count >= minimalCount) Some(before.reverse, ruleInstance.createMatch(found.get), after.reverse) else None
+    if (found.isDefined && count >= minimalCount) Some(before.reverse, ruleInstance.createMatch(found.get), after) else None
   }
 
   /**
@@ -70,7 +74,27 @@ class ScalaSomeRule private (val minimalCount: Int,
 
   override def getPriority: Int = priority
 
-  override def anchor(anchor: Anchor) = registerAnchor(new ScalaSomeRule(minimalCount, innerConditionId, indentType, priority, id+"|-"+anchor, Some(anchor)))
+  override def anchor(anchor: Anchor) = {
+    assert(this.anchor.isEmpty)
+    assert(alignmentAnchor.isEmpty)
+    registerRule(new ScalaSomeRule(minimalCount, innerConditionId, indentType, priority, id+"|-"+anchor, structId, Some(anchor)))
+  }
+
+  /**
+   * Adds a tag to the rule so that ruleInstance created by this concrete rule can be distinguished when building dummy
+   * rule instances. It is used for mapping between old and new formatting settings.
+   * @param tag
+   * @return
+   */
+  override def tag(tag: String): ScalaFormattingRule = registerRule(new ScalaSomeRule(minimalCount, innerConditionId, indentType, priority, id + "*" + tag, structId, None, Some(tag)))
+
+  override def childrenWithPosition: List[(ScalaFormattingRule, Int)] =  List((innerCondition, 0))
+
+  override def alignmentAnchor(alignmentAnchor: String): ScalaFormattingRule = {
+    assert(anchor.isEmpty)
+    assert(this.alignmentAnchor.isEmpty)
+    registerRule(new ScalaSomeRule(minimalCount, innerConditionId, indentType, priority, id + "&" + alignmentAnchor, structId, None, None, Some(alignmentAnchor)))
+  }
 }
 
 object ScalaSomeRule {

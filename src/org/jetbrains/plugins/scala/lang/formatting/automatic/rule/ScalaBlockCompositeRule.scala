@@ -18,13 +18,17 @@ class ScalaBlockCompositeRule private (val testFunction: Block => Boolean,
                               val compositeRuleId: String,
                               val priority: Int,
                               val id: String,
-                              val anchor: Option[Anchor] = None) extends ScalaFormattingRule {
+                              val structId: String,
+                              val anchor: Option[Anchor] = None,
+                              val tag: Option[String] = None,
+                              val alignmentAnchor: Option[String] = None
+                              ) extends ScalaFormattingRule {
   def compositeRule = getRule(compositeRuleId)
 
-  def this(testFunction: Block => Boolean,
+  private def this(testFunction: Block => Boolean,
   compositeRule: ScalaFormattingRule,
   priority: Int,
-  id: String) = this(testFunction, compositeRule.id, priority, id, None)
+  id: String) = this(testFunction, compositeRule.id, priority, id, id)
 
   //this is  a transparent wrapper, only the underlying composite rule will be visible
   override def check(block: ScalaBlock,
@@ -83,8 +87,27 @@ class ScalaBlockCompositeRule private (val testFunction: Block => Boolean,
 
   override def getPriority: Int = priority
 
-  override def anchor(anchor: Anchor) = registerAnchor(new ScalaBlockCompositeRule(testFunction, compositeRuleId, priority, id+"|-"+anchor, Some(anchor)))
+  override def anchor(anchor: Anchor) = {
+    assert(this.anchor.isEmpty)
+    assert(alignmentAnchor.isEmpty)
+    registerRule(new ScalaBlockCompositeRule(testFunction, compositeRuleId, priority, id+"|-"+anchor, structId, Some(anchor), None, Some(anchor)))
+  }
 
+  /**
+   * Adds a tag to the rule so that ruleInstance created by this concrete rule can be distinguished when building dummy
+   * rule instances. It is used for mapping between old and new formatting settings.
+   * @param tag
+   * @return
+   */
+  override def tag(tag: String): ScalaFormattingRule = registerRule(new ScalaBlockCompositeRule(testFunction, compositeRuleId, priority, id + "*" + tag, structId, None, Some(tag)))
+
+  override def childrenWithPosition: List[(ScalaFormattingRule, Int)] = List((compositeRule, 0))
+
+  override def alignmentAnchor(alignmentAnchor: String): ScalaFormattingRule = {
+    assert(anchor.isEmpty)
+    assert(this.alignmentAnchor.isEmpty)
+    registerRule(new ScalaBlockCompositeRule(testFunction, compositeRuleId, priority, id + "&" + alignmentAnchor, structId, None, None, Some(alignmentAnchor)))
+  }
 }
 
 object ScalaBlockCompositeRule {
