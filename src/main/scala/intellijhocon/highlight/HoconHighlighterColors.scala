@@ -1,4 +1,4 @@
-package intellijhocon
+package intellijhocon.highlight
 
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.{DefaultLanguageHighlighterColors => DLHC, HighlighterColors}

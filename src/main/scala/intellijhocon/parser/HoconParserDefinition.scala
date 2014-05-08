@@ -1,4 +1,4 @@
-package intellijhocon
+package intellijhocon.parser
 
 import com.intellij.lang.{PsiParser, ASTNode, ParserDefinition}
 import com.intellij.openapi.project.Project
@@ -7,7 +7,7 @@ import com.intellij.lang.ParserDefinition.SpaceRequirements
 import com.intellij.lexer.Lexer
 import com.intellij.psi.tree.{TokenSet, IFileElementType}
 import intellijhocon.psi.{HoconPsiElement, HoconPsiFile}
-import intellijhocon.HoconElementType.HoconFileElementType
+import intellijhocon.lexer.{HoconTokenType, HoconTokenSets, HoconLexer}
 
 class HoconParserDefinition extends ParserDefinition {
 
@@ -35,7 +35,7 @@ class HoconParserDefinition extends ParserDefinition {
     HoconTokenSets.Whitespace
 
   def getFileNodeType: IFileElementType =
-    HoconFileElementType
+    HoconElementType.HoconFileElementType
 
   def createParser(project: Project): PsiParser =
     new HoconPsiParser

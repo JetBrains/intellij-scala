@@ -1,10 +1,11 @@
-package intellijhocon
+package intellijhocon.highlight
 
 import com.intellij.openapi.options.colors.{AttributesDescriptor, ColorSettingsPage}
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory
-import intellijhocon.{HoconHighlighterColors => HHC}
 import scala.collection.JavaConverters._
+import intellijhocon.lang.HoconLanguage
+import intellijhocon.highlight.{HoconHighlighterColors => HHC}
 
 class HoconColorSettingsPage extends ColorSettingsPage {
   def getIcon =
@@ -95,5 +96,7 @@ object HoconColorSettingsPage {
     "Path separator" -> HHC.PathSeparator,
     "Key" -> HHC.Key,
     "Key in reference" -> HHC.ReferenceKey
-  ).map({ case (displayName, key) => new AttributesDescriptor(displayName, key)})
+  ).map({
+    case (displayName, key) => new AttributesDescriptor(displayName, key)
+  })
 }

@@ -1,6 +1,7 @@
-package intellijhocon
+package intellijhocon.parser
 
 import com.intellij.psi.tree.{IElementType, IFileElementType}
+import intellijhocon.lang.HoconLanguage
 
 class HoconElementType(debugName: String) extends IElementType(debugName, HoconLanguage)
 

@@ -1,4 +1,4 @@
-import intellijhocon.HoconLexer
+import intellijhocon.lexer.HoconLexer
 import scala.io.Source
 import com.typesafe.config.ConfigFactory
 
