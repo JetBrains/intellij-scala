@@ -20,6 +20,7 @@ import collection.mutable.ArrayBuffer
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import collection.immutable.{HashSet, ListMap, Map}
 import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
+import com.intellij.util.containers.ConcurrentWeakHashMap
 
 case class JavaArrayType(arg: ScType) extends ValueType {
 
@@ -112,15 +113,13 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
     hash
   }
 
-  @volatile
-  private var sub: ScSubstitutor = null
-
   def substitutor: ScSubstitutor = {
-    var res = sub
-    if (res != null) return res
-    res = substitutorInner
-    sub = res
-    res
+    val res = ScParameterizedType.substitutorCache.get(this)
+    if (res == null) {
+      val res = substitutorInner
+      ScParameterizedType.substitutorCache.put(this, res)
+      res
+    } else res
   }
 
   private def substitutorInner : ScSubstitutor = {
@@ -291,6 +290,8 @@ object ScParameterizedType {
     new ScParameterizedType(ScType.designator(c), collection.immutable.Seq(c.getTypeParameters.map({
       tp => s subst(ScalaPsiManager.typeVariable(tp))
     }).toSeq : _*))
+
+  val substitutorCache: ConcurrentWeakHashMap[ScParameterizedType, ScSubstitutor] = new ConcurrentWeakHashMap()
 }
 
 case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
