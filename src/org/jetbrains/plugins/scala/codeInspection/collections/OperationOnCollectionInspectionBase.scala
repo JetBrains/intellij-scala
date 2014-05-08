@@ -55,10 +55,15 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
   }
 
   private def simplifications(expr: ScExpression): Array[Simplification] = {
+    def simplificationTypes = for {
+      (st, idx) <- possibleSimplificationTypes.zipWithIndex
+      if getSimplificationTypeChecked(idx)
+    } yield st
+
     val result = expr match {
-      case MethodSeq(single) => possibleSimplificationTypes.flatMap(_.getSimplification(single))
+      case MethodSeq(single) => simplificationTypes.flatMap(_.getSimplification(single))
       case MethodSeq(last, second, _*) =>
-        possibleSimplificationTypes.flatMap {
+        simplificationTypes.flatMap {
           st => st.getSimplification(last, second) ::: st.getSimplification(last)
         }
       case _ => Array[Simplification]()

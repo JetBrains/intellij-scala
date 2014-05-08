@@ -23,8 +23,8 @@ abstract class SimplificationType(inspection: OperationOnCollectionInspection) {
   def getSimplification(single: MethodRepr): List[Simplification] = Nil
   def getSimplification(last: MethodRepr, second: MethodRepr): List[Simplification] = Nil
 
-  val likeOptionClasses = inspection.getLikeOptionClasses
-  val likeCollectionClasses = inspection.getLikeCollectionClasses
+  def likeOptionClasses = inspection.getLikeOptionClasses
+  def likeCollectionClasses = inspection.getLikeCollectionClasses
 
   def createSimplification(methodToBuildFrom: MethodRepr,
                            parentExpr: ScExpression,
