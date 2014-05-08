@@ -525,12 +525,17 @@ object ResolveUtils {
 
             //process subpackages
             if (base.kinds.contains(ResolveTargets.PACKAGE)) {
-              pack match {
-                case s: ScPackageImpl =>
-                  s.pack.processDeclarations(processor, state, lastParent, place)
-                case _ =>
-                  pack.processDeclarations(processor, state, lastParent, place)
+              val psiPack = pack match {
+                case s: ScPackageImpl => s.pack
+                case _ => pack
               }
+              val qName: String = psiPack.getQualifiedName
+              val subpackageQName: String = if (qName.isEmpty) name else qName + "." + name
+              val subPackage = ScalaPsiManager.instance(psiPack.getProject).getCachedPackage(subpackageQName)
+              if (subPackage != null) {
+                if (!processor.execute(subPackage, state)) return false
+              }
+              true
             } else true
           } finally {
             base.setClassKind(classKind = true)

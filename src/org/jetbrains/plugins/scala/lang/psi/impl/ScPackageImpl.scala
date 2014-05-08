@@ -138,7 +138,7 @@ object ScPackageImpl {
   }
 
   def findPackage(project: Project, pName: String) = {
-    ScPackageImpl(JavaPsiFacade.getInstance(project).findPackage(pName))
+    ScPackageImpl(ScalaPsiManager.instance(project).getCachedPackage(pName))
   }
 
   class DoNotProcessPackageObjectException extends ControlThrowable
