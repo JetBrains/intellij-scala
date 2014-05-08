@@ -866,6 +866,10 @@
                        displayName="Simplifiable getOrElse(null)" groupName="Scala: Collections"
                        shortName="GetOrElseNull" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetGetOrElseInspection"
+                       displayName="Simplifiable get and getOrElse on a map" groupName="Scala: Collections"
+                       shortName="GetGetOrElse" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.NotIsEmptyInspection"
                        displayName="isEmpty replaceable for nonEmpty" groupName="Scala: Collections"
                        shortName="NotIsEmpty" level="WARNING"
