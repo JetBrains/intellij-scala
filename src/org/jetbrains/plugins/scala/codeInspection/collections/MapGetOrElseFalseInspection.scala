@@ -27,7 +27,7 @@ class MapGetOrElseFalse(inspection: OperationOnCollectionInspection) extends Sim
                 checkResolve(lastRef, likeOptionClasses) &&
                 checkResolve(secondRef, likeOptionClasses) =>
 
-        createSimplification(second, last.itself, second.args, "exists")
+        createSimplification(second, last.itself, "exists", second.args)
       case _ => Nil
     }
   }

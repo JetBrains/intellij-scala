@@ -32,9 +32,9 @@ class FilterSizeCheck(inspection: OperationOnCollectionInspection) extends Simpl
             (innerSmpl, oper.refName, arg.getText) match {
               case (Nil, _, _) => Nil
               case (_, ">", "0") | (_, ">=", "1") =>
-                createSimplification(second, single.itself, second.args, "exists")
+                createSimplification(second, single.itself, "exists", second.args)
               case (_, "==", "0") =>
-                createSimplification(second, single.itself, second.args, "exists").map {
+                createSimplification(second, single.itself, "exists", second.args).map {
                   smpl =>
                     ScalaPsiElementFactory.createExpressionFromText(smpl.replacementText, lhs.getManager) match {
                       case _: ScInfixExpr => smpl.copy(replacementText = s"!(${smpl.replacementText})")

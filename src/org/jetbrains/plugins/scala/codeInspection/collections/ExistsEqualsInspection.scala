@@ -21,7 +21,7 @@ class ExistsEquals(inspection: OperationOnCollectionInspection) extends Simplifi
         if ref.refName == "exists" && checkResolve(ref, likeCollectionClasses) =>
 
         isEqualsWithSomeExpr(arg).toList.flatMap { expr =>
-          createSimplification(single, single.itself, Seq(expr), "contains")
+          createSimplification(single, single.itself, "contains", Seq(expr))
         }
       case _ => Nil
     }

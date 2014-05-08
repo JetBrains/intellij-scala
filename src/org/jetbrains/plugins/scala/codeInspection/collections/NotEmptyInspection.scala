@@ -23,7 +23,7 @@ class NotIsEmpty(inspection: OperationOnCollectionInspection) extends Simplifica
               secondRef.refName == "isEmpty" &&
               checkResolve(secondRef, likeCollectionClasses) =>
 
-        createSimplification(second, last.itself, Seq.empty, "nonEmpty")
+        createSimplification(second, last.itself, "nonEmpty", Seq.empty)
       case _ => Nil
     }
   }

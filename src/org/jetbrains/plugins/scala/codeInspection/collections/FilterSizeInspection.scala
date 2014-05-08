@@ -26,7 +26,7 @@ class FilterSize(inspection: OperationOnCollectionInspection) extends Simplifica
               checkResolve(lastRef, likeCollectionClasses) &&
               checkResolve(secondRef, likeCollectionClasses) =>
 
-        createSimplification(second, last.itself, second.args, "count")
+        createSimplification(second, last.itself, "count", second.args)
       case _ => Nil
     }
   }

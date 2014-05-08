@@ -26,7 +26,7 @@ class FoldTrueAnd(inspection: OperationOnCollectionInspection) extends Simplific
                 checkResolve(secondRef, likeCollectionClasses) =>
 
         andWithSomeFunction(last.args(0)).toList.flatMap { fun =>
-          createSimplification(second, last.itself, Seq(fun), "forall")
+          createSimplification(second, last.itself, "forall", Seq(fun))
         }
       case _ => Nil
     }

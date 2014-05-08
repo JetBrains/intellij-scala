@@ -25,7 +25,7 @@ class FilterHeadOption(inspection: OperationOnCollectionInspection) extends Simp
                 checkResolve(lastRef, likeCollectionClasses) &&
                 checkResolve(secondRef, likeCollectionClasses) =>
 
-        createSimplification(second, last.itself, second.args, "find")
+        createSimplification(second, last.itself, "find", second.args)
       case _ => Nil
     }
   }

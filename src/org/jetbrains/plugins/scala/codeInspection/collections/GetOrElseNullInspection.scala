@@ -22,7 +22,7 @@ class GetOrElseNull(inspection: OperationOnCollectionInspection) extends Simplif
                 isLiteral(args, text = "null") &&
                 checkResolve(ref, likeOptionClasses) =>
 
-        createSimplification(single, itself, Nil, "orNull")
+        createSimplification(single, itself, "orNull", Nil)
       case _ => Nil
     }
   }

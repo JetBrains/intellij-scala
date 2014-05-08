@@ -20,7 +20,7 @@ class DropOne(inspection: OperationOnCollectionInspection) extends Simplificatio
       case MethodRepr(_, _, Some(ref), args)
         if ref.refName == "drop" && isLiteral(args, "1") && checkResolve(ref, likeCollectionClasses) =>
 
-        createSimplification(single, single.itself, Seq.empty, "tail")
+        createSimplification(single, single.itself, "tail", Seq.empty)
       case _ => Nil
     }
   }

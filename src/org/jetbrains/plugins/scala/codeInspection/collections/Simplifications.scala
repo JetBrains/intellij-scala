@@ -28,17 +28,17 @@ abstract class SimplificationType(inspection: OperationOnCollectionInspection) {
 
   def createSimplification(methodToBuildFrom: MethodRepr,
                            parentExpr: ScExpression,
-                           args: Seq[ScExpression],
-                           newMethodName: String): List[Simplification] = {
+                           newMethodName: String,
+                           args: Seq[ScExpression]*): List[Simplification] = {
     val rangeInParent = methodToBuildFrom.rightRangeInParent(parentExpr)
     methodToBuildFrom.itself match {
-      case ScInfixExpr(left, _, right) if args.size == 1 =>
-        List(new Simplification(s"${left.getText} $newMethodName ${args(0).getText}", hint, rangeInParent))
+      case ScInfixExpr(left, _, right) if args.flatten.size == 1 =>
+        List(new Simplification(s"${left.getText} $newMethodName ${args(0)(0).getText}", hint, rangeInParent))
       case _: ScMethodCall | _: ScInfixExpr | _: ScReferenceExpression =>
         methodToBuildFrom.optionalBase match {
           case Some(baseExpr) =>
             val baseText = baseExpr.getText
-            val argsText = bracedArgs(args)
+            val argsText = bracedArgs(args: _*)
             List(new Simplification(s"$baseText.$newMethodName$argsText", hint, rangeInParent))
           case _ => Nil
         }
@@ -74,12 +74,14 @@ abstract class SimplificationType(inspection: OperationOnCollectionInspection) {
     case _ => s"($argText)"
   }
 
-  private def bracedArgs(args: Seq[ScExpression]) = {
+  private def bracedArgs(args: Seq[ScExpression]*) = {
     args.map {
-      case p: ScParenthesisedExpr if p.expr.isDefined => p.getText
-      case ScBlock(stmt: ScBlockStatement) => s"(${stmt.getText})"
-      case b: ScBlock => b.getText
-      case other => s"(${other.getText})"
+      case Seq(p: ScParenthesisedExpr) => p.getText
+      case Seq(ScBlock(stmt: ScBlockStatement)) => s"(${stmt.getText})"
+      case Seq(b: ScBlock) => b.getText
+      case Seq(other) => s"(${other.getText})"
+      case seq if seq.size > 1 => seq.map(_.getText).mkString("(", ", ", ")")
+      case _ => ""
     }.mkString
   }
 }
