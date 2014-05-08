@@ -16,6 +16,8 @@ import extensions._
  * Date: 24.06.2008
  */
 object ScalaNamesUtil {
+  val keywordNames = ScalaTokenTypes.KEYWORDS.getTypes.map(_.toString).toSet
+
   private val lexerCache = new ThreadLocal[ScalaLexer] {
     override def initialValue(): ScalaLexer = new ScalaLexer()
   }
@@ -44,9 +46,7 @@ object ScalaNamesUtil {
     checkGeneric(text, lexer => lexer.getTokenType == ScalaTokenTypes.tIDENTIFIER)
   }
 
-  def isKeyword(text: String): Boolean = {
-    checkGeneric(text, lexer => lexer.getTokenType != null && ScalaTokenTypes.KEYWORDS.contains(lexer.getTokenType))
-  }
+  def isKeyword(text: String): Boolean = keywordNames.contains(text)
   
   def isOperatorName(text: String): Boolean = isIdentifier(text) && isOpCharacter(text(0))
 
