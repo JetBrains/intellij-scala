@@ -127,7 +127,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                 }
               }
               (s.getElement,
-                getFirstReference(exprQual).bind().map(r => r.importsUsed ++ s.importsUsed).getOrElse(s.importsUsed),
+                getFirstReference(exprQual).bind().fold(s.importsUsed)(r => r.importsUsed ++ s.importsUsed),
                 s.substitutor)
             case r: ResolveResult => (r.getElement, Set[ImportUsed](), ScSubstitutor.empty)
           }
@@ -191,7 +191,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
               } else {
                 if (!processor.execute(elem, newState)) return false
               }
-            case Some(set) => {
+            case Some(set) =>
               val shadowed: mutable.HashSet[(ScImportSelector, PsiElement)] = mutable.HashSet.empty
               set.selectors foreach {
                 selector =>
@@ -221,7 +221,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
               if (set.hasWildcard) {
                 if (!checkWildcardImports) return true
                 processor match {
-                  case bp: BaseProcessor => {
+                  case bp: BaseProcessor =>
                     ProgressManager.checkCanceled()
                     val p1 = new BaseProcessor(bp.kinds) {
                       override def getHint[T](hintKey: Key[T]): T = processor.getHint(hintKey)
@@ -243,13 +243,12 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                         val elementIsShadowed = shadowed.find(p => element == p._2)
 
                         var newState = elementIsShadowed match {
-                          case Some((selector, _)) => {
+                          case Some((selector, _)) =>
                             val oldImports = state.get(ImportUsed.key)
                             val newImports = if (oldImports == null) Set[ImportUsed]() else oldImports
 
                             state.put(ImportUsed.key, Set(newImports.toSeq: _*) + ImportSelectorUsed(selector)).
                                   put(ScSubstitutor.key, subst)
-                          }
                           case None => state.put(ScSubstitutor.key, subst)
                         }
 
@@ -271,24 +270,20 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                     var newState: ResolveState = state.put(ImportUsed.key, newImportsUsed).put(ScSubstitutor.key, subst)
 
                     (elem, processor) match {
-                      case (cl: PsiClass, processor: BaseProcessor) if !cl.isInstanceOf[ScTemplateDefinition] => {
+                      case (cl: PsiClass, processor: BaseProcessor) if !cl.isInstanceOf[ScTemplateDefinition] =>
                         calculateRefType(checkResolve(resolve)).foreach {tp =>
                           newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
                         }
                         if (!processor.processType(new ScDesignatorType(cl, true), place, newState)) return false
-                      }
-                      case _ => {
+                      case _ =>
                         if (!elem.processDeclarations(p1,
                           // In this case import optimizer should check for used selectors
                           newState,
                           this, place)) return false
-                      }
                     }
-                  }
                   case _ => true
                 }
               }
-            }
           }
         }
         true
