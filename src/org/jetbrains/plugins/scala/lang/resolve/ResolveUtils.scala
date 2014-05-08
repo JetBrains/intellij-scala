@@ -499,9 +499,8 @@ object ResolveUtils {
                 var classes: Array[PsiClass] = manager.getCachedClasses(scope, fqn)
                 if (classes.isEmpty) {
                   //todo: fast fix for the problem with classes, should be fixed in indexes
-                  val improvedFqn = fqn.split('.').map{
-                    case s if ScalaNamesUtil.isKeyword(s) => s"`$s`"
-                    case s => s
+                  val improvedFqn = fqn.split('.').map { s =>
+                    if (ScalaNamesUtil.isKeyword(s)) s"`$s`" else s
                   }.mkString(".")
                   if (improvedFqn != fqn) {
                     classes = manager.getCachedClasses(scope, improvedFqn)
