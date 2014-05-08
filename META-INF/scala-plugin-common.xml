@@ -844,7 +844,7 @@
                        enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FoldTrueAndInspection"
                        displayName="Fold simplifiable to forall" groupName="Scala: Collections"
-                       shortName="FoldLeftTrueAnd" level="WARNING"
+                       shortName="FoldTrueAnd" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SortFilterInspection"
                        displayName="Filter after sort" groupName="Scala: Collections"
