@@ -1,9 +1,11 @@
-package intellijhocon
+package intellijhocon.misc
 
 import com.intellij.lang.folding.{FoldingDescriptor, FoldingBuilder}
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.editor.Document
 import com.intellij.psi.tree.TokenSet
+import intellijhocon.lexer.HoconTokenType
+import intellijhocon.parser.HoconElementType
 
 class HoconFoldingBuilder extends FoldingBuilder {
 

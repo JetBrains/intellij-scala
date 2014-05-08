@@ -1,8 +1,10 @@
-package intellijhocon
+package intellijhocon.lexer
 
 import com.intellij.lexer.LexerBase
 import scala.util.matching.Regex
 import com.intellij.psi.tree.IElementType
+import intellijhocon.Util
+import scala.Some
 
 object HoconLexer {
 

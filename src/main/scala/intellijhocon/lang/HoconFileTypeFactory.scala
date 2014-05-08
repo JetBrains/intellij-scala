@@ -1,4 +1,4 @@
-package intellijhocon
+package intellijhocon.lang
 
 import com.intellij.openapi.fileTypes.{FileTypeConsumer, FileTypeFactory}
 

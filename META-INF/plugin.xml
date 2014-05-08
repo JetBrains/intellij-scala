@@ -4,16 +4,18 @@
   <description>Enables support for HOCON (Human-Optimized Config Object Notation)</description>
 
   <extensions defaultExtensionNs="com.intellij">
-    <fileTypeFactory implementation="intellijhocon.HoconFileTypeFactory"/>
-    <lang.syntaxHighlighterFactory key="HOCON" implementationClass="intellijhocon.HoconSyntaxHighlighterFactory"/>
-    <lang.parserDefinition language="HOCON" implementationClass="intellijhocon.HoconParserDefinition"/>
-    <lang.braceMatcher language="HOCON" implementationClass="intellijhocon.HoconBraceMatcher"/>
-    <lang.foldingBuilder language="HOCON" implementationClass="intellijhocon.HoconFoldingBuilder"/>
-    <quoteHandler fileType="HOCON" className="intellijhocon.HoconQuoteHandler"/>
-    <annotator language="HOCON" implementationClass="intellijhocon.HoconSyntaxHighlightingAnnotator"/>
+    <fileTypeFactory implementation="intellijhocon.lang.HoconFileTypeFactory"/>
+    <lang.syntaxHighlighterFactory key="HOCON" implementationClass="intellijhocon.highlight.HoconSyntaxHighlighterFactory"/>
+    <lang.parserDefinition language="HOCON" implementationClass="intellijhocon.parser.HoconParserDefinition"/>
+    <lang.braceMatcher language="HOCON" implementationClass="intellijhocon.misc.HoconBraceMatcher"/>
+    <lang.foldingBuilder language="HOCON" implementationClass="intellijhocon.misc.HoconFoldingBuilder"/>
+    <quoteHandler fileType="HOCON" className="intellijhocon.misc.HoconQuoteHandler"/>
+    <annotator language="HOCON" implementationClass="intellijhocon.highlight.HoconSyntaxHighlightingAnnotator"/>
     <additionalTextAttributes scheme="Default" file="colorSchemes/HoconDefault.xml"/>
     <additionalTextAttributes scheme="Darcula" file="colorSchemes/HoconDarcula.xml"/>
-    <colorSettingsPage implementation="intellijhocon.HoconColorSettingsPage"/>
+    <colorSettingsPage implementation="intellijhocon.highlight.HoconColorSettingsPage"/>
+    <codeStyleSettingsProvider implementation="intellijhocon.formatting.HoconCodeStyleSettingsProvider"/>
+    <langCodeStyleSettingsProvider implementation="intellijhocon.formatting.HoconLanguageCodeStyleSettingsProvider"/>
   </extensions>
 
 </idea-plugin>

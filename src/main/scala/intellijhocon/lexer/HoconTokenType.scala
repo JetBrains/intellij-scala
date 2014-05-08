@@ -1,7 +1,8 @@
-package intellijhocon
+package intellijhocon.lexer
 
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.TokenType
+import intellijhocon.lang.HoconLanguage
 
 sealed class HoconTokenType(debugString: String) extends IElementType(debugString, HoconLanguage)
 

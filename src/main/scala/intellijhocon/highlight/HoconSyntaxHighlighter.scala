@@ -1,4 +1,4 @@
-package intellijhocon
+package intellijhocon.highlight
 
 import com.intellij.openapi.fileTypes.{SyntaxHighlighterFactory, SyntaxHighlighter}
 import com.intellij.psi.tree.IElementType
@@ -7,6 +7,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.StringEscapesTokenTypes
 import com.intellij.lexer.{StringLiteralLexer, LayeredLexer}
+import intellijhocon.highlight.{HoconHighlighterColors => HHC}
+import intellijhocon.lexer.{HoconLexer, HoconTokenType}
 
 class HoconSyntaxHighlighterFactory extends SyntaxHighlighterFactory {
   def getSyntaxHighlighter(project: Project, virtualFile: VirtualFile) =
@@ -16,7 +18,6 @@ class HoconSyntaxHighlighterFactory extends SyntaxHighlighterFactory {
 object HoconSyntaxHighlighter extends SyntaxHighlighter {
 
   import HoconTokenType._
-  import intellijhocon.{HoconHighlighterColors => HHC}
 
   private val tokenHighlights = Map[IElementType, Array[TextAttributesKey]](
     BadCharacter -> Array(HHC.BadCharacter),

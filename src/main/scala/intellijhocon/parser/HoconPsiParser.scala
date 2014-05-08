@@ -1,4 +1,4 @@
-package intellijhocon
+package intellijhocon.parser
 
 import com.intellij.lang.{WhitespacesAndCommentsBinder, WhitespacesBinders, PsiBuilder, PsiParser}
 import com.intellij.psi.tree.IElementType
@@ -6,6 +6,9 @@ import scala.util.matching.Regex
 import com.intellij.lang.PsiBuilder.Marker
 import java.{util => ju, lang => jl}
 import com.intellij.lang.WhitespacesAndCommentsBinder.TokenTextGetter
+import intellijhocon.lexer.{HoconTokenType, HoconTokenSets}
+import intellijhocon.Util
+import scala.Some
 
 class HoconPsiParser extends PsiParser {
 
