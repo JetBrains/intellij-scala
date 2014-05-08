@@ -52,17 +52,17 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
 
     place match {
       case ref: ScStableCodeReferenceElement if ref.refName == "_root_" && ref.qualifier == None => {
-        val top = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(""))
+        val top = ScPackageImpl(ScalaPsiManager.instance(getProject).getCachedPackage(""))
         if (top != null && !processor.execute(top, state.put(ResolverEnv.nameKey, "_root_"))) return false
         state.put(ResolverEnv.nameKey, null)
       }
       case ref: ScReferenceExpressionImpl if ref.refName == "_root_" && ref.qualifier == None => {
-        val top = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(""))
+        val top = ScPackageImpl(ScalaPsiManager.instance(getProject).getCachedPackage(""))
         if (top != null && !processor.execute(top, state.put(ResolverEnv.nameKey, "_root_"))) return false
         state.put(ResolverEnv.nameKey, null)
       }
       case _ => {
-        val defaultPackage = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(""))
+        val defaultPackage = ScPackageImpl(ScalaPsiManager.instance(getProject).getCachedPackage(""))
         if (place != null && PsiTreeUtil.getParentOfType(place, classOf[ScPackaging]) == null) {
           if (defaultPackage != null &&
             !ResolveUtils.packageProcessDeclarations(defaultPackage, processor, state, null, place)) return false
@@ -71,7 +71,6 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
           //we will add only packages
           //only packages resolve, no classes from default package
           val name = processor match {case rp: ResolveProcessor => rp.ScalaNameHint.getName(state) case _ => null}
-          val facade = JavaPsiFacade.getInstance(getProject).asInstanceOf[com.intellij.psi.impl.JavaPsiFacadeImpl]
           if (name == null) {
             val packages = defaultPackage.getSubPackages(scope)
             val iterator = packages.iterator
@@ -90,7 +89,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
               }
             }
           } else {
-            val aPackage: PsiPackage = ScPackageImpl(facade.findPackage(name))
+            val aPackage: PsiPackage = ScPackageImpl(ScalaPsiManager.instance(getProject).getCachedPackage(name))
             if (aPackage != null && !processor.execute(aPackage, state)) return false
           }
         }
@@ -147,7 +146,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
       while (implPIterator.hasNext) {
         val implP = implPIterator.next()
         ProgressManager.checkCanceled()
-        val pack: PsiPackage = JavaPsiFacade.getInstance(getProject).findPackage(implP)
+        val pack: PsiPackage = ScalaPsiManager.instance(getProject).getCachedPackage(implP)
         if (pack != null && !ResolveUtils.packageProcessDeclarations(pack, processor, state, null, place)) return false
       }
       true
