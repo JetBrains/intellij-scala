@@ -16,11 +16,15 @@ import extensions._
  * Date: 24.06.2008
  */
 object ScalaNamesUtil {
+  private val lexerCache = new ThreadLocal[ScalaLexer] {
+    override def initialValue(): ScalaLexer = new ScalaLexer()
+  }
+
   private def checkGeneric(text: String, predicate: ScalaLexer => Boolean): Boolean = {
     ApplicationManager.getApplication.assertReadAccessAllowed()
     if (text == null || text == "") return false
     
-    val lexer = new ScalaLexer()
+    val lexer = lexerCache.get()
     lexer.start(text, 0, text.length(), 0)
     if (!predicate(lexer)) return false
     lexer.advance()
