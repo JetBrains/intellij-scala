@@ -392,6 +392,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         compoundTypesSignatureNodes.clear()
         compoundTypesTypeNodes.clear()
         Conformance.cache.clear()
+        ScParameterizedType.substitutorCache.clear()
       }
     })
 
@@ -414,6 +415,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         compoundTypesSignatureNodes.clear()
         compoundTypesTypeNodes.clear()
         Conformance.cache.clear()
+        ScParameterizedType.substitutorCache.clear()
       }
     })
 
@@ -433,6 +435,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         compoundTypesSignatureNodes.clear()
         compoundTypesTypeNodes.clear()
         Conformance.cache.clear()
+        ScParameterizedType.substitutorCache.clear()
       }
     })
   }
