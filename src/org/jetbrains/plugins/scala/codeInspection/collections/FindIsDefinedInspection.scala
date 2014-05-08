@@ -24,7 +24,7 @@ class FindIsDefined(inspection: OperationOnCollectionInspection) extends Simplif
                 checkResolve(lastRef, likeOptionClasses) &&
                 checkResolve(secondRef, likeCollectionClasses) =>
 
-        createSimplification(second, last.itself, second.args, "exists")
+        createSimplification(second, last.itself, "exists", second.args)
       case _ => Nil
     }
   }

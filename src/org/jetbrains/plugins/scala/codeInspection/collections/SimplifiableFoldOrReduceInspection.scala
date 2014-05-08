@@ -45,7 +45,7 @@ class FoldSimplificationType(inspection: OperationOnCollectionInspection,
                 checkHasImplicitParameterFor(methodName, second.optionalBase) &&
                 checkResolve(secondRef, likeCollectionClasses) =>
 
-        createSimplification(second, last.itself, Nil, methodName)
+        createSimplification(second, last.itself, methodName, Nil)
       case _ => Nil
     }
   }
@@ -68,7 +68,7 @@ class ReduceSimplificationType(inspection: OperationOnCollectionInspection,
                 checkResolve(ref, likeCollectionClasses) &&
                 checkHasImplicitParameterFor(methodName, last.optionalBase) =>
 
-        createSimplification(last, last.itself, Nil, methodName)
+        createSimplification(last, last.itself, methodName, Nil)
       case _ => Nil
     }
   }

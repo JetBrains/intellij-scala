@@ -28,7 +28,7 @@ class FindNotEqualsNone(inspection: OperationOnCollectionInspection) extends Sim
                 checkResolve(lastArgs(0), Array("scala.None")) &&
                 checkResolve(secondRef, likeCollectionClasses) =>
 
-        createSimplification(second, last.itself, second.args, "exists")
+        createSimplification(second, last.itself, "exists", second.args)
       case _ => Nil
     }
   }

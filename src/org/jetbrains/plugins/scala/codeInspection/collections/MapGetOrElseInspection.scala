@@ -31,7 +31,7 @@ class MapGetOrElse(inspection: OperationOnCollectionInspection) extends Simplifi
               checkResolve(lastRef, likeOptionClasses) &&
               checkResolve(secondRef, likeOptionClasses) &&
               checkTypes(second.optionalBase, second.args(0), last.args(0))=>
-        createSimplification(second, last.itself, last.args ++ second.args, "fold")
+        createSimplification(second, last.itself, "fold", last.args, second.args)
       case _ => Nil
     }
   }
