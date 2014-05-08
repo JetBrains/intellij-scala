@@ -6,10 +6,9 @@ import ComparingUnrelatedTypesInspection._
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
-import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.{_}
 import result.Success
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import extensions.toPsiClassExt
 
 /**
  * Nikolay.Tropin
@@ -34,7 +33,9 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
   }
 
   def cannotBeCompared(type1: ScType, type2: ScType): Boolean = {
-    val Seq(unboxed1, unboxed2) = Seq(type1, type2).map(StdType.unboxedType)
+    val types = Seq(type1, type2)
+    val Seq(unboxed1, unboxed2) =
+      if (types.contains(Null)) types else types.map(StdType.unboxedType)
     ComparingUtil.isNeverSubType(unboxed1, unboxed2) && ComparingUtil.isNeverSubType(unboxed2, unboxed1)
   }
 }
