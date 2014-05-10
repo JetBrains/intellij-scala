@@ -6,52 +6,40 @@ Tabs and Indents:
 - Continuation indent
 
 Spaces:
-*Objects:
-- after '{'
-- before '}'
-- before ','
-- after ','
-*Includes
-- after left parenthesis
-- before right parenthesis
-*Object fields
-- before ':'
-- after ':'
-- before '='
-- after '='
-- before '+='
-- after '+='
-- between path and '{'
-*Lists
-- after '['
-- before ']'
-- before ','
-- after ','
-*References
-- between '${' and path
-- between '${?' and path
-- before '}'
+*Around operators
+C Before colon
+C After colon
+C Before assignment ('=' and '+=')
+C After assignment ('=' and '+=')
+*Before left brace
+C Immediately after path expression
+*Within
+R(Code braces) object braces
+C Reference braces
+S Brackets
+R(Method call parentheses) include qualifier parentheses
+*Other
+S Before comma
+S After comma
+C No space after '?'
 
 Wrapping and braces:
 *Keep when reformatting
-- Line breaks
-- Simple objects in one line
-- Simple lists in one line
-- Hash comments at first column
-- Double slash comments at first column
-*Ensure right margin is not exceeded
-*Braces/brackets placement ???
-*Object entries (wrap type)
-- Align when multiline
-- New line after '{'
-- Place '}' on new line
-*List elements (wrap type)
-- Align when multiline
-*Object fields with ':' (wrap type)
-- ':' on new line
-*Object fields with '=' or '+=' (wrap type)
-- '=' or '+=' on new line
-*Object fields with object value (wrap type)
-
-Blank lines:
-???
+S Line breaks
+R(Simple blocks in one line) Simple objects in one line
+C Simple lists in one line
+C Hash comments at first column
+C Double slash comments at first column
+S*Ensure right margin is not exceeded
+C*Objects (wrap type)
+C Align when multiline
+C New line after '{'
+C Place '}' on new line
+C*Lists (wrap type)
+C Align when multiline
+C New line after '['
+C Place ']' on new line
+C*Object fields with ':' (wrap type)
+C colon on new line
+C*Object fields with '=' or '+=' (wrap type)
+C assignment operator on new line
