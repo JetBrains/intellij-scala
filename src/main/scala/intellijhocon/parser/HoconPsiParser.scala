@@ -91,7 +91,7 @@ class HoconPsiParser extends PsiParser {
       marker.error(msg)
     }
 
-    def setWhitespacesAndTokenBinders(marker: Marker, nonGreedyLeft: Boolean, nonGreedyRight: Boolean) {
+    def setEdgeTokenBinders(marker: Marker, nonGreedyLeft: Boolean, nonGreedyRight: Boolean) {
       import WhitespacesBinders._
       marker.setCustomEdgeTokenBinders(
         if (nonGreedyLeft) DEFAULT_LEFT_BINDER else GREEDY_LEFT_BINDER,
@@ -131,7 +131,7 @@ class HoconPsiParser extends PsiParser {
       }
 
       marker.done(ObjectEntries)
-      marker.setCustomEdgeTokenBinders(DocumentationCommentsBinder, WhitespacesBinders.DEFAULT_RIGHT_BINDER)
+      setEdgeTokenBinders(marker, nonGreedyLeft = false, nonGreedyRight = false)
     }
 
     def parseObjectEntry() {
@@ -231,7 +231,7 @@ class HoconPsiParser extends PsiParser {
 
       marker.done(Key)
 
-      setWhitespacesAndTokenBinders(marker, first, matches(PathEnding.orNewLineOrEof))
+      setEdgeTokenBinders(marker, first, matches(PathEnding.orNewLineOrEof))
     }
 
     def parseAsUnquotedString(matcher: Matcher, nonGreedyLeft: Boolean, nonGreedyRightMatcher: Matcher): Unit = {
@@ -242,7 +242,7 @@ class HoconPsiParser extends PsiParser {
       }
       marker.done(UnquotedString)
 
-      setWhitespacesAndTokenBinders(marker, nonGreedyLeft, matches(nonGreedyRightMatcher))
+      setEdgeTokenBinders(marker, nonGreedyLeft, matches(nonGreedyRightMatcher))
     }
 
     def parseValue(): Unit = {
