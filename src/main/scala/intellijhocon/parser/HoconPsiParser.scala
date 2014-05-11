@@ -91,6 +91,13 @@ class HoconPsiParser extends PsiParser {
       marker.error(msg)
     }
 
+    def setWhitespacesAndTokenBinders(marker: Marker, nonGreedyLeft: Boolean, nonGreedyRight: Boolean) {
+      import WhitespacesBinders._
+      marker.setCustomEdgeTokenBinders(
+        if (nonGreedyLeft) DEFAULT_LEFT_BINDER else GREEDY_LEFT_BINDER,
+        if (nonGreedyRight) DEFAULT_RIGHT_BINDER else GREEDY_RIGHT_BINDER)
+    }
+
     def parseFile() {
       if (matches(LBrace))
         parseObject()
@@ -124,7 +131,7 @@ class HoconPsiParser extends PsiParser {
       }
 
       marker.done(ObjectEntries)
-      marker.setCustomEdgeTokenBinders(WhitespacesBinders.GREEDY_LEFT_BINDER, WhitespacesBinders.GREEDY_RIGHT_BINDER)
+      marker.setCustomEdgeTokenBinders(DocumentationCommentsBinder, WhitespacesBinders.DEFAULT_RIGHT_BINDER)
     }
 
     def parseObjectEntry() {
@@ -205,38 +212,37 @@ class HoconPsiParser extends PsiParser {
     def parseKey(first: Boolean): Unit = {
       val marker = builder.mark()
 
-      def parseKeyToken() {
-        if (matches(UnquotedChars)) {
-          parseAsUnquotedString(UnquotedChars.noNewLine)
-        } else if (matches(StringLiteral)) {
-          builder.advanceLexer()
-        } else {
-          tokenError("key must be a concatenation of unquoted, quoted or multiline strings " +
-            "(characters $ \" { } [ ] : = , + # ` ^ ? ! @ * & \\ are forbidden unquoted)")
+      def parseKeyParts(first: Boolean) {
+        if (!matches(KeyEnding.orNewLineOrEof)) {
+          if (matches(UnquotedChars)) {
+            parseAsUnquotedString(UnquotedChars.noNewLine, first, PathEnding.orNewLineOrEof)
+          } else if (matches(StringLiteral)) {
+            builder.advanceLexer()
+          } else {
+            tokenError("key must be a concatenation of unquoted, quoted or multiline strings " +
+              "(characters $ \" { } [ ] : = , + # ` ^ ? ! @ * & \\ are forbidden unquoted)")
+          }
+          parseKeyParts(first = false)
         }
       }
 
       suppressNewLine()
-      while (!matches(KeyEnding.orNewLineOrEof)) {
-        parseKeyToken()
-      }
+      parseKeyParts(first)
 
       marker.done(Key)
 
-      val leftWhitespacesBinder =
-        if (first) WhitespacesBinders.DEFAULT_LEFT_BINDER else WhitespacesBinders.GREEDY_LEFT_BINDER
-      val rightWhitespacesBinder =
-        if (matches(Period.noNewLine)) WhitespacesBinders.GREEDY_RIGHT_BINDER else WhitespacesBinders.DEFAULT_RIGHT_BINDER
-      marker.setCustomEdgeTokenBinders(leftWhitespacesBinder, rightWhitespacesBinder)
+      setWhitespacesAndTokenBinders(marker, first, matches(PathEnding.orNewLineOrEof))
     }
 
-    def parseAsUnquotedString(matcher: Matcher): Unit = {
+    def parseAsUnquotedString(matcher: Matcher, nonGreedyLeft: Boolean, nonGreedyRightMatcher: Matcher): Unit = {
       val marker = builder.mark()
       suppressNewLine()
       while (matches(matcher)) {
         builder.advanceLexer()
       }
       marker.done(UnquotedString)
+
+      setWhitespacesAndTokenBinders(marker, nonGreedyLeft, matches(nonGreedyRightMatcher))
     }
 
     def parseValue(): Unit = {
@@ -266,27 +272,28 @@ class HoconPsiParser extends PsiParser {
       def tryParseBoolean = tryParse((passKeyword("true") || passKeyword("false")) && matches(endingMatcher), Boolean)
       def tryParseNumber = tryParse(passNumber() && matches(endingMatcher), Number)
 
-      def parseValuePart() {
-        if (matches(LBrace)) {
-          parseObject()
-        } else if (matches(LBracket)) {
-          parseArray()
-        } else if (matches(Dollar)) {
-          parseReference()
-        } else if (matches(ValueUnquotedChars)) {
-          parseAsUnquotedString(ValueUnquotedChars.noNewLine)
-        } else if (matches(StringLiteral)) {
-          builder.advanceLexer()
-        } else {
-          tokenError("characters $ \" { } [ ] : = , + # ` ^ ? ! @ * & \\ are forbidden unquoted")
+      def parseValueParts(first: Boolean) {
+        if (!matches(endingMatcher)) {
+          if (matches(LBrace)) {
+            parseObject()
+          } else if (matches(LBracket)) {
+            parseArray()
+          } else if (matches(Dollar)) {
+            parseReference()
+          } else if (matches(ValueUnquotedChars)) {
+            parseAsUnquotedString(ValueUnquotedChars.noNewLine, first, ValueEnding.orNewLineOrEof)
+          } else if (matches(StringLiteral)) {
+            builder.advanceLexer()
+          } else {
+            tokenError("characters $ \" { } [ ] : = , + # ` ^ ? ! @ * & \\ are forbidden unquoted")
+          }
+          parseValueParts(first = false)
         }
       }
 
       suppressNewLine()
       if (!tryParseNull && !tryParseBoolean && !tryParseNumber) {
-        while (!matches(endingMatcher)) {
-          parseValuePart()
-        }
+        parseValueParts(first = true)
       }
 
       marker.done(Value)
