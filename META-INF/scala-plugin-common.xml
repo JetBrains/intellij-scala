@@ -617,10 +617,10 @@
                          id="SuspiciousInferredType" level="WARNING" enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.VarCouldBeValInspection"
                          displayName="'var' could be a 'val'" groupName="Scala: General" shortName="VarCouldBeVal"
-                         level="WARNING" enabledByDefault="true" language="Scala"/>
+                         level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedSymbolInspection"
                          displayName="Unused Symbol" groupName="Scala: General" shortName="ScalaUnusedSymbol"
-                         level="WARNING" enabledByDefault="true" language="Scala"/>
+                         level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.sugar.FunctionTupleSyntacticSugarInspection"
                          displayName="Syntactic Sugar" groupName="Scala: General" shortName="FunctionTupleSyntacticSugar"
                          id="FunctionTupleSyntacticSugar" level="WARNING" enabledByDefault="true" language="Scala"/>
