@@ -35,11 +35,14 @@ class HoconPsiParser extends PsiParser {
 
         def docCommentsStart(acc: Int, i: Int): Int = {
           lazy val token = tokens.get(i)
-          lazy val whitespaceAfterHashComment = i > 0 && tokens.get(i - 1) == HashComment &&
-            token == LineBreakingWhitespace && getter.get(i).charIterator.count(_ == '\n') <= 1
+          lazy val hashCommentStartingLine =
+            token == HashComment && (atStreamEdge || (i > 0 && tokens.get(i - 1) == LineBreakingWhitespace))
+          lazy val whitespaceAfterHashComment =
+            i > 0 && tokens.get(i - 1) == HashComment && token == LineBreakingWhitespace &&
+              getter.get(i).charIterator.count(_ == '\n') <= 1
 
           if (i >= tokens.size || !WhitespaceOrComment.contains(token)) acc
-          else if (token == HashComment || whitespaceAfterHashComment) docCommentsStart(acc, i + 1)
+          else if (hashCommentStartingLine || whitespaceAfterHashComment) docCommentsStart(acc, i + 1)
           else docCommentsStart(i + 1, i + 1)
         }
 
@@ -171,7 +174,7 @@ class HoconPsiParser extends PsiParser {
     def parseObjectField(): Unit = {
       val marker = builder.mark()
 
-      parsePath(Path)
+      parsePath(FieldPath)
       if (matches(LBrace)) {
         parseObject()
       } else if (pass(PathValueSeparator)) {

@@ -41,7 +41,7 @@ class HoconSyntaxHighlightingAnnotator extends Annotator {
           child =>
             val textAttributesKey = (child.getElementType, pathType) match {
               case (Period, _) => HoconHighlighterColors.PathSeparator
-              case (UnquotedString, Path) => HoconHighlighterColors.Key
+              case (UnquotedString, FieldPath) => HoconHighlighterColors.FieldKey
               case (UnquotedString, ReferencePath) => HoconHighlighterColors.ReferenceKey
             }
             holder.createInfoAnnotation(child, null).setTextAttributes(textAttributesKey)

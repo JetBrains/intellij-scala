@@ -19,7 +19,7 @@ object HoconElementType {
 
   val ObjectField = new HoconElementType("OBJECT_FIELD")
 
-  val Path = new HoconElementType("PATH")
+  val FieldPath = new HoconElementType("PATH")
 
   val ReferencePath = new HoconElementType("REFERENCE_PATH")
 
