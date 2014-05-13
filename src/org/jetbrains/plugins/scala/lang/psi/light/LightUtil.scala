@@ -52,6 +52,7 @@ object LightUtil {
               }
               if (!classes.isEmpty) classes.mkString(" throws ", ", ", " ")
               else ""
+            case None => ""
           }
         } else classes.mkString(" throws ", ", ", " ")
       case _ => ""
