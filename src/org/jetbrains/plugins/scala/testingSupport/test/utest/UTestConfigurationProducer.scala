@@ -1,23 +1,21 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test.utest
 
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestConfigurationUtil, AbstractTestConfigurationProducer, TestConfigurationProducer}
+import org.jetbrains.plugins.scala.testingSupport.test.{TestConfigurationUtil, AbstractTestConfigurationProducer, TestConfigurationProducer}
 import com.intellij.execution.{JavaRunConfigurationExtensionManager, RunManager, RunnerAndConfigurationSettings, Location}
 import com.intellij.psi.{PsiDirectory, PsiPackage, PsiElement}
 import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember, ScClass, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember, ScTypeDefinition}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression, ScMethodCall, ScBlockExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScArguments
-import scala.util.control.TailCalls.TailRec
 import scala.annotation.tailrec
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import com.intellij.psi.impl.source.tree.LeafElement
-import com.sixrr.rpp.utils.PsiUtils
 
 class UTestConfigurationProducer extends {
   val confType = new UTestConfigurationType
