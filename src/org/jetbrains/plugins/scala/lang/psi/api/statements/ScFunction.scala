@@ -77,6 +77,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
         with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition
         with ScDeclaredElementsHolder with ScAnnotationsHolder with ScMethodLike with ScBlockStatement {
   private var synthNavElement: Option[PsiElement] = None
+  var syntheticCaseClass: Option[ScClass] = None
   def setSynthetic(navElement: PsiElement) {
     synthNavElement = Some(navElement)
   }

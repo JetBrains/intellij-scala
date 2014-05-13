@@ -20,11 +20,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParame
 import caches.CachesUtil
 import psi.impl.ScalaPsiManager
 import util.PsiModificationTracker
-import toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import extensions.toPsiClassExt
 import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
 import scala.annotation.tailrec
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{TypeParameter, Parameter}
 import scala.collection.immutable.Set
 
 /**
@@ -144,7 +143,7 @@ trait ScPattern extends ScalaPsiElement {
               }
             }
             if (subst.subst(rt).equiv(lang.psi.types.Boolean)) return None
-            val args = ScPattern.extractorParameters(rt, this)
+            val args = ScPattern.extractorParameters(rt, this, ScPattern.isOneArgCaseClassMethod(fun))
             if (i < args.length) return Some(updateRes(subst.subst(args(i)).unpackedType))
             else return None
           case _ =>
@@ -167,7 +166,7 @@ trait ScPattern extends ScalaPsiElement {
        }
         fun.returnType match {
           case Success(rt, _) =>
-            val args = ScPattern.extractorParameters(subst.subst(rt), this)
+            val args = ScPattern.extractorParameters(subst.subst(rt), this, ScPattern.isOneArgCaseClassMethod(fun))
             if (args.length == 0) return None
             if (i < args.length - 1) return Some(subst.subst(args(i)))
             val lastArg = args(args.length - 1)
@@ -325,7 +324,14 @@ trait ScPattern extends ScalaPsiElement {
 }
 
 object ScPattern {
-  def extractorParameters(returnType: ScType, place: PsiElement): Seq[ScType] = {
+  def isOneArgCaseClassMethod(fun: ScFunction): Boolean = {
+    fun.syntheticCaseClass match {
+      case Some(c: ScClass) => c.constructor.exists(_.effectiveFirstParameterSection.length == 1)
+      case _ => false
+    }
+  }
+
+  def extractorParameters(returnType: ScType, place: PsiElement, isOneArgCaseClass: Boolean): Seq[ScType] = {
     def collectFor2_11: Seq[ScType] = {
       def findMember(name: String, tp: ScType = returnType): Option[ScType] = {
         val cp = new CompletionProcessor(StdKinds.methodRef, place, forName = Some(name))
@@ -351,7 +357,7 @@ object ScPattern {
       @tailrec
       def collect(i: Int) {
         findMember(s"_$i", receiverType) match {
-          case Some(tp) =>
+          case Some(tp) if !isOneArgCaseClass =>
             res += tp
             collect(i + 1)
           case _ =>
@@ -380,10 +386,11 @@ object ScPattern {
                       productClass <- Option(ScalaPsiManager.instance(place.getProject).getCachedClass(place.getResolveScope, productFqn))
                       clazz <- ScType.extractClass(tp, Some(place.getProject))
                     } yield clazz == productClass || clazz.isInheritor(productClass, true)).
-                            filter(identity).map(_ => productChance).getOrElse(Seq(tp))
+                      filter(identity).fold(Seq(tp))(_ => productChance)
                   }
                 }
                 args(0) match {
+                  case tp if isOneArgCaseClass => Seq(tp)
                   case ScTupleType(comps) => comps
                   case tp => checkProduct(tp)
                 }
