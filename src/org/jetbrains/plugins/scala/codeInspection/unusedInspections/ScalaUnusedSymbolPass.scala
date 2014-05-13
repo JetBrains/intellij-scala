@@ -26,7 +26,7 @@ import com.intellij.codeInsight.daemon.impl._
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightingLevelManager
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import annotator.importsTracker.ScalaRefCountHolder
-import extensions.toPsiNamedElementExt
+import extensions.{toPsiNamedElementExt, toObjectExt}
 import java.util.Collections
 import scala.collection.mutable
 
@@ -74,7 +74,10 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
   def readConfig(sFile: ScalaFile): UnusedConfig = {
     val profile: InspectionProfile = InspectionProjectProfileManager.getInstance(myProject).getInspectionProfile
     def isEnabled(shortName: String) = profile.isToolEnabled(HighlightDisplayKey.find(shortName), sFile)
-    def severity(shortName: String) = profile.getErrorLevel(HighlightDisplayKey.find(shortName), sFile).getSeverity
+    def severity(shortName: String) = {
+      val key = HighlightDisplayKey.find(shortName)
+      key.toOption.map(profile.getErrorLevel(_, sFile).getSeverity).orNull
+    }
     val localUnusedShortName = ScalaUnusedSymbolInspection.ShortName
     val localAssignShortName = VarCouldBeValInspection.ShortName
     UnusedConfig(isEnabled(localUnusedShortName), severity(localUnusedShortName),
