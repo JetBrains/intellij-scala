@@ -4,11 +4,13 @@ import com.intellij.lang.{BracePair, PairedBraceMatcher}
 import com.intellij.psi.PsiFile
 import com.intellij.psi.tree.IElementType
 import intellijhocon.lexer.{HoconTokenType, HoconTokenSets}
+import intellijhocon.Util
 
 class HoconBraceMatcher extends PairedBraceMatcher {
 
   import HoconTokenType._
   import HoconTokenSets._
+  import Util._
 
   def getPairs = Array(
     new BracePair(LBrace, RBrace, true),

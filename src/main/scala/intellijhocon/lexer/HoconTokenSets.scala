@@ -1,27 +1,12 @@
 package intellijhocon.lexer
 
 import com.intellij.psi.tree.TokenSet
+import intellijhocon.Util
 
 object HoconTokenSets {
 
   import HoconTokenType._
-
-  implicit def liftSingleToken(token: HoconTokenType): TokenSet =
-    TokenSet.create(token)
-
-  implicit class TokenSetOps(private val tokenSet: TokenSet) extends AnyVal {
-    def |(otherTokenSet: TokenSet) =
-      TokenSet.orSet(tokenSet, otherTokenSet)
-
-    def &(otherTokenSet: TokenSet) =
-      TokenSet.andSet(tokenSet, otherTokenSet)
-
-    def &^(otherTokenSet: TokenSet) =
-      TokenSet.andNot(tokenSet, otherTokenSet)
-  }
-
-  implicit def token2TokenSetOps(token: HoconTokenType) =
-    new TokenSetOps(token)
+  import Util._
 
   val Empty = TokenSet.EMPTY
   val Whitespace = InlineWhitespace | LineBreakingWhitespace

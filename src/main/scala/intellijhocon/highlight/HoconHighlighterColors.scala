@@ -27,7 +27,7 @@ object HoconHighlighterColors {
   final val OptionalReferenceSign = key("HOCON_OPTIONAL_REFERENCE_SIGN", DLHC.OPERATION_SIGN)
   final val UnquotedString = key("HOCON_UNQUOTED_STRING", DLHC.IDENTIFIER)
   final val PathSeparator = key("PATH_SEPARATOR", DLHC.DOT)
-  final val Key = key("KEY", DLHC.INSTANCE_METHOD)
+  final val FieldKey = key("FIELD_KEY", DLHC.INSTANCE_METHOD)
   final val ReferenceKey = key("REFERENCE_KEY", DLHC.INSTANCE_FIELD)
 
   private def key(name: String, prototype: TextAttributesKey) =

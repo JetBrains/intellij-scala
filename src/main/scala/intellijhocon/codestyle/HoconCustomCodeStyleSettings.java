@@ -1,4 +1,4 @@
-package intellijhocon.formatting;
+package intellijhocon.codestyle;
 
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;

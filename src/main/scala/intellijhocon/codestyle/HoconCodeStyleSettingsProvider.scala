@@ -1,4 +1,4 @@
-package intellijhocon.formatting
+package intellijhocon.codestyle
 
 import com.intellij.psi.codeStyle.{DisplayPriority, CodeStyleSettings, CodeStyleSettingsProvider}
 import com.intellij.application.options.CodeStyleAbstractConfigurable

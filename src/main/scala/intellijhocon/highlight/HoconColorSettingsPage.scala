@@ -53,7 +53,7 @@ class HoconColorSettingsPage extends ColorSettingsPage {
     "optrefsign" -> HHC.OptionalReferenceSign,
     "unquotedstring" -> HHC.UnquotedString,
     "dot" -> HHC.PathSeparator,
-    "key" -> HHC.Key,
+    "key" -> HHC.FieldKey,
     "refkey" -> HHC.ReferenceKey
   ).asJava
 
@@ -94,7 +94,7 @@ object HoconColorSettingsPage {
     "Optional reference sign" -> HHC.OptionalReferenceSign,
     "Unquoted string" -> HHC.UnquotedString,
     "Path separator" -> HHC.PathSeparator,
-    "Key" -> HHC.Key,
+    "Key" -> HHC.FieldKey,
     "Key in reference" -> HHC.ReferenceKey
   ).map({
     case (displayName, key) => new AttributesDescriptor(displayName, key)
