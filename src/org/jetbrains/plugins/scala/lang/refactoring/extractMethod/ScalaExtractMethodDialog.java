@@ -5,10 +5,14 @@ import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.psi.PsiElement;
+import com.intellij.refactoring.ui.MethodSignatureComponent;
 import com.intellij.refactoring.util.ParameterTablePanel;
 import com.intellij.refactoring.util.VariableData;
+import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.EditorTextField;
+import com.intellij.ui.SeparatorFactory;
 import org.jetbrains.plugins.scala.ScalaBundle;
+import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
@@ -23,6 +27,7 @@ import scala.Option;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import java.awt.*;
 import java.util.ArrayList;
 
 /**
@@ -44,6 +49,8 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   private JPanel visibilityPanel;
   private JPanel inputParametersPanel;
   private JLabel returnTypeLabel;
+  private JPanel myPreviewPanel;
+  private final MethodSignatureComponent mySignaturePreview;
 
   private ScalaExtractMethodSettings settings = null;
   private Project myProject;
@@ -72,6 +79,9 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     myInput = input;
     myOutput = output;
     myLastMeaningful = lastMeaningful;
+    mySignaturePreview = new MethodSignatureComponent("", project, ScalaFileType.SCALA_FILE_TYPE);
+    //mySignaturePreview.setPreferredSize(new Dimension(500, 30));
+    mySignaturePreview.setMinimumSize(new Dimension(500, 30));
 
     setModal(true);
     getRootPane().setDefaultButton(buttonOK);
@@ -118,10 +128,20 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
       }
 
       public void documentChanged(DocumentEvent event) {
+        updateSignature();
         updateOkStatus();
       }
     });
 
+    setupVisibilityPanel();
+
+    returnTypeLabel.setText(ScalaExtractMethodUtils.calcReturnType(myHasReturn, getReturns(), myLastReturn, myLastMeaningful));
+
+    setupParametersPanel();
+    setupPreviewPanel();
+  }
+
+  private void setupVisibilityPanel() {
     ButtonGroup visibilityGroup = new ButtonGroup();
     visibilityGroup.add(privateRadioButton);
     visibilityGroup.add(protectedRadioButton);
@@ -135,6 +155,14 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
         if (privateRadioButton.isSelected()) {
           privateTextField.setEnabled(true);
         } else privateTextField.setEnabled(false);
+        updateSignature();
+      }
+    });
+
+    privateTextField.getDocument().addDocumentListener(new DocumentAdapter() {
+      @Override
+      protected void textChanged(javax.swing.event.DocumentEvent e) {
+        updateSignature();
       }
     });
 
@@ -143,13 +171,18 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
         if (protectedRadioButton.isSelected()) {
           protectedTextField.setEnabled(true);
         } else protectedTextField.setEnabled(false);
+        updateSignature();
       }
     });
+
+    protectedTextField.getDocument().addDocumentListener(new DocumentAdapter() {
+      @Override
+      protected void textChanged(javax.swing.event.DocumentEvent e) {
+        updateSignature();
+      }
+    });
+
     visibilityPanel.setVisible(isVisibilitySectionAvailable());
-
-    returnTypeLabel.setText(ScalaExtractMethodUtils.calcReturnType(myHasReturn, getReturns(), myLastReturn, myLastMeaningful));
-
-    setupParametersPanel();
   }
 
   private void setupParametersPanel() {
@@ -158,8 +191,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
       VariableData d = ScalaExtractMethodUtils.convertVariableData(aMyInput, myElements);
       if (d != null) data.add(d);
     }
-    parameterTablePanel = new ScalaParameterTablePanel(myProject, data.toArray(
-        new VariableData[data.size()]));
+    parameterTablePanel = new ScalaParameterTablePanel(myProject, data.toArray(new VariableData[data.size()]));
     inputParametersPanel.add(parameterTablePanel);
   }
 
@@ -179,11 +211,28 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     }
   }
 
+  protected void setupPreviewPanel() {
+    myPreviewPanel.setLayout(new BorderLayout());
+    myPreviewPanel.add(mySignaturePreview, BorderLayout.CENTER);
+
+    updateSignature();
+  }
+
+  protected void updateSignature() {
+    updateSettings();
+    String text = ScalaExtractMethodUtils.previewSignatureText(settings);
+    mySignaturePreview.setSignature(text);
+  }
+
   @Override
   protected void doOKAction() {
+    updateSettings();
+    super.doOKAction();
+  }
+
+  private void updateSettings() {
     settings = new ScalaExtractMethodSettings(getMethodName(), getParameters(), getReturns(),
         getVisibility(), myScope, mySibling, myElements, myHasReturn, myLastReturn, myLastMeaningful);
-    super.doOKAction();
   }
 
   public ExtractMethodParameter[] getParameters() {
@@ -218,7 +267,9 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     public ScalaParameterTablePanel(Project project, VariableData[] variableData) {
       super(project, variableData);
     }
-    protected void updateSignature() {}
+    protected void updateSignature() {
+      ScalaExtractMethodDialog.this.updateSignature();
+    }
     protected void doEnterAction() {}
     protected void doCancelAction() {}
   }
