@@ -30,7 +30,7 @@ class MapGetOrElse(inspection: OperationOnCollectionInspection) extends Simplifi
               checkScalaVersion(lastRef) &&
               checkResolve(lastRef, likeOptionClasses) &&
               checkResolve(secondRef, likeOptionClasses) &&
-              checkTypes(second.optionalBase, second.args(0), last.args(0))=>
+              checkTypes(second.optionalBase, second.args, last.args)=>
         createSimplification(second, last.itself, "fold", last.args, second.args)
       case _ => Nil
     }
@@ -41,7 +41,11 @@ class MapGetOrElse(inspection: OperationOnCollectionInspection) extends Simplifi
     !isScala2_9
   }
 
-  def checkTypes(optionalBase: Option[ScExpression], mapArg: ScExpression, getOrElseArg: ScExpression): Boolean = {
+  def checkTypes(optionalBase: Option[ScExpression], mapArgs: Seq[ScExpression], getOrElseArgs: Seq[ScExpression]): Boolean = {
+    val (mapArg, getOrElseArg) = (mapArgs, getOrElseArgs) match {
+      case (Seq(a1), Seq(a2)) => (a1, a2)
+      case _ => return false
+    }
     val baseExpr = optionalBase match {
       case Some(e) => e
       case _ => return false
