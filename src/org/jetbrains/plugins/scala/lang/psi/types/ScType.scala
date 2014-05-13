@@ -215,6 +215,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
 
   def extractClassType(t: ScType, project: Option[Project] = None): Option[Pair[PsiClass, ScSubstitutor]] = t match {
     case n: NonValueType => extractClassType(n.inferValueType)
+    case ScThisType(clazz) => Some(clazz, new ScSubstitutor(t))
     case ScDesignatorType(clazz: PsiClass) => Some(clazz, ScSubstitutor.empty)
     case ScDesignatorType(ta: ScTypeAliasDefinition) =>
       val result = ta.aliasedType(TypingContext.empty)
