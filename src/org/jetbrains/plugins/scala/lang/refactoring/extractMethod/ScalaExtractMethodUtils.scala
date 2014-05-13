@@ -23,6 +23,7 @@ import scala.util.Sorting
 import java.util
 import extensions._
 import org.jetbrains.plugins.scala.lang.refactoring.util.duplicates.ScalaVariableData
+import com.intellij.openapi.util.text.StringUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -293,9 +294,24 @@ object ScalaExtractMethodUtils {
     list.toArray(new Array[ExtractMethodOutput](list.size))
   }
 
-  def typedName(name: String, scType: ScType, byName: Boolean = false) = {
+  def typedName(name: String, scType: ScType, byName: Boolean = false): String = {
     val colon = if (ScalaNamesUtil.isOpCharacter(name.last)) " : " else ": "
     val byNameArrow = if (byName) "=> " else ""
     s"$name$colon$byNameArrow${scType.canonicalText}"
+  }
+
+  def typedName(param: ExtractMethodParameter): String =
+    typedName(param.newName, param.tp, param.isCallByNameParameter)
+
+  def previewSignatureText(settings: ScalaExtractMethodSettings) = {
+    val methodName = settings.methodName
+    val visibility = settings.visibility
+    val prefix = s"${visibility}def $methodName"
+    val paramsText = settings.parameters
+            .filter(_.passAsParameter)
+            .map(p => typedName(p))
+            .mkString("(", s", ", ")")
+    val returnTypeText = calcReturnType(settings.returnType, settings.outputs, settings.lastReturn, settings.lastMeaningful)
+    s"$prefix$paramsText: $returnTypeText"
   }
 }
