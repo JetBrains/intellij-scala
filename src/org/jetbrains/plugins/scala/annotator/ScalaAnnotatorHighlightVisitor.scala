@@ -35,6 +35,7 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
   }
 
   def analyze(file: PsiFile, updateWholeFile: Boolean, holder: HighlightInfoHolder, action: Runnable): Boolean = {
+    val time = System.currentTimeMillis()
     var success = true
     try {
       myHolder = holder
@@ -59,6 +60,8 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
       myAnnotationHolder = null
       myRefCountHolder = null
     }
+    val method: Long = System.currentTimeMillis() - time
+    if (method > 100) println(s"File: ${file.getName}, Time: $method")
     success
   }
 

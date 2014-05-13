@@ -130,7 +130,7 @@ object Conformance {
         result = (true, undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), l))
       }
     }
-    
+
     trait AbstractVisitor extends ScalaTypeVisitor {
       override def visitAbstractType(a: ScAbstractType) {
         val left =
@@ -144,7 +144,7 @@ object Conformance {
         }
       }
     }
-    
+
     trait ParameterizedAbstractVisitor extends ScalaTypeVisitor {
       override def visitParameterizedType(p: ScParameterizedType) {
         p.designator match {
@@ -214,7 +214,7 @@ object Conformance {
         result = (false, undefinedSubst)
       }
     }
-    
+
     trait NothingNullVisitor extends ScalaTypeVisitor {
       override def visitStdType(x: StdType) {
         if (x eq types.Nothing) result = (true, undefinedSubst)
@@ -247,7 +247,7 @@ object Conformance {
         result = conformsInner(l, tpt.upper.v, HashSet.empty, undefinedSubst)
       }
     }
-    
+
     trait ThisVisitor extends ScalaTypeVisitor {
       override def visitThisType(t: ScThisType) {
         val clazz = t.clazz
@@ -276,7 +276,7 @@ object Conformance {
         }
       }
     }
-    
+
     trait ParameterizedAliasVisitor extends ScalaTypeVisitor {
       override def visitParameterizedType(p: ScParameterizedType) {
         p.designator match {
@@ -332,7 +332,7 @@ object Conformance {
         }
       }
     }
-    
+
     trait CompoundTypeVisitor extends ScalaTypeVisitor {
       override def visitCompoundType(c: ScCompoundType) {
         val comps = c.components
@@ -352,7 +352,7 @@ object Conformance {
         }
       }
     }
-    
+
     trait ExistentialVisitor extends ScalaTypeVisitor {
       override def visitExistentialType(ex: ScExistentialType) {
         result = conformsInner(l, ex.skolem, HashSet.empty, undefinedSubst)
@@ -527,7 +527,7 @@ object Conformance {
       if (result != null) return
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
-        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
+        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
         with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -579,7 +579,7 @@ object Conformance {
       if (result != null) return
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
-        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
+        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
         with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor with ParameterizedAliasVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -650,7 +650,7 @@ object Conformance {
       if (result != null) return
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
-        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
+        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
         with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -793,7 +793,7 @@ object Conformance {
         case _ =>
       }
 
-      rightVisitor = new AliasDesignatorVisitor with CompoundTypeVisitor with ExistentialVisitor 
+      rightVisitor = new AliasDesignatorVisitor with CompoundTypeVisitor with ExistentialVisitor
         with ProjectionVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -854,7 +854,7 @@ object Conformance {
         case _ =>
       }
 
-      rightVisitor = new ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
+      rightVisitor = new ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
          with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -1204,7 +1204,7 @@ object Conformance {
       }
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
-        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
+        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
          with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -1306,7 +1306,7 @@ object Conformance {
       if (result != null) return
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
-        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
+        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
          with TypeParameterTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -1335,7 +1335,7 @@ object Conformance {
       if (result != null) return
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
-        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
+        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
          {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -1435,7 +1435,8 @@ object Conformance {
       }
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
-        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with TypeParameterTypeNothingNullVisitor with DesignatorVisitor {}
+        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with TypeParameterTypeNothingNullVisitor
+        with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1451,11 +1452,18 @@ object Conformance {
         case _ =>
       }
 
-      rightVisitor = new CompoundTypeVisitor {}
+      val t = conformsInner(tpt1.lower.v, r, HashSet.empty, undefinedSubst)
+      if (t._1) {
+        result = t
+        return
+      }
+
+      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor with CompoundTypeVisitor
+        with ExistentialVisitor with ProjectionVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
-      result = conformsInner(tpt1.lower.v, r, HashSet.empty, undefinedSubst)
+      result = (false, undefinedSubst)
     }
 
     override def visitSkolemizedType(s: ScSkolemizedType) {
@@ -1498,7 +1506,7 @@ object Conformance {
       if (result != null) return
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
-        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
+        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
          with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -1656,7 +1664,7 @@ object Conformance {
   }
 
   val guard = RecursionManager.createGuard("conformance.guard")
-  
+
   val cache: ConcurrentWeakHashMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)] =
     new ConcurrentWeakHashMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)]()
 
