@@ -217,7 +217,9 @@ trait ScTypePsiTypeBridge {
           val lower = argument.lower
           if (lower.equiv(types.Nothing)) PsiWildcardType.createUnbounded(PsiManager.getInstance(project))
           else {
-            PsiWildcardType.createSuper(PsiManager.getInstance(project), toPsi(lower, project, scope))
+            val sup: PsiType = toPsi(lower, project, scope)
+            if (sup.isInstanceOf[PsiWildcardType]) javaObj
+            else PsiWildcardType.createSuper(PsiManager.getInstance(project), sup)
           }
         } else {
           val psi = toPsi(upper, project, scope)
