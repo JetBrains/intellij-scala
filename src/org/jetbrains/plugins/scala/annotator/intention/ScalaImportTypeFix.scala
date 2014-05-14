@@ -256,7 +256,11 @@ object ScalaImportTypeFix {
       PsiTreeUtil.getParentOfType(ref, classOf[ScImportsHolder])
     else {
       PsiTreeUtil.getParentOfType(ref, classOf[ScPackaging]) match {
-        case null => ref.getContainingFile.asInstanceOf[ScImportsHolder]
+        case null => ref.getContainingFile match {
+          case holder: ScImportsHolder => holder
+          case file =>
+            throw new AssertionError(s"Holder is wrong, file text: ${file.getText}")
+        }
         case packaging: ScPackaging => packaging
       }
     }
