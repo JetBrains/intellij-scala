@@ -229,12 +229,11 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
         extractClassType(proj.actualSubst.subst(result.get))
       case _ => None
     }
-    case p@ScParameterizedType(t1, _) => {
+    case p@ScParameterizedType(t1, _) =>
       extractClassType(t1) match {
         case Some((c, s)) => Some((c, s.followed(p.substitutor)))
         case None => None
       }
-    }
     case std@StdType(_, _) =>
       val asClass = std.asClass(project.getOrElse(DecompilerUtil.obtainProject))
       if (asClass.isEmpty) return None
@@ -325,6 +324,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
       case c: PsiClass => Some(p)
       case t: ScTypeAliasDefinition =>
         projectionOption(proj.actualSubst.subst(t.aliasedType(TypingContext.empty).getOrElse(return None)))
+      case t: ScTypeAliasDeclaration => Some(p)
       case _ => None
     }
     case ScDesignatorType(t: ScTypeAliasDefinition) =>
