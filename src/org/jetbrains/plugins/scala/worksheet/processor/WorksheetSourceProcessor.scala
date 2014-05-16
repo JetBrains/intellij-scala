@@ -187,7 +187,7 @@ object WorksheetSourceProcessor {
     
     def withTempVar(callee: String, withInstance: Boolean = true) =
       "{val $$temp$$ = " + (if (withInstance) instanceName + "." else "") + callee + s"; $macroPrinterName.printDefInfo(" + "$$temp$$" + ")" +
-        eraseClassName + " + \" = \" + $$temp$$.toString" + erasePrefixName + "}"
+        eraseClassName + " + \" = \" + (Option($$temp$$).map(_.toString).getOrElse(\"null\"))" + erasePrefixName + "}"
     
     val root  = if (!isForObject(srcFile)) srcFile else {
       ((null: PsiElement) /: srcFile.getChildren) {
