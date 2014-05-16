@@ -46,4 +46,5 @@ class SortFilterTest extends OperationsOnCollectionInspectionTest {
     testFix(text, result, hint)
   }
 
+  override val inspectionClass = classOf[SortFilterInspection]
 }

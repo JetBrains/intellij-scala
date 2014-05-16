@@ -371,8 +371,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   }
 
   private static boolean fitToUnderscorePattern(String pattern, String qualName) {
-    return pattern.endsWith("._") && qualName.contains(".") &&
-        pattern.substring(0, pattern.lastIndexOf('.')).equals(qualName.substring(0, qualName.lastIndexOf('.')));
+    return pattern.endsWith("._") && qualName.contains(".") && qualName.startsWith(pattern.substring(0, pattern.lastIndexOf('.')));
   }
 
   public boolean isInProcessMode() {

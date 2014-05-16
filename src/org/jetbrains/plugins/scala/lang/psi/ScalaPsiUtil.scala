@@ -819,7 +819,7 @@ object ScalaPsiUtil {
               clazz <- Option(owner.getContainingClass)
               name <- Option(clazz.getName)
             } yield name).getOrElse("NoClass")
-          s" in:$containingFile:$containingClass" //Two parameters from Java can't be used with same name in same place
+          " in:" + containingFile + ":" + containingClass //Two parameters from Java can't be used with same name in same place
         case _ =>
           val containingFile: PsiFile = elem.getContainingFile
           " in:" + (if (containingFile != null) containingFile.name else "NoFile") + ":" +

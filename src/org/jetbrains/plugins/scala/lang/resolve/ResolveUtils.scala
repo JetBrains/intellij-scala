@@ -499,9 +499,8 @@ object ResolveUtils {
                 var classes: Array[PsiClass] = manager.getCachedClasses(scope, fqn)
                 if (classes.isEmpty) {
                   //todo: fast fix for the problem with classes, should be fixed in indexes
-                  val improvedFqn = fqn.split('.').map{
-                    case s if ScalaNamesUtil.isKeyword(s) => s"`$s`"
-                    case s => s
+                  val improvedFqn = fqn.split('.').map { s =>
+                    if (ScalaNamesUtil.isKeyword(s)) s"`$s`" else s
                   }.mkString(".")
                   if (improvedFqn != fqn) {
                     classes = manager.getCachedClasses(scope, improvedFqn)
@@ -526,12 +525,17 @@ object ResolveUtils {
 
             //process subpackages
             if (base.kinds.contains(ResolveTargets.PACKAGE)) {
-              pack match {
-                case s: ScPackageImpl =>
-                  s.pack.processDeclarations(processor, state, lastParent, place)
-                case _ =>
-                  pack.processDeclarations(processor, state, lastParent, place)
+              val psiPack = pack match {
+                case s: ScPackageImpl => s.pack
+                case _ => pack
               }
+              val qName: String = psiPack.getQualifiedName
+              val subpackageQName: String = if (qName.isEmpty) name else qName + "." + name
+              val subPackage = ScalaPsiManager.instance(psiPack.getProject).getCachedPackage(subpackageQName)
+              if (subPackage != null) {
+                if (!processor.execute(subPackage, state)) return false
+              }
+              true
             } else true
           } finally {
             base.setClassKind(classKind = true)

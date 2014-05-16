@@ -373,7 +373,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       val subPackages = if (syntheticPackage != null)
         syntheticPackage.getSubPackages(getResolveScope)
       else {
-        val psiPack = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(getSplitQualifierElement(qualifiedName)._1))
+        val psiPack = ScPackageImpl.findPackage(getProject, getSplitQualifierElement(qualifiedName)._1)
         if (psiPack != null) psiPack.getSubPackages(getResolveScope)
         else Array[PsiPackage]()
       }

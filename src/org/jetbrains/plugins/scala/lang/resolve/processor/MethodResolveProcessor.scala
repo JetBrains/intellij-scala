@@ -269,7 +269,9 @@ object MethodResolveProcessor {
           Compatibility.compatible(tp, substitutor, args, checkWithImplicits,
             ref.getResolveScope, isShapeResolve)
         }
-      case _ => ConformanceExtResult(Seq.empty)
+      case _ =>
+        val problems = if (typeArgElements.length > 0) Seq(DoesNotTakeTypeParameters) else Seq.empty
+        ConformanceExtResult(problems)
     }
     if (result.problems.length == 0) {
       var uSubst = result.undefSubst

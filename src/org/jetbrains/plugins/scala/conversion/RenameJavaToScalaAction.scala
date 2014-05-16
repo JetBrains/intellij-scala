@@ -2,10 +2,13 @@ package org.jetbrains.plugins.scala
 package conversion
 
 
-import com.intellij.openapi.actionSystem.{AnActionEvent, DataConstants, AnAction}
+import com.intellij.openapi.actionSystem.{CommonDataKeys, AnActionEvent, AnAction}
 import com.intellij.psi.{PsiDocumentManager, PsiJavaFile}
 import com.intellij.psi.codeStyle. {CodeStyleSettingsManager, CodeStyleManager}
 import lang.psi.ScalaPsiUtil
+import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.plugins.scala.util.NotificationUtil
+import com.intellij.notification.{NotificationType, NotificationDisplayType}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -22,8 +25,7 @@ class RenameJavaToScalaAction extends AnAction {
       presentation.setVisible(false)
     }
     try {
-      val dataContext = e.getDataContext
-      val file = dataContext.getData(DataConstants.PSI_FILE)
+      val file = CommonDataKeys.PSI_FILE.getData(e.getDataContext)
       file match {
         case j: PsiJavaFile if ScalaPsiUtil.hasScalaFacet(j) =>
           val dir = j.getContainingDirectory
@@ -39,13 +41,24 @@ class RenameJavaToScalaAction extends AnAction {
   }
 
   def actionPerformed(e: AnActionEvent) {
-    val file = e.getDataContext.getData(DataConstants.PSI_FILE)
+    val file = CommonDataKeys.PSI_FILE.getData(e.getDataContext)
     file match {
-      case jFile: PsiJavaFile => {
+      case jFile: PsiJavaFile =>
         org.jetbrains.plugins.scala.util.ScalaUtils.runWriteAction(new Runnable {
           def run() {
             val directory = jFile.getContainingDirectory
             val name = jFile.getName.substring(0, jFile.getName.length - 5)
+            val nameWithExtension: String = name + ".scala"
+            val existingFile: VirtualFile = directory.getVirtualFile.findChild(nameWithExtension)
+            if (existingFile != null) {
+              NotificationUtil.builder(directory.getProject, s"File $nameWithExtension already exists").
+                setDisplayType(NotificationDisplayType.BALLOON).
+                setNotificationType(NotificationType.ERROR).
+                setGroup("rename.java.to.scala").
+                setTitle("Cannot create file").
+                show()
+              return
+            }
             val file = directory.createFile(name + ".scala")
             val newText = JavaToScala.convertPsiToText(jFile).trim
             val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
@@ -69,7 +82,6 @@ class RenameJavaToScalaAction extends AnAction {
             file.navigate(true)
           }
         }, jFile.getProject, "Convert Java to Scala")
-      }
       case _ =>
     }
   }
