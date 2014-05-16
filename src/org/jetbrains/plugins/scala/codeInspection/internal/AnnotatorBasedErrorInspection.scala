@@ -35,7 +35,7 @@ class AnnotatorBasedErrorInspection extends LocalInspectionTool {
           val highlightInfoHolder = new HighlightInfoHolder(file)
           visitor.analyze(file, true, highlightInfoHolder, new Runnable {
             def run() {
-              element.accept(visitor)
+              visitor.visit(element)
             }
           })
           if (highlightInfoHolder.hasErrorResults) {
