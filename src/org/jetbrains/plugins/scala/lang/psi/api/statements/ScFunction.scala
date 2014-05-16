@@ -424,6 +424,9 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
   }
 
+  /**
+   * @return Empty array, if containing class is null.
+   */
   def getFunctionWrappers(isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper] = {
     val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
     val r = functionWrapper.get(isStatic, isInterface, cClass)
@@ -431,14 +434,16 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       return r._1
     }
     val buffer = new ArrayBuffer[ScFunctionWrapper]
-    buffer += new ScFunctionWrapper(this, isStatic, isInterface, cClass)
-    for {
-      clause <- clauses
-      first <- clause.clauses.headOption
-      if first.hasRepeatedParam
-      if isJavaVarargs
-    } {
-      buffer += new ScFunctionWrapper(this, isStatic, isInterface, cClass, isJavaVarargs = true)
+    if (cClass != None || containingClass != null) {
+      buffer += new ScFunctionWrapper(this, isStatic, isInterface, cClass)
+      for {
+        clause <- clauses
+        first <- clause.clauses.headOption
+        if first.hasRepeatedParam
+        if isJavaVarargs
+      } {
+        buffer += new ScFunctionWrapper(this, isStatic, isInterface, cClass, isJavaVarargs = true)
+      }
     }
     val result: Seq[ScFunctionWrapper] = buffer.toSeq
     functionWrapper.put((isStatic, isInterface, cClass), (result, curModCount))
