@@ -12,6 +12,7 @@ import com.intellij.codeHighlighting.Pass
 import collection.JavaConversions
 import com.intellij.codeInsight.daemon.impl._
 import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
+import com.intellij.openapi.application.ApplicationManager
 
 /**
  * User: Alexander Podkhalyuzin
@@ -43,7 +44,7 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
       if (updateWholeFile) {
         val project: Project = file.getProject
         val daemonCodeAnalyzer: DaemonCodeAnalyzer = DaemonCodeAnalyzer.getInstance(project)
-        val fileStatusMap: FileStatusMap = (daemonCodeAnalyzer.asInstanceOf[DaemonCodeAnalyzerImpl]).getFileStatusMap
+        val fileStatusMap: FileStatusMap = daemonCodeAnalyzer.asInstanceOf[DaemonCodeAnalyzerImpl].getFileStatusMap
         val refCountHolder: ScalaRefCountHolder = ScalaRefCountHolder.getInstance(file)
         myRefCountHolder = refCountHolder
         val document: Document = PsiDocumentManager.getInstance(project).getDocument(file)
@@ -54,14 +55,13 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
         myRefCountHolder = null
         action.run()
       }
-    }
-    finally {
+    } finally {
       myHolder = null
       myAnnotationHolder = null
       myRefCountHolder = null
     }
     val method: Long = System.currentTimeMillis() - time
-    if (method > 100) println(s"File: ${file.getName}, Time: $method")
+    if (method > 100 && ApplicationManager.getApplication.isInternal) println(s"File: ${file.getName}, Time: $method")
     success
   }
 
