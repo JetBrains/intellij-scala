@@ -32,4 +32,6 @@ class FilterHeadOptionTest extends OperationsOnCollectionInspectionTest {
     val result = "List(0).find(x => true).isDefined"
     testFix(text, result, hint)
   }
+
+  override val inspectionClass = classOf[FilterHeadOptionInspection]
 }

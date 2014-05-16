@@ -123,8 +123,13 @@ public class MouseHoverHandler extends AbstractProjectComponent {
       Point point = new Point(mouseEvent.getPoint());
       if (PsiDocumentManager.getInstance(myProject).isCommitted(editor.getDocument())) {
         // when document is committed, try to check injected stuff - it's fast
-        editor = InjectedLanguageUtil
-          .getEditorForInjectedLanguageNoCommit(editor, psiFile, editor.logicalPositionToOffset(editor.xyToLogicalPosition(point)));
+        try {
+          LogicalPosition pos = editor.xyToLogicalPosition(point);
+          editor = InjectedLanguageUtil
+              .getEditorForInjectedLanguageNoCommit(editor, psiFile, editor.logicalPositionToOffset(pos));
+        } catch (Exception ignore) { //see EA-55701
+          return;
+        }
       }
 
       final LogicalPosition pos = editor.xyToLogicalPosition(point);

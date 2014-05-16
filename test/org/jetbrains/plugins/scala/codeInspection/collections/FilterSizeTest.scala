@@ -32,4 +32,6 @@ class FilterSizeTest extends OperationsOnCollectionInspectionTest {
     val result = "Map() count (x => true)"
     testFix(text, result, hint)
   }
+
+  override val inspectionClass = classOf[FilterSizeInspection]
 }

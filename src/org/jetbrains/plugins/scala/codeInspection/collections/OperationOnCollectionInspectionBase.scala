@@ -50,13 +50,22 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case expr: ScExpression  =>
       for (s <- simplifications(expr)) {
-        holder.registerProblem(expr, inspectionName, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, s.rangeInParent, new OperationOnCollectionQuickFix(expr, s))
+        holder.registerProblem(expr, s.hint, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, s.rangeInParent, new OperationOnCollectionQuickFix(expr, s))
       }
   }
 
   private def simplifications(expr: ScExpression): Array[Simplification] = {
+    def simplificationTypes = for {
+      (st, idx) <- possibleSimplificationTypes.zipWithIndex
+      if getSimplificationTypeChecked(idx)
+    } yield st
+
     val result = expr match {
-      case MethodSeq(last, second, _*) => possibleSimplificationTypes.flatMap(_.getSimplification(last,second))
+      case MethodSeq(single) => simplificationTypes.flatMap(_.getSimplification(single))
+      case MethodSeq(last, second, _*) =>
+        simplificationTypes.flatMap {
+          st => st.getSimplification(last, second) ::: st.getSimplification(last)
+        }
       case _ => Array[Simplification]()
     }
     result
@@ -134,7 +143,7 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
         }
       }).setRemoveAction(new AnActionButtonRunnable {
         def run(t: AnActionButton) {
-          patternJBList.getSelectedIndices.foreach(listModel.removeElementAt(_))
+          patternJBList.getSelectedIndices.foreach(listModel.removeElementAt)
           resetValues()
         }
       }).disableUpDownActions.createPanel
@@ -157,9 +166,11 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
 
     val panel = new JPanel()
     panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS))
-    val chbPanel = checkBoxesPanel()
-    chbPanel.setAlignmentX(Component.LEFT_ALIGNMENT)
-    panel.add(checkBoxesPanel())
+    if (possibleSimplificationTypes.length > 1) {
+      val chbPanel = checkBoxesPanel()
+      chbPanel.setAlignmentX(Component.LEFT_ALIGNMENT)
+      panel.add(checkBoxesPanel())
+    }
     panel.add(Box.createVerticalGlue())
     panel.add(patternsPanel())
     panel

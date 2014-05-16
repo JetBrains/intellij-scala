@@ -36,6 +36,9 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val implicitObjectMap: ConcurrentMap[String, SofterReference[java.util.Map[GlobalSearchScope, Seq[ScObject]]]] =
     new ConcurrentHashMap()
 
+  private val packageMap: ConcurrentMap[String, SofterReference[Option[PsiPackage]]] =
+    new ConcurrentHashMap()
+
   private val classMap: ConcurrentMap[String, SofterReference[util.Map[GlobalSearchScope, Option[PsiClass]]]] =
     new ConcurrentHashMap()
 
@@ -141,6 +144,18 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     result
   }
 
+  def getCachedPackage(fqn: String): PsiPackage = {
+    def calc(): Option[PsiPackage] = {
+      Option(JavaPsiFacade.getInstance(project).findPackage(fqn))
+    }
+
+    val reference = packageMap.get(fqn)
+    if (reference == null || reference.get() == null) {
+      val res: Option[PsiPackage] = calc()
+      packageMap.put(fqn, new SofterReference(res))
+      res.getOrElse(null)
+    } else reference.get().getOrElse(null)
+  }
 
 
   def getCachedClass(scope: GlobalSearchScope, fqn: String): PsiClass = {
@@ -364,6 +379,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     PsiManager.getInstance(project).asInstanceOf[PsiManagerEx].registerRunnableToRunOnChange(new Runnable {
       def run() {
         implicitObjectMap.clear()
+        packageMap.clear()
         classMap.clear()
         classesMap.clear()
         classFacadeMap.clear()
@@ -376,6 +392,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         compoundTypesSignatureNodes.clear()
         compoundTypesTypeNodes.clear()
         Conformance.cache.clear()
+        ScParameterizedType.substitutorCache.clear()
       }
     })
 
@@ -386,6 +403,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       def rootsChanged(event: ModuleRootEvent) {
         implicitObjectMap.clear()
         classMap.clear()
+        packageMap.clear()
         classesMap.clear()
         classFacadeMap.clear()
         classesFacadeMap.clear()
@@ -397,6 +415,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         compoundTypesSignatureNodes.clear()
         compoundTypesTypeNodes.clear()
         Conformance.cache.clear()
+        ScParameterizedType.substitutorCache.clear()
       }
     })
 
@@ -404,6 +423,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       def run(): Unit = {
         implicitObjectMap.clear()
         classMap.clear()
+        packageMap.clear()
         classesMap.clear()
         classFacadeMap.clear()
         classesFacadeMap.clear()
@@ -415,6 +435,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         compoundTypesSignatureNodes.clear()
         compoundTypesTypeNodes.clear()
         Conformance.cache.clear()
+        ScParameterizedType.substitutorCache.clear()
       }
     })
   }

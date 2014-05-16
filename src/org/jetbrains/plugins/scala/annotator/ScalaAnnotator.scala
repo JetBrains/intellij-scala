@@ -67,16 +67,18 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   with OverridingAnnotator with DumbAware {
 
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
-    val (compiled, isInSources) = element.getContainingFile match {
-      case file: ScalaFile => (file.isCompiled, ScalaUtils.isUnderSources(file))
-      case _ => (false, false)
-    }
-
-    if (isInSources) UsageTrigger.trigger("scala.file.annotated")
-
     val typeAware = isAdvancedHighlightingEnabled(element)
 
-    if (isInSources && typeAware) UsageTrigger.trigger("scala.file.type.aware.annotated")
+    val (compiled, isInSources) = element.getContainingFile match {
+      case file: ScalaFile =>
+        val isInSources: Boolean = ScalaUtils.isUnderSources(file)
+        if (isInSources && (element eq file)) {
+          if (typeAware) UsageTrigger.trigger("scala.file.with.type.aware.annotated")
+          else UsageTrigger.trigger("scala.file.without.type.aware.annotated")
+        }
+        (file.isCompiled, isInSources)
+      case _ => (false, false)
+    }
 
     val visitor = new ScalaElementVisitor {
       private def expressionPart(expr: ScExpression) {

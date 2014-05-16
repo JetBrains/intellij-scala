@@ -617,10 +617,10 @@
                          id="SuspiciousInferredType" level="WARNING" enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.VarCouldBeValInspection"
                          displayName="'var' could be a 'val'" groupName="Scala: General" shortName="VarCouldBeVal"
-                         level="WARNING" enabledByDefault="true" language="Scala"/>
+                         level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedSymbolInspection"
                          displayName="Unused Symbol" groupName="Scala: General" shortName="ScalaUnusedSymbol"
-                         level="WARNING" enabledByDefault="true" language="Scala"/>
+                         level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.sugar.FunctionTupleSyntacticSugarInspection"
                          displayName="Syntactic Sugar" groupName="Scala: General" shortName="FunctionTupleSyntacticSugar"
                          id="FunctionTupleSyntacticSugar" level="WARNING" enabledByDefault="true" language="Scala"/>
@@ -810,9 +810,69 @@
                        displayName="Type check can be pattern matching" groupName="Scala: General"
                        shortName="TypeCheckCanBeMatch" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspection"
-                       displayName="Simplifiable operation on collection" groupName="Scala: General"
-                       shortName="OperationOnCollection" level="WARNING"
+      <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspection"-->
+                       <!--displayName="Simplifiable operation on collection" groupName="Scala: General"-->
+                       <!--shortName="OperationOnCollection" level="WARNING"-->
+                       <!--enabledByDefault="true" language="Scala"/>-->
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterHeadOptionInspection"
+                       displayName="Simplifiable filter and headOption" groupName="Scala: Collections"
+                       shortName="FilterHeadOption" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapGetOrElseFalseInspection"
+                       displayName="Simplifiable map and getOrElse(false)" groupName="Scala: Collections"
+                       shortName="MapGetOrElseFalse" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FindIsDefinedInspection"
+                       displayName="Simplifiable find and isDefined" groupName="Scala: Collections"
+                       shortName="FindIsDefined" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterSizeCheckInspection"
+                       displayName="Simplifiable filter and size check" groupName="Scala: Collections"
+                       shortName="FilterSizeCheck" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterSizeInspection"
+                       displayName="Simplifiable filter and size" groupName="Scala: Collections"
+                       shortName="FilterSize" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FindNotEqualsNoneInspection"
+                       displayName="Simplifiable find and notEquals None" groupName="Scala: Collections"
+                       shortName="FindNotEqualsNone" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SimplifiableFoldOrReduceInspection"
+                       displayName="Simplifiable fold or reduce method" groupName="Scala: Collections"
+                       shortName="SimplifiableFoldOrReduce" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FoldTrueAndInspection"
+                       displayName="Fold simplifiable to forall" groupName="Scala: Collections"
+                       shortName="FoldTrueAnd" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SortFilterInspection"
+                       displayName="Filter after sort" groupName="Scala: Collections"
+                       shortName="SortFilter" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapGetOrElseInspection"
+                       displayName="Simplifiable map and getOrElse" groupName="Scala: Collections"
+                       shortName="MapGetOrElse" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ExistsEqualsInspection"
+                       displayName="Exists simplifiable to contains" groupName="Scala: Collections"
+                       shortName="ExistsEquals" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.DropOneInspection"
+                       displayName="drop(1) replaceable for tail " groupName="Scala: Collections"
+                       shortName="DropOne" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetOrElseNullInspection"
+                       displayName="Simplifiable getOrElse(null)" groupName="Scala: Collections"
+                       shortName="GetOrElseNull" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetGetOrElseInspection"
+                       displayName="Simplifiable get and getOrElse on a map" groupName="Scala: Collections"
+                       shortName="GetGetOrElse" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.NotIsEmptyInspection"
+                       displayName="isEmpty replaceable for nonEmpty" groupName="Scala: Collections"
+                       shortName="NotIsEmpty" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.etaExpansion.ConvertibleToMethodValueInspection"
                        displayName="Anonymous function convertible to a method value" groupName="Scala: General"
