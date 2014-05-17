@@ -1,7 +1,8 @@
 package intellijhocon.codestyle
 
 import com.intellij.psi.codeStyle.{DisplayPriority, CodeStyleSettings, CodeStyleSettingsProvider}
-import com.intellij.application.options.CodeStyleAbstractConfigurable
+import com.intellij.application.options.{TabbedLanguageCodeStylePanel, CodeStyleAbstractConfigurable}
+import intellijhocon.lang.HoconLanguage
 
 class HoconCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
 
@@ -12,7 +13,7 @@ class HoconCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
   def createSettingsPage(settings: CodeStyleSettings, originalSettings: CodeStyleSettings) =
     new CodeStyleAbstractConfigurable(settings, originalSettings, "HOCON") {
       override protected def createPanel(settings: CodeStyleSettings) =
-        new HoconTabbedLanguageCodeStylePanel(getCurrentSettings, settings)
+        new TabbedLanguageCodeStylePanel(HoconLanguage, getCurrentSettings, settings) {}
 
       def getHelpTopic = null
 

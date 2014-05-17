@@ -21,37 +21,50 @@ class HoconFormatter(settings: CodeStyleSettings) {
   val commonSettings = settings.getCommonSettings(HoconLanguage)
   val customSettings = settings.getCustomSettings(classOf[HoconCustomCodeStyleSettings])
 
-  val MaxBlankLines = 2 //TODO extract to code style settings
-
-  private def beforeCommentOnNewLineSpacing(commentToken: IElementType) = commentToken match {
-    case HashComment if customSettings.HASH_COMMENTS_AT_FIRST_COLUMN =>
-      Spacing.createKeepingFirstColumnSpacing(0, 0, true, MaxBlankLines)
-    case DoubleSlashComment if customSettings.DOUBLE_SLASH_COMMENTS_AT_FIRST_COLUMN =>
-      Spacing.createKeepingFirstColumnSpacing(0, 0, true, MaxBlankLines)
-    case _ =>
-      Spacing.createSpacing(0, 0, 0, true, MaxBlankLines)
+  private def beforeCommentOnNewLineSpacing(parent: ASTNode, comment: ASTNode) = {
+    val maxBlankLines = getMaxBlankLines(parent.getElementType, comment.getElementType)
+    comment.getElementType match {
+      case HashComment if customSettings.HASH_COMMENTS_AT_FIRST_COLUMN =>
+        Spacing.createKeepingFirstColumnSpacing(0, 0, true, maxBlankLines)
+      case DoubleSlashComment if customSettings.DOUBLE_SLASH_COMMENTS_AT_FIRST_COLUMN =>
+        Spacing.createKeepingFirstColumnSpacing(0, 0, true, maxBlankLines)
+      case _ =>
+        Spacing.createSpacing(0, 0, 0, true, maxBlankLines)
+    }
   }
+
+  private def getMaxBlankLines(parentType: IElementType, rightChildType: IElementType) =
+    (parentType, rightChildType) match {
+      case (_, RBrace) => customSettings.KEEP_BLANK_LINES_BEFORE_RBRACE
+      case (_, RBracket) => customSettings.KEEP_BLANK_LINES_BEFORE_RBRACKET
+      case (Array, _) => customSettings.KEEP_BLANK_LINES_IN_LISTS
+      case _ => customSettings.KEEP_BLANK_LINES_IN_OBJECTS
+    }
 
   def getFirstSpacing(parent: ASTNode, firstChild: ASTNode) =
     if (Comment.contains(firstChild.getElementType))
-      beforeCommentOnNewLineSpacing(firstChild.getElementType)
+      beforeCommentOnNewLineSpacing(parent, firstChild)
     else
-      Spacing.createSpacing(0, 0, 0, true, MaxBlankLines)
+      Spacing.createSpacing(0, 0, 0, true, getMaxBlankLines(parent.getElementType, firstChild.getElementType))
 
   def getSpacing(parent: ASTNode, leftChild: ASTNode, rightChild: ASTNode) = {
 
+    val keepLineBreaks = commonSettings.KEEP_LINE_BREAKS
+    val maxBlankLines = getMaxBlankLines(parent.getElementType, rightChild.getElementType)
+
     def dependentLFSpacing(shouldBeSpace: Boolean) = {
       val spaces = if (shouldBeSpace) 1 else 0
-      Spacing.createDependentLFSpacing(spaces, spaces, parent.getTextRange, commonSettings.KEEP_LINE_BREAKS, MaxBlankLines)
+      Spacing.createDependentLFSpacing(spaces, spaces, parent.getTextRange,
+        keepLineBreaks, maxBlankLines)
     }
 
     def normalSpacing(shouldBeSpace: Boolean) = {
       val spaces = if (shouldBeSpace) 1 else 0
-      Spacing.createSpacing(spaces, spaces, 0, commonSettings.KEEP_LINE_BREAKS, MaxBlankLines)
+      Spacing.createSpacing(spaces, spaces, 0, keepLineBreaks, maxBlankLines)
     }
 
     val lineBreakEnsuringSpacing =
-      Spacing.createSpacing(0, 0, 1, commonSettings.KEEP_LINE_BREAKS, MaxBlankLines)
+      Spacing.createSpacing(0, 0, 1, keepLineBreaks, maxBlankLines)
 
     val isLineBreakBetween = parent.getText.subSequence(
       leftChild.getTextRange.getEndOffset - parent.getTextRange.getStartOffset,
@@ -150,11 +163,11 @@ class HoconFormatter(settings: CodeStyleSettings) {
 
     if (Comment.contains(rightChild.getElementType)) {
       if (isLineBreakBetween)
-        beforeCommentOnNewLineSpacing(rightChild.getElementType)
+        beforeCommentOnNewLineSpacing(parent, rightChild)
       else
         null
     } else if (Comment.contains(leftChild.getElementType))
-      Spacing.createSafeSpacing(true, MaxBlankLines)
+      Spacing.createSafeSpacing(true, maxBlankLines)
     else if (parent.getElementType == Value)
       Spacing.getReadOnlySpacing
     else
