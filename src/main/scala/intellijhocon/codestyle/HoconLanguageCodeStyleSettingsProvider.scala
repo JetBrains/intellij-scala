@@ -50,13 +50,9 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 
         consumer.showStandardOptions(List(
           KEEP_LINE_BREAKS,
-          KEEP_SIMPLE_BLOCKS_IN_ONE_LINE,
           WRAP_LONG_LINES
         ).map(_.name): _*)
 
-        consumer.renameStandardOption(KEEP_SIMPLE_BLOCKS_IN_ONE_LINE.name, "Simple objects in one line")
-
-        showCustomOption("KEEP_SIMPLE_LISTS_IN_ONE_LINE", "Simple lists in one line", WRAPPING_KEEP)
         showCustomOption("HASH_COMMENTS_AT_FIRST_COLUMN", "Hash comments at first column", WRAPPING_KEEP)
         showCustomOption("DOUBLE_SLASH_COMMENTS_AT_FIRST_COLUMN", "Double slash comments at first column", WRAPPING_KEEP)
 
@@ -126,9 +122,10 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         | """.stripMargin
 
     case SettingsType.WRAPPING_AND_BRACES_SETTINGS =>
-      """object {
-        |  #hash comment
-        |  //double slash comment
+      """include "someExtraordinarilyLongName"
+        |
+        |object {
+        |  #comment
         |  key = value
         |  simplelist = [element]
         |  simpleobj = {k: v}
@@ -137,6 +134,10 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         |  some.path: long long long long long long value
         |  another.path = another very very very very long value
         |  anotherobj {key: value, foo: bar, stuff: 42, quix: 3.14}
+        |
+        |#comment originally at first column
+        |//comment originally at first column
+        |
         |}
         | """.stripMargin
 

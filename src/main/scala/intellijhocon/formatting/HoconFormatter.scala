@@ -9,7 +9,6 @@ import intellijhocon.lexer.{HoconTokenSets, HoconTokenType}
 import intellijhocon.lang.HoconLanguage
 import intellijhocon.codestyle.HoconCustomCodeStyleSettings
 import com.intellij.psi.tree.IElementType
-import com.intellij.openapi.util.TextRange
 
 class HoconFormatter(settings: CodeStyleSettings) {
 
@@ -37,55 +36,48 @@ class HoconFormatter(settings: CodeStyleSettings) {
     if (Comment.contains(firstChild.getElementType))
       beforeCommentOnNewLineSpacing(firstChild.getElementType)
     else
-      null
+      Spacing.createSpacing(0, 0, 0, true, MaxBlankLines)
 
   def getSpacing(parent: ASTNode, leftChild: ASTNode, rightChild: ASTNode) = {
 
-    def dependentLFSpacing(shouldBeSpace: Boolean, dependencyRange: TextRange = parent.getTextRange) = {
+    def dependentLFSpacing(shouldBeSpace: Boolean) = {
       val spaces = if (shouldBeSpace) 1 else 0
-      Spacing.createDependentLFSpacing(spaces, spaces, dependencyRange, commonSettings.KEEP_LINE_BREAKS, MaxBlankLines)
+      Spacing.createDependentLFSpacing(spaces, spaces, parent.getTextRange, commonSettings.KEEP_LINE_BREAKS, MaxBlankLines)
     }
 
-    def normalSpacing(shouldBeSpace: Boolean = false, ensureLineBreak: Boolean = false) = {
+    def normalSpacing(shouldBeSpace: Boolean) = {
       val spaces = if (shouldBeSpace) 1 else 0
-      val minLineBreaks = if (ensureLineBreak) 1 else 0
-      Spacing.createSpacing(spaces, spaces, minLineBreaks, commonSettings.KEEP_LINE_BREAKS, MaxBlankLines)
+      Spacing.createSpacing(spaces, spaces, 0, commonSettings.KEEP_LINE_BREAKS, MaxBlankLines)
     }
+
+    val lineBreakEnsuringSpacing =
+      Spacing.createSpacing(0, 0, 1, commonSettings.KEEP_LINE_BREAKS, MaxBlankLines)
 
     val isLineBreakBetween = parent.getText.subSequence(
       leftChild.getTextRange.getEndOffset - parent.getTextRange.getStartOffset,
       rightChild.getTextRange.getStartOffset - parent.getTextRange.getStartOffset)
       .charIterator.contains('\n')
 
-    def fieldWithoutDocRange(path: ASTNode) =
-      TextRange.create(path.getTextRange.getStartOffset, parent.getTextRange.getEndOffset)
-
-    def startsWithComment(node: ASTNode): Boolean =
-      node != null && (Comment.contains(node.getElementType) || startsWithComment(node.getFirstChildNode))
-
-    def endsWithComment(node: ASTNode): Boolean =
-      node != null && (Comment.contains(node.getElementType) || endsWithComment(node.getLastChildNode))
-
     def standardSpacing = (leftChild.getElementType, rightChild.getElementType) match {
       case (LBrace, RBrace) =>
         normalSpacing(commonSettings.SPACE_WITHIN_BRACES)
 
-      case (LBrace, Include | ObjectField) =>
+      case (LBrace, Include | BareObjectField) =>
         if (customSettings.OBJECTS_NEW_LINE_AFTER_LBRACE)
           dependentLFSpacing(commonSettings.SPACE_WITHIN_BRACES)
         else
           normalSpacing(commonSettings.SPACE_WITHIN_BRACES)
 
-      case (Include | ObjectField, Include | ObjectField) =>
-        normalSpacing(ensureLineBreak = true)
+      case (Include | BareObjectField, Include | BareObjectField) =>
+        lineBreakEnsuringSpacing
 
-      case (Include | ObjectField, Comma) =>
+      case (Include | BareObjectField, Comma) =>
         normalSpacing(commonSettings.SPACE_BEFORE_COMMA)
 
-      case (Comma, ObjectField | Include) =>
+      case (Comma, BareObjectField | Include) =>
         normalSpacing(commonSettings.SPACE_AFTER_COMMA)
 
-      case (ObjectField | Include | Comma, RBrace) =>
+      case (BareObjectField | Include | Comma, RBrace) =>
         if (customSettings.OBJECTS_RBRACE_ON_NEXT_LINE)
           dependentLFSpacing(commonSettings.SPACE_WITHIN_BRACES)
         else
@@ -101,7 +93,7 @@ class HoconFormatter(settings: CodeStyleSettings) {
           normalSpacing(commonSettings.SPACE_WITHIN_BRACKETS)
 
       case (Value, Value) =>
-        normalSpacing(ensureLineBreak = true)
+        lineBreakEnsuringSpacing
 
       case (Value, Comma) =>
         normalSpacing(commonSettings.SPACE_BEFORE_COMMA)
@@ -120,13 +112,13 @@ class HoconFormatter(settings: CodeStyleSettings) {
 
       case (FieldPath, Colon) =>
         if (customSettings.OBJECT_FIELDS_COLON_ON_NEXT_LINE)
-          dependentLFSpacing(customSettings.SPACE_BEFORE_COLON, fieldWithoutDocRange(leftChild))
+          dependentLFSpacing(customSettings.SPACE_BEFORE_COLON)
         else
           normalSpacing(customSettings.SPACE_BEFORE_COLON)
 
       case (FieldPath, Equals | PlusEquals) =>
         if (customSettings.OBJECT_FIELDS_ASSIGNMENT_ON_NEXT_LINE)
-          dependentLFSpacing(customSettings.SPACE_BEFORE_ASSIGNMENT, fieldWithoutDocRange(leftChild))
+          dependentLFSpacing(customSettings.SPACE_BEFORE_ASSIGNMENT)
         else
           normalSpacing(customSettings.SPACE_BEFORE_ASSIGNMENT)
 
@@ -156,11 +148,13 @@ class HoconFormatter(settings: CodeStyleSettings) {
 
     }
 
-    if (endsWithComment(leftChild))
+    if (Comment.contains(rightChild.getElementType)) {
+      if (isLineBreakBetween)
+        beforeCommentOnNewLineSpacing(rightChild.getElementType)
+      else
+        null
+    } else if (Comment.contains(leftChild.getElementType))
       Spacing.createSafeSpacing(true, MaxBlankLines)
-    else if (startsWithComment(rightChild))
-      if (isLineBreakBetween) beforeCommentOnNewLineSpacing(rightChild.getElementType)
-      else null
     else if (parent.getElementType == Value)
       Spacing.getReadOnlySpacing
     else
@@ -169,11 +163,11 @@ class HoconFormatter(settings: CodeStyleSettings) {
 
   def getIndent(parent: ASTNode, child: ASTNode) =
     (parent.getElementType, child.getElementType) match {
-      case (Object, Include | ObjectField | Comma | Comment.extractor()) |
+      case (Object, Include | BareObjectField | Comma | Comment.extractor()) |
            (Array, Value | Comma | Comment.extractor()) =>
         Indent.getNormalIndent
       case (Include, Included) |
-           (ObjectField, PathValueSeparator.extractor() | Value) =>
+           (BareObjectField, PathValueSeparator.extractor() | Value) =>
         Indent.getContinuationIndent
       case _ =>
         Indent.getNoneIndent
@@ -182,7 +176,7 @@ class HoconFormatter(settings: CodeStyleSettings) {
 
   def getChildIndent(parent: ASTNode) = parent.getElementType match {
     case Object | Array => Indent.getNormalIndent
-    case Include | ObjectField => Indent.getContinuationIndent
+    case Include | BareObjectField => Indent.getContinuationIndent
     case _ => Indent.getNoneIndent
   }
 
@@ -192,6 +186,11 @@ class HoconFormatter(settings: CodeStyleSettings) {
     case HoconFileElementType | Object =>
       node.childrenIterator.flatMap(child => child.getElementType match {
         case ObjectEntries => getChildren(child)
+        case _ => Iterator(child)
+      })
+    case ObjectEntries =>
+      node.childrenIterator.flatMap(child => child.getElementType match {
+        case ObjectField => getChildren(child)
         case _ => Iterator(child)
       })
     case _ => node.childrenIterator
