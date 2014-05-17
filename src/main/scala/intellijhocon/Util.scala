@@ -8,11 +8,6 @@ object Util {
   implicit def liftSingleToken(token: IElementType): TokenSet =
     TokenSet.create(token)
 
-  class TokenSetExtractor(tokenSet: TokenSet) {
-    def unapply(tokenType: IElementType) =
-      tokenSet.contains(tokenType)
-  }
-
   implicit class TokenSetOps(tokenSet: TokenSet) {
     def |(otherTokenSet: TokenSet) =
       TokenSet.orSet(tokenSet, otherTokenSet)
@@ -23,8 +18,10 @@ object Util {
     def &^(otherTokenSet: TokenSet) =
       TokenSet.andNot(tokenSet, otherTokenSet)
 
-    lazy val extractor =
-      new TokenSetExtractor(tokenSet)
+    def unapply(tokenType: IElementType) =
+      tokenSet.contains(tokenType)
+
+    val extractor = this
   }
 
   implicit def token2TokenSetOps(token: IElementType) =
@@ -52,6 +49,10 @@ object Util {
   implicit class StringOps(str: String) {
     def indent(ind: String) =
       ind + str.replaceAllLiterally("\n", "\n" + ind)
+  }
+
+  implicit class any2opt[T](private val t: T) extends AnyVal {
+    def opt = Option(t)
   }
 
 }

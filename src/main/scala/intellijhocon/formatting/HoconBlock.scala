@@ -1,15 +1,14 @@
 package intellijhocon.formatting
 
 import com.intellij.lang.ASTNode
-import com.intellij.formatting.{Block, Alignment, Wrap, Indent}
+import com.intellij.formatting._
 import com.intellij.psi.formatter.common.AbstractBlock
-import com.intellij.psi.codeStyle.CodeStyleSettings
 import scala.collection.JavaConverters._
 import intellijhocon.Util
 import com.intellij.psi.TokenType
 
 
-class HoconBlock(settings: CodeStyleSettings, node: ASTNode, indent: Indent, wrap: Wrap, alignment: Alignment)
+class HoconBlock(formatter: HoconFormatter, node: ASTNode, indent: Indent, wrap: Wrap, alignment: Alignment)
   extends AbstractBlock(node, wrap, alignment) {
 
   import Util._
@@ -17,20 +16,23 @@ class HoconBlock(settings: CodeStyleSettings, node: ASTNode, indent: Indent, wra
   override def getIndent = indent
 
   override protected def getChildIndent =
-    FormattingManager.getChildIndent(settings, node)
+    formatter.getChildIndent(node)
 
   def buildChildren() = children.asJava
 
   def isLeaf =
-    FormattingManager.getChildren(node).isEmpty
+    formatter.getChildren(node).isEmpty
 
   def getSpacing(child1: Block, child2: Block) =
-    FormattingManager.getSpacing(settings, child1.asInstanceOf[HoconBlock], child2.asInstanceOf[HoconBlock])
+    if (child1 == null)
+      formatter.getFirstSpacing(node, child2.asInstanceOf[HoconBlock].getNode)
+    else
+      formatter.getSpacing(node, child1.asInstanceOf[HoconBlock].getNode, child2.asInstanceOf[HoconBlock].getNode)
 
   lazy val children: Seq[Block] =
-    FormattingManager.getChildren(node)
+    formatter.getChildren(node)
       .filterNot(n => n.getTextLength == 0 || n.getElementType == TokenType.WHITE_SPACE)
-      .map(child => new HoconBlock(settings, child, FormattingManager.getIndent(settings, node, child), null, null))
+      .map(child => new HoconBlock(formatter, child, formatter.getIndent(node, child), null, null))
       .toVector
 
   override def toString =
