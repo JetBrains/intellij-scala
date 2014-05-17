@@ -24,7 +24,6 @@ public class HoconCustomCodeStyleSettings extends CustomCodeStyleSettings {
 
     //WRAPPING AND BRACES
     //Keep when reformatting
-    public boolean KEEP_SIMPLE_LISTS_IN_ONE_LINE = false;
     public boolean HASH_COMMENTS_AT_FIRST_COLUMN = false;
     public boolean DOUBLE_SLASH_COMMENTS_AT_FIRST_COLUMN = false;
 

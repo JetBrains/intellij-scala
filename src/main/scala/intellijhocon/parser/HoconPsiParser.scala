@@ -53,7 +53,7 @@ class HoconPsiParser extends PsiParser {
     // beware of rollbacks!
     var newLineSuppressedIndex: Int = 0
 
-    def newLineBeforeCurrentToken =
+    def newLinesBeforeCurrentToken =
       builder.rawTokenIndex > newLineSuppressedIndex && builder.rawLookup(-1) == LineBreakingWhitespace
 
     def suppressNewLine() {
@@ -61,8 +61,8 @@ class HoconPsiParser extends PsiParser {
     }
 
     def matches(matcher: Matcher) =
-      (matcher.tokenSet.contains(builder.getTokenType) && (!matcher.requireNoNewLine || !newLineBeforeCurrentToken)) ||
-        (matcher.matchNewLine && newLineBeforeCurrentToken) || (matcher.matchEof && builder.eof)
+      (matcher.tokenSet.contains(builder.getTokenType) && (!matcher.requireNoNewLine || !newLinesBeforeCurrentToken)) ||
+        (matcher.matchNewLine && newLinesBeforeCurrentToken) || (matcher.matchEof && builder.eof)
 
     def matchesUnquoted(str: String) =
       matches(UnquotedChars) && builder.getTokenText == str
@@ -72,7 +72,7 @@ class HoconPsiParser extends PsiParser {
 
     def pass(matcher: Matcher): Boolean = {
       val result = matches(matcher)
-      if (result && (!matcher.matchNewLine || !newLineBeforeCurrentToken) && (!matcher.matchEof || !builder.eof)) {
+      if (result && (!matcher.matchNewLine || !newLinesBeforeCurrentToken) && (!matcher.matchEof || !builder.eof)) {
         builder.advanceLexer()
       }
       result
@@ -172,6 +172,7 @@ class HoconPsiParser extends PsiParser {
     }
 
     def parseObjectField(): Unit = {
+      val markerWithDoc = builder.mark()
       val marker = builder.mark()
 
       parsePath(FieldPath)
@@ -186,9 +187,10 @@ class HoconPsiParser extends PsiParser {
       } else errorUntil(ValueEnding.orNewLineOrEof,
         "expected ':', '=', '+=' or object")
 
-      marker.done(ObjectField)
+      marker.done(BareObjectField)
+      markerWithDoc.done(ObjectField)
 
-      marker.setCustomEdgeTokenBinders(DocumentationCommentsBinder, WhitespacesBinders.DEFAULT_RIGHT_BINDER)
+      markerWithDoc.setCustomEdgeTokenBinders(DocumentationCommentsBinder, WhitespacesBinders.DEFAULT_RIGHT_BINDER)
     }
 
     def parsePath(pathType: HoconElementType, prefixMarker: Option[Marker] = None): Unit = {
