@@ -62,12 +62,12 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 
         showCustomOption("OBJECTS_WRAP", ObjectsWrap, null, WRAP_OPTIONS, WRAP_VALUES)
         showCustomOption("OBJECTS_ALIGN_WHEN_MULTILINE", "Align when multiline", ObjectsWrap)
-        showCustomOption("OBJECTS_LBRACE_ON_NEXT_LINE", "New line after '{'", ObjectsWrap)
+        showCustomOption("OBJECTS_NEW_LINE_AFTER_LBRACE", "New line after '{'", ObjectsWrap)
         showCustomOption("OBJECTS_RBRACE_ON_NEXT_LINE", "Place '}' on new line", ObjectsWrap)
 
         showCustomOption("LISTS_WRAP", ListsWrap, null, WRAP_OPTIONS, WRAP_VALUES)
         showCustomOption("LISTS_ALIGN_WHEN_MULTILINE", "Align when multiline", ListsWrap)
-        showCustomOption("LISTS_LBRACKET_ON_NEXT_LINE", "New line after '['", ListsWrap)
+        showCustomOption("LISTS_NEW_LINE_AFTER_LBRACKET", "New line after '['", ListsWrap)
         showCustomOption("LISTS_RBRACKET_ON_NEXT_LINE", "Place ']' on new line", ListsWrap)
 
         showCustomOption("OBJECT_FIELDS_WITH_COLON_WRAP", ObjectFieldsWithColonWrap, null,
@@ -77,6 +77,9 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         showCustomOption("OBJECT_FIELDS_WITH_ASSIGNMENT_WRAP", ObjectFieldsWithAssignmentWrap, null,
           WRAP_OPTIONS_FOR_SINGLETON, WRAP_VALUES_FOR_SINGLETON)
         showCustomOption("OBJECT_FIELDS_ASSIGNMENT_ON_NEXT_LINE", "Assignment operator on next line", ObjectFieldsWithAssignmentWrap)
+
+        showCustomOption("INCLUDED_RESOURCE_WRAP", "Included resource", null,
+          WRAP_OPTIONS_FOR_SINGLETON, WRAP_VALUES_FOR_SINGLETON)
 
       case _ =>
 

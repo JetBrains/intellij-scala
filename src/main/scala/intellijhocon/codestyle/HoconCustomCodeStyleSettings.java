@@ -30,12 +30,12 @@ public class HoconCustomCodeStyleSettings extends CustomCodeStyleSettings {
 
     public int OBJECTS_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP;
     public boolean OBJECTS_ALIGN_WHEN_MULTILINE = false;
-    public boolean OBJECTS_LBRACE_ON_NEXT_LINE = true;
+    public boolean OBJECTS_NEW_LINE_AFTER_LBRACE = true;
     public boolean OBJECTS_RBRACE_ON_NEXT_LINE = true;
 
     public int LISTS_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP;
     public boolean LISTS_ALIGN_WHEN_MULTILINE = false;
-    public boolean LISTS_LBRACKET_ON_NEXT_LINE = false;
+    public boolean LISTS_NEW_LINE_AFTER_LBRACKET = false;
     public boolean LISTS_RBRACKET_ON_NEXT_LINE = false;
 
     public int OBJECT_FIELDS_WITH_COLON_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP;
@@ -43,4 +43,7 @@ public class HoconCustomCodeStyleSettings extends CustomCodeStyleSettings {
 
     public int OBJECT_FIELDS_WITH_ASSIGNMENT_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP;
     public boolean OBJECT_FIELDS_ASSIGNMENT_ON_NEXT_LINE = false;
+
+    public int INCLUDED_RESOURCE_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP;
+
 }

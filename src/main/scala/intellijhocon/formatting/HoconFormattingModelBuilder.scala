@@ -9,7 +9,7 @@ import com.intellij.psi.formatter.{FormattingDocumentModelImpl, PsiBasedFormatti
 class HoconFormattingModelBuilder extends FormattingModelBuilder {
   def createModel(element: PsiElement, settings: CodeStyleSettings) = {
     val containingFile = element.getContainingFile
-    val block = new HoconBlock(settings, element.getNode, null, null, null)
+    val block = new HoconBlock(new HoconFormatter(settings), element.getNode, null, null, null)
     new PsiBasedFormattingModel(containingFile, block, FormattingDocumentModelImpl.createOn(containingFile))
   }
 
