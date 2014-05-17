@@ -6,4 +6,4 @@ object ScalazProblem {
 
   /*start*/(x |@| y) {(a, b) => a + b}/*end*/
 }
-//(Unapply[Apply, Validation[String, Int]] {type M[X] = Validation[String, X]; type A = Int})#M[Int]
+//Validation[String, Int]

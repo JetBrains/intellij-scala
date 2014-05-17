@@ -416,7 +416,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
         element.getParent match {
           case td: ScTemplateBody =>
             val clazz = PsiTreeUtil.getParentOfType(element, classOf[ScTemplateDefinition], true)
-            new ScProjectionType(ScThisType(clazz), element, false)
+            ScProjectionType(ScThisType(clazz), element, false)
           case _ =>
             new ScDesignatorType(element)
         }

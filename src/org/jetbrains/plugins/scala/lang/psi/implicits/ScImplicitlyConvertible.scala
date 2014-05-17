@@ -211,15 +211,18 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
     val default = ImplicitMapResult(condition = false, r, null, null, null, null, null)
     if (!PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(r.element), place, false)) { //to prevent infinite recursion
       ProgressManager.checkCanceled()
-      
+
       lazy val funType = Option(
         ScalaPsiManager.instance(place.getProject).getCachedClass(
           "scala.Function1", place.getResolveScope, ScalaPsiManager.ClassCategory.TYPE
         )
       ) collect {
-        case cl: ScTrait => new ScParameterizedType(ScType.designator(cl), cl.typeParameters.map(tp =>
+        case cl: ScTrait => ScParameterizedType(ScType.designator(cl), cl.typeParameters.map(tp =>
           new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1)))
-      } 
+      } flatMap {
+        case p: ScParameterizedType => Some(p)
+        case _ => None
+      }
 
       def firstArgType = funType.map(_.typeArgs.apply(0))
       
@@ -320,7 +323,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
                       val implicitClauseParameters = f.paramClauses.clauses.last.parameters
                       var res = false
                       f.returnType.foreach(_.recursiveUpdate {
-                        case tp if res => (true, tp)
+                        case rtTp if res => (true, rtTp)
                         case ScDesignatorType(p: ScParameter) if implicitClauseParameters.contains(p) =>
                           res = true
                           (true, tp)
@@ -368,10 +371,10 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
 
   class CollectImplicitsProcessor(withoutPrecedence: Boolean) extends ImplicitProcessor(StdKinds.refExprLastRef, withoutPrecedence) {
     //can be null (in Unit tests or without library)
-    private val funType: ScParameterizedType = {
+    private val funType: ScType = {
       val funClass: PsiClass = ScalaPsiManager.instance(place.getProject).getCachedClass(place.getResolveScope, "scala.Function1")
       funClass match {
-        case cl: ScTrait => new ScParameterizedType(ScType.designator(funClass), cl.typeParameters.map(tp =>
+        case cl: ScTrait => ScParameterizedType(ScType.designator(funClass), cl.typeParameters.map(tp =>
           new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty))))
         case _ => null
       }
@@ -389,7 +392,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
       element match {
         case named: PsiNamedElement if kindMatches(element) => named match {
           //there is special case for Predef.conforms method
-          case f: ScFunction if f.hasModifierProperty("implicit") && !isConformsMethod(f) => {
+          case f: ScFunction if f.hasModifierProperty("implicit") && !isConformsMethod(f) =>
             if (!ScImplicitlyConvertible.checkFucntionIsEligible(f, place) ||
               !ResolveUtils.isAccessible(f, getPlace)) return true
             val clauses = f.paramClauses.clauses
@@ -422,20 +425,17 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
               if (funType == null || !rt.conforms(funType)) return true
             } else if (clauses(0).parameters.length != 1 || clauses(0).isImplicit) return true
             addResult(new ScalaResolveResult(f, subst, getImports(state)))
-          }
-          case b: ScBindingPattern => {
+          case b: ScBindingPattern =>
             ScalaPsiUtil.nameContext(b) match {
               case d: ScDeclaredElementsHolder if (d.isInstanceOf[ScValue] || d.isInstanceOf[ScVariable]) &&
-                      d.asInstanceOf[ScModifierListOwner].hasModifierProperty("implicit") => {
+                      d.asInstanceOf[ScModifierListOwner].hasModifierProperty("implicit") =>
                 if (!ResolveUtils.isAccessible(d.asInstanceOf[ScMember], getPlace)) return true
                 val tp = subst.subst(b.getType(TypingContext.empty).getOrElse(return true))
                 if (funType == null || !tp.conforms(funType)) return true
                 addResult(new ScalaResolveResult(b, subst, getImports(state)))
-              }
               case _ => return true
             }
-          }
-          case param: ScParameter if param.isImplicitParameter => {
+          case param: ScParameter if param.isImplicitParameter =>
             param match {
               case c: ScClassParameter =>
                 if (!ResolveUtils.isAccessible(c, getPlace)) return true
@@ -444,13 +444,11 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
             val tp = subst.subst(param.getType(TypingContext.empty).getOrElse(return true))
             if (funType == null || !tp.conforms(funType)) return true
             addResult(new ScalaResolveResult(param, subst, getImports(state)))
-          }
-          case obj: ScObject if obj.hasModifierProperty("implicit") => {
+          case obj: ScObject if obj.hasModifierProperty("implicit") =>
             if (!ResolveUtils.isAccessible(obj, getPlace)) return true
             val tp = subst.subst(obj.getType(TypingContext.empty).getOrElse(return true))
             if (funType == null || !tp.conforms(funType)) return true
             addResult(new ScalaResolveResult(obj, subst, getImports(state)))
-          }
           case _ =>
         }
         case _ =>

@@ -16,7 +16,6 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi._
 import result.{Success, TypingContext}
 import api.toplevel.typedef.{ScTypeDefinition, ScClass}
-import collection.mutable.ArrayBuffer
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import collection.immutable.{HashSet, ListMap, Map}
 import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
@@ -36,7 +35,7 @@ case class JavaArrayType(arg: ScType) extends ValueType {
     if (arrayClass != null) {
       val tps = arrayClass.getTypeParameters
       if (tps.length == 1) {
-        Some(new ScParameterizedType(ScType.designator(arrayClass), Seq(arg)))
+        Some(ScParameterizedType(ScType.designator(arrayClass), Seq(arg)))
       } else None
     } else None
   }
@@ -69,12 +68,11 @@ case class JavaArrayType(arg: ScType) extends ValueType {
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     r match {
       case JavaArrayType(arg2) => Equivalence.equivInner (arg, arg2, uSubst, falseUndef)
-      case ScParameterizedType(des, args) if args.length == 1 => {
+      case ScParameterizedType(des, args) if args.length == 1 =>
         ScType.extractClass(des) match {
           case Some(td) if td.qualifiedName == "scala.Array" => Equivalence.equivInner(arg, args(0), uSubst, falseUndef)
           case _ => (false, uSubst)
         }
-      }
       case _ => (false, uSubst)
     }
   }
@@ -84,22 +82,20 @@ case class JavaArrayType(arg: ScType) extends ValueType {
   }
 }
 
-case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) extends ValueType {
+class ScParameterizedType private (val designator : ScType, val typeArgs : Seq[ScType]) extends ValueType {
   override protected def isAliasTypeInner: Option[AliasType] = {
     this match {
-      case ScParameterizedType(ScDesignatorType(ta: ScTypeAlias), args) => {
+      case ScParameterizedType(ScDesignatorType(ta: ScTypeAlias), args) =>
         val genericSubst = ScalaPsiUtil.
           typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
-        Some(AliasType(ta, ta.lowerBound.map(genericSubst.subst(_)), ta.upperBound.map(genericSubst.subst(_))))
-      }
-      case ScParameterizedType(p: ScProjectionType, args) if p.actualElement.isInstanceOf[ScTypeAlias] => {
+        Some(AliasType(ta, ta.lowerBound.map(genericSubst.subst), ta.upperBound.map(genericSubst.subst)))
+      case ScParameterizedType(p: ScProjectionType, args) if p.actualElement.isInstanceOf[ScTypeAlias] =>
         val ta: ScTypeAlias = p.actualElement.asInstanceOf[ScTypeAlias]
         val subst: ScSubstitutor = p.actualSubst
         val genericSubst = ScalaPsiUtil.
           typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
         val s = subst.followed(genericSubst)
-        Some(AliasType(ta, ta.lowerBound.map(s.subst(_)), ta.upperBound.map(s.subst(_))))
-      }
+        Some(AliasType(ta, ta.lowerBound.map(s.subst), ta.upperBound.map(s.subst)))
       case _ => None
     }
   }
@@ -136,16 +132,13 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
       initial followed subst
     }
     designator match {
-      case ScTypeParameterType(_, args, _, _, _) => {
+      case ScTypeParameterType(_, args, _, _, _) =>
         forParams(args.iterator, ScSubstitutor.empty, (p: ScTypeParameterType) => p)
-      }
       case _ => ScType.extractDesignated(designator, withoutAliases = false) match {
-        case Some((owner: ScTypeParametersOwner, s)) => {
+        case Some((owner: ScTypeParametersOwner, s)) =>
           forParams(owner.typeParameters.iterator, s, (tp: ScTypeParam) => ScalaPsiManager.typeVariable(tp))
-        }
-        case Some((owner: PsiTypeParameterListOwner, s)) => {
+        case Some((owner: PsiTypeParameterListOwner, s)) =>
           forParams(owner.getTypeParameters.iterator, s, (ptp: PsiTypeParameter) => ScalaPsiManager.typeVariable(ptp))
-        }
         case _ => ScSubstitutor.empty
       }
     }
@@ -223,7 +216,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
             }, r, uSubst, falseUndef)
           case _ => (false, uSubst)
         }
-      case (ScParameterizedType(designator, typeArgs), ScParameterizedType(designator1, typeArgs1)) => {
+      case (ScParameterizedType(_, _), ScParameterizedType(designator1, typeArgs1)) =>
         var t = Equivalence.equivInner(designator, designator1, undefinedSubst, falseUndef)
         if (!t._1) return (false, undefinedSubst)
         undefinedSubst = t._2
@@ -236,7 +229,6 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
           undefinedSubst = t._2
         }
         (true, undefinedSubst)
-      }
       case _ => (false, undefinedSubst)
     }
   }
@@ -283,15 +275,39 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
     case tp: ScTypeParameterType => tp.isConravariant || tp.isCovariant
     case _ => false
   }
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[ScParameterizedType]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: ScParameterizedType =>
+      (that canEqual this) &&
+        designator == that.designator &&
+        typeArgs == that.typeArgs
+    case _ => false
+  }
 }
 
 object ScParameterizedType {
-  def create(c: PsiClass, s : ScSubstitutor): ScParameterizedType =
-    new ScParameterizedType(ScType.designator(c), collection.immutable.Seq(c.getTypeParameters.map({
-      tp => s subst(ScalaPsiManager.typeVariable(tp))
-    }).toSeq : _*))
-
   val substitutorCache: ConcurrentWeakHashMap[ScParameterizedType, ScSubstitutor] = new ConcurrentWeakHashMap()
+
+  def apply(designator: ScType, typeArgs: Seq[ScType]): ValueType = {
+    val res = new ScParameterizedType(designator, typeArgs)
+    designator match {
+      case ScProjectionType(_: ScCompoundType, _, _) =>
+        res.isAliasType match {
+          case Some(AliasType(_: ScTypeAliasDefinition, _, upper)) => upper.getOrElse(res) match {
+            case v: ValueType => v
+            case _ => res
+          }
+          case _ => res
+        }
+      case _ => res
+    }
+  }
+
+  def unapply(p: ScParameterizedType): Option[(ScType, Seq[ScType])] = {
+    Some(p.designator, p.typeArgs)
+  }
 }
 
 case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
@@ -349,10 +365,9 @@ case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     r match {
-      case stp: ScTypeParameterType => {
+      case stp: ScTypeParameterType =>
         if (stp.param eq param) (true, undefinedSubst)
         else (false, undefinedSubst)
-      }
       case _ => (false, undefinedSubst)
     }
   }

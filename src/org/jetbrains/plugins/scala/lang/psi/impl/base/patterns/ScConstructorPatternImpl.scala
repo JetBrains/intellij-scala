@@ -100,7 +100,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
                 case _ => emptySubst
               }
             }
-            Success(new ScParameterizedType(refType, collection.immutable.Seq(td.getTypeParameters.map({
+            Success(ScParameterizedType(refType, collection.immutable.Seq(td.getTypeParameters.map({
               tp => newSubst.subst(ScalaPsiManager.typeVariable(tp))
             }).toSeq : _*)), Some(this))
           case td: ScClass => Success(ScType.designator(td), Some(this))

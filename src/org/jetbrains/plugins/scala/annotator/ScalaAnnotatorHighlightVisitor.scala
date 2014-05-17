@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala
+package annotator
 
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightInfoHolder
 import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
@@ -50,8 +51,7 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
         val document: Document = PsiDocumentManager.getInstance(project).getDocument(file)
         val dirtyScope: TextRange = if (document == null) file.getTextRange else fileStatusMap.getFileDirtyScope(document, Pass.UPDATE_ALL)
         success = refCountHolder.analyze(action, dirtyScope, file)
-      }
-      else {
+      } else {
         myRefCountHolder = null
         action.run()
       }

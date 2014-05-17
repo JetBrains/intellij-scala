@@ -425,7 +425,7 @@ object ScSimpleTypeElementImpl {
               case Some(x) => x
               case None => return Failure("Cannot find enclosing container", Some(superRef))
             }
-            Success(new ScProjectionType(ScThisType(template), resolvedElement, resolvedElement.isInstanceOf[PsiClass]), Some(ref))
+            Success(ScProjectionType(ScThisType(template), resolvedElement, resolvedElement.isInstanceOf[PsiClass]), Some(ref))
           case _ =>
             resolvedElement match {
               case param: ScParameter if !param.isVal =>
