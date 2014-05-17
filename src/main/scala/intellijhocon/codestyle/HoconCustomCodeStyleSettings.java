@@ -45,4 +45,9 @@ public class HoconCustomCodeStyleSettings extends CustomCodeStyleSettings {
 
     public int INCLUDED_RESOURCE_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP;
 
+    //BLANK LINES
+    public int KEEP_BLANK_LINES_IN_OBJECTS = 2;
+    public int KEEP_BLANK_LINES_IN_LISTS = 2;
+    public int KEEP_BLANK_LINES_BEFORE_RBRACE = 2;
+    public int KEEP_BLANK_LINES_BEFORE_RBRACKET = 2;
 }

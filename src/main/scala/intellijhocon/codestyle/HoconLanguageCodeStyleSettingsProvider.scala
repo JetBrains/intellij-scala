@@ -77,6 +77,13 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         showCustomOption("INCLUDED_RESOURCE_WRAP", "Included resource", null,
           WRAP_OPTIONS_FOR_SINGLETON, WRAP_VALUES_FOR_SINGLETON)
 
+      case BLANK_LINES_SETTINGS =>
+
+        showCustomOption("KEEP_BLANK_LINES_IN_OBJECTS", "In objects", BLANK_LINES_KEEP)
+        showCustomOption("KEEP_BLANK_LINES_BEFORE_RBRACE", "Before '}'", BLANK_LINES_KEEP)
+        showCustomOption("KEEP_BLANK_LINES_IN_LISTS", "In lists", BLANK_LINES_KEEP)
+        showCustomOption("KEEP_BLANK_LINES_BEFORE_RBRACKET", "Before ']'", BLANK_LINES_KEEP)
+
       case _ =>
 
     }
@@ -119,7 +126,7 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         |  ref = ${some.path}
         |  optref = ${?some.path}
         |}
-        | """.stripMargin
+        |""".stripMargin
 
     case SettingsType.WRAPPING_AND_BRACES_SETTINGS =>
       """include "someExtraordinarilyLongName"
@@ -139,7 +146,26 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         |//comment originally at first column
         |
         |}
-        | """.stripMargin
+        |""".stripMargin
+
+    case SettingsType.BLANK_LINES_SETTINGS =>
+      """include "application"
+        |
+        |
+        |object {
+        |  key: value
+        |
+        |  num = 42
+        |
+        |}
+        |
+        |list = [
+        |  value
+        |
+        |  another one
+        |
+        |]
+        |""".stripMargin
 
     case _ => ""
   }
