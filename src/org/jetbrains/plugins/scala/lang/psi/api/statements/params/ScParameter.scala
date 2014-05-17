@@ -66,7 +66,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
       case f@Success(tp: ScType, elem) =>
         val seq = ScalaPsiManager.instance(getProject).getCachedClass("scala.collection.Seq", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
         if (seq != null) {
-          Success(new ScParameterizedType(ScType.designator(seq), Seq(tp)), elem)
+          Success(ScParameterizedType(ScType.designator(seq), Seq(tp)), elem)
         } else f
       case f => f
     }

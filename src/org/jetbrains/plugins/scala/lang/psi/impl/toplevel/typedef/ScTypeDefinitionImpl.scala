@@ -107,7 +107,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
         getOrElse(return Failure("Cannot resolve parent class", Some(this)))
       else ScThisType(parentClazz)
 
-      val innerProjection: ScProjectionType = ScProjectionType(tpe, this, superReference = false)
+      val innerProjection = ScProjectionType(tpe, this, superReference = false)
       Success(if (typeParameters.length == 0) innerProjection
               else ScParameterizedType(innerProjection, args), Some(this))
     } else Success(innerType, Some(this))

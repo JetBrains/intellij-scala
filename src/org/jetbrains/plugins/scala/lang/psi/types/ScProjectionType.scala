@@ -26,13 +26,34 @@ import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
  * @author ilyas
  */
 
+object ScProjectionType {
+  def apply(projected: ScType, element: PsiNamedElement,
+            superReference: Boolean /* todo: find a way to remove it*/): ScType = {
+    val res = new ScProjectionType(projected, element, superReference)
+    projected match {
+      case c: ScCompoundType =>
+        res.isAliasType match {
+          case Some(AliasType(td: ScTypeAliasDefinition, _, upper)) if td.typeParameters.isEmpty => upper.getOrElse(res)
+          case _ => res
+        }
+      case _ => res
+    }
+  }
+
+  def unapply(proj: ScProjectionType): Option[(ScType, PsiNamedElement, Boolean)] = {
+    Some(proj.projected, proj.element, proj.superReference)
+  }
+}
+
 /**
  * This type means type projection:
  * SomeType#member
  * member can be class or type alias
  */
-case class ScProjectionType(projected: ScType, element: PsiNamedElement,
-                            superReference: Boolean /* todo: find a way to remove it*/) extends ValueType {
+class ScProjectionType private (val projected: ScType, val element: PsiNamedElement,
+                            val superReference: Boolean /* todo: find a way to remove it*/) extends ValueType {
+  def copy(superReference: Boolean): ScProjectionType = new ScProjectionType(projected, element, superReference)
+
   override protected def isAliasTypeInner: Option[AliasType] = {
     if (actualElement.isInstanceOf[ScTypeAlias]) {
       actualElement match {
@@ -275,6 +296,17 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement,
 
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitProjectionType(this)
+  }
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[ScProjectionType]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: ScProjectionType =>
+      (that canEqual this) &&
+        projected == that.projected &&
+        element == that.element &&
+        superReference == that.superReference
+    case _ => false
   }
 }
 

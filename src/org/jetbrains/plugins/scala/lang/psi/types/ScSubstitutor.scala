@@ -140,13 +140,15 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
   protected def substInternal(t: ScType) : ScType = {
     t match {
       case p@ScProjectionType(proj, element, s) =>
-        val res = new ScProjectionType(substInternal(proj), element, s)
-        if (!s) {
-          val actualElement = p.actualElement
-          if (actualElement.isInstanceOf[ScTypeDefinition] &&
-            actualElement != res.actualElement) res.copy(superReference = true)
-          else res
-        } else res
+        val res = ScProjectionType(substInternal(proj), element, s)
+        res match {
+          case res: ScProjectionType if !s =>
+            val actualElement = p.actualElement
+            if (actualElement.isInstanceOf[ScTypeDefinition] &&
+              actualElement != res.actualElement) res.copy(superReference = true)
+            else res
+          case _ => res
+        }
       case m@ScMethodType(retType, params, isImplicit) => new ScMethodType(substInternal(retType),
         params.map(p => p.copy(paramType = substInternal(p.paramType),
           expectedType = substInternal(p.expectedType))), isImplicit)(m.project, m.scope)
@@ -280,10 +282,10 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
             }
           case _ =>
             substInternal(tpt) match {
-              case ScParameterizedType(des, _) => new ScParameterizedType(des, typeArgs map {
+              case ScParameterizedType(des, _) => ScParameterizedType(des, typeArgs map {
                 substInternal
               })
-              case des => new ScParameterizedType(des, typeArgs map {
+              case des => ScParameterizedType(des, typeArgs map {
                 substInternal
               })
             }
@@ -298,10 +300,10 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
             }
           case _ =>
             substInternal(u) match {
-              case ScParameterizedType(des, _) => new ScParameterizedType(des, typeArgs map {
+              case ScParameterizedType(des, _) => ScParameterizedType(des, typeArgs map {
                 substInternal
               })
-              case des => new ScParameterizedType(des, typeArgs map {
+              case des => ScParameterizedType(des, typeArgs map {
                 substInternal
               })
             }
@@ -316,20 +318,20 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
             }
           case _ =>
             substInternal(u) match {
-              case ScParameterizedType(des, _) => new ScParameterizedType(des, typeArgs map {
+              case ScParameterizedType(des, _) => ScParameterizedType(des, typeArgs map {
                 substInternal
               })
-              case des => new ScParameterizedType(des, typeArgs map {
+              case des => ScParameterizedType(des, typeArgs map {
                 substInternal
               })
             }
         }
       case ScParameterizedType(designator, typeArgs) =>
         substInternal(designator) match {
-          case ScParameterizedType(des, _) => new ScParameterizedType(des, typeArgs map {
+          case ScParameterizedType(des, _) => ScParameterizedType(des, typeArgs map {
             substInternal
           })
-          case des => new ScParameterizedType(des, typeArgs map {
+          case des => ScParameterizedType(des, typeArgs map {
             substInternal
           })
         }
