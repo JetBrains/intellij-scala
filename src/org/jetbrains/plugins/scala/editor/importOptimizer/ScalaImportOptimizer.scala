@@ -67,7 +67,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val size = list.size
     val progressManager: ProgressManager = ProgressManager.getInstance()
     val indicator: ProgressIndicator = if (progressManager.hasProgressIndicator) progressManager.getProgressIndicator else null
-    if (indicator != null) indicator.setText2("Analyzing " + file.getName)
+    if (indicator != null) indicator.setText2(file.getName + ": analyzing imports usage")
     val i = new AtomicInteger(0)
     JobLauncher.getInstance().invokeConcurrentlyUnderProgress(list, indicator, true, true, new Processor[PsiElement] {
       override def process(element: PsiElement): Boolean = {
@@ -103,7 +103,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
     i.set(0)
 
-    if (indicator != null) indicator.setText("Collecting imports information in file: " + file.getName)
+    if (indicator != null) indicator.setText2(file.getName + ": collecting additional info")
 
     val importsInfo = new ConcurrentHashMap[TextRange, (Set[String], Seq[ImportInfo])]
 
