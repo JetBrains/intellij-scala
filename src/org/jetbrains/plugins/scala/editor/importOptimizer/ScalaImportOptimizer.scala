@@ -135,6 +135,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
             for (child <- imp.getChildren) {
               child match {
+                case _: PsiWhiteSpace => //do nothing
                 case imp: ScImportStmt =>
                   if (rangeStart == -1) {
                     rangeStart = imp.getTextRange.getStartOffset
@@ -202,7 +203,41 @@ class ScalaImportOptimizer extends ImportOptimizer {
           }
 
           if (sortImports) {
-            //todo: implement sorting
+            val allNames = importInfos.flatMap(_.allNames).toSet
+
+            val buffer = new ArrayBuffer[ImportInfo]()
+            buffer ++= importInfos
+
+            @tailrec
+            def iteration(): Unit = {
+              var i = 0
+              var changed = false
+              while (i + 1 < buffer.length) {
+                val first = buffer(i)
+                val second = buffer(i + 1)
+                if (first.getImportText > second.getImportText) {
+                  val firstPrefix: String = first.relative.getOrElse(first.prefixQualifier)
+                  val firstPart: String = getFirstId(firstPrefix)
+                  val secondPrefix = second.relative.getOrElse(second.prefixQualifier)
+                  val secondPart = getFirstId(secondPrefix)
+                  if (first.rootUsed || !second.allNames.contains(firstPart)) {
+                    if (second.rootUsed || !first.allNames.contains(secondPart)) {
+                      changed = true
+                      val swap = buffer(i)
+                      buffer.remove(i)
+                      buffer.insert(i, buffer(i))
+                      buffer.remove(i + 1)
+                      buffer.insert(i + 1, swap)
+                    }
+                  }
+                }
+                i = i + 1
+              }
+              if (changed) iteration()
+            }
+
+            iteration()
+            importInfos = buffer.toSeq
           }
           val documentText = document.getText
           def splitterCalc(index: Int, res: String = ""): String = {
@@ -283,9 +318,9 @@ object ScalaImportOptimizer {
                    val hidedNames: Set[String], val hasWildcard: Boolean, val rootUsed: Boolean) {
     def getImportText: String = {
       val groupStrings = new ArrayBuffer[String]
-      if (!hasWildcard) groupStrings ++= singleNames
-      groupStrings ++= renames.map(pair => pair._1 + " => " + pair._2)
-      groupStrings ++= hidedNames.map(_ + " => _")
+      if (!hasWildcard) groupStrings ++= singleNames.toSeq.sorted
+      groupStrings ++= renames.map(pair => pair._1 + " => " + pair._2).toSeq.sorted
+      groupStrings ++= hidedNames.map(_ + " => _").toSeq.sorted
       if (hasWildcard) groupStrings += "_"
       val postfix =
         if (groupStrings.length > 1 || !renames.isEmpty || !hidedNames.isEmpty) groupStrings.mkString("{", ", ", "}")

@@ -21,7 +21,6 @@ import java.sql.Connection
 import java.util.Date
 
 abstract class SortedInPackage {
-
   import java.sql.Blob
   import java.sql.Clob
 
