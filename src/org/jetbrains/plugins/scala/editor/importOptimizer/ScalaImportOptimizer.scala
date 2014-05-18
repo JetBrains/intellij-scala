@@ -6,7 +6,6 @@ import com.intellij.lang.ImportOptimizer
 import com.intellij.openapi.util.{TextRange, EmptyRunnable}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi._
-import lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement}
 import lang.psi.api.toplevel.imports.usages.ImportUsed
 import lang.resolve.ScalaResolveResult
@@ -37,6 +36,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import scala.annotation.tailrec
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import com.intellij.openapi.editor.Document
+import com.intellij.openapi.project.Project
 
 /**
  * User: Alexander Podkhalyuzin
@@ -122,6 +122,17 @@ class ScalaImportOptimizer extends ImportOptimizer {
             var rangeEnd = -1
             var rangeNames = Set.empty[String]
             val infos = new ArrayBuffer[ImportInfo]
+
+            def addRange(): Unit = {
+              if (rangeStart != -1) {
+                importsInfo.put(new TextRange(rangeStart, rangeEnd), (rangeNames, Seq(infos: _*)))
+                rangeStart = -1
+                rangeEnd = -1
+                rangeNames = Set.empty
+                infos.clear()
+              }
+            }
+
             for (child <- imp.getChildren) {
               child match {
                 case imp: ScImportStmt =>
@@ -131,16 +142,17 @@ class ScalaImportOptimizer extends ImportOptimizer {
                     val refText = "someIdentifier"
                     val reference = ScalaPsiElementFactory.createReferenceFromText(refText, imp.getContext, imp)
                     val rangeNamesSet = new mutable.HashSet[String]()
+                    def addName(name: String): Unit = rangeNamesSet += name
                     reference.getResolveResultVariants.foreach {
                       case ScalaResolveResult(p: PsiPackage, _) =>
-                        if (p.getParentPackage != null && p.getParentPackage.getName != null) {
-                          rangeNamesSet += name(p.getName)
-                        }
-                      case ScalaResolveResult(td: ScTypedDefinition, _) if td.isStable => rangeNamesSet += td.name
+                        if (p.getParentPackage != null && p.getParentPackage.getName != null) addName(name(p.getName))
+                      case ScalaResolveResult(o: ScObject, _) if o.isPackageObject =>
+                        if (o.qualifiedName.contains(".")) addName(o.name)
+                      case ScalaResolveResult(td: ScTypedDefinition, _) if td.isStable => addName(td.name)
                       case ScalaResolveResult(_: ScTypeDefinition, _) =>
-                      case ScalaResolveResult(c: PsiClass, _) => rangeNamesSet += name(c.getName)
+                      case ScalaResolveResult(c: PsiClass, _) => addName(name(c.getName))
                       case ScalaResolveResult(f: PsiField, _) if f.hasModifierProperty("final") =>
-                        rangeNamesSet += name(f.getName)
+                        addName(name(f.getName))
                       case _ =>
                     }
                     rangeNames = rangeNamesSet.toSet
@@ -153,38 +165,41 @@ class ScalaImportOptimizer extends ImportOptimizer {
                       case _ =>
                     }
                   )
-                case _ =>
-                  if (rangeStart != -1) {
-                    importsInfo.put(new TextRange(rangeStart, rangeEnd), (rangeNames, Seq(infos: _*)))
-                    rangeStart = -1
-                    rangeEnd = -1
-                    rangeNames = Set.empty
-                    infos.clear()
-                  }
+                case _ => addRange()
               }
             }
-            if (rangeStart != -1) {
-              importsInfo.put(new TextRange(rangeStart, rangeEnd), (rangeNames, Seq(infos: _*)))
-              rangeStart = -1
-              rangeEnd = -1
-              rangeNames = Set.empty
-              infos.clear()
-            }
+            addRange()
           case _ =>
         }
         true
       }
     })
-    importsInfo
 
     new Runnable {
       def run() {
-        val documentManager = PsiDocumentManager.getInstance(scalaFile.getProject)
+        val project: Project = scalaFile.getProject
+        val documentManager = PsiDocumentManager.getInstance(project)
         val document: Document = documentManager.getDocument(scalaFile)
         documentManager.commitDocument(document)
-        for ((range, (names, importInfos)) <- importsInfo.toSeq.sortBy(_._1.getStartOffset).reverseIterator) {
+        val settings: ScalaProjectSettings = ScalaProjectSettings.getInstance(project)
+        val addFullQualifiedImports = settings.isAddFullQualifiedImports
+        val sortImports = settings.isSortImports
+        for ((range, (names, _importInfos)) <- importsInfo.toSeq.sortBy(_._1.getStartOffset).reverseIterator) {
+          var importInfos = _importInfos
+          if (addFullQualifiedImports) {
+            val holderNames = new mutable.HashSet[String]()
+            holderNames ++= names
+            importInfos = _importInfos.map { info =>
+              val res = info.withoutRelative(holderNames)
+              holderNames ++= info.allNames
+              res
+            }
+          }
 
-          val text = importInfos.map(_.getImportText(isRelative = false)).mkString("\n")
+          if (sortImports) {
+            //todo: implement sorting
+          }
+          val text = importInfos.map(_.getImportText).mkString("\n")
           document.replaceString(range.getStartOffset, range.getEndOffset, text)
         }
       }
@@ -242,7 +257,7 @@ object ScalaImportOptimizer {
                    val relative: Option[String], val allNames: Set[String],
                    val singleNames: Set[String], renames: Map[String, String],
                    val hidedNames: Set[String], val hasWildcard: Boolean, val rootUsed: Boolean) {
-    def getImportText(isRelative: Boolean): String = {
+    def getImportText: String = {
       val groupStrings = new ArrayBuffer[String]
       if (!hasWildcard) groupStrings ++= singleNames
       groupStrings ++= renames.map(pair => pair._1 + " => " + pair._2)
@@ -252,7 +267,15 @@ object ScalaImportOptimizer {
         if (groupStrings.length > 1 || !renames.isEmpty || !hidedNames.isEmpty) groupStrings.mkString("{", ", ", "}")
         else groupStrings(0)
       "import " + (if (rootUsed) "_root_." else "") + relative.getOrElse(prefixQualifier) + "." + postfix
+    }
 
+    def withoutRelative(holderNames: Set[String]): ImportInfo = {
+      if (relative.isDefined || rootUsed) {
+        val id = getFirstId(prefixQualifier)
+        val rootUsed = holderNames.contains(id)
+        new ImportInfo(importUsed, prefixQualifier, None, allNames, singleNames,
+          renames, hidedNames, hasWildcard, rootUsed)
+      } else this
     }
   }
 
@@ -436,5 +459,17 @@ object ScalaImportOptimizer {
 
     Some(new ImportInfo(res.toSet, qualifierString, relativeQualifier, allNames.toSet,
       singleNames.toSet, renames.toMap, hidedNames.toSet, hasWildcard, rootUsed))
+  }
+
+  def getFirstId(s: String): String = {
+    if (s.startsWith("`")) {
+      val index: Int = s.indexOf('`', 1)
+      if (index == -1) s
+      else s.substring(0, index + 1)
+    } else {
+      val index: Int = s.indexOf('.')
+      if (index == -1) s
+      else s.substring(0, index)
+    }
   }
 }
