@@ -18,6 +18,7 @@
     <codeStyleSettingsProvider implementation="intellijhocon.codestyle.HoconCodeStyleSettingsProvider"/>
     <langCodeStyleSettingsProvider implementation="intellijhocon.codestyle.HoconLanguageCodeStyleSettingsProvider"/>
     <lang.formatter language="HOCON" implementationClass="intellijhocon.formatting.HoconFormattingModelBuilder"/>
+    <lang.commenter language="HOCON" implementationClass="intellijhocon.misc.HoconCommenter"/>
   </extensions>
 
 </idea-plugin>
