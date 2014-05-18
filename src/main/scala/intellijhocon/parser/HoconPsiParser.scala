@@ -284,7 +284,7 @@ class HoconPsiParser extends PsiParser {
           } else if (matches(LBracket)) {
             parseArray()
           } else if (matches(Dollar)) {
-            parseReference()
+            parseSubstitution()
           } else if (matches(ValueUnquotedChars)) {
             parseAsUnquotedString(ValueUnquotedChars.noNewLine, first, ValueEnding.orNewLineOrEof)
           } else if (matches(StringLiteral)) {
@@ -346,20 +346,20 @@ class HoconPsiParser extends PsiParser {
       marker.done(Array)
     }
 
-    def parseReference() {
+    def parseSubstitution() {
       val marker = builder.mark()
       builder.advanceLexer()
       builder.advanceLexer()
       pass(QMark)
-      if (matches(ReferencePathStart.noNewLine)) {
-        parsePath(ReferencePath)
-        if (!pass(RefRBrace)) {
+      if (matches(SubstitutionPathStart.noNewLine)) {
+        parsePath(SubstitutionPath)
+        if (!pass(SubRBrace)) {
           builder.error("expected '}'")
         }
       } else errorUntil(PathEnding.orNewLineOrEof, "expected path expression")
-      pass(RefRBrace)
+      pass(SubRBrace)
 
-      marker.done(Reference)
+      marker.done(Substitution)
     }
 
   }

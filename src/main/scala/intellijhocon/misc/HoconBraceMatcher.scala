@@ -15,7 +15,7 @@ class HoconBraceMatcher extends PairedBraceMatcher {
   def getPairs = Array(
     new BracePair(LBrace, RBrace, true),
     new BracePair(LBracket, RBracket, false),
-    new BracePair(RefLBrace, RefRBrace, false)
+    new BracePair(SubLBrace, SubRBrace, false)
   )
 
   private val AllowsPairedBraceBefore =

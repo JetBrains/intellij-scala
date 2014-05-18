@@ -8,6 +8,6 @@ object HoconElementSets {
   import HoconElementType._
   import Util._
 
-  val Path = FieldPath | ReferencePath
+  val Path = FieldPath | SubstitutionPath
   val ForcedLeafBlock = Path | UnquotedString | Number | Null | Boolean | TokenType.ERROR_ELEMENT
 }

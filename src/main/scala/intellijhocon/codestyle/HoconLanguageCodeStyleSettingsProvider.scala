@@ -42,7 +42,7 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         showCustomOption("SPACE_BEFORE_ASSIGNMENT", "Before assignment ('=' and '+=')", SPACES_AROUND_OPERATORS)
         showCustomOption("SPACE_AFTER_ASSIGNMENT", "After assignment ('=' and '+=')", SPACES_AROUND_OPERATORS)
         showCustomOption("SPACE_BEFORE_LBRACE_AFTER_PATH", "Immediately after path expression", SPACES_BEFORE_LEFT_BRACE)
-        showCustomOption("SPACES_WITHIN_REFERENCE_BRACES", "Reference braces", SPACES_WITHIN)
+        showCustomOption("SPACES_WITHIN_SUBSTITUTION_BRACES", "Substitution braces", SPACES_WITHIN)
         showCustomOption("SPACE_AFTER_QMARK", "After '?'", SPACES_OTHER)
 
       case WRAPPING_AND_BRACES_SETTINGS =>
@@ -110,7 +110,7 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         |  some.very.long.path =
         |    very very very long value
         |}
-        |""".stripMargin
+        | """.stripMargin.trim
 
     case SettingsType.SPACING_SETTINGS =>
       """include file("application.conf")
@@ -120,10 +120,10 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         |  foo.bar = stuff
         |  obj = {key: value, kye: vlaue}
         |  list = [1, 2, 3]
-        |  ref = ${some.path}
-        |  optref = ${?some.path}
+        |  subst = ${some.path}
+        |  optsubst = ${?some.path}
         |}
-        |""".stripMargin
+        | """.stripMargin.trim
 
     case SettingsType.WRAPPING_AND_BRACES_SETTINGS =>
       """include "someExtraordinarilyLongName"
@@ -143,7 +143,7 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         |//comment originally at first column
         |
         |}
-        |""".stripMargin
+        | """.stripMargin.trim
 
     case SettingsType.BLANK_LINES_SETTINGS =>
       """include "application"
@@ -162,7 +162,7 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         |  another one
         |
         |]
-        |""".stripMargin
+        | """.stripMargin.trim
 
     case _ => ""
   }

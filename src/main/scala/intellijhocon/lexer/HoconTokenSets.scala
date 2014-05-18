@@ -16,12 +16,12 @@ object HoconTokenSets {
   val PathValueSeparator = Colon | Equals | PlusEquals
   val ArrayElementsEnding = RBracket | RBrace
   val ValueEnding = Comma | RBrace | RBracket
-  val PathEnding = PathValueSeparator | LBrace | RefRBrace | ValueEnding
+  val PathEnding = PathValueSeparator | LBrace | SubRBrace | ValueEnding
   val KeyEnding = PathEnding | Period
   val ValueUnquotedChars = UnquotedChars | Period
   val SimpleValuePart = UnquotedChars | Period | StringLiteral
   val PathStart = UnquotedChars | StringLiteral | Period | BadCharacter
-  val ReferencePathStart = PathStart | PathValueSeparator
+  val SubstitutionPathStart = PathStart | PathValueSeparator
   val ValueStart = SimpleValuePart | LBrace | LBracket | Dollar | PathValueSeparator | BadCharacter
   val ObjectEntryStart = PathStart | UnquotedChars
 
