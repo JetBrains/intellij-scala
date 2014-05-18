@@ -23,7 +23,7 @@ object HoconElementType {
 
   val FieldPath = new HoconElementType("FIELD_PATH")
 
-  val ReferencePath = new HoconElementType("REFERENCE_PATH")
+  val SubstitutionPath = new HoconElementType("SUBSTITUTION_PATH")
 
   val Key = new HoconElementType("KEY")
 
@@ -37,7 +37,7 @@ object HoconElementType {
 
   val Null = new HoconElementType("NULL")
 
-  val Reference = new HoconElementType("REFERENCE")
+  val Substitution = new HoconElementType("SUBSTITUTION")
 
   val Boolean = new HoconElementType("BOOLEAN")
 

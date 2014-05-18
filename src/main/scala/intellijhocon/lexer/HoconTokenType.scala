@@ -34,11 +34,11 @@ object HoconTokenType extends TokenType {
 
   val Dollar = new HoconTokenType("DOLLAR")
 
-  val RefLBrace = new HoconTokenType("REF_LBRACE")
+  val SubLBrace = new HoconTokenType("SUB_LBRACE")
 
   val QMark = new HoconTokenType("QMARK")
 
-  val RefRBrace = new HoconTokenType("REF_RBRACE")
+  val SubRBrace = new HoconTokenType("SUB_RBRACE")
 
   val HashComment = new HoconTokenType("HASH_COMMENT")
 

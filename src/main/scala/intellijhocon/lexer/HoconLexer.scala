@@ -12,11 +12,11 @@ object HoconLexer {
 
   val Initial = State(0)
   val Value = State(1)
-  val RefStarting = State(2)
-  val RefStarted = State(3)
-  val Reference = State(4)
+  val SubStarting = State(2)
+  val SubStarted = State(3)
+  val Substitution = State(4)
 
-  val States = Array(Initial, Value, RefStarting, RefStarted, Reference)
+  val States = Array(Initial, Value, SubStarting, SubStarted, Substitution)
 }
 
 class HoconLexer extends LexerBase {
@@ -63,7 +63,7 @@ class HoconLexer extends LexerBase {
 
   def onContents(state: State) = state match {
     case Initial => Value
-    case RefStarting | RefStarted => Reference
+    case SubStarting | SubStarted => Substitution
     case _ => state
   }
 
@@ -73,14 +73,14 @@ class HoconLexer extends LexerBase {
   def isNoneOf(states: State*): State => Boolean =
     !states.contains(_)
 
-  val notReference = isAnyOf(Initial, Value)
+  val notSubstitution = isAnyOf(Initial, Value)
 
   val matchers = List(
     WhitespaceMatcher,
-    new RegexTokenMatcher( """\$(?=\{)""".r, Dollar, notReference, forceState(RefStarting)),
-    new LiteralTokenMatcher("{", RefLBrace, isAnyOf(RefStarting), forceState(RefStarted)),
-    new LiteralTokenMatcher("?", QMark, isAnyOf(RefStarted), forceState(Reference)),
-    new LiteralTokenMatcher("}", RefRBrace, isAnyOf(RefStarting, RefStarted, Reference), forceState(Value)),
+    new RegexTokenMatcher( """\$(?=\{)""".r, Dollar, notSubstitution, forceState(SubStarting)),
+    new LiteralTokenMatcher("{", SubLBrace, isAnyOf(SubStarting), forceState(SubStarted)),
+    new LiteralTokenMatcher("?", QMark, isAnyOf(SubStarted), forceState(Substitution)),
+    new LiteralTokenMatcher("}", SubRBrace, isAnyOf(SubStarting, SubStarted, Substitution), forceState(Value)),
     new LiteralTokenMatcher("{", LBrace, always, forceState(Initial)),
     new LiteralTokenMatcher("}", RBrace, always, forceState(Value)),
     new LiteralTokenMatcher("[", LBracket, always, forceState(Initial)),
@@ -152,7 +152,7 @@ class HoconLexer extends LexerBase {
 
     def newState(state: State, newLine: Boolean) = state match {
       case _ if newLine => Initial
-      case RefStarting | RefStarted => Reference
+      case SubStarting | SubStarted => Substitution
       case _ => state
     }
   }

@@ -135,17 +135,17 @@ class HoconFormatter(settings: CodeStyleSettings) {
       case (Equals | PlusEquals, Value) =>
         normalSpacing(customSettings.SPACE_AFTER_ASSIGNMENT)
 
-      case (Dollar, RefLBrace) | (RefLBrace, QMark) =>
+      case (Dollar, SubLBrace) | (SubLBrace, QMark) =>
         Spacing.getReadOnlySpacing
 
-      case (RefLBrace, ReferencePath | RefRBrace) =>
-        normalSpacing(customSettings.SPACES_WITHIN_REFERENCE_BRACES)
+      case (SubLBrace, SubstitutionPath | SubRBrace) =>
+        normalSpacing(customSettings.SPACES_WITHIN_SUBSTITUTION_BRACES)
 
-      case (QMark, ReferencePath) =>
+      case (QMark, SubstitutionPath) =>
         normalSpacing(customSettings.SPACE_AFTER_QMARK)
 
-      case (ReferencePath, RefRBrace) =>
-        normalSpacing(customSettings.SPACES_WITHIN_REFERENCE_BRACES)
+      case (SubstitutionPath, SubRBrace) =>
+        normalSpacing(customSettings.SPACES_WITHIN_SUBSTITUTION_BRACES)
 
       case (UnquotedChars, QuotedString) | (QuotedString, UnquotedChars) if parent.getElementType == Included =>
         normalSpacing(commonSettings.SPACE_WITHIN_METHOD_CALL_PARENTHESES)

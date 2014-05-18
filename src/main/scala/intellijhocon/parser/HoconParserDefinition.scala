@@ -15,7 +15,7 @@ class HoconParserDefinition extends ParserDefinition {
 
   def spaceExistanceTypeBetweenTokens(left: ASTNode, right: ASTNode): SpaceRequirements =
     (left.getElementType, right.getElementType) match {
-      case (Dollar, RefLBrace) | (RefLBrace, QMark) => SpaceRequirements.MUST_NOT
+      case (Dollar, SubLBrace) | (SubLBrace, QMark) => SpaceRequirements.MUST_NOT
       case _ => SpaceRequirements.MAY
     }
 
