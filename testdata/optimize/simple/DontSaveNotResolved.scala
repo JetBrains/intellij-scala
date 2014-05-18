@@ -7,7 +7,7 @@ class DontSaveNotResolved extends HashMap[String, String]
 /*
 package z
 
-import collection.mutable.HashMap
+import scala.collection.mutable.HashMap
 
 class DontSaveNotResolved extends HashMap[String, String]
 */
