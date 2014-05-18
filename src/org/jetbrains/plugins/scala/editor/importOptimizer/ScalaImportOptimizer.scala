@@ -148,6 +148,11 @@ class ScalaImportOptimizer extends ImportOptimizer {
                         if (p.getParentPackage != null && p.getParentPackage.getName != null) addName(name(p.getName))
                       case ScalaResolveResult(o: ScObject, _) if o.isPackageObject =>
                         if (o.qualifiedName.contains(".")) addName(o.name)
+                      case ScalaResolveResult(o: ScObject, _) =>
+                        o.getParent match {
+                          case file: ScalaFile =>
+                          case _ => addName(o.name)
+                        }
                       case ScalaResolveResult(td: ScTypedDefinition, _) if td.isStable => addName(td.name)
                       case ScalaResolveResult(_: ScTypeDefinition, _) =>
                       case ScalaResolveResult(c: PsiClass, _) => addName(name(c.getName))
@@ -199,9 +204,28 @@ class ScalaImportOptimizer extends ImportOptimizer {
           if (sortImports) {
             //todo: implement sorting
           }
-          val text = importInfos.map(_.getImportText).mkString("\n")
-          document.replaceString(range.getStartOffset, range.getEndOffset, text)
+          val documentText = document.getText
+          def splitterCalc(index: Int, res: String = ""): String = {
+            if (index < 0) res
+            else {
+              val c = documentText.charAt(index)
+              if (c == ' ' || c == '\t') splitterCalc(index - 1, "" + c + res)
+              else res
+            }
+          }
+          val splitter: String = "\n" + splitterCalc(range.getStartOffset - 1)
+          val text = importInfos.map(_.getImportText).mkString(splitter)
+          val newRange: TextRange = if (text.isEmpty) {
+            var start = range.getStartOffset
+            while (start > 0 && documentText.charAt(start) != '\n') start = start - 1
+            var end = range.getEndOffset
+            while (end < documentText.length && documentText.charAt(end) != '\n') end = end + 1
+            if (end != documentText.length) end = end + 1
+            new TextRange(start, end)
+          } else range
+          document.replaceString(newRange.getStartOffset, newRange.getEndOffset, text)
         }
+        documentManager.commitDocument(document)
       }
     }
   }
