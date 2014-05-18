@@ -2,6 +2,7 @@
   <id>intellijhocon</id>
   <version>0.1</version>
   <name>HOCON</name>
+  <vendor>rjghik</vendor>
   <description>
     Enables support for HOCON (Human-Optimized Config Object Notation).
     Work in progress, not yet well tested or featured.
