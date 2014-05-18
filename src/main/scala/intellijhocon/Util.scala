@@ -2,6 +2,7 @@ package intellijhocon
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.{IElementType, TokenSet}
+import java.{lang => jl, util => ju}
 
 object Util {
 
@@ -53,6 +54,24 @@ object Util {
 
   implicit class any2opt[T](private val t: T) extends AnyVal {
     def opt = Option(t)
+  }
+
+  private val quotedCharPattern = "\\\\[\\\\\"/bfnrt]".r
+  private val quotedUnicodePattern = "\\\\u([0-9A-Fa-f]{4})".r
+
+  def unquote(str: String) = {
+    var result = str.stripPrefix("\"").stripSuffix("\"")
+    result = quotedCharPattern.replaceAllIn(result, m => m.group(0).charAt(1) match {
+      case '\\' => "\\"
+      case '/' => "/"
+      case '"' => "\""
+      case 'b' => "\b"
+      case 'f' => "\f"
+      case 'n' => "\n"
+      case 'r' => "\r"
+      case 't' => "\t"
+    })
+    quotedUnicodePattern.replaceAllIn(result, m => jl.Short.parseShort(m.group(1), 16).toChar.toString)
   }
 
 }

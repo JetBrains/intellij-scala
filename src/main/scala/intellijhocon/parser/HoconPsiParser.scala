@@ -8,7 +8,7 @@ import java.{util => ju, lang => jl}
 import com.intellij.lang.WhitespacesAndCommentsBinder.TokenTextGetter
 import intellijhocon.lexer.{HoconTokenType, HoconTokenSets}
 import intellijhocon.Util
-import scala.Some
+import java.net.{MalformedURLException, URL}
 
 class HoconPsiParser extends PsiParser {
 
@@ -60,6 +60,17 @@ class HoconPsiParser extends PsiParser {
       newLineSuppressedIndex = builder.rawTokenIndex
     }
 
+    def advanceLexer() {
+      val unclosedQuotedString = builder.getTokenType == QuotedString && !builder.getTokenText.endsWith("\"")
+      val unclosedMultilineString = builder.getTokenType == MultilineString && !builder.getTokenText.endsWith("\"\"\"")
+      builder.advanceLexer()
+      if (unclosedQuotedString) {
+        builder.error("Unclosed string literal")
+      } else if (unclosedMultilineString) {
+        builder.error("Unclosed multiline string literal")
+      }
+    }
+
     def matches(matcher: Matcher) =
       (matcher.tokenSet.contains(builder.getTokenType) && (!matcher.requireNoNewLine || !newLinesBeforeCurrentToken)) ||
         (matcher.matchNewLine && newLinesBeforeCurrentToken) || (matcher.matchEof && builder.eof)
@@ -73,7 +84,7 @@ class HoconPsiParser extends PsiParser {
     def pass(matcher: Matcher): Boolean = {
       val result = matches(matcher)
       if (result && (!matcher.matchNewLine || !newLinesBeforeCurrentToken) && (!matcher.matchEof || !builder.eof)) {
-        builder.advanceLexer()
+        advanceLexer()
       }
       result
     }
@@ -112,7 +123,7 @@ class HoconPsiParser extends PsiParser {
     def parseObject() = {
       val marker = builder.mark()
 
-      builder.advanceLexer()
+      advanceLexer()
       parseObjectEntries(insideObject = true)
       if (!pass(RBrace)) {
         builder.error("expected '}'")
@@ -148,7 +159,7 @@ class HoconPsiParser extends PsiParser {
     def parseInclude() = {
       val marker = builder.mark()
 
-      builder.advanceLexer()
+      advanceLexer()
       parseIncluded()
 
       marker.done(Include)
@@ -159,10 +170,22 @@ class HoconPsiParser extends PsiParser {
 
       if (pass(QuotedString)) ()
       else if (IncludeQualifiers.exists(matchesUnquoted)) {
-        builder.advanceLexer()
-        if (pass(QuotedString)) {
+        val qualifier = builder.getTokenText
+        advanceLexer()
+        if (matches(QuotedString)) {
+          if (qualifier == "url(") {
+            try {
+              new URL(unquote(builder.getTokenText))
+              advanceLexer()
+            } catch {
+              case e: MalformedURLException =>
+                tokenError(if (e.getMessage != null) e.getMessage else "malformed URL")
+            }
+          } else {
+            advanceLexer()
+          }
           if (matchesUnquoted(")")) {
-            builder.advanceLexer()
+            advanceLexer()
           } else errorUntil(ValueEnding.orNewLineOrEof, "expected ')'")
         } else errorUntil(ValueEnding.orNewLineOrEof, "expected quoted string")
       } else errorUntil(ValueEnding.orNewLineOrEof,
@@ -222,7 +245,7 @@ class HoconPsiParser extends PsiParser {
           if (matches(UnquotedChars)) {
             parseAsUnquotedString(UnquotedChars.noNewLine, first, PathEnding.orNewLineOrEof)
           } else if (matches(StringLiteral)) {
-            builder.advanceLexer()
+            advanceLexer()
           } else {
             tokenError("key must be a concatenation of unquoted, quoted or multiline strings " +
               "(characters $ \" { } [ ] : = , + # ` ^ ? ! @ * & \\ are forbidden unquoted)")
@@ -243,7 +266,7 @@ class HoconPsiParser extends PsiParser {
       val marker = builder.mark()
       suppressNewLine()
       while (matches(matcher)) {
-        builder.advanceLexer()
+        advanceLexer()
       }
       marker.done(UnquotedString)
 
@@ -266,7 +289,7 @@ class HoconPsiParser extends PsiParser {
 
       def passKeyword(kw: String) =
         if (matchesUnquoted(kw)) {
-          builder.advanceLexer()
+          advanceLexer()
           true
         } else
           false
@@ -288,7 +311,7 @@ class HoconPsiParser extends PsiParser {
           } else if (matches(ValueUnquotedChars)) {
             parseAsUnquotedString(ValueUnquotedChars.noNewLine, first, ValueEnding.orNewLineOrEof)
           } else if (matches(StringLiteral)) {
-            builder.advanceLexer()
+            advanceLexer()
           } else {
             tokenError("characters $ \" { } [ ] : = , + # ` ^ ? ! @ * & \\ are forbidden unquoted")
           }
@@ -307,20 +330,20 @@ class HoconPsiParser extends PsiParser {
     def passNumber(): Boolean = matchesUnquoted(IntegerPattern) && {
       // we need to detect whitespaces between tokens forming a number to behave as if number is a single token
       val integerRawTokenIdx = builder.rawTokenIndex
-      builder.advanceLexer()
+      advanceLexer()
 
       val gotPeriod = matches(Period)
       val noPeriodWhitespace = gotPeriod && builder.rawTokenIndex == integerRawTokenIdx + 1
 
       if (gotPeriod) {
-        builder.advanceLexer()
+        advanceLexer()
       }
 
       val gotDecimalPart = gotPeriod && matchesUnquoted(DecimalPartPattern)
       val noDecimalPartWhitespace = gotDecimalPart && builder.rawTokenIndex() == integerRawTokenIdx + 2
 
       if (gotDecimalPart) {
-        builder.advanceLexer()
+        advanceLexer()
       }
 
       (!gotPeriod || noPeriodWhitespace) && (!gotDecimalPart || noDecimalPartWhitespace)
@@ -328,7 +351,7 @@ class HoconPsiParser extends PsiParser {
 
     def parseArray() {
       val marker = builder.mark()
-      builder.advanceLexer()
+      advanceLexer()
 
       while (!matches(ArrayElementsEnding.orEof)) {
         if (matches(ValueStart)) {
@@ -348,8 +371,8 @@ class HoconPsiParser extends PsiParser {
 
     def parseSubstitution() {
       val marker = builder.mark()
-      builder.advanceLexer()
-      builder.advanceLexer()
+      advanceLexer()
+      advanceLexer()
       pass(QMark)
       if (matches(SubstitutionPathStart.noNewLine)) {
         parsePath(SubstitutionPath)
