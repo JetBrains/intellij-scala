@@ -1,7 +1,7 @@
 package intellijhocon.formatting
 
 import com.intellij.psi.codeStyle.CodeStyleSettings
-import com.intellij.formatting.{Spacing, Indent}
+import com.intellij.formatting.{Alignment, Wrap, Spacing, Indent}
 import com.intellij.lang.ASTNode
 import intellijhocon.parser.{HoconElementSets, HoconElementType}
 import intellijhocon.Util
@@ -124,16 +124,10 @@ class HoconFormatter(settings: CodeStyleSettings) {
         normalSpacing(customSettings.SPACE_BEFORE_LBRACE_AFTER_PATH)
 
       case (FieldPath, Colon) =>
-        if (customSettings.OBJECT_FIELDS_COLON_ON_NEXT_LINE)
-          dependentLFSpacing(customSettings.SPACE_BEFORE_COLON)
-        else
-          normalSpacing(customSettings.SPACE_BEFORE_COLON)
+        normalSpacing(customSettings.SPACE_BEFORE_COLON)
 
       case (FieldPath, Equals | PlusEquals) =>
-        if (customSettings.OBJECT_FIELDS_ASSIGNMENT_ON_NEXT_LINE)
-          dependentLFSpacing(customSettings.SPACE_BEFORE_ASSIGNMENT)
-        else
-          normalSpacing(customSettings.SPACE_BEFORE_ASSIGNMENT)
+        normalSpacing(customSettings.SPACE_BEFORE_ASSIGNMENT)
 
       case (Colon, Value) =>
         normalSpacing(customSettings.SPACE_AFTER_COLON)
@@ -174,6 +168,83 @@ class HoconFormatter(settings: CodeStyleSettings) {
       standardSpacing
   }
 
+  // Formatter must be able to return exactly the same instance of Wrap and Alignment objects
+  // for children of the same parent and these two classes are one way to make it possible.
+
+  class WrapCache(pathValueSeparator: Option[IElementType]) {
+    val objectEntryWrap =
+      Wrap.createWrap(customSettings.OBJECTS_WRAP, false)
+
+    val arrayValueWrap =
+      Wrap.createWrap(customSettings.LISTS_WRAP, false)
+
+    val fieldPathWrap = pathValueSeparator match {
+      case Some(Colon) =>
+        Wrap.createWrap(customSettings.OBJECT_FIELDS_WITH_COLON_WRAP, true)
+      case Some(Equals | PlusEquals) =>
+        Wrap.createWrap(customSettings.OBJECT_FIELDS_WITH_ASSIGNMENT_WRAP, true)
+      case _ => null
+    }
+
+    val pathValueSeparatorWrap = pathValueSeparator match {
+      case Some(Colon) if customSettings.OBJECT_FIELDS_COLON_ON_NEXT_LINE =>
+        fieldPathWrap
+      case Some(Equals | PlusEquals) if customSettings.OBJECT_FIELDS_ASSIGNMENT_ON_NEXT_LINE =>
+        fieldPathWrap
+      case _ => null
+    }
+
+    val fieldValueWrap =
+      if (pathValueSeparatorWrap == null) fieldPathWrap else null
+
+    val includeInnerWrap =
+      Wrap.createWrap(customSettings.INCLUDED_RESOURCE_WRAP, true)
+
+  }
+
+  class AlignmentCache {
+    val objectEntryAlignment =
+      if (customSettings.OBJECTS_ALIGN_WHEN_MULTILINE) Alignment.createAlignment else null
+
+    val arrayValueAlignment =
+      if (customSettings.LISTS_ALIGN_WHEN_MULTILINE) Alignment.createAlignment else null
+  }
+
+
+  def getWrap(wrapCache: WrapCache, parent: ASTNode, child: ASTNode) =
+    (parent.getElementType, child.getElementType) match {
+      case (Object, Include | BareObjectField) =>
+        wrapCache.objectEntryWrap
+
+      case (Array, Value) =>
+        wrapCache.arrayValueWrap
+
+      case (BareObjectField, FieldPath) =>
+        wrapCache.fieldPathWrap
+
+      case (BareObjectField, PathValueSeparator.extractor()) =>
+        wrapCache.pathValueSeparatorWrap
+
+      case (BareObjectField, Value) =>
+        wrapCache.fieldValueWrap
+
+      case (Include, _) =>
+        wrapCache.includeInnerWrap
+
+      case _ => null
+    }
+
+  def getAlignment(alignmentCache: AlignmentCache, parent: ASTNode, child: ASTNode) =
+    (parent.getElementType, child.getElementType) match {
+      case (Object, Include | BareObjectField | Comment.extractor()) =>
+        alignmentCache.objectEntryAlignment
+
+      case (Array, Value | Comment.extractor()) =>
+        alignmentCache.arrayValueAlignment
+
+      case _ => null
+    }
+
   def getIndent(parent: ASTNode, child: ASTNode) =
     (parent.getElementType, child.getElementType) match {
       case (Object, Include | BareObjectField | Comma | Comment.extractor()) |
@@ -191,6 +262,12 @@ class HoconFormatter(settings: CodeStyleSettings) {
     case Object | Array => Indent.getNormalIndent
     case Include | BareObjectField => Indent.getContinuationIndent
     case _ => Indent.getNoneIndent
+  }
+
+  def getChildAlignment(alignmentCache: AlignmentCache, parent: ASTNode) = parent.getElementType match {
+    case Object => alignmentCache.objectEntryAlignment
+    case Array => alignmentCache.arrayValueAlignment
+    case _ => null
   }
 
   def getChildren(node: ASTNode): Iterator[ASTNode] = node.getElementType match {

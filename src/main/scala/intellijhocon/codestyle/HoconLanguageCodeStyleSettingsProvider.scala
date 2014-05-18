@@ -48,10 +48,7 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       case WRAPPING_AND_BRACES_SETTINGS =>
         import WrappingOrBraceOption._
 
-        consumer.showStandardOptions(List(
-          KEEP_LINE_BREAKS,
-          WRAP_LONG_LINES
-        ).map(_.name): _*)
+        consumer.showStandardOptions(KEEP_LINE_BREAKS.name)
 
         showCustomOption("HASH_COMMENTS_AT_FIRST_COLUMN", "Hash comments at first column", WRAPPING_KEEP)
         showCustomOption("DOUBLE_SLASH_COMMENTS_AT_FIRST_COLUMN", "Double slash comments at first column", WRAPPING_KEEP)
@@ -113,7 +110,7 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         |  some.very.long.path =
         |    very very very long value
         |}
-        | """.stripMargin
+        |""".stripMargin
 
     case SettingsType.SPACING_SETTINGS =>
       """include file("application.conf")
