@@ -402,7 +402,7 @@ object ScalaImportOptimizer {
       o.getContext match {
         case _: ScTemplateBody =>
           o.containingClass match {
-            case containingObject: ScObject => isRelativeObject(o, res = true)
+            case containingObject: ScObject => isRelativeObject(containingObject, res = true)
             case _ => false //inner of some class/trait
           }
         case _: ScPackaging => true
