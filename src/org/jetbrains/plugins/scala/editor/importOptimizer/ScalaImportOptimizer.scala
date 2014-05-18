@@ -408,7 +408,10 @@ object ScalaImportOptimizer {
             renames += ((refName, importedName))
             addAllNames(selector.reference, importedName)
           }
-        } else singleNames += refName
+        } else {
+          singleNames += refName
+          addAllNames(selector.reference, refName)
+        }
       }
     }
     allNames --= hidedNames
