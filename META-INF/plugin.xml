@@ -1,7 +1,11 @@
 <idea-plugin>
-  <id>org.intellijhocon</id>
+  <id>intellijhocon</id>
+  <version>0.1</version>
   <name>HOCON</name>
-  <description>Enables support for HOCON (Human-Optimized Config Object Notation)</description>
+  <description>
+    Enables support for HOCON (Human-Optimized Config Object Notation).
+    Work in progress, not yet well tested or featured.
+  </description>
 
   <extensions defaultExtensionNs="com.intellij">
     <fileTypeFactory implementation="intellijhocon.lang.HoconFileTypeFactory"/>
@@ -12,6 +16,7 @@
     <lang.foldingBuilder language="HOCON" implementationClass="intellijhocon.misc.HoconFoldingBuilder"/>
     <quoteHandler fileType="HOCON" className="intellijhocon.misc.HoconQuoteHandler"/>
     <annotator language="HOCON" implementationClass="intellijhocon.highlight.HoconSyntaxHighlightingAnnotator"/>
+    <annotator language="HOCON" implementationClass="intellijhocon.parser.HoconErrorHighlightingAnnotator"/>
     <additionalTextAttributes scheme="Default" file="colorSchemes/HoconDefault.xml"/>
     <additionalTextAttributes scheme="Darcula" file="colorSchemes/HoconDarcula.xml"/>
     <colorSettingsPage implementation="intellijhocon.highlight.HoconColorSettingsPage"/>
