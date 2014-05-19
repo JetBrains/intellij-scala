@@ -4,11 +4,7 @@ object PG3 {
   def main(args: Array[String]) {
     println(ConfigFactory.parseString(
       """
-        lol = 5,
-        fuu: ${lol},
-        haha = [a
-        ,b]
-
+        [a, b, c, d]
 
       """.stripMargin).resolve.root.render)
 

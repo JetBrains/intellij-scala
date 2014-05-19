@@ -45,6 +45,7 @@ object Util {
 
     def hasSingleChild =
       node.getFirstChildNode != null && node.getFirstChildNode.getTreeNext == null
+
   }
 
   implicit class StringOps(str: String) {
@@ -73,5 +74,8 @@ object Util {
     })
     quotedUnicodePattern.replaceAllIn(result, m => jl.Short.parseShort(m.group(1), 16).toChar.toString)
   }
+
+  def uncaps(str: String) =
+    str.replace('_', ' ').toLowerCase
 
 }
