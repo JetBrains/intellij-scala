@@ -33,7 +33,7 @@ class ScalaUnusedImportPass(val file: PsiFile, editor: Editor, val document: Doc
   extends ProgressableTextEditorHighlightingPass(
     file.getProject, document, "Scala Unused Symbols", file, editor, file.getTextRange, true,
       highlightInfoProcessor) with ScalaUnusedImportPassBase {
-  protected def getOptimizeFix: IntentionAction = new ScalaOptimizeImportsFix
+  protected def getFixes: List[IntentionAction] = List(new ScalaOptimizeImportsFix, new ScalaEnableOptimizeImportsOnTheFlyFix)
 
   private var myHighlights: util.Collection[HighlightInfo] = null
   private var myOptimizeImportsRunnable: Runnable = null
