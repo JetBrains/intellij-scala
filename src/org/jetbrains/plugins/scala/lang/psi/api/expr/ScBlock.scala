@@ -95,7 +95,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
                 new ScTypeVariable(typed.name)
               case _ => t
             }
-            case proj@ScProjectionType(p, elem, s) => new ScProjectionType(existize(p, visitedWithT), elem, s)
+            case proj@ScProjectionType(p, elem, s) => ScProjectionType(existize(p, visitedWithT), elem, s)
             case ScCompoundType(comps, signatureMap, typesMap) =>
               new ScCompoundType(comps.map(existize(_, visitedWithT)), signatureMap.map {
                 case (s: Signature, tp) =>
@@ -119,7 +119,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
               })
             case JavaArrayType(arg) => JavaArrayType(existize(arg, visitedWithT))
             case ScParameterizedType(des, typeArgs) =>
-              new ScParameterizedType(existize(des, visitedWithT), typeArgs.map(existize(_, visitedWithT)))
+              ScParameterizedType(existize(des, visitedWithT), typeArgs.map(existize(_, visitedWithT)))
             case ex@ScExistentialType(q, wildcards) =>
               new ScExistentialType(existize(q, visitedWithT), wildcards.map {
                 ex => new ScExistentialArgument(ex.name, ex.args, existize(ex.lowerBound, visitedWithT), existize(ex.upperBound, visitedWithT))

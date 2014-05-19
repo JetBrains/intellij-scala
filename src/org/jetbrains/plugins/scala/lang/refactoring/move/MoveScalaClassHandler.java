@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.refactoring.move;
 
+import com.intellij.openapi.editor.Document;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassHandler;
 import com.intellij.usageView.UsageInfo;
@@ -22,7 +24,11 @@ public class MoveScalaClassHandler implements MoveClassHandler {
     PsiFile file = aClass.getContainingFile();
     if (file instanceof ScalaFile) {
       ScalaMoveUtil.restoreAssociations(aClass, ScalaApplicationSettings.getInstance().MOVE_COMPANION);
-      new ScalaImportOptimizer().processFile(file, false).run();
+      PsiDocumentManager documentManager = PsiDocumentManager.getInstance(file.getProject());
+      Document document = documentManager.getDocument(file);
+      if (document == null) return;
+      documentManager.doPostponedOperationsAndUnblockDocument(document);
+      new ScalaImportOptimizer().processFile(file).run();
     }
   }
 
