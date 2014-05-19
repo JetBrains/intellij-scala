@@ -3,31 +3,39 @@ package codeInspection
 package unusedInspections
 
 
-import com.intellij.openapi.editor.Editor
+import com.intellij.codeHighlighting._
+import com.intellij.codeInsight.daemon.impl.{DefaultHighlightInfoProcessor, FileStatusMap, HighlightInfoProcessor}
+import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.editor.{Document, Editor}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
 import java.lang.String
-import com.intellij.codeHighlighting.{Pass, TextEditorHighlightingPassRegistrar, TextEditorHighlightingPass, TextEditorHighlightingPassFactory}
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 15.06.2009
  */
-class ScalaUnusedImportsPassFactory(highlightingPassRegistrar: TextEditorHighlightingPassRegistrar)
-        extends TextEditorHighlightingPassFactory {
+class ScalaUnusedImportsPassFactory(project: Project, highlightingPassRegistrar: TextEditorHighlightingPassRegistrar)
+        extends AbstractProjectComponent(project) with MainHighlightingPassFactory {
   highlightingPassRegistrar.registerTextEditorHighlightingPass(this, Array[Int](Pass.UPDATE_ALL),
     null, false, -1)
 
-  def projectClosed() {}
-
-  def projectOpened() {}
-
   def createHighlightingPass(file: PsiFile, editor: Editor): TextEditorHighlightingPass = {
-    new ScalaUnusedImportPass(file, editor)
+    val textRange: TextRange = FileStatusMap.getDirtyTextRange(editor, Pass.UPDATE_ALL)
+    if (textRange == null && ScalaUnusedImportPass.isUpToDate(file)) return null
+    create(file, editor.getDocument, editor, new DefaultHighlightInfoProcessor)
   }
 
-  def initComponent() {}
+  override def getComponentName: String = "Scala Unused import pass factory"
 
-  def disposeComponent() {}
+  override def createMainHighlightingPass(file: PsiFile, document: Document,
+                                          highlightInfoProcessor: HighlightInfoProcessor): TextEditorHighlightingPass = {
+    create(file, document, null, highlightInfoProcessor)
+  }
 
-  def getComponentName: String = "Scala Unused import pass factory"
+  private def create(file: PsiFile, document: Document, editor: Editor,
+                     highlightInfoProcessor: HighlightInfoProcessor): TextEditorHighlightingPass = {
+    new ScalaUnusedImportPass(file, editor, document, highlightInfoProcessor)
+  }
 }
