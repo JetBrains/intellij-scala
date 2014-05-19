@@ -3,6 +3,7 @@ package intellijhocon
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import java.{lang => jl, util => ju}
+import com.intellij.openapi.util.TextRange
 
 object Util {
 
@@ -77,5 +78,13 @@ object Util {
 
   def uncaps(str: String) =
     str.replace('_', ' ').toLowerCase
+
+  object TextRange {
+    def unapply(textRange: TextRange) =
+      Some((textRange.getStartOffset, textRange.getEndOffset))
+
+    def apply(start: Int, end: Int) =
+      com.intellij.openapi.util.TextRange.create(start, end)
+  }
 
 }
