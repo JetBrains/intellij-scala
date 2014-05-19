@@ -2,41 +2,41 @@ package org.jetbrains.plugins.scala
 package editor.importOptimizer
 
 
-import com.intellij.lang.ImportOptimizer
-import com.intellij.openapi.util.{TextRange, EmptyRunnable}
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement}
-import lang.psi.api.toplevel.imports.usages.ImportUsed
-import lang.resolve.ScalaResolveResult
-import scala.collection.{mutable, Set}
-import lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
-import lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
-import lang.psi.impl.ScalaPsiElementFactory
-import lang.psi.api.expr.{ScMethodCall, ScForStatement, ScExpression}
-import lang.psi.{ScImportsHolder, ScalaPsiUtil, ScalaPsiElement}
-import scala.collection.JavaConversions._
-import settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition, ScObject}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
-import java.util
 import com.intellij.concurrency.JobLauncher
+import com.intellij.lang.ImportOptimizer
+import com.intellij.openapi.editor.Document
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.{EmptyRunnable, TextRange}
+import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
 import com.intellij.util.containers.{ConcurrentHashMap, ConcurrentHashSet}
-import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
+import java.util
 import java.util.concurrent.atomic.AtomicInteger
-import scala.collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportSelectorUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportExprUsed
-import scala.Some
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportWildcardSelectorUsed
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScForStatement, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportExprUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportSelectorUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportWildcardSelectorUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
-import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import com.intellij.openapi.editor.Document
-import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import scala.Some
+import scala.annotation.tailrec
+import scala.collection.JavaConversions._
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.{mutable, Set}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -44,11 +44,9 @@ import com.intellij.openapi.project.Project
  */
 
 class ScalaImportOptimizer extends ImportOptimizer {
-  import ScalaImportOptimizer._
+  import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer._
 
-  def processFile(file: PsiFile): Runnable = processFile(file, deleteOnlyWrongImorts = false)
-
-  def processFile(file: PsiFile, deleteOnlyWrongImorts: Boolean): Runnable = {
+  def processFile(file: PsiFile): Runnable = {
     val scalaFile = file match {
       case scFile: ScalaFile => scFile
       case multiRootFile: PsiFile if multiRootFile.getViewProvider.getLanguages contains ScalaFileType.SCALA_LANGUAGE =>
@@ -181,64 +179,72 @@ class ScalaImportOptimizer extends ImportOptimizer {
       }
     })
 
+    val project: Project = scalaFile.getProject
+    val settings: ScalaProjectSettings = ScalaProjectSettings.getInstance(project)
+    val addFullQualifiedImports = settings.isAddFullQualifiedImports
+    val sortImports = settings.isSortImports
+
+
+    val sortedImportsInfo: mutable.Map[TextRange, Seq[ImportInfo]] =
+      for ((range, (names, _importInfos)) <- importsInfo) yield {
+        var importInfos = _importInfos
+        if (addFullQualifiedImports) {
+          val holderNames = new mutable.HashSet[String]()
+          holderNames ++= names
+          importInfos = _importInfos.map { info =>
+            val res = info.withoutRelative(holderNames)
+            holderNames ++= info.allNames
+            res
+          }
+        }
+
+        if (sortImports) {
+          val allNames = importInfos.flatMap(_.allNames).toSet
+
+          val buffer = new ArrayBuffer[ImportInfo]()
+          buffer ++= importInfos
+
+          @tailrec
+          def iteration(): Unit = {
+            var i = 0
+            var changed = false
+            while (i + 1 < buffer.length) {
+              val first = buffer(i)
+              val second = buffer(i + 1)
+              if (first.getImportText > second.getImportText) {
+                val firstPrefix: String = first.relative.getOrElse(first.prefixQualifier)
+                val firstPart: String = getFirstId(firstPrefix)
+                val secondPrefix = second.relative.getOrElse(second.prefixQualifier)
+                val secondPart = getFirstId(secondPrefix)
+                if (first.rootUsed || !second.allNames.contains(firstPart)) {
+                  if (second.rootUsed || !first.allNames.contains(secondPart)) {
+                    changed = true
+                    val swap = buffer(i)
+                    buffer.remove(i)
+                    buffer.insert(i, buffer(i))
+                    buffer.remove(i + 1)
+                    buffer.insert(i + 1, swap)
+                  }
+                }
+              }
+              i = i + 1
+            }
+            if (changed) iteration()
+          }
+
+          iteration()
+          importInfos = buffer.toSeq
+        }
+        (range, importInfos)
+      }
+
     new Runnable {
       def run() {
-        val project: Project = scalaFile.getProject
         val documentManager = PsiDocumentManager.getInstance(project)
         val document: Document = documentManager.getDocument(scalaFile)
         documentManager.commitDocument(document)
-        val settings: ScalaProjectSettings = ScalaProjectSettings.getInstance(project)
-        val addFullQualifiedImports = settings.isAddFullQualifiedImports
-        val sortImports = settings.isSortImports
-        for ((range, (names, _importInfos)) <- importsInfo.toSeq.sortBy(_._1.getStartOffset).reverseIterator) {
-          var importInfos = _importInfos
-          if (addFullQualifiedImports) {
-            val holderNames = new mutable.HashSet[String]()
-            holderNames ++= names
-            importInfos = _importInfos.map { info =>
-              val res = info.withoutRelative(holderNames)
-              holderNames ++= info.allNames
-              res
-            }
-          }
 
-          if (sortImports) {
-            val allNames = importInfos.flatMap(_.allNames).toSet
-
-            val buffer = new ArrayBuffer[ImportInfo]()
-            buffer ++= importInfos
-
-            @tailrec
-            def iteration(): Unit = {
-              var i = 0
-              var changed = false
-              while (i + 1 < buffer.length) {
-                val first = buffer(i)
-                val second = buffer(i + 1)
-                if (first.getImportText > second.getImportText) {
-                  val firstPrefix: String = first.relative.getOrElse(first.prefixQualifier)
-                  val firstPart: String = getFirstId(firstPrefix)
-                  val secondPrefix = second.relative.getOrElse(second.prefixQualifier)
-                  val secondPart = getFirstId(secondPrefix)
-                  if (first.rootUsed || !second.allNames.contains(firstPart)) {
-                    if (second.rootUsed || !first.allNames.contains(secondPart)) {
-                      changed = true
-                      val swap = buffer(i)
-                      buffer.remove(i)
-                      buffer.insert(i, buffer(i))
-                      buffer.remove(i + 1)
-                      buffer.insert(i + 1, swap)
-                    }
-                  }
-                }
-                i = i + 1
-              }
-              if (changed) iteration()
-            }
-
-            iteration()
-            importInfos = buffer.toSeq
-          }
+        for ((range, importInfos) <- sortedImportsInfo.toSeq.sortBy(_._1.getStartOffset).reverseIterator) {
           val documentText = document.getText
           def splitterCalc(index: Int, res: String = ""): String = {
             if (index < 0) res
@@ -323,7 +329,7 @@ object ScalaImportOptimizer {
       groupStrings ++= hidedNames.map(_ + " => _").toSeq.sorted
       if (hasWildcard) groupStrings += "_"
       val postfix =
-        if (groupStrings.length > 1 || !renames.isEmpty || !hidedNames.isEmpty) groupStrings.mkString("{", ", ", "}")
+        if (groupStrings.length > 1 || renames.nonEmpty || hidedNames.nonEmpty) groupStrings.mkString("{", ", ", "}")
         else groupStrings(0)
       "import " + (if (rootUsed) "_root_." else "") + relative.getOrElse(prefixQualifier) + "." + postfix
     }
