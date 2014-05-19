@@ -68,9 +68,9 @@ class HoconPsiParser extends PsiParser {
       val unclosedMultilineString = builder.getTokenType == MultilineString && !builder.getTokenText.endsWith("\"\"\"")
       builder.advanceLexer()
       if (unclosedQuotedString) {
-        builder.error("Unclosed string literal")
+        builder.error("unclosed quoted string")
       } else if (unclosedMultilineString) {
-        builder.error("Unclosed multiline string literal")
+        builder.error("unclosed multiline string")
       }
     }
 
