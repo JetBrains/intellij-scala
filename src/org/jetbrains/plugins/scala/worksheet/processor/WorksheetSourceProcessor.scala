@@ -43,8 +43,8 @@ object WorksheetSourceProcessor {
   /**
    * @return (Code, Main class name)
    */
-  def process(srcFile: ScalaFile, ifEditor: Option[Editor], iterNumber: Int): Option[(String, String)] = {
-    if (!srcFile.isWorksheetFile) return None
+  def process(srcFile: ScalaFile, ifEditor: Option[Editor], iterNumber: Int): Either[(String, String), PsiErrorElement] = {
+    if (!srcFile.isWorksheetFile) return Right(null)
     
     val name = s"A$$A$iterNumber"
     val instanceName = s"inst$$A$$A"
@@ -271,6 +271,7 @@ object WorksheetSourceProcessor {
         
         resCount += 1
       case ws: PsiWhiteSpace => appendPsiWhitespace(ws)
+      case error: PsiErrorElement => return Right(error)
       case a => 
     }
     
@@ -278,7 +279,7 @@ object WorksheetSourceProcessor {
     objectRes append (printMethodName + "(\"" + END_OUTPUT_MARKER + "\")\n") append "} \n }"
 
     val codeResult = objectPrologue + importStmts.mkString(";") + classRes.toString() + "\n\n\n" + objectRes.toString()
-    Some(
+    Left(
       (codeResult, packOpt.map(_ + ".").getOrElse("") + name)
     )
   }
