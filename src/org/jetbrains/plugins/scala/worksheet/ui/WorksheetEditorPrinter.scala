@@ -34,7 +34,7 @@ import com.intellij.openapi.diff.impl.EditingSides
  * User: Dmitry Naydanov
  * Date: 1/20/14
  */
-class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, file: ScalaFile, auto: Boolean) {
+class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, file: ScalaFile) {
   private val project = originalEditor.getProject
   private val originalDocument = originalEditor.getDocument
   private val viewerDocument = worksheetViewer.getDocument
@@ -97,25 +97,13 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, fi
           if (differ > 0) {
             outputBuffer append getNewLines(differ)
           } else if (0 > differ) {
-            val actualEnd = end + insertedToOriginal
-            insertedToOriginal -= differ 
+            insertedToOriginal -= differ
             
-            if (!auto) extensions.invokeLater {
-              extensions.inWriteAction {
-                CommandProcessor.getInstance() runUndoTransparentAction new Runnable {
-                  override def run() {
-                    originalDocument.insertString(originalDocument getLineEndOffset actualEnd, getNewLines(-differ))
-                    commitDocument(originalDocument)
-                  }
-                }
-              }
-            } else {
-              foldingOffsets += (
-                (start + insertedToOriginal + differ,
-                 outputBuffer.length - outputBuffer.reverseIterator.takeWhile(_ == '\n').length,
-                 end - start + 1, end)
-              )
-            }
+            foldingOffsets += (
+              (start + insertedToOriginal + differ,
+               outputBuffer.length - outputBuffer.reverseIterator.takeWhile(_ == '\n').length,
+               end - start + 1, end)
+            )
           }
 
           buffed += linesCount
@@ -140,7 +128,7 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, fi
   private def init(): Option[Int] = {
     inited = true
 
-    WorksheetEditorPrinter.synch(originalEditor, worksheetViewer, auto,
+    WorksheetEditorPrinter.synch(originalEditor, worksheetViewer,
       Option(worksheetViewer.getUserData(WorksheetEditorPrinter.DIFF_SPLITTER_KEY)), Some(group))
 
     extensions.invokeLater {
@@ -225,7 +213,7 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, fi
         originalEditor.getScrollingModel.scrollVertically(scroll)
         worksheetViewer.getScrollingModel.scrollHorizontally(worksheetScroll)
 
-        if (auto) CommandProcessor.getInstance().executeCommand(project, new Runnable {
+        CommandProcessor.getInstance().executeCommand(project, new Runnable {
           override def run() {
             viewerFolding runBatchFoldingOperation(new Runnable {
               override def run() {
@@ -305,7 +293,7 @@ object WorksheetEditorPrinter {
 
   def getPatched = patched
 
-  private def synch(originalEditor: Editor, worksheetViewer: Editor, auto: Boolean,
+  private def synch(originalEditor: Editor, worksheetViewer: Editor,
                     diffSplitter: Option[WorksheetDiffSplitters.SimpleWorksheetSplitter] = None,
                     foldGroup: Option[WorksheetFoldGroup] = None) {
     class MyCaretAdapterBase extends CaretAdapter {
@@ -357,7 +345,7 @@ object WorksheetEditorPrinter {
 
             val syncSupport = new SyncScrollSupport
             syncSupport.install(Array[EditingSides](new WorksheetDiffSplitters.WorksheetEditingSides(originalEditor, worksheetViewer)))
-            
+
             diffSplitter map {
               case splitter =>
                 viewerImpl.getScrollPane.getVerticalScrollBar.addAdjustmentListener(new AdjustmentListener {
@@ -369,7 +357,7 @@ object WorksheetEditorPrinter {
       case _ =>
     }
   }
-  
+
   def saveWorksheetEvaluation(file: ScalaFile, result: String, foldGroup: Option[WorksheetFoldGroup]) {
     LAST_WORKSHEET_RUN_RESULT.writeAttributeBytes(file.getVirtualFile, result.getBytes)
   }
@@ -382,14 +370,14 @@ object WorksheetEditorPrinter {
     LAST_WORKSHEET_RUN_RESULT.writeAttributeBytes(file.getVirtualFile, Array.empty[Byte])
   }
 
-  def newWorksheetUiFor(editor: Editor, virtualFile: VirtualFile, auto: Boolean = false) =
+  def newWorksheetUiFor(editor: Editor, virtualFile: VirtualFile) =
     new WorksheetEditorPrinter(editor,  createWorksheetViewer(editor, virtualFile),
       PsiManager getInstance editor.getProject findFile virtualFile match {
         case scalaFile: ScalaFile => scalaFile
         case _ => null
-      }, auto
+      }
     )
-  
+
   def createWorksheetViewer(editor: Editor, virtualFile: VirtualFile, modelSync: Boolean = false): Editor = {
     val editorComponent = editor.getComponent
     val project = editor.getProject
@@ -399,18 +387,18 @@ object WorksheetEditorPrinter {
       case _ => 0.5f
     } else 0.5f
     val dimension = editorComponent.getSize()
-    val prefDim = new Dimension(dimension.width / 2, dimension.height) 
+    val prefDim = new Dimension(dimension.width / 2, dimension.height)
 
     editor.getSettings setFoldingOutlineShown false
 
     val worksheetViewer = WorksheetViewerInfo getViewer editor match {
       case editorImpl: EditorImpl => editorImpl
-      case _ => createBlankEditor(project).asInstanceOf[EditorImpl] 
+      case _ => createBlankEditor(project).asInstanceOf[EditorImpl]
     }
 
     worksheetViewer.getComponent setPreferredSize prefDim
 
-    if (modelSync) synch(editor, worksheetViewer, auto = false)
+    if (modelSync) synch(editor, worksheetViewer)
     editor.getContentComponent.setPreferredSize(prefDim)
 
     if (!ApplicationManager.getApplication.isUnitTestMode) {
@@ -423,16 +411,16 @@ object WorksheetEditorPrinter {
 
       @inline def patchEditor() {
         (parent, child) match {
-          case (parentPane: JLayeredPane, _) => 
+          case (parentPane: JLayeredPane, _) =>
             parentPane remove child
             parentPane.add(diffPane, BorderLayout.CENTER)
           case (_, childPane: JLayeredPane) =>
             childPane remove editorComponent
             childPane.add(diffPane, BorderLayout.CENTER)
-          case _ => 
+          case _ =>
         }
       }
-      
+
       if (parent.getComponentCount > 1) parent.getComponent(1) match {
         case splitter: Splitter =>
           parent.remove(1)
