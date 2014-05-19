@@ -30,7 +30,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private int CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = 5;
   private boolean ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = false;
   private boolean ADD_FULL_QUALIFIED_IMPORTS = true;
-  private boolean SORT_IMPORTS = false;
+  private boolean SORT_IMPORTS = true;
   private boolean IMPORTS_MEMBERS_USING_UNDERSCORE = true;
   private boolean SEARCH_ALL_SYMBOLS = false;
 

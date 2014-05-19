@@ -25,14 +25,14 @@ trait ScalaUnusedImportPassBase { self: TextEditorHighlightingPass =>
   def collectAnnotations(unusedImports: Array[ImportUsed], annotationHolder: AnnotationHolder): Array[Annotation] = unusedImports flatMap {
     imp: ImportUsed => {
       val psi: PsiElement = imp match {
-        case ImportExprUsed(expr) if !PsiTreeUtil.hasErrorElements(expr) && !isLanguageFeatureImport(expr) =>
+        case ImportExprUsed(expr) if !PsiTreeUtil.hasErrorElements(expr) && !isLanguageFeatureImport(imp) =>
           val impSt = expr.getParent.asInstanceOf[ScImportStmt]
           if (impSt == null) null //todo: investigate this case, this cannot be null
           else if (impSt.importExprs.length == 1) impSt
           else expr
-        case ImportSelectorUsed(sel) if !isLanguageFeatureImport(PsiTreeUtil.getParentOfType(sel, classOf[ScImportExpr])) => sel
-        case ImportWildcardSelectorUsed(e) if e.selectors.length > 0 && !isLanguageFeatureImport(e) => e.wildcardElement.get
-        case ImportWildcardSelectorUsed(e) if !PsiTreeUtil.hasErrorElements(e) && !isLanguageFeatureImport(e) => e.getParent
+        case ImportSelectorUsed(sel) if !isLanguageFeatureImport(imp) => sel
+        case ImportWildcardSelectorUsed(e) if e.selectors.length > 0 && !isLanguageFeatureImport(imp) => e.wildcardElement.get
+        case ImportWildcardSelectorUsed(e) if !PsiTreeUtil.hasErrorElements(e) && !isLanguageFeatureImport(imp) => e.getParent
         case _ => null
       }
       
