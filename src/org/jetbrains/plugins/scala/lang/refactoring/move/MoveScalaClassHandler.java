@@ -28,7 +28,7 @@ public class MoveScalaClassHandler implements MoveClassHandler {
       Document document = documentManager.getDocument(file);
       if (document == null) return;
       documentManager.doPostponedOperationsAndUnblockDocument(document);
-      new ScalaImportOptimizer().processFile(file, false).run();
+      new ScalaImportOptimizer().processFile(file).run();
     }
   }
 
