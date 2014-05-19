@@ -1,59 +1,57 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.psi.util.PsiTreeUtil
-import createFromUsage._
-import importsTracker._
-import lang.psi.api.statements._
-import lang.psi.api.toplevel.typedef._
-import lang.psi.api.toplevel.templates.ScTemplateBody
-import com.intellij.lang.annotation._
-
-import lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
-import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.resolve._
-import com.intellij.codeInspection._
-import org.jetbrains.plugins.scala.annotator.intention._
-import params.{ScParameter, ScParameters, ScClassParameter}
-import patterns.{ScPattern, ScInfixPattern}
-import processor.MethodResolveProcessor
-import modifiers.ModifierChecker
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.annotator.quickfix.{WrapInOptionQuickFix, ChangeTypeFix, ReportHighlightingErrorQuickFix}
-import template._
-import com.intellij.openapi.project.DumbAware
-import components.HighlightingAdvisor
-import org.jetbrains.plugins.scala.extensions._
-import collection.{mutable, Seq, Set}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ValueUsed, ImportUsed}
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
-import result.{TypingContext, TypeResult}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import highlighter.{DefaultHighlighter, AnnotatorHighlighter}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import com.intellij.openapi.util.{TextRange, Key}
-import collection.mutable.ArrayBuffer
 import com.intellij.codeInsight.daemon.impl.AnnotationHolderImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPrefixReference
-import codeInspection.caseClassParamInspection.{RemoveValFromGeneratorIntentionAction, RemoveValFromEnumeratorIntentionAction}
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
-import org.jetbrains.plugins.scala.lang.psi
-import com.intellij.openapi.roots.ProjectFileIndex
-import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
-import scala.Some
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.WriteValueUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ReadValueUsed
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInspection._
 import com.intellij.internal.statistic.UsageTrigger
+import com.intellij.lang.annotation._
+import com.intellij.openapi.project.DumbAware
+import com.intellij.openapi.roots.ProjectFileIndex
+import com.intellij.openapi.util.{Key, TextRange}
+import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.annotator.createFromUsage._
+import org.jetbrains.plugins.scala.annotator.importsTracker._
+import org.jetbrains.plugins.scala.annotator.intention._
+import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
+import org.jetbrains.plugins.scala.annotator.quickfix.{ChangeTypeFix, ReportHighlightingErrorQuickFix, WrapInOptionQuickFix}
+import org.jetbrains.plugins.scala.annotator.template._
+import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.{RemoveValFromEnumeratorIntentionAction, RemoveValFromGeneratorIntentionAction}
+import org.jetbrains.plugins.scala.components.HighlightingAdvisor
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.highlighter.{AnnotatorHighlighter, DefaultHighlighter}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScInfixPattern, ScPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ReadValueUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.WriteValueUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportUsed, ValueUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPrefixReference
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.resolve._
+import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 import org.jetbrains.plugins.scala.util.ScalaUtils
+import scala.Some
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.{Seq, Set, mutable}
 
 /**
  * User: Alexander Podkhalyuzin

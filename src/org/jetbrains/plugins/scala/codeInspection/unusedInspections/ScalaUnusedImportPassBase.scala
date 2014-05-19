@@ -1,27 +1,27 @@
 package org.jetbrains.plugins.scala
 package codeInspection.unusedInspections
 
-import lang.psi.api.toplevel.imports.usages.{ImportWildcardSelectorUsed, ImportSelectorUsed, ImportExprUsed, ImportUsed}
-import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
-import com.intellij.psi.{PsiFile, PsiElement}
-import com.intellij.psi.util.PsiTreeUtil
-import editor.importOptimizer.ScalaImportOptimizer._
-import lang.psi.api.toplevel.imports.{ScImportSelector, ScImportExpr, ScImportStmt}
-import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.openapi.editor.Editor
 import com.intellij.codeHighlighting.TextEditorHighlightingPass
-import java.util
-import com.intellij.codeInsight.daemon.impl.{UpdateHighlightersUtil, HighlightInfo}
+import com.intellij.codeInsight.daemon.impl.{HighlightInfo, UpdateHighlightersUtil}
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInspection.ProblemHighlightType
+import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
+import com.intellij.openapi.editor.Document
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiFile}
+import java.util
+import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelector, ScImportStmt}
 
 /**
  * User: Dmitry Naydanov
  * Date: 3/2/13
  */
 trait ScalaUnusedImportPassBase { self: TextEditorHighlightingPass =>
-  protected val myEditor: Editor 
-  protected val myFile: PsiFile
-  
+  def file: PsiFile
+  def document: Document
+
   def collectAnnotations(unusedImports: Array[ImportUsed], annotationHolder: AnnotationHolder): Array[Annotation] = unusedImports flatMap {
     imp: ImportUsed => {
       val psi: PsiElement = imp match {
@@ -48,9 +48,9 @@ trait ScalaUnusedImportPassBase { self: TextEditorHighlightingPass =>
     }
   }
   
-  protected def highlightAll(highlights: util.List[HighlightInfo]) {
-    UpdateHighlightersUtil.setHighlightersToEditor(myFile.getProject, myEditor.getDocument, 0, 
-      myFile.getTextLength, highlights, getColorsScheme, getId)
+  protected def highlightAll(highlights: util.Collection[HighlightInfo]) {
+    UpdateHighlightersUtil.setHighlightersToEditor(file.getProject, document, 0,
+      file.getTextLength, highlights, getColorsScheme, getId)
   }
   
   protected def getOptimizeFix: IntentionAction
