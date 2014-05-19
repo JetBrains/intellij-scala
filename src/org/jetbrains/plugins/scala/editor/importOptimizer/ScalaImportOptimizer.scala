@@ -32,7 +32,6 @@ import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiElement, S
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import scala.Some
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ArrayBuffer
@@ -46,7 +45,9 @@ import scala.collection.{mutable, Set}
 class ScalaImportOptimizer extends ImportOptimizer {
   import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer._
 
-  def processFile(file: PsiFile): Runnable = {
+  def processFile(file: PsiFile): Runnable = processFile(file, null)
+
+  def processFile(file: PsiFile, progressIndicator: ProgressIndicator = null): Runnable = {
     val scalaFile = file match {
       case scFile: ScalaFile => scFile
       case multiRootFile: PsiFile if multiRootFile.getViewProvider.getLanguages contains ScalaFileType.SCALA_LANGUAGE =>
@@ -64,7 +65,10 @@ class ScalaImportOptimizer extends ImportOptimizer {
     })
     val size = list.size
     val progressManager: ProgressManager = ProgressManager.getInstance()
-    val indicator: ProgressIndicator = if (progressManager.hasProgressIndicator) progressManager.getProgressIndicator else null
+    val indicator: ProgressIndicator =
+      if (progressIndicator != null) progressIndicator
+      else if (progressManager.hasProgressIndicator) progressManager.getProgressIndicator
+      else null
     if (indicator != null) indicator.setText2(file.getName + ": analyzing imports usage")
     val i = new AtomicInteger(0)
     JobLauncher.getInstance().invokeConcurrentlyUnderProgress(list, indicator, true, true, new Processor[PsiElement] {
@@ -199,8 +203,6 @@ class ScalaImportOptimizer extends ImportOptimizer {
         }
 
         if (sortImports) {
-          val allNames = importInfos.flatMap(_.allNames).toSet
-
           val buffer = new ArrayBuffer[ImportInfo]()
           buffer ++= importInfos
 
