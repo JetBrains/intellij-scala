@@ -38,7 +38,7 @@ import com.intellij.internal.statistic.UsageTrigger
 
 class RunWorksheetAction extends AnAction with TopComponentAction {
   def actionPerformed(e: AnActionEvent) {
-    RunWorksheetAction.runCompiler(e.getProject, true)
+    RunWorksheetAction.runCompiler(e.getProject, false)
   }
 
   override def update(e: AnActionEvent) {
