@@ -10,12 +10,19 @@ import intellijhocon.lexer.{HoconTokenType, HoconTokenSets}
 import intellijhocon.Util
 import java.net.{MalformedURLException, URL}
 
+object HoconPsiParser {
+  val IncludeQualifiers = Set("url(", "classpath(", "file(")
+  val IntegerPattern = """-?(0|[1-9][0-9]*)""".r
+  val DecimalPartPattern = """([0-9]+)((e|E)(\+|-)?[0-9]+)?""".r
+}
+
 class HoconPsiParser extends PsiParser {
 
   import Util._
   import HoconTokenType._
   import HoconTokenSets._
   import HoconElementType._
+  import HoconPsiParser._
 
   def parse(root: IElementType, builder: PsiBuilder) = {
     val file = builder.mark()
@@ -23,10 +30,6 @@ class HoconPsiParser extends PsiParser {
     file.done(root)
     builder.getTreeBuilt
   }
-
-  val IncludeQualifiers = Set("url(", "classpath(", "file(")
-  val IntegerPattern = """-?(0|[1-9][0-9]*)""".r
-  val DecimalPartPattern = """([0-9]+)((e|E)(\+|-)?[0-9]+)?""".r
 
   class Parser(builder: PsiBuilder) {
 
