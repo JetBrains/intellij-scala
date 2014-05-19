@@ -219,11 +219,9 @@ class ScalaImportOptimizer extends ImportOptimizer {
                 if (first.rootUsed || !second.allNames.contains(firstPart)) {
                   if (second.rootUsed || !first.allNames.contains(secondPart)) {
                     changed = true
-                    val swap = buffer(i)
-                    buffer.remove(i)
-                    buffer.insert(i, buffer(i))
-                    buffer.remove(i + 1)
-                    buffer.insert(i + 1, swap)
+                    val t = buffer(i)
+                    buffer(i) = buffer(i + 1)
+                    buffer(i + 1) = t
                   }
                 }
               }
