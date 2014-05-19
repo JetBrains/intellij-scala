@@ -42,7 +42,7 @@ trait ScalaUnusedImportPassBase { self: TextEditorHighlightingPass =>
         case _ =>
           val annotation = annotationHolder.createWarningAnnotation(psi, "Unused import statement")
           annotation setHighlightType ProblemHighlightType.LIKE_UNUSED_SYMBOL
-          annotation registerFix getOptimizeFix  
+          getFixes.foreach(annotation.registerFix)
           Seq[Annotation](annotation)
       }
     }
@@ -53,5 +53,5 @@ trait ScalaUnusedImportPassBase { self: TextEditorHighlightingPass =>
       file.getTextLength, highlights, getColorsScheme, getId)
   }
   
-  protected def getOptimizeFix: IntentionAction
+  protected def getFixes: List[IntentionAction]
 }
