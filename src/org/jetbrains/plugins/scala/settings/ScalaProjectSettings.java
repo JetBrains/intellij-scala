@@ -53,6 +53,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private int SHIFT = 80;
   private int OUTPUT_LIMIT = 35;
   private boolean IN_PROCESS_MODE = true;
+  private boolean INTERACTIVE_MODE = true;
 
   private Map<String, String> INTERPOLATED_INJECTION_MAPPING = new HashMap<String, String>();
 
@@ -380,5 +381,11 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setInProcessMode(boolean inProcess) {
     this.IN_PROCESS_MODE = inProcess;
+  }
+
+  public boolean isInteractiveMode() { return INTERACTIVE_MODE; }
+
+  public void setInteractiveMode(boolean interactiveMode) {
+    INTERACTIVE_MODE = interactiveMode;
   }
 }
