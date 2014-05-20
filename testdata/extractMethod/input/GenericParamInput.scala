@@ -3,7 +3,7 @@ abstract class GenericParamInput[T] {
   def foo {
     val y = x
     /*start*/
-    y
+    println(y)
     /*end*/
   }
 }
@@ -18,7 +18,7 @@ abstract class GenericParamInput[T] {
   }
 
   def testMethodName(y: T) {
-    y
+    println(y)
   }
 }
 */
