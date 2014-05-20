@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue}
  * Date: 30.03.2010
  */
 
-case class ExtractMethodOutput(oldParamName: String, returnType: ScType, needNewDefinition: Boolean,
+case class ExtractMethodOutput(paramName: String, returnType: ScType, needNewDefinition: Boolean,
                                isVal: Boolean)
 
 object ExtractMethodOutput {

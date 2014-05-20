@@ -36,6 +36,8 @@ import extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.LocalSearchScope
+import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
+import com.intellij.openapi.util.text.StringUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -249,7 +251,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
       else {
         new ScalaExtractMethodSettings("testMethodName", ScalaExtractMethodUtils.getParameters(input.toArray, elements),
           ScalaExtractMethodUtils.getReturns(output.toArray, elements), "", sibling, sibling,
-          elements, hasReturn, lastReturn, lastMeaningful)
+          elements, hasReturn, lastReturn, lastMeaningful, InnerClassSettings(false, "", Array.empty, false))
       }
     performRefactoring(settings, editor)
   }
@@ -290,6 +292,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     val method = ScalaExtractMethodUtils.createMethodFromSettings(settings)
     if (method == null) return
     val element = settings.elements.find(elem => elem.isInstanceOf[ScalaPsiElement]).getOrElse(return)
+    val ics = settings.innerClassSettings
 
     val manager = method.getManager
     val processor = new CompletionProcessor(StdKinds.refExprLastRef, element, includePrefixImports = false)
@@ -305,28 +308,38 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
       }
       freshName
     }
-    val tFreshName = generateFreshName("tupleResult")
+    val mFreshName = generateFreshName(settings.methodName + "Result")
 
-    def insertMethod() {
-      def addElement(elem: PsiElement, nextSibling: PsiElement) = {
-        val added = nextSibling.getParent.addBefore(elem, nextSibling)
-        ScalaPsiUtil.adjustTypes(added)
-        added
-      }
-      def newLine = ScalaPsiElementFactory.createNewLineNode(manager).getPsi
+    def addElementBefore(elem: PsiElement, nextSibling: PsiElement) = {
+      val added = nextSibling.getParent.addBefore(elem, nextSibling)
+      ScalaPsiUtil.adjustTypes(added)
+      added
+    }
+
+    def newLine = ScalaPsiElementFactory.createNewLine(manager)
+
+    def insertInnerClassBefore(anchorNext: PsiElement) {
+      if (!ics.needClass) return
+
+      val classText = ics.classText(canonTextForTypes = true)
+      val clazz = ScalaPsiElementFactory.createTemplateDefinitionFromText(classText, anchorNext.getContext, anchorNext)
+      addElementBefore(clazz, anchorNext)
+      addElementBefore(newLine, anchorNext)
+    }
+
+    def insertMethod() = {
       var insertedMethod: PsiElement = null
       settings.nextSibling match {
         case s childOf (_: ScTemplateBody) =>
           // put the extract method *below* the current code if it is added to a template body.
           val nextSibling = s.getNextSiblingNotWhitespaceComment
-          addElement(newLine, nextSibling)
-          insertedMethod = addElement(method, nextSibling)
-          addElement(newLine, nextSibling)
+          addElementBefore(newLine, nextSibling)
+          insertedMethod = addElementBefore(method, nextSibling)
+          addElementBefore(newLine, nextSibling)
         case s =>
-          insertedMethod = addElement(method, s)
-          addElement(newLine, s)
+          insertedMethod = addElementBefore(method, s)
+          addElementBefore(newLine, s)
       }
-      ScalaPsiUtil.adjustTypes(insertedMethod)
       insertedMethod
     }
 
@@ -336,13 +349,16 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
 
       val paramText = if (params.nonEmpty) params.mkString("(", ", ", ")") else ""
       val methodCallText = s"${settings.methodName}$paramText"
-      var needExtractorsFromTupleReturn = false
+      var needExtractorsFromMultipleReturn = false
 
-      def patternFrom(outputs: Array[ExtractMethodOutput]) = {
-        val typedNames = outputs.map(o => ScalaExtractMethodUtils.typedName(o.oldParamName, o.returnType))
-        if (typedNames.length == 0) ""
-        else if (typedNames.length == 1) typedNames(0)
-        else typedNames.mkString("(", ", ", ")")
+      val outputTypedNames = settings.outputs.map(o => ScalaExtractMethodUtils.typedName(o.paramName, o.returnType.canonicalText))
+
+      def patternForDeclaration: String = {
+        if (ics.needClass) return s"$mFreshName: ${ics.className}"
+
+        if (outputTypedNames.length == 0) ""
+        else if (outputTypedNames.length == 1) outputTypedNames(0)
+        else outputTypedNames.mkString("(", ", ", ")")
       }
 
       def insertCallStmt(): PsiElement = {
@@ -365,14 +381,17 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
         }
         else {
           val (pattern, isVal) = settings.outputs match {
+            case _ if ics.needClass =>
+              needExtractorsFromMultipleReturn = true
+              (patternForDeclaration, true)
             case outputs if outputs.forall(_.isVal) =>
-              (patternFrom(outputs), true)
+              (patternForDeclaration, true)
             case outputs if outputs.forall(!_.isVal) =>
-              (patternFrom(outputs), false)
+              (patternForDeclaration, false)
             case outputs =>
-              needExtractorsFromTupleReturn = true
-              val typeText = ScalaExtractMethodUtils.outputTypeText(outputs)
-              (s"$tFreshName: $typeText", true)
+              needExtractorsFromMultipleReturn = true
+              val typeText = ScalaExtractMethodUtils.outputTypeText(settings)
+              (s"$mFreshName: $typeText", true)
           }
           val exprText = settings.returnType match {
             case None => methodCallText
@@ -395,33 +414,63 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
         }
       }
 
-      def insertExtractorsFromTupleReturn(element: PsiElement){
-        if (needExtractorsFromTupleReturn) {
-          var lastElem: PsiElement = element
-          def addElement(elem: PsiElement) = {
-            val added = lastElem.getParent.addAfter(elem, lastElem.getNextSibling)
-            lastElem = added
-            ScalaPsiUtil.adjustTypes(added)
-            added
+      def insertAssignsFromMultipleReturn(element: PsiElement){
+        if (!needExtractorsFromMultipleReturn) return
+
+        var lastElem: PsiElement = element
+        def addElement(elem: PsiElement) = {
+          lastElem = lastElem.getParent.addAfter(elem, lastElem)
+          addElementBefore(newLine, lastElem)
+          lastElem
+        }
+
+        def addAssignment(ret: ExtractMethodOutput, extrText: String) {
+          val stmt =
+            if (ret.needNewDefinition)
+              ScalaPsiElementFactory.createDeclaration(ret.returnType, ret.paramName, !ret.isVal, extrText, manager, isPresentableText = false)
+            else
+              ScalaPsiElementFactory.createExpressionFromText(ret.paramName + " = " + extrText, manager)
+
+          addElement(stmt)
+        }
+
+        val allVals = settings.outputs.forall(_.isVal)
+        val allVars = settings.outputs.forall(!_.isVal)
+
+        def addExtractorsFromCaseClass() {
+          if (allVals || allVars) {
+            val patternArgsText = outputTypedNames.mkString("(", ", ", ")")
+            val patternText = ics.className + patternArgsText
+            val expr = ScalaPsiElementFactory.createExpressionFromText(mFreshName, manager)
+            val stmt = ScalaPsiElementFactory.createDeclaration(patternText, "", isVariable = allVars, expr, manager)
+            addElement(stmt)
+          } else {
+            addExtractorsFromClass()
           }
+        }
+
+        def addExtractorsFromClass() {
+          for (ret <- settings.outputs) {
+            val exprText = s"$mFreshName.${ret.paramName}"
+            addAssignment(ret, exprText)
+          }
+        }
+
+        if (!ics.needClass) {
           var count = 1
           for (ret <- settings.outputs) {
-            val extrText = s"$tFreshName._$count"
-            val stmt =
-              if (ret.needNewDefinition)
-                ScalaPsiElementFactory.createDeclaration(ret.returnType, ret.oldParamName, !ret.isVal, extrText, manager, isPresentableText = false)
-              else
-                ScalaPsiElementFactory.createExpressionFromText(ret.oldParamName + " = " + extrText, manager)
-
-            addElement(ScalaPsiElementFactory.createNewLineNode(manager).getPsi)
-            addElement(stmt)
+            val exprText = s"$mFreshName._$count"
+            addAssignment(ret, exprText)
             count += 1
           }
         }
+        else if (ics.isCase) addExtractorsFromCaseClass()
+        else addExtractorsFromClass()
       }
 
       val stmt = insertCallStmt()
-      insertExtractorsFromTupleReturn(stmt)
+      insertAssignsFromMultipleReturn(stmt)
+      ScalaPsiUtil.adjustTypes(stmt.getParent)
     }
 
     def removeReplacedElements() {
@@ -432,7 +481,8 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
 
     inWriteCommandAction(editor.getProject, REFACTORING_NAME) {
 
-      insertMethod()
+      val method = insertMethod()
+      insertInnerClassBefore(method)
       insertMethodCall()
       removeReplacedElements()
 

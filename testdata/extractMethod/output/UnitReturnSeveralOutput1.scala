@@ -14,14 +14,15 @@ class UnitReturnSeveralOutput1 {
 class UnitReturnSeveralOutput1 {
   def foo(i: Int) {
     /*start*/
-    val tupleResult: (Int, String, Int, String) = testMethodName match {
+    val testMethodNameResult: (Int, String, Int, String) = testMethodName match {
       case Some(result) => result
       case None => return
     }
-    var x: Int = tupleResult._1
-    var y: String = tupleResult._2
-    var z: Int = tupleResult._3
-    val zz: String = tupleResult._4
+    var x: Int = testMethodNameResult._1
+    var y: String = testMethodNameResult._2
+    var z: Int = testMethodNameResult._3
+    val zz: String = testMethodNameResult._4
+
     /*end*/
     println(x + y + z + zz)
   }
