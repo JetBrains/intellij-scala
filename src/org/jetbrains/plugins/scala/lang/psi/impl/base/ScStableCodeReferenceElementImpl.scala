@@ -214,7 +214,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
                 this.replace(refToMember).asInstanceOf[ScReferenceElement]
             }
           case pckg: PsiPackage => bindToPackage(pckg)
-          case _ => throw new IncorrectOperationException("Cannot bind to anything but class or package")
+          case _ => throw new IncorrectOperationException(s"Cannot bind to $element")
         }
       }
     }
