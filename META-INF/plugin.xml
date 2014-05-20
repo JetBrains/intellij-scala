@@ -1,13 +1,24 @@
 <idea-plugin>
   <id>intellijhocon</id>
   <version>0.1</version>
-  <idea-version since-build="135.690" until-build="136.0"/>
+  <idea-version since-build="135.0"/>
   <name>HOCON</name>
   <vendor>rjghik</vendor>
   <description>
-    Enables support for HOCON (Human-Optimized Config Object Notation).
-    Work in progress, not yet well tested or featured.
+    Enables support for HOCON (Human-Optimized Config Object Notation)
   </description>
+  <change-notes>
+    <![CDATA[
+      <p>0.1 (first release):</p>
+      <ul>
+        <li>Syntax highlighting along with dedicated 'Colors & fonts' settings</li>
+        <li>Basic syntax error highlighting</li>
+        <li>Code formatter along with basic code style settings</li>
+        <li>Brace matching</li>
+        <li>Code folding</li>
+      </ul>
+        ]]>
+  </change-notes>
 
   <extensions defaultExtensionNs="com.intellij">
     <fileTypeFactory implementation="intellijhocon.lang.HoconFileTypeFactory"/>
