@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
-import org.jetbrains.plugins.scala.lang.refactoring.util.duplicates.ScalaVariableData;
+import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaVariableData;
 import scala.Option;
 
 import javax.swing.*;
@@ -63,7 +63,6 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
 
   private PsiElement mySibling;
 
-  private PsiElement myScope;
   private VariableInfo[] myInput;
   private VariableInfo[] myOutput;
   private ScalaExtractMethodDialog.ScalaParameterTablePanel parameterTablePanel;
@@ -71,7 +70,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   private Option<ScType> myLastMeaningful = null;
 
   public ScalaExtractMethodDialog(Project project, PsiElement[] elements, Option<ScType> hasReturn, boolean lastReturn,
-                                  PsiElement sibling, PsiElement scope, VariableInfo[] input, VariableInfo[] output,
+                                  PsiElement sibling, VariableInfo[] input, VariableInfo[] output,
                                   Option<ScType> lastMeaningful) {
     super(project, true);
 
@@ -79,7 +78,6 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     myProject = project;
     myHasReturn = hasReturn;
     myLastReturn = lastReturn;
-    myScope = scope;
     myInput = input;
     myOutput = output;
     myLastMeaningful = lastMeaningful;
@@ -294,7 +292,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     boolean createClass = innerClassRB.isSelected() || caseClassRB.isSelected();
     InnerClassSettings ics = new InnerClassSettings(createClass, getClassName(), getReturns(), caseClassRB.isSelected());
     settings = new ScalaExtractMethodSettings(getMethodName(), getParameters(), getReturns(),
-        getVisibility(), myScope, mySibling, myElements, myHasReturn, myLastReturn, myLastMeaningful, ics);
+        getVisibility(), mySibling, myElements, myHasReturn, myLastReturn, myLastMeaningful, ics);
   }
 
   private String getClassName() {

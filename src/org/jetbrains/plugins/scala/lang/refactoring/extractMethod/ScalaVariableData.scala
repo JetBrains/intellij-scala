@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.refactoring.extractMethod
+package org.jetbrains.plugins.scala.lang.refactoring.extractMethod
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -7,6 +6,7 @@ import com.intellij.refactoring.util.VariableData
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
 import com.intellij.psi.{PsiAnnotation, PsiPrimitiveType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.ScalaFileType
 
 /**
  * Nikolay.Tropin
