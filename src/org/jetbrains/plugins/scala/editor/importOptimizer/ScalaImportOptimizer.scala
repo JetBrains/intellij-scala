@@ -35,7 +35,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.{mutable, Set}
+import scala.collection.{Set, mutable}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -187,11 +187,13 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val settings: ScalaProjectSettings = ScalaProjectSettings.getInstance(project)
     val addFullQualifiedImports = settings.isAddFullQualifiedImports
     val sortImports = settings.isSortImports
+    val collectImports = settings.isCollectImports
 
 
     val sortedImportsInfo: mutable.Map[TextRange, Seq[ImportInfo]] =
       for ((range, (names, _importInfos)) <- importsInfo) yield {
         var importInfos = _importInfos
+
         if (addFullQualifiedImports) {
           val holderNames = new mutable.HashSet[String]()
           holderNames ++= names
@@ -202,30 +204,34 @@ class ScalaImportOptimizer extends ImportOptimizer {
           }
         }
 
-        if (sortImports) {
-          val buffer = new ArrayBuffer[ImportInfo]()
-          buffer ++= importInfos
+        val buffer = new ArrayBuffer[ImportInfo]()
+        buffer ++= importInfos
 
+        def swap(i: Int): Boolean = {
+          val first: ImportInfo = buffer(i)
+          val second: ImportInfo = buffer(i + 1)
+          val firstPrefix: String = first.relative.getOrElse(first.prefixQualifier)
+          val firstPart: String = getFirstId(firstPrefix)
+          val secondPrefix = second.relative.getOrElse(second.prefixQualifier)
+          val secondPart = getFirstId(secondPrefix)
+          if (first.rootUsed || !second.allNames.contains(firstPart)) {
+            if (second.rootUsed || !first.allNames.contains(secondPart)) {
+              val t = first
+              buffer(i) = second
+              buffer(i + 1) = t
+              true
+            } else false
+          } else false
+        }
+
+        if (sortImports) {
           @tailrec
           def iteration(): Unit = {
             var i = 0
             var changed = false
             while (i + 1 < buffer.length) {
-              val first = buffer(i)
-              val second = buffer(i + 1)
-              if (first.getImportText > second.getImportText) {
-                val firstPrefix: String = first.relative.getOrElse(first.prefixQualifier)
-                val firstPart: String = getFirstId(firstPrefix)
-                val secondPrefix = second.relative.getOrElse(second.prefixQualifier)
-                val secondPart = getFirstId(secondPrefix)
-                if (first.rootUsed || !second.allNames.contains(firstPart)) {
-                  if (second.rootUsed || !first.allNames.contains(secondPart)) {
-                    changed = true
-                    val t = buffer(i)
-                    buffer(i) = buffer(i + 1)
-                    buffer(i + 1) = t
-                  }
-                }
+              if (buffer(i).getImportText > buffer(i + 1).getImportText) {
+                if (swap(i)) changed = true
               }
               i = i + 1
             }
@@ -233,8 +239,71 @@ class ScalaImportOptimizer extends ImportOptimizer {
           }
 
           iteration()
-          importInfos = buffer.toSeq
         }
+
+        if (collectImports) {
+          def merge(first: ImportInfo, second: ImportInfo): ImportInfo = {
+            val relative = if (first.relative.nonEmpty) first.relative else second.relative
+            val rootUsed = if (first.relative.nonEmpty) first.rootUsed else second.rootUsed
+            new ImportInfo(first.importUsed ++ second.importUsed, first.prefixQualifier, relative,
+              first.allNames ++ second.allNames, first.singleNames ++ second.singleNames,
+              first.renames ++ second.renames, first.hidedNames ++ second.hidedNames,
+              first.hasWildcard || second.hasWildcard, rootUsed)
+          }
+          var i = 0
+          while (i < buffer.length - 1) {
+            def containsPrefix: Int = {
+              var j = i + 1
+              while (j < buffer.length) {
+                if (buffer(j).prefixQualifier == buffer(i).prefixQualifier) return j
+                j += 1
+              }
+              -1
+            }
+            val prefixIndex: Int = containsPrefix
+            if (prefixIndex != -1) {
+              if (prefixIndex == i + 1) {
+                val merged = merge(buffer(i), buffer(i + 1))
+                buffer(i) = merged
+                buffer.remove(i + 1)
+              } else {
+                if (swap(i)) {
+                  var j = i + 1
+                  var break = false
+                  while (!break && j != prefixIndex - 1) {
+                    if (!swap(j)) break = true
+                    j += 1
+                  }
+                  if (!break) {
+                    val merged = merge(buffer(j), buffer(j + 1))
+                    buffer(j) = merged
+                    buffer.remove(j + 1)
+                  }
+                } else i += 1
+              }
+            } else i += 1
+          }
+        } else {
+          val result = buffer.flatMap { info =>
+            val innerBuffer = new ArrayBuffer[ImportInfo]
+            innerBuffer ++= info.singleNames.toSeq.sorted.map { name =>
+              info.copy(singleNames = Set(name), renames = Map.empty, hidedNames = Set.empty, hasWildcard = false)
+            }
+            innerBuffer ++= info.renames.map { rename =>
+              info.copy(renames = Map(rename), singleNames = Set.empty, hidedNames = Set.empty, hasWildcard = false)
+            }
+            innerBuffer ++= info.hidedNames.map { hided =>
+              info.copy(hidedNames = Set(hided), singleNames = Set.empty, renames = Map.empty, hasWildcard = false)
+            }
+            if (info.hasWildcard) {
+              innerBuffer += info.copy(singleNames = Set.empty, renames = Map.empty, hidedNames = Set.empty)
+            }
+            innerBuffer.toSeq
+          }
+          buffer.clear()
+          buffer ++= result
+        }
+        importInfos = buffer.toSeq
         (range, importInfos)
       }
 
@@ -320,7 +389,7 @@ object ScalaImportOptimizer {
 
   class ImportInfo(val importUsed: Set[ImportUsed], val prefixQualifier: String,
                    val relative: Option[String], val allNames: Set[String],
-                   val singleNames: Set[String], renames: Map[String, String],
+                   val singleNames: Set[String], val renames: Map[String, String],
                    val hidedNames: Set[String], val hasWildcard: Boolean, val rootUsed: Boolean) {
     def getImportText: String = {
       val groupStrings = new ArrayBuffer[String]
@@ -338,9 +407,17 @@ object ScalaImportOptimizer {
       if (relative.isDefined || rootUsed) {
         val id = getFirstId(prefixQualifier)
         val rootUsed = holderNames.contains(id)
-        new ImportInfo(importUsed, prefixQualifier, None, allNames, singleNames,
-          renames, hidedNames, hasWildcard, rootUsed)
+        this.copy(relative = None)
       } else this
+    }
+
+    def copy(importUsed: Set[ImportUsed] = importUsed, prefixQualifier: String = prefixQualifier,
+             relative: Option[String] = relative, allNames: Set[String] = allNames,
+             singleNames: Set[String] = singleNames, renames: Map[String, String] = renames,
+             hidedNames: Set[String] = hidedNames, hasWildcard: Boolean = hasWildcard,
+             rootUsed: Boolean = rootUsed): ImportInfo = {
+      new ImportInfo(importUsed, prefixQualifier, relative, allNames,
+        singleNames, renames, hidedNames, hasWildcard, rootUsed)
     }
   }
 
