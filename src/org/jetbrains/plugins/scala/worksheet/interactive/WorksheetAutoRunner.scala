@@ -64,7 +64,8 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
 
       myAlarm.addRequest(new Runnable {
         override def run() {
-          RunWorksheetAction.runCompiler(project, true)
+          if (!woof.hasSyntaxErrors(virtualFile) && !WorksheetProcessManager.running(virtualFile))
+            RunWorksheetAction.runCompiler(project, true)
         }
       }, WorksheetAutoRunner.RUN_DELAY_MS, true)
     }
