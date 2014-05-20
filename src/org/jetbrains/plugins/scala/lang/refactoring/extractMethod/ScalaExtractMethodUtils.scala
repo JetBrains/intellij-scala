@@ -4,16 +4,16 @@ package lang.refactoring.extractMethod
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import scala.collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import com.intellij.psi.{PsiNamedElement, PsiElement}
+import com.intellij.psi.{ResolveState, PsiNamedElement, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypedDefinition, ScNamedElement, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.{StdKinds, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScFunctionType, ScSubstitutor, Unit}
 import com.intellij.refactoring.util.VariableData
 import org.jetbrains.annotations.Nullable
@@ -22,8 +22,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import scala.util.Sorting
 import java.util
 import extensions._
-import org.jetbrains.plugins.scala.lang.refactoring.util.duplicates.ScalaVariableData
+import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicateMatch
 import com.intellij.openapi.util.text.StringUtil
+import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
+import com.intellij.psi.util.PsiTreeUtil
+import scala.collection.mutable
 
 /**
  * User: Alexander Podkhalyuzin
@@ -34,18 +37,8 @@ object ScalaExtractMethodUtils {
   def createMethodFromSettings(settings: ScalaExtractMethodSettings): ScFunction = {
     val accessMod = settings.visibility
     val methodName = settings.methodName
-    val tp: ArrayBuffer[ScTypeParam] = new ArrayBuffer
-    var elem: PsiElement = settings.elements.apply(0)
-    while (elem != null && !(elem.getTextRange.contains(settings.nextSibling.getTextRange) &&
-            !elem.getTextRange.equalsToRange(settings.nextSibling.getTextRange.getStartOffset,
-              settings.nextSibling.getTextRange.getEndOffset))) {
-      elem match {
-        case tpo: ScTypeParametersOwner => tp ++= tpo.typeParameters
-        case _ =>
-      }
-      elem = elem.getParent
-    }
-    val typeParamsText = if (tp.length != 0) tp.reverse.map(_.getText).mkString("[", ", ", "]") else ""
+
+    val typeParamsText = typeParametersText(settings)
 
     def paramText(param: ExtractMethodParameter): String = typedName(param.oldName, param.tp.canonicalText, param.isCallByNameParameter)
 
@@ -56,7 +49,7 @@ object ScalaExtractMethodUtils {
 
     val notPassedParams = settings.parameters.filter(p => !p.passAsParameter).map { p =>
       val nameAndType = typedName(p.oldName, p.tp.canonicalText)
-      s"val $nameAndType = _\n"
+      s"val $nameAndType = ???\n"
     }
     val notPassedParamsText = notPassedParams.mkString
 
@@ -316,16 +309,187 @@ object ScalaExtractMethodUtils {
       this.typedName(param.newName, param.tp.presentableText, param.isCallByNameParameter)
 
     val ics = settings.innerClassSettings
-    val classText = if (ics.needClass) s"${ics.classText(false)}\n\n" else ""
+    val classText = if (ics.needClass) s"${ics.classText(canonTextForTypes = false)}\n\n" else ""
 
     val methodName = settings.methodName
     val visibility = settings.visibility
     val prefix = s"${visibility}def $methodName"
+    val typeParamsText = typeParametersText(settings)
     val paramsText = settings.parameters
             .filter(_.passAsParameter)
             .map(p => nameAndType(p))
             .mkString("(", s", ", ")")
     val returnTypeText = calcReturnType(settings)
-    s"$classText$prefix$paramsText: $returnTypeText"
+    s"$classText$prefix$typeParamsText$paramsText: $returnTypeText"
   }
+
+  def replaceWithMethodCall(settings: ScalaExtractMethodSettings, d: DuplicateMatch) {
+    replaceWithMethodCall(settings, d.candidates, d.parameterText, d.outputName)
+  }
+
+  def replaceWithMethodCall(settings: ScalaExtractMethodSettings,
+                                    elements: Seq[PsiElement],
+                                    parameterText: ExtractMethodParameter => String,
+                                    outputName: ExtractMethodOutput => String) {
+    val element = elements.find(elem => elem.isInstanceOf[ScalaPsiElement]).getOrElse(return)
+    val manager = element.getManager
+    val processor = new CompletionProcessor(StdKinds.refExprLastRef, element, includePrefixImports = false)
+    PsiTreeUtil.treeWalkUp(processor, element, null, ResolveState.initial)
+    val allNames = new mutable.HashSet[String]()
+    allNames ++= processor.candidatesS.map(rr => rr.element.name)
+    def generateFreshName(s: String): String = {
+      var freshName = s
+      var count = 0
+      while (allNames.contains(freshName)) {
+        count += 1
+        freshName = s + count
+      }
+      freshName
+    }
+    val mFreshName = generateFreshName(settings.methodName + "Result")
+
+    val params = settings.parameters.filter(_.passAsParameter)
+            .map(param => parameterText(param) + (if (param.isFunction) " _" else ""))
+
+    val paramsText = if (params.nonEmpty) params.mkString("(", ", ", ")") else ""
+    val methodCallText = s"${settings.methodName}$paramsText"
+    var needExtractorsFromMultipleReturn = false
+
+    val outputTypedNames = settings.outputs.map(o =>
+      ScalaExtractMethodUtils.typedName(outputName(o), o.returnType.canonicalText))
+    val ics = settings.innerClassSettings
+
+    def patternForDeclaration: String = {
+      if (ics.needClass) return s"$mFreshName: ${ics.className}"
+
+      if (outputTypedNames.length == 0) ""
+      else if (outputTypedNames.length == 1) outputTypedNames(0)
+      else outputTypedNames.mkString("(", ", ", ")")
+    }
+
+    def insertCallStmt(): PsiElement = {
+      def insertExpression(text: String): PsiElement = {
+        val expr = ScalaPsiElementFactory.createExpressionFromText(text, manager)
+        elements.apply(0).replace(expr)
+      }
+      if (settings.lastReturn) insertExpression(s"return $methodCallText")
+      else if (settings.outputs.length == 0) {
+        val exprText = settings.returnType match {
+          case None => methodCallText
+          case Some(psi.types.Unit) => s"if ($methodCallText) return"
+          case Some(_) =>
+            s"""$methodCallText match {
+                 |  case Some(toReturn) => return toReturn
+                 |  case None =>
+                 |}""".stripMargin.replace("\r", "")
+        }
+        insertExpression(exprText)
+      }
+      else {
+        val (pattern, isVal) = settings.outputs match {
+          case _ if ics.needClass =>
+            needExtractorsFromMultipleReturn = true
+            (patternForDeclaration, true)
+          case outputs if outputs.forall(_.isVal) =>
+            (patternForDeclaration, true)
+          case outputs if outputs.forall(!_.isVal) =>
+            (patternForDeclaration, false)
+          case outputs =>
+            needExtractorsFromMultipleReturn = true
+            val typeText = ScalaExtractMethodUtils.outputTypeText(settings)
+            (s"$mFreshName: $typeText", true)
+        }
+        val exprText = settings.returnType match {
+          case None => methodCallText
+          case Some(psi.types.Unit) =>
+            s"""$methodCallText match {
+                  |  case Some(result) => result
+                  |  case None => return
+                  |}""".stripMargin.replace("\r", "")
+          case Some(_) =>
+            s"""$methodCallText match {
+                  |  case Left(toReturn) => return toReturn
+                  |  case Right(result) => result
+                  |}""".stripMargin.replace("\r", "")
+        }
+        val expr = ScalaPsiElementFactory.createExpressionFromText(exprText, manager)
+        val declaration = ScalaPsiElementFactory.createDeclaration(pattern, "", isVariable = !isVal, expr, manager)
+        val result = elements(0).replace(declaration)
+        ScalaPsiUtil.adjustTypes(result)
+        result
+      }
+    }
+
+    def insertAssignsFromMultipleReturn(element: PsiElement){
+      if (!needExtractorsFromMultipleReturn) return
+
+      var lastElem: PsiElement = element
+      def addElement(elem: PsiElement) = {
+        lastElem = lastElem.getParent.addAfter(elem, lastElem)
+        lastElem.getParent.addBefore(ScalaPsiElementFactory.createNewLine(elem.getManager), lastElem)
+        lastElem
+      }
+
+      def addAssignment(ret: ExtractMethodOutput, extrText: String) {
+        val stmt =
+          if (ret.needNewDefinition)
+            ScalaPsiElementFactory.createDeclaration(ret.returnType, ret.paramName, !ret.isVal, extrText, manager, isPresentableText = false)
+          else
+            ScalaPsiElementFactory.createExpressionFromText(ret.paramName + " = " + extrText, manager)
+
+        addElement(stmt)
+      }
+
+      val allVals = settings.outputs.forall(_.isVal)
+      val allVars = settings.outputs.forall(!_.isVal)
+
+      def addExtractorsFromCaseClass() {
+        if (allVals || allVars) {
+          val patternArgsText = outputTypedNames.mkString("(", ", ", ")")
+          val patternText = ics.className + patternArgsText
+          val expr = ScalaPsiElementFactory.createExpressionFromText(mFreshName, manager)
+          val stmt = ScalaPsiElementFactory.createDeclaration(patternText, "", isVariable = allVars, expr, manager)
+          addElement(stmt)
+        } else {
+          addExtractorsFromClass()
+        }
+      }
+
+      def addExtractorsFromClass() {
+        for (ret <- settings.outputs) {
+          val exprText = s"$mFreshName.${ret.paramName}"
+          addAssignment(ret, exprText)
+        }
+      }
+
+      if (!ics.needClass) {
+        var count = 1
+        for (ret <- settings.outputs) {
+          val exprText = s"$mFreshName._$count"
+          addAssignment(ret, exprText)
+          count += 1
+        }
+      }
+      else if (ics.isCase) addExtractorsFromCaseClass()
+      else addExtractorsFromClass()
+    }
+
+    def removeReplacedElements() {
+      val valid = elements.dropWhile(!_.isValid)
+      if (valid.isEmpty) return
+
+      valid.head.getParent.deleteChildRange(valid.head, valid.last)
+    }
+
+    val stmt = insertCallStmt()
+    insertAssignsFromMultipleReturn(stmt)
+    removeReplacedElements()
+    ScalaPsiUtil.adjustTypes(stmt.getParent)
+  }
+
+  private def typeParametersText(settings: ScalaExtractMethodSettings) =
+    settings.typeParameters match {
+      case Seq() => ""
+      case seq => seq.map(_.getText).mkString("[", ", ", "]")
+    }
 }
