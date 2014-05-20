@@ -235,14 +235,14 @@ object WorksheetSourceProcessor {
 
         val txt = varDef.expr.map {
           case expr =>
-            "var " + varDef.declaredElements.map(_.name).mkString("(", ",", ")") + s" = { import $instanceName._; " + expr.getText + ";}"
+            "var " + varDef.declaredElements.map(_.name).mkString("(", ",", ")") + s" = { " + expr.getText + ";}"
         } getOrElse varDef.getText
 
-        objectRes.append(txt).append(";")
+        classRes.append(txt).append(";")
         varDef.declaredNames foreach {
           case pName =>
             objectRes append (
-              printMethodName + "(\"" + startText + pName + ": \" + " + withTempVar(pName, withInstance = false) + ")\n"
+              printMethodName + "(\"" + startText + pName + ": \" + " + withTempVar(pName /*, withInstance = false*/) + ")\n"
             )
         }
 
