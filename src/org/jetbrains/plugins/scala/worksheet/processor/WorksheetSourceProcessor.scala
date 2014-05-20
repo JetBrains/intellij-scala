@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package worksheet.processor
 
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScAssignStmt, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition, ScTypeAlias, ScFunction, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -247,7 +247,7 @@ object WorksheetSourceProcessor {
         }
 
         appendPsiLineInfo(varDef, lineNum)
-      case assign: ScAssignStmt =>
+      case assign: ScAssignStmt if !assign.getLExpression.isInstanceOf[ScMethodCall] =>
         val pName = assign.getLExpression.getText
         val lineNums = psiToLineNumbers(assign)
         val defName = s"`get$$$$instance_$assignCount$$$$$pName`"
