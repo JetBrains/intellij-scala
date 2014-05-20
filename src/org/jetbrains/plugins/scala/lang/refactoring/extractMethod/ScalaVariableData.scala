@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala
-package lang.refactoring.util.duplicates
+package lang.refactoring.extractMethod
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScType

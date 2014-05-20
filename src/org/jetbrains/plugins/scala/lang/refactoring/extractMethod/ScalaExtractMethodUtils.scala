@@ -47,7 +47,7 @@ object ScalaExtractMethodUtils {
     }
     val typeParamsText = if (tp.length != 0) tp.reverse.map(_.getText).mkString("[", ", ", "]") else ""
 
-    def paramText(param: ExtractMethodParameter): String = typedName(param.oldName, param.tp, param.isCallByNameParameter)
+    def paramText(param: ExtractMethodParameter): String = typedName(param.oldName, param.tp.canonicalText, param.isCallByNameParameter)
 
     val parameters = settings.parameters.filter(_.passAsParameter).map(paramText)
     val paramsText = if (parameters.nonEmpty) parameters.mkString("(", ", ",")") else ""
@@ -55,7 +55,7 @@ object ScalaExtractMethodUtils {
     val retType = if (settings.calcReturnTypeIsUnit) "" else s": ${settings.calcReturnTypeText} ="
 
     val notPassedParams = settings.parameters.filter(p => !p.passAsParameter).map { p =>
-      val nameAndType = typedName(p.oldName, p.tp)
+      val nameAndType = typedName(p.oldName, p.tp.canonicalText)
       s"val $nameAndType = _\n"
     }
     val notPassedParamsText = notPassedParams.mkString
@@ -77,21 +77,27 @@ object ScalaExtractMethodUtils {
     val returnText =
       if (settings.lastReturn) ""
       else {
-        def params = settings.outputs.map(_.oldParamName).mkString("(", ", ", ")")
+        def params = settings.outputs.map(_.paramName).mkString("(", ", ", ")")
+        def multipleReturnText = {
+          val ics = settings.innerClassSettings
+          if (!ics.needClass) params //tuple
+          else if (ics.isCase) s"${ics.className}$params"
+          else s"new ${ics.className}$params"
+        }
 
         settings.returnType match {
           case Some(psi.types.Unit) => byOutputsSize(
             "\nfalse",
             s"\nSome$params",
-            s"\nSome($params)")
+            s"\nSome($multipleReturnText)")
           case Some(_) => byOutputsSize(
             "\nNone",
             s"\nRight$params",
-            s"\nRight($params)")
+            s"\nRight($multipleReturnText)")
           case _ => byOutputsSize(
             "",
-            s"\n${settings.outputs(0).oldParamName}",
-            s"\n$params")
+            s"\n${settings.outputs(0).paramName}",
+            s"\n$multipleReturnText")
         }
       }
 
@@ -213,19 +219,20 @@ object ScalaExtractMethodUtils {
   /**
    * @return returnTypePresentableText
    */
-  def calcReturnType(returnStmtType: Option[ScType], outputs: Array[ExtractMethodOutput], lastReturn: Boolean,
-                     lastMeaningful: Option[ScType]): String = calcReturnTypeExt(returnStmtType, outputs, lastReturn, lastMeaningful)._2
+  def calcReturnType(settings: ScalaExtractMethodSettings): String = calcReturnTypeExt(settings)._2
 
   /**
    * @return (isUnit, returnTypePresentableText)
    */
-  def calcReturnTypeExt(returnStmtType: Option[ScType], outputs: Array[ExtractMethodOutput], lastReturn: Boolean,
-                     lastMeaningful: Option[ScType]): (Boolean, String) = {
+  def calcReturnTypeExt(settings: ScalaExtractMethodSettings): (Boolean, String) = {
     def prepareResult(t: ScType) = {
       val isUnit = t == Unit
       (isUnit, ScType.presentableText(t))
     }
-    if (lastReturn) {
+    val returnStmtType = settings.returnType
+    val outputs = settings.outputs
+    val lastMeaningful = settings.lastMeaningful
+    if (settings.lastReturn) {
       return prepareResult(returnStmtType.get)
     }
     if (outputs.length == 0 && returnStmtType == None && lastMeaningful != None) {
@@ -238,7 +245,7 @@ object ScalaExtractMethodUtils {
         case _ => ifMany
       }
     }
-    val outputType = outputTypeText(outputs)
+    val outputType = outputTypeText(settings)
     returnStmtType match {
       case Some(psi.types.Unit) => byOutputsSize(
         (false, "Boolean"),
@@ -258,11 +265,15 @@ object ScalaExtractMethodUtils {
     }
   }
 
-  def outputTypeText(outputs: Array[ExtractMethodOutput]) = {
-    outputs.length match {
-      case 0 => ""
-      case 1 => outputs(0).returnType.presentableText
-      case _ => outputs.map(_.returnType.presentableText).mkString("(", ", ", ")")
+  def outputTypeText(settings: ScalaExtractMethodSettings) = {
+    if (settings.innerClassSettings.needClass) settings.innerClassSettings.className
+    else {
+      val outputs = settings.outputs
+      outputs.length match {
+        case 0 => ""
+        case 1 => outputs(0).returnType.presentableText
+        case _ => outputs.map(_.returnType.presentableText).mkString("(", ", ", ")")
+      }
     }
   }
 
@@ -294,24 +305,27 @@ object ScalaExtractMethodUtils {
     list.toArray(new Array[ExtractMethodOutput](list.size))
   }
 
-  def typedName(name: String, scType: ScType, byName: Boolean = false): String = {
+  def typedName(name: String, typeText: String, byName: Boolean = false): String = {
     val colon = if (ScalaNamesUtil.isOpCharacter(name.last)) " : " else ": "
     val byNameArrow = if (byName) "=> " else ""
-    s"$name$colon$byNameArrow${scType.canonicalText}"
+    s"$name$colon$byNameArrow$typeText"
   }
 
-  def typedName(param: ExtractMethodParameter): String =
-    typedName(param.newName, param.tp, param.isCallByNameParameter)
-
   def previewSignatureText(settings: ScalaExtractMethodSettings) = {
+    def nameAndType(param: ExtractMethodParameter): String =
+      this.typedName(param.newName, param.tp.presentableText, param.isCallByNameParameter)
+
+    val ics = settings.innerClassSettings
+    val classText = if (ics.needClass) s"${ics.classText(false)}\n\n" else ""
+
     val methodName = settings.methodName
     val visibility = settings.visibility
     val prefix = s"${visibility}def $methodName"
     val paramsText = settings.parameters
             .filter(_.passAsParameter)
-            .map(p => typedName(p))
+            .map(p => nameAndType(p))
             .mkString("(", s", ", ")")
-    val returnTypeText = calcReturnType(settings.returnType, settings.outputs, settings.lastReturn, settings.lastMeaningful)
-    s"$prefix$paramsText: $returnTypeText"
+    val returnTypeText = calcReturnType(settings)
+    s"$classText$prefix$paramsText: $returnTypeText"
   }
 }
