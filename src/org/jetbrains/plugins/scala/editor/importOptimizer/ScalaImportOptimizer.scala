@@ -63,7 +63,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
         super.visitElement(element)
       }
     })
-    val size = list.size
+    val size = list.size * 2
     val progressManager: ProgressManager = ProgressManager.getInstance()
     val indicator: ProgressIndicator =
       if (progressIndicator != null) progressIndicator
@@ -102,8 +102,6 @@ class ScalaImportOptimizer extends ImportOptimizer {
         true
       }
     })
-
-    i.set(0)
 
     if (indicator != null) indicator.setText2(file.getName + ": collecting additional info")
 

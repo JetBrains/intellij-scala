@@ -117,7 +117,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
       val expandedType: ScType = exp match {
         case Some(expected) =>
           ScFunctionType(expected, Seq(typez) ++ args)(place.getProject, place.getResolveScope)
-        case None if !args.isEmpty => ScTupleType(Seq(typez) ++ args)(place.getProject, place.getResolveScope)
+        case None if args.nonEmpty => ScTupleType(Seq(typez) ++ args)(place.getProject, place.getResolveScope)
         case None => typez
       }
       for (obj <- ScalaPsiUtil.collectImplicitObjects(expandedType, place)) {
