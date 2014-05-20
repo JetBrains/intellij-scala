@@ -55,6 +55,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
       case _ => return EmptyRunnable.getInstance() 
     }
 
+    val textCreator = getImportTextCreator
+
     val usedImports = new ConcurrentHashSet[ImportUsed]
     val list: util.ArrayList[PsiElement] =  new util.ArrayList[PsiElement]()
     scalaFile.accept(new ScalaRecursiveElementVisitor {
@@ -135,13 +137,20 @@ class ScalaImportOptimizer extends ImportOptimizer {
               }
             }
 
+            def initRange(psi: PsiElement) {
+              rangeStart = psi.getTextRange.getStartOffset
+              rangeEnd = psi.getTextRange.getEndOffset
+            }
+
             for (child <- imp.getChildren) {
               child match {
-                case _: PsiWhiteSpace => //do nothing
+                case a: PsiElement if isImportDelimiter(a) => //do nothing
                 case imp: ScImportStmt =>
                   if (rangeStart == -1) {
-                    rangeStart = imp.getTextRange.getStartOffset
-                    rangeEnd = imp.getTextRange.getEndOffset
+                    imp.getPrevSibling match {
+                      case a: PsiElement if isImportDelimiter(a) && !a.isInstanceOf[PsiWhiteSpace] => initRange(a)
+                      case _ => initRange(imp)
+                    }
                     val refText = "someIdentifier"
                     val reference = ScalaPsiElementFactory.createReferenceFromText(refText, imp.getContext, imp)
                     val rangeNamesSet = new mutable.HashSet[String]()
@@ -213,7 +222,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
             while (i + 1 < buffer.length) {
               val first = buffer(i)
               val second = buffer(i + 1)
-              if (first.getImportText > second.getImportText) {
+              if (textCreator.getImportText(first) > textCreator.getImportText(second)) {
                 val firstPrefix: String = first.relative.getOrElse(first.prefixQualifier)
                 val firstPart: String = getFirstId(firstPrefix)
                 val secondPrefix = second.relative.getOrElse(second.prefixQualifier)
@@ -255,7 +264,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
             }
           }
           val splitter: String = "\n" + splitterCalc(range.getStartOffset - 1)
-          val text = importInfos.map(_.getImportText).mkString(splitter)
+          val text = importInfos.map(textCreator.getImportText).mkString(splitter)
           val newRange: TextRange = if (text.isEmpty) {
             var start = range.getStartOffset
             while (start > 0 && documentText.charAt(start) != '\n') start = start - 1
@@ -271,9 +280,13 @@ class ScalaImportOptimizer extends ImportOptimizer {
     }
   }
 
+  protected def getImportTextCreator: ImportTextCreator = new ImportTextCreator
+
+  protected def isImportDelimiter(psi: PsiElement) = psi.isInstanceOf[PsiWhiteSpace]
+
   private def checkTypeForExpression(expr: ScExpression): Set[ImportUsed] = {
-    var res: collection.mutable.HashSet[ImportUsed] =
-      collection.mutable.HashSet(expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType()).
+    var res: scala.collection.mutable.HashSet[ImportUsed] =
+      scala.collection.mutable.HashSet(expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType()).
         importsUsed.toSeq : _*)
     expr match {
       case call: ScMethodCall =>
@@ -295,9 +308,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
   }
 
 
-  def supports(file: PsiFile): Boolean = {
-    true
-  }
+  def supports(file: PsiFile): Boolean = file.isInstanceOf[ScalaFile] && file.getViewProvider.getAllFiles.size() < 3
 }
 
 object ScalaImportOptimizer {
@@ -318,11 +329,10 @@ object ScalaImportOptimizer {
     }
   }
 
-  class ImportInfo(val importUsed: Set[ImportUsed], val prefixQualifier: String,
-                   val relative: Option[String], val allNames: Set[String],
-                   val singleNames: Set[String], renames: Map[String, String],
-                   val hidedNames: Set[String], val hasWildcard: Boolean, val rootUsed: Boolean) {
-    def getImportText: String = {
+  class ImportTextCreator {
+    def getImportText(importInfo: ImportInfo): String = {
+      import importInfo._
+
       val groupStrings = new ArrayBuffer[String]
       if (!hasWildcard) groupStrings ++= singleNames.toSeq.sorted
       groupStrings ++= renames.map(pair => pair._1 + " => " + pair._2).toSeq.sorted
@@ -333,7 +343,12 @@ object ScalaImportOptimizer {
         else groupStrings(0)
       "import " + (if (rootUsed) "_root_." else "") + relative.getOrElse(prefixQualifier) + "." + postfix
     }
+  }
 
+  class ImportInfo(val importUsed: Set[ImportUsed], val prefixQualifier: String,
+                   val relative: Option[String], val allNames: Set[String],
+                   val singleNames: Set[String], val renames: Map[String, String],
+                   val hidedNames: Set[String], val hasWildcard: Boolean, val rootUsed: Boolean) {
     def withoutRelative(holderNames: Set[String]): ImportInfo = {
       if (relative.isDefined || rootUsed) {
         val id = getFirstId(prefixQualifier)
