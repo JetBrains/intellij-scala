@@ -245,9 +245,17 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
         dialog.getSettings
       }
       else {
+        val innerClassSettings = {
+          val text = editor.getDocument.getText
+          val isCase = text.startsWith("//case class")
+          val isInner = text.startsWith("//inner class")
+          val out = output.map(ScalaExtractMethodUtils.convertVariableData(_, elements)).map(ExtractMethodOutput.from)
+          InnerClassSettings(isCase || isInner, "TestMethodNameResult", out.toArray, isCase)
+        }
+
         new ScalaExtractMethodSettings("testMethodName", ScalaExtractMethodUtils.getParameters(input.toArray, elements),
           ScalaExtractMethodUtils.getReturns(output.toArray, elements), "", sibling,
-          elements, hasReturn, lastReturn, lastMeaningful, InnerClassSettings(needClass = false, "", Array.empty, isCase = false))
+          elements, hasReturn, lastReturn, lastMeaningful, innerClassSettings)
       }
     val duplicates = DuplicatesUtil.findDuplicates(settings)
     performRefactoring(settings, editor)
