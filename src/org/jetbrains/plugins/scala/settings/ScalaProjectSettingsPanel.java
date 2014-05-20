@@ -47,6 +47,7 @@ public class ScalaProjectSettingsPanel {
   private JSpinner implicitParametersSearchDepthSpinner;
   private JCheckBox myDontCacheCompound;
   private JCheckBox runWorksheetInTheCheckBox;
+  private JCheckBox collectImportsWithTheCheckBox;
   private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
   private JBList referencesWithPrefixList;
   private DefaultListModel myReferencesWithPrefixModel;
@@ -97,6 +98,7 @@ public class ScalaProjectSettingsPanel {
     scalaProjectSettings.setAddImportMostCloseToReference(addImportStatementInCheckBox.isSelected());
     scalaProjectSettings.setAddFullQualifiedImports(addFullQualifiedImportsCheckBox.isSelected());
     scalaProjectSettings.setSortImports(sortImportsCheckBox.isSelected());
+    scalaProjectSettings.setCollectImport(collectImportsWithTheCheckBox.isSelected());
     scalaProjectSettings.setImplicitParametersSearchDepth((Integer) implicitParametersSearchDepthSpinner.getValue());
     scalaProjectSettings.setClassCountToUseImportOnDemand((Integer) classCountSpinner.getValue());
     scalaProjectSettings.setShift((Integer) shiftSpinner.getValue());
@@ -155,6 +157,8 @@ public class ScalaProjectSettingsPanel {
         addFullQualifiedImportsCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isSortImports() !=
         sortImportsCheckBox.isSelected()) return true;
+    if (scalaProjectSettings.isCollectImports() !=
+        collectImportsWithTheCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isImportMembersUsingUnderScore() !=
         importMembersUsingUnderscoreCheckBox.isSelected()) return true;
 
@@ -207,6 +211,7 @@ public class ScalaProjectSettingsPanel {
     setValue(addImportStatementInCheckBox, scalaProjectSettings.isAddImportMostCloseToReference());
     setValue(addFullQualifiedImportsCheckBox, scalaProjectSettings.isAddFullQualifiedImports());
     setValue(sortImportsCheckBox, scalaProjectSettings.isSortImports());
+    setValue(collectImportsWithTheCheckBox, scalaProjectSettings.isCollectImports());
     setValue(implicitParametersSearchDepthSpinner, scalaProjectSettings.getImplicitParametersSearchDepth());
     setValue(classCountSpinner, scalaProjectSettings.getClassCountToUseImportOnDemand());
     setValue(shiftSpinner, scalaProjectSettings.getShift());
