@@ -324,7 +324,7 @@ object ScalaImportOptimizer {
                    val hidedNames: Set[String], val hasWildcard: Boolean, val rootUsed: Boolean) {
     def getImportText: String = {
       val groupStrings = new ArrayBuffer[String]
-      if (!hasWildcard) groupStrings ++= singleNames.toSeq.sorted
+      groupStrings ++= singleNames.toSeq.sorted
       groupStrings ++= renames.map(pair => pair._1 + " => " + pair._2).toSeq.sorted
       groupStrings ++= hidedNames.map(_ + " => _").toSeq.sorted
       if (hasWildcard) groupStrings += "_"
