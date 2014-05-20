@@ -1,18 +1,17 @@
 package org.jetbrains.plugins.scala
 package worksheet.interactive
 
-import com.intellij.util.containers.ConcurrentWeakHashMap
-import com.intellij.openapi.editor.event.{DocumentEvent, DocumentAdapter, DocumentListener}
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.Document
-import com.intellij.problems.WolfTheProblemSolver
+import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent, DocumentListener}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiFile, PsiDocumentManager}
+import com.intellij.problems.WolfTheProblemSolver
+import com.intellij.psi.PsiDocumentManager
+import com.intellij.util.Alarm
+import com.intellij.util.containers.ConcurrentWeakHashMap
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
-import com.intellij.util.Alarm
-import com.intellij.openapi.components.ProjectComponent
-import com.intellij.openapi.fileEditor.{TextEditor, FileEditorManager}
-import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
 
 /**
  * User: Dmitry.Naydanov
@@ -27,6 +26,7 @@ object WorksheetAutoRunner {
 class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends ProjectComponent {
   private val listeners = new ConcurrentWeakHashMap[Document, DocumentListener]()
   private val myAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD, project)
+  private lazy val settings = ScalaProjectSettings.getInstance(project)
 
   override def disposeComponent() {}
 
@@ -57,6 +57,8 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
     val documentManager = PsiDocumentManager getInstance project
 
     override def documentChanged(e: DocumentEvent) {
+      if (!settings.isInteractiveMode) return
+
       val virtualFile = documentManager.getPsiFile(document).getVirtualFile
       myAlarm.cancelAllRequests()
 
