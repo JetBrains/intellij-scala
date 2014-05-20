@@ -1,3 +1,4 @@
+//case class
 class UnitReturnSeveralOutput1 {
   def foo(i: Int) {
     /*start*/
@@ -11,29 +12,32 @@ class UnitReturnSeveralOutput1 {
   }
 }
 /*
+//case class
 class UnitReturnSeveralOutput1 {
   def foo(i: Int) {
     /*start*/
-    val testMethodNameResult: (Int, String, Int, String) = testMethodName match {
+    val testMethodNameResult: TestMethodNameResult = testMethodName match {
       case Some(result) => result
       case None => return
     }
-    var x: Int = testMethodNameResult._1
-    var y: String = testMethodNameResult._2
-    var z: Int = testMethodNameResult._3
-    val zz: String = testMethodNameResult._4
+    var x: Int = testMethodNameResult.x
+    var y: String = testMethodNameResult.y
+    var z: Int = testMethodNameResult.z
+    val zz: String = testMethodNameResult.zz
 
     /*end*/
     println(x + y + z + zz)
   }
 
-  def testMethodName: Option[(Int, String, Int, String)] = {
+  case class TestMethodNameResult(x: Int, y: String, z: Int, zz: String)
+
+  def testMethodName: Option[TestMethodNameResult] = {
     if (true) return None
     var x = 0
     var y = "a"
     var z = 1
     val zz = "1"
-    Some((x, y, z, zz))
+    Some(TestMethodNameResult(x, y, z, zz))
   }
 }
 */

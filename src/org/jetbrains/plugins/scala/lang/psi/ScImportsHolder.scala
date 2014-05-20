@@ -2,38 +2,39 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
-import api.base.ScReferenceElement
-import api.statements.ScTypeAliasDefinition
-import api.toplevel.imports.{ScImportSelector, ScImportSelectors, ScImportExpr, ScImportStmt}
-import api.toplevel.templates.ScTemplateBody
-import api.{ScalaRecursiveElementVisitor, ScalaFile}
-import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
-import impl.{ScPackageImpl, ScalaPsiElementFactory}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import api.toplevel.imports.usages.{ImportSelectorUsed, ImportExprUsed, ImportWildcardSelectorUsed, ImportUsed}
 import com.intellij.codeInsight.hint.HintManager
-import lexer.ScalaTokenTypes
-import api.toplevel.packaging.ScPackaging
-import api.toplevel.typedef.ScTypeDefinition
-import com.intellij.psi._
-import psi.impl.toplevel.synthetic.ScSyntheticPackage
-import refactoring.util.ScalaNamesUtil
-import scope._
+import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
-import lang.resolve.processor.{CompletionProcessor, ResolveProcessor}
+import com.intellij.openapi.util.{RecursionManager, Trinity}
+import com.intellij.psi._
+import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
+import com.intellij.psi.scope._
+import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
 import java.lang.ThreadLocal
-import com.intellij.openapi.util.{Trinity, RecursionManager}
-import types.result.TypingContext
-import types.ScDesignatorType
-import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
-import settings._
-import lang.resolve.{ScalaResolveResult, StdKinds}
-import collection.mutable.ArrayBuffer
-import com.intellij.psi.stubs.StubElement
-import collection.mutable
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportSelectors, ScImportStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticPackage
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory}
+import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ResolveProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.settings._
 import scala.annotation.tailrec
-import com.intellij.lang.ASTNode
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.immutable.HashSet
 
 trait ScImportsHolder extends ScalaPsiElement {
 
@@ -262,12 +263,19 @@ trait ScImportsHolder extends ScalaPsiElement {
       else (s.substring(0, index), s.substring(index + 1))
     }
 
+    if (!ScalaProjectSettings.getInstance(getProject).isCollectImports &&
+        selectors.length < ScalaProjectSettings.getInstance(getProject).getClassCountToUseImportOnDemand - 1) {
+      toDelete.clear()
+      firstPossibleGoodPlace = None
+      selectors.clear()
+    }
+
     //creating selectors string (after last '.' in import expression)
     var isPlaceHolderImport = false
     val simpleName = path.substring(path.lastIndexOf('.') + 1)
     simpleName +=: selectors
 
-    val wildcardImport: Boolean = selectors.exists(_ == "_") ||
+    val wildcardImport: Boolean = selectors.contains("_") ||
       selectors.length >= ScalaProjectSettings.getInstance(getProject).getClassCountToUseImportOnDemand
     if (wildcardImport) {
       selectors.clear()
@@ -425,10 +433,10 @@ trait ScImportsHolder extends ScalaPsiElement {
       if (!explicitly) {
         everythingProcessor = new CompletionProcessor(StdKinds.stableImportSelector, getLastChild, includePrefixImports = false)
         treeWalkUp(everythingProcessor, this, getLastChild)
-        val candidatesAfter: mutable.HashMap[String, collection.immutable.HashSet[PsiNamedElement]] = new mutable.HashMap
+        val candidatesAfter: mutable.HashMap[String, HashSet[PsiNamedElement]] = new mutable.HashMap
         for (candidate <- everythingProcessor.candidates) {
           val set: collection.immutable.HashSet[PsiNamedElement] =
-            candidatesAfter.getOrElse(candidate.name, collection.immutable.HashSet.empty[PsiNamedElement])
+            candidatesAfter.getOrElse(candidate.name, HashSet.empty[PsiNamedElement])
           candidatesAfter.update(candidate.name, set + candidate.getElement)
         }
 
@@ -436,7 +444,7 @@ trait ScImportsHolder extends ScalaPsiElement {
           if (candidatesBefore.get(s) != candidatesAfter.get(s)) {
             val pathes = new mutable.HashSet[String]()
             //let's try to fix it by adding all before imports explicitly
-            candidatesBefore.get(s).getOrElse(collection.immutable.HashSet.empty[PsiNamedElement]).foreach {
+            candidatesBefore.getOrElse(s, HashSet.empty[PsiNamedElement]).foreach {
               case c: PsiClass => pathes += c.qualifiedName
               case c: PsiNamedElement => pathes ++= ScalaNamesUtil.qualifiedName(c)
             }

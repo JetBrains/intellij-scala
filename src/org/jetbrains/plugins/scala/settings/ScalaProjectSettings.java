@@ -32,6 +32,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean ADD_FULL_QUALIFIED_IMPORTS = true;
   private boolean SORT_IMPORTS = true;
   private boolean IMPORTS_MEMBERS_USING_UNDERSCORE = true;
+  private boolean COLLECT_IMPORTS_TOGETHER = true;
   private boolean SEARCH_ALL_SYMBOLS = false;
 
   private boolean ENABLE_JAVA_TO_SCALA_CONVERSION = true;
@@ -192,6 +193,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setSortImports(boolean value) {
     SORT_IMPORTS = value;
+  }
+
+  public boolean isCollectImports() {
+    return COLLECT_IMPORTS_TOGETHER;
+  }
+
+  public void setCollectImport(boolean value) {
+    COLLECT_IMPORTS_TOGETHER = value;
   }
 
   public boolean isImportMembersUsingUnderScore() {

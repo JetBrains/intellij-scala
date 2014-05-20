@@ -1,3 +1,4 @@
+//inner class
 class ReturnSeveralOutput2 {
   def foo(i: Int): Int = {
     /*start*/
@@ -13,31 +14,34 @@ class ReturnSeveralOutput2 {
   }
 }
 /*
+//inner class
 class ReturnSeveralOutput2 {
   def foo(i: Int): Int = {
     /*start*/
 
-    val testMethodNameResult: (Int, String, Int, String) = testMethodName(i) match {
+    val testMethodNameResult: TestMethodNameResult = testMethodName(i) match {
       case Left(toReturn) => return toReturn
       case Right(result) => result
     }
-    val x: Int = testMethodNameResult._1
-    val y: String = testMethodNameResult._2
-    var z: Int = testMethodNameResult._3
-    val zz: String = testMethodNameResult._4
+    val x: Int = testMethodNameResult.x
+    val y: String = testMethodNameResult.y
+    var z: Int = testMethodNameResult.z
+    val zz: String = testMethodNameResult.zz
 
     /*end*/
     println(x + y + z + zz)
     i
   }
 
-  def testMethodName(i: Int): Either[Int, (Int, String, Int, String)] = {
+  class TestMethodNameResult(val x: Int, val y: String, val z: Int, val zz: String)
+
+  def testMethodName(i: Int): Either[Int, TestMethodNameResult] = {
     val x = i
     if (true) return Left(x)
     val y = "a"
     var z = 1
     val zz = "1"
-    Right((x, y, z, zz))
+    Right(new TestMethodNameResult(x, y, z, zz))
   }
 }
 */

@@ -2,84 +2,71 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
-import api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import api.toplevel.imports.usages.ImportUsed
-import api.toplevel.imports.{ScImportStmt, ScImportExpr, ScImportSelector, ScImportSelectors}
-import api.toplevel.packaging.{ScPackaging, ScPackageContainer}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScEarlyDefinitions, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
-import com.intellij.psi.scope.PsiScopeProcessor
-import api.toplevel.templates.ScTemplateBody
-import api.toplevel.typedef._
-import impl.expr.ScBlockExprImpl
-import impl.ScalaPsiManager.ClassCategory
-import impl.toplevel.typedef.TypeDefinitionMembers
-import impl.{ScalaPsiManager, ScalaPsiElementFactory}
-import implicits.ScImplicitlyConvertible
+import com.intellij.codeInsight.PsiEquivalenceUtil
+import com.intellij.lang.java.JavaLanguage
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.progress.ProgressManager
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import api.expr.xml.ScXmlExpr
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.types._
-import api.statements._
+import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
-import com.intellij.psi.search.{SearchScope, LocalSearchScope, GlobalSearchScope}
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPatternArgumentList, ScBindingPattern, ScReferencePattern, ScCaseClause}
-import stubs.ScModifiersStub
-import types.Compatibility.Expression
-import params._
-import parser.parsing.expressions.InfixExpr
-import parser.util.ParserUtils
-import result.{TypingContext, TypeResult}
-import structureView.ScalaElementPresentation
-import com.intellij.psi.util._
-import formatting.settings.ScalaCodeStyleSettings
-import com.intellij.openapi.roots.{ProjectRootManager, ProjectFileIndex}
-import lang.resolve.processor._
-import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ResolveUtils, ScalaResolveResult}
-import com.intellij.psi.impl.light.LightModifierList
-import scala.collection.immutable.Stream
-import com.intellij.psi.impl.source.PsiFileImpl
-import com.intellij.psi.stubs.StubElement
-import com.intellij.openapi.module.{ModuleUtilCore, Module}
-import config.ScalaFacet
-import scala.reflect.NameTransformer
-import caches.CachesUtil
-import extensions._
-import scala.collection.mutable.ArrayBuffer
 import com.intellij.psi.impl.compiled.ClsFileImpl
-import scala.collection.{mutable, Set, Seq}
-import scala.util.control.ControlThrowable
-import scala.annotation.tailrec
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import com.intellij.psi.impl.light.LightModifierList
+import com.intellij.psi.impl.source.PsiFileImpl
+import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
+import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
-import com.intellij.lang.java.JavaLanguage
-import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
-import com.intellij.openapi.util.TextRange
-import scala.Some
-import org.jetbrains.plugins.scala.lang.psi.types.ScUndefinedType
-import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
-import org.jetbrains.plugins.scala.lang.psi.types.ScAbstractType
-import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
-import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
-import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
-import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
+import com.intellij.psi.util._
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.config.ScalaFacet
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScPatternArgumentList, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportSelectors, ScImportStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.{ScPackageContainer, ScPackaging}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypeParametersOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockExprImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeParameterType
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
+import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.ScTupleType
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.JavaArrayType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
-import org.jetbrains.plugins.scala.lang.psi.types.ScProjectionType
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import com.intellij.codeInsight.PsiEquivalenceUtil
-import com.intellij.openapi.diagnostic.Logger
+import org.jetbrains.plugins.scala.lang.resolve.processor._
+import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+import scala.Some
 import scala.annotation.tailrec
+import scala.collection.immutable.Stream
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.{Seq, Set, mutable}
+import scala.reflect.NameTransformer
+import scala.util.control.ControlThrowable
 
 /**
  * User: Alexander Podkhalyuzin
@@ -177,7 +164,7 @@ object ScalaPsiUtil {
 
   def convertMemberName(s: String): String = {
     if (s == null || s.isEmpty) return s
-    val s1 = if (s(0) == '`' && s.length() > 1) s.drop(1).dropRight(1) else s
+    val s1 = if (s(0) == '`' && s.length() > 1) s.tail.dropRight(1) else s
     NameTransformer.decode(s1)
   }
 
@@ -316,7 +303,7 @@ object ScalaPsiUtil {
           if (!isHardCoded || !implRes.tp.isInstanceOf[ValType]) {
             val newProc = new ResolveProcessor(kinds, ref, refName)
             newProc.processType(implRes.tp, e, ResolveState.initial)
-            val res = !newProc.candidatesS.isEmpty
+            val res = newProc.candidatesS.nonEmpty
             if (!noApplicability && res && processor.isInstanceOf[MethodResolveProcessor]) {
               val mrp = processor.asInstanceOf[MethodResolveProcessor]
               val newProc = new MethodResolveProcessor(ref, refName, mrp.argumentClauses, mrp.typeArgElements,
@@ -428,7 +415,7 @@ object ScalaPsiUtil {
       isShapeResolve = isShape, enableTupling = true, isDynamic = isDynamic)
     var candidates: Set[ScalaResolveResult] = Set.empty
     exprTp match {
-      case ScTypePolymorphicType(internal, typeParam) if !typeParam.isEmpty &&
+      case ScTypePolymorphicType(internal, typeParam) if typeParam.nonEmpty &&
         !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[ScUndefinedType] =>
         if (approveDynamic(internal)) {
           val state: ResolveState = ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, internal)
@@ -655,7 +642,7 @@ object ScalaPsiUtil {
         case None => res += ((fqn, Seq(tp)))
       }
     }
-    while (!parts.isEmpty) {
+    while (parts.nonEmpty) {
       val part = parts.dequeue()
       //here we want to convert projection types to right projections
       val visited = new mutable.HashSet[PsiClass]()
@@ -1068,22 +1055,6 @@ object ScalaPsiUtil {
       else k(Nil)
     }
     inner(elem, (l: List[PsiElement]) => l)
-  }
-
-  //todo: always returns true?!
-  @tailrec
-  def shouldCreateStub(elem: PsiElement): Boolean = {
-    return true
-    elem match {
-      case _: ScAnnotation | _: ScAnnotations | _: ScFunction | _: ScTypeAlias | _: ScAccessModifier |
-              _: ScModifierList | _: ScVariable | _: ScValue | _: ScParameter | _: ScParameterClause |
-              _: ScParameters | _: ScTypeParamClause | _: ScTypeParam | _: ScImportExpr |
-              _: ScImportSelector | _: ScImportSelectors | _: ScPatternList | _: ScReferencePattern => shouldCreateStub(elem.getParent)
-      /*case _: ScalaFile | _: ScPrimaryConstructor | _: ScSelfTypeElement | _: ScEarlyDefinitions |
-              _: ScPackageStatement | _: ScPackaging | _: ScTemplateParents | _: ScTemplateBody |
-              _: ScExtendsBlock | _: ScTypeDefinition => return true*/
-      case _ => true
-    }
   }
   
   def getFirstStubOrPsiElement(elem: PsiElement): PsiElement = {
@@ -1530,7 +1501,7 @@ object ScalaPsiUtil {
              _: ScTypeArgs | _: ScPatternArgumentList |
              _: ScParameterClause | _: ScTypeParamClause => false
         case caseClause: ScCaseClause =>
-          import ScalaTokenTypes._
+          import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
           val funTypeToken = caseClause.findLastChildByType(TokenSet.create(tFUNTYPE, tFUNTYPE_ASCII))
           if (funTypeToken != null &&  element.getTextOffset < funTypeToken.getTextOffset) false
           else newLinesEnabled(caseClause.getParent)
@@ -1572,8 +1543,8 @@ object ScalaPsiUtil {
   * */
   def needParentheses(from: ScExpression, expr: ScExpression): Boolean = {
     def infixInInfixParentheses(parent: ScInfixExpr, child: ScInfixExpr): Boolean = {
-      import ParserUtils._
-      import InfixExpr._
+      import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixExpr._
+      import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils._
       if (parent.lOp == from) {
         val lid = parent.operation.getText
         val rid = child.operation.getText
