@@ -12,6 +12,17 @@ import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
  */
 
 class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
+  def withRelativeImports(body: => Unit): Unit = {
+    val settings: ScalaProjectSettings = ScalaProjectSettings.getInstance(getProjectAdapter)
+    val oldValue = settings.isAddFullQualifiedImports
+    settings.setAddFullQualifiedImports(false)
+    try {
+      body
+    } finally {
+      settings.setAddFullQualifiedImports(oldValue)
+    }
+  }
+
   def testClassNameRenamed() {
     val fileText =
       """
@@ -221,5 +232,41 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
 
     completeLookupItem(activeLookup.find(_.getLookupString == "foo").get, '\t')
     checkResultByText(resultText)
+  }
+
+  def testSCL4087() {
+    withRelativeImports {
+      val fileText =
+        """
+          |package a.b {
+          |  class XXXX
+          |}
+          |
+          |import a.{b => c}
+          |
+          |trait Y {
+          |  val x: XXXX<caret>
+          |}
+        """.stripMargin.replaceAll("\r", "").trim()
+      configureFromFileTextAdapter("dummy.scala", fileText)
+      val (activeLookup, _) = complete(2, CompletionType.BASIC)
+
+      val resultText =
+        """
+          |package a.b {
+          |  class XXXX
+          |}
+          |
+          |import a.b.XXXX
+          |import a.{b => c}
+          |
+          |trait Y {
+          |  val x: XXXX<caret>
+          |}
+        """.stripMargin.replaceAll("\r", "").trim()
+
+      completeLookupItem(activeLookup.find(_.getLookupString == "XXXX").get, '\t')
+      checkResultByText(resultText)
+    }
   }
 }
