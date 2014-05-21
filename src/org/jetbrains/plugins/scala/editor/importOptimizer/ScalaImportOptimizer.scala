@@ -111,7 +111,10 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
     def isImportUsed(importUsed: ImportUsed): Boolean = {
       //todo: collect proper information about language features
-      usedImports.contains(importUsed) || isLanguageFeatureImport(importUsed)
+      importUsed match {
+        case ImportSelectorUsed(sel) if sel.isAliasedImport => true
+        case _ => usedImports.contains(importUsed) || isLanguageFeatureImport(importUsed)
+      }
     }
 
     JobLauncher.getInstance().invokeConcurrentlyUnderProgress(list, indicator, true, true, new Processor[PsiElement] {
