@@ -50,7 +50,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
-    val importsIterator = importExprs.iterator
+    val importsIterator = importExprs.reverseIterator
     while (importsIterator.hasNext) {
       val importExpr = importsIterator.next()
       ProgressManager.checkCanceled()
@@ -198,21 +198,21 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                 ProgressManager.checkCanceled()
                   val selectorResolve: Array[ResolveResult] = selector.reference.multiResolve(false)
                   selectorResolve foreach { result =>
-                    //Resolve the name imported by selector
-                    //Collect shadowed elements
-                    shadowed += ((selector, result.getElement))
-                    var newState: ResolveState = state
                     if (selector.isAliasedImport && selector.importedName != selector.reference.refName) {
+                      //Resolve the name imported by selector
+                      //Collect shadowed elements
+                      shadowed += ((selector, result.getElement))
+                      var newState: ResolveState = state
                       newState = state.put(ResolverEnv.nameKey, selector.importedName)
+                      newState = newState.put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector)).
+                        put(ScSubstitutor.key, subst)
+                      calculateRefType(checkResolve(selectorResolve)).foreach {tp =>
+                        newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
+                      }
+                      if (!processor.execute(result.getElement, newState)) {
+                        return false
+                      }
                     }
-                    newState = newState.put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector)).
-                            put(ScSubstitutor.key, subst)
-                    calculateRefType(checkResolve(selectorResolve)).foreach {tp =>
-                      newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
-                    }
-                    if (!processor.execute(result.getElement, newState)) {
-                    return false
-                  }
                 }
               }
 
@@ -239,18 +239,9 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                       }
 
                       override def execute(element: PsiElement, state: ResolveState): Boolean = {
-                        // Register shadowing import selector
-                        val elementIsShadowed = shadowed.find(p => element == p._2)
+                        if (shadowed.exists(p => element == p._2)) return true
 
-                        var newState = elementIsShadowed match {
-                          case Some((selector, _)) =>
-                            val oldImports = state.get(ImportUsed.key)
-                            val newImports = if (oldImports == null) Set[ImportUsed]() else oldImports
-
-                            state.put(ImportUsed.key, Set(newImports.toSeq: _*) + ImportSelectorUsed(selector)).
-                                  put(ScSubstitutor.key, subst)
-                          case None => state.put(ScSubstitutor.key, subst)
-                        }
+                        var newState = state.put(ScSubstitutor.key, subst)
 
                         def isElementInPo: Boolean = {
                           PsiTreeUtil.getContextOfType(element, true, classOf[ScTypeDefinition]) match {
@@ -262,7 +253,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                           newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
                         }
 
-                        if (elementIsShadowed != None) true else processor.execute(element, newState)
+                        processor.execute(element, newState)
                       }
                     }
 
@@ -283,6 +274,26 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                     }
                   case _ => true
                 }
+              }
+
+              //wildcard import first, to show that this imports are unused if they really are
+              set.selectors foreach {
+                selector =>
+                  ProgressManager.checkCanceled()
+                  val selectorResolve: Array[ResolveResult] = selector.reference.multiResolve(false)
+                  selectorResolve foreach { result =>
+                    var newState: ResolveState = state
+                    if (!selector.isAliasedImport || selector.importedName == selector.reference.refName) {
+                      newState = newState.put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector)).
+                        put(ScSubstitutor.key, subst)
+                      calculateRefType(checkResolve(selectorResolve)).foreach {tp =>
+                        newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
+                      }
+                      if (!processor.execute(result.getElement, newState)) {
+                        return false
+                      }
+                    }
+                  }
               }
           }
         }

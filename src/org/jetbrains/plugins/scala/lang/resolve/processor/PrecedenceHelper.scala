@@ -71,7 +71,7 @@ trait PrecedenceHelper[T] {
   def isUpdateHistory: Boolean = false
 
   protected def addChangedLevelToHistory(): Unit = {
-    if (isUpdateHistory && !fromHistory && history.lastOption != Some(Chan)) history += ChangedLevel
+    if (isUpdateHistory && !fromHistory && history.lastOption != Some(ChangedLevel)) history += ChangedLevel
   }
 
   protected def getQualifiedName(result: ScalaResolveResult): T
