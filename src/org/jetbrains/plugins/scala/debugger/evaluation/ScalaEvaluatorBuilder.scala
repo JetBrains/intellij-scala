@@ -98,9 +98,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     
     private def anonClassCount(elem: PsiElement): Int = {
       elem match {
-        case f: ScForStatement => f.enumerators.map(e => {
-          e.enumerators.length + e.generators.length + e.guards.length //todo: non irrefutable patterns?
-        }).getOrElse(1)
+        case f: ScForStatement =>
+          f.enumerators.fold(1)(e => e.enumerators.length + e.generators.length + e.guards.length) //todo: non irrefutable patterns?
         case _ => 1
       }
     }
@@ -194,7 +193,6 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
     override def visitFunctionExpression(stmt: ScFunctionExpr) {
       throw EvaluateExceptionUtil.createEvaluateException("Anonymous functions are not supported")
-      super.visitFunctionExpression(stmt)
     }
 
     override def visitExprInParent(expr: ScParenthesisedExpr) {
@@ -386,17 +384,14 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
     override def visitTryExpression(tryStmt: ScTryStmt) {
       throw EvaluateExceptionUtil.createEvaluateException("Try expression is not supported")
-      super.visitTryExpression(tryStmt)
     }
 
     override def visitReturnStatement(ret: ScReturnStmt) {
       throw EvaluateExceptionUtil.createEvaluateException("Return statement is not supported")
-      super.visitReturnStatement(ret)
     }
 
     override def visitFunction(fun: ScFunction) {
       throw EvaluateExceptionUtil.createEvaluateException("Function definition is not supported")
-      super.visitFunction(fun)
     }
 
     override def visitThisReference(t: ScThisReference) {
@@ -808,11 +803,11 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             val e = matchedParameters.find(_._1.name == p.name).map(_._2).getOrElse(Seq.empty).filter(_ != null)
             if (p.isByName) throw EvaluateExceptionUtil.createEvaluateException("cannot evaluate methods with by-name parameters")
             if (p.isRepeated) {
+              val argTypeText = e.headOption.map(_.getType()).map(_.get).getOrElse(Any).canonicalText
+              val argsText = if (e.length > 0) e.sortBy(_.getTextRange.getStartOffset).map(_.getText).mkString(".+=(", ").+=(", ").result()") else ""
               def tail: Evaluator = {
-                val exprText = "_root_.scala.collection.Seq.newBuilder[Any]" +
-                  (if (e.length > 0) e.sortBy(_.getTextRange.getStartOffset).map(_.getText).mkString(".+=(", ").+=(", ").result()") else "")
-                val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, expr.getContext,
-                  expr)
+                val exprText = s"_root_.scala.collection.Seq.newBuilder[$argTypeText]$argsText"
+                val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, expr.getContext, expr)
                 newExpr.accept(this)
                 myResult
               }
@@ -1001,7 +996,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             myResult = new ClassObjectEvaluator(new TypeEvaluator(clazzJVMName))
           else myResult = new ScalaLiteralEvaluator(null, Null)
         case synth: ScSyntheticFunction if synth.isStringPlusMethod && arguments.length == 1=>
-          val qualText = qualOption.map(_.getText).getOrElse("this")
+          val qualText = qualOption.fold("this")(_.getText)
           val exprText = s"($qualText).concat(_root_.java.lang.String.valueOf(${arguments(0).getText})"
           val expr = ScalaPsiElementFactory.createExpressionFromText(exprText, ref.getManager)
           expr.accept(this)
@@ -1063,7 +1058,6 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
     override def visitMatchStatement(ms: ScMatchStmt) {
       throw EvaluateExceptionUtil.createEvaluateException("Match statement is not supported")
-      super.visitMatchStatement(ms)
     }
 
     override def visitThrowExpression(throwStmt: ScThrowStmt) {
@@ -1080,9 +1074,10 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       } else {
         stmt.getLExpression match {
           case call: ScMethodCall =>
-            val exprText = "(" + call.getInvokedExpr.getText + ").update(" + call.args.exprs.map(_.getText).
-              mkString(", ") + (if (call.args.exprs.length > 0) ", " else "") + stmt.getRExpression.map(_.getText).
-              getOrElse("null") + ")"
+            val invokedText = call.getInvokedExpr.getText
+            val rExprText = stmt.getRExpression.fold("null")(_.getText)
+            val args = (call.args.exprs.map(_.getText) :+ rExprText).mkString("(", ", ", ")")
+            val exprText = s"($invokedText).update$args"
             val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, stmt.getContext, stmt)
             expr.accept(this)
           case _ =>
@@ -1150,7 +1145,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                 ref.getType().getOrAny match {
                   //isApplyOrUpdateCall does not work for generic calls
                   case ScType.ExtractClass(psiClass) if psiClass.findMethodsByName("apply", true).nonEmpty =>
-                    val typeArgsText = gen.typeArgs.map(_.getText).getOrElse("")
+                    val typeArgsText = gen.typeArgs.fold("")(_.getText)
                     val newExprText = s"(${ref.getText}).apply$typeArgsText${call.args.getText}$tailString"
                     val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(newExprText, call.getContext, call)
                     expr.accept(this)
@@ -1586,7 +1581,6 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
     override def visitVariableDefinition(varr: ScVariableDefinition) {
       throw EvaluateExceptionUtil.createEvaluateException("Evaluation of variables is not supported")
-      super.visitVariableDefinition(varr)
     }
 
     override def visitTupleExpr(tuple: ScTuple) {
@@ -1598,12 +1592,10 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
     override def visitPatternDefinition(pat: ScPatternDefinition) {
       throw EvaluateExceptionUtil.createEvaluateException("Evaluation of values is not supported")
-      super.visitPatternDefinition(pat)
     }
 
     override def visitTypeDefintion(typedef: ScTypeDefinition) {
       throw EvaluateExceptionUtil.createEvaluateException("Evaluation of local classes is not supported")
-      super.visitTypeDefintion(typedef)
     }
 
     override def visitNewTemplateDefinition(templ: ScNewTemplateDefinition) {
@@ -1621,8 +1613,9 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               val tp = constr.typeElement.calcType
               ScType.extractClass(tp, Some(templ.getProject)) match {
                 case Some(clazz) if clazz.qualifiedName == "scala.Array" =>
-                  val exprText = "_root_.scala.Array.ofDim" + constr.typeArgList.map(_.getText).getOrElse("") +
-                    constr.args.map(_.getText).getOrElse("(0)")
+                  val typeArgs = constr.typeArgList.fold("")(_.getText)
+                  val args = constr.args.fold("(0)")(_.getText)
+                  val exprText = s"_root_.scala.Array.ofDim$typeArgs$args"
                   val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, templ.getContext, templ)
                   expr.accept(this)
                 case Some(clazz) =>
@@ -1772,7 +1765,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     private def thisOrImportedQualifierEvaluator(ref: ScReferenceElement, resolveResult: ScalaResolveResult): Evaluator = {
-      if (!resolveResult.importsUsed.isEmpty) importedQualifierEvaluator(ref, resolveResult)
+      if (resolveResult.importsUsed.nonEmpty) importedQualifierEvaluator(ref, resolveResult)
       else thisEvaluator(resolveResult)
     }
 
