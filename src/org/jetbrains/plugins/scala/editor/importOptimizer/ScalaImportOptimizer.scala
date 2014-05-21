@@ -14,14 +14,12 @@ import com.intellij.util.Processor
 import com.intellij.util.containers.{ConcurrentHashMap, ConcurrentHashSet}
 import java.util
 import java.util.concurrent.atomic.AtomicInteger
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScForStatement, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportExprUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportSelectorUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportWildcardSelectorUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -31,7 +29,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ArrayBuffer
@@ -194,7 +191,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
     })
 
     val project: Project = scalaFile.getProject
-    val settings: ScalaProjectSettings = ScalaProjectSettings.getInstance(project)
+    val settings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
     val addFullQualifiedImports = settings.isAddFullQualifiedImports
     val sortImports = settings.isSortImports
     val collectImports = settings.isCollectImports

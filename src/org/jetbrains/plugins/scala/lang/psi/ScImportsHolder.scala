@@ -11,8 +11,8 @@ import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.scope._
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
-import java.lang.ThreadLocal
 import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
@@ -32,9 +32,9 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, 
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.settings._
 import scala.annotation.tailrec
+import scala.collection.immutable.HashSet
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.immutable.HashSet
 
 trait ScImportsHolder extends ScalaPsiElement {
 
@@ -263,8 +263,9 @@ trait ScImportsHolder extends ScalaPsiElement {
       else (s.substring(0, index), s.substring(index + 1))
     }
 
-    if (!ScalaProjectSettings.getInstance(getProject).isCollectImports &&
-        selectors.length < ScalaProjectSettings.getInstance(getProject).getClassCountToUseImportOnDemand - 1) {
+    val settings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(getProject)
+    if (!settings.isCollectImports &&
+        selectors.length < settings.getClassCountToUseImportOnDemand - 1) {
       toDelete.clear()
       firstPossibleGoodPlace = None
       selectors.clear()
@@ -276,7 +277,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     simpleName +=: selectors
 
     val wildcardImport: Boolean = selectors.contains("_") ||
-      selectors.length >= ScalaProjectSettings.getInstance(getProject).getClassCountToUseImportOnDemand
+      selectors.length >= settings.getClassCountToUseImportOnDemand
     if (wildcardImport) {
       selectors.clear()
       selectors += "_"
@@ -359,7 +360,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       val (pre, last) = getSplitQualifierElement(classPackageQualifier)
       if (ScalaNamesUtil.isKeyword(last)) importString = "`" + last + "`" + "." + importString
       else importString = last + "." + importString
-      if ((!ScalaProjectSettings.getInstance(getProject).isAddFullQualifiedImports ||
+      if ((!settings.isAddFullQualifiedImports ||
               classPackageQualifier.indexOf(".") == -1) &&
               packages.contains(classPackageQualifier)) {
         importSt = ScalaPsiElementFactory.createImportFromText("import " + importString, getManager)

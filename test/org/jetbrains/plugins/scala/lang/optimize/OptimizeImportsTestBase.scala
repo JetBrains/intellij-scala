@@ -4,17 +4,16 @@ package optimize
 
 
 import _root_.com.intellij.psi.impl.source.tree.TreeUtil
-import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
-import base.ScalaLightPlatformCodeInsightTestCaseAdapter
-
-import lexer.ScalaTokenTypes
-import psi.api.ScalaFile
-import java.io.File
-import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
-import util.ScalaUtils
-import settings.ScalaProjectSettings
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
+import java.io.File
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.util.ScalaUtils
 
 /**
  * User: Alexander Podkhalyuzin
@@ -38,7 +37,7 @@ abstract class OptimizeImportsTestBase extends ScalaLightPlatformCodeInsightTest
     var res: String = null
     var lastPsi = TreeUtil.findLastLeaf(scalaFile.getNode).getPsi
 
-    if (getTestName(true).startsWith("sorted")) ScalaProjectSettings.getInstance(getProjectAdapter).setSortImports(true)
+    if (getTestName(true).startsWith("sorted")) ScalaCodeStyleSettings.getInstance(getProjectAdapter).setSortImports(true)
     ScalaUtils.runWriteActionDoNotRequestConfirmation(new ScalaImportOptimizer().processFile(scalaFile), getProjectAdapter, "Test")
     res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")
 

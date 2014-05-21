@@ -5,29 +5,29 @@ package impl
 package toplevel
 package imports
 
-import com.intellij.openapi.util.Key
 import com.intellij.lang.ASTNode
-
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
-import com.intellij.psi._
-import parser.ScalaElementTypes
-import psi.stubs.ScImportStmtStub
-import usages._
 import com.intellij.openapi.progress.ProgressManager
-import lang.resolve.processor._
-import api.toplevel.typedef.{ScObject, ScTypeDefinition, ScTemplateDefinition}
-import collection.immutable.Set
-import base.types.ScSimpleTypeElementImpl
-import api.base.ScStableCodeReferenceElement
-import types.result.{TypingContext, Failure}
-import types.{ScSubstitutor, ScDesignatorType}
+import com.intellij.openapi.util.Key
+import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
-import settings.ScalaProjectSettings
-import lang.resolve.{StdKinds, ScalaResolveResult}
-import completion.ScalaCompletionUtil
-import caches.ScalaShortNamesCacheManager
-import util.PsiTreeUtil
-import annotation.tailrec
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportStmtStub
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScSubstitutor}
+import org.jetbrains.plugins.scala.lang.resolve.processor._
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import scala.annotation.tailrec
+import scala.collection.immutable.Set
 import scala.collection.mutable
 
 /**
@@ -41,7 +41,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
 
   override def toString: String = "ScImportStatement"
 
-  import scope._
+  import com.intellij.psi.scope._
 
   def importExprs: Array[ScImportExpr] =
     getStubOrPsiChildren(ScalaElementTypes.IMPORT_EXPR, JavaArrayFactoryUtil.ScImportExprFactory)
@@ -133,13 +133,14 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
           }
           (elem, processor) match {
             case (pack: PsiPackage, complProc: CompletionProcessor) if complProc.includePrefixImports =>
-              val prefixImports = ScalaProjectSettings.getInstance(getProject).getImportsWithPrefix.filter(s =>
-                !s.startsWith(ScalaProjectSettings.EXCLUDE_PREFIX) &&
+              val settings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(getProject)
+              val prefixImports = settings.getImportsWithPrefix.filter(s =>
+                !s.startsWith(ScalaCodeStyleSettings.EXCLUDE_PREFIX) &&
                         s.substring(0, s.lastIndexOf(".")) == pack.getQualifiedName
               )
-              val excludeImports = ScalaProjectSettings.getInstance(getProject).getImportsWithPrefix.filter(s =>
-                s.startsWith(ScalaProjectSettings.EXCLUDE_PREFIX) &&
-                        s.substring(ScalaProjectSettings.EXCLUDE_PREFIX.length, s.lastIndexOf(".")) == pack.getQualifiedName
+              val excludeImports = settings.getImportsWithPrefix.filter(s =>
+                s.startsWith(ScalaCodeStyleSettings.EXCLUDE_PREFIX) &&
+                        s.substring(ScalaCodeStyleSettings.EXCLUDE_PREFIX.length, s.lastIndexOf(".")) == pack.getQualifiedName
               )
               val names = new mutable.HashSet[String]()
               for (prefixImport <- prefixImports) {

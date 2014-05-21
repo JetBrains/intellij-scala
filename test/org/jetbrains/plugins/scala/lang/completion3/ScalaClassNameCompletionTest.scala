@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
-import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 
 /**
  * User: Alefas
@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
 
 class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
   def withRelativeImports(body: => Unit): Unit = {
-    val settings: ScalaProjectSettings = ScalaProjectSettings.getInstance(getProjectAdapter)
+    val settings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(getProjectAdapter)
     val oldValue = settings.isAddFullQualifiedImports
     settings.setAddFullQualifiedImports(false)
     try {
@@ -117,7 +117,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
   }
 
   def testSmartJoining() {
-    val settings = ScalaProjectSettings.getInstance(getProjectAdapter)
+    val settings = ScalaCodeStyleSettings.getInstance(getProjectAdapter)
     val oldValue = settings.getImportsWithPrefix
     settings.setImportsWithPrefix(Array.empty)
     try {
