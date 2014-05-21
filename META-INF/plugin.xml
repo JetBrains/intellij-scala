@@ -12,7 +12,7 @@
       <p>0.1 (first release):</p>
       <ul>
         <li>Syntax highlighting along with dedicated 'Colors & fonts' settings</li>
-        <li>Basic syntax error highlighting</li>
+        <li>Syntax error highlighting</li>
         <li>Code formatter along with basic code style settings</li>
         <li>Brace matching</li>
         <li>Code folding</li>
