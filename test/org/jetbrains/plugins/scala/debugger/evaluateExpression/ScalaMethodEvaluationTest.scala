@@ -415,6 +415,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
       evalEquals("foo(\"a\", \"b\", \"c\")", "abc")
       evalEquals("foo(\"a\")", "a")
       evalEquals("foo()", "")
+      evalEquals("Array[Byte](0, 1)", "[0,1]")
     }
   }
 
