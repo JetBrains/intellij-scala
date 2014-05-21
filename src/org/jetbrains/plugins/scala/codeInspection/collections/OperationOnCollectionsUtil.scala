@@ -1,24 +1,20 @@
 package org.jetbrains.plugins.scala
 package codeInspection.collections
 
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.{types, ScalaPsiUtil}
-import OperationOnCollectionsUtil._
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScFunctionType}
-import scala.Some
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import lang.psi.api.expr.ScTuple
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
-import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import com.intellij.psi.{PsiModifier, PsiMethod}
+import org.jetbrains.plugins.scala.lang.psi.types
+import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * Nikolay.Tropin
@@ -244,23 +240,9 @@ object OperationOnCollectionsUtil {
   }
 
   def checkResolve(expr: ScExpression, patterns: Array[String]): Boolean = {
-//    if (ApplicationManager.getApplication.isUnitTestMode) true
-//    else expr match {
-//      case ref: ScReferenceExpression =>
-//        import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.nameFitToPatterns
-//        ref.resolve() match {
-//          case obj: ScObject =>
-//            nameFitToPatterns(obj.qualifiedName, patterns)
-//          case member: ScMember =>
-//            val className = member.containingClass.qualifiedName
-//            nameFitToPatterns(className, patterns)
-//          case _ => false
-//        }
-//      case _ => false
-//    }
     expr match {
       case ref: ScReferenceExpression =>
-        import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.nameFitToPatterns
+        import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings.nameFitToPatterns
         ref.resolve() match {
           case obj: ScObject =>
             nameFitToPatterns(obj.qualifiedName, patterns)

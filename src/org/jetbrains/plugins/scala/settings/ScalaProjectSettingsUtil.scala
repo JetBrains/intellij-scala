@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.settings
 
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import com.intellij.openapi.ui.{Messages, InputValidator}
-import scala.annotation.tailrec
-import javax.swing.{JList, DefaultListModel, JComponent, JPanel}
-import com.intellij.ui.{ListScrollingUtil, AnActionButton, AnActionButtonRunnable, ToolbarDecorator}
-import com.intellij.ui.components.JBList
+import com.intellij.openapi.ui.{InputValidator, Messages}
 import com.intellij.openapi.wm.IdeFocusManager
+import com.intellij.ui.{AnActionButton, AnActionButtonRunnable, ListScrollingUtil, ToolbarDecorator}
 import java.util
+import javax.swing.{DefaultListModel, JComponent, JList, JPanel}
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import scala.annotation.tailrec
 
 /**
  * @author Alefas
@@ -33,8 +33,8 @@ object ScalaProjectSettingsUtil {
 
     @tailrec
     private def checkInput(inputString: String, checkExcludes: Boolean): Boolean = {
-      if (checkExcludes && inputString.startsWith(ScalaProjectSettings.EXCLUDE_PREFIX))
-        checkInput(inputString.substring(ScalaProjectSettings.EXCLUDE_PREFIX.length), checkExcludes = false)
+      if (checkExcludes && inputString.startsWith(ScalaCodeStyleSettings.EXCLUDE_PREFIX))
+        checkInput(inputString.substring(ScalaCodeStyleSettings.EXCLUDE_PREFIX.length), checkExcludes = false)
       else
         inputString.contains(".") && ScalaProjectSettingsUtil.isValidPackage(inputString)
     }
