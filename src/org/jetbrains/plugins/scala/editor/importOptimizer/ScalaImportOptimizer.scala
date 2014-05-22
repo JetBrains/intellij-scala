@@ -197,21 +197,6 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val collectImports = settings.isCollectImports
     val groups = settings.getImportLayout
 
-    def findGroupIndex(info: ImportInfo): Int = {
-      val suitable = groups.filter { group =>
-        group != ScalaCodeStyleSettings.BLANK_LINE && (group == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS ||
-          info.prefixQualifier.startsWith(group))
-      }
-      val elem = suitable.tail.foldLeft(suitable.head) { (l, r) =>
-        if (l == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) r
-        else if (r == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) l
-        else if (r.startsWith(l)) r
-        else l
-      }
-
-      groups.indexOf(elem)
-    }
-
     val sortedImportsInfo: mutable.Map[TextRange, Seq[ImportInfo]] =
       for ((range, (names, _importInfos)) <- importsInfo) yield {
         var importInfos = _importInfos
@@ -246,13 +231,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
           } else false
         }
 
-        def compare(l: ImportInfo, r: ImportInfo): Boolean = {
-          val lIndex = findGroupIndex(l)
-          val rIndex = findGroupIndex(r)
-          if (lIndex > rIndex) true
-          else if (rIndex > lIndex) false
-          else textCreator.getImportText(l) > textCreator.getImportText(r)
-        }
+
 
         if (sortImports) {
           @tailrec
@@ -260,9 +239,9 @@ class ScalaImportOptimizer extends ImportOptimizer {
             var i = 0
             var changed = false
             while (i + 1 < buffer.length) {
-              if (compare(buffer(i), buffer(i + 1))) {
-                if (swap(i)) changed = true
-              }
+              val lText: String = buffer(i).prefixQualifier
+              val rText: String = buffer(i + 1).prefixQualifier
+              if (greater(lText, rText, project) && swap(i)) changed = true
               i = i + 1
             }
             if (changed) iteration()
@@ -356,7 +335,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
           val splitter: String = "\n" + splitterCalc(range.getStartOffset - 1)
           var currentGroupIndex = -1
           val text = importInfos.map { info =>
-            val index: Int = findGroupIndex(info)
+            val index: Int = findGroupIndex(info.prefixQualifier, project)
             if (index <= currentGroupIndex) textCreator.getImportText(info)
             else {
               var blankLines = ""
@@ -669,5 +648,29 @@ object ScalaImportOptimizer {
       if (index == -1) s
       else s.substring(0, index)
     }
+  }
+
+  def findGroupIndex(info: String, project: Project): Int = {
+    val groups = ScalaCodeStyleSettings.getInstance(project).getImportLayout
+    val suitable = groups.filter { group =>
+      group != ScalaCodeStyleSettings.BLANK_LINE && (group == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS ||
+        info.startsWith(group))
+    }
+    val elem = suitable.tail.foldLeft(suitable.head) { (l, r) =>
+      if (l == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) r
+      else if (r == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) l
+      else if (r.startsWith(l)) r
+      else l
+    }
+
+    groups.indexOf(elem)
+  }
+
+  def greater(l: String, r: String, project: Project): Boolean = {
+    val lIndex = findGroupIndex(l, project)
+    val rIndex = findGroupIndex(r, project)
+    if (lIndex > rIndex) true
+    else if (rIndex > lIndex) false
+    else l.toLowerCase > r.toLowerCase
   }
 }
