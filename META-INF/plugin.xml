@@ -1,6 +1,6 @@
 <idea-plugin>
   <id>intellijhocon</id>
-  <version>0.1</version>
+  <version>0.2</version>
   <idea-version since-build="135.0"/>
   <name>HOCON</name>
   <vendor>rjghik</vendor>
@@ -16,6 +16,10 @@
         <li>Code formatter along with basic code style settings</li>
         <li>Brace matching</li>
         <li>Code folding</li>
+      </ul>
+      <p>0.2:</p>
+      <ul>
+        <li>Java 1.6 support</li>
       </ul>
         ]]>
   </change-notes>
