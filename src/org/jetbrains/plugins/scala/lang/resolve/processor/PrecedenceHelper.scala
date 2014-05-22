@@ -38,6 +38,7 @@ trait PrecedenceHelper[T] {
 
   protected def compareWithIgnoredSet(set: mutable.HashSet[ScalaResolveResult]): Boolean = {
     import scala.collection.JavaConversions._
+    if (ignoredSet.nonEmpty && set.isEmpty) return false
     ignoredSet.forall { result =>
       set.forall { otherResult =>
         if (!ScEquivalenceUtil.smartEquivalence(result.getActualElement, otherResult.getActualElement)) {
@@ -70,7 +71,7 @@ trait PrecedenceHelper[T] {
   def isUpdateHistory: Boolean = false
 
   protected def addChangedLevelToHistory(): Unit = {
-    if (isUpdateHistory && !fromHistory) history += ChangedLevel
+    if (isUpdateHistory && !fromHistory && history.lastOption != Some(ChangedLevel)) history += ChangedLevel
   }
 
   protected def getQualifiedName(result: ScalaResolveResult): T

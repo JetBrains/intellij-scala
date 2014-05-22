@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
-import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 
 /**
  * User: Alefas
@@ -12,6 +12,17 @@ import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
  */
 
 class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
+  def withRelativeImports(body: => Unit): Unit = {
+    val settings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(getProjectAdapter)
+    val oldValue = settings.isAddFullQualifiedImports
+    settings.setAddFullQualifiedImports(false)
+    try {
+      body
+    } finally {
+      settings.setAddFullQualifiedImports(oldValue)
+    }
+  }
+
   def testClassNameRenamed() {
     val fileText =
       """
@@ -106,7 +117,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
   }
 
   def testSmartJoining() {
-    val settings = ScalaProjectSettings.getInstance(getProjectAdapter)
+    val settings = ScalaCodeStyleSettings.getInstance(getProjectAdapter)
     val oldValue = settings.getImportsWithPrefix
     settings.setImportsWithPrefix(Array.empty)
     try {
@@ -221,5 +232,41 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
 
     completeLookupItem(activeLookup.find(_.getLookupString == "foo").get, '\t')
     checkResultByText(resultText)
+  }
+
+  def testSCL4087() {
+    withRelativeImports {
+      val fileText =
+        """
+          |package a.b {
+          |  class XXXX
+          |}
+          |
+          |import a.{b => c}
+          |
+          |trait Y {
+          |  val x: XXXX<caret>
+          |}
+        """.stripMargin.replaceAll("\r", "").trim()
+      configureFromFileTextAdapter("dummy.scala", fileText)
+      val (activeLookup, _) = complete(2, CompletionType.BASIC)
+
+      val resultText =
+        """
+          |package a.b {
+          |  class XXXX
+          |}
+          |
+          |import a.b.XXXX
+          |import a.{b => c}
+          |
+          |trait Y {
+          |  val x: XXXX<caret>
+          |}
+        """.stripMargin.replaceAll("\r", "").trim()
+
+      completeLookupItem(activeLookup.find(_.getLookupString == "XXXX").get, '\t')
+      checkResultByText(resultText)
+    }
   }
 }

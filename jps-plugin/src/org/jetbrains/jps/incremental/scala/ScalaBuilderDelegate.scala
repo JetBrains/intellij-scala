@@ -8,11 +8,11 @@ import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.jps.incremental.scala.data.{SbtData, CompilationData, CompilerData}
 import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
 import org.jetbrains.jps.incremental.scala.local.LocalServer
-import com.intellij.util.PathUtil
 import org.jetbrains.jps.builders.java.{JavaSourceRootDescriptor, JavaBuilderUtil}
 import org.jetbrains.jps.incremental.scala.remote.RemoteServer
 import org.jetbrains.jps.builders.DirtyFilesHolder
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
+import com.intellij.openapi.application.PathManager
 
 /**
  * Nikolay.Tropin
@@ -92,7 +92,7 @@ object ScalaBuilderDelegate {
 
   private lazy val sbtData = {
     val classLoader = getClass.getClassLoader
-    val pluginRoot = new File(PathUtil.getJarPathForClass(getClass)).getParentFile
+    val pluginRoot = new File(PathManager.getJarPathForClass(getClass)).getParentFile
     val systemRoot = Utils.getSystemRoot
     val javaClassVersion = System.getProperty("java.class.version")
 

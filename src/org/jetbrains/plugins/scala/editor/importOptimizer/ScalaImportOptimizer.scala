@@ -14,14 +14,12 @@ import com.intellij.util.Processor
 import com.intellij.util.containers.{ConcurrentHashMap, ConcurrentHashSet}
 import java.util
 import java.util.concurrent.atomic.AtomicInteger
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScForStatement, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportExprUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportSelectorUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportWildcardSelectorUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -31,7 +29,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ArrayBuffer
@@ -111,7 +108,10 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
     def isImportUsed(importUsed: ImportUsed): Boolean = {
       //todo: collect proper information about language features
-      usedImports.contains(importUsed) || isLanguageFeatureImport(importUsed)
+      importUsed match {
+        case ImportSelectorUsed(sel) if sel.isAliasedImport => true
+        case _ => usedImports.contains(importUsed) || isLanguageFeatureImport(importUsed)
+      }
     }
 
     JobLauncher.getInstance().invokeConcurrentlyUnderProgress(list, indicator, true, true, new Processor[PsiElement] {
@@ -191,11 +191,26 @@ class ScalaImportOptimizer extends ImportOptimizer {
     })
 
     val project: Project = scalaFile.getProject
-    val settings: ScalaProjectSettings = ScalaProjectSettings.getInstance(project)
+    val settings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
     val addFullQualifiedImports = settings.isAddFullQualifiedImports
     val sortImports = settings.isSortImports
     val collectImports = settings.isCollectImports
+    val groups = settings.getImportLayout
 
+    def findGroupIndex(info: ImportInfo): Int = {
+      val suitable = groups.filter { group =>
+        group != ScalaCodeStyleSettings.BLANK_LINE && (group == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS ||
+          info.prefixQualifier.startsWith(group))
+      }
+      val elem = suitable.tail.foldLeft(suitable.head) { (l, r) =>
+        if (l == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) r
+        else if (r == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) l
+        else if (r.startsWith(l)) r
+        else l
+      }
+
+      groups.indexOf(elem)
+    }
 
     val sortedImportsInfo: mutable.Map[TextRange, Seq[ImportInfo]] =
       for ((range, (names, _importInfos)) <- importsInfo) yield {
@@ -231,13 +246,21 @@ class ScalaImportOptimizer extends ImportOptimizer {
           } else false
         }
 
+        def compare(l: ImportInfo, r: ImportInfo): Boolean = {
+          val lIndex = findGroupIndex(l)
+          val rIndex = findGroupIndex(r)
+          if (lIndex > rIndex) true
+          else if (rIndex > lIndex) false
+          else textCreator.getImportText(l) > textCreator.getImportText(r)
+        }
+
         if (sortImports) {
           @tailrec
           def iteration(): Unit = {
             var i = 0
             var changed = false
             while (i + 1 < buffer.length) {
-              if (textCreator.getImportText(buffer(i)) > textCreator.getImportText(buffer(i + 1))) {
+              if (compare(buffer(i), buffer(i + 1))) {
                 if (swap(i)) changed = true
               }
               i = i + 1
@@ -331,7 +354,24 @@ class ScalaImportOptimizer extends ImportOptimizer {
             }
           }
           val splitter: String = "\n" + splitterCalc(range.getStartOffset - 1)
-          val text = importInfos.map(textCreator.getImportText).mkString(splitter)
+          var currentGroupIndex = -1
+          val text = importInfos.map { info =>
+            val index: Int = findGroupIndex(info)
+            if (index <= currentGroupIndex) textCreator.getImportText(info)
+            else {
+              var blankLines = ""
+              def iteration() {
+                currentGroupIndex += 1
+                while (groups(currentGroupIndex) == ScalaCodeStyleSettings.BLANK_LINE) {
+                  blankLines += "\n"
+                  currentGroupIndex += 1
+                }
+              }
+              while (currentGroupIndex != -1 && blankLines.isEmpty && currentGroupIndex < index) iteration()
+              currentGroupIndex = index
+              blankLines + textCreator.getImportText(info)
+            }
+          }.mkString(splitter)
           val newRange: TextRange = if (text.isEmpty) {
             var start = range.getStartOffset
             while (start > 0 && documentText.charAt(start) != '\n') start = start - 1

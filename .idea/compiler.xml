@@ -20,6 +20,13 @@
       <entry name="?*.template" />
       <entry name="?*Service" />
       <entry name="?*Extension" />
+      <entry name="?*.css" />
+      <entry name="?*.js" />
+      <entry name="?*.scala_" />
+      <entry name="?*.java_" />
+      <entry name="?*.conf" />
+      <entry name="?*.html_" />
+      <entry name="?*.class" />
     </wildcardResourcePatterns>
     <annotationProcessing>
       <profile default="true" name="Default" enabled="false">

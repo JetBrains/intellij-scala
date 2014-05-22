@@ -1,16 +1,15 @@
 package org.jetbrains.plugins.scala
 package lang.resolve.processor
 
-import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import com.intellij.psi._
-import lang.resolve.{ResolveTargets, ScalaResolveResult}
+import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 import scala.collection.Set
-import lang.psi.api.statements.{ScTypeAliasDefinition, ScTypeAliasDeclaration}
-import lang.psi.types.result.TypingContext
-import lang.psi.types.ScType
-import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import extensions.toPsiClassExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -21,8 +20,6 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
                                   shapeResolve: Boolean, allConstructors: Boolean)
         extends MethodResolveProcessor(constr, refName, args, typeArgs, Seq.empty, kinds,
           isShapeResolve = shapeResolve, enableTupling = true) {
-  private val qualifiedNames: collection.mutable.HashSet[String] = new collection.mutable.HashSet[String]
-
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     val fromType = getFromType(state)
@@ -36,9 +33,8 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
       val accessible = isAccessible(named, ref)
       if (accessibility && !accessible) return true
       named match {
-        case clazz: PsiClass if clazz.qualifiedName != null && !qualifiedNames.contains(clazz.qualifiedName) => {
-          qualifiedNames.add(clazz.qualifiedName)
-          val constructors: Array[PsiMethod] = 
+        case clazz: PsiClass =>
+          val constructors: Array[PsiMethod] =
             if (accessibility) clazz.constructors.filter(isAccessible(_, ref))
             else clazz.constructors
           if (constructors.isEmpty) {
@@ -53,20 +49,18 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
               isAccessible = isAccessible(constr, ref) && accessible
             )))
           }
-        }
-        case ta: ScTypeAliasDeclaration => {
+        case ta: ScTypeAliasDeclaration =>
           addResult(new ScalaResolveResult(ta, subst, getImports(state), nameShadow0, boundClass = getBoundClass(state),
             fromType = fromType, isAccessible = accessible))
-        }
-        case ta: ScTypeAliasDefinition => {
+        case ta: ScTypeAliasDefinition =>
           lazy val r = new ScalaResolveResult(ta, subst, getImports(state), nameShadow0, boundClass = getBoundClass(state), fromType = fromType, isAccessible = true)
           val tp = ta.aliasedType(TypingContext.empty).getOrElse({
             addResult(r)
             return true
           })
           ScType.extractClassType(tp) match {
-            case Some((clazz, s)) => {
-              val constructors: Array[PsiMethod] = 
+            case Some((clazz, s)) =>
+              val constructors: Array[PsiMethod] =
                 if (accessibility) clazz.constructors.filter(isAccessible(_, ref))
                 else clazz.constructors
               if (constructors.isEmpty) addResult(r)
@@ -76,12 +70,9 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
                     isAccessible = isAccessible(constr, ref) && accessible
                 )))
               }
-            }
-            case _ => {
+            case _ =>
               addResult(r)
-            }
           }
-        }
         case _ =>
       }
     }
