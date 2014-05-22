@@ -32,8 +32,11 @@ public class ImportsPanel extends CodeStyleAbstractPanel {
   private JPanel myImportsWithPrefixPanel;
   private JCheckBox collectImportsWithTheCheckBox;
   private JSpinner classCountSpinner;
+  private JPanel importLayoutPanel;
   private JBList referencesWithPrefixList;
   private DefaultListModel myReferencesWithPrefixModel;
+  private JBList importLayoutTable;
+  private DefaultListModel myImportLayoutModel;
 
   public ImportsPanel(@NotNull CodeStyleSettings settings) {
     super(settings);
@@ -45,6 +48,11 @@ public class ImportsPanel extends CodeStyleAbstractPanel {
         "Add pattern to use appropriate classes only with prefix", "Use References With Prefix:");
     myImportsWithPrefixPanel.add(panel, BorderLayout.CENTER);
     referencesWithPrefixList.getEmptyText().setText(ApplicationBundle.message("exclude.from.imports.no.exclusions"));
+    myImportLayoutModel = new DefaultListModel();
+    importLayoutTable = new JBList(myImportLayoutModel);
+
+    panel = ScalaProjectSettingsUtil.getUnsortedPatternListPanel(contentPanel, importLayoutTable, "Add package name", "Import Layout Manager");
+    importLayoutPanel.add(panel, BorderLayout.CENTER);
   }
 
   @Override
@@ -84,6 +92,14 @@ public class ImportsPanel extends CodeStyleAbstractPanel {
     return prefixPackages;
   }
 
+  public String[] getImportLayout() {
+    String[] importLayout = new String[myImportLayoutModel.size()];
+    for (int i = 0; i < myImportLayoutModel.size(); i++) {
+      importLayout[i] = (String)myImportLayoutModel.elementAt(i);
+    }
+    return importLayout;
+  }
+
   @Override
   public void apply(CodeStyleSettings settings) throws ConfigurationException {
     if (!isModified(settings)) return;
@@ -98,6 +114,7 @@ public class ImportsPanel extends CodeStyleAbstractPanel {
     scalaCodeStyleSettings.setImportMembersUsingUnderScore(importMembersUsingUnderscoreCheckBox.isSelected());
     scalaCodeStyleSettings.setImportShortestPathForAmbiguousReferences(importTheShortestPathCheckBox.isSelected());
     scalaCodeStyleSettings.setImportsWithPrefix(getPrefixPackages());
+    scalaCodeStyleSettings.setImportLayout(getImportLayout());
   }
 
   @Override
@@ -119,6 +136,7 @@ public class ImportsPanel extends CodeStyleAbstractPanel {
     if (scalaCodeStyleSettings.isImportShortestPathForAmbiguousReferences() !=
         importTheShortestPathCheckBox.isSelected()) return true;
     if (!Arrays.deepEquals(scalaCodeStyleSettings.getImportsWithPrefix(), getPrefixPackages())) return true;
+    if (!Arrays.deepEquals(scalaCodeStyleSettings.getImportLayout(), getImportLayout())) return true;
     return false;
   }
 
@@ -143,6 +161,10 @@ public class ImportsPanel extends CodeStyleAbstractPanel {
     myReferencesWithPrefixModel.clear();
     for (String aPackage : scalaCodeStyleSettings.getImportsWithPrefix()) {
       myReferencesWithPrefixModel.add(myReferencesWithPrefixModel.size(), aPackage);
+    }
+    myImportLayoutModel.clear();
+    for (String layoutElement : scalaCodeStyleSettings.getImportLayout()) {
+      myImportLayoutModel.add(myImportLayoutModel.size(), layoutElement);
     }
   }
 

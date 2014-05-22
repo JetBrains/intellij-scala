@@ -160,6 +160,14 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
       "scala.collection.mutable._"
   };
 
+  private String[] IMPORT_LAYOUT = new String[] {
+      "java",
+      BLANK_LINE,
+      ALL_OTHER_IMPORTS,
+      BLANK_LINE,
+      "scala"
+  };
+
   public ScalaCodeStyleSettings(CodeStyleSettings container) {
     super("ScalaCodeStyleSettings", container);
   }
@@ -235,11 +243,22 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
     } else return false;
   }
 
+  public String[] getImportLayout() {
+    return IMPORT_LAYOUT;
+  }
+
+  public void setImportLayout(String[] importLayout) {
+    this.IMPORT_LAYOUT = importLayout;
+  }
+
   private static boolean fitToUnderscorePattern(String pattern, String qualName) {
     return pattern.endsWith("._") && qualName.contains(".") && qualName.startsWith(pattern.substring(0, pattern.lastIndexOf('.')));
   }
 
   public static String EXCLUDE_PREFIX = "exclude:";
+
+  public static String BLANK_LINE = "_______ blank line _______";
+  public static String ALL_OTHER_IMPORTS = "all other imports";
 
   public static ScalaCodeStyleSettings getInstance(Project project) {
     return CodeStyleSettingsManager.getSettings(project).getCustomSettings(ScalaCodeStyleSettings.class);

@@ -195,7 +195,22 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val addFullQualifiedImports = settings.isAddFullQualifiedImports
     val sortImports = settings.isSortImports
     val collectImports = settings.isCollectImports
+    val groups = settings.getImportLayout
 
+    def findGroupIndex(info: ImportInfo): Int = {
+      val suitable = groups.filter { group =>
+        group != ScalaCodeStyleSettings.BLANK_LINE && (group == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS ||
+          info.prefixQualifier.startsWith(group))
+      }
+      val elem = suitable.tail.foldLeft(suitable.head) { (l, r) =>
+        if (l == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) r
+        else if (r == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) l
+        else if (r.startsWith(l)) r
+        else l
+      }
+
+      groups.indexOf(elem)
+    }
 
     val sortedImportsInfo: mutable.Map[TextRange, Seq[ImportInfo]] =
       for ((range, (names, _importInfos)) <- importsInfo) yield {
@@ -231,13 +246,21 @@ class ScalaImportOptimizer extends ImportOptimizer {
           } else false
         }
 
+        def compare(l: ImportInfo, r: ImportInfo): Boolean = {
+          val lIndex = findGroupIndex(l)
+          val rIndex = findGroupIndex(r)
+          if (lIndex > rIndex) true
+          else if (rIndex > lIndex) false
+          else textCreator.getImportText(l) > textCreator.getImportText(r)
+        }
+
         if (sortImports) {
           @tailrec
           def iteration(): Unit = {
             var i = 0
             var changed = false
             while (i + 1 < buffer.length) {
-              if (textCreator.getImportText(buffer(i)) > textCreator.getImportText(buffer(i + 1))) {
+              if (compare(buffer(i), buffer(i + 1))) {
                 if (swap(i)) changed = true
               }
               i = i + 1
@@ -331,7 +354,24 @@ class ScalaImportOptimizer extends ImportOptimizer {
             }
           }
           val splitter: String = "\n" + splitterCalc(range.getStartOffset - 1)
-          val text = importInfos.map(textCreator.getImportText).mkString(splitter)
+          var currentGroupIndex = -1
+          val text = importInfos.map { info =>
+            val index: Int = findGroupIndex(info)
+            if (index <= currentGroupIndex) textCreator.getImportText(info)
+            else {
+              var blankLines = ""
+              def iteration() {
+                currentGroupIndex += 1
+                while (groups(currentGroupIndex) == ScalaCodeStyleSettings.BLANK_LINE) {
+                  blankLines += "\n"
+                  currentGroupIndex += 1
+                }
+              }
+              while (currentGroupIndex != -1 && blankLines.isEmpty && currentGroupIndex < index) iteration()
+              currentGroupIndex = index
+              blankLines + textCreator.getImportText(info)
+            }
+          }.mkString(splitter)
           val newRange: TextRange = if (text.isEmpty) {
             var start = range.getStartOffset
             while (start > 0 && documentText.charAt(start) != '\n') start = start - 1
