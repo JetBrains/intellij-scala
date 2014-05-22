@@ -7,17 +7,19 @@ import com.intellij.openapi.fileEditor._
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.editor.ex.EditorEx
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
-import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.{PsiManager, PsiDocumentManager}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetFoldGroup, WorksheetEditorPrinter}
 import org.jetbrains.plugins.scala.extensions
-import javax.swing.JPanel
+import javax.swing.{JCheckBox, JPanel}
 import java.awt.FlowLayout
 import com.intellij.openapi.application.{ModalityState, ApplicationManager}
 import org.jetbrains.plugins.scala.components.{WorksheetProcess, StopWorksheetAction}
 import java.util
 import java.lang.ref.WeakReference
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
+import javax.swing.event.{ChangeEvent, ChangeListener}
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 
 /**
  * User: Dmitry Naydanov
@@ -65,7 +67,15 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
 
 
       extensions.inReadAction {
-        new ChangeMakeAction(file, project).init(panel)
+        val makeProjectCb: JCheckBox = new JCheckBox("Make project",
+          WorksheetCompiler.isMakeBeforeRun(PsiManager getInstance project findFile file))
+        makeProjectCb.addChangeListener(new ChangeListener {
+          override def stateChanged(e: ChangeEvent) {
+            WorksheetCompiler.setMakeBeforeRun(PsiManager getInstance project findFile file, makeProjectCb.isSelected)
+          }
+        })
+        panel.add(makeProjectCb)
+
         new CopyWorksheetAction().init(panel)
         new CleanWorksheetAction().init(panel)
         if (run) new RunWorksheetAction().init(panel) else exec map (new StopWorksheetAction(_).init(panel))
