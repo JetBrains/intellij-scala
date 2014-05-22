@@ -17,6 +17,8 @@
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
+        <project.converterProvider
+                implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ImportPanelConverterProvider"/>
         <statistics.usagesCollector
                 implementation="org.jetbrains.plugins.scala.statistics.ScalaApplicationUsagesCollector" />
         <lang.rearranger language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger"/>

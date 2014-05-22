@@ -53,7 +53,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
     if (element != null) {
       val lines: Range[Integer] = new Range[Integer](doc.getLineNumber(element.getTextOffset), doc.getLineNumber(element.getTextOffset + element.getTextLength))
       val targets: List[SmartStepTarget] = findReferencedMethodsScala(position).map { method =>
-        new MethodSmartStepTarget(method, null, null, true, lines)
+        new MethodSmartStepTarget(method, null, null, false, lines)
       }
       return targets.asJava
     }

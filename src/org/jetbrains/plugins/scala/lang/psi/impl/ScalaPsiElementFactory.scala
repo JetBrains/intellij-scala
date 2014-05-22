@@ -3,54 +3,51 @@ package lang
 package psi
 package impl
 
-import api.ScalaFile
-import api.toplevel.packaging.ScPackaging
-import com.intellij.lang.{PsiBuilderFactory, ASTNode}
+import com.intellij.lang.{ASTNode, PsiBuilderFactory}
+import com.intellij.openapi.project.Project
+import com.intellij.pom.java.LanguageLevel
+import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsParameterImpl
-import api.statements._
-import com.intellij.psi.impl.source.tree.{TreeElement, FileElement}
 import com.intellij.psi.impl.source.DummyHolderFactory
-import expr.ScBlockImpl
-import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-
+import com.intellij.psi.impl.source.tree.{FileElement, TreeElement}
+import com.intellij.psi.javadoc.PsiDocComment
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.IncorrectOperationException
+import java.util
+import org.apache.commons.lang.StringUtils
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Constructor, Import}
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Block, Expr}
+import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ImplicitParamClause, TypeParamClause}
+import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{Dcl, Def}
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.{ClassParamClause, ImplicitClassParamClause}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
-import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScIdList, ScPatternList, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.{ScXmlEndTag, ScXmlStartTag}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import parser.parsing.statements.{Dcl, Def}
-import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBody, ScTemplateParents}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import refactoring.util.{ScTypeUtil, ScalaNamesUtil}
-import lexer.{ScalaTokenTypes, ScalaLexer}
-import stubs.StubElement
-import types._
-import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScObject, ScTypeDefinition, ScMember}
-import parser.parsing.top.TmplDef
-import parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
-import parser.parsing.top.params.{ClassParamClause, ImplicitClassParamClause}
-import api.toplevel.templates.{ScTemplateParents, ScTemplateBody}
-import api.base.patterns._
-import parser.parsing.params.{TypeParamClause, ImplicitParamClause}
-import java.lang.ClassCastException
-import com.intellij.openapi.project.Project
-import parser.parsing.expressions.{Block, Expr}
-import org.apache.commons.lang.StringUtils
-import parser.parsing.base.{Constructor, Import}
-import api.base.{ScConstructor, ScIdList, ScPatternList, ScStableCodeReferenceElement}
-import com.intellij.util.IncorrectOperationException
-import scaladoc.psi.api.{ScDocInnerCodeElement, ScDocResolvableCodeReference, ScDocSyntaxElement, ScDocComment}
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
-import api.expr.xml.{ScXmlStartTag, ScXmlEndTag}
-import settings._
-import com.intellij.psi.search.GlobalSearchScope
-import java.util
-import com.intellij.pom.java.LanguageLevel
+import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocInnerCodeElement, ScDocResolvableCodeReference, ScDocSyntaxElement}
 import scala.collection.mutable
-import com.intellij.psi.javadoc.PsiDocComment
 
 class ScalaPsiElementFactoryImpl(manager: PsiManager) extends JVMElementFactory {
   def createDocCommentFromText(text: String): PsiDocComment = ???
@@ -411,7 +408,7 @@ object ScalaPsiElementFactory {
     names ++= expr.getNames
     for (expr <- exprs) names ++= expr.getNames
     if ((names("_") ||
-            ScalaProjectSettings.getInstance(manager.getProject).getClassCountToUseImportOnDemand <=
+            ScalaCodeStyleSettings.getInstance(manager.getProject).getClassCountToUseImportOnDemand <=
                     names.size) &&
             names.filter(_.indexOf("=>") != -1).toSeq.size == 0) text = text + "._"
     else {
@@ -761,7 +758,7 @@ object ScalaPsiElementFactory {
           builder ++= strings.mkString("[", ", ", "]")
         }
 
-        import extensions.toPsiMethodExt
+        import org.jetbrains.plugins.scala.extensions.toPsiMethodExt
 
         val paramCount = method.getParameterList.getParametersCount
         val omitParamList = paramCount == 0 && method.hasQueryLikeName

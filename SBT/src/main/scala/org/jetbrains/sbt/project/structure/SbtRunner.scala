@@ -8,7 +8,7 @@ import com.intellij.execution.process.OSProcessHandler
 /**
  * @author Pavel Fatin
  */
-class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customVM: Option[File]) {
+class SbtRunner(ideaSystem: File, vmOptions: Seq[String], customLauncher: Option[File], customVM: Option[File]) {
   private val JavaHome = customVM.getOrElse(new File(System.getProperty("java.home")))
   private val JavaVM = JavaHome / "bin" / "java"
   private val LauncherDir = SbtRunner.getSbtLauncherDir
@@ -17,48 +17,56 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customVM: 
   def read(directory: File, download: Boolean)(listener: (String) => Unit): Either[Exception, Elem] = {
     val files = Stream("Java home" -> JavaHome, "SBT launcher" -> SbtLauncher)
     val problem = files.map((check _).tupled).flatten.headOption
-    problem.map(it => Left(new FileNotFoundException(it))).getOrElse(read0(directory, download, listener))
+    problem.fold(read0(directory, download, listener))(it => Left(new FileNotFoundException(it)))
   }
 
   private def check(entity: String, file: File) = (!file.exists()).option(s"$entity does not exist: $file")
 
   private def read0(directory: File, download: Boolean, listener: (String) => Unit) = {
+    val sbtBase = ideaSystem / "SBT"
+
+    createGlobalConfigurationWithin(sbtBase)
+
     usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
       usingTempFile("sbt-commands", Some(".lst")) { commandsFile =>
-        usingTempDirectory("sbt-global-plugins") { globalPluginsDirectory =>
-          usingTempDirectory("sbt-global-settings") { globalSettingsDirectory =>
 
-            writeLinesTo(new File(globalPluginsDirectory, "build.sbt"),
-              """resolvers += "sbt-releases" at "http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"""",
-              "",
-              s"""addSbtPlugin("org.jetbrains" % "sbt-structure" % "${Sbt.StructurePluginVersion}")""")
+        commandsFile.write(
+          s"""set artifactPath := file("${path(structureFile)}")""",
+          if (download) "read-project-and-repository" else "read-project")
 
-            writeLinesTo(commandsFile,
-              s"""set artifactPath := file("${path(structureFile)}")""",
-              if (download) "read-project-and-repository" else "read-project")
-
-            val processCommands =
-              path(JavaVM) +:
+        val processCommands =
+          path(JavaVM) +:
 //                    "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005" +:
-                      "-Djline.terminal=jline.UnsupportedTerminal" +:
-                      "-Dsbt.log.noformat=true" +:
-                      s"-Dsbt.global.plugins=${globalPluginsDirectory.canonicalPath}" +:
-                      s"-Dsbt.global.settings=${globalSettingsDirectory.canonicalPath}" +:
-                      vmOptions :+
-                      "-jar" :+
-                      path(SbtLauncher) :+
-                      s"< ${path(commandsFile)}"
+                  "-Djline.terminal=jline.UnsupportedTerminal" +:
+                  "-Dsbt.log.noformat=true" +:
+                  s"-Dsbt.global.base=${sbtBase.canonicalPath}" +:
+                  vmOptions :+
+                  "-jar" :+
+                  path(SbtLauncher) :+
+                  s"< ${path(commandsFile)}"
 
-            try {
-              val process = Runtime.getRuntime.exec(processCommands.toArray, null, directory)
-              val output = handle(process, listener)
-              (structureFile.length > 0).either(
-                XML.load(structureFile.toURI.toURL))(new SbtException(output))
-            } catch {
-              case e: Exception => Left(e)
-            }
-          }}
-      }
+        try {
+          val process = Runtime.getRuntime.exec(processCommands.toArray, null, directory)
+          val output = handle(process, listener)
+          (structureFile.length > 0).either(
+            XML.load(structureFile.toURI.toURL))(new SbtException(output))
+        } catch {
+          case e: Exception => Left(e)
+        }
+      }}
+  }
+
+  private def createGlobalConfigurationWithin(base: File) {
+    val lines = Seq(
+      """resolvers += "sbt-releases" at "http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"""",
+      "",
+      s"""addSbtPlugin("org.jetbrains" % "sbt-structure" % "${Sbt.StructurePluginVersion}")""")
+
+    val pluginsFiles = Seq(base / "plugins" / "build.sbt", base / "0.13" / "plugins" / "build.sbt")
+
+    pluginsFiles.foreach { file =>
+      file.getParentFile.mkdirs()
+      file.write(lines: _*)
     }
   }
 

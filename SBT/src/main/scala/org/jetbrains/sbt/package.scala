@@ -47,6 +47,14 @@ package object sbt {
     def isUnder(root: File): Boolean = FileUtil.isAncestor(root, file, true)
 
     def isOutsideOf(root: File): Boolean = !FileUtil.isAncestor(root, file, false)
+
+    def write(lines: String*) {
+      writeLinesTo(file, lines: _*)
+    }
+
+    def copyTo(destination: File) {
+      copy(file, destination)
+    }
   }
 
   private object RichFile {
@@ -95,10 +103,6 @@ package object sbt {
     }
   }
 
-  type Closeable = {
-    def close()
-  }
-
   def using[A <: Closeable, B](resource: A)(block: A => B): B = {
     try {
       block(resource)
@@ -133,27 +137,6 @@ package object sbt {
       block(file)
     } finally {
       file.delete()
-    }
-  }
-
-  def usingTempDirectory[T](prefix: String, suffix: Option[String] = None)(block: File => T): T = {
-    val dir = FileUtil.createTempDirectory(prefix, suffix.orNull, true)
-    try {
-      block(dir)
-    } finally {
-      dir.delete()
-    }
-  }
-
-  def usingSafeCopyOf[T](file: File)(block: File => T): T = {
-    if (file.getAbsolutePath.contains(" ")) {
-      val (prefix, suffix) = parse(file.getName)
-      usingTempFile(prefix, Some(suffix)) { tempFile =>
-        copy(file, tempFile)
-        block(tempFile)
-      }
-    } else {
-      block(file)
     }
   }
 

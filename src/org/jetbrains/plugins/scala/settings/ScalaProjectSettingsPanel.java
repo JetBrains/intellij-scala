@@ -1,9 +1,7 @@
 package org.jetbrains.plugins.scala.settings;
 
-import com.intellij.openapi.application.ApplicationBundle;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.components.JBList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings;
@@ -11,7 +9,6 @@ import org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Arrays;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -21,49 +18,35 @@ public class ScalaProjectSettingsPanel {
   public final static String INJECTION_SETTINGS_NAME = "DependencyAwareInjectionSettings";
   
   private JPanel myPanel;
-  private JSpinner classCountSpinner;
-  private JCheckBox addImportStatementInCheckBox;
   private JCheckBox searchAllSymbolsIncludeCheckBox;
   private JCheckBox enableConversionOnCopyCheckBox;
   private JCheckBox donTShowDialogCheckBox;
-  private JCheckBox addFullQualifiedImportsCheckBox;
-  private JCheckBox sortImportsCheckBox;
   private JCheckBox showImplicitConversionsInCheckBox;
   private JCheckBox myResolveToAllClassesCheckBox;
   private JCheckBox showArgumentsToByNameParametersCheckBox;
   private JCheckBox includeBlockExpressionsExpressionsCheckBox;
   private JCheckBox includeLiteralsCheckBox;
   private JCheckBox treatDocCommentAsBlockComment;
-  private JCheckBox importMembersUsingUnderscoreCheckBox;
   private JCheckBox myDisableLanguageInjection;
   private JCheckBox myDisablei18n;
   private JCheckBox useScalaClassesPriorityCheckBox;
   private JComboBox collectionHighlightingChooser;
-  private JCheckBox importTheShortestPathCheckBox;
-  private JPanel myImportsWithPrefixPanel;
   private JSpinner shiftSpinner;
   private JPanel injectionJPanel;
   private JSpinner outputSpinner;
   private JSpinner implicitParametersSearchDepthSpinner;
   private JCheckBox myDontCacheCompound;
   private JCheckBox runWorksheetInTheCheckBox;
-  private JCheckBox collectImportsWithTheCheckBox;
   private JCheckBox worksheetInteractiveModeCheckBox;
   private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
-  private JBList referencesWithPrefixList;
-  private DefaultListModel myReferencesWithPrefixModel;
   private Project myProject;
 
   public ScalaProjectSettingsPanel(Project project) {
     myProject = project;
-    classCountSpinner.setModel(new SpinnerNumberModel(1, 1, null, 1));
+
     shiftSpinner.setModel(new SpinnerNumberModel(80, 40, null, 10));
     outputSpinner.setModel(new SpinnerNumberModel(35, 1, null, 1));
-    referencesWithPrefixList = new JBList();
-    JPanel panel = ScalaProjectSettingsUtil.getPatternListPanel(myPanel, referencesWithPrefixList,
-        "Add pattern to use appropriate classes only with prefix", "Use References With Prefix:");
-    myImportsWithPrefixPanel.add(panel, BorderLayout.CENTER);
-    
+
     ScalaUiWithDependency[] deps = DependencyAwareInjectionSettings.EP_NAME.getExtensions();
     for (ScalaUiWithDependency uiWithDependency : deps) {
       if (INJECTION_SETTINGS_NAME.equals(uiWithDependency.getName())) {
@@ -73,17 +56,7 @@ public class ScalaProjectSettingsPanel {
     }
     if (injectionPrefixTable == null) injectionPrefixTable = new ScalaUiWithDependency.NullComponentWithSettings();
 
-    referencesWithPrefixList.getEmptyText().setText(ApplicationBundle.message("exclude.from.imports.no.exclusions"));
     setSettings();
-  }
-
-  public String[] getPrefixPackages() {
-    String[] prefixPackages = new String[myReferencesWithPrefixModel.size()];
-    for (int i = 0; i < myReferencesWithPrefixModel.size(); i++) {
-      prefixPackages[i] = (String)myReferencesWithPrefixModel.elementAt(i);
-    }
-    Arrays.sort(prefixPackages);
-    return prefixPackages;
   }
 
   @NotNull
@@ -95,18 +68,11 @@ public class ScalaProjectSettingsPanel {
     if (!isModified()) return;
 
     final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
-    
-    scalaProjectSettings.setAddImportMostCloseToReference(addImportStatementInCheckBox.isSelected());
-    scalaProjectSettings.setAddFullQualifiedImports(addFullQualifiedImportsCheckBox.isSelected());
-    scalaProjectSettings.setSortImports(sortImportsCheckBox.isSelected());
-    scalaProjectSettings.setCollectImport(collectImportsWithTheCheckBox.isSelected());
     scalaProjectSettings.setImplicitParametersSearchDepth((Integer) implicitParametersSearchDepthSpinner.getValue());
-    scalaProjectSettings.setClassCountToUseImportOnDemand((Integer) classCountSpinner.getValue());
     scalaProjectSettings.setShift((Integer) shiftSpinner.getValue());
     scalaProjectSettings.setOutputLimit((Integer) outputSpinner.getValue());
     scalaProjectSettings.setInProcessMode(runWorksheetInTheCheckBox.isSelected());
     scalaProjectSettings.setInteractiveMode(worksheetInteractiveModeCheckBox.isSelected());
-    scalaProjectSettings.setImportMembersUsingUnderScore(importMembersUsingUnderscoreCheckBox.isSelected());
 
     scalaProjectSettings.setSearchAllSymbols(searchAllSymbolsIncludeCheckBox.isSelected());
     scalaProjectSettings.setEnableJavaToScalaConversion(enableConversionOnCopyCheckBox.isSelected());
@@ -124,8 +90,6 @@ public class ScalaProjectSettingsPanel {
     scalaProjectSettings.setDontCacheCompoundTypes(myDontCacheCompound.isSelected());
     scalaProjectSettings.setScalaPriority(useScalaClassesPriorityCheckBox.isSelected());
     scalaProjectSettings.setCollectionTypeHighlightingLevel(collectionHighlightingChooser.getSelectedIndex());
-    scalaProjectSettings.setImportShortestPathForAmbiguousReferences(importTheShortestPathCheckBox.isSelected());
-    scalaProjectSettings.setImportsWithPrefix(getPrefixPackages());
     injectionPrefixTable.saveSettings(scalaProjectSettings);
   }
 
@@ -145,8 +109,6 @@ public class ScalaProjectSettingsPanel {
 
     if (scalaProjectSettings.getImplicitParametersSearchDepth() !=
         (Integer) implicitParametersSearchDepthSpinner.getValue()) return true;
-    if (scalaProjectSettings.getClassCountToUseImportOnDemand() !=
-        (Integer) classCountSpinner.getValue()) return true;
     if (scalaProjectSettings.getShift() !=
         (Integer) shiftSpinner.getValue()) return true;
     if (scalaProjectSettings.getOutputLimit() !=
@@ -154,16 +116,6 @@ public class ScalaProjectSettingsPanel {
     if (scalaProjectSettings.isInProcessMode() != 
         runWorksheetInTheCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isInteractiveMode() != worksheetInteractiveModeCheckBox.isSelected()) return true;
-    if (scalaProjectSettings.isAddImportMostCloseToReference() !=
-        addImportStatementInCheckBox.isSelected()) return true;
-    if (scalaProjectSettings.isAddFullQualifiedImports() !=
-        addFullQualifiedImportsCheckBox.isSelected()) return true;
-    if (scalaProjectSettings.isSortImports() !=
-        sortImportsCheckBox.isSelected()) return true;
-    if (scalaProjectSettings.isCollectImports() !=
-        collectImportsWithTheCheckBox.isSelected()) return true;
-    if (scalaProjectSettings.isImportMembersUsingUnderScore() !=
-        importMembersUsingUnderscoreCheckBox.isSelected()) return true;
 
     if (scalaProjectSettings.isSearchAllSymbols() !=
         searchAllSymbolsIncludeCheckBox.isSelected()) return true;
@@ -173,8 +125,6 @@ public class ScalaProjectSettingsPanel {
         donTShowDialogCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isTreatDocCommentAsBlockComment() !=
         treatDocCommentAsBlockComment.isSelected()) return true;
-    if (scalaProjectSettings.isImportShortestPathForAmbiguousReferences() !=
-        importTheShortestPathCheckBox.isSelected()) return true;
 
     if (scalaProjectSettings.isIgnorePerformance() != myResolveToAllClassesCheckBox.isSelected())
       return true;
@@ -192,8 +142,6 @@ public class ScalaProjectSettingsPanel {
 
     if (scalaProjectSettings.getCollectionTypeHighlightingLevel() !=
         collectionHighlightingChooser.getSelectedIndex()) return true;
-
-    if (!Arrays.deepEquals(scalaProjectSettings.getImportsWithPrefix(), getPrefixPackages())) return true;
     
     if (injectionPrefixTable.isModified(scalaProjectSettings)) return true;
 
@@ -210,18 +158,11 @@ public class ScalaProjectSettingsPanel {
 
   private void setSettings() {
     final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
-    
-    setValue(addImportStatementInCheckBox, scalaProjectSettings.isAddImportMostCloseToReference());
-    setValue(addFullQualifiedImportsCheckBox, scalaProjectSettings.isAddFullQualifiedImports());
-    setValue(sortImportsCheckBox, scalaProjectSettings.isSortImports());
-    setValue(collectImportsWithTheCheckBox, scalaProjectSettings.isCollectImports());
     setValue(implicitParametersSearchDepthSpinner, scalaProjectSettings.getImplicitParametersSearchDepth());
-    setValue(classCountSpinner, scalaProjectSettings.getClassCountToUseImportOnDemand());
     setValue(shiftSpinner, scalaProjectSettings.getShift());
     setValue(outputSpinner, scalaProjectSettings.getOutputLimit());
     setValue(runWorksheetInTheCheckBox, scalaProjectSettings.isInProcessMode());
     setValue(worksheetInteractiveModeCheckBox, scalaProjectSettings.isInteractiveMode());
-    setValue(importMembersUsingUnderscoreCheckBox, scalaProjectSettings.isImportMembersUsingUnderScore());
 
     setValue(searchAllSymbolsIncludeCheckBox, scalaProjectSettings.isSearchAllSymbols());
     setValue(enableConversionOnCopyCheckBox, scalaProjectSettings.isEnableJavaToScalaConversion());
@@ -239,14 +180,7 @@ public class ScalaProjectSettingsPanel {
     setValue(myDisablei18n, scalaProjectSettings.isDisableI18N());
     setValue(myDontCacheCompound, scalaProjectSettings.isDontCacheCompoundTypes());
     setValue(useScalaClassesPriorityCheckBox, scalaProjectSettings.isScalaPriority());
-    setValue(importTheShortestPathCheckBox, scalaProjectSettings.isImportShortestPathForAmbiguousReferences());
-    collectionHighlightingChooser.setSelectedIndex(scalaProjectSettings.getCollectionTypeHighlightingLevel()); 
-    
-    myReferencesWithPrefixModel = new DefaultListModel();
-    for (String aPackage : scalaProjectSettings.getImportsWithPrefix()) {
-      myReferencesWithPrefixModel.add(myReferencesWithPrefixModel.size(), aPackage);
-    }
-    referencesWithPrefixList.setModel(myReferencesWithPrefixModel);
+    collectionHighlightingChooser.setSelectedIndex(scalaProjectSettings.getCollectionTypeHighlightingLevel());
     
     injectionPrefixTable.loadSettings(scalaProjectSettings);
   }
