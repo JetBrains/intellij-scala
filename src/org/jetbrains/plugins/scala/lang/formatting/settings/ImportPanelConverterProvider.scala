@@ -16,7 +16,7 @@ import java.util.Collections
  */
 class ImportPanelConverterProvider extends ConverterProvider("ImportPanelConverterProvider") {
   override def getConversionDescription: String = {
-    "Scala imports settings were moved to Code Style settings."
+    "Scala imports settings will be moved to Code Style settings."
   }
 
   override def createConverter(context: ConversionContext): ProjectConverter = {
