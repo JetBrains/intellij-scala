@@ -257,8 +257,8 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
           |  class XXXX
           |}
           |
-          |import a.b.XXXX
           |import a.{b => c}
+          |import c.XXXX
           |
           |trait Y {
           |  val x: XXXX<caret>
