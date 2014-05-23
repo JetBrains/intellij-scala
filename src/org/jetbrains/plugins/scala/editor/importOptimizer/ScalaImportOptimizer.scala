@@ -49,7 +49,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       case scFile: ScalaFile => scFile
       case multiRootFile: PsiFile if multiRootFile.getViewProvider.getLanguages contains ScalaFileType.SCALA_LANGUAGE =>
         multiRootFile.getViewProvider.getPsi(ScalaFileType.SCALA_LANGUAGE).asInstanceOf[ScalaFile]
-      case _ => return EmptyRunnable.getInstance() 
+      case _ => return EmptyRunnable.getInstance()
     }
 
     val project: Project = scalaFile.getProject
@@ -118,9 +118,9 @@ class ScalaImportOptimizer extends ImportOptimizer {
       }
     }
 
-    def collectRanges[T, R](defaultT: T, rangeStarted: ScImportStmt => T,
-                            collectR: ScImportStmt => Seq[R]): ConcurrentHashMap[TextRange, (T, Seq[R])] = {
-      val importsInfo = new ConcurrentHashMap[TextRange, (T, Seq[R])]
+    def collectRanges(rangeStarted: ScImportStmt => Set[String],
+                            createInfo: ScImportStmt => Seq[ImportInfo]): ConcurrentHashMap[TextRange, (Set[String], Seq[ImportInfo])] = {
+      val importsInfo = new ConcurrentHashMap[TextRange, (Set[String], Seq[ImportInfo])]
       JobLauncher.getInstance().invokeConcurrentlyUnderProgress(list, indicator, true, true, new Processor[PsiElement] {
         override def process(element: PsiElement): Boolean = {
           val count: Int = i.getAndIncrement
@@ -129,15 +129,15 @@ class ScalaImportOptimizer extends ImportOptimizer {
             case imp: ScImportsHolder =>
               var rangeStart = -1
               var rangeEnd = -1
-              var rangeNames: T = defaultT
-              val infos = new ArrayBuffer[R]
+              var rangeNames: Set[String] = Set.empty
+              val infos = new ArrayBuffer[ImportInfo]
 
               def addRange(): Unit = {
                 if (rangeStart != -1) {
                   importsInfo.put(new TextRange(rangeStart, rangeEnd), (rangeNames, Seq(infos: _*)))
                   rangeStart = -1
                   rangeEnd = -1
-                  rangeNames = defaultT
+                  rangeNames = Set.empty
                   infos.clear()
                 }
               }
@@ -160,7 +160,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
                     } else {
                       rangeEnd = imp.getTextRange.getEndOffset
                     }
-                    infos ++= collectR(imp)
+                    infos ++= createInfo(imp)
                   case _ => addRange()
                 }
               }
@@ -198,7 +198,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       rangeNamesSet.toSet
     }
 
-    def collectR(imp: ScImportStmt): Seq[ImportInfo] = {
+    def createInfo(imp: ScImportStmt): Seq[ImportInfo] = {
       imp.importExprs.flatMap(expr =>
         getImportInfo(expr, isImportUsed) match {
           case Some(importInfo) => Seq(importInfo)
@@ -207,7 +207,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       )
     }
 
-    val importsInfo = collectRanges[Set[String], ImportInfo](Set.empty, rangeStarted, collectR)
+    val importsInfo = collectRanges(rangeStarted, createInfo)
 
     val settings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
     val addFullQualifiedImports = settings.isAddFullQualifiedImports
@@ -344,7 +344,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
         val ranges: Seq[(TextRange, Seq[ImportInfo])] = if (document.getText != analyzingDocumentText) {
           //something was changed...
           sortedImportsInfo.toSeq.sortBy(_._1.getStartOffset).zip {
-            collectRanges[String, String]("", _ => "", _ => Seq.empty).toSeq.sortBy(_._1.getStartOffset)
+            collectRanges(_ => Set.empty, _ => Seq.empty).toSeq.sortBy(_._1.getStartOffset)
           }.map {
             case ((_, seq), (range, _)) => (range, seq)
           }
@@ -381,10 +381,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
           }.mkString(splitter)
           val newRange: TextRange = if (text.isEmpty) {
             var start = range.getStartOffset
-            while (start > 0 && documentText.charAt(start) != '\n') start = start - 1
-            var end = range.getEndOffset
-            while (end < documentText.length && documentText.charAt(end) != '\n') end = end + 1
-            if (end != documentText.length) end = end + 1
+            while (start > 0 && documentText(start - 1).isWhitespace) start = start - 1
+            val end = range.getEndOffset
             new TextRange(start, end)
           } else range
           document.replaceString(newRange.getStartOffset, newRange.getEndOffset, text)
