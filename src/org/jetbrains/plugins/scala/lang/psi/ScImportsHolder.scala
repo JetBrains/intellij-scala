@@ -382,11 +382,11 @@ trait ScImportsHolder extends ScalaPsiElement {
         updateImportStringWith(s)
         importSt = ScalaPsiElementFactory.createImportFromText("import " + importString, getManager)
       } else {
+        updateImportStringWith(last)
         if (pre == "") {
           if (ScSyntheticPackage.get(classPackageQualifier, getProject) == null ||
             packagesName.contains(classPackageQualifier))
-            updateImportStringWith(last)
-            importString = "_root_." + importString
+          importString = "_root_." + importString
           importSt = ScalaPsiElementFactory.createImportFromText("import " + importString, getManager)
         }
         classPackageQualifier = pre
