@@ -239,9 +239,11 @@ class ScalaImportOptimizer extends ImportOptimizer {
             var i = 0
             var changed = false
             while (i + 1 < buffer.length) {
-              val lText: String = buffer(i).prefixQualifier
-              val rText: String = buffer(i + 1).prefixQualifier
-              if (greater(lText, rText, project) && swap(i)) changed = true
+              val l: String = buffer(i).prefixQualifier
+              val r: String = buffer(i + 1).prefixQualifier
+              val lText = getImportTextCreator.getImportText(buffer(i))
+              val rText = getImportTextCreator.getImportText(buffer(i + 1))
+              if (greater(l, r, lText, rText, project) && swap(i)) changed = true
               i = i + 1
             }
             if (changed) iteration()
@@ -666,11 +668,11 @@ object ScalaImportOptimizer {
     groups.indexOf(elem)
   }
 
-  def greater(l: String, r: String, project: Project): Boolean = {
+  def greater(l: String, r: String, lText: String, rText: String, project: Project): Boolean = {
     val lIndex = findGroupIndex(l, project)
     val rIndex = findGroupIndex(r, project)
     if (lIndex > rIndex) true
     else if (rIndex > lIndex) false
-    else l.toLowerCase > r.toLowerCase
+    else lText.toLowerCase > rText.toLowerCase
   }
 }

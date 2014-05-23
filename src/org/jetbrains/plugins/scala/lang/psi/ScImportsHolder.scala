@@ -546,8 +546,8 @@ trait ScImportsHolder extends ScalaPsiElement {
                 if (ref != null) PsiTreeUtil.isAncestor(im, ref, false) // See SCL-2925
                 else false
               def compare: Boolean = {
-                val lText: String = getImportPrefixQualifier(im)
-                ScalaImportOptimizer.greater(lText, pathQualifier, getProject)
+                val l: String = getImportPrefixQualifier(im)
+                ScalaImportOptimizer.greater(l, pathQualifier, im.getText, importSt.getText, getProject)
               }
               val cond2 = compare && processPackage(im)
               if (nextImportContainsRef || cond2) {
