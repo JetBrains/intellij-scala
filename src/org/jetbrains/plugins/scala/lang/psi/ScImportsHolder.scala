@@ -222,6 +222,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     val index = qualifiedName.lastIndexOf('.')
     if (index == -1) return  //cannot import anything
     var classPackageQualifier = qualifiedName.substring(0, index)
+    val pathQualifier = classPackageQualifier
 
     //collecting selectors to add into new import statement
     var firstPossibleGoodPlace: Option[ScImportExpr] = None
@@ -546,12 +547,12 @@ trait ScImportsHolder extends ScalaPsiElement {
                 else false
               def compare: Boolean = {
                 val lText: String = getImportPrefixQualifier(im)
-                ScalaImportOptimizer.greater(lText, qualifiedName, getProject)
+                ScalaImportOptimizer.greater(lText, pathQualifier, getProject)
               }
               val cond2 = compare && processPackage(im)
               if (nextImportContainsRef || cond2) {
                 added = true
-                val ourIndex = ScalaImportOptimizer.findGroupIndex(qualifiedName, getProject)
+                val ourIndex = ScalaImportOptimizer.findGroupIndex(pathQualifier, getProject)
                 val imIndex = ScalaImportOptimizer.findGroupIndex(getImportPrefixQualifier(im), getProject)
                 val prevIndex =
                   if (prevStmt == null) -1
@@ -585,7 +586,7 @@ trait ScImportsHolder extends ScalaPsiElement {
         //if our stmt is the biggest lexicographically import statement we add this to the end
         if (!added) {
           if (prevStmt != null) {
-            val ourIndex = ScalaImportOptimizer.findGroupIndex(qualifiedName, getProject)
+            val ourIndex = ScalaImportOptimizer.findGroupIndex(pathQualifier, getProject)
             val prevIndex = ScalaImportOptimizer.findGroupIndex(getImportPrefixQualifier(prevStmt), getProject)
             addImportAfterPrevStmt(ourIndex, prevIndex)
           } else {
