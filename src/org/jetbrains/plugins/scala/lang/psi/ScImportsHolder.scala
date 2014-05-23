@@ -30,11 +30,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
-import org.jetbrains.plugins.scala.settings._
 import scala.annotation.tailrec
 import scala.collection.immutable.HashSet
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
 
 trait ScImportsHolder extends ScalaPsiElement {
 
@@ -213,6 +213,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     }
   }
 
+  //todo: Code now looks overcomplicated and logic is separated from ScalaImportOptimizer, rewrite?
   def addImportForPath(path: String, ref: PsiElement = null, explicitly: Boolean = false) {
     val selectors = new ArrayBuffer[String]
     val renamedSelectors = new ArrayBuffer[String]()
@@ -221,6 +222,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     val index = qualifiedName.lastIndexOf('.')
     if (index == -1) return  //cannot import anything
     var classPackageQualifier = qualifiedName.substring(0, index)
+    val pathQualifier = classPackageQualifier
 
     //collecting selectors to add into new import statement
     var firstPossibleGoodPlace: Option[ScImportExpr] = None
@@ -334,9 +336,10 @@ trait ScImportsHolder extends ScalaPsiElement {
     treeWalkUp(completionProcessor, this, place)
     val names: mutable.HashSet[String] = new mutable.HashSet
     val packs: ArrayBuffer[PsiPackage] = new ArrayBuffer
+    val renamedPackages: mutable.HashMap[PsiPackage, String] = new mutable.HashMap[PsiPackage, String]()
     for (candidate <- completionProcessor.candidatesS) {
       candidate match {
-        case ScalaResolveResult(pack: PsiPackage, _) =>
+        case r@ScalaResolveResult(pack: PsiPackage, _) =>
           if (names.contains(pack.name)) {
             var index = packs.indexWhere(_.name == pack.name)
             while(index != -1) {
@@ -346,6 +349,10 @@ trait ScImportsHolder extends ScalaPsiElement {
           } else {
             names += pack.name
             packs += pack
+            r.isRenamed match {
+              case Some(otherName) => renamedPackages += ((pack, otherName))
+              case _ =>
+            }
           }
         case _ =>
       }
@@ -358,17 +365,28 @@ trait ScImportsHolder extends ScalaPsiElement {
 
     while (importSt == null) {
       val (pre, last) = getSplitQualifierElement(classPackageQualifier)
-      if (ScalaNamesUtil.isKeyword(last)) importString = "`" + last + "`" + "." + importString
-      else importString = last + "." + importString
+      def updateImportStringWith(s: String) {
+        if (ScalaNamesUtil.isKeyword(s)) importString = "`" + s + "`" + "." + importString
+        else importString = s + "." + importString
+      }
       if ((!settings.isAddFullQualifiedImports ||
               classPackageQualifier.indexOf(".") == -1) &&
               packages.contains(classPackageQualifier)) {
+        val s = packs.find(_.getQualifiedName == classPackageQualifier) match {
+          case Some(qual) => renamedPackages.get(qual) match {
+            case Some(r) => r
+            case _ => last
+          }
+          case _ => last
+        }
+        updateImportStringWith(s)
         importSt = ScalaPsiElementFactory.createImportFromText("import " + importString, getManager)
       } else {
+        updateImportStringWith(last)
         if (pre == "") {
           if (ScSyntheticPackage.get(classPackageQualifier, getProject) == null ||
             packagesName.contains(classPackageQualifier))
-            importString = "_root_." + importString
+          importString = "_root_." + importString
           importSt = ScalaPsiElementFactory.createImportFromText("import " + importString, getManager)
         }
         classPackageQualifier = pre
@@ -483,8 +501,39 @@ trait ScImportsHolder extends ScalaPsiElement {
       case Some(x: ScImportStmt) =>
         //now we walking throw forward siblings, and seeking appropriate place (lexicographical)
         var stmt: PsiElement = x
+        var prevStmt: ScImportStmt = null
+
+        def addImportAfterPrevStmt(ourIndex: Int, prevIndex: Int) {
+          val before = addImportAfter(importSt, prevStmt)
+
+          if (ourIndex > prevIndex) {
+            var blankLines = ""
+            var currentGroupIndex = prevIndex
+            val groups = ScalaCodeStyleSettings.getInstance(getProject).getImportLayout
+            def iteration() {
+              currentGroupIndex += 1
+              while (groups(currentGroupIndex) == ScalaCodeStyleSettings.BLANK_LINE) {
+                blankLines += "\n"
+                currentGroupIndex += 1
+              }
+            }
+            while (currentGroupIndex != -1 && blankLines.isEmpty && currentGroupIndex < ourIndex) iteration()
+            if (!blankLines.isEmpty) {
+              val newline = ScalaPsiElementFactory.createNewLineNode(getManager, blankLines)
+              before.getParent.getNode.addChild(newline, before.getNode)
+            }
+          }
+        }
+
         //this is flag to stop walking when we add import before more big lexicographically import statement
         var added = false
+
+        def getImportPrefixQualifier(stmt: ScImportStmt): String = {
+          val importExpr: ScImportExpr = stmt.importExprs.headOption.getOrElse(return "")
+          ScalaImportOptimizer.getImportInfo(importExpr, _ => true).
+            fold(Option(importExpr.qualifier).fold("")(_.getText))(_.prefixQualifier)
+        }
+
         while (!added && stmt != null && (stmt.isInstanceOf[ScImportStmt]
             || stmt.isInstanceOf[PsiWhiteSpace]
             || stmt.getNode.getElementType == ScalaTokenTypes.tSEMICOLON)) {
@@ -494,28 +543,69 @@ trait ScImportsHolder extends ScalaPsiElement {
                 if (classPackageQualifier == "") return true
                 val completionProcessor = new ResolveProcessor(StdKinds.packageRef, elem,
                   getSplitQualifierElement(classPackageQualifier)._2)
-                this.processDeclarations(completionProcessor, ResolveState.initial, elem, elem)
+                val place = getLastChild
+                @tailrec
+                def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
+                  place match {
+                    case null =>
+                    case p =>
+                      if (!p.processDeclarations(completionProcessor,
+                        ResolveState.initial,
+                        lastParent, place)) return
+                      treeWalkUp(place.getContext, place)
+                  }
+                }
+                treeWalkUp(this, place)
                 completionProcessor.candidatesS.size > 0
               }
               val nextImportContainsRef =
                 if (ref != null) PsiTreeUtil.isAncestor(im, ref, false) // See SCL-2925
                 else false
-              val cond2 = importSt.getText.toLowerCase < im.getText.toLowerCase && processPackage(im)
+              def compare: Boolean = {
+                val l: String = getImportPrefixQualifier(im)
+                ScalaImportOptimizer.greater(l, pathQualifier, im.getText, importSt.getText, getProject)
+              }
+              val cond2 = compare && processPackage(im)
               if (nextImportContainsRef || cond2) {
                 added = true
-                addImportBefore(importSt, im)
+                val ourIndex = ScalaImportOptimizer.findGroupIndex(pathQualifier, getProject)
+                val imIndex = ScalaImportOptimizer.findGroupIndex(getImportPrefixQualifier(im), getProject)
+                val prevIndex =
+                  if (prevStmt == null) -1
+                  else ScalaImportOptimizer.findGroupIndex(getImportPrefixQualifier(prevStmt), getProject)
+                if (prevIndex != ourIndex) {
+                  addImportBefore(importSt, im)
+                  if (ourIndex < imIndex) {
+                    var blankLines = ""
+                    var currentGroupIndex = ourIndex
+                    val groups = ScalaCodeStyleSettings.getInstance(getProject).getImportLayout
+                    def iteration() {
+                      currentGroupIndex += 1
+                      while (groups(currentGroupIndex) == ScalaCodeStyleSettings.BLANK_LINE) {
+                        blankLines += "\n"
+                        currentGroupIndex += 1
+                      }
+                    }
+                    while (currentGroupIndex != -1 && blankLines.isEmpty && currentGroupIndex < imIndex) iteration()
+                    if (!blankLines.isEmpty) {
+                      val newline = ScalaPsiElementFactory.createNewLineNode(getManager, blankLines)
+                      im.getParent.getNode.addChild(newline, im.getNode)
+                    }
+                  }
+                } else addImportAfterPrevStmt(ourIndex, prevIndex)
               }
+              prevStmt = im
             case _ =>
           }
           stmt = stmt.getNextSibling
         }
         //if our stmt is the biggest lexicographically import statement we add this to the end
         if (!added) {
-          if (stmt != null) {
-            while (!stmt.isInstanceOf[ScImportStmt]) stmt = stmt.getPrevSibling
-            addImportAfter(importSt, stmt)
-          }
-          else {
+          if (prevStmt != null) {
+            val ourIndex = ScalaImportOptimizer.findGroupIndex(pathQualifier, getProject)
+            val prevIndex = ScalaImportOptimizer.findGroupIndex(getImportPrefixQualifier(prevStmt), getProject)
+            addImportAfterPrevStmt(ourIndex, prevIndex)
+          } else {
             addImportAfter(importSt, getLastChild)
           }
         }

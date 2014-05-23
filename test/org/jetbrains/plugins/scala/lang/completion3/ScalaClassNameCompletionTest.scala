@@ -176,8 +176,8 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
     val resultText =
       """
         |import scala.collection.immutable._
-        |import scala.collection.mutable._
         |import scala.collection.mutable.HashMap
+        |import scala.collection.mutable._
         |
         |class Test2 {
         |  val x: HashMap[String, String] = HashMap.empty
@@ -257,8 +257,8 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
           |  class XXXX
           |}
           |
-          |import a.b.XXXX
           |import a.{b => c}
+          |import c.XXXX
           |
           |trait Y {
           |  val x: XXXX<caret>

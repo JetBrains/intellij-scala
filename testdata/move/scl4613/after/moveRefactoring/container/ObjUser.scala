@@ -1,7 +1,7 @@
 package moveRefactoring.container
 
-import moveRefactoring.foo.A
 import moveRefactoring.bar.B
+import moveRefactoring.foo.A
 
 object ObjUser {
   def main(args: Array[String]) {

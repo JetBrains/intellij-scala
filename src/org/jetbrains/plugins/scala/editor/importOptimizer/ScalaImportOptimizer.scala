@@ -49,8 +49,14 @@ class ScalaImportOptimizer extends ImportOptimizer {
       case scFile: ScalaFile => scFile
       case multiRootFile: PsiFile if multiRootFile.getViewProvider.getLanguages contains ScalaFileType.SCALA_LANGUAGE =>
         multiRootFile.getViewProvider.getPsi(ScalaFileType.SCALA_LANGUAGE).asInstanceOf[ScalaFile]
-      case _ => return EmptyRunnable.getInstance() 
+      case _ => return EmptyRunnable.getInstance()
     }
+
+    val project: Project = scalaFile.getProject
+    val documentManager = PsiDocumentManager.getInstance(project)
+    val document: Document = documentManager.getDocument(scalaFile)
+    documentManager.commitDocument(document)
+    val analyzingDocumentText = document.getText
 
     val textCreator = getImportTextCreator
 
@@ -104,8 +110,6 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
     if (indicator != null) indicator.setText2(file.getName + ": collecting additional info")
 
-    val importsInfo = new ConcurrentHashMap[TextRange, (Set[String], Seq[ImportInfo])]
-
     def isImportUsed(importUsed: ImportUsed): Boolean = {
       //todo: collect proper information about language features
       importUsed match {
@@ -114,103 +118,102 @@ class ScalaImportOptimizer extends ImportOptimizer {
       }
     }
 
-    JobLauncher.getInstance().invokeConcurrentlyUnderProgress(list, indicator, true, true, new Processor[PsiElement] {
-      override def process(element: PsiElement): Boolean = {
-        val count: Int = i.getAndIncrement
-        if (count <= size && indicator != null) indicator.setFraction(count.toDouble / size)
-        element match {
-          case imp: ScImportsHolder =>
-            var rangeStart = -1
-            var rangeEnd = -1
-            var rangeNames = Set.empty[String]
-            val infos = new ArrayBuffer[ImportInfo]
+    def collectRanges(rangeStarted: ScImportStmt => Set[String],
+                            createInfo: ScImportStmt => Seq[ImportInfo]): ConcurrentHashMap[TextRange, (Set[String], Seq[ImportInfo])] = {
+      val importsInfo = new ConcurrentHashMap[TextRange, (Set[String], Seq[ImportInfo])]
+      JobLauncher.getInstance().invokeConcurrentlyUnderProgress(list, indicator, true, true, new Processor[PsiElement] {
+        override def process(element: PsiElement): Boolean = {
+          val count: Int = i.getAndIncrement
+          if (count <= size && indicator != null) indicator.setFraction(count.toDouble / size)
+          element match {
+            case imp: ScImportsHolder =>
+              var rangeStart = -1
+              var rangeEnd = -1
+              var rangeNames: Set[String] = Set.empty
+              val infos = new ArrayBuffer[ImportInfo]
 
-            def addRange(): Unit = {
-              if (rangeStart != -1) {
-                importsInfo.put(new TextRange(rangeStart, rangeEnd), (rangeNames, Seq(infos: _*)))
-                rangeStart = -1
-                rangeEnd = -1
-                rangeNames = Set.empty
-                infos.clear()
+              def addRange(): Unit = {
+                if (rangeStart != -1) {
+                  importsInfo.put(new TextRange(rangeStart, rangeEnd), (rangeNames, Seq(infos: _*)))
+                  rangeStart = -1
+                  rangeEnd = -1
+                  rangeNames = Set.empty
+                  infos.clear()
+                }
               }
-            }
 
-            def initRange(psi: PsiElement) {
-              rangeStart = psi.getTextRange.getStartOffset
-              rangeEnd = psi.getTextRange.getEndOffset
-            }
-
-            for (child <- imp.getChildren) {
-              child match {
-                case a: PsiElement if isImportDelimiter(a) => //do nothing
-                case imp: ScImportStmt =>
-                  if (rangeStart == -1) {
-                    imp.getPrevSibling match {
-                      case a: PsiElement if isImportDelimiter(a) && !a.isInstanceOf[PsiWhiteSpace] => initRange(a)
-                      case _ => initRange(imp)
-                    }
-                    val refText = "someIdentifier"
-                    val reference = ScalaPsiElementFactory.createReferenceFromText(refText, imp.getContext, imp)
-                    val rangeNamesSet = new mutable.HashSet[String]()
-                    def addName(name: String): Unit = rangeNamesSet += name
-                    reference.getResolveResultVariants.foreach {
-                      case ScalaResolveResult(p: PsiPackage, _) =>
-                        if (p.getParentPackage != null && p.getParentPackage.getName != null) addName(name(p.getName))
-                      case ScalaResolveResult(o: ScObject, _) if o.isPackageObject =>
-                        if (o.qualifiedName.contains(".")) addName(o.name)
-                      case ScalaResolveResult(o: ScObject, _) =>
-                        o.getParent match {
-                          case file: ScalaFile =>
-                          case _ => addName(o.name)
-                        }
-                      case ScalaResolveResult(td: ScTypedDefinition, _) if td.isStable => addName(td.name)
-                      case ScalaResolveResult(_: ScTypeDefinition, _) =>
-                      case ScalaResolveResult(c: PsiClass, _) => addName(name(c.getName))
-                      case ScalaResolveResult(f: PsiField, _) if f.hasModifierProperty("final") =>
-                        addName(name(f.getName))
-                      case _ =>
-                    }
-                    rangeNames = rangeNamesSet.toSet
-                  } else {
-                    rangeEnd = imp.getTextRange.getEndOffset
-                  }
-                  imp.importExprs.foreach(expr =>
-                    getImportInfo(expr, isImportUsed) match {
-                      case Some(importInfo) => infos += importInfo
-                      case _ =>
-                    }
-                  )
-                case _ => addRange()
+              def initRange(psi: PsiElement) {
+                rangeStart = psi.getTextRange.getStartOffset
+                rangeEnd = psi.getTextRange.getEndOffset
               }
-            }
-            addRange()
-          case _ =>
+
+              for (child <- imp.getChildren) {
+                child match {
+                  case a: PsiElement if isImportDelimiter(a) => //do nothing
+                  case imp: ScImportStmt =>
+                    if (rangeStart == -1) {
+                      imp.getPrevSibling match {
+                        case a: PsiElement if isImportDelimiter(a) && !a.isInstanceOf[PsiWhiteSpace] => initRange(a)
+                        case _ => initRange(imp)
+                      }
+                      rangeNames = rangeStarted(imp)
+                    } else {
+                      rangeEnd = imp.getTextRange.getEndOffset
+                    }
+                    infos ++= createInfo(imp)
+                  case _ => addRange()
+                }
+              }
+              addRange()
+            case _ =>
+          }
+          true
         }
-        true
-      }
-    })
+      })
+      importsInfo
+    }
 
-    val project: Project = scalaFile.getProject
+    def rangeStarted(imp: ScImportStmt): Set[String] = {
+      val refText = "someIdentifier"
+      val reference = ScalaPsiElementFactory.createReferenceFromText(refText, imp.getContext, imp)
+      val rangeNamesSet = new mutable.HashSet[String]()
+      def addName(name: String): Unit = rangeNamesSet += name
+      reference.getResolveResultVariants.foreach {
+        case ScalaResolveResult(p: PsiPackage, _) =>
+          if (p.getParentPackage != null && p.getParentPackage.getName != null) addName(name(p.getName))
+        case ScalaResolveResult(o: ScObject, _) if o.isPackageObject =>
+          if (o.qualifiedName.contains(".")) addName(o.name)
+        case ScalaResolveResult(o: ScObject, _) =>
+          o.getParent match {
+            case file: ScalaFile =>
+            case _ => addName(o.name)
+          }
+        case ScalaResolveResult(td: ScTypedDefinition, _) if td.isStable => addName(td.name)
+        case ScalaResolveResult(_: ScTypeDefinition, _) =>
+        case ScalaResolveResult(c: PsiClass, _) => addName(name(c.getName))
+        case ScalaResolveResult(f: PsiField, _) if f.hasModifierProperty("final") =>
+          addName(name(f.getName))
+        case _ =>
+      }
+      rangeNamesSet.toSet
+    }
+
+    def createInfo(imp: ScImportStmt): Seq[ImportInfo] = {
+      imp.importExprs.flatMap(expr =>
+        getImportInfo(expr, isImportUsed) match {
+          case Some(importInfo) => Seq(importInfo)
+          case _ => Seq.empty
+        }
+      )
+    }
+
+    val importsInfo = collectRanges(rangeStarted, createInfo)
+
     val settings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
     val addFullQualifiedImports = settings.isAddFullQualifiedImports
     val sortImports = settings.isSortImports
     val collectImports = settings.isCollectImports
     val groups = settings.getImportLayout
-
-    def findGroupIndex(info: ImportInfo): Int = {
-      val suitable = groups.filter { group =>
-        group != ScalaCodeStyleSettings.BLANK_LINE && (group == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS ||
-          info.prefixQualifier.startsWith(group))
-      }
-      val elem = suitable.tail.foldLeft(suitable.head) { (l, r) =>
-        if (l == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) r
-        else if (r == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) l
-        else if (r.startsWith(l)) r
-        else l
-      }
-
-      groups.indexOf(elem)
-    }
 
     val sortedImportsInfo: mutable.Map[TextRange, Seq[ImportInfo]] =
       for ((range, (names, _importInfos)) <- importsInfo) yield {
@@ -246,13 +249,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
           } else false
         }
 
-        def compare(l: ImportInfo, r: ImportInfo): Boolean = {
-          val lIndex = findGroupIndex(l)
-          val rIndex = findGroupIndex(r)
-          if (lIndex > rIndex) true
-          else if (rIndex > lIndex) false
-          else textCreator.getImportText(l) > textCreator.getImportText(r)
-        }
+
 
         if (sortImports) {
           @tailrec
@@ -260,9 +257,11 @@ class ScalaImportOptimizer extends ImportOptimizer {
             var i = 0
             var changed = false
             while (i + 1 < buffer.length) {
-              if (compare(buffer(i), buffer(i + 1))) {
-                if (swap(i)) changed = true
-              }
+              val l: String = buffer(i).prefixQualifier
+              val r: String = buffer(i + 1).prefixQualifier
+              val lText = getImportTextCreator.getImportText(buffer(i))
+              val rText = getImportTextCreator.getImportText(buffer(i + 1))
+              if (greater(l, r, lText, rText, project) && swap(i)) changed = true
               i = i + 1
             }
             if (changed) iteration()
@@ -342,8 +341,16 @@ class ScalaImportOptimizer extends ImportOptimizer {
         val documentManager = PsiDocumentManager.getInstance(project)
         val document: Document = documentManager.getDocument(scalaFile)
         documentManager.commitDocument(document)
+        val ranges: Seq[(TextRange, Seq[ImportInfo])] = if (document.getText != analyzingDocumentText) {
+          //something was changed...
+          sortedImportsInfo.toSeq.sortBy(_._1.getStartOffset).zip {
+            collectRanges(_ => Set.empty, _ => Seq.empty).toSeq.sortBy(_._1.getStartOffset)
+          }.map {
+            case ((_, seq), (range, _)) => (range, seq)
+          }
+        } else sortedImportsInfo.toSeq.sortBy(_._1.getStartOffset)
 
-        for ((range, importInfos) <- sortedImportsInfo.toSeq.sortBy(_._1.getStartOffset).reverseIterator) {
+        for ((range, importInfos) <- ranges.reverseIterator) {
           val documentText = document.getText
           def splitterCalc(index: Int, res: String = ""): String = {
             if (index < 0) res
@@ -356,7 +363,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
           val splitter: String = "\n" + splitterCalc(range.getStartOffset - 1)
           var currentGroupIndex = -1
           val text = importInfos.map { info =>
-            val index: Int = findGroupIndex(info)
+            val index: Int = findGroupIndex(info.prefixQualifier, project)
             if (index <= currentGroupIndex) textCreator.getImportText(info)
             else {
               var blankLines = ""
@@ -374,10 +381,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
           }.mkString(splitter)
           val newRange: TextRange = if (text.isEmpty) {
             var start = range.getStartOffset
-            while (start > 0 && documentText.charAt(start) != '\n') start = start - 1
-            var end = range.getEndOffset
-            while (end < documentText.length && documentText.charAt(end) != '\n') end = end + 1
-            if (end != documentText.length) end = end + 1
+            while (start > 0 && documentText(start - 1).isWhitespace) start = start - 1
+            val end = range.getEndOffset
             new TextRange(start, end)
           } else range
           document.replaceString(newRange.getStartOffset, newRange.getEndOffset, text)
@@ -669,5 +674,29 @@ object ScalaImportOptimizer {
       if (index == -1) s
       else s.substring(0, index)
     }
+  }
+
+  def findGroupIndex(info: String, project: Project): Int = {
+    val groups = ScalaCodeStyleSettings.getInstance(project).getImportLayout
+    val suitable = groups.filter { group =>
+      group != ScalaCodeStyleSettings.BLANK_LINE && (group == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS ||
+        info.startsWith(group))
+    }
+    val elem = suitable.tail.foldLeft(suitable.head) { (l, r) =>
+      if (l == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) r
+      else if (r == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) l
+      else if (r.startsWith(l)) r
+      else l
+    }
+
+    groups.indexOf(elem)
+  }
+
+  def greater(l: String, r: String, lText: String, rText: String, project: Project): Boolean = {
+    val lIndex = findGroupIndex(l, project)
+    val rIndex = findGroupIndex(r, project)
+    if (lIndex > rIndex) true
+    else if (rIndex > lIndex) false
+    else lText > rText
   }
 }
