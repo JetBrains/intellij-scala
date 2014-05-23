@@ -336,9 +336,10 @@ trait ScImportsHolder extends ScalaPsiElement {
     treeWalkUp(completionProcessor, this, place)
     val names: mutable.HashSet[String] = new mutable.HashSet
     val packs: ArrayBuffer[PsiPackage] = new ArrayBuffer
+    val renamedPackages: mutable.HashMap[PsiPackage, String] = new mutable.HashMap[PsiPackage, String]()
     for (candidate <- completionProcessor.candidatesS) {
       candidate match {
-        case ScalaResolveResult(pack: PsiPackage, _) =>
+        case r@ScalaResolveResult(pack: PsiPackage, _) =>
           if (names.contains(pack.name)) {
             var index = packs.indexWhere(_.name == pack.name)
             while(index != -1) {
@@ -348,6 +349,10 @@ trait ScImportsHolder extends ScalaPsiElement {
           } else {
             names += pack.name
             packs += pack
+            r.isRenamed match {
+              case Some(otherName) => renamedPackages += ((pack, otherName))
+              case _ =>
+            }
           }
         case _ =>
       }
@@ -360,16 +365,27 @@ trait ScImportsHolder extends ScalaPsiElement {
 
     while (importSt == null) {
       val (pre, last) = getSplitQualifierElement(classPackageQualifier)
-      if (ScalaNamesUtil.isKeyword(last)) importString = "`" + last + "`" + "." + importString
-      else importString = last + "." + importString
+      def updateImportStringWith(s: String) {
+        if (ScalaNamesUtil.isKeyword(s)) importString = "`" + s + "`" + "." + importString
+        else importString = s + "." + importString
+      }
       if ((!settings.isAddFullQualifiedImports ||
               classPackageQualifier.indexOf(".") == -1) &&
               packages.contains(classPackageQualifier)) {
+        val s = packs.find(_.getQualifiedName == classPackageQualifier) match {
+          case Some(qual) => renamedPackages.get(qual) match {
+            case Some(r) => r
+            case _ => last
+          }
+          case _ => last
+        }
+        updateImportStringWith(s)
         importSt = ScalaPsiElementFactory.createImportFromText("import " + importString, getManager)
       } else {
         if (pre == "") {
           if (ScSyntheticPackage.get(classPackageQualifier, getProject) == null ||
             packagesName.contains(classPackageQualifier))
+            updateImportStringWith(last)
             importString = "_root_." + importString
           importSt = ScalaPsiElementFactory.createImportFromText("import " + importString, getManager)
         }
