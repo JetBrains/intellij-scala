@@ -1,34 +1,34 @@
 package org.jetbrains.plugins.scala
 package worksheet.ui
 
-import _root_.scala.collection.mutable.ArrayBuffer
 import _root_.scala.Some
-import com.intellij.openapi.editor._
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.ui.JBSplitter
-import java.awt.{Color, BorderLayout, Dimension}
-import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
-import com.intellij.openapi.editor.impl.{FoldingModelImpl, EditorImpl}
+import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.openapi.application.ApplicationManager
-import javax.swing.{Timer, JLayeredPane}
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.{PsiWhiteSpace, PsiManager, PsiDocumentManager}
-import org.jetbrains.plugins.scala.extensions
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import java.awt.event.{AdjustmentEvent, AdjustmentListener, ActionEvent, ActionListener}
 import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.vfs.newvfs.FileAttribute
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala
-import com.intellij.openapi.editor.event.{CaretAdapter, CaretEvent}
-import java.util
-import com.intellij.openapi.editor.markup.TextAttributes
-import com.intellij.openapi.util.Key
-import com.intellij.openapi.ui.Splitter
-import com.intellij.openapi.diff.impl.util.SyncScrollSupport
 import com.intellij.openapi.diff.impl.EditingSides
+import com.intellij.openapi.diff.impl.util.SyncScrollSupport
+import com.intellij.openapi.editor._
+import com.intellij.openapi.editor.event.{CaretAdapter, CaretEvent}
+import com.intellij.openapi.editor.impl.{EditorImpl, FoldingModelImpl}
+import com.intellij.openapi.editor.markup.TextAttributes
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.Splitter
+import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.newvfs.FileAttribute
+import com.intellij.psi.{PsiDocumentManager, PsiManager, PsiWhiteSpace}
+import com.intellij.ui.JBSplitter
+import java.awt.event.{ActionEvent, ActionListener, AdjustmentEvent, AdjustmentListener}
+import java.awt.{BorderLayout, Color, Dimension}
+import java.util
+import javax.swing.{JLayeredPane, Timer}
+import org.jetbrains.plugins.scala
+import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
 
 /**
  * User: Dmitry Naydanov
@@ -127,6 +127,9 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, fi
   
   private def init(): Option[Int] = {
     inited = true
+
+    val oldSync = originalEditor getUserData WorksheetEditorPrinter.DIFF_SYNC_SUPPORT
+    if (oldSync != null) oldSync.dispose()
 
     WorksheetEditorPrinter.synch(originalEditor, worksheetViewer,
       Option(worksheetViewer.getUserData(WorksheetEditorPrinter.DIFF_SPLITTER_KEY)), Some(group))
@@ -286,6 +289,7 @@ object WorksheetEditorPrinter {
   val IDLE_TIME_MLS = 1000
 
   val DIFF_SPLITTER_KEY = Key.create[WorksheetDiffSplitters.SimpleWorksheetSplitter]("SimpleWorksheetViewerSplitter")
+  val DIFF_SYNC_SUPPORT = Key.create[SyncScrollSupport]("WorksheetSyncScrollSupport")
 
   private val LAST_WORKSHEET_RUN_RESULT = new FileAttribute("LastWorksheetRunResult", 2, false)
 
@@ -345,6 +349,8 @@ object WorksheetEditorPrinter {
 
             val syncSupport = new SyncScrollSupport
             syncSupport.install(Array[EditingSides](new WorksheetDiffSplitters.WorksheetEditingSides(originalEditor, worksheetViewer)))
+
+            originalEditor.putUserData(DIFF_SYNC_SUPPORT, syncSupport)
 
             diffSplitter map {
               case splitter =>
