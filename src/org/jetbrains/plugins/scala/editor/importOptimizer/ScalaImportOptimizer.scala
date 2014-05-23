@@ -52,6 +52,12 @@ class ScalaImportOptimizer extends ImportOptimizer {
       case _ => return EmptyRunnable.getInstance() 
     }
 
+    val project: Project = scalaFile.getProject
+    val documentManager = PsiDocumentManager.getInstance(project)
+    val document: Document = documentManager.getDocument(scalaFile)
+    documentManager.commitDocument(document)
+    val analyzingDocumentText = document.getText
+
     val textCreator = getImportTextCreator
 
     val usedImports = new ConcurrentHashSet[ImportUsed]
@@ -104,8 +110,6 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
     if (indicator != null) indicator.setText2(file.getName + ": collecting additional info")
 
-    val importsInfo = new ConcurrentHashMap[TextRange, (Set[String], Seq[ImportInfo])]
-
     def isImportUsed(importUsed: ImportUsed): Boolean = {
       //todo: collect proper information about language features
       importUsed match {
@@ -114,83 +118,97 @@ class ScalaImportOptimizer extends ImportOptimizer {
       }
     }
 
-    JobLauncher.getInstance().invokeConcurrentlyUnderProgress(list, indicator, true, true, new Processor[PsiElement] {
-      override def process(element: PsiElement): Boolean = {
-        val count: Int = i.getAndIncrement
-        if (count <= size && indicator != null) indicator.setFraction(count.toDouble / size)
-        element match {
-          case imp: ScImportsHolder =>
-            var rangeStart = -1
-            var rangeEnd = -1
-            var rangeNames = Set.empty[String]
-            val infos = new ArrayBuffer[ImportInfo]
+    def collectRanges[T, R](defaultT: T, rangeStarted: ScImportStmt => T,
+                            collectR: ScImportStmt => Seq[R]): ConcurrentHashMap[TextRange, (T, Seq[R])] = {
+      val importsInfo = new ConcurrentHashMap[TextRange, (T, Seq[R])]
+      JobLauncher.getInstance().invokeConcurrentlyUnderProgress(list, indicator, true, true, new Processor[PsiElement] {
+        override def process(element: PsiElement): Boolean = {
+          val count: Int = i.getAndIncrement
+          if (count <= size && indicator != null) indicator.setFraction(count.toDouble / size)
+          element match {
+            case imp: ScImportsHolder =>
+              var rangeStart = -1
+              var rangeEnd = -1
+              var rangeNames: T = defaultT
+              val infos = new ArrayBuffer[R]
 
-            def addRange(): Unit = {
-              if (rangeStart != -1) {
-                importsInfo.put(new TextRange(rangeStart, rangeEnd), (rangeNames, Seq(infos: _*)))
-                rangeStart = -1
-                rangeEnd = -1
-                rangeNames = Set.empty
-                infos.clear()
+              def addRange(): Unit = {
+                if (rangeStart != -1) {
+                  importsInfo.put(new TextRange(rangeStart, rangeEnd), (rangeNames, Seq(infos: _*)))
+                  rangeStart = -1
+                  rangeEnd = -1
+                  rangeNames = defaultT
+                  infos.clear()
+                }
               }
-            }
 
-            def initRange(psi: PsiElement) {
-              rangeStart = psi.getTextRange.getStartOffset
-              rangeEnd = psi.getTextRange.getEndOffset
-            }
-
-            for (child <- imp.getChildren) {
-              child match {
-                case a: PsiElement if isImportDelimiter(a) => //do nothing
-                case imp: ScImportStmt =>
-                  if (rangeStart == -1) {
-                    imp.getPrevSibling match {
-                      case a: PsiElement if isImportDelimiter(a) && !a.isInstanceOf[PsiWhiteSpace] => initRange(a)
-                      case _ => initRange(imp)
-                    }
-                    val refText = "someIdentifier"
-                    val reference = ScalaPsiElementFactory.createReferenceFromText(refText, imp.getContext, imp)
-                    val rangeNamesSet = new mutable.HashSet[String]()
-                    def addName(name: String): Unit = rangeNamesSet += name
-                    reference.getResolveResultVariants.foreach {
-                      case ScalaResolveResult(p: PsiPackage, _) =>
-                        if (p.getParentPackage != null && p.getParentPackage.getName != null) addName(name(p.getName))
-                      case ScalaResolveResult(o: ScObject, _) if o.isPackageObject =>
-                        if (o.qualifiedName.contains(".")) addName(o.name)
-                      case ScalaResolveResult(o: ScObject, _) =>
-                        o.getParent match {
-                          case file: ScalaFile =>
-                          case _ => addName(o.name)
-                        }
-                      case ScalaResolveResult(td: ScTypedDefinition, _) if td.isStable => addName(td.name)
-                      case ScalaResolveResult(_: ScTypeDefinition, _) =>
-                      case ScalaResolveResult(c: PsiClass, _) => addName(name(c.getName))
-                      case ScalaResolveResult(f: PsiField, _) if f.hasModifierProperty("final") =>
-                        addName(name(f.getName))
-                      case _ =>
-                    }
-                    rangeNames = rangeNamesSet.toSet
-                  } else {
-                    rangeEnd = imp.getTextRange.getEndOffset
-                  }
-                  imp.importExprs.foreach(expr =>
-                    getImportInfo(expr, isImportUsed) match {
-                      case Some(importInfo) => infos += importInfo
-                      case _ =>
-                    }
-                  )
-                case _ => addRange()
+              def initRange(psi: PsiElement) {
+                rangeStart = psi.getTextRange.getStartOffset
+                rangeEnd = psi.getTextRange.getEndOffset
               }
-            }
-            addRange()
-          case _ =>
+
+              for (child <- imp.getChildren) {
+                child match {
+                  case a: PsiElement if isImportDelimiter(a) => //do nothing
+                  case imp: ScImportStmt =>
+                    if (rangeStart == -1) {
+                      imp.getPrevSibling match {
+                        case a: PsiElement if isImportDelimiter(a) && !a.isInstanceOf[PsiWhiteSpace] => initRange(a)
+                        case _ => initRange(imp)
+                      }
+                      rangeNames = rangeStarted(imp)
+                    } else {
+                      rangeEnd = imp.getTextRange.getEndOffset
+                    }
+                    infos ++= collectR(imp)
+                  case _ => addRange()
+                }
+              }
+              addRange()
+            case _ =>
+          }
+          true
         }
-        true
-      }
-    })
+      })
+      importsInfo
+    }
 
-    val project: Project = scalaFile.getProject
+    def rangeStarted(imp: ScImportStmt): Set[String] = {
+      val refText = "someIdentifier"
+      val reference = ScalaPsiElementFactory.createReferenceFromText(refText, imp.getContext, imp)
+      val rangeNamesSet = new mutable.HashSet[String]()
+      def addName(name: String): Unit = rangeNamesSet += name
+      reference.getResolveResultVariants.foreach {
+        case ScalaResolveResult(p: PsiPackage, _) =>
+          if (p.getParentPackage != null && p.getParentPackage.getName != null) addName(name(p.getName))
+        case ScalaResolveResult(o: ScObject, _) if o.isPackageObject =>
+          if (o.qualifiedName.contains(".")) addName(o.name)
+        case ScalaResolveResult(o: ScObject, _) =>
+          o.getParent match {
+            case file: ScalaFile =>
+            case _ => addName(o.name)
+          }
+        case ScalaResolveResult(td: ScTypedDefinition, _) if td.isStable => addName(td.name)
+        case ScalaResolveResult(_: ScTypeDefinition, _) =>
+        case ScalaResolveResult(c: PsiClass, _) => addName(name(c.getName))
+        case ScalaResolveResult(f: PsiField, _) if f.hasModifierProperty("final") =>
+          addName(name(f.getName))
+        case _ =>
+      }
+      rangeNamesSet.toSet
+    }
+
+    def collectR(imp: ScImportStmt): Seq[ImportInfo] = {
+      imp.importExprs.flatMap(expr =>
+        getImportInfo(expr, isImportUsed) match {
+          case Some(importInfo) => Seq(importInfo)
+          case _ => Seq.empty
+        }
+      )
+    }
+
+    val importsInfo = collectRanges[Set[String], ImportInfo](Set.empty, rangeStarted, collectR)
+
     val settings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
     val addFullQualifiedImports = settings.isAddFullQualifiedImports
     val sortImports = settings.isSortImports
@@ -323,8 +341,16 @@ class ScalaImportOptimizer extends ImportOptimizer {
         val documentManager = PsiDocumentManager.getInstance(project)
         val document: Document = documentManager.getDocument(scalaFile)
         documentManager.commitDocument(document)
+        val ranges: Seq[(TextRange, Seq[ImportInfo])] = if (document.getText != analyzingDocumentText) {
+          //something was changed...
+          sortedImportsInfo.toSeq.sortBy(_._1.getStartOffset).zip {
+            collectRanges[String, String]("", _ => "", _ => Seq.empty).toSeq.sortBy(_._1.getStartOffset)
+          }.map {
+            case ((_, seq), (range, _)) => (range, seq)
+          }
+        } else sortedImportsInfo.toSeq.sortBy(_._1.getStartOffset)
 
-        for ((range, importInfos) <- sortedImportsInfo.toSeq.sortBy(_._1.getStartOffset).reverseIterator) {
+        for ((range, importInfos) <- ranges.reverseIterator) {
           val documentText = document.getText
           def splitterCalc(index: Int, res: String = ""): String = {
             if (index < 0) res
