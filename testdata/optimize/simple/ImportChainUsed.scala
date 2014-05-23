@@ -17,8 +17,8 @@ object A {
     }
   }
 
-  import A.B._
   import A.B.C.D
+  import A.B._
   val x : D = new D
 }
 */
