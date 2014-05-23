@@ -673,6 +673,6 @@ object ScalaImportOptimizer {
     val rIndex = findGroupIndex(r, project)
     if (lIndex > rIndex) true
     else if (rIndex > lIndex) false
-    else lText.toLowerCase > rText.toLowerCase
+    else lText > rText
   }
 }
