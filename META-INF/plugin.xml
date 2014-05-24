@@ -1,6 +1,6 @@
 <idea-plugin>
   <id>intellijhocon</id>
-  <version>0.2</version>
+  <version>0.3</version>
   <idea-version since-build="135.0"/>
   <name>HOCON</name>
   <vendor>rjghik</vendor>
@@ -21,6 +21,7 @@
       <ul>
         <li>Java 1.6 support</li>
       </ul>
+      <p>0.3 (bugfixes)</p>
         ]]>
   </change-notes>
 
