@@ -14,6 +14,7 @@ object HoconPsiParser {
   val IncludeQualifiers = Set("url(", "classpath(", "file(")
   val IntegerPattern = """-?(0|[1-9][0-9]*)""".r
   val DecimalPartPattern = """([0-9]+)((e|E)(\+|-)?[0-9]+)?""".r
+  val ProperlyClosedQuotedString = ".*[^\\\\](\\\\\\\\)*\"".r
 }
 
 class HoconPsiParser extends PsiParser {
@@ -64,7 +65,8 @@ class HoconPsiParser extends PsiParser {
     }
 
     def advanceLexer() {
-      val unclosedQuotedString = builder.getTokenType == QuotedString && !builder.getTokenText.endsWith("\"")
+      val unclosedQuotedString = builder.getTokenType == QuotedString &&
+        !ProperlyClosedQuotedString.pattern.matcher(builder.getTokenText).matches
       val unclosedMultilineString = builder.getTokenType == MultilineString && !builder.getTokenText.endsWith("\"\"\"")
       builder.advanceLexer()
       if (unclosedQuotedString) {
