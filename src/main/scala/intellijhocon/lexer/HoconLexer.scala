@@ -32,9 +32,9 @@ class HoconLexer extends LexerBase {
   }
 
   class LiteralTokenMatcher(str: String,
-    token: HoconTokenType,
-    condition: State => Boolean = _ => true,
-    transitionFun: State => State = identity)
+                            token: HoconTokenType,
+                            condition: State => Boolean = _ => true,
+                            transitionFun: State => State = identity)
     extends TokenMatcher {
 
     def matchToken(seq: CharSequence, state: State) =
@@ -44,9 +44,9 @@ class HoconLexer extends LexerBase {
   }
 
   class RegexTokenMatcher(regex: Regex,
-    token: HoconTokenType,
-    condition: State => Boolean = _ => true,
-    transitionFun: State => State = identity)
+                          token: HoconTokenType,
+                          condition: State => Boolean = _ => true,
+                          transitionFun: State => State = identity)
     extends TokenMatcher {
 
     def matchToken(seq: CharSequence, state: State) =
@@ -113,15 +113,16 @@ class HoconLexer extends LexerBase {
 
   object QuotedStringMatcher extends TokenMatcher {
     def matchToken(seq: CharSequence, state: State) = if (seq.charAt(0) == '\"') {
-      def drain(offset: Int): Int =
+      def drain(offset: Int, escaping: Boolean): Int =
         if (offset < seq.length) {
           seq.charAt(offset) match {
-            case '\"' => offset + 1
             case '\n' => offset
-            case _ => drain(offset + 1)
+            case '\"' if !escaping => offset + 1
+            case '\\' if !escaping => drain(offset + 1, escaping = true)
+            case _ => drain(offset + 1, escaping = false)
           }
         } else offset
-      Some(TokenMatch(QuotedString, drain(1), onContents(state)))
+      Some(TokenMatch(QuotedString, drain(1, escaping = false), onContents(state)))
     } else None
   }
 
@@ -145,7 +146,7 @@ class HoconLexer extends LexerBase {
         c += 1
       }
       if (c > 0) {
-        val token = if(nl) LineBreakingWhitespace else InlineWhitespace
+        val token = if (nl) LineBreakingWhitespace else InlineWhitespace
         Some(TokenMatch(token, c, newState(state, nl)))
       } else None
     }

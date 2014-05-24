@@ -21,6 +21,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="scala-library" level="project" />
+    <orderEntry type="library" scope="TEST" name="org.scalatest:scalatest_2.11:2.1.7" level="application" />
   </component>
 </module>
 
