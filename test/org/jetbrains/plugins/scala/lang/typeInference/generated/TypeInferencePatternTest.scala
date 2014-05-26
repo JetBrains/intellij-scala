@@ -9,6 +9,8 @@ class TypeInferencePatternTest extends TypeInferenceTestBase {
 
   def testContextResolve() {doTest()}
 
+  def testDependent() {doTest()}
+
   def testForRecursive() {doTest()}
 
   def testInfixToTypeAlias() {doTest()}
