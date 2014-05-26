@@ -21,6 +21,8 @@ class TypeInferencePatternTest extends TypeInferenceTestBase {
 
   def testNamingExtractorPattern() {doTest()}
 
+  def testNewEarlyDefinitions() {doTest()}
+
   def testOptionOfTuple() {doTest()}
 
   def testParamExtractor() {doTest()}
