@@ -4,17 +4,17 @@ package psi
 package types
 
 import com.intellij.openapi.util.Key
-import java.lang.String
-import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType, ScMethodType}
 import com.intellij.psi._
-import api.toplevel.ScTypedDefinition
-import result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
-import collection.immutable.{HashSet, HashMap, Map}
-import api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+
+import scala.collection.immutable.{HashMap, HashSet, Map}
 
 /**
 * @author ven
@@ -168,9 +168,6 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
             case tpp => (false, tpp)
           }
           res
-        }
-        if (updateThisType.toString == "Some(NameManglers.this.type)") {
-          "stop here"
         }
         updateThisType match {
           case Some(oldTp) if !hasRecursiveThisType(oldTp) => //todo: hack to avoid infinite recursion during type substitution
@@ -368,7 +365,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
         }, typeMap.map {
           case (s, sign) => (s, sign.updateTypes(substInternal))
         })
-      case ScDesignatorType(param: ScParameter) if !getDependentMethodTypes.isEmpty =>
+      case ScDesignatorType(param: ScParameter) if getDependentMethodTypes.nonEmpty =>
         getDependentMethodTypes.find {
           case (parameter: Parameter, tp: ScType) =>
             parameter.paramInCode match {
@@ -510,13 +507,13 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), HashSet[ScType]
     upperMap.keySet ++ lowerMap.filter(_._2.exists(!_.equiv(Nothing))).keySet ++ additionalNames
   }
 
-  import collection.mutable.{HashMap => MHashMap}
-  import collection.immutable.{HashMap => IHashMap}
+  import scala.collection.immutable.{HashMap => IHashMap}
+  import scala.collection.mutable.{HashMap => MHashMap}
   val lMap = new MHashMap[Name, ScType]
   val rMap = new MHashMap[Name, ScType]
 
   def getSubstitutor(notNonable: Boolean): Option[ScSubstitutor] = {
-    import collection.immutable.HashSet
+    import scala.collection.immutable.HashSet
     val tvMap = new MHashMap[Name, ScType]
 
     def solve(name: Name, visited: HashSet[Name]): Option[ScType] = {
