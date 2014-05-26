@@ -1,19 +1,20 @@
 package org.jetbrains.plugins.scala
 package worksheet.processor
 
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScAssignStmt, ScExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition, ScTypeAlias, ScFunction, ScPatternDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScClass, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import com.intellij.psi._
 import com.intellij.openapi.editor.Editor
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.module.ModuleUtilCore
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.config.ScalaFacet
-import scala.annotation.tailrec
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 /**
@@ -184,7 +185,39 @@ object WorksheetSourceProcessor {
       importStmts += (text + insertNlsFromWs(imp))
       appendPsiLineInfo(imp, lineNums)
     }
-    
+
+    def processLocalImport(imp: ScImportStmt): Boolean = {
+      if (imp.importExprs.length < 1) return false
+
+      var currentQual = imp.importExprs(0).qualifier
+      var lastFound: Option[(ScStableCodeReferenceElement, PsiElement)] = None
+
+      while (currentQual != null) {
+        currentQual.resolve() match {
+          case el: PsiElement if el.getContainingFile == srcFile => lastFound = Some(currentQual, el)
+          case _ =>
+        }
+
+        currentQual = currentQual.qualifier.orNull
+      }
+
+      lastFound exists {
+        case (lastQualifier, el) =>
+          val text = imp.getText
+          val qualifierName = lastQualifier.qualName
+          val lineNums = psiToLineNumbers(imp)
+          val memberName = if (el.isInstanceOf[ScValue] || el.isInstanceOf[ScVariable]) //variable to avoid weird errors
+            s"get$$$$instance$$$$$qualifierName" else qualifierName
+
+          objectRes append
+            s";{val $qualifierName = $instanceName.$memberName; $printMethodName($macroPrinterName.printImportInfo({$text;}))}\n"
+          classRes append s"$text${insertNlsFromWs(imp)}"
+
+          appendPsiLineInfo(imp, lineNums)
+          true
+      }
+    }
+
     def withTempVar(callee: String, withInstance: Boolean = true) =
       "{val $$temp$$ = " + (if (withInstance) instanceName + "." else "") + callee + s"; $macroPrinterName.printDefInfo(" + "$$temp$$" + ")" +
         eraseClassName + " + \" = \" + (Option($$temp$$).map(_.toString).getOrElse(\"null\"))" + erasePrefixName + "}"
@@ -259,7 +292,8 @@ object WorksheetSourceProcessor {
         appendPsiLineInfo(assign, lineNums)
         
         assignCount += 1
-      case imp: ScImportStmt => processImport(imp)
+      case imp: ScImportStmt =>
+        if (!processLocalImport(imp)) processImport(imp)
       case comm: PsiComment => appendPsiComment(comm)
       case expr: ScExpression =>
         val resName = s"get$$$$instance$$$$res$resCount"
