@@ -31,7 +31,6 @@ public class ScalaProjectSettingsPanel {
   private JCheckBox myDisablei18n;
   private JCheckBox useScalaClassesPriorityCheckBox;
   private JComboBox collectionHighlightingChooser;
-  private JSpinner shiftSpinner;
   private JPanel injectionJPanel;
   private JSpinner outputSpinner;
   private JSpinner implicitParametersSearchDepthSpinner;
@@ -43,8 +42,6 @@ public class ScalaProjectSettingsPanel {
 
   public ScalaProjectSettingsPanel(Project project) {
     myProject = project;
-
-    shiftSpinner.setModel(new SpinnerNumberModel(80, 40, null, 10));
     outputSpinner.setModel(new SpinnerNumberModel(35, 1, null, 1));
 
     ScalaUiWithDependency[] deps = DependencyAwareInjectionSettings.EP_NAME.getExtensions();
@@ -69,7 +66,6 @@ public class ScalaProjectSettingsPanel {
 
     final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
     scalaProjectSettings.setImplicitParametersSearchDepth((Integer) implicitParametersSearchDepthSpinner.getValue());
-    scalaProjectSettings.setShift((Integer) shiftSpinner.getValue());
     scalaProjectSettings.setOutputLimit((Integer) outputSpinner.getValue());
     scalaProjectSettings.setInProcessMode(runWorksheetInTheCheckBox.isSelected());
     scalaProjectSettings.setInteractiveMode(worksheetInteractiveModeCheckBox.isSelected());
@@ -109,8 +105,6 @@ public class ScalaProjectSettingsPanel {
 
     if (scalaProjectSettings.getImplicitParametersSearchDepth() !=
         (Integer) implicitParametersSearchDepthSpinner.getValue()) return true;
-    if (scalaProjectSettings.getShift() !=
-        (Integer) shiftSpinner.getValue()) return true;
     if (scalaProjectSettings.getOutputLimit() !=
         (Integer) outputSpinner.getValue()) return true;
     if (scalaProjectSettings.isInProcessMode() != 
@@ -159,7 +153,6 @@ public class ScalaProjectSettingsPanel {
   private void setSettings() {
     final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
     setValue(implicitParametersSearchDepthSpinner, scalaProjectSettings.getImplicitParametersSearchDepth());
-    setValue(shiftSpinner, scalaProjectSettings.getShift());
     setValue(outputSpinner, scalaProjectSettings.getOutputLimit());
     setValue(runWorksheetInTheCheckBox, scalaProjectSettings.isInProcessMode());
     setValue(worksheetInteractiveModeCheckBox, scalaProjectSettings.isInteractiveMode());

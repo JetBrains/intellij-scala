@@ -43,7 +43,6 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean SCALA_CLASSES_PRIORITY = true;
 
   //WORKSHEET
-  private int SHIFT = 80;
   private int OUTPUT_LIMIT = 35;
   private boolean IN_PROCESS_MODE = true;
   private boolean INTERACTIVE_MODE = true;
@@ -91,14 +90,6 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setImplicitParametersSearchDepth(int value) {
     IMPLICIT_PARAMETERS_SEARCH_DEPTH = value;
-  }
-
-  public int getShift() {
-    return  SHIFT;
-  }
-
-  public void setShift(int value) {
-    SHIFT = value;
   }
 
   public int getOutputLimit() {
