@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
+import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetSourceProcessor}
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
 
 /**
@@ -180,7 +180,7 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, fi
     scala.extensions.inReadAction {
       PsiDocumentManager.getInstance(project).getPsiFile(originalEditor.getDocument) match {
         case scalaFile: ScalaFile =>
-          WorksheetEditorPrinter.saveWorksheetEvaluation(scalaFile, str, Option(group))
+          WorksheetEditorPrinter.saveWorksheetEvaluation(scalaFile, str)
         case _ =>
       }
     }
@@ -364,16 +364,14 @@ object WorksheetEditorPrinter {
     }
   }
 
-  def saveWorksheetEvaluation(file: ScalaFile, result: String, foldGroup: Option[WorksheetFoldGroup]) {
-    LAST_WORKSHEET_RUN_RESULT.writeAttributeBytes(file.getVirtualFile, result.getBytes)
+  def saveWorksheetEvaluation(file: ScalaFile, result: String) {
+    WorksheetCompiler.writeAttribute(LAST_WORKSHEET_RUN_RESULT, file, result)
   }
   
-  def loadWorksheetEvaluation(file: ScalaFile): Option[String] = {
-    Option(LAST_WORKSHEET_RUN_RESULT.readAttributeBytes(file.getVirtualFile)) map (new String(_))
-  }
+  def loadWorksheetEvaluation(file: ScalaFile): Option[String] = WorksheetCompiler.readAttribute(LAST_WORKSHEET_RUN_RESULT, file)
   
   def deleteWorksheetEvaluation(file: ScalaFile) {
-    LAST_WORKSHEET_RUN_RESULT.writeAttributeBytes(file.getVirtualFile, Array.empty[Byte])
+    WorksheetCompiler.writeAttribute(LAST_WORKSHEET_RUN_RESULT, file, "")
   }
 
   def newWorksheetUiFor(editor: Editor, virtualFile: VirtualFile) =

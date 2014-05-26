@@ -23,6 +23,8 @@ import com.intellij.execution.ExecutionHelper
 import com.intellij.openapi.components.ServiceManager
 import javax.swing.JComponent
 import com.intellij.openapi.wm.{ToolWindowId, ToolWindowManager}
+import com.intellij.openapi.vfs.VirtualFileWithId
+import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
 
 /**
  * User: Dmitry Naydanov
@@ -71,7 +73,7 @@ class WorksheetCompiler {
             try {
               //todo smth with exit code
               new RemoteServerConnector(
-                ModuleUtilCore.findModuleForFile(worksheetVirtual, project), tempFile, outputDir
+                RunWorksheetAction getModuleFor worksheetFile, tempFile, outputDir
               ).compileAndRun(new Runnable {
                 override def run() {
                   if (runType == OutOfProcessServer) callback(name, outputDir.getAbsolutePath)
@@ -143,10 +145,23 @@ object WorksheetCompiler {
     if (launcher.running) launcher.stop(project)
   }
 
-  private def getAttribute(file: PsiFile) = Option(MAKE_BEFORE_RUN.readAttributeBytes(file.getVirtualFile)) map (new String(_))
+  def readAttribute(attribute: FileAttribute, file: PsiFile): Option[String] = {
+    file.getVirtualFile match {
+      case normalFile: VirtualFileWithId => Option(attribute readAttributeBytes normalFile) map (new String(_))
+      case _ => None
+    }
+  }
 
-  def isMakeBeforeRun(file: PsiFile) = !getAttribute(file).exists(_ == disabled)
+  def writeAttribute(attribute: FileAttribute, file: PsiFile, data: String) {
+    file.getVirtualFile match {
+      case normalFile: VirtualFileWithId => attribute.writeAttributeBytes(normalFile, data.getBytes)
+      case _ =>
+    }
+  }
 
-  def setMakeBeforeRun(file: PsiFile, isMake: Boolean) = MAKE_BEFORE_RUN.writeAttributeBytes(file.getVirtualFile,
-    (if (isMake) enabled else disabled).getBytes)
+  def isMakeBeforeRun(file: PsiFile) = readAttribute(MAKE_BEFORE_RUN, file).exists(_ == enabled)
+
+  def setMakeBeforeRun(file: PsiFile, isMake: Boolean) = {
+    writeAttribute(MAKE_BEFORE_RUN, file, if (isMake) enabled else disabled)
+  }
 }
