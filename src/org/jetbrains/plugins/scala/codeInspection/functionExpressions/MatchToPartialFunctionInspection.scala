@@ -64,7 +64,7 @@ class MatchToPartialFunctionInspection extends AbstractInspection(inspectionId){
 
 object MatchToPartialFunctionInspection {
   val inspectionId = "MatchToPartialFunction"
-  val inspectionName = "Convert match statement to partial function"
+  val inspectionName = "Convert match statement to pattern matching anonymous function"
 }
 
 class MatchToPartialFunctionQuickFix(matchStmt: ScMatchStmt, fExprToReplace: ScExpression)
