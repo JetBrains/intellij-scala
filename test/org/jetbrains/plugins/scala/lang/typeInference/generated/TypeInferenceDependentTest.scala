@@ -21,5 +21,7 @@ class TypeInferenceDependentTest extends TypeInferenceTestBase {
 
   def testObjectDependent() {doTest()}
 
+  def testShortImport() {doTest()}
+
   def testSingletonProjection() {doTest()}
 }

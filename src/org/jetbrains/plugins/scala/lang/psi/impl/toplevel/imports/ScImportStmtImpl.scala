@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+
 import scala.annotation.tailrec
 import scala.collection.immutable.Set
 import scala.collection.mutable
@@ -285,8 +285,12 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                   selectorResolve foreach { result =>
                     var newState: ResolveState = state
                     if (!selector.isAliasedImport || selector.importedName == selector.reference.refName) {
+                      val rSubst = result match {
+                        case result: ScalaResolveResult => result.substitutor
+                        case _ => ScSubstitutor.empty
+                      }
                       newState = newState.put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector)).
-                        put(ScSubstitutor.key, subst)
+                        put(ScSubstitutor.key, subst.followed(rSubst))
                       calculateRefType(checkResolve(selectorResolve)).foreach {tp =>
                         newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
                       }
