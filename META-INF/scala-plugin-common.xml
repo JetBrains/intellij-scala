@@ -1018,6 +1018,11 @@
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <keyboard-shortcut first-keystroke="control shift D" keymap="$default"/>
         </action>
+        <action id="Scala.CreateLightWorksheetAction" class="org.jetbrains.plugins.scala.worksheet.actions.CreateLightWorksheetAction"
+                description="Create light scala worksheet" text="Create light scala worksheet">
+            <keyboard-shortcut first-keystroke="control alt shift X" keymap="$default"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl shift M"/>
+        </action>
         <action id="Scala.SendSelectionToConsole" class="org.jetbrains.plugins.scala.console.SendSelectionToConsoleAction"
                 text="Send Selection To Scala Console" description="Send selection to Scala console">
             <add-to-group group-id="RunContextPopupGroup" anchor="last"/>

@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager}
 import com.intellij.openapi.roots.{ModuleRootManager, ProjectFileIndex}
 import org.jetbrains.plugins.scala.config.{Libraries, CompilerLibraryData, ScalaFacet}
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.{ModuleManager, Module}
 import com.intellij.openapi.projectRoots.{JdkUtil, JavaSdkType}
 import org.jetbrains.plugins.scala.compiler.ScalacSettings
 import org.jetbrains.plugins.scala.worksheet.MacroPrinter
@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
 import com.intellij.internal.statistic.UsageTrigger
+import com.intellij.openapi.vfs.VirtualFileWithId
 
 /**
  * @author Ksenia.Sautina
@@ -190,5 +191,8 @@ object RunWorksheetAction {
     handler.startNotify()
   }
 
-  private def getModuleFor(file: PsiFile) = ProjectFileIndex.SERVICE getInstance file.getProject getModuleForFile file.getVirtualFile
+  def getModuleFor(file: PsiFile) = file.getVirtualFile match {
+    case _: VirtualFileWithId => ProjectFileIndex.SERVICE getInstance file.getProject getModuleForFile file.getVirtualFile
+    case _ => ScalaFacet.findFirstIn(file.getProject).map(_.getModule).orNull
+  }
 }

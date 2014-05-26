@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala
 package worksheet.ui
 
-import scala.collection.mutable
+import com.intellij.openapi.editor.impl.{EditorImpl, FoldingModelImpl}
 import com.intellij.openapi.editor.{Editor, FoldRegion}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.impl.{FoldingModelImpl, EditorImpl}
-import java.util
 import com.intellij.openapi.vfs.newvfs.FileAttribute
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.psi.PsiFile
+import java.util
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
+import scala.collection.mutable
 
 /**
  * User: Dmitry.Naydanov
@@ -156,7 +157,9 @@ object WorksheetFoldGroup {
   private val WORKSHEET_PERSISTENT_FOLD_KEY = new FileAttribute("WorksheetPersistentFoldings", 1, false)
 
   def save(file: ScalaFile, group: WorksheetFoldGroup) {
-    WORKSHEET_PERSISTENT_FOLD_KEY.writeAttributeBytes(file.getVirtualFile, group.serialize().getBytes)
+    val virtualFile = file.getVirtualFile
+    if (!virtualFile.isValid) return
+    WorksheetCompiler.writeAttribute(WORKSHEET_PERSISTENT_FOLD_KEY, file, group.serialize())
   }
 
   def load(viewerEditor: Editor, originalEditor: Editor, project: Project,
