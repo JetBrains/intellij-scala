@@ -9,6 +9,8 @@ class TypeInferenceDependentTest extends TypeInferenceTestBase {
 
   def testDependentApply() {doTest()}
 
+  def testDependentApply2() {doTest()}
+
   def testDependentCopy() {doTest()}
 
   def testHardCaseFromTypers() {doTest()}

@@ -12,4 +12,4 @@ object SCL2936 {
     }
   }
 }
-//MyEnum.Value
+//SCL2936.MyEnum.Value
