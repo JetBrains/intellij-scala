@@ -5,26 +5,27 @@ package api
 package base
 package patterns
 
-import collection.mutable.ArrayBuffer
-import psi.types._
-import psi.{types, ScalaPsiElement}
 import com.intellij.psi._
-import expr._
-import result.{Success, Failure, TypeResult, TypingContext}
-import statements.{ScFunction, ScValue, ScVariable}
-import psi.impl.base.ScStableCodeReferenceElementImpl
-import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
-import lang.resolve._
-import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ExpandedExtractorResolveProcessor}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScTypeParam, ScParameter}
-import caches.CachesUtil
-import psi.impl.ScalaPsiManager
-import util.PsiModificationTracker
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
-import extensions.toPsiClassExt
+import com.intellij.psi.util.PsiModificationTracker
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
+import org.jetbrains.plugins.scala.lang.psi.types
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.resolve._
+import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ExpandedExtractorResolveProcessor}
+
 import scala.annotation.tailrec
 import scala.collection.immutable.Set
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin
@@ -88,7 +89,7 @@ trait ScPattern extends ScalaPsiElement {
       }
 
       def rightWay: ScSubstitutor = {
-        val t = Conformance.conformsInner(tp, funType, Set.empty, new ScUndefinedSubstitutor)
+        val t = Conformance.conformsInner(tp, substitutor.subst(funType), Set.empty, new ScUndefinedSubstitutor)
         if (t._1) {
           val undefSubst = t._2
           undefSubst.getSubstitutor match {
@@ -99,7 +100,7 @@ trait ScPattern extends ScalaPsiElement {
       }
 
       //todo: looks quite hacky to try another direction first, do you know better? see SCL-6543
-      val t = Conformance.conformsInner(funType, tp, Set.empty, new ScUndefinedSubstitutor)
+      val t = Conformance.conformsInner(substitutor.subst(funType), tp, Set.empty, new ScUndefinedSubstitutor)
       if (t._1) {
         val undefSubst = t._2
         undefSubst.getSubstitutor match {

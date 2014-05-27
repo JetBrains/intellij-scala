@@ -9,7 +9,7 @@ import params.ScTypeParam
 import psi.types._
 import nonvalue.TypeParameter
 import psi.api.base.types.ScTypeElement
-import result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import collection.immutable.HashSet
 import scala.collection.Set
 import psi.implicits.ScImplicitlyConvertible
@@ -71,14 +71,24 @@ class MethodResolveProcessor(override val ref: PsiElement,
             isForwardReference = forwardReference))
         case cc: ScClass =>
         case o: ScObject if o.isPackageObject =>  // do not resolve to package object
-        case o: ScObject if ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall] =>
+        case obj: ScObject if ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall] =>
           val functionName = if (isUpdate) "update" else "apply"
-          val seq = o.signaturesByName(functionName).map(sign => {
-            val m = sign.method
-            val subst = sign.substitutor
-            new ScalaResolveResult(m, s.followed(subst), getImports(state), nameShadow, implicitConversionClass,
-              implicitFunction = implFunction, implicitType = implType, fromType = fromType, parentElement = Some(o),
-              isAccessible = accessible && isAccessible(m, ref), isForwardReference = forwardReference)}).filter {
+          val typeResult = getFromType(state) match {
+            case Some(tp) => Success(ScProjectionType(tp, obj, superReference = false), Some(obj))
+            case _ => obj.getType(TypingContext.empty)
+          }
+          val processor = new CollectMethodsProcessor(ref, functionName)
+          typeResult.foreach(t => processor.processType(t, ref))
+          val sigs = processor.candidatesS.flatMap {
+            case ScalaResolveResult(meth: PsiMethod, subst) => Some((meth, subst))
+            case _ => None
+          }.toSeq
+          val seq = sigs.map {
+            case (m, subst) =>
+              new ScalaResolveResult(m, subst, getImports(state), nameShadow, implicitConversionClass,
+                implicitFunction = implFunction, implicitType = implType, fromType = fromType, parentElement = Some(obj),
+                isAccessible = accessible && isAccessible(m, ref), isForwardReference = forwardReference)
+          }.filter {
             case r => !accessibility || r.isAccessible
           }
           if (seq.nonEmpty) addResults(seq)
