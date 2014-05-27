@@ -4,29 +4,28 @@ package psi
 package types
 
 import com.intellij.openapi.progress.ProgressManager
-import nonvalue.{ScTypePolymorphicType, ScMethodType}
-import psi.impl.toplevel.synthetic.ScSyntheticClass
-import api.statements._
-import params._
-import api.toplevel.typedef.ScTypeDefinition
-import _root_.scala.collection.immutable.HashSet
-
-import collection.{immutable, mutable, Seq}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext, TypeResult}
-import api.base.patterns.ScBindingPattern
-import api.base.ScFieldId
-import api.toplevel.{ScTypeParametersOwner, ScNamedElement}
 import com.intellij.openapi.util.{Computable, RecursionManager}
-import psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
-import com.intellij.util.containers.ConcurrentWeakHashMap
-import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
-import scala.Some
 import com.intellij.psi._
-import collection.mutable.ArrayBuffer
-import api.base.types.ScExistentialClause
-import decompiler.DecompilerUtil
-import org.jetbrains.plugins.scala.lang.resolve.processor.{CompoundTypeCheckTypeAliasProcessor, CompoundTypeCheckSignatureProcessor}
+import com.intellij.util.containers.ConcurrentWeakHashMap
+import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.resolve.processor.{CompoundTypeCheckSignatureProcessor, CompoundTypeCheckTypeAliasProcessor}
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+
+import _root_.scala.collection.immutable.HashSet
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.{Seq, immutable, mutable}
 
 object Conformance {
   /**
@@ -594,6 +593,14 @@ object Conformance {
           val projected2 = proj1.projected
           result = conformsInner(projected1, projected2, visited, undefinedSubst)
           if (result != null) return
+        case proj1: ScProjectionType if proj1.actualElement.name == proj.actualElement.name =>
+          val projected1 = proj.projected
+          val projected2 = proj1.projected
+          val t = conformsInner(projected1, projected2, visited, undefinedSubst)
+          if (t._1) {
+            result = t
+            return
+          }
         case _ =>
       }
 

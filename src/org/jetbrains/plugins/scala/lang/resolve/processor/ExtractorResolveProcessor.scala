@@ -3,16 +3,15 @@ package lang
 package resolve
 package processor
 
-import psi.api.base.ScReferenceElement
-import psi.api.statements._
 import com.intellij.psi._
-import psi.types._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 
-import result.{Success, TypingContext}
-import scala._
-import scala.collection.{mutable, Set}
-import psi.api.toplevel.typedef.ScObject
-import psi.api.toplevel.ScTypedDefinition
+import scala.collection.{Set, mutable}
 
 class ExtractorResolveProcessor(ref: ScReferenceElement,
                                 refName: String,
@@ -40,9 +39,9 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
           }.toSeq
           addResults(sigs.map {
             case (m, subst, parent) =>
-              val resolveToMethod = new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state),
+              val resolveToMethod = new ScalaResolveResult(m, subst, getImports(state),
                 fromType = getFromType(state), parentElement = parent, isAccessible = accessible)
-              val resolveToNamed = new ScalaResolveResult(named, getSubst(state).followed(subst), getImports(state),
+              val resolveToNamed = new ScalaResolveResult(named, subst, getImports(state),
                 fromType = getFromType(state), parentElement = parent, isAccessible = accessible)
 
               resolveToMethod.copy(innerResolveResult = Option(resolveToNamed))
