@@ -157,8 +157,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def createContentRoot(project: Project): ContentRootNode = {
     val productionSources = validRootPathsIn(project, "compile")(_.sources)
     val productionResources = validRootPathsIn(project, "compile")(_.resources)
-    val testSources = validRootPathsIn(project, "test")(_.sources)
-    val testResources = validRootPathsIn(project, "test")(_.resources)
+    val testSources = validRootPathsIn(project, "test")(_.sources) ++ validRootPathsIn(project, "it")(_.sources)
+    val testResources = validRootPathsIn(project, "test")(_.resources) ++ validRootPathsIn(project, "it")(_.resources)
 
     val result = new ContentRootNode(project.base.path)
 
