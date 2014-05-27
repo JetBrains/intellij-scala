@@ -1,30 +1,28 @@
 package org.jetbrains.plugins.scala
 package worksheet.processor
 
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import com.intellij.compiler.impl.CompilerErrorTreeView
+import com.intellij.compiler.progress.CompilerTask
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.command.CommandProcessor
+import com.intellij.openapi.components.ServiceManager
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.{Disposer, Key}
-import com.intellij.openapi.editor.Editor
-import org.jetbrains.plugins.scala.worksheet.server.{NonServer, OutOfProcessServer, InProcessServer, RemoteServerConnector}
-import com.intellij.openapi.module.ModuleUtilCore
-import com.intellij.compiler.progress.CompilerTask
-import org.jetbrains.plugins.scala.compiler.{ScalaApplicationSettings, CompileServerLauncher}
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import com.intellij.openapi.vfs.newvfs.FileAttribute
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
+import com.intellij.openapi.wm.{ToolWindowId, ToolWindowManager}
 import com.intellij.psi.{PsiErrorElement, PsiFile}
 import com.intellij.ui.content.{Content, ContentFactory, MessageView}
-import com.intellij.compiler.impl.CompilerErrorTreeView
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.util.ui.MessageCategory
-import com.intellij.openapi.command.CommandProcessor
-import com.intellij.execution.ExecutionHelper
-import com.intellij.openapi.components.ServiceManager
-import javax.swing.JComponent
-import com.intellij.openapi.wm.{ToolWindowId, ToolWindowManager}
-import com.intellij.openapi.vfs.VirtualFileWithId
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaApplicationSettings}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
+import org.jetbrains.plugins.scala.worksheet.server.{InProcessServer, NonServer, OutOfProcessServer, RemoteServerConnector}
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
+import scala.collection.mutable
 
 /**
  * User: Dmitry Naydanov
@@ -36,7 +34,7 @@ class WorksheetCompiler {
    */
   def compileAndRun(editor: Editor, worksheetFile: ScalaFile, callback: (String, String) => Unit,
                     ifEditor: Option[Editor], auto: Boolean) {
-    import WorksheetCompiler._
+    import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler._
     
     val worksheetVirtual = worksheetFile.getVirtualFile
     val (iteration, tempFile, outputDir) = WorksheetBoundCompilationInfo.updateOrCreate(worksheetVirtual.getCanonicalPath, worksheetFile.getName)
@@ -131,6 +129,8 @@ object WorksheetCompiler {
   private val enabled = "enabled"
   private val disabled = "disable"
 
+  private val lightKeys = mutable.WeakHashMap[VirtualFile, mutable.HashMap[FileAttribute, String]]()
+
   def getCompileKey = Key.create[String]("scala.worksheet.compilation")
   def getOriginalFileKey = Key.create[String]("scala.worksheet.original.file")
 
@@ -148,14 +148,17 @@ object WorksheetCompiler {
   def readAttribute(attribute: FileAttribute, file: PsiFile): Option[String] = {
     file.getVirtualFile match {
       case normalFile: VirtualFileWithId => Option(attribute readAttributeBytes normalFile) map (new String(_))
-      case _ => None
+      case other => lightKeys get other flatMap (map => map get attribute)
     }
   }
 
   def writeAttribute(attribute: FileAttribute, file: PsiFile, data: String) {
     file.getVirtualFile match {
       case normalFile: VirtualFileWithId => attribute.writeAttributeBytes(normalFile, data.getBytes)
-      case _ =>
+      case other => lightKeys get other match {
+        case Some(e) => e.put(attribute, data)
+        case _ => lightKeys.put(other, mutable.HashMap(attribute -> data))
+      }
     }
   }
 
