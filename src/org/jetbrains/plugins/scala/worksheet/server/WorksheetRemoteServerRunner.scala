@@ -26,7 +26,7 @@ class WorksheetRemoteServerRunner(project: Project) extends RemoteResourceOwner 
     }
   
   def run(arguments: Seq[String], client: Client) = new WorksheetProcess {
-    val COUNT = 5
+    val COUNT = 10
 
     var callbacks: Seq[() => Unit] = Seq.empty
 
