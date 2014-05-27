@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import scala.annotation.tailrec
 import scala.collection.mutable
+import com.intellij.openapi.util.Key
 
 /**
  * User: Dmitry Naydanov
@@ -25,7 +26,9 @@ object WorksheetSourceProcessor {
   val END_TOKEN_MARKER = "###worksheet###$$end$$"
   val END_OUTPUT_MARKER = "###worksheet###$$end$$!@#$%^&*(("
   val END_GENERATED_MARKER = "/* ###worksheet### generated $$end$$ */"
-  
+
+  val WORKSHEET_PRE_CLASS_KEY = new Key[String]("WorksheetPreClassKey")
+
   
   def extractLineInfoFrom(encoded: String): Option[(Int, Int)] = {
     if (encoded startsWith END_TOKEN_MARKER) { 
@@ -221,17 +224,36 @@ object WorksheetSourceProcessor {
     def withTempVar(callee: String, withInstance: Boolean = true) =
       "{val $$temp$$ = " + (if (withInstance) instanceName + "." else "") + callee + s"; $macroPrinterName.printDefInfo(" + "$$temp$$" + ")" +
         eraseClassName + " + \" = \" + (Option($$temp$$).map(_.toString).getOrElse(\"null\"))" + erasePrefixName + "}"
-    
+
+    def insertUntouched(exprs: mutable.Iterable[PsiElement]) {
+      exprs foreach {
+        case expr => classRes append expr.getText append insertNlsFromWs(expr)
+      }
+    }
+
+    val preDeclarations = mutable.ListBuffer.empty[PsiElement]
+    val postDeclarations = mutable.ListBuffer.empty[PsiElement]
+
     val root  = if (!isForObject(srcFile)) srcFile else {
       ((null: PsiElement) /: srcFile.getChildren) {
         case (a, imp: ScImportStmt) => 
           processImport(imp)
           a
-        case (null, obj: ScObject) => obj.extendsBlock.templateBody getOrElse srcFile
+        case (null, obj: ScObject) =>
+          obj.extendsBlock.templateBody getOrElse srcFile
+        case (null, cl: ScTemplateDefinition) =>
+          cl.putCopyableUserData(WORKSHEET_PRE_CLASS_KEY, "+")
+          preDeclarations += cl
+          null
+        case (a: PsiElement, cl: ScTemplateDefinition) =>
+          postDeclarations += cl
+          a
         case (a, _) => a
       }
     }
-    
+
+    insertUntouched(preDeclarations)
+
     root.getChildren foreach {
       case tpe: ScTypeAlias =>
         withPrecomputeLines(tpe, {
@@ -308,7 +330,9 @@ object WorksheetSourceProcessor {
       case error: PsiErrorElement => return Right(error)
       case a => 
     }
-    
+
+    insertUntouched(postDeclarations)
+
     classRes append "}"
     objectRes append (printMethodName + "(\"" + END_OUTPUT_MARKER + "\")\n") append "} \n }"
 
@@ -319,17 +343,18 @@ object WorksheetSourceProcessor {
   }
   
   private def isForObject(file: ScalaFile) = {
-    @tailrec
-    def isOk(psi: PsiElement): Boolean = psi match {
-      case null => true
-      case _: ScImportStmt | _: PsiWhiteSpace | _: PsiComment => isOk(psi.getNextSibling)
-      case _ => false
-    }
+//    @tailrec
+//    def isOk(psi: PsiElement): Boolean = psi match {
+//      case null => true
+//      case _: ScImportStmt | _: PsiWhiteSpace | _: PsiComment | _: PsiClass => isOk(psi.getNextSibling)
+//      case _ => false
+//    }
     
     @tailrec
     def isObjectOk(psi: PsiElement): Boolean = psi match {
-      case _: ScImportStmt | _: PsiWhiteSpace | _: PsiComment => isObjectOk(psi.getNextSibling)
-      case _: ScObject => isOk(psi.getNextSibling)
+      case _: ScImportStmt | _: PsiWhiteSpace | _: PsiComment  => isObjectOk(psi.getNextSibling)
+      case _: ScObject => true //isOk(psi.getNextSibling) - for compatibility with Eclipse. Its worksheet proceeds with expressions inside first object found
+      case _: PsiClass => isObjectOk(psi.getNextSibling)
       case _ => false
     }
     
