@@ -238,6 +238,10 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
               val up = update(tp)
               if (up != null) return up
               tp match {
+                case ScThisType(template) =>
+                  val parentTemplate = ScalaPsiUtil.getContextOfType(template, true, classOf[ScTemplateDefinition])
+                  if (parentTemplate != null) tp = ScThisType(parentTemplate.asInstanceOf[ScTemplateDefinition])
+                  else tp = null
                 case ScProjectionType(newType, _, _) => tp = newType
                 case ScParameterizedType(ScProjectionType(newType, _, _), _) => tp = newType
                 case _ => tp = null
