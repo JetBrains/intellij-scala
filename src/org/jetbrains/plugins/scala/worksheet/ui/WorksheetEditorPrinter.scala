@@ -17,7 +17,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.FileAttribute
-import com.intellij.psi.{PsiDocumentManager, PsiManager, PsiWhiteSpace}
+import com.intellij.psi.{PsiElement, PsiDocumentManager, PsiManager, PsiWhiteSpace}
 import com.intellij.ui.JBSplitter
 import java.awt.event.{ActionEvent, ActionListener, AdjustmentEvent, AdjustmentListener}
 import java.awt.{BorderLayout, Color, Dimension}
@@ -144,9 +144,16 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, fi
     }
 
     if (file != null) {
-      var s = file.getFirstChild
+      @inline def checkFlag(psi: PsiElement) =
+        psi != null && psi.getCopyableUserData(WorksheetSourceProcessor.WORKSHEET_PRE_CLASS_KEY) != null
 
-      while (s.isInstanceOf[PsiWhiteSpace]) s = s.getNextSibling
+      var s = file.getFirstChild
+      var f = checkFlag(s)
+
+      while (s.isInstanceOf[PsiWhiteSpace] || f) {
+        s = s.getNextSibling
+        f = checkFlag(s)
+      }
 
       if (s != null) Some(s.getTextRange.getStartOffset) else None
     } else None
