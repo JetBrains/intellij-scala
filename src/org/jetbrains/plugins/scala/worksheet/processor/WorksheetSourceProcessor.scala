@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package worksheet.processor
 
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.config.ScalaFacet
@@ -17,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import scala.annotation.tailrec
 import scala.collection.mutable
 import com.intellij.openapi.util.Key
+import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
 
 /**
  * User: Dmitry Naydanov
@@ -64,7 +64,7 @@ object WorksheetSourceProcessor {
     val importStmts = mutable.ArrayBuffer[String]()
     //val macroPrinterName = "MacroPrinter210" // "worksheet$$macro$$printer"
     
-    val macroPrinterName = Option(ModuleUtilCore.findModuleForFile(srcFile.getVirtualFile, srcFile.getProject)) flatMap {
+    val macroPrinterName = Option(RunWorksheetAction getModuleFor srcFile) flatMap {
       case module => ScalaFacet findIn module flatMap {
         case facet => facet.compiler flatMap {
           case c =>
