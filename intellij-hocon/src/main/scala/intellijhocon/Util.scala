@@ -54,7 +54,7 @@ object Util {
       ind + str.replaceAllLiterally("\n", "\n" + ind)
   }
 
-  implicit class any2opt[T](private val t: T) extends AnyVal {
+  implicit class any2opt[T](val t: T) extends AnyVal {
     def opt = Option(t)
   }
 

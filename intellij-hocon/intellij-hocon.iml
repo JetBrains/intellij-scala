@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="PLUGIN_MODULE" version="4">
-  <component name="DevKit.ModuleBuildProperties" url="file://$MODULE_DIR$/META-INF/plugin.xml" />
   <component name="FacetManager">
     <facet type="scala" name="Scala">
       <configuration>
         <option name="compilerLibraryLevel" value="Project" />
-        <option name="compilerLibraryName" value="scala-compiler" />
+        <option name="compilerLibraryName" value="main-scala-compiler" />
       </configuration>
     </facet>
   </component>
@@ -20,8 +19,10 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="scala-library" level="project" />
-    <orderEntry type="library" scope="TEST" name="org.scalatest:scalatest_2.11:2.1.7" level="application" />
+    <orderEntry type="library" name="idea-full" level="project" />
+    <orderEntry type="library" name="scalatest" level="project" />
+    <orderEntry type="library" name="community-plugins" level="project" />
+    <orderEntry type="library" name="main-scala-library" level="project" />
   </component>
 </module>
 
