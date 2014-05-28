@@ -26,14 +26,14 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScPatternArgumentList, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScPatternArgumentList}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportSelectors, ScImportStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.{ScPackageContainer, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -49,18 +49,14 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
-import scala.Some
+
 import scala.annotation.tailrec
 import scala.collection.immutable.Stream
 import scala.collection.mutable.ArrayBuffer
@@ -1188,7 +1184,9 @@ object ScalaPsiUtil {
     val sigs = signatures.forName(x.name)._1
     var res: Seq[Signature] = (sigs.get(s): @unchecked) match {
       //partial match
-      case Some(node) => node.supers.map {_.info}
+      case Some(node) if !withSelfType || node.info.namedElement == x => node.supers.map {_.info}
+      case Some(node) =>
+        node.supers.map { _.info }.filter { _.namedElement != x } :+ node.info
       case None =>
         throw new RuntimeException(s"internal error: could not find val matching: \n${x.getText}\n\nin class: \n${clazz.getText}")
     }
@@ -1199,7 +1197,10 @@ object ScalaPsiUtil {
       val sigs = TypeDefinitionMembers.getSignatures(clazz).forName(method.name)._1
       (sigs.get(new PhysicalSignature(method, ScSubstitutor.empty)): @unchecked) match {
         //partial match
-        case Some(node) => res ++= node.supers.map {_.info}
+        case Some(node) if !withSelfType || node.info.namedElement == method => res ++= node.supers.map {_.info}
+        case Some(node) =>
+          res +:= node.info
+          res ++= node.supers.map { _.info }.filter { _.namedElement != method }
         case None =>
       }
     }
@@ -1219,7 +1220,9 @@ object ScalaPsiUtil {
     val sigs = types.forName(element.name)._1
     val t = (sigs.get(element): @unchecked) match {
       //partial match
-      case Some(x) => x.supers.map {_.info}
+      case Some(x) if !withSelfType || x.info == element => x.supers.map {_.info}
+      case Some(x) =>
+        x.supers.map { _.info }.filter { _ != element } :+ x.info
       case None =>
         throw new RuntimeException("internal error: could not find type matching: \n%s\n\nin class: \n%s".format(
         element.getText, clazz.getText

@@ -5,6 +5,8 @@ package api
 package statements
 
 
+import java.util
+
 import com.intellij.lang.java.lexer.JavaLexer
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbServiceImpl
@@ -16,7 +18,6 @@ import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.{MethodSignatureBackedByPsiMethod, PsiModificationTracker}
 import com.intellij.util.containers.ConcurrentHashMap
-import java.util
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
 import org.jetbrains.plugins.scala.icons.Icons
@@ -37,6 +38,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{Unit => UnitType, _}
+
 import scala.annotation.tailrec
 import scala.collection.Seq
 import scala.collection.immutable.Set
@@ -513,12 +515,25 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     val clazz = containingClass
     val s = new PhysicalSignature(this, ScSubstitutor.empty)
     if (clazz == null) return Seq(s)
-    val t = TypeDefinitionMembers.getSelfTypeSignatures(clazz).forName(ScalaPsiUtil.convertMemberName(name))._1.
-      fastPhysicalSignatureGet(s) match {
-      case Some(x) => x.supers.map {_.info}
-      case None => Seq[Signature]()
+    val withSelf = clazz.selfType != None
+    if (withSelf) {
+      val signs = TypeDefinitionMembers.getSelfTypeSignatures(clazz).forName(ScalaPsiUtil.convertMemberName(name))._1
+      signs.fastPhysicalSignatureGet(s) match {
+        case Some(x) if x.info.namedElement == this => x.supers.map { _.info }
+        case Some(x) => x.supers.filter {_.info.namedElement != this }.map { _.info } :+ x.info
+        case None => signs.get(s) match {
+          case Some(x) if x.info.namedElement == this => x.supers.map { _.info }
+          case Some(x) => x.supers.filter {_.info.namedElement != this }.map { _.info } :+ x.info
+          case None => Seq.empty
+        }
+      }
+    } else {
+      TypeDefinitionMembers.getSignatures(clazz).forName(ScalaPsiUtil.convertMemberName(name))._1.
+        fastPhysicalSignatureGet(s) match {
+        case Some(x) => x.supers.map { _.info }
+        case None => Seq.empty
+      }
     }
-    t
   }
 
 
