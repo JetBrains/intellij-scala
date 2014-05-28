@@ -5,27 +5,26 @@ package impl
 package toplevel
 package typedef
 
-import api.statements.params.ScClassParameter
-import com.intellij.psi._
-import impl.compiled.ClsClassImpl
-import impl.light.LightMethod
-import scope.{NameHint, PsiScopeProcessor, ElementClassHint}
-import api.toplevel.typedef._
-import api.statements._
-import types.result.TypingContext
-import com.intellij.openapi.util.Key
 import com.intellij.openapi.progress.ProgressManager
-import util._
-import reflect.NameTransformer
-import com.intellij.openapi.diagnostic.Logger
-import types._
-import caches.CachesUtil
-import lang.resolve.processor.BaseProcessor
-import psi.ScalaPsiUtil.convertMemberName
-import api.toplevel.{ScNamedElement, ScModifierListOwner, ScTypedDefinition}
-import api.base.{ScAccessModifier, ScFieldId, ScPrimaryConstructor}
-import extensions.toPsiNamedElementExt
-import caches.CachesUtil.MyOptionalProvider
+import com.intellij.openapi.util.Key
+import com.intellij.psi._
+import com.intellij.psi.impl.compiled.ClsClassImpl
+import com.intellij.psi.impl.light.LightMethod
+import com.intellij.psi.scope.{ElementClassHint, NameHint, PsiScopeProcessor}
+import com.intellij.psi.util._
+import org.jetbrains.plugins.scala.caches.CachesUtil.MyOptionalProvider
+import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.convertMemberName
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScFieldId, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+
+import scala.reflect.NameTransformer
 
 /**
  * @author ven
@@ -445,12 +444,14 @@ object TypeDefinitionMembers {
     }
   }
 
-  import ParameterlessNodes.{Map => PMap}, TypeNodes.{Map => TMap}, SignatureNodes.{Map => SMap}
+  import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.ParameterlessNodes.{Map => PMap}
+  import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
+  import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
   val typesKey: Key[CachedValue[TMap]] = Key.create("types key")
   val signaturesKey: Key[CachedValue[SMap]] = Key.create("signatures key")
   val parameterlessKey: Key[CachedValue[PMap]] = Key.create("parameterless key")
 
-  import CachesUtil.get
+  import org.jetbrains.plugins.scala.caches.CachesUtil.get
 
   def getParameterlessSignatures(clazz: PsiClass): PMap = {
     clazz match {
@@ -515,8 +516,12 @@ object TypeDefinitionMembers {
             Bounds.glb(selfType, clazzType) match {
               case c: ScCompoundType =>
                 getSignatures(c, Some(clazzType), clazz)
-              case _ =>
-                getSignatures(clazz)
+              case tp =>
+                val cl = ScType.extractClassType(tp, Some(clazz.getProject)) match {
+                  case Some((selfClazz, subst)) => selfClazz
+                  case _ => clazz
+                }
+                getSignatures(cl)
             }
           case _ =>
             getSignatures(clazz)
@@ -534,8 +539,12 @@ object TypeDefinitionMembers {
             Bounds.glb(selfType, clazzType) match {
               case c: ScCompoundType =>
                 getTypes(c, Some(clazzType), clazz)
-              case _ =>
-                getTypes(clazz)
+              case tp =>
+                val cl = ScType.extractClassType(tp, Some(clazz.getProject)) match {
+                  case Some((selfClazz, subst)) => selfClazz
+                  case _ => clazz
+                }
+                getTypes(cl)
             }
           case _ =>
             getTypes(clazz)
