@@ -21,8 +21,8 @@ object SuperMethodTestUtil {
     val el = myFile.findElementAt(offset)
     val member = PsiTreeUtil.getParentOfType(el, classOf[ScMember], false)
     member match {
-      case method: ScFunction => {
-        val signs = method.superSignatures
+      case method: ScFunction =>
+        val signs = method.superSignaturesIncludingSelfType
         val res: StringBuilder = new StringBuilder("")
         for (sign <- signs) {
           val s = ScalaPsiUtil.nameContext(sign.namedElement) match {
@@ -39,7 +39,6 @@ object SuperMethodTestUtil {
                   }) + "\n")
         }
         resa = if (res.toString == "") "" else res.substring(0, res.length - 1).toString
-      }
       case _ => resa = "Not implemented test"
     }
     resa
