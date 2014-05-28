@@ -7,6 +7,8 @@ class TypeInferenceDependentTest extends TypeInferenceTestBase {
 
   def testConformanceSpecial() {doTest()}
 
+  def testDeeperSubstitution() {doTest()}
+
   def testDependentApply() {doTest()}
 
   def testDependentApply2() {doTest()}
