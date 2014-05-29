@@ -3,7 +3,7 @@ package editor.importOptimizer
 
 
 import com.intellij.concurrency.JobLauncher
-import com.intellij.lang.ImportOptimizer
+import com.intellij.lang.{LanguageImportStatements, ImportOptimizer}
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.Project
@@ -425,6 +425,27 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
 object ScalaImportOptimizer {
   val NO_IMPORT_USED: Set[ImportUsed] = Set.empty
+
+  /**
+   * We can't just select ScalaImportOptimizer because of Play2 templates
+   * @param file Any parallel psi file
+   */
+  def runOptimizerUnsafe(file: ScalaFile) {
+    val topLevelFile = file.getViewProvider.getPsi(file.getViewProvider.getBaseLanguage)
+    val optimizers = LanguageImportStatements.INSTANCE.forFile(topLevelFile)
+    if (optimizers.isEmpty) return
+
+    if (topLevelFile.getViewProvider.getPsi(ScalaFileType.SCALA_LANGUAGE) == null) return
+
+    val i = optimizers.iterator()
+    while (i.hasNext) {
+      val opt = i.next()
+      if (opt supports topLevelFile) {
+        opt.processFile(topLevelFile).run()
+        return
+      }
+    }
+  }
 
   def isLanguageFeatureImport(used: ImportUsed): Boolean = {
     val expr = used match {
