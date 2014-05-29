@@ -153,7 +153,9 @@ class ScalaImportOptimizer extends ImportOptimizer {
                   case imp: ScImportStmt =>
                     if (rangeStart == -1) {
                       imp.getPrevSibling match {
-                        case a: PsiElement if isImportDelimiter(a) && !a.isInstanceOf[PsiWhiteSpace] => initRange(a)
+                        case a: PsiElement if isImportDelimiter(a) && !a.isInstanceOf[PsiWhiteSpace] =>
+                          initRange(a)
+                          rangeEnd = imp.getTextRange.getEndOffset
                         case _ => initRange(imp)
                       }
                       rangeNames = rangeStarted(imp)
