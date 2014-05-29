@@ -9,7 +9,7 @@ package expr
 * Date: 07.03.2008
 */
 
-trait ScParenthesisedExpr extends ScExpression {
+trait ScParenthesisedExpr extends ScInfixArgumentExpression {
   def expr = findChild(classOf[ScExpression])
 }
 

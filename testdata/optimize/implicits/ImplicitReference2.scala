@@ -40,11 +40,11 @@ object B {
 
 object Scratch {
   {
-    import A._
+    import scatch.A._
     "A".zero
   }
   {
-    import B._
+    import scatch.B._
     "B".zero
   }
 }*/

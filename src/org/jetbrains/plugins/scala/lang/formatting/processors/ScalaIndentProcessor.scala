@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
-import com.intellij.psi.PsiComment
+import com.intellij.psi.{PsiWhiteSpace, PsiComment}
 import psi.api.toplevel.ScEarlyDefinitions
 import scaladoc.psi.api.ScDocComment
 import extensions._
@@ -62,6 +62,8 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
               case _: ScExpression => Indent.getNormalIndent
               case _ => Indent.getNoneIndent
             }
+          case Some(e) if child.isInstanceOf[PsiComment] => Indent.getNormalIndent
+          //the above case is a hack added to fix SCL-6803; probably will backfire with unintended indents
           case _ => Indent.getNoneIndent
         }
       }
@@ -194,6 +196,8 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       }
       case _: ScParenthesisedExpr | _: ScParenthesisedPattern | _: ScParenthesisedExpr =>
         Indent.getContinuationWithoutFirstIndent(settings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION)
+//      case paramClause : ScParameterClause if child.getTreePrev != null && child.getTreePrev.getPsi.isInstanceOf[PsiWhiteSpace] && child.getTreePrev.getText.contains("\n") =>
+//        Indent.getContinuationIndent(true)
       case _: ScParameters | _: ScParameterClause | _: ScPattern | _: ScTemplateParents |
               _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScTypeArgs => {
         Indent.getContinuationWithoutFirstIndent

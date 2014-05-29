@@ -27,5 +27,5 @@ trait WorksheetProcess {
   
   def stop()
   
-  def setTerminationCallback(callback: => Unit)
+  def addTerminationCallback(callback: => Unit)
 }

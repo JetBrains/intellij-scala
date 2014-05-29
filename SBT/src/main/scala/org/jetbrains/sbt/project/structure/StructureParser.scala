@@ -25,13 +25,14 @@ object StructureParser {
     val organization = (node \ "organization").text
     val version = (node \ "version").text
     val base = new File((node \ "base").text)
+    val target = file((node \ "target").text)(fs.withBase(base))
     val build = parseBuild(node ! "build")(fs.withBase(base))
     val configurations = (node \ "configuration").map(parseConfiguration(_)(fs.withBase(base)))
     val java = (node \ "java").headOption.map(parseJava(_)(fs.withBase(base)))
     val scala = (node \ "scala").headOption.map(parseScala(_)(fs.withBase(base)))
     val dependencies = parseDependencies(node)(fs.withBase(base))
 
-    Project(id, name, organization, version, base, build, configurations, java, scala, dependencies)
+    Project(id, name, organization, version, base, target, build, configurations, java, scala, dependencies)
   }
 
   private def parseBuild(node: Node)(implicit fs: FS): Build = {

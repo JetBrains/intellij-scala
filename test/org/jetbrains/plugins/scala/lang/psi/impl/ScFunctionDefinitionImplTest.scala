@@ -67,6 +67,17 @@ class ScFunctionDefinitionImplTest extends SimpleTestCase {
     assertRecursionTypeIs("def f(n: Int): Boolean = n > 0 ** f(n)", OrdinaryRecursion)
   }
 
+  def testDeeperInfixOperator() {
+    assertRecursionTypeIs(
+      """
+        |def f(n: Int): Boolean =
+        |  n >=0 && n match {
+        |    case 1234 => f(n - 1)
+        |    case _ => 1234
+        |  }
+      """.stripMargin, TailRecursion)
+  }
+
   def testGetReturnUsages() {
     assertUsages(
       """
@@ -86,7 +97,7 @@ class ScFunctionDefinitionImplTest extends SimpleTestCase {
 
 
   private def assertUsages(@Language("Scala") code: String, expected: String*) {
-    assertEquals(expected, parse(code).getReturnUsages.map(_.getText).toSeq)
+    assertEquals(expected, parse(code).returnUsages().map(_.getText).toSeq)
   }
 
   private def assertRecursionTypeIs(@Language("Scala") code: String, expectation: RecursionType) {

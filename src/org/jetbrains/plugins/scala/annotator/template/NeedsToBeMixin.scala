@@ -33,9 +33,9 @@ object NeedsToBeMixin extends AnnotatorPart[ScTemplateDefinition] {
               if (f.hasModifierPropertyScala("abstract") && f.hasModifierPropertyScala("override")) {
                 signature.supers.find {
                   case node => node.info.namedElement match {
-                    case Some(f: ScFunctionDefinition) => !f.hasModifierPropertyScala("abstract") ||
+                    case f: ScFunctionDefinition => !f.hasModifierPropertyScala("abstract") ||
                             !f.hasModifierProperty("override")
-                    case Some(v: ScBindingPattern) =>
+                    case v: ScBindingPattern =>
                       v.nameContext match {
                         case v: ScVariableDefinition if !f.hasModifierPropertyScala("abstract") ||
                           !f.hasModifierPropertyScala("override") => true
@@ -43,7 +43,7 @@ object NeedsToBeMixin extends AnnotatorPart[ScTemplateDefinition] {
                           !f.hasModifierPropertyScala("override") => true
                         case _ => false
                       }
-                    case Some(m: PsiMethod) => !m.hasModifierProperty("abstract")
+                    case m: PsiMethod => !m.hasModifierProperty("abstract")
                     case _ => false
                   }
                 } match {

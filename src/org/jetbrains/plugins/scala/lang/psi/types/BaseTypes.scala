@@ -3,18 +3,17 @@ package lang
 package psi
 package types
 
-import com.intellij.psi.{PsiClass}
-import resolve.ScalaResolveResult
-import _root_.scala.collection.mutable.{Set, HashMap, MultiMap}
-import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import com.intellij.openapi.progress.ProgressManager
-import result.TypingContext
-import types.Conformance.AliasType
-import api.statements.{ScTypeAlias, ScTypeAliasDefinition}
+import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+
+import scala.collection.mutable.{HashMap, MultiMap, Set}
 
 object BaseTypes {
   def get(t : ScType, notAll: Boolean = false) : Seq[ScType] = {
-    ProgressManager.checkCanceled
+    ProgressManager.checkCanceled()
     t match {
       case ScDesignatorType(td : ScTemplateDefinition) => reduce(td.superTypes.flatMap(tp => if (!notAll) BaseTypes.get(tp, notAll) ++ Seq(tp) else Seq(tp)))
       case ScDesignatorType(c : PsiClass) =>
@@ -54,7 +53,7 @@ object BaseTypes {
         }
       }
       case ScExistentialType(q, wilds) => get(q, notAll).map{bt => ScExistentialType(bt, wilds).simplify()}
-      case ScCompoundType(comps, _, _, _) => reduce(if (notAll) comps else comps.flatMap(comp => BaseTypes.get(comp) ++ Seq(comp)))
+      case ScCompoundType(comps, _, _) => reduce(if (notAll) comps else comps.flatMap(comp => BaseTypes.get(comp) ++ Seq(comp)))
       case proj@ScProjectionType(p, elem, _) =>
         val s = proj.actualSubst
         elem match {

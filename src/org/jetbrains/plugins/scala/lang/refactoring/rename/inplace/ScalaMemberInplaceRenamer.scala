@@ -117,14 +117,14 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
     }
   }
 
-  private val substitorOffset = substituted.getTextRange.getStartOffset
+  private val substitutorOffset = substituted.getTextRange.getStartOffset
 
   override def getSubstituted: PsiElement = {
     val subst = super.getSubstituted
     if (subst != null && subst.getText == substituted.getText) subst
     else {
       val psiFile: PsiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(myEditor.getDocument)
-      if (psiFile != null) PsiTreeUtil.getParentOfType(psiFile.findElementAt(substitorOffset), classOf[PsiNameIdentifierOwner])
+      if (psiFile != null) PsiTreeUtil.getParentOfType(psiFile.findElementAt(substitutorOffset), classOf[PsiNameIdentifierOwner])
       else null
     }
 
@@ -138,7 +138,21 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
   override def performInplaceRename(): Boolean = {
     val names = new util.LinkedHashSet[String]()
     names.add(initialName)
-    performInplaceRefactoring(names)
+    try performInplaceRefactoring(names)
+    catch {
+      case t: Throwable =>
+        val element = getVariable
+        val subst = getSubstituted
+        val offset = editor.getCaretModel.getOffset
+        val text = editor.getDocument.getText
+        val aroundCaret = text.substring(offset - 50, offset) + "<caret>" + text.substring(offset, offset + 50)
+        val message =
+          s"""Could not perform inplace rename:
+             |element to rename: $element ${element.getName}
+             |substituted: $subst
+             |around caret: $aroundCaret""".stripMargin
+        throw new Throwable(message, t)
+    }
   }
 }
 object ScalaMemberInplaceRenamer {

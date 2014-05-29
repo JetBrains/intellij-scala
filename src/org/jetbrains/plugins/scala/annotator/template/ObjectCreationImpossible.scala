@@ -45,7 +45,7 @@ object ObjectCreationImpossible extends AnnotatorPart[ScTemplateDefinition] {
 
           if(undefined.nonEmpty) {
             val element = if(isNew) refElement else definition.asInstanceOf[ScObject].nameId
-            val annotation = holder.createErrorAnnotation(element, message(undefined: _*))
+            val annotation = holder.createErrorAnnotation(element, message(undefined.toSeq: _*))
             annotation.registerFix(new ImplementMethodsQuickFix(definition))
           }
         case _ =>

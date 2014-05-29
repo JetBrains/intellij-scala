@@ -5,33 +5,31 @@ package impl
 package expr
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticValue
-import api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterType, ScParameter}
-import resolve._
-import processor.{MethodResolveProcessor, CompletionProcessor}
-import types._
-import nonvalue.{ScMethodType, TypeParameter, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import result.{TypeResult, Failure, Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaElementVisitor}
-import api.toplevel.imports.ScImportStmt
-import api.base.patterns.ScReferencePattern
 import com.intellij.util.IncorrectOperationException
-import annotator.intention.ScalaImportTypeFix
-import api.toplevel.typedef._
-import completion.lookups.LookupElementManager
-import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScSelfTypeElement}
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiMemberExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScSimpleTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterType}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScTypePolymorphicType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+import org.jetbrains.plugins.scala.lang.resolve._
+import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, MethodResolveProcessor}
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -63,7 +61,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           case Some(obj: ScObject) => bindToElement(obj, containingClass)
           case _ => this
         }
-      case c: PsiClass => {
+      case c: PsiClass =>
         if (!ResolveUtils.kindMatches(element, getKinds(incomplete = false)))
           throw new IncorrectOperationException("class does not match expected kind")
         if (refName != c.name)
@@ -85,7 +83,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           }
         }
         this
-      }
       case t: ScTypeAlias =>
         throw new IncorrectOperationException("type does not match expected kind")
       case elem: PsiNamedElement =>
@@ -258,7 +255,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             case Some(t) => t
             case None => return Failure("No declared type found", Some(this))
           }
-          case _ => {
+          case _ =>
             if (stableTypeRequired && refPatt.isStable) {
               r.fromType match {
                 case Some(fT) => ScProjectionType(fT, refPatt, superReference = false)
@@ -271,7 +268,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
                 case _ => return result
               }
             }
-          }
         }
       case Some(r@ScalaResolveResult(param: ScParameter, s)) =>
         val owner = param.owner match {
@@ -303,14 +299,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         s.subst(fun.polymorphicType(optionResult))
       case Some(result @ ScalaResolveResult(fun: ScFunction, s)) =>
         val functionType = s.subst(fun.polymorphicType())
-        if (result.isDynamic) {
-          functionType match {
-            case methodType: ScMethodType => methodType.returnType
-            case it => it
-          }
-        } else {
-          functionType
-        }
+        if (result.isDynamic) ResolvableReferenceExpression.getDynamicReturn(functionType)
+        else functionType
       case Some(ScalaResolveResult(param: ScParameter, s)) if param.isRepeatedParameter =>
         val seqClass = ScalaPsiManager.instance(getProject).getCachedClass("scala.collection.Seq", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
         val result = param.getType(TypingContext.empty)
@@ -321,14 +311,14 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         if (seqClass != null) {
           ScParameterizedType(ScType.designator(seqClass), Seq(computeType))
         } else computeType
-      case Some(ScalaResolveResult(obj: ScObject, s)) => {
+      case Some(ScalaResolveResult(obj: ScObject, s)) =>
         def tail = {
           fromType match {
             case Some(tp) => ScProjectionType(tp, obj, superReference = false)
             case _ => ScType.designator(obj)
           }
         }
-          //hack to add Eta expansion for case classes
+        //hack to add Eta expansion for case classes
         if (obj.isSyntheticObject) {
           ScalaPsiUtil.getCompanionModule(obj) match {
             case Some(clazz) if clazz.isCase && !clazz.hasTypeParameters =>
@@ -348,19 +338,16 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             case _ => tail
           }
         } else tail
-      }
-      case Some(ScalaResolveResult(typed: ScTypedDefinition, s)) => {
+      case Some(ScalaResolveResult(typed: ScTypedDefinition, s)) =>
         val result = typed.getType(TypingContext.empty)
         s.subst(result match {
           case Success(tp, _) => tp
           case _ => return result
         })
-      }
       case Some(ScalaResolveResult(pack: PsiPackage, _)) => ScType.designator(pack)
-      case Some(ScalaResolveResult(clazz: ScClass, s)) if clazz.isCase => {
+      case Some(ScalaResolveResult(clazz: ScClass, s)) if clazz.isCase =>
         s.subst(clazz.constructor.
                 getOrElse(return Failure("Case Class hasn't primary constructor", Some(this))).polymorphicType)
-      }
       case Some(ScalaResolveResult(clazz: ScTypeDefinition, s)) if clazz.typeParameters.length != 0 =>
         s.subst(ScParameterizedType(ScType.designator(clazz),
           collection.immutable.Seq(clazz.typeParameters.map(new ScTypeParameterType(_, s)).toSeq: _*)))
@@ -379,7 +366,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
                   val actualType = tp match {
                     case ScThisType(clazz) => ScDesignatorType(clazz)
                     case ScDesignatorType(o: ScObject) => Any
-                    case ScCompoundType(comps, _, _, _) =>
+                    case ScCompoundType(comps, _, _) =>
                       if (comps.length == 0) Any
                       else ScTypeUtil.removeTypeDesignator(comps(0)).getOrElse(Any)
                     case _ => ScTypeUtil.removeTypeDesignator(tp).getOrElse(Any)

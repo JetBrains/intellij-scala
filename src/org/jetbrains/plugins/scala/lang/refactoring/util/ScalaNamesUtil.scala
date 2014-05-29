@@ -5,20 +5,28 @@ package util
 
 import com.intellij.openapi.application.ApplicationManager
 import lexer.{ScalaLexer, ScalaTokenTypes}
-import com.intellij.psi.{PsiNamedElement, PsiElement}
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import scala.reflect.NameTransformer
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import extensions._
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 24.06.2008
  */
 object ScalaNamesUtil {
+  val keywordNames = ScalaTokenTypes.KEYWORDS.getTypes.map(_.toString).toSet
+
+  private val lexerCache = new ThreadLocal[ScalaLexer] {
+    override def initialValue(): ScalaLexer = new ScalaLexer()
+  }
+
   private def checkGeneric(text: String, predicate: ScalaLexer => Boolean): Boolean = {
     ApplicationManager.getApplication.assertReadAccessAllowed()
     if (text == null || text == "") return false
     
-    val lexer = new ScalaLexer()
+    val lexer = lexerCache.get()
     lexer.start(text, 0, text.length(), 0)
     if (!predicate(lexer)) return false
     lexer.advance()
@@ -38,15 +46,26 @@ object ScalaNamesUtil {
     checkGeneric(text, lexer => lexer.getTokenType == ScalaTokenTypes.tIDENTIFIER)
   }
 
-  def isKeyword(text: String): Boolean = {
-    checkGeneric(text, lexer => lexer.getTokenType != null && ScalaTokenTypes.KEYWORDS.contains(lexer.getTokenType))
-  }
+  def isKeyword(text: String): Boolean = keywordNames.contains(text)
   
   def isOperatorName(text: String): Boolean = isIdentifier(text) && isOpCharacter(text(0))
 
   def scalaName(element: PsiElement) = element match {
     case scNamed: ScNamedElement => scNamed.name
     case psiNamed: PsiNamedElement => psiNamed.getName
+  }
+
+  def qualifiedName(named: PsiNamedElement): Option[String] = {
+    ScalaPsiUtil.nameContext(named) match {
+      case pack: PsiPackage => Some(pack.getQualifiedName)
+      case clazz: PsiClass => Some(clazz.qualifiedName)
+      case memb: PsiMember =>
+        val containingClass = memb.containingClass
+        if (containingClass != null && containingClass.qualifiedName != null && memb.hasModifierProperty(PsiModifier.STATIC)) {
+          Some(Seq(containingClass.qualifiedName, named.name).filter(_ != "").mkString("."))
+        } else None
+      case _ => None
+    }
   }
 
   object isBackticked {

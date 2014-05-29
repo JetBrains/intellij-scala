@@ -41,6 +41,20 @@ package object sbt {
     def canonicalFile: File = new File(canonicalPath)
 
     def url: String = VfsUtil.getUrlForLibraryRoot(file)
+    
+    def isAncestorOf(aFile: File): Boolean = FileUtil.isAncestor(file, aFile, true)
+
+    def isUnder(root: File): Boolean = FileUtil.isAncestor(root, file, true)
+
+    def isOutsideOf(root: File): Boolean = !FileUtil.isAncestor(root, file, false)
+
+    def write(lines: String*) {
+      writeLinesTo(file, lines: _*)
+    }
+
+    def copyTo(destination: File) {
+      copy(file, destination)
+    }
   }
 
   private object RichFile {
@@ -89,10 +103,6 @@ package object sbt {
     }
   }
 
-  type Closeable = {
-    def close()
-  }
-
   def using[A <: Closeable, B](resource: A)(block: A => B): B = {
     try {
       block(resource)
@@ -121,33 +131,12 @@ package object sbt {
     }
   }
 
-  def usingTempFile[T](prefix: String, suffix: String)(block: File => T): T = {
-    val file = FileUtil.createTempFile(prefix, suffix, true)
+  def usingTempFile[T](prefix: String, suffix: Option[String] = None)(block: File => T): T = {
+    val file = FileUtil.createTempFile(prefix, suffix.orNull, true)
     try {
       block(file)
     } finally {
       file.delete()
-    }
-  }
-
-  def usingTempDirectory[T](prefix: String, suffix: String)(block: File => T): T = {
-    val dir = FileUtil.createTempDirectory(prefix, suffix, true)
-    try {
-      block(dir)
-    } finally {
-      dir.delete()
-    }
-  }
-
-  def usingSafeCopyOf[T](file: File)(block: File => T): T = {
-    if (file.getAbsolutePath.contains(" ")) {
-      val (prefix, suffix) = parse(file.getName)
-      usingTempFile(prefix, suffix) { tempFile =>
-        copy(file, tempFile)
-        block(tempFile)
-      }
-    } else {
-      block(file)
     }
   }
 

@@ -6,4 +6,6 @@ class TypeInferenceDynamicTest extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "dynamic/"
 
   def testApplyDynamic() {doTest()}
+
+  def testDynamic1() {doTest()}
 }

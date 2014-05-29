@@ -9,6 +9,7 @@ import java.net.URLClassLoader
 import org.jetbrains.jps.incremental.scala.data.CompilerJars
 import java.nio.ByteBuffer
 import java.lang.reflect.InvocationTargetException
+import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 
 /**
  * @author Pavel Fatin
@@ -37,6 +38,11 @@ object Main {
         override def error(text: String, source: Option[File], line: Option[Long], column: Option[Long]) {
           hasErrors = true
           super.error(text, source, line, column)
+        }
+
+        override def message(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]) {
+          if (kind == Kind.ERROR) hasErrors = true
+          super.message(kind, text, source, line, column)
         }
       }
     }
@@ -138,8 +144,7 @@ object Main {
                 e, arguments.compilationData.sources.headOption.orNull.getName, className + "$" + className
               ).printStackTrace(new PrintStream(myOut, false))
             case e: Exception =>
-              client worksheetOutput (e.getMessage + "\n")
-              client worksheetOutput e.getStackTrace.mkString("\n")
+              client trace e
           } finally {
             myOut.flush()
           }

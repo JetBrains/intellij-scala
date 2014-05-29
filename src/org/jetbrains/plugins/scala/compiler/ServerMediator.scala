@@ -5,21 +5,22 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.components.ProjectComponent
 import config.ScalaFacet
 import com.intellij.compiler.CompilerWorkspaceConfiguration
-import com.intellij.notification.{NotificationListener, NotificationType, Notification, Notifications}
 import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManager}
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.roots.{ModuleRootManager, CompilerModuleExtension}
 import com.intellij.openapi.ui.Messages
-import org.intellij.lang.annotations.Language
-import javax.swing.event.HyperlinkEvent
 import extensions._
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.internal.statistic.UsageTrigger
+import org.jetbrains.plugin.scala.compiler.IncrementalType
+
 
 /**
  * Pavel Fatin
  */
 
 class ServerMediator(project: Project) extends ProjectComponent {
+
   CompilerManager.getInstance(project).addBeforeTask(new CompileTask {
     var firstCompilation = true
 
@@ -28,7 +29,24 @@ class ServerMediator(project: Project) extends ProjectComponent {
 
       val externalCompiler = CompilerWorkspaceConfiguration.getInstance(project).USE_OUT_OF_PROCESS_BUILD
 
+      def collectStats() {
+        val withCompileServerId = "scala.compilation.with.server"
+        val withoutCompileServerId = "scala.compilation.without.server"
+        val incrementalByIdeaId = "scala.compilation.incremental.by.idea"
+        val incrementalBySbtId = "scala.compilation.incremental.by.sbt"
+
+        if (externalCompiler) UsageTrigger.trigger(withCompileServerId)
+        else UsageTrigger.trigger(withoutCompileServerId)
+
+        ScalaApplicationSettings.getInstance().INCREMENTAL_TYPE match {
+          case IncrementalType.SBT => UsageTrigger.trigger(incrementalBySbtId)
+          case IncrementalType.IDEA => UsageTrigger.trigger(incrementalByIdeaId)
+        }
+      }
+
       if (scalaProject) {
+        collectStats()
+
         if (externalCompiler) {
           invokeAndWait {
             if (!checkCompilationSettings()) {

@@ -1,44 +1,44 @@
 package org.jetbrains.plugins.scala.annotator.intention
 
 
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
-import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, QuestionAction}
-import com.intellij.codeInsight.{FileModificationService, CodeInsightUtilBase}
-
-import com.intellij.ide.util.FQNameCellRenderer
-import com.intellij.openapi.editor.{LogicalPosition, Editor}
-import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.command.CommandProcessor
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition, ScObject, ScClass}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
-import java.awt.Point
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.util.ScalaUtils
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.codeInspection.HintAction
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import com.intellij.codeInsight.FileModificationService
 import com.intellij.codeInsight.completion.JavaCompletionUtil
-import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.intellij.codeInsight.daemon.QuickFixBundle
-import com.intellij.util.ObjectUtils
-import javax.swing.{ListCellRenderer, Icon, JList}
 import com.intellij.codeInsight.daemon.impl.actions.AddImportAction
+import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, QuestionAction}
+import com.intellij.codeInspection.HintAction
+import com.intellij.ide.util.FQNameCellRenderer
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.command.CommandProcessor
+import com.intellij.openapi.editor.{Editor, LogicalPosition}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScPrefixExpr, ScPostfixExpr, ScMethodCall}
-import collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScImportsHolder}
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
-import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
-import org.jetbrains.plugins.scala.settings._
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.ObjectUtils
+import java.awt.Point
+import javax.swing.{Icon, JList, ListCellRenderer}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScPostfixExpr, ScPrefixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
+import org.jetbrains.plugins.scala.settings._
+import org.jetbrains.plugins.scala.util.ScalaUtils
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -165,7 +165,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
           ObjectUtils.assertNotNull(value.qualifiedName)
         }
 
-        import PopupStep.FINAL_CHOICE
+        import com.intellij.openapi.ui.popup.PopupStep.FINAL_CHOICE
         override def onChosen(selectedValue: TypeToImport, finalChoice: Boolean): PopupStep[_] = {
           if (selectedValue == null) {
             return FINAL_CHOICE
@@ -252,11 +252,15 @@ object ScalaImportTypeFix {
   }
 
   def getImportHolder(ref: PsiElement, project: Project): ScImportsHolder = {
-    if (ScalaProjectSettings.getInstance(project).isAddImportMostCloseToReference)
+    if (ScalaCodeStyleSettings.getInstance(project).isAddImportMostCloseToReference)
       PsiTreeUtil.getParentOfType(ref, classOf[ScImportsHolder])
     else {
       PsiTreeUtil.getParentOfType(ref, classOf[ScPackaging]) match {
-        case null => ref.getContainingFile.asInstanceOf[ScImportsHolder]
+        case null => ref.getContainingFile match {
+          case holder: ScImportsHolder => holder
+          case file =>
+            throw new AssertionError(s"Holder is wrong, file text: ${file.getText}")
+        }
         case packaging: ScPackaging => packaging
       }
     }

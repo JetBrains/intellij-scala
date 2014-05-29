@@ -1,35 +1,35 @@
 package org.jetbrains.plugins.scala.lang.completion
 
-import handlers.{ScalaGenerateAnonymousFunctionInsertHandler, ScalaConstructorInsertHandler}
-import lookups.{ScalaChainLookupElement, LookupElementManager, ScalaLookupItem}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.codeInsight.completion._
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi._
-import api.base.ScReferenceElement
-import api.statements._
-import api.toplevel.ScTypedDefinition
-import api.toplevel.typedef._
-import params.ScParameter
-import types._
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.patterns.{ElementPattern, StandardPatterns, PlatformPatterns}
-import com.intellij.patterns.PsiElementPattern.Capture
-import com.intellij.psi._
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.util.ProcessingContext
 import com.intellij.codeInsight.lookup._
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.patterns.PsiElementPattern.Capture
+import com.intellij.patterns.{ElementPattern, PlatformPatterns, StandardPatterns}
+import com.intellij.psi._
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.ProcessingContext
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
-import collection.mutable.{HashMap, HashSet, ArrayBuffer}
-import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
-import result.{Success, TypingContext}
-import types.Conformance.AliasType
+import org.jetbrains.plugins.scala.lang.completion.handlers.{ScalaConstructorInsertHandler, ScalaGenerateAnonymousFunctionInsertHandler}
+import org.jetbrains.plugins.scala.lang.completion.lookups.{LookupElementManager, ScalaChainLookupElement, ScalaLookupItem}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
-import org.jetbrains.plugins.scala.lang.resolve.{StdKinds, ScalaResolveResult, ResolveUtils}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
+
 import scala.annotation.tailrec
+import scala.collection.mutable.{ArrayBuffer, HashMap, HashSet}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -37,7 +37,7 @@ import scala.annotation.tailrec
  */
 
 class ScalaSmartCompletionContributor extends CompletionContributor {
-  import ScalaSmartCompletionContributor._
+  import org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContributor._
   override def beforeCompletion(context: CompletionInitializationContext) {
 
   }
@@ -71,7 +71,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
             val tp = _subst.subst(_tp)
             var elementAdded = false
             val scType = subst.subst(tp)
-            import types.Nothing
+            import org.jetbrains.plugins.scala.lang.psi.types.Nothing
             if (!scType.equiv(Nothing) && typez.exists(scType conforms _)) {
               elementAdded = true
               if (etaExpanded) el.etaExpanded = true
@@ -249,7 +249,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
               case t: ScTemplateDefinition =>
                 t.getTypeWithProjections(TypingContext.empty, thisProjections = true) match {
                   case Success(scType, _) =>
-                    import types.Nothing
+                    import org.jetbrains.plugins.scala.lang.psi.types.Nothing
                     val lookupString = (if (foundClazz) t.name + "." else "") + "this"
                     val el = new ScalaLookupItem(t, lookupString)
                     if (!scType.equiv(Nothing) && typez.exists(scType conforms _)) {

@@ -103,7 +103,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
 
               for (sign <- signs if !flag) {
                 sign.namedElement match {
-                  case Some(function: ScFunction) =>
+                  case function: ScFunction =>
                     if (function.name == name && resolved != function) {
                       flag = true
                     } else if (resolved == function) {
@@ -112,7 +112,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
                         start = start + 2
                       }
                     }
-                  case Some(method: PsiMethod) =>
+                  case method: PsiMethod =>
                     if (method.name == name && resolved != method) {
                       flag = true
                     } else if (resolved == method) {

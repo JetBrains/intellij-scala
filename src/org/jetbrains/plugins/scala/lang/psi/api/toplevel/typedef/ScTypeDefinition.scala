@@ -10,6 +10,7 @@ import com.intellij.psi._
 import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.util.Iconable
 import types.PhysicalSignature
+import com.intellij.psi.impl.PsiClassImplUtil
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -48,4 +49,8 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
   def getObjectClassOrTraitToken: PsiElement
 
   def getSourceMirrorClass: PsiClass
+
+  override def isEquivalentTo(another: PsiElement): Boolean = {
+    PsiClassImplUtil.isClassEquivalentTo(this, another)
+  }
 }

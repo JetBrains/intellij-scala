@@ -41,17 +41,24 @@ trait ScTypePsiTypeBridge {
               case _ => c
             }
             val tps = clazz.getTypeParameters
-            def constructTypeForClass(clazz: PsiClass): ScType = {
+            def constructTypeForClass(clazz: PsiClass, withTypeParameters: Boolean = false): ScType = {
               clazz match {
                 case wrapper: PsiClassWrapper => return constructTypeForClass(wrapper.definition)
                 case _ =>
               }
               val containingClass: PsiClass = clazz.containingClass
-              if (containingClass == null) {
-                ScDesignatorType(clazz)
-              } else {
-                ScProjectionType(constructTypeForClass(containingClass), clazz, superReference = false)
-              }
+              val res =
+                if (containingClass == null) ScDesignatorType(clazz)
+                else {
+                  ScProjectionType(constructTypeForClass(containingClass,
+                    withTypeParameters = !clazz.hasModifierProperty("static")), clazz, superReference = false)
+                }
+              if (withTypeParameters) {
+                val typeParameters: Array[PsiTypeParameter] = clazz.getTypeParameters
+                if (typeParameters.length > 0) {
+                  ScParameterizedType(res, typeParameters.map(ptp => new ScTypeParameterType(ptp, ScSubstitutor.empty)))
+                } else res
+              } else res
             }
             val des = constructTypeForClass(clazz)
             val substitutor = result.getSubstitutor
@@ -59,18 +66,18 @@ trait ScTypePsiTypeBridge {
               case Array() => des
               case _ if classType.isRaw =>
                 var index = 0
-                new ScParameterizedType(des, collection.immutable.Seq(tps.map({tp => {
+                ScParameterizedType(des, collection.immutable.Seq(tps.map({tp => {
                   val arrayOfTypes: Array[PsiClassType] = tp.getExtendsListTypes ++ tp.getImplementsListTypes
                   ScSkolemizedType(s"_$$${index += 1; index}", Nil, types.Nothing,
                     arrayOfTypes.length match {
                       case 0 => types.Any
                       case 1 => create(arrayOfTypes.apply(0), project, scope, deep + 1)
-                      case _ => ScCompoundType(arrayOfTypes.map(create(_, project, scope, deep + 1)), Seq.empty, Seq.empty, ScSubstitutor.empty)
+                      case _ => ScCompoundType(arrayOfTypes.map(create(_, project, scope, deep + 1)), Map.empty, Map.empty)
                     })
               }}): _*)).unpackedType
               case _ =>
                 var index = 0
-                new ScParameterizedType(des, collection.immutable.Seq(tps.map
+                ScParameterizedType(des, collection.immutable.Seq(tps.map
                   (tp => {
                     val psiType = substitutor.substitute(tp)
                     psiType match {
@@ -157,7 +164,7 @@ trait ScTypePsiTypeBridge {
       case types.Short => if (noPrimitives) javaObj else PsiType.SHORT
       case types.Null => javaObj
       case types.Nothing => javaObj
-      case ScCompoundType(Seq(typez, _*), _, _, _) => toPsi(typez, project, scope)
+      case ScCompoundType(Seq(typez, _*), _, _) => toPsi(typez, project, scope)
       case ScDesignatorType(c: ScTypeDefinition) if ScType.baseTypesQualMap.contains(c.qualifiedName) =>
         toPsi(ScType.baseTypesQualMap.get(c.qualifiedName).get, project, scope, noPrimitives, skolemToWildcard)
       case ScDesignatorType(c: PsiClass) => createType(c)
@@ -181,7 +188,7 @@ trait ScTypePsiTypeBridge {
         case a: ScTypeAliasDefinition =>
           a.aliasedType(TypingContext.empty) match {
             case Success(c: ScParameterizedType, _) =>
-              toPsi(c.copy(typeArgs = args), project, scope, noPrimitives)
+              toPsi(ScParameterizedType(c.designator, args), project, scope, noPrimitives)
             case _ => javaObj
           }
         case _ => javaObj
@@ -210,7 +217,9 @@ trait ScTypePsiTypeBridge {
           val lower = argument.lower
           if (lower.equiv(types.Nothing)) PsiWildcardType.createUnbounded(PsiManager.getInstance(project))
           else {
-            PsiWildcardType.createSuper(PsiManager.getInstance(project), toPsi(lower, project, scope))
+            val sup: PsiType = toPsi(lower, project, scope)
+            if (sup.isInstanceOf[PsiWildcardType]) javaObj
+            else PsiWildcardType.createSuper(PsiManager.getInstance(project), sup)
           }
         } else {
           val psi = toPsi(upper, project, scope)

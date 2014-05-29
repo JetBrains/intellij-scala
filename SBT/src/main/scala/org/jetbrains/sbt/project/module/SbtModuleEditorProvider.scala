@@ -5,8 +5,7 @@ import com.intellij.openapi.roots.ui.configuration._
 import com.intellij.openapi.module.{ModuleType, ModuleConfigurationEditor}
 
 /**
- * User: Dmitry Naydanov
- * Date: 11/22/13
+ * @author Pavel Fatin
  */
 class SbtModuleEditorProvider extends ModuleConfigurationEditorProvider {
   def createEditors(state: ModuleConfigurationState) = {
@@ -16,7 +15,8 @@ class SbtModuleEditorProvider extends ModuleConfigurationEditorProvider {
       case _: SbtModuleType => Array(
         new ContentEntriesEditor(module.getName, state),
         new DefaultModuleConfigurationEditorFactoryImpl().createOutputEditor(state),
-        new ClasspathEditor(state))
+        new ClasspathEditor(state),
+        new SbtModuleImportsEditor(state))
       case _ =>
         ModuleConfigurationEditor.EMPTY
     }

@@ -1,12 +1,12 @@
 val a =
   """blah blah
      | blah blah
-     | blah blah""".stripMargin + """blah blah<caret>"""
+     | blah blah""" + """blah blah<caret>"""
 -----
 val a =
   """blah blah
      | blah blah
-     | blah blah""".stripMargin +
+     | blah blah""" +
   """blah blah
      |<caret>
   """.stripMargin

@@ -25,6 +25,7 @@ import com.intellij.openapi.project.{DumbServiceImpl, DumbService}
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.scope.processor.MethodsProcessor
+import com.intellij.lang.ASTNode
 
 /**
  * @author ven
@@ -160,13 +161,13 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   def allVals = TypeDefinitionMembers.getSignatures(this).allFirstSeq().flatMap(n => n.filter{
     case (_, x) => !x.info.isInstanceOf[PhysicalSignature] &&
       (x.info.namedElement match {
-        case Some(v) => ScalaPsiUtil.nameContext(v) match {
-          case _: ScVariable => v.name == x.info.name
-          case _: ScValue => v.name == x.info.name
-          case _ => true
-        }
-        case None => false
-      })}).map { case (_, n) => (n.info.namedElement.get, n.substitutor) }
+        case v =>
+          ScalaPsiUtil.nameContext(v) match {
+            case _: ScVariable => v.name == x.info.name
+            case _: ScValue => v.name == x.info.name
+            case _ => true
+          }
+      })}).map { case (_, n) => (n.info.namedElement, n.substitutor) }
 
   def allValsIncludingSelfType = {
     selfType match {
@@ -177,13 +178,13 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
             TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).allFirstSeq().flatMap(n => n.filter{
               case (_, x) => !x.info.isInstanceOf[PhysicalSignature] &&
                 (x.info.namedElement match {
-                  case Some(v) => ScalaPsiUtil.nameContext(v) match {
-                    case _: ScVariable => v.name == x.info.name
-                    case _: ScValue => v.name == x.info.name
-                    case _ => true
-                  }
-                  case None => false
-                })}).map { case (_, n) => (n.info.namedElement.get, n.substitutor) }
+                  case v =>
+                    ScalaPsiUtil.nameContext(v) match {
+                      case _: ScVariable => v.name == x.info.name
+                      case _: ScValue => v.name == x.info.name
+                      case _ => true
+                    }
+                })}).map { case (_, n) => (n.info.namedElement, n.substitutor) }
           case _ =>
             allVals
         }
@@ -351,7 +352,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
         else
           body.getNode.replaceChild(before, ScalaPsiElementFactory.createNewLineNode(member.getManager))
       case None =>
-        extendsBlock.getNode.addChild(ScalaPsiElementFactory.createBodyFromMember(member, member.getManager).getNode)
+        val eBlockNode: ASTNode = extendsBlock.getNode
+        eBlockNode.addChild(ScalaPsiElementFactory.createWhitespace(member.getManager).getNode)
+        eBlockNode.addChild(ScalaPsiElementFactory.createBodyFromMember(member, member.getManager).getNode)
         return members(0)
     }
     member

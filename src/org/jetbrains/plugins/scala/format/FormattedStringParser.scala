@@ -92,12 +92,10 @@ object FormattedStringParser extends StringParser {
           UnboundPositionalSpecifier(specifier, position)
         }
       } else {
-        if (it.toString().equals("%n"))
-          Injection(ScalaPsiElementFactory.createExpressionFromText("", literal.getManager), Some(specifier))
-        else if (remainingArguments.hasNext)
-          Injection(remainingArguments.next(), Some(specifier))
-        else
-          UnboundSpecifier(specifier)
+        if (it.toString().equals("%n")) Injection(ScalaPsiElementFactory.createExpressionFromText("\"\\n\"", literal.getManager), None)
+        else if (it.toString == "%%") Injection(ScalaPsiElementFactory.createExpressionFromText("\"%\"", literal.getManager), None)
+        else if (remainingArguments.hasNext) Injection(remainingArguments.next(), Some(specifier))
+        else UnboundSpecifier(specifier)
       }
     }
 

@@ -6,7 +6,7 @@ package toplevel
 
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
-import expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import impl.toplevel.synthetic.JavaIdentifier
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -19,6 +19,8 @@ import icons.Icons
 import psi.impl.ScalaPsiElementFactory
 import statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import com.intellij.psi.search.{LocalSearchScope, SearchScope}
+import scala.Some
 
 trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with NavigatablePsiElement {
   def name: String = {
@@ -63,8 +65,7 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
         case _ => null
       }
 
-    var parent: PsiElement = this
-    while (parent != null && !(parent.isInstanceOf[ScMember])) parent = parent.getParent
+    val parentMember: ScMember = PsiTreeUtil.getParentOfType(this, classOf[ScMember], false)
     new ItemPresentation {
       def getPresentableText: String = name
       def getTextAttributesKey: TextAttributesKey = null
@@ -73,7 +74,7 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
         case x: ScNewTemplateDefinition => "(<anonymous>)"
         case _ => ""
       }
-      override def getIcon(open: Boolean) = parent match {case mem: ScMember => mem.getIcon(0) case _ => null}
+      override def getIcon(open: Boolean) = parentMember match {case mem: ScMember => mem.getIcon(0) case _ => null}
     }
   }
 
@@ -83,4 +84,16 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
       case c: ScCaseClause => Icons.PATTERN_VAL
       case x => x.getIcon(flags)
     }
+
+  abstract override def getUseScope: SearchScope = {
+    ScalaPsiUtil.intersectScopes(super.getUseScope, ScalaPsiUtil.nameContext(this) match {
+      case member: ScMember if member != this => Some(member.getUseScope)
+      case caseClause: ScCaseClause => Some(new LocalSearchScope(caseClause))
+      case elem @ (_: ScEnumerator | _: ScGenerator) =>
+        Option(PsiTreeUtil.getContextOfType(elem, true, classOf[ScForStatement]))
+                .orElse(Option(PsiTreeUtil.getContextOfType(elem, true, classOf[ScBlock], classOf[ScMember])))
+                .map(new LocalSearchScope(_))
+      case _ => None
+    })
+  }
 }

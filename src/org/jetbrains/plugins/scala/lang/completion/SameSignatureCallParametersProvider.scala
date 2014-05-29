@@ -68,7 +68,7 @@ class SameSignatureCallParametersProvider extends CompletionContributor {
         ref.qualifier match {
           case Some(s: ScSuperReference) =>
             val function = PsiTreeUtil.getParentOfType(ref, classOf[ScFunction])
-            if (function.name == ref.refName) {
+            if (function != null && function.name == ref.refName) {
               val variants = ref.getSimpleVariants(implicits = false, filterNotNamedVariants = false)
               val signatures = variants.toSeq.map {
                 case ScalaResolveResult(fun: ScMethodLike, subst) =>
@@ -143,7 +143,7 @@ class SameSignatureCallParametersProvider extends CompletionContributor {
   }
 
   private def checkSignatures(signatures: Seq[Seq[(String, ScType)]], methodLike: ScMethodLike, result: CompletionResultSet): Unit = {
-    for (signature <- signatures) {
+    for (signature <- signatures if signature.forall(_._1 != null)) {
       val names = new ArrayBuffer[String]()
       val res = signature.map {
         case (name: String, tp: ScType) =>

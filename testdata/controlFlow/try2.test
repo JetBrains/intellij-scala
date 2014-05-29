@@ -6,9 +6,9 @@ try {
 }
 -----
 0(1) element: None
-1(2) element: TryStatement
-2(3) READ a
-3(4,6) READ prinltn
+1(2,4,6) element: TryStatement
+2(3) READ prinltn
+3(7) READ a
 4(5) VAL n
 5(7) READ b
 6(7) READ c

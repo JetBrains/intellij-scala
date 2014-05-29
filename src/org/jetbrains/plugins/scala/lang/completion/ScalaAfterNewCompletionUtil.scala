@@ -1,24 +1,24 @@
 package org.jetbrains.plugins.scala.lang.completion
 
-import handlers.ScalaConstructorInsertHandler
-import lookups.ScalaLookupItem
+import com.intellij.codeInsight.completion.{CompletionResultSet, InsertHandler}
+import com.intellij.codeInsight.lookup.{AutoCompletionPolicy, LookupElement, LookupElementPresentation, LookupElementRenderer}
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.psi.search.searches.ClassInheritorsSearch
+import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
+import com.intellij.psi.{PsiClass, PsiDocCommentOwner, PsiElement, PsiNamedElement}
+import com.intellij.util.Processor
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiMemberExt, toPsiModifierListOwnerExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaConstructorInsertHandler
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScStableCodeReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScClassParents}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.types._
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.codeInsight.lookup.{AutoCompletionPolicy, LookupElementPresentation, LookupElementRenderer, LookupElement}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
-import com.intellij.codeInsight.completion.{CompletionResultSet, InsertHandler}
-import com.intellij.psi.search.searches.ClassInheritorsSearch
-import com.intellij.util.Processor
-import com.intellij.psi.{PsiNamedElement, PsiElement, PsiDocCommentOwner, PsiClass}
-import org.jetbrains.plugins.scala.extensions.{toPsiModifierListOwnerExt, toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import collection.mutable
-import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
+import scala.collection.mutable
 
 /**
  * @author Alefas
@@ -132,7 +132,7 @@ object ScalaAfterNewCompletionUtil {
       lookupElement.setAutoCompletionPolicy(if (ApplicationManager.getApplication.isUnitTestMode) AutoCompletionPolicy.ALWAYS_AUTOCOMPLETE
       else AutoCompletionPolicy.NEVER_AUTOCOMPLETE)
     val qualName = psiClass.qualifiedName
-    if (ScalaProjectSettings.getInstance(psiClass.getProject).hasImportWithPrefix(qualName)) {
+    if (ScalaCodeStyleSettings.getInstance(psiClass.getProject).hasImportWithPrefix(qualName)) {
       lookupElement.prefixCompletion = true
     }
     lookupElement.setInsertHandler(new ScalaConstructorInsertHandler)

@@ -119,8 +119,8 @@ class ConvertScalaToJavaCollectionIntentionTest extends ScalaIntentionTestBase {
       """
     val resultText =
       """
-        |import scala.collection.immutable
         |import scala.collection.JavaConverters._
+        |import scala.collection.immutable
         |
         |class UsesScalaCollections {
         |  val map = immutable.HashMap<caret>("1" -> 1).asJava

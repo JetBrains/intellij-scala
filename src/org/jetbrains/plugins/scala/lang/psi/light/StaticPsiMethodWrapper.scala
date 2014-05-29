@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.ScalaFileType
  * @since 27.02.12
  */
 class StaticPsiMethodWrapper private (val method: PsiMethod, containingClass: PsiClass)
-  extends LightMethod(method.getManager, method, containingClass) with LightScalaMethod {
+  extends LightMethodAdapter(method.getManager, method, containingClass) with LightScalaMethod {
   setNavigationElement(method)
 
   override def hasModifierProperty(name: String): Boolean = {

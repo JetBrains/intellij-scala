@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala
 package config.scalaProjectTemplate
 
 import com.intellij.ide.util.projectWizard._
-import com.intellij.openapi.module.{Module, ModifiableModuleModel}
+import com.intellij.openapi.module.{ModuleType, Module, ModifiableModuleModel}
 import com.intellij.openapi.roots.{ModuleRootModificationUtil, ModuleRootManager}
 import config.{ScalaDistribution, LibraryId, ScalaFacet}
 import java.io.File
 import com.intellij.openapi.roots.ui.configuration.ModulesProvider
-import ui.{ScalaAdvancedModuleSettings, ScalaModuleSettingsUi}
+import org.jetbrains.plugins.scala.config.scalaProjectTemplate.ui.{ScalaAdvancedModuleSettings, ScalaModuleSettingsUi}
 import com.intellij.openapi.util.Condition
 import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
 import javax.swing.{Icon, JComponent}
@@ -43,26 +43,14 @@ class ScalaModuleBuilder extends JavaModuleBuilder {
   }
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
-    val settings = new ScalaModuleSettingsUi(settingsStep.getContext.getProject)
-    val advancedSettings = new ScalaAdvancedModuleSettings
-    
-    val newSdkSettingsStep = new SdkSettingsStep(settingsStep, this, new Condition[SdkTypeId] {
-      def value(t: SdkTypeId): Boolean = t != null && t.isInstanceOf[JavaSdk]
-    }) {
-      override def updateDataModel() {
+    ScalaModuleBuilder.modifySettingsStep(settingsStep,
+      (settings: ScalaModuleSettingsUi, advancedSettings: ScalaAdvancedModuleSettings) => {
         setScalaHome(settings.getScalaHome)
 
         setCompilerLibraryId(settings.getCompilerLibraryId)
         setStandardLibraryId(settings.getStandardLibraryId)
         setTypeAwareHighlighting(advancedSettings.isTypeAwareHighlightingEnabled)
-
-        settingsStep.getContext setProjectJdk myJdkComboBox.getSelectedJdk
-      }
-    }
-    settingsStep addSettingsComponent settings.getMainPanel
-    settingsStep addExpertPanel advancedSettings.getComponent
-
-    newSdkSettingsStep
+    }, this)
   }
 
   override def getBuilderId: String = "ScalaModuleBuilderId"
@@ -109,4 +97,26 @@ class ScalaModuleBuilder extends JavaModuleBuilder {
                                  modulesProvider: ModulesProvider): Array[ModuleWizardStep] = Array[ModuleWizardStep]()
 
   override def getNodeIcon: Icon = org.jetbrains.plugins.scala.icons.Icons.SCALA_SMALL_LOGO
+}
+
+object ScalaModuleBuilder {
+  def modifySettingsStep(settingsStep: SettingsStep,
+                         forDataModel: (ScalaModuleSettingsUi, ScalaAdvancedModuleSettings) => Unit,
+                         moduleBuilder: ModuleBuilder) = {
+    val settings = new ScalaModuleSettingsUi(settingsStep.getContext.getProject)
+    val advancedSettings = new ScalaAdvancedModuleSettings
+
+    val newSdkSettingsStep = new SdkSettingsStep(settingsStep, moduleBuilder, new Condition[SdkTypeId] {
+      def value(t: SdkTypeId): Boolean = t != null && t.isInstanceOf[JavaSdk]
+    }) {
+      override def updateDataModel() {
+        forDataModel(settings, advancedSettings)
+        settingsStep.getContext setProjectJdk myJdkComboBox.getSelectedJdk
+      }
+    }
+    settingsStep addSettingsComponent settings.getMainPanel
+    settingsStep addExpertPanel advancedSettings.getComponent
+
+    newSdkSettingsStep
+  }
 }

@@ -17,6 +17,8 @@
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
+        <project.converterProvider
+                implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ImportPanelConverterProvider"/>
         <statistics.usagesCollector
                 implementation="org.jetbrains.plugins.scala.statistics.ScalaApplicationUsagesCollector" />
         <lang.rearranger language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger"/>
@@ -104,6 +106,7 @@
         <psi.referenceContributor implementation="org.jetbrains.plugins.scala.lang.references.ScalaReferenceContributor"/>
         <codeInsight.overrideMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaOverrideMethodsHandler"/>
         <codeInsight.implementMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaImplementMethodsHandler"/>
+        <codeInsight.delegateMethods language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.delegate.ScalaGenerateDelegateHandler"/>
         <methodImplementor implementation="org.jetbrains.plugins.scala.overrideImplement.ScalaMethodImplementor"/>
         <lookup.charFilter implementation="org.jetbrains.plugins.scala.lang.completion.ScalaCharFilter"/>
         <lang.findUsagesProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider"/>
@@ -132,7 +135,7 @@
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaMethodProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.PrepareRenameScalaMethodProcessor" order="last"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaPackageProcessor" order="first"/>
-        <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaValsProcessor" order="first"/>
+        <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaVariableProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameLightProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaClassProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaSyntheticParamProcessor" order="first"/>
@@ -210,6 +213,7 @@
 
         <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2TestFramework"/>
         <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestTestFramework"/>
+	      <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestTestFramework"/>
 
         <java.elementFinder implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses"/>
         <java.elementFinder implementation="org.jetbrains.plugins.scala.finder.ScalaClassFinder"/>
@@ -234,13 +238,14 @@
         <configurationType implementation="org.jetbrains.plugins.scala.script.ScalaScriptConfigurationType"/>
         <configurationType implementation="org.jetbrains.plugins.scala.console.ScalaConsoleConfigurationType"/>
         <actionPromoter implementation="org.jetbrains.plugins.scala.console.ExecuteInConsoleActionPromoter"/>
-        <configurationType implementation="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetConfigurationType"/>
 
         <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2ConfigurationType"/>
         <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationType"/>
+	      <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationType"/>
 
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2ConfigurationProducer"/>
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationProducer"/>
+        <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationProducer"/>
 
         <configurationProducer implementation="org.jetbrains.plugins.scala.runner.ScalaApplicationConfigurationProducer"/>
 
@@ -424,6 +429,16 @@
         </intentionAction>
 
         <intentionAction>
+          <category>Scala/Import</category>
+          <className>org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportStableMemberIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+          <category>Scala/Import</category>
+          <className>org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportAllMembersIntention</className>
+        </intentionAction>
+
+        <intentionAction>
             <category>Scala/Expressions</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.ConvertFromInfixExpressionIntention</className>
         </intentionAction>
@@ -604,10 +619,10 @@
                          id="SuspiciousInferredType" level="WARNING" enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.VarCouldBeValInspection"
                          displayName="'var' could be a 'val'" groupName="Scala: General" shortName="VarCouldBeVal"
-                         level="WARNING" enabledByDefault="true" language="Scala"/>
+                         level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedSymbolInspection"
                          displayName="Unused Symbol" groupName="Scala: General" shortName="ScalaUnusedSymbol"
-                         level="WARNING" enabledByDefault="true" language="Scala"/>
+                         level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.sugar.FunctionTupleSyntacticSugarInspection"
                          displayName="Syntactic Sugar" groupName="Scala: General" shortName="FunctionTupleSyntacticSugar"
                          id="FunctionTupleSyntacticSugar" level="WARNING" enabledByDefault="true" language="Scala"/>
@@ -722,10 +737,6 @@
                          displayName="Abstract Value in Trait" groupName="Scala: General"
                          shortName="AbstractValueInTrait" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.sbt.SbtFileStructureInspection"
-                         displayName="SBT Light Configuration File Structure" groupName="Scala: General"
-                         shortName="SbtFileStructure" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.semicolon.ScalaUnnecessarySemicolonInspection"
                          displayName="Scala unnecessary semicolon inspection" groupName="Scala: General"
                          shortName="ScalaUnnecessarySemicolon" level="WARNING"
@@ -801,9 +812,69 @@
                        displayName="Type check can be pattern matching" groupName="Scala: General"
                        shortName="TypeCheckCanBeMatch" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspection"
-                       displayName="Simplifiable operation on collection" groupName="Scala: General"
-                       shortName="OperationOnCollection" level="WARNING"
+      <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspection"-->
+                       <!--displayName="Simplifiable operation on collection" groupName="Scala: General"-->
+                       <!--shortName="OperationOnCollection" level="WARNING"-->
+                       <!--enabledByDefault="true" language="Scala"/>-->
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterHeadOptionInspection"
+                       displayName="Simplifiable filter and headOption" groupName="Scala: Collections"
+                       shortName="FilterHeadOption" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapGetOrElseFalseInspection"
+                       displayName="Simplifiable map and getOrElse(false)" groupName="Scala: Collections"
+                       shortName="MapGetOrElseFalse" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FindIsDefinedInspection"
+                       displayName="Simplifiable find and isDefined" groupName="Scala: Collections"
+                       shortName="FindIsDefined" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterSizeCheckInspection"
+                       displayName="Simplifiable filter and size check" groupName="Scala: Collections"
+                       shortName="FilterSizeCheck" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterSizeInspection"
+                       displayName="Simplifiable filter and size" groupName="Scala: Collections"
+                       shortName="FilterSize" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FindNotEqualsNoneInspection"
+                       displayName="Simplifiable find and notEquals None" groupName="Scala: Collections"
+                       shortName="FindNotEqualsNone" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SimplifiableFoldOrReduceInspection"
+                       displayName="Simplifiable fold or reduce method" groupName="Scala: Collections"
+                       shortName="SimplifiableFoldOrReduce" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FoldTrueAndInspection"
+                       displayName="Fold simplifiable to forall" groupName="Scala: Collections"
+                       shortName="FoldTrueAnd" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SortFilterInspection"
+                       displayName="Filter after sort" groupName="Scala: Collections"
+                       shortName="SortFilter" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapGetOrElseInspection"
+                       displayName="Simplifiable map and getOrElse" groupName="Scala: Collections"
+                       shortName="MapGetOrElse" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ExistsEqualsInspection"
+                       displayName="Exists simplifiable to contains" groupName="Scala: Collections"
+                       shortName="ExistsEquals" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.DropOneInspection"
+                       displayName="drop(1) replaceable for tail " groupName="Scala: Collections"
+                       shortName="DropOne" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetOrElseNullInspection"
+                       displayName="Simplifiable getOrElse(null)" groupName="Scala: Collections"
+                       shortName="GetOrElseNull" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetGetOrElseInspection"
+                       displayName="Simplifiable get and getOrElse on a map" groupName="Scala: Collections"
+                       shortName="GetGetOrElse" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.NotIsEmptyInspection"
+                       displayName="isEmpty replaceable for nonEmpty" groupName="Scala: Collections"
+                       shortName="NotIsEmpty" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.etaExpansion.ConvertibleToMethodValueInspection"
                        displayName="Anonymous function convertible to a method value" groupName="Scala: General"
@@ -814,8 +885,12 @@
                        shortName="ComparingUnrelatedTypes" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.functionExpressions.MatchToPartialFunctionInspection"
-                       displayName="Match statement convertible to partial function" groupName="Scala: General"
+                       displayName="Match statement convertible to pattern matching anonymous function" groupName="Scala: General"
                        shortName="MatchToPartialFunction" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUnreachableCodeInspection"
+                       displayName="Unreachable code" groupName="Scala: General"
+                       shortName="ScalaUnreachableCode" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
 
 
@@ -913,11 +988,11 @@
       <component>
           <implementation-class>org.jetbrains.plugins.scala.compiler.ServerMediator</implementation-class>
         </component>
-      <component>
-          <implementation-class>org.jetbrains.plugins.scala.components.WorksheetProjectComponent</implementation-class>
-        </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner</implementation-class>
         </component>
     </project-components>
 
@@ -942,6 +1017,11 @@
             <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <keyboard-shortcut first-keystroke="control shift D" keymap="$default"/>
+        </action>
+        <action id="Scala.CreateLightWorksheetAction" class="org.jetbrains.plugins.scala.worksheet.actions.CreateLightWorksheetAction"
+                description="Create light scala worksheet" text="Create light scala worksheet">
+            <keyboard-shortcut first-keystroke="control alt shift X" keymap="$default"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl shift M"/>
         </action>
         <action id="Scala.SendSelectionToConsole" class="org.jetbrains.plugins.scala.console.SendSelectionToConsoleAction"
                 text="Send Selection To Scala Console" description="Send selection to Scala console">

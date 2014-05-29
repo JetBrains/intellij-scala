@@ -12,17 +12,15 @@ import console.{ScalaConsoleInfo, ScalaLanguageConsoleView}
 * @author Alexander Podkhalyuzin
 * Date: 04.05.2008
 */
-
 class ScalaStructureViewFactory extends PsiStructureViewFactory {
   def getStructureViewBuilder(psiFile: PsiFile): StructureViewBuilder = psiFile match {
-    case sf: ScalaFile => {
+    case sf: ScalaFile =>
       if (sf.getName == ScalaLanguageConsoleView.SCALA_CONSOLE) {
         val console = ScalaConsoleInfo.getConsole(sf)
         new ScalaStructureViewBuilder(sf, console)
       } else {
         new ScalaStructureViewBuilder(sf)
       }
-    }
     case _ => null
   }
 }

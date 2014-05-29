@@ -5,7 +5,6 @@ import com.intellij.openapi.components.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.HashMap;
@@ -26,12 +25,6 @@ import java.util.Map;
 public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProjectSettings>, ExportableComponent {
   private int IMPLICIT_PARAMETERS_SEARCH_DEPTH = 5;
 
-  private boolean IMPORT_SHORTEST_PATH_FOR_AMBIGUOUS_REFERENCES = true;
-  private int CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = 5;
-  private boolean ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = false;
-  private boolean ADD_FULL_QUALIFIED_IMPORTS = true;
-  private boolean SORT_IMPORTS = false;
-  private boolean IMPORTS_MEMBERS_USING_UNDERSCORE = true;
   private boolean SEARCH_ALL_SYMBOLS = false;
 
   private boolean ENABLE_JAVA_TO_SCALA_CONVERSION = true;
@@ -50,9 +43,9 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean SCALA_CLASSES_PRIORITY = true;
 
   //WORKSHEET
-  private int SHIFT = 80;
   private int OUTPUT_LIMIT = 35;
   private boolean IN_PROCESS_MODE = true;
+  private boolean INTERACTIVE_MODE = true;
 
   private Map<String, String> INTERPOLATED_INJECTION_MAPPING = new HashMap<String, String>();
 
@@ -61,52 +54,6 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     INTERPOLATED_INJECTION_MAPPING.put("sqlu", "SQL");
     INTERPOLATED_INJECTION_MAPPING.put("xml", "XML");
   }
-  
-  private String[] IMPORTS_WITH_PREFIX = {
-      "scala.collection.mutable._",
-      "java.util.AbstractCollection",
-      "java.util.AbstractList",
-      "java.util.AbstractMap",
-      "java.util.AbstractQueue",
-      "java.util.AbstractSequentialList",
-      "java.util.AbstractSet",
-      "java.util.ArrayDeque",
-      "java.util.ArrayList",
-      "java.util.Arrays",
-      "java.util.BitSet",
-      "java.util.Collection",
-      "java.util.Deque",
-      "java.util.Enumeration",
-      "java.util.EnumMap",
-      "java.util.EnumSet",
-      "java.util.HashMap",
-      "java.util.HashSet",
-      "java.util.Hahtable",
-      "java.util.IdentityHashMap",
-      "java.util.Iterator",
-      "java.util.LinkedHashMap",
-      "java.util.LikedHashSet",
-      "java.util.LinkedList",
-      "java.util.List",
-      "java.util.ListIterator",
-      "java.util.Map",
-      "java.util.NavigableMap",
-      "java.util.NavigableSet",
-      "java.util.Queue",
-      "java.util.Set",
-      "java.util.SortedMap",
-      "java.util.SortedSet",
-      "java.util.Stack",
-      "java.util.SubList",
-      "java.util.TreeMap",
-      "java.util.TreeSet",
-      "java.util.Vector",
-      "java.util.WeakHashMap",
-      "exclude:scala.collection.mutable.ArrayBuffer",
-      "exclude:scala.collection.mutable.ListBuffer",
-      "org.scalatest.fixture._",
-      "org.scalatest.path._"
-  };
 
   //colection type highlighting settings
   private int COLLECTION_TYPE_HIGHLIGHTING_LEVEL = 0;
@@ -145,60 +92,12 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     IMPLICIT_PARAMETERS_SEARCH_DEPTH = value;
   }
 
-  public int getClassCountToUseImportOnDemand() {
-    return CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND;
-  }
-
-  public void setClassCountToUseImportOnDemand(int value) {
-    CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = value;
-  }
-
-  public int getShift() {
-    return  SHIFT;
-  }
-
-  public void setShift(int value) {
-    SHIFT = value;
-  }
-
   public int getOutputLimit() {
     return  OUTPUT_LIMIT;
   }
 
   public void setOutputLimit(int value) {
     OUTPUT_LIMIT = value;
-  }
-
-  public boolean isAddImportMostCloseToReference() {
-    return ADD_IMPORT_MOST_CLOSE_TO_REFERENCE;
-  }
-
-  public void setAddImportMostCloseToReference(boolean value) {
-    ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = value;
-  }
-
-  public boolean isAddFullQualifiedImports() {
-    return ADD_FULL_QUALIFIED_IMPORTS;
-  }
-
-  public void setAddFullQualifiedImports(boolean value) {
-    ADD_FULL_QUALIFIED_IMPORTS = value;
-  }
-
-  public boolean isSortImports() {
-    return SORT_IMPORTS;
-  }
-
-  public void setSortImports(boolean value) {
-    SORT_IMPORTS = value;
-  }
-
-  public boolean isImportMembersUsingUnderScore() {
-    return IMPORTS_MEMBERS_USING_UNDERSCORE;
-  }
-
-  public void setImportMembersUsingUnderScore(boolean value) {
-    IMPORTS_MEMBERS_USING_UNDERSCORE = value;
   }
 
   public boolean isSearchAllSymbols() {
@@ -312,22 +211,6 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   public void setCollectionTypeHighlightingLevel(int level) {
     this.COLLECTION_TYPE_HIGHLIGHTING_LEVEL = level;
   }
-
-  public boolean isImportShortestPathForAmbiguousReferences() {
-    return IMPORT_SHORTEST_PATH_FOR_AMBIGUOUS_REFERENCES;
-  }
-
-  public void setImportShortestPathForAmbiguousReferences(boolean importShortestPathForAmbiguousReferences) {
-    this.IMPORT_SHORTEST_PATH_FOR_AMBIGUOUS_REFERENCES = importShortestPathForAmbiguousReferences;
-  }
-
-  public String[] getImportsWithPrefix() {
-    return IMPORTS_WITH_PREFIX;
-  }
-
-  public void setImportsWithPrefix(String[] importsWithPrefix) {
-    this.IMPORTS_WITH_PREFIX = importsWithPrefix;
-  }
   
   public Map<String, String> getIntInjectionMapping() {
     return INTERPOLATED_INJECTION_MAPPING;
@@ -337,49 +220,17 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     INTERPOLATED_INJECTION_MAPPING = intInjectionMapping;
   }
 
-  public static String EXCLUDE_PREFIX = "exclude:";
-
-  public boolean hasImportWithPrefix(@Nullable String qualName) {
-    if (qualName != null && qualName.contains(".")) {
-      String[] importsWithPrefix = getImportsWithPrefix();
-      return nameFitToPatterns(qualName, importsWithPrefix);
-    } else return false;
-  }
-
-  /**
-   * Checks whether qualified class name fit to the list of patterns.
-   * Expamples of patterns:
-   * "java.util.ArrayList"                              java.util.ArrayList added
-   * "scala.collection.mutable._"                       all classes from package scala.collection.mutable added
-   * "exclude:scala.Option"                             scala.Option excluded
-   * "exclude:scala.collection.immutable._"             all classes from package scala.collection.immutable excluded
-   * */
-  public static boolean nameFitToPatterns(String qualName, String[] patterns) {
-    boolean res = false;
-    for (String pattern : patterns) {
-      if (pattern.startsWith(EXCLUDE_PREFIX)) {
-        String s = pattern.substring(EXCLUDE_PREFIX.length());
-        if (fitToUnderscorePattern(s, qualName) || s.equals(qualName))
-          return false;
-      }
-      else {
-        if (fitToUnderscorePattern(pattern, qualName) || pattern.equals(qualName))
-          res = true;
-      }
-    }
-    return res;
-  }
-
-  private static boolean fitToUnderscorePattern(String pattern, String qualName) {
-    return pattern.endsWith("._") && qualName.contains(".") &&
-        pattern.substring(0, pattern.lastIndexOf('.')).equals(qualName.substring(0, qualName.lastIndexOf('.')));
-  }
-
   public boolean isInProcessMode() {
     return IN_PROCESS_MODE;
   }
 
   public void setInProcessMode(boolean inProcess) {
     this.IN_PROCESS_MODE = inProcess;
+  }
+
+  public boolean isInteractiveMode() { return INTERACTIVE_MODE; }
+
+  public void setInteractiveMode(boolean interactiveMode) {
+    INTERACTIVE_MODE = interactiveMode;
   }
 }
