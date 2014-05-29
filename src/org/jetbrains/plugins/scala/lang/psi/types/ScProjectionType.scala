@@ -7,7 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions.{toObjectExt, toPsiClassExt}
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -196,8 +196,16 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor,
                           falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    def isSingletonOk(typed: ScTypedDefinition): Boolean = {
+      typed.nameContext match {
+        case v: ScValue => true
+        case p: ScClassParameter if p.isVal => true
+        case _ => false
+      }
+    }
+
     actualElement match {
-      case a: ScBindingPattern if a.nameContext.isInstanceOf[ScValue] =>
+      case a: ScTypedDefinition if isSingletonOk(a) =>
         val subst = actualSubst
         val tp = subst.subst(a.getType(TypingContext.empty).getOrAny)
         if (ScType.isSingletonType(tp)) {
@@ -221,29 +229,31 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
           case _ => (false, uSubst)
         }
       case param@ScParameterizedType(proj2@ScProjectionType(p1, element1, _), typeArgs) =>
-        proj2.actualElement match {
-          case ta: ScTypeAliasDefinition =>
-            r.isAliasType match {
-              case Some(AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
-                Equivalence.equivInner(this, lower match {
-                  case Success(tp, _) => tp
-                  case _ => return (false, uSubst)
-                }, uSubst, falseUndef)
-              case _ => (false, uSubst)
-            }
+        r.isAliasType match {
+          case Some(AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
+            Equivalence.equivInner(this, lower match {
+              case Success(tp, _) => tp
+              case _ => return (false, uSubst)
+            }, uSubst, falseUndef)
           case _ => (false, uSubst)
         }
       case proj2@ScProjectionType(p1, element1, _) =>
         proj2.actualElement match {
-          case a: ScTypeAliasDefinition =>
-            r.isAliasType match {
-              case Some(AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
-                Equivalence.equivInner(this, lower match {
-                  case Success(tp, _) => tp
-                  case _ => return (false, uSubst)
-                }, uSubst, falseUndef)
-              case _ =>
+          case a: ScTypedDefinition if isSingletonOk(a) =>
+            val subst = actualSubst
+            val tp = subst.subst(a.getType(TypingContext.empty).getOrAny)
+            if (ScType.isSingletonType(tp)) {
+              val resInner = Equivalence.equivInner(tp, this, uSubst, falseUndef)
+              if (resInner._1) return resInner
             }
+          case _ =>
+        }
+        r.isAliasType match {
+          case Some(AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
+            Equivalence.equivInner(this, lower match {
+              case Success(tp, _) => tp
+              case _ => return (false, uSubst)
+            }, uSubst, falseUndef)
           case _ =>
         }
         if (actualElement != proj2.actualElement) {
