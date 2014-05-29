@@ -57,6 +57,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
   }
 
   private def findReferenceTypeSourceImage(position: SourcePosition): ScalaPsiElement = {
+    if (position == null) return null
     @tailrec
     def findSuitableParent(element: PsiElement): PsiElement = {
       element match {
@@ -74,6 +75,8 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
   }
 
   def nonWhitespaceElement(position: SourcePosition): PsiElement = {
+    if (position == null) return null
+
     val file = position.getFile
     @tailrec
     def nonWhitespaceInner(element: PsiElement, document: Document): PsiElement = {
@@ -113,6 +116,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
   }
 
   private def findEnclosingTypeDefinition(position: SourcePosition): Option[ScTypeDefinition] = {
+    if (position == null) return None
     @tailrec
     def notLocalEnclosingTypeDefinition(element: PsiElement): Option[ScTypeDefinition] = {
       PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition]) match {

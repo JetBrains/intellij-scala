@@ -3,23 +3,22 @@ package lang
 package psi
 package types
 
-import decompiler.DecompilerUtil
-import com.intellij.psi._
 import com.intellij.openapi.project.Project
-import api.statements._
-import api.toplevel.ScTypedDefinition
-import nonvalue.{ScMethodType, NonValueType}
-import result.{Success, TypeResult, TypingContext}
-import java.lang.Exception
-import collection.mutable.ArrayBuffer
-import collection.immutable.HashMap
-import api.toplevel.templates.ScTemplateBody
-import util.PsiTreeUtil
-import api.toplevel.typedef.{ScTemplateDefinition, ScClass, ScObject}
-import collection.mutable
-import types.Conformance.AliasType
+import com.intellij.psi._
+import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, ScMethodType}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+
 import scala.annotation.tailrec
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import scala.collection.immutable.HashMap
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /*
 Current types for pattern matching, this approach is bad for many reasons (one of them is bad performance).
@@ -42,7 +41,7 @@ match {
  case Short =>
  case ScFunctionType(returnType, params) =>
  case ScTupleType(components) =>
- case ScCompoundType(components, decls, typeDecls, subst) =>
+ case ScCompoundType(components, decls, typeDecls) =>
  case ScProjectionType(projected, element, subst) =>
  case JavaArrayType(arg) =>
  case ScParameterizedType(designator, typeArgs) =>
@@ -90,6 +89,8 @@ trait ScType {
   def isValue: Boolean
 
   final def isStable: Boolean = ScType.isStable(this)
+
+  def isFinalType: Boolean = false
 
   def inferValueType: ValueType
 
@@ -143,7 +144,7 @@ trait ScType {
     override def getMessage: String = "Type mismatch after update method"
   }
 
-  import collection.immutable.{HashSet => IHashSet}
+  import scala.collection.immutable.{HashSet => IHashSet}
 
   /**
    * use 'update' to replace appropriate type part with another type
@@ -213,6 +214,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
 
   def extractClassType(t: ScType, project: Option[Project] = None): Option[Pair[PsiClass, ScSubstitutor]] = t match {
     case n: NonValueType => extractClassType(n.inferValueType)
+    case ScThisType(clazz) => Some(clazz, new ScSubstitutor(t))
     case ScDesignatorType(clazz: PsiClass) => Some(clazz, ScSubstitutor.empty)
     case ScDesignatorType(ta: ScTypeAliasDefinition) =>
       val result = ta.aliasedType(TypingContext.empty)
@@ -226,12 +228,11 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
         extractClassType(proj.actualSubst.subst(result.get))
       case _ => None
     }
-    case p@ScParameterizedType(t1, _) => {
+    case p@ScParameterizedType(t1, _) =>
       extractClassType(t1) match {
         case Some((c, s)) => Some((c, s.followed(p.substitutor)))
         case None => None
       }
-    }
     case std@StdType(_, _) =>
       val asClass = std.asClass(project.getOrElse(DecompilerUtil.obtainProject))
       if (asClass.isEmpty) return None
@@ -322,6 +323,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
       case c: PsiClass => Some(p)
       case t: ScTypeAliasDefinition =>
         projectionOption(proj.actualSubst.subst(t.aliasedType(TypingContext.empty).getOrElse(return None)))
+      case t: ScTypeAliasDeclaration => Some(p)
       case _ => None
     }
     case ScDesignatorType(t: ScTypeAliasDefinition) =>
@@ -410,12 +412,18 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
     element match {
       case td: ScClass => StdType.QualNameToType.getOrElse(td.qualifiedName, new ScDesignatorType(element))
       case _ =>
-        element.getParent match {
-          case td: ScTemplateBody =>
-            val clazz = PsiTreeUtil.getParentOfType(element, classOf[ScTemplateDefinition], true)
-            new ScProjectionType(ScThisType(clazz), element, false)
-          case _ =>
-            new ScDesignatorType(element)
+        val clazzOpt = element match {
+          case p: ScClassParameter => Option(p.containingClass)
+          case _ => element.getContext match {
+            case _: ScTemplateBody | _: ScEarlyDefinitions =>
+              Option(ScalaPsiUtil.contextOfType(element, strict = true, classOf[ScTemplateDefinition]))
+            case _ => None
+          }
+        }
+
+        clazzOpt match {
+          case Some(clazz) => ScProjectionType(ScThisType(clazz), element, superReference = false)
+          case _ => new ScDesignatorType(element)
         }
     }
   }

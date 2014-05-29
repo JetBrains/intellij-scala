@@ -17,6 +17,23 @@ import com.intellij.openapi.util.TextRange
  */
 object ConvertFromInfixExpressionIntention {
   val familyName = "Convert from infix expression"
+
+  def createEquivMethodCall(infixExpr: ScInfixExpr): ScMethodCall = {
+    val baseText = infixExpr.getBaseExpr.getText
+    val opText = infixExpr.operation.getText
+    val argText = infixExpr.getArgExpr match {
+      case x: ScTuple =>  x.getText
+      case x: ScParenthesisedExpr =>  x.getText
+      case _ =>  s"(${infixExpr.getArgExpr.getText})"
+    }
+    val exprText = s"($baseText).$opText$argText"
+
+    val exprA : ScExpression = ScalaPsiElementFactory.createExpressionFromText(baseText, infixExpr.getManager)
+
+    val methodCallExpr = ScalaPsiElementFactory.createExpressionFromText(exprText.toString, infixExpr.getManager).asInstanceOf[ScMethodCall]
+    methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression].qualifier.get.replaceExpression(exprA, removeParenthesis = true)
+    methodCallExpr
+  }
 }
 
 class ConvertFromInfixExpressionIntention extends PsiElementBaseIntentionAction {
@@ -38,25 +55,24 @@ class ConvertFromInfixExpressionIntention extends PsiElementBaseIntentionAction 
 
     val start = infixExpr.getTextRange.getStartOffset
     val diff = editor.getCaretModel.getOffset - infixExpr.operation.nameId.getTextRange.getStartOffset
-    val expr = new StringBuilder
-
-    expr.append("(").append(infixExpr.getBaseExpr.getText).append(").")
-    expr.append(infixExpr.operation.getText)
-    infixExpr.getArgExpr match {
-      case x: ScTuple =>  expr.append(x.getText)
-      case x: ScParenthesisedExpr =>  expr.append(x.getText)
-      case _ =>  expr.append("(").append(infixExpr.getArgExpr.getText).append(")")
+    val baseText = infixExpr.getBaseExpr.getText
+    val opText = infixExpr.operation.getText
+    val argText = infixExpr.getArgExpr match {
+      case x: ScTuple =>  x.getText
+      case x: ScParenthesisedExpr =>  x.getText
+      case _ =>  s"(${infixExpr.getArgExpr.getText})"
     }
+    val exprText = s"($baseText).$opText$argText"
 
-    val exprA : ScExpression = ScalaPsiElementFactory.createExpressionFromText(infixExpr.getBaseExpr.getText, element.getManager)
+    val exprA : ScExpression = ScalaPsiElementFactory.createExpressionFromText(baseText, element.getManager)
 
-    val methodCallExpr : ScExpression = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
-    methodCallExpr.asInstanceOf[ScMethodCall].getInvokedExpr.asInstanceOf[ScReferenceExpression].qualifier.get.replaceExpression(exprA, true)
+    val methodCallExpr : ScExpression = ScalaPsiElementFactory.createExpressionFromText(exprText.toString, element.getManager)
+    methodCallExpr.asInstanceOf[ScMethodCall].getInvokedExpr.asInstanceOf[ScReferenceExpression].qualifier.get.replaceExpression(exprA, removeParenthesis = true)
     val size = methodCallExpr.asInstanceOf[ScMethodCall].getInvokedExpr.asInstanceOf[ScReferenceExpression].nameId.getTextRange.getStartOffset -
        methodCallExpr.getTextRange.getStartOffset
 
     inWriteAction {
-      infixExpr.replaceExpression(methodCallExpr, true)
+      infixExpr.replaceExpression(methodCallExpr, removeParenthesis = true)
       editor.getCaretModel.moveToOffset(start + diff + size)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }

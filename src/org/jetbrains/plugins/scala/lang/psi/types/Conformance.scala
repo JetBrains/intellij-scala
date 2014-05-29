@@ -4,29 +4,29 @@ package psi
 package types
 
 import com.intellij.openapi.progress.ProgressManager
-import nonvalue.{ScTypePolymorphicType, ScMethodType}
-import psi.impl.toplevel.synthetic.ScSyntheticClass
-import api.statements._
-import params._
-import api.toplevel.typedef.ScTypeDefinition
-import _root_.scala.collection.immutable.HashSet
-
-import collection.{immutable, mutable, Seq}
-import lang.resolve.processor.CompoundTypeCheckProcessor
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext, TypeResult}
-import api.base.patterns.ScBindingPattern
-import api.base.ScFieldId
-import api.toplevel.{ScTypeParametersOwner, ScNamedElement}
 import com.intellij.openapi.util.{Computable, RecursionManager}
-import psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
-import com.intellij.util.containers.ConcurrentWeakHashMap
-import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
-import scala.Some
 import com.intellij.psi._
-import collection.mutable.ArrayBuffer
-import api.base.types.ScExistentialClause
-import decompiler.DecompilerUtil
+import com.intellij.util.containers.ConcurrentWeakHashMap
+import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+import org.jetbrains.plugins.scala.lang.resolve.processor.{CompoundTypeCheckSignatureProcessor, CompoundTypeCheckTypeAliasProcessor}
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+
+import _root_.scala.collection.immutable.HashSet
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.{Seq, immutable, mutable}
 
 object Conformance {
   /**
@@ -38,9 +38,6 @@ object Conformance {
 
   def undefinedSubst(l: ScType, r: ScType, checkWeak: Boolean = false): ScUndefinedSubstitutor =
     conformsInner(l, r, HashSet.empty, new ScUndefinedSubstitutor, checkWeak)._2
-
-  //todo: move to TypeUtil object
-  case class AliasType(ta: ScTypeAlias, lower: TypeResult[ScType], upper: TypeResult[ScType])
 
   private def checkParameterizedType(parametersIterator: Iterator[PsiTypeParameter], args1: scala.Seq[ScType],
                              args2: scala.Seq[ScType], _undefinedSubst: ScUndefinedSubstitutor,
@@ -130,7 +127,7 @@ object Conformance {
         result = (true, undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), l))
       }
     }
-    
+
     trait AbstractVisitor extends ScalaTypeVisitor {
       override def visitAbstractType(a: ScAbstractType) {
         val left =
@@ -144,7 +141,7 @@ object Conformance {
         }
       }
     }
-    
+
     trait ParameterizedAbstractVisitor extends ScalaTypeVisitor {
       override def visitParameterizedType(p: ScParameterizedType) {
         p.designator match {
@@ -214,7 +211,7 @@ object Conformance {
         result = (false, undefinedSubst)
       }
     }
-    
+
     trait NothingNullVisitor extends ScalaTypeVisitor {
       override def visitStdType(x: StdType) {
         if (x eq types.Nothing) result = (true, undefinedSubst)
@@ -247,7 +244,7 @@ object Conformance {
         result = conformsInner(l, tpt.upper.v, HashSet.empty, undefinedSubst)
       }
     }
-    
+
     trait ThisVisitor extends ScalaTypeVisitor {
       override def visitThisType(t: ScThisType) {
         val clazz = t.clazz
@@ -276,7 +273,7 @@ object Conformance {
         }
       }
     }
-    
+
     trait ParameterizedAliasVisitor extends ScalaTypeVisitor {
       override def visitParameterizedType(p: ScParameterizedType) {
         p.designator match {
@@ -332,7 +329,7 @@ object Conformance {
         }
       }
     }
-    
+
     trait CompoundTypeVisitor extends ScalaTypeVisitor {
       override def visitCompoundType(c: ScCompoundType) {
         val comps = c.components
@@ -352,7 +349,7 @@ object Conformance {
         }
       }
     }
-    
+
     trait ExistentialVisitor extends ScalaTypeVisitor {
       override def visitExistentialType(ex: ScExistentialType) {
         result = conformsInner(l, ex.skolem, HashSet.empty, undefinedSubst)
@@ -527,7 +524,7 @@ object Conformance {
       if (result != null) return
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
-        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
+        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
         with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -543,27 +540,29 @@ object Conformance {
       T                             === t2
       U1	with	. . .	with	Un       === comps1
       Un                            === compn*/
-        val comps = c.components
-        val decls = c.decls
-        val typeMembers = c.typeDecls
-        val compoundSubst = c.subst
-        def workWith(t: ScNamedElement): Boolean = {
-          val processor = new CompoundTypeCheckProcessor(t, undefinedSubst, compoundSubst)
-          processor.processType(r, t)
-          undefinedSubst = processor.getUndefinedSubstitutor
-          processor.getResult
-        }
-        result = (comps.forall(comp => {
-          val t = conformsInner(comp, r, HashSet.empty, undefinedSubst)
-          undefinedSubst = t._2
-          t._1
-        }) && decls.forall {
-          case fun: ScFunction => workWith(fun)
-          case v: ScValue => v.declaredElements forall (decl => workWith(decl))
-          case v: ScVariable => v.declaredElements forall (decl => workWith(decl))
-        } && typeMembers.forall(typeMember => {
-          workWith(typeMember)
-        }), undefinedSubst)
+      def workWithSignature(s: Signature, retType: ScType): Boolean = {
+        val processor = new CompoundTypeCheckSignatureProcessor(s,retType, undefinedSubst, s.substitutor)
+        processor.processType(r, s.namedElement)
+        undefinedSubst = processor.getUndefinedSubstitutor
+        processor.getResult
+      }
+
+      def workWithTypeAlias(sign: TypeAliasSignature): Boolean = {
+        val processor = new CompoundTypeCheckTypeAliasProcessor(sign, undefinedSubst, ScSubstitutor.empty)
+        processor.processType(r, sign.ta)
+        undefinedSubst = processor.getUndefinedSubstitutor
+        processor.getResult
+      }
+
+      result = (c.components.forall(comp => {
+        val t = conformsInner(comp, r, HashSet.empty, undefinedSubst)
+        undefinedSubst = t._2
+        t._1
+      }) && c.signatureMap.forall {
+        case (s: Signature, retType) => workWithSignature(s, retType)
+      } && c.typesMap.forall {
+        case (s, sign) => workWithTypeAlias(sign)
+      }, undefinedSubst)
     }
 
     override def visitProjectionType(proj: ScProjectionType) {
@@ -577,7 +576,7 @@ object Conformance {
       if (result != null) return
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
-        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
+        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
         with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor with ParameterizedAliasVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -592,6 +591,14 @@ object Conformance {
           val projected2 = proj1.projected
           result = conformsInner(projected1, projected2, visited, undefinedSubst)
           if (result != null) return
+        case proj1: ScProjectionType if proj1.actualElement.name == proj.actualElement.name =>
+          val projected1 = proj.projected
+          val projected2 = proj1.projected
+          val t = conformsInner(projected1, projected2, visited, undefinedSubst)
+          if (t._1) {
+            result = t
+            return
+          }
         case _ =>
       }
 
@@ -648,7 +655,7 @@ object Conformance {
       if (result != null) return
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
-        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
+        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
         with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -791,7 +798,7 @@ object Conformance {
         case _ =>
       }
 
-      rightVisitor = new AliasDesignatorVisitor with CompoundTypeVisitor with ExistentialVisitor 
+      rightVisitor = new AliasDesignatorVisitor with CompoundTypeVisitor with ExistentialVisitor
         with ProjectionVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -852,7 +859,7 @@ object Conformance {
         case _ =>
       }
 
-      rightVisitor = new ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
+      rightVisitor = new ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
          with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -1202,7 +1209,7 @@ object Conformance {
       }
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
-        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
+        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
          with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -1304,7 +1311,7 @@ object Conformance {
       if (result != null) return
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
-        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
+        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
          with TypeParameterTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -1333,7 +1340,7 @@ object Conformance {
       if (result != null) return
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
-        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
+        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
          {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -1433,7 +1440,8 @@ object Conformance {
       }
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
-        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with TypeParameterTypeNothingNullVisitor with DesignatorVisitor {}
+        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with TypeParameterTypeNothingNullVisitor
+        with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1449,11 +1457,18 @@ object Conformance {
         case _ =>
       }
 
-      rightVisitor = new CompoundTypeVisitor {}
+      val t = conformsInner(tpt1.lower.v, r, HashSet.empty, undefinedSubst)
+      if (t._1) {
+        result = t
+        return
+      }
+
+      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor with CompoundTypeVisitor
+        with ExistentialVisitor with ProjectionVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
-      result = conformsInner(tpt1.lower.v, r, HashSet.empty, undefinedSubst)
+      result = (false, undefinedSubst)
     }
 
     override def visitSkolemizedType(s: ScSkolemizedType) {
@@ -1496,7 +1511,7 @@ object Conformance {
       if (result != null) return
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
-        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
+        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
          with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -1654,7 +1669,7 @@ object Conformance {
   }
 
   val guard = RecursionManager.createGuard("conformance.guard")
-  
+
   val cache: ConcurrentWeakHashMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)] =
     new ConcurrentWeakHashMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)]()
 

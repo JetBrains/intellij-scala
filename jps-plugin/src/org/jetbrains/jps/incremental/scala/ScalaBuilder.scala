@@ -43,7 +43,7 @@ class ScalaBuilder(category: BuilderCategory, @NotNull delegate: ScalaBuilderDel
   private def isDisabled(context: CompileContext, chunk: Option[ModuleChunk] = None): Boolean = {
     val project: JpsProject = context.getProjectDescriptor.getProject
     if (!isScalaProject(project)) return true
-    if (chunk.isDefined && !hasScalaModules(chunk.get)) return true
+    if (chunk.isDefined && delegate == IdeaIncrementalBuilder && !hasScalaModules(chunk.get)) return true
 
     val projectSettings = SettingsManager.getProjectSettings(context.getProjectDescriptor)
 

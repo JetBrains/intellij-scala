@@ -85,11 +85,11 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 
       Assert.assertTrue(myFile instanceof ScalaFile);
       ScExpression selectedExpr = null;
-      ScType varType = null;
+      ScType[] types = null;
       if (ScalaRefactoringUtil.getExpression(getProject(), myEditor, myFile, startOffset, endOffset) instanceof Some) {
         Some temp = (Some) ScalaRefactoringUtil.getExpression(getProject(), myEditor, myFile, startOffset, endOffset);
-        selectedExpr = IntroduceVariableTestUtil.extract1((Tuple2<ScExpression, ScType>) temp.get());
-        varType = ScalaRefactoringUtil.replaceSingletonTypes(IntroduceVariableTestUtil.extract2((Tuple2<ScExpression, ScType>) temp.get()));
+        selectedExpr = IntroduceVariableTestUtil.extract1((Tuple2<ScExpression, ScType[]>) temp.get());
+        types = IntroduceVariableTestUtil.extract2((Tuple2<ScExpression, ScType[]>) temp.get());
       }
       Assert.assertNotNull("Selected expression reference points to null", selectedExpr);
 
@@ -97,7 +97,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
       String varName = "value";
 
       introduceVariableHandler.runRefactoring(startOffset, endOffset, myFile, myEditor, selectedExpr,
-          occurences, varName, varType, replaceAllOccurences, false);
+          occurences, varName, types[0], replaceAllOccurences, false);
 
 
       result = myEditor.getDocument().getText();

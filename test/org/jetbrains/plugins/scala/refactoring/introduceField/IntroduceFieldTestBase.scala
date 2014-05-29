@@ -64,9 +64,9 @@ abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTes
     //start to inline
     try {
       val handler = new ScalaIntroduceFieldFromExpressionHandler
-      val Some((expr, scType)) = ScalaRefactoringUtil.getExpression(getProjectAdapter, editor, scalaFile, startOffset, endOffset)
+      val Some((expr, types)) = ScalaRefactoringUtil.getExpression(getProjectAdapter, editor, scalaFile, startOffset, endOffset)
       val aClass = expr.parents.toList.filter(_.isInstanceOf[ScTemplateDefinition])(selectedClassNumber).asInstanceOf[ScTemplateDefinition]
-      val ifc = new IntroduceFieldContext[ScExpression](getProjectAdapter, editor, scalaFile, expr, Array(scType), aClass)
+      val ifc = new IntroduceFieldContext[ScExpression](getProjectAdapter, editor, scalaFile, expr, types, aClass)
       val settings = new IntroduceFieldSettings[ScExpression](ifc)
       settings.replaceAll = replaceAll
       initInDecl.foreach(settings.initInDeclaration = _)

@@ -48,11 +48,11 @@ object ScalaMarkerType {
     def fun(element: PsiElement): String = {
       val elem = elemFor(element)
       elem match {
-        case method: ScFunction => {
+        case method: ScFunction =>
           val signatures: Seq[Signature] = method.superSignaturesIncludingSelfType
           //removed assertion, because can be change before adding gutter, so just need to return ""
           if (signatures.length == 0) return ""
-          val optionClazz = signatures(0).namedElement.map(ScalaPsiUtil.nameContext(_)).flatMap {
+          val optionClazz = ScalaPsiUtil.nameContext(signatures(0).namedElement) match {
             case member: PsiMember => Option(member.containingClass)
             case _ => None
           }
@@ -61,13 +61,12 @@ object ScalaMarkerType {
           if (!GutterUtil.isOverrides(element, signatures))
             ScalaBundle.message("implements.method.from.super", clazz.qualifiedName)
           else ScalaBundle.message("overrides.method.from.super", clazz.qualifiedName)
-        }
-        case _: ScValue | _: ScVariable => {
+        case _: ScValue | _: ScVariable =>
           val signatures = new ArrayBuffer[Signature]
           val bindings = elem match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return null}
           for (z <- bindings) signatures ++= ScalaPsiUtil.superValsSignatures(z, withSelfType = true)
           assert(signatures.length != 0)
-          val optionClazz = signatures(0).namedElement.map(ScalaPsiUtil.nameContext(_)).flatMap {
+          val optionClazz = ScalaPsiUtil.nameContext(signatures(0).namedElement) match {
             case member: PsiMember => Option(member.containingClass)
             case _ => None
           }
@@ -76,13 +75,11 @@ object ScalaMarkerType {
           if (!GutterUtil.isOverrides(element, signatures))
             ScalaBundle.message("implements.val.from.super", clazz.qualifiedName)
           else ScalaBundle.message("overrides.val.from.super", clazz.qualifiedName)
-        }
-        case x@(_: ScTypeDefinition | _: ScTypeAlias) => {
+        case x@(_: ScTypeDefinition | _: ScTypeAlias) =>
           val superMembers = ScalaPsiUtil.superTypeMembers(x.asInstanceOf[PsiNamedElement], withSelfType = true)
           assert(superMembers.length != 0)
           val optionClazz = superMembers(0)
           ScalaBundle.message("overrides.type.from.super", optionClazz.name)
-        }
         case _ => null
       }
     }
@@ -90,30 +87,27 @@ object ScalaMarkerType {
     def navigate(e: MouseEvent, element: PsiElement) {
       val elem = elemFor(element)
       elem match {
-        case method: ScFunction => {
+        case method: ScFunction =>
           val signatures = method.superSignaturesIncludingSelfType
           val elems = new mutable.HashSet[NavigatablePsiElement]
           signatures.foreach {
             case sig =>
               sig.namedElement match {
-                case Some(nav: NavigatablePsiElement) => elems += nav
+                case nav: NavigatablePsiElement => elems += nav
                 case _ =>
               }
           }
           elems.size match {
             case 0 =>
-            case 1 => {
+            case 1 =>
               val elem = elems.iterator.next()
               if (elem.canNavigate) elem.navigate(true)
-            }
-            case _ => {
+            case _ =>
               val gotoDeclarationPopup = NavigationUtil.getPsiElementPopup(elems.toArray, new ScCellRenderer,
               ScalaBundle.message("goto.override.method.declaration"))
               gotoDeclarationPopup.show(new RelativePoint(e))
-            }
           }
-        }
-        case _: ScValue | _: ScVariable => {
+        case _: ScValue | _: ScVariable =>
           val signatures = new ArrayBuffer[Signature]
           val bindings = elem match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return}
           for (z <- bindings) signatures ++= ScalaPsiUtil.superValsSignatures(z, withSelfType = true)
@@ -121,38 +115,32 @@ object ScalaMarkerType {
           signatures.foreach {
             case sig =>
               sig.namedElement match {
-                case Some(n: NavigatablePsiElement) => elems += n
+                case n: NavigatablePsiElement => elems += n
                 case _ =>
               }
           }
           elems.size match {
             case 0 =>
-            case 1 => {
+            case 1 =>
               val elem = elems.iterator.next()
               if (elem.canNavigate) elem.navigate(true)
-            }
-            case _ => {
+            case _ =>
               val gotoDeclarationPopup = NavigationUtil.getPsiElementPopup(elems.toArray, new ScCellRenderer,
               ScalaBundle.message("goto.override.val.declaration"))
               gotoDeclarationPopup.show(new RelativePoint(e))
-            }
           }
-        }
-        case x @(_: ScTypeDefinition | _: ScTypeAlias) => {
+        case x @(_: ScTypeDefinition | _: ScTypeAlias) =>
           val elems = ScalaPsiUtil.superTypeMembers(x.asInstanceOf[PsiNamedElement], withSelfType = true)
 
           elems.toSeq match {
             case Seq() =>
-            case Seq(x: NavigatablePsiElement) => {
+            case Seq(x: NavigatablePsiElement) =>
               if (x.canNavigate) x.navigate(true)
-            }
-            case _ => {
+            case _ =>
               val gotoDeclarationPopup = NavigationUtil.getPsiElementPopup(elems.toArray, new ScCellRenderer,
               ScalaBundle.message("goto.override.type.declaration"))
               gotoDeclarationPopup.show(new RelativePoint(e))
-            }
           }
-        }
         case _ =>
       }
     }
@@ -162,9 +150,8 @@ object ScalaMarkerType {
     def fun(element: PsiElement): String = {
       var elem = element
       element.getNode.getElementType match {
-        case  ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR => {
+        case  ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR =>
           elem = PsiTreeUtil.getParentOfType(element, classOf[PsiMember])
-        }
         case _ =>
       }
       elem match {
@@ -178,9 +165,8 @@ object ScalaMarkerType {
     def navigate(mouseEvent: MouseEvent, element: PsiElement) {
       var elem = element
       element.getNode.getElementType match {
-        case  ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR => {
+        case  ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR =>
           elem = PsiTreeUtil.getParentOfType(element, classOf[PsiMember])
-        }
         case _ =>
       }
       val members = elem match {
@@ -244,30 +230,26 @@ object ScalaMarkerType {
       }
 
       element match {
-        case method: PsiMethod if method.containingClass != null => {
+        case method: PsiMethod if method.containingClass != null =>
           val presentation = method.containingClass.getPresentation
           if (presentation != null)
             presentation.getPresentableText + " " + presentation.getLocationString
           else {
             ClassPresentationUtil.getNameForClass(method.containingClass, false)
           }
-        }
-        case xlass: PsiClass => {
+        case xlass: PsiClass =>
           val presentation = xlass.getPresentation
           presentation.getPresentableText + " " + presentation.getLocationString
-        }
-        case x: PsiNamedElement if ScalaPsiUtil.nameContext(x).isInstanceOf[ScMember] => {
+        case x: PsiNamedElement if ScalaPsiUtil.nameContext(x).isInstanceOf[ScMember] =>
           val containing = ScalaPsiUtil.nameContext(x).asInstanceOf[ScMember].containingClass
           if (containing == null) defaultPresentation
           else  {
             val presentation = containing.getPresentation
             presentation.getPresentableText + " " + presentation.getLocationString
           }
-        }
-        case x: ScClassParameter => {
+        case x: ScClassParameter =>
           val presentation = x.getPresentation
           presentation.getPresentableText + " " + presentation.getLocationString
-        }
         case x: PsiNamedElement => x.name
         case _ => defaultPresentation
       }

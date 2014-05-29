@@ -20,8 +20,8 @@ import javax.swing._;
 */
 
 class ScalaPrimaryConstructorItemPresentation(private val element: ScPrimaryConstructor) extends ScalaItemPresentation(element) {
-  def getPresentableText(): String = {
-    return ScalaElementPresentation.getPrimaryConstructorPresentableText(myElement.asInstanceOf[ScPrimaryConstructor])
+  def getPresentableText: String = {
+    ScalaElementPresentation.getPrimaryConstructorPresentableText(myElement.asInstanceOf[ScPrimaryConstructor])
   }
 
   override def getIcon(open: Boolean): Icon = {

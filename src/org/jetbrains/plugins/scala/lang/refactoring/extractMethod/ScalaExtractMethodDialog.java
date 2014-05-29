@@ -1,40 +1,29 @@
 package org.jetbrains.plugins.scala.lang.refactoring.extractMethod;
 
-import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
+import com.intellij.refactoring.ui.MethodSignatureComponent;
 import com.intellij.refactoring.util.ParameterTablePanel;
 import com.intellij.refactoring.util.VariableData;
+import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.EditorTextField;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.lang.psi.PresentationUtil;
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
-import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector;
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo;
-import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext;
-import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ExtractMethodParameter;
-import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ExtractMethodReturn;
-import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodSettings;
-import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
+import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaVariableData;
 import scala.Option;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
+import java.awt.*;
 import java.util.ArrayList;
 
 /**
@@ -56,6 +45,16 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   private JPanel visibilityPanel;
   private JPanel inputParametersPanel;
   private JLabel returnTypeLabel;
+  private JPanel myPreviewPanel;
+  private JPanel multipleOutputPanel;
+  private JRadioButton tupleRB;
+  private JRadioButton innerClassRB;
+  private JTextField caseClassNameFld;
+  private JRadioButton caseClassRB;
+  private JTextField innerClassNameFld;
+
+  private boolean isDefaultClassName = true;
+  private final MethodSignatureComponent mySignaturePreview;
 
   private ScalaExtractMethodSettings settings = null;
   private Project myProject;
@@ -64,7 +63,6 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
 
   private PsiElement mySibling;
 
-  private PsiElement myScope;
   private VariableInfo[] myInput;
   private VariableInfo[] myOutput;
   private ScalaExtractMethodDialog.ScalaParameterTablePanel parameterTablePanel;
@@ -72,7 +70,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   private Option<ScType> myLastMeaningful = null;
 
   public ScalaExtractMethodDialog(Project project, PsiElement[] elements, Option<ScType> hasReturn, boolean lastReturn,
-                                  PsiElement sibling, PsiElement scope, VariableInfo[] input, VariableInfo[] output,
+                                  PsiElement sibling, VariableInfo[] input, VariableInfo[] output,
                                   Option<ScType> lastMeaningful) {
     super(project, true);
 
@@ -80,10 +78,12 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     myProject = project;
     myHasReturn = hasReturn;
     myLastReturn = lastReturn;
-    myScope = scope;
     myInput = input;
     myOutput = output;
     myLastMeaningful = lastMeaningful;
+    mySignaturePreview = new MethodSignatureComponent("", project, ScalaFileType.SCALA_FILE_TYPE);
+    //mySignaturePreview.setPreferredSize(new Dimension(500, 70));
+    mySignaturePreview.setMinimumSize(new Dimension(500, 70));
 
     setModal(true);
     getRootPane().setDefaultButton(buttonOK);
@@ -111,8 +111,10 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
 
   private void updateOkStatus() {
     setOKActionEnabled(ScalaNamesUtil.isIdentifier(getMethodName()) &&
-        (getProtectedEncloser().equals("") || ScalaNamesUtil.isIdentifier(getProtectedEncloser())) &&
-        (getPrivateEncloser().equals("") || ScalaNamesUtil.isIdentifier(getPrivateEncloser()))
+            (!protectedRadioButton.isSelected() || getProtectedEncloser().equals("") || ScalaNamesUtil.isIdentifier(getProtectedEncloser())) &&
+            (!privateRadioButton.isSelected() || getPrivateEncloser().equals("") || ScalaNamesUtil.isIdentifier(getPrivateEncloser())) &&
+            (!innerClassRB.isSelected() || ScalaNamesUtil.isIdentifier(innerClassNameFld.getText())) &&
+            (!caseClassRB.isSelected() || ScalaNamesUtil.isIdentifier(caseClassNameFld.getText()))
     );
   }
 
@@ -130,10 +132,28 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
       }
 
       public void documentChanged(DocumentEvent event) {
-        updateOkStatus();
+        if (isDefaultClassName) updateClassName(StringUtil.capitalize(editorTextField.getText()));
+        updateSignature();
       }
     });
 
+    setupVisibilityPanel();
+    setupParametersPanel();
+    setupMultipleOutputsPanel();
+    setupPreviewPanel();
+
+    updateSettings();
+  }
+
+  private void updateClassName(String newName) {
+    if (isDefaultClassName) {
+      innerClassNameFld.setText(newName);
+      caseClassNameFld.setText(newName);
+      isDefaultClassName = true;
+    }
+  }
+
+  private void setupVisibilityPanel() {
     ButtonGroup visibilityGroup = new ButtonGroup();
     visibilityGroup.add(privateRadioButton);
     visibilityGroup.add(protectedRadioButton);
@@ -147,6 +167,14 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
         if (privateRadioButton.isSelected()) {
           privateTextField.setEnabled(true);
         } else privateTextField.setEnabled(false);
+        updateSignature();
+      }
+    });
+
+    privateTextField.getDocument().addDocumentListener(new DocumentAdapter() {
+      @Override
+      protected void textChanged(javax.swing.event.DocumentEvent e) {
+        updateSignature();
       }
     });
 
@@ -155,23 +183,27 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
         if (protectedRadioButton.isSelected()) {
           protectedTextField.setEnabled(true);
         } else protectedTextField.setEnabled(false);
+        updateSignature();
       }
     });
+
+    protectedTextField.getDocument().addDocumentListener(new DocumentAdapter() {
+      @Override
+      protected void textChanged(javax.swing.event.DocumentEvent e) {
+        updateSignature();
+      }
+    });
+
     visibilityPanel.setVisible(isVisibilitySectionAvailable());
-
-    returnTypeLabel.setText(ScalaExtractMethodUtils.calcReturnType(myHasReturn, getReturns(), myLastReturn, myLastMeaningful));
-
-    setupParametersPanel();
   }
 
   private void setupParametersPanel() {
     ArrayList<VariableData> data = new ArrayList<VariableData>();
-    for (int i = 0; i < myInput.length; ++i) {
-      VariableData d = ScalaExtractMethodUtils.convertVariableData(myInput[i], myElements);
+    for (VariableInfo aMyInput : myInput) {
+      VariableData d = ScalaExtractMethodUtils.convertVariableData(aMyInput, myElements);
       if (d != null) data.add(d);
     }
-    parameterTablePanel = new ScalaParameterTablePanel(myProject, data.toArray(
-        new VariableData[data.size()]));
+    parameterTablePanel = new ScalaParameterTablePanel(myProject, data.toArray(new VariableData[data.size()]));
     inputParametersPanel.add(parameterTablePanel);
   }
 
@@ -191,41 +223,102 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     }
   }
 
+  protected void setupMultipleOutputsPanel() {
+    updateSettings();
+    if (settings.outputs().length <= 1) multipleOutputPanel.setVisible(false);
+
+    ButtonGroup outputGroup = new ButtonGroup();
+    outputGroup.add(tupleRB);
+    outputGroup.add(innerClassRB);
+    outputGroup.add(caseClassRB);
+
+    tupleRB.setMnemonic('T');
+    innerClassRB.setMnemonic('I');
+    caseClassRB.setMnemonic('C');
+
+    ChangeListener updater = new ChangeListener() {
+      public void stateChanged(ChangeEvent e) {
+        updateSignature();
+        innerClassNameFld.setEnabled(innerClassRB.isSelected());
+        caseClassNameFld.setEnabled(caseClassRB.isSelected());
+        if (innerClassRB.isSelected()) innerClassNameFld.requestFocus();
+        if (caseClassRB.isSelected()) caseClassNameFld.requestFocus();
+      }
+    };
+    tupleRB.addChangeListener(updater);
+    innerClassRB.addChangeListener(updater);
+    caseClassRB.addChangeListener(updater);
+
+    tupleRB.setSelected(true);
+
+    caseClassNameFld.getDocument().addDocumentListener(new DocumentAdapter() {
+      @Override
+      protected void textChanged(javax.swing.event.DocumentEvent e) {
+        isDefaultClassName = false;
+        updateSignature();
+      }
+    });
+    innerClassNameFld.getDocument().addDocumentListener(new DocumentAdapter() {
+      @Override
+      protected void textChanged(javax.swing.event.DocumentEvent e) {
+        isDefaultClassName = false;
+        updateSignature();
+      }
+    });
+  }
+
+  protected void setupPreviewPanel() {
+    myPreviewPanel.setLayout(new BorderLayout());
+    myPreviewPanel.add(mySignaturePreview, BorderLayout.CENTER);
+
+    updateSignature();
+  }
+
+  protected void updateSignature() {
+    updateOkStatus();
+    updateSettings();
+    String text = ScalaExtractMethodUtils.previewSignatureText(settings);
+    mySignaturePreview.setSignature(text);
+    returnTypeLabel.setText(ScalaExtractMethodUtils.calcReturnType(settings));
+  }
+
   @Override
   protected void doOKAction() {
-    settings = new ScalaExtractMethodSettings(getMethodName(), getParameters(), getReturns(),
-        getVisibility(), myScope, mySibling, myElements, myHasReturn, myLastReturn, myLastMeaningful);
+    updateSettings();
     super.doOKAction();
+  }
+
+  private void updateSettings() {
+    boolean createClass = innerClassRB.isSelected() || caseClassRB.isSelected();
+    InnerClassSettings ics = new InnerClassSettings(createClass, getClassName(), getReturns(), caseClassRB.isSelected());
+    settings = new ScalaExtractMethodSettings(getMethodName(), getParameters(), getReturns(),
+        getVisibility(), mySibling, myElements, myHasReturn, myLastReturn, myLastMeaningful, ics);
+  }
+
+  private String getClassName() {
+    if (innerClassRB.isSelected()) return innerClassNameFld.getText();
+    else if (caseClassRB.isSelected()) return caseClassNameFld.getText();
+    else return "";
   }
 
   public ExtractMethodParameter[] getParameters() {
     VariableData[] data = parameterTablePanel.getVariableData();
     ArrayList<ExtractMethodParameter> list = new ArrayList<ExtractMethodParameter>();
     for (VariableData d : data) {
-      ScalaExtractMethodUtils.ScalaVariableData variableData = (ScalaExtractMethodUtils.ScalaVariableData) d;
-      ExtractMethodParameter param = ScalaExtractMethodUtils.getParameter(d, variableData);
+      ScalaVariableData variableData = (ScalaVariableData) d;
+      ExtractMethodParameter param = ExtractMethodParameter.from(variableData);
       list.add(param);
     }
     return list.toArray(new ExtractMethodParameter[list.size()]);
   }
 
-  public ExtractMethodReturn[] getReturns() {
-    ArrayList<ExtractMethodReturn> list = new ArrayList<ExtractMethodReturn>();
+  public ExtractMethodOutput[] getReturns() {
+    ArrayList<ExtractMethodOutput> list = new ArrayList<ExtractMethodOutput>();
     for (VariableInfo info : myOutput) {
-      ScalaExtractMethodUtils.ScalaVariableData data =
-          (ScalaExtractMethodUtils.ScalaVariableData) ScalaExtractMethodUtils.convertVariableData(info, myElements);
-      ScalaExtractMethodUtils.FakePsiType tp = (ScalaExtractMethodUtils.FakePsiType) data.type;
-      String name = info.element().getName();
-      if (info.element() instanceof ScNamedElement) {
-        ScNamedElement named = (ScNamedElement) info.element();
-        name = named.name();
-      }
-      ExtractMethodReturn aReturn = new ExtractMethodReturn(name, tp.tp(),
-          data.isInsideOfElements(), ScalaPsiUtil.nameContext(info.element()) instanceof ScValue ||
-          ScalaPsiUtil.nameContext(info.element()) instanceof ScFunction);
-      list.add(aReturn);
+      ScalaVariableData data = ScalaExtractMethodUtils.convertVariableData(info, myElements);
+      list.add(ExtractMethodOutput.from(data));
     }
-    return list.toArray(new ExtractMethodReturn[list.size()]);
+    return list.toArray(new ExtractMethodOutput[list.size()]);
   }
 
   private String getMethodName() {
@@ -240,7 +333,9 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     public ScalaParameterTablePanel(Project project, VariableData[] variableData) {
       super(project, variableData);
     }
-    protected void updateSignature() {}
+    protected void updateSignature() {
+      ScalaExtractMethodDialog.this.updateSignature();
+    }
     protected void doEnterAction() {}
     protected void doCancelAction() {}
   }

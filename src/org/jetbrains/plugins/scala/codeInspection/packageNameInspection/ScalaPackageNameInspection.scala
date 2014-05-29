@@ -66,6 +66,7 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
   }
 
   private def cleanKeywords(packageName: String): String = {
+    if (packageName == null) return null
     import ScalaNamesUtil._
     packageName.split('.').map {
       case isBacktickedName(name) if isKeyword(name) => name

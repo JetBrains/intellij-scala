@@ -7,9 +7,8 @@ import com.intellij.openapi.editor.{RawText, Editor}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.plugins.scala.editor.enterHandler.MultilineStringEnterHandler
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 /**
  * User: Dmitry Naydanov
@@ -25,7 +24,7 @@ class MultiLineStringCopyPasteProcessor extends CopyPastePreProcessor {
     if (element == null || element.getNode.getElementType != ScalaTokenTypes.tMULTILINE_STRING ||
       element.getTextRange.getStartOffset > startOffsets(0) || element.getTextRange.getEndOffset < endOffsets(0)) return null
 
-    val marginChar = MultilineStringEnterHandler.getMarginChar(element).charAt(0)
+    val marginChar = MultilineStringUtil.getMarginChar(element)
 
     text stripMargin marginChar
   }
@@ -41,7 +40,7 @@ class MultiLineStringCopyPasteProcessor extends CopyPastePreProcessor {
     if (element == null || element.getNode.getElementType != ScalaTokenTypes.tMULTILINE_STRING ||
       offset < element.getTextOffset + 3) return text
 
-    val marginChar = MultilineStringEnterHandler.getMarginChar(element)
+    val marginChar = MultilineStringUtil.getMarginChar(element)
     val textRange = new TextRange(document.getLineStartOffset(document.getLineNumber(offset)), offset)
 
     (if (document.getText(textRange).trim.length == 0) marginChar else "") + text.replace("\n", "\n " + marginChar)

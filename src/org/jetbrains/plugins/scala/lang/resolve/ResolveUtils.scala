@@ -113,8 +113,7 @@ object ResolveUtils {
   def javaPolymorphicType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope = null, returnType: Option[ScType] = None): NonValueType = {
     if (m.getTypeParameters.length == 0) javaMethodType(m, s, scope, returnType)
     else {
-      ScTypePolymorphicType(javaMethodType(m, s, scope, returnType), m.getTypeParameters.map(tp =>
-        TypeParameter(tp.name, types.Nothing, types.Any, tp))) //todo: add lower and upper bounds
+      ScTypePolymorphicType(javaMethodType(m, s, scope, returnType), m.getTypeParameters.map(new TypeParameter(_)))
     }
   }
 
@@ -126,6 +125,11 @@ object ResolveUtils {
           case memb: ScMember => return isAccessible(memb, place)
           case _ => return true
         }
+      //todo: ugly workaround, probably FakePsiMethod is better to remove?
+      case f: FakePsiMethod => f.navElement match {
+        case memb: PsiMember => return isAccessible(memb, place)
+        case _ =>
+      }
       case _ =>
     }
     if (place.getLanguage == JavaLanguage.INSTANCE) {
@@ -140,7 +144,7 @@ object ResolveUtils {
         place.getContainingFile match {
           case file: ScalaFile if file.isCompiled =>
           case _ if !member.isInstanceOf[ScMember] =>
-            member = memb.getOriginalElement.asInstanceOf[PsiMember]
+            member = member.getOriginalElement.asInstanceOf[PsiMember]
           case _ => //todo: is it neccessary? added to avoid performance and other problems
         }
       case _ =>
@@ -338,6 +342,7 @@ object ResolveUtils {
             }
             val enclosing = ScalaPsiUtil.getContextOfType(scMember, true,
               classOf[ScalaFile], classOf[ScTemplateDefinition], classOf[ScPackaging])
+            assert(enclosing != null, s"Enclosing is null in file ${scMember.getContainingFile.getName}:\n${scMember.getContainingFile.getText}")
             if (am.isThis) {
               place match {
                 case ref: ScReferenceElement =>
@@ -494,9 +499,8 @@ object ResolveUtils {
                 var classes: Array[PsiClass] = manager.getCachedClasses(scope, fqn)
                 if (classes.isEmpty) {
                   //todo: fast fix for the problem with classes, should be fixed in indexes
-                  val improvedFqn = fqn.split('.').map{
-                    case s if ScalaNamesUtil.isKeyword(s) => s"`$s`"
-                    case s => s
+                  val improvedFqn = fqn.split('.').map { s =>
+                    if (ScalaNamesUtil.isKeyword(s)) s"`$s`" else s
                   }.mkString(".")
                   if (improvedFqn != fqn) {
                     classes = manager.getCachedClasses(scope, improvedFqn)
@@ -521,12 +525,17 @@ object ResolveUtils {
 
             //process subpackages
             if (base.kinds.contains(ResolveTargets.PACKAGE)) {
-              pack match {
-                case s: ScPackageImpl =>
-                  s.pack.processDeclarations(processor, state, lastParent, place)
-                case _ =>
-                  pack.processDeclarations(processor, state, lastParent, place)
+              val psiPack = pack match {
+                case s: ScPackageImpl => s.pack
+                case _ => pack
               }
+              val qName: String = psiPack.getQualifiedName
+              val subpackageQName: String = if (qName.isEmpty) name else qName + "." + name
+              val subPackage = ScalaPsiManager.instance(psiPack.getProject).getCachedPackage(subpackageQName)
+              if (subPackage != null) {
+                if (!processor.execute(subPackage, state)) return false
+              }
+              true
             } else true
           } finally {
             base.setClassKind(classKind = true)

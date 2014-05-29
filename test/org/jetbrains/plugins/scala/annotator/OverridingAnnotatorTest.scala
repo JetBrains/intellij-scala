@@ -90,7 +90,7 @@ class OverridingAnnotatorTest extends SimpleTestCase {
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitFunction(fun: ScFunction) {
         if (fun.getParent.isInstanceOf[ScTemplateBody]) {
-          annotator.checkOverrideMethods(fun, mock)
+          annotator.checkOverrideMethods(fun, mock, isInSources = false)
         }
         super.visitFunction(fun)
       }
@@ -112,7 +112,7 @@ class OverridingAnnotatorTest extends SimpleTestCase {
       override def visitVariable(varr: ScVariable) {
         if (varr.getParent.isInstanceOf[ScTemplateBody] ||
           varr.getParent.isInstanceOf[ScEarlyDefinitions]) {
-          annotator.checkOverrideVars(varr, mock)
+          annotator.checkOverrideVars(varr, mock, isInSources = false)
         }
         super.visitVariable(varr)
       }
@@ -120,7 +120,7 @@ class OverridingAnnotatorTest extends SimpleTestCase {
       override def visitValue(v: ScValue) {
         if (v.getParent.isInstanceOf[ScTemplateBody] ||
           v.getParent.isInstanceOf[ScEarlyDefinitions]) {
-          annotator.checkOverrideVals(v, mock)
+          annotator.checkOverrideVals(v, mock, isInSources = false)
         }
         super.visitValue(v)
       }

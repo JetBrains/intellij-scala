@@ -1,0 +1,13 @@
+class B(i: Int)
+
+class A(s: Seq[Int]) extends B(<all>s.size<end>) {
+  s.size
+}
+------
+class B(i: Int)
+
+class A(s: Seq[Int]) extends {
+  private val value: Int = s.size
+} with B(value) {
+  value
+}

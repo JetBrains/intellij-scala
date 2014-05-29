@@ -25,7 +25,7 @@ import com.intellij.refactoring.listeners.RefactoringElementListener
  * Date: 15.09.2009
  */
 
-class RenameScalaClassProcessor extends RenameJavaClassProcessor {
+class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenameProcessor {
   override def canProcessElement(element: PsiElement): Boolean = {
     element.isInstanceOf[ScTypeDefinition] || element.isInstanceOf[PsiClassWrapper] || element.isInstanceOf[ScTypeParam]
   }
@@ -104,14 +104,6 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor {
       }
       case _ => element
     }
-  }
-
-  override def setToSearchInComments(element: PsiElement, enabled: Boolean) {
-    ScalaApplicationSettings.getInstance().RENAME_SEARCH_IN_COMMENTS_AND_STRINGS = enabled
-  }
-
-  override def isToSearchInComments(psiElement: PsiElement): Boolean = {
-    ScalaApplicationSettings.getInstance().RENAME_SEARCH_IN_COMMENTS_AND_STRINGS
   }
 
   override def createRenameDialog(project: Project, element: PsiElement, nameSuggestionContext: PsiElement, editor: Editor): RenameDialog =

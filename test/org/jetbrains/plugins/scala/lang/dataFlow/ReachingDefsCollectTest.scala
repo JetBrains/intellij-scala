@@ -36,7 +36,7 @@ class ReachingDefsCollectTest extends LightScalaTestCase {
     val end: PsiElement = file.findElementAt(if (model.hasSelection) model.getSelectionEnd - 1 else file.getTextLength - 1)
     val range = ScalaPsiUtil.getElementsRange(start, end)
     val scope: ScControlFlowOwner = PsiTreeUtil.getParentOfType(PsiTreeUtil.findCommonParent(start, end), 
-      classOf[ScFunctionDefinition], false)
+      classOf[ScControlFlowOwner], false)
 
     import ReachingDefintionsCollector._
     val infos = collectVariableInfo(range, scope)
@@ -45,14 +45,14 @@ class ReachingDefsCollectTest extends LightScalaTestCase {
   }
 
   protected def dumpDefInfos(infos: FragmentVariableInfos): String = {
-    var builder: StringBuilder = new StringBuilder
-    builder.append("INPUT:\n")
-    builder.append(Sorting.stableSort(infos.inputVariables.
-            map(p => p.element.toString + (if (p.isRef) " [ref]" else "")).toSeq).mkString("\n"))
-    builder.append("\nOUTPUT:\n")
-    builder.append(Sorting.stableSort(infos.outputVariables.
-            map(p => p.element.toString).toSeq).mkString("\n"))
-    return builder.toString()
+    def variablesText(info: Iterable[VariableInfo]): String =
+      Sorting.stableSort(info.map(p => p.element.toString).toSeq).mkString("\n")
+    val inputElements = variablesText(infos.inputVariables)
+    val outputElements = variablesText(infos.outputVariables)
+    s"""INPUT:
+       |$inputElements
+       |OUTPUT:
+       |$outputElements""".stripMargin.replace("\r", "")
   }
 
   def testSimpleFragment() {

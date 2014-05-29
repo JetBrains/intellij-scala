@@ -54,7 +54,7 @@ class ComparingUnrelatedTypesInspectionTest extends ScalaLightInspectionFixtureT
     val text4 = s"""val a = "a"
                   |val b: CharSequence = null
                   |${START}b != a$END"""
-    //checkTextHasError(text1) //todo better checking of ScParameterizedType
+    checkTextHasError(text1)
     checkTextHasError(text2)
     checkTextHasError(text3)
     checkTextHasNoErrors(text4)
@@ -122,7 +122,9 @@ class ComparingUnrelatedTypesInspectionTest extends ScalaLightInspectionFixtureT
                   |i == 100"""
     val text2 = """val b = new java.lang.Boolean(false)
                   |b equals true"""
+    val text3 = "def test(i: Integer) = if (i == null) \"foo\" else \"bar\""
     checkTextHasNoErrors(text1)
     checkTextHasNoErrors(text2)
+    checkTextHasNoErrors(text3)
   }
 }

@@ -3,54 +3,51 @@ package lang
 package psi
 package impl
 
-import api.ScalaFile
-import api.toplevel.packaging.ScPackaging
-import com.intellij.lang.{PsiBuilderFactory, ASTNode}
+import com.intellij.lang.{ASTNode, PsiBuilderFactory}
+import com.intellij.openapi.project.Project
+import com.intellij.pom.java.LanguageLevel
+import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsParameterImpl
-import api.statements._
-import com.intellij.psi.impl.source.tree.{TreeElement, FileElement}
 import com.intellij.psi.impl.source.DummyHolderFactory
-import expr.ScBlockImpl
-import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-
+import com.intellij.psi.impl.source.tree.{FileElement, TreeElement}
+import com.intellij.psi.javadoc.PsiDocComment
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.IncorrectOperationException
+import java.util
+import org.apache.commons.lang.StringUtils
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Constructor, Import}
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Block, Expr}
+import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ImplicitParamClause, TypeParamClause}
+import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{Dcl, Def}
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.{ClassParamClause, ImplicitClassParamClause}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
-import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScIdList, ScPatternList, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.{ScXmlEndTag, ScXmlStartTag}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import parser.parsing.statements.{Dcl, Def}
-import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBody, ScTemplateParents}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import refactoring.util.{ScTypeUtil, ScalaNamesUtil}
-import lexer.{ScalaTokenTypes, ScalaLexer}
-import stubs.StubElement
-import types._
-import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
-import api.toplevel.typedef.{ScObject, ScTypeDefinition, ScMember}
-import parser.parsing.top.TmplDef
-import parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
-import parser.parsing.top.params.{ClassParamClause, ImplicitClassParamClause}
-import api.toplevel.templates.{ScTemplateParents, ScTemplateBody}
-import api.base.patterns._
-import parser.parsing.params.{TypeParamClause, ImplicitParamClause}
-import java.lang.ClassCastException
-import com.intellij.openapi.project.Project
-import parser.parsing.expressions.{Block, Expr}
-import org.apache.commons.lang.StringUtils
-import parser.parsing.base.{Constructor, Import}
-import api.base.{ScConstructor, ScIdList, ScPatternList, ScStableCodeReferenceElement}
-import com.intellij.util.IncorrectOperationException
-import scaladoc.psi.api.{ScDocInnerCodeElement, ScDocResolvableCodeReference, ScDocSyntaxElement, ScDocComment}
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
-import api.expr.xml.{ScXmlStartTag, ScXmlEndTag}
-import settings._
-import com.intellij.psi.search.GlobalSearchScope
-import java.util
-import com.intellij.pom.java.LanguageLevel
+import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocInnerCodeElement, ScDocResolvableCodeReference, ScDocSyntaxElement}
 import scala.collection.mutable
-import com.intellij.psi.javadoc.PsiDocComment
 
 class ScalaPsiElementFactoryImpl(manager: PsiManager) extends JVMElementFactory {
   def createDocCommentFromText(text: String): PsiDocComment = ???
@@ -145,7 +142,7 @@ object ScalaPsiElementFactory {
     try {
       createExpressionWithContextFromText(text, context, context)
     } catch {
-      case e: Throwable => throw new IncorrectOperationException
+      case e: Throwable => throw new IncorrectOperationException(s"Cannot create expression from text $text")
     }
   }
 
@@ -325,10 +322,15 @@ object ScalaPsiElementFactory {
 
   def createIdentifier(name: String, manager: PsiManager): ASTNode = {
     val text = "package " + (if (!ScalaNamesUtil.isKeyword(name)) name else "`" + name + "`")
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
-      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    dummyFile.getNode.getLastChildNode.getLastChildNode.getLastChildNode
+    try {
+      val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+              createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
+                ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+      dummyFile.getNode.getLastChildNode.getLastChildNode.getLastChildNode
+    }
+    catch {
+      case t: Throwable => throw new IllegalArgumentException(s"Cannot create identifier from text $name")
+    }
   }
 
   def createModifierFromText(name: String, manager: PsiManager): ASTNode = {
@@ -359,10 +361,18 @@ object ScalaPsiElementFactory {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    val imp: ScImportStmt = dummyFile.getFirstChild.asInstanceOf[ScImportStmt]
-    val expr: ScImportExpr = imp.importExprs.apply(0)
-    val ref = expr.reference match {case Some(x) => x case None => return null}
-    ref
+    try {
+      val imp: ScImportStmt = dummyFile.getFirstChild.asInstanceOf[ScImportStmt]
+      val expr: ScImportExpr = imp.importExprs.apply(0)
+      val ref = expr.reference match {
+        case Some(x) => x
+        case None => return null
+      }
+      ref
+    }
+    catch {
+      case t: Throwable => throw new IllegalArgumentException(s"Cannot create reference with text $name")
+    }
   }
 
   def createImportStatementFromClass(holder: ScImportsHolder, clazz: PsiClass, manager: PsiManager): ScImportStmt = {
@@ -398,7 +408,7 @@ object ScalaPsiElementFactory {
     names ++= expr.getNames
     for (expr <- exprs) names ++= expr.getNames
     if ((names("_") ||
-            ScalaProjectSettings.getInstance(manager.getProject).getClassCountToUseImportOnDemand <=
+            ScalaCodeStyleSettings.getInstance(manager.getProject).getClassCountToUseImportOnDemand <=
                     names.size) &&
             names.filter(_.indexOf("=>") != -1).toSeq.size == 0) text = text + "._"
     else {
@@ -577,15 +587,20 @@ object ScalaPsiElementFactory {
     (extendToken, templateParents)
   }
 
-  def createOverrideImplementMethod(sign: PhysicalSignature, manager: PsiManager, needsOverrideModifier: Boolean,
-                                   needsInferType: Boolean, body: String): ScFunction = {
-    val text = "class a {\n  " + getOverrideImplementSign(sign, body, needsOverrideModifier, needsInferType) + "\n}"
+  def createMethodFromSignature(sign: PhysicalSignature, manager: PsiManager, needsInferType: Boolean, body: String): ScFunction = {
+    val text = "class a {\n  " + methodFromSignatureText(sign, body, needsInferType) + "\n}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.typeDefinitions(0)
     val function = classDef.functions(0)
     function
+  }
+
+  def createOverrideImplementMethod(sign: PhysicalSignature, manager: PsiManager, needsOverrideModifier: Boolean,
+                                    needsInferType: Boolean, body: String): ScFunction = {
+    val fun = createMethodFromSignature(sign, manager, needsInferType, body)
+    addModifiersFromSignature(fun, sign, needsOverrideModifier)
   }
 
   def createOverrideImplementType(alias: ScTypeAlias, substitutor: ScSubstitutor, manager: PsiManager,
@@ -637,8 +652,29 @@ object ScalaPsiElementFactory {
     }
   }
 
-  private def getOverrideImplementSign(sign: PhysicalSignature, body: String, isOverride: Boolean,
-                                       needsInferType: Boolean): String = {
+  private def addModifiersFromSignature(function: ScFunction, sign: PhysicalSignature, addOverride: Boolean): ScFunction = {
+    sign.method match {
+      case fun: ScFunction =>
+        val res = function.getModifierList.replace(fun.getModifierList)
+        if (res.getText.nonEmpty) res.getParent.addAfter(createWhitespace(fun.getManager), res)
+        if (!fun.hasModifierProperty("override") && addOverride) function.setModifierProperty("override", value = true)
+      case m: PsiMethod =>
+        var hasOverride = false
+        if (m.getModifierList.getNode != null)
+          for (modifier <- m.getModifierList.getNode.getChildren(null); modText = modifier.getText) {
+            modText match {
+              case "override" => hasOverride = true; function.setModifierProperty("override", value = true)
+              case "protected" => function.setModifierProperty("protected", value = true)
+              case "final" => function.setModifierProperty("final", value = true)
+              case _ =>
+            }
+          }
+        if (addOverride && !hasOverride) function.setModifierProperty("override", value = true)
+    }
+    function
+  }
+
+  private def methodFromSignatureText(sign: PhysicalSignature, body: String, needsInferType: Boolean): String = {
     val builder = mutable.StringBuilder.newBuilder
     val method = sign.method
     // do not substitute aliases
@@ -647,8 +683,6 @@ object ScalaPsiElementFactory {
       case method: ScFunction =>
         builder ++= method.getFirstChild.getText
         if (builder.nonEmpty) builder ++= "\n"
-        if (!method.hasModifierProperty("override") && isOverride) builder ++= "override "
-        builder ++= method.getModifierList.getText + " "
         builder ++= "def " + method.name
         //adding type parameters
         if (method.typeParameters.length > 0) {
@@ -709,17 +743,6 @@ object ScalaPsiElementFactory {
         }
         builder ++= retAndBody
       case _ =>
-        var hasOverride = false
-        if (method.getModifierList.getNode != null)
-        for (modifier <- method.getModifierList.getNode.getChildren(null); m = modifier.getText) {
-          m match {
-            case "override" => hasOverride = true; builder ++= "override "
-            case "protected" => builder ++= "protected "
-            case "final" => builder ++= "final "
-            case _ =>
-          }
-        }
-        if (isOverride && !hasOverride) builder ++= "override "
         builder ++= "def " + ScalaNamesUtil.changeKeyword(method.name)
         if (method.hasTypeParameters) {
           val params = method.getTypeParameters
@@ -735,7 +758,7 @@ object ScalaPsiElementFactory {
           builder ++= strings.mkString("[", ", ", "]")
         }
 
-        import extensions.toPsiMethodExt
+        import org.jetbrains.plugins.scala.extensions.toPsiMethodExt
 
         val paramCount = method.getParameterList.getParametersCount
         val omitParamList = paramCount == 0 && method.hasQueryLikeName
@@ -994,6 +1017,10 @@ object ScalaPsiElementFactory {
       res.setContext(context, child)
       res
     } else null
+  }
+
+  def createTemplateDefinitionFromText(text: String, context: PsiElement, child: PsiElement): ScTemplateDefinition = {
+    createElementWithContext[ScTemplateDefinition](text, context, child, TmplDef.parse(_))
   }
 
   def createDeclarationFromText(text: String, context: PsiElement, child: PsiElement): ScDeclaration = {

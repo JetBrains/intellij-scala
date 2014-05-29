@@ -3,17 +3,17 @@ package lang
 package resolve
 
 import com.intellij.psi.impl.source.resolve.ResolveCache
-import processor._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScInterpolationPattern, ScConstructorPattern, ScInfixPattern}
-import psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
-import psi.types.Compatibility.Expression
-import psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
+import org.jetbrains.plugins.scala.lang.resolve.processor._
 
 class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenceElement, shapeResolve: Boolean,
                                           allConstructorResults: Boolean, noConstructorResolve: Boolean)
         extends ResolveCache.PolyVariantResolver[ScStableCodeReferenceElement] {
   def resolve(ref: ScStableCodeReferenceElement, incomplete: Boolean) = {
-    val kinds = ref.getKinds(false)
+    val kinds = ref.getKinds(incomplete = false)
 
     val proc = if (ref.isConstructorReference && !noConstructorResolve) {
       val constr = ref.getConstructor.get
@@ -25,7 +25,7 @@ class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenc
       new ConstructorResolveProcessor(ref, ref.refName, effectiveArgs, typeArgs, kinds, shapeResolve, allConstructorResults)
     } else ref.getContext match {
       //last ref may import many elements with the same name
-      case e: ScImportExpr if (e.selectorSet == None && !e.singleWildcard) =>
+      case e: ScImportExpr if e.selectorSet == None && !e.singleWildcard =>
         new CollectAllForImportProcessor(kinds, ref, reference.refName)
       case e: ScImportExpr if e.singleWildcard => new ResolveProcessor(kinds, ref, reference.refName)
       case _: ScImportSelector => new CollectAllForImportProcessor(kinds, ref, reference.refName)

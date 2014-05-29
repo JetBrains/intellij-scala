@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package config
 
-import java.io.File
+import java.io.{FilenameFilter, File}
 import FileAPI._
 import com.intellij.openapi.roots.{ModifiableRootModel, JavadocOrderRootType, OrderRootType}
 /**
@@ -24,7 +24,11 @@ object ScalaDistribution {
   }
   def from(home: File): ScalaDistribution = {
     val scala210 = (home / "lib" / "scala-reflect.jar").exists
-    if (scala210) new Scala210Distribution(home) else new Scala28Distribution(home)
+    val scala211 = !(home / "src").exists()
+
+
+    if (scala211) new Scala211Distribution(home) else
+      if (scala210) new Scala210Distribution(home) else new Scala28Distribution(home)
   }
 }
 
@@ -121,4 +125,42 @@ class Scala210Distribution(home: File) extends ScalaDistribution(home) {
 
   val compilerProperties = Compiler.properties
   val libraryProperties = Library.properties
+}
+
+class Scala211Distribution(home: File) extends ScalaDistribution(home) {
+  private val Compiler = Pack("scala-compiler.jar", "scala-compiler-src.jar", "compiler.properties")
+  private val Reflect = Pack("scala-reflect.jar", "scala-reflect-src.jar", "reflect.properties")
+  private val Library = Pack("scala-library.jar", "scala-library-src.jar", "library.properties")
+
+  private val Lib = home / "lib"
+
+  private val jarNames = Array(("scala-actors", "scala-actors-src"), ("scala-swing", "scala-swing-src"))
+
+  override protected def libraryProperties: String = Library.properties
+
+  override protected def compilerProperties: String = Compiler.properties
+
+  override protected def libraryFile: Option[File] = optional(Lib / Library.classes)
+
+  override protected def compilerFile: Option[File] = optional(Lib / Compiler.classes)
+
+  override protected def docs: File = home / "doc" / "tools"
+
+  override def missing: String = classes.filterNot(_ exists).map(_.getName).mkString(", ")
+
+  override protected def sources: Seq[File] = jarNames.flatMap {
+    case (_, sr) => findWithPrefix(sr, Lib)
+  } :+ (Lib / Library.sources)
+
+  override protected def classes: Seq[File] = {
+    jarNames.flatMap {
+      case (cls, _) => findWithPrefix(cls, Lib)
+    } :+ (Lib / Library.classes)
+  }
+
+  override protected def compilerClasses: Seq[File] = Lib / Compiler.classes :: Lib / Library.classes :: Lib / Reflect.classes :: Nil
+
+  private def findWithPrefix(prefix: String, base: File) = base.listFiles(new FilenameFilter {
+    override def accept(dir: File, name: String): Boolean = name.startsWith(prefix) && name.endsWith(".jar")
+  }).headOption
 }

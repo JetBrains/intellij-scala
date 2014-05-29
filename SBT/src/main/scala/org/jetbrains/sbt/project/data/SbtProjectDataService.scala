@@ -27,7 +27,9 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
     toImport.asScala.foreach { node =>
       val data = node.getData
 
-      val projectJdk = findJdkBy(data.javaHome).orElse(allJdks.headOption)
+      val existingJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
+
+      val projectJdk = existingJdk.orElse(findJdkBy(data.javaHome)).orElse(allJdks.headOption)
 
       projectJdk.foreach(ProjectRootManager.getInstance(project).setProjectSdk)
 

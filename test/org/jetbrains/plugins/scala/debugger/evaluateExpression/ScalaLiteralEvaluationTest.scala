@@ -146,4 +146,23 @@ class ScalaLiteralEvaluationTest extends ScalaDebuggerTestCase {
       evalEquals("\"a\".concat(123)", "a123123")
     }
   }
+
+  def testSymbol() {
+    addFileToProject("Sample.scala",
+      """
+        |object Sample {
+        |  def main(args: Array[String]) {
+        |    "stop here"
+        |  }
+        |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 2)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("'aaa", "'aaa")
+      evalEquals("'aaa.name", "aaa")
+    }
+  }
+
 }

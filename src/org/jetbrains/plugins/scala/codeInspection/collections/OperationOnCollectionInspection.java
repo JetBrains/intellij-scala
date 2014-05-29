@@ -6,7 +6,7 @@ import java.util.Arrays;
  * Nikolay.Tropin
  * 5/28/13
  */
-public class OperationOnCollectionInspection extends OperationOnCollectionInspectionBase {
+public abstract class OperationOnCollectionInspection extends OperationOnCollectionInspectionBase {
   private final String[] likeOptionClassesDefault = {"scala.Option"};
   private final String[] likeCollectionClassesDefault = {"scala.collection._", "scala.Option"};
   public String[] likeOptionClasses = likeOptionClassesDefault;
@@ -47,19 +47,4 @@ public class OperationOnCollectionInspection extends OperationOnCollectionInspec
   public void setSimplificationTypeChecked(Boolean[] values) {
     simplificationTypeChecked = values;
   }
-
-  @Override
-  public SimplificationType[] possibleSimplificationTypes() {
-    return new SimplificationType[] {
-        new MapGetOrElseFalse(this),
-        new FindIsDefined(this),
-        new FindNotEqualsNone(this),
-        new FilterHeadOption(this),
-        new FilterSize(this),
-        new FoldLeftSum(this),
-        new FoldLeftTrueAnd(this),
-        new SortFilter(this)
-    };
-  }
-
 }

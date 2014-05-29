@@ -23,7 +23,7 @@ import scala.util.control.ControlThrowable
  * User: Alexander Podkhalyuzin
  * Date: 22.04.2010
  */
-class ScPackageImpl(val pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asInstanceOf[PsiManagerEx],
+class ScPackageImpl private (val pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asInstanceOf[PsiManagerEx],
         pack.getQualifiedName) with ScPackage {
   def superProcessDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                     lastParent: PsiElement, place: PsiElement): Boolean = {
@@ -124,6 +124,8 @@ class ScPackageImpl(val pack: PsiPackage) extends PsiPackageImpl(pack.getManager
   override def getSubPackages(scope: GlobalSearchScope): Array[PsiPackage] = {
     super.getSubPackages(scope).map(ScPackageImpl(_))
   }
+
+  override def isValid: Boolean = true
 }
 
 object ScPackageImpl {
@@ -136,7 +138,7 @@ object ScPackageImpl {
   }
 
   def findPackage(project: Project, pName: String) = {
-    ScPackageImpl(JavaPsiFacade.getInstance(project).findPackage(pName))
+    ScPackageImpl(ScalaPsiManager.instance(project).getCachedPackage(pName))
   }
 
   class DoNotProcessPackageObjectException extends ControlThrowable

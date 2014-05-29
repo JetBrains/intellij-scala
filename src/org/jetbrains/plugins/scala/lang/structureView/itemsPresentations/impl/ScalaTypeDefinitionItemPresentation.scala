@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 */
 
 class ScalaTypeDefinitionItemPresentation(private val element: ScTypeDefinition) extends ScalaItemPresentation(element) {
-  def getPresentableText(): String = {
-    return ScalaElementPresentation.getTypeDefinitionPresentableText(myElement.asInstanceOf[ScTypeDefinition])
+  def getPresentableText: String = {
+    ScalaElementPresentation.getTypeDefinitionPresentableText(myElement.asInstanceOf[ScTypeDefinition])
   }
 }

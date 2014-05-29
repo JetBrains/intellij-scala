@@ -23,6 +23,7 @@ import com.intellij.codeInsight.navigation.AbstractDocumentationTooltipAction;
 import com.intellij.codeInsight.navigation.DocPreviewUtil;
 import com.intellij.codeInsight.navigation.ShowQuickDocAtPinnedWindowFromTooltipAction;
 import com.intellij.ide.IdeTooltipManager;
+import com.intellij.ide.PowerSaveMode;
 import com.intellij.lang.documentation.DocumentationProvider;
 import com.intellij.openapi.actionSystem.impl.ActionButton;
 import com.intellij.openapi.actionSystem.impl.PresentationFactory;
@@ -122,8 +123,13 @@ public class MouseHoverHandler extends AbstractProjectComponent {
       Point point = new Point(mouseEvent.getPoint());
       if (PsiDocumentManager.getInstance(myProject).isCommitted(editor.getDocument())) {
         // when document is committed, try to check injected stuff - it's fast
-        editor = InjectedLanguageUtil
-          .getEditorForInjectedLanguageNoCommit(editor, psiFile, editor.logicalPositionToOffset(editor.xyToLogicalPosition(point)));
+        try {
+          LogicalPosition pos = editor.xyToLogicalPosition(point);
+          editor = InjectedLanguageUtil
+              .getEditorForInjectedLanguageNoCommit(editor, psiFile, editor.logicalPositionToOffset(pos));
+        } catch (Exception ignore) { //see EA-55701
+          return;
+        }
       }
 
       final LogicalPosition pos = editor.xyToLogicalPosition(point);
@@ -307,7 +313,7 @@ public class MouseHoverHandler extends AbstractProjectComponent {
   @Nullable
   private Info getInfoAt(final Editor editor, PsiFile file, int offset, BrowseMode browseMode) {
     if (browseMode == BrowseMode.Hover) {
-      if (!ScalaApplicationSettings.getInstance().SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER) return null;
+      if (!isShowTooltip()) return null;
       if (file instanceof ScalaFile) {
         final PsiElement elementAtPointer = file.findElementAt(offset);
         if (elementAtPointer == null) return null;
@@ -323,7 +329,12 @@ public class MouseHoverHandler extends AbstractProjectComponent {
     return null;
   }
 
-  private void fulfillDocInfo(@NotNull final String header,
+    private boolean isShowTooltip() {
+        return !PowerSaveMode.isEnabled() &&
+                ScalaApplicationSettings.getInstance().SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER;
+    }
+
+    private void fulfillDocInfo(@NotNull final String header,
                               @NotNull final DocumentationProvider provider,
                               @NotNull final PsiElement originalElement,
                               @NotNull final PsiElement anchorElement,

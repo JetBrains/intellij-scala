@@ -98,8 +98,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotations
   def polymorphicType: ScType = {
     val typeParameters = getParent.asInstanceOf[ScTypeDefinition].typeParameters
     if (typeParameters.length == 0) methodType
-    else ScTypePolymorphicType(methodType, typeParameters.map(tp =>
-      TypeParameter(tp.name, tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp)))
+    else ScTypePolymorphicType(methodType, typeParameters.map(new TypeParameter(_)))
   }
 
   def getParamByName(name: String, clausePosition: Int = -1): Option[ScParameter] = {

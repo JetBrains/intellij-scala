@@ -126,26 +126,32 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
                                   place: PsiElement): Boolean = {
     if (DumbService.getInstance(getProject).isDumb) return true
 
-    val pName = (if (prefix.length == 0) "" else prefix + ".") + getPackageName
-    ProgressManager.checkCanceled()
-    val p = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(pName))
-    if (p != null && !p.processDeclarations(processor, state, lastParent, place)) {
-      return false
-    }
+    //If stub is not null, then we are not trying to resolve packaging reference.
+    if (getStub != null || reference != Some(lastParent)) {
+      val pName = (if (prefix.length == 0) "" else prefix + ".") + getPackageName
+      ProgressManager.checkCanceled()
+      val p = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(pName))
+      if (p != null && !p.processDeclarations(processor, state, lastParent, place)) {
+        return false
+      }
 
-    findPackageObject(place.getResolveScope) match {
-      case Some(po) =>
-        var newState = state
-        po.getType(TypingContext.empty).foreach {
-          case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
-        }
-        if (!po.processDeclarations(processor, newState, lastParent, place)) return false
-      case _        =>
+      findPackageObject(place.getResolveScope) match {
+        case Some(po) =>
+          var newState = state
+          po.getType(TypingContext.empty).foreach {
+            case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
+          }
+          if (!po.processDeclarations(processor, newState, lastParent, place)) return false
+        case _ =>
+      }
     }
 
     if (lastParent != null && lastParent.getContext == this) {
       if (!super[ScImportsHolder].processDeclarations(processor,
         state, lastParent, place)) return false
+
+      if (ScalaFileImpl.isProcessLocalClasses(lastParent) &&
+        !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
     }
 
     true

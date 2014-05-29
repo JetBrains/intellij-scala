@@ -56,7 +56,7 @@ class FilePathReferenceProvider extends PsiReferenceProvider {
           val aPackage: PsiPackage = JavaDirectoryService.getInstance.getPackage(directory)
           if (aPackage != null && aPackage.name != null) {
             try {
-              val createMethod = Class.forName("com.intellij.psi.impl.source.resolve.reference.impl.providers.PackagePrefixFileSystemItem").getMethod("create", classOf[PsiDirectory])
+              val createMethod = Class.forName("com.intellij.psi.impl.source.resolve.reference.impl.providers.PackagePrefixFileSystemItemImpl").getMethod("create", classOf[PsiDirectory])
               createMethod.setAccessible(true)
               createMethod.invoke(directory)
             } catch {

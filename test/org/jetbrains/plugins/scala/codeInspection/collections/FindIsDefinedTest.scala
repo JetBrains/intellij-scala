@@ -27,4 +27,6 @@ class FindIsDefinedTest extends OperationsOnCollectionInspectionTest {
     val result = "Nil exists (_ => true)"
     testFix(text, result, hint)
   }
+
+  override val inspectionClass = classOf[FindIsDefinedInspection]
 }

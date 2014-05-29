@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
  * @since 14.05.12
  */
 class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
-  protected def rootFilePath(): String = TestUtils.getTestDataPath + "/override/"
 
   def runTest(methodName: String, fileText: String, expectedText: String, isImplement: Boolean,
               needsInferType: Boolean = true) {
@@ -948,4 +947,82 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     val needsInferType = false
     runTest(methodName, fileText, expectedText, isImplement, needsInferType)
   }
+
+  def testProtectedMethod() {
+    val fileText =
+      """
+        |abstract class A {
+        |  protected def foo(): Unit
+        |}
+        |
+        |class B extends A {
+        |  <caret>
+        |}
+      """
+    val expectedText =
+      """
+        |abstract class A {
+        |  protected def foo(): Unit
+        |}
+        |
+        |class B extends A {
+        |  protected def foo() = <selection>???</selection>
+        |}
+      """
+    val methodName: String = "foo"
+    val isImplement = true
+    val needsInferType = false
+    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+  }
+
+  def testProtectedMethodNoBody() {
+    val fileText =
+      """
+        |abstract class A {
+        |  protected def foo(): Unit
+        |}
+        |
+        |class B<caret> extends A
+      """
+    val expectedText =
+      """
+        |abstract class A {
+        |  protected def foo(): Unit
+        |}
+        |
+        |class B extends A {
+        |  protected def foo() = <selection>???</selection>
+        |}
+      """
+    val methodName: String = "foo"
+    val isImplement = true
+    val needsInferType = false
+    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+  }
+
+  def testOverrideProtectedMethodNoBody() {
+    val fileText =
+      """
+        |abstract class A {
+        |  protected def foo(): Unit = {}
+        |}
+        |
+        |class B<caret> extends A
+      """
+    val expectedText =
+      """
+        |abstract class A {
+        |  protected def foo(): Unit = {}
+        |}
+        |
+        |class B extends A {
+        |  override protected def foo(): Unit = <selection>super.foo()</selection>
+        |}
+      """
+    val methodName: String = "foo"
+    val isImplement = false
+    val needsInferType = true
+    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+  }
+
 }

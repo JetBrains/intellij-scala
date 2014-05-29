@@ -1,0 +1,6 @@
+val a = s"""blah blah<caret>""".stripMargin
+-----
+val a =
+	s"""blah blah
+		 |<caret>
+	 """.stripMargin

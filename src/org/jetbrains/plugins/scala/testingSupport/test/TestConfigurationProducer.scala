@@ -2,18 +2,32 @@ package org.jetbrains.plugins.scala
 package testingSupport.test
 
 import com.intellij.execution.actions.{ConfigurationContext, RunConfigurationProducer}
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, AbstractTestRunConfiguration}
 import com.intellij.execution.configurations.ConfigurationType
 import com.intellij.execution.{RunnerAndConfigurationSettings, Location}
 import com.intellij.psi.PsiElement
 import com.intellij.openapi.util.Ref
 import com.intellij.openapi.module.Module
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 /**
  * @author Roman.Shein
  *         Date: 11.12.13
  */
 abstract class TestConfigurationProducer(configurationType: ConfigurationType) extends RunConfigurationProducer[AbstractTestRunConfiguration](configurationType) with AbstractTestConfigurationProducer{
+
+  protected def isInheritor(clazz: ScTypeDefinition, fqn: String): Boolean = {
+    val suiteClazz = ScalaPsiManager.instance(clazz.getProject).getCachedClass(clazz.getResolveScope, fqn)
+    if (suiteClazz == null) return false
+    ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClazz)
+  }
+
+  protected def isObjectInheritor(clazz: ScTypeDefinition, fqn: String): Boolean = {
+    val suiteClazz = ScalaPsiManager.instance(clazz.getProject).getCachedClass(fqn, clazz.getResolveScope, ScalaPsiManager.ClassCategory.OBJECT)
+    if (suiteClazz == null) return false
+    ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClazz)
+  }
 
   def getLocationClassAndTest(location: Location[_ <: PsiElement]): (String, String)
 
@@ -55,16 +69,13 @@ abstract class TestConfigurationProducer(configurationType: ConfigurationType) e
 
     if (runnerClassName != null && runnerClassName == configuration.mainClass) {
       val configurationModule: Module = configuration.getConfigurationModule.getModule
-      val testNameOk = if (context.getLocation != null) {
-        val (testClass, testName) = getLocationClassAndTest(context.getLocation)
-        testClass == configuration.getTestClassPath &&
-          (testName == null && configuration.getTestName == "" || testName == configuration.getTestName)
+      if (context.getLocation != null) {
+        isConfigurationByLocation(configuration, context.getLocation)
       } else {
-        configuration.getTestClassPath == null && configuration.getTestName == null
+        (context.getModule == configurationModule ||
+                context.getRunManager.getConfigurationTemplate(getConfigurationFactory).getConfiguration.asInstanceOf[AbstractTestRunConfiguration]
+                        .getConfigurationModule.getModule == configurationModule) && configuration.getTestClassPath == null && configuration.getTestName == null
       }
-      (context.getModule == configurationModule ||
-        context.getRunManager.getConfigurationTemplate(getConfigurationFactory).getConfiguration.asInstanceOf[AbstractTestRunConfiguration]
-          .getConfigurationModule.getModule == configurationModule) && testNameOk
     } else false
   }
 }

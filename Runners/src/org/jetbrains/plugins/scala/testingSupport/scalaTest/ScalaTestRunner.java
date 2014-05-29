@@ -13,14 +13,11 @@ import scala.Some$;
 import scala.collection.immutable.Map;
 
 import java.io.*;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.*;
-import java.util.jar.Attributes;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
@@ -63,7 +60,7 @@ public class ScalaTestRunner {
     boolean useVersionFromOptions = false;
     boolean isOlderScalaVersionFromOptions = false;
     int i = 0;
-    String[] newArgs  = getNewArgs(args);
+    String[] newArgs  = TestRunnerUtil.getNewArgs(args);
     while (i < newArgs.length) {
       if (newArgs[i].equals("-s")) {
         ++i;
@@ -155,7 +152,7 @@ public class ScalaTestRunner {
     boolean isOlderScalaVersionFromOptions = false;
     int i = 0;
     int classIndex = 0;
-    String[] newArgs = getNewArgs(args);
+    String[] newArgs = TestRunnerUtil.getNewArgs(args);
     while (i < newArgs.length) {
       if (newArgs[i].equals("-s")) {
         argsArray.add(newArgs[i]);
@@ -223,28 +220,6 @@ public class ScalaTestRunner {
     }
   }
 
-  private static String[] getNewArgs(String[] args) throws IOException {
-    String[] newArgs;
-    if (args.length == 1 && args[0].startsWith("@")) {
-      String arg = args[0];
-      File file = new File(arg.substring(1));
-      if (!file.exists())
-        throw new FileNotFoundException(String.format("argument file %s could not be found", file.getName()));
-      FileReader fileReader = new FileReader(file);
-      StringBuilder buffer = new StringBuilder();
-      while (true) {
-        int ind = fileReader.read();
-        if (ind == -1) break;
-        char c = (char) ind;
-        if (c == '\r') continue;
-        buffer.append(c);
-      }
-      newArgs = buffer.toString().split("[\n]");
-    } else {
-      newArgs = args;
-    }
-    return newArgs;
-  }
 
   private static void runSingleTest(String testName, String clazz) throws IllegalAccessException,
       InstantiationException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException {

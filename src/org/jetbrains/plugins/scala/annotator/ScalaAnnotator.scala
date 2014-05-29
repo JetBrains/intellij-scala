@@ -1,53 +1,57 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.psi.util.PsiTreeUtil
-import controlFlow.ControlFlowInspections
-import createFromUsage._
-import importsTracker._
-import lang.psi.api.statements._
-import lang.psi.api.toplevel.typedef._
-import lang.psi.api.toplevel.templates.ScTemplateBody
-import com.intellij.lang.annotation._
-
-import lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
-import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.resolve._
-import com.intellij.codeInspection._
-import org.jetbrains.plugins.scala.annotator.intention._
-import params.{ScParameter, ScParameters, ScClassParameter}
-import patterns.{ScConstructorPattern, ScPattern, ScInfixPattern}
-import processor.MethodResolveProcessor
-import modifiers.ModifierChecker
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.annotator.quickfix.{WrapInOptionQuickFix, ChangeTypeFix, ReportHighlightingErrorQuickFix}
-import template._
-import com.intellij.openapi.project.DumbAware
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
-import components.HighlightingAdvisor
-import org.jetbrains.plugins.scala.extensions._
-import collection.{mutable, Seq, Set}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ReadValueUsed, WriteValueUsed, ValueUsed, ImportUsed}
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
-import result.{TypingContext, TypeResult, Success}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import highlighter.{DefaultHighlighter, AnnotatorHighlighter}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScTypeProjection, ScTypeElement}
-import com.intellij.openapi.util.{TextRange, Key}
-import collection.mutable.ArrayBuffer
 import com.intellij.codeInsight.daemon.impl.AnnotationHolderImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
-import codeInspection.caseClassParamInspection.{RemoveValFromGeneratorIntentionAction, RemoveValFromEnumeratorIntentionAction}
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
-import org.jetbrains.plugins.scala.lang.psi
+import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInspection._
+import com.intellij.internal.statistic.UsageTrigger
+import com.intellij.lang.annotation._
+import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.roots.ProjectFileIndex
+import com.intellij.openapi.util.{Key, TextRange}
+import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.annotator.createFromUsage._
+import org.jetbrains.plugins.scala.annotator.importsTracker._
+import org.jetbrains.plugins.scala.annotator.intention._
+import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
+import org.jetbrains.plugins.scala.annotator.quickfix.{ChangeTypeFix, ReportHighlightingErrorQuickFix, WrapInOptionQuickFix}
+import org.jetbrains.plugins.scala.annotator.template._
+import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.{RemoveValFromEnumeratorIntentionAction, RemoveValFromGeneratorIntentionAction}
+import org.jetbrains.plugins.scala.components.HighlightingAdvisor
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.highlighter.{AnnotatorHighlighter, DefaultHighlighter}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScInfixPattern, ScPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ReadValueUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.WriteValueUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportUsed, ValueUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPrefixReference
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.resolve._
+import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
+import org.jetbrains.plugins.scala.util.ScalaUtils
+import scala.Some
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.{Seq, Set, mutable}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -57,16 +61,23 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   with ParametersAnnotator with ApplicationAnnotator
   with AssignmentAnnotator with VariableDefinitionAnnotator
   with TypedStatementAnnotator with PatternDefinitionAnnotator
-  with ConstructorPatternAnnotator with ControlFlowInspections
-  with ConstructorAnnotator with OverridingAnnotator
-  with DumbAware {
+  with PatternAnnotator with ConstructorAnnotator
+  with OverridingAnnotator with DumbAware {
+
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
-    val compiled = element.getContainingFile match {
-      case file: ScalaFile => file.isCompiled
-      case _ => false
+    val typeAware = isAdvancedHighlightingEnabled(element)
+
+    val (compiled, isInSources) = element.getContainingFile match {
+      case file: ScalaFile =>
+        val isInSources: Boolean = ScalaUtils.isUnderSources(file)
+        if (isInSources && (element eq file)) {
+          if (typeAware) UsageTrigger.trigger("scala.file.with.type.aware.annotated")
+          else UsageTrigger.trigger("scala.file.without.type.aware.annotated")
+        }
+        (file.isCompiled, isInSources)
+      case _ => (false, false)
     }
 
-    val typeAware = isAdvancedHighlightingEnabled(element)
     val visitor = new ScalaElementVisitor {
       private def expressionPart(expr: ScExpression) {
         if (!compiled) {
@@ -115,6 +126,11 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       override def visitExpression(expr: ScExpression) {
         expressionPart(expr)
         super.visitExpression(expr)
+      }
+
+      override def visitMacroDefinition(fun: ScMacroDefinition): Unit = {
+        if (isInSources) UsageTrigger.trigger("scala.macro.definition")
+        super.visitMacroDefinition(fun)
       }
 
       override def visitReferenceExpression(ref: ScReferenceExpression) {
@@ -193,18 +209,19 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       }
 
       override def visitPattern(pat: ScPattern) {
-        pat match {
-          case consPat: ScConstructorPattern =>
-            annotateConstructorPattern(consPat, holder, typeAware)
-          case _ =>
-        }
+        annotatePattern(pat, holder, typeAware)
         super.visitPattern(pat)
       }
 
       override def visitMethodCallExpression(call: ScMethodCall) {
         checkMethodCallImplicitConversion(call, holder)
-        if (typeAware) annotateMethodCall(call, holder)
+        if (typeAware) annotateMethodInvocation(call, holder)
         super.visitMethodCallExpression(call)
+      }
+
+      override def visitInfixExpression(infix: ScInfixExpr): Unit = {
+        if (typeAware) annotateMethodInvocation(infix, holder)
+        super.visitInfixExpression(infix)
       }
 
       override def visitSelfInvocation(self: ScSelfInvocation) {
@@ -235,7 +252,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
       override def visitFunction(fun: ScFunction) {
         if (typeAware && !compiled && fun.getParent.isInstanceOf[ScTemplateBody]) {
-          checkOverrideMethods(fun, holder)
+          checkOverrideMethods(fun, holder, isInSources)
         }
         super.visitFunction(fun)
       }
@@ -297,6 +314,11 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         super.visitTypeDefintion(typedef)
       }
 
+      override def visitExistentialTypeElement(exist: ScExistentialTypeElement): Unit = {
+        if (isInSources) UsageTrigger.trigger("scala.existential.type")
+        super.visitExistentialTypeElement(exist)
+      }
+
       override def visitTypeAlias(alias: ScTypeAlias) {
         if (typeAware && !compiled && alias.getParent.isInstanceOf[ScTemplateBody]) {
           checkOverrideTypes(alias, holder)
@@ -307,7 +329,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       override def visitVariable(varr: ScVariable) {
         if (typeAware && !compiled && (varr.getParent.isInstanceOf[ScTemplateBody] ||
                 varr.getParent.isInstanceOf[ScEarlyDefinitions])) {
-          checkOverrideVars(varr, holder)
+          checkOverrideVars(varr, holder, isInSources)
         }
         super.visitVariable(varr)
       }
@@ -315,7 +337,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       override def visitValue(v: ScValue) {
         if (typeAware && !compiled && (v.getParent.isInstanceOf[ScTemplateBody] ||
                 v.getParent.isInstanceOf[ScEarlyDefinitions])) {
-          checkOverrideVals(v, holder)
+          checkOverrideVals(v, holder, isInSources)
         }
         super.visitValue(v)
       }

@@ -25,8 +25,8 @@ class ScCompoundTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   protected def innerType(ctx: TypingContext) = {
     val comps = components.map(_.getType(ctx))
     refinement match {
-      case None => collectFailures(comps, types.Any)(new ScCompoundType(_, Seq.empty, Seq.empty, ScSubstitutor.empty))
-      case Some(r) => collectFailures(comps, types.Any)(new ScCompoundType(_, r.holders.toList, r.types.toList, ScSubstitutor.empty))
+      case None => collectFailures(comps, types.Any)(new ScCompoundType(_, Map.empty, Map.empty))
+      case Some(r) => collectFailures(comps, types.Any)(ScCompoundType.fromPsi(_, r.holders.toList, r.types.toList, ScSubstitutor.empty))
     }
   }
 

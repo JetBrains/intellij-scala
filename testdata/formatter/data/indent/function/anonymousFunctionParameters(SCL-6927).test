@@ -1,0 +1,11 @@
+class test {
+  bodies.flatMap { body =>
+    foo(body, head)
+  }
+}
+------
+class test {
+  bodies.flatMap { body =>
+    foo(body, head)
+  }
+}

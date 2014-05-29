@@ -168,11 +168,4 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement]
       case _ => super.delete()
     }
   }
-
-  override def getUseScope: SearchScope = {
-    containingFile match {
-      case Some(file: ScalaFile) if file.isWorksheetFile || file.isScriptFile() => super.getUseScope.intersectWith(new LocalSearchScope(file))
-      case _ => super.getUseScope
-    }
-  }
 }

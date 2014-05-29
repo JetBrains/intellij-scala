@@ -277,26 +277,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
           }
         }
         true
-      case comp@ScCompoundType(components, declarations, types, substitutor) =>
-        val oldSubst = state.get(ScSubstitutor.key).getOrElse(ScSubstitutor.empty)
-        val newState = state.put(ScSubstitutor.key, substitutor.followed(oldSubst))
-        if (kinds.contains(VAR) || kinds.contains(VAL) || kinds.contains(METHOD)) {
-          for (declaration <- declarations) {
-            for (declared <- declaration.declaredElements) {
-              if (!execute(declared, newState)) return false
-            }
-          }
-        }
-
-        if (kinds.contains(CLASS)) {
-          for (t <- types) {
-            if (!execute(t, newState)) return false
-          }
-        }
-
-        //todo: comps already substituted
-        if (!TypeDefinitionMembers.processDeclarations(comp, this, newState, null, place)) return false
-        true
+      case comp@ScCompoundType(components, signaturesMap, typesMap) =>
+        TypeDefinitionMembers.processDeclarations(comp, this, state, null, place)
       case ex: ScExistentialType => processType(ex.skolem, place, state.put(ScSubstitutor.key, ScSubstitutor.empty))
       case ScSkolemizedType(_, _, lower, upper) => processType(upper, place, state, updateWithProjectionSubst)
       case _ => true
@@ -304,45 +286,36 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
   }
 
   private def processElement(e: PsiNamedElement, s: ScSubstitutor, place: PsiElement, state: ResolveState): Boolean = {
-//    import BaseProcessor.guard
-//    if (guard.currentStack().contains(e)) {
-//      return true
-//    }
-//    guard.doPreventingRecursion(e, false, new Computable[Boolean] {
-//      def compute() = {
-        val subst = state.get(ScSubstitutor.key)
-        val compound = state.get(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY) //todo: looks like ugly workaround
-        val newSubst =
-          compound match {
-            case Some(_) => subst
-            case _ => if (subst != null) subst followed s else s
+    val subst = state.get(ScSubstitutor.key)
+    val compound = state.get(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY) //todo: looks like ugly workaround
+    val newSubst =
+      compound match {
+        case Some(_) => subst
+        case _ => if (subst != null) subst followed s else s
+      }
+    e match {
+      case ta: ScTypeAlias =>
+        processType(s.subst(ta.upperBound.getOrAny), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))
+      //need to process scala way
+      case clazz: PsiClass =>
+        TypeDefinitionMembers.processDeclarations(clazz, BaseProcessor.this, state.put(ScSubstitutor.key, newSubst), null, place)
+      case des: ScTypedDefinition =>
+        val typeResult: TypeResult[ScType] =
+          des match {
+            case p: ScParameter => p.getRealParameterType(TypingContext.empty)
+            case _ => des.getType(TypingContext.empty)
           }
-        e match {
-          case ta: ScTypeAlias =>
-            processType(s.subst(ta.upperBound.getOrAny), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))
-          //need to process scala way
-          case clazz: PsiClass =>
-            TypeDefinitionMembers.processDeclarations(clazz, BaseProcessor.this, state.put(ScSubstitutor.key, newSubst), null, place)
-          case des: ScTypedDefinition =>
-            val typeResult: TypeResult[ScType] =
-              des match {
-                case p: ScParameter => p.getRealParameterType(TypingContext.empty)
-                case _ => des.getType(TypingContext.empty)
-              }
-            typeResult match {
-              case Success(tp, _) =>
-                processType(newSubst subst tp, place, state.put(ScSubstitutor.key, ScSubstitutor.empty),
-                  updateWithProjectionSubst = false)
-              case _ => true
-            }
-          case pack: ScPackage =>
-            pack.processDeclarations(BaseProcessor.this, state.put(ScSubstitutor.key, newSubst), null, place)
-          case des =>
-            des.processDeclarations(BaseProcessor.this, state.put(ScSubstitutor.key, newSubst), null, place)
+        typeResult match {
+          case Success(tp, _) =>
+            processType(newSubst subst tp, place, state.put(ScSubstitutor.key, ScSubstitutor.empty),
+              updateWithProjectionSubst = false)
+          case _ => true
         }
-//      }
-//    })
-
+      case pack: ScPackage =>
+        pack.processDeclarations(BaseProcessor.this, state.put(ScSubstitutor.key, newSubst), null, place)
+      case des =>
+        des.processDeclarations(BaseProcessor.this, state.put(ScSubstitutor.key, newSubst), null, place)
+    }
   }
 
   protected def getSubst(state: ResolveState) = {

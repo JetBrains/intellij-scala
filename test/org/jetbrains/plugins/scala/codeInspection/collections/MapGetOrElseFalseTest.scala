@@ -44,4 +44,6 @@ class MapGetOrElseFalseTest extends OperationsOnCollectionInspectionTest {
                    |  None exists valueIsGoodEnough""".stripMargin
     testFix(text, result, hint)
   }
+
+  override val inspectionClass = classOf[MapGetOrElseFalseInspection]
 }

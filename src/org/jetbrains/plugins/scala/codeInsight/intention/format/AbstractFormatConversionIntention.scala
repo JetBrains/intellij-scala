@@ -8,6 +8,8 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import format.{StringPart, StringFormatter, StringParser}
 import extensions._
+import org.jetbrains.plugins.scala.util.MultilineStringUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 
 /**
  * Pavel Fatin
@@ -44,6 +46,10 @@ abstract class AbstractFormatConversionIntention(name: String,
       ScalaPsiElementFactory.createExpressionFromText(s, element.getManager)
     }
 
-    target.replace(result)
+    target.replace(result) match {
+      case lit: ScLiteral if lit.isMultiLineString =>
+        MultilineStringUtil.addMarginsAndFormatMLString(lit, editor.getDocument)
+      case _ =>
+    }
   }
 }

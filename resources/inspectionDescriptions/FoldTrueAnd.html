@@ -1,0 +1,12 @@
+<html>
+<body>
+Replaces fold with forall if possible. <br/>
+Before:
+<p><code>List("a").foldLeft(true)((x,y) => x && isGood(y))</code></p>
+
+<p>After:</p>
+
+<p><code>List("a").forall(isGood)((x,y) => x && isGood(y))</code></p>
+
+</body>
+</html>
