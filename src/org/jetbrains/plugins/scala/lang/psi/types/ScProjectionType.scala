@@ -59,7 +59,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
       actualElement match {
         case ta: ScTypeAlias if ta.typeParameters.length == 0 =>
           val subst: ScSubstitutor = actualSubst
-          Some(AliasType(ta, ta.lowerBound.map(subst.subst(_)), ta.upperBound.map(subst.subst(_))))
+          Some(AliasType(ta, ta.lowerBound.map(subst.subst), ta.upperBound.map(subst.subst)))
         case ta: ScTypeAlias => //higher kind case
           val args: ArrayBuffer[ScExistentialArgument] = new ArrayBuffer[ScExistentialArgument]()
           val genericSubst = ScalaPsiUtil.
