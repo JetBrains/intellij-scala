@@ -22,7 +22,7 @@ object Equivalence {
   def equivInner(l: ScType, r: ScType, subst: ScUndefinedSubstitutor,
                  falseUndef: Boolean = true): (Boolean, ScUndefinedSubstitutor) = {
     ProgressManager.checkCanceled()
-    
+
     if (l == r) return (true, subst)
 
     if (l.isInstanceOf[ScDesignatorType] && l.getValType != None) {
