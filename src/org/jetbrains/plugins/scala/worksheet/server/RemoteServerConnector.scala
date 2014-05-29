@@ -296,7 +296,7 @@ object RemoteServerConnector {
     }
 
     override def trace(thr: Throwable) {
-      throw new RuntimeException(thr)
+      worksheetPrinter internalError s"${thr.getMessage}\n${thr.getStackTrace mkString "\n"}"
     }
   }
 }

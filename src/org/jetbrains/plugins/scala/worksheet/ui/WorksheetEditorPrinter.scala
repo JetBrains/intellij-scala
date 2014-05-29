@@ -206,6 +206,11 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, fi
   }
   
   def getCurrentText = prefix + outputBuffer.toString()
+
+  def internalError(errorMessage: String) {
+    simpleUpdate("Internal error: " + errorMessage, viewerDocument)
+    terminated = true
+  }
   
   private def updateWithPersistentScroll(document: Document, text: String) {//todo - to do
     val foldingOffsetsCopy = foldingOffsets.clone()
