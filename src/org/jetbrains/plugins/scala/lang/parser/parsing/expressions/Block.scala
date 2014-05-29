@@ -4,12 +4,10 @@ package parser
 package parsing
 package expressions
 
-import com.intellij.lang.PsiBuilder
-import lexer.ScalaTokenTypes
-import builder.ScalaPsiBuilder
-import annotation.tailrec
-import util.ParserUtils
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -22,8 +20,8 @@ import com.intellij.psi.tree.IElementType
 
 object Block {
 
-  def parse(builder: ScalaPsiBuilder) {
-    if (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
+  def parse(builder: ScalaPsiBuilder, isPattern: Boolean) {
+    if (!ResultExpr.parse(builder) && BlockStat.parse(builder, isPattern)) {
       var hasSemicolon = false
       var rollbackMarker = builder.mark()
 
@@ -40,7 +38,7 @@ object Block {
 
       updateSemicolon()
 
-      while (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
+      while (!ResultExpr.parse(builder) && BlockStat.parse(builder, isPattern)) {
         if (!hasSemicolon) {
           rollbackMarker.rollbackTo()
           builder error ErrMsg("semi.expected")

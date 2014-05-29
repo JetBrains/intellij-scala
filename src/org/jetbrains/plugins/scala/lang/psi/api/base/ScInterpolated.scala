@@ -37,11 +37,11 @@ trait ScInterpolated extends ScLiteral with ScalaPsiElement {
 
   def getStringContextExpression: Option[ScExpression] = {
     def getExpandedExprBuilder(l: ScInterpolated) = {
-      val prefix = getFirstChild.getText
-      val parts = getStringParts(l).mkString("\"", "\", \"", "\"") //making list of string literals
+      val quote = if (l.isMultiLineString) "\"\"\"" else "\""
+      val parts = getStringParts(l).mkString(quote, s"$quote, $quote", quote) //making list of string literals
       val params = l.getInjections.map(_.getText).mkString("(", ",", ")")
-      val expr = s"StringContext($parts).${prefix}$params"
-      Option(ScalaPsiElementFactory.createExpressionWithContextFromText(expr, node.getPsi.getContext, node.getPsi))
+      Option(ScalaPsiElementFactory.createExpressionWithContextFromText(s"StringContext($parts).${getFirstChild.getText}$params",
+        node.getPsi.getContext, node.getPsi))
     }
 
     CachesUtil.get(this, CachesUtil.STRING_CONTEXT_EXPANDED_EXPR_KEY,
@@ -49,12 +49,13 @@ trait ScInterpolated extends ScLiteral with ScalaPsiElement {
   }
 
   def getInjections: Array[ScExpression] = {
-    getNode.getChildren(null).flatMap { _.getPsi match {
-      case a: ScBlockExpr => Array[ScExpression](a)
-      case _: ScInterpolatedPrefixReference => Array[ScExpression]()
-      case b: ScReferenceExpression => Array[ScExpression](b)
-      case _ => Array[ScExpression]()
-    }
+    getNode.getChildren(null).flatMap {
+      _.getPsi match {
+        case a: ScBlockExpr => Array[ScExpression](a)
+        case _: ScInterpolatedPrefixReference => Array[ScExpression]()
+        case b: ScReferenceExpression => Array[ScExpression](b)
+        case _ => Array[ScExpression]()
+      }
     }
   }
 
@@ -73,9 +74,9 @@ trait ScInterpolated extends ScLiteral with ScalaPsiElement {
             case None => result += emptyString
           }
         case ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING =>
-          child.getText.toCharArray match {
-            case Array('"', '"', '"', _) => result += child.getText.substring(3)
-            case Array(_) => result += child.getText
+          child.getText match {
+            case s if s.startsWith("\"\"\"") => result += s.substring(3)
+            case s: String => result += s
             case _ => result += emptyString
           }
         case ScalaTokenTypes.tINTERPOLATED_STRING_INJECTION | ScalaTokenTypes.tINTERPOLATED_STRING_END =>

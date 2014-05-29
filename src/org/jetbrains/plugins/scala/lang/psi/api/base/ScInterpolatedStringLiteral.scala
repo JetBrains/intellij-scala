@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.psi.api.base
 
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 
 /**
  * User: Dmitry Naydanov
@@ -10,8 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceE
 
 trait ScInterpolatedStringLiteral extends ScInterpolated {
   def getType: InterpolatedStringType.StringType
-  def getInjections: Array[ScExpression]
-  def getStringContextExpression: Option[ScExpression]
   def reference: Option[ScReferenceExpression]
 }
 

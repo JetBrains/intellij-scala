@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve._
-import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ExpandedExtractorResolveProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, InterpolatedExtractorResolveProcessor}
 
 import scala.annotation.tailrec
 import scala.collection.immutable.Set
