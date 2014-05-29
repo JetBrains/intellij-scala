@@ -5,33 +5,31 @@ package impl
 package expr
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticValue
-import api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterType, ScParameter}
-import resolve._
-import processor.{MethodResolveProcessor, CompletionProcessor}
-import types._
-import nonvalue.{TypeParameter, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import result.{TypeResult, Failure, Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaElementVisitor}
-import api.toplevel.imports.ScImportStmt
-import api.base.patterns.ScReferencePattern
 import com.intellij.util.IncorrectOperationException
-import annotator.intention.ScalaImportTypeFix
-import api.toplevel.typedef._
-import completion.lookups.LookupElementManager
-import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScSelfTypeElement}
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiMemberExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScSimpleTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterType}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScTypePolymorphicType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+import org.jetbrains.plugins.scala.lang.resolve._
+import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, MethodResolveProcessor}
 
 /**
  * @author AlexanderPodkhalyuzin

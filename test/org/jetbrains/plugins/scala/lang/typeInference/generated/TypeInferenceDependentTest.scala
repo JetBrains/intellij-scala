@@ -15,13 +15,19 @@ class TypeInferenceDependentTest extends TypeInferenceTestBase {
 
   def testDependentCopy() {doTest()}
 
+  def testFieldValSingleton() {doTest()}
+
   def testHardCaseFromTypers() {doTest()}
 
   def testImportsDependent() {doTest()}
 
   def testInnerClassDependentType() {doTest()}
 
+  def testNotFromPackageObject() {doTest()}
+
   def testObjectDependent() {doTest()}
+
+  def testPrivateClassParameter() {doTest()}
 
   def testShortImport() {doTest()}
 
