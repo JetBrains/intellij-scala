@@ -32,7 +32,11 @@ class ScalaOptimizeImportsFix extends IntentionAction {
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
     if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
-    new ScalaImportOptimizer().processFile(file).run()
+
+    file match {
+      case scalaPsi: ScalaFile => ScalaImportOptimizer.runOptimizerUnsafe(scalaPsi)
+      case _ =>
+    }
   }
 
   def getFamilyName: String = QuickFixBundle.message("optimize.imports.fix")
@@ -51,7 +55,11 @@ class ScalaEnableOptimizeImportsOnTheFlyFix extends IntentionAction {
     ScalaApplicationSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY = true
     if (file.getManager.isInProject(file) && (file.isInstanceOf[ScalaFile] || ScalaLanguageDerivative.hasDerivativeOnFile(file))) {
       if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
-      new ScalaImportOptimizer().processFile(file).run()
+
+      file match {
+        case scalaFile: ScalaFile => ScalaImportOptimizer.runOptimizerUnsafe(scalaFile)
+        case _ =>
+      }
     }
   }
 
