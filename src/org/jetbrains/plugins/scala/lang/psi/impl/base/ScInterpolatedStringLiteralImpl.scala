@@ -2,14 +2,11 @@ package org.jetbrains.plugins.scala
 package lang.psi.impl.base
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.util.PsiModificationTracker
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{InterpolatedStringType, ScInterpolatedStringLiteral}
-import lang.psi.types.ScType
-import lang.psi.types.result.{Failure, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
 
 import scala.collection.mutable.ListBuffer
 
@@ -41,61 +38,8 @@ class ScInterpolatedStringLiteralImpl(_node: ASTNode) extends ScLiteralImpl(_nod
     }
   }
 
-  def getInjections: Array[ScExpression] = {
-    getNode.getChildren(null).flatMap { _.getPsi match {
-        case a: ScBlockExpr => Array[ScExpression](a)
-        case _: ScInterpolatedStringPrefixReference => Array[ScExpression]()
-        case b: ScReferenceExpression => Array[ScExpression](b)
-        case _ => Array[ScExpression]()
-      }
-    }
-  }
 
-  def getStringParts(l: ScInterpolatedStringLiteral): Seq[String] = {
-    val childNodes = l.children.map(_.getNode)
-    val result = ListBuffer[String]()
-    val emptyString = ""
-    for {
-      child <- childNodes
-    } {
-      child.getElementType match {
-        case ScalaTokenTypes.tINTERPOLATED_STRING =>
-          child.getText.headOption match {
-            case Some('"') => result += child.getText.substring(1)
-            case Some(_) => result += child.getText
-            case None => result += emptyString
-          }
-        case ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING =>
-          child.getText match {
-            case s if s.startsWith("\"\"\"") => result += s.substring(3)
-            case s: String => result += s
-            case _ => result += emptyString
-          }
-        case ScalaTokenTypes.tINTERPOLATED_STRING_INJECTION | ScalaTokenTypes.tINTERPOLATED_STRING_END =>
-          val prev = child.getTreePrev
-          if (prev != null) prev.getElementType match {
-            case ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING | ScalaTokenTypes.tINTERPOLATED_STRING =>
-            case _ => result += emptyString //insert empty string between injections
-          }
-        case _ =>
-      }
-    }
-    result.toSeq
-  }
 
-  def getStringContextExpression: Option[ScExpression] = {
-    def getExpandedExprBuilder(l: ScInterpolatedStringLiteral) = {
-      val quote = if (l.isMultiLineString) "\"\"\"" else "\""
-      val parts = getStringParts(l).mkString(quote, s"$quote, $quote", quote) //making list of string literals
-      val params = l.getInjections.map(_.getText).mkString("(", ",", ")")
-      Option(ScalaPsiElementFactory.createExpressionWithContextFromText(s"StringContext($parts).${getFirstChild.getText}$params",
-        node.getPsi.getContext, node.getPsi))
-    }
-
-    CachesUtil.get(this, CachesUtil.STRING_CONTEXT_EXPANDED_EXPR_KEY,
-      new CachesUtil.MyProvider[ScInterpolatedStringLiteral, Option[ScExpression]](this, getExpandedExprBuilder)(PsiModificationTracker.MODIFICATION_COUNT))
-  }
-  
   override def isMultiLineString: Boolean = getText.endsWith("\"\"\"")
 
   override def isString: Boolean = true
