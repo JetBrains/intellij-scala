@@ -164,10 +164,13 @@ object WorksheetFoldGroup {
 
   def load(viewerEditor: Editor, originalEditor: Editor, project: Project,
            splitter: WorksheetDiffSplitters.SimpleWorksheetSplitter, file: PsiFile) {
-    val bytes = WORKSHEET_PERSISTENT_FOLD_KEY.readAttributeBytes(file.getVirtualFile)
+    val bytes = WorksheetCompiler.readAttribute(WORKSHEET_PERSISTENT_FOLD_KEY, file)
     if (bytes == null) return
 
-    val group = new WorksheetFoldGroup(viewerEditor, originalEditor, project, splitter)
-    group.deserialize(new String(bytes))
+    lazy val group = new WorksheetFoldGroup(viewerEditor, originalEditor, project, splitter)
+    bytes foreach {
+      case nonEmpty if nonEmpty.length > 0 => group deserialize nonEmpty
+      case _ =>
+    }
   }
 }
