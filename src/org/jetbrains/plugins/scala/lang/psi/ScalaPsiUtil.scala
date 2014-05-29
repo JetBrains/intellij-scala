@@ -1367,6 +1367,15 @@ object ScalaPsiUtil {
     el
   }
 
+  def contextOfType[T <: PsiElement](element: PsiElement, strict: Boolean, clazz: Class[T]): T = {
+    var el: PsiElement = if (!strict) element else {
+      if (element == null) return null.asInstanceOf[T]
+      element.getContext
+    }
+    while (el != null && !clazz.isInstance(el)) el = el.getContext
+    el.asInstanceOf[T]
+  }
+
   /**
    * For one classOf use PsiTreeUtil.getContextOfType instead
    */

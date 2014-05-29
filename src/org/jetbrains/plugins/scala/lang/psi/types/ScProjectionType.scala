@@ -199,7 +199,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
     def isSingletonOk(typed: ScTypedDefinition): Boolean = {
       typed.nameContext match {
         case v: ScValue => true
-        case p: ScClassParameter if p.isVal => true
+        case p: ScClassParameter if !p.isVar => true
         case _ => false
       }
     }
@@ -376,6 +376,10 @@ case class ScThisType(clazz: ScTemplateDefinition) extends ValueType {
  * element can be any stable element, class, value or type alias
  */
 case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
+  if (element.getName == "formatter") {
+    "stop here"
+  }
+
   override protected def isAliasTypeInner: Option[AliasType] = {
     element match {
       case ta: ScTypeAlias if ta.typeParameters.length == 0 =>

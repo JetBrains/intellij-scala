@@ -5,13 +5,12 @@ package types
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, ScMethodType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
@@ -413,12 +412,18 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
     element match {
       case td: ScClass => StdType.QualNameToType.getOrElse(td.qualifiedName, new ScDesignatorType(element))
       case _ =>
-        element.getParent match {
-          case td: ScTemplateBody =>
-            val clazz = PsiTreeUtil.getParentOfType(element, classOf[ScTemplateDefinition], true)
-            ScProjectionType(ScThisType(clazz), element, false)
-          case _ =>
-            new ScDesignatorType(element)
+        val clazzOpt = element match {
+          case p: ScClassParameter => Option(p.containingClass)
+          case _ => element.getContext match {
+            case _: ScTemplateBody | _: ScEarlyDefinitions =>
+              Option(ScalaPsiUtil.contextOfType(element, strict = true, classOf[ScTemplateDefinition]))
+            case _ => None
+          }
+        }
+
+        clazzOpt match {
+          case Some(clazz) => ScProjectionType(ScThisType(clazz), element, superReference = false)
+          case _ => new ScDesignatorType(element)
         }
     }
   }
