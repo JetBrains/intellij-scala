@@ -4,14 +4,15 @@ package psi
 package types
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait}
 import com.intellij.psi.PsiClass
-import impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.extensions.toPsiClassExt
-import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+
 import scala.annotation.tailrec
 
 /**

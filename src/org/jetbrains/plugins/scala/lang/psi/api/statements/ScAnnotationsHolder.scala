@@ -4,26 +4,19 @@ package psi
 package api
 package statements
 
-import expr.{ScAnnotations, ScAnnotation}
-import types._
-import java.lang.String
-import types.result.TypingContext
+import com.intellij.psi._
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
-import parser.ScalaElementTypes
-import com.intellij.util.ArrayFactory
-import com.intellij.psi._
-import extensions.toPsiClassExt
-import extensions._
-import api.base.ScReferenceElement
-import psi.impl.ScalaPsiElementFactory
-import annotator.intention.ScalaImportTypeFix
-import psi.types.Conformance.AliasType
-import types.ScDesignatorType
-import scala.Some
-import types.Conformance.AliasType
-import scala.Boolean
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScAnnotations}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 /**
  * User: Alexander Podkhalyuzin

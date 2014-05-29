@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 /**
  * User: Alexander Podkhalyuzin
@@ -32,12 +33,12 @@ object Equivalence {
     }
 
     r.isAliasType match {
-      case Some(Conformance.AliasType(ta: ScTypeAliasDefinition, _, _)) => return r.equivInner(l, subst, falseUndef)
+      case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) => return r.equivInner(l, subst, falseUndef)
       case _ =>
     }
 
     l.isAliasType match {
-      case Some(Conformance.AliasType(ta: ScTypeAliasDefinition, _, _)) => return l.equivInner(r, subst, falseUndef)
+      case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) => return l.equivInner(r, subst, falseUndef)
       case _ =>
     }
 

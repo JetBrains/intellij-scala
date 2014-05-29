@@ -7,19 +7,20 @@ package types
  * @author ilyas
  */
 
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
-import api.toplevel.ScTypeParametersOwner
-import api.statements.params.ScTypeParam
-import psi.impl.ScalaPsiManager
 import com.intellij.openapi.project.Project
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi._
-import result.{Success, TypingContext}
-import api.toplevel.typedef.{ScTypeDefinition, ScClass}
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
-import collection.immutable.{HashSet, ListMap, Map}
-import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.containers.ConcurrentWeakHashMap
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+
+import scala.collection.immutable.{HashSet, ListMap, Map}
 
 case class JavaArrayType(arg: ScType) extends ValueType {
 
@@ -200,7 +201,7 @@ class ScParameterizedType private (val designator : ScType, val typeArgs : Seq[S
         (true, t._2)
       case (ScParameterizedType(proj@ScProjectionType(projected, _, _), args), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
         isAliasType match {
-          case Some(Conformance.AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
+          case Some(AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
             Equivalence.equivInner(lower match {
               case Success(tp, _) => tp
               case _ => return (false, uSubst)
@@ -209,7 +210,7 @@ class ScParameterizedType private (val designator : ScType, val typeArgs : Seq[S
         }
       case (ScParameterizedType(ScDesignatorType(a: ScTypeAliasDefinition), args), _) =>
         isAliasType match {
-          case Some(Conformance.AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
+          case Some(AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
             Equivalence.equivInner(lower match {
               case Success(tp, _) => tp
               case _ => return (false, uSubst)

@@ -3,24 +3,24 @@ package lang
 package psi
 package types
 
-import psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
-import api.toplevel.typedef._
-import api.statements.{ScValue, ScTypeAliasDefinition, ScTypeAlias}
-import result.TypingContext
-import api.toplevel.ScTypedDefinition
-import lang.resolve.processor.ResolveProcessor
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ResolveTargets}
 import com.intellij.psi._
-import extensions.{toObjectExt, toPsiClassExt}
-import collection.immutable.HashSet
-import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
-import psi.impl.toplevel.templates.ScTemplateBodyImpl
-import api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.extensions.{toObjectExt, toPsiClassExt}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScTemplateBodyImpl
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+
+import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
 
 /**
  * @author ilyas
@@ -141,7 +141,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
       element match {
         case a: ScTypeAlias =>
           val name = a.name
-          import ResolveTargets._
+          import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
           val proc = resolveProcessor(ValueSet(CLASS), name)
           proc.processType(projected, resolvePlace, ResolveState.initial)
           val candidates = proc.candidates
@@ -150,7 +150,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
           } else None
         case d: ScTypedDefinition if d.isStable =>
           val name = d.name
-          import ResolveTargets._
+          import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 
           val proc = resolveProcessor(ValueSet(VAL, OBJECT), name)
           proc.processType(projected, resolvePlace, ResolveState.initial)
@@ -160,7 +160,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
           } else None
         case d: ScTypeDefinition =>
           val name = d.name
-          import ResolveTargets._
+          import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
           val proc = resolveProcessor(ValueSet(CLASS), name) //ScObject in ScTypedDefinition case.
           proc.processType(projected, resolvePlace, ResolveState.initial)
           val candidates = proc.candidates
@@ -169,7 +169,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
           } else None
         case d: PsiClass =>
           val name = d.getName
-          import ResolveTargets._
+          import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
           val proc = resolveProcessor(ValueSet(CLASS), name) //ScObject in ScTypedDefinition case.
           proc.processType(projected, resolvePlace, ResolveState.initial)
           val candidates = proc.candidates
@@ -207,7 +207,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
       case _ =>
     }
     isAliasType match {
-      case Some(Conformance.AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
+      case Some(AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
         return Equivalence.equivInner(lower match {
           case Success(tp, _) => tp
           case _ => return (false, uSubst)
@@ -224,7 +224,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
         proj2.actualElement match {
           case ta: ScTypeAliasDefinition =>
             r.isAliasType match {
-              case Some(Conformance.AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
+              case Some(AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
                 Equivalence.equivInner(this, lower match {
                   case Success(tp, _) => tp
                   case _ => return (false, uSubst)
@@ -237,7 +237,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
         proj2.actualElement match {
           case a: ScTypeAliasDefinition =>
             r.isAliasType match {
-              case Some(Conformance.AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
+              case Some(AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
                 Equivalence.equivInner(this, lower match {
                   case Success(tp, _) => tp
                   case _ => return (false, uSubst)

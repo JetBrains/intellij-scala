@@ -3,23 +3,23 @@ package lang
 package psi
 package types
 
-import decompiler.DecompilerUtil
-import com.intellij.psi._
 import com.intellij.openapi.project.Project
-import api.statements._
-import api.toplevel.ScTypedDefinition
-import nonvalue.{ScMethodType, NonValueType}
-import result.{Success, TypeResult, TypingContext}
-import java.lang.Exception
-import collection.mutable.ArrayBuffer
-import collection.immutable.HashMap
-import api.toplevel.templates.ScTemplateBody
-import util.PsiTreeUtil
-import api.toplevel.typedef.{ScTemplateDefinition, ScClass, ScObject}
-import collection.mutable
-import types.Conformance.AliasType
-import scala.annotation.tailrec
+import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, ScMethodType}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+
+import scala.annotation.tailrec
+import scala.collection.immutable.HashMap
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /*
 Current types for pattern matching, this approach is bad for many reasons (one of them is bad performance).
@@ -145,7 +145,7 @@ trait ScType {
     override def getMessage: String = "Type mismatch after update method"
   }
 
-  import collection.immutable.{HashSet => IHashSet}
+  import scala.collection.immutable.{HashSet => IHashSet}
 
   /**
    * use 'update' to replace appropriate type part with another type
