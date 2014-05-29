@@ -4,17 +4,18 @@ package psi
 package types
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import com.intellij.psi._
-import collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
-import result.TypingContext
-import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
-import scala.collection.mutable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import scala.Some
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 object Bounds {
   def lub(seq: Seq[ScType]): ScType = {
@@ -31,7 +32,7 @@ object Bounds {
       ScType.extractClassType(tp) match {
         case None =>
           tp.isAliasType match {
-            case Some(Conformance.AliasType(ta, _, _)) => Some(ta, ScSubstitutor.empty)
+            case Some(AliasType(ta, _, _)) => Some(ta, ScSubstitutor.empty)
             case _ => None
           }
         case some => some
