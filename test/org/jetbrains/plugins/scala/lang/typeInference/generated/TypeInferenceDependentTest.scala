@@ -21,6 +21,8 @@ class TypeInferenceDependentTest extends TypeInferenceTestBase {
 
   def testInnerClassDependentType() {doTest()}
 
+  def testNotFromPackageObject() {doTest()}
+
   def testObjectDependent() {doTest()}
 
   def testShortImport() {doTest()}

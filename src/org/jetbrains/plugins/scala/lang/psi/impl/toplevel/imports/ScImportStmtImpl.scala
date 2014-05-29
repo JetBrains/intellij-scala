@@ -91,8 +91,8 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
 
         val exprQualRefType = () => ScSimpleTypeElementImpl.calculateReferenceType(exprQual, shapesOnly = false)
 
-        def checkResolve(resolve: Array[ResolveResult]): Boolean = {
-          resolve.exists {
+        def checkResolve(resolve: ResolveResult): Boolean = {
+          resolve match {
             case ScalaResolveResult(elem, _) =>
               PsiTreeUtil.getContextOfType(elem, true, classOf[ScTypeDefinition]) match {
                 case obj: ScObject if obj.isPackageObject => true
@@ -117,7 +117,8 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
 
         val resolveIterator = resolve.iterator
         while (resolveIterator.hasNext) {
-          val (elem, importsUsed, s) = resolveIterator.next() match {
+          val next = resolveIterator.next()
+          val (elem, importsUsed, s) = next match {
             case s: ScalaResolveResult =>
               @tailrec
               def getFirstReference(ref: ScStableCodeReferenceElement): ScStableCodeReferenceElement = {
@@ -175,7 +176,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
               val newImportsUsed = Set(importsUsed.toSeq: _*) + ImportExprUsed(importExpr)
               var newState: ResolveState = state.put(ImportUsed.key, newImportsUsed).put(ScSubstitutor.key, subst)
 
-              val refType = calculateRefType(checkResolve(resolve))
+              val refType = calculateRefType(checkResolve(next))
               refType.foreach { tp =>
                 newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
               }
@@ -189,9 +190,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                     if (!processor.processType(refType.get, place, newState)) return false
                   case _ => if (!elem.processDeclarations(processor, newState, this, place)) return false
                 }
-              } else {
-                if (!processor.execute(elem, newState)) return false
-              }
+              } else if (!processor.execute(elem, newState)) return false
             case Some(set) =>
               val shadowed: mutable.HashSet[(ScImportSelector, PsiElement)] = mutable.HashSet.empty
               set.selectors foreach {
@@ -207,7 +206,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                       newState = state.put(ResolverEnv.nameKey, selector.importedName)
                       newState = newState.put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector)).
                         put(ScSubstitutor.key, subst)
-                      calculateRefType(checkResolve(selectorResolve)).foreach {tp =>
+                      calculateRefType(checkResolve(result)).foreach {tp =>
                         newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
                       }
                       if (!processor.execute(result.getElement, newState)) {
@@ -263,7 +262,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
 
                     (elem, processor) match {
                       case (cl: PsiClass, processor: BaseProcessor) if !cl.isInstanceOf[ScTemplateDefinition] =>
-                        calculateRefType(checkResolve(resolve)).foreach {tp =>
+                        calculateRefType(checkResolve(next)).foreach {tp =>
                           newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
                         }
                         if (!processor.processType(new ScDesignatorType(cl, true), place, newState)) return false
@@ -291,7 +290,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                       }
                       newState = newState.put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector)).
                         put(ScSubstitutor.key, subst.followed(rSubst))
-                      calculateRefType(checkResolve(selectorResolve)).foreach {tp =>
+                      calculateRefType(checkResolve(result)).foreach {tp =>
                         newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
                       }
                       if (!processor.execute(result.getElement, newState)) {
