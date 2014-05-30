@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.ge
 import javax.swing.JComponent
 import com.intellij.codeInspection.ui.SingleCheckboxOptionsPanel
 import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
  * Nikolay.Tropin
@@ -21,7 +22,8 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase extends AbstractInspect
 
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case parenthesized: ScParenthesisedExpr
-      if !parenthesized.getParent.isInstanceOf[ScParenthesisedExpr] && UnnecessaryParenthesesUtil.canBeStripped(parenthesized, getIgnoreClarifying) =>
+      if !parenthesized.getParent.isInstanceOf[ScParenthesisedExpr] && IntentionAvailabilityChecker.checkInspection(this, parenthesized) &&
+        UnnecessaryParenthesesUtil.canBeStripped(parenthesized, getIgnoreClarifying) =>
       holder.registerProblem(parenthesized, "Unnecessary parentheses", ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
         new UnnecessaryParenthesesQuickFix(parenthesized, UnnecessaryParenthesesUtil.getTextOfStripped(parenthesized, getIgnoreClarifying)))
   }
