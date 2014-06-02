@@ -23,15 +23,22 @@ class SbtFileImpl(provider: FileViewProvider) extends ScalaFileImpl(provider, Sb
   override def packagings = Seq.empty
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = 
-    super[ScalaFileImpl].processDeclarations(processor, state, lastParent, place) && 
+    super[ScalaFileImpl].processDeclarations(processor, state, lastParent, place) &&
     super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place) &&
     processImplicitImports(processor, state, lastParent,place)
 
   private def processImplicitImports(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
     val expressions = implicitImportExpressions ++ localObjectsWithDefinitions.map(_.qualifiedName + "._")
 
-    expressions.isEmpty || {
-      val code = s"import ${expressions.mkString(", ")};"
+    // TODO this is a workaround, we need to find out why references stopped resolving via the chained imports
+    val expressions0 = expressions.map {
+      case "Keys._" => "sbt.Keys._"
+      case "Build._" => "sbt.Build._"
+      case it => it
+    }
+
+    expressions0.isEmpty || {
+      val code = s"import ${expressions0.mkString(", ")};"
       val file = ScalaPsiElementFactory.parseFile(code, getManager)
       file.processDeclarations(processor, state, file.lastChild.get, place)
     }
