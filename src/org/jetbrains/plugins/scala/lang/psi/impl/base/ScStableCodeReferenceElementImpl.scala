@@ -21,7 +21,7 @@ import api.base.types.{ScParameterizedTypeElement, ScInfixTypeElement, ScSimpleT
 import impl.source.tree.LeafPsiElement
 import processor.CompletionProcessor
 import api.ScalaElementVisitor
-import api.statements.{ScMacroDefinition, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroDefinition, ScTypeAlias}
 import api.expr.{ScSuperReference, ScThisReference}
 import annotator.intention.ScalaImportTypeFix
 import util.PsiTreeUtil
@@ -213,6 +213,10 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
                 val refToMember = ScalaPsiElementFactory.createReferenceFromText(refToClass.getText + "." + binding.name, getManager)
                 this.replace(refToMember).asInstanceOf[ScReferenceElement]
             }
+          case fun: ScFunction if Seq("unapply", "unapplySeq").contains(fun.name) && ScalaPsiUtil.hasStablePath(fun) =>
+            bindToElement(fun.containingClass)
+          case fun: ScFunction if fun.isConstructor =>
+            bindToElement(fun.containingClass)
           case pckg: PsiPackage => bindToPackage(pckg)
           case _ => throw new IncorrectOperationException(s"Cannot bind to $element")
         }
