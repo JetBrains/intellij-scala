@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala
-package lang.refactoring.move
+package lang.refactoring.util
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.{PsiDirectory, PsiBundle, PsiElement, PsiClass}
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull
 object ScalaDirectoryService {
   private final val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.refactoring.move.ScalaDirectoryService")
 
-  private[move] def createClassFromTemplate(@NotNull dir: PsiDirectory, name: String, templateName: String, askToDefineVariables: Boolean): PsiClass = {
+  def createClassFromTemplate(@NotNull dir: PsiDirectory, name: String, templateName: String, askToDefineVariables: Boolean): PsiClass = {
     val template =
       if (ApplicationManager.getApplication.isUnitTestMode) templateForUnitTest(templateName, name)
       else FileTemplateManager.getInstance.getInternalTemplate(templateName)
