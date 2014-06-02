@@ -398,19 +398,22 @@ object WorksheetEditorPrinter {
     val editorComponent = editor.getComponent
     val project = editor.getProject
 
-    val prop = if (editorComponent.getComponentCount > 0) editorComponent.getComponent(0) match {
-      case splitter: JBSplitter => splitter.getProportion
-      case _ => 0.5f
-    } else 0.5f
-    val dimension = editorComponent.getSize()
-    val prefDim = new Dimension(dimension.width / 2, dimension.height)
-
-    editor.getSettings setFoldingOutlineShown false
-
     val worksheetViewer = WorksheetViewerInfo getViewer editor match {
       case editorImpl: EditorImpl => editorImpl
       case _ => createBlankEditor(project).asInstanceOf[EditorImpl]
     }
+
+    val prop = if (editorComponent.getComponentCount > 0) editorComponent.getComponent(0) match {
+      case splitter: JBSplitter => splitter.getProportion
+      case _ if worksheetViewer.getUserData(DIFF_SPLITTER_KEY) != null =>
+        worksheetViewer.getUserData(DIFF_SPLITTER_KEY).getProportion
+      case _ => 0.5f
+    } else 0.5f
+
+    val dimension = editorComponent.getSize()
+    val prefDim = new Dimension(dimension.width / 2, dimension.height)
+
+    editor.getSettings setFoldingOutlineShown false
 
     worksheetViewer.getComponent setPreferredSize prefDim
 
