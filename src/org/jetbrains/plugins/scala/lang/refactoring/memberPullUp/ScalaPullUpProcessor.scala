@@ -7,7 +7,6 @@ import com.intellij.usageView.{UsageViewDescriptor, UsageInfo}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractMemberInfo
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInsight.ScalaChangeContextUtil
 import scala.collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -18,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContext, Success
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeContextUtil
 
 /**
  * Nikolay.Tropin
