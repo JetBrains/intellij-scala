@@ -1088,10 +1088,15 @@
           <add-to-group group-id="GenerateGroup"/>
         </action>
         <action id="Scala.GenerateCompanionObject"
-              class="org.jetbrains.plugins.scala.codeInsight.generation.ScalaGenerateCompanionObjectAction" text="Companion object"
-              description="Generate companion object">
-        <add-to-group group-id="GenerateGroup"/>
-      </action>
+                class="org.jetbrains.plugins.scala.codeInsight.generation.ScalaGenerateCompanionObjectAction" text="Companion object"
+                description="Generate companion object">
+          <add-to-group group-id="GenerateGroup"/>
+        </action>
+        <action id="Scala.ExtractTrait"
+                class="org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractTraitAction" text="_Trait..."
+                description="Extract trait from the selected class">
+          <add-to-group group-id="IntroduceActionsGroup"/>
+        </action>
       </actions>
 
 </idea-plugin>

@@ -14,6 +14,7 @@ import psi.api.base.patterns.ScReferencePattern
 import psi.api.statements._
 import psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.refactoring.introduceField.ScalaIntroduceFieldFromExpressionHandler
+import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractTraitHandler
 
 /**
  * User: Alexander Podkhalyuzin
