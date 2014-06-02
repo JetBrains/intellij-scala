@@ -9,20 +9,22 @@ import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock
  * @author Roman.Shein
  *         Date: 07.11.13
  */
-class ScalaBlockFormatterEntry(val spacing: SpacingInfo,
+class ScalaBlockFormatterEntry (val spacing: SpacingInfo,
                                val indentInfo: Option[IndentInfo],
                                val alignment: AlignmentSetting,
                                val wrap: WrapSetting,
                                val instances: List[ScalaBlock],
-                               val ruleInstance: ScalaFormattingRuleInstance,
+                               val rule: ScalaFormattingRuleInstance,
                                val originatingFromNoSpaceChild: Boolean = false) {
-  def setWrap(wrapType: WrapType) = new ScalaBlockFormatterEntry(spacing, indentInfo, alignment, new WrapSetting(wrap.needWrap, Some(wrapType)), instances, ruleInstance)
+  def setIndent(option: Option[IndentInfo]) = new ScalaBlockFormatterEntry(spacing, option, alignment, wrap, instances, rule)
+
+  def setWrap(wrapType: WrapType) = new ScalaBlockFormatterEntry(spacing, indentInfo, alignment, new WrapSetting(true, Some(wrapType)), instances, rule)
 
   def setSpacing(spacing: SpacingInfo) = new ScalaBlockFormatterEntry(spacing, indentInfo, alignment, wrap, instances,
-  ruleInstance, originatingFromNoSpaceChild)
+  rule, originatingFromNoSpaceChild)
 
   def setAlignment(alignmentNeeded: Boolean) = new ScalaBlockFormatterEntry(spacing, indentInfo,
-    AlignmentSetting(alignmentNeeded), wrap, instances, ruleInstance, originatingFromNoSpaceChild)
+    AlignmentSetting(alignmentNeeded), wrap, instances, rule, originatingFromNoSpaceChild)
 
   override def toString = " | " + spacing.toString +
                           " | " + indentInfo.map(_.toString).getOrElse("Indent: Unknown") +
@@ -34,23 +36,55 @@ class ScalaBlockFormatterEntry(val spacing: SpacingInfo,
               entry.indentInfo == indentInfo &&
               entry.alignment == alignment &&
               entry.wrap == wrap &&
-              entry.ruleInstance == ruleInstance
+              entry.rule == rule
       case _ => false
     }
 
-  override def hashCode = ruleInstance.hashCode
+  override def hashCode = rule.hashCode
 
-  def discardInstances = new ScalaBlockFormatterEntry(spacing, indentInfo, alignment, wrap, List[ScalaBlock](), ruleInstance) //TODO: get rid of this
+  def discardInstances = new ScalaBlockFormatterEntry(spacing, indentInfo, alignment, wrap, List[ScalaBlock](), rule) //TODO: get rid of this
 
+
+  def reduceIndentTo(other: ScalaBlockFormatterEntry): Option[ScalaBlockFormatterEntry] = {
+    (indentInfo, other.indentInfo) match {
+      case (myIndent, otherIndent) if myIndent == otherIndent => Some(this)
+      case (None, otherIndent) => Some(setIndent(otherIndent))
+      case (Some(myIndentInfo), Some(otherIndentInfo)) =>
+        if (myIndentInfo.indentLength != otherIndentInfo.indentLength ||
+                myIndentInfo.indentRelativeToDirectParent != otherIndentInfo.indentRelativeToDirectParent) return None
+        if (myIndentInfo.indentType == None) Some(setIndent(other.indentInfo)) else None
+      case _ => None
+    }
+  }
+
+  def reduceNewlineCount: ScalaBlockFormatterEntry = {
+    val newSpacing = spacing.setLineFeeds(
+      if (spacing.lineBreaksCount > 0) spacing.lineBreaksCount - 1 else 0
+    )
+    new ScalaBlockFormatterEntry(newSpacing, indentInfo, alignment, wrap, instances, rule, originatingFromNoSpaceChild)
+  }
+
+  def reduceWrapTo(other: ScalaBlockFormatterEntry): Option[ScalaBlockFormatterEntry] = {
+    if (wrap == other.wrap) Some(this)
+    else if (!wrap.wrapDefined && other.wrap.wrapDefined) {
+      val wrapType = other.wrap.wrapType.get
+      if (ScalaFormattingRuleMatcher.wrapTypeApplicable(instances ::: other.instances, wrapType)) {
+        Some(reduceNewlineCount.setWrap(wrapType))
+      } else None
+    } else None
+  }
 }
 
 object ScalaBlockFormatterEntry {
   def apply(spacing: SpacingInfo, indentInfo: IndentInfo, block: ScalaBlock,
-            ruleInstance: ScalaFormattingRuleInstance, originatingFromNoSpaceChild: Boolean): ScalaBlockFormatterEntry =
+            ruleInstance: ScalaFormattingRuleInstance, originatingFromNoSpaceChild: Boolean, wrap: Boolean): ScalaBlockFormatterEntry =
     new ScalaBlockFormatterEntry(spacing, Some(indentInfo), AlignmentSetting(false), WrapSetting(false), List[ScalaBlock](block), ruleInstance, originatingFromNoSpaceChild)
+  def apply(spacing: SpacingInfo, indentInfo: Option[IndentInfo], block: ScalaBlock,
+            ruleInstance: ScalaFormattingRuleInstance, originatingFromNoSpaceChild: Boolean, wrap: Boolean): ScalaBlockFormatterEntry =
+    new ScalaBlockFormatterEntry(spacing, indentInfo, AlignmentSetting(false), WrapSetting(wrap), List[ScalaBlock](block), ruleInstance, originatingFromNoSpaceChild)
   def apply(spacing: SpacingInfo, indentInfo: IndentInfo, block: ScalaBlock,
-            ruleInstance: ScalaFormattingRuleInstance): ScalaBlockFormatterEntry =
-    new ScalaBlockFormatterEntry(spacing, Some(indentInfo), AlignmentSetting(false), WrapSetting(false), List[ScalaBlock](block), ruleInstance)
+            ruleInstance: ScalaFormattingRuleInstance, wrap: Boolean = false): ScalaBlockFormatterEntry =
+    new ScalaBlockFormatterEntry(spacing, Some(indentInfo), AlignmentSetting(false), WrapSetting(wrap), List[ScalaBlock](block), ruleInstance)
   def apply(spacing: SpacingInfo, block: ScalaBlock, ruleInstance: ScalaFormattingRuleInstance): ScalaBlockFormatterEntry =
     new ScalaBlockFormatterEntry(spacing, None, AlignmentSetting(false), WrapSetting(false), List[ScalaBlock](block), ruleInstance)
   def apply(ruleInstance: ScalaFormattingRuleInstance): ScalaBlockFormatterEntry =

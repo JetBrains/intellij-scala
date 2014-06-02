@@ -46,7 +46,10 @@ class SpacingInfo(val spacesCount: Int, val minLineBreaksCount: Option[Int], val
 }
 
 object SpacingInfo {
-  def apply(spacing: String): SpacingInfo = new SpacingInfo(if (spacing.contains("\n")) spacing.substring(0, spacing.indexOf("\n")).length else spacing.length, None, None, {
+  def apply(spacing: String): SpacingInfo = new SpacingInfo(
+  if (spacing.contains("\n")) spacing.substring(0, spacing.indexOf("\n")).length else spacing.length,
+  None,
+  None, {
     val matcher = Pattern.compile("(\n)").matcher(spacing)
     var newLinesCount = 0
     while (matcher.find()) {

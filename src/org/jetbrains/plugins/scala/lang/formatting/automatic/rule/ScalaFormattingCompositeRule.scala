@@ -6,27 +6,26 @@ import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.{ScalaFormattingRuleMatcher, RuleParentInfo, IndentType}
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.ScalaFormattingRule._
 import scala.Some
+import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation
 
 /**
  * @author Roman.Shein
  *         Date: 09.09.13
  */
-class ScalaFormattingCompositeRule private (val composingConditionsIds: List[String],
+class ScalaFormattingCompositeRule private (val composingConditions: List[ScalaFormattingRule],
                                    val indentType: Option[IndentType.IndentType],
                                    val priority: Int,
                                    val id: String,
-                                   val structId: String,
-                                   val anchor: Option[Anchor] = None,
-                                   val tag: Option[String] = None,
-                                   val alignmentAnchor: Option[String] = None
+                                   val relations: Set[(RuleRelation, List[String])] = Set(),
+                                   val tag: Option[String] = None
                                    ) extends ScalaFormattingRule {
 
-  def composingConditions = composingConditionsIds.map(getRule)
+//  def composingConditions = composingConditionsIds.map(getRule)
 
-  private def this(composingConditions: List[ScalaFormattingRule],
-  indentType: Option[IndentType.IndentType],
-  priority: Int,
-  id: String) = this(composingConditions.map(_.id), indentType, priority, id, id)
+//  private def this(composingConditions: List[ScalaFormattingRule],
+//  indentType: Option[IndentType.IndentType],
+//  priority: Int,
+//  id: String) = this(composingConditions, indentType, priority, id)
 
   override def checkSome(blocks: List[Block],
                          parentAndPosition: Option[RuleParentInfo],
@@ -70,26 +69,7 @@ class ScalaFormattingCompositeRule private (val composingConditionsIds: List[Str
 
   override def getPresetIndentType: Option[IndentType.IndentType] = indentType
 
-  /**
-   * Returns clusters of rules that should be formatted with the same settings.
-   * @return
-   */
-//  override def getSameFormattingRules(instances: List[ScalaFormattingRuleInstance]): List[Set[ScalaFormattingRuleInstance]] = {
-//    (for (clusterIndices <- sameFormattingIndices) yield
-//      instances.filter(instance => instance.parentAndPosition match {
-//        case Some(parentInfo) => parentInfo.parent == this && clusterIndices.contains(parentInfo.position)
-//        case _ => false
-//      }).groupBy(_.root).values.flatten).map(_.toSet)
-//    //sameFormattingIndices.map((indices: Set[Int]) => indices.map((index: Int) => ScalaFormattingRuleInstance(Some(RuleParentInfo(this, index)), rulesArray(index))).filter(instances.contains(_)))
-//  }
-
   override def getPriority: Int = priority
-
-  override def anchor(anchor: Anchor) = {
-    assert(this.anchor.isEmpty)
-    assert(alignmentAnchor.isEmpty)
-    registerRule(new ScalaFormattingCompositeRule(composingConditionsIds, indentType, priority, id+"|-"+anchor, structId, Some(anchor), None, Some(anchor)))
-  }
 
   /**
    * Adds a tag to the rule so that ruleInstance created by this concrete rule can be distinguished when building dummy
@@ -97,15 +77,12 @@ class ScalaFormattingCompositeRule private (val composingConditionsIds: List[Str
    * @param tag
    * @return
    */
-  override def tag(tag: String): ScalaFormattingRule = registerRule(new ScalaFormattingCompositeRule(composingConditionsIds, indentType, priority, id + "*" + tag, structId, None, Some(tag)))
+  override def tag(tag: String): ScalaFormattingRule = registerRule(new ScalaFormattingCompositeRule(composingConditions, indentType, priority, id, relations, Some(tag)))
 
   override def childrenWithPosition: List[(ScalaFormattingRule, Int)] = composingConditions.zipWithIndex
 
-  override def alignmentAnchor(alignmentAnchor: String): ScalaFormattingRule = {
-    assert(anchor.isEmpty)
-    assert(this.alignmentAnchor.isEmpty)
-    registerRule(new ScalaFormattingCompositeRule(composingConditionsIds, indentType, priority, id + "&" + alignmentAnchor, structId, None, None, Some(alignmentAnchor)))
-  }
+  override protected def addRelation(relation: RuleRelation, args: List[String]): ScalaFormattingRule =
+    new ScalaFormattingCompositeRule(composingConditions, indentType, priority, id, relations + ((relation, args)), tag)
 }
 
 object ScalaFormattingCompositeRule {

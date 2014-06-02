@@ -8,30 +8,21 @@ import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.{ScalaForm
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.IndentType.IndentType
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.ScalaFormattingRule._
 import scala.Some
+import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation
 
 /**
  * @author Roman.Shein
  *         Date: 09.09.13
  */
 class ScalaSomeRule private (val minimalCount: Int,
-                    val innerConditionId: String,
+                    val innerCondition: ScalaFormattingRule,
                     val indentType: Option[IndentType],
                     val priority: Int,
                     val id: String,
-                    val structId: String,
-                    val anchor: Option[Anchor] = None,
-                    val tag: Option[String] = None,
-                    val alignmentAnchor: Option[String] = None
+                    val relations: Set[(RuleRelation, List[String])] = Set(),
+                    val tag: Option[String] = None
                     )
         extends ScalaFormattingRule {
-
-  def innerCondition = getRule(innerConditionId)
-
-  def this(minimalCount: Int,
-  innerCondition: ScalaFormattingRule,
-  indentType: Option[IndentType],
-  priority: Int,
-  id: String) = this(minimalCount, innerCondition.id, indentType, priority, id, id)
 
   override def checkSome(blocks: List[Block],
                          parentInfo: Option[RuleParentInfo],
@@ -56,29 +47,9 @@ class ScalaSomeRule private (val minimalCount: Int,
     if (found.isDefined && count >= minimalCount) Some(before.reverse, ruleInstance.createMatch(found.get), after) else None
   }
 
-  /**
-   * Returns clusters of rules that should be formatted with the same settings.
-   * @return
-   */
-//  override def getSameFormattingRules(instances: List[ScalaFormattingRuleInstance]): List[Set[ScalaFormattingRuleInstance]] = {
-//      Set[ScalaFormattingRuleInstance](
-//        instances.filter((instance: ScalaFormattingRuleInstance) =>
-//          instance.parentAndPosition match {
-//            case Some(parentAndPosition) => parentAndPosition.parent == this
-//            case None => false
-//          }): _*
-//      ).groupBy(_.root).values.toList
-//  }
-
   override def getPresetIndentType: Option[IndentType] = indentType
 
   override def getPriority: Int = priority
-
-  override def anchor(anchor: Anchor) = {
-    assert(this.anchor.isEmpty)
-    assert(alignmentAnchor.isEmpty)
-    registerRule(new ScalaSomeRule(minimalCount, innerConditionId, indentType, priority, id+"|-"+anchor, structId, Some(anchor)))
-  }
 
   /**
    * Adds a tag to the rule so that ruleInstance created by this concrete rule can be distinguished when building dummy
@@ -86,15 +57,12 @@ class ScalaSomeRule private (val minimalCount: Int,
    * @param tag
    * @return
    */
-  override def tag(tag: String): ScalaFormattingRule = registerRule(new ScalaSomeRule(minimalCount, innerConditionId, indentType, priority, id + "*" + tag, structId, None, Some(tag)))
+  override def tag(tag: String): ScalaFormattingRule = registerRule(new ScalaSomeRule(minimalCount, innerCondition, indentType, priority, id, relations, Some(tag)))
 
   override def childrenWithPosition: List[(ScalaFormattingRule, Int)] =  List((innerCondition, 0))
 
-  override def alignmentAnchor(alignmentAnchor: String): ScalaFormattingRule = {
-    assert(anchor.isEmpty)
-    assert(this.alignmentAnchor.isEmpty)
-    registerRule(new ScalaSomeRule(minimalCount, innerConditionId, indentType, priority, id + "&" + alignmentAnchor, structId, None, None, Some(alignmentAnchor)))
-  }
+  override protected def addRelation(relation: RuleRelation, args: List[String]): ScalaFormattingRule =
+    new ScalaSomeRule(minimalCount, innerCondition, indentType, priority, id, relations + ((relation, args)), tag)
 }
 
 object ScalaSomeRule {

@@ -2,10 +2,11 @@ package org.jetbrains.plugins.scala
 package lang.formatting.automatic.settings
 
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock
-import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.{ScalaBlockRule, ScalaFormattingRule}
+import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.{RuleMatch, ScalaBlockRule, ScalaFormattingRule}
 import com.intellij.formatting._
 import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaSpacingProcessor
 import scala.collection.mutable
+import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation
 
 
 /**
@@ -14,11 +15,11 @@ import scala.collection.mutable
  */
 class ScalaAutoFormatter(matcher: ScalaFormattingRuleMatcher) {
 
-  private val anchorToAlignment = mutable.HashMap[ScalaFormattingRule.Anchor, Alignment]()
+  //  private val anchorToAlignment = mutable.HashMap[ScalaFormattingRule.Anchor, Alignment]()
 
-  private val alignmentAnchorToAlignment = mutable.HashMap[String, Alignment]()
+  private val topMatchToAlignmentData = mutable.Map[RuleMatch, mutable.Map[RuleRelation, Alignment]]()
 
-  private def getDefaultSpacing = Spacing.getReadOnlySpacing//Spacing.createSpacing(0, 0, 0, false, 0)//ScalaSpacingProcessor.COMMON_SPACING//
+  private def getDefaultSpacing = Spacing.getReadOnlySpacing //Spacing.createSpacing(0, 0, 0, false, 0)//ScalaSpacingProcessor.COMMON_SPACING//
 
   private def getDefaultIndent = Indent.getNoneIndent
 
@@ -36,7 +37,7 @@ class ScalaAutoFormatter(matcher: ScalaFormattingRuleMatcher) {
     if (rules.isEmpty) {
       getDefaultSpacing
     } else {
-        matcher.getCurrentSettings.instances.get(chooseFormattingRule(rules)) match {
+      matcher.getCurrentSettings.instances.get(chooseFormattingRule(rules)) match {
         case Some(entries) if !entries.isEmpty =>
           //TODO: implement LFDependent spacing once the rules contain info on blocks to search dependencies with
           val spacingInfo = chooseEntry(entries).spacing
@@ -55,12 +56,12 @@ class ScalaAutoFormatter(matcher: ScalaFormattingRuleMatcher) {
       matcher.getCurrentSettings.instances.get(chooseFormattingRule(rules)) match {
         case Some(entries) if !entries.isEmpty =>
           val wrapSetting = chooseEntry(entries).wrap
-          if (wrapSetting.needWrap) {
+          if (wrapSetting.wrapDefined) {
             wrapSetting.wrapType match {
               case Some(wrapType) => Wrap.createWrap(wrapType, false) //TODO: determine the second parameter
               case None => null
             }
-          } else null
+          } else Wrap.createWrap(WrapType.NONE, false)
         case _ => null
       }
     }
@@ -73,15 +74,37 @@ class ScalaAutoFormatter(matcher: ScalaFormattingRuleMatcher) {
     } else {
       val ruleInstance = chooseFormattingRule(rules)
       matcher.getCurrentSettings.instances.get(ruleInstance) match {
-        case Some(entries) if !entries.isEmpty  =>
+        case Some(entries) if !entries.isEmpty =>
           val alignmentSetting = chooseEntry(entries).alignment
           if (alignmentSetting.needAlignment) {
-            val alignmentAnchor = ruleInstance.rule.alignmentAnchor
-            assert(alignmentAnchor.isDefined)
-            if (!anchorToAlignment.contains(alignmentAnchor.get)) {
-              anchorToAlignment.put(alignmentAnchor.get, Alignment.createAlignment(true))
+            matcher.getTopMatch(block, ruleInstance) match {
+              case Some(topMatch) =>
+                val aligningRelations = ruleInstance.rule.relations.map(_._1).filter(_.isAlignedByThisRelation(ruleInstance))
+                val alignmentMap = topMatchToAlignmentData.get(topMatch) match {
+                  case Some(aMap) => aMap
+                  case None =>
+                    val newMap = mutable.Map[RuleRelation, Alignment]()
+                    topMatchToAlignmentData.put(topMatch, newMap)
+                    newMap
+                }
+                val alignment = aligningRelations.find(relation => alignmentMap.contains(relation)) match {
+                  case Some(aligningRelation) =>
+                    //there was some alignment for this relation in current top rule match
+                    alignmentMap.get(aligningRelation).get
+                  case None =>
+                    //there was no alignment for this relation in current top rule match
+                    Alignment.createAlignment(true)
+                }
+                for (relation <- aligningRelations) {
+                  if (alignmentMap.contains(relation)) {
+                    assert(alignmentMap.get(relation).get == alignment)
+                  } else {
+                    alignmentMap.put(relation, alignment)
+                  }
+                }
+                alignment
+              case _ => null
             }
-            anchorToAlignment.get(alignmentAnchor.get).get
           } else null
         case _ => null
       }
@@ -95,11 +118,13 @@ class ScalaAutoFormatter(matcher: ScalaFormattingRuleMatcher) {
     } else {
       matcher.getCurrentSettings.instances.get(chooseFormattingRule(rules)) match {
         case Some(entries) if !entries.isEmpty =>
-          chooseEntry(entries).indentInfo match {
+          val indentEntry = chooseEntry(entries)
+          if (indentEntry.originatingFromNoSpaceChild) Indent.getNoneIndent else
+          indentEntry.indentInfo match {
             case Some(indentInfo) => indentInfo.indentType match {
               case Some(IndentType.ContinuationIndent) => Indent.getContinuationIndent(indentInfo.indentRelativeToDirectParent)
               case Some(IndentType.NormalIndent) => Indent.getNormalIndent(indentInfo.indentRelativeToDirectParent)
-              case None => Indent.getSpaceIndent(indentInfo.indentLength, indentInfo.indentRelativeToDirectParent)
+              case _ => Indent.getSpaceIndent(indentInfo.indentLength, indentInfo.indentRelativeToDirectParent)
             }
             case None => getDefaultIndent
           }
@@ -112,25 +137,4 @@ class ScalaAutoFormatter(matcher: ScalaFormattingRuleMatcher) {
 }
 
 object ScalaAutoFormatter {
-  //  def getBlockTreeSettings(topBlock: ScalaBlock, rules: Map[String, ScalaFormattingRule]): IndentTypeSettings = {
-  //    val matcher = new ScalaFormattingRuleMatcher(rules)
-  //
-  //    matchBlocks(topBlock, matcher, rules)
-  //
-  //    matcher.deriveSettings
-  //  }
-
-  //  private def matchBlocks(parentBlock: ScalaBlock, matcher: ScalaFormattingRuleMatcher, rules: List[ScalaFormattingRule]) {
-  //    import scala.collection.JavaConversions._
-  //
-  //    //match all rules
-  //    for (rule <- rules) {
-  //      matcher.matchRule(rule, parentBlock)
-  //    }
-  //
-  //    for (childBlock: Block <- parentBlock.getSubBlocks().toList if childBlock.isInstanceOf[ScalaBlock]) {
-  //      matchBlocks(childBlock.asInstanceOf[ScalaBlock], matcher, rules)
-  //    }
-  //  }
-
 }

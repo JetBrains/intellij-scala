@@ -5,26 +5,25 @@ import com.intellij.formatting.Block
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.{ScalaFormattingRuleMatcher, RuleParentInfo, IndentType}
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.ScalaFormattingRule._
 import scala.Some
+import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation
 
 /**
  * @author Roman.Shein
  *         Date: 12.09.13
  */
-class MaybeRule private (val innerId: String,
+class MaybeRule private (val inner: ScalaFormattingRule,
                 val indentType: Option[IndentType.IndentType],
                 val priority: Int,
                 val id: String,
-                val structId: String,
-                val anchor: Option[Anchor] = None,
-                val tag: Option[String] = None,
-                val alignmentAnchor: Option[Anchor] = None) extends ScalaFormattingRule{
+                val relations: Set[(RuleRelation, List[String])] = Set(),
+                val tag: Option[String] = None) extends ScalaFormattingRule{
 
-  private def this(innerRule: ScalaFormattingRule,
-      indentType: Option[IndentType.IndentType],
-      priority: Int,
-      id: String) = this(innerRule.id, indentType, priority, id, id)
+//  private def this(innerRule: ScalaFormattingRule,
+//      indentType: Option[IndentType.IndentType],
+//      priority: Int,
+//      id: String) = this(innerRule, indentType, priority, id)
 
-  def inner = getRule(innerId)
+//  def inner = getRule(innerId)
 
   override def checkSome(blocks: List[Block],
                          parentAndPosition: Option[RuleParentInfo],
@@ -38,23 +37,9 @@ class MaybeRule private (val innerId: String,
     }
   }
 
-  /**
-   * Returns clusters of rules that should be formatted with the same settings.
-   * @return
-   */
-//  override def getSameFormattingRules(instances: List[ScalaFormattingRuleInstance]): List[Set[ScalaFormattingRuleInstance]] =
-//    //List[Set[ScalaFormattingRuleInstance]]()
-//    inner.getSameFormattingRules(instances)
-
   override def getPresetIndentType: Option[IndentType.IndentType] = indentType
 
   override def getPriority: Int = priority
-
-  override def anchor(anchor: Anchor) = {
-    assert(this.anchor.isEmpty)
-    assert(alignmentAnchor.isEmpty)
-    registerRule(new MaybeRule(innerId, indentType, priority, id + "|-" + anchor, structId, Some(anchor), None, Some(anchor)))
-  }
 
   /**
    * Adds a tag to the rule so that ruleInstance created by this concrete rule can be distinguished when building dummy
@@ -62,15 +47,12 @@ class MaybeRule private (val innerId: String,
    * @param tag
    * @return
    */
-  override def tag(tag: String): ScalaFormattingRule = registerRule(new MaybeRule(innerId, indentType, priority, id + "*" + tag, structId, None, Some(tag)))
+  override def tag(tag: String): ScalaFormattingRule = registerRule(new MaybeRule(inner, indentType, priority, id, relations, Some(tag)))
 
   override def childrenWithPosition: List[(ScalaFormattingRule, Int)] = {List((inner, 0))}
 
-  override def alignmentAnchor(alignmentAnchor: String): ScalaFormattingRule = {
-    assert(anchor.isEmpty)
-    assert(this.alignmentAnchor.isEmpty)
-    registerRule(new MaybeRule(innerId, indentType, priority, id + "$" + alignmentAnchor, structId, None, None, Some(alignmentAnchor)))
-  }
+  override protected def addRelation(relation: RuleRelation, args: List[String]): ScalaFormattingRule =
+    new MaybeRule(inner, indentType, priority, id, relations + ((relation, args)), tag)
 }
 
 object MaybeRule {

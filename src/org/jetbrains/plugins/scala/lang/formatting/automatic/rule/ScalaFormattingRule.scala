@@ -7,6 +7,9 @@ import scala.collection.JavaConversions._
 import scala.Some
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.IndentType.IndentType
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.{ScalaFormattingRuleMatcher, FormattingSettings, RuleParentInfo}
+import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation
+import org.jetbrains.plugins.scala.lang.formatting.automatic.rule
+import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation.RelationParticipantId
 
 /**
  * @author Roman.Shein
@@ -16,10 +19,9 @@ trait ScalaFormattingRule {
 
   val id: String
 
-  /**
-   * Value for printing: it does not take anchors and other engne-related stuff into considretion, only the rule structure.
-   */
-  val structId: String
+  val tag: Option[String]
+
+  val relations: Set[(RuleRelation, List[String])]
 
   /**
    * Check whether the given sequence of blocks complies with the rule.
@@ -48,37 +50,48 @@ trait ScalaFormattingRule {
 
   def getPriority: Int
 
+  override def hashCode = id.hashCode()
+
   override def equals(other: Any) = {
     other match {
-      case rule: ScalaFormattingRule =>rule.id == id
+      case rule: ScalaFormattingRule => rule.id == id && rule.relations == relations
     }
   }
 
-  override def toString = structId
+  protected def addRelation(relation: RuleRelation, args: List[String]): ScalaFormattingRule
 
-  /**
-   * Binds this rule to given anchor. All rules bound to the same anchor should have the same resulting formatting settings.
-   * @param anchor
-   */
-  def anchor(anchor: ScalaFormattingRule.Anchor): ScalaFormattingRule
-
-  def anchor: Option[ScalaFormattingRule.Anchor]
-
-  /**
-   * Adds a tag to the rule so that ruleInstance created by this concrete rule can be distinguished when building dummy
-   * rule instances. It is used for mapping between old and new formatting settings.
-   * @param tag
-   * @return
-   */
   def tag(tag: String): ScalaFormattingRule
 
-  def tag: Option[String]
+  /**
+   * Creates a new rule with same parameters as this, but also dependent on relation given.
+   * @param relation
+   * @return
+   */
+  def acceptRelation(relation: RuleRelation, participantIds: RelationParticipantId*): ScalaFormattingRule = {
+    val newRule = addRelation(relation, participantIds.toList)
+    relation.addRule(newRule, participantIds:_*)
+    newRule
+  }
 
-  def alignmentAnchor(alignmentAnchor: String): ScalaFormattingRule
-
-  def alignmentAnchor: Option[String]
+  override def toString = id
 
   def childrenWithPosition: List[(ScalaFormattingRule, Int)]
+
+  /**
+   * Zero or more of.
+   * @return
+   */
+  def * = ScalaSomeRule(0, this, zeroOrMoreId + id)
+
+  /**
+   * One or more of
+   * @return
+   */
+  def + = ScalaSomeRule(1, this, oneOrMoreId + id)
+
+  def &(relationId: String, additionalIds: String*) = rule.&(this, relationId, additionalIds:_*)
+
+  def isBlockRule: Boolean = false
 }
 
 object ScalaFormattingRule {

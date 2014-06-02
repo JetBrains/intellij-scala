@@ -211,7 +211,7 @@ class ScalaFormattingSettingsSerializer extends PersistentStateComponent[Element
 
   private def storeWrap(wrap: WrapSetting): Element = {
     val res = new Element(wrapInfoId)
-    res.addContent(new Element(wrapNeededId).setText(wrap.needWrap.toString))
+    res.addContent(new Element(wrapNeededId).setText(wrap.wrapDefined.toString))
     wrap.wrapType.map((wrapType) => res.addContent(new Element(wrapTypeId).setText(wrapType.toString)))
     res
   }
@@ -289,7 +289,7 @@ class ScalaFormattingSettingsSerializer extends PersistentStateComponent[Element
             //this is not a root rule and it has some entries linked to it
             val instanceEntriesElement = new Element("instance" + id.toString)
             for ((entry, index) <- settings.instances(instance).zipWithIndex) {
-              assert(entry.ruleInstance == instance)
+              assert(entry.rule == instance)
               instanceEntriesElement.addContent(storeEntry(entry, instancesToIds, "entry"+index))
             }
             entriesElement.addContent(instanceEntriesElement)

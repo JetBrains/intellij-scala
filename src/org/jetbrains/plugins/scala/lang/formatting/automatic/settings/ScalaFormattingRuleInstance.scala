@@ -40,6 +40,16 @@ class ScalaFormattingRuleInstance(val parentAndPosition: Option[RuleParentInfo],
 
   class RuleMatch private[ScalaFormattingRuleInstance] (val childMatches: List[ScalaFormattingRuleInstance#RuleMatch], val formatBlock: Option[ScalaBlock]) {
 
+//    override def equals(other: Any): Boolean = {
+//      other match {
+//        case otherMatch: RuleMatch =>
+//
+//        case _ => false
+//      }
+//    }
+
+    override def hashCode: Int = rule.hashCode
+
     val rule = ScalaFormattingRuleInstance.this
 
     def getFormattingDefiningWhitespace: Option[String] = getFormattingDefiningBlock.map(_.getInitialWhiteSpace)

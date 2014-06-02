@@ -2,22 +2,101 @@ package org.jetbrains.plugins.scala
 package lang.formatting.automatic
 
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.{RuleParentInfo, ScalaFormattingRuleInstance, IndentType}
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.ScalaFormattingRuleInstance
 import com.intellij.psi.tree.IElementType
 import scala.collection.mutable
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaElementType}
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScReferencePatternElementType
-
-//import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock
-//import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-//import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.ScalaFormattingRule
-//import org.jetbrains.plugins.scala.lang.formatting.automatic.rule
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.IndentType.IndentType
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.IndentType
+import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.{SameAlignmentRelation, SameSettingsRelation}
+import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation._
+import scala.Some
+import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.SameSettingsRelation._
 
 /**
  * @author Roman.Shein
  *         Date: 11.09.13
  */
 package object rule {
+
+  //TODO: move this to rules companion objects, disable creation "by-name" for IDs that contains reserver IDs as substrings
+
+  val zeroOrMoreId = "ZERO_OR_MORE "
+
+  val oneOrMoreId = "ONE_OR_MORE "
+
+  val maybeId = "MAYBE "
+
+  val orId = " OR "
+
+  val seqId = "SEQ"
+
+  val blockTextId = " TEXT BLOCK WITH "
+
+  val blockTypeId = " TYPE BLOCK WITH "
+
+  val reservedIds = List(zeroOrMoreId, oneOrMoreId, maybeId, orId, seqId, blockTextId, blockTypeId)
+
+  def maybe(rule: ScalaFormattingRule) = MaybeRule(rule, maybeId + rule.id)
+
+  def maybe(indentType: IndentType, rule: ScalaFormattingRule) = MaybeRule(rule, indentType, maybeId + rule.id)
+
+  def or(indentType: Option[IndentType], rules: ScalaFormattingRule*): ScalaFormattingRule = {
+    assert(rules.nonEmpty)
+    val id = rules.tail.foldLeft(rules.head.id)((acc, rule) => acc + orId + rule.id)
+    OrRule(id, indentType, rules: _*)
+  }
+
+  def or(rules: ScalaFormattingRule*): ScalaFormattingRule = or(None, rules: _*)
+
+  def or(indentType: IndentType, rules: ScalaFormattingRule*): ScalaFormattingRule = or(Some(indentType), rules: _*)
+
+  def seq(rules: ScalaFormattingRule*) = {
+    assert(rules.nonEmpty)
+    ScalaFormattingCompositeRule(rules.tail.foldLeft(seqId + "(" + rules.head.id)((acc, rule) => acc + ", " + rule.id) + ")", rules: _*)
+  }
+
+  def block(expectedText: String,
+            priority: Int,
+            compositeRule: ScalaFormattingRule): ScalaFormattingRule =
+    ScalaBlockCompositeRule(expectedText, compositeRule, priority, expectedText + blockTextId + compositeRule.id)
+
+  def block(expectedText: String,
+            compositeRule: ScalaFormattingRule): ScalaFormattingRule = block(expectedText, ScalaFormattingRule.RULE_PRIORITY_DEFAULT, compositeRule)
+
+  def block(expectedType: IElementType,
+            priority: Int = ScalaFormattingRule.RULE_PRIORITY_DEFAULT,
+            compositeRule: ScalaFormattingRule): ScalaFormattingRule =
+    ScalaBlockCompositeRule(expectedType, compositeRule, priority, expectedType + blockTypeId + compositeRule.id)
+
+  def block(expectedTypes: List[IElementType], priority: Int, compositeRule: ScalaFormattingRule): ScalaFormattingRule = {
+    assert(expectedTypes.nonEmpty)
+    val id = expectedTypes.tail.foldLeft(expectedTypes.head.toString)(
+      (acc, exType) => acc + ", " + exType
+    ) + blockTypeId + compositeRule.id
+    ScalaBlockCompositeRule(compositeRule, priority, id, expectedTypes)
+  }
+
+  def &(rule: ScalaFormattingRule, relationId: String, additionalIds: RelationParticipantId*) =
+    rule.acceptRelation(sameSettingsRelationsByIds.get(relationId).getOrElse {
+      val relation = new SameSettingsRelation()
+      sameSettingsRelationsByIds.put(relationId, relation)
+      relation
+    }, additionalIds:_*
+    )
+
+  def alignment(rule: ScalaFormattingRule, relationId: String) =
+    rule.acceptRelation(sameAlignmentRelationsByIds.get(relationId).getOrElse {
+      val relation = new SameAlignmentRelation()
+      sameAlignmentRelationsByIds.put(relationId, relation)
+      relation
+    }
+    )
+
+  val sameSettingsRelationsByIds = mutable.Map[String, SameSettingsRelation]()
+  val sameAlignmentRelationsByIds = mutable.Map[String, SameAlignmentRelation]()
+
+  //  def isAcceptableId(id: String) = reservedIds.count(id.contains) == 0
 
   //anchor ids
   val ALIGN_IF_ELSE_ANCHOR = "ALIGN_IF_ELSE"
@@ -28,10 +107,13 @@ package object rule {
   val whileWordTag = "WHILE WORD"
   val catchWordTag = "CATCH WORD"
   val finallyWordTag = "FINALLY WORD"
+  val idChainTag = "ID CHAIN"
+  val idChainArgsTag = "ID CHAIN ARGS"
+  val parametersAlignmentTag = "PARAMETERS"
 
   type RuleMatch = ScalaFormattingRuleInstance#RuleMatch
 
-  val exprElementTypes = List[IElementType] (
+  val exprElementTypes = List[IElementType](
     ScalaElementTypes.PREFIX_EXPR,
     ScalaElementTypes.PREFIX,
     ScalaElementTypes.POSTFIX_EXPR,
@@ -72,7 +154,7 @@ package object rule {
     ScalaElementTypes.TYPED_EXPR_STMT
   )
 
-  val patterns = List[IElementType] (
+  val patterns = List[IElementType](
     ScalaElementTypes.TUPLE_PATTERN,
     ScalaElementTypes.SEQ_WILDCARD,
     ScalaElementTypes.CONSTRUCTOR_PATTERN,
@@ -100,6 +182,9 @@ package object rule {
     ScalaElementTypes.REFINEMENT
   ) //TODO: do I really need all these patterns here?
 
+  /**
+   * Maps pairs (rule, tag) to rule
+   */
   private val rulesByNames = mutable.Map[String, ScalaFormattingRule]()
 
   def addRule(rule: ScalaFormattingRule) = {
@@ -108,11 +193,12 @@ package object rule {
     rule
   }
 
+  //TODO: redo all this stuff
   def registerRule(rule: ScalaFormattingRule) = {
     if (!rulesByNames.contains(rule.id)) {
       rulesByNames.put(rule.id, rule)
     } else {
-      assert(rulesByNames.get(rule.id).get == rule)
+      //      assert(rulesByNames.get(rule.id).get == rule)
     }
     rule
   }
@@ -160,7 +246,7 @@ package object rule {
 
   //now, define composite rule components with increasing complexity
 
-  val maybeSemi = MaybeRule(semi, "MAYBE SEMICOLON")
+  val maybeSemi = maybe(semi) //MaybeRule(semi, "MAYBE SEMICOLON")
 
   val expr = ScalaBlockRule("EXPR", exprElementTypes) //TODO: find out if it matches correctly with the grammatics
 
@@ -179,7 +265,7 @@ package object rule {
     "MaybeExpr")
 
   val ifElse = ScalaFormattingCompositeRule(ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "IF ELSE",
-    maybeSemi, elseWord.alignmentAnchor(ALIGN_IF_ELSE_ANCHOR).tag(ALIGN_IF_ELSE_TAG_ELSE_WORD), maybeBlockExpr
+    maybeSemi, alignment(elseWord, ALIGN_IF_ELSE_ANCHOR).tag(ALIGN_IF_ELSE_TAG_ELSE_WORD), maybeBlockExpr
   )
 
   val elseCompositeBlock = ScalaBlockCompositeRule("else", ifElse, ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "ELSE COMPOSITE BLOCK")
@@ -190,7 +276,7 @@ package object rule {
   )
 
   val ifComposite = ScalaFormattingCompositeRule("IF COMPOSITE",
-    ifWord.alignmentAnchor(ALIGN_IF_ELSE_ANCHOR).tag(ALIGN_IF_ELSE_TAG_IF_WORD), leftParenthesis, expr, rightParenthesis, maybeBlockExpr
+    alignment(ifWord, ALIGN_IF_ELSE_ANCHOR).tag(ALIGN_IF_ELSE_TAG_IF_WORD), leftParenthesis, expr, rightParenthesis, maybeBlockExpr
   )
 
   val ifCompositeBlock = ScalaBlockCompositeRule("if", ifComposite, ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "IF COMPOSITE BLOCK")
@@ -213,10 +299,10 @@ package object rule {
   val caseClauseArrowAnchor = "CASE CLAUSE ARROW ANCHOR"
 
   val caseClause = ScalaBlockCompositeRule(ScalaElementTypes.CASE_CLAUSE,
-    ScalaFormattingCompositeRule("CASE CLAUSE", caseWord, pattern, maybeGuard, `=>`.anchor(caseClauseArrowAnchor), block)
+    ScalaFormattingCompositeRule("CASE CLAUSE", caseWord, pattern, maybeGuard, `=>`.&(caseClauseArrowAnchor), block)
     , ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "CASE CLAUSE COMPOSITE")
 
-  val caseClauses = ScalaSomeRule(1, caseClause.anchor("CASE CLAUSE ANCHOR"), "CASE CLAUSES")
+  val caseClauses = ScalaSomeRule(1, caseClause.&("CASE CLAUSE ANCHOR"), "CASE CLAUSES")
 
   val caseClausesComposite = ScalaBlockCompositeRule(ScalaElementTypes.CASE_CLAUSES, caseClauses, ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "CASE CLAUSES COMPOSITE")
 
@@ -269,49 +355,46 @@ package object rule {
 
   val idChainAnchor = "ID CHAIN ANCHOR"
   val idChainArgsAnchor = "ID CHAIN ARGS ANCHOR"
+  val idChainDotAnchor = "ID CHAIN DOR ANCHOR"
 
-  val maybeArgsRule = MaybeRule(ScalaBlockRule("ARGUMENTS OF FUNCTION", ScalaElementTypes.ARG_EXPRS), "MAYBE ARGUMENTS OF FUNCTION")
+  val argsRule = ScalaBlockRule("ARGUMENTS OF FUNCTION", ScalaElementTypes.ARG_EXPRS)
+  val idChainMaybeArgsRule = MaybeRule(argsRule.&(idChainArgsAnchor).tag(idChainArgsTag), "MAYBE ARGUMENTS OF FUNCTION")
 
   val idChainDefault = ScalaFormattingCompositeRule(
-      "ID CHAIN DEFAULT",
-      ScalaSomeRule(1,
-        ScalaFormattingCompositeRule(
-          "ID CHAIN HEAD COMPOSITE",
-          idRule.anchor(idChainAnchor),
-          maybeArgsRule.anchor(idChainArgsAnchor),
-          dot), "ID CHAIN HEAD"
+    "ID CHAIN DEFAULT",
+    ScalaSomeRule(1,
+      ScalaFormattingCompositeRule(
+        "ID CHAIN HEAD COMPOSITE",
+        idRule.&(idChainAnchor),
+        idChainMaybeArgsRule,
+        dot.&(idChainDotAnchor)), "ID CHAIN HEAD"
+    ),
+    idRule.&(idChainAnchor),
+    idChainMaybeArgsRule
+  ).tag(idChainTag)
+
+  val parameterAlignmentAnchor = "PARAMETER ALIGNMENT ANCHOR"
+
+  val parametersList = ScalaFormattingCompositeRule(
+    "PARAMETERS LIST",
+    leftParenthesis,
+    expr.&(parameterAlignmentAnchor, noSpacingId),
+    ScalaSomeRule(
+      0,
+      ScalaFormattingCompositeRule(
+        "PARAMETERS LIST INNER",
+        comma,
+        expr.&(parameterAlignmentAnchor)
       ),
-      idRule.anchor(idChainAnchor),
-      maybeArgsRule.anchor(idChainArgsAnchor)
-    )
+      "HEAD ARGS"
+    ),
+    rightParenthesis
+  ) //TODO: refine expression types used here
 
-//  val callChainAnchor = "CALL CHAIN ANCHOR"
-//
-//  val callChainDefault = ScalaBlockCompositeRule(ScalaElementTypes.REFERENCE_EXPRESSION,
-//    ScalaFormattingCompositeRule(
-//      "CALL CHAIN COMPOSITE",
-//      ScalaSomeRule(1,
-//        ScalaFormattingCompositeRule(
-//          "CALL CHAIN HEAD COMPOSITE",
-//          referenceExprRule.anchor(callChainAnchor),
-//          dot), "CALL CHAIN HEAD"
-//      ),
-//      referenceExprRule.anchor(callChainAnchor)
-//    ),
-//  ScalaFormattingRule.RULE_PRIORITY_DEFAULT,
-//  "CALL CHAIN DEFAULT"
-//  )
-
-//  val idChainDefaultId = "ID CHAIN DEFAULT"
-//
-//  val idChainDefault = ScalaBlockCompositeRule(ScalaElementTypes.REFERENCE_EXPRESSION,
-//    ScalaFormattingCompositeRule(
-//      "ID CHAIN COMPOSITE",
-//      OrRule("ID CHAIN OR", IndentType.ContinuationIndent, List(idChainDefaultId, idRule.anchor(idChainAnchor).id)),
-//      dot,
-//      idRule.anchor(idChainAnchor)
-//    ),
-//    ScalaFormattingRule.RULE_PRIORITY_DEFAULT,
-//    idChainDefaultId
-//  )
+  val parametersDefault = ScalaBlockCompositeRule(
+    ScalaElementTypes.ARG_EXPRS,
+    parametersList,
+    ScalaFormattingRule.RULE_PRIORITY_DEFAULT,
+    "PARAMETERS DEFAULT"
+  )
 }
