@@ -994,6 +994,9 @@
         <component>
             <implementation-class>org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner</implementation-class>
         </component>
+        <component>
+          <implementation-class>org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCache</implementation-class>
+        </component>
     </project-components>
 
     <actions>
