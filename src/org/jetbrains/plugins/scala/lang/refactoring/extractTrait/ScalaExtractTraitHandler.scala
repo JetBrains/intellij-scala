@@ -18,9 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.util.containers.MultiMap
-import com.intellij.openapi.ui.DialogWrapper
-import java.util
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import com.intellij.refactoring.extractSuperclass.ExtractSuperClassUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
 
@@ -114,43 +111,6 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
     ScalaDirectoryService.createClassFromTemplate(dir, name, "Scala Trait", askToDefineVariables = false).asInstanceOf[ScTrait]
   }
 
-  def checkConflicts(dialog: DialogWrapper, clazz: ScTemplateDefinition, selectedMembers: util.List[ScalaExtractMemberInfo]) = {
-    import scala.collection.convert.wrapAll._
-
-    val conflicts: MultiMap[PsiElement, String] = new MultiMap[PsiElement, String]
-    var currentMemberName: String = null
-
-    val visitor = new ScalaRecursiveElementVisitor() {
-      override def visitReference(ref: ScReferenceElement) {
-        val resolve = ref.resolve()
-        resolve match {
-          case named: PsiNamedElement =>
-            ScalaPsiUtil.nameContext(named) match {
-              case m: ScMember if m.containingClass == clazz && m.isPrivate && !selectedMembers.map(_.getMember).contains(m) =>
-                conflicts.putValue(m, s"Private member ${named.name} cannot be used in the extracted member $currentMemberName")
-              case m: ScMember if clazz.isInstanceOf[ScNewTemplateDefinition] && m.containingClass == clazz =>
-                conflicts.putValue(m, s"Member ${named.name} of an anonymous class cannot be used in the extracted member $currentMemberName")
-              case m: ScMember if ref.qualifier.isInstanceOf[ScSuperReference] && clazz.isInheritor(m.containingClass, deep = true) =>
-                conflicts.putValue(m, s"Extracted member $currentMemberName has reference to super, but extracted trait won't have a base class.")
-              case _ =>
-            }
-          case _ =>
-        }
-      }
-    }
-
-    for {
-      info <- selectedMembers
-      if !info.isToAbstract
-      m = info.getMember
-    } {
-      currentMemberName = info.getDisplayName
-      m.accept(visitor)
-    }
-
-    ExtractSuperClassUtil.showConflicts(dialog, conflicts, clazz.getProject)
-  }
-
   private class ExtractInfo(clazz: ScTemplateDefinition, selectedMemberInfos: Seq[ScalaExtractMemberInfo]) {
     private val classesForSelfType = mutable.Set[PsiClass]()
     private val selected = selectedMemberInfos.map(_.getMember)
@@ -212,13 +172,16 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
       resolve match {
         case named: PsiNamedElement =>
           ScalaPsiUtil.nameContext(named) match {
-            case m: ScMember if m.containingClass == clazz && m.isPrivate && !selected.contains(m) =>
-              conflicts.putValue(m, s"Private member ${named.name} cannot be used in the extracted member $currentMemberName")
-            case m: ScMember if clazz.isInstanceOf[ScNewTemplateDefinition] && m.containingClass == clazz =>
-              conflicts.putValue(m, s"Member ${named.name} of an anonymous class cannot be used in the extracted member $currentMemberName")
+            case m: ScMember if m.containingClass == clazz && m.isPrivate=>
+              val message = ScalaBundle.message("private.member.cannot.be.used.in.extracted.member", named.name, currentMemberName)
+              conflicts.putValue(m, message)
+            case m: ScMember if clazz.isInstanceOf[ScNewTemplateDefinition] && m.containingClass == clazz && !selected.contains(m) =>
+              val message = ScalaBundle.message("member.of.anonymous.class.cannot.be.used.in.extracted.member", named.name, currentMemberName)
+              conflicts.putValue(m, message)
             case m: PsiMember
-              if m.containingClass != null && ref.qualifier.isInstanceOf[ScSuperReference] && clazz.isInheritor(m.containingClass, deep = true) =>
-              conflicts.putValue(m, s"Extracted member $currentMemberName has reference to super, but extracted trait won't have a base class.")
+              if m.containingClass != null && ref.qualifier.exists(_.isInstanceOf[ScSuperReference]) && clazz.isInheritor(m.containingClass, deep = true) =>
+              val message = ScalaBundle.message("super.reference.used.in.extracted.member", currentMemberName)
+              conflicts.putValue(m, message)
             case _ =>
           }
         case _ =>
@@ -244,8 +207,8 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
 
       classesForSelfType.foreach {
         case cl: PsiClass if cl.getTypeParameters.nonEmpty =>
-          conflicts.putValue(cl,
-            s"Extracted trait will have ${cl.name} as a self type, but identification of it's type parameters is not supported")
+          val message = ScalaBundle.message("type.parameters.for.self.type.not.supported", cl.name)
+          conflicts.putValue(cl, message)
         case _ =>
       }
     }
