@@ -31,8 +31,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.extensions.Parent
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypedDefinition, ScNamedElement}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
-import extensions.childOf
+import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
+import extensions.{childOf, toPsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.internal.statistic.UsageTrigger
 
@@ -129,7 +129,11 @@ class ScalaInlineHandler extends InlineHandler {
         ScalaPsiUtil.getParentOfType(ref.getElement, classOf[ScStableCodeReferenceElement], classOf[ScStableReferenceElementPattern]) != null))
         showErrorHint(ScalaBundle.message("cannot.inline.stable.reference"), "Variable")
       else if (!ApplicationManager.getApplication.isUnitTestMode) {
-        val question = "Inline " + inlineDescriptionSuffix + "?"
+        val occurences = refs.size match {
+          case 1 => "(1 occurrence)"
+          case n => s"($n occurrences)"
+        }
+        val question = s"Inline $inlineDescriptionSuffix ${bind.name}? $occurences"
         val dialog = new RefactoringMessageDialog(
           inlineTitle,
           question,
