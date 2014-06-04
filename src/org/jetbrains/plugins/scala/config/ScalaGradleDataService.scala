@@ -7,87 +7,62 @@ import collection.JavaConverters._
 import com.intellij.openapi.externalSystem.model.{ProjectKeys, DataNode}
 import com.intellij.openapi.externalSystem.service.project.{ProjectStructureHelper, PlatformFacade}
 import com.intellij.openapi.project.Project
-import com.intellij.facet.FacetManager
-import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
-import com.intellij.openapi.roots.OrderRootType
-import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore}
 import com.intellij.openapi.roots.libraries.Library
 import org.jetbrains.plugins.gradle.model.data.ScalaModelData
-import org.jetbrains.plugins.scala.config.FileAPI._
 import ScalaGradleDataService._
+import configuration._
 
 /**
  * @author Pavel Fatin
  */
 class ScalaGradleDataService(platformFacade: PlatformFacade, helper: ProjectStructureHelper)
-        extends AbstractDataService[ScalaModelData, ScalaFacet](ScalaModelData.KEY) {
+        extends AbstractDataService[ScalaModelData, Library](ScalaModelData.KEY) {
 
   def doImportData(toImport: util.Collection[DataNode[ScalaModelData]], project: Project) {
-    toImport.asScala.foreach { facetNode =>
+    toImport.asScala.foreach { dataNode =>
       val module = {
-        val moduleName = facetNode.getData(ProjectKeys.MODULE).getName
+        val moduleName = dataNode.getData(ProjectKeys.MODULE).getName
         helper.findIdeModule(moduleName, project)
       }
 
-      val scalaData = facetNode.getData
+      val scalaData = dataNode.getData
 
-      val compilerLibrary = {
-        val classpath = scalaData.getScalaClasspath.asScala.toSet
+      val compilerClasspath = scalaData.getScalaClasspath.asScala.toSet
+//      val compilerOptions = compilerOptionsFrom(scalaData) TODO handle
 
-        findLibraryByClassesIn(project)(classpath).getOrElse(
-          createLibraryIn(project)(compilerLibraryNameFor(classpath), classpath))
+      val scalaSdk = findScalaSdkIn(project, compilerClasspath).orElse {
+        val standardLibrary = findScalaStandardLibraryIn(project, compilerClasspath)
+        standardLibrary.map(_.convertToScalaSdkWith(compilerClasspath.toSeq))
       }
 
-      val compilerOptions = compilerOptionsFrom(scalaData)
+      scalaSdk.foreach { properSdk =>
+        val existingScalaSdk = module.scalaSdk
 
-      def setup(facet: ScalaFacet) {
-        facet.compilerLibraryId = LibraryId(compilerLibrary.getName, LibraryLevel.Project)
-        facet.compilerParameters = compilerOptions.toArray
+        existingScalaSdk match {
+          case None =>
+            module.attach(properSdk)
+          case Some(sdk) if sdk.library != properSdk.library =>
+            module.detach(sdk)
+            module.attach(properSdk)
+          case _ =>
+        }
       }
-
-      ScalaFacet.findIn(module).map(setup(_)).getOrElse(
-        ScalaFacet.createIn(module)(setup(_)))
     }
   }
 
-  def doRemoveData(toRemove: util.Collection[_ <: ScalaFacet], project: Project) {
-    toRemove.asScala.foreach(delete(_))
+  def doRemoveData(toRemove: util.Collection[_ <: Library], project: Project) {
+    // TODO
   }
 }
 
 object ScalaGradleDataService {
-  def findLibraryByClassesIn(project: Project)(classpath: Set[File]): Option[Library] =
-    ProjectLibraryTable.getInstance(project).getLibraries.find(has(classpath))
+  def findScalaSdkIn(project: Project, compilerClasspath: Set[File]): Option[ScalaSdk] =
+    project.scalaSdks.find(_.compilerClasspath.toSet == compilerClasspath)
 
-  private def has(classpath: Set[File])(library: Library) =
-    library.getFiles(OrderRootType.CLASSES).toSet.map(VfsUtilCore.virtualToIoFile) == classpath
+  def findScalaStandardLibraryIn(project: Project, compilerClasspath: Set[File]): Option[Library] = {
+    val compilerStandardLibraryFile = compilerClasspath.find(_.getName.startsWith("scala-library"))
 
-  def compilerLibraryNameFor(classpath: Set[File]): String = {
-    val compilerVersion = classpath.find(_.getName.startsWith("scala-compiler"))
-            .flatMap(readProperty(_, "compiler.properties", "version.number"))
-
-    "Gradle:: scala-compiler-bundle" + compilerVersion.fold("")("-" + _)
-  }
-
-  def createLibraryIn(project: Project)(name: String, classpath: Set[File]): Library = {
-    val library = ProjectLibraryTable.getInstance(project).createLibrary()
-    val model = library.getModifiableModel
-    model.setName(name)
-    classpath.foreach(file => model.addRoot(VfsUtil.getUrlForLibraryRoot(file), OrderRootType.CLASSES))
-    model.commit()
-    library
-  }
-
-  def configure(compilerLibraryName: String, compilerOptions: Seq[String])(facet: ScalaFacet) {
-    facet.compilerLibraryId = LibraryId(compilerLibraryName, LibraryLevel.Project)
-    facet.compilerParameters = compilerOptions.toArray
-  }
-
-  def delete(facet: ScalaFacet) {
-    val facetManager = FacetManager.getInstance(facet.getModule)
-    val model = facetManager.createModifiableModel
-    model.removeFacet(facet)
-    model.commit()
+    compilerStandardLibraryFile.flatMap(file => project.libraries.find(_.classes.contains(file)))
   }
 
   def compilerOptionsFrom(data: ScalaModelData): Seq[String] = {

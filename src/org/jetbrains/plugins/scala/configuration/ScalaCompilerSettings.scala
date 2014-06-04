@@ -24,6 +24,8 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
   var additionalCompilerOptions: String = _
   var plugins: Seq[String] = _
 
+  def parameters: Seq[String] = Seq.empty // TODO
+
   loadState(new ScalaCompilerSettingsState())
 
   def loadState(state: ScalaCompilerSettingsState) {

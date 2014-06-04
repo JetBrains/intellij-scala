@@ -6,9 +6,10 @@ import com.intellij.psi.{PsiFile, PsiElement}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.module.{ModuleUtilCore, ModuleManager, Module}
 import com.intellij.openapi.roots.libraries.Library
-import com.intellij.openapi.roots.impl.libraries.LibraryEx
-import com.intellij.openapi.roots.{ProjectFileIndex, LibraryOrderEntry, ModuleRootManager}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import com.intellij.openapi.roots.impl.libraries.{ProjectLibraryTable, LibraryEx}
+import com.intellij.openapi.roots.{OrderRootType, ProjectFileIndex, LibraryOrderEntry, ModuleRootManager}
+import com.intellij.openapi.roots.ui.configuration.libraryEditor.ExistingLibraryEditor
+import com.intellij.openapi.vfs.VfsUtilCore
 import extensions._
 
 /**
@@ -26,17 +27,45 @@ package object configuration {
       libraryEx.getProperties.asOptionOf[ScalaLibraryProperties]
 
     private def libraryEx = library.asInstanceOf[LibraryEx]
+
+    def convertToScalaSdkWith(compilerClasspath: Seq[File]): ScalaSdk = {
+      val properties = new ScalaLibraryProperties()
+      properties.compilerClasspath = compilerClasspath
+
+      val editor = new ExistingLibraryEditor(library, null)
+//      editor.setName(library.getName.replaceAll("-library", "-sdk")) // TODO
+      editor.setType(ScalaLibraryType.instance)
+      editor.setProperties(properties)
+      editor.commit()
+
+      new ScalaSdk(library)
+    }
+
+    def classes: Set[File] = library.getFiles(OrderRootType.CLASSES).toSet.map(VfsUtilCore.virtualToIoFile)
   }
 
   implicit class ModuleExt(module: Module) {
     def hasScala: Boolean = scalaSdk.isDefined
 
-    def scalaSdk: Option[ScalaSdk] = moduleLibraries.find(_.isScalaSdk).map(new ScalaSdk(_))
+    def scalaSdk: Option[ScalaSdk] = libraries.find(_.isScalaSdk).map(new ScalaSdk(_))
 
-    private def moduleLibraries = inReadAction {
+    def libraries = inReadAction {
       ModuleRootManager.getInstance(module).getOrderEntries.collect {
         case entry: LibraryOrderEntry if entry.getLibrary != null => entry.getLibrary
       }
+    }
+
+    def attach(library: Library) {
+      val model = ModuleRootManager.getInstance(module).getModifiableModel
+      model.addLibraryEntry(library)
+      model.commit()
+    }
+
+    def detach(library: Library) {
+      val model = ModuleRootManager.getInstance(module).getModifiableModel
+      val entry = model.findLibraryOrderEntry(library)
+      model.removeOrderEntry(entry)
+      model.commit()
     }
   }
   
@@ -52,6 +81,12 @@ package object configuration {
     def scalaEvents: ScalaProjectEvents = project.getComponent(classOf[ScalaProjectEvents])
 
     def scalaCompilerSettigns: ScalaCompilerSettings = ScalaCompilerSettings.instanceIn(project)
+
+    def libraries: Seq[Library] = ProjectLibraryTable.getInstance(project).getLibraries.toSeq
+
+    def scalaSdks: Seq[ScalaSdk] = libraries.filter(_.isScalaSdk).map(new ScalaSdk(_))
+
+//    def createScalaSdk
   }
 
   class ScalaModule(val module: Module) {
@@ -68,6 +103,8 @@ package object configuration {
     private def properties: ScalaLibraryProperties = library.scalaProperties.getOrElse {
       throw new IllegalStateException("Library is not Scala SDK: " + library.getName)
     }
+
+    def compilerVersion: Option[String] = None // TODO
 
     def compilerClasspath: Seq[File] = properties.compilerClasspath
 

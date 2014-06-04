@@ -24,3 +24,9 @@ class ScalaLibraryType extends LibraryType[ScalaLibraryProperties](ScalaLibraryK
   def createPropertiesEditor(editorComponent: LibraryEditorComponent[ScalaLibraryProperties]): LibraryPropertiesEditor =
     new ScalaLibraryPropertiesEditor(editorComponent)
 }
+
+object ScalaLibraryType {
+  def instance: ScalaLibraryType =
+    Option(LibraryType.findByKind(ScalaLibraryKind).asInstanceOf[ScalaLibraryType])
+            .getOrElse(throw new NoSuchElementException("Scala library type not found"))
+}
