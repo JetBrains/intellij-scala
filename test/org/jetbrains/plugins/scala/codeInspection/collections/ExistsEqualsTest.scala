@@ -46,5 +46,15 @@ class ExistsEqualsTest extends OperationsOnCollectionInspectionTest{
     checkTextHasNoErrors(text, hint, inspectionClass)
   }
 
+  def test_6() {
+    val text = "Some(1).exists(_ == 1)"
+    checkTextHasNoErrors(text, hint, inspectionClass)
+  }
+
+  def test_7() {
+    val text = "Map(1 -> \"1\").exists(_ == (1, \"1\"))"
+    checkTextHasNoErrors(text, hint, inspectionClass)
+  }
+
   override val inspectionClass = classOf[ExistsEqualsInspection]
 }
