@@ -20,6 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.util.containers.MultiMap
 import com.intellij.refactoring.extractSuperclass.ExtractSuperClassUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
+import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 
 /**
  * Nikolay.Tropin
@@ -51,6 +53,37 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
         invokeOnClass(clazz, project, editor)
       }
     }
+  }
+
+  @TestOnly
+  def testInvoke(project: Project, editor: Editor, file: PsiFile, onlyDeclarations: Boolean, onlyFirstMember: Boolean) {
+    val offset: Int = editor.getCaretModel.getOffset
+    editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
+    val element: PsiElement = file.findElementAt(offset)
+    val clazz = PsiTreeUtil.getParentOfType(element, classOf[ScTemplateDefinition])
+    val allMembers = ExtractSuperUtil.possibleMembersToExtract(clazz).asScala
+    val memberInfos = if (onlyFirstMember) Seq(allMembers.head) else allMembers
+    if (onlyDeclarations) memberInfos.foreach(_.setToAbstract(true))
+    val extractInfo = new ExtractInfo(clazz, memberInfos)
+    extractInfo.collect()
+    val messages = extractInfo.conflicts.values().asScala
+    if (messages.nonEmpty) throw new RuntimeException(messages.mkString("\n"))
+    val trt = inWriteCommandAction(project, "Extract trait") {
+      val traitText = "trait ExtractedTrait {\n\n}"
+      val newTrt = ScalaPsiElementFactory.createTemplateDefinitionFromText(traitText, clazz.getContext, clazz)
+      val newTrtAdded = clazz match {
+        case anon: ScNewTemplateDefinition =>
+          val tBody = PsiTreeUtil.getParentOfType(anon, classOf[ScTemplateBody], true)
+          val added = tBody.addBefore(newTrt, tBody.getLastChild).asInstanceOf[ScTrait]
+          added
+        case _ => clazz.getParent.addAfter(newTrt, clazz).asInstanceOf[ScTrait]
+      }
+      addSelfType(newTrtAdded, extractInfo.selfTypeText)
+      ExtractSuperUtil.addExtendsTo(clazz, newTrtAdded)
+      newTrtAdded
+    }
+    val pullUpProcessor = new ScalaPullUpProcessor(clazz.getProject, clazz, trt, memberInfos)
+    pullUpProcessor.moveMembersToBase()
   }
 
   private def invokeOnClass(clazz: ScTemplateDefinition, project: Project, editor: Editor) {
