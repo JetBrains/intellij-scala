@@ -33,6 +33,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import extensions.childOf
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock}
+import com.intellij.internal.statistic.UsageTrigger
 
 
 /**
@@ -54,6 +55,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
   def invoke(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int) {
 
     try {
+      UsageTrigger.trigger(ScalaBundle.message("introduce.variable.id"))
+
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       ScalaRefactoringUtil.checkFile(file, project, editor, REFACTORING_NAME)
 
@@ -103,8 +106,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
               def run() {
                 val newDeclaration: PsiElement = ApplicationManager.getApplication.runWriteAction(introduceRunnable)
                 val namedElement: PsiNamedElement = newDeclaration match {
-                  case holder: ScDeclaredElementsHolder => holder.declaredElements.headOption.getOrElse(null)
-                  case enum: ScEnumerator => enum.pattern.bindings.headOption.getOrElse(null)
+                  case holder: ScDeclaredElementsHolder => holder.declaredElements.headOption.orNull
+                  case enum: ScEnumerator => enum.pattern.bindings.headOption.orNull
                   case _ => null
                 }
                 if (namedElement != null && namedElement.isValid) {
@@ -149,7 +152,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
 
     def forStmtIfIntroduceEnumerator(parExpr: PsiElement, prev: PsiElement, firstOccurenceOffset: Int): Option[ScForStatement] = {
       val result = prev match {
-        case forSt: ScForStatement if forSt.body.getOrElse(null) == parExpr => None
+        case forSt: ScForStatement if forSt.body.orNull == parExpr => None
         case forSt: ScForStatement => Some(forSt)
         case _: ScEnumerator | _: ScGenerator => Option(prev.getParent.getParent.asInstanceOf[ScForStatement])
         case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => Option(prev.getParent.getParent.asInstanceOf[ScForStatement])
@@ -217,14 +220,14 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
 
     val forStmtOption = forStmtIfIntroduceEnumerator(parExpr, nextParent, firstRange.getStartOffset)
     val introduceEnumerator = forStmtOption.isDefined
-    val introduceEnumeratorForStmt: ScForStatement = forStmtOption.getOrElse(null)
+    val introduceEnumeratorForStmt: ScForStatement = forStmtOption.orNull
 
     editor.getCaretModel.moveToOffset(replacedOccurences(mainOcc).getEndOffset)
 
     var createdDeclaration: PsiElement = null
 
     if (introduceEnumerator) {
-      val parent: ScEnumerators = introduceEnumeratorForStmt.enumerators.getOrElse(null)
+      val parent: ScEnumerators = introduceEnumeratorForStmt.enumerators.orNull
       val inParentheses = parent.prevSiblings.toList.exists(_.getNode.getElementType == ScalaTokenTypes.tLPARENTHESIS)
       createdDeclaration = ScalaPsiElementFactory.createEnumerator(varName, ScalaRefactoringUtil.unparExpr(expression), file.getManager, typeName)
       val elem = parent.getChildren.filter(_.getTextRange.contains(firstRange)).head

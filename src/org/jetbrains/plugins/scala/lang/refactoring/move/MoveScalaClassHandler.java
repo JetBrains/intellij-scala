@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.move;
 
+import com.intellij.internal.statistic.UsageTrigger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiDirectory;
@@ -9,6 +10,7 @@ import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassHandler;
 import com.intellij.usageView.UsageInfo;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
@@ -35,6 +37,7 @@ public class MoveScalaClassHandler implements MoveClassHandler {
   @Override
   public void prepareMove(@NotNull PsiClass aClass) {
     if (aClass.getContainingFile() instanceof ScalaFile) {
+      UsageTrigger.trigger(ScalaBundle.message("move.class.id"));
       ScalaMoveUtil.collectAssociations(aClass, ScalaApplicationSettings.getInstance().MOVE_COMPANION);
     }
   }

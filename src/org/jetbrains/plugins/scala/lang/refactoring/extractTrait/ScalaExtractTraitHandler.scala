@@ -22,6 +22,8 @@ import com.intellij.refactoring.extractSuperclass.ExtractSuperClassUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger
+import com.intellij.internal.statistic.UsageTrigger
 
 /**
  * Nikolay.Tropin
@@ -88,6 +90,8 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
 
   private def invokeOnClass(clazz: ScTemplateDefinition, project: Project, editor: Editor) {
     if (clazz == null) return
+
+    UsageTrigger.trigger(ScalaBundle.message("extract.trait.id"))
 
     val dialog = new ScalaExtractTraitDialog(project, clazz)
     dialog.show()

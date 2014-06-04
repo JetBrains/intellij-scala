@@ -20,6 +20,7 @@ import scala.Some
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import com.intellij.openapi.util.TextRange
+import com.intellij.internal.statistic.UsageTrigger
 
 
 /**
@@ -29,6 +30,7 @@ import com.intellij.openapi.util.TextRange
 class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandlerBase {
   def invoke(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int) {
     try {
+      UsageTrigger.trigger(ScalaBundle.message("introduce.field.id"))
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       ScalaRefactoringUtil.checkFile(file, project, editor, REFACTORING_NAME)
 
