@@ -91,11 +91,9 @@ public class ScalaExtractTraitDialog extends DialogWrapper {
   }
 
   private JPanel createMemberSelectionPanel() {
-    return new ScalaExtractMembersSelectionPanel("Members to extract", myMembers, "extract abstract");
-  }
-
-  private JPanel createSuperSelectionPanel() {
-    return new ScalaExtractMembersSelectionPanel("Members to extract", myMembers, "extract abstract");
+    String title = ScalaBundle.message("members.to.extract");
+    String abstractHeader = ScalaBundle.message("extract.abstracts");
+    return new ScalaExtractMembersSelectionPanel(title, myMembers, abstractHeader);
   }
 
   protected PackageNameReferenceEditorCombo createPackageNameField() {

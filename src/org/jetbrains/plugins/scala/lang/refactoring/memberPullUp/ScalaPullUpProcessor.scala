@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.usageView.{UsageViewDescriptor, UsageInfo}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractMemberInfo
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import scala.collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -76,10 +76,19 @@ class ScalaPullUpProcessor(project: Project,
         tb.delete()
       }
 
-      val csManager = CodeStyleManager.getInstance(project)
-      csManager.reformat(targetClass)
-      csManager.adjustLineIndent(sourceClass.getContainingFile, sourceClass.getTextRange)
+      reformatAfter()
     }
+  }
+
+  private def reformatAfter() {
+    val documentManager = PsiDocumentManager.getInstance(project)
+    val csManager = CodeStyleManager.getInstance(project)
+    val targetDocument = documentManager.getDocument(targetClass.getContainingFile)
+    documentManager.doPostponedOperationsAndUnblockDocument(targetDocument)
+    csManager.reformat(targetClass)
+    val sourceDocument = documentManager.getDocument(sourceClass.getContainingFile)
+    documentManager.doPostponedOperationsAndUnblockDocument(sourceDocument)
+    csManager.adjustLineIndent(sourceClass.getContainingFile, sourceClass.getTextRange)
   }
 
   private def membersToExtract(info: ScalaExtractMemberInfo): Seq[ScMember] = {
@@ -135,7 +144,7 @@ class ScalaPullUpProcessor(project: Project,
       case varDef: ScVariableDefinition =>
         val copy = varDef.copy().asInstanceOf[ScVariableDefinition]
         copy.bindings.collect {
-          case b: ScBindingPattern => "val " + textForBinding(b)
+          case b: ScBindingPattern => "var " + textForBinding(b)
         }
       case ta: ScTypeAliasDefinition =>
         val copy = ta.copy().asInstanceOf[ScTypeAliasDefinition]
