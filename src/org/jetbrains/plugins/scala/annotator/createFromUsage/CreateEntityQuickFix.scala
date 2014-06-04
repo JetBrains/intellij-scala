@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
@@ -52,7 +52,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
         blockFor(infix.getBaseExpr).exists(!_.isInCompiledFile)
       case it =>
         it.qualifier match {
-          case Some(sup: ScSuperReference) if sup.staticSuper.isEmpty => false
+          case Some(sup: ScSuperReference) => unambiguousSuper(sup).exists(!_.isInCompiledFile)
           case Some(qual) => blockFor(qual).exists(!_.isInCompiledFile)
           case None => !it.isInCompiledFile
         }
@@ -148,8 +148,8 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
           case None => PsiTreeUtil.getParentOfType(th, classOf[ScExtendsBlock], /*strict = */true, /*stopAt = */classOf[ScTemplateDefinition])
         }
       case sup: ScSuperReference =>
-        sup.staticSuper match {
-          case Some(ScType.ExtractClass(ScTemplateDefinition.ExtendsBlock(block))) => block
+        unambiguousSuper(sup) match {
+          case Some(ScTemplateDefinition.ExtendsBlock(block)) => block
           case None => throw new IllegalArgumentException("Cannot find template definition for not-static super reference")
         }
       case Both(th: ScThisReference, ParentExtendsBlock(block)) => block
@@ -217,5 +217,20 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
     val textOffset = range.getStartOffset
     val descriptor = new OpenFileDescriptor(project, targetFile.getVirtualFile, textOffset)
     FileEditorManager.getInstance(project).openTextEditor(descriptor, true)
+  }
+
+  private def unambiguousSuper(supRef: ScSuperReference): Option[ScTypeDefinition] = {
+    supRef.staticSuper match {
+      case Some(ScType.ExtractClass(clazz: ScTypeDefinition)) => Some(clazz)
+      case None =>
+        supRef.parents.toSeq.collect { case td: ScTemplateDefinition => td } match {
+          case Seq(td) =>
+            td.supers match {
+              case Seq(t: ScTypeDefinition) => Some(t)
+              case _ => None
+            }
+          case _ => None
+        }
+    }
   }
 }
