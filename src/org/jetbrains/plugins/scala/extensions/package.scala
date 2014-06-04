@@ -17,6 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import java.io.Closeable
 import com.intellij.openapi.command.{WriteCommandAction, CommandProcessor}
 import org.jetbrains.annotations.NotNull
+import com.intellij.openapi.progress.{EmptyProgressIndicator, ProgressIndicator, Task, ProgressManager}
+import com.intellij.openapi.progress.util.ProgressWindow
 
 /**
   * Pavel Fatin
@@ -99,6 +101,14 @@ package object extensions {
     PostprocessReformattingAspect.getInstance(project).postponeFormattingInside(new Computable[T]{
       def compute(): T = body
     })
+  }
+
+  def withDisabledPostprocessFormatting[T](project: Project)(body: => T): T = {
+    PostprocessReformattingAspect.getInstance(project).disablePostprocessFormattingInside {
+      new Computable[T] {
+        override def compute(): T = body
+      }
+    }
   }
 
   def invokeLater[T](body: => T) {

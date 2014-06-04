@@ -85,6 +85,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         this
       case t: ScTypeAlias =>
         throw new IncorrectOperationException("type does not match expected kind")
+      case fun: ScFunction if ScalaPsiUtil.hasStablePath(fun) && fun.name == "apply" =>
+        bindToElement(fun.containingClass)
       case elem: PsiNamedElement =>
         if (refName != elem.name)
           throw new IncorrectOperationException("named element does not match expected name")
@@ -108,7 +110,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           case _ =>
         }
         this
-      case _ => throw new IncorrectOperationException("Cannot bind to anything but class: " + element)
+      case _ => throw new IncorrectOperationException("Cannot bind to element: " + element)
     }
   }
 
