@@ -1302,10 +1302,11 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                                            resolve: PsiElement,
                                            ref: ScReferenceExpression, replaceWithImplicit: String => ScExpression) {
       val isLocalValue = isLocalV(resolve)
+      val fileName = resolve.getContainingFile.name
 
       def evaluateFromParameter(fun: PsiElement, resolve: PsiElement): Evaluator = {
         val name = NameTransformer.encode(resolve.asInstanceOf[PsiNamedElement].name)
-        val evaluator = new ScalaLocalVariableEvaluator(name)
+        val evaluator = new ScalaLocalVariableEvaluator(name, fileName)
         fun match {
           case funDef: ScFunctionDefinition =>
             def paramIndex(fun: ScFunctionDefinition, context: PsiElement, elem: PsiElement): Int = {
@@ -1322,7 +1323,6 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             evaluator.setMethodName("apply")
           case _ => throw EvaluateExceptionUtil.createEvaluateException("Evaluation from parameter not from function definition or function expression")
         }
-        evaluator.setSourceName(fun.getContainingFile.getName)
         myResult = evaluator
         myResult
       }
@@ -1357,18 +1357,17 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     if (expr.isEmpty) throw EvaluateExceptionUtil.createEvaluateException("Cannot find expression of match statement")
                     expr.get.accept(this)
                     evaluateSubpatternFromPattern(myResult, pattern.get, namedElement.asInstanceOf[ScPattern])
-                    myResult = new ScalaDuplexEvaluator(new ScalaLocalVariableEvaluator(name), myResult)
+                    myResult = new ScalaDuplexEvaluator(new ScalaLocalVariableEvaluator(name, fileName), myResult)
                   case block: ScBlockExpr => //it is anonymous function
-                    val argEvaluator = new ScalaLocalVariableEvaluator("")
+                    val argEvaluator = new ScalaLocalVariableEvaluator("", fileName)
                     argEvaluator.setMethodName("apply")
-                    argEvaluator.setSourceName(block.getContainingFile.getName)
                     argEvaluator.setParameterIndex(0)
                     val fromPatternEvaluator = evaluateSubpatternFromPattern(argEvaluator, pattern.get, namedElement.asInstanceOf[ScPattern])
-                    myResult = new ScalaDuplexEvaluator(new ScalaLocalVariableEvaluator(name), fromPatternEvaluator)
-                  case _ =>  myResult = new ScalaLocalVariableEvaluator(name)
+                    myResult = new ScalaDuplexEvaluator(new ScalaLocalVariableEvaluator(name, fileName), fromPatternEvaluator)
+                  case _ =>  myResult = new ScalaLocalVariableEvaluator(name, fileName)
                 }
               } else throw EvaluateExceptionUtil.createEvaluateException("Invalid case clause")
-            case _ => myResult = new ScalaLocalVariableEvaluator(name)
+            case _ => myResult = new ScalaLocalVariableEvaluator(name, fileName)
           }
           if (isObject) {
             myResult = new ScalaFieldEvaluator(myResult, ref => true, "elem") //get from VolatileObjectReference
@@ -1562,7 +1561,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               }
               myResult = new ScalaFieldEvaluator(myResult, ref => true, name)
             case None =>
-              myResult = new ScalaLocalVariableEvaluator(name)
+              myResult = new ScalaLocalVariableEvaluator(name, fileName)
           }
       }
     }
