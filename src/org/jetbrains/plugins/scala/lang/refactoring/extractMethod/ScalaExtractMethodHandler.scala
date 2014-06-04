@@ -34,6 +34,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.LocalSearchScope
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicatesUtil
+import org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger
+import com.intellij.internal.statistic.UsageTrigger
 
 /**
  * User: Alexander Podkhalyuzin
@@ -47,6 +49,8 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
     editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
     if (!file.isInstanceOf[ScalaFile]) return
+
+    UsageTrigger.trigger(ScalaBundle.message("extract.method.id"))
 
     ScalaRefactoringUtil.afterExpressionChoosing(project, editor, file, dataContext, REFACTORING_NAME, ScalaRefactoringUtil.checkCanBeIntroduced(_)) {
       invokeOnEditor(project, editor, file.asInstanceOf[ScalaFile], dataContext)

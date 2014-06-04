@@ -34,6 +34,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypedDefinition, ScN
 import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
 import extensions.childOf
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import com.intellij.internal.statistic.UsageTrigger
 
 /**
  * User: Alexander Podkhalyuzin
@@ -143,6 +144,9 @@ class ScalaInlineHandler extends InlineHandler {
         } else settings
       } else settings
     }
+
+    UsageTrigger.trigger(ScalaBundle.message("inline.id"))
+
     element match {
       case typedDef: ScTypedDefinition if ScFunctionType.unapply(typedDef.getType().getOrAny).exists(_._2.length > 0) =>
         showErrorHint(ScalaBundle.message("cannot.inline.anonymous.function"), "element")

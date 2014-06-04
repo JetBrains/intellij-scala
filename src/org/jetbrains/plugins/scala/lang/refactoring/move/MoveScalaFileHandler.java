@@ -21,6 +21,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.move;
 
 import com.intellij.codeInsight.ChangeContextUtil;
+import com.intellij.internal.statistic.UsageTrigger;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
@@ -34,6 +35,7 @@ import com.intellij.refactoring.move.moveFilesOrDirectories.MoveFileHandler;
 import com.intellij.refactoring.util.MoveRenameUsageInfo;
 import com.intellij.usageView.UsageInfo;
 import com.intellij.util.IncorrectOperationException;
+import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.conversion.copy.Associations;
 import org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessor;
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer;
@@ -63,6 +65,7 @@ public class MoveScalaFileHandler extends MoveFileHandler {
   @Override
   public void prepareMovedFile(PsiFile file, PsiDirectory moveDestination, Map<PsiElement, PsiElement> oldToNewMap) {
     if (file instanceof ScalaFile) {
+      UsageTrigger.trigger(ScalaBundle.message("move.file.id"));
       ChangeContextUtil.encodeContextInfo(file, true);
       TextRange range = file.getTextRange();
       Associations associations = PROCESSOR.collectTransferableData(file, null,
