@@ -614,7 +614,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         case s: ScImportSelector if resolve.length > 0 => return
         case mc: ScMethodCall =>
           val refWithoutArgs = ScalaPsiElementFactory.createReferenceFromText(refElement.getText, mc.getContext, mc)
-          if (refWithoutArgs.multiResolve(false).nonEmpty) {
+          if (refWithoutArgs.multiResolve(false).exists(!_.getElement.isInstanceOf[PsiPackage])) {
             // We can't resolve the method call A(arg1, arg2), but we can resolve A. Highlight this differently.
             val error = ScalaBundle.message("cannot.resolve.apply.method", refElement.refName)
             val annotation = holder.createErrorAnnotation(refElement.nameId, error)
