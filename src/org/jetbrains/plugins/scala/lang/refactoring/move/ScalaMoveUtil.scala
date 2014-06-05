@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScCla
 import com.intellij.openapi.util.{TextRange, Key}
 import com.intellij.psi.util.PsiTreeUtil
 import scala.collection.JavaConverters._
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaDirectoryService, ScalaNamesUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
 import com.intellij.psi.javadoc.PsiDocComment
 import org.jetbrains.annotations.NotNull

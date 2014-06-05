@@ -21,6 +21,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import org.jetbrains.plugins.scala.lang.psi.light.{LightScalaMethod, PsiClassWrapper}
 import javax.swing.JList
 import com.intellij.psi.search.LocalSearchScope
+import com.intellij.internal.statistic.UsageTrigger
 
 /**
  * Nikolay.Tropin
@@ -32,6 +33,12 @@ class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler with Sc
     val processor = renameProcessor(element)
     editor.getSettings.isVariableInplaceRenameEnabled && processor != null && processor.canProcessElement(element) && 
             !element.getUseScope.isInstanceOf[LocalSearchScope]
+  }
+
+
+  override def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) = {
+    UsageTrigger.trigger(ScalaBundle.message("rename.member.id"))
+    super.invoke(project, editor, file, dataContext)
   }
 
   protected override def createMemberRenamer(substituted: PsiElement,

@@ -24,6 +24,7 @@ import com.intellij.refactoring.{RefactoringBundle, RefactoringActionHandler}
 import collection.mutable.ArrayBuffer
 import extensions.toPsiModifierListOwnerExt
 import ScalaRefactoringUtil.showErrorMessage
+import com.intellij.internal.statistic.UsageTrigger
 
 /**
  * User: Alexander Podkhalyuzin
@@ -42,6 +43,8 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
 
   def invoke(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int) {
     try {
+      UsageTrigger.trigger(ScalaBundle.message("introduce.parameter.id"))
+
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       ScalaRefactoringUtil.checkFile(file, project, editor, REFACTORING_NAME)
 
