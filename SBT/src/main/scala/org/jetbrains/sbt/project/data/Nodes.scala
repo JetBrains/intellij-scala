@@ -80,13 +80,13 @@ class ScalaProjectNode(val data: ScalaProjectData)
   protected def key = ScalaProjectData.Key
 }
 
-class ScalaFacetNode(val data: ScalaFacetData)
-  extends Node[ScalaFacetData] {
-  def this(scalaVersion: String, basePackage: String, compilerLibraryName: String, compilerOptions: Seq[String]) {
-    this(new ScalaFacetData(SbtProjectSystem.Id, scalaVersion, basePackage, compilerLibraryName, compilerOptions))
+class ScalaSdkNode(val data: ScalaSdkData)
+  extends Node[ScalaSdkData] {
+  def this(scalaVersion: String, basePackage: String, compilerClasspath: Seq[File], compilerOptions: Seq[String]) {
+    this(new ScalaSdkData(SbtProjectSystem.Id, scalaVersion, basePackage, compilerClasspath, compilerOptions))
   }
 
-  protected def key = ScalaFacetData.Key
+  protected def key = ScalaSdkData.Key
 }
 
 class SbtModuleNode(val data: SbtModuleData)
