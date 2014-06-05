@@ -863,6 +863,10 @@ object ScalaPsiElementFactory {
     createElementWithContext(text, context, child, Def.parse(_))
   }
 
+  def createDefinitionWithContext(text: String, context: PsiElement, child: PsiElement): ScMember = {
+    createElementWithContext(text, context, child, Def.parse(_))
+  }
+
   def createObjectWithContext(text: String, context: PsiElement, child: PsiElement): ScObject = {
     createElementWithContext(text, context, child, TmplDef.parse(_))
   }
