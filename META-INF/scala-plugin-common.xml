@@ -1071,7 +1071,7 @@
         </action>
         <action id="Scala.CreateScalaDocStub" class="org.jetbrains.plugins.scala.editor.documentationProvider.CreateScalaDocStubAction">
             <keyboard-shortcut first-keystroke="ctrl alt Q" keymap="$default"/>
-            <keyboard-shortcut first-keystroke="meta alt Q" keymap="Mac OS X"/>
+            <keyboard-shortcut first-keystroke="ctrl alt L" keymap="Mac OS X"/>
         </action>
         <action id="Scala.ShowImplicitParameters" class="org.jetbrains.plugins.scala.actions.ShowImplicitParametersAction"
                 text="Implicit &amp;Parameters" description="Show Implicit Parameters">
