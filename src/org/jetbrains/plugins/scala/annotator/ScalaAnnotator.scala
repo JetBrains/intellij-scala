@@ -636,20 +636,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
   }
 
-  private def registerCreateFromUsageFixesFor(ref: ScReferenceElement, annotation: Annotation) {
-    ref match {
-      case Both(exp: ScReferenceExpression, Parent(_: ScMethodCall)) =>
-        annotation.registerFix(new CreateMethodQuickFix(exp))
-      case Both(exp: ScReferenceExpression, Parent(infix: ScInfixExpr)) if infix.operation == exp =>
-        annotation.registerFix(new CreateMethodQuickFix(exp))
-      case exp: ScReferenceExpression =>
-        annotation.registerFix(new CreateParameterlessMethodQuickFix(exp))
-        annotation.registerFix(new CreateValueQuickFix(exp))
-        annotation.registerFix(new CreateVariableQuickFix(exp))
-      case _ =>
-    }
-  }
-
   private def highlightImplicitMethod(expr: ScExpression, resolveResult: ScalaResolveResult, refElement: ScReferenceElement,
                                       fun: PsiNamedElement, holder: AnnotationHolder) {
     val typeTo = resolveResult.implicitType match {
