@@ -58,12 +58,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       repositoryModules.map(createResolvedLibrary) ++ otherModuleIds.map(createUnresolvedLibrary)
     }
 
-    val compilerLibraries = {
-      val scalas = projects.flatMap(_.scala).distinctBy(_.version)
-      scalas.map(createCompilerLibrary)
-    }
-
-    projectNode.addAll(libraries ++ compilerLibraries)
+    projectNode.addAll(libraries)
 
     val moduleFilesDirectory = new File(root + "/" + Sbt.ModulesDirectory)
 
@@ -71,7 +66,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val moduleNode = createModule(project, moduleFilesDirectory)
       moduleNode.add(createContentRoot(project))
       moduleNode.addAll(createLibraryDependencies(project.dependencies.modules)(moduleNode, libraries.map(_.data)))
-      moduleNode.addAll(project.scala.map(createFacet(project, _)).toSeq)
+      moduleNode.addAll(project.scala.map(createScalaSdk(project, _)).toSeq)
       moduleNode.addAll(createUnmanagedDependencies(project.dependencies.jars)(moduleNode))
       moduleNode
     }
@@ -93,10 +88,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectNode
   }
 
-  private def createFacet(project: Project, scala: Scala): ScalaFacetNode = {
+  private def createScalaSdk(project: Project, scala: Scala): ScalaSdkNode = {
     val basePackage = Some(project.organization).filter(_.contains(".")).mkString
 
-    new ScalaFacetNode(scala.version, basePackage, internalNameFor(scala), scala.options)
+    val compilerClasspath = scala.compilerJar +: scala.libraryJar +: scala.extraJars
+
+    new ScalaSdkNode(scala.version, basePackage, compilerClasspath, scala.options)
   }
 
   private def createUnresolvedLibrary(moduleId: ModuleId): LibraryNode = {
@@ -117,21 +114,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def nameFor(id: ModuleId) = s"${id.organization}:${id.name}:${id.revision}"
-
-  private def createCompilerLibrary(scala: Scala): LibraryNode = {
-    val result = new LibraryNode(nameFor(scala), resolved = true)
-    // TODO don't use custom delimiter either when the external system will preserve compiler libraries
-    // or when we will adopt the new Scala project configuration scheme
-    // (see processOrphanProjectLibraries in ExternalSystemUtil)
-    result.setInternalName(internalNameFor(scala))
-    val jars = scala.compilerJar +: scala.libraryJar +: scala.extraJars
-    result.addPaths(LibraryPathType.BINARY, jars.map(_.path))
-    result
-  }
-
-  private def nameFor(scala: Scala) = s"scala-compiler-bundle:${scala.version}"
-
-  private def internalNameFor(scala: Scala) = "SBT:: " + nameFor(scala)
 
   private def createModule(project: Project, moduleFilesDirectory: File): ModuleNode = {
     // TODO use both ID and Name when related flaws in the External System will be fixed
