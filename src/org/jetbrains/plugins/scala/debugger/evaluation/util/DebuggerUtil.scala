@@ -1,24 +1,25 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.util
 
-import com.intellij.debugger.jdi.VirtualMachineProxyImpl
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import com.intellij.debugger.engine.evaluation.EvaluateExceptionUtil
+import com.intellij.debugger.engine.{DebugProcessImpl, JVMName, JVMNameUtil}
+import com.intellij.debugger.jdi.VirtualMachineProxyImpl
 import com.intellij.debugger.{DebuggerBundle, SourcePosition}
-import com.intellij.openapi.application.ApplicationManager
-import com.sun.jdi.{ObjectReference, Value}
-import com.intellij.debugger.engine.{DebugProcessImpl, JVMNameUtil, JVMName}
-import com.intellij.openapi.util.Computable
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition}
-import com.intellij.psi.{PsiElement, PsiClass}
 import com.intellij.lang.ASTNode
-import collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.util.Computable
+import com.intellij.psi.{PsiClass, PsiElement}
+import com.sun.jdi.{ObjectReference, Value}
 import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
+
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alefas
@@ -262,6 +263,7 @@ object DebuggerUtil {
   def withoutBackticks(name: String): String = {
     val backticked = """\$u0060(.+)\$u0060""".r
     name match {
+      case null => null
       case backticked(id) => id
       case _ => name
     }

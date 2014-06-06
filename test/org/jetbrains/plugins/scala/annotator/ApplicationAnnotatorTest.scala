@@ -41,20 +41,24 @@ class ApplicationAnnotatorTest extends SimpleTestCase {
   
   def testMissedParametersClause {
     assertMatches(messages("def f(a: Any, b: Any) {}; f")) {
-      case Error("f", "Missing arguments for method f(Any, Any)") :: Nil =>
+      case Error("f", "Missing arguments for method f(Any, Any)") ::
+              Error("f", "Cannot resolve reference f with such signature") :: Nil =>
     }
   }
   
   def testExcessArguments {
     assertMatches(messages("def f() {}; f(null, Unit)")) {
       case Error("null", "Too many arguments for method f") ::
-              Error("Unit", "Too many arguments for method f") :: Nil =>
+              Error("f", "Cannot resolve reference f with such signature") ::
+              Error("Unit", "Too many arguments for method f") ::
+              Error("f", "Cannot resolve reference f with such signature") :: Nil =>
     }
   }
 
   def testMissedParameters {
     assertMatches(messages("def f(a: Any, b: Any) {}; f()")) {
-      case Error("()", "Unspecified value parameters: a: Any, b: Any") :: Nil =>
+      case Error("()", "Unspecified value parameters: a: Any, b: Any") ::
+              Error("f", "Cannot resolve reference f with such signature") ::Nil =>
     }
   }
   
@@ -81,7 +85,9 @@ class ApplicationAnnotatorTest extends SimpleTestCase {
   def testTypeMismatch {
     assertMatches(messages("def f(a: A, b: B) {}; f(B, A)")) {
       case Error("B", "Type mismatch, expected: A, actual: B.type") ::
-              Error("A", "Type mismatch, expected: B, actual: A.type") :: Nil =>
+              Error("f", "Cannot resolve reference f with such signature") ::
+              Error("A", "Type mismatch, expected: B, actual: A.type") ::
+              Error("f", "Cannot resolve reference f with such signature") ::Nil =>
     }
   }
   

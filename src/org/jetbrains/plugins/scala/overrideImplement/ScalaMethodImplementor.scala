@@ -62,7 +62,7 @@ private class ScalaPsiMethodGenerationInfo(method: PsiMethod, baseMethod: PsiMet
       case _ => return
     }
     val sign = new PhysicalSignature(method, ScSubstitutor.empty)
-    val methodMember = new ScMethodMember(sign, ScalaApplicationSettings.getInstance.ADD_OVERRIDE_TO_IMPLEMENTED)
+    val methodMember = new ScMethodMember(sign, isOverride = false)
 
     addedMember = ScalaGenerationInfo.insertMethod(methodMember, td, findAnchor(td, baseMethod))
   }
