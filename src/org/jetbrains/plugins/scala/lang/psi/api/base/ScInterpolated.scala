@@ -1,25 +1,24 @@
 package org.jetbrains.plugins.scala
 package lang.psi.api.base
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScBlockExpr, ScExpression}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedStringPartReference, ScInterpolatedPrefixReference}
-import scala.collection.mutable.ListBuffer
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.psi.{PsiElement, PsiReference}
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPattern
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedPrefixReference, ScInterpolatedStringPartReference}
+
+import scala.collection.mutable.ListBuffer
 
 /**
  * @author kfeodorov
  * @since 03.03.14.
  */
-trait ScInterpolated extends ScLiteral with ScalaPsiElement {
-
-  val node: ASTNode
+trait ScInterpolated extends ScalaPsiElement {
+  def isMultiLineString: Boolean
 
   def getReferencesToStringParts: Array[PsiReference] = {
     val accepted = List(ScalaTokenTypes.tINTERPOLATED_STRING, ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING)
@@ -41,7 +40,7 @@ trait ScInterpolated extends ScLiteral with ScalaPsiElement {
       val parts = getStringParts(l).mkString(quote, s"$quote, $quote", quote) //making list of string literals
       val params = l.getInjections.map(_.getText).mkString("(", ",", ")")
       Option(ScalaPsiElementFactory.createExpressionWithContextFromText(s"StringContext($parts).${getFirstChild.getText}$params",
-        node.getPsi.getContext, node.getPsi))
+        getContext, this))
     }
 
     CachesUtil.get(this, CachesUtil.STRING_CONTEXT_EXPANDED_EXPR_KEY,

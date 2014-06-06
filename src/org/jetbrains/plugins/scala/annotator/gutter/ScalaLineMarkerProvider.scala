@@ -2,31 +2,33 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
-import _root_.scala.collection.mutable.ArrayBuffer
+import java.util
+import javax.swing.Icon
+
 import com.intellij.codeHighlighting.Pass
+import com.intellij.codeInsight.daemon.{DaemonCodeAnalyzerSettings, LineMarkerInfo, LineMarkerProvider}
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColorsManager}
+import com.intellij.openapi.editor.markup.{GutterIconRenderer, SeparatorPlacement}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
-import lang.lexer.ScalaTokenTypes
-import lang.psi.api.toplevel.templates.ScTemplateBody
-import lang.psi.api.toplevel.ScNamedElement
-import lang.psi.impl.search.ScalaOverridingMemberSearcher
 import com.intellij.util.NullableFunction
-import lang.psi.ScalaPsiUtil
-import com.intellij.openapi.editor.colors.{EditorColorsManager, CodeInsightColors}
-import com.intellij.openapi.editor.markup.{GutterIconRenderer, SeparatorPlacement}
-import com.intellij.codeInsight.daemon.{GutterMark, DaemonCodeAnalyzerSettings, LineMarkerInfo, LineMarkerProvider}
-import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition, ScTrait}
-import javax.swing.Icon
-import GutterIcons._
-import lang.psi.api.base.ScReferenceElement
-import collection.{mutable, Seq}
-import lang.psi.types.Signature
-import lang.psi.api.statements._
-import params.ScParameter
-import extensions._
-import java.util
+import org.jetbrains.plugins.scala.annotator.gutter.GutterIcons._
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
+import org.jetbrains.plugins.scala.lang.psi.types.Signature
+
+import _root_.scala.collection.mutable.ArrayBuffer
+import scala.collection.{Seq, mutable}
 
 
 /**
