@@ -19,7 +19,7 @@ object CommonUtils {
     while (!builder.eof() && builder.getTokenType != ScalaTokenTypes.tINTERPOLATED_STRING_END){
       if (builder.getTokenType == ScalaTokenTypes.tINTERPOLATED_STRING_INJECTION) {
         builder.advanceLexer()
-        if (!BlockExpr.parse(builder, isPattern=isPattern)) {
+        if (!BlockExpr.parse(builder, isPattern = isPattern)) {
           if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
             val idMarker = builder.mark()
             builder.advanceLexer()
