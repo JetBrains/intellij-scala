@@ -17,13 +17,17 @@ class SendSelectionToConsoleAction extends AnAction {
   override def update(e: AnActionEvent) {
     val presentation = e.getPresentation
     presentation.setIcon(Icons.SCALA_CONSOLE)
-    presentation.setVisible(true)
+
     def enable() {
       presentation.setEnabled(true)
+      presentation.setVisible(true)
     }
+
     def disable() {
       presentation.setEnabled(false)
+      presentation.setVisible(false)
     }
+
     try {
       val context = e.getDataContext
       val file = CommonDataKeys.PSI_FILE.getData(context)
