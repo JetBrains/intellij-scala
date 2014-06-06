@@ -11,6 +11,7 @@ import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.scope._
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
 import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -30,11 +31,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
+
 import scala.annotation.tailrec
 import scala.collection.immutable.HashSet
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
 
 trait ScImportsHolder extends ScalaPsiElement {
 
@@ -298,14 +299,19 @@ trait ScImportsHolder extends ScalaPsiElement {
       }
     }
 
-    var everythingProcessor  = new CompletionProcessor(StdKinds.stableImportSelector, place, includePrefixImports = false)
-    treeWalkUp(everythingProcessor, this, place)
-    val candidatesBefore: mutable.HashMap[String, collection.immutable.HashSet[PsiNamedElement]] = new mutable.HashMap
-    for (candidate <- everythingProcessor.candidates) {
-      val set: collection.immutable.HashSet[PsiNamedElement] =
-        candidatesBefore.getOrElse(candidate.name, collection.immutable.HashSet.empty[PsiNamedElement])
-      candidatesBefore.update(candidate.name, set + candidate.getElement)
+    def collectAllCandidates(): mutable.HashMap[String, HashSet[PsiNamedElement]] = {
+      val candidates = new mutable.HashMap[String, HashSet[PsiNamedElement]]
+      val everythingProcessor  = new CompletionProcessor(StdKinds.stableImportSelector, getLastChild, includePrefixImports = false)
+      treeWalkUp(everythingProcessor, this, place)
+      for (candidate <- everythingProcessor.candidates) {
+        val set = candidates.getOrElse(candidate.name, HashSet.empty[PsiNamedElement])
+        candidates.update(candidate.name, set + candidate.getElement)
+      }
+      candidates
     }
+
+    val candidatesBefore = collectAllCandidates()
+
     val usedNames = new mutable.HashSet[String]()
 
     this.accept(new ScalaRecursiveElementVisitor {
@@ -450,17 +456,10 @@ trait ScImportsHolder extends ScalaPsiElement {
 
     def tail() {
       if (!explicitly) {
-        everythingProcessor = new CompletionProcessor(StdKinds.stableImportSelector, getLastChild, includePrefixImports = false)
-        treeWalkUp(everythingProcessor, this, getLastChild)
-        val candidatesAfter: mutable.HashMap[String, HashSet[PsiNamedElement]] = new mutable.HashMap
-        for (candidate <- everythingProcessor.candidates) {
-          val set: collection.immutable.HashSet[PsiNamedElement] =
-            candidatesAfter.getOrElse(candidate.name, HashSet.empty[PsiNamedElement])
-          candidatesAfter.update(candidate.name, set + candidate.getElement)
-        }
+        val candidatesAfter = collectAllCandidates()
 
         def checkName(s: String) {
-          if (candidatesBefore.get(s) != candidatesAfter.get(s)) {
+          if (candidatesBefore.getOrElse(s, HashSet.empty).size < candidatesAfter.getOrElse(s, HashSet.empty).size) {
             val pathes = new mutable.HashSet[String]()
             //let's try to fix it by adding all before imports explicitly
             candidatesBefore.getOrElse(s, HashSet.empty[PsiNamedElement]).foreach {

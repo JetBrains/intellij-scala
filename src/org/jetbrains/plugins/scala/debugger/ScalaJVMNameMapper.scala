@@ -17,7 +17,7 @@ class ScalaJVMNameMapper extends NameMapper {
       def compute: String = {
         clazz match {
           case obj: ScObject => obj.qualifiedName + "$"
-          case tr: ScTrait => tr.qualifiedName + "$class"
+          case tr: ScTrait => tr.qualifiedName
           case templDef: ScTemplateDefinition => templDef.qualifiedName
           case psiClass => psiClass.getQualifiedName
         }
