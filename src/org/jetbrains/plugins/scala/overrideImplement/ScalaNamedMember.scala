@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package overrideImplement
 
-import com.intellij.psi._
 import com.intellij.codeInsight.generation.PsiElementClassMember
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
-import lang.psi.api.toplevel.ScTypedDefinition
-import lang.psi.ScalaPsiUtil
-import lang.psi.types._
-import lang.psi.types.result.TypingContext
+import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
 * User: Alexander Podkhalyuzin
@@ -22,12 +22,12 @@ trait ScalaTypedMember {
   def scType: ScType
 }
 
-class ScAliasMember(member: ScTypeAlias, val substitutor: ScSubstitutor, val needsOverride: Boolean)
+class ScAliasMember(member: ScTypeAlias, val substitutor: ScSubstitutor, val isOverride: Boolean)
         extends {
           val name: String = member.name
         } with PsiElementClassMember[ScTypeAlias](member, name) with ScalaNamedMember
 
-class ScMethodMember(val sign: PhysicalSignature, val needsOverride: Boolean)
+class ScMethodMember(val sign: PhysicalSignature, val isOverride: Boolean)
         extends {
           val name: String = sign.name
           val scType: ScType = sign.method match {
@@ -40,14 +40,14 @@ class ScMethodMember(val sign: PhysicalSignature, val needsOverride: Boolean)
           val text = ScalaPsiUtil.getMethodPresentableText(sign.method)
         } with PsiElementClassMember[PsiMethod](sign.method, text) with ScalaNamedMember with ScalaTypedMember
 
-class ScValueMember(member: ScValue, val element: ScTypedDefinition, val substitutor: ScSubstitutor, val needsOverride: Boolean)
+class ScValueMember(member: ScValue, val element: ScTypedDefinition, val substitutor: ScSubstitutor, val isOverride: Boolean)
         extends {
           val name = element.getName
           val scType = substitutor.subst(element.getType(TypingContext.empty).getOrAny)
           val text = element.name + ": " + ScType.presentableText(scType)
         } with PsiElementClassMember[ScValue](member, text) with ScalaNamedMember with ScalaTypedMember
 
-class ScVariableMember(member: ScVariable, val element: ScTypedDefinition, val substitutor: ScSubstitutor, val needsOverride: Boolean)
+class ScVariableMember(member: ScVariable, val element: ScTypedDefinition, val substitutor: ScSubstitutor, val isOverride: Boolean)
         extends {
           val name = element.getName
           val scType = substitutor.subst(element.getType(TypingContext.empty).getOrAny)

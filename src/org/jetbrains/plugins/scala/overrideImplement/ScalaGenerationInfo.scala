@@ -48,7 +48,7 @@ class ScalaGenerationInfo(classMember: ClassMember)
       case member: ScAliasMember =>
         val alias = member.getElement
         val substitutor = addUpdateThisType(member.substitutor, templDef)
-        val needsOverride = member.needsOverride || addOverrideToImplemented
+        val needsOverride = member.isOverride || toAddOverrideToImplemented
         val m = ScalaPsiElementFactory.createOverrideImplementType(alias, substitutor, alias.getManager, needsOverride)
         val added = templDef.addMember(m, Option(anchor))
         myMember = added
@@ -57,11 +57,11 @@ class ScalaGenerationInfo(classMember: ClassMember)
         val isVal = classMember match {case _: ScValueMember => true case _: ScVariableMember => false}
         val value = classMember match {case x: ScValueMember => x.element case x: ScVariableMember => x.element}
         val (origSubstitutor, needsOverride) = classMember match {
-          case x: ScValueMember => (x.substitutor, x.needsOverride)
-          case x: ScVariableMember => (x.substitutor, x.needsOverride)
+          case x: ScValueMember => (x.substitutor, x.isOverride)
+          case x: ScVariableMember => (x.substitutor, x.isOverride)
         }
         val substitutor = addUpdateThisType(origSubstitutor, templDef)
-        val addOverride = needsOverride || addOverrideToImplemented
+        val addOverride = needsOverride || toAddOverrideToImplemented
         val m = ScalaPsiElementFactory.createOverrideImplementVariable(value, substitutor, value.getManager,
           addOverride, isVal, needsInferType)
         val added = templDef.addMember(m, Option(anchor))
@@ -171,7 +171,7 @@ object ScalaGenerationInfo {
     val method: PsiMethod = member.getElement
     val sign = member.sign.updateSubst(addUpdateThisType(_, td))
 
-    val isImplement = !member.needsOverride
+    val isImplement = !member.isOverride
     val templateName =
       if (isImplement) ScalaFileTemplateUtil.SCALA_IMPLEMENTED_METHOD_TEMPLATE
       else ScalaFileTemplateUtil.SCALA_OVERRIDDEN_METHOD_TEMPLATE
@@ -192,7 +192,7 @@ object ScalaGenerationInfo {
 
     val body = template.getText(properties)
 
-    val needsOverride = !isImplement || addOverrideToImplemented
+    val needsOverride = !isImplement || toAddOverrideToImplemented
     val m = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, needsOverride, needsInferType, body)
     val added = td.addMember(m, Option(anchor))
     ScalaPsiUtil.adjustTypes(added)
@@ -204,9 +204,9 @@ object ScalaGenerationInfo {
     case Failure(_, _) => subst
   }
 
-  val addOverrideToImplemented =
+  def toAddOverrideToImplemented =
     if (ApplicationManager.getApplication.isUnitTestMode) false
     else ScalaApplicationSettings.getInstance.ADD_OVERRIDE_TO_IMPLEMENTED
 
-  val needsInferType = ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY
+  def needsInferType = ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY
 }

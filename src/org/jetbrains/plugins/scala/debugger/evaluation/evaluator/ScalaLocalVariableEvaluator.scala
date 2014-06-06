@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
 import com.intellij.debugger.DebuggerBundle
-import com.intellij.debugger.jdi.{StackFrameProxyImpl, LocalVariableProxyImpl}
-import com.intellij.debugger.ui.impl.watch.{LocalVariableDescriptorImpl, NodeDescriptorImpl}
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
 import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluateExceptionUtil, EvaluationContextImpl}
-import com.sun.jdi.{InternalException, Value, Type}
-import com.intellij.openapi.project.Project
+import com.intellij.debugger.jdi.{LocalVariableProxyImpl, StackFrameProxyImpl}
+import com.intellij.debugger.ui.impl.watch.{LocalVariableDescriptorImpl, NodeDescriptorImpl}
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.project.Project
+import com.sun.jdi.{InternalException, Type, Value}
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
 /**
@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
  */
 
 class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Evaluator {
-  import ScalaLocalVariableEvaluator.LOG
+  import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaLocalVariableEvaluator.LOG
   private val myName: String = DebuggerUtil.withoutBackticks(name)
   private val mySourceName: String = DebuggerUtil.withoutBackticks(sourceName)
   private var myContext: EvaluationContextImpl = null

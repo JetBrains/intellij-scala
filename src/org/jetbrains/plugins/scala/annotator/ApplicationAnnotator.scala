@@ -1,24 +1,24 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
-import org.jetbrains.plugins.scala.lang.psi.types._
-import nonvalue.Parameter
-import quickfix.ReportHighlightingErrorQuickFix
-import result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameters, ScParameter}
-import com.intellij.psi.{PsiElement, PsiParameter, PsiNamedElement, PsiMethod}
-import lang.psi.api.statements.{ScValue, ScFunction}
-import codeInspection.varCouldBeValInspection.ValToVarQuickFix
-import extensions._
-import lang.psi.api.expr._
-import lang.psi.impl.expr.ScInterpolatedStringPrefixReference
 import com.intellij.codeInspection.ProblemHighlightType
-import org.jetbrains.plugins.scala.annotator.createFromUsage.{CreateVariableQuickFix, CreateValueQuickFix, CreateParameterlessMethodQuickFix, CreateMethodQuickFix}
+import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
+import com.intellij.psi.{PsiElement, PsiMethod, PsiNamedElement, PsiParameter}
+import org.jetbrains.plugins.scala.annotator.createFromUsage.{CreateMethodQuickFix, CreateParameterlessMethodQuickFix, CreateValueQuickFix, CreateVariableQuickFix}
+import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
+import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPrefixReference
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * Pavel.Fatin, 31.05.2010
@@ -257,7 +257,7 @@ trait ApplicationAnnotator {
   private def parenthesise(items: Seq[_]) = items.mkString("(", ", ", ")")
 
   private def addCreateFromUsagesQuickFixes(ref: ScReferenceElement, holder: AnnotationHolder) = {
-    val annotation = holder.createErrorAnnotation(ref, null)
+    val annotation = holder.createErrorAnnotation(ref, ScalaBundle.message("cannot.resolve.such.signature", ref.refName))
     annotation.setHighlightType(ProblemHighlightType.INFORMATION)
     registerCreateFromUsageFixesFor(ref, annotation)
   }

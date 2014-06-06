@@ -1,38 +1,37 @@
 package org.jetbrains.plugins.scala.debugger.evaluation
 
 import com.intellij.debugger.SourcePosition
-import evaluator._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.debugger.engine.evaluation._
-import com.intellij.psi._
 import com.intellij.debugger.engine.evaluation.expression._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScParameter, ScClassParameter}
-import scala.reflect.NameTransformer
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScEarlyDefinitions}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaRecursiveElementVisitor, ScalaElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import com.intellij.debugger.engine.{JVMName, JVMNameUtil}
-import util.DebuggerUtil
-import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
+import com.intellij.lang.java.JavaLanguage
+import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
+import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
+import org.jetbrains.plugins.scala.extensions.{toObjectExt, toPsiClassExt, toPsiModifierListOwnerExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaElementVisitor, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.extensions.{toPsiModifierListOwnerExt, toPsiNamedElementExt, toPsiClassExt}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
-import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaMethodEvaluator
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.ScThisType
-import com.intellij.lang.java.JavaLanguage
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+
 import scala.annotation.tailrec
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
+import scala.reflect.NameTransformer
 
 /**
  * User: Alefas
@@ -689,7 +688,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             val evaluator = arguments(i)
             if (params.length > i) {
               val param = params(i)
-              import PsiType._
+              import com.intellij.psi.PsiType._
               res += (param.getType match {
                 case BOOLEAN | INT | CHAR | DOUBLE | FLOAT | LONG | BYTE | SHORT => evaluator
                 case _ => boxEvaluator(evaluator)
@@ -1302,7 +1301,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                                            resolve: PsiElement,
                                            ref: ScReferenceExpression, replaceWithImplicit: String => ScExpression) {
       val isLocalValue = isLocalV(resolve)
-      val fileName = resolve.getContainingFile.name
+      val fileName = myContextClass.toOption.flatMap(_.getContainingFile.toOption).map(_.name).orNull
 
       def evaluateFromParameter(fun: PsiElement, resolve: PsiElement): Evaluator = {
         val name = NameTransformer.encode(resolve.asInstanceOf[PsiNamedElement].name)
