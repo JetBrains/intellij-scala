@@ -50,11 +50,10 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
-    val importsIterator = importExprs.reverseIterator
+    val importsIterator = importExprs.takeWhile(_ != lastParent).reverseIterator
     while (importsIterator.hasNext) {
       val importExpr = importsIterator.next()
       ProgressManager.checkCanceled()
-      if (importExpr == lastParent) return true
       def workWithImportExpr: Boolean = {
         val ref = importExpr.reference match {
           case Some(element) => element
