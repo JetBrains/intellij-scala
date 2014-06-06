@@ -299,14 +299,13 @@ trait ScImportsHolder extends ScalaPsiElement {
       }
     }
 
-    def collectAllCandidates(): mutable.HashMap[String, (HashSet[String], HashSet[PsiNamedElement])] = {
-      val candidates = new mutable.HashMap[String, (HashSet[String], HashSet[PsiNamedElement])]
+    def collectAllCandidates(): mutable.HashMap[String, HashSet[PsiNamedElement]] = {
+      val candidates = new mutable.HashMap[String, HashSet[PsiNamedElement]]
       val everythingProcessor  = new CompletionProcessor(StdKinds.stableImportSelector, getLastChild, includePrefixImports = false)
       treeWalkUp(everythingProcessor, this, place)
       for (candidate <- everythingProcessor.candidates) {
-        val set = candidates.getOrElse(candidate.name, (HashSet.empty[String], HashSet.empty[PsiNamedElement]))
-        candidates.update(candidate.name, (set._1 + ResolveProcessor.getQualifiedName(candidate, place),
-          set._2 + candidate.getElement))
+        val set = candidates.getOrElse(candidate.name, HashSet.empty[PsiNamedElement])
+        candidates.update(candidate.name, set + candidate.getElement)
       }
       candidates
     }
@@ -460,10 +459,10 @@ trait ScImportsHolder extends ScalaPsiElement {
         val candidatesAfter = collectAllCandidates()
 
         def checkName(s: String) {
-          if (candidatesBefore.get(s).map(_._1) != candidatesAfter.get(s).map(_._1)) {
+          if (candidatesBefore.getOrElse(s, HashSet.empty).size < candidatesAfter.getOrElse(s, HashSet.empty).size) {
             val pathes = new mutable.HashSet[String]()
             //let's try to fix it by adding all before imports explicitly
-            candidatesBefore.getOrElse(s, (HashSet.empty[String], HashSet.empty[PsiNamedElement]))._2.foreach {
+            candidatesBefore.getOrElse(s, HashSet.empty[PsiNamedElement]).foreach {
               case c: PsiClass => pathes += c.qualifiedName
               case c: PsiNamedElement => pathes ++= ScalaNamesUtil.qualifiedName(c)
             }
