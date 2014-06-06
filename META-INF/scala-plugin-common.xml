@@ -860,10 +860,6 @@
                        displayName="Exists simplifiable to contains" groupName="Scala: Collections"
                        shortName="ExistsEquals" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.DropOneInspection"
-                       displayName="drop(1) replaceable for tail " groupName="Scala: Collections"
-                       shortName="DropOne" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetOrElseNullInspection"
                        displayName="Simplifiable getOrElse(null)" groupName="Scala: Collections"
                        shortName="GetOrElseNull" level="WARNING"
