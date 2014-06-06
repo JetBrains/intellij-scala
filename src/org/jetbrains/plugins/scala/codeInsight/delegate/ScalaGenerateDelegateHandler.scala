@@ -61,7 +61,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
           val prototype: ScFunctionDefinition =
             ScalaPsiElementFactory.createMethodFromSignature(member.sign, aClass.getManager, specifyType, body = "???")
                   .asInstanceOf[ScFunctionDefinition]
-          prototype.setModifierProperty("override", value = member.needsOverride)
+          prototype.setModifierProperty("override", value = member.isOverride)
           val body = methodBody(target, prototype)
           prototype.body.foreach(_.replace(body))
           val genInfo = new ScalaGenerationInfo(member)
@@ -158,7 +158,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     }
 
     candidates.toSeq.collect {
-      case isSuitable(sign) => new ScMethodMember(sign, needsOverride = false)
+      case isSuitable(sign) => new ScMethodMember(sign, isOverride = false)
     }
   }
 

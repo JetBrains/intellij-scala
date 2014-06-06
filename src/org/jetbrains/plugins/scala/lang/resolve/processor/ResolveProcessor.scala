@@ -20,6 +20,37 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import scala.collection.Set
 
+object ResolveProcessor {
+  def getQualifiedName(result: ScalaResolveResult, place: PsiElement): String = {
+    def defaultForTypeAlias(t: ScTypeAlias): String = {
+      if (t.getParent.isInstanceOf[ScTemplateBody] && t.containingClass != null) {
+        "TypeAlias:" + t.containingClass.qualifiedName + "#" + t.name
+      } else null
+    }
+
+    result.getActualElement match {
+      case c: ScTypeParam => null
+      case c: ScObject => "Object:" + c.qualifiedName
+      case c: PsiClass => "Class:" + c.qualifiedName
+      case t: ScTypeAliasDefinition if t.typeParameters.length == 0 =>
+        t.aliasedType(TypingContext.empty) match {
+          case Success(tp, elem) =>
+            ScType.extractClass(tp, Option(place).map(_.getProject)) match {
+              case Some(c: ScObject) => defaultForTypeAlias(t)
+              case Some(td: ScTypeDefinition) if td.typeParameters.length == 0 && ScalaPsiUtil.hasStablePath(td) =>
+                "Class:" + td.qualifiedName
+              case Some(c: PsiClass) if c.getTypeParameters.length == 0 => "Class:" + c.qualifiedName
+              case _ => defaultForTypeAlias(t)
+            }
+          case _ => defaultForTypeAlias(t)
+        }
+      case t: ScTypeAlias => defaultForTypeAlias(t)
+      case p: PsiPackage => "Package:" + p.getQualifiedName
+      case _ => null
+    }
+  }
+}
+
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
                        val name: String) extends BaseProcessor(kinds) with PrecedenceHelper[String] {
@@ -58,33 +89,8 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
 
   def checkPredefinedClassesAndPackages(): Boolean = precedence <= SCALA_PREDEF
 
-  protected def getQualifiedName(result: ScalaResolveResult): String = {
-    def defaultForTypeAlias(t: ScTypeAlias): String = {
-      if (t.getParent.isInstanceOf[ScTemplateBody] && t.containingClass != null) {
-        "TypeAlias:" + t.containingClass.qualifiedName + "#" + t.name
-      } else null
-    }
-
-    result.getActualElement match {
-      case c: ScTypeParam => null
-      case c: ScObject => "Object:" + c.qualifiedName
-      case c: PsiClass => "Class:" + c.qualifiedName
-      case t: ScTypeAliasDefinition if t.typeParameters.length == 0 =>
-        t.aliasedType(TypingContext.empty) match {
-          case Success(tp, elem) =>
-            ScType.extractClass(tp, Option(getPlace).map(_.getProject)) match {
-              case Some(c: ScObject) => defaultForTypeAlias(t)
-              case Some(td: ScTypeDefinition) if td.typeParameters.length == 0 && ScalaPsiUtil.hasStablePath(td) =>
-                "Class:" + td.qualifiedName
-              case Some(c: PsiClass) if c.getTypeParameters.length == 0 => "Class:" + c.qualifiedName
-              case _ => defaultForTypeAlias(t)
-            }
-          case _ => defaultForTypeAlias(t)
-        }
-      case t: ScTypeAlias => defaultForTypeAlias(t)
-      case p: PsiPackage => "Package:" + p.getQualifiedName
-      case _ => null
-    }
+  override protected def getQualifiedName(result: ScalaResolveResult): String = {
+    ResolveProcessor.getQualifiedName(result, getPlace)
   }
 
   protected def getTopPrecedence(result: ScalaResolveResult): Int = precedence

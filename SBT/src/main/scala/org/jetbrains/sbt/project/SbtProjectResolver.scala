@@ -34,6 +34,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val data = StructureParser.parse(xml, new File(System.getProperty("user.home")))
 
+    // TODO Show warnings about excluded roots when IDEA-123007 will be implemented
+    // in the External System (UI interaction API for external system project resolver).
+    //val externalSourceRoots = data.projects.map(externalSourceRootsIn)
+
     convert(root, data).toDataNode
   }
 
@@ -136,8 +140,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def createModule(project: Project, moduleFilesDirectory: File): ModuleNode = {
     // TODO use both ID and Name when related flaws in the External System will be fixed
+    // TODO explicit canonical path is needed until IDEA-126011 is fixed
     val result = new ModuleNode(StdModuleTypes.JAVA.getId, project.id, project.id,
-      moduleFilesDirectory.path, project.base.path)
+      moduleFilesDirectory.path, project.base.canonicalPath)
 
     result.setInheritProjectCompileOutputPath(false)
 
@@ -152,8 +157,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  // TODO Show warnings about excluded roots when IDEA-123007 will be implemented
-  // in the External System (UI interaction API for external system project resolver).
   private def createContentRoot(project: Project): ContentRootNode = {
     val productionSources = validRootPathsIn(project, "compile")(_.sources)
     val productionResources = validRootPathsIn(project, "compile")(_.resources)
@@ -196,7 +199,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val buildRoot = project.base / Sbt.ProjectDirectory
 
     // TODO use both ID and Name when related flaws in the External System will be fixed
-    val result = new ModuleNode(SbtModuleType.instance.getId, id, id, moduleFilesDirectory.path, buildRoot.path)
+    // TODO explicit canonical path is needed until IDEA-126011 is fixed
+    val result = new ModuleNode(SbtModuleType.instance.getId, id, id, moduleFilesDirectory.path, buildRoot.canonicalPath)
 
     result.setInheritProjectCompileOutputPath(false)
     result.setCompileOutputPath(ExternalSystemSourceType.SOURCE, (buildRoot / Sbt.TargetDirectory / "idea-classes").path)
@@ -248,6 +252,17 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             .map(_.file)
             .filter(_.isUnder(project.base))
             .map(_.path)
+  }
+
+  private def externalSourceRootsIn(project: Project): Seq[File] = {
+    val scopes = Set("compile", "test", "it")
+
+    val sourceRoots = project.configurations
+            .filter(it => scopes.contains(it.id))
+            .flatMap(it => it.resources ++ it.resources)
+            .map(_.file)
+
+    sourceRoots.filter(_.isOutsideOf(project.base))
   }
 
   private def createLibraryDependencies(dependencies: Seq[ModuleDependency])(moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyNode] = {

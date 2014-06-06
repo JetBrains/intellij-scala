@@ -49,7 +49,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 import org.jetbrains.plugins.scala.util.ScalaUtils
-import scala.Some
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, Set, mutable}
 
@@ -464,7 +463,12 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                         val annotation: Annotation = holder.createErrorAnnotation(expr, error)
                         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                         typeElement match {
-                          case Some(te) => annotation.registerFix(new ChangeTypeFix(te, returnType.getOrNothing))
+                          case Some(te) =>
+                            val fix = new ChangeTypeFix(te, returnType.getOrNothing)
+                            annotation.registerFix(fix)
+                            val teAnnotation = holder.createErrorAnnotation(te, null)
+                            teAnnotation.setHighlightType(ProblemHighlightType.INFORMATION)
+                            teAnnotation.registerFix(fix)
                           case None =>
                         }
                       }
@@ -610,7 +614,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         case s: ScImportSelector if resolve.length > 0 => return
         case mc: ScMethodCall =>
           val refWithoutArgs = ScalaPsiElementFactory.createReferenceFromText(refElement.getText, mc.getContext, mc)
-          if (refWithoutArgs.multiResolve(false).nonEmpty) {
+          if (refWithoutArgs.multiResolve(false).exists(!_.getElement.isInstanceOf[PsiPackage])) {
             // We can't resolve the method call A(arg1, arg2), but we can resolve A. Highlight this differently.
             val error = ScalaBundle.message("cannot.resolve.apply.method", refElement.refName)
             val annotation = holder.createErrorAnnotation(refElement.nameId, error)
@@ -629,20 +633,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
       annotation.registerFix(ReportHighlightingErrorQuickFix)
       registerCreateFromUsageFixesFor(refElement, annotation)
-    }
-  }
-
-  private def registerCreateFromUsageFixesFor(ref: ScReferenceElement, annotation: Annotation) {
-    ref match {
-      case Both(exp: ScReferenceExpression, Parent(_: ScMethodCall)) =>
-        annotation.registerFix(new CreateMethodQuickFix(exp))
-      case Both(exp: ScReferenceExpression, Parent(infix: ScInfixExpr)) if infix.operation == exp =>
-        annotation.registerFix(new CreateMethodQuickFix(exp))
-      case exp: ScReferenceExpression =>
-        annotation.registerFix(new CreateParameterlessMethodQuickFix(exp))
-        annotation.registerFix(new CreateValueQuickFix(exp))
-        annotation.registerFix(new CreateVariableQuickFix(exp))
-      case _ =>
     }
   }
 
@@ -766,7 +756,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             createErrorAnnotation(elt.getTextRange, message)
 
           override def createErrorAnnotation(range: TextRange, message: String): Annotation = {
-            holder.createErrorAnnotation(elementsMap.get(range.getStartOffset - shift).getOrElse(prefix), message)
+            holder.createErrorAnnotation(elementsMap.getOrElse(range.getStartOffset - shift, prefix), message)
           }
         }
 
@@ -864,7 +854,12 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                     annotation.registerFix(wrapInOptionFix)
                   }
                   typeElement match {
-                    case Some(te) => annotation.registerFix(new ChangeTypeFix(te, exprType.getOrNothing))
+                    case Some(te) =>
+                      val fix = new ChangeTypeFix(te, exprType.getOrNothing)
+                      annotation.registerFix(fix)
+                      val teAnnotation = holder.createErrorAnnotation(te, null)
+                      teAnnotation.setHighlightType(ProblemHighlightType.INFORMATION)
+                      teAnnotation.registerFix(fix)
                     case None =>
                   }
                 }
