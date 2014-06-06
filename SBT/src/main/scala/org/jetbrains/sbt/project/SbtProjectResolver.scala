@@ -34,6 +34,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val data = StructureParser.parse(xml, new File(System.getProperty("user.home")))
 
+    // TODO Show warnings about excluded roots when IDEA-123007 will be implemented
+    // in the External System (UI interaction API for external system project resolver).
+    //val externalSourceRoots = data.projects.map(externalSourceRootsIn)
+
     convert(root, data).toDataNode
   }
 
@@ -152,8 +156,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  // TODO Show warnings about excluded roots when IDEA-123007 will be implemented
-  // in the External System (UI interaction API for external system project resolver).
   private def createContentRoot(project: Project): ContentRootNode = {
     val productionSources = validRootPathsIn(project, "compile")(_.sources)
     val productionResources = validRootPathsIn(project, "compile")(_.resources)
@@ -248,6 +250,17 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             .map(_.file)
             .filter(_.isUnder(project.base))
             .map(_.path)
+  }
+
+  private def externalSourceRootsIn(project: Project): Seq[File] = {
+    val scopes = Set("compile", "test", "it")
+
+    val sourceRoots = project.configurations
+            .filter(it => scopes.contains(it.id))
+            .flatMap(it => it.resources ++ it.resources)
+            .map(_.file)
+
+    sourceRoots.filter(_.isOutsideOf(project.base))
   }
 
   private def createLibraryDependencies(dependencies: Seq[ModuleDependency])(moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyNode] = {
