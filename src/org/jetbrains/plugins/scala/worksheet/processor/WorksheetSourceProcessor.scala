@@ -240,6 +240,7 @@ object WorksheetSourceProcessor {
           processImport(imp)
           a
         case (null, obj: ScObject) =>
+          obj.putCopyableUserData(WORKSHEET_PRE_CLASS_KEY, "+")
           obj.extendsBlock.templateBody getOrElse srcFile
         case (null, cl: ScTemplateDefinition) =>
           cl.putCopyableUserData(WORKSHEET_PRE_CLASS_KEY, "+")
