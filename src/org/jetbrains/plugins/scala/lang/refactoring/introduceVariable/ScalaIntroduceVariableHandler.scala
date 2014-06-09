@@ -19,8 +19,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{xml => _, _}
 import com.intellij.refactoring.RefactoringActionHandler
 import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
-import com.intellij.refactoring.ui.ConflictsDialog
-import com.intellij.util.containers.MultiMap
 import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -32,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{IntroduceException, showErrorMessage}
-import org.jetbrains.plugins.scala.lang.refactoring.util.{ConflictsReporter, ScalaRefactoringUtil, ScalaVariableValidator}
+import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaRefactoringUtil, ScalaVariableValidator}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
@@ -42,7 +40,7 @@ import org.jetbrains.plugins.scala.util.ScalaUtils
  * Date: 23.06.2008
  */
 
-class ScalaIntroduceVariableHandler extends RefactoringActionHandler with ConflictsReporter {
+class ScalaIntroduceVariableHandler extends RefactoringActionHandler with DialogConflictsReporter {
   val REFACTORING_NAME = ScalaBundle.message("introduce.variable.title")
 
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
@@ -351,12 +349,6 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     }
 
     dialog
-  }
-
-  def reportConflicts(project: Project, conflicts: MultiMap[PsiElement, String]): Boolean = {
-    val conflictsDialog = new ConflictsDialog(project, conflicts)
-    conflictsDialog.show()
-    conflictsDialog.isOK
   }
 
   def runTest(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int, replaceAll: Boolean) {
