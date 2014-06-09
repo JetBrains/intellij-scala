@@ -1,24 +1,24 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.introduceField
 
-import com.intellij.refactoring.RefactoringActionHandler
-import com.intellij.openapi.project.Project
-import com.intellij.psi._
-import com.intellij.openapi.editor.Editor
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import com.intellij.codeInsight.navigation.NavigationUtil
 import com.intellij.ide.util.PsiClassListCellRenderer
-import com.intellij.psi.search.PsiElementProcessor
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import com.intellij.psi._
+import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.refactoring.RefactoringActionHandler
+import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 
 /**
  * Nikolay.Tropin
@@ -61,12 +61,14 @@ abstract class ScalaIntroduceFieldHandlerBase extends RefactoringActionHandler{
     val commonParent = ScalaRefactoringUtil.commonParent(aClass.getContainingFile, occurrences: _*)
     val firstOccOffset = occurrences.map(_.getStartOffset).min
     val anchor = ScalaRefactoringUtil.statementsAndMembersInClass(aClass).find(_.getTextRange.getEndOffset >= firstOccOffset)
-    aClass.extendsBlock match {
-      case ScExtendsBlock.TemplateBody(body) if PsiTreeUtil.isAncestor(body, commonParent, /*strict = */false) =>
-        anchor.getOrElse(null)
-      case ScExtendsBlock.EarlyDefinitions(earlyDef) =>
-        anchor.getOrElse(
-          earlyDef.lastChild.getOrElse(null)) //if no occurrences in earlyDef
+    anchor.getOrElse {
+      if (PsiTreeUtil.isAncestor(aClass.extendsBlock.templateBody.orNull, commonParent, false)) null
+      else {
+        aClass.extendsBlock match {
+          case ScExtendsBlock.EarlyDefinitions(earlyDef) => earlyDef.lastChild.orNull
+          case extBl => extBl.templateParents.orNull
+        }
+      }
     }
   }
 }

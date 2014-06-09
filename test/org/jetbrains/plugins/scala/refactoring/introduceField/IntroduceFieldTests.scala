@@ -16,4 +16,7 @@ class IntroduceFieldTests extends IntroduceFieldTestBase {
   def testFromAnonymousLocally() = doTest()
   def testFromAnonymousInDeclaration() = doTest()
   def testReplaceAllInOuter() = doTest()
+  def testFromBaseConstructorAddEarlyDefs() = doTest()
+  def testFromBaseConstructorToEarlyDefs() = doTest()
+  def testFromBaseConstructorToEarlyDefs2() = doTest()
 }
