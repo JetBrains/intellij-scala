@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaP
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.lang.resolve.processor.{ExtractorResolveProcessor, BaseProcessor}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
@@ -58,6 +58,20 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
       case ScalaResolveResult(typed: ScTypedDefinition, s) =>
         val fromType = s.subst(typed.getType(TypingContext.empty).getOrElse(return))
         processor.processType(fromType, this, ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, fromType))
+        processor match {
+          case p: ExtractorResolveProcessor =>
+            if (processor.candidatesS.isEmpty) {
+              //check implicit conversions
+              val expr =
+                ScalaPsiElementFactory.createExpressionWithContextFromText(ref.getText, ref.getContext, ref)
+              //todo: this is really hacky solution... Probably can be joint somehow with interpolated pattern.
+              expr match {
+                case ref: ResolvableReferenceExpression =>
+                  ref.doResolve(ref, processor, accessibilityCheck = true)
+                case _ =>
+              }
+            }
+        }
       case ScalaResolveResult(field: PsiField, s) =>
         processor.processType(s.subst(ScType.create(field.getType, getProject, getResolveScope)), this)
       case ScalaResolveResult(clazz: PsiClass, s) =>

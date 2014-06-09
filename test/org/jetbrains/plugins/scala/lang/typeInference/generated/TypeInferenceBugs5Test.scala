@@ -33,6 +33,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testImplicitClause() {doTest()}
 
+  def testImplicitlyAddedExtractor() {doTest()}
+
   def testImplicitTest() {doTest()}
 
   def testInfixApply() {doTest()}
