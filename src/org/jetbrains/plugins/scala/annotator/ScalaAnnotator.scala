@@ -37,7 +37,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
@@ -499,6 +499,12 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   }
 
   private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
+    refElement match {
+      case _: ScInterpolatedStringPartReference =>
+        return //do not inspect interpolated literal, it will be highlighted in other place
+      case _ =>
+    }
+
     def getFix: Seq[IntentionAction] = {
       val classes = ScalaImportTypeFix.getTypesToImport(refElement, refElement.getProject)
       if (classes.length == 0) return Seq.empty
@@ -730,7 +736,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     val injections = l.getInjections
     
     ref match {
-      case _: ScInterpolatedPrefixReference =>
+      case _: ScInterpolatedStringPartReference =>
       case _ => return
     }
 
@@ -755,7 +761,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           case ScMethodCall(invoked, _) => invoked.getTextRange.getEndOffset
           case _ => return
         }
-//        val shift = "StringContext(str).".length + r.getName.length  + expr.getTextRange.getStartOffset
 
         val fakeAnnotator = new AnnotationHolderImpl(Option(holder.getCurrentAnnotationSession)
                 .getOrElse(new AnnotationSession(l.getContainingFile))) {
@@ -763,13 +768,12 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             createErrorAnnotation(elt.getTextRange, message)
 
           override def createErrorAnnotation(range: TextRange, message: String): Annotation = {
-            holder.createErrorAnnotation(elementsMap.get(range.getStartOffset - shift).getOrElse(prefix), message)
+            holder.createErrorAnnotation(elementsMap.getOrElse(range.getStartOffset - shift, prefix), message)
           }
         }
 
         annotateReference(expr.asInstanceOf[ScMethodCall].getEffectiveInvokedExpr.
           asInstanceOf[ScReferenceElement], fakeAnnotator)
-      case _: PsiElement => annotateBadPrefix("=(")
       case _ => annotateBadPrefix("cannot.resolve.in.StringContext")
     }
   }

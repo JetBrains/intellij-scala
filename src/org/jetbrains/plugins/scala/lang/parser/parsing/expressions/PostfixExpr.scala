@@ -4,9 +4,8 @@ package parser
 package parsing
 package expressions
 
-import com.intellij.lang.PsiBuilder
-import lexer.ScalaTokenTypes
-import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -18,9 +17,9 @@ import builder.ScalaPsiBuilder
  */
 
 object PostfixExpr {
-  def parse(builder: ScalaPsiBuilder, isPattern: Boolean = false): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val postfixMarker = builder.mark
-    if (!InfixExpr.parse(builder, isPattern)) {
+    if (!InfixExpr.parse(builder)) {
       postfixMarker.drop
       return false
     }
@@ -28,7 +27,7 @@ object PostfixExpr {
       case ScalaTokenTypes.tIDENTIFIER if !builder.newlineBeforeCurrentToken => {
         val refMarker = builder.mark
         builder.advanceLexer //Ate id
-        refMarker.done(if (isPattern) ScalaElementTypes.REFERENCE_PATTERN else ScalaElementTypes.REFERENCE_EXPRESSION)
+        refMarker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
         /*builder.getTokenType match {
           case ScalaTokenTypes.tLINE_TERMINATOR => {
             if (LineTerminator(builder.getTokenText)) builder.advanceLexer

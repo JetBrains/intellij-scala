@@ -3,6 +3,8 @@ package lang
 package psi
 package impl
 
+import java.util
+
 import com.intellij.lang.{ASTNode, PsiBuilderFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.pom.java.LanguageLevel
@@ -15,7 +17,6 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
-import java.util
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -47,6 +48,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocInnerCodeElement, ScDocResolvableCodeReference, ScDocSyntaxElement}
+
 import scala.collection.mutable
 
 class ScalaPsiElementFactoryImpl(manager: PsiManager) extends JVMElementFactory {
@@ -304,7 +306,7 @@ object ScalaPsiElementFactory {
   }
 
   def createBlockExpressionWithoutBracesFromText(text: String, manager: PsiManager): ScBlockImpl = {
-    createElement(text, manager, Block.parse(_, hasBrace = false, needNode = true, isPattern = false))
+    createElement(text, manager, Block.parse(_, hasBrace = false, needNode = true))
   }
 
 

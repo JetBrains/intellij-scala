@@ -20,8 +20,8 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 object Block {
 
-  def parse(builder: ScalaPsiBuilder, isPattern: Boolean) {
-    if (!ResultExpr.parse(builder) && BlockStat.parse(builder, isPattern)) {
+  def parse(builder: ScalaPsiBuilder) {
+    if (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
       var hasSemicolon = false
       var rollbackMarker = builder.mark()
 
@@ -38,7 +38,7 @@ object Block {
 
       updateSemicolon()
 
-      while (!ResultExpr.parse(builder) && BlockStat.parse(builder, isPattern)) {
+      while (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
         if (!hasSemicolon) {
           rollbackMarker.rollbackTo()
           builder error ErrMsg("semi.expected")
@@ -54,7 +54,7 @@ object Block {
     }
   }
 
-  private def parseImpl(builder: ScalaPsiBuilder, isPattern: Boolean): Int = {
+  private def parseImpl(builder: ScalaPsiBuilder): Int = {
     var i: Int = 0
 
     var tts: List[IElementType] = Nil
@@ -66,7 +66,7 @@ object Block {
         i = i + 1
         tts ::= builder.getTokenType
       } else {
-        if (BlockStat.parse(builder, isPattern)) {
+        if (BlockStat.parse(builder)) {
           i = i + 1
           tts ::= builder.getTokenType
         } else {
@@ -79,28 +79,26 @@ object Block {
     i
   }
 
-  def parse(builder: ScalaPsiBuilder, hasBrace: Boolean, isPattern: Boolean): Boolean = parse(builder, hasBrace, needNode = false, isPattern)
+  def parse(builder: ScalaPsiBuilder, hasBrace: Boolean): Boolean = parse(builder, hasBrace, needNode = false)
 
-  def parse(builder: ScalaPsiBuilder, hasBrace: Boolean, needNode: Boolean, isPattern: Boolean): Boolean = {
+  def parse(builder: ScalaPsiBuilder, hasBrace: Boolean, needNode: Boolean): Boolean = {
     if (hasBrace) {
       val blockMarker = builder.mark
       builder.getTokenType match {
-        case ScalaTokenTypes.tLBRACE => {
+        case ScalaTokenTypes.tLBRACE =>
           builder.advanceLexer()
           builder.enableNewlines
-        }
-        case _ => {
+        case _ =>
           blockMarker.drop()
           return false
-        }
       }
-      ParserUtils.parseLoopUntilRBrace(builder, () => parse(builder, isPattern))
+      ParserUtils.parseLoopUntilRBrace(builder, () => parse(builder))
       builder.restoreNewlinesState
       blockMarker.done(ScalaElementTypes.BLOCK_EXPR)
     }
     else {
       val bm = builder.mark()
-      val count = parseImpl(builder, isPattern)
+      val count = parseImpl(builder)
       if (count > 1) {
         bm.done(ScalaElementTypes.BLOCK)
       } else {

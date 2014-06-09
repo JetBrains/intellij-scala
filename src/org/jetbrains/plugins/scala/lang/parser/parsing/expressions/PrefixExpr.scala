@@ -17,20 +17,19 @@ import builder.ScalaPsiBuilder
  */
 
 object PrefixExpr {
-  def parse(builder: ScalaPsiBuilder, isPattern: Boolean): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenText match {
-      case "-" | "+" | "~" | "!" => {
+      case "-" | "+" | "~" | "!" =>
         val prefixMarker = builder.mark
         val refExpr = builder.mark
-        builder.advanceLexer
-        refExpr.done(if (isPattern) ScalaElementTypes.REFERENCE_PATTERN else ScalaElementTypes.REFERENCE_EXPRESSION)
-        if (!SimpleExpr.parse(builder, isPattern)) {
-          prefixMarker.rollbackTo; false
+        builder.advanceLexer()
+        refExpr.done(ScalaElementTypes.REFERENCE_EXPRESSION)
+        if (!SimpleExpr.parse(builder)) {
+          prefixMarker.rollbackTo(); false
         } else {
           prefixMarker.done(ScalaElementTypes.PREFIX_EXPR); true
         }
-      }
-      case _ => SimpleExpr.parse(builder, isPattern)
+      case _ => SimpleExpr.parse(builder)
     }
   }
 }
