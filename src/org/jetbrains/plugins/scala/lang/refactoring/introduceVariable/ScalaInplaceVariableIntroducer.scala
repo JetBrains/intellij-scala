@@ -1,39 +1,43 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.introduceVariable
 
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScExpression}
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.{ScrollType, Editor}
-import com.intellij.psi._
-import com.intellij.refactoring.introduce.inplace.InplaceVariableIntroducer
-import javax.swing._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import com.intellij.ui.NonFocusableCheckBox
-import java.awt.event.{ActionEvent, ActionListener}
-import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.application.{ApplicationManager, Result}
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import java.awt._
+import java.awt.event.{ActionEvent, ActionListener}
+import javax.swing._
+
 import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import com.intellij.openapi.application.{ApplicationManager, Result}
+import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.command.impl.StartMarkAction
+import com.intellij.openapi.command.undo.UndoManager
+import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent, DocumentListener}
 import com.intellij.openapi.editor.markup.RangeHighlighter
-import scala.collection.mutable
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
-import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener, DocumentAdapter}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import com.intellij.openapi.editor.{Editor, ScrollType}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
-import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaNamesUtil, ScalaVariableValidator, ConflictsReporter}
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
+import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi._
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.refactoring.introduce.inplace.InplaceVariableIntroducer
+import com.intellij.ui.NonFocusableCheckBox
 import com.intellij.ui.awt.RelativePoint
-import com.intellij.openapi.command.undo.UndoManager
-import com.intellij.openapi.command.impl.StartMarkAction
+import com.intellij.util.containers.MultiMap
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.refactoring.util.{ConflictsReporter, ScalaNamesUtil, ScalaVariableValidator}
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+
+import scala.collection.mutable
+import scala.collection.convert.WrapAsScala.collectionAsScalaIterable
 
 /**
  * Nikolay.Tropin
@@ -357,8 +361,9 @@ class ScalaInplaceVariableIntroducer(project: Project,
       if (named != null && templateState != null) {
         val occurrences = (for (i <- 0 to templateState.getSegmentsCount - 1) yield templateState.getSegmentRange(i)).toArray
         val validator = ScalaVariableValidator(new ConflictsReporter {
-          def reportConflicts(conflicts: Array[String], project: Project): Boolean = {
-            createWarningBalloon(conflicts.toSet.mkString("\n"))
+          def reportConflicts(project: Project, conflicts: MultiMap[PsiElement, String]): Boolean = {
+            val messages = conflicts.values().toSet
+            createWarningBalloon(messages.mkString("\n"))
             true //this means that we do nothing, only show balloon
           }
         }, project, editor, myFile, named, occurrences)
