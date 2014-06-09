@@ -39,8 +39,8 @@ trait ScInterpolated extends ScalaPsiElement {
       val quote = if (l.isMultiLineString) "\"\"\"" else "\""
       val parts = getStringParts(l).mkString(quote, s"$quote, $quote", quote) //making list of string literals
       val params = l.getInjections.map(_.getText).mkString("(", ",", ")")
-      Option(ScalaPsiElementFactory.createExpressionWithContextFromText(s"StringContext($parts).${getFirstChild.getText}$params",
-        getContext, this))
+      Option(ScalaPsiElementFactory.createExpressionWithContextFromText(
+        s"_root_.scala.StringContext($parts).${getFirstChild.getText}$params", getContext, this))
     }
 
     CachesUtil.get(this, CachesUtil.STRING_CONTEXT_EXPANDED_EXPR_KEY,
@@ -51,6 +51,7 @@ trait ScInterpolated extends ScalaPsiElement {
     getNode.getChildren(null).flatMap {
       _.getPsi match {
         case a: ScBlockExpr => Array[ScExpression](a)
+        case _: ScInterpolatedStringPartReference => Array[ScExpression]()
         case _: ScInterpolatedPrefixReference => Array[ScExpression]()
         case b: ScReferenceExpression => Array[ScExpression](b)
         case _ => Array[ScExpression]()

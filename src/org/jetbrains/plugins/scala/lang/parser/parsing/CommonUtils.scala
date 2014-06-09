@@ -5,6 +5,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockExpr
+import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /**
  * @author kfeodorov
@@ -14,17 +16,32 @@ object CommonUtils {
   def parseInterpolatedString(builder: ScalaPsiBuilder, isPattern: Boolean) = {
     val prefixMarker = builder.mark()
     builder.advanceLexer()
-    prefixMarker done ScalaElementTypes.INTERPOLATED_PREFIX_REFERENCE
+    prefixMarker.done(
+      if (isPattern) ScalaElementTypes.INTERPOLATED_PREFIX_PATTERN_REFERENCE
+      else ScalaElementTypes.INTERPOLATED_PREFIX_LITERAL_REFERENCE)
     val patternArgsMarker = builder.mark()
-    while (!builder.eof() && builder.getTokenType != ScalaTokenTypes.tINTERPOLATED_STRING_END){
+    while (!builder.eof() && builder.getTokenType != ScalaTokenTypes.tINTERPOLATED_STRING_END) {
       if (builder.getTokenType == ScalaTokenTypes.tINTERPOLATED_STRING_INJECTION) {
         builder.advanceLexer()
-        if (!BlockExpr.parse(builder, isPattern = isPattern)) {
+        if (isPattern) {
+          if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
+              val idMarker = builder.mark()
+              builder.advanceLexer()
+              idMarker.done(ScalaElementTypes.REFERENCE_PATTERN)
+          } else if (builder.getTokenType == ScalaTokenTypes.tLBRACE) {
+            builder.advanceLexer()
+            if (!Pattern.parse(builder)) builder.error("Wrong pattern")
+            else if (builder.getTokenType != ScalaTokenTypes.tRBRACE) {
+              builder.error("'}' is expected")
+              ParserUtils.parseLoopUntilRBrace(builder, () => (), braceReported = true)
+            } else builder.advanceLexer()
+          }
+        } else if (!BlockExpr.parse(builder)) {
           if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
             val idMarker = builder.mark()
             builder.advanceLexer()
-            idMarker.done(if (isPattern) ScalaElementTypes.REFERENCE_PATTERN else ScalaElementTypes.REFERENCE_EXPRESSION)
-          } else if (builder.getTokenType == ScalaTokenTypes.kTHIS && !isPattern) {
+            idMarker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
+          } else if (builder.getTokenType == ScalaTokenTypes.kTHIS) {
             val literalMarker = builder.mark()
             builder.advanceLexer()
             literalMarker.done(ScalaElementTypes.THIS_REFERENCE)

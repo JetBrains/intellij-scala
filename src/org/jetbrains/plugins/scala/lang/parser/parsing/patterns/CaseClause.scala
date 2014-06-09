@@ -4,10 +4,9 @@ package parser
 package parsing
 package patterns
 
-import com.intellij.lang.PsiBuilder
-import expressions.Block
-import lexer.ScalaTokenTypes
-import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Block
 
 /**
 * @author Alexander Podkhalyuzin
@@ -50,7 +49,7 @@ object CaseClause {
         return true
       }
     }
-    if (!Block.parse(builder, hasBrace = false, needNode = true, isPattern = false)) {
+    if (!Block.parse(builder, hasBrace = false, needNode = true)) {
       builder error ErrMsg("wrong.expression")
     }
     caseClauseMarker.done(ScalaElementTypes.CASE_CLAUSE)

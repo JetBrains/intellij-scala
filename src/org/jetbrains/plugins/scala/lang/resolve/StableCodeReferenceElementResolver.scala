@@ -30,7 +30,7 @@ class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenc
       case e: ScImportExpr if e.singleWildcard => new ResolveProcessor(kinds, ref, reference.refName)
       case _: ScImportSelector => new CollectAllForImportProcessor(kinds, ref, reference.refName)
       case constr: ScInterpolationPattern =>
-        new InterpolatedExtractorResolveProcessor(ref, reference.refName, kinds, constr.expectedType)
+        new ExtractorResolveProcessor(ref, reference.refName, kinds, constr.expectedType)
       case constr: ScConstructorPattern =>
         new ExtractorResolveProcessor(ref, reference.refName, kinds, constr.expectedType)
       case infix: ScInfixPattern => new ExtractorResolveProcessor(ref, reference.refName, kinds, infix.expectedType)

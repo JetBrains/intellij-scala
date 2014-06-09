@@ -79,7 +79,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   def getKinds(incomplete: Boolean, completion: Boolean): Set[ResolveTargets.Value] = {
     import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
 
-    // The qualified identifer immediately following the `mqcro` keyword
+    // The qualified identifier immediately following the `macro` keyword
     // may only refer to a method.
     def isInMacroDef = getContext match {
       case _: ScMacroDefinition =>

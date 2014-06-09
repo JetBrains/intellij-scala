@@ -119,7 +119,7 @@ class FilePathReferenceProvider extends PsiReferenceProvider {
     new FileReference(referenceSet, range, index, text)
   }
 
-  @NotNull def getReferencesByElement(@NotNull element: PsiElement, @NotNull context: ProcessingContext): Array[PsiReference] = {
+  def getReferencesByElement(element: PsiElement, context: ProcessingContext): Array[PsiReference] = {
     element match {
       case interpolated: ScInterpolationPattern =>
         val refs = interpolated.getReferencesToStringParts

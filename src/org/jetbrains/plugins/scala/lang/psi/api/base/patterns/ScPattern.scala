@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve._
-import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, InterpolatedExtractorResolveProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ExpandedExtractorResolveProcessor}
 
 import scala.annotation.tailrec
 import scala.collection.immutable.Set
@@ -66,21 +66,21 @@ trait ScPattern extends ScalaPsiElement {
                                           patternsNumber: Int): Option[ScType] = {
     val bind: Option[ScalaResolveResult] = ref.bind() match {
       case Some(ScalaResolveResult(_: ScBindingPattern | _: ScParameter, _)) =>
-      val resolve = ref match {
-        case refImpl: ScStableCodeReferenceElementImpl =>
-          refImpl.doResolve(refImpl, new InterpolatedExtractorResolveProcessor(ref, ref.refName, ref.getKinds(incomplete = false), ref.getContext match {
-            case inf: ScInfixPattern => inf.expectedType
-            case constr: ScConstructorPattern => constr.expectedType
-            case _ => None
-          }))
-      }
-      if (resolve.length != 1) None
-      else {
-        resolve(0) match {
-          case s: ScalaResolveResult => Some(s)
-          case _ => None
+        val resolve = ref match {
+          case refImpl: ScStableCodeReferenceElementImpl =>
+            refImpl.doResolve(refImpl, new ExpandedExtractorResolveProcessor(ref, ref.refName, ref.getKinds(incomplete = false), ref.getContext match {
+              case inf: ScInfixPattern => inf.expectedType
+              case constr: ScConstructorPattern => constr.expectedType
+              case _ => None
+            }))
         }
-      }
+        if (resolve.length != 1) None
+        else {
+          resolve(0) match {
+            case s: ScalaResolveResult => Some(s)
+            case _ => None
+          }
+        }
       case m => m
     }
 
