@@ -8,6 +8,7 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.util.containers.MultiMap
 import refactoring.util.ScalaRefactoringUtil.IntroduceException
 import com.intellij.refactoring.ui.ConflictsDialog
 import psi.types.ScType
@@ -91,8 +92,8 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
 
   def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext) {/*do nothing*/}
 
-  def reportConflicts(conflicts: Array[String], project: Project): Boolean = {
-    val conflictsDialog = new ConflictsDialog(project, conflicts: _*)
+  def reportConflicts(project: Project, conflicts: MultiMap[PsiElement, String]): Boolean = {
+    val conflictsDialog = new ConflictsDialog(project, conflicts)
     conflictsDialog.show()
     conflictsDialog.isOK
   }
