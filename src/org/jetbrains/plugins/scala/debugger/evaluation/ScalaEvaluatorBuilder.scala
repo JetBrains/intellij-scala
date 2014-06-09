@@ -244,9 +244,9 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
     override def visitLiteral(l: ScLiteral) {
       myResult = l match {
-        case interpolated: ScInterpolatedStringLiteral if interpolated.getType != InterpolatedStringType.STANDART =>
-          throw EvaluateExceptionUtil.createEvaluateException("Only standart string interpolator s\"...\" is supported")
-        case interpolated: ScInterpolatedStringLiteral if interpolated.getType == InterpolatedStringType.STANDART =>
+        case interpolated: ScInterpolatedStringLiteral if interpolated.getType == InterpolatedStringType.FORMAT =>
+          throw EvaluateExceptionUtil.createEvaluateException("Formatted string interpolator f\"...\" is not supported in scala 2.11")
+        case interpolated: ScInterpolatedStringLiteral =>
           val evaluatorOpt = for (expr <- interpolated.getStringContextExpression) yield {
             expr.accept(this)
             myResult
@@ -790,7 +790,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             val e = matchedParameters.find(_._1.name == p.name).map(_._2).getOrElse(Seq.empty).filter(_ != null)
             if (p.isByName) throw EvaluateExceptionUtil.createEvaluateException("cannot evaluate methods with by-name parameters")
             if (p.isRepeated) {
-              val argTypeText = e.headOption.map(_.getType()).map(_.get).getOrElse(Any).canonicalText
+              val argTypes = e.map(_.getType().getOrAny)
+              val argTypeText = Bounds.lub(argTypes).canonicalText
               val argsText = if (e.length > 0) e.sortBy(_.getTextRange.getStartOffset).map(_.getText).mkString(".+=(", ").+=(", ").result()") else ""
               def tail: Evaluator = {
                 val exprText = s"_root_.scala.collection.Seq.newBuilder[$argTypeText]$argsText"
