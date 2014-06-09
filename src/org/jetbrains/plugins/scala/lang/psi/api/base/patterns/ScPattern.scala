@@ -371,10 +371,6 @@ object ScPattern {
     }
 
     val level = ScalaLanguageLevel.getLanguageLevel(place)
-    place match {
-      case p: ScInterpolationPattern => return InterpreterUtil.interpret(p)
-      case _ => ()
-    }
     if (level.isThoughScala2_11) collectFor2_11
     else {
       returnType match {
