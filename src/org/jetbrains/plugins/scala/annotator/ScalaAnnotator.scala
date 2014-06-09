@@ -32,23 +32,21 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ReadValueUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.WriteValueUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportUsed, ValueUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportUsed, ReadValueUsed, ValueUsed, WriteValueUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPrefixReference
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 import org.jetbrains.plugins.scala.util.ScalaUtils
+
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, Set, mutable}
 
@@ -506,6 +504,12 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   }
 
   private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
+    refElement match {
+      case _: ScInterpolatedStringPartReference =>
+        return //do not inspect interpolated literal, it will be highlighted in other place
+      case _ =>
+    }
+
     def getFix: Seq[IntentionAction] = {
       val classes = ScalaImportTypeFix.getTypesToImport(refElement, refElement.getProject)
       if (classes.length == 0) return Seq.empty
@@ -723,7 +727,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     val injections = l.getInjections
     
     ref match {
-      case _: ScInterpolatedStringPrefixReference =>
+      case _: ScInterpolatedStringPartReference =>
       case _ => return
     }
 
@@ -748,7 +752,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           case ScMethodCall(invoked, _) => invoked.getTextRange.getEndOffset
           case _ => return
         }
-//        val shift = "StringContext(str).".length + r.getName.length  + expr.getTextRange.getStartOffset
 
         val fakeAnnotator = new AnnotationHolderImpl(Option(holder.getCurrentAnnotationSession)
                 .getOrElse(new AnnotationSession(l.getContainingFile))) {
@@ -762,7 +765,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
         annotateReference(expr.asInstanceOf[ScMethodCall].getEffectiveInvokedExpr.
           asInstanceOf[ScReferenceElement], fakeAnnotator)
-      case _: PsiElement => annotateBadPrefix("=(")
       case _ => annotateBadPrefix("cannot.resolve.in.StringContext")
     }
   }

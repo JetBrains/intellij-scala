@@ -57,21 +57,23 @@ trait ScPattern extends ScalaPsiElement {
     }
   }
 
-  def subpatterns: Seq[ScPattern] = {
-    if (this.isInstanceOf[ScReferencePattern]) return Seq.empty
-    findChildrenByClassScala[ScPattern](classOf[ScPattern])
+  def subpatterns: Seq[ScPattern] = this match {
+    case _: ScReferencePattern => Seq.empty
+    case _ => findChildrenByClassScala[ScPattern](classOf[ScPattern])
   }
 
   private def resolveReferenceToExtractor(ref: ScStableCodeReferenceElement, i: Int, expected: Option[ScType],
                                           patternsNumber: Int): Option[ScType] = {
     val bind: Option[ScalaResolveResult] = ref.bind() match {
       case Some(ScalaResolveResult(_: ScBindingPattern | _: ScParameter, _)) =>
-        val refImpl = ref.asInstanceOf[ScStableCodeReferenceElementImpl]
-        val resolve = refImpl.doResolve(refImpl, new ExpandedExtractorResolveProcessor(ref, ref.refName, ref.getKinds(incomplete = false), ref.getContext match {
-          case inf: ScInfixPattern => inf.expectedType
-          case constr: ScConstructorPattern => constr.expectedType
-          case _ => None
-        }))
+        val resolve = ref match {
+          case refImpl: ScStableCodeReferenceElementImpl =>
+            refImpl.doResolve(refImpl, new ExpandedExtractorResolveProcessor(ref, ref.refName, ref.getKinds(incomplete = false), ref.getContext match {
+              case inf: ScInfixPattern => inf.expectedType
+              case constr: ScConstructorPattern => constr.expectedType
+              case _ => None
+            }))
+        }
         if (resolve.length != 1) None
         else {
           resolve(0) match {
@@ -213,8 +215,7 @@ trait ScPattern extends ScalaPsiElement {
       case argList : ScPatternArgumentList =>
         argList.getContext match {
           case constr : ScConstructorPattern =>
-            resolveReferenceToExtractor(constr.ref, constr.args.patterns.indexWhere(_ == this), constr.expectedType,
-              argList.patterns.length)
+            resolveReferenceToExtractor(constr.ref, constr.args.patterns.indexWhere(_ == this), constr.expectedType, argList.patterns.length)
           case _ => None
         }
       case composite: ScCompositePattern => composite.expectedType

@@ -157,7 +157,9 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
       "java.util.WeakHashMap",
       "org.scalatest.fixture._",
       "org.scalatest.path._",
-      "scala.collection.mutable._"
+      "scala.collection.mutable._",
+      "scala.reflect.macros.blackbox.Context",
+      "scala.reflect.macros.whitebox.Context"
   };
 
   private String[] IMPORT_LAYOUT = new String[] {
