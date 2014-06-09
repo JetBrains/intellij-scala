@@ -116,7 +116,7 @@ trait ApplicationAnnotator {
                 }
               case _ =>
                 r.problems.foreach {
-                  case MissedParametersClause(clause) if !reference.isInstanceOf[ScInterpolatedStringPrefixReference] =>
+                  case MissedParametersClause(clause) if !reference.isInstanceOf[ScInterpolatedPrefixReference] =>
                     holder.createErrorAnnotation(reference, "Missing arguments for method " + nameOf(f))
                     addCreateFromUsagesQuickFixes(reference, holder)
                   case _ =>

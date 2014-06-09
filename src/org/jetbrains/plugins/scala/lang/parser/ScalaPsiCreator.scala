@@ -142,7 +142,8 @@ object ScalaPsiCreator {
   /********************* LITERALS *********************/
     case ScalaElementTypes.LITERAL => new ScLiteralImpl(node)
     case ScalaElementTypes.INTERPOLATED_STRING_LITERAL => new ScInterpolatedStringLiteralImpl(node)
-    case ScalaElementTypes.INTERPOLATED_STRING_PREFIX_REFERENCE => new ScInterpolatedStringPrefixReference(node)
+    case ScalaElementTypes.INTERPOLATED_PREFIX_PATTERN_REFERENCE => new ScInterpolatedPrefixReference(node)
+    case ScalaElementTypes.INTERPOLATED_PREFIX_LITERAL_REFERENCE => new ScInterpolatedStringPartReference(node)
 
     /********************** TYPES ************************/
 
@@ -231,6 +232,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.CASE_CLAUSE => new ScCaseClauseImpl(node)
     case ScalaElementTypes.CASE_CLAUSES => new ScCaseClausesImpl(node)
     case ScalaElementTypes.LITERAL_PATTERN => new ScLiteralPatternImpl(node)
+    case ScalaElementTypes.INTERPOLATION_PATTERN => new ScInterpolationPatternImpl(node)
     case ScalaElementTypes.REFERENCE_PATTERN => new ScReferencePatternImpl(node)
     case ScalaElementTypes.STABLE_REFERENCE_PATTERN => new ScStableReferenceElementPatternImpl(node)
     case ScalaElementTypes.PATTERN_IN_PARENTHESIS => new ScParenthesisedPatternImpl(node)

@@ -39,7 +39,7 @@ ScalaFile
           InfixExpression
             InfixExpression
               Literal
-                ReferenceExpression: s
+                InterpolatedStringPartReference: s
                   PsiElement(interpolated string id)('s')
                 PsiElement(interpolated string)('"blah blah ')
                 PsiElement(interpolated string injection)('$')
@@ -52,7 +52,7 @@ ScalaFile
                 PsiElement(identifier)('+')
               PsiWhiteSpace(' ')
               Literal
-                ReferenceExpression: f
+                InterpolatedStringPartReference: f
                   PsiElement(interpolated string id)('f')
                 PsiElement(interpolated string)('"')
                 PsiElement(interpolated string injection)('$')
@@ -82,7 +82,7 @@ ScalaFile
               PsiElement(identifier)('+')
             PsiWhiteSpace(' ')
             Literal
-              ReferenceExpression: s
+              InterpolatedStringPartReference: s
                 PsiElement(interpolated string id)('s')
               PsiElement(interpolatedmultiline string)('"""')
               PsiElement(interpolated string injection)('$')

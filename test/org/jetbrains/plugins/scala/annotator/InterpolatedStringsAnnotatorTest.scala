@@ -1,13 +1,9 @@
 package org.jetbrains.plugins.scala.annotator
 
 import org.intellij.lang.annotations.Language
-import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
-import java.io.File
-import org.jetbrains.plugins.scala.util.TestUtils
-import com.intellij.openapi.vfs.VfsUtil
-import com.intellij.openapi.application.ApplicationManager
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.base.{ScalaLightPlatformCodeInsightTestCaseAdapter, ScalaLightCodeInsightFixtureTestAdapter}
+import org.junit.Assert
 
 /**
  * User: Dmitry Naydanov
@@ -28,7 +24,11 @@ class InterpolatedStringsAnnotatorTest extends ScalaLightPlatformCodeInsightTest
   }
 
   private def messageExists(text: String, message: String) {
-    assert(collectAnnotatorMessages(text).exists(_.toString == message))
+    val annotatorMessages = collectAnnotatorMessages(text)
+    if (!annotatorMessages.exists(_.toString == message)) {
+      Assert.assertTrue("annotator messages is empty", annotatorMessages.length > 0)
+      Assert.assertEquals(message, annotatorMessages(0))
+    }
   }
 
   @Language(value = "Scala")
@@ -41,9 +41,9 @@ class InterpolatedStringsAnnotatorTest extends ScalaLightPlatformCodeInsightTest
          def d(i1: Int, s1: String) = i1 + s1.length
          def d(i1: Int, i2: Int) = i1 + i2
        }
-       
+
        implicit def extendStrContext(ctx: StringContext) = new ExtendedContext
-       
+
        val i1 = 1; val i2 = 2; val s1 = "string1"; val s2 = "string2"; val c1 = 'c'
        
     """.replace("\r", "")
@@ -61,7 +61,7 @@ class InterpolatedStringsAnnotatorTest extends ScalaLightPlatformCodeInsightTest
   }
   
   def testMultiResolve() {
-    messageExists(header + "d\"blah $s1 blah $s2 blah\"", "ErrorWithRange((459,460),Value 'd' is not a member of StringContext)")
+    messageExists(header + "d\"blah $s1 blah $s2 blah\"", "ErrorWithRange((445,446),Value 'd' is not a member of StringContext)")
   }
   
   def testMultipleResolve() {

@@ -5,7 +5,7 @@ package impl
 package base
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.{PsiElement, _}
+import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern, ScInterpolationPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroDefinition, ScTypeAlias}
@@ -72,14 +72,14 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     }
   }
 
-  def isConstructorReference = !getConstructor.isEmpty
+  def isConstructorReference = getConstructor.nonEmpty
 
   override def toString: String = "CodeReferenceElement: " + getText
 
   def getKinds(incomplete: Boolean, completion: Boolean): Set[ResolveTargets.Value] = {
     import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
 
-    // The qualified identifer immediately following the `mqcro` keyword
+    // The qualified identifier immediately following the `macro` keyword
     // may only refer to a method.
     def isInMacroDef = getContext match {
       case _: ScMacroDefinition =>
@@ -103,6 +103,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
         else if (ste.singleton) stableQualRef
         else stableClass
       case _: ScTypeAlias => stableClass
+      case _: ScInterpolationPattern => stableImportSelector
       case _: ScConstructorPattern => objectOrValue
       case _: ScInfixPattern => objectOrValue
       case _: ScThisReference | _: ScSuperReference => stableClassOrObject

@@ -1,0 +1,70 @@
+val q"(..$args) = $body" = tt
+args match {
+  case r"${a: Int}" => 1
+}
+------
+ScalaFile
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      InterpolationPattern
+        CodeReferenceElement: q
+          PsiElement(interpolated string id)('q')
+        Pattern Argument List
+          PsiElement(interpolated string)('"(..')
+          PsiElement(interpolated string injection)('$')
+          ReferencePattern: args
+            PsiElement(identifier)('args')
+          PsiElement(interpolated string)(') = ')
+          PsiElement(interpolated string injection)('$')
+          ReferencePattern: body
+            PsiElement(identifier)('body')
+        PsiElement(interpolated string end)('"')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: tt
+      PsiElement(identifier)('tt')
+  PsiWhiteSpace('\n')
+  MatchStatement
+    ReferenceExpression: args
+      PsiElement(identifier)('args')
+    PsiWhiteSpace(' ')
+    PsiElement(match)('match')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiWhiteSpace('\n  ')
+    CaseClauses
+      CaseClause
+        PsiElement(case)('case')
+        PsiWhiteSpace(' ')
+        InterpolationPattern
+          CodeReferenceElement: r
+            PsiElement(interpolated string id)('r')
+          Pattern Argument List
+            PsiElement(interpolated string)('"')
+            PsiElement(interpolated string injection)('$')
+            PsiElement({)('{')
+            TypedPattern: a
+              PsiElement(identifier)('a')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              TypePattern
+                SimpleTypeElement: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+            PsiElement(})('}')
+          PsiElement(interpolated string end)('"')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+        PsiWhiteSpace(' ')
+        BlockOfExpressions
+          Literal
+            PsiElement(integer)('1')
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')

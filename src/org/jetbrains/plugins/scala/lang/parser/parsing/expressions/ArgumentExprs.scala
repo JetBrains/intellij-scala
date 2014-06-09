@@ -21,7 +21,7 @@ object ArgumentExprs {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val argMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.tLPARENTHESIS => {
+      case ScalaTokenTypes.tLPARENTHESIS =>
         builder.advanceLexer() //Ate (
         builder.disableNewlines
         Expr parse builder
@@ -32,18 +32,15 @@ object ArgumentExprs {
           }
         }
         builder.getTokenType match {
-          case ScalaTokenTypes.tRPARENTHESIS => {
+          case ScalaTokenTypes.tRPARENTHESIS =>
             builder.advanceLexer() //Ate )
-          }
-          case _ => {
+          case _ =>
             builder error ScalaBundle.message("rparenthesis.expected")
-          }
         }
         builder.restoreNewlinesState
         argMarker.done(ScalaElementTypes.ARG_EXPRS)
         true
-      }
-      case ScalaTokenTypes.tLBRACE => {
+      case ScalaTokenTypes.tLBRACE =>
         if (builder.twoNewlinesBeforeCurrentToken) {
           argMarker.rollbackTo()
           return false
@@ -51,11 +48,9 @@ object ArgumentExprs {
         BlockExpr parse builder
         argMarker.done(ScalaElementTypes.ARG_EXPRS)
         true
-      }
-      case _ => {
+      case _ =>
         argMarker.drop()
         false
-      }
     }
   }
 }
