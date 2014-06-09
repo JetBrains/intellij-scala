@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
  * Date: 3/17/12
  */
 
-trait ScInterpolatedStringLiteral extends ScInterpolated {
+trait ScInterpolatedStringLiteral extends ScLiteral with ScInterpolated {
   def getType: InterpolatedStringType.StringType
   def reference: Option[ScReferenceExpression]
 }

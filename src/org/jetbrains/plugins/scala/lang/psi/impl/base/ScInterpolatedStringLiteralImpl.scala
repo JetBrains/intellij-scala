@@ -2,21 +2,17 @@ package org.jetbrains.plugins.scala
 package lang.psi.impl.base
 
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{InterpolatedStringType, ScInterpolatedStringLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
 
-import scala.collection.mutable.ListBuffer
-
 /**
  * User: Dmitry Naydanov
  * Date: 3/17/12
  */
-
-class ScInterpolatedStringLiteralImpl(_node: ASTNode) extends ScLiteralImpl(_node) with ScInterpolatedStringLiteral {
-  def getType: InterpolatedStringType.StringType = node.getFirstChildNode.getText match {
+class ScInterpolatedStringLiteralImpl(node: ASTNode) extends ScLiteralImpl(node) with ScInterpolatedStringLiteral {
+  def getType: InterpolatedStringType.StringType = getNode.getFirstChildNode.getText match {
     case "s" => InterpolatedStringType.STANDART
     case "f" => InterpolatedStringType.FORMAT
     case "id" => InterpolatedStringType.PATTERN
@@ -38,8 +34,6 @@ class ScInterpolatedStringLiteralImpl(_node: ASTNode) extends ScLiteralImpl(_nod
     }
   }
 
-
-
   override def isMultiLineString: Boolean = getText.endsWith("\"\"\"")
 
   override def isString: Boolean = true
@@ -48,6 +42,4 @@ class ScInterpolatedStringLiteralImpl(_node: ASTNode) extends ScLiteralImpl(_nod
     case literal: ScLiteralImpl => literal.getValue
     case _ => "" 
   }
-
-  override val node: ASTNode = _node
 }
