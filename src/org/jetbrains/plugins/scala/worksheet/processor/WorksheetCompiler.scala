@@ -1,22 +1,28 @@
 package org.jetbrains.plugins.scala
 package worksheet.processor
 
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.util.Key
-import com.intellij.openapi.editor.Editor
-import org.jetbrains.plugins.scala.worksheet.server.{NonServer, OutOfProcessServer, InProcessServer, RemoteServerConnector}
-import com.intellij.openapi.module.{ModuleManager, ModuleUtilCore}
+import com.intellij.compiler.impl.CompilerErrorTreeView
 import com.intellij.compiler.progress.CompilerTask
-import org.jetbrains.plugins.scala.compiler.{ScalaApplicationSettings, CompileServerLauncher}
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.command.CommandProcessor
+import com.intellij.openapi.components.ServiceManager
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.worksheet.actions.{CleanWorksheetAction, WorksheetFileHook}
-import org.jetbrains.plugins.scala.config.ScalaFacet
-import org.jetbrains.plugins.scala.extensions
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.{Disposer, Key}
 import com.intellij.openapi.vfs.newvfs.FileAttribute
-import com.intellij.psi.PsiFile
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
+import com.intellij.openapi.wm.{ToolWindowId, ToolWindowManager}
+import com.intellij.psi.{PsiErrorElement, PsiFile}
+import com.intellij.ui.content.{Content, ContentFactory, MessageView}
+import com.intellij.util.ui.MessageCategory
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaApplicationSettings}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
+import org.jetbrains.plugins.scala.worksheet.server.{InProcessServer, NonServer, OutOfProcessServer, RemoteServerConnector}
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
+import scala.collection.mutable
 
 /**
  * User: Dmitry Naydanov
@@ -26,8 +32,9 @@ class WorksheetCompiler {
   /**
    * @param callback (Name, AddToClasspath)
    */
-  def compileAndRun(editor: Editor, worksheetFile: ScalaFile, callback: (String, String) => Unit, ifEditor: Option[Editor]) {
-    import WorksheetCompiler._
+  def compileAndRun(editor: Editor, worksheetFile: ScalaFile, callback: (String, String) => Unit,
+                    ifEditor: Option[Editor], auto: Boolean) {
+    import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler._
     
     val worksheetVirtual = worksheetFile.getVirtualFile
     val (iteration, tempFile, outputDir) = WorksheetBoundCompilationInfo.updateOrCreate(worksheetVirtual.getCanonicalPath, worksheetFile.getName)
@@ -42,8 +49,13 @@ class WorksheetCompiler {
 
     if (runType != NonServer) ensureServerRunning(project) else ensureNotRunning(project)
 
-    WorksheetSourceProcessor.process(worksheetFile, ifEditor, iteration) map {
-      case (code, name) =>
+
+    val contentManager = MessageView.SERVICE.getInstance(project).getContentManager
+    val oldContent = contentManager findContent ERROR_CONTENT_NAME
+    if (oldContent != null) contentManager.removeContent(oldContent, true)
+
+    WorksheetSourceProcessor.process(worksheetFile, ifEditor, iteration) match {
+      case Left((code, name)) =>
         FileUtil.writeToFile(tempFile, code)
 
         val task = new CompilerTask(project, s"Worksheet ${worksheetFile.getName} compilation", false, false, false, false)
@@ -52,13 +64,15 @@ class WorksheetCompiler {
           WorksheetEditorPrinter.newWorksheetUiFor(editor, worksheetVirtual)
         worksheetPrinter.scheduleWorksheetUpdate()
 
-        val consumer = new RemoteServerConnector.CompilerInterfaceImpl(task, worksheetPrinter, None)
+        val consumer = new RemoteServerConnector.CompilerInterfaceImpl(task, worksheetPrinter, None, auto)
 
         task.start(new Runnable {
           override def run() {
             try {
               //todo smth with exit code
-              new RemoteServerConnector(ModuleUtilCore.findModuleForFile(worksheetVirtual, project), tempFile, outputDir).compileAndRun(new Runnable {
+              new RemoteServerConnector(
+                RunWorksheetAction getModuleFor worksheetFile, tempFile, outputDir
+              ).compileAndRun(new Runnable {
                 override def run() {
                   if (runType == OutOfProcessServer) callback(name, outputDir.getAbsolutePath)
                 }
@@ -66,15 +80,56 @@ class WorksheetCompiler {
             }
           }
         }, new Runnable {override def run() {}})
+      case Right(errorMessage: PsiErrorElement) =>
+        if (auto) return
+        val pos = editor.offsetToLogicalPosition(errorMessage.getTextOffset)
+
+        val treeError = new CompilerErrorTreeView(project, null)
+
+        ApplicationManager.getApplication.invokeLater(new Runnable {
+          override def run() {
+            val file = errorMessage.getContainingFile.getVirtualFile
+            if (file == null || !file.isValid) return
+
+            treeError.addMessage(MessageCategory.ERROR, Array(errorMessage.getErrorDescription),
+              file, pos.line, pos.column, null)
+
+            val errorContent = ContentFactory.SERVICE.getInstance.createContent(treeError.getComponent, ERROR_CONTENT_NAME, true)
+            contentManager addContent errorContent
+            contentManager setSelectedContent errorContent
+
+            openMessageView(project, errorContent, treeError)
+            editor.getCaretModel moveToLogicalPosition pos
+          }
+        })
+
+      case _ =>
     }
+  }
+
+  private def openMessageView(project: Project, content: Content, treeView: CompilerErrorTreeView) {
+    val commandProcessor = CommandProcessor.getInstance()
+    commandProcessor.executeCommand(project, new Runnable {
+      override def run() {
+        Disposer.register(content, treeView, null)
+        val messageView = ServiceManager.getService(project, classOf[MessageView])
+        messageView.getContentManager setSelectedContent content
+
+        val toolWindow = ToolWindowManager getInstance project getToolWindow ToolWindowId.MESSAGES_WINDOW
+        if (toolWindow != null) toolWindow.show(null)
+      }
+    }, null, null)
   }
 }
 
 object WorksheetCompiler {
   private val MAKE_BEFORE_RUN = new FileAttribute("ScalaWorksheetMakeBeforeRun", 1, true)
+  private val ERROR_CONTENT_NAME = "Worksheet errors"
 
   private val enabled = "enabled"
   private val disabled = "disable"
+
+  private val lightKeys = mutable.WeakHashMap[VirtualFile, mutable.HashMap[FileAttribute, String]]()
 
   def getCompileKey = Key.create[String]("scala.worksheet.compilation")
   def getOriginalFileKey = Key.create[String]("scala.worksheet.original.file")
@@ -90,10 +145,26 @@ object WorksheetCompiler {
     if (launcher.running) launcher.stop(project)
   }
 
-  private def getAttribute(file: PsiFile) = Option(MAKE_BEFORE_RUN.readAttributeBytes(file.getVirtualFile)) map (new String(_))
+  def readAttribute(attribute: FileAttribute, file: PsiFile): Option[String] = {
+    file.getVirtualFile match {
+      case normalFile: VirtualFileWithId => Option(attribute readAttributeBytes normalFile) map (new String(_))
+      case other => lightKeys get other flatMap (map => map get attribute)
+    }
+  }
 
-  def isMakeBeforeRun(file: PsiFile) = !getAttribute(file).exists(_ == disabled)
+  def writeAttribute(attribute: FileAttribute, file: PsiFile, data: String) {
+    file.getVirtualFile match {
+      case normalFile: VirtualFileWithId => attribute.writeAttributeBytes(normalFile, data.getBytes)
+      case other => lightKeys get other match {
+        case Some(e) => e.put(attribute, data)
+        case _ => lightKeys.put(other, mutable.HashMap(attribute -> data))
+      }
+    }
+  }
 
-  def setMakeBeforeRun(file: PsiFile, isMake: Boolean) = MAKE_BEFORE_RUN.writeAttributeBytes(file.getVirtualFile,
-    (if (isMake) enabled else disabled).getBytes)
+  def isMakeBeforeRun(file: PsiFile) = readAttribute(MAKE_BEFORE_RUN, file).exists(_ == enabled)
+
+  def setMakeBeforeRun(file: PsiFile, isMake: Boolean) = {
+    writeAttribute(MAKE_BEFORE_RUN, file, if (isMake) enabled else disabled)
+  }
 }

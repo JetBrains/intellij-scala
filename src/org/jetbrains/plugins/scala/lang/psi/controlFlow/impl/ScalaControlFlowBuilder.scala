@@ -165,11 +165,15 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitAssignmentStatement(stmt: ScAssignStmt) {
-    val lValue = stmt.getLExpression
     stmt.getRExpression match {
       case Some(rv) =>
         rv.accept(this)
-        lValue.accept(this)
+        stmt.getParent match {
+          case _: ScArgumentExprList =>
+          case _ =>
+            val lValue = stmt.getLExpression
+            lValue.accept(this)
+        }
       case _ =>
     }
   }

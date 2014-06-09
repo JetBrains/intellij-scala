@@ -5,26 +5,24 @@ package api
 package base
 
 import _root_.org.jetbrains.plugins.scala.lang.resolve._
-import scala.collection.{mutable, Set}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import com.intellij.psi._
 import com.intellij.openapi.util.TextRange
-import refactoring.util.ScalaNamesUtil
-import statements.{ScTypeAliasDefinition, ScFunction}
-import toplevel.typedef._
-import psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
-import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
-import settings.ScalaProjectSettings
-import annotator.intention.ScalaImportTypeFix
-import toplevel.imports.ScImportSelector
+import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiMemberExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferenceElementPattern
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportExprUsed
-import com.intellij.codeInsight.PsiEquivalenceUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportExprUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+import scala.collection.{Set, mutable}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -230,13 +228,13 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
       })
       !reject
     }
-    val prefixImport = ScalaProjectSettings.getInstance(getProject).hasImportWithPrefix(qualName)
+    val prefixImport = ScalaCodeStyleSettings.getInstance(getProject).hasImportWithPrefix(qualName)
     if (!prefixImport && checkForPredefinedTypes()) {
       simpleImport
     } else {
       if (qualName.contains(".")) {
         var index =
-          if (ScalaProjectSettings.getInstance(getProject).isImportShortestPathForAmbiguousReferences) parts.length - 2
+          if (ScalaCodeStyleSettings.getInstance(getProject).isImportShortestPathForAmbiguousReferences) parts.length - 2
           else 0
         while (index >= 0) {
           val packagePart = parts.take(index + 1).mkString(".")

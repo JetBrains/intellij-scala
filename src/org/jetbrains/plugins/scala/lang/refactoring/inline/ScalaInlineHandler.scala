@@ -31,9 +31,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.extensions.Parent
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypedDefinition, ScNamedElement}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
-import extensions.childOf
+import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
+import extensions.{childOf, toPsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import com.intellij.internal.statistic.UsageTrigger
 
 /**
  * User: Alexander Podkhalyuzin
@@ -128,7 +129,11 @@ class ScalaInlineHandler extends InlineHandler {
         ScalaPsiUtil.getParentOfType(ref.getElement, classOf[ScStableCodeReferenceElement], classOf[ScStableReferenceElementPattern]) != null))
         showErrorHint(ScalaBundle.message("cannot.inline.stable.reference"), "Variable")
       else if (!ApplicationManager.getApplication.isUnitTestMode) {
-        val question = "Inline " + inlineDescriptionSuffix + "?"
+        val occurences = refs.size match {
+          case 1 => "(1 occurrence)"
+          case n => s"($n occurrences)"
+        }
+        val question = s"Inline $inlineDescriptionSuffix ${bind.name}? $occurences"
         val dialog = new RefactoringMessageDialog(
           inlineTitle,
           question,
@@ -143,6 +148,9 @@ class ScalaInlineHandler extends InlineHandler {
         } else settings
       } else settings
     }
+
+    UsageTrigger.trigger(ScalaBundle.message("inline.id"))
+
     element match {
       case typedDef: ScTypedDefinition if ScFunctionType.unapply(typedDef.getType().getOrAny).exists(_._2.length > 0) =>
         showErrorHint(ScalaBundle.message("cannot.inline.anonymous.function"), "element")

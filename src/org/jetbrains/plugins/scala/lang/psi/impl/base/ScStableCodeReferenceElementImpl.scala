@@ -4,31 +4,26 @@ package psi
 package impl
 package base
 
-import org.jetbrains.plugins.scala.lang._
-import completion.lookups.LookupElementManager
-import lexer.ScalaTokenTypes
-import psi.ScalaPsiElementImpl
-import psi.api.base._
-import psi.impl.ScalaPsiElementFactory
-import resolve._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import com.intellij.lang.ASTNode
-import com.intellij.psi._
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, _}
+import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScInfixPattern, ScConstructorPattern}
-import api.base.types.{ScParameterizedTypeElement, ScInfixTypeElement, ScSimpleTypeElement}
-import impl.source.tree.LeafPsiElement
-import processor.CompletionProcessor
-import api.ScalaElementVisitor
-import api.statements.{ScMacroDefinition, ScTypeAlias}
-import api.expr.{ScSuperReference, ScThisReference}
-import annotator.intention.ScalaImportTypeFix
-import util.PsiTreeUtil
-import settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{ClassTypeToImport, TypeAliasToImport}
+import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroDefinition, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{TypeAliasToImport, ClassTypeToImport}
-import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.lang.resolve._
+import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -82,7 +77,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   override def toString: String = "CodeReferenceElement: " + getText
 
   def getKinds(incomplete: Boolean, completion: Boolean): Set[ResolveTargets.Value] = {
-    import StdKinds._
+    import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
 
     // The qualified identifer immediately following the `mqcro` keyword
     // may only refer to a method.
@@ -148,7 +143,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
             return ref
           }
           val qname = c.qualifiedName
-          val isPredefined = ScalaProjectSettings.getInstance(getProject).hasImportWithPrefix(qname)
+          val isPredefined = ScalaCodeStyleSettings.getInstance(getProject).hasImportWithPrefix(qname)
           if (qualifier.isDefined && !isPredefined) {
             val ref = ScalaPsiElementFactory.createReferenceFromText(c.name, getContext, this)
             if (ref.isReferenceTo(element)) {
@@ -213,8 +208,12 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
                 val refToMember = ScalaPsiElementFactory.createReferenceFromText(refToClass.getText + "." + binding.name, getManager)
                 this.replace(refToMember).asInstanceOf[ScReferenceElement]
             }
+          case fun: ScFunction if Seq("unapply", "unapplySeq").contains(fun.name) && ScalaPsiUtil.hasStablePath(fun) =>
+            bindToElement(fun.containingClass)
+          case fun: ScFunction if fun.isConstructor =>
+            bindToElement(fun.containingClass)
           case pckg: PsiPackage => bindToPackage(pckg)
-          case _ => throw new IncorrectOperationException("Cannot bind to anything but class or package")
+          case _ => throw new IncorrectOperationException(s"Cannot bind to $element")
         }
       }
     }

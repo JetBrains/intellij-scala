@@ -1,30 +1,30 @@
 package org.jetbrains.plugins.scala
 package lang.psi.implicits
 
-import org.jetbrains.plugins.scala.lang.psi.types._
-import nonvalue.{TypeParameter, ScTypePolymorphicType, ScMethodType}
-import org.jetbrains.plugins.scala.lang.resolve._
-import org.jetbrains.plugins.scala.lang.psi.{types, ScalaPsiUtil}
-import processor.{ImplicitProcessor, MostSpecificUtil}
-import result.{TypeResult, Success, TypingContext}
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import params.{ScClassParameter, ScParameter}
-import util.PsiTreeUtil
-import collection.immutable.HashSet
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
-import org.jetbrains.plugins.scala.extensions.toPsiClassExt
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
-import annotation.tailrec
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
-import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
 import com.intellij.openapi.progress.ProgressManager
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
-import scala.collection
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+import org.jetbrains.plugins.scala.lang.resolve._
+import org.jetbrains.plugins.scala.lang.resolve.processor.{ImplicitProcessor, MostSpecificUtil}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+
+import scala.annotation.tailrec
+import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -53,7 +53,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
     InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search first part for type: " + tp.toString)
 
     val candidates = processor.candidatesS.toSeq
-    if (!candidates.isEmpty && !candidates.forall(r => !r.problems.isEmpty)) return candidates
+    if (candidates.nonEmpty && !candidates.forall(r => r.problems.nonEmpty)) return candidates
 
     processor = new ImplicitParametersProcessor(true)
 

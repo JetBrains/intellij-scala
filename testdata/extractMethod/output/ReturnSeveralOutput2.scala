@@ -17,14 +17,15 @@ class ReturnSeveralOutput2 {
   def foo(i: Int): Int = {
     /*start*/
 
-    val tupleResult: (Int, String, Int, String) = testMethodName(i) match {
+    val testMethodNameResult: (Int, String, Int, String) = testMethodName(i) match {
       case Left(toReturn) => return toReturn
       case Right(result) => result
     }
-    val x: Int = tupleResult._1
-    val y: String = tupleResult._2
-    var z: Int = tupleResult._3
-    val zz: String = tupleResult._4
+    val x: Int = testMethodNameResult._1
+    val y: String = testMethodNameResult._2
+    var z: Int = testMethodNameResult._3
+    val zz: String = testMethodNameResult._4
+
     /*end*/
     println(x + y + z + zz)
     i

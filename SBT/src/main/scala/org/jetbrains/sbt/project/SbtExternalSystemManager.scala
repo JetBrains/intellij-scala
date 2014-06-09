@@ -12,6 +12,7 @@ import org.jetbrains.sbt.settings.SbtApplicationSettings
 import java.util
 import java.net.URL
 import com.intellij.openapi.options.Configurable
+import com.intellij.openapi.application.PathManager
 
 /**
  * @author Pavel Fatin
@@ -63,6 +64,8 @@ object SbtExternalSystemManager {
   def executionSettingsFor(project: Project, path: String) = {
     val app = SbtApplicationSettings.instance
 
+    val ideaSystem = PathManager.getSystemPath.toFile
+
     val customLauncher = app.customLauncherEnabled
       .option(app.getCustomLauncherPath).map(_.toFile)
 
@@ -70,10 +73,10 @@ object SbtExternalSystemManager {
       app.getVmParameters.split("\\s+").toSeq ++
       proxyOptionsFor(HttpConfigurable.getInstance)
 
-    val customVM = app.customVMEnabled
+    val customVm = app.customVMEnabled
       .option(app.getCustomVMPath).map(_.toFile)
 
-    new SbtExecutionSettings(vmOptions, customLauncher, customVM)
+    new SbtExecutionSettings(ideaSystem, vmOptions, customLauncher, customVm)
   }
 
   private def proxyOptionsFor(http: HttpConfigurable): Seq[String] = {

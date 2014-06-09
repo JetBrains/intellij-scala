@@ -4,17 +4,17 @@ package psi
 package types
 
 import com.intellij.openapi.util.Key
-import java.lang.String
-import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType, ScMethodType}
 import com.intellij.psi._
-import api.toplevel.ScTypedDefinition
-import result.TypingContext
-import api.toplevel.typedef.ScTypeDefinition
-import collection.immutable.{HashSet, HashMap, Map}
-import api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+
+import scala.collection.immutable.{HashMap, HashSet, Map}
 
 /**
 * @author ven
@@ -83,7 +83,22 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     res
   }
   def addUpdateThisType(tp: ScType): ScSubstitutor = {
-    this.followed(new ScSubstitutor(Map.empty, Map.empty, Some(tp)))
+    tp match {
+      case ScThisType(template) =>
+        var zSubst = new ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(template)))
+        var placer = template.getContext
+        while (placer != null) {
+          placer match {
+            case t: ScTemplateDefinition => zSubst = zSubst.followed(
+              new ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(t)))
+            )
+            case _ =>
+          }
+          placer = placer.getContext
+        }
+        this.followed(zSubst)
+      case _ => this.followed(new ScSubstitutor(Map.empty, Map.empty, Some(tp)))
+    }
   }
   def followed(s: ScSubstitutor): ScSubstitutor = followed(s, 0)
 
@@ -109,8 +124,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
 
   def subst(t: ScType): ScType = try {
     if (follower != null) follower.subst(substInternal(t)) else substInternal(t)
-  }
-  catch {
+  } catch {
     case s: StackOverflowError =>
       throw new RuntimeException("StackOverFlow during ScSubstitutor.subst(" + t + ") this = " + this, s)
   }
@@ -126,13 +140,15 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
   protected def substInternal(t: ScType) : ScType = {
     t match {
       case p@ScProjectionType(proj, element, s) =>
-        val res = new ScProjectionType(substInternal(proj), element, s)
-        if (!s) {
-          val actualElement = p.actualElement
-          if (actualElement.isInstanceOf[ScTypeDefinition] &&
-            actualElement != res.actualElement) res.copy(superReference = true)
-          else res
-        } else res
+        val res = ScProjectionType(substInternal(proj), element, s)
+        res match {
+          case res: ScProjectionType if !s =>
+            val actualElement = p.actualElement
+            if (actualElement.isInstanceOf[ScTypeDefinition] &&
+              actualElement != res.actualElement) res.copy(superReference = true)
+            else res
+          case _ => res
+        }
       case m@ScMethodType(retType, params, isImplicit) => new ScMethodType(substInternal(retType),
         params.map(p => p.copy(paramType = substInternal(p.paramType),
           expectedType = substInternal(p.expectedType))), isImplicit)(m.project, m.scope)
@@ -222,6 +238,10 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
               val up = update(tp)
               if (up != null) return up
               tp match {
+                case ScThisType(template) =>
+                  val parentTemplate = ScalaPsiUtil.getContextOfType(template, true, classOf[ScTemplateDefinition])
+                  if (parentTemplate != null) tp = ScThisType(parentTemplate.asInstanceOf[ScTemplateDefinition])
+                  else tp = null
                 case ScProjectionType(newType, _, _) => tp = newType
                 case ScParameterizedType(ScProjectionType(newType, _, _), _) => tp = newType
                 case _ => tp = null
@@ -263,10 +283,10 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
             }
           case _ =>
             substInternal(tpt) match {
-              case ScParameterizedType(des, _) => new ScParameterizedType(des, typeArgs map {
+              case ScParameterizedType(des, _) => ScParameterizedType(des, typeArgs map {
                 substInternal
               })
-              case des => new ScParameterizedType(des, typeArgs map {
+              case des => ScParameterizedType(des, typeArgs map {
                 substInternal
               })
             }
@@ -281,10 +301,10 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
             }
           case _ =>
             substInternal(u) match {
-              case ScParameterizedType(des, _) => new ScParameterizedType(des, typeArgs map {
+              case ScParameterizedType(des, _) => ScParameterizedType(des, typeArgs map {
                 substInternal
               })
-              case des => new ScParameterizedType(des, typeArgs map {
+              case des => ScParameterizedType(des, typeArgs map {
                 substInternal
               })
             }
@@ -299,20 +319,20 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
             }
           case _ =>
             substInternal(u) match {
-              case ScParameterizedType(des, _) => new ScParameterizedType(des, typeArgs map {
+              case ScParameterizedType(des, _) => ScParameterizedType(des, typeArgs map {
                 substInternal
               })
-              case des => new ScParameterizedType(des, typeArgs map {
+              case des => ScParameterizedType(des, typeArgs map {
                 substInternal
               })
             }
         }
       case ScParameterizedType(designator, typeArgs) =>
         substInternal(designator) match {
-          case ScParameterizedType(des, _) => new ScParameterizedType(des, typeArgs map {
+          case ScParameterizedType(des, _) => ScParameterizedType(des, typeArgs map {
             substInternal
           })
-          case des => new ScParameterizedType(des, typeArgs map {
+          case des => ScParameterizedType(des, typeArgs map {
             substInternal
           })
         }
@@ -349,7 +369,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
         }, typeMap.map {
           case (s, sign) => (s, sign.updateTypes(substInternal))
         })
-      case ScDesignatorType(param: ScParameter) if !getDependentMethodTypes.isEmpty =>
+      case ScDesignatorType(param: ScParameter) if getDependentMethodTypes.nonEmpty =>
         getDependentMethodTypes.find {
           case (parameter: Parameter, tp: ScType) =>
             parameter.paramInCode match {
@@ -482,20 +502,22 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), HashSet[ScType]
   def getSubstitutor: Option[ScSubstitutor] = getSubstitutor(notNonable = false)
 
   val additionalNames: Set[Name] = {
-    lowerAdditionalMap.keySet ++ upperAdditionalMap.keySet
+    //We need to exclude Nothing names from this set, see SCL-5736
+    lowerAdditionalMap.filter(_._2.exists(!_.equiv(Nothing))).keySet ++ upperAdditionalMap.keySet
   }
 
   val names: Set[Name] = {
-    upperMap.keySet ++ lowerMap.keySet ++ additionalNames
+    //We need to exclude Nothing names from this set, see SCL-5736
+    upperMap.keySet ++ lowerMap.filter(_._2.exists(!_.equiv(Nothing))).keySet ++ additionalNames
   }
 
-  import collection.mutable.{HashMap => MHashMap}
-  import collection.immutable.{HashMap => IHashMap}
+  import scala.collection.immutable.{HashMap => IHashMap}
+  import scala.collection.mutable.{HashMap => MHashMap}
   val lMap = new MHashMap[Name, ScType]
   val rMap = new MHashMap[Name, ScType]
 
   def getSubstitutor(notNonable: Boolean): Option[ScSubstitutor] = {
-    import collection.immutable.HashSet
+    import scala.collection.immutable.HashSet
     val tvMap = new MHashMap[Name, ScType]
 
     def solve(name: Name, visited: HashSet[Name]): Option[ScType] = {

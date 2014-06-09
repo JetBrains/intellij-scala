@@ -37,7 +37,7 @@ class ScalaFileNameInspection extends LocalInspectionTool {
 
     val name = virtualFile.getNameWithoutExtension
     val scalaFile = file.asInstanceOf[ScalaFile]
-    if (scalaFile.isScriptFile()) return Array.empty
+    if (scalaFile.isScriptFile() || scalaFile.isWorksheetFile) return Array.empty
     val definitions = scalaFile.typeDefinitions
 
     if (definitions.length > 1) return Array.empty

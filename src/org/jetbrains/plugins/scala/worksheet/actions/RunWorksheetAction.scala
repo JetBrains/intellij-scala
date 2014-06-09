@@ -10,17 +10,16 @@ import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInf
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.keymap.{KeymapUtil, KeymapManager}
 import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.execution.ui.ConsoleViewContentType
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 import com.intellij.openapi.application.{ModalityState, ApplicationManager}
 import org.jetbrains.plugins.scala
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import com.intellij.openapi.roots.{ModuleRootManager, ProjectFileIndex}
 import org.jetbrains.plugins.scala.config.{Libraries, CompilerLibraryData, ScalaFacet}
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.{ModuleManager, Module}
 import com.intellij.openapi.projectRoots.{JdkUtil, JavaSdkType}
 import org.jetbrains.plugins.scala.compiler.ScalacSettings
 import org.jetbrains.plugins.scala.worksheet.MacroPrinter
@@ -28,7 +27,9 @@ import com.intellij.execution.process.{ProcessEvent, ProcessAdapter, OSProcessHa
 import com.intellij.ide.util.EditorHelper
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 import com.intellij.openapi.util.Key
+import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
 import com.intellij.internal.statistic.UsageTrigger
+import com.intellij.openapi.vfs.VirtualFileWithId
 
 /**
  * @author Ksenia.Sautina
@@ -37,20 +38,41 @@ import com.intellij.internal.statistic.UsageTrigger
  */
 
 class RunWorksheetAction extends AnAction with TopComponentAction {
+  def actionPerformed(e: AnActionEvent) {
+    RunWorksheetAction.runCompiler(e.getProject, false)
+  }
+
+  override def update(e: AnActionEvent) {
+    val presentation = e.getPresentation
+    presentation.setIcon(AllIcons.Actions.Execute)
+    val shortcuts = KeymapManager.getInstance.getActiveKeymap.getShortcuts("Scala.RunWorksheet")
+    if (shortcuts.length > 0) {
+      val shortcutText = " (" + KeymapUtil.getShortcutText(shortcuts(0)) + ")"
+      presentation.setText(ScalaBundle.message("worksheet.execute.button") + shortcutText)
+    }
+
+    updateInner(presentation, e.getProject)
+  }
+
+  override def actionIcon = AllIcons.Actions.Execute
+
+  override def bundleKey = "worksheet.execute.button"
+
+  override def shortcutId: Option[String] = Some("Scala.RunWorksheet")
+}
+
+object RunWorksheetAction {
   private val runnerClassName = "org.jetbrains.plugins.scala.worksheet.MyWorksheetRunner"
 
-  def actionPerformed(e: AnActionEvent) {
-    runCompiler(e.getProject)
-  }
-  
-  def runCompiler(project: Project) {
+  def runCompiler(project: Project, auto: Boolean) {
     UsageTrigger.trigger("scala.worksheet")
-
     val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
 
     if (editor == null) return
 
-    val psiFile: PsiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
+    val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
+    WorksheetProcessManager.stop(psiFile.getVirtualFile)
+
     psiFile match {
       case file: ScalaFile if file.isWorksheetFile =>
         val viewer = WorksheetViewerInfo getViewer editor
@@ -60,7 +82,7 @@ class RunWorksheetAction extends AnAction with TopComponentAction {
             override def run() {
               scala.extensions.inWriteAction {
                 CleanWorksheetAction.resetScrollModel(viewer)
-                CleanWorksheetAction.cleanWorksheet(file.getNode, editor, viewer, project)
+                if (!auto) CleanWorksheetAction.cleanWorksheet(file.getNode, editor, viewer, project)
               }
             }
           }, ModalityState.any())
@@ -73,7 +95,7 @@ class RunWorksheetAction extends AnAction with TopComponentAction {
                 executeWorksheet(file.getName, project, file.getContainingFile, className, addToCp)
               }
             }
-          }, Option(editor))
+          }, Option(editor), auto)
         }
 
         if (WorksheetCompiler isMakeBeforeRun psiFile) {
@@ -102,7 +124,7 @@ class RunWorksheetAction extends AnAction with TopComponentAction {
     import _root_.scala.collection.JavaConverters._
 
     if (module == null) throw new ExecutionException("Module is not specified")
-    
+
     val project = module.getProject
 
     val facet = ScalaFacet.findIn(module).getOrElse {
@@ -169,42 +191,8 @@ class RunWorksheetAction extends AnAction with TopComponentAction {
     handler.startNotify()
   }
 
-  private def getModuleFor(file: PsiFile) = ProjectFileIndex.SERVICE getInstance file.getProject getModuleForFile file.getVirtualFile
-  
-  override def update(e: AnActionEvent) {
-    val presentation = e.getPresentation
-    presentation.setIcon(AllIcons.Actions.Execute)
-    val shortcuts = KeymapManager.getInstance.getActiveKeymap.getShortcuts("Scala.RunWorksheet")
-    if (shortcuts.length > 0) {
-      val shortcutText = " (" + KeymapUtil.getShortcutText(shortcuts(0)) + ")"
-      presentation.setText(ScalaBundle.message("worksheet.execute.button") + shortcutText)
-    }
-
-    def enable() {
-      presentation.setEnabled(true)
-      presentation.setVisible(true)
-    }
-    def disable() {
-      presentation.setEnabled(false)
-      presentation.setVisible(false)
-    }
-
-    try {
-      val editor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
-      val psiFile: PsiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(editor.getDocument)
-
-      psiFile match {
-        case sf: ScalaFile if sf.isWorksheetFile => enable()
-        case _ =>  disable()
-      }
-    } catch {
-      case e: Exception => disable()
-    }
+  def getModuleFor(file: PsiFile) = file.getVirtualFile match {
+    case _: VirtualFileWithId => ProjectFileIndex.SERVICE getInstance file.getProject getModuleForFile file.getVirtualFile
+    case _ => ScalaFacet.findFirstIn(file.getProject).map(_.getModule).orNull
   }
-
-  override def actionIcon = AllIcons.Actions.Execute
-
-  override def bundleKey = "worksheet.execute.button"
-
-  override def shortcutId: Option[String] = Some("Scala.RunWorksheet")
 }

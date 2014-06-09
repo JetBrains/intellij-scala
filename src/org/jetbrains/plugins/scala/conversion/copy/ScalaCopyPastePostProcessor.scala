@@ -21,6 +21,7 @@ import scala.util.control.Breaks._
 import com.intellij.openapi.diagnostic.{Attachment, Logger}
 import com.intellij.diagnostic.LogMessageEx
 import com.intellij.util.ExceptionUtil
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 /**
  * Pavel Fatin
@@ -110,7 +111,7 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[Associations] {
         association <- value.associations
         element <- elementFor(association, file, offset)
         if !association.isSatisfiedIn(element)
-      } yield Binding(element, association.path.asString(ScalaProjectSettings.getInstance(project).
+      } yield Binding(element, association.path.asString(ScalaCodeStyleSettings.getInstance(project).
                 isImportMembersUsingUnderScore))).filter {
         case Binding(_, path) =>
           val index = path.lastIndexOf('.')

@@ -27,7 +27,7 @@ class ScalaHighlightExprResultHandler(expr: ScExpression, editor: Editor,
   }
 
   def getTargets: List[PsiElement] = {
-    val returns = expr.calculateReturns ++ Seq(keyword)
+    val returns = expr.calculateReturns() ++ Seq(keyword)
     returns.toBuffer[PsiElement]
   }
 }

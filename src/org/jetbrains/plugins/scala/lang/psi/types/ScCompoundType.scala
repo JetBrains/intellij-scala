@@ -18,6 +18,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
  */
 case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, ScType],
                           typesMap: Map[String, TypeAliasSignature]) extends ValueType {
+  private var hash: Int = -1
+
+  override def hashCode: Int = {
+    if (hash == -1) {
+      hash = components.hashCode() + (signatureMap.hashCode() * 31 + typesMap.hashCode()) * 31
+    }
+    hash
+  }
+
+
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitCompoundType(this)
   }
