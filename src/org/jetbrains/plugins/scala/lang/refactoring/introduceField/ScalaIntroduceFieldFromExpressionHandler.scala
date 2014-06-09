@@ -1,26 +1,25 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.introduceField
 
-import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiDocumentManager, PsiFile, PsiElement}
+import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.{Document, Editor}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
-import ScalaRefactoringUtil._
-import ScalaIntroduceFieldHandlerBase._
-import com.intellij.openapi.wm.WindowManager
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.util.ScalaUtils
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import scala.Some
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.internal.statistic.UsageTrigger
+import com.intellij.openapi.wm.WindowManager
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.extensions.childOf
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.refactoring.introduceField.ScalaIntroduceFieldHandlerBase._
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
+import org.jetbrains.plugins.scala.util.ScalaUtils
 
 
 /**
@@ -85,7 +84,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     val aClass = ifc.aClass
     val checkAnchor: PsiElement = anchorForNewDeclaration(expression, occurrencesToReplace, aClass)
     if (checkAnchor == null)
-      ScalaRefactoringUtil.showErrorMessage("Cannot create find place for the new field", ifc.project, ifc.editor, ScalaBundle.message("introduce.field.title"))
+      ScalaRefactoringUtil.showErrorMessage("Cannot find place for the new field", ifc.project, ifc.editor, ScalaBundle.message("introduce.field.title"))
     val manager = aClass.getManager
     val name = settings.name
     val typeName = Option(settings.scType).map(_.canonicalText).getOrElse("")
@@ -113,28 +112,31 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
       }
     }
 
-    import ScalaApplicationSettings.VisibilityLevel
+    import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.VisibilityLevel
     settings.visibilityLevel match {
       case VisibilityLevel.DEFAULT =>
       case VisibilityLevel.PRIVATE => createdDeclaration.asInstanceOf[ScMember].setModifierProperty("private", value = true)
       case VisibilityLevel.PROTECTED => createdDeclaration.asInstanceOf[ScMember].setModifierProperty("protected", value = true)
     }
 
-
-    val parent = anchor.getParent
     lazy val document: Document = ifc.editor.getDocument
-    parent match {
-      case ed: ScEarlyDefinitions if onOneLine(document, ed.getTextRange) =>
+
+    anchor match {
+      case (tp: ScTemplateParents) childOf (extBl: ScExtendsBlock) =>
+        val earlyDef = extBl.addEarlyDefinitions()
+        createdDeclaration = earlyDef.addAfter(createdDeclaration, earlyDef.getFirstChild)
+      case _ childOf (ed: ScEarlyDefinitions) if onOneLine(document, ed.getTextRange) =>
         def isBlockStmtOrMember(elem: PsiElement) = elem != null && (elem.isInstanceOf[ScBlockStatement] || elem.isInstanceOf[ScMember])
         var declaration = createdDeclaration.getText
         if (isBlockStmtOrMember(anchor)) declaration += "; "
         if (isBlockStmtOrMember(anchor.getPrevSibling)) declaration = "; " + declaration
         document.insertString(anchor.getTextRange.getStartOffset, declaration)
         PsiDocumentManager.getInstance(ifc.project).commitDocument(document)
-      case _ =>
+      case _ childOf parent =>
         createdDeclaration = parent.addBefore(createdDeclaration, anchor)
         parent.addBefore(ScalaPsiElementFactory.createNewLineNode(manager, "\n").getPsi, anchor)
     }
+
     ScalaPsiUtil.adjustTypes(createdDeclaration)
   }
 
@@ -163,14 +165,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     dialog
   }
 
-  protected override def isSuitableClass(elem: PsiElement, clazz: ScTemplateDefinition): Boolean = {
-    clazz.extendsBlock match {
-      case ScExtendsBlock.TemplateBody(body) if body.isAncestorOf(elem) => true
-      case ScExtendsBlock.EarlyDefinitions(earlyDef)
-        if ScalaRefactoringUtil.inSuperConstructor(elem, clazz) || earlyDef.isAncestorOf(elem) => true
-      case _ => false
-    }
-  }
+  protected override def isSuitableClass(elem: PsiElement, clazz: ScTemplateDefinition): Boolean = true
 
   private def onOneLine(document: Document, range: TextRange): Boolean = {
     document.getLineNumber(range.getStartOffset) == document.getLineNumber(range.getEndOffset)
