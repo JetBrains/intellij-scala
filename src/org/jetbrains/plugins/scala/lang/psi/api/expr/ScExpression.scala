@@ -4,43 +4,37 @@ package psi
 package api
 package expr
 
-import psi.impl.ScalaPsiElementFactory
-import types.result.{TypingContext, TypeResult}
-import toplevel.imports.usages.ImportUsed
-import lang.resolve.{StdKinds, ScalaResolveResult}
-import implicits.ScImplicitlyConvertible
-import collection.mutable.ArrayBuffer
-import types._
-import collection.{Set, Seq}
-import lang.resolve.processor.MethodResolveProcessor
 import com.intellij.openapi.progress.ProgressManager
-import nonvalue.Parameter
-import nonvalue.ScMethodType
-import nonvalue.ScTypePolymorphicType
-import psi.ScalaPsiUtil
-import base.ScLiteral
-import lexer.ScalaTokenTypes
-import result.Failure
-import result.Success
-import statements.ScTypeAliasDefinition
 import com.intellij.psi._
-import java.lang.Integer
-import base.types.ScTypeElement
 import com.intellij.psi.util.PsiModificationTracker
-import caches.CachesUtil
-import psi.ScalaPsiUtil.SafeCheckException
-import types.ScFunctionType
-import lang.resolve.processor.MostSpecificUtil
-import types.Conformance.AliasType
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.extensions.ElementText
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+import org.jetbrains.plugins.scala.lang.resolve.processor.{MethodResolveProcessor, MostSpecificUtil}
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
+
 import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.{Seq, Set}
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
  */
 
 trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
-  import ScExpression._
+  import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression._
   /**
    * This method returns real type, after using implicit conversions.
    * Second parameter to return is used imports for this conversion.
@@ -64,7 +58,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
 
         if (isShape) ExpressionTypeResult(Success(getShape()._1, Some(this)), Set.empty, None)
         else {
-          val expected: ScType = expectedOption.getOrElse(expectedType(fromUnderscore).getOrElse(null))
+          val expected: ScType = expectedOption.getOrElse(expectedType(fromUnderscore).orNull)
           if (expected == null) {
             ExpressionTypeResult(getTypeWithoutImplicits(TypingContext.empty, ignoreBaseTypes, fromUnderscore), Set.empty, None)
           } else {
@@ -455,7 +449,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
     (implicits, implicitFunction, map.filter(!_.isFromCompanion).map(_.element), map.filter(_.isFromCompanion).map(_.element))
   }
 
-  final def calculateReturns: Seq[PsiElement] = {
+  final def calculateReturns(withBooleanInfix: Boolean = false): Seq[PsiElement] = {
     val res = new ArrayBuffer[PsiElement]
     def calculateReturns0(el: PsiElement) {
       el match {
@@ -485,6 +479,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
               }
             case _ => res += i
           }
+        case infix @ ScInfixExpr(ScExpression.Type(types.Boolean), ElementText(op), right @ ScExpression.Type(types.Boolean))
+          if withBooleanInfix && (op == "&&" || op == "||") => calculateReturns0(right)
         //TODO "!contains" is a quick fix, function needs unit testing to validate its behavior
         case _ => if (!res.contains(el)) res += el
       }

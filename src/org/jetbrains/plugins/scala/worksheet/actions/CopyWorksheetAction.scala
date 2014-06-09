@@ -39,25 +39,7 @@ class CopyWorksheetAction extends AnAction with TopComponentAction {
     val presentation = e.getPresentation
     presentation.setIcon(AllIcons.Actions.Copy)
 
-    def enable() {
-      presentation.setEnabled(true)
-      presentation.setVisible(true)
-    }
-    def disable() {
-      presentation.setEnabled(false)
-      presentation.setVisible(false)
-    }
-
-    try {
-      val editor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
-      val psiFile: PsiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(editor.getDocument)
-      psiFile match {
-        case sf: ScalaFile if sf.isWorksheetFile => enable()
-        case _ => disable()
-      }
-    } catch {
-      case e: Exception => disable()
-    }
+    updateInner(presentation, e.getProject)
   }
 
 

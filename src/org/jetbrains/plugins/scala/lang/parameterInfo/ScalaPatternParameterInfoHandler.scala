@@ -78,11 +78,15 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
 
             val subst = sign.substitutor
             val returnType = sign.method match {
-              case method: ScFunction => subst.subst(method.returnType.getOrAny)
+              case function: ScFunction => subst.subst(function.returnType.getOrAny)
               case method: PsiMethod => subst.subst(ScType.create(method.getReturnType, method.getProject))
             }
 
-            val params = ScPattern.extractorParameters(returnType, args).zipWithIndex
+            val oneArgCaseClassMethod: Boolean = sign.method match {
+              case function: ScFunction => ScPattern.isOneArgCaseClassMethod(function)
+              case _ => false
+            }
+            val params = ScPattern.extractorParameters(returnType, args, oneArgCaseClassMethod).zipWithIndex
 
             if (params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {

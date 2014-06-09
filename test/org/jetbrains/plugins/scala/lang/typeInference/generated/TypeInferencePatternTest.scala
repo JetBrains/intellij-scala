@@ -9,6 +9,8 @@ class TypeInferencePatternTest extends TypeInferenceTestBase {
 
   def testContextResolve() {doTest()}
 
+  def testDependent() {doTest()}
+
   def testForRecursive() {doTest()}
 
   def testInfixToTypeAlias() {doTest()}
@@ -20,6 +22,8 @@ class TypeInferencePatternTest extends TypeInferenceTestBase {
   def testNamedConstructorPattern() {doTest()}
 
   def testNamingExtractorPattern() {doTest()}
+
+  def testNewEarlyDefinitions() {doTest()}
 
   def testOptionOfTuple() {doTest()}
 

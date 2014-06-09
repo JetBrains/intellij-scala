@@ -1,15 +1,24 @@
 package org.jetbrains.plugins.scala
 package lang.resolve.processor
 
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiClass, PsiElement, PsiPackage}
 import java.util
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 01.12.11
  */
-
+//todo: logic is too complicated, too many connections between classes. Rewrite?
 trait PrecedenceHelper[T] {
   this: BaseProcessor =>
 
@@ -18,8 +27,79 @@ trait PrecedenceHelper[T] {
   protected val levelSet: util.HashSet[ScalaResolveResult] = new util.HashSet
   protected val qualifiedNamesSet: util.HashSet[T] = new util.HashSet[T]
   protected val levelQualifiedNamesSet: util.HashSet[T] = new util.HashSet[T]
+  protected val ignoredSet: util.HashSet[ScalaResolveResult] = new util.HashSet[ScalaResolveResult]
+
+  protected sealed trait HistoryEvent
+  protected case object ChangedLevel extends HistoryEvent
+  protected case class AddResult(results: Seq[ScalaResolveResult]) extends HistoryEvent
+
+  protected val history: ArrayBuffer[HistoryEvent] = new ArrayBuffer
+  private var fromHistory: Boolean = false
+
+  protected def compareWithIgnoredSet(set: mutable.HashSet[ScalaResolveResult]): Boolean = {
+    import scala.collection.JavaConversions._
+    if (ignoredSet.nonEmpty && set.isEmpty) return false
+    ignoredSet.forall { result =>
+      set.forall { otherResult =>
+        if (!ScEquivalenceUtil.smartEquivalence(result.getActualElement, otherResult.getActualElement)) {
+          (result.getActualElement, otherResult.getActualElement) match {
+            case (ta: ScTypeAliasDefinition, cls: PsiClass) => ta.isExactAliasFor(cls)
+            case (cls: PsiClass, ta: ScTypeAliasDefinition) => ta.isExactAliasFor(cls)
+            case _ => false
+          }
+        } else true
+      }
+    }
+  }
+
+  protected def restartFromHistory(): Unit = {
+    candidatesSet.clear()
+    ignoredSet.clear()
+    levelQualifiedNamesSet.clear()
+    qualifiedNamesSet.clear()
+    levelSet.clear()
+    fromHistory = true
+    try {
+      history.foreach {
+        case ChangedLevel => changedLevel
+        case AddResult(results) => addResults(results)
+      }
+    }
+    finally fromHistory = false
+  }
+
+  def isUpdateHistory: Boolean = false
+
+  protected def addChangedLevelToHistory(): Unit = {
+    if (isUpdateHistory && !fromHistory && history.lastOption != Some(ChangedLevel)) history += ChangedLevel
+  }
 
   protected def getQualifiedName(result: ScalaResolveResult): T
+
+  private lazy val suspiciousPackages: Set[String] = {
+    def collectPackages(elem: PsiElement, res: Set[String] = Set.empty): Set[String] = {
+      PsiTreeUtil.getContextOfType(elem, true, classOf[ScPackaging]) match {
+        case null => res
+        case p: ScPackaging => collectPackages(p, res + p.fullPackageName)
+      }
+    }
+    Set("scala", "java.lang", "scala", "scala.Predef") ++ collectPackages(getPlace)
+  }
+  protected def isSpecialResult(result: ScalaResolveResult): Boolean = {
+    val importsUsed = result.importsUsed.toSeq
+    if (importsUsed.length == 1) {
+      val importExpr = importsUsed(0) match {
+        case ImportExprUsed(expr) => expr
+        case ImportSelectorUsed(selector) => PsiTreeUtil.getContextOfType(selector, true, classOf[ScImportExpr])
+        case ImportWildcardSelectorUsed(expr) => expr
+      }
+      importExpr.qualifier.bind() match {
+        case Some(ScalaResolveResult(p: PsiPackage, _)) => suspiciousPackages.contains(p.getQualifiedName)
+        case Some(ScalaResolveResult(o: ScObject, _)) => suspiciousPackages.contains(o.qualifiedName)
+        case _ => false
+      }
+    } else false
+  }
 
   /**
    * Returns highest precedence of all resolve results.
@@ -43,6 +123,7 @@ trait PrecedenceHelper[T] {
    */
   protected def addResult(result: ScalaResolveResult): Boolean = addResults(Seq(result))
   protected def addResults(results: Seq[ScalaResolveResult]): Boolean = {
+    if (isUpdateHistory && !fromHistory) history += AddResult(results)
     if (results.length == 0) return true
     lazy val qualifiedName: T = getQualifiedName(results(0))
     lazy val levelSet = getLevelSet(results(0))
@@ -60,25 +141,31 @@ trait PrecedenceHelper[T] {
     else if (currentPrecedence == topPrecedence && !levelSet.isEmpty) {
       if (isCheckForEqualPrecedence && qualifiedName != null &&
         (levelQualifiedNamesSet.contains(qualifiedName) ||
-        qualifiedNamesSet.contains(qualifiedName))) {
+          qualifiedNamesSet.contains(qualifiedName))) {
         return false
       } else if (qualifiedName != null && qualifiedNamesSet.contains(qualifiedName)) return false
-      addResults()
+      if (!fromHistory && isUpdateHistory && isSpecialResult(results(0))) {
+        results.foreach(ignoredSet.add)
+      } else addResults()
     } else {
       if (qualifiedName != null && (levelQualifiedNamesSet.contains(qualifiedName) ||
         qualifiedNamesSet.contains(qualifiedName))) {
         return false
       } else {
-        setTopPrecedence(results(0), currentPrecedence)
-        val levelSetIterator = levelSet.iterator()
-        while (levelSetIterator.hasNext) {
-          val next = levelSetIterator.next()
-          if (filterNot(next, results(0))) {
-            levelSetIterator.remove()
+        if (!fromHistory && isUpdateHistory && isSpecialResult(results(0))) {
+          results.foreach(ignoredSet.add)
+        } else {
+          setTopPrecedence(results(0), currentPrecedence)
+          val levelSetIterator = levelSet.iterator()
+          while (levelSetIterator.hasNext) {
+            val next = levelSetIterator.next()
+            if (filterNot(next, results(0))) {
+              levelSetIterator.remove()
+            }
           }
+          clearLevelQualifiedSet(results(0))
+          addResults()
         }
-        clearLevelQualifiedSet(results(0))
-        addResults()
       }
     }
     true

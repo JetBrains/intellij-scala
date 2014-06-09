@@ -3,24 +3,53 @@ package lang
 package resolve
 package processor
 
-import com.intellij.psi.scope._
-import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.util.Key
-import collection.Set
-import psi.ScalaPsiUtil
-import psi.impl.ScPackageImpl
-import psi.api.statements.params.ScTypeParam
-import psi.api.expr.{ScSuperReference, ScThisReference}
-import psi.api.statements.{ScTypeAliasDefinition, ScTypeAlias}
-import psi.api.toplevel.templates.ScTemplateBody
-import reflect.NameTransformer
-import psi.api.toplevel.typedef.{ScTypeDefinition, ScClass, ScTrait, ScObject}
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
+import com.intellij.psi._
+import com.intellij.psi.scope._
 import com.intellij.psi.search.GlobalSearchScope
-import psi.types.result.{Failure, Success, TypingContext}
-import psi.types.{ScType, ScDesignatorType}
-import org.jetbrains.plugins.scala.caches.CachesUtil
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import scala.collection.Set
+
+object ResolveProcessor {
+  def getQualifiedName(result: ScalaResolveResult, place: PsiElement): String = {
+    def defaultForTypeAlias(t: ScTypeAlias): String = {
+      if (t.getParent.isInstanceOf[ScTemplateBody] && t.containingClass != null) {
+        "TypeAlias:" + t.containingClass.qualifiedName + "#" + t.name
+      } else null
+    }
+
+    result.getActualElement match {
+      case c: ScTypeParam => null
+      case c: ScObject => "Object:" + c.qualifiedName
+      case c: PsiClass => "Class:" + c.qualifiedName
+      case t: ScTypeAliasDefinition if t.typeParameters.length == 0 =>
+        t.aliasedType(TypingContext.empty) match {
+          case Success(tp, elem) =>
+            ScType.extractClass(tp, Option(place).map(_.getProject)) match {
+              case Some(c: ScObject) => defaultForTypeAlias(t)
+              case Some(td: ScTypeDefinition) if td.typeParameters.length == 0 && ScalaPsiUtil.hasStablePath(td) =>
+                "Class:" + td.qualifiedName
+              case Some(c: PsiClass) if c.getTypeParameters.length == 0 => "Class:" + c.qualifiedName
+              case _ => defaultForTypeAlias(t)
+            }
+          case _ => defaultForTypeAlias(t)
+        }
+      case t: ScTypeAlias => defaultForTypeAlias(t)
+      case p: PsiPackage => "Package:" + p.getQualifiedName
+      case _ => null
+    }
+  }
+}
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
@@ -53,40 +82,15 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     precedence = 0
   }
 
-  import PrecedenceHelper.PrecedenceTypes._
+  import org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes._
   def checkImports(): Boolean = precedence <= IMPORT
   
   def checkWildcardImports(): Boolean = precedence <= WILDCARD_IMPORT
 
   def checkPredefinedClassesAndPackages(): Boolean = precedence <= SCALA_PREDEF
 
-  protected def getQualifiedName(result: ScalaResolveResult): String = {
-    def defaultForTypeAlias(t: ScTypeAlias): String = {
-      if (t.getParent.isInstanceOf[ScTemplateBody] && t.containingClass != null) {
-        "TypeAlias:" + t.containingClass.qualifiedName + "#" + t.name
-      } else null
-    }
-
-    result.getActualElement match {
-      case c: ScTypeParam => null
-      case c: ScObject => "Object:" + c.qualifiedName
-      case c: PsiClass => "Class:" + c.qualifiedName
-      case t: ScTypeAliasDefinition if t.typeParameters.length == 0 =>
-        t.aliasedType(TypingContext.empty) match {
-          case Success(tp, elem) =>
-            ScType.extractClass(tp, Option(getPlace).map(_.getProject)) match {
-              case Some(c: ScObject) => defaultForTypeAlias(t)
-              case Some(td: ScTypeDefinition) if td.typeParameters.length == 0 && ScalaPsiUtil.hasStablePath(td) =>
-                "Class:" + td.qualifiedName
-              case Some(c: PsiClass) if c.getTypeParameters.length == 0 => "Class:" + c.qualifiedName
-              case _ => defaultForTypeAlias(t)
-            }
-          case _ => defaultForTypeAlias(t)
-        }
-      case t: ScTypeAlias => defaultForTypeAlias(t)
-      case p: PsiPackage => "Package:" + p.getQualifiedName
-      case _ => null
-    }
+  override protected def getQualifiedName(result: ScalaResolveResult): String = {
+    ResolveProcessor.getQualifiedName(result, getPlace)
   }
 
   protected def getTopPrecedence(result: ScalaResolveResult): Int = precedence
@@ -95,7 +99,11 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     precedence = i
   }
 
+  override def isUpdateHistory: Boolean = true
+
   override def changedLevel = {
+    addChangedLevelToHistory()
+
     def update: Boolean = {
       val iterator = levelSet.iterator()
       while (iterator.hasNext) {
@@ -174,6 +182,16 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     val iterator = levelSet.iterator()
     while (iterator.hasNext) {
       res += iterator.next()
+    }
+    if (!compareWithIgnoredSet(res)) {
+      res.clear()
+      restartFromHistory()
+      //now let's add everything again
+      res = candidatesSet
+      val iterator = levelSet.iterator()
+      while (iterator.hasNext) {
+        res += iterator.next()
+      }
     }
 
     /*

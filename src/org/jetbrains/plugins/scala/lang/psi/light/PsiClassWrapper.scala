@@ -85,11 +85,10 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
             case (t, node) =>
               node.info.namedElement match {
                 case fun: ScFunction if !fun.isConstructor => res ++= fun.getFunctionWrappers(isStatic = true, isInterface = false, cClass = Some(definition))
-                case method: PsiMethod if !method.isConstructor => {
+                case method: PsiMethod if !method.isConstructor =>
                   if (method.containingClass != null && method.containingClass.qualifiedName != "java.lang.Object") {
                     res += StaticPsiMethodWrapper.getWrapper(method, this)
                   }
-                }
                 case t: ScTypedDefinition if t.isVal || t.isVar =>
                   val nodeName = node.info.name
                   if (t.name == nodeName) {

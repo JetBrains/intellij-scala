@@ -4,16 +4,18 @@ package psi
 package types
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
-import com.intellij.psi.PsiClass
-import collection.mutable.ArrayBuffer
-import api.statements.ScTypeAliasDefinition
-import result.TypingContext
-import com.intellij.psi.util.InheritanceUtil
-import extensions.toPsiClassExt
-import collection.mutable
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 object Bounds {
   def lub(seq: Seq[ScType]): ScType = {
@@ -23,14 +25,121 @@ object Bounds {
   private class Options(_tp: ScType) extends {
     val tp = _tp match {
       case ex: ScExistentialType => ex.skolem
-      case tp => tp
+      case other => other
     }
   } with AnyRef {
-    val extract: Option[(PsiClass, ScSubstitutor)] = ScType.extractClassType(tp)
-    def isEmpty = extract == None
+    private val typeNamedElement: Option[(PsiNamedElement, ScSubstitutor)] = {
+      ScType.extractClassType(tp) match {
+        case None =>
+          tp.isAliasType match {
+            case Some(AliasType(ta, _, _)) => Some(ta, ScSubstitutor.empty)
+            case _ => None
+          }
+        case some => some
+      }
+    }
+    def isEmpty = typeNamedElement == None
     val projectionOption: Option[ScType] = ScType.projectionOption(tp)
-    def getClazz: PsiClass = extract.get._1
-    def getSubst: ScSubstitutor = extract.get._2
+    def getSubst: ScSubstitutor = typeNamedElement.get._2
+
+    def getSuperOptions: Seq[Options] = {
+      val subst = this.projectionOption match {
+        case Some(proj) => new ScSubstitutor(Map.empty, Map.empty, Some(proj))
+        case None => ScSubstitutor.empty
+      }
+      getNamedElement match {
+        case t: ScTemplateDefinition => t.superTypes.map(tp => new Options(subst.subst(tp))).filter(!_.isEmpty)
+        case p: PsiClass => p.getSupers.toSeq.map(cl => new Options(ScType.designator(cl))).filter(!_.isEmpty)
+        case a: ScTypeAlias =>
+          val upperType: ScType = tp.isAliasType.get.upper.getOrAny
+          val options: Seq[Options] = {
+            upperType match {
+              case ScCompoundType(comps1, _, _) => comps1.map(new Options(_))
+              case _ => Seq(new Options(upperType))
+            }
+          }
+          options.filter(!_.isEmpty)
+      }
+    }
+
+    def isInheritorOrSelf(bClass: Options): Boolean = {
+      (getNamedElement, bClass.getNamedElement) match {
+        case (base: PsiClass, inheritor: PsiClass) =>
+          ScEquivalenceUtil.smartEquivalence(base, inheritor) ||
+            ScalaPsiManager.instance(base.getProject).cachedDeepIsInheritor(inheritor, base)
+        case (base, inheritor: ScTypeAlias) =>
+          if (ScEquivalenceUtil.smartEquivalence(base, inheritor)) return true
+          for (opt <- bClass.getSuperOptions) {
+            if (isInheritorOrSelf(opt)) return true
+          }
+          false
+        case _ => false //class can't be inheritor of type alias
+      }
+    }
+
+    def getNamedElement: PsiNamedElement = typeNamedElement.get._1
+
+    def getTypeParameters: Array[PsiTypeParameter] = typeNamedElement.get._1 match {
+      case a: ScTypeAlias => a.typeParameters.toArray
+      case p: PsiClass => p.getTypeParameters
+    }
+
+    def baseDesignator: ScType = {
+      projectionOption match {
+        case Some(proj) => ScProjectionType(proj, getNamedElement, superReference = false)
+        case None => ScType.designator(getNamedElement)
+      }
+    }
+
+    def superSubstitutor(bClass: Options): Option[ScSubstitutor] = {
+      def superSubstitutor(base: PsiClass, drv: PsiClass, drvSubst: ScSubstitutor,
+                                   visited: mutable.Set[PsiClass]): Option[ScSubstitutor] = {
+        if (base.getManager.areElementsEquivalent(base, drv)) Some(drvSubst) else {
+          if (visited.contains(drv)) None else {
+            visited += drv
+            val superTypes: Seq[ScType] = drv match {
+              case td: ScTemplateDefinition => td.superTypes
+              case _ => drv.getSuperTypes.map{t => ScType.create(t, drv.getProject)}
+            }
+            val iterator = superTypes.iterator
+            while(iterator.hasNext) {
+              val st = iterator.next()
+              ScType.extractClassType(st) match {
+                case None =>
+                case Some((c, s)) => superSubstitutor(base, c, s, visited) match {
+                  case None =>
+                  case Some(subst) => return Some(subst.followed(drvSubst))
+                }
+              }
+            }
+            None
+          }
+        }
+      }
+      (getNamedElement, bClass.getNamedElement) match {
+        case (base: PsiClass, drv: PsiClass) =>
+          superSubstitutor(base, drv, bClass.typeNamedElement.get._2, mutable.Set.empty)
+        case (base, inheritor: ScTypeAlias) =>
+          if (ScEquivalenceUtil.smartEquivalence(base, inheritor)) {
+            bClass.tp match {
+              case ScParameterizedType(_, typeArgs) =>
+                return Some(bClass.getTypeParameters.zip(typeArgs).foldLeft(ScSubstitutor.empty) {
+                  case (subst: ScSubstitutor, (ptp, typez)) =>
+                    subst.bindT((ptp.name, ScalaPsiUtil.getPsiElementId(ptp)), typez)
+                })
+              case _ => return None
+            }
+          }
+          for (opt <- bClass.getSuperOptions) {
+            this.superSubstitutor(opt) match {
+              case Some(res) => return Some(res)
+              case _ =>
+            }
+          }
+          None
+        case _ => None //class can't be inheritor of type alias
+      }
+    }
   }
 
   def glb(t1: ScType, t2: ScType, checkWeak: Boolean = false): ScType = {
@@ -68,6 +177,9 @@ object Bounds {
   }
 
   private def lub(t1: ScType, t2: ScType, depth : Int, checkWeak: Boolean)(implicit stopAddingUpperBound: Boolean): ScType = {
+    if (Set(t1.toString, t2.toString) == Set("Rewriter.this.type#c#universe#Apply", "Rewriter.this.type#c#universe#TypeApply")) {
+      "stop here"
+    }
     if (t1.conforms(t2, checkWeak)) t2
     else if (t2.conforms(t1, checkWeak)) t1
     else {
@@ -154,7 +266,7 @@ object Bounds {
             //todo: refinement for compound types
         }
       }
-      lubWithExpandedAliases(ScType.expandAliases(t1).getOrElse(t1), ScType.expandAliases(t2).getOrElse(t2)).unpackedType
+      lubWithExpandedAliases(t1, t2).unpackedType
     }
   }
 
@@ -196,26 +308,20 @@ object Bounds {
 
   private def getTypeForAppending(clazz1: Options, clazz2: Options, baseClass: Options, depth: Int, checkWeak: Boolean)
                                  (implicit stopAddingUpperBound: Boolean): ScType = {
-    val baseClassDesignator = {
-      baseClass.projectionOption match {
-        case Some(proj) => ScProjectionType(proj, baseClass.getClazz, superReference = false)
-        case None => ScType.designator(baseClass.getClazz)
-      }
-    }
-    if (baseClass.getClazz.getTypeParameters.length == 0) return baseClassDesignator
-    (superSubstitutor(baseClass.getClazz, clazz1.getClazz, clazz1.getSubst),
-      superSubstitutor(baseClass.getClazz, clazz2.getClazz, clazz2.getSubst)) match {
-      case (Some(superSubst1), Some(superSubst2)) => {
-        val tp = ScParameterizedType(baseClassDesignator, baseClass.getClazz.
-          getTypeParameters.map(tp => ScalaPsiManager.instance(baseClass.getClazz.getProject).typeVariable(tp)))
+    val baseClassDesignator = baseClass.baseDesignator
+    if (baseClass.getTypeParameters.length == 0) return baseClassDesignator
+    (baseClass.superSubstitutor(clazz1), baseClass.superSubstitutor(clazz2)) match {
+      case (Some(superSubst1), Some(superSubst2)) =>
+        val tp = ScParameterizedType(baseClassDesignator, baseClass.
+          getTypeParameters.map(tp => ScalaPsiManager.instance(baseClass.getNamedElement.getProject).typeVariable(tp)))
         val tp1 = superSubst1.subst(tp).asInstanceOf[ScParameterizedType]
         val tp2 = superSubst2.subst(tp).asInstanceOf[ScParameterizedType]
         val resTypeArgs = new ArrayBuffer[ScType]
         val wildcards = new ArrayBuffer[ScExistentialArgument]()
-        for (i <- 0 until baseClass.getClazz.getTypeParameters.length) {
+        for (i <- 0 until baseClass.getTypeParameters.length) {
           val substed1 = tp1.typeArgs.apply(i)
           val substed2 = tp2.typeArgs.apply(i)
-          resTypeArgs += (baseClass.getClazz.getTypeParameters.apply(i) match {
+          resTypeArgs += (baseClass.getTypeParameters.apply(i) match {
             case scp: ScTypeParam if scp.isCovariant => if (depth < 2) lub(substed1, substed2, depth + 1, checkWeak) else types.Any
             case scp: ScTypeParam if scp.isContravariant => glb(substed1, substed2, checkWeak)
             case _ =>
@@ -226,39 +332,7 @@ object Bounds {
         }
         if (wildcards.isEmpty) ScParameterizedType(baseClassDesignator, resTypeArgs.toSeq)
         else ScExistentialType(ScParameterizedType(baseClassDesignator, resTypeArgs.toSeq), wildcards.toList)
-      }
       case _ => types.Any
-    }
-  }
-
-  def superSubstitutor(base : PsiClass, drv : PsiClass, drvSubst : ScSubstitutor) : Option[ScSubstitutor] = {
-    //if (drv.isInheritor(base, true)) Some(ScSubstitutor.empty) else None
-    superSubstitutor(base, drv, drvSubst, mutable.HashSet[PsiClass]())
-  }
-
-  private def superSubstitutor(base : PsiClass, drv : PsiClass, drvSubst : ScSubstitutor,
-                               visited : mutable.Set[PsiClass]) : Option[ScSubstitutor] = {
-    //todo: move somewhere and cache
-    if (base == drv) Some(drvSubst) else {
-      if (visited.contains(drv)) None else {
-        visited += drv
-        val superTypes: Seq[ScType] = drv match {
-          case td: ScTemplateDefinition => td.superTypes
-          case _ => drv.getSuperTypes.map{t => ScType.create(t, drv.getProject)}
-        }
-        val iterator = superTypes.iterator
-        while(iterator.hasNext) {
-          val st = iterator.next()
-          ScType.extractClassType(st) match {
-            case None =>
-            case Some((c, s)) => superSubstitutor(base, c, s, visited) match {
-              case None =>
-              case Some(subst) => return Some(subst.followed(drvSubst))
-            }
-          }
-        }
-        None
-      }
     }
   }
 
@@ -281,10 +355,9 @@ object Bounds {
       var break = false
       while (!break && i < res.length) {
         val clazz = res(i)._1
-        if (InheritanceUtil.isInheritorOrSelf(clazz.getClazz, aClass.getClazz, true)) {
-          //todo: join them
-          break = true
-        } else if (ScalaPsiUtil.cachedDeepIsInheritor(aClass.getClazz, clazz.getClazz)) {
+        if (aClass.isInheritorOrSelf(clazz)) {
+          break = true //todo: join them somehow?
+        } else if (clazz.isInheritorOrSelf(aClass)) {
           res(i) = (aClass, x, y)
           break = true
         }
@@ -294,7 +367,7 @@ object Bounds {
         res += ((aClass, x, y))
       }
     }
-    def checkClasses(aClasses: Seq[Options], baseIndex: Int = -1, visited: mutable.HashSet[PsiClass] = mutable.HashSet.empty) {
+    def checkClasses(aClasses: Seq[Options], baseIndex: Int = -1, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty) {
       if (aClasses.length == 0) return
       val aIter = aClasses.iterator
       var i = 0
@@ -305,23 +378,14 @@ object Bounds {
         var j = 0
         while (!break && bIter.hasNext) {
           val bClass = bIter.next()
-          val clazz = aClass.getClazz
-          if (InheritanceUtil.isInheritorOrSelf(bClass.getClazz, clazz, true)) {
+          if (aClass.isInheritorOrSelf(bClass)) {
             addClass(aClass, if (baseIndex == -1) i else baseIndex, j)
             break = true
           } else {
-            val subst = aClass.projectionOption match {
-              case Some(proj) => {
-                import collection.immutable.Map
-                new ScSubstitutor(Map.empty, Map.empty, Some(proj))
-              }
-              case None => ScSubstitutor.empty
+            val element = aClass.getNamedElement
+            if (!visited.contains(element)) {
+              checkClasses(aClass.getSuperOptions, if (baseIndex == -1) i else baseIndex, visited + element)
             }
-            if (!visited.contains(clazz))
-              checkClasses(clazz match {
-                case t: ScTemplateDefinition => t.superTypes.map(tp => new Options(subst.subst(tp)))
-                case p: PsiClass => p.getSupers.map(cl => new Options(ScType.designator(cl)))
-              }, if (baseIndex == -1) i else baseIndex, visited + clazz)
           }
           j += 1
         }

@@ -3,10 +3,10 @@ package lang
 package psi
 package stubs
 package elements
-import com.intellij.lang.ASTNode
-import com.intellij.psi.stubs.{StubElement, IndexSink, IStubElementType, PsiFileStub}
-import wrappers.IStubElementTypeWrapper
-import com.intellij.psi.{PsiFile, PsiElement}
+
+import com.intellij.psi.stubs.{PsiFileStub, StubElement}
+import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.wrappers.IStubElementTypeWrapper
 
 /**
  * @author ilyas
@@ -15,18 +15,15 @@ import com.intellij.psi.{PsiFile, PsiElement}
 abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](debugName: String)
 extends IStubElementTypeWrapper[S, T](debugName) {
 
-  def getExternalId = "sc." + super.toString()
+  def getExternalId = "sc." + super.toString
 
   def isCompiled(stub: S) = {
     var parent = stub
-    while (!(parent.isInstanceOf[PsiFileStub[_ <: PsiFile]])) {
+    while (!parent.isInstanceOf[PsiFileStub[_ <: PsiFile]]) {
       parent = parent.getParentStub.asInstanceOf[S]
     }
     parent.asInstanceOf[ScFileStub].isCompiled
   }
-
-
-  override def shouldCreateStub(node: ASTNode): Boolean = ScalaPsiUtil.shouldCreateStub(node.getPsi)
 
   override def isLeftBound = true
 }

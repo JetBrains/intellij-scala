@@ -23,7 +23,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       if (file.isDirectory) file.getPath else file.getParent
     }
 
-    val runner = new SbtRunner(settings.vmOptions, settings.customLauncher, settings.customVM)
+    val runner = new SbtRunner(settings.ideaSystem, settings.vmOptions, settings.customLauncher, settings.customVm)
 
     val xml = runner.read(new File(root), !isPreview) { message =>
       listener.onStatusChange(new ExternalSystemTaskNotificationEvent(id, message.trim))
@@ -160,8 +160,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def createContentRoot(project: Project): ContentRootNode = {
     val productionSources = validRootPathsIn(project, "compile")(_.sources)
     val productionResources = validRootPathsIn(project, "compile")(_.resources)
-    val testSources = validRootPathsIn(project, "test")(_.sources)
-    val testResources = validRootPathsIn(project, "test")(_.resources)
+    val testSources = validRootPathsIn(project, "test")(_.sources) ++ validRootPathsIn(project, "it")(_.sources)
+    val testResources = validRootPathsIn(project, "test")(_.resources) ++ validRootPathsIn(project, "it")(_.resources)
 
     val result = new ContentRootNode(project.base.path)
 

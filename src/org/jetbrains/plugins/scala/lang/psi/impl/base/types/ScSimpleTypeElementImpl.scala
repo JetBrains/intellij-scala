@@ -5,32 +5,31 @@ package impl
 package base
 package types
 
-import org.jetbrains.plugins.scala.lang.psi.types
 import com.intellij.lang.ASTNode
-import com.intellij.psi._
-import api.base.types._
-import psi.ScalaPsiElementImpl
-import lexer.ScalaTokenTypes
-import psi.types._
-import nonvalue.{ScMethodType, ScTypePolymorphicType, TypeParameter, Parameter}
-import psi.impl.toplevel.synthetic.ScSyntheticClass
-import result.{Failure, TypeResult, Success, TypingContext}
-import scala.None
-import api.statements._
-import api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
-import psi.types.Compatibility.Expression
-import collection.immutable.HashMap
-import api.expr.{ScSuperReference, ScThisReference, ScUnderScoreSectionUtil}
-import lang.resolve.ScalaResolveResult
-import api.base._
-import caches.CachesUtil
-import util.{PsiTreeUtil, PsiModificationTracker}
-import psi.ScalaPsiUtil.SafeCheckException
-import api.{InferUtil, ScalaElementVisitor}
-import org.jetbrains.plugins.scala.extensions.{PsiParameterExt, toPsiMemberExt, toSeqExt, toPsiNamedElementExt}
 import com.intellij.openapi.progress.ProgressManager
-import api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import com.intellij.psi._
+import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil}
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.extensions.{PsiParameterExt, toPsiMemberExt, toSeqExt}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
+import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference, ScUnderScoreSectionUtil}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import org.jetbrains.plugins.scala.lang.psi.types
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+
+import scala.collection.immutable.HashMap
 
 /**
  * @author Alexander Podkhalyuzin
@@ -425,11 +424,9 @@ object ScSimpleTypeElementImpl {
               case Some(x) => x
               case None => return Failure("Cannot find enclosing container", Some(superRef))
             }
-            Success(new ScProjectionType(ScThisType(template), resolvedElement, resolvedElement.isInstanceOf[PsiClass]), Some(ref))
+            Success(ScProjectionType(ScThisType(template), resolvedElement, resolvedElement.isInstanceOf[PsiClass]), Some(ref))
           case _ =>
             resolvedElement match {
-              case param: ScParameter if !param.isVal =>
-                Success(ScDesignatorType(param), Some(ref))
               case self: ScSelfTypeElement =>
                 val td = PsiTreeUtil.getContextOfType(self, true, classOf[ScTemplateDefinition])
                 Success(ScThisType(td), Some(ref))
