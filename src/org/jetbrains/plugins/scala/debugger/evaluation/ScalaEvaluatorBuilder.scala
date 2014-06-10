@@ -791,7 +791,9 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             if (p.isByName) throw EvaluateExceptionUtil.createEvaluateException("cannot evaluate methods with by-name parameters")
             if (p.isRepeated) {
               val argTypes = e.map(_.getType().getOrAny)
-              val argTypeText = Bounds.lub(argTypes).canonicalText
+              val argTypeText =
+                if (argTypes.isEmpty) p.expectedType.canonicalText
+                else Bounds.lub(argTypes).canonicalText
               val argsText = if (e.length > 0) e.sortBy(_.getTextRange.getStartOffset).map(_.getText).mkString(".+=(", ").+=(", ").result()") else ""
               def tail: Evaluator = {
                 val exprText = s"_root_.scala.collection.Seq.newBuilder[$argTypeText]$argsText"
