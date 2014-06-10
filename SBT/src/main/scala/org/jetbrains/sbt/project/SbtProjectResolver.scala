@@ -25,11 +25,21 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val runner = new SbtRunner(settings.ideaSystem, settings.vmOptions, settings.customLauncher, settings.customVm)
 
+    var warnings = new StringBuilder()
+
     val xml = runner.read(new File(root), !isPreview) { message =>
+      if (message.startsWith("[error] ") || message.startsWith("[warn] ")) {
+        warnings ++= message
+      }
+
       listener.onStatusChange(new ExternalSystemTaskNotificationEvent(id, message.trim))
     } match {
       case Left(errors) => throw new ExternalSystemException(errors)
       case Right(node) => node
+    }
+
+    if (warnings.nonEmpty) {
+      listener.onTaskOutput(id, WarningMessage(warnings.toString), false)
     }
 
     val data = StructureParser.parse(xml, new File(System.getProperty("user.home")))
