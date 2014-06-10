@@ -257,7 +257,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             .map(selector)
             .getOrElse(Seq.empty)
             .map(_.file)
-            .filter(_.isUnder(project.base))
+            .filter(!_.isOutsideOf(project.base))
             .map(_.path)
   }
 
@@ -269,7 +269,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             .flatMap(it => it.resources ++ it.resources)
             .map(_.file)
 
-    sourceRoots.filter(_.getCanonicalFile.isOutsideOf(project.base))
+    sourceRoots.filter(_.isOutsideOf(project.base))
   }
 
   private def createLibraryDependencies(dependencies: Seq[ModuleDependency])(moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyNode] = {
