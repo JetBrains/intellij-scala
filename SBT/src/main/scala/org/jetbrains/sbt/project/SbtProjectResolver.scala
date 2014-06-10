@@ -34,9 +34,16 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val data = StructureParser.parse(xml, new File(System.getProperty("user.home")))
 
-    // TODO Show warnings about excluded roots when IDEA-123007 will be implemented
-    // in the External System (UI interaction API for external system project resolver).
-    //val externalSourceRoots = data.projects.map(externalSourceRootsIn)
+    val externalSourceRoots = data.projects.flatMap(externalSourceRootsIn)
+
+    if (externalSourceRoots.nonEmpty) {
+      val warning = externalSourceRoots.map(file => s"<li>${file.getPath}</li>").mkString(
+        "The following source roots are outside of the corresponding base directories:\n<ul>", "\n",
+        "\n</ul>\nThese source roots cannot be included in the IDEA project model." +
+                "<br>Please consider using shared SBT projects instead of shared source roots.")
+
+      listener.onTaskOutput(id, WarningMessage(warning), false)
+    }
 
     convert(root, data).toDataNode
   }
@@ -262,7 +269,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             .flatMap(it => it.resources ++ it.resources)
             .map(_.file)
 
-    sourceRoots.filter(_.isOutsideOf(project.base))
+    sourceRoots.filter(_.getCanonicalFile.isOutsideOf(project.base))
   }
 
   private def createLibraryDependencies(dependencies: Seq[ModuleDependency])(moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyNode] = {
