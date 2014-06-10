@@ -1,29 +1,27 @@
 package org.jetbrains.plugins.scala.debugger
 
-import com.intellij.debugger.actions.{JvmSmartStepIntoHandler, SmartStepTarget, MethodSmartStepTarget}
+import java.util.{Collections, List => JList}
+
 import com.intellij.debugger.SourcePosition
-import java.util.{List => JList, Collections}
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.debugger.actions.{JvmSmartStepIntoHandler, MethodSmartStepTarget, SmartStepTarget}
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.util.TextRange
-import com.intellij.util.text.CharArrayUtil
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
-import collection.mutable.HashSet
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement}
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import scala.collection.JavaConverters._
-import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
-import scala.Some
-import scala.Int
-import scala.Boolean
 import com.intellij.util.Range
+import com.intellij.util.text.CharArrayUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+
+import scala.collection.JavaConverters._
+import scala.collection.mutable.HashSet
 
 /**
  * User: Alexander Podkhalyuzin
@@ -177,5 +175,16 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
       element = element.getNextSibling
     }
     methods.toList
+  }
+
+  override def createMethodFilter(stepTarget: SmartStepTarget) = {
+    stepTarget match {
+      case methodTarget: MethodSmartStepTarget =>
+        methodTarget.getMethod match {
+          case fun: ScFunction if fun.isLocal => new LocalFunctionMethodFilter(fun, stepTarget.getCallingExpressionLines)
+          case _ => super.createMethodFilter(stepTarget)
+        }
+      case _ => super.createMethodFilter(stepTarget)
+    }
   }
 }
