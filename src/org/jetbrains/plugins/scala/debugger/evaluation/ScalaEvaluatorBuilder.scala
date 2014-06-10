@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParame
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaElementVisitor, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -131,51 +131,6 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       }
       myCurrentFragmentEvaluator = oldCurrentFragmentEvaluator
       super.visitFile(file)
-    }
-
-    private def localParams(fun: ScFunctionDefinition, context: PsiElement): Seq[PsiElement] = {
-      val buf = new mutable.HashSet[PsiElement]
-      val body = fun.body //to exclude references from default parameters
-      body.foreach(_.accept(new ScalaRecursiveElementVisitor {
-        override def visitReference(ref: ScReferenceElement) {
-          if (ref.qualifier != None) {
-            super.visitReference(ref)
-            return
-          }
-          val elem = ref.resolve()
-          if (elem != null) {
-            var element = elem
-            while (element.getContext != null) {
-              element = element.getContext
-              if (element == fun) return
-              else if (element == context) {
-                buf += elem
-                return
-              }
-            }
-          }
-          super.visitReference(ref)
-        }
-      }))
-      buf.toSeq.filter(isLocalV).sortBy(e => (e.isInstanceOf[ScObject], e.getTextRange.getStartOffset))
-    }
-
-    private def isLocalV(resolve: PsiElement): Boolean = {
-      resolve match {
-        case _: PsiLocalVariable => true
-        case _: ScClassParameter => false
-        case _: PsiParameter => true
-        case b: ScBindingPattern =>
-          ScalaPsiUtil.nameContext(b) match {
-            case v @ (_: ScValue | _: ScVariable) =>
-              !v.getContext.isInstanceOf[ScTemplateBody] && !v.getContext.isInstanceOf[ScEarlyDefinitions]
-            case clause: ScCaseClause => true
-            case _ => true //todo: for generator/enumerators
-          }
-        case o: ScObject =>
-          !o.getContext.isInstanceOf[ScTemplateBody] && ScalaPsiUtil.getContextOfType(o, true, classOf[PsiClass]) != null
-        case _ => false
-      }
     }
 
     override def visitFunctionExpression(stmt: ScFunctionExpr) {
@@ -418,7 +373,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           else null
       }
       if (thisEvaluator != null) {
-        val args = localParams(fun, getContextClass(fun))
+        val args = DebuggerUtil.localParams(fun, getContextClass(fun))
         val evaluators = argEvaluators ++ args.map(arg => {
           val name = arg.asInstanceOf[PsiNamedElement].name
           val ref = ScalaPsiElementFactory.createExpressionWithContextFromText(name, position.getElementAt,
@@ -1303,7 +1258,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     private def visitReferenceNoParameters(qualifier: Option[ScExpression],
                                            resolve: PsiElement,
                                            ref: ScReferenceExpression, replaceWithImplicit: String => ScExpression) {
-      val isLocalValue = isLocalV(resolve)
+      val isLocalValue = DebuggerUtil.isLocalV(resolve)
       val fileName = myContextClass.toOption.flatMap(_.getContainingFile.toOption).map(_.name).orNull
 
       def evaluateFromParameter(fun: PsiElement, resolve: PsiElement): Evaluator = {
@@ -1312,7 +1267,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         fun match {
           case funDef: ScFunctionDefinition =>
             def paramIndex(fun: ScFunctionDefinition, context: PsiElement, elem: PsiElement): Int = {
-              val locIndex = localParams(fun, context).indexOf(elem)
+              val locIndex = DebuggerUtil.localParams(fun, context).indexOf(elem)
               val funParams = fun.effectiveParameterClauses.flatMap(_.parameters)
               if (locIndex < 0) funParams.indexOf(elem)
               else locIndex + funParams.size
