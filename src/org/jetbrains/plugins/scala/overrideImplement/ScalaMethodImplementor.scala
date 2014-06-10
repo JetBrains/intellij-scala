@@ -8,7 +8,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiMember, PsiMethod}
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor}
@@ -42,9 +42,9 @@ class ScalaMethodImplementor extends MethodImplementor {
   }
 
   def createGenerationInfo(method: PsiMethod, mergeIfExists: Boolean): GenerationInfo = {
-    val baseMethod = prototypeToBaseMethod(method)
+    val baseMethod = prototypeToBaseMethod.get(method)
     prototypeToBaseMethod.clear()
-    new ScalaPsiMethodGenerationInfo(method, baseMethod)
+    new ScalaPsiMethodGenerationInfo(method, baseMethod.orNull)
   }
 
   def createDecorator(targetClass: PsiClass, baseMethod: PsiMethod, toCopyJavaDoc: Boolean, insertOverrideIfPossible: Boolean): Consumer[PsiMethod] = emptyConsumer
@@ -54,21 +54,24 @@ class ScalaMethodImplementor extends MethodImplementor {
 
 private class ScalaPsiMethodGenerationInfo(method: PsiMethod, baseMethod: PsiMethod) extends PsiGenerationInfo[PsiMethod](method) {
 
-  var addedMember: PsiMember = null
+  var member: PsiMember = method
 
   override def insert(aClass: PsiClass, anchor: PsiElement, before: Boolean) {
-    val td = aClass match {
-      case t: ScTemplateDefinition => t
-      case _ => return
-    }
-    val sign = new PhysicalSignature(method, ScSubstitutor.empty)
-    val methodMember = new ScMethodMember(sign, isOverride = false)
+    aClass match {
+      case td: ScTemplateDefinition => td
+        val sign = new PhysicalSignature(method, ScSubstitutor.empty)
+        val methodMember = new ScMethodMember(sign, isOverride = false)
 
-    addedMember = ScalaGenerationInfo.insertMethod(methodMember, td, findAnchor(td, baseMethod))
+        member = ScalaGenerationInfo.insertMethod(methodMember, td, findAnchor(td, baseMethod))
+      case _ => super.insert(aClass, anchor, before)
+    }
   }
 
   override def positionCaret(editor: Editor, toEditMethodBody: Boolean) =
-    ScalaGenerationInfo.positionCaret(editor, addedMember)
+    member match {
+      case _: ScMember => ScalaGenerationInfo.positionCaret(editor, member)
+      case _ => super.positionCaret(editor, toEditMethodBody)
+    }
 
   private def findAnchor(td: ScTemplateDefinition, baseMethod: PsiMethod): PsiElement = {
     if (baseMethod == null) return null
