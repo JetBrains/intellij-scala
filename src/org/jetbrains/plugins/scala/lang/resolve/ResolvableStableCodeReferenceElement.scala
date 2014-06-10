@@ -71,6 +71,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
                 case _ =>
               }
             }
+          case _ => //do nothing
         }
       case ScalaResolveResult(field: PsiField, s) =>
         processor.processType(s.subst(ScType.create(field.getType, getProject, getResolveScope)), this)
