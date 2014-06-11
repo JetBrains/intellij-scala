@@ -8,8 +8,9 @@ import com.intellij.openapi.module.{ModuleUtilCore, ModuleManager, Module}
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.impl.libraries.{ProjectLibraryTable, LibraryEx}
 import com.intellij.openapi.roots.{OrderRootType, ProjectFileIndex, LibraryOrderEntry, ModuleRootManager}
-import com.intellij.openapi.roots.ui.configuration.libraryEditor.ExistingLibraryEditor
-import com.intellij.openapi.vfs.VfsUtilCore
+import com.intellij.openapi.roots.ui.configuration.libraryEditor.{NewLibraryEditor, ExistingLibraryEditor}
+import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore}
+import scala.util.matching.Regex
 import extensions._
 
 /**
@@ -18,6 +19,8 @@ import extensions._
 package object configuration {
   implicit class LibraryExt(library: Library) {
     def isScalaSdk: Boolean = libraryEx.getKind == ScalaLibraryKind
+
+    def scalaVersion: Option[String] = LibraryVersion.findFirstIn(library.getName)
 
     def scalaCompilerClasspath: Option[Seq[File]] = scalaProperties.map(_.compilerClasspath)
 
@@ -28,12 +31,12 @@ package object configuration {
 
     private def libraryEx = library.asInstanceOf[LibraryEx]
 
-    def convertToScalaSdkWith(compilerClasspath: Seq[File]): ScalaSdk = {
+    def convertToScalaSdkWith(languageLevel: ScalaLanguageLevel, compilerClasspath: Seq[File]): ScalaSdk = {
       val properties = new ScalaLibraryProperties()
+      properties.languageLevel = languageLevel
       properties.compilerClasspath = compilerClasspath
 
       val editor = new ExistingLibraryEditor(library, null)
-//      editor.setName(library.getName.replaceAll("-library", "-sdk")) // TODO
       editor.setType(ScalaLibraryType.instance)
       editor.setProperties(properties)
       editor.commit()
@@ -86,7 +89,35 @@ package object configuration {
 
     def scalaSdks: Seq[ScalaSdk] = libraries.filter(_.isScalaSdk).map(new ScalaSdk(_))
 
-//    def createScalaSdk
+    def createScalaSdk(name: String, classes: Seq[File], sources: Seq[File], docs: Seq[File], compilerClasspath: Seq[File]): ScalaSdk = {
+      val library = ProjectLibraryTable.getInstance(project).createLibrary(name)
+
+      val editor = new NewLibraryEditor()
+
+      def addRoots(files: Seq[File], rootType: OrderRootType) {
+        files.foreach(file => editor.addRoot(VfsUtil.findFileByIoFile(file, false), rootType))
+      }
+
+      addRoots(classes, OrderRootType.CLASSES)
+      addRoots(sources, OrderRootType.SOURCES)
+      addRoots(docs, OrderRootType.DOCUMENTATION)
+
+      val properties = new ScalaLibraryProperties()
+      properties.compilerClasspath = compilerClasspath
+
+      editor.setType(ScalaLibraryType.instance)
+      editor.setProperties(properties)
+
+      val libraryModel = library.getModifiableModel
+      editor.applyTo(libraryModel.asInstanceOf[LibraryEx.ModifiableModelEx])
+      libraryModel.commit()
+
+      new ScalaSdk(library)
+    }
+
+    def remove(library: Library) {
+      ProjectLibraryTable.getInstance(project).removeLibrary(library)
+    }
   }
 
   class ScalaModule(val module: Module) {
@@ -104,7 +135,7 @@ package object configuration {
       throw new IllegalStateException("Library is not Scala SDK: " + library.getName)
     }
 
-    def compilerVersion: Option[String] = None // TODO
+    def compilerVersion: Option[String] = LibraryVersion.findFirstIn(library.getName)
 
     def compilerClasspath: Seq[File] = properties.compilerClasspath
 
@@ -135,4 +166,8 @@ package object configuration {
       module.scalaSdk.map(_.languageLevel).getOrElse(ScalaLanguageLevel.getDefault)
     }
   }
+
+  val LibraryVersion: Regex = """(?<=:)\d+\.\d+\.\d+\S*$""".r
+
+  val JarVersion: Regex = """(?<=-)\d+\.\d+\.\d+\S*(?=\.jar)$""".r
 }
