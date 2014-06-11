@@ -58,7 +58,7 @@ class ScalaPullUpProcessor(project: Project,
         val movedDefinitions = ArrayBuffer[ScMember]()
         for {
           info <- memberInfos
-          memberCopy <- membersToExtract(info)
+          memberCopy <- memberCopiesToExtract(info)
         } {
           handleOldMember(info)
 
@@ -91,19 +91,20 @@ class ScalaPullUpProcessor(project: Project,
     csManager.adjustLineIndent(sourceClass.getContainingFile, sourceClass.getTextRange)
   }
 
-  private def membersToExtract(info: ScalaExtractMemberInfo): Seq[ScMember] = {
+  private def memberCopiesToExtract(info: ScalaExtractMemberInfo): Seq[ScMember] = {
     info match {
       case ScalaExtractMemberInfo(decl: ScDeclaration, _) =>
         val member = decl.copy().asInstanceOf[ScMember]
         Seq(member)
       case ScalaExtractMemberInfo(m, true) =>
         declarationsText(m).map(ScalaPsiElementFactory.createDeclarationFromText(_, m.getParent, m).asInstanceOf[ScMember])
-      case ScalaExtractMemberInfo(m, false) =>
+      case ScalaExtractMemberInfo(m, false) if m.hasModifierProperty("override") =>
         val copy = m.copy().asInstanceOf[ScMember]
         copy.setModifierProperty("override", value = false)
         val shift = "override ".length
         ScalaChangeContextUtil.shiftAssociations(copy, - shift)
         Seq(copy)
+      case _ => Seq(info.getMember.copy().asInstanceOf[ScMember])
     }
   }
 
