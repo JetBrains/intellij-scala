@@ -17,8 +17,7 @@ class ScalaGradleDataService(platformFacade: PlatformFacade, helper: ProjectStru
         extends AbstractDataService[ScalaModelData, Library](ScalaModelData.KEY) {
 
   def doImportData(toImport: util.Collection[DataNode[ScalaModelData]], project: Project) {
-    toImport.asScala.foreach { dataNode =>
-    }
+    toImport.asScala.foreach(doImport(_, project))
   }
 
   private def doImport(scalaNode: DataNode[ScalaModelData], project: Project) {
@@ -28,9 +27,8 @@ class ScalaGradleDataService(platformFacade: PlatformFacade, helper: ProjectStru
 
     val compilerClasspath = scalaData.getScalaClasspath.asScala.toSeq
 
-    val compilerVersion = compilerClasspath.find(_.getName.startsWith("scala-library")).collect {
-      case JarVersion(version) => version
-    }
+    val compilerVersion = compilerClasspath.map(_.getName)
+            .find(_.startsWith("scala-library")).flatMap(JarVersion.findFirstIn)
 
     compilerVersion.foreach { version =>
       val matchedLibrary = project.libraries.find(_.scalaVersion == Some(version))
