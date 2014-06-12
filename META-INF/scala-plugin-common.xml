@@ -236,6 +236,7 @@
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationProducer"/>
 
         <configurationProducer implementation="org.jetbrains.plugins.scala.runner.ScalaApplicationConfigurationProducer"/>
+        <configurationProducer implementation="org.jetbrains.plugins.scala.lift.runner.LiftRunConfigurationProducer"/>
 
         <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes"/>
         <!--Stub indices -->
