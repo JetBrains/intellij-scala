@@ -192,7 +192,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
                       } catch {
                         case e: SafeCheckException =>
                           InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, problem detected for function: " + fun.name)
-                          return Some(c.copy(problems = Seq(WrongTypeParameterInferred)), subst)
+                          Some(c.copy(problems = Seq(WrongTypeParameterInferred)), subst)
                       }
                     }
                   }
@@ -294,6 +294,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
       val actuals =
         if (filtered.isEmpty) applicable
         else filtered
+
       mostSpecific.mostSpecificForImplicitParameters(actuals) match {
         case Some(r) => HashSet(r)
         case _ => applicable.map(_._1)

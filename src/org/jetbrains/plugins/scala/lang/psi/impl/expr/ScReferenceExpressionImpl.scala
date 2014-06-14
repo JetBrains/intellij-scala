@@ -299,7 +299,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           }
         }
         s.subst(fun.polymorphicType(optionResult))
-      case Some(result @ ScalaResolveResult(fun: ScFunction, s)) =>
+      case Some(result@ScalaResolveResult(fun: ScFunction, s)) =>
         val functionType = s.subst(fun.polymorphicType())
         if (result.isDynamic) ResolvableReferenceExpression.getDynamicReturn(functionType)
         else functionType
@@ -359,11 +359,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Some(ScalaResolveResult(method: PsiMethod, s)) =>
         if (method.getName == "getClass" && method.containingClass != null &&
           method.containingClass.getQualifiedName == "java.lang.Object") {
-          val clazz = ScalaPsiManager.instance(getProject).getCachedClass("java.lang.Class", getResolveScope,
+          val jlClass = ScalaPsiManager.instance(getProject).getCachedClass("java.lang.Class", getResolveScope,
             ScalaPsiManager.ClassCategory.TYPE)
-          def convertQualifier(tp: TypeResult[ScType]): Option[ScType] = {
-            if (clazz != null) {
-              tp match {
+          def convertQualifier(typeResult: TypeResult[ScType]): Option[ScType] = {
+            if (jlClass != null) {
+              typeResult match {
                 case Success(tp, _) =>
                   val actualType = tp match {
                     case ScThisType(clazz) => ScDesignatorType(clazz)
@@ -373,7 +373,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
                       else ScTypeUtil.removeTypeDesignator(comps(0)).getOrElse(Any)
                     case _ => ScTypeUtil.removeTypeDesignator(tp).getOrElse(Any)
                   }
-                  Some(ScExistentialType(ScParameterizedType(ScDesignatorType(clazz),
+                  Some(ScExistentialType(ScParameterizedType(ScDesignatorType(jlClass),
                     Seq(ScTypeVariable("_$1"))), List(ScExistentialArgument("_$1", Nil, Nothing, actualType))))
                 case _ => None
               }

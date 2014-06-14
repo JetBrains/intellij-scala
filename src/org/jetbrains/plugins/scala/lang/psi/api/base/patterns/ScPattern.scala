@@ -333,41 +333,49 @@ object ScPattern {
     }
   }
 
+  private def findMember(name: String, tp: ScType, place: PsiElement): Option[ScType] = {
+    val cp = new CompletionProcessor(StdKinds.methodRef, place, forName = Some(name))
+    cp.processType(tp, place)
+    cp.candidatesS.flatMap {
+      case ScalaResolveResult(fun: ScFunction, subst) if fun.parameters.length == 0 && fun.name == name =>
+        Seq(subst.subst(fun.returnType.getOrAny))
+      case ScalaResolveResult(b: ScBindingPattern, subst) if b.name == name =>
+        Seq(subst.subst(b.getType(TypingContext.empty).getOrAny))
+      case ScalaResolveResult(param: ScClassParameter, subst) if param.name == name =>
+        Seq(subst.subst(param.getType(TypingContext.empty).getOrAny))
+      case _ => Seq.empty
+    }.headOption
+  }
+
+  private def extractPossibleProductParts(receiverType: ScType, place: PsiElement, isOneArgCaseClass: Boolean): Seq[ScType] = {
+    val res: ArrayBuffer[ScType] = new ArrayBuffer[ScType]()
+    @tailrec
+    def collect(i: Int) {
+      findMember(s"_$i", receiverType, place) match {
+        case Some(tp) if !isOneArgCaseClass =>
+          res += tp
+          collect(i + 1)
+        case _ =>
+          if (i == 1) res += receiverType
+      }
+    }
+    collect(1)
+    res.toSeq
+  }
+
+  def extractProductParts(tp: ScType, place: PsiElement): Seq[ScType] = {
+    extractPossibleProductParts(tp, place, isOneArgCaseClass = false)
+  }
+
   def extractorParameters(returnType: ScType, place: PsiElement, isOneArgCaseClass: Boolean): Seq[ScType] = {
     def collectFor2_11: Seq[ScType] = {
-      def findMember(name: String, tp: ScType = returnType): Option[ScType] = {
-        val cp = new CompletionProcessor(StdKinds.methodRef, place, forName = Some(name))
-        cp.processType(tp, place)
-        cp.candidatesS.flatMap {
-          case ScalaResolveResult(fun: ScFunction, subst) if fun.parameters.length == 0 && fun.name == name =>
-            Seq(subst.subst(fun.returnType.getOrAny))
-          case ScalaResolveResult(b: ScBindingPattern, subst) if b.name == name =>
-            Seq(subst.subst(b.getType(TypingContext.empty).getOrAny))
-          case ScalaResolveResult(param: ScClassParameter, subst) if param.name == name =>
-            Seq(subst.subst(param.getType(TypingContext.empty).getOrAny))
-          case _ => Seq.empty
-        }.headOption
-      }
-
-      findMember("isEmpty") match {
+      findMember("isEmpty", returnType, place) match {
         case Some(tp) if types.Boolean.equiv(tp) =>
         case _ => return Seq.empty
       }
 
-      val receiverType = findMember("get").getOrElse(return Seq.empty)
-      val res: ArrayBuffer[ScType] = new ArrayBuffer[ScType]()
-      @tailrec
-      def collect(i: Int) {
-        findMember(s"_$i", receiverType) match {
-          case Some(tp) if !isOneArgCaseClass =>
-            res += tp
-            collect(i + 1)
-          case _ =>
-            if (i == 1) res += receiverType
-        }
-      }
-      collect(1)
-      res.toSeq
+      val receiverType = findMember("get", returnType, place).getOrElse(return Seq.empty)
+      extractPossibleProductParts(receiverType, place, isOneArgCaseClass)
     }
 
     val level = ScalaLanguageLevel.getLanguageLevel(place)
