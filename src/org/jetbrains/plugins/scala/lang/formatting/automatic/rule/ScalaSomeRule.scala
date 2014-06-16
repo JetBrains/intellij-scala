@@ -28,7 +28,7 @@ class ScalaSomeRule private (val minimalCount: Int,
                          parentInfo: Option[RuleParentInfo],
                          top: ScalaFormattingRule,
                          matcher: ScalaFormattingRuleMatcher) = {
-    println("checking some rule " + id)
+//    println("checking some rule " + id)
     val ruleInstance = matcher.ruleInstance(parentInfo, this, top)
     val (before, found, after, count, _) = blocks.foldLeft(List[Block](), None: Option[List[RuleMatch]], blocks, 0, true)(
       (acc, block) => {

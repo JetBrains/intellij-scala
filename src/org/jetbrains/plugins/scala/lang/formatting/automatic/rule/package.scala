@@ -12,12 +12,15 @@ import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.{Sam
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation._
 import scala.Some
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.SameSettingsRelation._
+import org.jetbrains.plugins.scala.lang.TokenSets
 
 /**
  * @author Roman.Shein
  *         Date: 11.09.13
  */
 package object rule {
+
+  val defaultPriority = ScalaFormattingRule.RULE_PRIORITY_DEFAULT
 
   //TODO: move this to rules companion objects, disable creation "by-name" for IDs that contains reserver IDs as substrings
 
@@ -234,6 +237,8 @@ package object rule {
 
   val whileWord = ScalaBlockRule("while", "WHILE WORD")
 
+  val equalitySign = ScalaBlockRule("=", "EQUALITY SIGN")
+
   val tryWord = ScalaBlockRule("try", "TRY WORD")
 
   val catchWord = ScalaBlockRule("catch", "CATCH WORD")
@@ -286,9 +291,11 @@ package object rule {
     leftParenthesis,
     expr,
     rightParenthesis,
-    expr)
+    maybeBlockExpr)
 
   val `=>` = ScalaBlockRule("=>", "=>")
+
+  val `<-` = ScalaBlockRule("<-", "<-")
 
   val pattern = ScalaBlockRule("PATTERN BLOCK", patterns)
 
@@ -348,6 +355,80 @@ package object rule {
     ScalaFormattingRule.RULE_PRIORITY_DEFAULT,
     "WHILE DEFAULT")
 
+  val doWord = ScalaBlockRule("do", "DO WORD")
+
+  val doDefault = block(
+    ScalaElementTypes.DO_STMT,
+    defaultPriority,
+    seq(
+      doWord,
+      maybeBlockExpr,
+      maybeSemi,
+      whileWord,
+      leftParenthesis,
+      expr,
+      rightParenthesis
+    )
+  )
+
+  val forWord = ScalaBlockRule("for", "FOR WORD")
+
+  val generator = block(
+    ScalaElementTypes.GENERATOR,
+    defaultPriority,
+    seq(
+      pattern,
+      `<-`,
+      maybeBlockExpr,
+      maybeGuard
+    )
+  )
+
+  val generatorAnchor = "GENERATOR ANCHOR"
+
+//  val pattern = ScalaBlockRule("REFERENCE PATTERN", ScalaElementTypes.REFERENCE_PATTERN)
+
+  val enumerator = block(
+    ScalaElementTypes.ENUMERATOR,
+    defaultPriority,
+    or(
+      generator.&(generatorAnchor),
+      guard,
+      seq(pattern, equalitySign, maybeBlockExpr)
+    )
+  )
+
+  val enumerators = block(
+    ScalaElementTypes.ENUMERATORS,
+    defaultPriority,
+    seq(
+      generator.&(generatorAnchor, noSpacingId),
+      seq(semi, enumerator).*
+    )
+  )
+
+  val forDefault = block(
+    ScalaElementTypes.FOR_STMT,
+    defaultPriority,
+    seq(
+      forWord,
+      or(
+        seq(
+          leftParenthesis,
+          enumerators,
+          rightParenthesis
+        ),
+        seq(
+          leftBrace,
+          enumerators,
+          rightBrace
+        )
+      ),
+      maybe(ScalaBlockRule("yield", "YIELD WORD")),
+      maybeBlockExpr
+    )
+  )
+
   val tryDefault = ScalaBlockCompositeRule(ScalaElementTypes.TRY_STMT,
     tryComposite,
     ScalaFormattingRule.RULE_PRIORITY_DEFAULT,
@@ -373,6 +454,29 @@ package object rule {
     idChainMaybeArgsRule
   ).tag(idChainTag)
 
+//  val importWord = ScalaBlockRule("IMPORT WORD", ScalaElementTypes.IMPORT)
+//
+//  val importReference = ScalaBlockRule("IMPORT REFERENCE", ScalaElementTypes.REFERENCE)
+//
+//  val importChainDefault = block(
+//    ScalaElementTypes.IMPORT_STMT,
+//    defaultPriority,
+//    seq(
+//      importWord,
+//      block(
+//        ScalaElementTypes.IMPORT_EXPR,
+//        defaultPriority,
+//        seq(
+//          importReference,
+//          seq(
+//            dot,
+//            importReference
+//          ).*
+//        )
+//      )
+//    )
+//  )
+
   val parameterAlignmentAnchor = "PARAMETER ALIGNMENT ANCHOR"
 
   val parametersList = ScalaFormattingCompositeRule(
@@ -397,4 +501,20 @@ package object rule {
     ScalaFormattingRule.RULE_PRIORITY_DEFAULT,
     "PARAMETERS DEFAULT"
   )
+
+  val typeRule = ScalaBlockRule("TYPE", TokenSets.TYPE_ELEMENTS_TOKEN_SET.getTypes.toList)
+
+  val typeRuleParamListId = "TYPE RULE PARAM LIST ANCHOR"
+
+  val typeParametersList = block(
+    ScalaElementTypes.TYPE_ARGS,
+    ScalaFormattingRule.RULE_PRIORITY_DEFAULT,
+    seq(
+      leftBracket,
+      typeRule.&(typeRuleParamListId, noSpacingId),
+      seq(comma, typeRule.&(typeRuleParamListId)).*,
+      rightBracket
+    )
+  )
+
 }

@@ -34,7 +34,7 @@ class OrRule private (val composingConditions: List[ScalaFormattingRule],
                          parentInfo: Option[RuleParentInfo],
                          top: ScalaFormattingRule,
                          matcher: ScalaFormattingRuleMatcher): Option[(List[Block], RuleMatch, List[Block])] = {
-    println("checking or rule " + id)
+//    println("checking or rule " + id)
     val ruleInstance = matcher.ruleInstance(parentInfo, this, top)
     for ((condition, position) <- childrenWithPosition) {
       condition.checkSome(blocks, Some(RuleParentInfo(ruleInstance, position)), top, matcher) match {

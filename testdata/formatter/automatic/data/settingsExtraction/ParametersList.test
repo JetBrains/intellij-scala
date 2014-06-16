@@ -1,0 +1,16 @@
+f(a, b, c)
+------
+PARAMETERS DEFAULT
+------
+|PARAMETERS DEFAULT no settings derived for this match
+  |PARAMETERS LIST; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: 0 isRelative: true type: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+    |LEFT_PARENTHESIS; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: 0 isRelative: true type: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+    |EXPR; position: 1 no settings derived for this match
+    |HEAD ARGS; position: 2 | Spacing: 0 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+      |PARAMETERS LIST INNER; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+        |COMMA; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+        |EXPR; position: 1 no settings derived for this match
+      |PARAMETERS LIST INNER; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+        |COMMA; position: 0 | Spacing: 0 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false
+        |EXPR; position: 1 no settings derived for this match
+    |RIGHT_PARENTHESIS; position: 3 | Spacing: 0 newLines: min * max * actual 0 | Indent: Unknown | Wrap: false wrap type: Unknown | Need alignment: false

@@ -33,6 +33,13 @@ class ScalaFormattingRuleInstance(val parentAndPosition: Option[RuleParentInfo],
     }
   }
 
+  def getTreeString: String = {
+    (parentAndPosition match {
+      case Some(parentInfo) => parentInfo.parent.getTreeString + "\nposition: " + parentInfo.position + "; "
+      case _ => ""
+    }) + rule.toString
+  }
+
   override def toString = rule.toString + (parentAndPosition match {
     case Some(parentInfo) => "; position: " + parentInfo.position
     case None => ""

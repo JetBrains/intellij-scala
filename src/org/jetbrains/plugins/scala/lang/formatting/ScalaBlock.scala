@@ -288,7 +288,7 @@ object ScalaBlock {
   // Actually all the ScalaBlock.scala file should be rewritten as blocks should be constructed and not altered during formatting
   protected var myFormatter: ScalaAutoFormatter = null
 
-  def initFormatter(learnRoot: ScalaBlock) = myFormatter = new ScalaAutoFormatter(ScalaFormattingRuleMatcher.getDefaultMatcher(learnRoot))
+  def initFormatter(learnRoot: ScalaBlock) = myFormatter = new ScalaAutoFormatter(ScalaFormattingRuleMatcher.getDefaultMatcherAndMatch(learnRoot))
 
   def feedFormatter(formatRoot: ScalaBlock) = myFormatter.runMatcher(formatRoot)
 }

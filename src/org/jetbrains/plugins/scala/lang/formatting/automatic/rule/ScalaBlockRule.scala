@@ -25,7 +25,7 @@ class ScalaBlockRule private (val testFunction: Block => Boolean,
                          parentInfo: Option[RuleParentInfo],
                          top: ScalaFormattingRule,
                          matcher: ScalaFormattingRuleMatcher) = {
-    println("checking block rule " + id)
+//    println("checking block rule " + id)
     val (before, found, after) = blocks.foldLeft(List[Block](), None: Option[Block], List[Block]())((acc, block) => {
       val (before, found, after) = acc
       if (found.isDefined) (before, found, block::after)

@@ -48,7 +48,7 @@ class ScalaBlockCompositeRule private (val testFunction: Block => Boolean,
                          parentInfo: Option[RuleParentInfo],
                          top: ScalaFormattingRule,
                          matcher: ScalaFormattingRuleMatcher): Option[(List[Block], RuleMatch, List[Block])] = {
-    println("checking block composite rule " + id)
+//    println("checking block composite rule " + id)
     val ruleInstance = matcher.ruleInstance(parentInfo, this, top)
     val newParentInfo = RuleParentInfo(ruleInstance, 0)
     @tailrec

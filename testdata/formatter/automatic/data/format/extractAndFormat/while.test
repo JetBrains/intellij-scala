@@ -1,0 +1,12 @@
+do {
+  something
+} while (condition)
+------
+do{
+something}
+while
+(condition)
+------
+do {
+  something
+} while (condition)

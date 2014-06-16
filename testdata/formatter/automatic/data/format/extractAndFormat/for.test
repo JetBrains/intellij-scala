@@ -1,0 +1,15 @@
+for (a <-b; c = d) {
+  doSomething
+}
+------
+for (
+  a <- b;
+  c = d
+  )
+  {
+    doSomething
+  }
+------
+for (a <-b; c = d) {
+  doSomething
+}
