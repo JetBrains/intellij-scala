@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.Boolean
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 
 /**
  * @author Roman.Shein
@@ -94,6 +95,11 @@ class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Do
       pat.pList.patterns.toList.head.bindings(0).getName, canArrange = true), pat, pat.expr.getOrElse(null))
   }
 
+  override def visitElement(v: ScalaPsiElement) = v match {
+    case packaging: ScPackaging => packaging.acceptChildren(this)
+    case _ => super.visitElement(v)
+  } 
+  
   override def visitValueDeclaration(v: ScValueDeclaration) =
     processEntry(createNewEntry(v.getParent, expandTextRangeToComment(v), VAL, v.getName, canArrange = true), v, null)
 
