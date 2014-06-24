@@ -1,0 +1,9 @@
+<idea-plugin>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <fileTypeFactory implementation="intellijhocon.lang.HoconFileTypeFactory"/>
+    <annotator language="HOCON" implementationClass="intellijhocon.parser.HoconErrorHighlightingAnnotator"/>
+    <lang.commenter language="HOCON" implementationClass="intellijhocon.misc.HoconCommenter"/>
+  </extensions>
+
+</idea-plugin>
