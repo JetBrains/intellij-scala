@@ -176,7 +176,7 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
       if (ref == null) return getText
       val startOffset = ref.getTextRange.getEndOffset + 1 -
               getTextRange.getStartOffset
-      text.substring(startOffset, endOffset)
+      if (startOffset >= endOffset) "" else text.substring(startOffset, endOffset)
     }
   }
 }
