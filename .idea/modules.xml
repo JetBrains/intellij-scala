@@ -9,7 +9,7 @@
       <module fileurl="file://$PROJECT_DIR$/ScalaRunner/ScalaRunner.iml" filepath="$PROJECT_DIR$/ScalaRunner/ScalaRunner.iml" />
       <module fileurl="file://$PROJECT_DIR$/compiler-settings/compiler-settings.iml" filepath="$PROJECT_DIR$/compiler-settings/compiler-settings.iml" />
       <module fileurl="file://$PROJECT_DIR$/idea-runner/idea-runner.iml" filepath="$PROJECT_DIR$/idea-runner/idea-runner.iml" />
-      <module fileurl="file://$PROJECT_DIR$/intellij-hocon/intellij-hocon.iml" filepath="$PROJECT_DIR$/intellij-hocon/intellij-hocon.iml"/>
+      <module fileurl="file://$PROJECT_DIR$/intellij-hocon/intellij-hocon.iml" filepath="$PROJECT_DIR$/intellij-hocon/intellij-hocon.iml" />
       <module fileurl="file://$PROJECT_DIR$/jps-plugin/scala-jps-plugin.iml" filepath="$PROJECT_DIR$/jps-plugin/scala-jps-plugin.iml" />
     </modules>
   </component>
