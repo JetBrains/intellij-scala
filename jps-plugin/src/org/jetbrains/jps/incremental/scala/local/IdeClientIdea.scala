@@ -9,7 +9,7 @@ import java.io.{IOException, File}
 import java.util.Collections
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage}
-import org.jetbrains.asm4.ClassReader
+import org.jetbrains.org.objectweb.asm.ClassReader
 
 /**
  * Nikolay.Tropin
