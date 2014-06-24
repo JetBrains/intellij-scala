@@ -100,7 +100,7 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
     if (!ScalaProjectSettings.getInstance(project).isDontShowConversionDialog) dialog.show()
     if (ScalaProjectSettings.getInstance(project).isDontShowConversionDialog || dialog.isOK) {
       val shiftedAssociations = inWriteAction {
-        editor.getDocument.replaceString(bounds.getStartOffset, bounds.getEndOffset, text)
+        replaceByConvertedCode(editor, bounds, text)
         editor.getCaretModel.moveToOffset(bounds.getStartOffset + text.length)
         PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
 
@@ -144,6 +144,20 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
       settings.KEEP_BLANK_LINES_IN_DECLARATIONS = keep_blank_lines_in_declarations
       settings.KEEP_BLANK_LINES_BEFORE_RBRACE = keep_blank_lines_before_rbrace
     }
+  }
+
+  def replaceByConvertedCode(editor: Editor, bounds: RangeMarker, text: String) = {
+    val document = editor.getDocument
+    def hasQuoteAt(offset: Int) = {
+      val chars = document.getCharsSequence
+      offset >= 0 && offset <= chars.length() && chars.charAt(offset) == '\"'
+    }
+    val start = bounds.getStartOffset
+    val end = bounds.getEndOffset
+    val isInsideStringLiteral = hasQuoteAt(start - 1) && hasQuoteAt(end)
+    if (isInsideStringLiteral && text.startsWith("\"") && text.endsWith("\""))
+      document.replaceString(start - 1, end + 1, text)
+    else document.replaceString(start, end, text)
   }
 
   class ConvertedCode(val data: String, val associations: Array[Association]) extends TextBlockTransferableData {
