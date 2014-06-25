@@ -12,7 +12,7 @@ import scala.collection.mutable
 import com.intellij.psi.codeStyle.arrangement.group.ArrangementGroupingRule
 import com.intellij.psi.codeStyle.arrangement.std._
 import com.intellij.psi.codeStyle.arrangement.model.{ArrangementCompositeMatchCondition, ArrangementAtomMatchCondition, ArrangementMatchCondition}
-import com.intellij.psi.codeStyle.arrangement.`match`.{StdArrangementEntryMatcher, StdArrangementMatchRule}
+import com.intellij.psi.codeStyle.arrangement.`match`.{ArrangementSectionRule, StdArrangementEntryMatcher, StdArrangementMatchRule}
 import com.intellij.psi.codeStyle.arrangement.ArrangementSettings
 
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens._
@@ -276,7 +276,10 @@ object ScalaRearranger {
     }
 //    matchRules = addCondition(matchRules, CLASS)
     //TODO: Is 'override' ok for macros?
-    new StdRulePriorityAwareSettings(groupingRules, matchRules.reverse)
+
+    // TODO fix project compilation
+//    new StdArrangementSettings(groupingRules, matchRules.reverse)
+    null
   }
 
   private val defaultSettings = getDefaultSettings
