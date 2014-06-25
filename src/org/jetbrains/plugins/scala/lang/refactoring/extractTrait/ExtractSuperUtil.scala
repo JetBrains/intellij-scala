@@ -86,16 +86,17 @@ object ExtractSuperUtil {
     }
   }
 
-  def addExtendsTo(clazz: ScTemplateDefinition, typeToExtend: ScTypeDefinition) {
+  def addExtendsTo(clazz: ScTemplateDefinition, typeToExtend: ScTypeDefinition, parameters: String = "") {
     val name = typeToExtend.name
+    val text = name + parameters
     val oldExtBlock = clazz.extendsBlock
     val templParents = oldExtBlock.templateParents match {
       case Some(tp: ScTemplateParents) =>
-        val text = s"${tp.getText} with $name"
-        val (_, newTp) = ScalaPsiElementFactory.createClassTemplateParents(text, clazz.getManager)
+        val tpText = s"${tp.getText} with $text"
+        val (_, newTp) = ScalaPsiElementFactory.createClassTemplateParents(tpText, clazz.getManager)
         tp.replace(newTp).asInstanceOf[ScTemplateParents]
       case None =>
-        val (extKeyword, newTp) = ScalaPsiElementFactory.createClassTemplateParents(name, clazz.getManager)
+        val (extKeyword, newTp) = ScalaPsiElementFactory.createClassTemplateParents(text, clazz.getManager)
         oldExtBlock.addRangeBefore(extKeyword, newTp, oldExtBlock.getFirstChild)
         oldExtBlock.templateParents.get
     }

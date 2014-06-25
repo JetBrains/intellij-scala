@@ -6,13 +6,15 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
 import com.intellij.openapi.editor.{ScrollType, Editor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.refactoring.memberPullUp.ScalaPullUpProcessor
 import scala.collection.mutable
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScNewTemplateDefinition, ScSuperReference, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition, ScSuperReference, ScReferenceExpression}
 import scala.collection.JavaConverters._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.extensions._
@@ -80,10 +82,7 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
           added
         case _ => clazz.getParent.addAfter(newTrt, clazz).asInstanceOf[ScTrait]
       }
-      addSelfType(newTrtAdded, extractInfo.selfTypeText)
-      ExtractSuperUtil.addExtendsTo(clazz, newTrtAdded)
-      val pullUpProcessor = new ScalaPullUpProcessor(clazz.getProject, clazz, newTrtAdded, memberInfos)
-      pullUpProcessor.moveMembersToBase()
+      finishExtractTrait(newTrtAdded, extractInfo)
     }
   }
 
@@ -106,11 +105,19 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
 
     inWriteCommandAction(project, "Extract trait") {
       val newTrait = createTraitFromTemplate(name, packName, clazz)
-      addSelfType(newTrait, extractInfo.selfTypeText)
-      ExtractSuperUtil.addExtendsTo(clazz, newTrait)
-      val pullUpProcessor = new ScalaPullUpProcessor(project, clazz, newTrait, memberInfos)
-      pullUpProcessor.moveMembersToBase()
+      finishExtractTrait(newTrait, extractInfo)
     }
+  }
+
+  private def finishExtractTrait(trt: ScTrait, extractInfo: ExtractInfo) {
+    val memberInfos = extractInfo.memberInfos
+    val clazz = extractInfo.clazz
+
+    addSelfType(trt, extractInfo.selfTypeText)
+    addTypeParameters(trt, extractInfo.typeParameters)
+    ExtractSuperUtil.addExtendsTo(clazz, trt, extractInfo.typeArgs)
+    val pullUpProcessor = new ScalaPullUpProcessor(clazz.getProject, clazz, trt, memberInfos)
+    pullUpProcessor.moveMembersToBase()
   }
 
   private def addSelfType(trt: ScTrait, selfTypeText: Option[String]) {
@@ -133,6 +140,12 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
     }
   }
 
+  private def addTypeParameters(trt: ScTrait, typeParamsText: String) {
+    if (typeParamsText == null || typeParamsText.isEmpty) return
+    val clause = ScalaPsiElementFactory.createTypeParameterClauseFromTextWithContext(typeParamsText, trt, trt.nameId)
+    trt.addAfter(clause, trt.nameId)
+  }
+
   private def createTraitFromTemplate(name: String, packageName: String, clazz: ScTemplateDefinition): ScTrait = {
     val currentPackageName = ExtractSuperUtil.packageName(clazz)
     val dir =
@@ -145,10 +158,11 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
     ScalaDirectoryService.createClassFromTemplate(dir, name, "Scala Trait", askToDefineVariables = false).asInstanceOf[ScTrait]
   }
 
-  private class ExtractInfo(clazz: ScTemplateDefinition, selectedMemberInfos: Seq[ScalaExtractMemberInfo]) {
+  private class ExtractInfo(val clazz: ScTemplateDefinition, val memberInfos: Seq[ScalaExtractMemberInfo]) {
     private val classesForSelfType = mutable.Set[PsiClass]()
-    private val selected = selectedMemberInfos.map(_.getMember)
+    private val selected = memberInfos.map(_.getMember)
     private var currentMemberName: String = null
+    private val typeParams = mutable.Set[ScTypeParam]()
     val conflicts: MultiMap[PsiElement, String] = new MultiMap[PsiElement, String]
 
     private def forMember[T](elem: PsiElement)(action: PsiMember => Option[T]): Option[T] = {
@@ -202,7 +216,7 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
       }
     }
 
-    private def collectConflicts(ref: ScReferenceExpression, resolve: PsiElement) {
+    private def collectConflicts(ref: ScReferenceElement, resolve: PsiElement) {
       resolve match {
         case named: PsiNamedElement =>
           ScalaPsiUtil.nameContext(named) match {
@@ -222,21 +236,44 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
       }
     }
 
+    private def collectTypeParameters(resolve: PsiElement) {
+      val visitor = new ScalaRecursiveElementVisitor {
+        override def visitReference(ref: ScReferenceElement) = {
+          ref.resolve() match {
+            case tp: ScTypeParam => typeParams += tp
+            case _ =>
+          }
+        }
+      }
+
+      resolve match {
+        case typeParam: ScTypeParam if typeParam.owner == clazz =>
+          typeParams += typeParam
+          typeParam.accept(visitor)
+        case _ =>
+      }
+    }
+
     def collect() {
       val visitor = new ScalaRecursiveElementVisitor {
-        override def visitReferenceExpression(ref: ScReferenceExpression) {
+        override def visitReference(ref: ScReferenceElement) {
           val resolve = ref.resolve()
           collectForSelfType(resolve)
           collectConflicts(ref, resolve)
+          collectTypeParameters(resolve)
         }
       }
 
       for {
-        info <- selectedMemberInfos
+        info <- memberInfos
         member = info.getMember
       } {
         currentMemberName = info.getDisplayName
-        member.accept(visitor)
+        if (info.isToAbstract) member.children.foreach {
+          case _: ScExpression =>
+          case other => other.accept(visitor)
+        }
+        else member.accept(visitor)
       }
 
       classesForSelfType.foreach {
@@ -258,6 +295,15 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
 
       if (classesForSelfType.nonEmpty) Some(s"$alias: $typeText =>") else None
     }
+
+    def typeParameters: String = {
+      val paramTexts = typeParams.toSeq.sortBy(_.getOffsetInFile).map(_.getText)
+      if (paramTexts.isEmpty) "" else paramTexts.mkString("[", ", ", "]")
+    }
+
+    def typeArgs: String = {
+      val names = typeParams.toSeq.sortBy(_.getOffsetInFile).map(_.name)
+      if (names.isEmpty) "" else names.mkString("[", ", ", "]")    }
   }
 
 }
