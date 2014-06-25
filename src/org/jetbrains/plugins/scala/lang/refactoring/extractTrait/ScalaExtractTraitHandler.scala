@@ -70,7 +70,7 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
     extractInfo.collect()
     val messages = extractInfo.conflicts.values().asScala
     if (messages.nonEmpty) throw new RuntimeException(messages.mkString("\n"))
-    val trt = inWriteCommandAction(project, "Extract trait") {
+    inWriteCommandAction(project, "Extract trait") {
       val traitText = "trait ExtractedTrait {\n\n}"
       val newTrt = ScalaPsiElementFactory.createTemplateDefinitionFromText(traitText, clazz.getContext, clazz)
       val newTrtAdded = clazz match {
@@ -82,10 +82,9 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
       }
       addSelfType(newTrtAdded, extractInfo.selfTypeText)
       ExtractSuperUtil.addExtendsTo(clazz, newTrtAdded)
-      newTrtAdded
+      val pullUpProcessor = new ScalaPullUpProcessor(clazz.getProject, clazz, newTrtAdded, memberInfos)
+      pullUpProcessor.moveMembersToBase()
     }
-    val pullUpProcessor = new ScalaPullUpProcessor(clazz.getProject, clazz, trt, memberInfos)
-    pullUpProcessor.moveMembersToBase()
   }
 
   private def invokeOnClass(clazz: ScTemplateDefinition, project: Project, editor: Editor) {
@@ -106,14 +105,13 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
     val name = dialog.getTraitName
     val packName = dialog.getPackageName
 
-    val trt = inWriteCommandAction(project, "Extract trait") {
+    inWriteCommandAction(project, "Extract trait") {
       val newTrait = createTraitFromTemplate(name, packName, clazz)
       addSelfType(newTrait, extractInfo.selfTypeText)
       ExtractSuperUtil.addExtendsTo(clazz, newTrait)
-      newTrait
+      val pullUpProcessor = new ScalaPullUpProcessor(project, clazz, newTrait, memberInfos)
+      pullUpProcessor.moveMembersToBase()
     }
-    val pullUpProcessor = new ScalaPullUpProcessor(project, clazz, trt, memberInfos)
-    pullUpProcessor.moveMembersToBase()
   }
 
   private def addSelfType(trt: ScTrait, selfTypeText: Option[String]) {
