@@ -183,22 +183,26 @@ object ScalaRearranger {
 
   private val featureId = "scala.rearrange"
 
-  private def addCondition(matchRules: immutable.List[StdArrangementMatchRule], conditions: ArrangementSettingsToken*) = {
+  private def addCondition(matchRules: immutable.List[ArrangementSectionRule], conditions: ArrangementSettingsToken*) = {
     if (conditions.length == 1) {
-      new StdArrangementMatchRule(new StdArrangementEntryMatcher(new ArrangementAtomMatchCondition(conditions(0), conditions(0)))) :: matchRules
+      ArrangementSectionRule.create(
+        new StdArrangementMatchRule(
+          new StdArrangementEntryMatcher(new ArrangementAtomMatchCondition(conditions(0), conditions(0)))
+        )
+      ) :: matchRules
     } else {
       val composite = new ArrangementCompositeMatchCondition
       for (condition <- conditions) {
         composite.addOperand(new ArrangementAtomMatchCondition(condition, condition))
       }
-      new StdArrangementMatchRule(new StdArrangementEntryMatcher(composite)) :: matchRules
+      ArrangementSectionRule.create(new StdArrangementMatchRule(new StdArrangementEntryMatcher(composite))) :: matchRules
     }
   }
 
   private def getDefaultSettings = {
     val groupingRules = immutable.List[ArrangementGroupingRule](new ArrangementGroupingRule(DEPENDENT_METHODS, DEPTH_FIRST), new ArrangementGroupingRule(JAVA_GETTERS_AND_SETTERS),
       new ArrangementGroupingRule(SCALA_GETTERS_AND_SETTERS))
-    var matchRules = immutable.List[StdArrangementMatchRule]()
+    var matchRules = immutable.List[ArrangementSectionRule]()
     for (access <- scalaAccessModifiersValues) {
       matchRules = addCondition(matchRules, TYPE, access, FINAL)
     }
@@ -277,9 +281,7 @@ object ScalaRearranger {
 //    matchRules = addCondition(matchRules, CLASS)
     //TODO: Is 'override' ok for macros?
 
-    // TODO fix project compilation
-//    new StdArrangementSettings(groupingRules, matchRules.reverse)
-    null
+    new StdArrangementSettings(groupingRules, matchRules.reverse)
   }
 
   private val defaultSettings = getDefaultSettings
