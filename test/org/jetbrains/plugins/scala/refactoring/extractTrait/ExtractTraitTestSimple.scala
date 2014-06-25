@@ -273,7 +273,6 @@ class ExtractTraitTestSimple extends ExtractTraitTestBase {
         |    def foo() {}
         |
         |    val x = 1
-        |
         |  }
         |
         |}
