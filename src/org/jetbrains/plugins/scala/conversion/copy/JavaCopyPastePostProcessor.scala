@@ -19,6 +19,7 @@ import com.intellij.openapi.diagnostic.{Attachment, Logger}
 import settings._
 import com.intellij.diagnostic.LogMessageEx
 import com.intellij.util.ExceptionUtil
+import scala.collection.JavaConverters._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -34,7 +35,10 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
   private lazy val scalaProcessor = Extensions.getExtensions(CopyPastePostProcessor.EP_NAME)
           .find(_.isInstanceOf[ScalaCopyPastePostProcessor]).get.asInstanceOf[ScalaCopyPastePostProcessor]
 
-  def collectTransferableData(file: PsiFile, editor: Editor, startOffsets: Array[Int], endOffsets: Array[Int]): TextBlockTransferableData = {
+  override def collectTransferableData(file: PsiFile, editor: Editor, startOffsets: Array[Int], endOffsets: Array[Int]) =
+    Some(collectTransferableData0(file, editor, startOffsets, endOffsets)).toList.asJava
+
+  private def collectTransferableData0(file: PsiFile, editor: Editor, startOffsets: Array[Int], endOffsets: Array[Int]): TextBlockTransferableData = {
     if (DumbService.getInstance(file.getProject).isDumb) return null
     if (!ScalaProjectSettings.getInstance(file.getProject).isEnableJavaToScalaConversion ||
         !file.isInstanceOf[PsiJavaFile]) return null;
@@ -79,7 +83,10 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
     }
   }
 
-  def extractTransferableData(content: Transferable): TextBlockTransferableData = {
+  override def extractTransferableData(content: Transferable) =
+    Some(extractTransferableData0(content)).toList.asJava
+
+  private def extractTransferableData0(content: Transferable): TextBlockTransferableData = {
     if (content.isDataFlavorSupported(ConvertedCode.Flavor))
       content.getTransferData(ConvertedCode.Flavor).asInstanceOf[TextBlockTransferableData]
     else

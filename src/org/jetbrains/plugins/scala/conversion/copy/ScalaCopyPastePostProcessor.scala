@@ -22,6 +22,7 @@ import com.intellij.openapi.diagnostic.{Attachment, Logger}
 import com.intellij.diagnostic.LogMessageEx
 import com.intellij.util.ExceptionUtil
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import scala.collection.JavaConverters._
 
 /**
  * Pavel Fatin
@@ -31,8 +32,11 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[Associations] {
   private val Log = Logger.getInstance(getClass)
   private val Timeout = 3000L
 
-  def collectTransferableData(file: PsiFile, editor: Editor,
-                              startOffsets: Array[Int], endOffsets: Array[Int]): Associations = {
+  override def collectTransferableData(file: PsiFile, editor: Editor, startOffsets: Array[Int], endOffsets: Array[Int]) =
+    Some(collectTransferableData0(file, editor, startOffsets, endOffsets)).toList.asJava
+
+  private def collectTransferableData0(file: PsiFile, editor: Editor,
+                                       startOffsets: Array[Int], endOffsets: Array[Int]): Associations = {
     if (DumbService.getInstance(file.getProject).isDumb) return null
 
     if(!file.isInstanceOf[ScalaFile]) return null
@@ -65,7 +69,11 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[Associations] {
     new Associations(associations.reverse)
   }
 
-  def extractTransferableData(content: Transferable) = {
+  override def extractTransferableData(content: Transferable) =
+    Some(extractTransferableData0(content)).toList.asJava
+
+
+  private def extractTransferableData0(content: Transferable) = {
     content.isDataFlavorSupported(Associations.Flavor)
             .ifTrue(content.getTransferData(Associations.Flavor).asInstanceOf[Associations])
             .orNull
