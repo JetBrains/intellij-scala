@@ -11,7 +11,7 @@ import java.util
  */
 class SbtTaskManager extends ExternalSystemTaskManager[SbtExecutionSettings] {
   def executeTasks(id: ExternalSystemTaskId, taskNames: util.List[String], projectPath: String, settings: SbtExecutionSettings,
-                   vmOptions: String, debuggerSetup: String, listener: ExternalSystemTaskNotificationListener) {}
+                   vmOptions: util.List[String], scriptParameters: util.List[String], debuggerSetup: String, listener: ExternalSystemTaskNotificationListener) {}
 
   def cancelTask(id: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener) = false
 }
