@@ -82,7 +82,7 @@ extends Object with ScalaTokenTypes with Block {
       case _: ScBlockExpr | _: ScEarlyDefinitions | _: ScTemplateBody | _: ScForStatement  | _: ScWhileStmt |
            _: ScTryBlock | _: ScCatchBlock =>
         new ChildAttributes(if (braceShifted) Indent.getNoneIndent else
-        if (mySubBlocks.size >= newChildIndex &&
+        if (mySubBlocks != null && mySubBlocks.size >= newChildIndex &&
                 mySubBlocks.get(newChildIndex - 1).isInstanceOf[ScalaBlock] &&
                 mySubBlocks.get(newChildIndex - 1).asInstanceOf[ScalaBlock].getNode.getElementType == ScalaElementTypes.CASE_CLAUSES)
           Indent.getSpaceIndent(2 * indentSize)
