@@ -5,7 +5,7 @@ import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.psi.{PsiElement, PsiMethod, PsiModifier}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.quickfix.modifiers.{AddModifierQuickFix, RemoveModifierQuickFix}
+import org.jetbrains.plugins.scala.annotator.quickfix.modifiers.{AddModifierWithValOrVarQuickFix, AddModifierQuickFix, RemoveModifierQuickFix}
 import org.jetbrains.plugins.scala.extensions.toPsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
@@ -114,8 +114,31 @@ trait OverridingAnnotator {
         val annotation: Annotation = holder.createErrorAnnotation(member.nameId,
           ScalaBundle.message("member.needs.override.modifier", memberType, member.name))
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-        annotation.registerFix(new AddModifierQuickFix(owner, "override"))
+
+        member match {
+          case param: ScClassParameter if param.isCaseClassVal && !param.isVal && !param.isVar => fixForCaseClassParameter()
+          case _ => annotation.registerFix(new AddModifierQuickFix(owner, "override"))
+        }
+
+        def fixForCaseClassParameter() {
+          superSignaturesWithSelfType(0) match {
+            case sign: Signature =>
+              ScalaPsiUtil.nameContext(sign.namedElement) match {
+                case p: ScClassParameter if p.isVal || (p.isCaseClassVal && !p.isVar) =>
+                  annotation.registerFix(new AddModifierWithValOrVarQuickFix(owner, "override", addVal = true))
+                case _: ScClassParameter =>
+                  annotation.registerFix(new AddModifierWithValOrVarQuickFix(owner, "override", addVal = false))
+                case _: ScValue | _: ScFunction =>
+                  annotation.registerFix(new AddModifierWithValOrVarQuickFix(owner, "override", addVal = true))
+                case _: ScVariable =>
+                  annotation.registerFix(new AddModifierWithValOrVarQuickFix(owner, "override", addVal = false))
+                case _ =>
+              }
+            case _ =>
+          }
+        }
       }
     }
+
   }
 }

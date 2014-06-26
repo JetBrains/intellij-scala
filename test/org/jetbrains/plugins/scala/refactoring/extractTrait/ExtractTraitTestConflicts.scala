@@ -19,6 +19,22 @@ class ExtractTraitTestConflicts extends ExtractTraitTestBase {
 
     val message = ScalaBundle.message("private.member.cannot.be.used.in.extracted.member", "bar", "foo(): Int")
     checkException(text, message, onlyDeclarations = false, onlyFirstMember = true)
+
+    val result =
+      """
+        |class A extends ExtractedTrait {
+        |
+        |  override def foo() = bar()
+        |
+        |  private def bar() = 1
+        |}
+        |
+        |trait ExtractedTrait {
+        |
+        |  def foo()
+        |}
+      """.stripMargin
+    checkResult(text, result, onlyDeclarations = true, onlyFirstMember = true)
   }
 
   def testFromAnonymousClass() {
@@ -46,7 +62,6 @@ class ExtractTraitTestConflicts extends ExtractTraitTestBase {
         |    def run() = bar()
         |
         |    def bar() {}
-        |
         |  }
         |
         |}
