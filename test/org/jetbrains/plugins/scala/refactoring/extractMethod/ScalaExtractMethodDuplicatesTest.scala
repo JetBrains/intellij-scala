@@ -18,4 +18,7 @@ class ScalaExtractMethodDuplicatesTest extends ScalaExtractMethodTestBase {
   def testWithSemicolon() = doTest()
   def testParameterAsQualifier() = doTest()
   def testStringPlusMethod() = doTest()
+  def testDifferentInterpolatedStringLiterals() = doTest()
+  def testSameInterpolatedStringLiterals() = doTest()
+  def testDifferentLiterals() = doTest()
 }
