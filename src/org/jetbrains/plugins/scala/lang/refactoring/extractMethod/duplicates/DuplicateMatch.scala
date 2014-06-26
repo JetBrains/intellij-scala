@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import scala.collection.mutable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.extensions.{toPsiElementExt, Resolved, Both}
+import org.jetbrains.plugins.scala.extensions.{ElementType, toPsiElementExt, Resolved, Both}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicatesUtil._
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.{ExtractMethodOutput, ExtractMethodParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
@@ -75,6 +76,10 @@ class DuplicateMatch(pattern: DuplicatePattern, val candidates: Seq[PsiElement])
           case (sf1: ScSyntheticFunction, sf2: ScSyntheticFunction) => sf1.isStringPlusMethod && sf2.isStringPlusMethod
           case _ => false
         }
+      case (intd1: ScInterpolatedStringLiteral, intd2: ScInterpolatedStringLiteral) => checkChildren(intd1, intd2)
+      case (ElementType(ScalaTokenTypes.tINTERPOLATED_STRING), ElementType(ScalaTokenTypes.tINTERPOLATED_STRING)) =>
+        subPattern.getText == candidate.getText
+      case (lit1: ScLiteral, lit2: ScLiteral) => lit1.getValue == lit2.getValue
       case _ => checkChildren(subPattern, candidate)
     }
   }
