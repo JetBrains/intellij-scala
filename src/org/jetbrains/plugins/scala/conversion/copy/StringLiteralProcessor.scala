@@ -27,7 +27,7 @@ class StringLiteralProcessor extends CopyPastePreProcessor {
   def preprocessOnPaste(project: Project, file: PsiFile, editor: Editor, text: String, rawText: RawText): String = {
     PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
 
-    val offset = editor.getCaretModel.getOffset
+    val offset = editor.getSelectionModel.getSelectionStart
     val e = file.findElementAt(offset)
 
     if (e.isInstanceOf[PsiElement] && e.getLanguage == ScalaFileType.SCALA_LANGUAGE && offset > e.getTextOffset) {
