@@ -4,6 +4,7 @@ package lang.formatting.automatic.settings
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.IndentType.IndentType
 import scala.collection.mutable
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.matching.{ScalaBlockFormatterEntry, ScalaFormattingRuleInstance, ScalaFormattingRuleMatcher}
 
 /**
  * @author Roman.Shein

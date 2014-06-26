@@ -2,10 +2,11 @@ package org.jetbrains.plugins.scala
 package lang.formatting.automatic.rule.relations
 
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.ScalaFormattingRule
-import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.{ScalaFormattingRuleInstance, ScalaBlockFormatterEntry}
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.FormattingSettingsTree
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation.RelationParticipantId
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.matching.ScalaFormattingRuleInstance
 
 /**
  * @author Roman.Shein
@@ -22,9 +23,11 @@ abstract class RuleRelation {
   /**
    * Given a list of mappings of ruleInstances to entries, construct a new list that contains mappings of ruleInstances
    * to entries such that any choice for any instance inside any mapping is acceptable for this relation.
-   * @param rulesToEntries
+   * @param startingLayer
+   * @return
    */
-  def filter(rulesToEntries: List[mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]]): List[mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]]
+//  def filter(rulesToEntries: List[mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]]): List[mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]]
+  def filter(startingLayer: FormattingSettingsTree#LayeredTraversal): FormattingSettingsTree#LayeredTraversal
 
   def addRule(rule: ScalaFormattingRule, participantIds: RelationParticipantId*) {registerRule(rule)}
 

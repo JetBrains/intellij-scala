@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala
-package lang.formatting.automatic.settings
+package lang.formatting.automatic
 
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock
-import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.{RuleMatch, ScalaBlockRule, ScalaFormattingRule}
+import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.RuleMatch
 import com.intellij.formatting._
-import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaSpacingProcessor
 import scala.collection.mutable
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.matching.{ScalaBlockFormatterEntry, ScalaFormattingRuleInstance, ScalaFormattingRuleMatcher}
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.IndentType
 
 
 /**

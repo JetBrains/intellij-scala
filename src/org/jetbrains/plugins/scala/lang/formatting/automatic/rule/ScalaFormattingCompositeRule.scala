@@ -3,10 +3,11 @@ package lang.formatting.automatic.rule
 
 import com.intellij.formatting.Block
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock
-import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.{ScalaFormattingRuleMatcher, RuleParentInfo, IndentType}
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.IndentType
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.ScalaFormattingRule._
 import scala.Some
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.matching.{RuleParentInfo, ScalaFormattingRuleMatcher}
 
 /**
  * @author Roman.Shein

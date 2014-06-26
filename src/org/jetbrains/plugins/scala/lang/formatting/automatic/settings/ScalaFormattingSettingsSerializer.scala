@@ -12,6 +12,7 @@ import com.intellij.formatting.WrapType
 import java.io.File
 import com.intellij.openapi.application.PathManager
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.matching.{ScalaBlockFormatterEntry, RuleParentInfo, ScalaFormattingRuleInstance, ScalaFormattingRuleMatcher}
 
 /**
  * A class for (de)serialization of FormattingSettings.

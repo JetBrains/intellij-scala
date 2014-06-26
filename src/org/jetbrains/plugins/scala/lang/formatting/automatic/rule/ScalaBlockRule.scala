@@ -5,10 +5,11 @@ import com.intellij.formatting._
 import scala.collection.immutable.Seq
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock
 import scala.Some
-import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.{ScalaFormattingRuleMatcher, RuleParentInfo, IndentType}
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.IndentType
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.ScalaFormattingRule._
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.matching.{RuleParentInfo, ScalaFormattingRuleMatcher}
 
 /**
  * @author Roman.Shein

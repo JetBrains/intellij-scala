@@ -1,20 +1,21 @@
 package org.jetbrains.plugins.scala
-package lang.formatting.automatic.settings
+package lang.formatting.automatic.settings.matching
 
-import com.intellij.formatting.{Alignment, Indent, WrapType}
+import com.intellij.formatting.WrapType
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule._
 import scala.collection.mutable
 import scala.collection.JavaConversions._
 import scala.annotation.tailrec
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule
-import scala.Some
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings._
+import scala.Some
 
 /**
  * @author Roman.Shein
@@ -322,7 +323,7 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
    * @param rulesToSettings
    * @return
    */
-  def deduceIndentSettings(rulesToSettings: mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]): List[FormattingSettings] = {
+  def deduceIndentSettings(rulesToSettings: Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]): List[FormattingSettings] = {
     def getWhitespaces(rule: ScalaFormattingRuleInstance): List[TextRange] = {
       rulesToSpacingDefiningBlocks.get(rule) match {
         case None => List()
@@ -527,20 +528,26 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
 
   def processRelations(rulesToEntries: mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]],
                        failLogger: Option[SettingDeductionFailLogger] = None):
-  List[mutable.Map[ScalaFormattingRuleInstance, scala.List[ScalaBlockFormatterEntry]]] = {
+  FormattingSettingsTree#LayeredTraversal = {
     val relations = getRelations(rulesToEntries.keySet)
 
     processAlignments(rulesToEntries, relations)
 
     //rule relations processing goes here
 
-    var relationSettings = List(rulesToEntries)
+    //var relationSettings = List(rulesToEntries)
+
+    val baseMap = Map(rulesToEntries.toSeq:_*)
+
+    val root = FormattingSettingsTree(rulesToEntries.keys.toSeq, new FormattingSettings(None, None, baseMap))
+
+    var currentLayer: FormattingSettingsTree#LayeredTraversal = root.getRootTraversal
 
     for (relation <- relations) {
-      relationSettings = relation.filter(relationSettings)
+      currentLayer = relation.filter(currentLayer)
     }
 
-    relationSettings
+    currentLayer
   }
 
 //  def deriveAlignments: mutable.Map[]
@@ -555,7 +562,7 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
 
     val rulesToEntries = deriveInitialSettings()
 
-    val relationSettings = processRelations(rulesToEntries)
+    val relationPossibilitiesLayer = processRelations(rulesToEntries)
 
 //    val blocksByStartPos = mutable.Map[Integer, List[ScalaBlock]]()
 //    for (block <- rulesToSpacingDefiningBlocks.values.flatten) {
@@ -569,15 +576,40 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
 //    relationSettings.map(checkLineSpacingsConsistent(_, blocksByStartPos))
 
     //deduce indent size settings
-    val indentTypeSettings = relationSettings.map(deduceIndentSettings).flatten
+//    val indentTypeSettings = relationSettings.map(deduceIndentSettings).flatten
 
-    //TODO: some way to choose from multiple possible settings
+    relationPossibilitiesLayer.traverse(
+      (node, nodeEntry) => {
+        node.formattingSettings match {
+          case Some(settings) =>
+            val deducedSettings = deduceIndentSettings(settings.instances)
+            node.splitIndents(deducedSettings)
+          case _ =>
+        }
+      }
+    )
 
-    if (indentTypeSettings.isEmpty) {
+    val finalLayer = relationPossibilitiesLayer.descend
+
+    currentSettings = resolveMultiplePossibleSettings(finalLayer, false)
+    currentSettings
+  }
+
+  def resolveMultiplePossibleSettings(finalLayer: FormattingSettingsTree#LayeredTraversal,
+                                      isInteractive: Boolean): FormattingSettings = {
+    if (isInteractive) {
+      //TODO: implement me
       null
     } else {
-      currentSettings = indentTypeSettings.tail.foldLeft(indentTypeSettings.head)((setting: FormattingSettings, acc: FormattingSettings) => if (setting.rulesCovered > acc.rulesCovered) acc else setting)
-      currentSettings
+      finalLayer.traverse(
+        (node, nodeEntry) => {
+          node.formattingSettings match {
+            case Some(settings) => return settings
+            case _ =>
+          }
+        }
+      )
+      null
     }
   }
 

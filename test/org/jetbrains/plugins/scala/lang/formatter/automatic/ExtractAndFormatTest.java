@@ -14,7 +14,6 @@ import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock;
-import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.ScalaFormattingRuleMatcher;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 import org.jetbrains.plugins.scala.util.TestUtils;
 

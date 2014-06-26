@@ -3,8 +3,9 @@ package lang.formatting.automatic.rule.relations
 
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.ScalaFormattingRule
 import scala.collection.mutable
-import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.{ScalaBlockFormatterEntry, ScalaFormattingRuleInstance}
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.FormattingSettingsTree
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation.RelationParticipantId
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.matching.{ScalaBlockFormatterEntry, ScalaFormattingRuleInstance}
 
 /**
  * Relation that handles conditions of type "blocks that are matched by the rule should have the same settings". By
@@ -44,11 +45,11 @@ class SameSettingsRelation extends RuleRelation {
    */
   def filterMap(ruleInstance: ScalaFormattingRuleInstance,
                 entry: ScalaBlockFormatterEntry,
-                map: mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]],
+                map: Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]],
                 entries: mutable.ListBuffer[ScalaBlockFormatterEntry],
                 entriesAdded: mutable.Set[ScalaBlockFormatterEntry]):
-  mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]] = {
-    val res = map.clone()
+  Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]] = {
+    val res = mutable.Map(map.toSeq:_*)
 
 //    if (res.exists(value => value._2.isEmpty)) {
 //      return mutable.Map()
@@ -117,7 +118,7 @@ class SameSettingsRelation extends RuleRelation {
 //      return mutable.Map()
 //    }
 
-    res
+    Map(res.toSeq:_*)
   }
 
   /**
@@ -138,38 +139,83 @@ class SameSettingsRelation extends RuleRelation {
     }
   }
 
-  def filterSameSettings(rulesToEntries: List[mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]]):
-  List[mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]] = {
-    var res = List[mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]]()
+//  def filterSameSettings(rulesToEntries: List[mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]]):
+//  List[mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]] = {
+//    var res = List[mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]]()
+//    //iterate over maps, split every if needed
+//    for (caseMap <- rulesToEntries) { //pick current map
+//      var caseMapReplacement = List(caseMap)
+//      var resMaps = List[mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]]()
+//      val rules = getRules.toList
+//      for (ruleInstance <- caseMap.keys if rules.contains(ruleInstance.rule)) { //pick rule to choose setting for
+//        for (currentRestMap <- caseMapReplacement) {
+//          val entries = mutable.ListBuffer(caseMap.get(ruleInstance).getOrElse(List()):_*)
+//          val entriesAdded = mutable.Set[ScalaBlockFormatterEntry]()
+//          while (entries.nonEmpty) {
+//            val ruleEntry = entries.head
+//            val cutMap = filterMap(ruleInstance, ruleEntry, currentRestMap, entries, entriesAdded)
+//            if (!resMaps.contains(cutMap) && cutMap.forall(arg => arg._2.nonEmpty)) {
+//              resMaps = cutMap::resMaps
+//            }
+//            entries.remove(0)
+//          }
+//        }
+//        caseMapReplacement = resMaps
+//        resMaps = List[mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]]()
+//      }
+//      res = res ++ caseMapReplacement
+//    }
+//
+//    res
+//  }
+
+  def filterSameSettings(inputLayer: FormattingSettingsTree#LayeredTraversal):
+  FormattingSettingsTree#LayeredTraversal = {
     //iterate over maps, split every if needed
-    for (caseMap <- rulesToEntries) { //pick current map
-      var caseMapReplacement = List(caseMap)
-      var resMaps = List[mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]]()
-      val rules = getRules.toList
-      for (ruleInstance <- caseMap.keys if rules.contains(ruleInstance.rule)) { //pick rule to choose setting for
-        for (currentRestMap <- caseMapReplacement) {
-          val entries = mutable.ListBuffer(caseMap.get(ruleInstance).getOrElse(List()):_*)
-          val entriesAdded = mutable.Set[ScalaBlockFormatterEntry]()
-          while (entries.nonEmpty) {
-            val ruleEntry = entries.head
-            val cutMap = filterMap(ruleInstance, ruleEntry, currentRestMap, entries, entriesAdded)
-            if (!resMaps.contains(cutMap) && cutMap.forall(arg => arg._2.nonEmpty)) {
-              resMaps = cutMap::resMaps
-            }
-            entries.remove(0)
+    val rules = getRules.toList
+
+    var currentLayer = inputLayer
+
+    val ruleInstances = currentLayer.getRoot.ruleInstances
+
+    for (ruleInstance <- ruleInstances if rules.contains(ruleInstance.rule)) {
+      //go down one layer resolving possible settings for selected ruleInstance
+      currentLayer.traverse(
+        (currentNode, currentEntry) => {
+          currentNode.formattingSettings match {
+            case Some(formattingSettings) =>
+              val caseMap = formattingSettings.instances
+              currentNode.getEntriesForRuleInstance(ruleInstance) match {
+                case Some(currentEntries) =>
+                  val childrenMaps = mutable.ListBuffer[Map[ScalaFormattingRuleInstance, scala.List[ScalaBlockFormatterEntry]]]()
+                  val entries = mutable.ListBuffer(currentEntries:_*)
+                  val entriesAdded = mutable.Set[ScalaBlockFormatterEntry]()
+                  while (entries.nonEmpty) {
+                    val ruleEntry = entries.head
+                    val cutMap = filterMap(ruleInstance, ruleEntry, caseMap, entries, entriesAdded)
+                    childrenMaps += cutMap
+                    entries.remove(0)
+                  }
+                  currentNode.split(ruleInstance, childrenMaps)
+                case _ =>
+              }
+            case _ =>
           }
         }
-        caseMapReplacement = resMaps
-        resMaps = List[mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]]()
-      }
-      res = res ++ caseMapReplacement
+      )
+      currentLayer = currentLayer.descend
     }
 
-    res
+    currentLayer
   }
 
-  override def filter(rulesToEntries: List[mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]]): List[mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]] = {
-    filterSameSettings(rulesToEntries)
+
+//  override def filter(rulesToEntries: List[mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]]): List[mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]] = {
+//    filterSameSettings(rulesToEntries)
+//  }
+
+  override def filter(startingLayer: FormattingSettingsTree#LayeredTraversal): FormattingSettingsTree#LayeredTraversal = {
+    filterSameSettings(startingLayer)
   }
 
   def isAlignedByThisRelation(rule: ScalaFormattingRule): Boolean = sameAlignmentRules.contains(rule)

@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package lang.formatting.automatic
 
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.ScalaFormattingRuleInstance
 import com.intellij.psi.tree.IElementType
 import scala.collection.mutable
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -13,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.Rule
 import scala.Some
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.SameSettingsRelation._
 import org.jetbrains.plugins.scala.lang.TokenSets
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.matching.ScalaFormattingRuleInstance
 
 /**
  * @author Roman.Shein

@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala
-package lang.formatting.automatic.settings
+package lang.formatting.automatic.settings.matching
 
 /**
  * @author Roman.Shein

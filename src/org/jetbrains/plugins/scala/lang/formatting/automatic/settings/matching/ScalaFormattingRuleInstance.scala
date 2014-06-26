@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala
-package lang.formatting.automatic.settings
+package lang.formatting.automatic.settings.matching
 
-import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.RuleParentInfo
-import scala.collection.mutable
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.FormattingSettings
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.ScalaFormattingRule
 import com.intellij.openapi.util.TextRange

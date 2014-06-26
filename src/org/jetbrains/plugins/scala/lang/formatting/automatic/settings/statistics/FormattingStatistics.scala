@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package lang.formatting.automatic.settings.statistics
 
-import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.{ScalaFormattingRuleInstance, ScalaBlockFormatterEntry, SettingDeductionFailLogger}
 import scala.collection.mutable
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.matching.{ScalaBlockFormatterEntry, SettingDeductionFailLogger, ScalaFormattingRuleInstance}
 
 class FormattingStatistics extends SettingDeductionFailLogger {
 

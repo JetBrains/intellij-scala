@@ -7,7 +7,6 @@ import com.intellij.psi.PsiFile
 import com.intellij.lang.ASTNode
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.formatting.Indent
-import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.{ScalaBlockFormatterEntry, ScalaFormattingRuleInstance, ScalaFormattingRuleMatcher}
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase
 import org.jetbrains.plugins.scala.util.TestUtils
 import java.io._
@@ -17,8 +16,8 @@ import java.nio.file.attribute.BasicFileAttributes
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.statistics.FormattingStatistics
 import junit.framework.Test
-import java.nio.charset.Charset
 import scala.Some
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.matching.{ScalaBlockFormatterEntry, ScalaFormattingRuleInstance, ScalaFormattingRuleMatcher}
 
 /**
  * This is just a dirty hack used to get to Project object.

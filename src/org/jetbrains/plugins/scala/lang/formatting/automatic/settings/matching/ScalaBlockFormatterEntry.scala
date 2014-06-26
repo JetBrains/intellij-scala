@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala
-package lang.formatting.automatic.settings
+package lang.formatting.automatic.settings.matching
 
-import com.intellij.formatting.{WrapType, Wrap, Alignment}
-import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.{ScalaFormattingRule, ScalaBlockRule}
+import com.intellij.formatting.WrapType
+import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.ScalaFormattingRule
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings._
+import scala.Some
 
 /**
  * @author Roman.Shein

@@ -23,8 +23,9 @@ import com.intellij.psi._
 import psi.api.base.ScLiteral
 import scala.annotation.tailrec
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
-import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.{ScalaFormattingRuleMatcher, ScalaAutoFormatter}
 import scala.Some
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.matching.ScalaFormattingRuleMatcher
+import org.jetbrains.plugins.scala.lang.formatting.automatic.ScalaAutoFormatter
 
 class ScalaBlock (val myParentBlock: ScalaBlock,
                   protected val myNode: ASTNode,

@@ -6,10 +6,11 @@ import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock
 import scala.collection.JavaConversions._
 import scala.Some
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.IndentType.IndentType
-import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.{ScalaFormattingRuleMatcher, FormattingSettings, RuleParentInfo}
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.FormattingSettings
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation.RelationParticipantId
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.matching.{RuleParentInfo, ScalaFormattingRuleMatcher}
 
 /**
  * @author Roman.Shein
