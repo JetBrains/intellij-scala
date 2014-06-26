@@ -16,8 +16,10 @@
             <element id="dir-copy" path="$PROJECT_DIR$/META-INF" />
             <element id="dir-copy" path="$PROJECT_DIR$/SBT/src/main/resources/META-INF" />
             <element id="dir-copy" path="$PROJECT_DIR$/intellij-hocon/META-INF" />
+            <element id="dir-copy" path="$PROJECT_DIR$/intellij-scalastyle/META-INF" />
           </element>
           <element id="module-output" name="intellij-hocon" />
+          <element id="module-output" name="intellij-scalastyle" />
           <element id="module-output" name="SBT" />
         </element>
         <element id="directory" name="jps">

@@ -1,9 +1,10 @@
-<idea-plugin>
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<idea-plugin version="2">
 
   <extensions defaultExtensionNs="com.intellij">
-    <fileTypeFactory implementation="intellijhocon.lang.HoconFileTypeFactory"/>
-    <annotator language="Scala" implementationClass="intellijhocon.parser.HoconErrorHighlightingAnnotator"/>
-    <lang.commenter language="Scala" implementationClass="intellijhocon.misc.HoconCommenter"/>
+    <fileTypeFactory implementation="org.jetbrains.plugins.scala.ScalaFileTypeFactory"/>
+    <annotator language="Scala" implementationClass="intellijscalastyle.parser.ScalastyleErrorHighlightingAnnotator"/>
   </extensions>
 
 </idea-plugin>
