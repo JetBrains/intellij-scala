@@ -47,6 +47,7 @@ class DuplicatePattern(val elements: Seq[PsiElement], parameters: Seq[ExtractMet
       override def visitReferenceExpression(ref: ScReferenceExpression) = {
         parameters.find(_.fromElement == ref.resolve)
                 .foreach(p => buffer += (ref -> p))
+        super.visitReferenceExpression(ref)
       }
     }
     elements.foreach(_.accept(visitor))
@@ -68,12 +69,15 @@ class DuplicatePattern(val elements: Seq[PsiElement], parameters: Seq[ExtractMet
   
   def findDuplicates(scope: PsiElement): Seq[DuplicateMatch] = {
     val result = ListBuffer[DuplicateMatch]()
+    val seen = mutable.Set[PsiElement]()
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitElement(element: ScalaPsiElement) = {
         if (isSignificant(element)) {
           isDuplicateStart(element) match {
-            case Some(mtch) => result += mtch
-            case None => super.visitElement(element)
+            case Some(mtch) if !seen(mtch.candidates(0)) =>
+              result += mtch
+              seen += mtch.candidates(0)
+            case _ => super.visitElement(element)
           }
         }
       }
