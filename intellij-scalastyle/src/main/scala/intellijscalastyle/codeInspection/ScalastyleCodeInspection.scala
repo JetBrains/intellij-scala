@@ -24,6 +24,7 @@ class ScalastyleCodeInspection extends LocalInspectionTool {
     def findPsiElements(line: Int, column: Option[Int]): Option[(PsiElement, PsiElement)]= {
       (for {
         element <- scalaFile.depthFirst
+        if element != scalaFile
         psiLine =  document.getLineNumber(element.getTextOffset()) + 1
         if line == psiLine
         // document.getLineStartOffset(element.getTextOffset)
@@ -32,8 +33,11 @@ class ScalastyleCodeInspection extends LocalInspectionTool {
 
     result.flatMap {
       case StyleError(_, _, key, level, args, Some(line), column, msg) =>
-        val Some((s, e)) = findPsiElements(line, column)
-        Some(manager.createProblemDescriptor(s, "Scala codestyle problem", Array.empty[LocalQuickFix], ProblemHighlightType.ERROR, false, false))
+        findPsiElements(line, column) match {
+          case Some((s, e)) => Some(manager.createProblemDescriptor(s, s"key -> $key; args -> $args", Array.empty[LocalQuickFix], ProblemHighlightType.GENERIC_ERROR, true, false))
+          case None => None
+        }
+
       case _ => None
     }.toArray
 
