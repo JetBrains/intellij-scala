@@ -4,7 +4,6 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <fileTypeFactory implementation="org.jetbrains.plugins.scala.ScalaFileTypeFactory"/>
-    <annotator language="Scala" implementationClass="intellijscalastyle.parser.ScalastyleErrorHighlightingAnnotator"/>
     <localInspection implementationClass="intellijscalastyle.codeInspection.ScalastyleCodeInspection"
                      displayName="Scala style inspection" groupName="Scala: Code Style"
                      shortName="ScalaStyle"
