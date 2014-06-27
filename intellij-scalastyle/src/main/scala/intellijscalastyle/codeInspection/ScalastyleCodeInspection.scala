@@ -16,37 +16,29 @@ class ScalastyleCodeInspection extends LocalInspectionTool {
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
     if (!file.isInstanceOf[ScalaFile]) return Array.empty
-    println("Checking " + file.getText)
     val scalaFile = file.asInstanceOf[ScalaFile]
     val result = new ScalastyleChecker().checkFiles(ScalastyleCodeInspection.configuration, Seq(new SourceSpec(file.getName, file.getText)))
     val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
 
     def findPsiElements(line: Int, column: Option[Int]): Option[(PsiElement, PsiElement)]= {
       (for {
-        element <- scalaFile.depthFirst
+        element    <- scalaFile.depthFirst
         if element != scalaFile
-        psiLine =  document.getLineNumber(element.getTextOffset()) + 1
-        if line == psiLine
-        // document.getLineStartOffset(element.getTextOffset)
+        psiLine    =  document.getLineNumber(element.getTextOffset()) + 1
+        if line    == psiLine
       } yield (element, element)).toList.headOption
     }
 
     result.flatMap {
-      case StyleError(_, _, key, level, args, Some(line), column, msg) =>
+      case StyleError(_, _, key, level, args, Some(line), column, customMessage) =>
         findPsiElements(line, column) match {
-          case Some((s, e)) => Some(manager.createProblemDescriptor(s, s"key -> $key; args -> $args", Array.empty[LocalQuickFix], ProblemHighlightType.GENERIC_ERROR, true, false))
+          case Some((s, e)) =>
+            val message = Messages.format(key, args, customMessage)
+            Some(manager.createProblemDescriptor(s, message, Array.empty[LocalQuickFix], ProblemHighlightType.GENERIC_ERROR, true, false))
           case None => None
         }
 
       case _ => None
     }.toArray
-
-//    val s = scalaFile.getFirstChild
-//    val e = scalaFile.getLastChild
-//    val errors = scalaFile.getChildren
-//    Array(
-//      manager.createProblemDescriptor(s, "Scala codestyle problem", Array.empty[LocalQuickFix], ProblemHighlightType.ERROR, false, false)
-//    )
-
   }
 }
