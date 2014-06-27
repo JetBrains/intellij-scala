@@ -38,6 +38,9 @@ class ScalaPullUpProcessor(project: Project,
 
   override def findUsages() = Array[UsageInfo]()
 
+  /**
+   * Should be invoked in write action
+   * */
   def moveMembersToBase() {
     val manager = targetClass.getManager
     val extendsBlock = targetClass.extendsBlock
@@ -53,31 +56,29 @@ class ScalaPullUpProcessor(project: Project,
 
     ScalaChangeContextUtil.encodeContextInfo(collectImportScope)
 
-    extensions.inWriteCommandAction(project, "Pull up members") {
-      extensions.withDisabledPostprocessFormatting(project) {
-        val movedDefinitions = ArrayBuffer[ScMember]()
-        for {
-          info <- memberInfos
-          memberCopy <- memberCopiesToExtract(info)
-        } {
-          handleOldMember(info)
+    extensions.withDisabledPostprocessFormatting(project) {
+      val movedDefinitions = ArrayBuffer[ScMember]()
+      for {
+        info <- memberInfos
+        memberCopy <- memberCopiesToExtract(info)
+      } {
+        handleOldMember(info)
 
-          templateBody.addBefore(ScalaPsiElementFactory.createNewLine(manager), anchor)
-          val added = templateBody.addBefore(memberCopy, anchor).asInstanceOf[ScMember]
-          if (info.isToAbstract) ScalaPsiUtil.adjustTypes(added)
-          else movedDefinitions += added
-        }
         templateBody.addBefore(ScalaPsiElementFactory.createNewLine(manager), anchor)
-
-        ScalaChangeContextUtil.decodeContextInfo(movedDefinitions)
+        val added = templateBody.addBefore(memberCopy, anchor).asInstanceOf[ScMember]
+        if (info.isToAbstract) ScalaPsiUtil.adjustTypes(added)
+        else movedDefinitions += added
       }
+      templateBody.addBefore(ScalaPsiElementFactory.createNewLine(manager), anchor)
 
-      for (tb <- sourceClass.extendsBlock.templateBody if tb.members.isEmpty) {
-        tb.delete()
-      }
-
-      reformatAfter()
+      ScalaChangeContextUtil.decodeContextInfo(movedDefinitions)
     }
+
+    for (tb <- sourceClass.extendsBlock.templateBody if tb.members.isEmpty) {
+      tb.delete()
+    }
+
+    reformatAfter()
   }
 
   private def reformatAfter() {

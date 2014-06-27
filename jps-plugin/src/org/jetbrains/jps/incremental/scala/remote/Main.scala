@@ -88,7 +88,8 @@ object Main {
           val copy = buffer.array().clone()
           capacity *= 2
           buffer = ByteBuffer.allocate(capacity)
-          buffer.put(copy)
+          buffer put copy
+          buffer put b.toByte
         }
 
         if (b == '\n') flush()

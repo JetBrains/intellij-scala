@@ -33,6 +33,23 @@ class ExtractTraitTestSelfType extends ExtractTraitTestBase {
       """.stripMargin
 
     checkResult(text, result, onlyDeclarations = false, onlyFirstMember = true)
+
+    val result2 =
+      """
+        |class A extends ExtractedTrait {
+        |
+        |  override def foo() = bar()
+        |
+        |  def bar() = 1
+        |}
+        |
+        |trait ExtractedTrait {
+        |
+        |  def foo()
+        |}
+      """.stripMargin
+
+    checkResult(text, result2, onlyDeclarations = true, onlyFirstMember = true)
   }
 
   def testMembersFromAncestor() {
@@ -63,6 +80,24 @@ class ExtractTraitTestSelfType extends ExtractTraitTestBase {
       """.stripMargin
 
     checkResult(text, result, onlyDeclarations = false)
+
+    val result2 =
+      """
+        |class A extends AA with ExtractedTrait {
+        |  override def foo() = bar()
+        |}
+        |
+        |trait ExtractedTrait {
+        |
+        |  def foo()
+        |}
+        |
+        |trait AA {
+        |  def bar() = 1
+        |}
+      """.stripMargin
+
+    checkResult(text, result2, onlyDeclarations = true)
   }
 
   def testMembersFromTwoAncestors() {
