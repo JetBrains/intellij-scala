@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="scalastyle">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/intellij-scalastyle/lib/scalastyle_2.10-0.4.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/intellij-scalastyle/lib/scalariform_2.10-0.1.4.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -36,6 +36,7 @@
         <element id="archive" name="scala-nailgun-runner.jar">
           <element id="module-output" name="NailgunRunners" />
         </element>
+        <element id="library" level="project" name="scalastyle" />
       </element>
       <element id="directory" name="launcher">
         <element id="file-copy" path="$PROJECT_DIR$/SBT/lib/sbt-launch.jar" />

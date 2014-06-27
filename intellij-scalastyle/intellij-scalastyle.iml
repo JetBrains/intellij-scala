@@ -21,6 +21,7 @@
     <orderEntry type="library" name="community-plugins" level="project" />
     <orderEntry type="module" module-name="ScalaCommunity" scope="PROVIDED" />
     <orderEntry type="library" name="main-scala-library" level="project" />
+    <orderEntry type="library" name="scalastyle" level="project" />
   </component>
 </module>
 
