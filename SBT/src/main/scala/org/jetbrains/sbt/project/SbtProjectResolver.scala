@@ -161,6 +161,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val result = new ModuleNode(StdModuleTypes.JAVA.getId, project.id, project.id,
       moduleFilesDirectory.path, project.base.canonicalPath)
 
+    result.data.setGroup(project.organization)
+    result.data.setVersion(project.version)
+
     result.setInheritProjectCompileOutputPath(false)
 
     project.configurations.find(_.id == "compile").foreach { configuration =>

@@ -29,6 +29,7 @@
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtFacetDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtProjectDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtModuleDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.IntraProjectDependencyDataService"/>
 
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtSettings"/>
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtLocalSettings"/>
