@@ -4,6 +4,8 @@ package psi
 package api
 package expr
 
+import com.intellij.psi.PsiElement
+
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -15,4 +17,9 @@ trait ScTryStmt extends ScExpression {
   def finallyBlock = findChild(classOf[ScFinallyBlock])
 
   override def accept(visitor: ScalaElementVisitor) = visitor.visitTryExpression(this)
+}
+
+object ScTryStmt {
+  def unapply(tryStmt: ScTryStmt): Option[(ScTryBlock, Option[ScCatchBlock], Option[ScFinallyBlock])] =
+    Some((tryStmt.tryBlock, tryStmt.catchBlock, tryStmt.finallyBlock))
 }

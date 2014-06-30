@@ -65,6 +65,7 @@
         <lang.surroundDescriptor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaExpressionSurroundDescriptor"/>
         <lang.surroundDescriptor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaDocCommentDataSurroundDescriptor"/>
         <lang.surroundDescriptor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaIgnoreErrorHighlightingSurroundDescriptor"/>
+        <lang.unwrapDescriptor language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.unwrap.ScalaUnwrapDescriptor"/>
         <lang.psiStructureViewFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewFactory"/>
         <typedHandler implementation="org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler" order="first"/>
         <backspaceHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.backspaceHandler.ScalaBackspaceHandler"/>
