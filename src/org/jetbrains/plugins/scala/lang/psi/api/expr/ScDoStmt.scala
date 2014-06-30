@@ -30,3 +30,8 @@ trait ScDoStmt extends ScExpression {
 
   override def accept(visitor: ScalaElementVisitor) = visitor.visitDoStatement(this)
 }
+
+object ScDoStmt {
+  def unapply(doStmt: ScDoStmt): Option[(Option[ScExpression], Option[ScExpression])] =
+    Some(doStmt.getExprBody, doStmt.condition)
+}
