@@ -59,8 +59,10 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
         }
       }
 
-      val refs = referenceProcessor.collectTransferableData(file, editor, startOffsets, endOffsets)
-              .asInstanceOf[ReferenceTransferableData]
+      val refs = {
+        val data = referenceProcessor.collectTransferableData(file, editor, startOffsets, endOffsets)
+        if (data.isEmpty) null else data.get(0).asInstanceOf[ReferenceTransferableData]
+      }
 
       val associations = new ListBuffer[Association]()
 
