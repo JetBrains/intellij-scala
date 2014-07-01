@@ -3,18 +3,25 @@ package lang
 package refactoring
 package namesSuggester
 
+import java.util.regex.{Matcher, Pattern}
+
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiClass
-import psi.types._
-import psi.api.expr._
-import java.util.regex.Matcher
-import java.util.regex.Pattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import _root_.scala.collection.mutable.ArrayBuffer
-import result.TypingContext
-import util.{NameValidator, ScalaNamesUtil}
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiNamedElement}
 import org.atteo.evo.inflector.English
+import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.ScType.ExtractClass
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.refactoring.util.{NameValidator, ScalaNamesUtil}
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+
+import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin
@@ -49,7 +56,7 @@ object NameSuggester {
 
   def suggestNamesByType(typez: ScType): Array[String] = {
     val names = new ArrayBuffer[String]
-    generateNamesByType(typez)(names, emptyValidator(null))
+    generateNamesByType(typez)(names, emptyValidator(DecompilerUtil.obtainProject))
     val result = names.map {
       case "class" => "clazz"
       case s => s
@@ -65,8 +72,16 @@ object NameSuggester {
       names += name
   }
 
-  private def generateNamesByType(typez: ScType)(implicit names: ArrayBuffer[String], validator: NameValidator,
+  private def namesByType(tpe: ScType, withPlurals: Boolean = true, shortVersion: Boolean = true)
+                         (implicit validator: NameValidator): ArrayBuffer[String] = {
+    val names = ArrayBuffer[String]()
+    generateNamesByType(tpe, shortVersion)(names, validator, withPlurals)
+    names
+  }
+
+  private def generateNamesByType(typez: ScType, shortVersion: Boolean = true)(implicit names: ArrayBuffer[String], validator: NameValidator,
                                                  withPlurals: Boolean = true) {
+    val project = validator.getProject()
     def addPlurals(arg: ScType) {
       def addPlural(s: String) {
         if (!withPlurals) add(s)
@@ -84,85 +99,143 @@ object NameSuggester {
         case ScFunctionType(_, _) => addPlural("function")
         case ScDesignatorType(e) =>
           val camelNames = getCamelNames(e.name)
-          camelNames.foreach(addPlural(_))
+          camelNames.foreach(addPlural)
         case _ =>
-          val newNames = new ArrayBuffer[String]()
-          generateNamesByType(arg)(newNames, emptyValidator(validator.getProject()), withPlurals = false)
-          newNames.foreach(addPlural(_))
+          namesByType(arg, withPlurals = false, shortVersion = false).foreach(addPlural)
       }
     }
-    val plurals = Seq("scala.Array", "scala.collection.Seq",
-      "scala.collection.mutable.Seq", "scala.collection.immutable.Seq", "scala.collection.immutable.List")
-    val projectionMap = Map("Seq" -> "scala", "List" -> "scala")
-    typez match {
-      case ValType(name) => {
-        name match {
-          case "Int" => add("i")
-          case "Unit" => add("unit")
-          case "Byte" => add("byte")
-          case "Long" => add("l")
-          case "Float" => add("fl")
-          case "Double" => add("d")
-          case "Short" => add("sh")
-          case "Boolean" => add("b")
-          case "Char" => add("c")
+
+    def addFromTwoTypes(tp1: ScType, tp2: ScType, separator: String) {
+      for {
+        leftName <- namesByType(tp1, shortVersion = false)
+        rightName <- namesByType(tp2, shortVersion = false)
+      } {
+        add(s"${leftName}$separator${rightName.capitalize}")
+      }
+    }
+
+    def addForFunctionType(ret: ScType, params: Seq[ScType]) = params match {
+      case Seq() =>
+        add("function")
+        generateNamesByType(ret)
+      case Seq(param) =>
+        add("function")
+        addFromTwoTypes(param, ret, "To")
+      case _ =>
+        add("function")
+    }
+
+    def addForParameterizedType(baseType: ScType, args: Seq[ScType]) {
+      baseType match {
+        case ScProjectionType(p, ta: ScTypeAliasDefinition, _) =>
+          ta.aliasedType match {
+            case Success(ExtractClass(c), _) =>
+              generateNamesByType(baseType)
+              inner(c)
+            case _ => generateNamesByType(baseType)
+          }
+        case ScDesignatorType(c: PsiClass) =>
+          generateNamesByType(baseType)
+          inner(c)
+        case _ => generateNamesByType(baseType)
+      }
+
+      def inner(classOfBaseType: PsiClass) {
+        val arrayClassName = "scala.Array"
+        val baseCollectionClassName = "scala.collection.GenTraversableOnce"
+        val baseJavaCollectionClassName = "java.lang.Iterable"
+        val baseMapClassName = "scala.collection.GenMap"
+        val baseJavaMapClassName = "java.util.Map"
+        val function1ClassName = "scala.Function1"
+        val eitherClassName = "scala.util.Either"
+        def isInheritor(c: PsiClass, baseFqn: String) = {
+          val baseClass = JavaPsiFacade.getInstance(project).findClass(baseFqn, GlobalSearchScope.allScope(project))
+          c.isInheritor(baseClass, true) || ScEquivalenceUtil.areClassesEquivalent(c, baseClass)
+        }
+        val needPrefix = Map(
+          "scala.Option" -> "maybe",
+          "scala.Some" -> "some",
+          "scala.concurrent.Future" -> "eventual",
+          "scala.concurrent.Promise" -> "promised",
+          "scala.util.Try" -> "tried")
+
+        classOfBaseType match {
+          case c if c.qualifiedName == arrayClassName && args.nonEmpty =>
+            addPlurals(args(0))
+          case c if needPrefix.keySet.contains(c.qualifiedName) && args.nonEmpty =>
+            for {
+              s <- namesByType(args(0), shortVersion = false)
+              prefix = needPrefix(c.qualifiedName)
+            } {
+              add(prefix + s.capitalize)
+            }
+          case c if c.qualifiedName == eitherClassName && args.size == 2 =>
+            addFromTwoTypes(args(0), args(1), "Or")
+          case c if (isInheritor(c, baseMapClassName) || isInheritor(c, baseJavaMapClassName))
+                  && args.size == 2 =>
+            addFromTwoTypes(args(0), args(1), "To")
+          case c if (isInheritor(c, baseCollectionClassName) || isInheritor(c, baseJavaCollectionClassName))
+            && args.size == 1 =>
+            addPlurals(args(0))
           case _ =>
         }
       }
+    }
+
+    def addForNamedElement(named: PsiNamedElement) = {
+      val name = named.name
+      if (name != null && name.toUpperCase == name) {
+        add(deleteNonLetterFromString(name).toLowerCase)
+      } else if (name == "String") {
+        add(if (shortVersion) "s" else "string")
+      } else {
+        generateCamelNames(name)
+      }
+    }
+
+    typez match {
+      case ValType(name) =>
+        name match {
+          case "Int" => add(if (shortVersion) "i" else "int")
+          case "Unit" => add("unit")
+          case "Byte" => add("byte")
+          case "Long" => add(if (shortVersion) "l" else "long")
+          case "Float" => add(if (shortVersion) "fl" else "float")
+          case "Double" => add(if (shortVersion) "d" else "double")
+          case "Short" => add(if (shortVersion) "sh" else "short")
+          case "Boolean" => add(if (shortVersion) "b" else "boolean")
+          case "Char" => add(if (shortVersion) "c" else "char")
+          case _ =>
+        }
       case ScTupleType(comps) => add("tuple")
-      case ScFunctionType(ret, params) if params.length == 0 => generateNamesByType(ret)
-      case ScFunctionType(ret, params) => add("function")
-      case ScDesignatorType(e) => {
-        val name = e.name
-        if (name != null && name.toUpperCase == name) {
-          add(deleteNonLetterFromString(name).toLowerCase)
-        } else if (name == "String") {
-          add("s")
-        } else {
-          generateCamelNames(name)
-        }
-      }
-      case ScProjectionType(p, e, _) =>
-        val name = e.name
-        if (name != null && name.toUpperCase == name) {
-          add(deleteNonLetterFromString(name).toLowerCase)
-        } else if (name == "String") {
-          add("s")
-        } else {
-          generateCamelNames(name)
-        }
-      case ScParameterizedType(ScProjectionType(p, e, _), Seq(arg)) if projectionMap.get(e.name) != None &&
-        projectionMap.get(e.name) == ScType.extractClass(p, Some(validator.getProject())).map(_.qualifiedName) =>
-        addPlurals(arg)
-      case ScParameterizedType(des@ScDesignatorType(c: PsiClass), Seq(arg)) if plurals.contains(c.qualifiedName) =>
-        addPlurals(arg)
+      case ScFunctionType(ret, params) => addForFunctionType(ret, params)
+      case ScDesignatorType(e) => addForNamedElement(e)
+      case ScProjectionType(p, e, _) => addForNamedElement(e)
+      case ScParameterizedType(tp, args) =>
+        addForParameterizedType(tp, args)
       case JavaArrayType(arg) => addPlurals(arg)
-      case ScParameterizedType(des, typeArgs) =>
-        generateNamesByType(des)
-      case ScCompoundType(comps, _, _) => {
+      case ScCompoundType(comps, _, _) =>
         if (comps.size > 0) generateNamesByType(comps(0))
-      }
       case _ =>
     }
   }
 
+  @tailrec
   private def generateNamesByExpr(expr: ScExpression)(implicit names: ArrayBuffer[String], validator: NameValidator) {
     expr match {
       case _: ScThisReference => add("thisInstance")
       case _: ScSuperReference => add("superInstance")
-      case x: ScReferenceElement if x.refName != null => {
+      case x: ScReferenceElement if x.refName != null =>
         val name = x.refName
         if (name != null && name.toUpperCase == name) {
           add(name.toLowerCase)
         } else {
           generateCamelNames(name)
         }
-      }
-      case x: ScMethodCall => {
+      case x: ScMethodCall =>
         generateNamesByExpr(x.getEffectiveInvokedExpr)
-      }
       case _ => expr.getContext match {
-        case x: ScAssignStmt => x.assignName.foreach(add(_))
+        case x: ScAssignStmt => x.assignName.foreach(add)
         case x: ScArgumentExprList => x.matchedParameters.getOrElse(Seq.empty).find(_._1 == expr) match {
           case Some((_, parameter)) => add(parameter.name)
           case _ =>
@@ -174,7 +247,7 @@ object NameSuggester {
 
   private def generateCamelNames(name: String)(implicit names: ArrayBuffer[String], validator: NameValidator) {
     if (name == "") return
-    val s = if (Array("get", "set", "is").map(name.startsWith(_)).contains(elem = true))
+    val s = if (Array("get", "set", "is").map(name.startsWith).contains(elem = true))
       name.charAt(0) match {
         case 'g' | 's' => name.substring(3, name.length)
         case _ => name.substring(2, name.length)
@@ -195,7 +268,7 @@ object NameSuggester {
   private def getCamelNames(name: String): Seq[String] = {
     if (name == "") return Seq.empty
     val names = new ArrayBuffer[String]
-    val s = if (Array("get", "set", "is").map(name.startsWith(_)).contains(elem = true))
+    val s = if (Array("get", "set", "is").map(name.startsWith).contains(elem = true))
       name.charAt(0) match {
         case 'g' | 's' => name.substring(3, name.length)
         case _ => name.substring(2, name.length)
