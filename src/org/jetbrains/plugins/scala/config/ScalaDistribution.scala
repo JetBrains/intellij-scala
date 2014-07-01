@@ -160,7 +160,7 @@ class Scala211Distribution(home: File) extends ScalaDistribution(home) {
 
   override protected def compilerClasses: Seq[File] = Lib / Compiler.classes :: Lib / Library.classes :: Lib / Reflect.classes :: Nil
 
-  private def findWithPrefix(prefix: String, base: File) = base.listFiles(new FilenameFilter {
+  private def findWithPrefix(prefix: String, base: File) = if (!base.isDirectory) None else base.listFiles(new FilenameFilter {
     override def accept(dir: File, name: String): Boolean = name.startsWith(prefix) && name.endsWith(".jar")
   }).headOption
 }
