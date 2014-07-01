@@ -2,43 +2,82 @@ package intellijscalastyle
 package codeInspection
 
 import com.intellij.codeInspection._
-import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiElementVisitor, PsiFile}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.scalastyle._
 
+import scala.collection.mutable
+
 object ScalastyleCodeInspection {
-  val configuration = ScalastyleConfiguration.getDefaultConfiguration()
+  private type TimestampedScalastyleConfiguration = (Long, ScalastyleConfiguration)
+  private val cache = new mutable.HashMap[VirtualFile, TimestampedScalastyleConfiguration]()
+
+  private object locations {
+    def `scalastyle-config.xml`(root: VirtualFile): Option[VirtualFile] = Option(root.findChild("scalastyle-config.xml"))
+    def `project/`(f: VirtualFile => Option[VirtualFile])(root: VirtualFile): Option[VirtualFile] = Option(root.findChild("project")).flatMap(f)
+
+    def typicalLocation(project: Project): Option[VirtualFile] = {
+      val root = project.getBaseDir
+      `project/`(`scalastyle-config.xml`)(root).fold(`scalastyle-config.xml`(root))(Some(_))
+    }
+  }
+
+  private def configuration(project: Project): Option[ScalastyleConfiguration] = {
+    def latest(scalastyleXml: VirtualFile): TimestampedScalastyleConfiguration = {
+      val configuration = ScalastyleConfiguration.readFromString(new String(scalastyleXml.contentsToByteArray()))
+      (scalastyleXml.getModificationStamp, configuration)
+    }
+
+    locations.typicalLocation(project).map { scalastyleXml =>
+      val (ts, configuration) = cache.getOrElse(scalastyleXml, latest(scalastyleXml))
+      if (ts != scalastyleXml.getModificationStamp) {
+        val Some((_, latestConfiguration)) = cache.put(scalastyleXml, latest(scalastyleXml))
+        latestConfiguration
+      } else {
+        configuration
+      }
+    }
+  }
 
 }
 
 class ScalastyleCodeInspection extends LocalInspectionTool {
 
-
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
-    if (!file.isInstanceOf[ScalaFile]) return Array.empty
-    val scalaFile = file.asInstanceOf[ScalaFile]
-    val result = new ScalastyleChecker().checkFiles(ScalastyleCodeInspection.configuration, Seq(new SourceSpec(file.getName, file.getText)))
-    val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
-
-    def findPsiElements(line: Int, column: Option[Int]): Option[(PsiElement, PsiElement)]= {
-      (for {
-        element    <- scalaFile.depthFirst
-        if element != scalaFile
-        psiLine    =  document.getLineNumber(element.getTextOffset()) + 1
-        if line    == psiLine
-      } yield (element, element)).toList.headOption
+    def withConfiguration(f: ScalastyleConfiguration => Iterable[ProblemDescriptor]): Array[ProblemDescriptor] = {
+      ScalastyleCodeInspection.configuration(file.getProject).map(c => f(c).toArray).getOrElse(Array.empty)
     }
 
-    result.flatMap {
-      case StyleError(_, _, key, level, args, Some(line), column, customMessage) =>
-        findPsiElements(line, column) match {
-          case Some((s, e)) =>
-            val message = Messages.format(key, args, customMessage)
-            Some(manager.createProblemDescriptor(s, message, Array.empty[LocalQuickFix], ProblemHighlightType.GENERIC_ERROR, true, false))
-          case None => None
-        }
+    if (!file.isInstanceOf[ScalaFile]) Array.empty
+    else withConfiguration { configuration =>
+      val scalaFile = file.asInstanceOf[ScalaFile]
+      val result = new ScalastyleChecker().checkFiles(configuration, Seq(new SourceSpec(file.getName, file.getText)))
+      val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
 
-      case _ => None
-    }.toArray
+      def findPsiElements(line: Int, column: Option[Int]): Option[(PsiElement, PsiElement)]= {
+        (for {
+          element    <- scalaFile.depthFirst
+          if element != scalaFile
+          psiLine    =  document.getLineNumber(element.getTextOffset) + 1
+          if line    == psiLine
+        } yield (element, element)).toList.headOption
+      }
+
+      result.flatMap {
+        case StyleError(_, _, key, level, args, Some(line), column, customMessage) =>
+          findPsiElements(line, column) match {
+            case Some((s, e)) =>
+              val message = Messages.format(key, args, customMessage)
+              Some(manager.createProblemDescriptor(s, message, Array.empty[LocalQuickFix], ProblemHighlightType.GENERIC_ERROR, true, false))
+            case None => None
+          }
+
+        case _ => None
+      }
+
+    }
+
   }
 }

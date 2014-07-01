@@ -17,6 +17,11 @@
       <option name="TRANSPORT" value="0" />
       <option name="LOCAL" value="true" />
     </RunnerSettings>
+    <RunnerSettings RunnerId="Debug">
+      <option name="DEBUG_PORT" value="" />
+      <option name="TRANSPORT" value="0" />
+      <option name="LOCAL" value="true" />
+    </RunnerSettings>
     <RunnerSettings RunnerId="JavaRebel">
       <option name="bootstrapPath" />
       <option name="jrebelArgs" value="" />
@@ -36,6 +41,7 @@
     </RunnerSettings>
     <RunnerSettings RunnerId="Profile " />
     <RunnerSettings RunnerId="Run" />
+    <ConfigurationWrapper RunnerId="Debug" />
     <ConfigurationWrapper RunnerId="Debug" />
     <ConfigurationWrapper RunnerId="Run" />
     <method>
