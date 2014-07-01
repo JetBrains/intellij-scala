@@ -255,7 +255,12 @@ object WorksheetSourceProcessor {
 
     insertUntouched(preDeclarations)
 
-    root.getChildren foreach {
+    val rootChildren = root match {
+      case file: PsiFile => file.getChildren
+      case other => other.getNode.getChildren(null) map (_.getPsi)
+    }
+
+    rootChildren foreach {
       case tpe: ScTypeAlias =>
         withPrecomputeLines(tpe, {
           objectRes append withPrint(s"defined type alias ${tpe.name}")
