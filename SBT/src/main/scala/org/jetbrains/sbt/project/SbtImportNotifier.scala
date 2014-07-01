@@ -1,30 +1,30 @@
 package org.jetbrains.sbt
 package project
 
-import com.intellij.openapi.components.{ServiceManager, ProjectComponent}
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.util.NotificationUtil
-import com.intellij.openapi.fileEditor._
-import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.sbt.language.SbtFileType
+import java.io.File
+import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
-import com.intellij.openapi.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil, ExternalSystemUtil}
-import com.intellij.openapi.externalSystem.service.project.ExternalProjectRefreshCallback
+
+import com.intellij.notification.{Notification, NotificationDisplayType, NotificationType, NotificationsConfiguration}
+import com.intellij.openapi.components.{ProjectComponent, ServiceManager}
+import com.intellij.openapi.editor.Document
+import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent}
+import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
-import org.jetbrains.sbt.project.settings.{SbtProjectSettings => Settings, SbtSettings}
-import java.lang.String
-import java.io.File
-import com.intellij.util.containers.ContainerUtilRt
-import com.intellij.openapi.roots.ex.ProjectRootManagerEx
+import com.intellij.openapi.externalSystem.service.project.ExternalProjectRefreshCallback
 import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataManager
-import java.util.Collections
-import com.intellij.openapi.editor.ex.EditorEx
-import com.intellij.openapi.editor.event.{DocumentEvent, DocumentAdapter}
-import com.intellij.notification.{NotificationType, NotificationDisplayType, NotificationsConfiguration, Notification}
-import com.intellij.openapi.editor.Document
+import com.intellij.openapi.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil, ExternalSystemUtil}
+import com.intellij.openapi.fileEditor._
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ex.ProjectRootManagerEx
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiManager}
+import com.intellij.util.containers.ContainerUtilRt
+import org.jetbrains.plugins.scala.util.NotificationUtil
+import org.jetbrains.sbt.language.SbtFileType
+import org.jetbrains.sbt.project.settings.{SbtSettings, SbtProjectSettings => Settings}
 
 /**
  * User: Dmitry Naydanov
@@ -68,6 +68,8 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
     expireNotification()
 
     val externalProjectPath = getExternalProject(forFile)
+    if (externalProjectPath == null) return
+
     val sbtSettings = getSbtSettings getOrElse { return }
     val projectSettings = sbtSettings.getLinkedProjectSettings(externalProjectPath)
     if (projectSettings == null || projectSettings.isUseAutoImport) return 
