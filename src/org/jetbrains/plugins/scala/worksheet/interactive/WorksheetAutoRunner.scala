@@ -59,6 +59,7 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
     override def documentChanged(e: DocumentEvent) {
       if (!settings.isInteractiveMode) return
 
+      if (project.isDisposed) return
       val virtualFile = documentManager.getPsiFile(document).getVirtualFile
       myAlarm.cancelAllRequests()
 
