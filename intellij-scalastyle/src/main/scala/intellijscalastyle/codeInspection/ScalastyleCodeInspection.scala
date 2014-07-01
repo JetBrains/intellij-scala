@@ -56,22 +56,27 @@ class ScalastyleCodeInspection extends LocalInspectionTool {
       val result = new ScalastyleChecker().checkFiles(configuration, Seq(new SourceSpec(file.getName, file.getText)))
       val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
 
-      def findPsiElements(line: Int, column: Option[Int]): Option[(PsiElement, PsiElement)]= {
+      def findPsiElement(line: Int, column: Option[Int]): Option[PsiElement] = {
         (for {
           element    <- scalaFile.depthFirst
           if element != scalaFile
           psiLine    =  document.getLineNumber(element.getTextOffset) + 1
           if line    == psiLine
-        } yield (element, element)).toList.headOption
+        } yield element).toList.headOption
+      }
+
+      def levelToProblemType(level: Level): ProblemHighlightType = level.name match {
+        case Level.Info => ProblemHighlightType.INFORMATION
+        case Level.Error => ProblemHighlightType.GENERIC_ERROR
+        case Level.Warning => ProblemHighlightType.WEAK_WARNING
+        case _ => ProblemHighlightType.GENERIC_ERROR
       }
 
       result.flatMap {
         case StyleError(_, _, key, level, args, Some(line), column, customMessage) =>
-          findPsiElements(line, column) match {
-            case Some((s, e)) =>
-              val message = Messages.format(key, args, customMessage)
-              Some(manager.createProblemDescriptor(s, message, Array.empty[LocalQuickFix], ProblemHighlightType.GENERIC_ERROR, true, false))
-            case None => None
+          findPsiElement(line, column).map { e =>
+            val message = Messages.format(key, args, customMessage)
+            manager.createProblemDescriptor(e, message, Array.empty[LocalQuickFix], levelToProblemType(level), true, false)
           }
 
         case _ => None
