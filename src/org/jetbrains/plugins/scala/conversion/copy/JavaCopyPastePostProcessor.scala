@@ -19,14 +19,14 @@ import com.intellij.openapi.diagnostic.{Attachment, Logger}
 import settings._
 import com.intellij.diagnostic.LogMessageEx
 import com.intellij.util.ExceptionUtil
-import scala.collection.JavaConverters._
+import java.util.Collections.singletonList
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 30.11.2009
  */
 
-class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransferableData] {
+class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBlockTransferableData] {
   private val Log = Logger.getInstance(classOf[JavaCopyPastePostProcessor])
 
   private lazy val referenceProcessor = Extensions.getExtensions(CopyPastePostProcessor.EP_NAME)
@@ -35,10 +35,7 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
   private lazy val scalaProcessor = Extensions.getExtensions(CopyPastePostProcessor.EP_NAME)
           .find(_.isInstanceOf[ScalaCopyPastePostProcessor]).get.asInstanceOf[ScalaCopyPastePostProcessor]
 
-  override def collectTransferableData(file: PsiFile, editor: Editor, startOffsets: Array[Int], endOffsets: Array[Int]) =
-    Some(collectTransferableData0(file, editor, startOffsets, endOffsets)).toList.asJava
-
-  private def collectTransferableData0(file: PsiFile, editor: Editor, startOffsets: Array[Int], endOffsets: Array[Int]): TextBlockTransferableData = {
+  protected def collectTransferableData0(file: PsiFile, editor: Editor, startOffsets: Array[Int], endOffsets: Array[Int]): TextBlockTransferableData = {
     if (DumbService.getInstance(file.getProject).isDumb) return null
     if (!ScalaProjectSettings.getInstance(file.getProject).isEnableJavaToScalaConversion ||
         !file.isInstanceOf[PsiJavaFile]) return null;
@@ -85,17 +82,14 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
     }
   }
 
-  override def extractTransferableData(content: Transferable) =
-    Some(extractTransferableData0(content)).toList.asJava
-
-  private def extractTransferableData0(content: Transferable): TextBlockTransferableData = {
+  protected def extractTransferableData0(content: Transferable): TextBlockTransferableData = {
     if (content.isDataFlavorSupported(ConvertedCode.Flavor))
       content.getTransferData(ConvertedCode.Flavor).asInstanceOf[TextBlockTransferableData]
     else
       null
   }
 
-  def processTransferableData(project: Project, editor: Editor, bounds: RangeMarker, i: Int, ref: Ref[Boolean], value: TextBlockTransferableData) {
+  protected def processTransferableData0(project: Project, editor: Editor, bounds: RangeMarker, i: Int, ref: Ref[Boolean], value: TextBlockTransferableData) {
     if (!ScalaProjectSettings.getInstance(project).isEnableJavaToScalaConversion) return
     if (value == null) return
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
@@ -130,7 +124,7 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
             movedAssociation
         }
       }
-      scalaProcessor.processTransferableData(project, editor, bounds, i, ref, new Associations(shiftedAssociations))
+      scalaProcessor.processTransferableData(project, editor, bounds, i, ref, singletonList(new Associations(shiftedAssociations)))
     }
   }
 
