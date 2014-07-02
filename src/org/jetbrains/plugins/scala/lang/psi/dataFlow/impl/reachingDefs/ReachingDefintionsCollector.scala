@@ -6,7 +6,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.DfaEngine
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import collection.mutable.ArrayBuffer
-import com.intellij.psi.{PsiMethod, PsiNamedElement, PsiElement}
+import com.intellij.psi.{PsiPackage, PsiMethod, PsiNamedElement, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{DefinitionInstruction, ExtractMethodControlFlowPolicy, ReadWriteVariableInstruction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValueDeclaration, ScTypeAlias, ScFun, ScFunction}
@@ -116,7 +116,10 @@ object ReachingDefintionsCollector {
     }
     innerInstructions.foreach {
       case ReadWriteVariableInstruction(_, _, Some(definition), _) if !definedHere.contains(definition) =>
-        buffer += definition
+        definition match {
+          case _: PsiPackage =>
+          case _ => buffer += definition
+        }
       case _ =>
     }
     buffer.toSeq.sortBy(_.getTextRange.getStartOffset).map(VariableInfo)
