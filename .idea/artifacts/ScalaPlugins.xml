@@ -37,6 +37,8 @@
       </element>
       <element id="directory" name="launcher">
         <element id="file-copy" path="$PROJECT_DIR$/SBT/lib/sbt-launch.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/SBT/lib/sbt-structure-0.12.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/SBT/lib/sbt-structure-0.13.jar" />
       </element>
     </root>
   </artifact>
