@@ -1,19 +1,21 @@
 package org.jetbrains.jps.incremental.scala
 package data
 
-import java.io.{IOException, File}
-import org.jetbrains.jps.incremental.{ModuleBuildTarget, CompileContext}
-import org.jetbrains.jps.{ProjectPaths, ModuleChunk}
-import org.jetbrains.jps.incremental.java.JavaBuilder
-import org.jetbrains.jps.incremental.scala.SettingsManager
-import collection.JavaConverters._
-import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
-import org.jetbrains.jps.model.java.JpsJavaExtensionService
-import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
+import java.io.{File, IOException}
 import java.util
 import java.util.Collections
-import java.nio.file.Files
+
+import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
+import org.jetbrains.jps.incremental.java.JavaBuilder
+import org.jetbrains.jps.incremental.{CompileContext, ModuleBuildTarget}
+import org.jetbrains.jps.model.java.JpsJavaExtensionService
+import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
+import org.jetbrains.jps.model.module.JpsModule
+import org.jetbrains.jps.{ModuleChunk, ProjectPaths}
 import org.jetbrains.plugin.scala.compiler.CompileOrder
+import sbt.compiler.CompilerArguments
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -42,14 +44,14 @@ object CompilationData {
 
     val classpath = ProjectPaths.getCompilationClasspathFiles(chunk, chunk.containsTests, false, false).asScala.toSeq
     val facetSettings = Option(SettingsManager.getFacetSettings(module))
-    val scalaOptions = facetSettings.map(_.getCompilerOptions.toSeq).getOrElse(Seq.empty)
+    val bootClasspath = javaBootClasspath(context, module, classpath)
+    val scalaOptions = facetSettings.map(_.getCompilerOptions.toSeq).getOrElse(Seq.empty) ++: bootClasspath
     val order = facetSettings.map(_.getCompileOrder).getOrElse(CompileOrder.Mixed)
 
     createOutputToCacheMap(context).map { outputToCacheMap =>
 
-      val cacheFile = outputToCacheMap.get(output).getOrElse {
-        throw new RuntimeException("Unknown build target output directory: " + output)
-      }
+      val cacheFile = outputToCacheMap.getOrElse(output,
+        throw new RuntimeException("Unknown build target output directory: " + output))
 
       val relevantOutputToCacheMap = (outputToCacheMap - output).filter(p => classpath.contains(p._1))
 
@@ -67,7 +69,6 @@ object CompilationData {
     }
   }
 
-
   def checkOrCreate(output: File) {
     if (!output.exists()) {
       try {
@@ -81,6 +82,15 @@ object CompilationData {
   def outputsNotSpecified(chunk: ModuleChunk): Option[String] = {
     chunk.getTargets.asScala.find(_.getOutputDir == null)
             .map("Output directory not specified for module " + _.getModule.getName)
+  }
+
+  private def javaBootClasspath(context: CompileContext, module: JpsModule, fullClasspath: Seq[File]): Seq[String] = {
+    val bootClasspath = CompilerData.javaHome(context, module) match {
+      case Right(Some(javaHome)) => fullClasspath.filter(_.toPath.startsWith(javaHome.toPath))
+      case _ => Seq.empty
+    }
+    if (bootClasspath.nonEmpty) Seq("-javabootclasspath", CompilerArguments.absString(bootClasspath))
+    else Seq.empty
   }
 
   private def javaOptionsFor(context: CompileContext, chunk: ModuleChunk): Seq[String] = {
