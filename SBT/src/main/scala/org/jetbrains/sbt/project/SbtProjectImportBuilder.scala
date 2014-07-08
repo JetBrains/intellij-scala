@@ -1,17 +1,12 @@
 package org.jetbrains.sbt
 package project
 
-import com.intellij.openapi.project.{ProjectManager, Project}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalProjectImportBuilder
 import com.intellij.ide.util.projectWizard.WizardContext
 import java.io.File
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
-import com.intellij.openapi.fileChooser.FileChooserDescriptor
-import com.intellij.openapi.externalSystem.service.settings.{AbstractExternalProjectSettingsControl, AbstractImportFromExternalSystemControl}
-import com.intellij.openapi.externalSystem.util.PaintAwarePanel
-import com.intellij.openapi.externalSystem.util.ExternalSystemSettingsControl
-import settings._
 import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataManager
 
 /**
@@ -33,40 +28,4 @@ class SbtProjectImportBuilder(projectDataManager: ProjectDataManager)
   def getExternalProjectConfigToUse(file: File) = file
 
   def applyExtraSettings(context: WizardContext) {}
-}
-
-class SbtImportControl extends AbstractImportFromExternalSystemControl[SbtProjectSettings, SbtSettingsListener, SbtSettings](
-  SbtProjectSystem.Id, new SbtSettings(ProjectManager.getInstance.getDefaultProject), new SbtProjectSettings()) {
-
-  def getLinkedProjectChooserDescriptor = new FileChooserDescriptor(true, true, true, true, true, true)
-
-  def onLinkedProjectPathChange(path: String) {}
-
-  def createProjectSettingsControl(settings: SbtProjectSettings) = new AbstractExternalProjectSettingsControl[SbtProjectSettings](settings) {
-    def isExtraSettingModified = false
-
-    def applyExtraSettings(settings: SbtProjectSettings) = null
-
-    def resetExtraSettings(b: Boolean) {}
-
-    def validate(settings: SbtProjectSettings) = true
-
-    def fillExtraControls(content: PaintAwarePanel, indentLevel: Int) {}
-  }
-
-  def createSystemSettingsControl(settings: SbtSettings) = new ExternalSystemSettingsControl[SbtSettings] {
-    def isModified = false
-
-    def showUi(show: Boolean) {}
-
-    def fillUi(canvas: PaintAwarePanel, indentLevel: Int) {}
-
-    def disposeUIResources() {}
-
-    def apply(settings: SbtSettings) = null
-
-    def reset() {}
-
-    def validate(settings: SbtSettings) = true
-  }
 }
