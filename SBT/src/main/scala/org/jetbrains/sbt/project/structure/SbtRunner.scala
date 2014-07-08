@@ -17,7 +17,7 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customVM: 
   private val LauncherDir = getSbtLauncherDir
   private val SbtLauncher = customLauncher.getOrElse(LauncherDir / "sbt-launch.jar")
   private val DefaultSbtVersion = "0.13"
-  private val SinceSbtVersion = "0.12.3"
+  private val SinceSbtVersion = "0.12.4"
 
   def read(directory: File, download: Boolean)(listener: (String) => Unit): Either[Exception, Elem] = {
     checkFilePresence.fold(read0(directory, download)(listener))(it => Left(new FileNotFoundException(it)))
@@ -54,7 +54,7 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customVM: 
 
         commandsFile.write(
           s"""set artifactPath := file("${path(structureFile)}")""",
-          s"""apply -cp ${path(pluginFile)} org.jetbrains.sbt.$className""")
+          s"""apply -cp "${path(pluginFile)}" org.jetbrains.sbt.$className""")
 
         val processCommands =
           path(JavaVM) +:
