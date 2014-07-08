@@ -17,6 +17,7 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customVM: 
   private val LauncherDir = getSbtLauncherDir
   private val SbtLauncher = customLauncher.getOrElse(LauncherDir / "sbt-launch.jar")
   private val DefaultSbtVersion = "0.13"
+  private val SinceSbtVersion = "0.12.3"
 
   def read(directory: File, download: Boolean)(listener: (String) => Unit): Either[Exception, Elem] = {
     checkFilePresence.fold(read0(directory, download)(listener))(it => Left(new FileNotFoundException(it)))
@@ -27,9 +28,14 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customVM: 
             .orElse(implementationVersionOf(SbtLauncher))
             .getOrElse(DefaultSbtVersion)
 
-    val majorSbtVersion = sbtVersion.split("\\.").take(2).mkString(".")
+    val majorSbtVersion = numbersOf(sbtVersion).take(2).mkString(".")
 
-    read1(directory, majorSbtVersion, download, listener)
+    if (compare(sbtVersion, SinceSbtVersion) < 0) {
+      val message = s"SBT $SinceSbtVersion+ required. Please update the project definition"
+      Left(new UnsupportedOperationException(message))
+    } else {
+      read1(directory, majorSbtVersion, download, listener)
+    }
   }
 
   private def checkFilePresence: Option[String] = {
@@ -109,6 +115,13 @@ object SbtRunner {
   }
 
   def getDefaultLauncher = getSbtLauncherDir / "sbt-launch.jar"
+
+  private def numbersOf(version: String): Seq[String] = version.split("\\.").toSeq
+
+  private def compare(v1: String, v2: String): Int = numbersOf(v1).zip(numbersOf(v2)).foldLeft(0) {
+    case (acc, (i1, i2)) if acc == 0 => i1.compareTo(i2)
+    case (acc, _) => acc
+  }
 
   private def implementationVersionOf(jar: File): Option[String] = {
     readManifestAttributeFrom(jar, "Implementation-Version")
