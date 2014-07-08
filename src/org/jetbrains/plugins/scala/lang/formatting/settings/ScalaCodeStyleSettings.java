@@ -210,7 +210,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
     return COLLECT_IMPORTS_TOGETHER;
   }
 
-  public void setCollectImport(boolean value) {
+  public void setCollectImports(boolean value) {
     COLLECT_IMPORTS_TOGETHER = value;
   }
 
