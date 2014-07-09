@@ -13,7 +13,7 @@ import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
 import java.util
 import java.util.Collections
 import java.nio.file.Files
-import org.jetbrains.plugin.scala.compiler.CompileOrder
+import org.jetbrains.plugin.scala.compiler.{NameHashing, CompileOrder}
 
 /**
  * @author Pavel Fatin
@@ -26,7 +26,8 @@ case class CompilationData(sources: Seq[File],
                            order: CompileOrder,
                            cacheFile: File,
                            outputToCacheMap: Map[File, File],
-                           outputGroups: Seq[(File, File)])
+                           outputGroups: Seq[(File, File)],
+                           nameHashing: NameHashing)
 
 object CompilationData {
   def from(sources: Seq[File], context: CompileContext, chunk: ModuleChunk): Either[String, CompilationData] = {
@@ -44,6 +45,9 @@ object CompilationData {
     val facetSettings = Option(SettingsManager.getFacetSettings(module))
     val scalaOptions = facetSettings.map(_.getCompilerOptions.toSeq).getOrElse(Seq.empty)
     val order = facetSettings.map(_.getCompileOrder).getOrElse(CompileOrder.Mixed)
+
+    val globalSettings = SettingsManager.getGlobalSettings(context.getProjectDescriptor.getModel.getGlobal)
+    val nameHashing = globalSettings.getNameHashing
 
     createOutputToCacheMap(context).map { outputToCacheMap =>
 
@@ -63,7 +67,7 @@ object CompilationData {
       val outputGroups = createOutputGroups(chunk)
 
       CompilationData(sources, classpath, output, commonOptions ++ scalaOptions, commonOptions ++ javaOptions,
-        order, cacheFile, relevantOutputToCacheMap, outputGroups)
+        order, cacheFile, relevantOutputToCacheMap, outputGroups, nameHashing)
     }
   }
 
