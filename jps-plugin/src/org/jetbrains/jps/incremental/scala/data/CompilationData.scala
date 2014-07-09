@@ -12,7 +12,7 @@ import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
 import java.util
 import java.util.Collections
-import java.nio.file.Files
+import java.nio.file.{Path, Paths, Files}
 import org.jetbrains.plugin.scala.compiler.{NameHashing, CompileOrder}
 
 /**
@@ -43,7 +43,8 @@ object CompilationData {
 
     val classpath = ProjectPaths.getCompilationClasspathFiles(chunk, chunk.containsTests, false, false).asScala.toSeq
     val facetSettings = Option(SettingsManager.getFacetSettings(module))
-    val scalaOptions = facetSettings.map(_.getCompilerOptions.toSeq).getOrElse(Seq.empty)
+    val noBootCp = Seq("-nobootcp", "-javabootclasspath", File.pathSeparator)
+    val scalaOptions = noBootCp ++: facetSettings.map(_.getCompilerOptions.toSeq).getOrElse(Seq.empty)
     val order = facetSettings.map(_.getCompileOrder).getOrElse(CompileOrder.Mixed)
 
     val globalSettings = SettingsManager.getGlobalSettings(context.getProjectDescriptor.getModel.getGlobal)
