@@ -1,19 +1,19 @@
 package org.jetbrains.jps.incremental.scala
 package data
 
-import java.io.{IOException, File}
-import org.jetbrains.jps.incremental.{ModuleBuildTarget, CompileContext}
-import org.jetbrains.jps.{ProjectPaths, ModuleChunk}
-import org.jetbrains.jps.incremental.java.JavaBuilder
-import org.jetbrains.jps.incremental.scala.SettingsManager
-import collection.JavaConverters._
-import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
-import org.jetbrains.jps.model.java.JpsJavaExtensionService
-import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
+import java.io.{File, IOException}
 import java.util
 import java.util.Collections
-import java.nio.file.{Path, Paths, Files}
-import org.jetbrains.plugin.scala.compiler.{NameHashing, CompileOrder}
+
+import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
+import org.jetbrains.jps.incremental.java.JavaBuilder
+import org.jetbrains.jps.incremental.{CompileContext, ModuleBuildTarget}
+import org.jetbrains.jps.model.java.JpsJavaExtensionService
+import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
+import org.jetbrains.jps.{ModuleChunk, ProjectPaths}
+import org.jetbrains.plugin.scala.compiler.{CompileOrder, NameHashing}
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -52,9 +52,8 @@ object CompilationData {
 
     createOutputToCacheMap(context).map { outputToCacheMap =>
 
-      val cacheFile = outputToCacheMap.get(output).getOrElse {
-        throw new RuntimeException("Unknown build target output directory: " + output)
-      }
+      val cacheFile = outputToCacheMap.getOrElse(output,
+        throw new RuntimeException("Unknown build target output directory: " + output))
 
       val relevantOutputToCacheMap = (outputToCacheMap - output).filter(p => classpath.contains(p._1))
 
