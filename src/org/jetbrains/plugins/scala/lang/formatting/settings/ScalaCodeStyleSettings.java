@@ -87,6 +87,9 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public int OVERRIDING_METHOD_TYPE_ANNOTATION = TypeAnnotationPolicy.Regular.ordinal();
   public int SIMPLE_METHOD_TYPE_ANNOTATION = TypeAnnotationPolicy.Optional.ordinal();
 
+  //other
+  public boolean ENFORCE_PROCEDURE_SYNTAX_FOR_UNIT = false;
+
   @Override
   public void readExternal(Element parentElement) throws InvalidDataException {
     Element scalaCodeStyleSettings = parentElement.getChild("ScalaCodeStyleSettings");
