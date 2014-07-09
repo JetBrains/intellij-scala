@@ -177,6 +177,8 @@
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.MultilineStringEnterHandler" order="first"/>
         <!--/Handler-->
 
+        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.AddUnitTypeEnterHandler" order="first"/>
+
         <javaMainMethodProvider implementation="org.jetbrains.plugins.scala.runner.ScalaMainMethodProvider"/>
         <annotatedElementsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaAnnotatedMembersSearcher"/>
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.parameters.NamingParamsSearcher"/>
