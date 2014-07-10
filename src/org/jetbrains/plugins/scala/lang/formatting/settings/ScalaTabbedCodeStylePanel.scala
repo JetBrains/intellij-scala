@@ -17,5 +17,6 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
     addTab(new MultiLineStringCodeStylePanel(settings))
     addTab(new TypeAnnotationsPanel(settings))
     addTab(new ScalaArrangementPanel(settings))
+    addTab(new OtherCodeStylePanel(settings))
   }
 }

@@ -87,6 +87,13 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public int OVERRIDING_METHOD_TYPE_ANNOTATION = TypeAnnotationPolicy.Regular.ordinal();
   public int SIMPLE_METHOD_TYPE_ANNOTATION = TypeAnnotationPolicy.Optional.ordinal();
 
+  //other
+  public boolean ENFORCE_PROCEDURE_SYNTAX_FOR_UNIT = true;
+  public boolean ADD_ARROW_AFTER_INDENT_CASE = true;
+  public boolean REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = false;
+  public boolean REPLACE_MAP_ARROW_WITH_UNICODE_CHAR = false;
+
+
   @Override
   public void readExternal(Element parentElement) throws InvalidDataException {
     Element scalaCodeStyleSettings = parentElement.getChild("ScalaCodeStyleSettings");

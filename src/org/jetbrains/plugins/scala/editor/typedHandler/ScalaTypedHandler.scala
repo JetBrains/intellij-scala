@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.editor.typedHandler
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate.Result
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -42,9 +43,9 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
 
     def chooseXmlTask(withAttr: Boolean) {
       c match {
-        case '>' => myTask = completeXmlTag(tag => "</" + Option(tag.getTagName).getOrElse("") + ">") _
-        case '/' => myTask = completeEmptyXmlTag(editor) _
-        case '=' if withAttr => myTask = completeXmlAttributeQuote(editor) _
+        case '>' => myTask = completeXmlTag(tag => "</" + Option(tag.getTagName).getOrElse("") + ">")
+        case '/' => myTask = completeEmptyXmlTag(editor)
+        case '=' if withAttr => myTask = completeXmlAttributeQuote(editor)
         case _ =>
       }
     }
@@ -56,7 +57,8 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     } else if (isInPlace(element, classOf[ScXmlExpr], classOf[ScXmlPattern])) {
       chooseXmlTask(withAttr = true)
     } else if (file.findElementAt(offset - 2) 
-        match {case i: PsiElement if !ScalaNamesUtil.isOperatorName(i.getText) => c == '>' || c == '/' case _ => false}) {
+        match {case i: PsiElement if !ScalaNamesUtil.isOperatorName(i.getText) && i.getText != "=" =>
+        c == '>' || c == '/' ; case _ => false}) {
       chooseXmlTask(withAttr = false)
     } else if (element.getPrevSibling != null && element.getPrevSibling.getNode.getElementType == ScalaElementTypes.CASE_CLAUSES) {
       val ltIndex = element.getPrevSibling.getText.indexOf("<")
@@ -65,7 +67,9 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       }
     } else if (c == '{' && (element.getParent match {
             case l: ScInterpolatedStringLiteral => !l.isMultiLineString; case _ => false} )) {
-      myTask = completeInterpolatedStringBraces 
+      myTask = completeInterpolatedStringBraces
+    } else if (c == '>') {
+      myTask = replaceArrowTask(file, editor)
     }
 
     if (myTask == null) return Result.CONTINUE
@@ -86,6 +90,8 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     val prevElement = file.findElementAt(offset - 1)
     if (element == null) return Result.CONTINUE
     val elementType = element.getNode.getElementType
+
+    val settings = ScalaCodeStyleSettings.getInstance(project)
 
     def moveCaret() {
       editor.getCaretModel.moveCaretRelatively(1, 0, false, false, false)
@@ -111,6 +117,12 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       moveCaret()
       return Result.STOP
     } else if (c == '>' && prevElement != null && prevElement.getNode.getElementType == XmlTokenType.XML_EMPTY_ELEMENT_END) {
+      return Result.STOP
+    } else if (
+        element.getNode.getElementType == ScalaTokenTypes.tFUNTYPE && element.getParent.isInstanceOf[ScCaseClause] &&
+        (c == '>' && offset == element.getTextRange.getStartOffset + 1 || c == '=' && offset == element.getTextRange.getStartOffset)
+          && settings.ADD_ARROW_AFTER_INDENT_CASE) {
+      moveCaret()
       return Result.STOP
     } else if (c == '"' && prevElement != null && ScalaApplicationSettings.getInstance().INSERT_MULTILINE_QUOTES) {
       val prevType = prevElement.getNode.getElementType
@@ -236,10 +248,34 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       if (anotherElement.getNode.getElementType == ScalaTokenTypes.kCASE &&
               anotherElement.getParent.isInstanceOf[ScCaseClause]) {
         extensions.inWriteAction {
+          val styleSettings = ScalaCodeStyleSettings.getInstance(project)
+          if (styleSettings.ADD_ARROW_AFTER_INDENT_CASE) {
+            val arrow = if (styleSettings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR) " " + ScalaTypedHandler.unicodeCaseArrow else " =>"
+            document.insertString(anotherElement.getTextRange.getEndOffset + 1, arrow)
+          }
           PsiDocumentManager.getInstance(project).commitDocument(document)
           CodeStyleManager.getInstance(project).adjustLineIndent(file, anotherElement.getTextRange)
         }
       }
+    }
+  }
+
+  private def replaceArrowTask(file: PsiFile, editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int) {
+    @inline def replaceElement(replaceWith: String) {
+      extensions.inWriteAction {
+        document.replaceString(element.getTextRange.getStartOffset, element.getTextRange.getEndOffset, replaceWith)
+        PsiDocumentManager.getInstance(project).commitDocument(document)
+      }
+    }
+
+    val settings = ScalaCodeStyleSettings.getInstance(project)
+
+    element.getNode.getElementType match {
+      case ScalaTokenTypes.tFUNTYPE if settings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR =>
+        replaceElement(ScalaTypedHandler.unicodeCaseArrow)
+      case ScalaTokenTypes.tIDENTIFIER if settings.REPLACE_MAP_ARROW_WITH_UNICODE_CHAR && element.getText == "->" =>
+        replaceElement(ScalaTypedHandler.unicodeMapArrow)
+      case _ =>
     }
   }
 
@@ -270,4 +306,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
 object ScalaTypedHandler {
   val wiki1LTagMatch = Set("^", "`")
   val wiki2LTagMatch = Map("__" -> "__", "''" -> "''", ",," -> ",,", "[[" -> "]]")
+
+  val unicodeCaseArrow = "⇒"
+  val unicodeMapArrow = "→"
 }
