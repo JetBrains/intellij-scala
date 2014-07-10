@@ -95,12 +95,12 @@ class MatchToPartialFunctionQuickFix(matchStmt: ScMatchStmt, fExprToReplace: ScE
 
   private def needNamingPattern(matchStmt: ScMatchStmt): Seq[Int] = {
     matchStmt match {
-      case ScMatchStmt(expr: ScReferenceExpression, caseCls) =>
+      case ScMatchStmt(expr: ScReferenceExpression, _) =>
         val arg = expr.resolve()
         if (arg == null) return Nil
         val refs = ReferencesSearch.search(arg, new LocalSearchScope(matchStmt)).findAll().asScala
         for {
-          (clause, index) <- caseCls.caseClauses.zipWithIndex
+          (clause, index) <- matchStmt.caseClauses.zipWithIndex
           if refs.exists(ref => PsiTreeUtil.isAncestor(clause, ref.getElement, false))
         } yield index
       case _ => Nil

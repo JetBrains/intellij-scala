@@ -42,16 +42,19 @@ private class ClientCallback(client: Client) extends ClientCallbackBase {
   override def endSource(source: File) {
     client.processed(source)
   }
+
+  override def nameHashing() = false
 }
 
 abstract class ClientCallbackBase extends xsbti.AnalysisCallback {
-  def beginSource(source: File): Unit = {}
-  def sourceDependency(dependsOn: File, source: File, publicInherited: Boolean): Unit = {}
-  def binaryDependency(binary: File, name: String, source: File, publicInherited: Boolean): Unit = {}
-  def generatedClass(source: File, module: File, name: String): Unit = {}
-  def endSource(sourcePath: File): Unit = {}
-  def api(sourceFile: File, source: SourceAPI): Unit = {}
-  def problem(what: String, pos: Position, msg: String, severity: Severity, reported: Boolean): Unit = {}
+  override def sourceDependency(dependsOn: File, source: File, publicInherited: Boolean): Unit = {}
+  override def binaryDependency(binary: File, name: String, source: File, publicInherited: Boolean): Unit = {}
+  override def generatedClass(source: File, module: File, name: String): Unit = {}
+  override def beginSource(p1: File) = {}
+  override def endSource(sourcePath: File): Unit = {}
+  override def api(sourceFile: File, source: SourceAPI): Unit = {}
+  override def problem(what: String, pos: Position, msg: String, severity: Severity, reported: Boolean): Unit = {}
+  override def usedName(p1: File, p2: String) = {}
 }
 
 private object emptyChanges extends DependencyChanges {

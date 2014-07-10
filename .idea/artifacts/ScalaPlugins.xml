@@ -16,8 +16,10 @@
             <element id="dir-copy" path="$PROJECT_DIR$/META-INF" />
             <element id="dir-copy" path="$PROJECT_DIR$/SBT/src/main/resources/META-INF" />
             <element id="dir-copy" path="$PROJECT_DIR$/intellij-hocon/META-INF" />
+            <element id="dir-copy" path="$PROJECT_DIR$/intellij-scalastyle/META-INF" />
           </element>
           <element id="module-output" name="intellij-hocon" />
+          <element id="module-output" name="intellij-scalastyle" />
           <element id="module-output" name="SBT" />
         </element>
         <element id="directory" name="jps">
@@ -34,9 +36,12 @@
         <element id="archive" name="scala-nailgun-runner.jar">
           <element id="module-output" name="NailgunRunners" />
         </element>
+        <element id="library" level="project" name="scalastyle" />
       </element>
       <element id="directory" name="launcher">
         <element id="file-copy" path="$PROJECT_DIR$/SBT/lib/sbt-launch.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/SBT/lib/sbt-structure-0.12.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/SBT/lib/sbt-structure-0.13.jar" />
       </element>
     </root>
   </artifact>
