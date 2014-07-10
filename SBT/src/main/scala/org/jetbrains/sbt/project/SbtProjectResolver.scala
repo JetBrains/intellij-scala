@@ -23,7 +23,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       if (file.isDirectory) file.getPath else file.getParent
     }
 
-    val runner = new SbtRunner(settings.ideaSystem, settings.vmOptions, settings.customLauncher, settings.customVm)
+    val runner = new SbtRunner(settings.vmOptions, settings.customLauncher, settings.customVm)
 
     var warnings = new StringBuilder()
 

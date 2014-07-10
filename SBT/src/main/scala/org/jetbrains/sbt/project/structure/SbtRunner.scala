@@ -1,45 +1,66 @@
 package org.jetbrains.sbt
 package project.structure
 
-import java.io.{FileNotFoundException, PrintWriter, File}
+import java.io._
 import scala.xml.{Elem, XML}
 import com.intellij.execution.process.OSProcessHandler
+import java.util.jar.{JarEntry, JarFile}
+import java.util.Properties
+import SbtRunner._
 
 /**
  * @author Pavel Fatin
  */
-class SbtRunner(ideaSystem: File, vmOptions: Seq[String], customLauncher: Option[File], customVM: Option[File]) {
+class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customVM: Option[File]) {
   private val JavaHome = customVM.getOrElse(new File(System.getProperty("java.home")))
   private val JavaVM = JavaHome / "bin" / "java"
-  private val LauncherDir = SbtRunner.getSbtLauncherDir
+  private val LauncherDir = getSbtLauncherDir
   private val SbtLauncher = customLauncher.getOrElse(LauncherDir / "sbt-launch.jar")
+  private val DefaultSbtVersion = "0.13"
+  private val SinceSbtVersion = "0.12.4"
 
   def read(directory: File, download: Boolean)(listener: (String) => Unit): Either[Exception, Elem] = {
+    checkFilePresence.fold(read0(directory, download)(listener))(it => Left(new FileNotFoundException(it)))
+  }
+
+  private def read0(directory: File, download: Boolean)(listener: (String) => Unit): Either[Exception, Elem] = {
+    val sbtVersion = sbtVersionIn(directory)
+            .orElse(implementationVersionOf(SbtLauncher))
+            .getOrElse(DefaultSbtVersion)
+
+    val majorSbtVersion = numbersOf(sbtVersion).take(2).mkString(".")
+
+    if (compare(sbtVersion, SinceSbtVersion) < 0) {
+      val message = s"SBT $SinceSbtVersion+ required. Please update the project definition"
+      Left(new UnsupportedOperationException(message))
+    } else {
+      read1(directory, majorSbtVersion, download, listener)
+    }
+  }
+
+  private def checkFilePresence: Option[String] = {
     val files = Stream("Java home" -> JavaHome, "SBT launcher" -> SbtLauncher)
-    val problem = files.map((check _).tupled).flatten.headOption
-    problem.fold(read0(directory, download, listener))(it => Left(new FileNotFoundException(it)))
+    files.map((check _).tupled).flatten.headOption
   }
 
   private def check(entity: String, file: File) = (!file.exists()).option(s"$entity does not exist: $file")
 
-  private def read0(directory: File, download: Boolean, listener: (String) => Unit) = {
-    val sbtBase = ideaSystem / "SBT"
-
-    createGlobalConfigurationWithin(sbtBase)
+  private def read1(directory: File, sbtVersion: String, download: Boolean, listener: (String) => Unit) = {
+    val pluginFile = LauncherDir / s"sbt-structure-$sbtVersion.jar"
+    val className = if (download) "ReadProjectAndRepository" else "ReadProject"
 
     usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
       usingTempFile("sbt-commands", Some(".lst")) { commandsFile =>
 
         commandsFile.write(
           s"""set artifactPath := file("${path(structureFile)}")""",
-          if (download) "read-project-and-repository" else "read-project")
+          s"""apply -cp "${path(pluginFile)}" org.jetbrains.sbt.$className""")
 
         val processCommands =
           path(JavaVM) +:
 //                    "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005" +:
                   "-Djline.terminal=jline.UnsupportedTerminal" +:
                   "-Dsbt.log.noformat=true" +:
-                  s"-Dsbt.global.base=${sbtBase.canonicalPath}" +:
                   vmOptions :+
                   "-jar" :+
                   path(SbtLauncher) :+
@@ -54,20 +75,6 @@ class SbtRunner(ideaSystem: File, vmOptions: Seq[String], customLauncher: Option
           case e: Exception => Left(e)
         }
       }}
-  }
-
-  private def createGlobalConfigurationWithin(base: File) {
-    val lines = Seq(
-      """resolvers += "sbt-releases" at "http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"""",
-      "",
-      s"""addSbtPlugin("org.jetbrains" % "sbt-structure" % "${Sbt.StructurePluginVersion}")""")
-
-    val pluginsFiles = Seq(base / "plugins" / "build.sbt", base / "0.13" / "plugins" / "build.sbt")
-
-    pluginsFiles.foreach { file =>
-      file.getParentFile.mkdirs()
-      file.write(lines: _*)
-    }
   }
 
   private def handle(process: Process, listener: (String) => Unit): String = {
@@ -108,4 +115,38 @@ object SbtRunner {
   }
 
   def getDefaultLauncher = getSbtLauncherDir / "sbt-launch.jar"
+
+  private def numbersOf(version: String): Seq[String] = version.split("\\.").toSeq
+
+  private def compare(v1: String, v2: String): Int = numbersOf(v1).zip(numbersOf(v2)).foldLeft(0) {
+    case (acc, (i1, i2)) if acc == 0 => i1.compareTo(i2)
+    case (acc, _) => acc
+  }
+
+  private def implementationVersionOf(jar: File): Option[String] = {
+    readManifestAttributeFrom(jar, "Implementation-Version")
+  }
+
+  private def readManifestAttributeFrom(file: File, name: String): Option[String] = {
+    using(new JarFile(file)) { jar =>
+      using(new BufferedInputStream(jar.getInputStream(new JarEntry("META-INF/MANIFEST.MF")))) { input =>
+        val manifest = new java.util.jar.Manifest(input)
+        val attributes = manifest.getMainAttributes
+        Option(attributes.getValue(name))
+      }
+    }
+  }
+
+  private def sbtVersionIn(directory: File): Option[String] = {
+    val propertiesFile = directory / "project" / "build.properties"
+    if (propertiesFile.exists()) readPropertyFrom(propertiesFile, "sbt.version") else None
+  }
+
+  private def readPropertyFrom(file: File, name: String): Option[String] = {
+    using(new BufferedInputStream(new FileInputStream(file))) { input =>
+      val properties = new Properties()
+      properties.load(input)
+      Option(properties.getProperty(name))
+    }
+  }
 }
