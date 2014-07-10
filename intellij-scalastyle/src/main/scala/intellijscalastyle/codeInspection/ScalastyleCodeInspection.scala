@@ -15,30 +15,36 @@ object ScalastyleCodeInspection {
   private val cache = new mutable.HashMap[VirtualFile, TimestampedScalastyleConfiguration]()
 
   private object locations {
-    def `scalastyle-config.xml`(root: VirtualFile): Option[VirtualFile] = Option(root.findChild("scalastyle-config.xml"))
-    def `project/`(f: VirtualFile => Option[VirtualFile])(root: VirtualFile): Option[VirtualFile] = Option(root.findChild("project")).flatMap(f)
+    val configFileName = "scalastyle-config.xml"
+    val possibleLocations = Seq(".idea", "project")
 
     def typicalLocation(project: Project): Option[VirtualFile] = {
       val root = project.getBaseDir
-      `project/`(`scalastyle-config.xml`)(root).fold(`scalastyle-config.xml`(root))(Some(_))
+      if (root == null) return None
+
+      val dirs = possibleLocations.flatMap(name => Option(root.findChild(name)))
+      dirs.flatMap(d => Option(d.findChild(configFileName))).headOption
     }
   }
 
   private def configuration(project: Project): Option[ScalastyleConfiguration] = {
-    def latest(scalastyleXml: VirtualFile): TimestampedScalastyleConfiguration = {
-      val configuration = ScalastyleConfiguration.readFromString(new String(scalastyleXml.contentsToByteArray()))
-      (scalastyleXml.getModificationStamp, configuration)
-    }
 
-    locations.typicalLocation(project).map { scalastyleXml =>
-      val (ts, configuration) = cache.getOrElse(scalastyleXml, latest(scalastyleXml))
-      if (ts != scalastyleXml.getModificationStamp) {
-        val Some((_, latestConfiguration)) = cache.put(scalastyleXml, latest(scalastyleXml))
-        latestConfiguration
-      } else {
-        configuration
+    def latest(scalastyleXml: VirtualFile): Option[ScalastyleConfiguration] = {
+      def read(): TimestampedScalastyleConfiguration = {
+        val configuration = ScalastyleConfiguration.readFromString(new String(scalastyleXml.contentsToByteArray()))
+        (scalastyleXml.getModificationStamp, configuration)
+      }
+
+      val currentStamp = scalastyleXml.getModificationStamp
+      cache.get(scalastyleXml) match {
+        case Some((`currentStamp`, config)) => Option(config)
+        case _ =>
+          val fromFile = cache.put(scalastyleXml, read())
+          fromFile.map(_._2)
       }
     }
+
+    locations.typicalLocation(project).flatMap(latest)
   }
 
 }
