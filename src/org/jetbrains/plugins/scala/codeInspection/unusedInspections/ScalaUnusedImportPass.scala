@@ -71,7 +71,7 @@ class ScalaUnusedImportPass(val file: PsiFile, editor: Editor, val document: Doc
     }
   }
 
-
+  override def getInfos: util.List[HighlightInfo] = new util.ArrayList[HighlightInfo](myHighlights)
 }
 
 object ScalaUnusedImportPass {
