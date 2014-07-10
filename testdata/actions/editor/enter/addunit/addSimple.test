@@ -1,0 +1,9 @@
+object A {
+  def boo() {<caret>}
+}
+-----
+object A {
+  def boo(): Unit = {
+    <caret>
+  }
+}
