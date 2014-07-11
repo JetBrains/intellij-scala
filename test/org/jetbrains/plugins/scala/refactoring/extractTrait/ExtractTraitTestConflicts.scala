@@ -46,7 +46,6 @@ class ExtractTraitTestConflicts extends ExtractTraitTestBase {
         |    def run() = bar()
         |
         |    def bar() {}
-        |
         |  }
         |
         |}
