@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package refactoring.extractTrait
 
+import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractTraitHandler
 
@@ -13,6 +14,7 @@ abstract class ExtractTraitTestBase extends ScalaLightPlatformCodeInsightTestCas
   def checkResult(fileText: String, expectedText: String, onlyDeclarations: Boolean, onlyFirstMember: Boolean = false) {
     configureFromFileTextAdapter("dummy.scala", fileText.replace("\r", "").stripMargin.trim)
     new ScalaExtractTraitHandler().testInvoke(getProjectAdapter, getEditorAdapter, getFileAdapter, onlyDeclarations, onlyFirstMember)
+    UsefulTestCase.doPostponedFormatting(getProjectAdapter)
     checkResultByText(expectedText.replace("\r", "").stripMargin.trim)
   }
 
