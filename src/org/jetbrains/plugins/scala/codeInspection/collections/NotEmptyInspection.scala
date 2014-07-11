@@ -20,10 +20,12 @@ class NotIsEmpty(inspection: OperationOnCollectionInspection) extends Simplifica
   override def getSimplification(last: MethodRepr, second: MethodRepr) = {
     (last.optionalMethodRef, second.optionalMethodRef) match {
       case (Some(lastRef), Some(secondRef)) if lastRef.refName == "!" &&
-              secondRef.refName == "isEmpty" &&
-              checkResolve(secondRef, likeCollectionClasses) =>
-
-        createSimplification(second, last.itself, "nonEmpty", Seq.empty)
+              secondRef.refName == "isEmpty"  =>
+        if (checkResolve(secondRef, likeOptionClasses))
+          createSimplification(second, last.itself, "isDefined", Seq.empty)
+        else if (checkResolve(secondRef, likeCollectionClasses))
+          createSimplification(second, last.itself, "nonEmpty", Seq.empty)
+        else Nil
       case _ => Nil
     }
   }
