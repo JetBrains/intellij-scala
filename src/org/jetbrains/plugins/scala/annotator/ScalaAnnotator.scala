@@ -36,7 +36,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportU
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -502,7 +502,62 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
   }
 
-  private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) {}
+  private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) { //fix for SCL-7139
+    sTypeParam.lowerTypeElement match {
+      case Some(lower) =>
+        checkForCyclicReference(lower, isUpperBound = false)
+      case None =>
+    }
+    sTypeParam.upperTypeElement match {
+      case Some(upper) =>
+        checkForCyclicReference(upper, isUpperBound = true)
+      case None =>
+    }
+
+    for {
+      lower <- sTypeParam.lowerBound
+      upper <- sTypeParam.upperBound
+      if !Conformance.conforms(upper, lower)
+      annotation = holder.createErrorAnnotation(sTypeParam,
+        ScalaBundle.message("lower.bound.conform.to.upper", upper, lower))
+    } annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+
+    def checkForCyclicReference(element: ScTypeElement, isUpperBound: Boolean) {
+      val visited = new mutable.HashSet[ScTypeElement]()
+      var currentElement: ScTypeElement = element
+      while (visited.add(currentElement) && !currentElement.isInstanceOf[ScParameterizedTypeElement]) {
+        currentElement.accept(new ScalaRecursiveElementVisitor() {
+          override def visitSimpleTypeElement(simple: ScSimpleTypeElement) {
+            simple.reference match {
+              case Some(ref) =>
+                val resolveRes = ref.resolve()
+                if (resolveRes == sTypeParam) {
+                  sTypeParam.getParent.getParent match {
+                    case n: ScNamedElement =>
+                      val annotation = holder.createErrorAnnotation(n.nameId, ScalaBundle.message("cyclic.reference.type", simple.getText))
+                      annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+                    case _ =>
+                  }
+                } else {
+                  resolveRes match {
+                    case boundOwner: ScTypeBoundsOwner =>
+                      val boundToCheckNext =
+                        if(isUpperBound) boundOwner.upperTypeElement
+                        else boundOwner.lowerTypeElement
+                      boundToCheckNext match {
+                        case Some(bound) => currentElement = bound
+                        case _ =>
+                      }
+                    case _ =>
+                  }
+                }
+              case None =>
+            }
+          }
+        })
+      }
+    }
+  }
 
   private def registerUsedElement(element: PsiElement, resolveResult: ScalaResolveResult,
                                   checkWrite: Boolean) {
