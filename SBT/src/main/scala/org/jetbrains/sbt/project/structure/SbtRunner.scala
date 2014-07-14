@@ -11,9 +11,7 @@ import SbtRunner._
 /**
  * @author Pavel Fatin
  */
-class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customVM: Option[File]) {
-  private val JavaHome = customVM.getOrElse(new File(System.getProperty("java.home")))
-  private val JavaVM = JavaHome / "bin" / "java"
+class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], vmExecutable: File) {
   private val LauncherDir = getSbtLauncherDir
   private val SbtLauncher = customLauncher.getOrElse(LauncherDir / "sbt-launch.jar")
   private val DefaultSbtVersion = "0.13"
@@ -39,7 +37,7 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customVM: 
   }
 
   private def checkFilePresence: Option[String] = {
-    val files = Stream("Java home" -> JavaHome, "SBT launcher" -> SbtLauncher)
+    val files = Stream("SBT launcher" -> SbtLauncher)
     files.map((check _).tupled).flatten.headOption
   }
 
@@ -57,7 +55,7 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customVM: 
           s"""apply -cp "${path(pluginFile)}" org.jetbrains.sbt.$className""")
 
         val processCommands =
-          path(JavaVM) +:
+          path(vmExecutable) +:
 //                    "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005" +:
                   "-Djline.terminal=jline.UnsupportedTerminal" +:
                   "-Dsbt.log.noformat=true" +:

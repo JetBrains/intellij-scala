@@ -9,7 +9,7 @@ import scala.beans.BeanProperty
  * @author Pavel Fatin
  */
 class SbtProjectSettings extends ExternalProjectSettings {
-  def jdkName = Option(jdk)
+  def jdkName: Option[String] = Option(jdk)
 
   def jdkName_=(name: Option[String]) = jdk = name.orNull
 
