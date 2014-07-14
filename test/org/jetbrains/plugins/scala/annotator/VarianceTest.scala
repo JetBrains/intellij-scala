@@ -4,6 +4,7 @@ package annotator
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 
@@ -126,6 +127,21 @@ class VarianceTest extends SimpleTestCase {
     }
   }
 
+  def testCurriedFunctionParameters() {
+    val code = """object T {
+                 |  def f(x: Int)(y: Int) = x * y
+                 |
+                 |  def t() : Unit = {
+                 |    val cf = f(1)
+                 |    // should be f(1) _
+                 |    println(cf(5))
+                 |  }
+                 |}""".stripMargin
+    assertMatches(messages(code)) {
+      case Error("cf", MissingArguments()) :: Nil =>
+    }
+  }
+
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val annotator = new ScalaAnnotator() {}
     val mock = new AnnotatorHolderMock
@@ -137,6 +153,7 @@ class VarianceTest extends SimpleTestCase {
       case varr: ScVariable => annotator.annotate(varr, mock)
       case v: ScValue => annotator.annotate(v, mock)
       case tbo: ScTypeBoundsOwner => annotator.annotate(tbo, mock)
+      case call: ScMethodCall => annotator.annotate(call, mock)
       case _ =>
     }
 
@@ -148,6 +165,7 @@ class VarianceTest extends SimpleTestCase {
   val AbstractModifier = containsPattern("Abstract member may not have private modifier")
   val CyclicReference = containsPattern("Illegal cyclic reference")
   val NotConformsUpper = containsPattern("does not conform to upper bound")
+  val MissingArguments = containsPattern("Missing arguments for method")
 
   def containsPattern(fragment: String) = new {
     def unapply(s: String) = s.contains(fragment)
