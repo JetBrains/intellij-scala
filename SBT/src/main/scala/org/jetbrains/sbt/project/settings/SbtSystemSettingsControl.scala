@@ -1,8 +1,7 @@
 package org.jetbrains.sbt
-package project
+package project.settings
 
 import com.intellij.openapi.externalSystem.util.{ExternalSystemSettingsControl, PaintAwarePanel}
-import org.jetbrains.sbt.project.settings.SbtSettings
 
 /**
  * @author Pavel Fatin
