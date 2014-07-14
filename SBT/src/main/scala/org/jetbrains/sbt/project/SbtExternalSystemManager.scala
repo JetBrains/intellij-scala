@@ -74,7 +74,12 @@ object SbtExternalSystemManager {
     val customVm = app.customVMEnabled
       .option(app.getCustomVMPath).map(_.toFile)
 
-    new SbtExecutionSettings(vmOptions, customLauncher, customVm)
+    val settings = SbtSettings.getInstance(project)
+
+    val projectSettings = settings.getLinkedProjectSettings(path)
+
+    new SbtExecutionSettings(vmOptions, customLauncher, customVm,
+      projectSettings.resolveClassifiers, projectSettings.resolveSbtClassifiers)
   }
 
   private def proxyOptionsFor(http: HttpConfigurable): Seq[String] = {
