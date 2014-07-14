@@ -84,6 +84,12 @@ class VarianceTest extends SimpleTestCase {
     }
   }
 
+  def testAbstractPrivateMethod() { //test SCL-7176
+    assertMatches(messages("private def x")) {
+      case Error("x", AbstractModifier()) :: Nil =>
+    }
+  }
+
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val annotator = new ScalaAnnotator() {}
     val mock = new AnnotatorHolderMock
@@ -103,6 +109,7 @@ class VarianceTest extends SimpleTestCase {
 
   val ContravariantPosition = containsPattern("occurs in contravariant position")
   val CovariantPosition = containsPattern("occurs in covariant position")
+  val AbstractModifier = containsPattern("Abstract member may not have private modifier")
 
   def containsPattern(fragment: String) = new {
     def unapply(s: String) = s.contains(fragment)
