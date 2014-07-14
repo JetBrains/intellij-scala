@@ -23,11 +23,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       if (file.isDirectory) file.getPath else file.getParent
     }
 
-    val runner = new SbtRunner(settings.vmOptions, settings.customLauncher, settings.customVm)
+    val runner = new SbtRunner(settings.vmOptions, settings.customLauncher, settings.vmExecutable)
 
     var warnings = new StringBuilder()
 
-    val xml = runner.read(new File(root), !isPreview) { message =>
+    val xml = runner.read(new File(root), !isPreview, settings.resolveClassifiers, settings.resolveSbtClassifiers) { message =>
       if (message.startsWith("[error] ") || message.startsWith("[warn] ")) {
         warnings ++= message
       }
@@ -55,20 +55,19 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       listener.onTaskOutput(id, WarningMessage(warning), false)
     }
 
-    convert(root, data).toDataNode
+    convert(root, data, settings.jdk).toDataNode
   }
 
-  private def convert(root: String, data: Structure): Node[ProjectData] = {
+  private def convert(root: String, data: Structure, jdk: Option[String]): Node[ProjectData] = {
     val projects = data.projects
 
     val project = data.projects.headOption.getOrElse(throw new RuntimeException("No root project found"))
 
     val projectNode = new ProjectNode(project.name, root, root)
 
-    val javaHome = project.java.flatMap(_.home).getOrElse(new File(System.getProperty("java.home")))
     val javacOptions = project.java.map(_.options).getOrElse(Seq.empty)
 
-    projectNode.add(new ScalaProjectNode(javaHome, javacOptions))
+    projectNode.add(new ScalaProjectNode(jdk, javacOptions))
 
     val libraries = {
       val repositoryModules = data.repository.map(_.modules).getOrElse(Seq.empty)

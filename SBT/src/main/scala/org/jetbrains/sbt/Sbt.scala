@@ -36,8 +36,6 @@ object Sbt {
 
   val UnmanagedLibraryName = "unmanaged-jars"
 
-  val StructurePluginVersion = "2.4.0"
-
   val DefinitionHolderClasses = Seq("sbt.Plugin", "sbt.Build")
 
   val DefaultImplicitImports = Seq("sbt._", "Process._", "Keys._")
