@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScClassParameter, ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportUsed, ReadValueUsed, ValueUsed, WriteValueUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
@@ -40,7 +40,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContextOwner, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
@@ -251,6 +251,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         if (typeAware && !compiled && fun.getParent.isInstanceOf[ScTemplateBody]) {
           checkOverrideMethods(fun, holder, isInSources)
         }
+        checkFunctionForVariance(fun, holder)
         super.visitFunction(fun)
       }
 
@@ -328,6 +329,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                 varr.getParent.isInstanceOf[ScEarlyDefinitions])) {
           checkOverrideVars(varr, holder, isInSources)
         }
+        checkValueAndVariableVariance(varr, ScTypeParam.Covariant, varr.declaredElements, holder)
+        checkValueAndVariableVariance(varr, ScTypeParam.Contravariant, varr.declaredElements, holder)
         super.visitVariable(varr)
       }
 
@@ -336,6 +339,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                 v.getParent.isInstanceOf[ScEarlyDefinitions])) {
           checkOverrideVals(v, holder, isInSources)
         }
+        checkValueAndVariableVariance(v, ScTypeParam.Covariant, v.declaredElements, holder)
         super.visitValue(v)
       }
 
@@ -971,6 +975,93 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
   private def checkAnnotationType(annotation: ScAnnotation, holder: AnnotationHolder) {
     //todo: check annotation is inheritor for class scala.Annotation
+  }
+
+  private def checkFunctionForVariance(fun: ScFunction, holder: AnnotationHolder) {
+    if (!modifierIsThis(fun)) { //if modifier contains [this] we do not highlight it
+      fun.returnType match {
+        case Success(returnType, _) => expandAliasAndCheck(ScTypeParam.Covariant, returnType, fun.nameId)
+        case _ =>
+      }
+      for (parameter <- fun.parameters) {
+        parameter.typeElement match {
+          case Some(typeParam) => expandAliasAndCheck(ScTypeParam.Contravariant, typeParam.calcType, parameter.nameId)
+          case _ =>
+        }
+      }
+
+      def expandAliasAndCheck(variance: Int, tp: ScType, toHighlight: PsiElement) {
+        ScType.expandAliases(tp) match { //so type alias is highlighted
+          case Success(newTp, _) => checkVariance(newTp, variance, toHighlight, fun.getParent, holder)
+          case _ => checkVariance(tp, variance, toHighlight, fun.getParent, holder)
+        }
+      }
+    }
+  }
+
+  def checkValueAndVariableVariance(toCheck: ScDeclaredElementsHolder, variance: Int,
+                                    declaredElements: Seq[TypingContextOwner with ScNamedElement], holder: AnnotationHolder) {
+    if (!modifierIsThis(toCheck)) {
+      for (element <- declaredElements) {
+        element.getType() match {
+          case Success(tp, _) =>
+            ScType.expandAliases(tp) match { //so type alias is highlighted
+              case Success(newTp, _) => checkVariance(newTp, variance, element.nameId, toCheck, holder)
+              case _ => checkVariance(tp, variance, element.nameId, toCheck, holder)
+            }
+          case _ =>
+        }
+      }
+    }
+  }
+
+  def modifierIsThis(toCheck: PsiElement): Boolean = {
+    toCheck match {
+      case modifierOwner: ScModifierListOwner => modifierOwner.getModifierList.accessModifier.exists(_.isThis)
+      case _ => false
+    }
+  }
+
+  private def checkVariance(typeParam: ScType, variance: Int, toHighlight: PsiElement, checkParentOf: PsiElement,
+                            holder: AnnotationHolder) = { //fix for SCL-807
+  def highlightVarianceError(varianceOfElement: Int, varianceOfPosition: Int, name: String) = {
+    if (varianceOfPosition != varianceOfElement && varianceOfElement != ScTypeParam.Invariant) {
+      val pos =
+        if (toHighlight.isInstanceOf[ScVariable]) toHighlight.getText + "_="
+        else toHighlight.getText
+      val place = if (toHighlight.isInstanceOf[ScFunction]) "method" else "value"
+      val elementVariance =
+        if (varianceOfElement == 1) "covariant"
+        else "contravariant"
+      val posVariance =
+        if (varianceOfPosition == 1) "covariant"
+        else if (varianceOfPosition == -1) "contravariant"
+        else "invariant"
+      val annotation = holder.createErrorAnnotation(toHighlight,
+        ScalaBundle.message(s"$elementVariance.type.$posVariance.position.of.$place", name, typeParam.toString, pos))
+      annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+    }
+  }
+
+    def functionToSendIn(tp: ScType, i: Int) = {
+      tp match {
+        case paramType: ScTypeParameterType =>
+          paramType.param match {
+            case scTypeParam: ScTypeParam =>
+              val compareTo = scTypeParam.owner
+              val parentIt = checkParentOf.parents
+              //if it's a function inside function we do not highlight it unless trait or class is defined inside this function
+              parentIt.find((e) => e == compareTo || e.isInstanceOf[ScFunction]) match {
+                case Some(_: ScFunction) =>
+                case _ => highlightVarianceError(scTypeParam.variance, i, paramType.name)
+              }
+            case _ =>
+          }
+        case any: Any =>
+      }
+      (false, tp)
+    }
+    typeParam.recursiveVarianceUpdate(functionToSendIn, variance)
   }
 }
 
