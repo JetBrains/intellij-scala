@@ -90,6 +90,42 @@ class VarianceTest extends SimpleTestCase {
     }
   }
 
+  def testBoundCyclicSimple() {
+    assertMatches(messages("trait N[A <: A]")) {
+      case Error("N", CyclicReference()) :: Nil =>
+    }
+  }
+
+  def testBoundCyclicComplex() {
+    assertMatches(messages("trait O[B, A >: B with A]")) {
+      case Error("O", CyclicReference()) :: Nil =>
+    }
+  }
+
+  def testBoundCyclicMoreComplex() {
+    assertMatches(messages("trait P[A >: B, B >: A]")) {
+      case Error("P", CyclicReference()) :: Error("P", CyclicReference()) :: Nil =>
+    }
+  }
+
+  def testBoundsConformance() {
+    assertMatches(messages("trait T[Q, R <: Q, C >: Q <: R]")) {
+      case Error("C >: Q <: R", NotConformsUpper()) :: Nil =>
+    }
+  }
+
+  def testTypeBoundsNoError() {
+    assertMatches(messages("trait U[M[+X] <: W[X], W[+_]")) {
+      case Nil =>
+    }
+  }
+
+  def testTypeBoundNoErrorParameterized() {
+    assertMatches(messages("trait V[M[X <: Bound[X]], Bound[_]]")) {
+      case Nil =>
+    }
+  }
+
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val annotator = new ScalaAnnotator() {}
     val mock = new AnnotatorHolderMock
@@ -110,6 +146,8 @@ class VarianceTest extends SimpleTestCase {
   val ContravariantPosition = containsPattern("occurs in contravariant position")
   val CovariantPosition = containsPattern("occurs in covariant position")
   val AbstractModifier = containsPattern("Abstract member may not have private modifier")
+  val CyclicReference = containsPattern("Illegal cyclic reference")
+  val NotConformsUpper = containsPattern("does not conform to upper bound")
 
   def containsPattern(fragment: String) = new {
     def unapply(s: String) = s.contains(fragment)
