@@ -193,6 +193,11 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         super.visitVariableDefinition(varr)
       }
 
+      override def visitVariableDeclaration(varr: ScVariableDeclaration) {
+        checkAbstractMemberPrivateModifier(varr, varr.declaredElements.map(_.nameId), holder)
+        super.visitVariableDeclaration(varr)
+      }
+
       override def visitTypedStmt(stmt: ScTypedStmt) {
         annotateTypedStatement(stmt, holder, typeAware)
         super.visitTypedStmt(stmt)
@@ -245,6 +250,11 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         if (!compiled && !fun.isConstructor)
           annotateFunction(fun, holder, typeAware)
         super.visitFunctionDefinition(fun)
+      }
+
+      override def visitFunctionDeclaration(fun: ScFunctionDeclaration) {
+        checkAbstractMemberPrivateModifier(fun, Seq(fun.nameId), holder)
+        super.visitFunctionDeclaration(fun)
       }
 
       override def visitFunction(fun: ScFunction) {
@@ -332,6 +342,11 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         checkValueAndVariableVariance(varr, ScTypeParam.Covariant, varr.declaredElements, holder)
         checkValueAndVariableVariance(varr, ScTypeParam.Contravariant, varr.declaredElements, holder)
         super.visitVariable(varr)
+      }
+
+      override def visitValueDeclaration(v: ScValueDeclaration) {
+        checkAbstractMemberPrivateModifier(v, v.declaredElements.map(_.nameId), holder)
+        super.visitValueDeclaration(v)
       }
 
       override def visitValue(v: ScValue) {
@@ -1062,6 +1077,20 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       (false, tp)
     }
     typeParam.recursiveVarianceUpdate(functionToSendIn, variance)
+  }
+
+  //fix for SCL-7176
+  private def checkAbstractMemberPrivateModifier(element: PsiElement, toHighlight: Seq[PsiElement], holder: AnnotationHolder) {
+    element match {
+      case modOwner: ScModifierListOwner =>
+        if(modOwner.hasModifierProperty("private")) {
+          for(e <- toHighlight) {
+            val annotation = holder.createErrorAnnotation(e, ScalaBundle.message("abstract.member.not.have.private.modifier"))
+            annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+          }
+        }
+      case _ =>
+    }
   }
 }
 
