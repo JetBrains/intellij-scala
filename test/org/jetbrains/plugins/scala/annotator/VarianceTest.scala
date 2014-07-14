@@ -142,6 +142,30 @@ class VarianceTest extends SimpleTestCase {
     }
   }
 
+  def testComplexTypeBoundsNoError() {
+    assertMatches(messages("abstract class B[-T, S[Z <: T] >: T, P >: T]")) {
+      case Nil =>
+    }
+  }
+
+  def testSimpleTypeAlias() {
+    assertMatches(messages("trait T[-T] { type S <: T }")) {
+      case Error("S", CovariantPosition()) :: Nil =>
+    }
+  }
+
+  def testBoundDefinedInsideOwner() {
+    assertMatches(messages("trait B[Z[-P, A <: P] <: P]")) {
+      case Error("Z", CovariantPosition()) :: Nil =>
+    }
+  }
+
+  def testBoundDefinedInsideTrait() {
+    assertMatches(messages("trait X[-P, A <: P]")) {
+      case Error("A", CovariantPosition()) :: Nil =>
+    }
+  }
+
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val annotator = new ScalaAnnotator() {}
     val mock = new AnnotatorHolderMock
