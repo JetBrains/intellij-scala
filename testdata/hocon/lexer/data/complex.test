@@ -1,0 +1,93 @@
+# hash comment
+// double slash comment
+
+include classpath("included.conf")
+
+object.subobject {
+  someList = [
+    null,
+    true,
+    123.4e5,
+    unquoted string *,
+    "quo\nted\d string",
+    ${?substitution.inner}concat"concat",
+    """multiline
+    multiline"""
+  ]
+}
+-----
+HASH_COMMENT {# hash comment}
+LINE_BREAKING_WHITESPACE {
+}
+DOUBLE_SLASH_COMMENT {// double slash comment}
+LINE_BREAKING_WHITESPACE {
+
+}
+UNQUOTED_CHARS {include}
+INLINE_WHITESPACE { }
+UNQUOTED_CHARS {classpath(}
+QUOTED_STRING {"included.conf"}
+UNQUOTED_CHARS {)}
+LINE_BREAKING_WHITESPACE {
+
+}
+UNQUOTED_CHARS {object}
+PERIOD {.}
+UNQUOTED_CHARS {subobject}
+INLINE_WHITESPACE { }
+LBRACE {{}
+LINE_BREAKING_WHITESPACE {
+  }
+UNQUOTED_CHARS {someList}
+INLINE_WHITESPACE { }
+EQUALS {=}
+INLINE_WHITESPACE { }
+LBRACKET {[}
+LINE_BREAKING_WHITESPACE {
+    }
+UNQUOTED_CHARS {null}
+COMMA {,}
+LINE_BREAKING_WHITESPACE {
+    }
+UNQUOTED_CHARS {true}
+COMMA {,}
+LINE_BREAKING_WHITESPACE {
+    }
+UNQUOTED_CHARS {123}
+PERIOD {.}
+UNQUOTED_CHARS {4e5}
+COMMA {,}
+LINE_BREAKING_WHITESPACE {
+    }
+UNQUOTED_CHARS {unquoted}
+INLINE_WHITESPACE { }
+UNQUOTED_CHARS {string}
+INLINE_WHITESPACE { }
+BAD_CHARACTER {*}
+COMMA {,}
+LINE_BREAKING_WHITESPACE {
+    }
+QUOTED_STRING {"quo\nted\d string"}
+COMMA {,}
+LINE_BREAKING_WHITESPACE {
+    }
+DOLLAR {$}
+SUB_LBRACE {{}
+QMARK {?}
+UNQUOTED_CHARS {substitution}
+PERIOD {.}
+UNQUOTED_CHARS {inner}
+SUB_RBRACE {}}
+UNQUOTED_CHARS {concat}
+QUOTED_STRING {"concat"}
+COMMA {,}
+LINE_BREAKING_WHITESPACE {
+    }
+MULTILINE_STRING {"""multiline
+    multiline"""}
+LINE_BREAKING_WHITESPACE {
+  }
+RBRACKET {]}
+LINE_BREAKING_WHITESPACE {
+}
+RBRACE {}}
