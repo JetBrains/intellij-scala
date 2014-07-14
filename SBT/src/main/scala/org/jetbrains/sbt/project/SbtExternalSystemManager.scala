@@ -78,7 +78,7 @@ object SbtExternalSystemManager {
 
     val projectSettings = settings.getLinkedProjectSettings(path)
 
-    new SbtExecutionSettings(vmOptions, customLauncher, customVm,
+    new SbtExecutionSettings(vmOptions, customLauncher, customVm, projectSettings.jdkName,
       projectSettings.resolveClassifiers, projectSettings.resolveSbtClassifiers)
   }
 
