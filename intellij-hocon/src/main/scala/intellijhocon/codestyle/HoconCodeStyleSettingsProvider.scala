@@ -1,4 +1,5 @@
-package intellijhocon.codestyle
+package intellijhocon
+package codestyle
 
 import com.intellij.psi.codeStyle.{DisplayPriority, CodeStyleSettings, CodeStyleSettingsProvider}
 import com.intellij.application.options.{TabbedLanguageCodeStylePanel, CodeStyleAbstractConfigurable}

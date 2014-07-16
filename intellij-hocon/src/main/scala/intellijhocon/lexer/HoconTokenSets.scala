@@ -1,4 +1,5 @@
-package intellijhocon.lexer
+package intellijhocon
+package lexer
 
 import com.intellij.psi.tree.TokenSet
 import intellijhocon.Util

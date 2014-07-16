@@ -1,4 +1,5 @@
-package intellijhocon.codestyle
+package intellijhocon
+package codestyle
 
 import com.intellij.psi.codeStyle.{CodeStyleSettingsCustomizable, DisplayPriority, CommonCodeStyleSettings, LanguageCodeStyleSettingsProvider}
 import com.intellij.psi.codeStyle.LanguageCodeStyleSettingsProvider.SettingsType
