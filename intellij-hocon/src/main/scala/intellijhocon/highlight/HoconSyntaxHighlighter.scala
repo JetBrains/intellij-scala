@@ -1,4 +1,5 @@
-package intellijhocon.highlight
+package intellijhocon
+package highlight
 
 import com.intellij.openapi.fileTypes.{SyntaxHighlighterFactory, SyntaxHighlighter}
 import com.intellij.psi.tree.IElementType

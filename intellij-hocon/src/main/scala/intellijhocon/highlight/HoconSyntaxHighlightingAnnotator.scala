@@ -1,4 +1,5 @@
-package intellijhocon.highlight
+package intellijhocon
+package highlight
 
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.psi.PsiElement

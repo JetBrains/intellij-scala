@@ -1,4 +1,5 @@
-package intellijhocon.formatting
+package intellijhocon
+package formatting
 
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.formatting.{Alignment, Wrap, Spacing, Indent}

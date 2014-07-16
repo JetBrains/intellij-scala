@@ -1,4 +1,5 @@
-package intellijhocon.highlight
+package intellijhocon
+package highlight
 
 import com.intellij.openapi.options.colors.{AttributesDescriptor, ColorSettingsPage}
 import com.intellij.icons.AllIcons
