@@ -1,4 +1,5 @@
-package intellijhocon.parser
+package intellijhocon
+package parser
 
 import intellijhocon.Util
 import com.intellij.psi.TokenType

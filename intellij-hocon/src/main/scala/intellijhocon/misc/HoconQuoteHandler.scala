@@ -1,4 +1,5 @@
-package intellijhocon.misc
+package intellijhocon
+package misc
 
 import com.intellij.codeInsight.editorActions.{JavaLikeQuoteHandler, SimpleTokenSetQuoteHandler}
 import com.intellij.openapi.editor.highlighter.HighlighterIterator

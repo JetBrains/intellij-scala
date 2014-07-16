@@ -1,4 +1,5 @@
-package intellijhocon.lang
+package intellijhocon
+package lang
 
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.icons.AllIcons

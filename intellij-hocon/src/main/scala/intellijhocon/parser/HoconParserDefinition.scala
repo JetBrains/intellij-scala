@@ -1,4 +1,5 @@
-package intellijhocon.parser
+package intellijhocon
+package parser
 
 import com.intellij.lang.{PsiParser, ASTNode, ParserDefinition}
 import com.intellij.openapi.project.Project
