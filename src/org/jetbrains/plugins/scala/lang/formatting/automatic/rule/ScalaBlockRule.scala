@@ -47,7 +47,7 @@ class ScalaBlockRule private (val testFunction: Block => Boolean,
    * @param tag
    * @return
    */
-  override def tag(tag: String): ScalaFormattingRule = registerRule(new ScalaBlockRule(testFunction, indentType, id, relations, Some(tag)))
+  override def tag(tag: String): ScalaFormattingRule = addTag(new ScalaBlockRule(testFunction, indentType, id, relations, Some(tag)))
 
   override def childrenWithPosition: List[(ScalaFormattingRule, Int)] = List()
 

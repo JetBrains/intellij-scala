@@ -71,6 +71,7 @@ trait ScalaFormattingRule {
   def acceptRelation(relation: RuleRelation, participantIds: RelationParticipantId*): ScalaFormattingRule = {
     val newRule = addRelation(relation, participantIds.toList)
     relation.addRule(newRule, participantIds:_*)
+    addRule(newRule)
     newRule
   }
 

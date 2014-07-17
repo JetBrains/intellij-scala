@@ -56,7 +56,7 @@ class OrRule private (val composingConditions: List[ScalaFormattingRule],
    * @param tag
    * @return
    */
-  override def tag(tag: String): ScalaFormattingRule = registerRule(new OrRule(composingConditions, indentType, priority, id, relations, Some(tag)))
+  override def tag(tag: String): ScalaFormattingRule = addTag(new OrRule(composingConditions, indentType, priority, id, relations, Some(tag)))
 
   override def childrenWithPosition: List[(ScalaFormattingRule, Int)] = composingConditions.zipWithIndex
 

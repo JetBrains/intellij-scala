@@ -8,6 +8,7 @@ import scala.collection.mutable
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.matching.{ScalaBlockFormatterEntry, ScalaFormattingRuleInstance, ScalaFormattingRuleMatcher}
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.IndentType
+import com.intellij.openapi.project.Project
 
 
 /**
@@ -135,6 +136,13 @@ class ScalaAutoFormatter(matcher: ScalaFormattingRuleMatcher) {
   }
 
   def runMatcher(rootBlock: ScalaBlock) = matcher.matchBlockTree(rootBlock)
+
+  def educateMatcher(project: Project) {
+    matcher.deriveSettings(project)
+    matcher.reset()
+  }
+
+  def resetMatcher {matcher.reset()}
 }
 
 object ScalaAutoFormatter {

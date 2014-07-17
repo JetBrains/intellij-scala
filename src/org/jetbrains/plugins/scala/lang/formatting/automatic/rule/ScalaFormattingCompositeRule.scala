@@ -78,7 +78,7 @@ class ScalaFormattingCompositeRule private (val composingConditions: List[ScalaF
    * @param tag
    * @return
    */
-  override def tag(tag: String): ScalaFormattingRule = registerRule(new ScalaFormattingCompositeRule(composingConditions, indentType, priority, id, relations, Some(tag)))
+  override def tag(tag: String): ScalaFormattingRule = addTag(new ScalaFormattingCompositeRule(composingConditions, indentType, priority, id, relations, Some(tag)))
 
   override def childrenWithPosition: List[(ScalaFormattingRule, Int)] = composingConditions.zipWithIndex
 

@@ -46,23 +46,26 @@ class FormattingSettingsTree private (private var childrenAgg: Option[(ScalaForm
 
   def childrenWithEntries = childrenAgg.map(_._2)
 
-  def split(ruleInstance: ScalaFormattingRuleInstance, childrenMaps: Seq[Map[ScalaFormattingRuleInstance, scala.List[ScalaBlockFormatterEntry]]]) {
-    splitSettings(ruleInstance, childrenMaps.map(childMap => new FormattingSettings(None, None, childMap)))
+  def split(ruleInstance: ScalaFormattingRuleInstance, childrenMaps: Seq[Map[ScalaFormattingRuleInstance, scala.List[ScalaBlockFormatterEntry]]],
+            normalIndentSize: Option[Int] = None, continuationIndentSize: Option[Int] = None) {
+    splitSettings(ruleInstance, childrenMaps.map(childMap => new FormattingSettings(normalIndentSize, continuationIndentSize, childMap)))
 
-//    childrenAgg match {
-//      case Some((rule, children)) =>
-//        throw new IllegalStateException("Split operation failed: the node already has children.")
-//      case _ =>
-//        formattingSettings = None
-//        var childrenList = List[(FormattingSettingsTree, ScalaBlockFormatterEntry)]()
-//        for (childMap <- childrenMaps) {
-//          val fixedEntry = childMap.get(ruleInstance).get
-//          assert(fixedEntry.size == 1)
-//          childrenList = (new FormattingSettingsTree(None, Some(this), None, this.ruleInstances), fixedEntry.head) :: childrenList
-//        }
-//        childrenAgg = Some((ruleInstance, childrenList))
-//    }
+    //    childrenAgg match {
+    //      case Some((rule, children)) =>
+    //        throw new IllegalStateException("Split operation failed: the node already has children.")
+    //      case _ =>
+    //        formattingSettings = None
+    //        var childrenList = List[(FormattingSettingsTree, ScalaBlockFormatterEntry)]()
+    //        for (childMap <- childrenMaps) {
+    //          val fixedEntry = childMap.get(ruleInstance).get
+    //          assert(fixedEntry.size == 1)
+    //          childrenList = (new FormattingSettingsTree(None, Some(this), None, this.ruleInstances), fixedEntry.head) :: childrenList
+    //        }
+    //        childrenAgg = Some((ruleInstance, childrenList))
+    //    }
   }
+
+  def isIndentSplit = childrenAgg.isDefined && childrenAgg.get._1 == null
 
   def splitIndents(settings: Seq[FormattingSettings]) {
     childrenAgg match {

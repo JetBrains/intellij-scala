@@ -80,7 +80,7 @@ class ScalaBlockCompositeRule private (val testFunction: Block => Boolean,
    * @param tag
    * @return
    */
-  override def tag(tag: String): ScalaFormattingRule = registerRule(new ScalaBlockCompositeRule(testFunction, compositeRule, priority, id, relations, Some(tag)))
+  override def tag(tag: String): ScalaFormattingRule = addTag(new ScalaBlockCompositeRule(testFunction, compositeRule, priority, id, relations, Some(tag)))
 
   override def childrenWithPosition: List[(ScalaFormattingRule, Int)] = List((compositeRule, 0))
 

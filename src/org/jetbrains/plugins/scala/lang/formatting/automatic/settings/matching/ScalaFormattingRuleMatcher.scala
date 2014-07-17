@@ -16,14 +16,19 @@ import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings._
 import scala.Some
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.serialization.{ExampleBase, ScalaFormattingSettingsSerializer}
+import org.jdom.input.SAXBuilder
+import java.io.File
 
 /**
  * @author Roman.Shein
  *         Date: 06.11.13
  */
-class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRule], project: Project) {
+class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRule], project: Option[Project]) {
 
   private var currentSettings: FormattingSettings = constructFullDefaultSettings(project)
+
+  private var exampleBase: Option[ExampleBase] = None
 
   def getCurrentSettings = currentSettings
 
@@ -104,13 +109,13 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
     blocksToRules.getOrElse((block.getTextRange, block.getNode.getElementType), List[ScalaFormattingRuleInstance]())
   }
 
-  def matchBlockTree(root: ScalaBlock) {
+  def matchBlockTree(root: ScalaBlock, matchLogMap: Option[mutable.Map[ScalaFormattingRule, List[ScalaBlock]]] = None) {
     for (rule <- rulesByNames.values) {
-      matchRule(rule, root)
+      matchRule(rule, root, matchLogMap)
     }
 
     for (block <- root.getSubBlocks().toList if block.isInstanceOf[ScalaBlock]) {
-      matchBlockTree(block.asInstanceOf[ScalaBlock])
+      matchBlockTree(block.asInstanceOf[ScalaBlock], matchLogMap)
     }
   }
 
@@ -136,11 +141,17 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
   }
 
 
-  def matchRule(rule: ScalaFormattingRule, parentBlock: ScalaBlock) = {
+  def matchRule(rule: ScalaFormattingRule,
+                parentBlock: ScalaBlock,
+                matchLogMap: Option[mutable.Map[ScalaFormattingRule, List[ScalaBlock]]] = None) = {
     topBlocks = parentBlock :: topBlocks
     rule.check(parentBlock, None, rule, this) match {
       case Some(ruleMatch) /*if ruleMatch.childMatches.size > 0*/ =>
 //        println("rule " + rule.id + " matched")
+        matchLogMap match {
+          case Some(map) => map.put(rule, parentBlock :: map.getOrElse(rule, List()))
+          case None =>
+        }
         val instance = ruleInstance(None, rule, rule)
         ruleInstancesToMatches.put(instance, ruleMatch :: ruleInstancesToMatches.getOrElse(instance, List[RuleMatch]()))
         topMatchesToTextRanges.put(ruleMatch, parentBlock.getTextRange)
@@ -277,11 +288,15 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
   def getDefaultSettings: mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]] = //TODO: implement default settings
     mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]()
 
-  def constructFullDefaultSettings(project: Project): FormattingSettings = {
-    val serializer = ScalaFormattingSettingsSerializer.getInstance(project)
-    if (serializer == null) return new FormattingSettings(None, None, Map())
-    val serialized = serializer.getInstance
-    serialized.getOrElse(new FormattingSettings(None, None, Map())) //TODO: implement default settings
+  def constructFullDefaultSettings(project: Option[Project]): FormattingSettings = {
+    project match {
+      case Some(myProject) =>
+        val serializer = ScalaFormattingSettingsSerializer.getInstance(myProject)
+        if (serializer == null) return new FormattingSettings(None, None, Map())
+        val serialized = serializer.getInstance
+        serialized.getOrElse(new FormattingSettings(None, None, Map())) //TODO: implement default settings
+      case None => new FormattingSettings(None, None, Map())
+    }
   }
 
   /**
@@ -341,20 +356,20 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
       List[FormattingSettings]()
     } else {
       //now, unify all settings
-      var currentSettings = ruleToIndentSettings.get(ruleToIndentSettings.keys.toList.head).get
+      var curSettings = ruleToIndentSettings.get(ruleToIndentSettings.keys.toList.head).get
       for (rule <- ruleToIndentSettings.keys.toList.tail) {
         for (setting <- ruleToIndentSettings.get(rule).get) {
           var newCurrentSettings = List[FormattingSettings]()
-          for (currentSetting <- currentSettings) {
+          for (currentSetting <- curSettings) {
             currentSetting.unify(setting, this) match {
               case None =>
               case Some(newSetting) => newCurrentSettings = newSetting :: newCurrentSettings
             }
           }
-          currentSettings = newCurrentSettings
+          curSettings = newCurrentSettings
         }
       }
-      currentSettings
+      curSettings
     }
   }
 
@@ -550,33 +565,17 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
     currentLayer
   }
 
-//  def deriveAlignments: mutable.Map[]
-
   //On input: unprocessed data on spacings before all blocks
   //On output: list of possible formatting settings for all rules or identification of a conflict
   /**
    *
    * @return
    */
-  def deriveSettings: FormattingSettings = {
+  def deriveSettings(project: Project): FormattingSettings = {
 
     val rulesToEntries = deriveInitialSettings()
 
     val relationPossibilitiesLayer = processRelations(rulesToEntries)
-
-//    val blocksByStartPos = mutable.Map[Integer, List[ScalaBlock]]()
-//    for (block <- rulesToSpacingDefiningBlocks.values.flatten) {
-//      val offset = block.getTextRange.getStartOffset
-//      blocksByStartPos.put(offset, block :: blocksByStartPos.getOrElse(offset, List()))
-//    }
-
-//    relationSettings = checkLineSpacingsConsistent(relationSettings, blocksByStartPos)
-
-//    relationSettings.filter(checkLineSpacingsConsistent(_, blocksByStartPos))
-//    relationSettings.map(checkLineSpacingsConsistent(_, blocksByStartPos))
-
-    //deduce indent size settings
-//    val indentTypeSettings = relationSettings.map(deduceIndentSettings).flatten
 
     relationPossibilitiesLayer.traverse(
       (node, nodeEntry) => {
@@ -591,15 +590,84 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
 
     val finalLayer = relationPossibilitiesLayer.descend
 
-    currentSettings = resolveMultiplePossibleSettings(finalLayer, false)
+    currentSettings = resolveMultiplePossibleSettings(finalLayer, isInteractive = true, project)
     currentSettings
   }
 
+  def loadExampleBase = {
+    val exampleBaseFile = new File("testBase")
+    val document = (new SAXBuilder).build(exampleBaseFile)
+    ExampleBase.load(document.getRootElement)
+  }
+
   def resolveMultiplePossibleSettings(finalLayer: FormattingSettingsTree#LayeredTraversal,
-                                      isInteractive: Boolean): FormattingSettings = {
+                                      isInteractive: Boolean,
+                                      project: Project): FormattingSettings = {
+
+    def chooseByExample(examples: Map[ScalaFormattingRule, scala.List[ScalaBlock]],
+                        ruleInstance: ScalaFormattingRuleInstance,
+                        variants: List[ScalaBlockFormatterEntry]): ScalaBlockFormatterEntry = {
+      variants.head
+    }
+
+    def resolveLastLayerSettings(settings: FormattingSettings, examples: Map[ScalaFormattingRule, scala.List[ScalaBlock]]): FormattingSettings = {
+      val newInstances = mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]()
+      for (ruleInstance <- settings.instances.keys) {
+        settings.instances.get(ruleInstance) match {
+          case Some(entries) if entries.length > 1 =>
+            newInstances.put(ruleInstance, List(chooseByExample(examples, ruleInstance, entries)))
+          case other =>
+            newInstances.put(ruleInstance, other.getOrElse(List()))
+        }
+      }
+      new FormattingSettings(settings.normalIndentSize, settings.continuationIndentSize, Map(newInstances.toSeq:_*))
+    }
+
+    def chooseNoExamples(ruleInstance: ScalaFormattingRuleInstance,
+                            children: List[(FormattingSettingsTree, ScalaBlockFormatterEntry)]) = {
+      //TODO: implement me more thoughfully
+      children.head._1
+    }
+
+    def chooseFromExamples(examples: List[ScalaBlock],
+                           children: List[(FormattingSettingsTree, ScalaBlockFormatterEntry)]) = {
+      //TODO: implement me with user communication and other stuff
+      children.head._1
+    }
+
+    def chooseFromIndentExamples(children: List[(FormattingSettingsTree, ScalaBlockFormatterEntry)]) = {
+      //TODO: implement me with user communication and other stuff
+      children.head._1
+    }
+
+    @tailrec
+    def bfsSettingsTree(rulesToBlocksMap: Map[ScalaFormattingRule, scala.List[ScalaBlock]],
+                               node: FormattingSettingsTree): FormattingSettingsTree = {
+      node.childrenWithEntries match {
+        case Some(children) if node.isIndentSplit =>
+            bfsSettingsTree(rulesToBlocksMap, chooseFromIndentExamples(children))
+        case Some(children) if !node.isIndentSplit =>
+          val ruleInstance = node.conflictRule.get
+          val examplesOpt = rulesToBlocksMap.get(ruleInstance.root)
+          examplesOpt match {
+            case Some(examples) =>
+              bfsSettingsTree(rulesToBlocksMap, chooseFromExamples(examples, children))
+            case None =>
+              bfsSettingsTree(rulesToBlocksMap, chooseNoExamples(ruleInstance, children))
+          }
+        case None =>
+          node
+      }
+    }
+
     if (isInteractive) {
-      //TODO: implement me
-      null
+      exampleBase match {
+        case None => exampleBase = Some(loadExampleBase)
+        case _ =>
+      }
+      val ruleToBlocksMap = exampleBase.get.getRuleToBlocksMap(project)
+      val finalNode = bfsSettingsTree(ruleToBlocksMap, finalLayer.getRoot)
+      resolveLastLayerSettings(finalNode.formattingSettings.get, ruleToBlocksMap)
     } else {
       finalLayer.traverse(
         (node, nodeEntry) => {
@@ -690,19 +758,12 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
 
 object ScalaFormattingRuleMatcher {
 
-  def getDefaultMatcher(project: Project): ScalaFormattingRuleMatcher =
+  def getDefaultMatcher(project: Option[Project] = None): ScalaFormattingRuleMatcher =
     new ScalaFormattingRuleMatcher(topRulesByIds, project)
 
+  def getDefaultMatcher(project: Project): ScalaFormattingRuleMatcher = getDefaultMatcher(Some(project))
 
-  def getDefaultMatcherAndMatch(learnRoot: ScalaBlock): ScalaFormattingRuleMatcher = {
-    val matcher = new ScalaFormattingRuleMatcher(topRulesByIds, learnRoot.getNode.getPsi.getProject)
-    matcher.matchBlockTree(learnRoot)
-    matcher.deriveSettings
-    matcher.reset()
-    matcher
-  }
-
-  val topRulesByIds: Map[String, ScalaFormattingRule] =
+  def topRulesByIds: Map[String, ScalaFormattingRule] =
   //first, construct default rules
     Map[String, ScalaFormattingRule](
       rule.whileDefault.id -> rule.whileDefault,
@@ -720,20 +781,14 @@ object ScalaFormattingRuleMatcher {
   //Map[String, ScalaFormattingRule](rule.caseClausesComposite.id -> rule.caseClausesComposite)
 
   private def runMatcher(rootBlock: ScalaBlock) = {
-    val matcher = new ScalaFormattingRuleMatcher(topRulesByIds, rootBlock.getNode.getPsi.getProject)
+    val matcher = new ScalaFormattingRuleMatcher(topRulesByIds, Some(rootBlock.getNode.getPsi.getProject))
     matcher.matchBlockTree(rootBlock)
     matcher
   }
 
-  def test(rootBlock: ScalaBlock) = {
-    val settings = runMatcher(rootBlock).deriveSettings
-
-    settings
-  }
-
   def testExtraction(rootBlock: ScalaBlock, rulesNames: Array[String], project: Project): String = {
     val matcher = runMatcher(rootBlock)
-    matcher.deriveSettings
+    matcher.deriveSettings(project)
     matcher.getRulesSettingsStringRepresentation(rulesNames)
   }
 

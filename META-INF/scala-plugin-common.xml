@@ -1017,6 +1017,31 @@
               description="Generate companion object">
         <add-to-group group-id="GenerateGroup"/>
       </action>
+      <action id="Scala.CreateAutoFormatterExampleBase" class="org.jetbrains.plugins.scala.lang.formatting.automatic.action.CreateExampleBaseAction"
+              description="Build and store scala autoformatter example base" text="Build and store scala autoformatter example base">
+        <keyboard-shortcut first-keystroke="control alt shift 6" keymap="$default"/>
+        <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl shift 6"/>
+      </action>
+      <action id="Scala.AutoFormat" class="org.jetbrains.plugins.scala.lang.formatting.automatic.action.AutoFormatAction"
+              description="Run automatic formatter on current file" text="Run automatic formatter on current file">
+        <keyboard-shortcut first-keystroke="control alt shift 1" keymap="$default"/>
+        <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl shift 1"/>
+      </action>
+      <action id="Scala.MatchFile" class="org.jetbrains.plugins.scala.lang.formatting.automatic.action.MatchFileAction"
+              description="Run autoformatter matcher on current file" text="Run autoformatter matcher on current file">
+        <keyboard-shortcut first-keystroke="control alt shift 2" keymap="$default"/>
+        <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl shift 2"/>
+      </action>
+      <action id="Scala.DeriveSettings" class="org.jetbrains.plugins.scala.lang.formatting.automatic.action.DeriveSettingsAction"
+              description="Derive autoformatter settings" text="Derive autoformatter settings">
+        <keyboard-shortcut first-keystroke="control alt shift 3" keymap="$default"/>
+        <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl shift 3"/>
+      </action>
+      <action id="Scala.ToggleAutoFormatter" class="org.jetbrains.plugins.scala.lang.formatting.automatic.action.ToggleAutoFormatterUseAction"
+              description="Toggle auto formatter usage" text="Toggle auto formatter usage">
+        <keyboard-shortcut first-keystroke="control alt shift 0" keymap="$default"/>
+        <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl shift 0"/>
+      </action>
       </actions>
 
 </idea-plugin>

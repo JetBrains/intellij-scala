@@ -1,18 +1,19 @@
 package org.jetbrains.plugins.scala
-package lang.formatting.automatic.settings
+package lang.formatting.automatic.settings.serialization
 
 import com.intellij.openapi.components._
 import com.intellij.openapi.project.Project
 import org.jdom.Element
 import scala.collection.mutable
-import com.intellij.openapi.util.{DefaultJDOMExternalizer, TextRange}
+import com.intellij.openapi.util.DefaultJDOMExternalizer
 import scala.collection.JavaConversions._
-import scala.collection.immutable.Stack
 import com.intellij.formatting.WrapType
 import java.io.File
-import com.intellij.openapi.application.PathManager
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.matching.{ScalaBlockFormatterEntry, RuleParentInfo, ScalaFormattingRuleInstance, ScalaFormattingRuleMatcher}
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings._
+import scala.Some
+import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation.RelationParticipantId
 
 /**
  * A class for (de)serialization of FormattingSettings.
@@ -22,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.matching.{
     new Storage(file = StoragePathMacros.PROJECT_CONFIG_DIR + "/scalaFormattingSettings.xml",
       scheme = StorageScheme.DIRECTORY_BASED))
 )
-class ScalaFormattingSettingsSerializer extends PersistentStateComponent[Element]/* with ExportableComponent*/ {
+class ScalaFormattingSettingsSerializer extends PersistentStateComponent[Element] {
 
   val normalIndentSizeId = "NORMAL_INDENT_SIZE"
   val continuationIndentSizeId = "CONTINUATION_INDENT_SIZE"
@@ -39,6 +40,11 @@ class ScalaFormattingSettingsSerializer extends PersistentStateComponent[Element
   private def loadBooleanChild(element: Element, id: String) =
     if (element.getChild(id).getText.toLowerCase == "true") true else false
 
+  /**
+   * Builds a bimap of top ruleInstances to Int ids.
+   * @param settings
+   * @return
+   */
   private def buildRuleInstanceIds(settings: FormattingSettings): (mutable.Map[Int, ScalaFormattingRuleInstance], mutable.Map[ScalaFormattingRuleInstance, Int]) = {
     val idToInstance = mutable.Map[Int, ScalaFormattingRuleInstance]()
     val instanceToId = mutable.Map[ScalaFormattingRuleInstance, Int]()
@@ -59,6 +65,10 @@ class ScalaFormattingSettingsSerializer extends PersistentStateComponent[Element
   val ruleInstanceParentId = "PARENT"
   val ruleInstancePositionId = "POSITION"
   val ruleInstanceRuleId = "RULE"
+  val ruleInstanceRuleIdId = "RULE_ID"
+  val ruleInstanceRelationId = "RELATION"
+  val ruleInstanceRelationIdId = "RELATION_ID"
+  val ruleInstanceRelationParicipantIdId = "RELATION_PARTICIPANT_ID"
   val ruleInstanceIdId = "ID"
   val ruleInstanceEntryPrefix = "instance"
 
@@ -75,17 +85,30 @@ class ScalaFormattingSettingsSerializer extends PersistentStateComponent[Element
     for (instanceElement <- instancesElement.getChildren) {
       //load instance
       val rootId = instanceElement.getChild(ruleInstanceRootId).getText
-      val ruleId = instanceElement.getChild(ruleInstanceRuleId).getText
+      val ruleElement = instanceElement.getChild(ruleInstanceRuleId)
+      val ruleId = ruleElement.getChild(ruleInstanceRuleIdId).getText
+      var relations = List[(String, List[RelationParticipantId])]()
+      val relationsElement = ruleElement.getChild(ruleInstanceRelationId)
+      for (relationElement <- relationsElement.getChildren) {
+        val relationId = relationElement.getChild(ruleInstanceRelationIdId).getText
+        var participantIds = List[RelationParticipantId]()
+        for (participantId <- relationElement.getChildren(ruleInstanceRelationParicipantIdId)) {
+          participantIds = participantId.getText :: participantIds
+        }
+        relations = (relationId, participantIds.reverse) :: relations
+      }
+      //now build a set from relations
+      val relationsSet = Set(relations.map(arg => (rule.getRelationById(arg._1), arg._2)):_*)
 
       val id = loadIntChild(instanceElement, ruleInstanceIdId)
       val parentElement = instanceElement.getChild(ruleInstanceParentId)
       val positionElement = instanceElement.getChild(ruleInstancePositionId)
 
       assert(ScalaFormattingRuleMatcher.topRulesByIds.contains(rootId))
-      assert(rule.containsRule(ruleId))
+      assert(rule.containsRule(ruleId, relationsSet))
 
       val instance = new ScalaFormattingRuleInstance(None,
-        rule.getRule(ruleId),
+        rule.getRule(ruleId, relationsSet),
         ScalaFormattingRuleMatcher.topRulesByIds(rootId))
 
       assert(!idsToInstances.contains(id))
@@ -284,8 +307,19 @@ class ScalaFormattingSettingsSerializer extends PersistentStateComponent[Element
               ))
             case None =>
           }
+          val rule = instance.rule
           instanceElement.addContent(new Element(ruleInstanceRootId).setText(instance.root.id))
-          instanceElement.addContent(new Element(ruleInstanceRuleId).setText(instance.rule.id))
+          val ruleElement = new Element(ruleInstanceRuleId)
+          ruleElement.addContent(new Element(ruleInstanceRuleIdId).setText(rule.id))
+          for ((relation, participantIds) <- rule.relations) {
+            val relationElement = new Element(ruleInstanceRelationId)
+            relationElement.addContent(new Element(ruleInstanceRelationIdId).setText(relation.id))
+            for (participantId <- participantIds) {
+              relationElement.addContent(new Element(ruleInstanceRelationParicipantIdId).setText(participantId))
+            }
+            ruleElement.addContent(relationElement)
+          }
+          instanceElement.addContent(ruleElement)
           if (settings.instances.contains(instance)) {
             //this is not a root rule and it has some entries linked to it
             val instanceEntriesElement = new Element("instance" + id.toString)

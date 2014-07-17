@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import scala.Some
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.matching.ScalaFormattingRuleMatcher
 import org.jetbrains.plugins.scala.lang.formatting.automatic.ScalaAutoFormatter
+import com.intellij.openapi.project.Project
 
 class ScalaBlock (val myParentBlock: ScalaBlock,
                   protected val myNode: ASTNode,
@@ -50,21 +51,21 @@ class ScalaBlock (val myParentBlock: ScalaBlock,
 
   //TODO: replace these test stubs
   def getIndent =
-    if (ScalaBlock.myFormatter != null) {
+    if (ScalaBlock.useAutoFormatter) {
       ScalaBlock.myFormatter.getIndent(this)
     } else {
       myIndent
     }
 
   def getWrap =
-    if (ScalaBlock.myFormatter != null) {
+    if (ScalaBlock.useAutoFormatter) {
       ScalaBlock.myFormatter.getWrap(this)
     } else {
       myWrap
     }
 
   def getAlignment =
-    if (ScalaBlock.myFormatter != null) {
+    if (ScalaBlock.useAutoFormatter) {
       ScalaBlock.myFormatter.getAlignment(this)
     } else {
       myAlignment
@@ -130,7 +131,7 @@ class ScalaBlock (val myParentBlock: ScalaBlock,
     }
   }
 
-  def getSpacing(child1: Block, child2: Block) = if (ScalaBlock.myFormatter != null) {
+  def getSpacing(child1: Block, child2: Block) = if (ScalaBlock.useAutoFormatter) {
     ScalaBlock.myFormatter.getSpacing(child1, child2)
   } else ScalaSpacingProcessor.getSpacing(child1.asInstanceOf[ScalaBlock], child2.asInstanceOf[ScalaBlock])
 
@@ -246,6 +247,17 @@ class ScalaBlock (val myParentBlock: ScalaBlock,
     helper(this, getInLineOffset, getLineNumber)
   }
 
+  @tailrec
+  final def getFirstNewlineAncestor: Option[ScalaBlock] = {
+    if (isOnNewLine) {
+      Some(this)
+    } else if (myParentBlock == null) {
+        None
+    } else {
+      myParentBlock.getFirstNewlineAncestor
+    }
+  }
+
   def getLineNumber: Int = PsiDocumentManager.getInstance(getNode.getPsi.getProject).
           getDocument(getNode.getPsi.getContainingFile).getLineNumber(getTextRange.getStartOffset)
 
@@ -287,9 +299,26 @@ class ScalaBlock (val myParentBlock: ScalaBlock,
 object ScalaBlock {
   //TODO: remove this. This is a temporary means of testing used before serialization/deserialization is implemented properly
   // Actually all the ScalaBlock.scala file should be rewritten as blocks should be constructed and not altered during formatting
-  protected var myFormatter: ScalaAutoFormatter = null
+  protected var myFormatter: ScalaAutoFormatter = new ScalaAutoFormatter(ScalaFormattingRuleMatcher.getDefaultMatcher())
 
-  def initFormatter(learnRoot: ScalaBlock) = myFormatter = new ScalaAutoFormatter(ScalaFormattingRuleMatcher.getDefaultMatcherAndMatch(learnRoot))
+  var useAutoFormatter = false
 
-  def feedFormatter(formatRoot: ScalaBlock) = myFormatter.runMatcher(formatRoot)
+  def prepareFormatter(learnRoot: ScalaBlock, project: Project) {
+    matchBlock(learnRoot)
+    educateFormatter(project)
+  }
+  
+  def educateFormatter(project: Project) {
+    myFormatter.educateMatcher(project)
+  }
+
+  def matchBlock(formatRoot: ScalaBlock) = {
+    myFormatter.runMatcher(formatRoot)
+  }
+
+  def resetMatcher = {
+    myFormatter.resetMatcher
+  }
+
+  def toggleAutoFormatter() = useAutoFormatter = !useAutoFormatter
 }

@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.matching.{
  * default handles cases where all the settings should be the same and is customizable to handle cases when only selected
  * settings should be the same as well as cases with additional logic added.
  */
-class SameSettingsRelation extends RuleRelation {
+class SameSettingsRelation(val id: String) extends RuleRelation {
 
   protected var sameWrapRules: List[ScalaFormattingRule] = List()
   protected var sameSpacingRules: List[ScalaFormattingRule] = List()
@@ -121,52 +121,22 @@ class SameSettingsRelation extends RuleRelation {
     Map(res.toSeq:_*)
   }
 
-  /**
-   * Produce all maps that correspond to given entries. If necessary, use acceptable modifications of input entries.
-   * @param entries
-   * @return
-   */
-  def processEntries(entries: List[ScalaBlockFormatterEntry],
-                     caseMap: Map[ScalaFormattingRuleInstance, scala.List[ScalaBlockFormatterEntry]]) = {
-    val testedEntries = mutable.Set(entries:_*)
-    //first, build tested set by adding entries created by weakening constraints on input entries
-    for (entry <- entries) {
-      //for every entry build all possible entries obtainable from weakening constraints to comply with relation
-      val sameSpacingMap = caseMap.filter(mapEntry => sameSpacingRules.contains(mapEntry._1.rule))
-      for ((sameInstance, sameEntries) <- sameSpacingMap) {
-
-      }
-    }
-  }
-
-//  def filterSameSettings(rulesToEntries: List[mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]]):
-//  List[mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]] = {
-//    var res = List[mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]]()
-//    //iterate over maps, split every if needed
-//    for (caseMap <- rulesToEntries) { //pick current map
-//      var caseMapReplacement = List(caseMap)
-//      var resMaps = List[mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]]()
-//      val rules = getRules.toList
-//      for (ruleInstance <- caseMap.keys if rules.contains(ruleInstance.rule)) { //pick rule to choose setting for
-//        for (currentRestMap <- caseMapReplacement) {
-//          val entries = mutable.ListBuffer(caseMap.get(ruleInstance).getOrElse(List()):_*)
-//          val entriesAdded = mutable.Set[ScalaBlockFormatterEntry]()
-//          while (entries.nonEmpty) {
-//            val ruleEntry = entries.head
-//            val cutMap = filterMap(ruleInstance, ruleEntry, currentRestMap, entries, entriesAdded)
-//            if (!resMaps.contains(cutMap) && cutMap.forall(arg => arg._2.nonEmpty)) {
-//              resMaps = cutMap::resMaps
-//            }
-//            entries.remove(0)
-//          }
-//        }
-//        caseMapReplacement = resMaps
-//        resMaps = List[mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]]()
-//      }
-//      res = res ++ caseMapReplacement
-//    }
+//  /**
+//   * Produce all maps that correspond to given entries. If necessary, use acceptable modifications of input entries.
+//   * @param entries
+//   * @return
+//   */
+//  def processEntries(entries: List[ScalaBlockFormatterEntry],
+//                     caseMap: Map[ScalaFormattingRuleInstance, scala.List[ScalaBlockFormatterEntry]]) = {
+//    val testedEntries = mutable.Set(entries:_*)
+//    //first, build tested set by adding entries created by weakening constraints on input entries
+//    for (entry <- entries) {
+//      //for every entry build all possible entries obtainable from weakening constraints to comply with relation
+//      val sameSpacingMap = caseMap.filter(mapEntry => sameSpacingRules.contains(mapEntry._1.rule))
+//      for ((sameInstance, sameEntries) <- sameSpacingMap) {
 //
-//    res
+//      }
+//    }
 //  }
 
   def filterSameSettings(inputLayer: FormattingSettingsTree#LayeredTraversal):
@@ -228,4 +198,5 @@ object SameSettingsRelation {
   val noIndentId = "NO INDENT"
   val noWrapId = "NO WRAP"
   val noAlignmentId = "NO ALIGNMENT"
+  val serializationId = "SAME_SETTINGS_RELATION"
 }

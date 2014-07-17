@@ -58,7 +58,7 @@ class ScalaSomeRule private (val minimalCount: Int,
    * @param tag
    * @return
    */
-  override def tag(tag: String): ScalaFormattingRule = registerRule(new ScalaSomeRule(minimalCount, innerCondition, indentType, priority, id, relations, Some(tag)))
+  override def tag(tag: String): ScalaFormattingRule = addTag(new ScalaSomeRule(minimalCount, innerCondition, indentType, priority, id, relations, Some(tag)))
 
   override def childrenWithPosition: List[(ScalaFormattingRule, Int)] =  List((innerCondition, 0))
 

@@ -7,12 +7,15 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation.RelationParticipantId
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.matching.ScalaFormattingRuleInstance
+import org.jdom.Element
 
 /**
  * @author Roman.Shein
  *         Date: 08.05.2014
  */
-abstract class RuleRelation {
+abstract class RuleRelation{
+
+  val id: String
 
   private val rules: mutable.ListBuffer[ScalaFormattingRule] = ListBuffer()
 

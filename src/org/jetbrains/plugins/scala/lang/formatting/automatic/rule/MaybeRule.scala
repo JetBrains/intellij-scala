@@ -48,7 +48,7 @@ class MaybeRule private (val inner: ScalaFormattingRule,
    * @param tag
    * @return
    */
-  override def tag(tag: String): ScalaFormattingRule = registerRule(new MaybeRule(inner, indentType, priority, id, relations, Some(tag)))
+  override def tag(tag: String): ScalaFormattingRule = addTag(new MaybeRule(inner, indentType, priority, id, relations, Some(tag)))
 
   override def childrenWithPosition: List[(ScalaFormattingRule, Int)] = {List((inner, 0))}
 

@@ -7,12 +7,13 @@ import scala.collection.mutable
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.IndentType.IndentType
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.IndentType
-import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.{SameAlignmentRelation, SameSettingsRelation}
+import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.{RuleRelation, SameAlignmentRelation, SameSettingsRelation}
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation._
 import scala.Some
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.SameSettingsRelation._
 import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.matching.ScalaFormattingRuleInstance
+import org.jetbrains.plugins.scala.lang.formatting.automatic.rule
 
 /**
  * @author Roman.Shein
@@ -81,23 +82,33 @@ package object rule {
   }
 
   def &(rule: ScalaFormattingRule, relationId: String, additionalIds: RelationParticipantId*) =
-    rule.acceptRelation(sameSettingsRelationsByIds.get(relationId).getOrElse {
-      val relation = new SameSettingsRelation()
-      sameSettingsRelationsByIds.put(relationId, relation)
-      relation
-    }, additionalIds:_*
-    )
+    rule.acceptRelation(relationsByIds.get(relationId) match {
+      case Some(relation) =>
+        assert(relation.isInstanceOf[SameSettingsRelation])
+        relation
+      case None =>
+        val relation = new SameSettingsRelation(relationId)
+        relationsByIds.put(relationId, relation)
+        relation
+    }, additionalIds: _*)
 
   def alignment(rule: ScalaFormattingRule, relationId: String) =
-    rule.acceptRelation(sameAlignmentRelationsByIds.get(relationId).getOrElse {
-      val relation = new SameAlignmentRelation()
-      sameAlignmentRelationsByIds.put(relationId, relation)
-      relation
-    }
-    )
+    rule.acceptRelation(relationsByIds.get(relationId) match {
+      case Some(relation) =>
+        assert(relation.isInstanceOf[SameAlignmentRelation])
+        relation
+      case None =>
+        val relation = new SameAlignmentRelation(relationId)
+        relationsByIds.put(relationId, relation)
+        relation
+    })
 
-  val sameSettingsRelationsByIds = mutable.Map[String, SameSettingsRelation]()
-  val sameAlignmentRelationsByIds = mutable.Map[String, SameAlignmentRelation]()
+  //these maps are required for (de)serialization of settings
+  //  val sameSettingsRelationsByIds = mutable.Map[String, SameSettingsRelation]()
+  //  val sameAlignmentRelationsByIds = mutable.Map[String, SameAlignmentRelation]()
+  private val relationsByIds = mutable.Map[String, RuleRelation]()
+
+  def getRelationById(id: String) = relationsByIds.get(id).get
 
   //  def isAcceptableId(id: String) = reservedIds.count(id.contains) == 0
 
@@ -188,27 +199,29 @@ package object rule {
   /**
    * Maps pairs (rule, tag) to rule
    */
-  private val rulesByNames = mutable.Map[String, ScalaFormattingRule]()
+  private val rulesByNames = mutable.Map[(String, Set[(RuleRelation, List[RelationParticipantId])]), ScalaFormattingRule]()
 
   def addRule(rule: ScalaFormattingRule) = {
-    assert(!rulesByNames.contains(rule.id))
-    rulesByNames.put(rule.id, rule)
+//    assert(!rulesByNames.contains((rule.id, rule.relations)))
+    rulesByNames.put((rule.id, rule.relations), rule)
     rule
   }
 
   //TODO: redo all this stuff
-  def registerRule(rule: ScalaFormattingRule) = {
-    if (!rulesByNames.contains(rule.id)) {
-      rulesByNames.put(rule.id, rule)
-    } else {
-      //      assert(rulesByNames.get(rule.id).get == rule)
-    }
+  def addTag(rule: ScalaFormattingRule) = {
+    //    if (!rulesByNames.contains((rule.id, rule.relations))) {
+    rulesByNames.put((rule.id, rule.relations), rule)
+    //    } else {
+    //      assert(rulesByNames.get((rule.id, rule.relations)).get == rule)
+    //    }
     rule
   }
 
-  def getRule(id: String): ScalaFormattingRule = rulesByNames.get(id).get
+  def getRule(id: String, relationInfo: Set[(RuleRelation, List[RelationParticipantId])]): ScalaFormattingRule =
+    rulesByNames.get(id, relationInfo).get
 
-  def containsRule(id: String): Boolean = rulesByNames.contains(id)
+  def containsRule(id: String, relationInfo: Set[(RuleRelation, List[RelationParticipantId])]): Boolean =
+    rulesByNames.contains(id, relationInfo)
 
   //first, define simple block rules
   val leftBracket = ScalaBlockRule("[", "LEFT_BRACKET")
@@ -386,7 +399,7 @@ package object rule {
 
   val generatorAnchor = "GENERATOR ANCHOR"
 
-//  val pattern = ScalaBlockRule("REFERENCE PATTERN", ScalaElementTypes.REFERENCE_PATTERN)
+  //  val pattern = ScalaBlockRule("REFERENCE PATTERN", ScalaElementTypes.REFERENCE_PATTERN)
 
   val enumerator = block(
     ScalaElementTypes.ENUMERATOR,
@@ -454,28 +467,28 @@ package object rule {
     idChainMaybeArgsRule
   ).tag(idChainTag)
 
-//  val importWord = ScalaBlockRule("IMPORT WORD", ScalaElementTypes.IMPORT)
-//
-//  val importReference = ScalaBlockRule("IMPORT REFERENCE", ScalaElementTypes.REFERENCE)
-//
-//  val importChainDefault = block(
-//    ScalaElementTypes.IMPORT_STMT,
-//    defaultPriority,
-//    seq(
-//      importWord,
-//      block(
-//        ScalaElementTypes.IMPORT_EXPR,
-//        defaultPriority,
-//        seq(
-//          importReference,
-//          seq(
-//            dot,
-//            importReference
-//          ).*
-//        )
-//      )
-//    )
-//  )
+  //  val importWord = ScalaBlockRule("IMPORT WORD", ScalaElementTypes.IMPORT)
+  //
+  //  val importReference = ScalaBlockRule("IMPORT REFERENCE", ScalaElementTypes.REFERENCE)
+  //
+  //  val importChainDefault = block(
+  //    ScalaElementTypes.IMPORT_STMT,
+  //    defaultPriority,
+  //    seq(
+  //      importWord,
+  //      block(
+  //        ScalaElementTypes.IMPORT_EXPR,
+  //        defaultPriority,
+  //        seq(
+  //          importReference,
+  //          seq(
+  //            dot,
+  //            importReference
+  //          ).*
+  //        )
+  //      )
+  //    )
+  //  )
 
   val parameterAlignmentAnchor = "PARAMETER ALIGNMENT ANCHOR"
 
