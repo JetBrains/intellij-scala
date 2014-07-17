@@ -29,7 +29,7 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
 
       val existingJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
 
-      val projectJdk = existingJdk.orElse(findJdkBy(data.javaHome)).orElse(allJdks.headOption)
+      val projectJdk = existingJdk.orElse(data.jdk.flatMap(findJdkBy)).orElse(allJdks.headOption)
 
       projectJdk.foreach(ProjectRootManager.getInstance(project).setProjectSdk)
 
@@ -58,10 +58,7 @@ object SbtProjectDataService {
     "1.7" -> LanguageLevel.JDK_1_7,
     "1.8" -> LanguageLevel.JDK_1_8)
   
-  def findJdkBy(home: File): Option[Sdk] = {
-    val homePath = toCanonicalPath(home.getAbsolutePath)
-    allJdks.find(jdk => homePath.startsWith(toCanonicalPath(jdk.getHomePath)))
-  }
+  def findJdkBy(name: String): Option[Sdk] = Option(ProjectJdkTable.getInstance().findJdk(name))
 
   def allJdks: Seq[Sdk] = ProjectJdkTable.getInstance.getSdksOfType(JavaSdk.getInstance).asScala
   

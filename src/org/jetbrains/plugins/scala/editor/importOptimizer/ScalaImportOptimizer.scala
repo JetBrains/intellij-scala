@@ -2,8 +2,11 @@ package org.jetbrains.plugins.scala
 package editor.importOptimizer
 
 
+import java.util
+import java.util.concurrent.atomic.AtomicInteger
+
 import com.intellij.concurrency.JobLauncher
-import com.intellij.lang.{LanguageImportStatements, ImportOptimizer}
+import com.intellij.lang.{ImportOptimizer, LanguageImportStatements}
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.Project
@@ -12,8 +15,6 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
 import com.intellij.util.containers.{ConcurrentHashMap, ConcurrentHashSet}
-import java.util
-import java.util.concurrent.atomic.AtomicInteger
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
@@ -29,6 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ArrayBuffer
@@ -55,7 +57,6 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val project: Project = scalaFile.getProject
     val documentManager = PsiDocumentManager.getInstance(project)
     val document: Document = documentManager.getDocument(scalaFile)
-    documentManager.commitDocument(document)
     val analyzingDocumentText = document.getText
 
     val textCreator = getImportTextCreator

@@ -7,7 +7,7 @@ import java.util.Arrays;
  * 5/28/13
  */
 public abstract class OperationOnCollectionInspection extends OperationOnCollectionInspectionBase {
-  private final String[] likeOptionClassesDefault = {"scala.Option"};
+  private final String[] likeOptionClassesDefault = {"scala.Option", "scala.Some", "scala.None"};
   private final String[] likeCollectionClassesDefault = {"scala.collection._", "scala.Option"};
   public String[] likeOptionClasses = likeOptionClassesDefault;
   public String[] likeCollectionClasses = likeCollectionClassesDefault;
