@@ -70,7 +70,7 @@ object SbtBuilder extends ScalaBuilderDelegate {
                       dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
                       outputConsumer: OutputConsumer): ModuleLevelBuilder.ExitCode = {
 
-    if (ChunkExclusionService.isExcluded(chunk)) {
+    if (ChunkExclusionService.isExcluded(chunk, context.getProjectDescriptor.getModel.getGlobal)) {
       return ExitCode.NOTHING_DONE
     }
 
