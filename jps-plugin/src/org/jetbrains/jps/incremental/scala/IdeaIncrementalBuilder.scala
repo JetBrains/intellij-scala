@@ -29,7 +29,7 @@ object IdeaIncrementalBuilder extends ScalaBuilderDelegate {
 
     val successfullyCompiled = mutable.Set[File]()
 
-    if (ChunkExclusionService.isExcluded(chunk)) return ExitCode.NOTHING_DONE
+    if (ChunkExclusionService.isExcluded(chunk, context.getProjectDescriptor.getModel.getGlobal)) return ExitCode.NOTHING_DONE
 
     context.processMessage(new ProgressMessage("Searching for compilable files..."))
     val sources = collectSources(context, chunk, dirtyFilesHolder)
