@@ -2,32 +2,34 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package unusedInspections
 
-import com.intellij.codeInspection._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.Editor
+import java.util.Collections
+
 import com.intellij.codeHighlighting.TextEditorHighlightingPass
-import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.lang.annotation.{HighlightSeverity, Annotation, AnnotationSession}
-import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInsight.FileModificationService
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import com.intellij.profile.codeInspection.InspectionProjectProfileManager
-import varCouldBeValInspection.VarCouldBeValInspection
-import com.intellij.lang.findUsages.{LanguageFindUsages, FindUsagesProvider}
-import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
-import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariableDefinition, ScDeclaredElementsHolder}
-import com.intellij.psi._
 import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInsight.daemon.impl._
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightingLevelManager
+import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInspection._
+import com.intellij.lang.annotation.{Annotation, AnnotationSession, HighlightSeverity}
+import com.intellij.lang.findUsages.{FindUsagesProvider, LanguageFindUsages}
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.project.Project
+import com.intellij.profile.codeInspection.InspectionProjectProfileManager
+import com.intellij.psi._
+import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
+import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.VarCouldBeValInspection
+import org.jetbrains.plugins.scala.extensions.{toObjectExt, toPsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import annotator.importsTracker.ScalaRefCountHolder
-import extensions.{toPsiNamedElementExt, toObjectExt}
-import java.util.Collections
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+
 import scala.collection.mutable
 
 // TODO merge with UnusedImportPass (?)
@@ -166,6 +168,9 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
       state.annotations += annotation
     }
   }
+
+  import scala.collection.JavaConversions._
+  override def getInfos: java.util.List[HighlightInfo] = highlightInfos.toList
 }
 
 class DeleteElementFix(element: PsiElement) extends IntentionAction {

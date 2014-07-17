@@ -28,5 +28,14 @@ class GetOrElseNullTest extends OperationsOnCollectionInspectionTest {
     testFix(text, result, hint)
   }
 
+  def test_3(): Unit = {
+    val selected = s"Some(1) orElse Some(2) ${START}getOrElse null$END"
+    check(selected)
+
+    val text = "Some(1) orElse Some(2) getOrElse null"
+    val result = "(Some(1) orElse Some(2)).orNull"
+    testFix(text, result, hint)
+  }
+
   override val inspectionClass = classOf[GetOrElseNullInspection]
 }

@@ -19,6 +19,8 @@ class TypeInferenceDependentTest extends TypeInferenceTestBase {
 
   def testHardCaseFromTypers() {doTest()}
 
+  def testImplicitMostSpecific() {doTest()}
+
   def testImportsDependent() {doTest()}
 
   def testInnerClassDependentType() {doTest()}
