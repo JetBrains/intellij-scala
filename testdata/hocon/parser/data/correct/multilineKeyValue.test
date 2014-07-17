@@ -1,0 +1,35 @@
+a =
+ b
+a
+
+=
+
+1
+-----
+HOCON_FILE
+  HoconPsiElement(OBJECT_ENTRIES)
+    HoconPsiElement(OBJECT_FIELD)
+      HoconPsiElement(BARE_OBJECT_FIELD)
+        HoconPsiElement(FIELD_PATH)
+          HoconPsiElement(KEY)
+            HoconPsiElement(UNQUOTED_STRING)
+              PsiElement(UNQUOTED_CHARS)('a')
+        PsiWhiteSpace(' ')
+        PsiElement(EQUALS)('=')
+        PsiWhiteSpace('\n ')
+        HoconPsiElement(VALUE)
+          HoconPsiElement(UNQUOTED_STRING)
+            PsiElement(UNQUOTED_CHARS)('b')
+    PsiWhiteSpace('\n')
+    HoconPsiElement(OBJECT_FIELD)
+      HoconPsiElement(BARE_OBJECT_FIELD)
+        HoconPsiElement(FIELD_PATH)
+          HoconPsiElement(KEY)
+            HoconPsiElement(UNQUOTED_STRING)
+              PsiElement(UNQUOTED_CHARS)('a')
+        PsiWhiteSpace('\n\n')
+        PsiElement(EQUALS)('=')
+        PsiWhiteSpace('\n\n')
+        HoconPsiElement(VALUE)
+          HoconPsiElement(NUMBER)
+            PsiElement(UNQUOTED_CHARS)('1')
