@@ -134,6 +134,12 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
               Set("f\"\"", "s\"\"").contains(prevElement.getParent.getText)) {
         completeMultilineString(editor, project, element, offset)
       }
+    } else if (settings.ADD_ARROW_AFTER_INDENT_CASE && c ==' ' && element.getNextSibling != null) {
+      val elType = element.getNextSibling.getNode.getElementType
+      if (elType == ScalaTokenTypes.tFUNTYPE || elType == ScalaTokenTypes.tFUNTYPE_ASCII) {
+        moveCaret()
+        return Result.STOP
+      }
     }
 
     Result.CONTINUE
