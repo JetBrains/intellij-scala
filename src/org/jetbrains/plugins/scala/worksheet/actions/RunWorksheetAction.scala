@@ -1,35 +1,35 @@
 package org.jetbrains.plugins.scala
 package worksheet.actions
 
-import com.intellij.openapi.actionSystem.{AnActionEvent, AnAction}
-import lang.psi.api.ScalaFile
 import com.intellij.execution._
 import com.intellij.execution.configurations.JavaParameters
-import com.intellij.util.PathUtil
-import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
-import com.intellij.icons.AllIcons
-import com.intellij.openapi.keymap.{KeymapUtil, KeymapManager}
-import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.project.{DumbService, Project}
-import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import com.intellij.execution.process.{OSProcessHandler, ProcessAdapter, ProcessEvent}
 import com.intellij.execution.ui.ConsoleViewContentType
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
-import com.intellij.openapi.application.{ModalityState, ApplicationManager}
-import org.jetbrains.plugins.scala
-import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager}
-import com.intellij.openapi.roots.{ModuleRootManager, ProjectFileIndex}
-import org.jetbrains.plugins.scala.config.{Libraries, CompilerLibraryData, ScalaFacet}
-import com.intellij.openapi.module.{ModuleManager, Module}
-import com.intellij.openapi.projectRoots.{JdkUtil, JavaSdkType}
-import org.jetbrains.plugins.scala.compiler.ScalacSettings
-import org.jetbrains.plugins.scala.worksheet.MacroPrinter
-import com.intellij.execution.process.{ProcessEvent, ProcessAdapter, OSProcessHandler}
+import com.intellij.icons.AllIcons
 import com.intellij.ide.util.EditorHelper
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
-import com.intellij.openapi.util.Key
-import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
 import com.intellij.internal.statistic.UsageTrigger
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import com.intellij.openapi.application.{ApplicationManager, ModalityState}
+import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager}
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.keymap.{KeymapManager, KeymapUtil}
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil}
+import com.intellij.openapi.roots.{ModuleRootManager, ProjectFileIndex}
+import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFileWithId
+import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import com.intellij.util.PathUtil
+import org.jetbrains.plugins.scala
+import org.jetbrains.plugins.scala.compiler.ScalacSettings
+import org.jetbrains.plugins.scala.config.{CompilerLibraryData, Libraries, ScalaFacet}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.worksheet.MacroPrinter
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
+import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 
 /**
  * @author Ksenia.Sautina
@@ -66,6 +66,9 @@ object RunWorksheetAction {
 
   def runCompiler(project: Project, auto: Boolean) {
     UsageTrigger.trigger("scala.worksheet")
+
+    if (project == null) return
+
     val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
 
     if (editor == null) return
