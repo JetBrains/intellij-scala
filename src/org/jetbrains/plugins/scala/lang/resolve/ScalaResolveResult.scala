@@ -44,7 +44,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val prefixCompletion: Boolean = false,
                          val isDynamic: Boolean = false,
                          val isForwardReference: Boolean = false,
-                         val implicitParameterType: Option[ScType] = None) extends ResolveResult {
+                         val implicitParameterType: Option[ScType] = None,
+                         val implicitParameters: Seq[ScalaResolveResult] = Seq.empty) extends ResolveResult {
   if (element == null) throw new NullPointerException("element is null")
 
   def getElement = element
@@ -87,12 +88,13 @@ class ScalaResolveResult(val element: PsiNamedElement,
            isDynamic: Boolean = isDynamic,
            isForwardReference: Boolean = isForwardReference,
            implicitParameterType: Option[ScType] = implicitParameterType,
-           importsUsed: collection.Set[ImportUsed] = importsUsed): ScalaResolveResult =
+           importsUsed: collection.Set[ImportUsed] = importsUsed,
+           implicitParameters: Seq[ScalaResolveResult] = implicitParameters): ScalaResolveResult =
     new ScalaResolveResult(element, subst, importsUsed, nameShadow, implicitConversionClass, problems, boundClass,
       implicitFunction, implicitType, defaultParameterUsed, innerResolveResult, parentElement,
       isNamedParameter, fromType, tuplingUsed, isSetterFunction, isAssignment, notCheckedResolveResult,
       isAccessible, resultUndef, isDynamic = isDynamic, isForwardReference = isForwardReference,
-      implicitParameterType = implicitParameterType)
+      implicitParameterType = implicitParameterType, implicitParameters = implicitParameters)
 
   //In valid program we should not have two resolve results with the same element but different substitutor,
   // so factor by element
