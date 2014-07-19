@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
 
-import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Set, immutable}
 
@@ -90,13 +89,9 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     }
     (r1.element, r2.element) match {
       case (m1@(_: PsiMethod | _: ScFun), m2@(_: PsiMethod | _: ScFun)) =>
-        val (t1, t2) = (r1.substitutor.subst(getType(m1)), r2.substitutor.subst(getType(m2)))
-        @tailrec
+        val (t1, t2) = (r1.substitutor.subst(getType(m1, r1.implicitCase)), r2.substitutor.subst(getType(m2, r2.implicitCase)))
         def calcParams(tp: ScType, existential: Boolean): Either[Seq[Parameter], ScType] = {
           tp match {
-            case ScMethodType(rt, _, true) if r1.implicitCase => calcParams(rt, existential)
-            case ScTypePolymorphicType(ScMethodType(rt, _, true), typeParams) if r1.implicitCase =>
-              calcParams(ScTypePolymorphicType(rt, typeParams), existential)
             case ScMethodType(_, params, _) => Left(params)
             case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) =>
               if (!existential) {
@@ -215,7 +210,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
         }
         u.getSubstitutor.isDefined
       case (_, m2: PsiMethod) => true
-      case (e1, e2) => Compatibility.compatibleWithViewApplicability(getType(e1), getType(e2))
+      case (e1, e2) => Compatibility.compatibleWithViewApplicability(getType(e1, r1.implicitCase), getType(e2, r2.implicitCase))
     }
   }
 
@@ -312,8 +307,8 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
   }
 
   //todo: implement existential dual
-  def getType(e: PsiNamedElement): ScType = {
-    e match {
+  def getType(e: PsiNamedElement, implicitCase: Boolean): ScType = {
+    val res = e match {
       case fun: ScFun => fun.polymorphicType
       case f: ScFunction if f.isConstructor =>
         f.containingClass match {
@@ -339,6 +334,13 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
       }
       case typed: ScTypedDefinition => typed.getType(TypingContext.empty).getOrAny
       case _ => types.Nothing
+    }
+
+    res match {
+      case ScMethodType(retType, _, true) if implicitCase => retType
+      case ScTypePolymorphicType(ScMethodType(retType, _, true), typeParameters) if implicitCase =>
+        ScTypePolymorphicType(retType, typeParameters)
+      case tp => tp
     }
   }
 }
