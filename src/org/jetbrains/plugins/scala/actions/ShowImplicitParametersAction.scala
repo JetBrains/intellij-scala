@@ -12,6 +12,7 @@ import com.intellij.ide.util.treeView.{AbstractTreeBuilder, AbstractTreeNode, Ab
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.colors.CodeInsightColors
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory}
@@ -285,12 +286,11 @@ class ImplicitParametersTreeStructure(project: Project,
                                       results: Seq[ScalaResolveResult]) extends AbstractTreeStructure {
   private val manager = PsiManager.getInstance(project)
 
-  class ImplicitParametersNode(value: ScalaResolveResult)
-    extends AbstractPsiBasedNode[ScalaResolveResult](project, value, ViewSettings.DEFAULT) {
-    override def extractPsiFromValue(): PsiNamedElement = {
-      if (value != null) value.getElement
-      else ScalaPsiElementFactory.createParameterFromText("NotFoundParameter: Int", manager)
-    }
+  class ImplicitParametersNode(_value: ScalaResolveResult)
+    extends {
+      val value = if (_value == null) new ScalaResolveResult(ScalaPsiElementFactory.createParameterFromText("NotFoundParameter: Int", manager)) else _value
+    } with AbstractPsiBasedNode[ScalaResolveResult](project, value, ViewSettings.DEFAULT) {
+    override def extractPsiFromValue(): PsiNamedElement = value.getElement
 
     override def getChildrenImpl: util.Collection[AbstractTreeNode[_]] = {
       val list = new util.ArrayList[AbstractTreeNode[_]]()
@@ -304,7 +304,10 @@ class ImplicitParametersTreeStructure(project: Project,
       val namedElement = extractPsiFromValue()
       if (namedElement != null) {
         val text: String = namedElement.name
-        data.setPresentableText(text)
+        if (text == "NotFoundParameter") {
+          data.setPresentableText("Parameter not found")
+          data.setAttributesKey(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES)
+        } else data.setPresentableText(text)
       }
     }
 
