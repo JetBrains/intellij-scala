@@ -1,0 +1,18 @@
+{a = }
+-----
+HOCON_FILE
+  HoconPsiElement(OBJECT)
+    PsiElement(LBRACE)('{')
+    HoconPsiElement(OBJECT_ENTRIES)
+      HoconPsiElement(OBJECT_FIELD)
+        HoconPsiElement(BARE_OBJECT_FIELD)
+          HoconPsiElement(FIELD_PATH)
+            HoconPsiElement(KEY)
+              HoconPsiElement(UNQUOTED_STRING)
+                PsiElement(UNQUOTED_CHARS)('a')
+          PsiWhiteSpace(' ')
+          PsiElement(EQUALS)('=')
+          PsiErrorElement:expected value for object field
+            <empty list>
+      PsiWhiteSpace(' ')
+    PsiElement(RBRACE)('}')
