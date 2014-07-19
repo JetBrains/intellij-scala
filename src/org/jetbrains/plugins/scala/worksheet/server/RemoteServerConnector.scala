@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.compiler.ScalaApplicationSettings
 import org.jetbrains.jps.incremental.scala.remote._
 import com.intellij.openapi.module.Module
 import org.jetbrains.plugins.scala
-import org.jetbrains.plugin.scala.compiler.IncrementalType
+import org.jetbrains.plugin.scala.compiler.{NameHashing, IncrementalType}
 import com.intellij.openapi.roots.{ModuleRootManager, OrderEnumerator}
 import org.jetbrains.plugins.scala.config.ScalaFacet
 import org.jetbrains.jps.incremental.scala.Client
@@ -126,7 +126,8 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File) {
       IncrementalType.IDEA.name(),
       worksheet.getParentFile, 
       output, 
-      worksheetArgs
+      worksheetArgs,
+      NameHashing.DEFAULT.name()
     )
 
     try {
