@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScEarlyDefinitions}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
@@ -307,7 +307,15 @@ class ImplicitParametersTreeStructure(project: Project,
         if (text == "NotFoundParameter") {
           data.setPresentableText("Parameter not found")
           data.setAttributesKey(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES)
-        } else data.setPresentableText(text)
+        } else {
+          namedElement match {
+            case s: ScNamedElement =>
+              val presentation = s.getPresentation
+              data.setLocationString(presentation.getLocationString.drop(1).dropRight(1))
+              data.setPresentableText(presentation.getPresentableText)
+            case _ => data.setPresentableText(text)
+          }
+        }
       }
     }
 
