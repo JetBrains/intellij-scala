@@ -43,18 +43,21 @@ class ScalaFoldingBuilder extends FoldingBuilder {
                                 descriptors: ArrayBuffer[FoldingDescriptor],
                                 processedComments: mutable.HashSet[PsiElement],
                                 processedRegions: mutable.HashSet[PsiElement]) {
+    val nodeTextRange = node.getTextRange
+    if (nodeTextRange.getStartOffset + 1 >= nodeTextRange.getEndOffset) return
+
     val psi = node.getPsi
     if (isMultiline(node) || isMultilineImport(node)) {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tSH_COMMENT | ScalaElementTypes.TEMPLATE_BODY |
-             ScalaDocElementTypes.SCALA_DOC_COMMENT => if (!isWorksheetResults(node)) descriptors += new FoldingDescriptor(node, node.getTextRange)
+             ScalaDocElementTypes.SCALA_DOC_COMMENT => if (!isWorksheetResults(node)) descriptors += new FoldingDescriptor(node, nodeTextRange)
         case ScalaElementTypes.IMPORT_STMT if isGoodImport(node) =>
           descriptors += new FoldingDescriptor(node,
-            new TextRange(node.getTextRange.getStartOffset + IMPORT_KEYWORD.length + 1, getImportEnd(node)))
+            new TextRange(nodeTextRange.getStartOffset + IMPORT_KEYWORD.length + 1, getImportEnd(node)))
         case ScalaElementTypes.MATCH_STMT if isMultilineBodyInMatchStmt(node)=>
           descriptors += new FoldingDescriptor(node,
-            new TextRange(node.getTextRange.getStartOffset + startOffsetForMatchStmt(node),
-              node.getTextRange.getEndOffset))
+            new TextRange(nodeTextRange.getStartOffset + startOffsetForMatchStmt(node),
+              nodeTextRange.getEndOffset))
         case ScalaElementTypes.FUNCTION_DEFINITION =>
           psi match {
             case f: ScFunctionDefinition =>
@@ -67,14 +70,14 @@ class ScalaFoldingBuilder extends FoldingBuilder {
       psi match {
         case p: ScPackaging if p.isExplicit =>
           descriptors += new FoldingDescriptor(node,
-            new TextRange(node.getTextRange.getStartOffset + PACKAGE_KEYWORD.length + 1, node.getTextRange.getEndOffset))
+            new TextRange(nodeTextRange.getStartOffset + PACKAGE_KEYWORD.length + 1, nodeTextRange.getEndOffset))
         case p: ScLiteral if p.isMultiLineString =>
-          descriptors += new FoldingDescriptor(node, node.getTextRange)
+          descriptors += new FoldingDescriptor(node, nodeTextRange)
         case p: ScArgumentExprList =>
-          descriptors += new FoldingDescriptor(node, node.getTextRange)
+          descriptors += new FoldingDescriptor(node, nodeTextRange)
         case _: ScBlockExpr
           if ScalaCodeFoldingSettings.getInstance().isFoldingForAllBlocks =>
-          descriptors += new FoldingDescriptor(node, node.getTextRange)
+          descriptors += new FoldingDescriptor(node, nodeTextRange)
         case _ =>
       }
       val treeParent: ASTNode = node.getTreeParent
@@ -85,7 +88,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
         treeParent.getPsi.isInstanceOf[ScForStatement] ||
         treeParent.getPsi.isInstanceOf[ScIfStmt])) {
         psi match {
-          case _: ScBlockExpr => descriptors += new FoldingDescriptor(node, node.getTextRange)
+          case _: ScBlockExpr => descriptors += new FoldingDescriptor(node, nodeTextRange)
           case _ =>
         }
       }
@@ -93,7 +96,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
         treeParent.getPsi match {
           case inf: ScInfixExpr if inf.rOp == node.getPsi =>
             psi match {
-              case _: ScBlockExpr => descriptors += new FoldingDescriptor(node, node.getTextRange)
+              case _: ScBlockExpr => descriptors += new FoldingDescriptor(node, nodeTextRange)
               case _ =>
             }
           case _ =>
@@ -101,7 +104,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
       }
       if (treeParent != null && treeParent.getPsi.isInstanceOf[ScCaseClause]) {
         psi match {
-          case _: ScBlock => descriptors += new FoldingDescriptor(node, node.getTextRange)
+          case _: ScBlock => descriptors += new FoldingDescriptor(node, nodeTextRange)
           case _ =>
         }
       }
@@ -109,11 +112,11 @@ class ScalaFoldingBuilder extends FoldingBuilder {
       node.getPsi match {
         case TypeLambda(typeName, typeParamClause, aliasedType) =>
           val group = FoldingGroup.newGroup("typelambda")
-          val range1 = new TextRange(node.getTextRange.getStartOffset, typeParamClause.getTextRange.getStartOffset)
+          val range1 = new TextRange(nodeTextRange.getStartOffset, typeParamClause.getTextRange.getStartOffset)
           val d1 = new FoldingDescriptor(node, range1, group) {
             override def getPlaceholderText = typeName
           }
-          val range2 = new TextRange(aliasedType.getTextRange.getEndOffset, node.getTextRange.getEndOffset)
+          val range2 = new TextRange(aliasedType.getTextRange.getEndOffset, nodeTextRange.getEndOffset)
           val d2 = new FoldingDescriptor(aliasedType.getNode, range2, group) {
             override def getPlaceholderText = ""
           }
