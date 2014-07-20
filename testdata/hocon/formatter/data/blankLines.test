@@ -1,0 +1,55 @@
+
+
+
+
+include "stuff"
+
+
+
+object {
+
+
+key = value
+
+array = [
+  one
+
+
+
+  two
+
+
+
+  moar
+
+
+
+
+  ]
+
+
+
+}
+-----
+include "stuff"
+
+
+object {
+
+
+  key = value
+
+  array = [
+    one
+
+
+    two
+
+
+    moar
+
+
+  ]
+
+
+}

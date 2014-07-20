@@ -12,4 +12,9 @@ object HoconTestUtils {
     PsiFileFactory.getInstance(project).createFileFromText(
       tempFile, fileType, text, LocalTimeCounter.currentTime(), true)
   }
+
+  implicit def asRunnable(code: => Unit): Runnable =
+    new Runnable {
+      def run() = code
+    }
 }
