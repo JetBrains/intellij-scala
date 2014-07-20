@@ -1,10 +1,10 @@
 <settings/>
 -----
-a=b
+a=b        #comment
 a = b
 a    =b
 a=    b
-a   =    b
+a   =    b   //comment
 a:b
 a : b
 a    :b
@@ -27,11 +27,11 @@ include        file("sth")
 include   file(    "sth"   )
 concat = sth    more   " more quoted "   ${sub}
 -----
+a = b        #comment
 a = b
 a = b
 a = b
-a = b
-a = b
+a = b   //comment
 a: b
 a: b
 a: b
