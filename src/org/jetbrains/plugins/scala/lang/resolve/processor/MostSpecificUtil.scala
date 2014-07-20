@@ -3,25 +3,25 @@ package lang
 package resolve
 package processor
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
-import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScTypePolymorphicType, ScMethodType, TypeParameter, Parameter}
-import psi.{types, ScalaPsiUtil}
 import com.intellij.psi._
-import scala.collection.{immutable, Set}
-import psi.types._
-import psi.api.statements._
-import psi.impl.ScalaPsiManager
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.toPsiMemberExt
-import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
+
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.{Set, immutable}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -89,7 +89,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     }
     (r1.element, r2.element) match {
       case (m1@(_: PsiMethod | _: ScFun), m2@(_: PsiMethod | _: ScFun)) =>
-        val (t1, t2) = (r1.substitutor.subst(getType(m1)), r2.substitutor.subst(getType(m2)))
+        val (t1, t2) = (r1.substitutor.subst(getType(m1, r1.implicitCase)), r2.substitutor.subst(getType(m2, r2.implicitCase)))
         def calcParams(tp: ScType, existential: Boolean): Either[Seq[Parameter], ScType] = {
           tp match {
             case ScMethodType(_, params, _) => Left(params)
@@ -166,7 +166,6 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
               Conformance.conformsInner(type2, type1, immutable.Set.empty, new ScUndefinedSubstitutor()) //todo: with implcits?
             //todo this is possible, when one variant is empty with implicit parameters, and second without parameters.
             //in this case it's logical that method without parameters must win...
-            case (Left(_), Right(_)) if !r1.implicitCase => return false
             case _ => return true
           }
 
@@ -211,7 +210,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
         }
         u.getSubstitutor.isDefined
       case (_, m2: PsiMethod) => true
-      case (e1, e2) => Compatibility.compatibleWithViewApplicability(getType(e1), getType(e2))
+      case (e1, e2) => Compatibility.compatibleWithViewApplicability(getType(e1, r1.implicitCase), getType(e2, r2.implicitCase))
     }
   }
 
@@ -308,8 +307,8 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
   }
 
   //todo: implement existential dual
-  def getType(e: PsiNamedElement): ScType = {
-    e match {
+  def getType(e: PsiNamedElement, implicitCase: Boolean): ScType = {
+    val res = e match {
       case fun: ScFun => fun.polymorphicType
       case f: ScFunction if f.isConstructor =>
         f.containingClass match {
@@ -335,6 +334,13 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
       }
       case typed: ScTypedDefinition => typed.getType(TypingContext.empty).getOrAny
       case _ => types.Nothing
+    }
+
+    res match {
+      case ScMethodType(retType, _, true) if implicitCase => retType
+      case ScTypePolymorphicType(ScMethodType(retType, _, true), typeParameters) if implicitCase =>
+        ScTypePolymorphicType(retType, typeParameters)
+      case tp => tp
     }
   }
 }

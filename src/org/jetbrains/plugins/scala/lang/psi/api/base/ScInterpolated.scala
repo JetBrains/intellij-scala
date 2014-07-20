@@ -25,7 +25,7 @@ trait ScInterpolated extends ScalaPsiElement {
     val res = ListBuffer[PsiReference]()
     val children: Array[PsiElement] = this match {
       case ip: ScInterpolationPattern => ip.args.children.toArray
-      case sl: ScInterpolatedStringLiteral => Array(sl.getFirstChild.getNextSibling)
+      case sl: ScInterpolatedStringLiteral => Option(sl.getFirstChild.getNextSibling).toArray
     }
     for (child <- children) {
       if (accepted.contains(child.getNode.getElementType))
