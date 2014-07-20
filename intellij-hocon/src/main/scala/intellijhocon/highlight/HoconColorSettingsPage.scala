@@ -19,15 +19,15 @@ class HoconColorSettingsPage extends ColorSettingsPage {
        |<include>include</include> <inclmod>classpath</inclmod><imparens>(</imparens><quotedstring>"included.conf"</quotedstring><imparens>)</imparens>
        |
        |<key>object</key><dot>.</dot><key>subobject</key> <braces>{</braces>
-       |    <key>someList</key> <pathvalueseparator>=</pathvalueseparator> <brackets>[</brackets>
-       |        <null>null</null><comma>,</comma>
-       |        <boolean>true</boolean><comma>,</comma>
-       |        <number>123.4e5</number><comma>,</comma>
-       |        <unquotedstring>unquoted string </unquotedstring><badchar>*</badchar><comma>,</comma>
-       |        <quotedstring>"quo</quotedstring><validstringescape>\\n</validstringescape><quotedstring>ted</quotedstring><invalidstringescape>\\d</invalidstringescape><quotedstring> string"</quotedstring><comma>,</comma>
-       |        <substsign>$$</substsign><substbraces>{</substbraces><optsubstsign>?</optsubstsign><substkey>substitution</substkey><dot>.</dot><substkey>inner</substkey><substbraces>}</substbraces><comma>,</comma>
-       |        <multilinestring>${"\"\"\""}multiline\n        multiline${"\"\"\""}</multilinestring>
-       |    <brackets>]</brackets>
+       |  <key>someList</key> <pathvalueseparator>=</pathvalueseparator> <brackets>[</brackets>
+       |    <null>null</null><comma>,</comma>
+       |    <boolean>true</boolean><comma>,</comma>
+       |    <number>123.4e5</number><comma>,</comma>
+       |    <unquotedstring>unquoted string </unquotedstring><badchar>*</badchar><comma>,</comma>
+       |    <quotedstring>"quo</quotedstring><validstringescape>\\n</validstringescape><quotedstring>ted</quotedstring><invalidstringescape>\\d</invalidstringescape><quotedstring> string"</quotedstring><comma>,</comma>
+       |    <substsign>$$</substsign><substbraces>{</substbraces><optsubstsign>?</optsubstsign><substkey>substitution</substkey><dot>.</dot><substkey>inner</substkey><substbraces>}</substbraces><comma>,</comma>
+       |    <multilinestring>${"\"\"\""}multiline\n    multiline${"\"\"\""}</multilinestring>
+       |  <brackets>]</brackets>
        |<braces>}</braces>
        |""".stripMargin.trim
 
