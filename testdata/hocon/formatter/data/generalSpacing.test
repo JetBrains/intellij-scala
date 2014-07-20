@@ -1,0 +1,53 @@
+a=b
+a = b
+a    =b
+a=    b
+a   =    b
+a:b
+a : b
+a    :b
+a:    b
+a   :    b
+a+=b
+a += b
+a    +=b
+a+=    b
+a   +=    b
+obj     {}
+obj = {    k = v, k = v   ,k = v,    k = v    ,   k = v   }
+obj = {key = value}
+arr = [    1,2,   3   ,4  ,   5,  ]
+sub = ${    path.more    }
+sub = ${path.more}
+sub = ${?   path.more   }
+include file("sth")
+include        file("sth")
+include   file(    "sth"   )
+concat = sth    more   " more quoted "   ${sub}
+-----
+a = b
+a = b
+a = b
+a = b
+a = b
+a: b
+a: b
+a: b
+a: b
+a: b
+a += b
+a += b
+a += b
+a += b
+a += b
+obj {}
+obj = {k = v, k = v, k = v, k = v, k = v}
+obj = {key = value}
+arr = [1, 2, 3, 4, 5,]
+sub = ${path.more}
+sub = ${path.more}
+sub = ${?path.more}
+include file("sth")
+include        file("sth")
+include   file("sth")
+concat = sth    more   " more quoted "   ${sub}
