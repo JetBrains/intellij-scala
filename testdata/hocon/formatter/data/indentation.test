@@ -16,6 +16,7 @@ longkey =
            = value
   anotherkey
    =
+# blah blah
      value
      }
  a = [
@@ -37,6 +38,7 @@ obj {
      = value
     anotherkey
      =
+    # blah blah
      value
   }
   a = [
