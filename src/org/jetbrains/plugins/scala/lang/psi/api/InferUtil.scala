@@ -31,6 +31,7 @@ object InferUtil {
   private def isDebugImplicitParameters = LOG.isDebugEnabled
   def logInfo(searchLevel: Int, message: => String) {
     val indent = Seq.fill(searchLevel)("  ").mkString
+    println(indent + message)
     if (isDebugImplicitParameters) {
       LOG.debug(indent + message)
     }
@@ -194,7 +195,11 @@ object InferUtil {
         }
         //check if it's ClassManifest parameter:
         checkManifest(r => {
-          if (r == null && check) throw new SafeCheckException
+          if (r == null && param.isDefault && param.paramInCode.nonEmpty) {
+            //todo: should be added for infer to
+            //todo: what if paramInCode is null?
+            resolveResults += new ScalaResolveResult(param.paramInCode.get)
+          } else if (r == null && check) throw new SafeCheckException
           else resolveResults += r
         })
       }
