@@ -140,13 +140,13 @@ class HoconFormatter(settings: CodeStyleSettings) {
         Spacing.getReadOnlySpacing
 
       case (SubLBrace, SubstitutionPath | SubRBrace) =>
-        normalSpacing(customSettings.SPACES_WITHIN_SUBSTITUTION_BRACES)
+        normalSpacing(customSettings.SPACE_WITHIN_SUBSTITUTION_BRACES)
 
       case (QMark, SubstitutionPath) =>
         normalSpacing(customSettings.SPACE_AFTER_QMARK)
 
       case (SubstitutionPath, SubRBrace) =>
-        normalSpacing(customSettings.SPACES_WITHIN_SUBSTITUTION_BRACES)
+        normalSpacing(customSettings.SPACE_WITHIN_SUBSTITUTION_BRACES)
 
       case (UnquotedChars, QuotedString) | (QuotedString, UnquotedChars) if parent.getElementType == Included =>
         normalSpacing(commonSettings.SPACE_WITHIN_METHOD_CALL_PARENTHESES)
