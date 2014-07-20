@@ -1,0 +1,13 @@
+obj {a = b}
+obj { a = b}
+obj {a = b }
+obj { a = b }
+obj {  a = b }
+obj {  a = b  }
+-----
+obj { a = b }
+obj { a = b }
+obj { a = b }
+obj { a = b }
+obj { a = b }
+obj { a = b }
