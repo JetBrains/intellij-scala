@@ -206,17 +206,19 @@ class FunctionAnnotatorTest extends SimpleTestCase {
     }
   }
 
-  def testTypeExpressionImplicit() {
+  //todo: requires Function1 trait in scope
+  /*def testTypeExpressionImplicit() {
     assertMatches(messages("implicit def toA(b: B) = new A; def f: A = { new B }")) {
       case Nil =>
     }
-  }
+  }*/
 
-  def testTypeReturnImplicit() {
+  //todo: requires Function1 trait in scope
+  /*def testTypeReturnImplicit() {
     assertMatches(messages("implicit def toA(b: B) = new A; def f: A = { return new B }")) {
       case Nil =>
     }
-  }
+  }*/
 
   def testUnresolvedTypeEmpty() {
     assertMatches(messages("def f: C = { }")) {
