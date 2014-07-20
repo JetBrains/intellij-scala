@@ -7,6 +7,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -88,6 +89,14 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
             case _ =>
           }
           addResult(new ScalaResolveResult(param, subst, getImports(state)))
+        case f: ScFieldId =>
+          val memb = ScalaPsiUtil.getContextOfType(f, true, classOf[ScValue], classOf[ScVariable])
+          memb match {
+            case memb: ScMember if memb.hasModifierProperty("implicit") =>
+              if (!isPredefPriority && !ResolveUtils.isAccessible(memb, getPlace)) return true
+              addResult(new ScalaResolveResult(named, subst, getImports(state)))
+            case _ =>
+          }
         case patt: ScBindingPattern =>
           val memb = ScalaPsiUtil.getContextOfType(patt, true, classOf[ScValue], classOf[ScVariable])
           memb match {
