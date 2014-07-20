@@ -1,3 +1,9 @@
+<settings>
+  <codeStyleSettings language="HOCON">
+    <option name="SPACE_BEFORE_COMMA" value="true" />
+  </codeStyleSettings>
+</settings>
+-----
 a = {k = v, k = v,}
 a = {k = v , k = v ,}
 a = {k = v  , k = v  ,}

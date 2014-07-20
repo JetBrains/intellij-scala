@@ -43,7 +43,7 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         showCustomOption("SPACE_BEFORE_ASSIGNMENT", "Before assignment ('=' and '+=')", SPACES_AROUND_OPERATORS)
         showCustomOption("SPACE_AFTER_ASSIGNMENT", "After assignment ('=' and '+=')", SPACES_AROUND_OPERATORS)
         showCustomOption("SPACE_BEFORE_LBRACE_AFTER_PATH", "Immediately after path expression", SPACES_BEFORE_LEFT_BRACE)
-        showCustomOption("SPACES_WITHIN_SUBSTITUTION_BRACES", "Substitution braces", SPACES_WITHIN)
+        showCustomOption("SPACE_WITHIN_SUBSTITUTION_BRACES", "Substitution braces", SPACES_WITHIN)
         showCustomOption("SPACE_AFTER_QMARK", "After '?'", SPACES_OTHER)
 
       case WRAPPING_AND_BRACES_SETTINGS =>

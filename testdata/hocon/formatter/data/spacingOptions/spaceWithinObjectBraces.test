@@ -1,3 +1,9 @@
+<settings>
+  <codeStyleSettings language="HOCON">
+    <option name="SPACE_WITHIN_BRACES" value="true" />
+  </codeStyleSettings>
+</settings>
+-----
 obj {a = b}
 obj { a = b}
 obj {a = b }

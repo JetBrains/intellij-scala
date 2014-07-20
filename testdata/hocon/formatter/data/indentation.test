@@ -1,3 +1,11 @@
+<settings>
+  <codeStyleSettings language="HOCON">
+    <indentOptions>
+      <option name="CONTINUATION_INDENT_SIZE" value="1" />
+    </indentOptions>
+  </codeStyleSettings>
+</settings>
+-----
 obj {
    anotherObj {
   key = value
