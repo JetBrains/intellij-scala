@@ -1,7 +1,0 @@
-sub = ${?path}
-sub = ${? path}
-sub = ${?  path}
------
-sub = ${?path}
-sub = ${?path}
-sub = ${?path}

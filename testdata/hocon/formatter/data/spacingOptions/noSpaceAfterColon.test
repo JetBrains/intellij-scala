@@ -1,0 +1,13 @@
+<settings>
+  <HoconCodeStyleSettings>
+    <option name="SPACE_AFTER_COLON" value="false" />
+  </HoconCodeStyleSettings>
+</settings>
+-----
+a:b
+a: b
+a:  b
+-----
+a:b
+a:b
+a:b
