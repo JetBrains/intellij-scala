@@ -88,6 +88,24 @@ class ArrowTypingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     checkGeneratedTextAfterTyping(before, after, '>')
   }
 
+  def testDontTouchSpace() {
+    val before =
+      s"""
+         |123 match {
+         |  case 321$CARET_MARKER =>
+         |}
+       """.stripMargin
+
+    val after =
+      s"""
+         |123 match {
+         |  case 321 $CARET_MARKER=>
+         |}
+       """.stripMargin
+
+    checkGeneratedTextAfterTyping(before, after, ' ')
+  }
+
   def testReplaceCaseArrow() {
     settings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = true
 
