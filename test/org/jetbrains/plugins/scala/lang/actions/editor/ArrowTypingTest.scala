@@ -175,4 +175,17 @@ class ArrowTypingTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
     checkGeneratedTextAfterTyping(before, after, '-')
   }
+
+  def testDontAddGtSign() {
+    settings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = true
+
+    val text =
+      s"""
+         | 123 match {
+         |   case 123 ${ScalaTypedHandler.unicodeCaseArrow}$CARET_MARKER
+         | }
+       """.stripMargin
+
+    checkGeneratedTextAfterTyping(text, text, '>')
+  }
 }
