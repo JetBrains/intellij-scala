@@ -107,22 +107,25 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
                             && element.getPrevSibling.getNode.getElementType == ScalaDocTokenType.DOC_ITALIC_TAG)) {
       moveCaret()
       return Result.STOP
-    } else if (c == '"' && element.getNode.getElementType == XmlTokenType.XML_ATTRIBUTE_VALUE_END_DELIMITER) {
+    } else if (c == '"' && elementType == XmlTokenType.XML_ATTRIBUTE_VALUE_END_DELIMITER) {
       moveCaret()
       return Result.STOP
-    } else if ((c == '>' || c == '/') && element.getNode.getElementType == XmlTokenType.XML_EMPTY_ELEMENT_END) {
+    } else if ((c == '>' || c == '/') && elementType == XmlTokenType.XML_EMPTY_ELEMENT_END) {
       moveCaret()
       return Result.STOP
-    } else if (c == '>' && element.getNode.getElementType == XmlTokenType.XML_TAG_END) {
+    } else if (c == '>' && elementType == XmlTokenType.XML_TAG_END) {
       moveCaret()
       return Result.STOP
     } else if (c == '>' && prevElement != null && prevElement.getNode.getElementType == XmlTokenType.XML_EMPTY_ELEMENT_END) {
       return Result.STOP
     } else if (
-        element.getNode.getElementType == ScalaTokenTypes.tFUNTYPE && element.getParent.isInstanceOf[ScCaseClause] &&
+        elementType == ScalaTokenTypes.tFUNTYPE && element.getParent.isInstanceOf[ScCaseClause] &&
         (c == '>' && offset == element.getTextRange.getStartOffset + 1 || c == '=' && offset == element.getTextRange.getStartOffset)
           && settings.ADD_ARROW_AFTER_INDENT_CASE) {
       moveCaret()
+      return Result.STOP
+    } else if (c == '>' && settings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR && prevElement != null &&
+      prevElement.getNode.getElementType == ScalaTokenTypes.tFUNTYPE) {
       return Result.STOP
     } else if (c == '"' && prevElement != null && ScalaApplicationSettings.getInstance().INSERT_MULTILINE_QUOTES) {
       val prevType = prevElement.getNode.getElementType
