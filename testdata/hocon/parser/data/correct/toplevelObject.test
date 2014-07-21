@@ -1,0 +1,37 @@
+{
+  key = value
+  kye : vlaue
+}
+-----
+HOCON_FILE
+  HoconPsiElement(OBJECT)
+    PsiElement(LBRACE)('{')
+    HoconPsiElement(OBJECT_ENTRIES)
+      PsiWhiteSpace('\n  ')
+      HoconPsiElement(OBJECT_FIELD)
+        HoconPsiElement(BARE_OBJECT_FIELD)
+          HoconPsiElement(FIELD_PATH)
+            HoconPsiElement(KEY)
+              HoconPsiElement(UNQUOTED_STRING)
+                PsiElement(UNQUOTED_CHARS)('key')
+          PsiWhiteSpace(' ')
+          PsiElement(EQUALS)('=')
+          PsiWhiteSpace(' ')
+          HoconPsiElement(VALUE)
+            HoconPsiElement(UNQUOTED_STRING)
+              PsiElement(UNQUOTED_CHARS)('value')
+      PsiWhiteSpace('\n  ')
+      HoconPsiElement(OBJECT_FIELD)
+        HoconPsiElement(BARE_OBJECT_FIELD)
+          HoconPsiElement(FIELD_PATH)
+            HoconPsiElement(KEY)
+              HoconPsiElement(UNQUOTED_STRING)
+                PsiElement(UNQUOTED_CHARS)('kye')
+          PsiWhiteSpace(' ')
+          PsiElement(COLON)(':')
+          PsiWhiteSpace(' ')
+          HoconPsiElement(VALUE)
+            HoconPsiElement(UNQUOTED_STRING)
+              PsiElement(UNQUOTED_CHARS)('vlaue')
+      PsiWhiteSpace('\n')
+    PsiElement(RBRACE)('}')

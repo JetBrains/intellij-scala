@@ -1,0 +1,16 @@
+$ {something}
+${ ?something}
+-----
+BAD_CHARACTER {$}
+INLINE_WHITESPACE { }
+LBRACE {{}
+UNQUOTED_CHARS {something}
+RBRACE {}}
+LINE_BREAKING_WHITESPACE {
+}
+DOLLAR {$}
+SUB_LBRACE {{}
+INLINE_WHITESPACE { }
+BAD_CHARACTER {?}
+UNQUOTED_CHARS {something}
+SUB_RBRACE {}}

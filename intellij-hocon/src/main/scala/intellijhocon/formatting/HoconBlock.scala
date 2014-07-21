@@ -1,4 +1,5 @@
-package intellijhocon.formatting
+package intellijhocon
+package formatting
 
 import com.intellij.lang.ASTNode
 import com.intellij.formatting._
