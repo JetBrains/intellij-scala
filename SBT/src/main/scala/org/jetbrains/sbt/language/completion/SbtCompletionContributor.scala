@@ -10,10 +10,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceEx
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScProjectionType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScParameterizedType, ScProjectionType, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 
 /**
@@ -34,8 +36,6 @@ class SbtCompletionContributor extends CompletionContributor {
       def qualifiedName(t: ScType) = ScType.extractClass(t).map(_.getQualifiedName).getOrElse("")
 
       // In expression `setting += ???` extracts type T of `setting: Setting[Seq[T]]`
-      // TODO: maybe should also catch Map[T] and Set[T]?
-      // TODO: or instead of hard qualified name checking introduce some kind of polymorphic approach?
       def extractSeqType: ScType = {
         if (operator.getText != "+=")
           return types.Nothing
@@ -43,8 +43,9 @@ class SbtCompletionContributor extends CompletionContributor {
           case Success(operatorType: ScParameterizedType, _) =>
             operatorType.typeArgs.last match {
               case ScParameterizedType(settingType, Seq(seqFullType)) if qualifiedName(settingType) == "sbt.Init.Setting" =>
+                val collectionTypeNames = Seq("scala.collection.Seq", "scala.collection.immutable.Set")
                 seqFullType match {
-                  case ScParameterizedType(seqType, Seq(valType)) if qualifiedName(seqType) == "scala.collection.Seq" =>
+                  case ScParameterizedType(seqType, Seq(valType)) if collectionTypeNames contains qualifiedName(seqType) =>
                     valType
                   case _ => types.Nothing
                 }
@@ -54,23 +55,18 @@ class SbtCompletionContributor extends CompletionContributor {
         }
       }
 
-      // In expression `setting in ???` extract type of `???`
-      // Extracted type should be Scope
-      // TODO: maybe create Scope type instead of extracting it from operator?
-      def extractScopeType: ScType = {
+      def getScopeType: ScType = {
         if (operator.getText != "in")
           return types.Nothing
-        val t = operator.getType()
-        operator.getType() match {
-          case Success(ScParameterizedType(_, Seq(innerType, rest @ _*)), _) => innerType
-          case _ => types.Nothing
-        }
+        val manager = ScalaPsiManager.instance(place.getProject)
+        val scopeClass = manager.getCachedClass("sbt.Scope", place.getResolveScope, ClassCategory.TYPE)
+        ScDesignatorType(scopeClass)
       }
 
       val expectedTypes = Seq(
         parentRef.expectedType().getOrElse(types.Nothing),
         extractSeqType,
-        extractScopeType
+        getScopeType
       ).filter(t => t != types.Nothing && !t.isInstanceOf[NonValueType])
       val expectedType = expectedTypes.headOption.getOrElse(types.Nothing)
 
