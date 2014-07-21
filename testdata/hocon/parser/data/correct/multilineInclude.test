@@ -1,0 +1,18 @@
+include
+
+url(
+"stuff"
+)
+-----
+HOCON_FILE
+  HoconPsiElement(OBJECT_ENTRIES)
+    HoconPsiElement(INCLUDE)
+      PsiElement(UNQUOTED_CHARS)('include')
+      PsiWhiteSpace('\n\n')
+      HoconPsiElement(INCLUDED)
+        PsiElement(UNQUOTED_CHARS)('url(')
+        PsiWhiteSpace('\n')
+        PsiErrorElement:no protocol: stuff
+          PsiElement(QUOTED_STRING)('"stuff"')
+        PsiWhiteSpace('\n')
+        PsiElement(UNQUOTED_CHARS)(')')

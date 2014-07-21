@@ -1,0 +1,5 @@
+something"aaaa\"aaaa"else
+-----
+UNQUOTED_CHARS {something}
+QUOTED_STRING {"aaaa\"aaaa"}
+UNQUOTED_CHARS {else}

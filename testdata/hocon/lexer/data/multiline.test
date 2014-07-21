@@ -1,0 +1,9 @@
+"quoted""""""
+  ""something
+  more""""""unquoted
+-----
+QUOTED_STRING {"quoted"}
+MULTILINE_STRING {"""""
+  ""something
+  more""""""}
+UNQUOTED_CHARS {unquoted}

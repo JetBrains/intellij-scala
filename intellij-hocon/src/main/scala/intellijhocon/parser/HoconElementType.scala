@@ -1,4 +1,5 @@
-package intellijhocon.parser
+package intellijhocon
+package parser
 
 import com.intellij.psi.tree.{IElementType, IFileElementType}
 import intellijhocon.lang.HoconLanguage
