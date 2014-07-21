@@ -5,6 +5,7 @@ import com.intellij.codeInsight.completion._
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi._
 import com.intellij.util.ProcessingContext
+import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.{LookupElementManager, ScalaChainLookupElement, ScalaLookupItem}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScValue, ScVariable}
@@ -19,7 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScParameter
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 
 /**
- * Created by Nikolay Obedin on 7/10/14.
+ * @author Nikolay Obedin
+ * @since 7/10/14.
  */
 
 class SbtCompletionContributor extends CompletionContributor {
@@ -29,57 +31,62 @@ class SbtCompletionContributor extends CompletionContributor {
 
   extend(CompletionType.BASIC, afterInfixOperator, new CompletionProvider[CompletionParameters] {
     override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+      if (parameters.getOriginalFile.getFileType.getName != Sbt.Name) return
+
       val place     = parameters.getPosition
-      val parentRef = place.getParent.asInstanceOf[ScReferenceExpression]
-      val operator  = parentRef.getPrevSiblingNotWhitespace.asInstanceOf[ScReferenceExpression]
+      val infixExpr = place.getParent.getParent.asInstanceOf[ScInfixExpr]
+      val operator  = infixExpr.operation
+      val parentRef = infixExpr.rOp match {
+        case ref: ScReferenceExpression => ref
+        case _ => return
+      }
 
-      if (parameters.getOriginalFile.getFileType.getName != Sbt.Name)
-        return
+      // Check if we're on the right side of expression
+      if (parentRef != place.getParent) return
 
-      def qualifiedName(t: ScType) = ScType.extractClass(t).map(_.getQualifiedName).getOrElse("")
+      def qualifiedName(t: ScType) = ScType.extractClass(t).map(_.qualifiedName).getOrElse("")
 
       // In expression `setting += ???` extracts type T of `setting: Setting[Seq[T]]`
-      def extractSeqType: ScType = {
-        if (operator.getText != "+=")
-          return types.Nothing
+      def extractSeqType: Option[ScType] = {
+        if (operator.getText != "+=") return None
         operator.getType() match {
-          case Success(operatorType: ScParameterizedType, _) =>
-            operatorType.typeArgs.last match {
+          case Success(ScParameterizedType(_, typeArgs), _) =>
+            typeArgs.last match {
               case ScParameterizedType(settingType, Seq(seqFullType)) if qualifiedName(settingType) == "sbt.Init.Setting" =>
                 val collectionTypeNames = Seq("scala.collection.Seq", "scala.collection.immutable.Set")
                 seqFullType match {
                   case ScParameterizedType(seqType, Seq(valType)) if collectionTypeNames contains qualifiedName(seqType) =>
-                    valType
-                  case _ => types.Nothing
+                    Some(valType)
+                  case _ => None
                 }
-              case _ => types.Nothing
+              case _ => None
             }
-          case _ => types.Nothing
+          case _ => None
         }
       }
 
-      def getScopeType: ScType = {
-        if (operator.getText != "in")
-          return types.Nothing
+      def getScopeType: Option[ScType] = {
+        if (operator.getText != "in") return None
         val manager = ScalaPsiManager.instance(place.getProject)
         val scopeClass = manager.getCachedClass("sbt.Scope", place.getResolveScope, ClassCategory.TYPE)
-        ScDesignatorType(scopeClass)
+        if (scopeClass != null) Some(ScDesignatorType(scopeClass)) else None
       }
 
       val expectedTypes = Seq(
-        parentRef.expectedType().getOrElse(types.Nothing),
+        parentRef.expectedType().filterNot(_.isInstanceOf[NonValueType]),
         extractSeqType,
         getScopeType
-      ).filter(t => t != types.Nothing && !t.isInstanceOf[NonValueType])
-      val expectedType = expectedTypes.headOption.getOrElse(types.Nothing)
+      ).flatten
+      val expectedType = expectedTypes match {
+        case Seq(t, rest @ _*) => t
+        case _ => return
+      }
 
-      if (expectedType == types.Nothing)
-        return
+      def isAccessible(cls: PsiMember): Boolean = ResolveUtils.isAccessible(cls, place, forCompletion = true)
 
-      def isAccessible(cls: PsiMember): Boolean = ResolveUtils.isAccessible(cls, place, forCompletion=true)
-
-      def collectAndApplyVariants(_obj: PsiClass): Unit = _obj match {
-        case obj: ScObject if ResolveUtils.isAccessible(obj, place, forCompletion = true) && ScalaPsiUtil.hasStablePath(obj) =>
+      // Collect all values, variables and inner objects from given object amd apply them
+      def collectAndApplyVariants(obj: PsiClass): Unit = obj match {
+        case obj: ScObject if isAccessible(obj) && ScalaPsiUtil.hasStablePath(obj) =>
           def fetchLookup(element: ScTypedDefinition) {
             val lookup = LookupElementManager.getLookupElement(new ScalaResolveResult(element), isClassName = true,
               isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0)
@@ -95,12 +102,12 @@ class SbtCompletionContributor extends CompletionContributor {
         case _ => // do nothing
       }
 
-      def applyVariant(_variant: Object) {
+      def applyVariant(variantObj: Object) {
         def apply(item: ScalaLookupItem) {
           item.isSbtLookupItem = true
           result.addElement(item)
         }
-        val variant = _variant match {
+        val variant = variantObj match {
           case el: ScalaLookupItem => el
           case ch: ScalaChainLookupElement => ch.element
           case _ => return
@@ -117,7 +124,7 @@ class SbtCompletionContributor extends CompletionContributor {
         }
       }
 
-      // Get results from companion objects and all that stuff
+      // Get results from companion objects and static fields from java classes/enums
       ScType.extractClass(expectedType) match {
         case Some(clazz: ScTypeDefinition) =>
           expectedType match {

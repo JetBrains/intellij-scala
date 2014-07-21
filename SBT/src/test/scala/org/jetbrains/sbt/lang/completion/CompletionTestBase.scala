@@ -23,7 +23,8 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import scala.collection.mutable.ArrayBuffer
 
 /**
- * Created by Nikolay Obedin on 7/17/14.
+ * @author Nikolay Obedin
+ * @since 7/17/14.
  */
 
 abstract class CompletionTestBase extends completion.CompletionTestBase {
