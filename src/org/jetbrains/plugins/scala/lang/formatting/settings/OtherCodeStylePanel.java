@@ -23,6 +23,7 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox addAfterCaseCheckBox;
   private JCheckBox replaceWithUnicodeSymbolCheckBox;
   private JCheckBox replaceWithUnicodeSymbolCheckBox1;
+  private JCheckBox replaceInForGeneratorCheckBox;
 
   protected OtherCodeStylePanel(@NotNull CodeStyleSettings settings) {
     super(settings);
@@ -66,6 +67,7 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     scalaCodeStyleSettings.ADD_ARROW_AFTER_INDENT_CASE = addAfterCaseCheckBox.isSelected();
     scalaCodeStyleSettings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = replaceWithUnicodeSymbolCheckBox.isSelected();
     scalaCodeStyleSettings.REPLACE_MAP_ARROW_WITH_UNICODE_CHAR = replaceWithUnicodeSymbolCheckBox1.isSelected();
+    scalaCodeStyleSettings.REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR = replaceInForGeneratorCheckBox.isSelected();
   }
 
   @Override
@@ -76,6 +78,7 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaCodeStyleSettings.ADD_ARROW_AFTER_INDENT_CASE != addAfterCaseCheckBox.isSelected()) return true;
     if (scalaCodeStyleSettings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR != replaceWithUnicodeSymbolCheckBox.isSelected()) return true;
     if (scalaCodeStyleSettings.REPLACE_MAP_ARROW_WITH_UNICODE_CHAR != replaceWithUnicodeSymbolCheckBox1.isSelected()) return true;
+    if (scalaCodeStyleSettings.REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR != replaceInForGeneratorCheckBox.isSelected()) return true;
 
     return false;
   }
@@ -93,5 +96,6 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     addAfterCaseCheckBox.setSelected(scalaCodeStyleSettings.ADD_ARROW_AFTER_INDENT_CASE);
     replaceWithUnicodeSymbolCheckBox.setSelected(scalaCodeStyleSettings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR);
     replaceWithUnicodeSymbolCheckBox1.setSelected(scalaCodeStyleSettings.REPLACE_MAP_ARROW_WITH_UNICODE_CHAR);
+    replaceInForGeneratorCheckBox.setSelected(scalaCodeStyleSettings.REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR);
   }
 }

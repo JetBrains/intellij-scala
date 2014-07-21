@@ -68,7 +68,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     } else if (c == '{' && (element.getParent match {
             case l: ScInterpolatedStringLiteral => !l.isMultiLineString; case _ => false} )) {
       myTask = completeInterpolatedStringBraces
-    } else if (c == '>') {
+    } else if (c == '>' || c == '-') {
       myTask = replaceArrowTask(file, editor)
     }
 
@@ -281,6 +281,8 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
         replaceElement(ScalaTypedHandler.unicodeCaseArrow)
       case ScalaTokenTypes.tIDENTIFIER if settings.REPLACE_MAP_ARROW_WITH_UNICODE_CHAR && element.getText == "->" =>
         replaceElement(ScalaTypedHandler.unicodeMapArrow)
+      case ScalaTokenTypes.tCHOOSE if settings.REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR =>
+        replaceElement(ScalaTypedHandler.unicodeForGeneratorArrow)
       case _ =>
     }
   }
@@ -315,4 +317,5 @@ object ScalaTypedHandler {
 
   val unicodeCaseArrow = "⇒"
   val unicodeMapArrow = "→"
+  val unicodeForGeneratorArrow = "←"
 }
