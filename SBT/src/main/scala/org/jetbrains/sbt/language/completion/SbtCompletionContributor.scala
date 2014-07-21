@@ -33,6 +33,9 @@ class SbtCompletionContributor extends CompletionContributor {
       val parentRef = place.getParent.asInstanceOf[ScReferenceExpression]
       val operator  = parentRef.getPrevSiblingNotWhitespace.asInstanceOf[ScReferenceExpression]
 
+      if (parameters.getOriginalFile.getFileType.getName != Sbt.Name)
+        return
+
       def qualifiedName(t: ScType) = ScType.extractClass(t).map(_.getQualifiedName).getOrElse("")
 
       // In expression `setting += ???` extracts type T of `setting: Setting[Seq[T]]`
@@ -70,8 +73,7 @@ class SbtCompletionContributor extends CompletionContributor {
       ).filter(t => t != types.Nothing && !t.isInstanceOf[NonValueType])
       val expectedType = expectedTypes.headOption.getOrElse(types.Nothing)
 
-      if (parameters.getOriginalFile.getFileType.getName != Sbt.Name
-              || expectedType == types.Nothing)
+      if (expectedType == types.Nothing)
         return
 
       def isAccessible(cls: PsiMember): Boolean = ResolveUtils.isAccessible(cls, place, forCompletion=true)
