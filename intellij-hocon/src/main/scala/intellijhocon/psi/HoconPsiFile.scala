@@ -1,4 +1,5 @@
-package intellijhocon.psi
+package intellijhocon
+package psi
 
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.{PsiElementVisitor, FileViewProvider}

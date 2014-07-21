@@ -1,0 +1,12 @@
+<settings>
+  <option name="RIGHT_MARGIN" value="100" />
+  <HoconCodeStyleSettings>
+    <option name="LISTS_WRAP" value="2" />
+  </HoconCodeStyleSettings>
+</settings>
+-----
+a = [111, 222, 333]
+-----
+a = [111,
+  222,
+  333]

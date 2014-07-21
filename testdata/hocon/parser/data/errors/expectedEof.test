@@ -1,0 +1,10 @@
+{}}
+-----
+HOCON_FILE
+  HoconPsiElement(OBJECT)
+    PsiElement(LBRACE)('{')
+    HoconPsiElement(OBJECT_ENTRIES)
+      <empty list>
+    PsiElement(RBRACE)('}')
+  PsiErrorElement:expected end of file
+    PsiElement(RBRACE)('}')

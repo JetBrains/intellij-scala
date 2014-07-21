@@ -18,7 +18,7 @@ public class HoconCustomCodeStyleSettings extends CustomCodeStyleSettings {
     // Before left brace
     public boolean SPACE_BEFORE_LBRACE_AFTER_PATH = true;
     // Within
-    public boolean SPACES_WITHIN_SUBSTITUTION_BRACES = false;
+    public boolean SPACE_WITHIN_SUBSTITUTION_BRACES = false;
     // Other
     public boolean SPACE_AFTER_QMARK = false;
 

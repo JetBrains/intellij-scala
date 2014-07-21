@@ -1,4 +1,5 @@
-package intellijhocon.parser
+package intellijhocon
+package parser
 
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.psi.{StringEscapesTokenTypes, TokenType, PsiElement}

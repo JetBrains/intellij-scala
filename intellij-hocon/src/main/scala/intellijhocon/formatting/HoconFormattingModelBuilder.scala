@@ -1,4 +1,5 @@
-package intellijhocon.formatting
+package intellijhocon
+package formatting
 
 import com.intellij.formatting.FormattingModelBuilder
 import com.intellij.psi.{PsiElement, PsiFile}
