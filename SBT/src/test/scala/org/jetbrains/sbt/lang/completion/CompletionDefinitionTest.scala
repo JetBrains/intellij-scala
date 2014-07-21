@@ -2,7 +2,8 @@ package org.jetbrains.sbt
 package lang.completion
 
 /**
- * Created by Nikolay Obedin on 7/17/14.
+ * @author Nikolay Obedin
+ * @since 7/17/14.
  */
 
 class CompletionDefinitionTest extends CompletionTestBase {
