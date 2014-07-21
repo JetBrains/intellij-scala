@@ -1,0 +1,51 @@
+<settings>
+  <codeStyleSettings language="HOCON">
+    <indentOptions>
+      <option name="CONTINUATION_INDENT_SIZE" value="1" />
+    </indentOptions>
+  </codeStyleSettings>
+</settings>
+-----
+obj {
+   anotherObj {
+  key = value
+         anotherKey: anotherValue
+longkey =
+      value
+    otherkey
+           = value
+  anotherkey
+   =
+# blah blah
+     value
+     }
+ a = [
+1, 2, 3
+         4, 5
+  6, 7, {
+ key = value
+}
+      ]
+}
+-----
+obj {
+  anotherObj {
+    key = value
+    anotherKey: anotherValue
+    longkey =
+     value
+    otherkey
+     = value
+    anotherkey
+     =
+    # blah blah
+     value
+  }
+  a = [
+    1, 2, 3
+    4, 5
+    6, 7, {
+      key = value
+    }
+  ]
+}

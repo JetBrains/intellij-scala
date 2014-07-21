@@ -1,0 +1,14 @@
+<settings>
+  <option name="RIGHT_MARGIN" value="25" />
+  <HoconCodeStyleSettings>
+    <option name="OBJECTS_WRAP" value="4" />
+  </HoconCodeStyleSettings>
+</settings>
+-----
+obj {key = value, key = value, k = v}
+-----
+obj {
+  key = value,
+  key = value,
+  k = v
+}

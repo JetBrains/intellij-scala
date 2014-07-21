@@ -1,14 +1,13 @@
-package intellijhocon.parser
+package intellijhocon
+package parser
 
-import intellijhocon.Util
 import com.intellij.psi.TokenType
-import intellijhocon.lexer.HoconTokenType
 
 object HoconElementSets {
 
-  import HoconElementType._
-  import HoconTokenType._
-  import Util._
+  import intellijhocon.Util._
+  import intellijhocon.lexer.HoconTokenType._
+  import intellijhocon.parser.HoconElementType._
 
   val Path = FieldPath | SubstitutionPath
   val StringValue = UnquotedString | QuotedString | MultilineString

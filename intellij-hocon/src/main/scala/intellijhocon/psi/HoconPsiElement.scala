@@ -1,4 +1,5 @@
-package intellijhocon.psi
+package intellijhocon
+package psi
 
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode

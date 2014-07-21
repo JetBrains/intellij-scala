@@ -1,4 +1,5 @@
-package intellijhocon.lexer
+package intellijhocon
+package lexer
 
 import com.intellij.lexer.LexerBase
 import scala.util.matching.Regex

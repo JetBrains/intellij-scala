@@ -1,4 +1,5 @@
-package intellijhocon.parser
+package intellijhocon
+package parser
 
 import com.intellij.lang.{WhitespacesAndCommentsBinder, WhitespacesBinders, PsiBuilder, PsiParser}
 import com.intellij.psi.tree.IElementType

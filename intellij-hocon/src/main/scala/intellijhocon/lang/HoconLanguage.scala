@@ -1,4 +1,5 @@
-package intellijhocon.lang
+package intellijhocon
+package lang
 
 import com.intellij.lang.Language
 
