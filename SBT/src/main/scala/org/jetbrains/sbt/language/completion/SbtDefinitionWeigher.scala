@@ -13,7 +13,7 @@ class SbtDefinitionWeigher extends CompletionWeigher {
   def weigh(_element: LookupElement, location: CompletionLocation): Comparable[_] = _element match {
     case element: ScalaLookupItem if element.name == "???" => new Integer(0)
     case element: ScalaLookupItem if element.isSbtLookupItem =>
-      if (element.isVariable)
+      if (element.isLocalVariable)
         new Integer(2)
       else
         new Integer(1)

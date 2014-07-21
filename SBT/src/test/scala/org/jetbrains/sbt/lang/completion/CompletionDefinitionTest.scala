@@ -12,4 +12,8 @@ class CompletionDefinitionTest extends CompletionTestBase {
     = doTest
   def testJavaEnumValues
     = doTest
+  def testScopes
+    = doTest
+  def testSequences
+    = doTest
 }
