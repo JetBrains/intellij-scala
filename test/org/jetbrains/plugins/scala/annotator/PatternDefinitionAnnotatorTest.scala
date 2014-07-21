@@ -46,11 +46,12 @@ class PatternDefinitionAnnotatorTest extends SimpleTestCase {
     }
   }
 
-  def testImplicitConversion {
+  //todo: requires Function1 trait in scope
+  /*def testImplicitConversion {
     assertMatches(messages("implicit def toA(b: B) = A; val v: A = B")) {
       case Nil =>
     }
-  }
+  }*/
 
   def testWildchar {
     assertMatches(messages("val v: A = _")) {

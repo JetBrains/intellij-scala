@@ -27,5 +27,7 @@ class OptimizeImportsImplicitsTest extends OptimizeImportsTestBase {
 
   def testOverloadedImplicits() = doTest()
 
+  def testSCL6514() = doTest()
+
   def testSCL6783() = doTest()
 }
