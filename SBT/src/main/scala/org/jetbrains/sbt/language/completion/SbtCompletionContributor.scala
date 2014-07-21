@@ -10,8 +10,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceEx
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScProjectionType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScProjectionType, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 
 /**
@@ -22,11 +24,55 @@ class SbtCompletionContributor extends CompletionContributor {
 
   val afterInfixOperator = PlatformPatterns.psiElement().withSuperParent(2, classOf[ScInfixExpr])
 
+
   extend(CompletionType.BASIC, afterInfixOperator, new CompletionProvider[CompletionParameters] {
     override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
-      val place        = parameters.getPosition
-      val parentRef    = place.getParent.asInstanceOf[ScReferenceExpression]
-      val expectedType = parentRef.expectedType().getOrElse(types.Nothing)
+      val place     = parameters.getPosition
+      val parentRef = place.getParent.asInstanceOf[ScReferenceExpression]
+      val operator  = parentRef.getPrevSiblingNotWhitespace.asInstanceOf[ScReferenceExpression]
+
+      def qualifiedName(t: ScType) = ScType.extractClass(t).map(_.getQualifiedName).getOrElse("")
+
+      // In expression `setting += ???` extracts type T of `setting: Setting[Seq[T]]`
+      // TODO: maybe should also catch Map[T] and Set[T]?
+      // TODO: or instead of hard qualified name checking introduce some kind of polymorphic approach?
+      def extractSeqType: ScType = {
+        if (operator.getText != "+=")
+          return types.Nothing
+        operator.getType() match {
+          case Success(operatorType: ScParameterizedType, _) =>
+            operatorType.typeArgs.last match {
+              case ScParameterizedType(settingType, Seq(seqFullType)) if qualifiedName(settingType) == "sbt.Init.Setting" =>
+                seqFullType match {
+                  case ScParameterizedType(seqType, Seq(valType)) if qualifiedName(seqType) == "scala.collection.Seq" =>
+                    valType
+                  case _ => types.Nothing
+                }
+              case _ => types.Nothing
+            }
+          case _ => types.Nothing
+        }
+      }
+
+      // In expression `setting in ???` extract type of `???`
+      // Extracted type should be Scope
+      // TODO: maybe create Scope type instead of extracting it from operator?
+      def extractScopeType: ScType = {
+        if (operator.getText != "in")
+          return types.Nothing
+        val t = operator.getType()
+        operator.getType() match {
+          case Success(ScParameterizedType(_, Seq(innerType, rest @ _*)), _) => innerType
+          case _ => types.Nothing
+        }
+      }
+
+      val expectedTypes = Seq(
+        parentRef.expectedType().getOrElse(types.Nothing),
+        extractSeqType,
+        extractScopeType
+      ).filter(t => t != types.Nothing && !t.isInstanceOf[NonValueType])
+      val expectedType = expectedTypes.headOption.getOrElse(types.Nothing)
 
       if (parameters.getOriginalFile.getFileType.getName != Sbt.Name
               || expectedType == types.Nothing)
@@ -55,8 +101,6 @@ class SbtCompletionContributor extends CompletionContributor {
         def apply(item: ScalaLookupItem) {
           item.isSbtLookupItem = true
           result.addElement(item)
-          // FIXME: remove before releasing
-          println(item)
         }
         val variant = _variant match {
           case el: ScalaLookupItem => el
@@ -67,7 +111,9 @@ class SbtCompletionContributor extends CompletionContributor {
           case f: PsiField if ScType.create(f.getType, f.getProject, parentRef.getResolveScope).conforms(expectedType) =>
             apply(variant)
           case typed: ScTypedDefinition if typed.getType().getOrAny.conforms(expectedType) =>
-            variant.isVariable = typed.isVar || typed.isVal
+            variant.isLocalVariable =
+              (typed.isVar || typed.isVal) &&
+              (typed.containingFile exists (_.getName == parameters.getOriginalFile.getName))
             apply(variant)
           case _ => // do nothing
         }
@@ -101,8 +147,4 @@ class SbtCompletionContributor extends CompletionContributor {
       parentRef.getVariants() foreach applyVariant
     }
   })
-
-  // FIXME: Remove this before releasing
-  override def fillCompletionVariants(params: CompletionParameters, results: CompletionResultSet) =
-    super.fillCompletionVariants(params, results)
 }
