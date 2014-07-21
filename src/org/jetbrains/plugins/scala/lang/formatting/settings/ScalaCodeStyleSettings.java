@@ -92,6 +92,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean ADD_ARROW_AFTER_INDENT_CASE = false;
   public boolean REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = false;
   public boolean REPLACE_MAP_ARROW_WITH_UNICODE_CHAR = false;
+  public boolean REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR = false;
 
 
   @Override
