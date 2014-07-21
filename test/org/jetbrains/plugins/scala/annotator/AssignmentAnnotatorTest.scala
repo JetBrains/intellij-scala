@@ -24,12 +24,13 @@ class AssignmentAnnotatorTest extends SimpleTestCase {
       case Error("B", TypeMismatch()) :: Nil =>
     }
   }
-  
-  def testImplicitConversion {
+
+  //todo: requires Function1 trait in scope
+  /*def testImplicitConversion {
     assertMatches(messages("implicit def toA(b: B) = A; var v = A; v = B")) {
       case Nil =>
     }
-  }
+  }*/
   
   def testValue {
     assertMatches(messages("val v = A; v = A")) {
