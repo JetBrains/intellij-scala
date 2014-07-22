@@ -35,7 +35,7 @@ class ScalaUnusedImportPass(val file: PsiFile, editor: Editor, val document: Doc
       highlightInfoProcessor) with ScalaUnusedImportPassBase {
   protected def getFixes: List[IntentionAction] = List(new ScalaOptimizeImportsFix, new ScalaEnableOptimizeImportsOnTheFlyFix)
 
-  private var myHighlights: util.Collection[HighlightInfo] = null
+  private var myHighlights: util.List[HighlightInfo] = null
   private var myOptimizeImportsRunnable: Runnable = null
 
   override def collectInformationWithProgress(progress: ProgressIndicator): Unit = {
@@ -70,8 +70,6 @@ class ScalaUnusedImportPass(val file: PsiFile, editor: Editor, val document: Doc
       }
     }
   }
-
-  override def getInfos: util.List[HighlightInfo] = new util.ArrayList[HighlightInfo](myHighlights)
 }
 
 object ScalaUnusedImportPass {
