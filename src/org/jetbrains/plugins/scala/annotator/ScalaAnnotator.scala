@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.annotator.createFromUsage._
 import org.jetbrains.plugins.scala.annotator.importsTracker._
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
-import org.jetbrains.plugins.scala.annotator.quickfix.{ChangeTypeFix, ReportHighlightingErrorQuickFix, WrapInOptionQuickFix}
+import org.jetbrains.plugins.scala.annotator.quickfix.{AddElementToMethodCallFix, ChangeTypeFix, ReportHighlightingErrorQuickFix, WrapInOptionQuickFix}
 import org.jetbrains.plugins.scala.annotator.template._
 import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.{RemoveValFromEnumeratorIntentionAction, RemoveValFromGeneratorIntentionAction}
 import org.jetbrains.plugins.scala.components.HighlightingAdvisor
@@ -30,17 +30,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScClassParameter, ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportUsed, ReadValueUsed, ValueUsed, WriteValueUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContextOwner, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
@@ -193,6 +193,11 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         super.visitVariableDefinition(varr)
       }
 
+      override def visitVariableDeclaration(varr: ScVariableDeclaration) {
+        checkAbstractMemberPrivateModifier(varr, varr.declaredElements.map(_.nameId), holder)
+        super.visitVariableDeclaration(varr)
+      }
+
       override def visitTypedStmt(stmt: ScTypedStmt) {
         annotateTypedStatement(stmt, holder, typeAware)
         super.visitTypedStmt(stmt)
@@ -247,10 +252,16 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         super.visitFunctionDefinition(fun)
       }
 
+      override def visitFunctionDeclaration(fun: ScFunctionDeclaration) {
+        checkAbstractMemberPrivateModifier(fun, Seq(fun.nameId), holder)
+        super.visitFunctionDeclaration(fun)
+      }
+
       override def visitFunction(fun: ScFunction) {
         if (typeAware && !compiled && fun.getParent.isInstanceOf[ScTemplateBody]) {
           checkOverrideMethods(fun, holder, isInSources)
         }
+        checkFunctionForVariance(fun, holder)
         super.visitFunction(fun)
       }
 
@@ -320,6 +331,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         if (typeAware && !compiled && alias.getParent.isInstanceOf[ScTemplateBody]) {
           checkOverrideTypes(alias, holder)
         }
+        if(!compoundType(alias)) checkBoundsVariance(alias, holder, alias.nameId, alias, checkTypeDeclaredSameBracket = false)
         super.visitTypeAlias(alias)
       }
 
@@ -328,7 +340,18 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                 varr.getParent.isInstanceOf[ScEarlyDefinitions])) {
           checkOverrideVars(varr, holder, isInSources)
         }
+        varr.typeElement match {
+          case Some(typ) => checkBoundsVariance(varr, holder, typ, varr, checkTypeDeclaredSameBracket = false)
+          case _ =>
+        }
+        checkValueAndVariableVariance(varr, ScTypeParam.Covariant, varr.declaredElements, holder)
+        checkValueAndVariableVariance(varr, ScTypeParam.Contravariant, varr.declaredElements, holder)
         super.visitVariable(varr)
+      }
+
+      override def visitValueDeclaration(v: ScValueDeclaration) {
+        checkAbstractMemberPrivateModifier(v, v.declaredElements.map(_.nameId), holder)
+        super.visitValueDeclaration(v)
       }
 
       override def visitValue(v: ScValue) {
@@ -336,6 +359,11 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                 v.getParent.isInstanceOf[ScEarlyDefinitions])) {
           checkOverrideVals(v, holder, isInSources)
         }
+        v.typeElement match {
+          case Some(typ) => checkBoundsVariance(v, holder, typ, v, checkTypeDeclaredSameBracket = false)
+          case _ =>
+        }
+        checkValueAndVariableVariance(v, ScTypeParam.Covariant, v.declaredElements, holder)
         super.visitValue(v)
       }
 
@@ -352,6 +380,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
     element match {
       case templateDefinition: ScTemplateDefinition =>
+        checkBoundsVariance(templateDefinition, holder, templateDefinition.nameId, templateDefinition.nameId, ScTypeParam.Covariant)
         val tdParts = Seq(AbstractInstantiation, FinalClassInheritance, IllegalInheritance, ObjectCreationImpossible,
           MultipleInheritance, NeedsToBeAbstract, NeedsToBeMixin, NeedsToBeTrait, SealedClassInheritance, UndefinedMember)
         tdParts.foreach(_.annotate(templateDefinition, holder, typeAware))
@@ -483,7 +512,15 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
   }
 
-  private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) {}
+  private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) {
+    for {
+      lower <- sTypeParam.lowerBound
+      upper <- sTypeParam.upperBound
+      if !Conformance.conforms(upper, lower)
+      annotation = holder.createErrorAnnotation(sTypeParam,
+        ScalaBundle.message("lower.bound.conform.to.upper", upper, lower))
+    } annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+  }
 
   private def registerUsedElement(element: PsiElement, resolveResult: ScalaResolveResult,
                                   checkWrite: Boolean) {
@@ -500,6 +537,32 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       holder.registerValueUsed(value)
       // For use of unapply method, see SCL-3463
       resolveResult.parentElement.foreach(parent => holder.registerValueUsed(ReadValueUsed(parent)))
+    }
+  }
+
+  def checkBoundsVariance(toCheck: PsiElement, holder: AnnotationHolder, toHighlight: PsiElement, checkParentOf: PsiElement,
+                          varianceOfUpper: Int = ScTypeParam.Covariant, checkTypeDeclaredSameBracket: Boolean = true, insideParameterized: Boolean = false) {
+    toCheck match {
+      case boundOwner: ScTypeBoundsOwner =>
+        checkAndHighlightBounds(boundOwner.upperTypeElement, varianceOfUpper)
+        checkAndHighlightBounds(boundOwner.lowerTypeElement, varianceOfUpper * -1)
+      case _ =>
+    }
+    toCheck match {
+      case paramOwner: ScTypeParametersOwner =>
+        val inParameterized = if (paramOwner.isInstanceOf[ScTemplateDefinition]) false else true
+        for (param <- paramOwner.typeParameters) {
+          checkBoundsVariance(param, holder, param.nameId, checkParentOf, varianceOfUpper * -1, insideParameterized = inParameterized)
+        }
+      case _ =>
+    }
+
+    def checkAndHighlightBounds(boundOption: Option[ScTypeElement], expectedVariance: Int) {
+      boundOption match {
+        case Some(bound) =>
+          checkVariance(bound.calcType, expectedVariance, toHighlight, checkParentOf, holder, checkTypeDeclaredSameBracket, insideParameterized)
+        case _ =>
+      }
     }
   }
 
@@ -971,6 +1034,124 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
   private def checkAnnotationType(annotation: ScAnnotation, holder: AnnotationHolder) {
     //todo: check annotation is inheritor for class scala.Annotation
+  }
+
+  private def checkFunctionForVariance(fun: ScFunction, holder: AnnotationHolder) {
+    if (!modifierIsThis(fun) && !compoundType(fun)) { //if modifier contains [this] or if it is a compound type we do not highlight it
+      checkBoundsVariance(fun, holder, fun.nameId, fun.getParent)
+      fun.returnType match {
+        case Success(returnType, _) =>
+          checkVariance(ScType.expandAliases(returnType).getOrType(returnType), ScTypeParam.Covariant, fun.nameId,
+            fun.getParent, holder)
+        case _ =>
+      }
+      for (parameter <- fun.parameters) {
+        parameter.typeElement match {
+          case Some(te) =>
+            checkVariance(ScType.expandAliases(te.calcType).getOrType(te.calcType), ScTypeParam.Contravariant,
+              parameter.nameId, fun.getParent, holder)
+          case _ =>
+        }
+      }
+    }
+  }
+
+  def checkValueAndVariableVariance(toCheck: ScDeclaredElementsHolder, variance: Int,
+                                    declaredElements: Seq[TypingContextOwner with ScNamedElement], holder: AnnotationHolder) {
+    if (!modifierIsThis(toCheck)) {
+      for (element <- declaredElements) {
+        element.getType() match {
+          case Success(tp, _) =>
+            ScType.expandAliases(tp) match { //so type alias is highlighted
+              case Success(newTp, _) => checkVariance(newTp, variance, element.nameId, toCheck, holder)
+              case _ => checkVariance(tp, variance, element.nameId, toCheck, holder)
+            }
+          case _ =>
+        }
+      }
+    }
+  }
+
+  def modifierIsThis(toCheck: PsiElement): Boolean = {
+    toCheck match {
+      case modifierOwner: ScModifierListOwner => modifierOwner.getModifierList.accessModifier.exists(_.isThis)
+      case _ => false
+    }
+  }
+
+  def compoundType(toCheck: PsiElement): Boolean = {
+    toCheck.getParent.getParent match {
+      case _: ScCompoundTypeElement => true
+      case _ => false
+    }
+  }
+
+  //fix for SCL-807
+  private def checkVariance(typeParam: ScType, variance: Int, toHighlight: PsiElement, checkParentOf: PsiElement,
+                            holder: AnnotationHolder, checkIfTypeIsInSameBrackets: Boolean = false, insideParameterized: Boolean = false) = {
+
+    def highlightVarianceError(varianceOfElement: Int, varianceOfPosition: Int, name: String) = {
+      if (varianceOfPosition != varianceOfElement && varianceOfElement != ScTypeParam.Invariant) {
+        val pos =
+          if (toHighlight.isInstanceOf[ScVariable]) toHighlight.getText + "_="
+          else toHighlight.getText
+        val place = if (toHighlight.isInstanceOf[ScFunction]) "method" else "value"
+        val elementVariance =
+          if (varianceOfElement == 1) "covariant"
+          else "contravariant"
+        val posVariance =
+          if (varianceOfPosition == 1) "covariant"
+          else if (varianceOfPosition == -1) "contravariant"
+          else "invariant"
+        val annotation = holder.createErrorAnnotation(toHighlight,
+          ScalaBundle.message(s"$elementVariance.type.$posVariance.position.of.$place", name, typeParam.toString, pos))
+        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+      }
+    }
+
+    def functionToSendIn(tp: ScType, i: Int) = {
+      tp match {
+        case paramType: ScTypeParameterType =>
+          paramType.param match {
+            case scTypeParam: ScTypeParam =>
+              val compareTo = scTypeParam.owner
+              val parentIt = checkParentOf.parents
+              //if it's a function inside function we do not highlight it unless trait or class is defined inside this function
+              parentIt.find(e => e == compareTo || e.isInstanceOf[ScFunction]) match {
+                case Some(_: ScFunction) =>
+                case _ =>
+                  def findVariance: Int = {
+                    if (!checkIfTypeIsInSameBrackets) return i
+                    if (PsiTreeUtil.isAncestor(scTypeParam.getParent, toHighlight, false))
+                    //we do not highlight element if it was declared inside parameterized type.
+                      if (!scTypeParam.getParent.getParent.isInstanceOf[ScTemplateDefinition]) return scTypeParam.variance
+                      else return i * -1
+                    if (toHighlight.getParent == scTypeParam.getParent.getParent) return i * -1
+                    i
+                  }
+                  highlightVarianceError(scTypeParam.variance, findVariance, paramType.name)
+              }
+            case _ =>
+          }
+        case _ =>
+      }
+      (false, tp)
+    }
+    typeParam.recursiveVarianceUpdate(functionToSendIn, variance)
+  }
+
+  //fix for SCL-7176
+  private def checkAbstractMemberPrivateModifier(element: PsiElement, toHighlight: Seq[PsiElement], holder: AnnotationHolder) {
+    element match {
+      case modOwner: ScModifierListOwner =>
+        if (modOwner.hasModifierProperty("private")) {
+          for (e <- toHighlight) {
+            val annotation = holder.createErrorAnnotation(e, ScalaBundle.message("abstract.member.not.have.private.modifier"))
+            annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+          }
+        }
+      case _ =>
+    }
   }
 }
 
