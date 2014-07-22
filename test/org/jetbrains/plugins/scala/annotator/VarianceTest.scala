@@ -91,24 +91,6 @@ class VarianceTest extends SimpleTestCase {
     }
   }
 
-  def testBoundCyclicSimple() {
-    assertMatches(messages("trait N[A <: A]")) {
-      case Error("N", CyclicReference()) :: Nil =>
-    }
-  }
-
-  def testBoundCyclicComplex() {
-    assertMatches(messages("trait O[B, A >: B with A]")) {
-      case Error("O", CyclicReference()) :: Nil =>
-    }
-  }
-
-  def testBoundCyclicMoreComplex() {
-    assertMatches(messages("trait P[A >: B, B >: A]")) {
-      case Error("P", CyclicReference()) :: Error("P", CyclicReference()) :: Nil =>
-    }
-  }
-
   def testBoundsConformance() {
     assertMatches(messages("trait T[Q, R <: Q, C >: Q <: R]")) {
       case Error("C >: Q <: R", NotConformsUpper()) :: Nil =>
@@ -124,21 +106,6 @@ class VarianceTest extends SimpleTestCase {
   def testTypeBoundNoErrorParameterized() {
     assertMatches(messages("trait V[M[X <: Bound[X]], Bound[_]]")) {
       case Nil =>
-    }
-  }
-
-  def testCurriedFunctionParameters() {
-    val code = """object T {
-                 |  def f(x: Int)(y: Int) = x * y
-                 |
-                 |  def t() : Unit = {
-                 |    val cf = f(1)
-                 |    // should be f(1) _
-                 |    println(cf(5))
-                 |  }
-                 |}""".stripMargin
-    assertMatches(messages(code)) {
-      case Error("cf", MissingArguments()) :: Nil =>
     }
   }
 
@@ -187,9 +154,7 @@ class VarianceTest extends SimpleTestCase {
   val ContravariantPosition = containsPattern("occurs in contravariant position")
   val CovariantPosition = containsPattern("occurs in covariant position")
   val AbstractModifier = containsPattern("Abstract member may not have private modifier")
-  val CyclicReference = containsPattern("Illegal cyclic reference")
   val NotConformsUpper = containsPattern("does not conform to upper bound")
-  val MissingArguments = containsPattern("Missing arguments for method")
 
   def containsPattern(fragment: String) = new {
     def unapply(s: String) = s.contains(fragment)
