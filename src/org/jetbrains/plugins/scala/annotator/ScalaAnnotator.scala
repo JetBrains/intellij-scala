@@ -513,18 +513,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
   }
 
-  private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) { //fix for SCL-7139
-    sTypeParam.lowerTypeElement match {
-      case Some(lower) =>
-        checkForCyclicReference(lower, isUpperBound = false)
-      case None =>
-    }
-    sTypeParam.upperTypeElement match {
-      case Some(upper) =>
-        checkForCyclicReference(upper, isUpperBound = true)
-      case None =>
-    }
-
+  private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) {
     for {
       lower <- sTypeParam.lowerBound
       upper <- sTypeParam.upperBound
@@ -532,42 +521,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       annotation = holder.createErrorAnnotation(sTypeParam,
         ScalaBundle.message("lower.bound.conform.to.upper", upper, lower))
     } annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-
-    def checkForCyclicReference(element: ScTypeElement, isUpperBound: Boolean) {
-      val visited = new mutable.HashSet[ScTypeElement]()
-      var currentElement: ScTypeElement = element
-      while (visited.add(currentElement) && !currentElement.isInstanceOf[ScParameterizedTypeElement]) {
-        currentElement.accept(new ScalaRecursiveElementVisitor() {
-          override def visitSimpleTypeElement(simple: ScSimpleTypeElement) {
-            simple.reference match {
-              case Some(ref) =>
-                val resolveRes = ref.resolve()
-                if (resolveRes == sTypeParam) {
-                  sTypeParam.getParent.getParent match {
-                    case n: ScNamedElement =>
-                      val annotation = holder.createErrorAnnotation(n.nameId, ScalaBundle.message("cyclic.reference.type", simple.getText))
-                      annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-                    case _ =>
-                  }
-                } else {
-                  resolveRes match {
-                    case boundOwner: ScTypeBoundsOwner =>
-                      val boundToCheckNext =
-                        if(isUpperBound) boundOwner.upperTypeElement
-                        else boundOwner.lowerTypeElement
-                      boundToCheckNext match {
-                        case Some(bound) => currentElement = bound
-                        case _ =>
-                      }
-                    case _ =>
-                  }
-                }
-              case None =>
-            }
-          }
-        })
-      }
-    }
   }
 
   private def registerUsedElement(element: PsiElement, resolveResult: ScalaResolveResult,
