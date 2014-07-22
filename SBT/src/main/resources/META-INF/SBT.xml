@@ -53,6 +53,10 @@
                     conditionClass="org.jetbrains.sbt.project.ScalaToolWindowFactoryCondition"/>
 
       <externalSystemTaskNotificationListener implementation="org.jetbrains.sbt.project.SbtNotificationListener"/>
+      <completion.contributor language="Scala" implementationClass="org.jetbrains.sbt.language.completion.SbtCompletionContributor"
+          order="first, before liveTemplates" />
+      <weigher key="completion" implementationClass="org.jetbrains.sbt.language.completion.SbtDefinitionWeigher"
+               id="scalaSbtDefinitionWeigher" order="before scalaContainingClassWeigher, before scalaMethodCompletionWeigher, before scalaClassesCompletionWeigher"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">

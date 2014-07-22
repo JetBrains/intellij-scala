@@ -12,6 +12,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.testFramework.LightPlatformCodeInsightTestCase;
+import com.intellij.testFramework.LightPlatformTestCase;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
@@ -58,6 +59,9 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
     //libLoader.clean();
   }
 
+  protected void setUpWithoutScalaLib() throws Exception {
+    super.setUp();
+  }
 
   protected boolean isIncludeReflectLibrary() {
       return false;
@@ -106,9 +110,10 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
   @Override
   protected void tearDown() throws Exception {
-
-    myLibraryLoader.clean();
-    myLibraryLoader = null;
+    if (myLibraryLoader != null) {
+      myLibraryLoader.clean();
+      myLibraryLoader = null;
+    }
     super.tearDown();
     if (rootPath() != null) {
       new WriteAction<Object>() {
