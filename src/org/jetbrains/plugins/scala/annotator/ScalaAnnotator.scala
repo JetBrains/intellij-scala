@@ -218,7 +218,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       override def visitMethodCallExpression(call: ScMethodCall) {
         checkMethodCallImplicitConversion(call, holder)
         if (typeAware) annotateMethodInvocation(call, holder)
-        checkMethodCallForCaretConformance(call, holder) //fix for SCL-7202
         super.visitMethodCallExpression(call)
       }
 
@@ -1150,58 +1149,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             val annotation = holder.createErrorAnnotation(e, ScalaBundle.message("abstract.member.not.have.private.modifier"))
             annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
           }
-        }
-      case _ =>
-    }
-  }
-
-  private def checkMethodCallForCaretConformance(call: ScMethodCall, holder: AnnotationHolder) {
-    call.getEffectiveInvokedExpr match {
-      case ref: ScReferenceElement =>
-        ref.bind() match {
-          case Some(res) =>
-            res.getElement match {
-              case fun: ScFunction =>
-                val callParentIt = call.parents
-                var currentElement: PsiElement = call
-                var argClauses = new ArrayBuffer[ScArgumentExprList]
-                var hasWildcard: Int = 0
-                while (callParentIt.hasNext && currentElement.isInstanceOf[ScMethodCall]) {
-                  argClauses += currentElement.asInstanceOf[ScMethodCall].args
-                  currentElement = callParentIt.next()
-                  if (currentElement.isInstanceOf[ScUnderscoreSection])  {
-                    hasWildcard += 1
-                    if (callParentIt.hasNext) currentElement = callParentIt.next()
-                  }
-                }
-                if (currentElement.isInstanceOf[ScUnderscoreSection])  {
-                  hasWildcard += 1
-                  if (callParentIt.hasNext) currentElement = callParentIt.next()
-                  if (currentElement.isInstanceOf[ScUnderscoreSection]) hasWildcard += 1
-                }
-                val parameterClauseSize = fun.effectiveParameterClauses.size
-                val callArgumentSize = if(currentElement.isInstanceOf[ScUnderscoreSection]) argClauses.size + 1 else argClauses.size
-                if (hasWildcard > 1) {
-                  val toHighlight = if(argClauses.nonEmpty) argClauses.last.getParent else call.getParent
-                  val annotation = holder.createErrorAnnotation(toHighlight, "Too many placeholders")
-                  annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-                } else if(parameterClauseSize > callArgumentSize && parameterClauseSize > 1) {
-                  val sibl = argClauses.last.getParent.getPrevSiblingNotWhitespaceComment
-                  if (sibl!= null) sibl.getPrevSiblingNotWhitespaceComment match {
-                    case f: ScFunctionalTypeElement => //its conformance will be checked, we don't worry about it
-                    case _ =>
-                      val message = ScalaBundle.message("missing.arguments.for.method", fun.paramClauses.getText)
-                      val toHighlight = if(!argClauses.isEmpty) argClauses.last.getParent else call.getParent
-                      val annotation = holder.createErrorAnnotation(toHighlight, message)
-                      annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-                      val wild = ScalaPsiElementFactory.createWildcardNode(call.getManager)
-                      val fix = new AddElementToMethodCallFix(toHighlight.asInstanceOf[ScMethodCall], wild.getPsi, "placeholder")
-                      annotation.registerFix(fix)
-                  }
-                }
-              case _ =>
-            }
-          case _ =>
         }
       case _ =>
     }
