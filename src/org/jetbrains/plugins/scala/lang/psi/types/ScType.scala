@@ -271,6 +271,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
       val asClass = std.asClass(DecompilerUtil.obtainProject)
       if (asClass.isEmpty) return None
       Some((asClass.get, ScSubstitutor.empty))
+    case ScTypeParameterType(_, _, _, _, param) => Some(param, ScSubstitutor.empty)
     case _ => None
   }
 
