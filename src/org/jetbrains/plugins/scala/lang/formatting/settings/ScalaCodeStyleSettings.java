@@ -89,7 +89,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   //other
   public boolean ENFORCE_PROCEDURE_SYNTAX_FOR_UNIT = true;
-  public boolean ADD_ARROW_AFTER_INDENT_CASE = true;
+  public boolean ADD_ARROW_AFTER_INDENT_CASE = false;
   public boolean REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = false;
   public boolean REPLACE_MAP_ARROW_WITH_UNICODE_CHAR = false;
 
