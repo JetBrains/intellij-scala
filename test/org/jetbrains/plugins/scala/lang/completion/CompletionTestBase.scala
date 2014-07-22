@@ -56,7 +56,7 @@ abstract class CompletionTestBase extends ScalaLightPlatformCodeInsightTestCaseA
     val editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(getProjectAdapter, file, offset), false)
 
     val completionType = if (getTestName(false).startsWith("Smart")) CompletionType.SMART else CompletionType.BASIC
-    new CodeCompletionHandlerBase(completionType, true, false, true).invokeCompletion(getProjectAdapter, editor)
+    new CodeCompletionHandlerBase(completionType, false, false, true).invokeCompletion(getProjectAdapter, editor)
     val lookup: LookupImpl = LookupManager.getActiveLookup(editor).asInstanceOf[LookupImpl]
 
     if (lookup == null)
