@@ -205,6 +205,15 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
                     }
                   }
                 case Some((cl: PsiClass, subst)) =>
+                  typez match {
+                    case t: ScTypeParameterType => return update(t.upper.v)
+                    case p@ScParameterizedType(des, typeArgs) =>
+                      p.designator match {
+                        case ScTypeParameterType(_, _, _, upper, _) => return update(p.substitutor.subst(upper.v))
+                        case _ =>
+                      }
+                    case _ =>
+                  }
                   if (cl == clazz) tp
                   else if (ScalaPsiUtil.cachedDeepIsInheritor(cl, clazz)) tp
                   else null

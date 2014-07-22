@@ -20,7 +20,7 @@ import api.ScalaElementVisitor
 class ScFunctionDeclarationImpl extends ScFunctionImpl with ScFunctionDeclaration {
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
-      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case visitor: ScalaElementVisitor => visitor.visitFunctionDeclaration(this)
       case _ => super.accept(visitor)
     }
   }

@@ -67,6 +67,8 @@ class ScalaElementVisitor extends PsiElementVisitor {
 
   def visitFunctionDefinition(fun: ScFunctionDefinition) {visitFunction(fun)}
 
+  def visitFunctionDeclaration(fun: ScFunctionDeclaration) {visitFunction(fun)}
+
   def visitMacroDefinition(fun: ScMacroDefinition) {visitFunction(fun)}
 
   def visitCatchBlock(c: ScCatchBlock) {visitElement(c)}
