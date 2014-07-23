@@ -15,7 +15,7 @@ object ScalastyleCodeInspection {
   private val cache = new mutable.HashMap[VirtualFile, TimestampedScalastyleConfiguration]()
 
   private object locations {
-    val configFileName = "scalastyle-config.xml"
+    val configFileName = "scalastyle_config.xml"
     val possibleLocations = Seq(".idea", "project")
 
     def typicalLocation(project: Project): Option[VirtualFile] = {
