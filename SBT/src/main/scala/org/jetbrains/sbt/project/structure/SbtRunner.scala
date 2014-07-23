@@ -132,11 +132,17 @@ object SbtRunner {
   }
 
   private def readManifestAttributeFrom(file: File, name: String): Option[String] = {
-    using(new JarFile(file)) { jar =>
+    val jar = new JarFile(file)
+    try {
       using(new BufferedInputStream(jar.getInputStream(new JarEntry("META-INF/MANIFEST.MF")))) { input =>
         val manifest = new java.util.jar.Manifest(input)
         val attributes = manifest.getMainAttributes
         Option(attributes.getValue(name))
+      }
+    }
+    finally {
+      if (jar.isInstanceOf[Closeable]) {
+        jar.close()
       }
     }
   }
