@@ -238,7 +238,7 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, fi
               override def run() {
                 foldingOffsetsCopy map {
                   case (start, end, limit, originalEnd) =>
-                    val offset = originalDocument getLineEndOffset originalEnd
+                    val offset = originalDocument getLineEndOffset Math.min(originalEnd, originalDocument.getLineCount)
                     val linesCount = viewerDocument.getLineNumber(end) - start - limit + 1
 
                     new WorksheetFoldRegionDelegate(
