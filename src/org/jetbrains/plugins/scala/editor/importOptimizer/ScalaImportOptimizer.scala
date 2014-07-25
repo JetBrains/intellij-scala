@@ -15,6 +15,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
 import com.intellij.util.containers.{ConcurrentHashMap, ConcurrentHashSet}
+import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
@@ -218,6 +219,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val sortImports = settings.isSortImports
     val collectImports = settings.isCollectImports
     val groups = settings.getImportLayout
+    val isUnicodeArrow = settings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR
 
     val sortedImportsInfo: mutable.Map[TextRange, Seq[ImportInfo]] =
       for ((range, (names, _importInfos)) <- importsInfo) yield {
@@ -263,8 +265,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
             while (i + 1 < buffer.length) {
               val l: String = buffer(i).prefixQualifier
               val r: String = buffer(i + 1).prefixQualifier
-              val lText = getImportTextCreator.getImportText(buffer(i))
-              val rText = getImportTextCreator.getImportText(buffer(i + 1))
+              val lText = getImportTextCreator.getImportText(buffer(i), isUnicodeArrow)
+              val rText = getImportTextCreator.getImportText(buffer(i + 1), isUnicodeArrow)
               if (greater(l, r, lText, rText, project) && swap(i)) changed = true
               i = i + 1
             }
@@ -368,7 +370,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
           var currentGroupIndex = -1
           val text = importInfos.map { info =>
             val index: Int = findGroupIndex(info.prefixQualifier, project)
-            if (index <= currentGroupIndex) textCreator.getImportText(info)
+            if (index <= currentGroupIndex) textCreator.getImportText(info, isUnicodeArrow)
             else {
               var blankLines = ""
               def iteration() {
@@ -380,7 +382,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
               }
               while (currentGroupIndex != -1 && blankLines.isEmpty && currentGroupIndex < index) iteration()
               currentGroupIndex = index
-              blankLines + textCreator.getImportText(info)
+              blankLines + textCreator.getImportText(info, isUnicodeArrow)
             }
           }.mkString(splitter)
           val newRange: TextRange = if (text.isEmpty) {
@@ -467,13 +469,14 @@ object ScalaImportOptimizer {
   }
 
   class ImportTextCreator {
-    def getImportText(importInfo: ImportInfo): String = {
+    def getImportText(importInfo: ImportInfo, isUnicodeArrow: Boolean): String = {
       import importInfo._
 
       val groupStrings = new ArrayBuffer[String]
       groupStrings ++= singleNames.toSeq.sorted
-      groupStrings ++= renames.map(pair => pair._1 + " => " + pair._2).toSeq.sorted
-      groupStrings ++= hidedNames.map(_ + " => _").toSeq.sorted
+      val arrow = if (isUnicodeArrow) ScalaTypedHandler.unicodeCaseArrow else "=>"
+      groupStrings ++= renames.map(pair => s"${pair._1} $arrow ${pair._2}").toSeq.sorted
+      groupStrings ++= hidedNames.map(_ + s" $arrow _").toSeq.sorted
       if (hasWildcard) groupStrings += "_"
       val postfix =
         if (groupStrings.length > 1 || renames.nonEmpty || hidedNames.nonEmpty) groupStrings.mkString("{", ", ", "}")
