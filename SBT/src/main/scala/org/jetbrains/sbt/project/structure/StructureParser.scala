@@ -136,7 +136,7 @@ object StructureParser {
     (node \ "resolver").map(r => {
       val name = (r \ "@name").text
       val root = (r \ "@root").text
-      Resolver(name, root)
+      Resolver(name, if (root.endsWith("/")) root else root + "/")
     }).toSet
   }
 
