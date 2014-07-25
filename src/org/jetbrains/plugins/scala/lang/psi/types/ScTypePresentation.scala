@@ -6,6 +6,8 @@ package types
 import com.intellij.psi._
 import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
+import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition, ScObject}
 import api.statements._
 import api.base.patterns.{ScReferencePattern, ScBindingPattern}
@@ -242,8 +244,10 @@ trait ScTypePresentation {
           ScTypePresentation.ABSTRACT_TYPE_PREFIX + tpt.name.capitalize
         case StdType(name, _) =>
           name
-        case ScFunctionType(ret, params) if !t.isAliasType.isDefined =>
-          typeSeqText(params, "(", ", ", ") => ") + innerTypeText(ret)
+        case f@ScFunctionType(ret, params) if !t.isAliasType.isDefined =>
+          val projectOption = ScType.extractClass(f).map(_.getProject)
+          val arrow = projectOption.map(ScalaPsiUtil.functionArrow).getOrElse("=>")
+          typeSeqText(params, "(", ", ", s") $arrow ") + innerTypeText(ret)
         case ScThisType(clazz: ScTypeDefinition) =>
           clazz.name + ".this" + typeTail(needDotType)
         case ScThisType(clazz) =>

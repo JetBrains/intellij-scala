@@ -22,6 +22,7 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util._
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.config.ScalaFacet
+import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
@@ -72,6 +73,11 @@ object ScalaPsiUtil {
     if (logger.isDebugEnabled) {
       logger.debug(message)
     }
+  }
+
+  def functionArrow(project: Project): String = {
+    val useUnicode = ScalaCodeStyleSettings.getInstance(project).REPLACE_CASE_ARROW_WITH_UNICODE_CHAR
+    if (useUnicode) ScalaTypedHandler.unicodeCaseArrow else "=>"
   }
 
   @tailrec

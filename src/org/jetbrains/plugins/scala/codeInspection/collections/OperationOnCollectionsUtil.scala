@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
 import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -192,7 +192,8 @@ object OperationOnCollectionsUtil {
               case (leftRef: ScReferenceExpression, right: ScExpression)
                 if leftRef.resolve() == x && isIndependentOf(right, x) =>
                 val secondArgName = y.getName
-                val funExprText = secondArgName + " => " + right.getText
+                val arrow = ScalaPsiUtil.functionArrow(expr.getProject)
+                val funExprText = s"$secondArgName $arrow ${right.getText}"
                 Some(ScalaPsiElementFactory.createExpressionFromText(funExprText, expr.getManager))
               case _ => None
             }
