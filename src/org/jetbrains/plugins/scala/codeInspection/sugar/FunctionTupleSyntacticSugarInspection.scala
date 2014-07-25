@@ -4,14 +4,13 @@ package sugar
 
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
-import com.intellij.psi.{PsiElementVisitor, PsiClass, PsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScInfixTypeElement, ScFunctionalTypeElement, ScParameterizedTypeElement}
+import com.intellij.psi.{PsiClass, PsiElement, PsiElementVisitor}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScFunctionalTypeElement, ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTraitParents}
-import extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
@@ -28,7 +27,7 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
       }
     }
 
-    import FunctionTupleSyntacticSugarInspection._
+    import org.jetbrains.plugins.scala.codeInspection.sugar.FunctionTupleSyntacticSugarInspection._
 
     new ScalaElementVisitor {
       override def visitElement(elem: ScalaPsiElement) {
@@ -41,7 +40,7 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
                     if (ref.refName.startsWith("Tuple") || ref.refName.startsWith("Function") && ref.isValid) {
                       val referredElement = ref.bind().map(_.getElement)
                       referredElement match {
-                        case Some(QualifiedName(FunctionN(n))) if (te.typeArgList.typeArgs.length == (n.toInt + 1)) =>
+                        case Some(QualifiedName(FunctionN(n))) if te.typeArgList.typeArgs.length == (n.toInt + 1) =>
                           holder.registerProblem(holder.getManager.createProblemDescriptor(te, "syntactic sugar could be used",
                             new FunctionTypeSyntacticSugarQuickFix(te), ProblemHighlightType.WEAK_WARNING, false))
                         case Some(QualifiedName(TupleN(n))) if (te.typeArgList.typeArgs.length == n.toInt) && n.toInt != 1 =>
@@ -66,7 +65,7 @@ object FunctionTupleSyntacticSugarInspection {
   val FunctionN = """scala.Function(\d)""".r
   val TupleN = """scala.Tuple(\d)""".r
   
-  import ScalaPsiElementFactory._
+  import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 
   class TupleTypeSyntacticSugarQuickFix(te: ScParameterizedTypeElement) extends LocalQuickFix {
     def applyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
@@ -76,7 +75,7 @@ object FunctionTupleSyntacticSugarInspection {
           case ft: ScFunctionalTypeElement => true // (Tuple2[A, B]) => B  ==>> ((A, B)) => C
           case _ => false
         }
-        ("(" + te.typeArgList.getText().drop(1).dropRight(1) + ")").parenthesisedIf(needParens)
+        ("(" + te.typeArgList.getText.drop(1).dropRight(1) + ")").parenthesisedIf(needParens)
       }
       te.replace(createTypeElementFromText(typeTextWithParens, te.getManager))
     }
@@ -107,7 +106,8 @@ object FunctionTupleSyntacticSugarInspection {
           case _: ScConstructor | _: ScTraitParents | _: ScClassParents => true
           case _ => false
         }
-        ("(" + elemsInParamTypes.map(_.getText).mkString + ") => " + returnTypeTextWithParens).parenthesisedIf(needParens)
+        val arrow = ScalaPsiUtil.functionArrow(project)
+        s"(${elemsInParamTypes.map(_.getText).mkString}) $arrow $returnTypeTextWithParens".parenthesisedIf(needParens)
       }
       te.replace(createTypeElementFromText(typeTextWithParens, te.getManager))
     }

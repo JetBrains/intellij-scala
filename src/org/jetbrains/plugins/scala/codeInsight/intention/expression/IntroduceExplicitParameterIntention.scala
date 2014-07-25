@@ -1,31 +1,32 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intention.expression
 
-import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.Editor
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.openapi.util.TextRange
-import lang.psi.api.expr._
-import com.intellij.psi.{PsiDocumentManager, PsiElement}
-import lang.psi.impl.ScalaPsiElementFactory
-import extensions._
-import lang.refactoring.namesSuggester.NameSuggester
-import com.intellij.codeInsight.{CodeInsightUtilCore, CodeInsightUtilBase}
-import com.intellij.refactoring.rename.inplace.MyLookupExpression
-import lang.psi.api.statements.params.ScParameter
-import lang.refactoring.util.ScalaVariableValidator
+import com.intellij.codeInsight.CodeInsightUtilCore
 import com.intellij.codeInsight.highlighting.HighlightManager
-import com.intellij.openapi.editor.markup.{TextAttributes, RangeHighlighter}
-import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
+import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.codeInsight.template._
-import impl.{TemplateManagerImpl, TemplateState}
-import scala.{None, Option}
-import collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import com.intellij.openapi.extensions.Extensions
-import collection.mutable
+import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
+import com.intellij.openapi.editor.markup.{RangeHighlighter, TextAttributes}
+import com.intellij.openapi.extensions.Extensions
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import com.intellij.refactoring.rename.inplace.MyLookupExpression
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
+
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Ksenia.Sautina
@@ -132,7 +133,8 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
     }
 
     if (underscores.size > 1 || needBraces) buf.insert(0, "(").append(")")
-    buf.append(" => ")
+    val arrow = ScalaPsiUtil.functionArrow(project)
+    buf.append(s" $arrow ")
     val diff = buf.length
     buf.append(expr.getText)
 
