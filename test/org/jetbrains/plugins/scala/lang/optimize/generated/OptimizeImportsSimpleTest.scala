@@ -26,6 +26,8 @@ class OptimizeImportsSimpleTest extends OptimizeImportsTestBase {
 
   def testOneImport = doTest
 
+  def testScalaDoc() = doTest()
+
   def testSomeTrait = doTest
 
   def testUnusedImportChain = doTest
