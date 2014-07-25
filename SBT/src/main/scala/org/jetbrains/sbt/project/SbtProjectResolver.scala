@@ -256,7 +256,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   def createSbtModuleData(project: Project): SbtModuleNode = {
     val imports = project.build.imports.flatMap(_.substring(7).split(", "))
-    new SbtModuleNode(imports)
+    new SbtModuleNode(imports, project.resolvers)
   }
 
   private def validRootPathsIn(project: Project, scope: String)

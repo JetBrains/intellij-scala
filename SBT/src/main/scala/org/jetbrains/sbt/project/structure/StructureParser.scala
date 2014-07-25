@@ -31,8 +31,9 @@ object StructureParser {
     val java = (node \ "java").headOption.map(parseJava(_)(fs.withBase(base)))
     val scala = (node \ "scala").headOption.map(parseScala(_)(fs.withBase(base)))
     val dependencies = parseDependencies(node)(fs.withBase(base))
+    val resolvers = parseResolvers(node)
 
-    Project(id, name, organization, version, base, target, build, configurations, java, scala, dependencies)
+    Project(id, name, organization, version, base, target, build, configurations, java, scala, dependencies, resolvers)
   }
 
   private def parseBuild(node: Node)(implicit fs: FS): Build = {
@@ -129,6 +130,14 @@ object StructureParser {
     }
 
     Repository(new File("."), modules)
+  }
+
+  private def parseResolvers(node: Node) = {
+    (node \ "resolver").map(r => {
+      val name = (r \ "@name").text
+      val root = (r \ "@root").text
+      Resolver(name, root)
+    }).toSet
   }
 
   private implicit class NodeExt(node: Node) {
