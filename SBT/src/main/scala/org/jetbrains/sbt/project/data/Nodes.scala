@@ -6,6 +6,8 @@ import com.intellij.openapi.externalSystem.model.project._
 import org.jetbrains.sbt.project.SbtProjectSystem
 import java.io.File
 
+import org.jetbrains.sbt.project.structure.Resolver
+
 /**
  * @author Pavel Fatin
  */
@@ -91,8 +93,8 @@ class ScalaFacetNode(val data: ScalaFacetData)
 
 class SbtModuleNode(val data: SbtModuleData)
         extends Node[SbtModuleData] {
-  def this(imports: Seq[String]) {
-    this(new SbtModuleData(SbtProjectSystem.Id, imports))
+  def this(imports: Seq[String], resolvers: Set[Resolver]) {
+    this(new SbtModuleData(SbtProjectSystem.Id, imports, resolvers))
   }
 
   protected def key = SbtModuleData.Key

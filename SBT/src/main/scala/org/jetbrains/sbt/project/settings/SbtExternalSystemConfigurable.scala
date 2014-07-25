@@ -5,6 +5,7 @@ import com.intellij.openapi.externalSystem.service.settings.AbstractExternalSyst
 import com.intellij.openapi.options.SearchableConfigurable
 import com.intellij.openapi.project.Project
 import org.jetbrains.sbt.project.SbtProjectSystem
+import org.jetbrains.sbt.project.module.SbtModuleResolversEditor
 import org.jetbrains.sbt.project.settings.Context.Configuration
 
 /**
@@ -12,10 +13,7 @@ import org.jetbrains.sbt.project.settings.Context.Configuration
  * Date: 11/25/13
  */
 class SbtExternalSystemConfigurable(project: Project) 
-  extends AbstractExternalSystemConfigurable[SbtProjectSettings, SbtSettingsListener, SbtSettings](project, SbtProjectSystem.Id)
-  with SearchableConfigurable.Parent {
-
-  private val myConfigurables = Seq(new SbtResolversConfigurable)
+  extends AbstractExternalSystemConfigurable[SbtProjectSettings, SbtSettingsListener, SbtSettings](project, SbtProjectSystem.Id) {
 
   def createProjectSettingsControl(settings: SbtProjectSettings) = new SbtProjectSettingsControl(Configuration, settings)
 
@@ -26,10 +24,4 @@ class SbtExternalSystemConfigurable(project: Project)
   def getId = "sbt.project.settings.configurable"
 
   def getHelpTopic = null
-
-  def getConfigurables = myConfigurables.toArray
-
-  def isVisible = true
-
-  def hasOwnContent = true
 }
