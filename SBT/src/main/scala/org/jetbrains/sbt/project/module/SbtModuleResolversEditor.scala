@@ -6,6 +6,7 @@ import javax.swing.table.AbstractTableModel
 
 import com.intellij.openapi.roots.ui.configuration.{ModuleConfigurationState, ModuleElementsEditor}
 import org.jetbrains.sbt.project.structure.Resolver
+import org.jetbrains.sbt.resolvers.{SbtResolverIndexesManager, SbtResolver}
 
 
 /**
@@ -33,7 +34,7 @@ class SbtModuleResolversEditor(state: ModuleConfigurationState) extends ModuleEl
   def saveData() {}
 }
 
-private class ResolversModel(val resolvers: Seq[Resolver]) extends AbstractTableModel {
+private class ResolversModel(val resolvers: Seq[SbtResolver]) extends AbstractTableModel {
 
   private val columns = Seq("Name", "URL", "Updated")
 

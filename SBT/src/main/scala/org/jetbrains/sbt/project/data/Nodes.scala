@@ -7,6 +7,7 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 import java.io.File
 
 import org.jetbrains.sbt.project.structure.Resolver
+import org.jetbrains.sbt.resolvers.SbtResolver
 
 /**
  * @author Pavel Fatin
@@ -93,7 +94,7 @@ class ScalaFacetNode(val data: ScalaFacetData)
 
 class SbtModuleNode(val data: SbtModuleData)
         extends Node[SbtModuleData] {
-  def this(imports: Seq[String], resolvers: Set[Resolver]) {
+  def this(imports: Seq[String], resolvers: Set[SbtResolver]) {
     this(new SbtModuleData(SbtProjectSystem.Id, imports, resolvers))
   }
 
