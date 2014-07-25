@@ -27,6 +27,7 @@
     <orderEntry type="library" name="main-scala-library" level="project" />
     <orderEntry type="module" module-name="intellij-hocon" />
     <orderEntry type="library" name="maven-indexer" level="project" />
+    <orderEntry type="library" name="wagon-http" level="project" />
   </component>
 </module>
 

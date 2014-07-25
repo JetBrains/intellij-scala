@@ -5,8 +5,7 @@ package project.module
 import javax.swing.table.AbstractTableModel
 
 import com.intellij.openapi.roots.ui.configuration.{ModuleConfigurationState, ModuleElementsEditor}
-import org.jetbrains.sbt.project.structure.Resolver
-import org.jetbrains.sbt.resolvers.{SbtResolverIndexesManager, SbtResolver}
+import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndexesManager}
 
 
 /**
@@ -24,6 +23,7 @@ class SbtModuleResolversEditor(state: ModuleConfigurationState) extends ModuleEl
   def createComponentImpl() = myForm.mainPanel
 
   override def reset() {
+    SbtResolverIndexesManager.getInstance.test
     val resolvers = SbtModule.getResolversFrom(getModel.getModule).toSeq
     myForm.resolversTable.setModel(new ResolversModel(resolvers))
     myForm.resolversTable.getColumnModel.getColumn(0).setPreferredWidth(50);

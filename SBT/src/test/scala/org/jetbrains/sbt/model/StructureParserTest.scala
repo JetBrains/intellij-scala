@@ -63,7 +63,8 @@ object StructureParserTest {
       configurations = Seq(configuration),
       java = Some(java),
       scala = Some(scala),
-      dependencies = dependencies)
+      dependencies = dependencies,
+      resolvers = Set.empty)
 
     val module = Module(
       id = moduleId,
