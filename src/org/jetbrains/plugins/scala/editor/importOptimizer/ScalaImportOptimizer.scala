@@ -16,6 +16,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
 import com.intellij.util.containers.{ConcurrentHashMap, ConcurrentHashSet}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScForStatement, ScMethodCall}
@@ -25,9 +26,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -63,12 +63,13 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
     val usedImports = new ConcurrentHashSet[ImportUsed]
     val list: util.ArrayList[PsiElement] =  new util.ArrayList[PsiElement]()
-    scalaFile.accept(new ScalaRecursiveElementVisitor {
-      override def visitElement(element: ScalaPsiElement): Unit = {
-        list.add(element)
-        super.visitElement(element)
-      }
-    })
+    val notProcessed = new ArrayBuffer[PsiElement]()
+    def addChildren(element: PsiElement): Unit = {
+      list.add(element)
+      element.getChildren.foreach(addChildren)
+    }
+    addChildren(scalaFile)
+
     val size = list.size * 2
     val progressManager: ProgressManager = ProgressManager.getInstance()
     val indicator: ProgressIndicator =
