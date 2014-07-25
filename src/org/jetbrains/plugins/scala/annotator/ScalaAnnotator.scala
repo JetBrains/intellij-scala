@@ -580,7 +580,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
 
     val resolve: Array[ResolveResult] = refElement.multiResolve(false)
-    if (refElement.isInstanceOf[ScDocResolvableCodeReference] && resolve.length > 1) return
     def processError(countError: Boolean, fixes: => Seq[IntentionAction]) {
       //todo remove when resolve of unqualified expression will be fully implemented
       if (refElement.getManager.isInProject(refElement) && resolve.length == 0 &&
@@ -599,7 +598,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
 
 
-    if (resolve.length != 1) {
+    val goodDoc = refElement.isInstanceOf[ScDocResolvableCodeReference] && resolve.length > 1
+    if (resolve.length != 1 && !goodDoc) {
       if (resolve.length == 0) { //Let's try to hide dynamic named parameter usage
         refElement match {
           case e: ScReferenceExpression =>
@@ -676,7 +676,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       }
     }
 
-    if (isAdvancedHighlightingEnabled(refElement) && resolve.length != 1) {
+    if (isAdvancedHighlightingEnabled(refElement) && resolve.length != 1 && !goodDoc) {
       refElement.getParent match {
         case s: ScImportSelector if resolve.length > 0 => return
         case mc: ScMethodCall =>
