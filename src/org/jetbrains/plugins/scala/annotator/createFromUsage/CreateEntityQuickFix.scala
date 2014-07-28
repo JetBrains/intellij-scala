@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.annotator.createFromUsage
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.extensions._
 import com.intellij.codeInsight.{CodeInsightUtilCore, FileModificationService}
@@ -18,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScMember, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
@@ -87,6 +88,9 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
 
     inWriteAction {
       val entity = block match {
+        case Some(_ childOf (obj: ScObject)) if obj.isSyntheticObject =>
+          val bl = materializeSytheticObject(obj).extendsBlock
+          createEntity(bl, ref, text)
         case Some(it) => createEntity(it, ref, text)
         case None => createEntity(ref, text)
       }
@@ -123,6 +127,13 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
         TemplateManager.getInstance(project).startTemplate(newEditor, template)
       }
     }
+  }
+
+  private def materializeSytheticObject(obj: ScObject): ScObject = {
+    val clazz = obj.fakeCompanionClassOrCompanionClass
+    val objText = s"object ${clazz.name} {}"
+    val fromText = ScalaPsiElementFactory.createTemplateDefinitionFromText(objText, clazz.getParent, clazz)
+    clazz.getParent.addAfter(fromText, clazz).asInstanceOf[ScObject]
   }
 
   private def blockFor(exp: ScExpression) = {
