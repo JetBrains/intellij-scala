@@ -1,9 +1,14 @@
 package org.jetbrains.sbt
 package resolvers
 
-import com.intellij.openapi.{Disposable}
+import java.io.File
+import java.security.MessageDigest
+
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.progress.{Task, ProgressManager, ProgressIndicator}
+
+import scala.collection.mutable.{Set => MutableSet}
 
 /**
  * @author Nikolay Obedin
@@ -12,23 +17,59 @@ import com.intellij.openapi.progress.{Task, ProgressManager, ProgressIndicator}
 
 class SbtResolverIndexesManager extends Disposable {
 
-  private val indexes: Seq[SbtResolverIndex] = Seq.empty
+  private val indexes: MutableSet[SbtResolverIndex] = MutableSet.empty
+  loadIndexes(SbtResolverIndexesManager.INDEXES_DIR)
 
-  def add(resolver: SbtResolver) = {}
+  def add(resolver: SbtResolver) = find(resolver) match {
+    case Some(index) => index
+    case None =>
+      val indexDir = SbtResolverIndexesManager.getIndexDirectory(resolver.root)
+      val newIndex = SbtResolverIndex.create(resolver.root, indexDir)
+      indexes.add(newIndex)
+      newIndex
+  }
 
-  def find(resolver: SbtResolver) = {}
+  def find(resolver: SbtResolver): Option[SbtResolverIndex] =
+    indexes.find(_.root == resolver.root)
 
   def dispose() {}
 
-  def test = ProgressManager.getInstance().run(new Task.Backgroundable(null, "Test"){
-    def run(progressIndicator: ProgressIndicator) {
-      progressIndicator.setFraction(0.0)
-      Thread.sleep(5000)
-      progressIndicator.setFraction(1.0)
-    }
-  })
+  // TODO: implement simultaneous updates
+  def update(resolvers: Seq[SbtResolver]) {
+    val indexes = resolvers map add
+    ProgressManager.getInstance().run(new Task.Backgroundable(null, "Indexing resolvers") {
+      def run(progressIndicator: ProgressIndicator) {
+        val step  = 1.0 / indexes.length
+        progressIndicator.setFraction(0.0)
+        indexes.foreach (index => {
+          progressIndicator.setText(index.root)
+          index.update()
+          progressIndicator.setFraction(progressIndicator.getFraction + step)
+        })
+      }
+    })
+  }
+
+  private def loadIndexes(indexesDir: File) {
+    indexesDir.mkdirs()
+    if (!indexesDir.exists || !indexesDir.isDirectory)
+      throw new RuntimeException("Resolver's indexes dir can not be created: %s" format indexesDir.absolutePath)
+    val indices = indexesDir.listFiles()
+    if (indices == null) return
+    indices foreach (indexDir => if (indexDir.isDirectory) {
+        val index = SbtResolverIndex.load(indexDir)
+        indexes.add(index)
+    })
+  }
 }
 
 object SbtResolverIndexesManager {
   def getInstance = ServiceManager.getService(classOf[SbtResolverIndexesManager])
+
+  val INDEXES_DIR = new File("/tmp/indexes") // FIXME: change to something more plugin specific
+
+  def getIndexDirectory(root: String) = {
+    val digest = MessageDigest.getInstance("SHA1").digest(root.getBytes)
+    new File(INDEXES_DIR, digest.map("%02x".format(_)).mkString)
+  }
 }

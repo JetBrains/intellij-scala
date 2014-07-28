@@ -6,6 +6,6 @@ package resolvers
  * @since 7/25/14.
  */
 case class SbtResolver(name: String, root: String) {
-  def associatedIndex = null
+  def associatedIndex = SbtResolverIndexesManager.getInstance.find(this)
 }
 
