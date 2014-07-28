@@ -11,6 +11,8 @@ import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
  */
 class ResolverIndexSerializationTest extends ScalaFixtureTestCase {
 
+  import _root_.junit.framework.Assert._
+
   val testResolver = new SbtResolver("some cool repo name", "http://some.cool.repo/")
 
   def testIndexStoring() = {
@@ -22,7 +24,6 @@ class ResolverIndexSerializationTest extends ScalaFixtureTestCase {
     val indexOpt = loadingManager.find(testResolver)
     assert(indexOpt.isDefined)
 
-    import _root_.junit.framework.Assert._
     val index = indexOpt.get
     assertEquals(index.root, testResolver.root)
     assertEquals(index.timestamp, SbtResolverIndex.NO_TIMESTAMP)
@@ -36,7 +37,6 @@ class ResolverIndexSerializationTest extends ScalaFixtureTestCase {
     val indexOpt = manager.find(testResolver)
     assert(indexOpt.isDefined)
 
-    import _root_.junit.framework.Assert._
     val index = indexOpt.get
     assertEquals(index.root, testResolver.root)
     assertEquals(index.timestamp, SbtResolverIndex.NO_TIMESTAMP)
