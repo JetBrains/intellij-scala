@@ -1,17 +1,19 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.move
 
-import com.intellij.psi.{PsiElement, PsiClass, PsiDirectory, PsiFile}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScClass, ScObject, ScTypeDefinition}
-import com.intellij.openapi.util.{TextRange, Key}
-import com.intellij.psi.util.PsiTreeUtil
-import scala.collection.JavaConverters._
-import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaDirectoryService, ScalaNamesUtil}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
+import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi.javadoc.PsiDocComment
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiClass, PsiDirectory, PsiElement, PsiFile}
 import org.jetbrains.annotations.NotNull
+import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
 import org.jetbrains.plugins.scala.conversion.copy.{Associations, ScalaCopyPastePostProcessor}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
+import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaDirectoryService, ScalaNamesUtil}
+
+import scala.collection.JavaConverters._
 
 /**
  * Nikolay.Tropin
@@ -73,9 +75,9 @@ object ScalaMoveUtil {
           //create new file with template
           else {
             val template: String = td match {
-              case _: ScClass => "Scala Class"
-              case _: ScTrait => "Scala Trait"
-              case _: ScObject => "Scala Object"
+              case _: ScClass => ScalaFileTemplateUtil.SCALA_CLASS
+              case _: ScTrait => ScalaFileTemplateUtil.SCALA_TRAIT
+              case _: ScObject => ScalaFileTemplateUtil.SCALA_OBJECT
             }
             val created: PsiClass = ScalaDirectoryService.createClassFromTemplate(moveDestination, td.name, template, askToDefineVariables = false)
             if (td.getDocComment == null) {

@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.actions
 
+import java.util.Properties
+
 import com.intellij.ide.fileTemplates.FileTemplate
 import com.intellij.psi.{PsiClass, PsiMethod}
-import java.util.Properties
-import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
 
 /**
  * @author Alefas
@@ -12,6 +13,10 @@ import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassE
 object ScalaFileTemplateUtil {
   val SCALA_IMPLEMENTED_METHOD_TEMPLATE = "Implemented Scala Method Body.scala"
   val SCALA_OVERRIDDEN_METHOD_TEMPLATE = "Overridden Scala Method Body.scala"
+
+  val SCALA_OBJECT = "Scala Object"
+  val SCALA_TRAIT = "Scala Trait"
+  val SCALA_CLASS = "Scala Class"
 
   def setClassAndMethodNameProperties(properties: Properties, aClass: PsiClass, method: PsiMethod) {
     var className: String = aClass.qualifiedName
