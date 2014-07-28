@@ -1,16 +1,18 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.util
 
-import com.intellij.openapi.diagnostic.Logger
-import com.intellij.psi.{PsiDirectory, PsiBundle, PsiElement, PsiClass}
-import com.intellij.ide.fileTemplates.{FileTemplateUtil, FileTemplateManager, FileTemplate}
 import java.util.Properties
-import com.intellij.ide.fileTemplates.ui.CreateFromTemplateDialog
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.util.IncorrectOperationException
+
 import com.intellij.ide.fileTemplates.impl.FileTemplateBase
+import com.intellij.ide.fileTemplates.ui.CreateFromTemplateDialog
+import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager, FileTemplateUtil}
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.psi.{PsiBundle, PsiClass, PsiDirectory, PsiElement}
+import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.NotNull
+import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
 * Pavel Fatin
@@ -48,9 +50,9 @@ object ScalaDirectoryService {
 
   private def templateForUnitTest(templateName: String, name: String): FileTemplate = {
     val kind = templateName match {
-      case "Scala Class" => "class "
-      case "Scala Trait" => "trait "
-      case "Scala Object" => "object "
+      case ScalaFileTemplateUtil.SCALA_CLASS => "class "
+      case ScalaFileTemplateUtil.SCALA_TRAIT => "trait "
+      case ScalaFileTemplateUtil.SCALA_OBJECT => "object "
       case _ => ""
     }
     val packageLine = "#if ((${PACKAGE_NAME} && ${PACKAGE_NAME} != \"\"))package ${PACKAGE_NAME} #end"
