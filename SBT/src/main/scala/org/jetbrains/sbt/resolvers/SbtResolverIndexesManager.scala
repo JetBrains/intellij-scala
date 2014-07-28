@@ -15,16 +15,18 @@ import scala.collection.mutable.{Set => MutableSet}
  * @since 7/25/14.
  */
 
-class SbtResolverIndexesManager extends Disposable {
+class SbtResolverIndexesManager(val indexesDir: File = null) extends Disposable {
 
+  private val realIndexesDir = if (indexesDir == null) SbtResolverIndexesManager.DEFAULT_INDEXES_DIR else indexesDir
   private val indexes: MutableSet[SbtResolverIndex] = MutableSet.empty
-  loadIndexes(SbtResolverIndexesManager.INDEXES_DIR)
+
+  loadIndexes(realIndexesDir)
+
 
   def add(resolver: SbtResolver) = find(resolver) match {
     case Some(index) => index
     case None =>
-      val indexDir = SbtResolverIndexesManager.getIndexDirectory(resolver.root)
-      val newIndex = SbtResolverIndex.create(resolver.root, indexDir)
+      val newIndex = SbtResolverIndex.create(resolver.root, getIndexDirectory(resolver.root))
       indexes.add(newIndex)
       newIndex
   }
@@ -61,15 +63,15 @@ class SbtResolverIndexesManager extends Disposable {
         indexes.add(index)
     })
   }
+
+  private def getIndexDirectory(root: String) = {
+    val digest = MessageDigest.getInstance("SHA1").digest(root.getBytes)
+    new File(realIndexesDir, digest.map("%02x".format(_)).mkString)
+  }
 }
 
 object SbtResolverIndexesManager {
   def getInstance = ServiceManager.getService(classOf[SbtResolverIndexesManager])
 
-  val INDEXES_DIR = new File("/tmp/indexes") // FIXME: change to something more plugin specific
-
-  def getIndexDirectory(root: String) = {
-    val digest = MessageDigest.getInstance("SHA1").digest(root.getBytes)
-    new File(INDEXES_DIR, digest.map("%02x".format(_)).mkString)
-  }
+  val DEFAULT_INDEXES_DIR = new File("/tmp/indexes") // FIXME: change to plugin-relative path
 }
