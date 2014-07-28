@@ -93,7 +93,7 @@ class ScalaCompletionContributor extends CompletionContributor {
                     el.isRenamed.foreach(name => renamedMap += ((clazz.name, (name, clazz))))
                     val isExcluded: Boolean = ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
                       def compute: Boolean = {
-                        JavaCompletionUtil.isInExcludedPackage(clazz, true)
+                        JavaCompletionUtil.isInExcludedPackage(clazz, false)
                       }
                     })
 
