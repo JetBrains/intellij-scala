@@ -18,7 +18,8 @@ class ResolverIndexSerializationTest extends ScalaFixtureTestCase {
   def testIndexStoring() = {
     val tmpPath = new File(myFixture.getTempDirPath)
     val storingManager = new SbtResolverIndexesManager(tmpPath)
-    storingManager.update(Seq(testResolver))
+    val newIndex = storingManager.add(testResolver)
+    newIndex.store()
 
     val loadingManager = new SbtResolverIndexesManager(tmpPath)
     val indexOpt = loadingManager.find(testResolver)
