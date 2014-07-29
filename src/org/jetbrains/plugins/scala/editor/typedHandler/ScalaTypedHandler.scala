@@ -118,12 +118,6 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       return Result.STOP
     } else if (c == '>' && prevElement != null && prevElement.getNode.getElementType == XmlTokenType.XML_EMPTY_ELEMENT_END) {
       return Result.STOP
-    } else if (
-        elementType == ScalaTokenTypes.tFUNTYPE && element.getParent.isInstanceOf[ScCaseClause] &&
-        (c == '>' && offset == element.getTextRange.getStartOffset + 1 || c == '=' && offset == element.getTextRange.getStartOffset)
-          && settings.ADD_ARROW_AFTER_INDENT_CASE) {
-      moveCaret()
-      return Result.STOP
     } else if (c == '>' && settings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR && prevElement != null &&
       prevElement.getNode.getElementType == ScalaTokenTypes.tFUNTYPE) {
       return Result.STOP
@@ -136,12 +130,6 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       } else if (prevType == ScalaTokenTypes.tINTERPOLATED_STRING_END && elementType != ScalaTokenTypes.tINTERPOLATED_STRING_END &&
               Set("f\"\"", "s\"\"").contains(prevElement.getParent.getText)) {
         completeMultilineString(editor, project, element, offset)
-      }
-    } else if (settings.ADD_ARROW_AFTER_INDENT_CASE && c ==' ' && element.getNextSibling != null) {
-      val elType = element.getNextSibling.getNode.getElementType
-      if (elType == ScalaTokenTypes.tFUNTYPE || elType == ScalaTokenTypes.tFUNTYPE_ASCII) {
-        moveCaret()
-        return Result.STOP
       }
     }
 
@@ -257,11 +245,6 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       if (anotherElement.getNode.getElementType == ScalaTokenTypes.kCASE &&
               anotherElement.getParent.isInstanceOf[ScCaseClause]) {
         extensions.inWriteAction {
-          val styleSettings = ScalaCodeStyleSettings.getInstance(project)
-          if (styleSettings.ADD_ARROW_AFTER_INDENT_CASE) {
-            val arrow = if (styleSettings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR) " " + ScalaTypedHandler.unicodeCaseArrow else " =>"
-            document.insertString(anotherElement.getTextRange.getEndOffset + 1, arrow)
-          }
           PsiDocumentManager.getInstance(project).commitDocument(document)
           CodeStyleManager.getInstance(project).adjustLineIndent(file, anotherElement.getTextRange)
         }

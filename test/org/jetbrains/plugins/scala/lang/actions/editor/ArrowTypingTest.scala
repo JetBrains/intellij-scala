@@ -18,95 +18,6 @@ class ArrowTypingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     settings = ScalaCodeStyleSettings.getInstance(myFixture.getProject)
   }
 
-  def testSimpleCase() {
-    val before =
-      s"""
-        |object A {
-        |  123 match { case$CARET_MARKER }
-        |}
-      """.stripMargin
-
-    val after = s"""
-        |object A {
-        |  123 match { case $CARET_MARKER => }
-        |}
-      """.stripMargin
-
-    checkGeneratedTextAfterTyping(before, after, ' ')
-  }
-
-  def testFunction() {
-    val before =
-      s"""
-         |list.filter {
-         |  case$CARET_MARKER
-         |}
-       """.stripMargin
-
-    val after =
-      s"""
-         |list.filter {
-         |  case $CARET_MARKER =>
-         |}
-       """.stripMargin
-
-    checkGeneratedTextAfterTyping(before, after, ' ')
-  }
-
-  def testDontTouchArrow1() {
-    val before =
-      s"""
-         |123 match {
-         |  case 321 $CARET_MARKER=>
-         |}
-       """.stripMargin
-
-    val after =
-      s"""
-         |123 match {
-         |  case 321 =$CARET_MARKER>
-         |}
-       """.stripMargin
-
-    checkGeneratedTextAfterTyping(before, after, '=')
-  }
-
-  def testDontTouchArrow2() {
-    val before =
-      s"""
-         |123 match {
-         |  case 321 =$CARET_MARKER>
-         |}
-       """.stripMargin
-
-    val after =
-      s"""
-         |123 match {
-         |  case 321 =>$CARET_MARKER
-         |}
-       """.stripMargin
-
-    checkGeneratedTextAfterTyping(before, after, '>')
-  }
-
-  def testDontTouchSpace() {
-    val before =
-      s"""
-         |123 match {
-         |  case 321$CARET_MARKER =>
-         |}
-       """.stripMargin
-
-    val after =
-      s"""
-         |123 match {
-         |  case 321 $CARET_MARKER=>
-         |}
-       """.stripMargin
-
-    checkGeneratedTextAfterTyping(before, after, ' ')
-  }
-
   def testReplaceCaseArrow() {
     settings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = true
 
@@ -143,6 +54,21 @@ class ArrowTypingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     checkGeneratedTextAfterTyping(before, after, '>')
   }
 
+  def testReplaceLambdaArrow() {
+    settings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = true
+
+    val before =
+      s"""
+         | val x: Int ${ScalaTypedHandler.unicodeCaseArrow} Int = i =$CARET_MARKER
+       """.stripMargin
+
+    val after =
+      s"""
+         | val x: Int ${ScalaTypedHandler.unicodeCaseArrow} Int = i ${ScalaTypedHandler.unicodeCaseArrow}$CARET_MARKER
+       """.stripMargin
+
+    checkGeneratedTextAfterTyping(before, after, '>')
+  }
 
   def testReplaceMapArrow() {
     settings.REPLACE_MAP_ARROW_WITH_UNICODE_CHAR = true
