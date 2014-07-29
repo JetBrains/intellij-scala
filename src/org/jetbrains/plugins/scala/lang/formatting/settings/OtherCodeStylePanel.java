@@ -20,7 +20,6 @@ import javax.swing.*;
 public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox enforceProcedureSyntaxForCheckBox;
   private JPanel contentPanel;
-  private JCheckBox addAfterCaseCheckBox;
   private JCheckBox replaceWithUnicodeSymbolCheckBox;
   private JCheckBox replaceWithUnicodeSymbolCheckBox1;
   private JCheckBox replaceInForGeneratorCheckBox;
@@ -64,7 +63,6 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
 
     ScalaCodeStyleSettings scalaCodeStyleSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
     scalaCodeStyleSettings.ENFORCE_PROCEDURE_SYNTAX_FOR_UNIT = enforceProcedureSyntaxForCheckBox.isSelected();
-    scalaCodeStyleSettings.ADD_ARROW_AFTER_INDENT_CASE = addAfterCaseCheckBox.isSelected();
     scalaCodeStyleSettings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = replaceWithUnicodeSymbolCheckBox.isSelected();
     scalaCodeStyleSettings.REPLACE_MAP_ARROW_WITH_UNICODE_CHAR = replaceWithUnicodeSymbolCheckBox1.isSelected();
     scalaCodeStyleSettings.REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR = replaceInForGeneratorCheckBox.isSelected();
@@ -75,7 +73,6 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     ScalaCodeStyleSettings scalaCodeStyleSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
 
     if (scalaCodeStyleSettings.ENFORCE_PROCEDURE_SYNTAX_FOR_UNIT != enforceProcedureSyntaxForCheckBox.isSelected()) return true;
-    if (scalaCodeStyleSettings.ADD_ARROW_AFTER_INDENT_CASE != addAfterCaseCheckBox.isSelected()) return true;
     if (scalaCodeStyleSettings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR != replaceWithUnicodeSymbolCheckBox.isSelected()) return true;
     if (scalaCodeStyleSettings.REPLACE_MAP_ARROW_WITH_UNICODE_CHAR != replaceWithUnicodeSymbolCheckBox1.isSelected()) return true;
     if (scalaCodeStyleSettings.REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR != replaceInForGeneratorCheckBox.isSelected()) return true;
@@ -93,7 +90,6 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
   protected void resetImpl(CodeStyleSettings settings) {
     ScalaCodeStyleSettings scalaCodeStyleSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
     enforceProcedureSyntaxForCheckBox.setSelected(scalaCodeStyleSettings.ENFORCE_PROCEDURE_SYNTAX_FOR_UNIT);
-    addAfterCaseCheckBox.setSelected(scalaCodeStyleSettings.ADD_ARROW_AFTER_INDENT_CASE);
     replaceWithUnicodeSymbolCheckBox.setSelected(scalaCodeStyleSettings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR);
     replaceWithUnicodeSymbolCheckBox1.setSelected(scalaCodeStyleSettings.REPLACE_MAP_ARROW_WITH_UNICODE_CHAR);
     replaceInForGeneratorCheckBox.setSelected(scalaCodeStyleSettings.REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR);
