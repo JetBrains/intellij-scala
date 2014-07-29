@@ -26,7 +26,9 @@ class OptimizeImportsSimpleTest extends OptimizeImportsTestBase {
 
   def testOneImport = doTest
 
-  def testScalaDoc() = doTest()
+  def testScalaDoc(): Unit = doTest()
+
+  def testSCL7275(): Unit = doTest()
 
   def testSomeTrait = doTest
 
