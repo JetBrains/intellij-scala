@@ -37,6 +37,8 @@
           <element id="module-output" name="NailgunRunners" />
         </element>
         <element id="library" level="project" name="scalastyle" />
+        <element id="library" level="project" name="maven-indexer" />
+        <element id="library" level="project" name="wagon-http" />
       </element>
       <element id="directory" name="launcher">
         <element id="file-copy" path="$PROJECT_DIR$/SBT/lib/sbt-launch.jar" />

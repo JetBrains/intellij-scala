@@ -2,11 +2,11 @@ package org.jetbrains.sbt
 package resolvers
 
 import java.io.File
-import java.security.MessageDigest
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.components.ServiceManager
-import com.intellij.openapi.progress.{Task, ProgressManager, ProgressIndicator}
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 
 import scala.collection.mutable.{Set => MutableSet}
 
@@ -15,10 +15,16 @@ import scala.collection.mutable.{Set => MutableSet}
  * @since 7/25/14.
  */
 
-class SbtResolverIndexesManager(val indexesDir: File = null) extends Disposable {
+class SbtResolverIndexesManager(val indexesDir: File) extends Disposable {
+
+  def this() = this(null)
 
   private val realIndexesDir = if (indexesDir == null) SbtResolverIndexesManager.DEFAULT_INDEXES_DIR else indexesDir
   private val indexes: MutableSet[SbtResolverIndex] = MutableSet.empty
+
+  realIndexesDir.mkdirs()
+  if (!realIndexesDir.exists || !realIndexesDir.isDirectory)
+    throw new RuntimeException("Can't create indexes dir: %s" format realIndexesDir.absolutePath)
 
   loadIndexes(realIndexesDir)
 
@@ -34,7 +40,9 @@ class SbtResolverIndexesManager(val indexesDir: File = null) extends Disposable 
   def find(resolver: SbtResolver): Option[SbtResolverIndex] =
     indexes.find(_.root == resolver.root)
 
-  def dispose() {}
+  def dispose() {
+    indexes foreach (_.close())
+  }
 
   // TODO: implement simultaneous updates
   def update(resolvers: Seq[SbtResolver]) {
@@ -64,14 +72,11 @@ class SbtResolverIndexesManager(val indexesDir: File = null) extends Disposable 
     })
   }
 
-  private def getIndexDirectory(root: String) = {
-    val digest = MessageDigest.getInstance("SHA1").digest(root.getBytes)
-    new File(realIndexesDir, digest.map("%02x".format(_)).mkString)
-  }
+  private def getIndexDirectory(root: String) = new File(realIndexesDir, root.shaDigest)
 }
 
 object SbtResolverIndexesManager {
   def getInstance = ServiceManager.getService(classOf[SbtResolverIndexesManager])
 
-  val DEFAULT_INDEXES_DIR = new File("/tmp/indexes") // FIXME: change to plugin-relative path
+  val DEFAULT_INDEXES_DIR = new File(PathManager.getSystemPath) / "sbt" / "indexes"
 }
