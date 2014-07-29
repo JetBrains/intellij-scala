@@ -12,12 +12,13 @@ import scala.collection.mutable
  * @author Nikolay Obedin
  * @since 7/25/14.
  */
-class SbtResolverIndex private (val root: String, val timestamp: Long, val indexDir: File) {
-
+class SbtResolverIndex private (val root: String, var timestamp: Long, val indexDir: File) {
   import org.jetbrains.sbt.resolvers.SbtResolverIndex._
 
+  ensureIndexDir()
   private val groupToArtifactMap = createPersistentMap(indexDir / Paths.GROUP_TO_ARTIFACT_FILE)
   private val groupArtifactToVersionMap = createPersistentMap(indexDir / Paths.GROUP_ARTIFACT_TO_VERSION_FILE)
+
 
   def update() {
     val gaMap  = mutable.HashMap.empty[String, mutable.Set[String]]
@@ -33,13 +34,12 @@ class SbtResolverIndex private (val root: String, val timestamp: Long, val index
 
     gaMap  foreach (element => groupToArtifactMap.put(element._1, element._2.toSet))
     gavMap foreach (element => groupArtifactToVersionMap.put(element._1, element._2.toSet))
+    timestamp = System.currentTimeMillis()
     store()
   }
 
   def store() {
-    indexDir.mkdirs()
-    if (!indexDir.exists || !indexDir.isDirectory)
-      throw new RuntimeException("Resolver's index dir can not be created: %s" format indexDir.absolutePath)
+    ensureIndexDir()
 
     val props = new Properties()
     props.setProperty(Keys.VERSION, CURRENT_INDEX_VERSION)
@@ -58,6 +58,12 @@ class SbtResolverIndex private (val root: String, val timestamp: Long, val index
   def close() {
     groupToArtifactMap.close()
     groupArtifactToVersionMap.close()
+  }
+
+  private def ensureIndexDir() {
+    indexDir.mkdirs()
+    if (!indexDir.exists || !indexDir.isDirectory)
+      throw new RuntimeException("Index dir can not be created: %s" format indexDir.absolutePath)
   }
 
   private def createPersistentMap(file: File) =
@@ -111,6 +117,8 @@ private class SetDescriptor extends DataExternalizer[Set[String]] {
     set foreach s.writeUTF
   }
 
-  def read(s: DataInput): Set[String] =
-    1.to(s.readInt).map(_ => s.readUTF()).toSet
+  def read(s: DataInput): Set[String] = {
+    val count = s.readInt
+    1.to(count).map(_ => s.readUTF()).toSet
+  }
 }
