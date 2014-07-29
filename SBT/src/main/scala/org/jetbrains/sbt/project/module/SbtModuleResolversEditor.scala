@@ -17,7 +17,6 @@ import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndex, SbtResolverIn
 class SbtModuleResolversEditor(state: ModuleConfigurationState) extends ModuleElementsEditor(state) {
 
   private val myForm = new SbtModuleResolversForm
-
   private val resolvers = SbtModule.getResolversFrom(getModel.getModule).toSeq
 
   def getDisplayName = "Resolvers"
