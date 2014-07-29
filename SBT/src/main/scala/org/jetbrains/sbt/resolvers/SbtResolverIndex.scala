@@ -4,6 +4,7 @@ package resolvers
 import java.io._
 import java.util.Properties
 
+import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.util.io.{DataExternalizer, EnumeratorStringDescriptor, PersistentHashMap}
 
 import scala.collection.mutable
@@ -20,18 +21,19 @@ class SbtResolverIndex private (val root: String, var timestamp: Long, val index
   private val groupArtifactToVersionMap = createPersistentMap(indexDir / Paths.GROUP_ARTIFACT_TO_VERSION_FILE)
 
 
-  def update() {
+  def update(progressIndicator: Option[ProgressIndicator] = None) {
     val gaMap  = mutable.HashMap.empty[String, mutable.Set[String]]
     val gavMap = mutable.HashMap.empty[String, mutable.Set[String]]
 
     using(SbtResolverIndexer.getInstance(root, indexDir)) (indexer => {
-      indexer.update()
-      indexer.foreach (artifact => {
+      indexer.update(progressIndicator)
+      indexer.foreach(artifact => {
         gaMap.getOrElseUpdate(artifact.groupId, mutable.Set.empty) += artifact.artifactId
         gavMap.getOrElseUpdate(artifact.groupArtifact, mutable.Set.empty) += artifact.version
-      })
+      }, progressIndicator)
     })
 
+    progressIndicator foreach (_.setText2("Saving"))
     gaMap  foreach (element => groupToArtifactMap.put(element._1, element._2.toSet))
     gavMap foreach (element => groupArtifactToVersionMap.put(element._1, element._2.toSet))
     timestamp = System.currentTimeMillis()
