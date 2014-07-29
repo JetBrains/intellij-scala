@@ -12,6 +12,7 @@ import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{EmptyRunnable, TextRange}
 import com.intellij.psi._
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
 import com.intellij.util.containers.{ConcurrentHashMap, ConcurrentHashSet}
@@ -31,6 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
@@ -150,8 +152,19 @@ class ScalaImportOptimizer extends ImportOptimizer {
                 rangeEnd = psi.getTextRange.getEndOffset
               }
 
-              for (child <- imp.getChildren) {
-                child match {
+              for (child <- imp.getNode.getChildren(null)) {
+                child.getPsi match {
+                  case whitespace: PsiWhiteSpace =>
+                  case d: ScDocComment => addRange()
+                  case comment: PsiComment =>
+                    val next = comment.getNextSibling
+                    val prev = comment.getPrevSibling
+                    (next, prev) match {
+                      case (w1: PsiWhiteSpace, w2: PsiWhiteSpace) if
+                        w1.getText.contains("\n") && w2.getText.contains("\n") => addRange()
+                      case _ =>
+                    }
+                  case s: LeafPsiElement =>
                   case a: PsiElement if isImportDelimiter(a) => //do nothing
                   case imp: ScImportStmt =>
                     if (rangeStart == -1) {
