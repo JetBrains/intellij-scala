@@ -6,6 +6,8 @@ import java.util.Properties
 
 import com.intellij.util.io.{DataExternalizer, EnumeratorStringDescriptor, PersistentHashMap}
 
+import scala.collection.mutable
+
 /**
  * @author Nikolay Obedin
  * @since 7/25/14.
@@ -18,19 +20,19 @@ class SbtResolverIndex private (val root: String, val timestamp: Long, val index
   private val groupArtifactToVersionMap = createPersistentMap(indexDir / Paths.GROUP_ARTIFACT_TO_VERSION_FILE)
 
   def update() {
-    def getOrCreate(map: PersistentHashMap[String, Set[String]], key: String) = map.get(key) match {
-      case null  => Set.empty[String]
-      case value => value
-    }
+    val gaMap  = mutable.HashMap.empty[String, mutable.Set[String]]
+    val gavMap = mutable.HashMap.empty[String, mutable.Set[String]]
+
     using(SbtResolverIndexer.getInstance(root, indexDir)) (indexer => {
       indexer.update()
       indexer.foreach (artifact => {
-        val newGroupSet = getOrCreate(groupToArtifactMap, artifact.groupId) + artifact.artifactId
-        groupToArtifactMap.put(artifact.groupId, newGroupSet)
-        val newGroupArtifactSet = getOrCreate(groupArtifactToVersionMap, artifact.groupArtifact) + artifact.version
-        groupArtifactToVersionMap.put(artifact.groupArtifact, newGroupArtifactSet)
+        gaMap.getOrElseUpdate(artifact.groupId, mutable.Set.empty) += artifact.artifactId
+        gavMap.getOrElseUpdate(artifact.groupArtifact, mutable.Set.empty) += artifact.version
       })
     })
+
+    gaMap  foreach (element => groupToArtifactMap.put(element._1, element._2.toSet))
+    gavMap foreach (element => groupArtifactToVersionMap.put(element._1, element._2.toSet))
     store()
   }
 
@@ -109,8 +111,6 @@ private class SetDescriptor extends DataExternalizer[Set[String]] {
     set foreach s.writeUTF
   }
 
-  def read(s: DataInput): Set[String] = {
-    val count = s.readInt()
-    1.to(count).map(_ => s.readUTF).toSet
-  }
+  def read(s: DataInput): Set[String] =
+    1.to(s.readInt).map(_ => s.readUTF()).toSet
 }
