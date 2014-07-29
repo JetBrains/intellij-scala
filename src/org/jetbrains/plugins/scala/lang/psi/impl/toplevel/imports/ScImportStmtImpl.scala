@@ -70,7 +70,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
         }
         val checkWildcardImports = processor match {
           case r: ResolveProcessor =>
-            if (!r.checkImports()) return true
+            if (!r.checkImports()) return false
             r.checkWildcardImports()
           case _ => true
         }
