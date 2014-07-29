@@ -132,13 +132,12 @@ object StructureParser {
     Repository(new File("."), modules)
   }
 
-  private def parseResolvers(node: Node) = {
-    (node \ "resolver").map(r => {
+  private def parseResolvers(node: Node) =
+    (node \ "resolver").map({ r =>
       val name = (r \ "@name").text
       val root = (r \ "@root").text
       Resolver(name, if (root.endsWith("/")) root else root + "/")
     }).toSet
-  }
 
   private implicit class NodeExt(node: Node) {
     def !(name: String): Node = (node \ name) match {
