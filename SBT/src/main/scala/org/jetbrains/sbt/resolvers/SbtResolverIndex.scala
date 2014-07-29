@@ -12,14 +12,25 @@ import com.intellij.util.io.{DataExternalizer, EnumeratorStringDescriptor, Persi
  */
 class SbtResolverIndex private (val root: String, val timestamp: Long, val indexDir: File) {
 
-  import SbtResolverIndex._
+  import org.jetbrains.sbt.resolvers.SbtResolverIndex._
 
   private val groupToArtifactMap = createPersistentMap(indexDir / Paths.GROUP_TO_ARTIFACT_FILE)
   private val groupArtifactToVersionMap = createPersistentMap(indexDir / Paths.GROUP_ARTIFACT_TO_VERSION_FILE)
 
-  // FIXME: actually do indexing
-  def update() = {
-    Thread.sleep(5000)
+  def update() {
+    def getOrCreate(map: PersistentHashMap[String, Set[String]], key: String) = map.get(key) match {
+      case null  => Set.empty[String]
+      case value => value
+    }
+    using(SbtResolverIndexer.getInstance(root, indexDir)) (indexer => {
+      indexer.update()
+      indexer.foreach (artifact => {
+        val newGroupSet = getOrCreate(groupToArtifactMap, artifact.groupId) + artifact.artifactId
+        groupToArtifactMap.put(artifact.groupId, newGroupSet)
+        val newGroupArtifactSet = getOrCreate(groupArtifactToVersionMap, artifact.groupArtifact) + artifact.version
+        groupArtifactToVersionMap.put(artifact.groupArtifact, newGroupArtifactSet)
+      })
+    })
     store()
   }
 
@@ -42,8 +53,13 @@ class SbtResolverIndex private (val root: String, val timestamp: Long, val index
     groupArtifactToVersionMap.force()
   }
 
+  def close() {
+    groupToArtifactMap.close()
+    groupArtifactToVersionMap.close()
+  }
+
   private def createPersistentMap(file: File) =
-    new PersistentHashMap[String,Set[String]](file, new EnumeratorStringDescriptor, new SetDescriptor)
+    new PersistentHashMap[String, Set[String]](file, new EnumeratorStringDescriptor, new SetDescriptor)
 }
 
 object SbtResolverIndex {
@@ -55,8 +71,6 @@ object SbtResolverIndex {
     val PROPERTIES_FILE = "index.properties"
     val GROUP_TO_ARTIFACT_FILE = "group-to-artifact.map"
     val GROUP_ARTIFACT_TO_VERSION_FILE = "group-artifact-to-version.map"
-    val MAVEN_INDEXER_CACHE_DIR = "cache"
-    val MAVEN_INDEXER_INDEX_DIR = "index"
   }
 
   object Keys {
@@ -65,7 +79,11 @@ object SbtResolverIndex {
     val UPDATE_TIMESTAMP = "update-timestamp"
   }
 
-  def create(root: String, indexDir: File) = new SbtResolverIndex(root, NO_TIMESTAMP, indexDir)
+  def create(root: String, indexDir: File) = {
+    val index = new SbtResolverIndex(root, NO_TIMESTAMP, indexDir)
+    index.store()
+    index
+  }
 
   def load(indexDir: File) = {
     val propFile = indexDir / Paths.PROPERTIES_FILE
@@ -93,6 +111,6 @@ private class SetDescriptor extends DataExternalizer[Set[String]] {
 
   def read(s: DataInput): Set[String] = {
     val count = s.readInt()
-    0.to(count).map(_ => s.readUTF).toSet
+    1.to(count).map(_ => s.readUTF).toSet
   }
 }

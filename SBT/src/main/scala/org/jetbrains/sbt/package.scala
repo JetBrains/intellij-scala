@@ -1,5 +1,9 @@
 package org.jetbrains
 
+import _root_.java.security.MessageDigest
+
+import _root_.org.apache.maven.index.ArtifactInfo
+import com.intellij.util.io.PersistentHashMap
 import com.intellij.util.{Function => IdeaFunction, PathUtil}
 import com.intellij.openapi.util.{Pair => IdeaPair}
 import reflect.ClassTag
@@ -72,8 +76,12 @@ package object sbt {
     def isFile: Boolean = !entry.isDirectory
   }
 
-  implicit class RichString(path: String) {
-    def toFile: File = new File(path)
+  implicit class RichString(str: String) {
+    def toFile: File = new File(str)
+    def shaDigest: String = {
+      val digest = MessageDigest.getInstance("SHA1").digest(str.getBytes)
+      digest.map("%02x".format(_)).mkString
+    }
   }
 
   implicit class RichBoolean(val b: Boolean) {
@@ -93,6 +101,10 @@ package object sbt {
       }
       ys
     }
+  }
+
+  implicit class RichAritfactInfo(info: ArtifactInfo) {
+    val groupArtifact = "%s:%s".format(info.groupId, info.artifactId)
   }
 
   def jarWith[T : ClassTag]: File = {
