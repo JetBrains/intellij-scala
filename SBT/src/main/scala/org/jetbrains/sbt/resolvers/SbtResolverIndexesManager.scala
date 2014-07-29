@@ -10,7 +10,7 @@ import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.util.io.FileUtil
 
-import scala.collection.mutable.{Set => MutableSet}
+import scala.collection.mutable
 
 /**
  * @author Nikolay Obedin
@@ -23,8 +23,8 @@ class SbtResolverIndexesManager(val testIndexesDir: File) extends Disposable {
   def this() = this(null)
 
   private val indexesDir = if (testIndexesDir == null) SbtResolverIndexesManager.DEFAULT_INDEXES_DIR else testIndexesDir
-  private val indexes: MutableSet[SbtResolverIndex] = MutableSet.empty
-  private val updatingIndexes: MutableSet[SbtResolverIndex] = MutableSet.empty
+  private val indexes: mutable.Set[SbtResolverIndex] = mutable.Set.empty
+  private val updatingIndexes: mutable.Set[SbtResolverIndex] = mutable.Set.empty
 
   loadIndexes()
 
@@ -46,7 +46,7 @@ class SbtResolverIndexesManager(val testIndexesDir: File) extends Disposable {
 
   def update(resolvers: Seq[SbtResolver]) {
     def ensureIndexes(resolvers: Seq[SbtResolver]) = {
-      resolvers.map(r => {
+      resolvers.map({ r =>
         try {
           Some(add(r))
         } catch {
@@ -58,15 +58,15 @@ class SbtResolverIndexesManager(val testIndexesDir: File) extends Disposable {
     }
 
     var indexesToUpdate = Seq.empty[SbtResolverIndex]
-    updatingIndexes.synchronized({
-      val notUpdating = resolvers filter (r => updatingIndexes.find(r.root == _.root).isEmpty)
+    updatingIndexes synchronized {
+      val notUpdating = resolvers filter { r => updatingIndexes.find(r.root == _.root).isEmpty }
       indexesToUpdate = ensureIndexes(notUpdating)
       updatingIndexes ++= indexesToUpdate
-    })
+    }
 
     ProgressManager.getInstance().run(new Task.Backgroundable(null, "Indexing resolvers") {
       def run(progressIndicator: ProgressIndicator) {
-        indexesToUpdate.foreach (index => {
+        indexesToUpdate.foreach { index =>
           progressIndicator.setFraction(0.0)
           progressIndicator.setText(index.root)
           try {
@@ -75,9 +75,9 @@ class SbtResolverIndexesManager(val testIndexesDir: File) extends Disposable {
             case e: Throwable =>
               notifyError(UPDATING_ERROR_MSG.format(index.root, e.getMessage))
           } finally {
-            updatingIndexes.synchronized(updatingIndexes -= index)
+            updatingIndexes synchronized { updatingIndexes -= index }
           }
-        })
+        }
       }
     })
   }
@@ -92,7 +92,7 @@ class SbtResolverIndexesManager(val testIndexesDir: File) extends Disposable {
 
     val indices = indexesDir.listFiles()
     if (indices == null) return
-    indices foreach (indexDir => if (indexDir.isDirectory) {
+    indices foreach { indexDir => if (indexDir.isDirectory) {
         try {
           val index = SbtResolverIndex.load(indexDir)
           indexes.add(index)
@@ -101,7 +101,8 @@ class SbtResolverIndexesManager(val testIndexesDir: File) extends Disposable {
             FileUtil.delete(indexDir)
             notifyWarn(LOADING_ERROR_MSG.format(indexDir, e.getMessage))
         }
-    })
+      }
+    }
   }
 
   private def getIndexDirectory(root: String) = new File(indexesDir, root.shaDigest)
@@ -120,5 +121,5 @@ object SbtResolverIndexesManager {
   def notifyError(msg: String) =
     Notifications.Bus.notify(new Notification("sbt", "Resolver Indexer", msg, NotificationType.ERROR))
 
-  def getInstance = ServiceManager.getService(classOf[SbtResolverIndexesManager])
+  def apply() = ServiceManager.getService(classOf[SbtResolverIndexesManager])
 }

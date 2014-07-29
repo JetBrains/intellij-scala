@@ -17,7 +17,7 @@ import org.codehaus.plexus.DefaultPlexusContainer
  * @since 7/28/14.
  */
 class SbtResolverIndexer private (val root: String, val indexDir: File, val cacheDir: File) extends Closeable {
-  import scala.collection.JavaConversions._
+  import scala.collection.JavaConverters._
 
   indexDir.mkdirs()
   cacheDir.mkdirs()
@@ -36,11 +36,11 @@ class SbtResolverIndexer private (val root: String, val indexDir: File, val cach
   private val updater   = container.lookup(classOf[IndexUpdater])
   private val httpWagon = container.lookup(classOf[Wagon], "http")
 
-  private val indexers = seqAsJavaList(Seq(
+  private val indexers = Seq(
     container.lookup(classOf[IndexCreator], "min"),
     container.lookup(classOf[IndexCreator], "jarContent"),
     container.lookup(classOf[IndexCreator], "maven-plugin")
-  ))
+  ).asJava
 
   private val context = indexer.createIndexingContext(
     root.shaDigest, root.shaDigest,
@@ -59,16 +59,16 @@ class SbtResolverIndexer private (val root: String, val indexDir: File, val cach
     val transferListener = new AbstractTransferListener {
       var downloadedBytes = 0
       override def transferProgress(evt: TransferEvent, bytes: Array[Byte], length: Int) =
-        progressIndicator foreach (indicator => {
+        progressIndicator foreach { indicator =>
           downloadedBytes += length
           val done = (downloadedBytes.toFloat / evt.getResource.getContentLength) / 2.0
           indicator.setFraction(done)
-        })
+        }
       override def transferStarted(evt: TransferEvent) =
-        progressIndicator foreach (indicator => {
+        progressIndicator foreach { indicator =>
           indicator.setText2("Downloading Maven indexes")
           indicator.setFraction(0.0)
-        })
+        }
     }
     val fetcher = new WagonHelper.WagonFetcher(httpWagon, transferListener, null, null)
     val updateRequest = new IndexUpdateRequest(context, fetcher)
@@ -81,12 +81,12 @@ class SbtResolverIndexer private (val root: String, val indexDir: File, val cach
     try {
       val reader = searcher.getIndexReader
       val maxDoc = reader.maxDoc()
-      1.to(maxDoc) foreach (i => {
+      1.to(maxDoc) foreach { i =>
         val info = IndexUtils.constructArtifactInfo(reader.document(i-1), context)
         if (info != null)
           f(info)
         progressIndicator foreach (_.setFraction(0.5 + 0.5 * (i.toFloat / maxDoc)))
-      })
+      }
     } finally {
       context.releaseIndexSearcher(searcher)
     }
@@ -99,7 +99,7 @@ object SbtResolverIndexer {
     val INDEX_DIR = "index"
   }
 
-  def getInstance(root: String, indexDir: File) =
+  def apply(root: String, indexDir: File) =
     new SbtResolverIndexer(root, indexDir / Paths.INDEX_DIR, indexDir / Paths.CACHE_DIR)
 }
 
