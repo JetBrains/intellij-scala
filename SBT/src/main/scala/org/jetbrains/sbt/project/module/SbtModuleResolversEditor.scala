@@ -29,7 +29,7 @@ class SbtModuleResolversEditor(state: ModuleConfigurationState) extends ModuleEl
       override def actionPerformed(e: ActionEvent): Unit = {
         val resolversToUpdate: Seq[SbtResolver] =
           myForm.resolversTable.getSelectedRows map (resolvers(_))
-        SbtResolverIndexesManager.getInstance.update(resolversToUpdate)
+        SbtResolverIndexesManager().update(resolversToUpdate)
       }
     })
     myForm.mainPanel

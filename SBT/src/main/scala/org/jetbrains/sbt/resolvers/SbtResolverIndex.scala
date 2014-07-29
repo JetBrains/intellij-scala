@@ -6,6 +6,7 @@ import java.util.Properties
 
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.util.io.{DataExternalizer, EnumeratorStringDescriptor, PersistentHashMap}
+import org.apache.maven.index.ArtifactInfo
 
 import scala.collection.mutable
 
@@ -24,18 +25,20 @@ class SbtResolverIndex private (val root: String, var timestamp: Long, val index
   def update(progressIndicator: Option[ProgressIndicator] = None) {
     val gaMap  = mutable.HashMap.empty[String, mutable.Set[String]]
     val gavMap = mutable.HashMap.empty[String, mutable.Set[String]]
+    def processArtifact(artifact: ArtifactInfo) {
+      gaMap.getOrElseUpdate(artifact.groupId, mutable.Set.empty) += artifact.artifactId
+      gavMap.getOrElseUpdate(artifact.groupArtifact, mutable.Set.empty) += artifact.version
+    }
 
-    using(SbtResolverIndexer.getInstance(root, indexDir)) (indexer => {
+    using(SbtResolverIndexer(root, indexDir)) { indexer =>
       indexer.update(progressIndicator)
-      indexer.foreach(artifact => {
-        gaMap.getOrElseUpdate(artifact.groupId, mutable.Set.empty) += artifact.artifactId
-        gavMap.getOrElseUpdate(artifact.groupArtifact, mutable.Set.empty) += artifact.version
-      }, progressIndicator)
-    })
+      indexer.foreach(processArtifact, progressIndicator)
+    }
 
     progressIndicator foreach (_.setText2("Saving"))
-    gaMap  foreach (element => groupToArtifactMap.put(element._1, element._2.toSet))
-    gavMap foreach (element => groupArtifactToVersionMap.put(element._1, element._2.toSet))
+
+    gaMap  foreach { element => groupToArtifactMap.put(element._1, element._2.toSet) }
+    gavMap foreach { element => groupArtifactToVersionMap.put(element._1, element._2.toSet) }
     timestamp = System.currentTimeMillis()
     store()
   }
@@ -49,9 +52,9 @@ class SbtResolverIndex private (val root: String, var timestamp: Long, val index
     props.setProperty(Keys.UPDATE_TIMESTAMP, timestamp.toString)
 
     val propFile = indexDir / Paths.PROPERTIES_FILE
-    using(new FileOutputStream(propFile)) (outputStream => {
+    using(new FileOutputStream(propFile)) { outputStream =>
       props.store(outputStream, null)
-    })
+    }
 
     groupToArtifactMap.force()
     groupArtifactToVersionMap.force()
@@ -99,9 +102,9 @@ object SbtResolverIndex {
     val propFile = indexDir / Paths.PROPERTIES_FILE
     val props = new Properties()
 
-    using(new FileInputStream(propFile)) (inputStream => {
+    using(new FileInputStream(propFile)) { inputStream =>
       props.load(inputStream)
-    })
+    }
 
     val indexVersion = props.getProperty(Keys.VERSION)
     if (indexVersion != CURRENT_INDEX_VERSION)
