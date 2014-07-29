@@ -4,23 +4,22 @@ package psi
 package impl
 package expr
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import com.intellij.psi.util.PsiModificationTracker
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import types.result.{Failure, TypeResult, TypingContext}
-import types._
-import api.ScalaElementVisitor
-import caches.CachesUtil
-import com.intellij.psi.util.{PsiTreeUtil, PsiModificationTracker}
-import lang.resolve.processor.CompletionProcessor
-import lang.resolve.StdKinds
-import scala.collection.mutable
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.resolve.StdKinds
+import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
+
 import scala.annotation.tailrec
+import scala.collection.mutable
 
 /**
 * @author Alexander Podkhalyuzin
@@ -74,6 +73,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   def getDesugarizedExprText(forDisplay: Boolean): Option[String] = {
     val exprText: StringBuilder = new StringBuilder
+    val arrow = ScalaPsiUtil.functionArrow(getProject)
     val (enums, gens, guards) = enumerators match {
       case None => return None
       case Some(x) => (x.enumerators, x.generators, x.guards)
@@ -84,7 +84,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
       exprText.append("(").append(gen.rvalue.getText).append(")").append(".").append(if (isYield) "map" else "foreach")
               .append(" { case ")
       gen.pattern.desugarizedPatternIndex = exprText.length
-      exprText.append(gen.pattern.getText).append(" => ")
+      exprText.append(gen.pattern.getText).append(s" $arrow ")
       body match {
         case Some(x) => exprText.append(bodyToText(x))
         case _ => exprText.append("{}")
@@ -116,7 +116,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           if (!filterFound) filterText = "filter"
           exprText.append(gen.pattern.getText).
                   append(" <- ((").append(gen.rvalue.getText).append(s").$filterText { case ").
-                  append(gen.pattern.bindings.map(b => b.name).mkString("(", ", ", ")")).append(" => ")
+                  append(gen.pattern.bindings.map(b => b.name).mkString("(", ", ", ")")).append(s" $arrow ")
                   if (forDisplay) {
                     exprText.append(guard.expr.map(_.getText).getOrElse("true"))
                   } else {
@@ -145,7 +145,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           exprText.append("(").append(gen.rvalue.getText).append(")").append(".").
                   append(if (isYield) "flatMap " else "foreach ").append("{ case ")
           gen.pattern.desugarizedPatternIndex = exprText.length
-          exprText.append(gen.pattern.getText).append(" => ").append("for {")
+          exprText.append(gen.pattern.getText).append(s" $arrow ").append("for {")
           while (next != null) {
             next match {
               case gen: ScGenerator =>

@@ -28,7 +28,8 @@ class ScalaGenerateAnonymousFunctionInsertHandler(params: Seq[ScType], braceArgs
     val editor = context.getEditor
     val document = editor.getDocument
     context.setAddCompletionChar(false)
-    val text = ScalaCompletionUtil.generateAnonymousFunctionText(braceArgs, params, true)
+    val text = ScalaCompletionUtil.generateAnonymousFunctionText(braceArgs, params, canonical = true,
+      arrowText = ScalaPsiUtil.functionArrow(editor.getProject))
     document.insertString(editor.getCaretModel.getOffset, text)
     val documentManager = PsiDocumentManager.getInstance(context.getProject)
     documentManager.commitDocument(document)

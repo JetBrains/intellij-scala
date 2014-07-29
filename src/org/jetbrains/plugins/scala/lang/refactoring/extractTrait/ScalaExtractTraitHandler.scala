@@ -1,31 +1,31 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.extractTrait
 
-import com.intellij.refactoring.RefactoringActionHandler
+import com.intellij.internal.statistic.UsageTrigger
+import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
+import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
-import com.intellij.openapi.editor.{ScrollType, Editor}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.refactoring.memberPullUp.ScalaPullUpProcessor
-import scala.collection.mutable
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition, ScSuperReference, ScReferenceExpression}
-import scala.collection.JavaConverters._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import com.intellij.util.containers.MultiMap
+import com.intellij.refactoring.RefactoringActionHandler
 import com.intellij.refactoring.extractSuperclass.ExtractSuperClassUtil
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
+import com.intellij.util.containers.MultiMap
 import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition, ScSuperReference}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger
-import com.intellij.internal.statistic.UsageTrigger
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.refactoring.memberPullUp.ScalaPullUpProcessor
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
+
+import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 /**
  * Nikolay.Tropin
@@ -293,7 +293,10 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
         case cl: PsiClass => cl.getQualifiedName
       }.mkString(" with ")
 
-      if (classesForSelfType.nonEmpty) Some(s"$alias: $typeText =>") else None
+      if (classesForSelfType.nonEmpty) {
+        val arrow = ScalaPsiUtil.functionArrow(clazz.getProject)
+        Some(s"$alias: $typeText $arrow")
+      } else None
     }
 
     def typeParameters: String = {

@@ -3,17 +3,18 @@ package conversion
 
 
 import com.intellij.codeInsight.AnnotationUtil
+import com.intellij.codeInsight.editorActions.ReferenceData
 import com.intellij.lang.StdLanguages
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import copy.Association
-import lang.refactoring.util.ScalaNamesUtil
-import lang.psi.types.ScType
-import java.lang.String
-import com.intellij.openapi.util.TextRange
-import collection.mutable.{ListBuffer, ArrayBuffer, LinkedHashSet}
-import com.intellij.codeInsight.editorActions.ReferenceData
-import lang.dependency.{DependencyKind, Path}
+import org.jetbrains.plugins.scala.conversion.copy.Association
+import org.jetbrains.plugins.scala.lang.dependency.{DependencyKind, Path}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+
+import scala.collection.mutable.{ArrayBuffer, LinkedHashSet, ListBuffer}
 
 /**
  * Author: Alexander Podkhalyuzin
@@ -170,8 +171,9 @@ object JavaToScala {
                 append(convertPsiToText(s.getBody))
       }
       case s: PsiSwitchLabelStatement => {
+        val arrow = ScalaPsiUtil.functionArrow(s.getProject)
         res.append("case ").append(if (s.isDefaultCase) "_" else convertPsiToText(s.getCaseValue)).
-                append(" => ")
+                append(s" $arrow ")
       }
       case s: PsiSwitchStatement => {
         res.append(convertPsiToText(s.getExpression)).append(" match ").
@@ -183,7 +185,8 @@ object JavaToScala {
         if (catchs.length > 0) {
           res.append("\ncatch {\n")
           for (section: PsiCatchSection <- catchs) {
-            res.append("case ").append(convertPsiToText(section.getParameter)).append(" => ").
+            val arrow = ScalaPsiUtil.functionArrow(t.getProject)
+            res.append("case ").append(convertPsiToText(section.getParameter)).append(s" $arrow ").
                     append(convertPsiToText(section.getCatchBlock))
           }
           res.append("}")
@@ -392,7 +395,7 @@ object JavaToScala {
           res.append(" = ").append(convertPsiToText(f.getInitializer))
         } else {
           res.append(" = ")
-          import lang.psi.types._
+          import org.jetbrains.plugins.scala.lang.psi.types._
           res.append(ScType.create(f.getType, f.getProject) match {
             case Int => "0"
             case Boolean => "false"
@@ -451,7 +454,7 @@ object JavaToScala {
           res.append(" = ").append(convertPsiToText(l.getInitializer))
         } else {
           res.append(" = ")
-          import lang.psi.types._
+          import org.jetbrains.plugins.scala.lang.psi.types._
           res.append(ScType.create(l.getType, l.getProject) match {
             case Int => "0"
             case Boolean => "false"
