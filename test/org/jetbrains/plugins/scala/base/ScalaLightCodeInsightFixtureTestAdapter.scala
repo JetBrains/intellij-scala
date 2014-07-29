@@ -46,7 +46,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
     if (!canSurround) {
       assert(elementsToSurround == null || elementsToSurround.isEmpty, elementsToSurround.mkString("![", ",", "]!"))
     } else {
-      assert(!elementsToSurround.isEmpty, "No elements to surround!")
+      assert(elementsToSurround.nonEmpty, "No elements to surround!")
       extensions.startCommand(getProject, "Surround With Test") {
         SurroundWithHandler.invoke(myFixture.getProject, myFixture.getEditor, myFixture.getFile, surrounder)
       }
@@ -139,7 +139,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
     val selectionEnd = selectionModel.getSelectionEnd
 
     val withRightDescription = myFixture.doHighlighting().filter(info => info.getDescription == annotation)
-    assert(!withRightDescription.isEmpty, "No highlightings with such description: " + annotation)
+    assert(withRightDescription.nonEmpty, "No highlightings with such description: " + annotation)
 
     val ranges = withRightDescription.map(info => (info.getStartOffset, info.getEndOffset))
     val message = "Highlights with this description are at " + ranges.mkString(" ") + ", but has to be at " + (selectionStart, selectionEnd)
@@ -171,7 +171,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
       if (info != null && info.quickFixActionRanges != null && checkCaret(info.getStartOffset, info.getEndOffset))
         actions ++= (for (pair <- info.quickFixActionRanges if pair != null) yield pair.getFirst.getAction))
 
-    assert(!actions.isEmpty, "There is no available fixes.")
+    assert(actions.nonEmpty, "There is no available fixes.")
 
     actions.find(_.getText == quickFixHint) match {
       case Some(action) =>
