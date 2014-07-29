@@ -124,25 +124,6 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
                         }
                     }
                   } else defaultResult
-
-                  //this functionality for checking if this expression can be implicitly changed and then
-                  //it will conform to expected type
-                  /*val convertible: ScImplicitlyConvertible = new ScImplicitlyConvertible(this)
-                  val firstPart = convertible.implicitMapFirstPart(Some(expected), fromUnderscore)
-                  var f: Seq[ImplicitResolveResult] =
-                    firstPart.filter(_.tp.conforms(expected))
-                  if (f.length == 0) {
-                    f = convertible.implicitMapSecondPart(Some(expected), fromUnderscore).filter(_.tp.conforms(expected))
-                  }
-                  if (f.length == 1) ExpressionTypeResult(Success(f(0).getTypeWithDependentSubstitutor, Some(this)), f(0).importUsed, Some(f(0).element))
-                  else if (f.length == 0) defaultResult
-                  else {
-                    MostSpecificUtil(this, 1).mostSpecificForImplicit(f.toSet) match {
-                      case Some(res) =>
-                        ExpressionTypeResult(Success(res.getTypeWithDependentSubstitutor, Some(this)), res.importUsed, Some(res.element))
-                      case None => defaultResult
-                    }
-                  }*/
                 case _ => defaultResult
               }
             }
@@ -183,7 +164,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
               if (checkImplicitParameters) {
                 val tuple = InferUtil.updateTypeWithImplicitParameters(res, this, None, checkExpectedType)
                 res = tuple._1
-                implicitParameters = tuple._2
+                if (fromUnderscore) implicitParametersFromUnder = tuple._2
+                else implicitParameters = tuple._2
               }
             }
 
@@ -364,6 +346,9 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
   @volatile
   protected var implicitParameters: Option[Seq[ScalaResolveResult]] = None
 
+  @volatile
+  protected var implicitParametersFromUnder: Option[Seq[ScalaResolveResult]] = None
+
   /**
    * Warning! There is a hack in scala compiler for ClassManifest and ClassTag.
    * In case of implicit parameter with type ClassManifest[T]
@@ -372,8 +357,14 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
    */
   def findImplicitParameters: Option[Seq[ScalaResolveResult]] = {
     ProgressManager.checkCanceled()
-    getType(TypingContext.empty) //to update implicitParameters field
-    implicitParameters
+
+    if (ScUnderScoreSectionUtil.underscores(this).nonEmpty) {
+      getTypeWithoutImplicits(TypingContext.empty, fromUnderscore = true) //to update implicitParametersFromUnder
+      implicitParametersFromUnder
+    } else {
+      getType(TypingContext.empty) //to update implicitParameters field
+      implicitParameters
+    }
   }
 
   def getNonValueType(ctx: TypingContext = TypingContext.empty, //todo: remove?

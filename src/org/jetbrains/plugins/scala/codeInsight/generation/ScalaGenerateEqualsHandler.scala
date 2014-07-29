@@ -1,27 +1,26 @@
 package org.jetbrains.plugins.scala
 package codeInsight.generation
 
-import com.intellij.psi._
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.Editor
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScClass}
-import com.intellij.codeInsight.{CodeInsightUtilBase, CodeInsightBundle}
-import com.intellij.openapi.ui.{DialogWrapper, Messages}
+import com.intellij.codeInsight.hint.HintManager
+import com.intellij.codeInsight.{CodeInsightBundle, CodeInsightUtilBase}
+import com.intellij.lang.LanguageCodeInsightActionHandler
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.{DialogWrapper, Messages}
 import com.intellij.openapi.util.Computable
+import com.intellij.psi._
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.codeInsight.generation.ui.ScalaGenerateEqualsWizard
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import com.intellij.lang.LanguageCodeInsightActionHandler
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
-import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
-import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.codeInsight.hint.HintManager
-import scala.Some
-import scala.Boolean
+import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 
 /**
  * Nikolay.Tropin
@@ -97,7 +96,8 @@ class ScalaGenerateEqualsHandler extends LanguageCodeInsightActionHandler {
     val usedFields = superCall ++: myHashCodeFields.map(_.name)
     val stateText = usedFields.mkString("Seq(", ", ", ")")
     val firstStmtText = s"val state = $stateText"
-    val calculationText = "state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)"
+    val arrow = ScalaPsiUtil.functionArrow(aClass.getProject)
+    val calculationText = s"state.map(_.hashCode()).foldLeft(0)((a, b) $arrow 31 * a + b)"
     val methodText =
       s"""override $declText = {
         |  $firstStmtText
@@ -126,10 +126,11 @@ class ScalaGenerateEqualsHandler extends LanguageCodeInsightActionHandler {
     val canEqualCheck = Option(if (aClass.hasFinalModifier) null else "(that canEqual this)")
     val allChecks = superCheck ++: canEqualCheck ++: fieldComparisons
     val checksText = allChecks.mkString(" &&\n")
+    val arrow = ScalaPsiUtil.functionArrow(project)
     val text = s"""override $declText = other match {
-                 |  case that: ${aClass.name} =>
+                 |  case that: ${aClass.name} $arrow
                  |    $checksText
-                 |  case _ => false
+                 |  case _ $arrow false
                  |}""".stripMargin.replace("\r", "")
     ScalaPsiElementFactory.createMethodWithContext(text, aClass, aClass.extendsBlock)
   }

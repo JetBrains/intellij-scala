@@ -95,7 +95,7 @@ object ScalaClassNameCompletionContributor {
               if (containingClass == null) return false
               containingClass
           }
-          JavaCompletionUtil.isInExcludedPackage(clazz, true)
+          JavaCompletionUtil.isInExcludedPackage(clazz, false)
         }
       })
       if (isExcluded) return

@@ -12,13 +12,15 @@ import com.intellij.psi.PsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 /**
  * Surrounds block with try - catch: try { Block } catch { <Cursor> } 
  */
 class ScalaWithTryCatchSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
-    "try {\n" + super.getTemplateAsString(elements) + "\n}\ncatch {\n case _ => \n}"
+    val arrow = if (elements.length == 0) "=>" else ScalaPsiUtil.functionArrow(elements(0).getProject)
+    "try {\n" + super.getTemplateAsString(elements) + s"\n}\ncatch {\n case _ $arrow \n}"
   }
 
   override def getTemplateDescription = "try / catch"

@@ -409,10 +409,11 @@ object ScalaPsiElementFactory {
     val names = new mutable.HashSet[String]
     names ++= expr.getNames
     for (expr <- exprs) names ++= expr.getNames
+    val arrow = ScalaPsiUtil.functionArrow(manager.getProject)
     if ((names("_") ||
             ScalaCodeStyleSettings.getInstance(manager.getProject).getClassCountToUseImportOnDemand <=
                     names.size) &&
-            names.filter(_.indexOf("=>") != -1).toSeq.size == 0) text = text + "._"
+            names.filter(_.indexOf(arrow) != -1).toSeq.size == 0) text = text + "._"
     else {
       text = text + ".{"
       for (string <- names) {
@@ -481,7 +482,8 @@ object ScalaPsiElementFactory {
           case block @ ScBlock(st) if !block.hasRBrace => stmtText(st)
           case _ => result.getText
         }
-        s"$paramText => $resultText"
+        val arrow = ScalaPsiUtil.functionArrow(manager.getProject)
+        s"$paramText $arrow $resultText"
       case null => ""
       case _ => stmt.getText
     }
@@ -723,7 +725,8 @@ object ScalaPsiElementFactory {
                 case Some(x) =>
                   val colon = if (ScalaNamesUtil.isIdentifier(name + ":")) " : " else ": "
                   val typeText = ScType.canonicalText(substitutor.subst(x.getType(TypingContext.empty).getOrAny))
-                  name + colon + (if (param.isCallByNameParameter) "=>" else "") + typeText + (if (param.isRepeatedParameter) "*" else "")
+                  val arrow = ScalaPsiUtil.functionArrow(param.getProject)
+                  name + colon + (if (param.isCallByNameParameter) arrow else "") + typeText + (if (param.isRepeatedParameter) "*" else "")
                 case _ => name
               }
             }

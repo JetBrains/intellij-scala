@@ -354,23 +354,26 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
         val presentableParams = params.map(_.removeAbstracts)
         val anonFunRenderer = new LookupElementRenderer[LookupElement] {
           def renderElement(element: LookupElement, presentation: LookupElementPresentation) {
-            val text = ScalaCompletionUtil.generateAnonymousFunctionText(braceArgs, presentableParams, canonical = false)
+            val arrowText = ScalaPsiUtil.functionArrow(referenceExpression.getProject)
+            val text = ScalaCompletionUtil.generateAnonymousFunctionText(braceArgs, presentableParams, canonical = false,
+              arrowText = arrowText)
             presentation match {
               case realPresentation: RealLookupElementPresentation =>
                 if (!realPresentation.hasEnoughSpaceFor(text, false)) {
                   var prefixIndex = presentableParams.length - 1
-                  val suffix = ", ... =>"
+                  val suffix = s", ... $arrowText"
                   var end = false
                   while (prefixIndex > 0 && !end) {
                     val prefix = ScalaCompletionUtil.generateAnonymousFunctionText(braceArgs,
-                      presentableParams.slice(0, prefixIndex), canonical = false, withoutEnd = true)
+                      presentableParams.slice(0, prefixIndex), canonical = false, withoutEnd = true,
+                      arrowText = arrowText)
                     if (realPresentation.hasEnoughSpaceFor(prefix + suffix, false)) {
                       presentation.setItemText(prefix + suffix)
                       end = true
                     } else prefixIndex -= 1
                   }
                   if (!end) {
-                    presentation.setItemText("... => ")
+                    presentation.setItemText(s"... $arrowText ")
                   }
                 } else presentation.setItemText(text)
                 presentation.setIcon(Icons.LAMBDA)
