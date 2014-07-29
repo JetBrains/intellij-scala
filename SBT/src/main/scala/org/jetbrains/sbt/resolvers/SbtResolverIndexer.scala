@@ -3,10 +3,13 @@ package resolvers
 
 import java.io.{Closeable, File}
 
+import com.intellij.openapi.progress.ProgressIndicator
 import org.apache.maven.index.context.{IndexCreator, IndexUtils}
 import org.apache.maven.index.updater.{IndexUpdateRequest, IndexUpdater, WagonHelper}
 import org.apache.maven.index.{ArtifactInfo, Indexer}
 import org.apache.maven.wagon.Wagon
+import org.apache.maven.wagon.events.TransferEvent
+import org.apache.maven.wagon.observers.AbstractTransferListener
 import org.codehaus.plexus.DefaultPlexusContainer
 
 /**
@@ -52,20 +55,37 @@ class SbtResolverIndexer private (val root: String, val indexDir: File, val cach
     Thread.currentThread().setContextClassLoader(origClassLoader)
   }
 
-  def update() {
-    val fetcher = new WagonHelper.WagonFetcher(httpWagon, null, null, null)
+  def update(progressIndicator: Option[ProgressIndicator]) {
+    val transferListener = new AbstractTransferListener {
+      var downloadedBytes = 0
+      override def transferProgress(evt: TransferEvent, bytes: Array[Byte], length: Int) =
+        progressIndicator foreach (indicator => {
+          downloadedBytes += length
+          val done = (downloadedBytes.toFloat / evt.getResource.getContentLength) / 2.0
+          indicator.setFraction(done)
+        })
+      override def transferStarted(evt: TransferEvent) =
+        progressIndicator foreach (indicator => {
+          indicator.setText2("Downloading Maven indexes")
+          indicator.setFraction(0.0)
+        })
+    }
+    val fetcher = new WagonHelper.WagonFetcher(httpWagon, transferListener, null, null)
     val updateRequest = new IndexUpdateRequest(context, fetcher)
     updater.fetchAndUpdateIndex(updateRequest)
   }
 
-  def foreach(f: (ArtifactInfo => Unit)) {
+  def foreach(f: (ArtifactInfo => Unit), progressIndicator: Option[ProgressIndicator]) {
+    progressIndicator foreach (_.setText2("Converting Maven indexes"))
     val searcher = context.acquireIndexSearcher()
     try {
       val reader = searcher.getIndexReader
-      1.to(reader.maxDoc()) foreach (i => {
+      val maxDoc = reader.maxDoc()
+      1.to(maxDoc) foreach (i => {
         val info = IndexUtils.constructArtifactInfo(reader.document(i-1), context)
         if (info != null)
           f(info)
+        progressIndicator foreach (_.setFraction(0.5 + 0.5 * (i.toFloat / maxDoc)))
       })
     } finally {
       context.releaseIndexSearcher(searcher)

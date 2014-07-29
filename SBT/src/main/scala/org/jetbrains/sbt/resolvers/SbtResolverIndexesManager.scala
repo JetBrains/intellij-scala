@@ -24,6 +24,7 @@ class SbtResolverIndexesManager(val testIndexesDir: File) extends Disposable {
 
   private val indexesDir = if (testIndexesDir == null) SbtResolverIndexesManager.DEFAULT_INDEXES_DIR else testIndexesDir
   private val indexes: MutableSet[SbtResolverIndex] = MutableSet.empty
+  private val updatingIndexes: MutableSet[SbtResolverIndex] = MutableSet.empty
 
   loadIndexes()
 
@@ -43,37 +44,44 @@ class SbtResolverIndexesManager(val testIndexesDir: File) extends Disposable {
     indexes foreach (_.close())
   }
 
-  // TODO: implement simultaneous updates
   def update(resolvers: Seq[SbtResolver]) {
-    val indexes = ensureIndexes(resolvers)
+    def ensureIndexes(resolvers: Seq[SbtResolver]) = {
+      resolvers.map(r => {
+        try {
+          Some(add(r))
+        } catch {
+          case e: Throwable =>
+            notifyError(CREATING_ERROR_MSG.format(r.root, e.getMessage))
+            None
+        }
+      }).flatten
+    }
+
+    var indexesToUpdate = Seq.empty[SbtResolverIndex]
+    updatingIndexes.synchronized({
+      val notUpdating = resolvers filter (r => updatingIndexes.find(r.root == _.root).isEmpty)
+      indexesToUpdate = ensureIndexes(notUpdating)
+      updatingIndexes ++= indexesToUpdate
+    })
+
     ProgressManager.getInstance().run(new Task.Backgroundable(null, "Indexing resolvers") {
       def run(progressIndicator: ProgressIndicator) {
-        val step  = 1.0 / indexes.length
-        progressIndicator.setFraction(0.0)
-        indexes.foreach (index => {
+        indexesToUpdate.foreach (index => {
+          progressIndicator.setFraction(0.0)
           progressIndicator.setText(index.root)
           try {
-            index.update()
+            index.update(Some(progressIndicator))
           } catch {
             case e: Throwable =>
               notifyError(UPDATING_ERROR_MSG.format(index.root, e.getMessage))
+          } finally {
+            updatingIndexes.synchronized(updatingIndexes -= index)
           }
-          progressIndicator.setFraction(progressIndicator.getFraction + step)
         })
       }
     })
   }
 
-  private def ensureIndexes(resolvers: Seq[SbtResolver]) =
-    resolvers.map(r => {
-      try {
-        Some(add(r))
-      } catch {
-        case e: Throwable =>
-          notifyError(CREATING_ERROR_MSG.format(r.root, e.getMessage))
-          None
-      }
-    }).flatten
 
   private def loadIndexes() {
     indexesDir.mkdirs()
