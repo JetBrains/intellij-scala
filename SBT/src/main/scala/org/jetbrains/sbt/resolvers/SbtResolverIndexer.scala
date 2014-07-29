@@ -23,7 +23,8 @@ class SbtResolverIndexer private (val root: String, val indexDir: File, val cach
   if (!cacheDir.exists || !cacheDir.isDirectory)
     throw new RuntimeException("Can't create Maven Indexer cache dir: %s" format cacheDir.absolutePath)
 
-  // This lines are necessary, otherwise Plexus container won't find maven-indexer interfaces' implementations
+  // This lines are absolutely necessary
+  // Otherwise Plexus container won't find maven-indexer interfaces' implementations
   private val origClassLoader = Thread.currentThread().getContextClassLoader
   Thread.currentThread().setContextClassLoader(classOf[Indexer].getClassLoader)
 
@@ -43,6 +44,7 @@ class SbtResolverIndexer private (val root: String, val indexDir: File, val cach
     cacheDir, indexDir,
     root, null, true, true, indexers
   )
+
 
   def close() {
     indexer.closeIndexingContext(context, false)
