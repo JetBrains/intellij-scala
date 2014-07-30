@@ -205,10 +205,14 @@ trait ApplicationAnnotator {
 
   protected def registerCreateFromUsageFixesFor(ref: ScReferenceElement, annotation: Annotation) {
     ref match {
-      case Both(exp: ScReferenceExpression, Parent(_: ScMethodCall)) =>
+      case (exp: ScReferenceExpression) childOf (_: ScMethodCall) =>
         annotation.registerFix(new CreateMethodQuickFix(exp))
-      case Both(exp: ScReferenceExpression, Parent(infix: ScInfixExpr)) if infix.operation == exp =>
+      case (exp: ScReferenceExpression) childOf (infix: ScInfixExpr) if infix.operation == exp =>
         annotation.registerFix(new CreateMethodQuickFix(exp))
+      case (exp: ScReferenceExpression) childOf ((_: ScGenericCall) childOf (_: ScMethodCall)) =>
+        annotation.registerFix(new CreateMethodQuickFix(exp))
+      case (exp: ScReferenceExpression) childOf (_: ScGenericCall) =>
+        annotation.registerFix(new CreateParameterlessMethodQuickFix(exp))
       case exp: ScReferenceExpression =>
         annotation.registerFix(new CreateParameterlessMethodQuickFix(exp))
         annotation.registerFix(new CreateValueQuickFix(exp))
