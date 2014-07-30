@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompoundTypeCheckSignatureProcessor, CompoundTypeCheckTypeAliasProcessor}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
@@ -1633,13 +1633,13 @@ object Conformance {
           }
           var i = 0
           while (i < typeParameters1.length) {
-            var t = conformsInner(typeParameters1(i).lowerType, typeParameters2(i).lowerType, HashSet.empty, undefinedSubst)
+            var t = conformsInner(typeParameters1(i).lowerType(), typeParameters2(i).lowerType(), HashSet.empty, undefinedSubst)
             if (!t._1) {
               result = (false, undefinedSubst)
               return
             }
             undefinedSubst = t._2
-            t = conformsInner(typeParameters2(i).upperType, typeParameters1(i).lowerType, HashSet.empty, undefinedSubst)
+            t = conformsInner(typeParameters2(i).upperType(), typeParameters1(i).lowerType(), HashSet.empty, undefinedSubst)
             if (!t._1) {
               result = (false, undefinedSubst)
               return
@@ -1653,7 +1653,7 @@ object Conformance {
                 tuple._2.ptp match {
                   case p: ScTypeParam => p.typeParameters.toList.map{new ScTypeParameterType(_, ScSubstitutor.empty)}
                   case _ => Nil
-                }, tuple._2.lowerType, tuple._2.upperType, tuple._2.ptp))
+                }, tuple._2.lowerType(), tuple._2.upperType(), tuple._2.ptp))
           }), Map.empty, None)
           val t = conformsInner(subst.subst(internalType1), internalType2, HashSet.empty, undefinedSubst)
           if (!t._1) {
