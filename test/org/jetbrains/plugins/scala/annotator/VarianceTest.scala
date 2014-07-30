@@ -9,7 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue,
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 
 /**
- * Created by Svyaatoslav ILINSKIY on 6/27/2014.
+ * @author Svyaatoslav ILINSKIY
+ * @since  6/27/2014.
  */
 class VarianceTest extends SimpleTestCase {
   final val Header = "class A; class B\n"
