@@ -100,8 +100,8 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
               new ScCompoundType(comps.map(existize(_, visitedWithT)), signatureMap.map {
                 case (s: Signature, tp) =>
                   def updateTypeParam(tp: TypeParameter): TypeParameter = {
-                    new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), existize(tp.lowerType, visitedWithT),
-                      existize(tp.upperType, visitedWithT), tp.ptp)
+                    new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), () => existize(tp.lowerType(), visitedWithT),
+                      () => existize(tp.upperType(), visitedWithT), tp.ptp)
                   }
 
                   val pTypes: List[Stream[ScType]] = s.substitutedTypes.map(_.map(existize(_, visitedWithT)))

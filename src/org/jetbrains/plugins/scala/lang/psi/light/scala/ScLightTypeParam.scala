@@ -19,9 +19,9 @@ class ScLightTypeParam(t: TypeParameter, tParam: ScTypeParam)
   extends LightElement(tParam.getManager, tParam.getLanguage) with ScTypeParam with PsiClassFake {
   override def nameId: PsiElement = tParam.nameId
 
-  override def upperBound: TypeResult[ScType] = Success(t.upperType, Some(this))
+  override def upperBound: TypeResult[ScType] = Success(t.upperType(), Some(this))
 
-  override def lowerBound: TypeResult[ScType] = Success(t.lowerType, Some(this))
+  override def lowerBound: TypeResult[ScType] = Success(t.lowerType(), Some(this))
 
   override def getIndex: Int = tParam.getIndex
 
