@@ -276,8 +276,13 @@ case class ScExistentialType(quantified : ScType,
         val newSet = rejected ++ typeMap.map(_._1)
 
         def updateTypeParam(tp: TypeParameter): TypeParameter = {
-          new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), () => updateRecursive(tp.lowerType(), newSet, variance),
-            () => updateRecursive(tp.upperType(), newSet, -variance), tp.ptp)
+          new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), {
+            val res = updateRecursive(tp.lowerType(), newSet, variance)
+            () => res
+          }, {
+            val res = updateRecursive(tp.upperType(), newSet, -variance)
+            () => res
+          }, tp.ptp)
         }
 
         new ScCompoundType(components, signatureMap.map {

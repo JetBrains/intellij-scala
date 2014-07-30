@@ -21,8 +21,13 @@ case class TypeAliasSignature(name: String, typeParams: List[TypeParameter], low
 
   def updateTypes(fun: ScType => ScType, withCopy: Boolean = true): TypeAliasSignature = {
     def updateTypeParam(tp: TypeParameter): TypeParameter = {
-      new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), () => fun(tp.lowerType()),
-        () => fun(tp.upperType()), tp.ptp)
+      new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), {
+        val res = fun(tp.lowerType())
+        () => res
+      }, {
+        val res = fun(tp.upperType())
+        () => res
+      }, tp.ptp)
     }
     val res = TypeAliasSignature(name, typeParams.map(updateTypeParam), fun(lowerBound), fun(upperBound), isDefinition, ta)
 

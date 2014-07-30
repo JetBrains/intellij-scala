@@ -42,6 +42,7 @@ case class Parameter(name: String, deprecatedName: Option[String], paramType: Sc
 
 /**
  * Class representing type parameters in our type system. Can be constructed from psi.
+ * todo: lower and upper types will be reevaluated many times, is it good or bad? Seems bad. What other ways to fix SCL-7216?
  * @param lowerType important to be lazy, see SCL-7216
  * @param upperType important to be lazy, see SCL-7216
  */
@@ -64,7 +65,13 @@ case class TypeParameter(name: String, typeParams: Seq[TypeParameter], lowerType
   }
 
   def update(fun: ScType => ScType): TypeParameter = {
-    new TypeParameter(name, typeParams.map(_.update(fun)), () => fun(lowerType()), () => fun(upperType()), ptp)
+    new TypeParameter(name, typeParams.map(_.update(fun)), {
+      val res = fun(lowerType())
+      () => res
+    }, {
+      val res = fun(upperType())
+      () => res
+    }, ptp)
   }
 }
 
@@ -249,8 +256,13 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
       case (true, res) => res
       case _ =>
         ScTypePolymorphicType(internalType.recursiveUpdate(update, newVisited), typeParameters.map(tp => {
-          TypeParameter(tp.name, tp.typeParams /* todo: ? */, () => tp.lowerType().recursiveUpdate(update, newVisited),
-            () => tp.upperType().recursiveUpdate(update, newVisited), tp.ptp)
+          TypeParameter(tp.name, tp.typeParams /* todo: ? */, {
+            val res = tp.lowerType().recursiveUpdate(update, newVisited)
+            () => res
+          }, {
+            val res = tp.upperType().recursiveUpdate(update, newVisited)
+            () => res
+          }, tp.ptp)
         }))
     }
   }
@@ -272,7 +284,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
                           falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     r match {
-      case p: ScTypePolymorphicType => {
+      case p: ScTypePolymorphicType =>
         if (typeParameters.length != p.typeParameters.length) return (false, undefinedSubst)
         var i = 0
         while (i < typeParameters.length) {
@@ -295,7 +307,6 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
             }, new Suspension(tuple._2.lowerType), new Suspension(tuple._2.upperType), tuple._2.ptp))
         }), Map.empty, None)
         Equivalence.equivInner(subst.subst(internalType), p.internalType, undefinedSubst, falseUndef)
-      }
       case _ => (false, undefinedSubst)
     }
   }
