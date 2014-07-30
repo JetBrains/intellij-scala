@@ -86,7 +86,7 @@ object WorksheetSourceProcessor {
     
     val startText = ""
     
-    val classRes = new StringBuilder(s"class $classPrologue { \n")
+    val classRes = new StringBuilder(s"final class $classPrologue { \n")
     val objectRes = new StringBuilder(s"def main($runPrinterName: Any) { \n val $instanceName = new $name \n")
     
     var resCount = 0
