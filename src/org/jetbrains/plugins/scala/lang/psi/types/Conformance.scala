@@ -1653,7 +1653,7 @@ object Conformance {
                 tuple._2.ptp match {
                   case p: ScTypeParam => p.typeParameters.toList.map{new ScTypeParameterType(_, ScSubstitutor.empty)}
                   case _ => Nil
-                }, tuple._2.lowerType(), tuple._2.upperType(), tuple._2.ptp))
+                }, new Suspension(tuple._2.lowerType), new Suspension(tuple._2.upperType), tuple._2.ptp))
           }), Map.empty, None)
           val t = conformsInner(subst.subst(internalType1), internalType2, HashSet.empty, undefinedSubst)
           if (!t._1) {
