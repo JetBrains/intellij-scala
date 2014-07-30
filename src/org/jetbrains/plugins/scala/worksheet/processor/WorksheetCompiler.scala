@@ -11,7 +11,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.{Disposer, Key}
 import com.intellij.openapi.vfs.newvfs.FileAttribute
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
 import com.intellij.openapi.wm.{ToolWindowId, ToolWindowManager}
 import com.intellij.psi.{PsiErrorElement, PsiFile}
 import com.intellij.ui.content.{Content, ContentFactory, MessageView}
@@ -22,7 +21,6 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.server.{InProcessServer, NonServer, OutOfProcessServer, RemoteServerConnector}
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
-import scala.collection.mutable
 
 /**
  * User: Dmitry Naydanov
@@ -122,14 +120,9 @@ class WorksheetCompiler {
   }
 }
 
-object WorksheetCompiler {
+object WorksheetCompiler extends WorksheetPerFileConfig {
   private val MAKE_BEFORE_RUN = new FileAttribute("ScalaWorksheetMakeBeforeRun", 1, true)
   private val ERROR_CONTENT_NAME = "Worksheet errors"
-
-  private val enabled = "enabled"
-  private val disabled = "disable"
-
-  private val lightKeys = mutable.WeakHashMap[VirtualFile, mutable.HashMap[FileAttribute, String]]()
 
   def getCompileKey = Key.create[String]("scala.worksheet.compilation")
   def getOriginalFileKey = Key.create[String]("scala.worksheet.original.file")
@@ -145,26 +138,9 @@ object WorksheetCompiler {
     if (launcher.running) launcher.stop(project)
   }
 
-  def readAttribute(attribute: FileAttribute, file: PsiFile): Option[String] = {
-    file.getVirtualFile match {
-      case normalFile: VirtualFileWithId => Option(attribute readAttributeBytes normalFile) map (new String(_))
-      case other => lightKeys get other flatMap (map => map get attribute)
-    }
-  }
-
-  def writeAttribute(attribute: FileAttribute, file: PsiFile, data: String) {
-    file.getVirtualFile match {
-      case normalFile: VirtualFileWithId => attribute.writeAttributeBytes(normalFile, data.getBytes)
-      case other => lightKeys get other match {
-        case Some(e) => e.put(attribute, data)
-        case _ => lightKeys.put(other, mutable.HashMap(attribute -> data))
-      }
-    }
-  }
-
-  def isMakeBeforeRun(file: PsiFile) = readAttribute(MAKE_BEFORE_RUN, file).exists(_ == enabled)
+  def isMakeBeforeRun(file: PsiFile) = isEnabled(file, MAKE_BEFORE_RUN)
 
   def setMakeBeforeRun(file: PsiFile, isMake: Boolean) = {
-    writeAttribute(MAKE_BEFORE_RUN, file, if (isMake) enabled else disabled)
+    setEnabled(file, MAKE_BEFORE_RUN, isMake)
   }
 }
