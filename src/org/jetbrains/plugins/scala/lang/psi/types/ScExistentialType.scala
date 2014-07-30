@@ -251,8 +251,8 @@ case class ScExistentialType(quantified : ScType,
         case ScTypePolymorphicType(internalType, typeParameters) =>
           checkRecursive(internalType, rejected)
           typeParameters.foreach(tp => {
-            checkRecursive(tp.lowerType, rejected)
-            checkRecursive(tp.upperType, rejected)
+            checkRecursive(tp.lowerType(), rejected)
+            checkRecursive(tp.upperType(), rejected)
           })
         case _ =>
       }
@@ -276,8 +276,13 @@ case class ScExistentialType(quantified : ScType,
         val newSet = rejected ++ typeMap.map(_._1)
 
         def updateTypeParam(tp: TypeParameter): TypeParameter = {
-          new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), updateRecursive(tp.lowerType, newSet, variance),
-            updateRecursive(tp.upperType, newSet, -variance), tp.ptp)
+          new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), {
+            val res = updateRecursive(tp.lowerType(), newSet, variance)
+            () => res
+          }, {
+            val res = updateRecursive(tp.upperType(), newSet, -variance)
+            () => res
+          }, tp.ptp)
         }
 
         new ScCompoundType(components, signatureMap.map {
@@ -380,8 +385,8 @@ case class ScExistentialType(quantified : ScType,
         ScTypePolymorphicType(
           updateRecursive(internalType, rejected, variance),
           typeParameters.map(tp => TypeParameter(tp.name, tp.typeParams /* todo: is it important here to update? */,
-            updateRecursive(tp.lowerType, rejected, variance),
-            updateRecursive(tp.upperType, rejected, variance),
+            () => updateRecursive(tp.lowerType(), rejected, variance),
+            () => updateRecursive(tp.upperType(), rejected, variance),
             tp.ptp
           ))
         )
