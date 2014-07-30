@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
  * @author Svyaatoslav ILINSKIY
@@ -146,6 +147,7 @@ class VarianceTest extends SimpleTestCase {
       case v: ScValue => annotator.annotate(v, mock)
       case tbo: ScTypeBoundsOwner => annotator.annotate(tbo, mock)
       case call: ScMethodCall => annotator.annotate(call, mock)
+      case td: ScTypeDefinition => annotator.annotate(td, mock)
       case _ =>
     }
 
@@ -155,7 +157,7 @@ class VarianceTest extends SimpleTestCase {
   val ContravariantPosition = containsPattern("occurs in contravariant position")
   val CovariantPosition = containsPattern("occurs in covariant position")
   val AbstractModifier = containsPattern("Abstract member may not have private modifier")
-  val NotConformsUpper = containsPattern("does not conform to upper bound")
+  val NotConformsUpper = containsPattern("doesn't conform to upper bound")
 
   def containsPattern(fragment: String) = new {
     def unapply(s: String) = s.contains(fragment)
