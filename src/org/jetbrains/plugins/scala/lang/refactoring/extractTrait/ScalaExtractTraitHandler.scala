@@ -93,6 +93,8 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
 
     val dialog = new ScalaExtractTraitDialog(project, clazz)
     dialog.show()
+    if (!dialog.isOK) return
+
     val memberInfos = dialog.getSelectedMembers.asScala
     val extractInfo = new ExtractInfo(clazz, memberInfos)
     extractInfo.collect()
