@@ -155,7 +155,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
       case ScTypePolymorphicType(internalType, typeParameters) =>
         ScTypePolymorphicType(substInternal(internalType), typeParameters.map(tp => {
           TypeParameter(tp.name, tp.typeParams /* todo: is it important here to update? */,
-            substInternal(tp.lowerType), substInternal(tp.upperType), tp.ptp)
+            () => substInternal(tp.lowerType()), () => substInternal(tp.upperType()), tp.ptp)
         }))
       case ScThisType(clazz) =>
         def hasRecursiveThisType(tp: ScType): Boolean = {
@@ -360,8 +360,8 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
         substCopy.myDependentMethodTypesFunDefined = myDependentMethodTypesFunDefined
         substCopy.myDependentMethodTypes = myDependentMethodTypes
         def substTypeParam(tp: TypeParameter): TypeParameter = {
-          new TypeParameter(tp.name, tp.typeParams.map(substTypeParam), substInternal(tp.lowerType),
-            substInternal(tp.upperType), tp.ptp)
+          new TypeParameter(tp.name, tp.typeParams.map(substTypeParam), () => substInternal(tp.lowerType()),
+            () => substInternal(tp.upperType()), tp.ptp)
         }
         ScCompoundType(comps.map(substInternal), signatureMap.map {
           case (s: Signature, tp: ScType) =>

@@ -6,19 +6,18 @@ package types
 import com.intellij.psi._
 import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
-import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition, ScObject}
-import api.statements._
-import api.base.patterns.{ScReferencePattern, ScBindingPattern}
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
-import params.{ScParameter, ScTypeParam}
-import refactoring.util.{ScalaNamesUtil, ScTypeUtil}
-import collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
-import scala.annotation.tailrec
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
+
+import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 
 trait ScTypePresentation {
   def presentableText(t: ScType) = typeText(t, _.name, {
@@ -274,8 +273,8 @@ trait ScTypePresentation {
           existentialTypeText(ex, checkWildcard, needDotType)
         case ScTypePolymorphicType(internalType, typeParameters) =>
           typeParameters.map(tp => {
-            val lowerBound = if (tp.lowerType.equiv(types.Nothing)) "" else " >: " + tp.lowerType.toString
-            val upperBound = if (tp.upperType.equiv(types.Any)) "" else " <: " + tp.upperType.toString
+            val lowerBound = if (tp.lowerType().equiv(types.Nothing)) "" else " >: " + tp.lowerType().toString
+            val upperBound = if (tp.upperType().equiv(types.Any)) "" else " <: " + tp.upperType().toString
             tp.name + lowerBound + upperBound
           }).mkString("[", ", ", "] ") + internalType.toString
         case mt@ScMethodType(retType, params, isImplicit) =>

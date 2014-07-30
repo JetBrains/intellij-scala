@@ -21,8 +21,8 @@ case class TypeAliasSignature(name: String, typeParams: List[TypeParameter], low
 
   def updateTypes(fun: ScType => ScType, withCopy: Boolean = true): TypeAliasSignature = {
     def updateTypeParam(tp: TypeParameter): TypeParameter = {
-      new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), fun(tp.lowerType),
-        fun(tp.upperType), tp.ptp)
+      new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), () => fun(tp.lowerType()),
+        () => fun(tp.upperType()), tp.ptp)
     }
     val res = TypeAliasSignature(name, typeParams.map(updateTypeParam), fun(lowerBound), fun(upperBound), isDefinition, ta)
 
@@ -32,8 +32,8 @@ case class TypeAliasSignature(name: String, typeParams: List[TypeParameter], low
 
   def updateTypesWithVariance(fun: (ScType, Int) => ScType, variance: Int, withCopy: Boolean = true): TypeAliasSignature = {
     def updateTypeParam(tp: TypeParameter): TypeParameter = {
-      new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), fun(tp.lowerType, variance),
-        fun(tp.upperType, -variance), tp.ptp)
+      new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), () => fun(tp.lowerType(), variance),
+        () => fun(tp.upperType(), -variance), tp.ptp)
     }
     val res = TypeAliasSignature(name, typeParams.map(updateTypeParam), fun(lowerBound, variance),
       fun(upperBound, -variance), isDefinition, ta)
@@ -192,8 +192,8 @@ object Signature {
       val (tp1, tp2) = (iterator1.next(), iterator2.next())
 
       def toTypeParameterType(tp: TypeParameter): ScTypeParameterType = {
-        new ScTypeParameterType(tp.name, tp.typeParams.map(toTypeParameterType).toList, new Suspension[ScType](tp.lowerType),
-          new Suspension[ScType](tp.upperType), tp.ptp)
+        new ScTypeParameterType(tp.name, tp.typeParams.map(toTypeParameterType).toList, new Suspension[ScType](tp.lowerType()),
+          new Suspension[ScType](tp.upperType()), tp.ptp)
       }
 
       res = res bindT ((tp2.name, ScalaPsiUtil.getPsiElementId(tp2.ptp)), toTypeParameterType(tp1))

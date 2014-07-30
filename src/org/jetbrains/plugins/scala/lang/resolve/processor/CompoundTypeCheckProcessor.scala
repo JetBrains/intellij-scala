@@ -50,7 +50,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
           }
           //lower type
           val lower1 = tp1.lowerBound.getOrNothing
-          val lower2 = substitutor.subst(tp2.lowerType)
+          val lower2 = substitutor.subst(tp2.lowerType())
           var t = Conformance.conformsInner(
             if (variance == 1) lower2
             else lower1,
@@ -60,7 +60,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
           undef = t._2
 
           val upper1 = tp1.upperBound.getOrAny
-          val upper2 = substitutor.subst(tp2.upperType)
+          val upper2 = substitutor.subst(tp2.upperType())
           t = Conformance.conformsInner(
             if (variance == 1) upper1
             else upper2,
@@ -181,7 +181,7 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: 
           }
           //lower type
           val lower1 = tp1.lowerBound.getOrNothing
-          val lower2 = substitutor.subst(tp2.lowerType)
+          val lower2 = substitutor.subst(tp2.lowerType())
           var t = Conformance.conformsInner(
             if (variance == 1) lower2
             else lower1,
@@ -191,7 +191,7 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: 
           undef = t._2
 
           val upper1 = tp1.upperBound.getOrAny
-          val upper2 = substitutor.subst(tp2.upperType)
+          val upper2 = substitutor.subst(tp2.upperType())
           t = Conformance.conformsInner(
             if (variance == 1) upper1
             else upper2,
