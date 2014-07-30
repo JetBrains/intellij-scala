@@ -5,20 +5,31 @@ import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent, DocumentListener}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.problems.WolfTheProblemSolver
-import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.util.Alarm
 import com.intellij.util.containers.ConcurrentWeakHashMap
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
+import org.jetbrains.plugins.scala.worksheet.processor.{FileAttributeUtilCache, WorksheetPerFileConfig}
 import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
 
 /**
  * User: Dmitry.Naydanov
  * Date: 01.04.14.
  */
-object WorksheetAutoRunner {
+object WorksheetAutoRunner extends WorksheetPerFileConfig {
   private val RUN_DELAY_MS = 1400
+  private val AUTORUN = new FileAttribute("ScalaWorksheetAutoRun", 1, true)
+
+  def isSetEnabled(file: PsiFile): Boolean = FileAttributeUtilCache.readAttribute(AUTORUN, file) contains enabled
+
+  def isSetDisabled(file: PsiFile): Boolean = FileAttributeUtilCache.readAttribute(AUTORUN, file) contains disabled
+
+  def setAutorun(file: PsiFile, autorun: Boolean) {
+    setEnabled(file, AUTORUN, autorun)
+  }
 
   def getInstance(project: Project) = project.getComponent(classOf[WorksheetAutoRunner])
 }
@@ -56,11 +67,18 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
   private class MyDocumentAdapter(document: Document) extends DocumentAdapter {
     val documentManager = PsiDocumentManager getInstance project
 
+    @inline private def isDisabledOn(file: PsiFile) = {
+      WorksheetAutoRunner.isSetDisabled(file) || !settings.isInteractiveMode && !WorksheetAutoRunner.isSetEnabled(file)
+    }
+
     override def documentChanged(e: DocumentEvent) {
-      if (!settings.isInteractiveMode) return
+      val psiFile = documentManager getPsiFile document
+
+      if (isDisabledOn(psiFile)) return
 
       if (project.isDisposed) return
-      val virtualFile = documentManager.getPsiFile(document).getVirtualFile
+
+      val virtualFile = psiFile.getVirtualFile
       myAlarm.cancelAllRequests()
 
       if (woof.hasSyntaxErrors(virtualFile) || WorksheetProcessManager.running(virtualFile)) return
