@@ -227,3 +227,12 @@ class CreateTraitQuickFix(ref: ScReferenceElement)
 
 class CreateClassQuickFix(ref: ScReferenceElement)
         extends CreateTypeDefinitionQuickFix(ref, "class", Class)
+
+class CreateCaseClassQuickFix(ref: ScReferenceElement)
+        extends CreateTypeDefinitionQuickFix(ref, "case class", Class) {
+
+  override protected def afterCreationWork(clazz: ScTypeDefinition) = {
+    clazz.setModifierProperty("case", value = true)
+    super.afterCreationWork(clazz)
+  }
+}
