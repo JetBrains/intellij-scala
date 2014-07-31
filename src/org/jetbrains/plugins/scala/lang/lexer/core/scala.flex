@@ -334,6 +334,10 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
     return process(tINTERPOLATED_STRING_ESCAPE);
   }
 
+  (\"\") / "$" {
+    return process(tINTERPOLATED_MULTILINE_STRING);
+  }
+
   {INTERPOLATED_MULTI_LINE_STRING_PART} {
     return process(tINTERPOLATED_MULTILINE_STRING);
   }
