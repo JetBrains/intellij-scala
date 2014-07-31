@@ -26,16 +26,15 @@ public class ScaladocSyntaxElementType extends ScalaDocElementType{
   }
   
   public static boolean canClose(IElementType opening, IElementType closing) {
-    if (opening.getClass() != ScaladocSyntaxElementType.class || closing.getClass() != ScaladocSyntaxElementType.class) {
+    if (opening == ScalaDocTokenType.DOC_INNER_CODE_TAG && closing == ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG)
+      return true;
+    if (opening.getClass() != ScaladocSyntaxElementType.class || closing.getClass() != ScaladocSyntaxElementType.class)
       return false;
-    }
 
     if (opening == ScalaDocTokenType.DOC_LINK_TAG || opening == ScalaDocTokenType.DOC_HTTP_LINK_TAG) {
       return closing == ScalaDocTokenType.DOC_LINK_CLOSE_TAG;
     } else if (opening == ScalaDocTokenType.VALID_DOC_HEADER) {
       return (closing == ScalaDocTokenType.DOC_HEADER) || (closing == ScalaDocTokenType.VALID_DOC_HEADER);
-    } else {
-      return opening == closing;
-    }
+    } else return opening == closing;
   }
 }
