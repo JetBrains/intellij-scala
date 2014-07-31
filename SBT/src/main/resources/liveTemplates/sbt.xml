@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templateSet group="sbt">
+  <template name="dep" value="$GROUP$ % $ARTIFACT$ % $VERSION$" description="Template for dependency">
+    <variable name="GROUP" expression="complete()" defaultValue="" alwaysStopAt="true"/>
+    <variable name="ARTIFACT" expression="complete()" defaultValue="" alwaysStopAt="true"/>
+    <variable name="VERSION" expression="complete()" defaultValue="" alwaysStopAt="true"/>
+    <context>
+      <option name="SBT" value="true"/>
+    </context>
+  </template>
+  <template name="deps" value="$GROUP$ %% $ARTIFACT$ % $VERSION$" description="Template for dependency built with SBT">
+    <variable name="GROUP" expression="complete()" defaultValue="" alwaysStopAt="true"/>
+    <variable name="ARTIFACT" expression="complete()" defaultValue="" alwaysStopAt="true"/>
+    <variable name="VERSION" expression="complete()" defaultValue="" alwaysStopAt="true"/>
+    <context>
+      <option name="SBT" value="true"/>
+    </context>
+  </template>
+</templateSet>

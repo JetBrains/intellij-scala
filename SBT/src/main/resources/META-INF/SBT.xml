@@ -59,6 +59,9 @@
           order="first, before liveTemplates" />
       <weigher key="completion" implementationClass="org.jetbrains.sbt.language.completion.SbtDefinitionWeigher"
                id="scalaSbtDefinitionWeigher" order="before scalaContainingClassWeigher, before scalaMethodCompletionWeigher, before scalaClassesCompletionWeigher"/>
+
+      <defaultLiveTemplatesProvider implementation="org.jetbrains.sbt.codeInsight.template.SbtDefaultLiveTemplatesProvider"/>
+      <liveTemplateContext implementation="org.jetbrains.sbt.codeInsight.template.SbtLiveTemplateContextType"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">
