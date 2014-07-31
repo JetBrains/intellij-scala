@@ -3,9 +3,11 @@ package editor.backspaceHandler
 
 import com.intellij.codeInsight.editorActions.BackspaceHandlerDelegate
 import com.intellij.openapi.editor.Editor
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.xml.XmlTokenType
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlStartTag
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -66,9 +68,13 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
             element.getNode.getElementType == ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING &&
             element.getParent.getLastChild.getNode.getElementType == ScalaTokenTypes.tINTERPOLATED_STRING_END &&
             element.getPrevSibling != null &&
-            element.getPrevSibling.getNode.getElementType == ScalaTokenTypes.tINTERPOLATED_STRING_ID) {
+            isMultilineInterpolatedStringPrefix(element.getPrevSibling.getNode.getElementType)) {
       correctMultilineString(element.getParent.getLastChild.getTextOffset)
     }
+
+    @inline def isMultilineInterpolatedStringPrefix(tpe: IElementType) =
+      Set(ScalaElementTypes.INTERPOLATED_PREFIX_LITERAL_REFERENCE,
+        ScalaElementTypes.INTERPOLATED_PREFIX_PATTERN_REFERENCE, ScalaTokenTypes.tINTERPOLATED_STRING_ID) contains tpe
 
     def correctMultilineString(closingQuotesOffset: Int) {
       extensions.inWriteAction {
