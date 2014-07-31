@@ -37,6 +37,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testImplicitTest() {doTest()}
 
+  def testImplicitVsNone(): Unit = { doTest() }
+
   def testInfixApply() {doTest()}
 
   def testJavaArrayType() {doTest()}
