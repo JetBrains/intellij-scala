@@ -224,6 +224,9 @@ trait ApplicationAnnotator {
         annotation.registerFix(new CreateVariableQuickFix(exp))
         annotation.registerFix(new CreateObjectQuickFix(exp))
       case (stRef: ScStableCodeReferenceElement) childOf (st: ScSimpleTypeElement) if st.singleton =>
+      case (stRef: ScStableCodeReferenceElement) childOf (_: ScConstructorPattern | _: ScInfixPattern) =>
+        annotation.registerFix(new CreateCaseClassQuickFix(stRef))
+        annotation.registerFix(new CreateExtractorObjectQuickFix(stRef))
       case stRef: ScStableCodeReferenceElement =>
         annotation.registerFix(new CreateTraitQuickFix(stRef))
         annotation.registerFix(new CreateClassQuickFix(stRef))
