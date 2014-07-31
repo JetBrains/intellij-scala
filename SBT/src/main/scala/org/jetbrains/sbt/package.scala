@@ -103,10 +103,6 @@ package object sbt {
     }
   }
 
-  implicit class RichAritfactInfo(info: ArtifactInfo) {
-    val groupArtifact = "%s:%s".format(info.groupId, info.artifactId)
-  }
-
   def jarWith[T : ClassTag]: File = {
     val tClass = implicitly[ClassTag[T]].runtimeClass
 
