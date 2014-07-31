@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Constructor, Import}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Block, Expr}
-import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ImplicitParamClause, TypeParamClause}
+import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ParamClauses, ImplicitParamClause, TypeParamClause}
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{Dcl, Def}
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.{ClassParamClause, ImplicitClassParamClause}
@@ -196,6 +196,10 @@ object ScalaPsiElementFactory {
 
   def createEmptyClassParamClauseWithContext(manager: PsiManager, context: PsiElement): ScParameterClause = {
     createElementWithContext("()", context, contextLastChild(context), ClassParamClause.parse(_))
+  }
+
+  def createParamClausesWithContext(text: String, context: PsiElement, child: PsiElement): ScParameters = {
+    createElementWithContext(text, context, child, ParamClauses.parse(_))
   }
 
   private def contextLastChild(context: PsiElement): PsiElement = {
