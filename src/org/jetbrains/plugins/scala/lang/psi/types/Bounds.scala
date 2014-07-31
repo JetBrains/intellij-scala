@@ -177,9 +177,6 @@ object Bounds {
   }
 
   private def lub(t1: ScType, t2: ScType, depth : Int, checkWeak: Boolean)(implicit stopAddingUpperBound: Boolean): ScType = {
-    if (Set(t1.toString, t2.toString) == Set("Rewriter.this.type#c#universe#Apply", "Rewriter.this.type#c#universe#TypeApply")) {
-      "stop here"
-    }
     if (t1.conforms(t2, checkWeak)) t2
     else if (t2.conforms(t1, checkWeak)) t1
     else {
