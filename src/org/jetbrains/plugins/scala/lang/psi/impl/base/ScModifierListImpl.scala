@@ -89,13 +89,14 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
   def hasExplicitModifier(name: String) = false
 
   def setModifierProperty(name: String, value: Boolean) {
+    def space = ScalaPsiElementFactory.createNewLineNode(getManager, " ")
     checkSetModifierProperty(name, value)
     if (hasModifierProperty(name) == value) return
     def addAfter(node: ASTNode) {
-      val space = ScalaPsiElementFactory.createNewLineNode(getManager, " ")
-      if (getFirstChild != null)
-        getNode.addChild(space)
+      val wasEmpty = getFirstChild == null
+      if (!wasEmpty) getNode.addChild(space)
       getNode.addChild(node)
+      if (wasEmpty) getNode.addChild(space)
     }
     def addBefore(node: ASTNode) {
       val first = getFirstChild
@@ -112,12 +113,10 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
           parent.getNode.removeChild(node)
           parent.getNode.addChild(node, getNode)
         }
-        val space = ScalaPsiElementFactory.createNewLineNode(getManager, " ")
         getNode.addChild(node)
         parent.getNode.addChild(space, nextSibling.getNode)
         return
       }
-      val space = ScalaPsiElementFactory.createNewLineNode(getManager, " ")
       getNode.addChild(node, first.getNode)
       getNode.addChild(space, first.getNode)
     }

@@ -1,28 +1,27 @@
 package org.jetbrains.plugins.scala.actions
 
-import java.lang.String
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.DumbAware
+import java.util.Properties
+
+import com.intellij.ide.IdeView
 import com.intellij.ide.actions.{CreateFileFromTemplateDialog, CreateTemplateInPackageAction}
+import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager, JavaTemplateUtil}
+import com.intellij.openapi.actionSystem._
+import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.fileTypes.ex.FileTypeManagerEx
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.{DumbAware, Project}
+import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.ui.InputValidatorEx
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi._
+import com.intellij.psi.codeStyle.CodeStyleManager
+import org.jetbrains.annotations.NonNls
+import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
+import org.jetbrains.plugins.scala.config.ScalaFacet
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.psi._
-import codeStyle.CodeStyleManager
-import org.jetbrains.annotations.NonNls
-import com.intellij.openapi.module.Module
-import com.intellij.openapi.actionSystem._
-import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.plugins.scala.{ScalaFileType, ScalaBundle}
-import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.ide.IdeView
-import java.util.Properties
-import org.jetbrains.plugins.scala.config.ScalaFacet
-import com.intellij.ide.fileTemplates.{FileTemplateManager, FileTemplate, JavaTemplateUtil}
-import com.intellij.openapi.fileTypes.ex.FileTypeManagerEx
-import com.intellij.openapi.fileTypes.FileType
-import com.intellij.openapi.ui.InputValidatorEx
-import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -34,9 +33,9 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
   JavaModuleSourceRootTypes.SOURCES) with DumbAware {
   protected def buildDialog(project: Project, directory: PsiDirectory,
                             builder: CreateFileFromTemplateDialog.Builder) {
-    builder.addKind("Class", Icons.CLASS, "Scala Class")
-    builder.addKind("Object", Icons.OBJECT, "Scala Object")
-    builder.addKind("Trait", Icons.TRAIT, "Scala Trait")
+    builder.addKind("Class", Icons.CLASS, ScalaFileTemplateUtil.SCALA_CLASS)
+    builder.addKind("Object", Icons.OBJECT, ScalaFileTemplateUtil.SCALA_OBJECT)
+    builder.addKind("Trait", Icons.TRAIT, ScalaFileTemplateUtil.SCALA_TRAIT)
 
     for (template <- FileTemplateManager.getInstance.getAllTemplates) {
       if (isScalaTemplate(template) && checkPackageExists(directory)) {
