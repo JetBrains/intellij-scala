@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScExpression, ScInfixExpr, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
 
 /**
  * @author Nikolay Obedin
@@ -49,8 +50,14 @@ class SbtDocumentationProvider extends AbstractDocumentationProvider {
         }
 
         val docs = keyArgs flatMap extractDocString
-        if (docs.length < 2) return null
-        scalaDoc + "\n<b>" + docs(1) + "</b>"
+
+        scalaDoc + (keyArgs.headOption match {
+          case Some(_: ScLiteral) => // new key definition
+            docs lift 1 map { "\n<b>" + _ + "</b>" }
+          case Some(_: ScReferenceExpressionImpl) => // reference to another key
+            docs lift 0 map { "\n<b><i>" + _ + "</i></b>" }
+          case _ => None
+        }).getOrElse("")
       case _ => null
     }
   }
