@@ -40,3 +40,10 @@ trait ScConstructor extends ScalaPsiElement {
 
   def reference: Option[ScStableCodeReferenceElement]
 }
+
+object ScConstructor {
+  def unapply(c: ScConstructor): Option[(ScTypeElement, Seq[ScArgumentExprList])] = {
+    Option(c).map(it => (it.typeElement, it.arguments))
+  }
+}
+
