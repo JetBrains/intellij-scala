@@ -9,6 +9,7 @@ import com.intellij.util.io.{DataExternalizer, EnumeratorStringDescriptor, Persi
 import org.apache.maven.index.ArtifactInfo
 
 import scala.collection.mutable
+import scala.collection.JavaConversions._
 
 /**
  * @author Nikolay Obedin
@@ -18,16 +19,19 @@ class SbtResolverIndex private (val root: String, var timestamp: Long, val index
   import org.jetbrains.sbt.resolvers.SbtResolverIndex._
 
   ensureIndexDir()
+  private val artifactToGroupMap = createPersistentMap(indexDir / Paths.ARTIFACT_TO_GROUP_FILE)
   private val groupToArtifactMap = createPersistentMap(indexDir / Paths.GROUP_TO_ARTIFACT_FILE)
   private val groupArtifactToVersionMap = createPersistentMap(indexDir / Paths.GROUP_ARTIFACT_TO_VERSION_FILE)
 
 
   def update(progressIndicator: Option[ProgressIndicator] = None) {
+    val agMap = mutable.HashMap.empty[String, mutable.Set[String]]
     val gaMap  = mutable.HashMap.empty[String, mutable.Set[String]]
     val gavMap = mutable.HashMap.empty[String, mutable.Set[String]]
     def processArtifact(artifact: ArtifactInfo) {
+      agMap.getOrElseUpdate(artifact.artifactId, mutable.Set.empty) += artifact.groupId
       gaMap.getOrElseUpdate(artifact.groupId, mutable.Set.empty) += artifact.artifactId
-      gavMap.getOrElseUpdate(artifact.groupArtifact, mutable.Set.empty) += artifact.version
+      gavMap.getOrElseUpdate(joinGroupArtifact(artifact), mutable.Set.empty) += artifact.version
     }
 
     using(SbtResolverIndexer(root, indexDir)) { indexer =>
@@ -37,6 +41,7 @@ class SbtResolverIndex private (val root: String, var timestamp: Long, val index
 
     progressIndicator foreach (_.setText2("Saving"))
 
+    agMap  foreach { element => artifactToGroupMap.put(element._1, element._2.toSet) }
     gaMap  foreach { element => groupToArtifactMap.put(element._1, element._2.toSet) }
     gavMap foreach { element => groupArtifactToVersionMap.put(element._1, element._2.toSet) }
     timestamp = System.currentTimeMillis()
@@ -56,14 +61,24 @@ class SbtResolverIndex private (val root: String, var timestamp: Long, val index
       props.store(outputStream, null)
     }
 
+    artifactToGroupMap.force()
     groupToArtifactMap.force()
     groupArtifactToVersionMap.force()
   }
 
   def close() {
+    artifactToGroupMap.close()
     groupToArtifactMap.close()
     groupArtifactToVersionMap.close()
   }
+
+  def groups() = Option(groupToArtifactMap.getAllKeysWithExistingMapping) map { _.toSet } getOrElse Set.empty
+  def groups(artifact: String) = secureResults(artifactToGroupMap.get(artifact))
+
+  def artifacts() = Option(artifactToGroupMap.getAllKeysWithExistingMapping) map { _.toSet } getOrElse Set.empty
+  def artifacts(group: String) = secureResults(groupToArtifactMap.get(group))
+
+  def versions(group: String, artifact: String) = secureResults(groupArtifactToVersionMap.get(joinGroupArtifact(group, artifact)))
 
   private def ensureIndexDir() {
     indexDir.mkdirs()
@@ -73,6 +88,8 @@ class SbtResolverIndex private (val root: String, var timestamp: Long, val index
 
   private def createPersistentMap(file: File) =
     new PersistentHashMap[String, Set[String]](file, new EnumeratorStringDescriptor, new SetDescriptor)
+
+  private def secureResults(results: Set[String]) = Option(results) getOrElse Set.empty
 }
 
 object SbtResolverIndex {
@@ -82,6 +99,7 @@ object SbtResolverIndex {
 
   object Paths {
     val PROPERTIES_FILE = "index.properties"
+    val ARTIFACT_TO_GROUP_FILE = "artifact-to-group.map"
     val GROUP_TO_ARTIFACT_FILE = "group-to-artifact.map"
     val GROUP_ARTIFACT_TO_VERSION_FILE = "group-artifact-to-version.map"
   }
@@ -114,6 +132,9 @@ object SbtResolverIndex {
     val timestamp = props.getProperty(Keys.UPDATE_TIMESTAMP).toLong
     new SbtResolverIndex(root, timestamp, indexDir)
   }
+
+  def joinGroupArtifact(group: String, artifact: String) = group + ":" + artifact
+  def joinGroupArtifact(artifact: ArtifactInfo) = artifact.groupId + ":" + artifact.artifactId
 }
 
 private class SetDescriptor extends DataExternalizer[Set[String]] {
