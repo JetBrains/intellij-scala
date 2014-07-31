@@ -32,21 +32,15 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
  * Pavel Fatin
  */
 
-abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
-                                      entity: String, keyword: String) extends IntentionAction {
+abstract class CreateEntityQuickFix(ref: ScReferenceExpression, entity: String, keyword: String)
+        extends CreateFromUsageQuickFixBase(ref, entity) {
   // TODO add private modifiers for unqualified entities ?
   // TODO use Java CFU when needed
   // TODO find better place for fields, create methods after
 
-  val getText = "Create %s '%s'".format(entity, ref.nameId.getText)
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
+    if (!super.isAvailable(project, editor, file)) return false
 
-  def getFamilyName = getText
-
-  def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
-    if (!ref.isValid) return false
-    if (!ref.getManager.isInProject(file)) return false
-    if (!file.isInstanceOf[ScalaFile]) return false
-    if (file.isInstanceOf[ScalaCodeFragment]) return false
     ref match {
       case Both(Parent(_: ScAssignStmt), Parent(Parent(_: ScArgumentExprList))) =>
         false
@@ -61,15 +55,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
     }
   }
 
-  def startInWriteAction: Boolean = true
-
-  def invoke(project: Project, editor: Editor, file: PsiFile) {
-    PsiDocumentManager.getInstance(project).commitAllDocuments()
-    if (!ref.isValid) return
-    val isScalaConsole = file.getName == ScalaLanguageConsoleView.SCALA_CONSOLE
-
-    IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
-
+  def invokeInner(project: Project, editor: Editor, file: PsiFile) {
     val entityType = typeFor(ref)
     val genericParams = genericParametersFor(ref)
     val parameters = parametersFor(ref)
@@ -107,18 +93,8 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
         builder.replaceElement(typeElement, aType)
       }
 
-      entity.depthFirst.filterByType(classOf[ScTypeParam]).foreach { tp =>
-        builder.replaceElement(tp.nameId, tp.name)
-      }
-
-      entity.depthFirst.filterByType(classOf[ScParameter]).foreach { parameter =>
-        val id = parameter.getNameIdentifier
-        builder.replaceElement(id, id.getText)
-
-        parameter.paramType.foreach { it =>
-          builder.replaceElement(it, it.getText)
-        }
-      }
+      CreateFromUsageUtil.addTypeParametersToTemplate(entity, builder)
+      CreateFromUsageUtil.addParametersToTemplate(entity, builder)
 
       entity.lastChild.foreach { case qmarks: ScReferenceExpression if qmarks.getText == Q_MARKS => builder.replaceElement(qmarks, Q_MARKS)}
 
@@ -126,6 +102,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
 
       val template = builder.buildTemplate()
 
+      val isScalaConsole = file.getName == ScalaLanguageConsoleView.SCALA_CONSOLE
       if (!isScalaConsole) {
         val targetFile = entity.getContainingFile
         val newEditor = positionCursor(project, targetFile, entity.getLastChild)
@@ -149,17 +126,7 @@ object CreateEntityQuickFix {
     object ParentExtendsBlock {
       def unapply(e: PsiElement): Option[ScExtendsBlock] = Option(PsiTreeUtil.getParentOfType(exp, classOf[ScExtendsBlock]))
     }
-    object InstanceOfClass {
-      def unapply(expr: ScExpression): Option[PsiClass] = expr.getType().toOption match {
-        case Some(scType: ScType) =>
-          scType match {
-            case ScType.ExtractClass(aClass) => Some(aClass)
-            case t: ScType => ScType.extractDesignatorSingletonType(t).flatMap(ScType.extractClass(_, Option(expr.getProject)))
-            case _ => None
-          }
-        case _ => None
-      }
-    }
+
     Some(exp).collect {
       case InstanceOfClass(td: ScTemplateDefinition) => td.extendsBlock
       case th: ScThisReference =>
@@ -210,17 +177,9 @@ object CreateEntityQuickFix {
   }
 
   private def parametersFor(ref: ScReferenceExpression): Option[String] = {
-    def argsText(args: Seq[ScExpression]) = {
-      val types = args.map(_.getType(TypingContext.empty).getOrAny)
-      val names = types.map(NameSuggester.suggestNamesByType(_).headOption.getOrElse("value"))
-      val uniqueNames = names.foldLeft(List[String]()) { (r, h) =>
-        (h #:: Stream.from(1).map(h + _)).find(!r.contains(_)).get :: r
-      }
-      (uniqueNames.reverse, types).zipped.map((name, tpe) => s"$name: ${tpe.canonicalText}").mkString("(", ", ", ")")
-    }
     ref.parent.collect {
-      case MethodRepr(_, _, Some(`ref`), args) => argsText(args)
-      case (_: ScGenericCall) childOf (MethodRepr(_, _, Some(`ref`), args)) => argsText(args)
+      case MethodRepr(_, _, Some(`ref`), args) => CreateFromUsageUtil.argsText(args)
+      case (_: ScGenericCall) childOf (MethodRepr(_, _, Some(`ref`), args)) => CreateFromUsageUtil.argsText(args)
     }
   }
 
@@ -269,4 +228,3 @@ object CreateEntityQuickFix {
   }
 
 }
-
