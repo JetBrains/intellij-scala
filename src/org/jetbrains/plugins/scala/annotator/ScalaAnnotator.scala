@@ -1144,11 +1144,13 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   private def checkAbstractMemberPrivateModifier(element: PsiElement, toHighlight: Seq[PsiElement], holder: AnnotationHolder) {
     element match {
       case modOwner: ScModifierListOwner =>
-        if (modOwner.hasModifierProperty("private")) {
-          for (e <- toHighlight) {
-            val annotation = holder.createErrorAnnotation(e, ScalaBundle.message("abstract.member.not.have.private.modifier"))
-            annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-          }
+        modOwner.getModifierList.accessModifier match {
+          case Some(am) if am.isUnqualifiedPrivateOrThis =>
+            for (e <- toHighlight) {
+              val annotation = holder.createErrorAnnotation(e, ScalaBundle.message("abstract.member.not.have.private.modifier"))
+              annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+            }
+          case _ =>
         }
       case _ =>
     }
