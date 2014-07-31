@@ -1,0 +1,97 @@
+val a = """hello"""
+println("this has proper syntax highlighting")
+val b = s"""$a"""
+val c = s""""$a""""
+val d = s""" lkjdhg dkfhgkdslfg  ""$a"""""
+val d1 = s"""""$a"""""
+val d2 = s""" ""$a"""""
+println("now the syntax highlighting is broken")
+-----
+val {val}
+white space in line { }
+identifier {a}
+white space in line { }
+= {=}
+white space in line { }
+multiline string {"""hello"""}
+white space in line {
+}
+identifier {println}
+( {(}
+string content {"this has proper syntax highlighting"}
+) {)}
+white space in line {
+}
+val {val}
+white space in line { }
+identifier {b}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {s}
+interpolatedmultiline string {"""}
+interpolated string injection {$}
+identifier {a}
+interpolated string end {"""}
+white space in line {
+}
+val {val}
+white space in line { }
+identifier {c}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {s}
+interpolatedmultiline string {""""}
+interpolated string injection {$}
+identifier {a}
+interpolatedmultiline string {"}
+interpolated string end {"""}
+white space in line {
+}
+val {val}
+white space in line { }
+identifier {d}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {s}
+interpolatedmultiline string {""" lkjdhg dkfhgkdslfg  ""}
+interpolated string injection {$}
+identifier {a}
+interpolatedmultiline string {""}
+interpolated string end {"""}
+white space in line {
+}
+val {val}
+white space in line { }
+identifier {d1}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {s}
+interpolatedmultiline string {"""""}
+interpolated string injection {$}
+identifier {a}
+interpolatedmultiline string {""}
+interpolated string end {"""}
+white space in line {
+}
+val {val}
+white space in line { }
+identifier {d2}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {s}
+interpolatedmultiline string {""" ""}
+interpolated string injection {$}
+identifier {a}
+interpolatedmultiline string {""}
+interpolated string end {"""}
+white space in line {
+}
+identifier {println}
+( {(}
+string content {"now the syntax highlighting is broken"}
+) {)}
