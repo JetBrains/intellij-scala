@@ -95,7 +95,7 @@ object CreateFromUsageUtil {
   }
 
   def positionCursor(element: PsiElement): Editor = {
-    val offset = element.getTextRange.getStartOffset
+    val offset = element.getTextRange.getEndOffset
     val project = element.getProject
     val descriptor = new OpenFileDescriptor(project, element.getContainingFile.getVirtualFile, offset)
     FileEditorManager.getInstance(project).openTextEditor(descriptor, true)
