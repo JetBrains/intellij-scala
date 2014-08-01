@@ -19,7 +19,7 @@ class ScDocThrowTagValueImpl(node: ASTNode) extends ScStableCodeReferenceElement
   
   override def getName = getText
 
-  override def isSoft: Boolean = true
+  override def isSoft: Boolean = false
 
   override def getKinds(incomplete: Boolean, completion: Boolean) = StdKinds.stableQualOrClass
 }
