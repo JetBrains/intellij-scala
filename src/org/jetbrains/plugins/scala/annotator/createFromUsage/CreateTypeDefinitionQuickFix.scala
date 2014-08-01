@@ -13,6 +13,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil._
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -159,10 +160,10 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description
   private def runTemplate(clazz: ScTypeDefinition): Unit = {
     val builder = new TemplateBuilderImpl(clazz)
 
-    CreateFromUsageUtil.addTypeParametersToTemplate(clazz, builder)
+    addTypeParametersToTemplate(clazz, builder)
     clazz match {
       case cl: ScClass if cl.constructor.exists(_.parameters.nonEmpty) =>
-        CreateFromUsageUtil.addParametersToTemplate(cl.constructor.get, builder)
+        addParametersToTemplate(cl.constructor.get, builder)
       case _ =>
     }
     addMoreElementsToTemplate(builder, clazz)
@@ -174,20 +175,13 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description
     val isScalaConsole = targetFile.getName == ScalaLanguageConsoleView.SCALA_CONSOLE
 
     if (!isScalaConsole) {
-      val newEditor = positionCursor(clazz)
+      val newEditor = positionCursor(clazz.nameId)
       if (template.getSegmentsCount != 0) {
         val range = clazz.getTextRange
         newEditor.getDocument.deleteString(range.getStartOffset, range.getEndOffset)
         TemplateManager.getInstance(clazz.getProject).startTemplate(newEditor, template)
       }
     }
-  }
-
-  private def positionCursor(clazz: ScTypeDefinition) = {
-    val offset = clazz.getNameIdentifier.getTextRange.getStartOffset
-    val project = clazz.getProject
-    val descriptor = new OpenFileDescriptor(project, clazz.getContainingFile.getVirtualFile, offset)
-    FileEditorManager.getInstance(project).openTextEditor(descriptor, true)
   }
 
   private def addGenericParams(clazz: ScTypeDefinition): Unit = ref.getParent.getParent match {
@@ -206,7 +200,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description
     clazz match {
       case cl: ScClass =>
         val constr = cl.constructor.get
-        val text = CreateFromUsageUtil.argumentsText(ref)
+        val text = argumentsText(ref)
         val parameters = ScalaPsiElementFactory.createParamClausesWithContext(text, constr, constr.getFirstChild)
         constr.parameterList.replace(parameters)
       case _ =>
@@ -221,7 +215,7 @@ class CreateTraitQuickFix(ref: ScReferenceElement)
         extends CreateTypeDefinitionQuickFix(ref, "trait", Trait) {
   
   override def isAvailable(project: Project, editor: Editor, file: PsiFile) = {
-    super.isAvailable(project, editor, file) && CreateFromUsageUtil.argumentsText(ref).isEmpty
+    super.isAvailable(project, editor, file) && argumentsText(ref).isEmpty
   }
 }
 
