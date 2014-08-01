@@ -48,23 +48,3 @@ abstract class CreateFromUsageQuickFixBase(ref: ScReferenceElement, description:
 
   protected def invokeInner(project: Project, editor: Editor, file: PsiFile)
 }
-
-object InstanceOfClass {
-  def unapply(elem: PsiElement): Option[PsiClass] = elem match {
-    case ScExpression.Type(TypeAsClass(psiClass)) => Some(psiClass)
-    case Resolved(typed: ScTypedDefinition, _) =>
-      typed.getType().toOption match {
-        case Some(TypeAsClass(psiClass)) => Some(psiClass)
-        case _ => None
-      }
-    case _ => None
-  }
-}
-
-object TypeAsClass {
-  def unapply(scType: ScType): Option[PsiClass] = scType match {
-    case ScType.ExtractClass(aClass) => Some(aClass)
-    case t: ScType => ScType.extractDesignatorSingletonType(t).flatMap(ScType.extractClass(_, None))
-    case _ => None
-  }
-}

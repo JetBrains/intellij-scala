@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.annotator.createFromUsage._
 import org.jetbrains.plugins.scala.annotator.importsTracker._
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
-import org.jetbrains.plugins.scala.annotator.quickfix.{AddElementToMethodCallFix, ChangeTypeFix, ReportHighlightingErrorQuickFix, WrapInOptionQuickFix}
+import org.jetbrains.plugins.scala.annotator.quickfix.{ChangeTypeFix, ReportHighlightingErrorQuickFix, WrapInOptionQuickFix}
 import org.jetbrains.plugins.scala.annotator.template._
 import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.{RemoveValFromEnumeratorIntentionAction, RemoveValFromGeneratorIntentionAction}
 import org.jetbrains.plugins.scala.components.HighlightingAdvisor
@@ -25,22 +25,22 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScInfixPattern, ScPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScClassParameter, ScParameter, ScParameters}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportUsed, ReadValueUsed, ValueUsed, WriteValueUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContextOwner, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext, TypingContextOwner}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
@@ -677,21 +677,33 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
 
     if (isAdvancedHighlightingEnabled(refElement) && resolve.length != 1 && !goodDoc) {
+      val parent = refElement.getParent
+      def addCreateApplyOrUnapplyFix(messageKey: String, fix: ScTypeDefinition => IntentionAction): Boolean = {
+        val refWithoutArgs = ScalaPsiElementFactory.createReferenceFromText(refElement.getText, parent.getContext, parent)
+        if (refWithoutArgs.multiResolve(false).exists(!_.getElement.isInstanceOf[PsiPackage])) {
+          // We can't resolve the method call A(arg1, arg2), but we can resolve A. Highlight this differently.
+          val error = ScalaBundle.message(messageKey, refElement.refName)
+          val annotation = holder.createErrorAnnotation(refElement.nameId, error)
+          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+          annotation.registerFix(ReportHighlightingErrorQuickFix)
+          refWithoutArgs match {
+            case Resolved(obj: ScObject) => annotation.registerFix(fix(obj))
+            case InstanceOfClass(td: ScTypeDefinition) => annotation.registerFix(fix(td))
+            case _ =>
+          }
+          true
+        }
+        else false
+      }
+
       refElement.getParent match {
         case s: ScImportSelector if resolve.length > 0 => return
         case mc: ScMethodCall =>
-          val refWithoutArgs = ScalaPsiElementFactory.createReferenceFromText(refElement.getText, mc.getContext, mc)
-          if (refWithoutArgs.multiResolve(false).exists(!_.getElement.isInstanceOf[PsiPackage])) {
-            // We can't resolve the method call A(arg1, arg2), but we can resolve A. Highlight this differently.
-            val error = ScalaBundle.message("cannot.resolve.apply.method", refElement.refName)
-            val annotation = holder.createErrorAnnotation(refElement.nameId, error)
-            annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-            annotation.registerFix(ReportHighlightingErrorQuickFix)
-            if (refWithoutArgs.resolve().isInstanceOf[ScTypeDefinition]) {
-              annotation.registerFix(new CreateApplyQuickFix(refWithoutArgs, mc))
-            }
-            return
-          }
+          val messageKey = "cannot.resolve.apply.method"
+          if (addCreateApplyOrUnapplyFix(messageKey, td => new CreateApplyQuickFix(td, mc))) return
+        case Both(p: ScPattern, (_: ScConstructorPattern | _: ScInfixPattern)) =>
+          val messageKey = "cannot.resolve.unapply.method"
+          if (addCreateApplyOrUnapplyFix(messageKey, td => new CreateUnapplyQuickFix(td, p))) return
         case _ =>
       }
 

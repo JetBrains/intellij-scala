@@ -10,6 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateEntityQuickFix._
+import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil._
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.config.ScalaVersionUtil
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
@@ -59,7 +60,6 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, entity: String, 
     val entityType = typeFor(ref)
     val genericParams = genericParametersFor(ref)
     val parameters = parametersFor(ref)
-    val Q_MARKS = "???"
 
     val placeholder = if (entityType.isDefined) "%s %s%s: Int" else "%s %s%s"
     import org.jetbrains.plugins.scala.config.ScalaVersionUtil._
@@ -93,10 +93,9 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, entity: String, 
         builder.replaceElement(typeElement, aType)
       }
 
-      CreateFromUsageUtil.addTypeParametersToTemplate(entity, builder)
-      CreateFromUsageUtil.addParametersToTemplate(entity, builder)
-
-      entity.lastChild.foreach { case qmarks: ScReferenceExpression if qmarks.getText == Q_MARKS => builder.replaceElement(qmarks, Q_MARKS)}
+      addTypeParametersToTemplate(entity, builder)
+      addParametersToTemplate(entity, builder)
+      addQmarksToTemplate(entity, builder)
 
       CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(entity)
 
@@ -104,8 +103,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, entity: String, 
 
       val isScalaConsole = file.getName == ScalaLanguageConsoleView.SCALA_CONSOLE
       if (!isScalaConsole) {
-        val targetFile = entity.getContainingFile
-        val newEditor = positionCursor(project, targetFile, entity.getLastChild)
+        val newEditor = positionCursor(entity.getLastChild)
         val range = entity.getTextRange
         newEditor.getDocument.deleteString(range.getStartOffset, range.getEndOffset)
         TemplateManager.getInstance(project).startTemplate(newEditor, template)
@@ -178,8 +176,8 @@ object CreateEntityQuickFix {
 
   private def parametersFor(ref: ScReferenceExpression): Option[String] = {
     ref.parent.collect {
-      case MethodRepr(_, _, Some(`ref`), args) => CreateFromUsageUtil.argsText(args)
-      case (_: ScGenericCall) childOf (MethodRepr(_, _, Some(`ref`), args)) => CreateFromUsageUtil.argsText(args)
+      case MethodRepr(_, _, Some(`ref`), args) => argsText(args)
+      case (_: ScGenericCall) childOf (MethodRepr(_, _, Some(`ref`), args)) => argsText(args)
     }
   }
 
@@ -203,13 +201,6 @@ object CreateEntityQuickFix {
     }
 
     place.map(_._2)
-  }
-
-  private def positionCursor(project: Project, targetFile: PsiFile, element: PsiElement): Editor = {
-    val range = element.getTextRange
-    val textOffset = range.getStartOffset
-    val descriptor = new OpenFileDescriptor(project, targetFile.getVirtualFile, textOffset)
-    FileEditorManager.getInstance(project).openTextEditor(descriptor, true)
   }
 
   private def unambiguousSuper(supRef: ScSuperReference): Option[ScTypeDefinition] = {
