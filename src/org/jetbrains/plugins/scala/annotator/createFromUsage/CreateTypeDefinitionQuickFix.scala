@@ -87,7 +87,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description
     try {
       if (!FileModificationService.getInstance.preparePsiElementForWrite(parent)) return
 
-      val text = s"${kind.keyword} $name {\n\n}"
+      val text = s"${kind.keyword} $name"
       val newTd = ScalaPsiElementFactory.createTemplateDefinitionFromText(text, parent, parent.getFirstChild)
       val anchor = anchorAfter.orNull
       parent.addBefore(ScalaPsiElementFactory.createNewLine(parent.getManager), anchor)
