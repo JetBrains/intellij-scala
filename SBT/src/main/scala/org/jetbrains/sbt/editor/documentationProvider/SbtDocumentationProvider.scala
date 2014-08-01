@@ -26,11 +26,11 @@ class SbtDocumentationProvider extends AbstractDocumentationProvider {
         val scalaDoc = scalaDocProvider.getQuickNavigateInfo(element, originalElement)
         if (scalaDoc == null) return null
 
-        val navigationElement = Option(element.getNavigationElement)
-        val keyDefinition = navigationElement
-                .map { _.getParent }
-                .map { _.getParent }
-                .filter { _.isInstanceOf[ScPatternDefinition] }
+        val keyDefinition = Option(element.getNavigationElement)
+                            .?>> { _.getParent }
+                            .?>> { _.getParent }
+                            .collect { case s: ScPatternDefinition => s }
+
         val keyArgs = keyDefinition map { _.getLastChild } match {
           case Some(call: ScMethodCall) => call.argumentExpressions
           case _ => Seq.empty
