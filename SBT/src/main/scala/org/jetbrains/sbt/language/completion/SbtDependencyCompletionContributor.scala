@@ -27,10 +27,13 @@ class SbtDependencyCompletionContributor extends CompletionContributor {
       val place  = parameters.getPosition
       val infixExpr = place.getParent.getParent.asInstanceOf[ScInfixExpr]
 
-      val moduleManager = Option(ScalaPsiUtil.fileContext(place)).map { f => ModuleManager.getInstance(f.getProject) }
-      val resolversToUse = moduleManager.map { manager =>
-        manager.getModules.toSeq.flatMap(SbtModule.getResolversFrom)
-      }.getOrElse(Seq.empty)
+      val moduleManager = {
+        val file = ScalaPsiUtil.fileContext(place)
+        if (file == null) return
+        ModuleManager.getInstance(file.getProject)
+      }
+      if (moduleManager == null) return
+      val resolversToUse = moduleManager.getModules.toSeq.flatMap(SbtModule.getResolversFrom)
       if (resolversToUse.isEmpty) return
 
       val indexManager = SbtResolverIndexesManager()

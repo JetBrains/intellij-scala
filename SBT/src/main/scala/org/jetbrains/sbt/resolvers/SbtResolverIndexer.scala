@@ -78,7 +78,7 @@ class SbtResolverIndexer private (val root: String, val indexDir: File) extends 
     val repoDir = context.getRepository
     indexer.closeIndexingContext(context, false)
 
-      // FIXME: when guys from maven-indexer fix their code (or at least Scanner class will work as it should)
+      // TODO: when guys from maven-indexer fix their code (or at least Scanner class will work as it should)
       val nexusIndexer = container.lookup(classOf[NexusIndexer])
       val nexusContext = nexusIndexer.addIndexingContext(root.shaDigest, root.shaDigest, context.getRepository, indexDir, null, null, indexers)
       nexusIndexer.scan(nexusContext, scannerListener, true)

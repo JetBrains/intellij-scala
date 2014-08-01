@@ -17,11 +17,11 @@ class ResolverIndexSerializationTest extends ScalaFixtureTestCase {
 
   def testIndexStoring() = {
     val tmpPath = new File(myFixture.getTempDirPath)
-    val storingManager = new SbtResolverIndexesManager(tmpPath)
+    val storingManager = new SbtResolverIndexesManager(Some(tmpPath))
     val newIndex = storingManager.add(testResolver)
     newIndex.store()
 
-    val loadingManager = new SbtResolverIndexesManager(tmpPath)
+    val loadingManager = new SbtResolverIndexesManager(Some(tmpPath))
     val indexOpt = loadingManager.find(testResolver)
     assert(indexOpt.isDefined)
 
@@ -33,7 +33,7 @@ class ResolverIndexSerializationTest extends ScalaFixtureTestCase {
   def testIndexLoading() = {
     myFixture.setTestDataPath(rootPath)
     val testIndexDir = new File(myFixture.copyDirectoryToProject("sbt/resolvers/testIndex", "testIndex").getPath)
-    val manager = new SbtResolverIndexesManager(testIndexDir)
+    val manager = new SbtResolverIndexesManager(Some(testIndexDir))
 
     val indexOpt = manager.find(testResolver)
     assert(indexOpt.isDefined)

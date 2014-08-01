@@ -17,12 +17,12 @@ import scala.collection.mutable
  * @since 7/25/14.
  */
 
-class SbtResolverIndexesManager(val testIndexesDir: File) extends Disposable {
+class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Disposable {
   import org.jetbrains.sbt.resolvers.SbtResolverIndexesManager._
 
-  def this() = this(null)
+  def this() = this(None)
 
-  private val indexesDir = if (testIndexesDir == null) SbtResolverIndexesManager.DEFAULT_INDEXES_DIR else testIndexesDir
+  private val indexesDir = testIndexesDir getOrElse SbtResolverIndexesManager.DEFAULT_INDEXES_DIR
   private val indexes: mutable.Set[SbtResolverIndex] = mutable.Set.empty
   private val updatingIndexes: mutable.Set[SbtResolverIndex] = mutable.Set.empty
 
@@ -38,15 +38,14 @@ class SbtResolverIndexesManager(val testIndexesDir: File) extends Disposable {
   }
 
   def find(resolver: SbtResolver): Option[SbtResolverIndex] =
-    indexes.find(_.root == resolver.root)
+    indexes find { _.root == resolver.root }
 
-  def dispose() {
-    indexes foreach (_.close())
-  }
+  def dispose() =
+    indexes foreach { _.close() }
 
   def update(resolvers: Seq[SbtResolver]) {
     def ensureIndexes(resolvers: Seq[SbtResolver]) = {
-      resolvers.map({ r =>
+      resolvers.map { r =>
         try {
           Some(add(r))
         } catch {
@@ -54,15 +53,17 @@ class SbtResolverIndexesManager(val testIndexesDir: File) extends Disposable {
             notifyError(CREATING_ERROR_MSG.format(r.root, e.getMessage))
             None
         }
-      }).flatten
+      }.flatten
     }
 
     var indexesToUpdate = Seq.empty[SbtResolverIndex]
     updatingIndexes synchronized {
-      val notUpdating = resolvers filter { r => updatingIndexes.find(r.root == _.root).isEmpty }
+      val notUpdating = resolvers filter { r => updatingIndexes.find { r.root == _.root }.isEmpty }
       indexesToUpdate = ensureIndexes(notUpdating)
       updatingIndexes ++= indexesToUpdate
     }
+
+    if (indexesToUpdate.isEmpty) return
 
     ProgressManager.getInstance().run(new Task.Backgroundable(null, "Indexing resolvers") {
       def run(progressIndicator: ProgressIndicator) {
