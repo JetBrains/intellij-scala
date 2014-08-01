@@ -17,7 +17,7 @@ class ResolverIndexLocalIndexingTest extends ScalaFixtureTestCase {
 
   def testIndexUpdate() = {
     val tmpPath = new File(myFixture.getTempDirPath)
-    val storingManager = new SbtResolverIndexesManager(tmpPath)
+    val storingManager = new SbtResolverIndexesManager(Some(tmpPath))
     val newIndex = storingManager.add(testResolver)
     newIndex.update(None)
 

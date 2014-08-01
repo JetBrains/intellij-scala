@@ -2,10 +2,8 @@ package org.jetbrains.sbt
 package project.settings
 
 import com.intellij.openapi.externalSystem.service.settings.AbstractExternalSystemConfigurable
-import com.intellij.openapi.options.SearchableConfigurable
 import com.intellij.openapi.project.Project
 import org.jetbrains.sbt.project.SbtProjectSystem
-import org.jetbrains.sbt.project.module.SbtModuleResolversEditor
 import org.jetbrains.sbt.project.settings.Context.Configuration
 
 /**
