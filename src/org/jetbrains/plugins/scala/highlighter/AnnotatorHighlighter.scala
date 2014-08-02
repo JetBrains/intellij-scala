@@ -2,34 +2,29 @@ package org.jetbrains.plugins.scala
 package highlighter
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
-import com.intellij.extapi.psi.StubBasedPsiElementBase
-import com.intellij.psi.util.PsiTreeUtil
-import lang.psi.api.base.patterns._
-import lang.psi.api.statements._
-import com.intellij.psi._
-import lang.psi.api.statements.params.{ScParameter, ScTypeParam}
-import lang.psi.api.base.{ScConstructor, ScReferenceElement, ScStableCodeReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait, ScObject}
-import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.lang.annotation.AnnotationHolder
-import lang.psi.api.base.types.ScSimpleTypeElement
-import lang.psi.api.toplevel.templates.ScTemplateBody
-import lang.lexer.ScalaTokenTypes
-import stubs.StubElement
-import lang.psi.{ScalaPsiUtil, ScalaStubBasedElementImpl}
-import lang.psi.api.expr._
 import com.intellij.openapi.editor.colors.TextAttributesKey
-import lang.psi.impl.ScalaPsiManager
-import lang.psi.impl.ScalaPsiManager.ClassCategory
-import lang.psi.types.{ScFunctionType, ScType}
-import lang.psi.types.result.TypingContext
-import lang.psi.api.toplevel.imports.ScImportExpr
-import lang.refactoring.util.ScalaNamesUtil
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager
-import lang.formatting.settings.ScalaCodeStyleSettings
-import settings.ScalaProjectSettings
+import com.intellij.psi._
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaStubBasedElementImpl}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /**
  * User: Alexander Podkhalyuzin
@@ -78,6 +73,8 @@ object AnnotatorHighlighter {
           }
         case ScalaProjectSettings.COLLECTION_TYPE_HIGHLIGHTING_ALL =>
       }
+
+      UsageTrigger.trigger("scala.collection.pack.highlighting")
 
       def conformsByNames(tp: ScType, qn: List[String]): Boolean = {
         qn.exists(textName => {
