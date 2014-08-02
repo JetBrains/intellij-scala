@@ -21,7 +21,7 @@ class NotIsEmptyTest extends OperationsOnCollectionInspectionTest {
     val selected = s"!Option(1).${START}isEmpty$END"
     check(selected)
     val text = "!Option(1).isEmpty"
-    val result = "Option(1).nonEmpty"
+    val result = "Option(1).isDefined"
     testFix(text, result, hint)
   }
 

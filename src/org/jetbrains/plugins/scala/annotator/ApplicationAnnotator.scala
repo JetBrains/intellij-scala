@@ -10,12 +10,13 @@ import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQui
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScStableReferenceElementPattern, ScInfixPattern, ScConstructorPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScStableReferenceElementPattern, ScInfixPattern, ScConstructorPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeProjection}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScStableCodeReferenceElement, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
@@ -183,7 +184,12 @@ trait ApplicationAnnotator {
     //todo: duplicate
     problems.foreach {
       case DoesNotTakeParameters() =>
-        holder.createErrorAnnotation(call.argsElement, "Application does not take parameters")
+        val annotation = holder.createErrorAnnotation(call.argsElement, "Application does not take parameters")
+        (call, call.getInvokedExpr) match {
+          case (c: ScMethodCall, InstanceOfClass(td: ScTypeDefinition)) =>
+            annotation.registerFix(new CreateApplyQuickFix(td, c))
+          case _ =>
+        }
       case ExcessArgument(argument) =>
         holder.createErrorAnnotation(argument, "Too many arguments")
       case TypeMismatch(expression, expectedType) =>
@@ -224,9 +230,9 @@ trait ApplicationAnnotator {
         annotation.registerFix(new CreateVariableQuickFix(exp))
         annotation.registerFix(new CreateObjectQuickFix(exp))
       case (stRef: ScStableCodeReferenceElement) childOf (st: ScSimpleTypeElement) if st.singleton =>
-      case (stRef: ScStableCodeReferenceElement) childOf (_: ScConstructorPattern | _: ScInfixPattern) =>
+      case (stRef: ScStableCodeReferenceElement) childOf (Both(p: ScPattern, (_: ScConstructorPattern | _: ScInfixPattern))) =>
         annotation.registerFix(new CreateCaseClassQuickFix(stRef))
-        annotation.registerFix(new CreateExtractorObjectQuickFix(stRef))
+        annotation.registerFix(new CreateExtractorObjectQuickFix(stRef, p))
       case stRef: ScStableCodeReferenceElement =>
         annotation.registerFix(new CreateTraitQuickFix(stRef))
         annotation.registerFix(new CreateClassQuickFix(stRef))
