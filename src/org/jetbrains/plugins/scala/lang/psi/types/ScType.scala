@@ -39,8 +39,6 @@ match {
  case Double =>
  case Byte =>
  case Short =>
- case ScFunctionType(returnType, params) =>
- case ScTupleType(components) =>
  case ScCompoundType(components, decls, typeDecls) =>
  case ScProjectionType(projected, element, subst) =>
  case JavaArrayType(arg) =>
@@ -202,6 +200,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
     "scala.Float" -> Float,
     "scala.Double" -> Double,
     "scala.Byte" -> Byte,
+    "scala.Short" -> Short,
     "scala.AnyVal" -> AnyVal
   )
 
