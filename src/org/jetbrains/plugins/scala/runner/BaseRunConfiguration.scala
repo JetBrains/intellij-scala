@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.JDOMExternalizer
-import com.intellij.util.PathUtil
+import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jdom.Element
 import org.jetbrains.plugins.scala.project._
 
@@ -72,7 +72,7 @@ abstract class BaseRunConfiguration(val project: Project, val configurationFacto
     params.getClassPath.addAllFiles(files.asJava)
     params.setUseDynamicClasspath(JdkUtil.useDynamicClasspath(getProject))
     params.setUseDynamicVMOptions(JdkUtil.useDynamicVMOptions())
-    params.getClassPath.add(PathUtil.getJarPathForClass(classOf[_root_.org.jetbrains.plugins.scala.worksheet.MyWorksheetRunner]))
+    params.getClassPath.add(ScalaUtil.runnersPath())
     params.setWorkingDirectory(workingDirectory)
     params.setMainClass(mainClass)
     params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
