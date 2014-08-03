@@ -4,6 +4,6 @@ organization := "JetBrains"
 
 scalaVersion := "2.11.2"
 
-libraryDependencies += "org.specs2" %% "specs2" % "2.3.11"
+libraryDependencies += "org.specs2" %% "specs2" % "2.3.11" % "provided"
 
 unmanagedSourceDirectories in Compile += baseDirectory.value / "src"
