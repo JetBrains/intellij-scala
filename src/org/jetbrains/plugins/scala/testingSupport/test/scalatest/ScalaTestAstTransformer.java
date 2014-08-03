@@ -232,7 +232,7 @@ public class ScalaTestAstTransformer {
         public PsiElement element;
 
         public StConstructorBlock(String pClassName, PsiElement element) {
-            super(pClassName, new AstNode[0]);
+            super(pClassName, null, new AstNode[0]);
             this.element = element;
             this.pClassName = pClassName;
         }
