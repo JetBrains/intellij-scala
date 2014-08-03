@@ -12,6 +12,8 @@ libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.0.2"
 
 libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.2"
 
+libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value
+
 unmanagedSourceDirectories in Compile += baseDirectory.value / "src"
 
 unmanagedSourceDirectories in Test += baseDirectory.value / "test"
