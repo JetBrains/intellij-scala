@@ -390,14 +390,15 @@ abstract class AbstractTestRunConfiguration(val project: Project,
               }
             }
 
-            val parms: Array[String] = ParametersList.parse(getTestArgs)
-            for (parm <- parms) {
-              printer.println(parm)
-            }
             printer.println("-showProgressMessages")
             printer.println(showProgressMessages.toString)
             printer.println("-C")
             printer.println(reporterClass)
+
+            val parms: Array[String] = ParametersList.parse(getTestArgs)
+            for (parm <- parms) {
+              printer.println(parm)
+            }
 
             printer.close()
             params.getProgramParametersList.add("@" + fileWithParams.getPath)
@@ -423,12 +424,13 @@ abstract class AbstractTestRunConfiguration(val project: Project,
             }
           }
 
-          params.getProgramParametersList.addParametersString(getTestArgs)
           params.getProgramParametersList.add("-showProgressMessages")
           params.getProgramParametersList.add(showProgressMessages.toString)
 
           params.getProgramParametersList.add("-C")
           params.getProgramParametersList.add(reporterClass)
+
+          params.getProgramParametersList.addParametersString(getTestArgs)
         }
 
         for (ext <- Extensions.getExtensions(RunConfigurationExtension.EP_NAME)) {
