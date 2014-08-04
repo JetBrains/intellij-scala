@@ -54,7 +54,7 @@ class SbtDependencyAnnotator extends Annotator {
           index.versions(group, artifact).contains(version)
         }.fold(false) { (a,b) => a || b }
         if (!isInRepo && !isInCache)
-          holder.createErrorAnnotation(element, "Unresolved dependency")
+          holder.createErrorAnnotation(element, SbtDependencyAnnotator.ERROR_MESSAGE)
       case _ => // do nothing
     }
 
@@ -72,4 +72,8 @@ class SbtDependencyAnnotator extends Annotator {
       case _ => // do nothing
     }
   }
+}
+
+object SbtDependencyAnnotator {
+  val ERROR_MESSAGE = "Unresolved dependency"
 }
