@@ -3,14 +3,12 @@ package language.completion
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.LookupElementBuilder
-import com.intellij.openapi.module.ModuleManager
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
-import org.jetbrains.sbt.project.module.SbtModule
-import org.jetbrains.sbt.resolvers.SbtResolverIndexesManager
+import org.jetbrains.sbt.resolvers.{SbtResolverIndexesManager, SbtResolverUtils}
 
 /**
  * @author Nikolay Obedin
@@ -27,17 +25,10 @@ class SbtDependencyCompletionContributor extends CompletionContributor {
       val place  = parameters.getPosition
       val infixExpr = place.getParent.getParent.asInstanceOf[ScInfixExpr]
 
-      val moduleManager = {
-        val file = ScalaPsiUtil.fileContext(place)
-        if (file == null) return
-        ModuleManager.getInstance(file.getProject)
-      }
-      if (moduleManager == null) return
-      val resolversToUse = moduleManager.getModules.toSeq.flatMap(SbtModule.getResolversFrom)
-      if (resolversToUse.isEmpty) return
-
+      val resolversToUse = SbtResolverUtils.getProjectResolvers(Option(ScalaPsiUtil.fileContext(place)))
       val indexManager = SbtResolverIndexesManager()
       val indexes = resolversToUse.flatMap(indexManager.find).toSet
+      if (indexes.isEmpty) return
 
       def addResult(result: String) = results.addElement(LookupElementBuilder.create(result))
 
