@@ -31,7 +31,7 @@ class SbtResolverIndex private (val root: String, var timestamp: Long, val index
     def processArtifact(artifact: ArtifactInfo) {
       agMap.getOrElseUpdate(artifact.artifactId, mutable.Set.empty) += artifact.groupId
       gaMap.getOrElseUpdate(artifact.groupId, mutable.Set.empty) += artifact.artifactId
-      gavMap.getOrElseUpdate(joinGroupArtifact(artifact), mutable.Set.empty) += artifact.version
+      gavMap.getOrElseUpdate(SbtResolverUtils.joinGroupArtifact(artifact), mutable.Set.empty) += artifact.version
     }
 
     using(SbtResolverIndexer(root, indexDir)) { indexer =>
@@ -78,7 +78,8 @@ class SbtResolverIndex private (val root: String, var timestamp: Long, val index
   def artifacts() = Option(artifactToGroupMap.getAllKeysWithExistingMapping) map { _.toSet } getOrElse Set.empty
   def artifacts(group: String) = secureResults(groupToArtifactMap.get(group))
 
-  def versions(group: String, artifact: String) = secureResults(groupArtifactToVersionMap.get(joinGroupArtifact(group, artifact)))
+  def versions(group: String, artifact: String) =
+    secureResults(groupArtifactToVersionMap.get(SbtResolverUtils.joinGroupArtifact(group, artifact)))
 
   private def ensureIndexDir() {
     indexDir.mkdirs()
@@ -132,9 +133,6 @@ object SbtResolverIndex {
     val timestamp = props.getProperty(Keys.UPDATE_TIMESTAMP).toLong
     new SbtResolverIndex(root, timestamp, indexDir)
   }
-
-  def joinGroupArtifact(group: String, artifact: String) = group + ":" + artifact
-  def joinGroupArtifact(artifact: ArtifactInfo) = artifact.groupId + ":" + artifact.artifactId
 }
 
 private class SetDescriptor extends DataExternalizer[Set[String]] {
