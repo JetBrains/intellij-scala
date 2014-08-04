@@ -23,7 +23,8 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <fileTypeFactory implementation="org.jetbrains.sbt.language.SbtFileTypeFactory"/>
-        <annotator language="Scala" implementationClass="org.jetbrains.sbt.language.SbtAnnotator" />
+        <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtAnnotator" />
+        <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtDependencyAnnotator"/>
 
         <externalSystemManager implementation="org.jetbrains.sbt.project.SbtExternalSystemManager"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtFacetDataService"/>
@@ -61,8 +62,6 @@
                               order="first, before sbtCompletionContributor" />
       <weigher key="completion" implementationClass="org.jetbrains.sbt.language.completion.SbtDefinitionWeigher"
                id="scalaSbtDefinitionWeigher" order="before scalaContainingClassWeigher, before scalaMethodCompletionWeigher, before scalaClassesCompletionWeigher"/>
-
-      <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtDependencyAnnotator"/>
 
       <defaultLiveTemplatesProvider implementation="org.jetbrains.sbt.codeInsight.template.SbtDefaultLiveTemplatesProvider"/>
       <liveTemplateContext implementation="org.jetbrains.sbt.codeInsight.template.SbtLiveTemplateContextType"/>
