@@ -62,6 +62,8 @@
       <weigher key="completion" implementationClass="org.jetbrains.sbt.language.completion.SbtDefinitionWeigher"
                id="scalaSbtDefinitionWeigher" order="before scalaContainingClassWeigher, before scalaMethodCompletionWeigher, before scalaClassesCompletionWeigher"/>
 
+      <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtDependencyAnnotator"/>
+
       <defaultLiveTemplatesProvider implementation="org.jetbrains.sbt.codeInsight.template.SbtDefaultLiveTemplatesProvider"/>
       <liveTemplateContext implementation="org.jetbrains.sbt.codeInsight.template.SbtLiveTemplateContextType"/>
     </extensions>
