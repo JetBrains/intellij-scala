@@ -497,10 +497,10 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
         tb.accept(this)
         val head = Option(myHead).getOrElse(tryStmtInstr)
         advancePendingEdges(tb, tryStmt)
-        getClosestFinallyInfo.fold {
+        tryStmt.finallyBlock.fold {
           addPendingEdge(tryStmt, head)
         } {
-          finfo => myTransitionInstructions += ((head, finfo))
+          fblock => myTransitionInstructions += ((head, FinallyInfo(fblock)))
         }
       }
 
