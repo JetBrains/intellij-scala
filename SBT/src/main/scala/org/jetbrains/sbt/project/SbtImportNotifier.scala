@@ -252,8 +252,8 @@ object SbtImportNotifier {
                             |<body>
                             | Build file '$fileName' in project '${getProjectName(fileName)}' was changed. Refresh project? <br>
                             |
-                            | <a href="ftp://reimport"> Refresh </a><br>    
-                            | <a href="ftp://autoimport">Enable auto-import</a><br>
+                            | <a href="ftp://reimport">Refresh</a> &nbsp;
+                            | <a href="ftp://autoimport">Enable auto-import</a> &nbsp;
                             | <a href="ftp://ignore">Ignore</a>
                             | </body>
                             | </html>
@@ -264,7 +264,7 @@ object SbtImportNotifier {
                             | File '$fileName' seems to be SBT build file, but there is no external project related to it.
                             | Import the corresponding project?<br>
                             |
-                            | <a href="ftp://import">Import project</a><br>
+                            | <a href="ftp://import">Import project</a> &nbsp;
                             | <a href="ftp://ignore">Ignore</a><br>
                           """.stripMargin
   
