@@ -31,9 +31,7 @@ class DependencyAnnotatorTest extends AnnotatorTestBase(classOf[SbtDependencyAnn
 
     val libraryTable = LibraryTablesRegistrar.getInstance().getLibraryTable(getProjectAdapter)
     ApplicationManager.getApplication.runWriteAction(new Runnable {
-      def run() {
-        libraryTable.createLibrary("SBT: org.jetbrains:some-cool-lib:0.0.1")
-      }
+      def run() = libraryTable.createLibrary("SBT: org.jetbrains:some-cool-lib:0.0.1")
     })
   }
 
@@ -41,8 +39,10 @@ class DependencyAnnotatorTest extends AnnotatorTestBase(classOf[SbtDependencyAnn
     doTest(Seq.empty)
   def testDoNotAnnotateCachedDep =
     doTest(Seq.empty)
-  def testAnnotateUnresolvedDep =
-    doTest(Seq(Error("\"org.jetbrains\"", SbtDependencyAnnotator.ERROR_MESSAGE),
-               Error("\"unknown-lib\"", SbtDependencyAnnotator.ERROR_MESSAGE),
-               Error("\"0.0.0\"", SbtDependencyAnnotator.ERROR_MESSAGE)))
+  def testAnnotateUnresolvedDep = {
+    val msg = SbtBundle("sbt.annotation.unresolvedDependency")
+    doTest(Seq(Error("\"org.jetbrains\"", msg),
+               Error("\"unknown-lib\"", msg),
+               Error("\"0.0.0\"", msg)))
+  }
 }

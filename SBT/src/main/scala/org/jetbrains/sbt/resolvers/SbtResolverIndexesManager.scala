@@ -50,7 +50,7 @@ class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Dispos
           Some(add(r))
         } catch {
           case e: Throwable =>
-            notifyError(CREATING_ERROR_MSG.format(r.root, e.getMessage))
+            notifyError(SbtBundle("sbt.resolverIndexer.creatingError", r.root, e.getMessage))
             None
         }
       }.flatten
@@ -74,7 +74,7 @@ class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Dispos
             index.update(Some(progressIndicator))
           } catch {
             case e: Throwable =>
-              notifyError(UPDATING_ERROR_MSG.format(index.root, e.getMessage))
+              notifyError(SbtBundle("sbt.resolverIndexer.updatingError", index.root, e.getMessage))
           } finally {
             updatingIndexes synchronized { updatingIndexes -= index }
           }
@@ -87,7 +87,7 @@ class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Dispos
   private def loadIndexes() {
     indexesDir.mkdirs()
     if (!indexesDir.exists || !indexesDir.isDirectory) {
-      notifyError(INDEX_DIR_CREATING_ERROR_MSG format indexesDir.absolutePath)
+      notifyError(SbtBundle("sbt.resolverIndexer.cantCreateIndexesDir", indexesDir.absolutePath))
       return
     }
 
@@ -100,7 +100,7 @@ class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Dispos
         } catch {
           case e: Throwable =>
             FileUtil.delete(indexDir)
-            notifyWarn(LOADING_ERROR_MSG.format(indexDir, e.getMessage))
+            notifyWarn(SbtBundle("sbt.resolverIndexer.loadingError", indexDir, e.getMessage))
         }
       }
     }
@@ -111,11 +111,6 @@ class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Dispos
 
 object SbtResolverIndexesManager {
   val DEFAULT_INDEXES_DIR = new File(PathManager.getSystemPath) / "sbt" / "indexes"
-
-  val LOADING_ERROR_MSG = "Error while loading index at %s\n%s\nCorrupted index will be deleted"
-  val UPDATING_ERROR_MSG = "Error while updating index: %s\n%s"
-  val CREATING_ERROR_MSG = "Error while creating index: %s\n%s"
-  val INDEX_DIR_CREATING_ERROR_MSG = "Indexes dir can not be created: %s"
 
   def notifyWarn(msg: String) =
     Notifications.Bus.notify(new Notification("sbt", "Resolver Indexer", msg, NotificationType.WARNING))

@@ -19,7 +19,7 @@ class SbtModuleResolversEditor(state: ModuleConfigurationState) extends ModuleEl
   private val myForm = new SbtModuleResolversForm
   private val resolvers = SbtModule.getResolversFrom(getModel.getModule).toSeq
 
-  def getDisplayName = "Resolvers"
+  def getDisplayName = SbtBundle("sbt.resolversForm.title")
 
   def getHelpTopic = null
 
@@ -46,7 +46,9 @@ class SbtModuleResolversEditor(state: ModuleConfigurationState) extends ModuleEl
 
 private class ResolversModel(val resolvers: Seq[SbtResolver]) extends AbstractTableModel {
 
-  private val columns = Seq("Name", "URL", "Updated")
+  private val columns = Seq(SbtBundle("sbt.resolversForm.name"),
+                            SbtBundle("sbt.resolversForm.url"),
+                            SbtBundle("sbt.resolversForm.updated"))
 
   def getColumnCount = columns.size
 
@@ -59,6 +61,6 @@ private class ResolversModel(val resolvers: Seq[SbtResolver]) extends AbstractTa
     case 1 => resolvers(rowIndex).root
     case 2 =>
       val ts: Long = resolvers(rowIndex).associatedIndex.map(_.timestamp).getOrElse(SbtResolverIndex.NO_TIMESTAMP)
-      if (ts == SbtResolverIndex.NO_TIMESTAMP) "Never" else DateFormatUtil.formatDate(ts)
+      if (ts == SbtResolverIndex.NO_TIMESTAMP) SbtBundle("sbt.resolversForm.neverUpdated") else DateFormatUtil.formatDate(ts)
   }
 }

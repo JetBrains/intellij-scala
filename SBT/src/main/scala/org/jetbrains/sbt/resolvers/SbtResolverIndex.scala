@@ -39,7 +39,7 @@ class SbtResolverIndex private (val root: String, var timestamp: Long, val index
       indexer.foreach(processArtifact, progressIndicator)
     }
 
-    progressIndicator foreach (_.setText2("Saving"))
+    progressIndicator foreach (_.setText2(SbtBundle("sbt.resolverIndexer.progress.saving")))
 
     agMap  foreach { element => artifactToGroupMap.put(element._1, element._2.toSet) }
     gaMap  foreach { element => groupToArtifactMap.put(element._1, element._2.toSet) }
@@ -84,7 +84,7 @@ class SbtResolverIndex private (val root: String, var timestamp: Long, val index
   private def ensureIndexDir() {
     indexDir.mkdirs()
     if (!indexDir.exists || !indexDir.isDirectory)
-      throw new RuntimeException("Index dir can not be created: %s" format indexDir.absolutePath)
+      throw new RuntimeException(SbtBundle("sbt.resolverIndexer.cantCreateIndexDir", indexDir.absolutePath))
   }
 
   private def createPersistentMap(file: File) =
@@ -127,7 +127,7 @@ object SbtResolverIndex {
 
     val indexVersion = props.getProperty(Keys.VERSION)
     if (indexVersion != CURRENT_INDEX_VERSION)
-      throw new RuntimeException("Index version differs from expected one: %s" format propFile.absolutePath)
+      throw new RuntimeException(SbtBundle("sbt.resolverIndexer.indexVersionMismatch", propFile.absolutePath))
 
     val root = props.getProperty(Keys.ROOT)
     val timestamp = props.getProperty(Keys.UPDATE_TIMESTAMP).toLong
