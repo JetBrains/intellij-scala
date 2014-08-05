@@ -14,6 +14,8 @@ libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % 
 
 libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value
 
+unmanagedJars in Compile += file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar"
+
 unmanagedSourceDirectories in Compile += baseDirectory.value / "src"
 
 unmanagedSourceDirectories in Test += baseDirectory.value / "test"
