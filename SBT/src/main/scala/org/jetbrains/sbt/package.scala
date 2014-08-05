@@ -105,7 +105,7 @@ package object sbt {
 
   implicit class RichOption[T](opt: Option[T]) {
     // Use for safely checking for null in chained calls
-    @inline def ?>>[A](f: T => A): Option[A] = if (opt.isEmpty) None else Option(f(opt.get))
+    @inline def safeMap[A](f: T => A): Option[A] = if (opt.isEmpty) None else Option(f(opt.get))
   }
 
   def jarWith[T : ClassTag]: File = {

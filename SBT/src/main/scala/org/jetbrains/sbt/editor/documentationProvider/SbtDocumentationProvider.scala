@@ -27,8 +27,8 @@ class SbtDocumentationProvider extends AbstractDocumentationProvider {
         if (scalaDoc == null) return null
 
         val keyDefinition = Option(element.getNavigationElement)
-                            .?>> { _.getParent }
-                            .?>> { _.getParent }
+                            .safeMap { _.getParent }
+                            .safeMap { _.getParent }
                             .collect { case s: ScPatternDefinition => s }
 
         val keyArgs = keyDefinition map { _.getLastChild } match {
