@@ -9,35 +9,36 @@ package typedef
  * @author ilyas
  */
 
-import com.intellij.openapi.util.Iconable
-import api.ScalaFile
-import _root_.scala.collection.mutable.ArrayBuffer
-import com.intellij.psi._
-import com.intellij.openapi.editor.colors._
-import org.jetbrains.plugins.scala.lang.lexer._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import psi.api.toplevel.packaging._
-import com.intellij.navigation._
-import com.intellij.psi.javadoc.PsiDocComment
-import com.intellij.psi.impl._
-import com.intellij.util.VisibilityIcons
 import javax.swing.Icon
-import psi.stubs.{ScMemberOrLocal, ScTemplateDefinitionStub}
-import source.PsiFileImpl
-import stubs.StubElement
-import synthetic.JavaIdentifier
-import types._
-import api.base.ScModifierList
-import api.toplevel.ScToplevelElement
-import result.{TypeResult, Failure, Success, TypingContext}
-import com.intellij.psi.util.{PsiUtil, PsiTreeUtil}
-import collection.Seq
-import api.expr.ScBlock
-import api.toplevel.templates.{ScTemplateParents, ScExtendsBlock, ScTemplateBody}
-import extensions.toPsiNamedElementExt
+
 import com.intellij.lang.java.JavaLanguage
-import conversion.JavaToScala
+import com.intellij.navigation._
+import com.intellij.openapi.editor.colors._
+import com.intellij.openapi.util.Iconable
+import com.intellij.psi._
+import com.intellij.psi.impl._
+import com.intellij.psi.javadoc.PsiDocComment
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
+import com.intellij.util.VisibilityIcons
+import org.jetbrains.plugins.scala.conversion.JavaToScala
+import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.lang.lexer._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScToplevelElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
+import org.jetbrains.plugins.scala.lang.psi.stubs.{ScMemberOrLocal, ScTemplateDefinitionStub}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+
+import _root_.scala.collection.mutable.ArrayBuffer
 import scala.annotation.tailrec
+import scala.collection.Seq
 import scala.reflect.NameTransformer
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplateDefinition] with ScTypeDefinition with PsiClassFake {
@@ -231,10 +232,12 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
   def getTruncedQualifiedName: String = qualifiedName(".", trunced = true)
 
   def getQualifiedNameForDebugger: String = {
-    if (isPackageObject) {
-      qualifiedName("", encodeName = true) + ".package"
-    } else
-    qualifiedName("$", encodeName = true)
+    containingClass match {
+      case td: ScTypeDefinition => td.getQualifiedNameForDebugger + "$" + transformName(encodeName = true, name)
+      case _ =>
+        if (this.isPackageObject) qualifiedName("", encodeName = true) + ".package"
+        else qualifiedName("$", encodeName = true)
+    }
   }
 
   protected def transformName(encodeName: Boolean, name: String): String = {
@@ -305,9 +308,9 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     super[ScTypeDefinition].findMethodsBySignature(patternMethod, checkBases)
   }
 
-  import com.intellij.openapi.util.{Pair => IPair}
-  import _root_.java.util.{List => JList}
-  import _root_.java.util.{Collection => JCollection}
+  import _root_.java.util.{Collection => JCollection, List => JList}
+
+import com.intellij.openapi.util.{Pair => IPair}
 
   override def findMethodsAndTheirSubstitutorsByName(name: String,
                                                      checkBases: Boolean): JList[IPair[PsiMethod, PsiSubstitutor]] = {

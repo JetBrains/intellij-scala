@@ -38,6 +38,9 @@ class ScalaPullUpProcessor(project: Project,
 
   override def findUsages() = Array[UsageInfo]()
 
+  /**
+   * Should be invoked in write action
+   * */
   def moveMembersToBase() {
     val manager = targetClass.getManager
     val extendsBlock = targetClass.extendsBlock
@@ -53,31 +56,29 @@ class ScalaPullUpProcessor(project: Project,
 
     ScalaChangeContextUtil.encodeContextInfo(collectImportScope)
 
-    extensions.inWriteCommandAction(project, "Pull up members") {
-      extensions.withDisabledPostprocessFormatting(project) {
-        val movedDefinitions = ArrayBuffer[ScMember]()
-        for {
-          info <- memberInfos
-          memberCopy <- membersToExtract(info)
-        } {
-          handleOldMember(info)
+    extensions.withDisabledPostprocessFormatting(project) {
+      val movedDefinitions = ArrayBuffer[ScMember]()
+      for {
+        info <- memberInfos
+        memberCopy <- memberCopiesToExtract(info)
+      } {
+        handleOldMember(info)
 
-          templateBody.addBefore(ScalaPsiElementFactory.createNewLine(manager), anchor)
-          val added = templateBody.addBefore(memberCopy, anchor).asInstanceOf[ScMember]
-          if (info.isToAbstract) ScalaPsiUtil.adjustTypes(added)
-          else movedDefinitions += added
-        }
         templateBody.addBefore(ScalaPsiElementFactory.createNewLine(manager), anchor)
-
-        ScalaChangeContextUtil.decodeContextInfo(movedDefinitions)
+        val added = templateBody.addBefore(memberCopy, anchor).asInstanceOf[ScMember]
+        if (info.isToAbstract) ScalaPsiUtil.adjustTypes(added)
+        else movedDefinitions += added
       }
+      templateBody.addBefore(ScalaPsiElementFactory.createNewLine(manager), anchor)
 
-      for (tb <- sourceClass.extendsBlock.templateBody if tb.members.isEmpty) {
-        tb.delete()
-      }
-
-      reformatAfter()
+      ScalaChangeContextUtil.decodeContextInfo(movedDefinitions)
     }
+
+    for (tb <- sourceClass.extendsBlock.templateBody if tb.members.isEmpty) {
+      tb.delete()
+    }
+
+    reformatAfter()
   }
 
   private def reformatAfter() {
@@ -91,19 +92,20 @@ class ScalaPullUpProcessor(project: Project,
     csManager.adjustLineIndent(sourceClass.getContainingFile, sourceClass.getTextRange)
   }
 
-  private def membersToExtract(info: ScalaExtractMemberInfo): Seq[ScMember] = {
+  private def memberCopiesToExtract(info: ScalaExtractMemberInfo): Seq[ScMember] = {
     info match {
       case ScalaExtractMemberInfo(decl: ScDeclaration, _) =>
         val member = decl.copy().asInstanceOf[ScMember]
         Seq(member)
       case ScalaExtractMemberInfo(m, true) =>
         declarationsText(m).map(ScalaPsiElementFactory.createDeclarationFromText(_, m.getParent, m).asInstanceOf[ScMember])
-      case ScalaExtractMemberInfo(m, false) =>
+      case ScalaExtractMemberInfo(m, false) if m.hasModifierProperty("override") =>
         val copy = m.copy().asInstanceOf[ScMember]
         copy.setModifierProperty("override", value = false)
         val shift = "override ".length
         ScalaChangeContextUtil.shiftAssociations(copy, - shift)
         Seq(copy)
+      case _ => Seq(info.getMember.copy().asInstanceOf[ScMember])
     }
   }
 

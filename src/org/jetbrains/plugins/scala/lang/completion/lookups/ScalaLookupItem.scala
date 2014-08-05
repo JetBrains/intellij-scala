@@ -56,6 +56,8 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
   var bold: Boolean = false
   var etaExpanded: Boolean = false
   var prefixCompletion: Boolean = false
+  var isLocalVariable: Boolean = false
+  var isSbtLookupItem: Boolean = false
 
   def isNamedParameterOrAssignment = isNamedParameter || isAssignment
 

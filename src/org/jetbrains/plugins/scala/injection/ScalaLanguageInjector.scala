@@ -21,7 +21,7 @@ import collection.mutable
 
 import ScalaLanguageInjector.extractMultiLineStringRanges
 import org.intellij.plugins.intelliLang.inject.config.BaseInjection
-import lang.psi.impl.expr.ScInterpolatedStringPrefixReference
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
 import lang.psi.api.statements.params.ScParameter
 import annotation.tailrec
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
@@ -58,7 +58,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
 
     val suitable = expressions forall {
       case l: ScLiteral if l.isString => true
-      case _: ScInterpolatedStringPrefixReference => true
+      case _: ScInterpolatedPrefixReference => true
       case r: ScReferenceExpression if r.getText == "+" => true
       case _: ScInfixExpr => true
       case injectedExpr: ScExpression if injectedExpr.getParent.isInstanceOf[ScInterpolatedStringLiteral] => true

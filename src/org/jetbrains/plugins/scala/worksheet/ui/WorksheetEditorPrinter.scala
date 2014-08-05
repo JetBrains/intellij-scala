@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala
 package worksheet.ui
 
-import _root_.scala.Some
-import _root_.scala.collection.mutable.ArrayBuffer
+import java.awt.event.{ActionEvent, ActionListener, AdjustmentEvent, AdjustmentListener}
+import java.awt.{BorderLayout, Color, Dimension}
+import java.util
+import javax.swing.{JLayeredPane, Timer}
+
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.diff.impl.EditingSides
@@ -17,18 +20,15 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.FileAttribute
-import com.intellij.psi.{PsiElement, PsiDocumentManager, PsiManager, PsiWhiteSpace}
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiManager, PsiWhiteSpace}
 import com.intellij.ui.JBSplitter
-import java.awt.event.{ActionEvent, ActionListener, AdjustmentEvent, AdjustmentListener}
-import java.awt.{BorderLayout, Color, Dimension}
-import java.util
-import javax.swing.{JLayeredPane, Timer}
 import org.jetbrains.plugins.scala
-import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetSourceProcessor}
+import org.jetbrains.plugins.scala.worksheet.processor.{FileAttributeUtilCache, WorksheetSourceProcessor}
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
+
+import _root_.scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Dmitry Naydanov
@@ -208,7 +208,11 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, fi
   def getCurrentText = prefix + outputBuffer.toString()
 
   def internalError(errorMessage: String) {
-    simpleUpdate("Internal error: " + errorMessage, viewerDocument)
+    extensions.invokeLater {
+      extensions.inWriteAction {
+        simpleUpdate("Internal error: " + errorMessage, viewerDocument)
+      }
+    }
     terminated = true
   }
   
@@ -234,7 +238,7 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, fi
               override def run() {
                 foldingOffsetsCopy map {
                   case (start, end, limit, originalEnd) =>
-                    val offset = originalDocument getLineEndOffset originalEnd
+                    val offset = originalDocument getLineEndOffset Math.min(originalEnd, originalDocument.getLineCount)
                     val linesCount = viewerDocument.getLineNumber(end) - start - limit + 1
 
                     new WorksheetFoldRegionDelegate(
@@ -377,13 +381,13 @@ object WorksheetEditorPrinter {
   }
 
   def saveWorksheetEvaluation(file: ScalaFile, result: String) {
-    WorksheetCompiler.writeAttribute(LAST_WORKSHEET_RUN_RESULT, file, result)
+    FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RESULT, file, result)
   }
   
-  def loadWorksheetEvaluation(file: ScalaFile): Option[String] = WorksheetCompiler.readAttribute(LAST_WORKSHEET_RUN_RESULT, file)
+  def loadWorksheetEvaluation(file: ScalaFile): Option[String] = FileAttributeUtilCache.readAttribute(LAST_WORKSHEET_RUN_RESULT, file)
   
   def deleteWorksheetEvaluation(file: ScalaFile) {
-    WorksheetCompiler.writeAttribute(LAST_WORKSHEET_RUN_RESULT, file, "")
+    FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RESULT, file, "")
   }
 
   def newWorksheetUiFor(editor: Editor, virtualFile: VirtualFile) =

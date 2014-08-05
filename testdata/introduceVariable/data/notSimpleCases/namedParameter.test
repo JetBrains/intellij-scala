@@ -1,0 +1,12 @@
+case class A(i: Int) {
+  def foo() {
+    A(i = <begin>1<end>)
+  }
+}
+------
+case class A(i: Int) {
+  def foo() {
+    val value: Int = 1
+    A(i = value)
+  }
+}

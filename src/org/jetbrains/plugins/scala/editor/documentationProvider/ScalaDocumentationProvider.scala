@@ -2,43 +2,40 @@ package org.jetbrains.plugins.scala
 package editor.documentationProvider
 
 import com.intellij.codeInsight.javadoc.JavaDocUtil
-import com.intellij.lang.java.JavaDocumentationProvider
-import com.intellij.openapi.module.ModuleUtilCore
-import com.intellij.psi._
-import javadoc.{PsiDocTag, PsiDocComment}
-import lang.psi.api.expr.ScAnnotation
-import lang.psi.api.ScalaFile
-import lang.psi.api.statements._
-import lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
-import lang.psi.api.toplevel._
-import lang.psi.api.toplevel.templates.{ScTemplateParents, ScExtendsBlock, ScTemplateBody}
-import lang.psi.api.toplevel.typedef._
-import org.apache.commons.lang.StringEscapeUtils.escapeHtml
-
-import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
-import lang.psi.types.result.{Failure, Success, TypingContext}
-import lang.psi.types._
-import util.{MethodSignatureBackedByPsiMethod, PsiTreeUtil}
-import search.searches.SuperMethodsSearch
-import com.intellij.openapi.project.IndexNotReadyException
-import lang.psi.{PresentationUtil, ScalaPsiUtil}
-import lang.psi.api.base.{ScReferenceElement, ScConstructor, ScAccessModifier, ScPrimaryConstructor}
-import lang.resolve.ScalaResolveResult
-import lang.psi.impl.ScalaPsiElementFactory
-import lang.scaladoc.lexer.ScalaDocTokenType
-import lang.scaladoc.parser.parsing.MyScaladocParsing
-import lang.scaladoc.psi.api.{ScDocTag, ScDocComment}
-import lang.psi.api.base.patterns.ScBindingPattern
 import com.intellij.lang.documentation.CodeDocumentationProvider
-import java.lang.String
-import collection.mutable.HashMap
-import lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
-import com.intellij.openapi.util.Pair
-import annotation.tailrec
-import collection.mutable
-import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionDefinitionImpl
+import com.intellij.lang.java.JavaDocumentationProvider
 import com.intellij.openapi.fileTypes.StdFileTypes
+import com.intellij.openapi.module.ModuleUtilCore
+import com.intellij.openapi.project.IndexNotReadyException
+import com.intellij.openapi.util.Pair
+import com.intellij.psi._
+import com.intellij.psi.javadoc.{PsiDocComment, PsiDocTag}
+import com.intellij.psi.search.searches.SuperMethodsSearch
+import com.intellij.psi.util.{MethodSignatureBackedByPsiMethod, PsiTreeUtil}
+import org.apache.commons.lang.StringEscapeUtils.escapeHtml
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiMemberExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScConstructor, ScPrimaryConstructor, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.{PresentationUtil, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocTag}
+import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
+
+import scala.annotation.tailrec
+import scala.collection.mutable
 
 /**
  * User: Alexander Podkhalyuzin
@@ -46,7 +43,7 @@ import com.intellij.openapi.fileTypes.StdFileTypes
  */
 
 class ScalaDocumentationProvider extends CodeDocumentationProvider {
-  import ScalaDocumentationProvider._
+  import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider._
   def getDocumentationElementForLookupItem(psiManager: PsiManager, obj : Object,
                                            element: PsiElement): PsiElement = {
     obj match {
@@ -281,7 +278,7 @@ object ScalaDocumentationProvider {
     val inheritedParams = mutable.HashMap.apply[String, PsiDocTag]()
     val inheritedTParams = mutable.HashMap.apply[String, PsiDocTag]()
 
-    import MyScaladocParsing._
+    import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing._
 
     def registerInheritedParam(allParams: mutable.HashMap[String, PsiDocTag], param: PsiDocTag) {
       if (!allParams.contains(param.getValueElement.getText)) {
@@ -440,8 +437,9 @@ object ScalaDocumentationProvider {
     })
     buffer.append(if (escape) escapeHtml(param.name) else param.name)
 
+    val arrow = ScalaPsiUtil.functionArrow(param.getProject)
     buffer.append(parseType(param, t => {
-      (if (param.isCallByNameParameter) "=> " else "") + typeToString(t)
+      (if (param.isCallByNameParameter) s"$arrow " else "") + typeToString(t)
     }))
     if (param.isRepeatedParameter) buffer.append("*")
     if (param.isDefaultParam) {

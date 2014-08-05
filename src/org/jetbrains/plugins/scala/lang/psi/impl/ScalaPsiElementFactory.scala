@@ -3,6 +3,8 @@ package lang
 package psi
 package impl
 
+import java.util
+
 import com.intellij.lang.{ASTNode, PsiBuilderFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.pom.java.LanguageLevel
@@ -15,7 +17,6 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
-import java.util
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -24,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Constructor, Import}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Block, Expr}
-import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ImplicitParamClause, TypeParamClause}
+import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ParamClauses, ImplicitParamClause, TypeParamClause}
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{Dcl, Def}
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.{ClassParamClause, ImplicitClassParamClause}
@@ -47,6 +48,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocInnerCodeElement, ScDocResolvableCodeReference, ScDocSyntaxElement}
+
 import scala.collection.mutable
 
 class ScalaPsiElementFactoryImpl(manager: PsiManager) extends JVMElementFactory {
@@ -194,6 +196,10 @@ object ScalaPsiElementFactory {
 
   def createEmptyClassParamClauseWithContext(manager: PsiManager, context: PsiElement): ScParameterClause = {
     createElementWithContext("()", context, contextLastChild(context), ClassParamClause.parse(_))
+  }
+
+  def createParamClausesWithContext(text: String, context: PsiElement, child: PsiElement): ScParameters = {
+    createElementWithContext(text, context, child, ParamClauses.parse(_))
   }
 
   private def contextLastChild(context: PsiElement): PsiElement = {
@@ -407,10 +413,11 @@ object ScalaPsiElementFactory {
     val names = new mutable.HashSet[String]
     names ++= expr.getNames
     for (expr <- exprs) names ++= expr.getNames
+    val arrow = ScalaPsiUtil.functionArrow(manager.getProject)
     if ((names("_") ||
             ScalaCodeStyleSettings.getInstance(manager.getProject).getClassCountToUseImportOnDemand <=
                     names.size) &&
-            names.filter(_.indexOf("=>") != -1).toSeq.size == 0) text = text + "._"
+            names.filter(_.indexOf(arrow) != -1).toSeq.size == 0) text = text + "._"
     else {
       text = text + ".{"
       for (string <- names) {
@@ -479,7 +486,8 @@ object ScalaPsiElementFactory {
           case block @ ScBlock(st) if !block.hasRBrace => stmtText(st)
           case _ => result.getText
         }
-        s"$paramText => $resultText"
+        val arrow = ScalaPsiUtil.functionArrow(manager.getProject)
+        s"$paramText $arrow $resultText"
       case null => ""
       case _ => stmt.getText
     }
@@ -721,7 +729,8 @@ object ScalaPsiElementFactory {
                 case Some(x) =>
                   val colon = if (ScalaNamesUtil.isIdentifier(name + ":")) " : " else ": "
                   val typeText = ScType.canonicalText(substitutor.subst(x.getType(TypingContext.empty).getOrAny))
-                  name + colon + (if (param.isCallByNameParameter) "=>" else "") + typeText + (if (param.isRepeatedParameter) "*" else "")
+                  val arrow = ScalaPsiUtil.functionArrow(param.getProject)
+                  name + colon + (if (param.isCallByNameParameter) arrow else "") + typeText + (if (param.isRepeatedParameter) "*" else "")
                 case _ => name
               }
             }

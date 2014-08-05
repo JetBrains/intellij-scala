@@ -304,14 +304,14 @@ object MethodResolveProcessor {
             hasRecursiveTypeParameters
           }
           for (TypeParameter(name, typeParams, lowerType, upperType, tParam) <- typeParameters) {
-            if (lowerType != Nothing) {
-              val substedLower = s.subst(unSubst.subst(lowerType))
+            if (lowerType() != Nothing) {
+              val substedLower = s.subst(unSubst.subst(lowerType()))
               if (!hasRecursiveTypeParameters(substedLower)) {
                 uSubst = uSubst.addLower((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedLower, additional = true)
               }
             }
-            if (upperType != Any) {
-              val substedUpper = s.subst(unSubst.subst(upperType))
+            if (upperType() != Any) {
+              val substedUpper = s.subst(unSubst.subst(upperType()))
               if (!hasRecursiveTypeParameters(substedUpper)) {
                 uSubst = uSubst.addUpper((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedUpper, additional = true)
               }

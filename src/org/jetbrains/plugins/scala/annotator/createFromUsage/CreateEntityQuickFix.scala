@@ -1,54 +1,50 @@
 package org.jetbrains.plugins.scala.annotator.createFromUsage
 
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.extensions._
+import com.intellij.codeInsight.template.{TemplateBuilderImpl, TemplateManager}
 import com.intellij.codeInsight.{CodeInsightUtilCore, FileModificationService}
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
-import com.intellij.codeInsight.template.{TemplateManager, TemplateBuilderImpl}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScSimpleTypeElement}
+import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScMember, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
-import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateEntityQuickFix._
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.config.ScalaVersionUtil
-import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
+import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScSimpleTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
 /**
  * Pavel Fatin
  */
 
-abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
-                                      entity: String, keyword: String) extends IntentionAction {
+abstract class CreateEntityQuickFix(ref: ScReferenceExpression, entity: String, keyword: String)
+        extends CreateFromUsageQuickFixBase(ref, entity) {
   // TODO add private modifiers for unqualified entities ?
   // TODO use Java CFU when needed
   // TODO find better place for fields, create methods after
 
-  val getText = "Create %s '%s'".format(entity, ref.nameId.getText)
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
+    if (!super.isAvailable(project, editor, file)) return false
 
-  def getFamilyName = getText
-
-  def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
-    if (!ref.isValid) return false
-    if (!ref.getManager.isInProject(file)) return false
-    if (!file.isInstanceOf[ScalaFile]) return false
-    if (file.isInstanceOf[ScalaCodeFragment]) return false
     ref match {
       case Both(Parent(_: ScAssignStmt), Parent(Parent(_: ScArgumentExprList))) =>
         false
-      case exp @ Parent(infix: ScInfixExpr) if infix.operation == exp =>
+      case exp@Parent(infix: ScInfixExpr) if infix.operation == exp =>
         blockFor(infix.getBaseExpr).exists(!_.isInCompiledFile)
       case it =>
         it.qualifier match {
@@ -59,23 +55,17 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
     }
   }
 
-  def startInWriteAction: Boolean = true
-
-  def invoke(project: Project, editor: Editor, file: PsiFile) {
-    PsiDocumentManager.getInstance(project).commitAllDocuments()
-    if (!ref.isValid) return
-    val isScalaConsole = file.getName == ScalaLanguageConsoleView.SCALA_CONSOLE
-
-    IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
-
+  def invokeInner(project: Project, editor: Editor, file: PsiFile) {
     val entityType = typeFor(ref)
+    val genericParams = genericParametersFor(ref)
     val parameters = parametersFor(ref)
     val Q_MARKS = "???"
 
     val placeholder = if (entityType.isDefined) "%s %s%s: Int" else "%s %s%s"
-    import ScalaVersionUtil._
-    val text = placeholder.format(keyword, ref.nameId.getText, parameters.mkString) +
-            (if(isGeneric(file, false, SCALA_2_10, SCALA_2_11)) " = ???" else "")
+    import org.jetbrains.plugins.scala.config.ScalaVersionUtil._
+    val unimplementedBody = if (isGeneric(file, false, SCALA_2_10, SCALA_2_11)) " = ???" else ""
+    val params = (genericParams ++: parameters).mkString
+    val text = placeholder.format(keyword, ref.nameId.getText, params) + unimplementedBody
 
     val block = ref match {
       case it if it.isQualified => ref.qualifier.flatMap(blockFor)
@@ -87,6 +77,9 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
 
     inWriteAction {
       val entity = block match {
+        case Some(_ childOf (obj: ScObject)) if obj.isSyntheticObject =>
+          val bl = materializeSytheticObject(obj).extendsBlock
+          createEntity(bl, ref, text)
         case Some(it) => createEntity(it, ref, text)
         case None => createEntity(ref, text)
       }
@@ -100,21 +93,16 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
         builder.replaceElement(typeElement, aType)
       }
 
-      entity.depthFirst.filterByType(classOf[ScParameter]).foreach { parameter =>
-        val id = parameter.getNameIdentifier
-        builder.replaceElement(id, id.getText)
+      CreateFromUsageUtil.addTypeParametersToTemplate(entity, builder)
+      CreateFromUsageUtil.addParametersToTemplate(entity, builder)
 
-        parameter.paramType.foreach { it =>
-          builder.replaceElement(it, it.getText)
-        }
-      }
-
-      entity.lastChild.foreach {case qmarks: ScReferenceExpression if qmarks.getText == Q_MARKS => builder.replaceElement(qmarks, Q_MARKS)}
+      entity.lastChild.foreach { case qmarks: ScReferenceExpression if qmarks.getText == Q_MARKS => builder.replaceElement(qmarks, Q_MARKS)}
 
       CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(entity)
 
       val template = builder.buildTemplate()
 
+      val isScalaConsole = file.getName == ScalaLanguageConsoleView.SCALA_CONSOLE
       if (!isScalaConsole) {
         val targetFile = entity.getContainingFile
         val newEditor = positionCursor(project, targetFile, entity.getLastChild)
@@ -124,22 +112,21 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
       }
     }
   }
+}
+
+object CreateEntityQuickFix {
+  private def materializeSytheticObject(obj: ScObject): ScObject = {
+    val clazz = obj.fakeCompanionClassOrCompanionClass
+    val objText = s"object ${clazz.name} {}"
+    val fromText = ScalaPsiElementFactory.createTemplateDefinitionFromText(objText, clazz.getParent, clazz)
+    clazz.getParent.addAfter(fromText, clazz).asInstanceOf[ScObject]
+  }
 
   private def blockFor(exp: ScExpression) = {
     object ParentExtendsBlock {
       def unapply(e: PsiElement): Option[ScExtendsBlock] = Option(PsiTreeUtil.getParentOfType(exp, classOf[ScExtendsBlock]))
     }
-    object InstanceOfClass {
-      def unapply(expr: ScExpression): Option[PsiClass] = expr.getType().toOption match {
-        case Some(scType: ScType) =>
-          scType match {
-            case ScType.ExtractClass(aClass) => Some(aClass)
-            case t: ScType => ScType.extractDesignatorSingletonType(t).flatMap(ScType.extractClass(_, Option(expr.getProject)))
-            case _ => None
-          }
-        case _ => None
-      }
-    }
+
     Some(exp).collect {
       case InstanceOfClass(td: ScTemplateDefinition) => td.extendsBlock
       case th: ScThisReference =>
@@ -184,19 +171,25 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
     entity
   }
 
-  private def typeFor(ref: ScReferenceExpression): Option[String]  = ref.getParent match {
+  private def typeFor(ref: ScReferenceExpression): Option[String] = ref.getParent match {
     case call: ScMethodCall => call.expectedType().map(_.presentableText)
     case _ => ref.expectedType().map(_.presentableText)
   }
 
-  private def parametersFor(ref: ScReferenceExpression): Option[String] = ref.parent.collect {
-    case MethodRepr(_, _, Some(`ref`), args) =>
-      val types = args.map(_.getType(TypingContext.empty).getOrAny)
-      val names = types.map(NameSuggester.suggestNamesByType(_).headOption.getOrElse("value"))
-      val uniqueNames = names.foldLeft(List[String]()) { (r, h) =>
-        (h #:: Stream.from(1).map(h + _)).find(!r.contains(_)).get :: r
+  private def parametersFor(ref: ScReferenceExpression): Option[String] = {
+    ref.parent.collect {
+      case MethodRepr(_, _, Some(`ref`), args) => CreateFromUsageUtil.argsText(args)
+      case (_: ScGenericCall) childOf (MethodRepr(_, _, Some(`ref`), args)) => CreateFromUsageUtil.argsText(args)
+    }
+  }
+
+  private def genericParametersFor(ref: ScReferenceExpression): Option[String] = ref.parent.collect {
+    case genCall: ScGenericCall => 
+      genCall.arguments match {
+        case args if args.size == 1 => "[T]"
+        case args => args.indices.map(i => s"T$i").mkString("[", ", ", "]")
       }
-      (uniqueNames.reverse, types).zipped.map((name, tpe) => "%s: %s".format(name, tpe.canonicalText)).mkString("(", ", ", ")")
+      
   }
 
   private def anchorForUnqualified(ref: ScReferenceExpression): Option[PsiElement] = {
@@ -233,4 +226,5 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
         }
     }
   }
+
 }

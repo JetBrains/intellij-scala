@@ -1,36 +1,36 @@
 package org.jetbrains.plugins.scala
 package codeInspection.typeChecking
 
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
-import TypeCheckCanBeMatchInspection.inspectionId
-import TypeCheckCanBeMatchInspection.inspectionName
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.openapi.project.Project
-import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
-import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
-import scala.Some
-import scala.collection.mutable
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScBindingPattern}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{SyntheticNamedElement, ScSyntheticFunction}
 import java.util.Comparator
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+
 import com.intellij.codeInsight.PsiEquivalenceUtil
+import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.application.ApplicationManager
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
-import TypeCheckToMatchUtil._
-import scala.annotation.tailrec
-import extensions.inWriteAction
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
+import com.intellij.psi.tree.IElementType
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.codeInspection.typeChecking.TypeCheckCanBeMatchInspection.{inspectionId, inspectionName}
+import org.jetbrains.plugins.scala.codeInspection.typeChecking.TypeCheckToMatchUtil._
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScExistentialClause, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticNamedElement}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.GroupInplaceRenamer
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
+
+import scala.annotation.tailrec
+import scala.collection.mutable
 
 /**
  * Nikolay.Tropin
@@ -139,10 +139,10 @@ object TypeCheckToMatchUtil {
       val asInstOfInGuard = findAsInstOfCalls(guardCond, isInstOf)
       val asInstOfEverywhere = asInstOfInBody ++ asInstOfInGuard
 
-      if (asInstOfInBody.count(checkAndStoreNameAndDef(_)) == 0) {
+      if (asInstOfInBody.count(checkAndStoreNameAndDef) == 0) {
         //no usage of asInstanceOf
         if (asInstOfEverywhere.size == 0) {
-          buildCaseClauseText("_ : " + typeName, guardCond, ifStmt.thenBranch)
+          buildCaseClauseText("_ : " + typeName, guardCond, ifStmt.thenBranch, ifStmt.getProject)
         }
         //no named usage
         else {
@@ -157,7 +157,7 @@ object TypeCheckToMatchUtil {
           }
 
           renameData += ((caseClauseIndex, suggestedNames.toSeq))
-          buildCaseClauseText(s"$name : $typeName", guardCond, ifStmt.thenBranch)
+          buildCaseClauseText(s"$name : $typeName", guardCond, ifStmt.thenBranch, ifStmt.getProject)
         }
       }
       //have named usage, use this name in case clause pattern definition
@@ -172,20 +172,22 @@ object TypeCheckToMatchUtil {
         inWriteAction {
           asInstOfEverywhere.foreach(_.replaceExpression(newExpr, removeParenthesis = true))
         }
-        buildCaseClauseText(s"$name : $typeName", guardCond, ifStmt.thenBranch)
+        buildCaseClauseText(s"$name : $typeName", guardCond, ifStmt.thenBranch, ifStmt.getProject)
       }
     }
   }
 
-  private def buildDefaultCaseClauseText(body: Option[ScExpression]): Option[String] =  {
-    Some(buildCaseClauseText("_ ", None, body))
+  private def buildDefaultCaseClauseText(body: Option[ScExpression], project: Project): Option[String] =  {
+    Some(buildCaseClauseText("_ ", None, body, project))
   }
 
-  private def buildCaseClauseText(patternText: String, guardCondition: Option[ScExpression], body: Option[ScExpression]): String = {
+  private def buildCaseClauseText(patternText: String, guardCondition: Option[ScExpression],
+                                  body: Option[ScExpression], project: Project): String = {
     val builder = new StringBuilder
     builder.append("case ").append(patternText)
     guardCondition.map(cond => builder.append(" if " + cond.getText))
-    builder.append(" =>")
+    val arrow = ScalaPsiUtil.functionArrow(project)
+    builder.append(s" $arrow")
     body match {
       case Some(block: ScBlock) =>
         for (elem <- block.children) {
@@ -234,8 +236,8 @@ object TypeCheckToMatchUtil {
 
     if (ifStmts != Nil) {
       val lastElse = ifStmts.last.elseBranch
-      val defaultText: Option[String] = buildDefaultCaseClauseText(lastElse)
-      defaultText.foreach(builder.append(_))
+      val defaultText: Option[String] = buildDefaultCaseClauseText(lastElse, ifStmt.getProject)
+      defaultText.foreach(builder.append)
     }
 
     (builder.toString(), renameData)
@@ -247,13 +249,13 @@ object TypeCheckToMatchUtil {
       condition match {
         case call: ScGenericCall if isIsInstOfCall(call) => List(call)
         case infixExpr: ScInfixExpr if infixExpr.operation.refName == "&&" => findIsInstanceOfCalls(infixExpr.lOp, onlyFirst)
-        case parenth: ScParenthesisedExpr => findIsInstanceOfCalls(parenth.expr.getOrElse(null), onlyFirst)
+        case parenth: ScParenthesisedExpr => findIsInstanceOfCalls(parenth.expr.orNull, onlyFirst)
         case _ => Nil
       }
     }
     else {
       separateConditions(condition).
-              filter(isIsInstOfCall(_)).
+              filter(isIsInstOfCall).
               map(_.asInstanceOf[ScGenericCall])
     }
   }
@@ -383,7 +385,7 @@ object TypeCheckToMatchUtil {
   @tailrec
   final def isIsInstOfCall(expression: ScExpression): Boolean = {
     expression match {
-      case parenthesized: ScParenthesisedExpr => isIsInstOfCall(parenthesized.expr.getOrElse(null))
+      case parenthesized: ScParenthesisedExpr => isIsInstOfCall(parenthesized.expr.orNull)
       case call: ScGenericCall =>
         call.referencedExpr match {
           case ref: ScReferenceExpression if ref.refName == "isInstanceOf" =>

@@ -3,14 +3,15 @@ package editor.backspaceHandler
 
 import com.intellij.codeInsight.editorActions.BackspaceHandlerDelegate
 import com.intellij.openapi.editor.Editor
-import lang.psi.api.ScalaFile
-import lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
-import org.jetbrains.plugins.scala.extensions
-import com.intellij.psi.{PsiElement, PsiDocumentManager, PsiFile}
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.xml.XmlTokenType
-import lang.psi.api.expr.xml.ScXmlStartTag
-import lang.scaladoc.lexer.ScalaDocTokenType
-import lang.lexer.ScalaTokenTypes
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlStartTag
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
 
 /**
  * User: Dmitry Naydanov
@@ -31,9 +32,12 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
 
         if (element.getParent.getLastChild != element) {
           val tagToDelete = element.getParent.getLastChild
-          val textLength =
-            if (tagToDelete.getNode.getElementType != ScalaDocTokenType.DOC_BOLD_TAG) tagToDelete.getTextLength else 1
-          document.deleteString(tagToDelete.getTextOffset, tagToDelete.getTextOffset + textLength)
+
+          if (ScaladocSyntaxElementType.canClose(element.getNode.getElementType, tagToDelete.getNode.getElementType)) {
+            val textLength =
+              if (tagToDelete.getNode.getElementType != ScalaDocTokenType.DOC_BOLD_TAG) tagToDelete.getTextLength else 1
+            document.deleteString(tagToDelete.getTextOffset, tagToDelete.getTextOffset + textLength)
+          }
         } else {
           document.deleteString(element.getTextOffset, element.getTextOffset + 2)
           editor.getCaretModel.moveCaretRelatively(1, 0, false, false, false)
@@ -64,14 +68,18 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
             element.getNode.getElementType == ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING &&
             element.getParent.getLastChild.getNode.getElementType == ScalaTokenTypes.tINTERPOLATED_STRING_END &&
             element.getPrevSibling != null &&
-            element.getPrevSibling.getNode.getElementType == ScalaTokenTypes.tINTERPOLATED_STRING_ID) {
+            isMultilineInterpolatedStringPrefix(element.getPrevSibling.getNode.getElementType)) {
       correctMultilineString(element.getParent.getLastChild.getTextOffset)
     }
+
+    @inline def isMultilineInterpolatedStringPrefix(tpe: IElementType) =
+      Set(ScalaElementTypes.INTERPOLATED_PREFIX_LITERAL_REFERENCE,
+        ScalaElementTypes.INTERPOLATED_PREFIX_PATTERN_REFERENCE, ScalaTokenTypes.tINTERPOLATED_STRING_ID) contains tpe
 
     def correctMultilineString(closingQuotesOffset: Int) {
       extensions.inWriteAction {
         editor.getDocument.deleteString(closingQuotesOffset, closingQuotesOffset + 3)
-        editor.getCaretModel.moveCaretRelatively(-1, 0, false, false, false)
+//        editor.getCaretModel.moveCaretRelatively(-1, 0, false, false, false) //http://youtrack.jetbrains.com/issue/SCL-6490
         PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
       }
     }

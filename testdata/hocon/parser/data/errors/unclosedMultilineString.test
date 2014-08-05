@@ -1,0 +1,18 @@
+a = """unclosed
+multiline
+-----
+HOCON_FILE
+  HoconPsiElement(OBJECT_ENTRIES)
+    HoconPsiElement(OBJECT_FIELD)
+      HoconPsiElement(BARE_OBJECT_FIELD)
+        HoconPsiElement(FIELD_PATH)
+          HoconPsiElement(KEY)
+            HoconPsiElement(UNQUOTED_STRING)
+              PsiElement(UNQUOTED_CHARS)('a')
+        PsiWhiteSpace(' ')
+        PsiElement(EQUALS)('=')
+        PsiWhiteSpace(' ')
+        HoconPsiElement(VALUE)
+          PsiElement(MULTILINE_STRING)('"""unclosed\nmultiline')
+          PsiErrorElement:unclosed multiline string
+            <empty list>

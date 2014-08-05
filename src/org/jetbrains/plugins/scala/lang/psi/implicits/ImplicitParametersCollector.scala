@@ -7,6 +7,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -88,6 +89,14 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
             case _ =>
           }
           addResult(new ScalaResolveResult(param, subst, getImports(state)))
+        case f: ScFieldId =>
+          val memb = ScalaPsiUtil.getContextOfType(f, true, classOf[ScValue], classOf[ScVariable])
+          memb match {
+            case memb: ScMember if memb.hasModifierProperty("implicit") =>
+              if (!isPredefPriority && !ResolveUtils.isAccessible(memb, getPlace)) return true
+              addResult(new ScalaResolveResult(named, subst, getImports(state)))
+            case _ =>
+          }
         case patt: ScBindingPattern =>
           val memb = ScalaPsiUtil.getContextOfType(patt, true, classOf[ScValue], classOf[ScVariable])
           memb match {
@@ -174,8 +183,9 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
 
                         InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type after expected type: " + nonValueType.toString)
 
+                        val depth = ScalaProjectSettings.getInstance(place.getProject).getImplicitParametersSearchDepth
                         if (lastImplicit.isDefined &&
-                          searchImplicitsRecursively < ScalaProjectSettings.getInstance(place.getProject).getImplicitParametersSearchDepth) {
+                          (depth < 0 || searchImplicitsRecursively < depth)) {
                           val (resType, results) = InferUtil.updateTypeWithImplicitParameters(nonValueType.getOrElse(throw new SafeCheckException),
                             place, Some(fun), check = true, searchImplicitsRecursively + 1)
                           val valueType: ValueType = resType.inferValueType
@@ -185,14 +195,15 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
                               case (r1: ScalaResolveResult, r2: ScalaResolveResult) => r1.copy(importsUsed = r1.importsUsed ++ r2.importsUsed)
                             }
                           }
-                          Some(addImportsUsed(c.copy(implicitParameterType = Some(valueType)), results.getOrElse(Seq.empty)), subst)
+                          Some(addImportsUsed(c.copy(implicitParameterType = Some(valueType), implicitParameters = results.getOrElse(Seq.empty)),
+                            results.getOrElse(Seq.empty)), subst)
                         } else {
                           Some(c.copy(implicitParameterType = Some(nonValueType.getOrElse(throw new SafeCheckException).inferValueType)), subst)
                         }
                       } catch {
                         case e: SafeCheckException =>
                           InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, problem detected for function: " + fun.name)
-                          return Some(c.copy(problems = Seq(WrongTypeParameterInferred)), subst)
+                          Some(c.copy(problems = Seq(WrongTypeParameterInferred)), subst)
                       }
                     }
                   }
@@ -294,6 +305,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
       val actuals =
         if (filtered.isEmpty) applicable
         else filtered
+
       mostSpecific.mostSpecificForImplicitParameters(actuals) match {
         case Some(r) => HashSet(r)
         case _ => applicable.map(_._1)

@@ -1,12 +1,14 @@
 <html>
 <body>
-Replaces not and isEmpty with nonEmpty. <br/>
+Replaces not and isEmpty with nonEmpty or isDefined. <br/>
 Before:
 <p><code>!seq.isEmpty</code></p>
+<p><code>!option.isEmpty</code></p>
 
 <p>After:</p>
 
 <p><code>seq.nonEmpty</code></p>
+<p><code>option.isDefined</code></p>
 
 </body>
 </html>

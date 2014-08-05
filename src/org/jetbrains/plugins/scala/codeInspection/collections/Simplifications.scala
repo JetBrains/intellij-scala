@@ -37,7 +37,8 @@ abstract class SimplificationType(inspection: OperationOnCollectionInspection) {
       case _: ScMethodCall | _: ScInfixExpr | _: ScReferenceExpression =>
         methodToBuildFrom.optionalBase match {
           case Some(baseExpr) =>
-            val baseText = baseExpr.getText
+            val needParenths = baseExpr.isInstanceOf[ScInfixExpr]
+            val baseText = if (needParenths) s"(${baseExpr.getText})" else baseExpr.getText
             val argsText = bracedArgs(args: _*)
             List(new Simplification(s"$baseText.$newMethodName$argsText", hint, rangeInParent))
           case _ => Nil

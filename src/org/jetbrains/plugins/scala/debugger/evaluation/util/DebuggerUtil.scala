@@ -7,14 +7,20 @@ import com.intellij.debugger.{DebuggerBundle, SourcePosition}
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
-import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiClass, PsiElement, PsiLocalVariable, PsiParameter}
 import com.sun.jdi.{ObjectReference, Value}
 import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 
@@ -138,38 +144,38 @@ object DebuggerUtil {
     }
   }
 
-  def getFunctionJVMSignature(function: ScFunction): JVMName = {
-    val typeParams = 
-      if (function.isConstructor) function.containingClass match {
-        case td: ScTypeDefinition => td.typeParameters
-        case _ => Seq.empty
-      } 
-      else function.typeParameters
-    val subst = typeParams.foldLeft(ScSubstitutor.empty) {
-      (subst, tp) => subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)), tp.upperBound.getOrAny)
-    }
-    val sign = function.effectiveParameterClauses.flatMap(_.parameters).map(param =>
-      if (!param.isRepeatedParameter) {
-        getJVMStringForType(subst.subst(param.getType(TypingContext.empty).getOrAny))
-      } else "Lscala/collection/Seq;").mkString("(", "", ")") +
-      (if (!function.isConstructor) getJVMStringForType(subst.subst(function.returnType.getOrAny), isParam = false) else "V")
-    JVMNameUtil.getJVMRawText(sign)
-  }
-
-  def getFunctionJVMSignature(constr: ScPrimaryConstructor): JVMName = {
-    val typeParams = constr.containingClass match {
-      case td: ScTypeDefinition => td.typeParameters
+  def getFunctionJVMSignature(function: ScMethodLike): JVMName = {
+    val typeParams = function match {
+      case fun: ScFunction if !fun.isConstructor => fun.typeParameters
+      case _: ScFunction | _: ScPrimaryConstructor =>
+        function.containingClass match {
+          case td: ScTypeDefinition => td.typeParameters
+          case _ => Seq.empty
+        }
       case _ => Seq.empty
     }
     val subst = typeParams.foldLeft(ScSubstitutor.empty) {
       (subst, tp) => subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)), tp.upperBound.getOrAny)
     }
-    val sign = constr.effectiveParameterClauses.flatMap(_.parameters).map(param =>
-      if (!param.isRepeatedParameter) {
-        getJVMStringForType(subst.subst(param.getType(TypingContext.empty).getOrAny))
-      } else "Lscala/collection/Seq;").mkString("(", "", ")") + "V"
-    JVMNameUtil.getJVMRawText(sign)
+    val localParameters = function match {
+      case fun: ScFunctionDefinition if fun.isLocal =>
+        localParams(fun, PsiTreeUtil.getParentOfType(fun, classOf[ScTemplateDefinition]))
+      case _ => Seq.empty
+    }
+    val parameters = function.effectiveParameterClauses.flatMap(_.parameters) ++ localParameters
+    val paramTypes = parameters.map(parameterForJVMSignature(_, subst)).mkString("(", "", ")")
+    val resultType = function match {
+      case fun: ScFunction if !fun.isConstructor =>
+        getJVMStringForType(subst.subst(fun.returnType.getOrAny), isParam = false)
+      case _: ScFunction | _: ScPrimaryConstructor => "V"
+    }
+    JVMNameUtil.getJVMRawText(paramTypes + resultType)
   }
+
+  private def parameterForJVMSignature(param: ScTypedDefinition, subst: ScSubstitutor) = param match {
+      case p: ScParameter if p.isRepeatedParameter => "Lscala/collection/Seq;"
+      case _ => getJVMStringForType(subst.subst(param.getType(TypingContext.empty).getOrAny))
+    }
   
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Boolean): Value = {
     import org.jetbrains.plugins.scala.lang.psi.types._
@@ -314,5 +320,51 @@ object DebuggerUtil {
       else objRef
     }
     case _ => evaluated
+  }
+
+  def localParams(fun: ScFunctionDefinition, context: PsiElement): Seq[ScTypedDefinition] = {
+    val buf = new mutable.HashSet[PsiElement]
+    val body = fun.body //to exclude references from default parameters
+    body.foreach(_.accept(new ScalaRecursiveElementVisitor {
+      override def visitReference(ref: ScReferenceElement) {
+        if (ref.qualifier != None) {
+          super.visitReference(ref)
+          return
+        }
+        val elem = ref.resolve()
+        if (elem != null) {
+          var element = elem
+          while (element.getContext != null) {
+            element = element.getContext
+            if (element == fun) return
+            else if (element == context) {
+              buf += elem
+              return
+            }
+          }
+        }
+        super.visitReference(ref)
+      }
+    }))
+    buf.toSeq.collect {case td: ScTypedDefinition if isLocalV(td) => td}
+            .sortBy(e => (e.isInstanceOf[ScObject], e.getTextRange.getStartOffset))
+  }
+
+  def isLocalV(resolve: PsiElement): Boolean = {
+    resolve match {
+      case _: PsiLocalVariable => true
+      case _: ScClassParameter => false
+      case _: PsiParameter => true
+      case b: ScBindingPattern =>
+        ScalaPsiUtil.nameContext(b) match {
+          case v @ (_: ScValue | _: ScVariable) =>
+            !v.getContext.isInstanceOf[ScTemplateBody] && !v.getContext.isInstanceOf[ScEarlyDefinitions]
+          case clause: ScCaseClause => true
+          case _ => true //todo: for generator/enumerators
+        }
+      case o: ScObject =>
+        !o.getContext.isInstanceOf[ScTemplateBody] && ScalaPsiUtil.getContextOfType(o, true, classOf[PsiClass]) != null
+      case _ => false
+    }
   }
 }

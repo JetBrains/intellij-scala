@@ -23,7 +23,7 @@ import java.util.Map;
     }
 )
 public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProjectSettings>, ExportableComponent {
-  private int IMPLICIT_PARAMETERS_SEARCH_DEPTH = 5;
+  private int IMPLICIT_PARAMETERS_SEARCH_DEPTH = -1;
 
   private boolean SEARCH_ALL_SYMBOLS = false;
 

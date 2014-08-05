@@ -87,6 +87,13 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public int OVERRIDING_METHOD_TYPE_ANNOTATION = TypeAnnotationPolicy.Regular.ordinal();
   public int SIMPLE_METHOD_TYPE_ANNOTATION = TypeAnnotationPolicy.Optional.ordinal();
 
+  //other
+  public boolean ENFORCE_PROCEDURE_SYNTAX_FOR_UNIT = true;
+  public boolean REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = false;
+  public boolean REPLACE_MAP_ARROW_WITH_UNICODE_CHAR = false;
+  public boolean REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR = false;
+
+
   @Override
   public void readExternal(Element parentElement) throws InvalidDataException {
     Element scalaCodeStyleSettings = parentElement.getChild("ScalaCodeStyleSettings");
@@ -157,7 +164,9 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
       "java.util.WeakHashMap",
       "org.scalatest.fixture._",
       "org.scalatest.path._",
-      "scala.collection.mutable._"
+      "scala.collection.mutable._",
+      "scala.reflect.macros.blackbox.Context",
+      "scala.reflect.macros.whitebox.Context"
   };
 
   private String[] IMPORT_LAYOUT = new String[] {
@@ -208,7 +217,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
     return COLLECT_IMPORTS_TOGETHER;
   }
 
-  public void setCollectImport(boolean value) {
+  public void setCollectImports(boolean value) {
     COLLECT_IMPORTS_TOGETHER = value;
   }
 

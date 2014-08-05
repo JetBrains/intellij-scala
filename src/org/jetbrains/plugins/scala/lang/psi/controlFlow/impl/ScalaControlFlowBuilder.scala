@@ -4,6 +4,7 @@ package lang.psi.controlFlow.impl
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.{ScControlFlowPolicy, Instruction}
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScPattern, ScCaseClause}
@@ -251,7 +252,10 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
 
   override def visitMethodCallExpression(call: ScMethodCall) {
     val matchedParams = call.matchedParameters
-    def isByName(arg: ScExpression) = matchedParams.toMap.get(arg).exists(_.isByName)
+    def isByNameOrFunction(arg: ScExpression) = {
+      val param = matchedParams.toMap.get(arg)
+      param.exists(_.isByName) || param.exists(p => ScFunctionType.isFunctionType(p.paramType))
+    }
     val receiver = call.getInvokedExpr
     if (receiver != null) {
       receiver.accept(this)
@@ -263,7 +267,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       arg <- call.argumentExpressions
     } {
       arg.accept(this)
-      if (myHead == null && isByName(arg)) {
+      if (myHead == null && isByNameOrFunction(arg)) {
         moveHead(head)
       }
     }

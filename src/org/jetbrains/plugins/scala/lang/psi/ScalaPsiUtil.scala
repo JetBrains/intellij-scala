@@ -22,6 +22,7 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util._
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.config.ScalaFacet
+import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
@@ -72,6 +73,11 @@ object ScalaPsiUtil {
     if (logger.isDebugEnabled) {
       logger.debug(message)
     }
+  }
+
+  def functionArrow(project: Project): String = {
+    val useUnicode = ScalaCodeStyleSettings.getInstance(project).REPLACE_CASE_ARROW_WITH_UNICODE_CHAR
+    if (useUnicode) ScalaTypedHandler.unicodeCaseArrow else "=>"
   }
 
   @tailrec
@@ -514,8 +520,8 @@ object ScalaPsiUtil {
         def clearBadLinks(tps: Seq[TypeParameter]): Seq[TypeParameter] = {
           tps.map {
             case t@TypeParameter(name, typeParams, lowerType, upperType, ptp) =>
-              TypeParameter(name, clearBadLinks(typeParams), hasBadLinks(lowerType, ptp).getOrElse(Nothing),
-                hasBadLinks(upperType, ptp).getOrElse(Any), ptp)
+              TypeParameter(name, clearBadLinks(typeParams), () => hasBadLinks(lowerType(), ptp).getOrElse(Nothing),
+                () => hasBadLinks(upperType(), ptp).getOrElse(Any), ptp)
           }
         }
 
@@ -874,8 +880,8 @@ object ScalaPsiUtil {
               ((typeParam.name, ScalaPsiUtil.getPsiElementId(typeParam.ptp)), new ScUndefinedType(new ScTypeParameterType(typeParam.ptp, ScSubstitutor.empty)))
             }).toMap, Map.empty, None)
             ScTypePolymorphicType(retType, typeParams.map(tp => {
-              var lower = tp.lowerType
-              var upper = tp.upperType
+              var lower = tp.lowerType()
+              var upper = tp.upperType()
               def hasRecursiveTypeParameters(typez: ScType): Boolean = {
                 var hasRecursiveTypeParameters = false
                 typez.recursiveUpdate {
@@ -909,7 +915,7 @@ object ScalaPsiUtil {
 
               if (safeCheck && !undefiningSubstitutor.subst(lower).conforms(undefiningSubstitutor.subst(upper), checkWeak = true))
                 throw new SafeCheckException
-              TypeParameter(tp.name, tp.typeParams /* doesn't important here */, lower, upper, tp.ptp)
+              TypeParameter(tp.name, tp.typeParams /* doesn't important here */, () => lower, () => upper, tp.ptp)
             }))
           } else {
             typeParams.foreach {case tp =>
@@ -930,14 +936,14 @@ object ScalaPsiUtil {
                   hasRecursiveTypeParameters
                 }
                 //todo: add only one of them according to variance
-                if (tp.lowerType != Nothing) {
-                  val substedLowerType = unSubst.subst(tp.lowerType)
+                if (tp.lowerType() != Nothing) {
+                  val substedLowerType = unSubst.subst(tp.lowerType())
                   if (!hasRecursiveTypeParameters(substedLowerType)) {
                     un = un.addLower(name, substedLowerType, additional = true)
                   }
                 }
-                if (tp.upperType != Any) {
-                  val substedUpperType = unSubst.subst(tp.upperType)
+                if (tp.upperType() != Any) {
+                  val substedUpperType = unSubst.subst(tp.upperType())
                   if (!hasRecursiveTypeParameters(substedUpperType)) {
                     un = un.addUpper(name, substedUpperType, additional = true)
                   }
@@ -995,7 +1001,7 @@ object ScalaPsiUtil {
                   }
                   !removeMe
               }.map(tp => TypeParameter(tp.name, tp.typeParams /* doesn't important here */,
-                sub.subst(tp.lowerType), sub.subst(tp.upperType), tp.ptp)))
+                () => sub.subst(tp.lowerType()), () => sub.subst(tp.upperType()), tp.ptp)))
             }
 
             un.getSubstitutor match {

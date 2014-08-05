@@ -3,17 +3,22 @@ package annotator
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiMethod, PsiNamedElement, PsiParameter}
-import org.jetbrains.plugins.scala.annotator.createFromUsage.{CreateMethodQuickFix, CreateParameterlessMethodQuickFix, CreateValueQuickFix, CreateVariableQuickFix}
+import org.jetbrains.plugins.scala.annotator.createFromUsage._
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScStableReferenceElementPattern, ScInfixPattern, ScConstructorPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeProjection}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScStableCodeReferenceElement, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue}
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPrefixReference
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -116,7 +121,7 @@ trait ApplicationAnnotator {
                 }
               case _ =>
                 r.problems.foreach {
-                  case MissedParametersClause(clause) if !reference.isInstanceOf[ScInterpolatedStringPrefixReference] =>
+                  case MissedParametersClause(clause) if !reference.isInstanceOf[ScInterpolatedPrefixReference] =>
                     holder.createErrorAnnotation(reference, "Missing arguments for method " + nameOf(f))
                     addCreateFromUsagesQuickFixes(reference, holder)
                   case _ =>
@@ -205,14 +210,26 @@ trait ApplicationAnnotator {
 
   protected def registerCreateFromUsageFixesFor(ref: ScReferenceElement, annotation: Annotation) {
     ref match {
-      case Both(exp: ScReferenceExpression, Parent(_: ScMethodCall)) =>
+      case (exp: ScReferenceExpression) childOf (_: ScMethodCall) =>
         annotation.registerFix(new CreateMethodQuickFix(exp))
-      case Both(exp: ScReferenceExpression, Parent(infix: ScInfixExpr)) if infix.operation == exp =>
+      case (exp: ScReferenceExpression) childOf (infix: ScInfixExpr) if infix.operation == exp =>
         annotation.registerFix(new CreateMethodQuickFix(exp))
+      case (exp: ScReferenceExpression) childOf ((_: ScGenericCall) childOf (_: ScMethodCall)) =>
+        annotation.registerFix(new CreateMethodQuickFix(exp))
+      case (exp: ScReferenceExpression) childOf (_: ScGenericCall) =>
+        annotation.registerFix(new CreateParameterlessMethodQuickFix(exp))
       case exp: ScReferenceExpression =>
         annotation.registerFix(new CreateParameterlessMethodQuickFix(exp))
         annotation.registerFix(new CreateValueQuickFix(exp))
         annotation.registerFix(new CreateVariableQuickFix(exp))
+        annotation.registerFix(new CreateObjectQuickFix(exp))
+      case (stRef: ScStableCodeReferenceElement) childOf (st: ScSimpleTypeElement) if st.singleton =>
+      case (stRef: ScStableCodeReferenceElement) childOf (_: ScConstructorPattern | _: ScInfixPattern) =>
+        annotation.registerFix(new CreateCaseClassQuickFix(stRef))
+        annotation.registerFix(new CreateExtractorObjectQuickFix(stRef))
+      case stRef: ScStableCodeReferenceElement =>
+        annotation.registerFix(new CreateTraitQuickFix(stRef))
+        annotation.registerFix(new CreateClassQuickFix(stRef))
       case _ =>
     }
   }

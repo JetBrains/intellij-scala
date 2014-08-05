@@ -138,7 +138,7 @@ trait PrecedenceHelper[T] {
     val topPrecedence = getTopPrecedence(results(0))
     if (currentPrecedence < topPrecedence) return false
     else if (currentPrecedence == topPrecedence && levelSet.isEmpty) return false
-    else if (currentPrecedence == topPrecedence && !levelSet.isEmpty) {
+    else if (currentPrecedence == topPrecedence) {
       if (isCheckForEqualPrecedence && qualifiedName != null &&
         (levelQualifiedNamesSet.contains(qualifiedName) ||
           qualifiedNamesSet.contains(qualifiedName))) {
@@ -148,8 +148,7 @@ trait PrecedenceHelper[T] {
         results.foreach(ignoredSet.add)
       } else addResults()
     } else {
-      if (qualifiedName != null && (levelQualifiedNamesSet.contains(qualifiedName) ||
-        qualifiedNamesSet.contains(qualifiedName))) {
+      if (qualifiedName != null && qualifiedNamesSet.contains(qualifiedName)) {
         return false
       } else {
         if (!fromHistory && isUpdateHistory && isSpecialResult(results(0))) {

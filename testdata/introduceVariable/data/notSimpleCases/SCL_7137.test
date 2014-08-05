@@ -1,0 +1,8 @@
+case class A(i: Int) {
+  val a = A(i = <begin>1<end>)
+}
+------
+case class A(i: Int) {
+  private val value: Int = 1
+  val a = A(i = value)
+}

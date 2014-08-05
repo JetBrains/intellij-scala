@@ -1,19 +1,19 @@
 package org.jetbrains.jps.incremental.scala
 package data
 
-import java.io.{IOException, File}
-import org.jetbrains.jps.incremental.{ModuleBuildTarget, CompileContext}
-import org.jetbrains.jps.{ProjectPaths, ModuleChunk}
-import org.jetbrains.jps.incremental.java.JavaBuilder
-import org.jetbrains.jps.incremental.scala.SettingsManager
-import collection.JavaConverters._
-import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
-import org.jetbrains.jps.model.java.JpsJavaExtensionService
-import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
+import java.io.{File, IOException}
 import java.util
 import java.util.Collections
-import java.nio.file.Files
-import org.jetbrains.plugin.scala.compiler.CompileOrder
+
+import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
+import org.jetbrains.jps.incremental.java.JavaBuilder
+import org.jetbrains.jps.incremental.{CompileContext, ModuleBuildTarget}
+import org.jetbrains.jps.model.java.JpsJavaExtensionService
+import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
+import org.jetbrains.jps.{ModuleChunk, ProjectPaths}
+import org.jetbrains.plugin.scala.compiler.{CompileOrder, NameHashing}
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -26,7 +26,8 @@ case class CompilationData(sources: Seq[File],
                            order: CompileOrder,
                            cacheFile: File,
                            outputToCacheMap: Map[File, File],
-                           outputGroups: Seq[(File, File)])
+                           outputGroups: Seq[(File, File)],
+                           nameHashing: NameHashing)
 
 object CompilationData {
   def from(sources: Seq[File], context: CompileContext, chunk: ModuleChunk): Either[String, CompilationData] = {
@@ -42,14 +43,17 @@ object CompilationData {
 
     val classpath = ProjectPaths.getCompilationClasspathFiles(chunk, chunk.containsTests, false, false).asScala.toSeq
     val facetSettings = Option(SettingsManager.getFacetSettings(module))
-    val scalaOptions = facetSettings.map(_.getCompilerOptions.toSeq).getOrElse(Seq.empty)
+    val noBootCp = Seq("-nobootcp", "-javabootclasspath", File.pathSeparator)
+    val scalaOptions = noBootCp ++: facetSettings.map(_.getCompilerOptions.toSeq).getOrElse(Seq.empty)
     val order = facetSettings.map(_.getCompileOrder).getOrElse(CompileOrder.Mixed)
+
+    val globalSettings = SettingsManager.getGlobalSettings(context.getProjectDescriptor.getModel.getGlobal)
+    val nameHashing = globalSettings.getNameHashing
 
     createOutputToCacheMap(context).map { outputToCacheMap =>
 
-      val cacheFile = outputToCacheMap.get(output).getOrElse {
-        throw new RuntimeException("Unknown build target output directory: " + output)
-      }
+      val cacheFile = outputToCacheMap.getOrElse(output,
+        throw new RuntimeException("Unknown build target output directory: " + output))
 
       val relevantOutputToCacheMap = (outputToCacheMap - output).filter(p => classpath.contains(p._1))
 
@@ -63,7 +67,7 @@ object CompilationData {
       val outputGroups = createOutputGroups(chunk)
 
       CompilationData(sources, classpath, output, commonOptions ++ scalaOptions, commonOptions ++ javaOptions,
-        order, cacheFile, relevantOutputToCacheMap, outputGroups)
+        order, cacheFile, relevantOutputToCacheMap, outputGroups, nameHashing)
     }
   }
 
@@ -152,7 +156,7 @@ object CompilationData {
 
     targets.filterNot { target =>
       val chunk = new ModuleChunk(Collections.singleton(target))
-      ChunkExclusionService.isExcluded(chunk)
+      ChunkExclusionService.isExcluded(chunk, context.getProjectDescriptor.getModel.getGlobal)
     }
   }
 

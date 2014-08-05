@@ -26,23 +26,22 @@ import parser.util.ParserPatcher
 
 object FunDef {
   def parse(builder: ScalaPsiBuilder): Boolean = {
-    val faultMarker = builder.mark;
+    val faultMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kDEF => builder.advanceLexer()
-      case _ => {
+      case _ =>
         faultMarker.drop()
         return false
-      }
     }
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => {
+      case ScalaTokenTypes.tIDENTIFIER =>
         FunSig parse builder
         builder.getTokenType match {
-          case ScalaTokenTypes.tCOLON => {
+          case ScalaTokenTypes.tCOLON =>
             builder.advanceLexer() //Ate :
             if (Type.parse(builder)) {
               builder.getTokenType match {
-                case ScalaTokenTypes.tASSIGN => {
+                case ScalaTokenTypes.tASSIGN =>
                   builder.advanceLexer() //Ate =
                   if (Expr.parse(builder)) {
                     faultMarker.drop()
@@ -53,19 +52,16 @@ object FunDef {
                     faultMarker.drop()
                     true
                   }
-                }
-                case _ => {
+                case _ =>
                   faultMarker.rollbackTo()
                   false
-                }
               }
             }
             else {
               faultMarker.rollbackTo()
               false
             }
-          }
-          case ScalaTokenTypes.tASSIGN => {
+          case ScalaTokenTypes.tASSIGN =>
             builder.advanceLexer() //Ate =
             ParserPatcher getSuitablePatcher builder parse builder
             if (Expr parse builder) {
@@ -77,8 +73,7 @@ object FunDef {
               faultMarker.drop()
               true
             }
-          }
-          case ScalaTokenTypes.tLBRACE => {
+          case ScalaTokenTypes.tLBRACE =>
             if (builder.twoNewlinesBeforeCurrentToken) {
               faultMarker.rollbackTo()
               return false
@@ -86,26 +81,22 @@ object FunDef {
             Block.parse(builder, hasBrace = true)
             faultMarker.drop()
             true
-          }
-          case _ => {
+          case _ =>
             faultMarker.rollbackTo()
             false
-          }
         }
-      }
-      case ScalaTokenTypes.kTHIS => {
+      case ScalaTokenTypes.kTHIS =>
         builder.advanceLexer() //Ate this
         ParamClauses parse (builder, true)
         builder.getTokenType match {
-          case ScalaTokenTypes.tASSIGN => {
+          case ScalaTokenTypes.tASSIGN =>
             builder.advanceLexer() //Ate =
             if (!ConstrExpr.parse(builder)) {
               builder error ScalaBundle.message("wrong.constr.expression")
             }
             faultMarker.drop()
             true
-          }
-          case _ => {
+          case _ =>
             if (builder.twoNewlinesBeforeCurrentToken) {
               builder error ScalaBundle.message("constr.block.expected")
               faultMarker.drop()
@@ -116,13 +107,10 @@ object FunDef {
             }
             faultMarker.drop()
             true
-          }
         }
-      }
-      case _ => {
+      case _ =>
         faultMarker.rollbackTo()
         false
-      }
     }
   }
 }

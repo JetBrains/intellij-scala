@@ -376,10 +376,6 @@ case class ScThisType(clazz: ScTemplateDefinition) extends ValueType {
  * element can be any stable element, class, value or type alias
  */
 case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
-  if (element.getName == "formatter") {
-    "stop here"
-  }
-
   override protected def isAliasTypeInner: Option[AliasType] = {
     element match {
       case ta: ScTypeAlias if ta.typeParameters.length == 0 =>

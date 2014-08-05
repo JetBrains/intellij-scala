@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<idea-plugin version="2">
+
+  <extensions defaultExtensionNs="com.intellij">
+    <fileTypeFactory implementation="org.jetbrains.plugins.scala.ScalaFileTypeFactory"/>
+    <localInspection implementationClass="intellijscalastyle.codeInspection.ScalastyleCodeInspection"
+                     displayName="Scala style inspection" groupName="Scala: Code Style"
+                     shortName="ScalaStyle"
+                     enabledByDefault="true" language="Scala"/>
+  </extensions>
+
+</idea-plugin>

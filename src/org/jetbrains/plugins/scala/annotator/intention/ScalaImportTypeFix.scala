@@ -305,7 +305,7 @@ object ScalaImportTypeFix {
       def addClazz(clazz: PsiClass) {
         if (clazz != null && clazz.qualifiedName != null && clazz.qualifiedName.indexOf(".") > 0 &&
           ResolveUtils.kindMatches(clazz, kinds) && notInner(clazz, ref) && ResolveUtils.isAccessible(clazz, ref) &&
-          !JavaCompletionUtil.isInExcludedPackage(clazz, true)) {
+          !JavaCompletionUtil.isInExcludedPackage(clazz, false)) {
           buffer += ClassTypeToImport(clazz)
         }
       }
@@ -327,7 +327,7 @@ object ScalaImportTypeFix {
       val containingClass = alias.containingClass
       if (containingClass != null && ScalaPsiUtil.hasStablePath(alias) &&
         ResolveUtils.kindMatches(alias, kinds) && ResolveUtils.isAccessible(alias, ref) &&
-        !JavaCompletionUtil.isInExcludedPackage(containingClass, true)) {
+        !JavaCompletionUtil.isInExcludedPackage(containingClass, false)) {
         buffer += TypeAliasToImport(alias)
       }
     }

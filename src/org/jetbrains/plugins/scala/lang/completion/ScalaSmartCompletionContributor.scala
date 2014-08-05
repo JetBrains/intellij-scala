@@ -29,7 +29,8 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 
 import scala.annotation.tailrec
-import scala.collection.mutable.{ArrayBuffer, HashMap, HashSet}
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -64,7 +65,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
       }
       val elemToAdd = _variant.asInstanceOf[LookupElement]
       variant match {
-        case el: ScalaLookupItem if isAccessible(el) => {
+        case el: ScalaLookupItem if isAccessible(el) =>
           val elem = el.element
           val subst = el.substitutor
           def checkType(_tp: ScType, _subst: ScSubstitutor, chainCompletion: Boolean, etaExpanded: Boolean = false): Boolean = {
@@ -147,7 +148,6 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
                 checkType(ScType.create(f.getType, f.getProject, scope), ScSubstitutor.empty, checkForSecondCompletion)
               case _ =>
             }
-        }
         case _ =>
       }
     }
@@ -296,11 +296,10 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
       if (assign.getRExpression == Some(ref)) {
         assign.getLExpression match {
           case call: ScMethodCall => //todo: it's update method
-          case leftExpression: ScExpression => {
+          case leftExpression: ScExpression =>
             //we can expect that the type is same for left and right parts.
             acceptTypes(ref.expectedTypes(), ref.getVariants, result,
               ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
-          }
         }
       } else { //so it's left expression
         //todo: if right expression exists?
@@ -353,26 +352,28 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
           case _ => actualParams
         }
         val presentableParams = params.map(_.removeAbstracts)
-        var builder = LookupElementBuilder.create("")
-        builder = builder.setRenderer(new LookupElementRenderer[LookupElement] {
+        val anonFunRenderer = new LookupElementRenderer[LookupElement] {
           def renderElement(element: LookupElement, presentation: LookupElementPresentation) {
-            val text = ScalaCompletionUtil.generateAnonymousFunctionText(braceArgs, presentableParams, canonical = false)
+            val arrowText = ScalaPsiUtil.functionArrow(referenceExpression.getProject)
+            val text = ScalaCompletionUtil.generateAnonymousFunctionText(braceArgs, presentableParams, canonical = false,
+              arrowText = arrowText)
             presentation match {
               case realPresentation: RealLookupElementPresentation =>
                 if (!realPresentation.hasEnoughSpaceFor(text, false)) {
                   var prefixIndex = presentableParams.length - 1
-                  val suffix = ", ... =>"
+                  val suffix = s", ... $arrowText"
                   var end = false
                   while (prefixIndex > 0 && !end) {
                     val prefix = ScalaCompletionUtil.generateAnonymousFunctionText(braceArgs,
-                      presentableParams.slice(0, prefixIndex), canonical = false, withoutEnd = true)
+                      presentableParams.slice(0, prefixIndex), canonical = false, withoutEnd = true,
+                      arrowText = arrowText)
                     if (realPresentation.hasEnoughSpaceFor(prefix + suffix, false)) {
                       presentation.setItemText(prefix + suffix)
                       end = true
                     } else prefixIndex -= 1
                   }
                   if (!end) {
-                    presentation.setItemText("... => ")
+                    presentation.setItemText(s"... $arrowText ")
                   }
                 } else presentation.setItemText(text)
                 presentation.setIcon(Icons.LAMBDA)
@@ -380,8 +381,10 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
                 presentation.setItemText(text)
             }
           }
-        })
-        builder = builder.setInsertHandler(new ScalaGenerateAnonymousFunctionInsertHandler(params, braceArgs))
+        }
+        val builder = LookupElementBuilder.create("")
+                .withRenderer(anonFunRenderer)
+                .withInsertHandler(new ScalaGenerateAnonymousFunctionInsertHandler(params, braceArgs))
         val lookupElement =
           if (ApplicationManager.getApplication.isUnitTestMode)
             builder.withAutoCompletionPolicy(AutoCompletionPolicy.ALWAYS_AUTOCOMPLETE)
@@ -599,8 +602,8 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
 
         val refElement = ScalaPsiUtil.getParentOfType(element, classOf[ScReferenceElement])
 
-        val renamesMap = new HashMap[String, (String, PsiNamedElement)]()
-        val reverseRenamesMap = new HashMap[String, PsiNamedElement]()
+        val renamesMap = new mutable.HashMap[String, (String, PsiNamedElement)]()
+        val reverseRenamesMap = new mutable.HashMap[String, PsiNamedElement]()
 
         refElement match {
           case ref: PsiReference => ref.getVariants.foreach {
@@ -616,12 +619,12 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
           case _ =>
         }
 
-        val addedClasses = new HashSet[String]
+        val addedClasses = new mutable.HashSet[String]
         val newExpr = PsiTreeUtil.getParentOfType(element, classOf[ScNewTemplateDefinition])
-        val types: Array[ScType] = newExpr.expectedTypes().map(tp => tp match {
+        val types: Array[ScType] = newExpr.expectedTypes().map {
           case ScAbstractType(_, lower, upper) => upper
-          case _ => tp
-        })
+          case tp => tp
+        }
         for (typez <- types) {
           val element: LookupElement = convertTypeToLookupElement(typez, newExpr, addedClasses,
             new AfterNewLookupElementRenderer(_, _, _), new ScalaConstructorInsertHandler, renamesMap)

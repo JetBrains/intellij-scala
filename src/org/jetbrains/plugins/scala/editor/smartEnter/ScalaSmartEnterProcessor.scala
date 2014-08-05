@@ -117,7 +117,6 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
         ScalaSmartEnterProcessor.LOG.error(e.getMessage)
       }
     }
-    true
   }
 
   protected override def reformat(caret: PsiElement) {

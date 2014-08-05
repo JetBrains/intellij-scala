@@ -4,36 +4,35 @@ package refactoring
 package introduceVariable
 
 
-import org.jetbrains.plugins.scala.util.ScalaUtils
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.util._
-import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.wm.WindowManager
-import com.intellij.psi.{xml => _, _}
-import com.intellij.refactoring.ui.ConflictsDialog
-import com.intellij.refactoring.RefactoringActionHandler
 import java.util.LinkedHashSet
-import lexer.ScalaTokenTypes
-import namesSuggester.NameSuggester
-import psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import psi.api.expr._
-import com.intellij.openapi.application.ApplicationManager
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import com.intellij.openapi.actionSystem.DataContext
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
-import refactoring.util.ScalaRefactoringUtil.{IntroduceException, showErrorMessage}
-import refactoring.util.{ConflictsReporter, ScalaRefactoringUtil}
-import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
-import com.intellij.psi.util.PsiTreeUtil
-import extensions.childOf
-import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock}
+
 import com.intellij.internal.statistic.UsageTrigger
+import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.command.CommandProcessor
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util._
+import com.intellij.openapi.wm.WindowManager
+import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{xml => _, _}
+import com.intellij.refactoring.RefactoringActionHandler
+import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
+import org.jetbrains.plugins.scala.extensions.childOf
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{IntroduceException, showErrorMessage}
+import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaRefactoringUtil, ScalaVariableValidator}
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.util.ScalaUtils
 
 
 /**
@@ -41,7 +40,7 @@ import com.intellij.internal.statistic.UsageTrigger
  * Date: 23.06.2008
  */
 
-class ScalaIntroduceVariableHandler extends RefactoringActionHandler with ConflictsReporter {
+class ScalaIntroduceVariableHandler extends RefactoringActionHandler with DialogConflictsReporter {
   val REFACTORING_NAME = ScalaBundle.message("introduce.variable.title")
 
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
@@ -350,12 +349,6 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     }
 
     dialog
-  }
-
-  def reportConflicts(conflicts: Array[String], project: Project): Boolean = {
-    val conflictsDialog = new ConflictsDialog(project, conflicts: _*) //todo: add psi element to conflict
-    conflictsDialog.show()
-    conflictsDialog.isOK
   }
 
   def runTest(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int, replaceAll: Boolean) {

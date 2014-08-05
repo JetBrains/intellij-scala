@@ -12,7 +12,10 @@ import org.jetbrains.sbt.settings.SbtApplicationSettings
 import java.util
 import java.net.URL
 import com.intellij.openapi.options.Configurable
-import com.intellij.openapi.application.PathManager
+import com.intellij.openapi.projectRoots.{JavaSdkType, Sdk, ProjectJdkTable}
+import com.intellij.openapi.externalSystem.model.ExternalSystemException
+import java.io.File
+import com.intellij.openapi.roots.ProjectRootManager
 
 /**
  * @author Pavel Fatin
@@ -32,6 +35,7 @@ class SbtExternalSystemManager
 
     classpath.add(jarWith[this.type])
     classpath.add(jarWith[scala.App])
+    classpath.add(jarWith[scala.xml.Node])
 
 //    val vmParameters = parameters.getVMParametersList
 //    vmParameters.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
@@ -62,21 +66,35 @@ class SbtExternalSystemManager
 
 object SbtExternalSystemManager {
   def executionSettingsFor(project: Project, path: String) = {
-    val app = SbtApplicationSettings.instance
+    val appSettings = SbtApplicationSettings.instance
 
-    val ideaSystem = PathManager.getSystemPath.toFile
+    val customLauncher = appSettings.customLauncherEnabled
+      .option(appSettings.getCustomLauncherPath).map(_.toFile)
 
-    val customLauncher = app.customLauncherEnabled
-      .option(app.getCustomLauncherPath).map(_.toFile)
-
-    val vmOptions = Seq(s"-Xmx${app.getMaximumHeapSize}M") ++
-      app.getVmParameters.split("\\s+").toSeq ++
+    val vmOptions = Seq(s"-Xmx${appSettings.getMaximumHeapSize}M") ++
+      appSettings.getVmParameters.split("\\s+").toSeq ++
       proxyOptionsFor(HttpConfigurable.getInstance)
 
-    val customVm = app.customVMEnabled
-      .option(app.getCustomVMPath).map(_.toFile)
+    val customVmExecutable = appSettings.customVMEnabled.option(appSettings.getCustomVMPath).map(_.toFile)
 
-    new SbtExecutionSettings(ideaSystem, vmOptions, customLauncher, customVm)
+    val settings = SbtSettings.getInstance(project)
+
+    val projectSettings = settings.getLinkedProjectSettings(path)
+
+    val vmExecutable = customVmExecutable.orElse {
+      val projectSdk = projectSettings.jdkName.flatMap(name => Option(ProjectJdkTable.getInstance().findJdk(name)))
+              .orElse(Option(ProjectRootManager.getInstance(project).getProjectSdk))
+
+      projectSdk.map { sdk =>
+        val sdkType = sdk.getSdkType.asInstanceOf[JavaSdkType]
+        new File(sdkType.getVMExecutablePath(sdk))
+      }
+    } getOrElse {
+      throw new ExternalSystemException("Cannot determine Java VM executable in selected JDK")
+    }
+
+    new SbtExecutionSettings(vmExecutable, vmOptions, customLauncher, projectSettings.jdkName,
+      projectSettings.resolveClassifiers, projectSettings.resolveSbtClassifiers)
   }
 
   private def proxyOptionsFor(http: HttpConfigurable): Seq[String] = {

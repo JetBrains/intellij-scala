@@ -86,7 +86,7 @@ object WorksheetSourceProcessor {
     
     val startText = ""
     
-    val classRes = new StringBuilder(s"class $classPrologue { \n")
+    val classRes = new StringBuilder(s"final class $classPrologue { \n")
     val objectRes = new StringBuilder(s"def main($runPrinterName: Any) { \n val $instanceName = new $name \n")
     
     var resCount = 0
@@ -255,7 +255,12 @@ object WorksheetSourceProcessor {
 
     insertUntouched(preDeclarations)
 
-    root.getChildren foreach {
+    val rootChildren = root match {
+      case file: PsiFile => file.getChildren
+      case other => other.getNode.getChildren(null) map (_.getPsi)
+    }
+
+    rootChildren foreach {
       case tpe: ScTypeAlias =>
         withPrecomputeLines(tpe, {
           objectRes append withPrint(s"defined type alias ${tpe.name}")

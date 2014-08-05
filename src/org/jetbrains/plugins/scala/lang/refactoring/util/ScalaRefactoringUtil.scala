@@ -3,49 +3,48 @@ package lang
 package refactoring
 package util
 
-import _root_.com.intellij.codeInsight.unwrap.ScopeHighlighter
-import _root_.com.intellij.openapi.ui.popup.{LightweightWindowEvent, JBPopupAdapter, JBPopupFactory}
-import _root_.javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import _root_.java.awt.Component
+import _root_.javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import _root_.javax.swing.{DefaultListModel, JList}
-import com.intellij.openapi.editor.markup.{HighlighterTargetArea, HighlighterLayer, TextAttributes, RangeHighlighter}
-import com.intellij.codeInsight.highlighting.HighlightManager
-import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColors}
-
-import com.intellij.openapi.util.TextRange
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScCaseClause, ScLiteralPattern, ScReferencePattern}
-import psi.types.result.TypingContext
-import psi.api.expr._
-import psi.impl.ScalaPsiElementFactory
-import com.intellij.codeInsight.PsiEquivalenceUtil
-import psi.api.statements.params.ScClassParameter
-import scala.collection.mutable.ArrayBuffer
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.openapi.vfs.ReadonlyStatusHandler
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.util.ScalaUtils
-import psi.types._
-import psi.api.statements.{ScVariableDefinition, ScPatternDefinition, ScFunctionDefinition, ScFunction}
-import lang.resolve.ScalaResolveResult
-import psi.api.expr.xml.ScXmlExpr
-import psi.{ScalaPsiUtil, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
-import com.intellij.openapi.editor.{RangeMarker, VisualPosition, Editor}
-import com.intellij.openapi.actionSystem.DataContext
-import psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
-import psi.api.toplevel.ScEarlyDefinitions
-import extensions._
-import psi.types.ScDesignatorType
-import psi.types.ScFunctionType
-import psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScClass}
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.refactoring.util.CommonRefactoringUtil
-import com.intellij.refactoring.HelpID
 import java.util
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
-import scala.annotation.tailrec
+
+import _root_.com.intellij.codeInsight.unwrap.ScopeHighlighter
+import _root_.com.intellij.openapi.ui.popup.{JBPopupAdapter, JBPopupFactory, LightweightWindowEvent}
+import com.intellij.codeInsight.PsiEquivalenceUtil
+import com.intellij.codeInsight.highlighting.HighlightManager
+import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
+import com.intellij.openapi.editor.markup.{HighlighterLayer, HighlighterTargetArea, RangeHighlighter, TextAttributes}
+import com.intellij.openapi.editor.{Editor, RangeMarker, VisualPosition}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.vfs.ReadonlyStatusHandler
+import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.refactoring.HelpID
+import com.intellij.refactoring.util.CommonRefactoringUtil
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScLiteralPattern, ScPattern, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.util.ScalaUtils
+
+import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 
 
 /**
@@ -138,7 +137,7 @@ object ScalaRefactoringUtil {
                     expression.getParent match {
                       case inf: ScInfixExpr =>
                         val op2 = inf.operation
-                        import parser.util.ParserUtils.priority
+                        import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.priority
                         if (priority(op1.getText) == priority(op2.getText)) {
                           res = Some((expression.copy.asInstanceOf[ScExpression], typez))
                         }
@@ -358,7 +357,8 @@ object ScalaRefactoringUtil {
         if (f.isYield) builder.append("yield ")
         builder.append("{...}")
       case f: ScFunctionExpr =>
-        builder.append(f.params.getText).append(" => {...}")
+        val arrow = ScalaPsiUtil.functionArrow(f.getProject)
+        builder.append(f.params.getText).append(s" $arrow {...}")
       case g: ScGenericCall =>
         builder.append(getShortText(g.referencedExpr))
         builder.append("[...]")
@@ -701,8 +701,7 @@ object ScalaRefactoringUtil {
       case tb: ScTryBlock if !tb.hasRBrace => true
       case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions | _: ScalaFile | _: ScCaseClause => false
       case _: ScFunction => true
-      case memb: ScMember if memb.getParent.isInstanceOf[ScTemplateBody] => true
-      case memb: ScMember if memb.getParent.isInstanceOf[ScEarlyDefinitions] => true
+      case Both(fun: ScFunction, _ childOf (_: ScTemplateBody | _: ScEarlyDefinitions)) => true
       case ifSt: ScIfStmt if Seq(ifSt.thenBranch, ifSt.elseBranch) contains Option(parExpr) => true
       case forSt: ScForStatement if forSt.body.getOrElse(null) == parExpr => true
       case forSt: ScForStatement => false

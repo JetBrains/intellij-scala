@@ -7,7 +7,9 @@ import com.intellij.openapi.externalSystem.model.settings.ExternalSystemExecutio
 /**
  * @author Pavel Fatin
  */
-class SbtExecutionSettings(val ideaSystem: File,
+class SbtExecutionSettings(val vmExecutable: File,
                            val vmOptions: Seq[String],
                            val customLauncher: Option[File],
-                           val customVm: Option[File]) extends ExternalSystemExecutionSettings
+                           val jdk: Option[String],
+                           val resolveClassifiers: Boolean,
+                           val resolveSbtClassifiers: Boolean) extends ExternalSystemExecutionSettings

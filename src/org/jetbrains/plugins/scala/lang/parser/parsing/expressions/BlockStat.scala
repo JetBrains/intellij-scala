@@ -4,15 +4,12 @@ package parser
 package parsing
 package expressions
 
-import base.Import
-import com.intellij.lang.PsiBuilder
-import com.intellij.psi.tree.TokenSet
-import lexer.ScalaTokenTypes
-import top.TmplDef
-import com.intellij.lang.PsiBuilder.Marker
-import statements.{EmptyDcl, Dcl, Def}
-import builder.ScalaPsiBuilder
-import parser.util.ParserPatcher
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{Dcl, Def, EmptyDcl}
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
+import org.jetbrains.plugins.scala.lang.parser.util.ParserPatcher
 
 /**
 * @author Alexander Podkhalyuzin
@@ -33,16 +30,14 @@ object BlockStat {
     val patcher = ParserPatcher.getSuitablePatcher(builder)
     
     tokenType match {
-      case ScalaTokenTypes.kIMPORT => {
+      case ScalaTokenTypes.kIMPORT =>
         Import parse builder
         return true
-      }
-      case ScalaTokenTypes.tSEMICOLON => {
+      case ScalaTokenTypes.tSEMICOLON =>
         builder.advanceLexer()
         return true
-      }
-      case ScalaTokenTypes.kDEF | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR | ScalaTokenTypes.kTYPE => {
-        if (!Def.parse(builder, false, true)) {
+      case ScalaTokenTypes.kDEF | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR | ScalaTokenTypes.kTYPE =>
+        if (!Def.parse(builder, isMod = false, isImplicit = true)) {
           if (Dcl.parse(builder)) {
             builder error ErrMsg("wrong.declaration.in.block")
             return true
@@ -52,14 +47,12 @@ object BlockStat {
             return true
           }
         }
-      }
-      case ScalaTokenTypes.kCLASS | ScalaTokenTypes.kTRAIT | ScalaTokenTypes.kOBJECT => {
+      case ScalaTokenTypes.kCLASS | ScalaTokenTypes.kTRAIT | ScalaTokenTypes.kOBJECT =>
         return TmplDef.parse(builder)
-      }
       case _ if patcher.parse(builder) => parse(builder)
-      case _ => {
+      case _ =>
         if (!Expr1.parse(builder)) {
-          if (!Def.parse(builder, false, true)) {
+          if (!Def.parse(builder, isMod = false, isImplicit = true)) {
             if (!TmplDef.parse(builder)) {
               if (Dcl.parse(builder)) {
                 builder error ErrMsg("wrong.declaration.in.block")
@@ -75,7 +68,6 @@ object BlockStat {
             }
           }
         }
-      }
     }
     true
   }

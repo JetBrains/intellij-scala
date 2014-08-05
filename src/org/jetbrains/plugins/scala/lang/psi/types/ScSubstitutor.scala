@@ -155,7 +155,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
       case ScTypePolymorphicType(internalType, typeParameters) =>
         ScTypePolymorphicType(substInternal(internalType), typeParameters.map(tp => {
           TypeParameter(tp.name, tp.typeParams /* todo: is it important here to update? */,
-            substInternal(tp.lowerType), substInternal(tp.upperType), tp.ptp)
+            () => substInternal(tp.lowerType()), () => substInternal(tp.upperType()), tp.ptp)
         }))
       case ScThisType(clazz) =>
         def hasRecursiveThisType(tp: ScType): Boolean = {
@@ -205,6 +205,15 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
                     }
                   }
                 case Some((cl: PsiClass, subst)) =>
+                  typez match {
+                    case t: ScTypeParameterType => return update(t.upper.v)
+                    case p@ScParameterizedType(des, typeArgs) =>
+                      p.designator match {
+                        case ScTypeParameterType(_, _, _, upper, _) => return update(p.substitutor.subst(upper.v))
+                        case _ =>
+                      }
+                    case _ =>
+                  }
                   if (cl == clazz) tp
                   else if (ScalaPsiUtil.cachedDeepIsInheritor(cl, clazz)) tp
                   else null
@@ -351,8 +360,8 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
         substCopy.myDependentMethodTypesFunDefined = myDependentMethodTypesFunDefined
         substCopy.myDependentMethodTypes = myDependentMethodTypes
         def substTypeParam(tp: TypeParameter): TypeParameter = {
-          new TypeParameter(tp.name, tp.typeParams.map(substTypeParam), substInternal(tp.lowerType),
-            substInternal(tp.upperType), tp.ptp)
+          new TypeParameter(tp.name, tp.typeParams.map(substTypeParam), () => substInternal(tp.lowerType()),
+            () => substInternal(tp.upperType()), tp.ptp)
         }
         ScCompoundType(comps.map(substInternal), signatureMap.map {
           case (s: Signature, tp: ScType) =>

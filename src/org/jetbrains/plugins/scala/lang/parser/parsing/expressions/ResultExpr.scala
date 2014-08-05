@@ -25,18 +25,16 @@ object ResultExpr {
     val backupMarker = builder.mark
 
     def parseFunctionEnd() = builder.getTokenType match {
-      case ScalaTokenTypes.tFUNTYPE => {
+      case ScalaTokenTypes.tFUNTYPE =>
         builder.advanceLexer() //Ate =>
-        Block parse (builder, false, true)
+        Block parse (builder, hasBrace = false, needNode = true)
         backupMarker.drop()
         resultMarker.done(ScalaElementTypes.FUNCTION_EXPR)
         true
-      }
-      case _ => {
+      case _ =>
         resultMarker.drop()
         backupMarker.rollbackTo()
         false
-      }
     }
 
     def parseFunction(paramsMarker: PsiBuilder.Marker): Boolean = {
@@ -49,26 +47,23 @@ object ResultExpr {
         pt.done(ScalaElementTypes.PARAM_TYPE)
       }
       builder.getTokenType match {
-        case ScalaTokenTypes.tFUNTYPE => {
+        case ScalaTokenTypes.tFUNTYPE =>
           val psm = paramsMarker.precede // 'parameter list'
           paramMarker.done(ScalaElementTypes.PARAM)
           paramsMarker.done(ScalaElementTypes.PARAM_CLAUSE)
           psm.done(ScalaElementTypes.PARAM_CLAUSES)
 
           return parseFunctionEnd()
-        }
-        case _ => {
+        case _ =>
           builder error ErrMsg("fun.sign.expected")
-        }
       }
       parseFunctionEnd()
     }
 
     builder.getTokenType match {
-      case ScalaTokenTypes.tLPARENTHESIS => {
+      case ScalaTokenTypes.tLPARENTHESIS =>
         Bindings parse builder
         return parseFunctionEnd()
-      }
       case ScalaTokenTypes.kIMPLICIT =>
         val pmarker = builder.mark()
         builder.advanceLexer() //ate implicit
@@ -80,13 +75,11 @@ object ResultExpr {
             backupMarker.rollbackTo()
             return false
         }
-      case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER => {
+      case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
         val pmarker = builder.mark
         return parseFunction(pmarker)
-      }
-      case _ => {
+      case _ =>
         backupMarker.drop()
-      }
     }
     resultMarker.drop()
     false

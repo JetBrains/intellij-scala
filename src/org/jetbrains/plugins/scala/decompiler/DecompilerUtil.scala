@@ -8,9 +8,8 @@ import com.intellij.openapi.project.ex.ProjectManagerEx
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.{VirtualFileWithId, CharsetToolkit, VirtualFile}
 import java.io._
-import _root_.scala.tools.scalap.scalax.rules.scalasig._
-import java.lang.String
-import _root_.scala.tools.scalap.scalax.rules.scalasig.ClassFileParser.{ConstValueIndex, Annotation}
+import scala.tools.scalap.scalax.rules.scalasig._
+import scala.tools.scalap.scalax.rules.scalasig.ClassFileParser.{ArrayValue, ConstValueIndex, Annotation}
 import scala.reflect.internal.pickling.ByteCodecs
 import CharsetToolkit.UTF8
 import com.intellij.openapi.project.{Project, ProjectManager}
@@ -100,29 +99,37 @@ object DecompilerUtil {
   private val SOURCE_FILE = "SourceFile"
   private val SCALA_SIG = "ScalaSig"
   private val SCALA_SIG_ANNOTATION = "Lscala/reflect/ScalaSignature;"
+  private val SCALA_LONG_SIG_ANNOTATION = "Lscala/reflect/ScalaLongSignature;"
   private val BYTES_VALUE = "bytes"
   private def decompileInner(file: VirtualFile, bytes: Array[Byte]): DecompilationResult = {
     try {
       val byteCode = ByteCode(bytes)
       val isPackageObject = file.getName == "package.class"
       val classFile = ClassFileParser.parse(byteCode)
-      val scalaSig = classFile.attribute(SCALA_SIG).map(_.byteCode).map(ScalaSigAttributeParsers.parse).
-        getOrElse(null) match {
+      val scalaSig = classFile.attribute(SCALA_SIG).map(_.byteCode).map(ScalaSigAttributeParsers.parse) match {
         // No entries in ScalaSig attribute implies that the signature is stored in the annotation
-        case ScalaSig(_, _, entries) if entries.length == 0 =>
+        case Some(ScalaSig(_, _, entries)) if entries.length == 0 =>
           import classFile._
-          classFile.annotation(SCALA_SIG_ANNOTATION) match {
+          val annotation = classFile.annotation(SCALA_SIG_ANNOTATION)
+                  .orElse(classFile.annotation(SCALA_LONG_SIG_ANNOTATION))
+          annotation match {
             case None => null
             case Some(Annotation(_, elements)) =>
               val bytesElem = elements.find(elem => constant(elem.elementNameIndex) == BYTES_VALUE).get
-              val bytes = ((bytesElem.elementValue match {
-                case ConstValueIndex(index) => constantWrapped(index)
-              }).asInstanceOf[StringBytesPair].bytes)
+
+              val parts = (bytesElem.elementValue match {
+                case ConstValueIndex(index) => Seq(constantWrapped(index))
+                case ArrayValue(seq) => seq.collect {case ConstValueIndex(index) => constantWrapped(index)}
+              }).collect {case x: StringBytesPair => x.bytes}
+
+              val bytes = parts.reduceLeft(Array.concat(_, _))
+
               val length = ByteCodecs.decode(bytes)
               val scalaSig = ScalaSigAttributeParsers.parse(ByteCode(bytes.take(length)))
               scalaSig
           }
-        case other => other
+        case Some(other) => other
+        case None => null
       }
       if (scalaSig == null) return DecompilationResult(false, "", "", file.getTimeStamp)
       val sourceText = {

@@ -8,14 +8,14 @@ import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.plugins.scala.Console;
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
-import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -64,12 +64,12 @@ public class IntroduceVariableValidatorTest extends ActionTestBase {
     try {
 
       String varName = "value";
-      final ScType varType = null;
 
       ScalaVariableValidator validator = IntroduceVariableTestUtil.getValidator(getProject(), myEditor,
           (ScalaFile) myFile, startOffset, endOffset);
-      String[] res = validator.isOKImpl(varName, replaceAllOccurences);
-      for (String s: res) result += s + "\n";
+      Set<String> set = new HashSet<String>();
+      set.addAll(validator.isOKImpl(varName, replaceAllOccurences).values());
+      for (String s: set) result += s + "\n";
     } finally {
       fileEditorManager.closeFile(myFile.getVirtualFile());
       myEditor = null;

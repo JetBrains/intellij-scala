@@ -247,8 +247,9 @@ object OperationOnCollectionsUtil {
           case obj: ScObject =>
             nameFitToPatterns(obj.qualifiedName, patterns)
           case member: ScMember =>
-            val className = member.containingClass.qualifiedName
-            nameFitToPatterns(className, patterns)
+            val clazz = member.containingClass
+            if (clazz == null) false
+            else nameFitToPatterns(clazz.qualifiedName, patterns)
           case _ => false
         }
       case _ => false

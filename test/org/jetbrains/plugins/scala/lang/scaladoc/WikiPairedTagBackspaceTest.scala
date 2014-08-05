@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.scaladoc
 
-import base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 /**
  * User: Dmitry Naydanov
@@ -9,7 +9,6 @@ import base.ScalaLightCodeInsightFixtureTestAdapter
  */
 
 class WikiPairedTagBackspaceTest extends ScalaLightCodeInsightFixtureTestAdapter {
-  import ScalaLightCodeInsightFixtureTestAdapter.CARET_MARKER
   
   def testDeleteUnderlinedTag() {
     checkGeneratedTextAfterBackspace("/** __" + CARET_MARKER + "blah blah__ */", "/** _blah blah */")
@@ -29,6 +28,21 @@ class WikiPairedTagBackspaceTest extends ScalaLightCodeInsightFixtureTestAdapter
 
   def testDeleteSubscriptTag() {
     checkGeneratedTextAfterBackspace("/** ,," + CARET_MARKER + "blah blah,, */", "/** ,blah blah */")
+  }
+
+  def testScl6717() {
+    checkGeneratedTextAfterBackspace(
+      s"""
+         | /**
+         |  * a =$CARET_MARKER b
+         |  */
+       """.stripMargin,
+      s"""
+         | /**
+         |  * a $CARET_MARKER b
+         |  */
+       """.stripMargin
+    )
   }
 
   def testDeleteInnerCodeTag() {

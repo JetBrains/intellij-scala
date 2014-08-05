@@ -1,25 +1,26 @@
 package org.jetbrains.plugins.scala
 package worksheet.actions
 
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.components.{ServiceManager, ProjectComponent}
-import com.intellij.openapi.fileEditor._
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.editor.ex.EditorEx
-import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
-import com.intellij.psi.{PsiManager, PsiDocumentManager}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetFoldGroup, WorksheetEditorPrinter}
-import org.jetbrains.plugins.scala.extensions
-import javax.swing.{JCheckBox, JPanel}
 import java.awt.FlowLayout
-import com.intellij.openapi.application.{ModalityState, ApplicationManager}
-import org.jetbrains.plugins.scala.components.{WorksheetProcess, StopWorksheetAction}
-import java.util
 import java.lang.ref.WeakReference
-import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
+import java.util
 import javax.swing.event.{ChangeEvent, ChangeListener}
+import javax.swing.{JCheckBox, JPanel}
+
+import com.intellij.openapi.application.{ApplicationManager, ModalityState}
+import com.intellij.openapi.components.{ProjectComponent, ServiceManager}
+import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.fileEditor._
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.{PsiDocumentManager, PsiManager}
+import org.jetbrains.plugins.scala.components.{StopWorksheetAction, WorksheetProcess}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
+import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinter, WorksheetFoldGroup}
 
 /**
  * User: Dmitry Naydanov
@@ -67,14 +68,8 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
 
 
       extensions.inReadAction {
-        val makeProjectCb: JCheckBox = new JCheckBox("Make project",
-          WorksheetCompiler.isMakeBeforeRun(PsiManager getInstance project findFile file))
-        makeProjectCb.addChangeListener(new ChangeListener {
-          override def stateChanged(e: ChangeEvent) {
-            WorksheetCompiler.setMakeBeforeRun(PsiManager getInstance project findFile file, makeProjectCb.isSelected)
-          }
-        })
-        panel.add(makeProjectCb)
+        panel add createMakeProjectChb(file)
+        panel add createAutorunChb(file)
 
         new CopyWorksheetAction().init(panel)
         new CleanWorksheetAction().init(panel)
@@ -91,6 +86,33 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
 
   def enableRun(file: VirtualFile) {
     cleanAndAdd(file, Some(new RunWorksheetAction))
+  }
+
+  private def createMakeProjectChb(file: VirtualFile) = {
+    val makeProjectCb: JCheckBox = new JCheckBox("Make project",
+      WorksheetCompiler.isMakeBeforeRun(PsiManager getInstance project findFile file))
+
+    makeProjectCb addChangeListener new ChangeListener {
+      override def stateChanged(e: ChangeEvent) {
+        WorksheetCompiler.setMakeBeforeRun(PsiManager getInstance project findFile file, makeProjectCb.isSelected)
+      }
+    }
+
+    makeProjectCb
+  }
+
+  private def createAutorunChb(file: VirtualFile) = {
+    val psiFile = PsiManager getInstance project findFile file
+
+    import WorksheetAutoRunner._
+    val autorunChb = new JCheckBox("Interactive Mode",
+      if (isSetEnabled(psiFile)) true else if (isSetDisabled(psiFile)) false else ScalaProjectSettings.getInstance(project).isInteractiveMode)
+    autorunChb addChangeListener new ChangeListener {
+      override def stateChanged(e: ChangeEvent) {
+        WorksheetAutoRunner.setAutorun(psiFile, autorunChb.isSelected)
+      }
+    }
+    autorunChb
   }
 
   private def cleanAndAdd(file: VirtualFile, action: Option[TopComponentAction]) {

@@ -1,14 +1,16 @@
 package org.jetbrains.plugins.scala
 package worksheet.ui
 
+import java.util
+
 import com.intellij.openapi.editor.impl.{EditorImpl, FoldingModelImpl}
 import com.intellij.openapi.editor.{Editor, FoldRegion}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.psi.PsiFile
-import java.util
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
+import org.jetbrains.plugins.scala.worksheet.processor.FileAttributeUtilCache
+
 import scala.collection.mutable
 
 /**
@@ -159,12 +161,12 @@ object WorksheetFoldGroup {
   def save(file: ScalaFile, group: WorksheetFoldGroup) {
     val virtualFile = file.getVirtualFile
     if (!virtualFile.isValid) return
-    WorksheetCompiler.writeAttribute(WORKSHEET_PERSISTENT_FOLD_KEY, file, group.serialize())
+    FileAttributeUtilCache.writeAttribute(WORKSHEET_PERSISTENT_FOLD_KEY, file, group.serialize())
   }
 
   def load(viewerEditor: Editor, originalEditor: Editor, project: Project,
            splitter: WorksheetDiffSplitters.SimpleWorksheetSplitter, file: PsiFile) {
-    val bytes = WorksheetCompiler.readAttribute(WORKSHEET_PERSISTENT_FOLD_KEY, file)
+    val bytes = FileAttributeUtilCache.readAttribute(WORKSHEET_PERSISTENT_FOLD_KEY, file)
     if (bytes == null) return
 
     lazy val group = new WorksheetFoldGroup(viewerEditor, originalEditor, project, splitter)

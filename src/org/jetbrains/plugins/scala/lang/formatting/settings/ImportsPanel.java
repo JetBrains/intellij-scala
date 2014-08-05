@@ -109,7 +109,7 @@ public class ImportsPanel extends CodeStyleAbstractPanel {
     scalaCodeStyleSettings.setAddImportMostCloseToReference(addImportStatementInCheckBox.isSelected());
     scalaCodeStyleSettings.setAddFullQualifiedImports(addFullQualifiedImportsCheckBox.isSelected());
     scalaCodeStyleSettings.setSortImports(sortImportsCheckBox.isSelected());
-    scalaCodeStyleSettings.setCollectImport(collectImportsWithTheCheckBox.isSelected());
+    scalaCodeStyleSettings.setCollectImports(collectImportsWithTheCheckBox.isSelected());
     scalaCodeStyleSettings.setClassCountToUseImportOnDemand((Integer) classCountSpinner.getValue());
     scalaCodeStyleSettings.setImportMembersUsingUnderScore(importMembersUsingUnderscoreCheckBox.isSelected());
     scalaCodeStyleSettings.setImportShortestPathForAmbiguousReferences(importTheShortestPathCheckBox.isSelected());

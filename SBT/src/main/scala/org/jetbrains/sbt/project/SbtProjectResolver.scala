@@ -23,35 +23,51 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       if (file.isDirectory) file.getPath else file.getParent
     }
 
-    val runner = new SbtRunner(settings.ideaSystem, settings.vmOptions, settings.customLauncher, settings.customVm)
+    val runner = new SbtRunner(settings.vmOptions, settings.customLauncher, settings.vmExecutable)
 
-    val xml = runner.read(new File(root), !isPreview) { message =>
+    var warnings = new StringBuilder()
+
+    val xml = runner.read(new File(root), !isPreview, settings.resolveClassifiers, settings.resolveSbtClassifiers) { message =>
+      if (message.startsWith("[error] ") || message.startsWith("[warn] ")) {
+        warnings ++= message
+      }
+
       listener.onStatusChange(new ExternalSystemTaskNotificationEvent(id, message.trim))
     } match {
       case Left(errors) => throw new ExternalSystemException(errors)
       case Right(node) => node
     }
 
+    if (warnings.nonEmpty) {
+      listener.onTaskOutput(id, WarningMessage(warnings.toString), false)
+    }
+
     val data = StructureParser.parse(xml, new File(System.getProperty("user.home")))
 
-    // TODO Show warnings about excluded roots when IDEA-123007 will be implemented
-    // in the External System (UI interaction API for external system project resolver).
-    //val externalSourceRoots = data.projects.map(externalSourceRootsIn)
+    val externalSourceRoots = data.projects.flatMap(externalSourceRootsIn)
 
-    convert(root, data).toDataNode
+    if (externalSourceRoots.nonEmpty) {
+      val warning = externalSourceRoots.map(file => s"<li>${file.getPath}</li>").mkString(
+        "The following source roots are outside of the corresponding base directories:\n<ul>", "\n",
+        "\n</ul>\nThese source roots cannot be included in the IDEA project model." +
+                "<br>Please consider using shared SBT projects instead of shared source roots.")
+
+      listener.onTaskOutput(id, WarningMessage(warning), false)
+    }
+
+    convert(root, data, settings.jdk).toDataNode
   }
 
-  private def convert(root: String, data: Structure): Node[ProjectData] = {
+  private def convert(root: String, data: Structure, jdk: Option[String]): Node[ProjectData] = {
     val projects = data.projects
 
     val project = data.projects.headOption.getOrElse(throw new RuntimeException("No root project found"))
 
     val projectNode = new ProjectNode(project.name, root, root)
 
-    val javaHome = project.java.flatMap(_.home).getOrElse(new File(System.getProperty("java.home")))
     val javacOptions = project.java.map(_.options).getOrElse(Seq.empty)
 
-    projectNode.add(new ScalaProjectNode(javaHome, javacOptions))
+    projectNode.add(new ScalaProjectNode(jdk, javacOptions))
 
     val libraries = {
       val repositoryModules = data.repository.map(_.modules).getOrElse(Seq.empty)
@@ -250,7 +266,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             .map(selector)
             .getOrElse(Seq.empty)
             .map(_.file)
-            .filter(_.isUnder(project.base))
+            .filter(!_.isOutsideOf(project.base))
             .map(_.path)
   }
 

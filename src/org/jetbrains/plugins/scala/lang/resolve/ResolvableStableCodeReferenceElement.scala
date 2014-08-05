@@ -2,27 +2,27 @@ package org.jetbrains.plugins.scala
 package lang
 package resolve
 
-import processor.BaseProcessor
-import psi.api.base._
-import psi.api.expr._
-import psi.api.toplevel.ScTypedDefinition
-import psi.api.toplevel.templates.{ScTemplateBody, ScExtendsBlock}
-import psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition, ScClass}
-import psi.api.toplevel.packaging.ScPackaging
-import psi.{ScImportsHolder, ScalaPsiUtil}
-import psi.types._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
-import com.intellij.psi._
-import com.intellij.psi.PsiElement
-import result.{Success, TypingContext}
 import com.intellij.openapi.progress.ProgressManager
-import util.{PsiModificationTracker, PsiTreeUtil}
-import caches.CachesUtil
-import psi.api.{ScPackage, ScalaFile}
-import psi.impl.ScalaPsiManager
-import scaladoc.psi.api.ScDocResolvableCodeReference
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
-import psi.api.base.types.ScTypeElement
+import com.intellij.psi._
+import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil}
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.resolve.processor.{ExtractorResolveProcessor, BaseProcessor}
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
   private object Resolver extends StableCodeReferenceElementResolver(this, false, false, false)
@@ -58,6 +58,21 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
       case ScalaResolveResult(typed: ScTypedDefinition, s) =>
         val fromType = s.subst(typed.getType(TypingContext.empty).getOrElse(return))
         processor.processType(fromType, this, ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, fromType))
+        processor match {
+          case p: ExtractorResolveProcessor =>
+            if (processor.candidatesS.isEmpty) {
+              //check implicit conversions
+              val expr =
+                ScalaPsiElementFactory.createExpressionWithContextFromText(ref.getText, ref.getContext, ref)
+              //todo: this is really hacky solution... Probably can be joint somehow with interpolated pattern.
+              expr match {
+                case ref: ResolvableReferenceExpression =>
+                  ref.doResolve(ref, processor, accessibilityCheck = true)
+                case _ =>
+              }
+            }
+          case _ => //do nothing
+        }
       case ScalaResolveResult(field: PsiField, s) =>
         processor.processType(s.subst(ScType.create(field.getType, getProject, getResolveScope)), this)
       case ScalaResolveResult(clazz: PsiClass, s) =>
@@ -98,8 +113,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
         x = true
         //todo: improve checking for this and super
         val refText: String = ref.getText
-        if (refText.contains("this") || refText.contains("super") || !refText.contains(".")) {} //do nothing
-        else {
+        if (!refText.contains("this") && !refText.contains("super") && refText.contains(".")) {
           //so this is full qualified reference => findClass, or findPackage
           val facade = JavaPsiFacade.getInstance(getProject)
           val manager = ScalaPsiManager.instance(getProject)
@@ -110,9 +124,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
           val candidates = processor.candidatesS
           val filtered = candidates.filter(candidatesFilter)
 
-          if (!filtered.isEmpty) {
-            return filtered.toArray
-          }
+          if (filtered.nonEmpty) return filtered.toArray
         }
       case _ =>
     }
@@ -148,6 +160,14 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
           }
         }
         treeWalkUp(ref, null)
+      case Some(p: ScInterpolationPattern) =>
+        val expr =
+          ScalaPsiElementFactory.createExpressionWithContextFromText(s"""_root_.scala.StringContext("").$refName""", p, ref)
+        expr match {
+          case ref: ResolvableReferenceExpression =>
+            ref.doResolve(ref, processor, accessibilityCheck = true)
+          case _ =>
+        }
       case Some(q: ScDocResolvableCodeReference) =>
         q.multiResolve(incomplete = true).foreach(processQualifierResolveResult(_, processor, ref))
       case Some(q: ScStableCodeReferenceElement) =>
@@ -162,6 +182,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
   private def _qualifier() = {
     getContext match {
+      case p: ScInterpolationPattern => Some(p)
       case sel: ScImportSelector =>
         sel.getContext /*ScImportSelectors*/.getContext.asInstanceOf[ScImportExpr].reference
       case _ => pathQualifier

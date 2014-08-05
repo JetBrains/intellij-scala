@@ -63,7 +63,7 @@ object ScalaCompletionUtil {
   }
 
   def generateAnonymousFunctionText(braceArgs: Boolean, params: scala.Seq[ScType], canonical: Boolean,
-                                    withoutEnd: Boolean = false): String = {
+                                    withoutEnd: Boolean = false, arrowText: String = "=>"): String = {
     val text = new StringBuilder()
     if (braceArgs) text.append("case ")
     val paramNamesWithTypes = new ArrayBuffer[(String, ScType)]
@@ -95,7 +95,7 @@ object ScalaCompletionUtil {
       if (paramNamesWithTypes.size != 1 || !braceArgs) iter.mkString("(", ", ", ")")
       else iter.head
     text.append(paramsString)
-    if (!withoutEnd) text.append(" =>")
+    if (!withoutEnd) text.append(" ").append(arrowText)
     text.toString()
   }
 

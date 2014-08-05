@@ -34,9 +34,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
 
   override def toString: String = "ConstructorPattern"
 
-  def args = findChildByClass(classOf[ScPatternArgumentList])
-
-  override def subpatterns : Seq[ScPattern]= if (args != null) args.patterns else Seq.empty
+  override def subpatterns: Seq[ScPattern] = if (args != null) args.patterns else Seq.empty
 
   override def isIrrefutableFor(t: Option[ScType]): Boolean = {
     if (t == None) return false

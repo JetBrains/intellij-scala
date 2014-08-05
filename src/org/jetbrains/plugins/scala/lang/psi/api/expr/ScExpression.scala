@@ -12,17 +12,19 @@ import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
-import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitParametersCollector, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
-import org.jetbrains.plugins.scala.lang.resolve.processor.{MethodResolveProcessor, MostSpecificUtil}
+import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
 import scala.annotation.tailrec
@@ -70,24 +72,58 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
                 //if this result is ok, we do not need to think about implicits
                 case Success(tp, _) if tp.conforms(expected) => defaultResult
                 case Success(tp, _) =>
-                  //this functionality for checking if this expression can be implicitly changed and then
-                  //it will conform to expected type
-                  val convertible: ScImplicitlyConvertible = new ScImplicitlyConvertible(this)
-                  val firstPart = convertible.implicitMapFirstPart(Some(expected), fromUnderscore)
-                  var f: Seq[ImplicitResolveResult] =
-                    firstPart.filter(_.tp.conforms(expected))
-                  if (f.length == 0) {
-                    f = convertible.implicitMapSecondPart(Some(expected), fromUnderscore).filter(_.tp.conforms(expected))
-                  }
-                  if (f.length == 1) ExpressionTypeResult(Success(f(0).getTypeWithDependentSubstitutor, Some(this)), f(0).importUsed, Some(f(0).element))
-                  else if (f.length == 0) defaultResult
-                  else {
-                    MostSpecificUtil(this, 1).mostSpecificForImplicit(f.toSet) match {
-                      case Some(res) =>
-                        ExpressionTypeResult(Success(res.getTypeWithDependentSubstitutor, Some(this)), res.importUsed, Some(res.element))
-                      case None => defaultResult
+                  val functionType = ScFunctionType(expected, Seq(tp))(getProject, getResolveScope)
+                  val results = new ImplicitParametersCollector(this, functionType, None).collect
+                  if (results.length == 1) {
+                    val res = results(0)
+                    val paramType = res match {
+                      case r: ScalaResolveResult if r.implicitParameterType.isDefined =>
+                        r.implicitParameterType.get
+                      case ScalaResolveResult(o: ScObject, subst) =>
+                        subst.subst(o.getType(TypingContext.empty).get)
+                      case ScalaResolveResult(param: ScParameter, subst) =>
+                        subst.subst(param.getType(TypingContext.empty).get)
+                      case ScalaResolveResult(patt: ScBindingPattern, subst) =>
+                        subst.subst(patt.getType(TypingContext.empty).get)
+                      case ScalaResolveResult(fun: ScFunction, subst) =>
+                        val funType = {
+                          if (fun.parameters.length == 0 || fun.paramClauses.clauses.apply(0).isImplicit) {
+                            subst.subst(fun.getType(TypingContext.empty).get) match {
+                              case ScFunctionType(ret, _) => ret
+                              case other => other
+                            }
+                          }
+                          else subst.subst(fun.getType(TypingContext.empty).get)
+                        }
+                        funType
                     }
-                  }
+                    paramType match {
+                      case ScFunctionType(rt, Seq(param)) =>
+                        ExpressionTypeResult(Success(rt, Some(this)), res.importsUsed, Some(res.getElement))
+                      case _ =>
+                        ScalaPsiManager.instance(getProject).getCachedClass(
+                          "scala.Function1", getResolveScope, ScalaPsiManager.ClassCategory.TYPE
+                        ) match {
+                          case function1: ScTrait =>
+                            ScParameterizedType(ScType.designator(function1), function1.typeParameters.map(tp =>
+                              new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1))) match {
+                              case funTp: ScParameterizedType =>
+                                val secondArg = funTp.typeArgs(1)
+                                Conformance.undefinedSubst(funTp, paramType).getSubstitutor match {
+                                  case Some(subst) =>
+                                    val rt = subst.subst(secondArg)
+                                    if (rt.isInstanceOf[ScUndefinedType]) defaultResult
+                                    else {
+                                      ExpressionTypeResult(Success(rt, Some(this)), res.importsUsed, Some(res.getElement))
+                                    }
+                                  case None => defaultResult
+                                }
+                              case _ => defaultResult
+                            }
+                          case _ => defaultResult
+                        }
+                    }
+                  } else defaultResult
                 case _ => defaultResult
               }
             }
@@ -128,7 +164,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
               if (checkImplicitParameters) {
                 val tuple = InferUtil.updateTypeWithImplicitParameters(res, this, None, checkExpectedType)
                 res = tuple._1
-                implicitParameters = tuple._2
+                if (fromUnderscore) implicitParametersFromUnder = tuple._2
+                else implicitParameters = tuple._2
               }
             }
 
@@ -309,6 +346,9 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
   @volatile
   protected var implicitParameters: Option[Seq[ScalaResolveResult]] = None
 
+  @volatile
+  protected var implicitParametersFromUnder: Option[Seq[ScalaResolveResult]] = None
+
   /**
    * Warning! There is a hack in scala compiler for ClassManifest and ClassTag.
    * In case of implicit parameter with type ClassManifest[T]
@@ -317,8 +357,14 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
    */
   def findImplicitParameters: Option[Seq[ScalaResolveResult]] = {
     ProgressManager.checkCanceled()
-    getType(TypingContext.empty) //to update implicitParameters field
-    implicitParameters
+
+    if (ScUnderScoreSectionUtil.underscores(this).nonEmpty) {
+      getTypeWithoutImplicits(TypingContext.empty, fromUnderscore = true) //to update implicitParametersFromUnder
+      implicitParametersFromUnder
+    } else {
+      getType(TypingContext.empty) //to update implicitParameters field
+      implicitParameters
+    }
   }
 
   def getNonValueType(ctx: TypingContext = TypingContext.empty, //todo: remove?

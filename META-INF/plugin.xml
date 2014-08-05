@@ -31,4 +31,5 @@
     <xi:include href="/META-INF/scala-plugin-common.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="/META-INF/SBT.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="/META-INF/HOCON.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="/META-INF/Scalastyle.xml" xpointer="xpointer(/idea-plugin/*)"/>
 </idea-plugin>

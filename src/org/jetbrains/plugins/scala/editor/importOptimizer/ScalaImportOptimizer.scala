@@ -2,19 +2,23 @@ package org.jetbrains.plugins.scala
 package editor.importOptimizer
 
 
+import java.util
+import java.util.concurrent.atomic.AtomicInteger
+
 import com.intellij.concurrency.JobLauncher
-import com.intellij.lang.{LanguageImportStatements, ImportOptimizer}
+import com.intellij.lang.{ImportOptimizer, LanguageImportStatements}
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{EmptyRunnable, TextRange}
 import com.intellij.psi._
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
 import com.intellij.util.containers.{ConcurrentHashMap, ConcurrentHashSet}
-import java.util
-import java.util.concurrent.atomic.AtomicInteger
+import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScForStatement, ScMethodCall}
@@ -24,11 +28,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
+
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ArrayBuffer
@@ -55,19 +60,19 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val project: Project = scalaFile.getProject
     val documentManager = PsiDocumentManager.getInstance(project)
     val document: Document = documentManager.getDocument(scalaFile)
-    documentManager.commitDocument(document)
     val analyzingDocumentText = document.getText
 
     val textCreator = getImportTextCreator
 
     val usedImports = new ConcurrentHashSet[ImportUsed]
     val list: util.ArrayList[PsiElement] =  new util.ArrayList[PsiElement]()
-    scalaFile.accept(new ScalaRecursiveElementVisitor {
-      override def visitElement(element: ScalaPsiElement): Unit = {
-        list.add(element)
-        super.visitElement(element)
-      }
-    })
+    val notProcessed = new ArrayBuffer[PsiElement]()
+    def addChildren(element: PsiElement): Unit = {
+      list.add(element)
+      element.getChildren.foreach(addChildren)
+    }
+    addChildren(scalaFile)
+
     val size = list.size * 2
     val progressManager: ProgressManager = ProgressManager.getInstance()
     val indicator: ProgressIndicator =
@@ -147,8 +152,19 @@ class ScalaImportOptimizer extends ImportOptimizer {
                 rangeEnd = psi.getTextRange.getEndOffset
               }
 
-              for (child <- imp.getChildren) {
-                child match {
+              for (child <- imp.getNode.getChildren(null)) {
+                child.getPsi match {
+                  case whitespace: PsiWhiteSpace =>
+                  case d: ScDocComment => addRange()
+                  case comment: PsiComment =>
+                    val next = comment.getNextSibling
+                    val prev = comment.getPrevSibling
+                    (next, prev) match {
+                      case (w1: PsiWhiteSpace, w2: PsiWhiteSpace) if
+                        w1.getText.contains("\n") && w2.getText.contains("\n") => addRange()
+                      case _ =>
+                    }
+                  case s: LeafPsiElement =>
                   case a: PsiElement if isImportDelimiter(a) => //do nothing
                   case imp: ScImportStmt =>
                     if (rangeStart == -1) {
@@ -216,6 +232,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val sortImports = settings.isSortImports
     val collectImports = settings.isCollectImports
     val groups = settings.getImportLayout
+    val isUnicodeArrow = settings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR
 
     val sortedImportsInfo: mutable.Map[TextRange, Seq[ImportInfo]] =
       for ((range, (names, _importInfos)) <- importsInfo) yield {
@@ -261,8 +278,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
             while (i + 1 < buffer.length) {
               val l: String = buffer(i).prefixQualifier
               val r: String = buffer(i + 1).prefixQualifier
-              val lText = getImportTextCreator.getImportText(buffer(i))
-              val rText = getImportTextCreator.getImportText(buffer(i + 1))
+              val lText = getImportTextCreator.getImportText(buffer(i), isUnicodeArrow)
+              val rText = getImportTextCreator.getImportText(buffer(i + 1), isUnicodeArrow)
               if (greater(l, r, lText, rText, project) && swap(i)) changed = true
               i = i + 1
             }
@@ -366,7 +383,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
           var currentGroupIndex = -1
           val text = importInfos.map { info =>
             val index: Int = findGroupIndex(info.prefixQualifier, project)
-            if (index <= currentGroupIndex) textCreator.getImportText(info)
+            if (index <= currentGroupIndex) textCreator.getImportText(info, isUnicodeArrow)
             else {
               var blankLines = ""
               def iteration() {
@@ -378,7 +395,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
               }
               while (currentGroupIndex != -1 && blankLines.isEmpty && currentGroupIndex < index) iteration()
               currentGroupIndex = index
-              blankLines + textCreator.getImportText(info)
+              blankLines + textCreator.getImportText(info, isUnicodeArrow)
             }
           }.mkString(splitter)
           val newRange: TextRange = if (text.isEmpty) {
@@ -465,13 +482,14 @@ object ScalaImportOptimizer {
   }
 
   class ImportTextCreator {
-    def getImportText(importInfo: ImportInfo): String = {
+    def getImportText(importInfo: ImportInfo, isUnicodeArrow: Boolean): String = {
       import importInfo._
 
       val groupStrings = new ArrayBuffer[String]
       groupStrings ++= singleNames.toSeq.sorted
-      groupStrings ++= renames.map(pair => pair._1 + " => " + pair._2).toSeq.sorted
-      groupStrings ++= hidedNames.map(_ + " => _").toSeq.sorted
+      val arrow = if (isUnicodeArrow) ScalaTypedHandler.unicodeCaseArrow else "=>"
+      groupStrings ++= renames.map(pair => s"${pair._1} $arrow ${pair._2}").toSeq.sorted
+      groupStrings ++= hidedNames.map(_ + s" $arrow _").toSeq.sorted
       if (hasWildcard) groupStrings += "_"
       val postfix =
         if (groupStrings.length > 1 || renames.nonEmpty || hidedNames.nonEmpty) groupStrings.mkString("{", ", ", "}")

@@ -16,11 +16,14 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugin.scala.compiler.CompileOrder;
 import org.jetbrains.plugin.scala.compiler.IncrementalType;
+import org.jetbrains.plugin.scala.compiler.NameHashing;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.*;
@@ -44,6 +47,8 @@ public class ScalaApplicationSettingsForm implements Configurable {
   private JComboBox<IncrementalType> myIncrementalTypeCmb;
   private JComboBox<CompileOrder> myCompileOrderCmb;
   private JPanel myCompilerOptionsPanel;
+  private JComboBox<NameHashing> myNameHashingCmb;
+  private JPanel myNameHashingPnl;
   private ScalaApplicationSettings mySettings;
 
   public ScalaApplicationSettingsForm(ScalaApplicationSettings settings) {
@@ -56,6 +61,7 @@ public class ScalaApplicationSettingsForm implements Configurable {
     });
 
     initCompilerTypeCmb();
+    initNameHashingPanel();
     initCompileOrderCmb();
 
     ProjectSdksModel model = new ProjectSdksModel();
@@ -93,6 +99,28 @@ public class ScalaApplicationSettingsForm implements Configurable {
       }
     });
     myIncrementalTypeCmb.setToolTipText("Rebuild is required after change");
+  }
+
+  private void initNameHashingPanel() {
+    final List<NameHashing> values = Arrays.asList(NameHashing.values());
+    myNameHashingCmb.setModel(new ListComboBoxModel<NameHashing>(values));
+    myNameHashingCmb.setSelectedItem(mySettings.NAME_HASHING);
+    myNameHashingCmb.setRenderer(new ListCellRendererWrapper<NameHashing>() {
+      @Override
+      public void customize(JList list, NameHashing value, int index, boolean selected, boolean hasFocus) {
+        if (value == NameHashing.DEFAULT) setText("Default");
+        if (value == NameHashing.ENABLED) setText("Enabled");
+        if (value == NameHashing.DISABLED) setText("Disabled");
+      }
+    });
+    myNameHashingPnl.setToolTipText("Experimental option for faster incremental compilation");
+    myNameHashingPnl.setVisible(ScalaApplicationSettings.getInstance().INCREMENTAL_TYPE == IncrementalType.SBT);
+    myIncrementalTypeCmb.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        myNameHashingPnl.setVisible(myIncrementalTypeCmb.getSelectedItem() == IncrementalType.SBT);
+      }
+    });
   }
 
   private void initCompileOrderCmb() {
@@ -151,11 +179,13 @@ public class ScalaApplicationSettingsForm implements Configurable {
         myCompilationServerMaximumHeapSize.getText().equals(mySettings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE) &&
         myCompilationServerJvmParameters.getText().equals(mySettings.COMPILE_SERVER_JVM_PARAMETERS) &&
         myIncrementalTypeCmb.getModel().getSelectedItem().equals(mySettings.INCREMENTAL_TYPE) &&
-        myCompileOrderCmb.getModel().getSelectedItem().equals(mySettings.COMPILE_ORDER));
+        myCompileOrderCmb.getModel().getSelectedItem().equals(mySettings.COMPILE_ORDER) &&
+        myNameHashingCmb.getModel().getSelectedItem().equals(mySettings.NAME_HASHING));
   }
 
   public void apply() throws ConfigurationException {
     mySettings.INCREMENTAL_TYPE = (IncrementalType) myIncrementalTypeCmb.getModel().getSelectedItem();
+    mySettings.NAME_HASHING = (NameHashing) myNameHashingCmb.getModel().getSelectedItem();
     mySettings.COMPILE_ORDER = (CompileOrder) myCompileOrderCmb.getModel().getSelectedItem();
     mySettings.COMPILE_SERVER_ENABLED = myEnableCompileServer.isSelected();
     mySettings.COMPILE_SERVER_PORT = myCompilationServerPort.getText();

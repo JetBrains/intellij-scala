@@ -4,7 +4,7 @@ package resolve
 
 import com.intellij.psi.impl.source.resolve.ResolveCache
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScInterpolationPattern, ScConstructorPattern, ScInfixPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.resolve.processor._
@@ -29,6 +29,8 @@ class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenc
         new CollectAllForImportProcessor(kinds, ref, reference.refName)
       case e: ScImportExpr if e.singleWildcard => new ResolveProcessor(kinds, ref, reference.refName)
       case _: ScImportSelector => new CollectAllForImportProcessor(kinds, ref, reference.refName)
+      case constr: ScInterpolationPattern =>
+        new ExtractorResolveProcessor(ref, reference.refName, kinds, constr.expectedType)
       case constr: ScConstructorPattern =>
         new ExtractorResolveProcessor(ref, reference.refName, kinds, constr.expectedType)
       case infix: ScInfixPattern => new ExtractorResolveProcessor(ref, reference.refName, kinds, infix.expectedType)

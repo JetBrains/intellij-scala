@@ -4,33 +4,32 @@ package refactoring
 package introduceParameter
 
 
+import com.intellij.ide.util.SuperMethodWarningUtil
+import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.application.ApplicationManager
-import refactoring.util.ScalaRefactoringUtil.IntroduceException
-import com.intellij.refactoring.ui.ConflictsDialog
-import psi.types.ScType
-import psi.api.expr._
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.util.TextRange
-import namesSuggester.NameSuggester
-import psi.api.statements.ScFunctionDefinition
-import refactoring.util.{ScalaVariableValidator, ConflictsReporter, ScalaRefactoringUtil}
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.util.CommonRefactoringUtil
-import com.intellij.ide.util.SuperMethodWarningUtil
-import com.intellij.refactoring.{RefactoringBundle, RefactoringActionHandler}
-import collection.mutable.ArrayBuffer
-import extensions.toPsiModifierListOwnerExt
-import ScalaRefactoringUtil.showErrorMessage
-import com.intellij.internal.statistic.UsageTrigger
+import com.intellij.refactoring.{RefactoringActionHandler, RefactoringBundle}
+import org.jetbrains.plugins.scala.extensions.toPsiModifierListOwnerExt
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{IntroduceException, showErrorMessage}
+import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaRefactoringUtil, ScalaVariableValidator}
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 11.06.2009
  */
-class ScalaIntroduceParameterHandler extends RefactoringActionHandler with ConflictsReporter {
+class ScalaIntroduceParameterHandler extends RefactoringActionHandler with DialogConflictsReporter {
   val REFACTORING_NAME = ScalaBundle.message("introduce.parameter.title")
 
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
@@ -90,13 +89,6 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
   }
 
   def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext) {/*do nothing*/}
-
-  def reportConflicts(conflicts: Array[String], project: Project): Boolean = {
-    val conflictsDialog = new ConflictsDialog(project, conflicts: _*)
-    conflictsDialog.show()
-    conflictsDialog.isOK
-  }
-
 
   private def getEnclosingMethods(expr: PsiElement): Seq[ScFunctionDefinition] = {
     var enclosingMethods = new ArrayBuffer[ScFunctionDefinition]

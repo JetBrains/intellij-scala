@@ -1,25 +1,40 @@
 package org.jetbrains.plugins.scala.actions
 
-import com.intellij.openapi.actionSystem.{CommonDataKeys, AnActionEvent, AnAction}
+import java.awt.event.MouseEvent
+import java.awt.{BorderLayout, Dimension}
+import java.util
+import javax.swing.tree.{DefaultMutableTreeNode, DefaultTreeModel, TreePath}
+import javax.swing.{JPanel, JTree}
+
+import com.intellij.ide.projectView.impl.nodes.AbstractPsiBasedNode
+import com.intellij.ide.projectView.{PresentationData, ViewSettings}
+import com.intellij.ide.util.treeView.{AbstractTreeBuilder, AbstractTreeNode, AbstractTreeStructure, NodeDescriptor}
+import com.intellij.openapi.actionSystem._
+import com.intellij.openapi.command.CommandProcessor
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.colors.CodeInsightColors
+import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory}
+import com.intellij.openapi.util.{Disposer, Ref}
 import com.intellij.psi.util.PsiUtilBase
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
-import collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import javax.swing.{ListCellRenderer, JList, DefaultListModel}
-import com.intellij.openapi.ui.popup.JBPopupFactory
-import com.intellij.psi.{NavigatablePsiElement, PsiNamedElement, PsiWhiteSpace, PsiElement}
-import org.jetbrains.plugins.scala.lang.psi.presentation.ScImplicitParametersListCellRenderer
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScNewTemplateDefinition, ScExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement}
+import com.intellij.psi.{PsiElement, PsiManager, PsiNamedElement, PsiWhiteSpace}
+import com.intellij.ui.treeStructure.Tree
+import com.intellij.ui.{ClickListener, ScrollPaneFactory}
+import com.intellij.util.ArrayUtil
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import com.intellij.openapi.editor.colors.EditorFontType
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScEarlyDefinitions}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alefas
@@ -100,39 +115,7 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
       implicitParameters match {
         case None | Some(Seq()) =>
           ScalaActionUtil.showHint(editor, "No implicit parameters")
-        case Some(seq) =>
-          val defaultElement = ScalaPsiElementFactory.createParameterFromText("NotFoundParameter: Int", expr.getManager)
-          val model: DefaultListModel[PsiNamedElement] = new DefaultListModel
-          for (element <- seq) {
-            if (element != null)
-              model.addElement(element.getElement)
-            else 
-              model.addElement(defaultElement)
-          }
-          val list: JList[PsiNamedElement] = new JList(model)
-          val renderer = new ScImplicitParametersListCellRenderer
-          val font = editor.getColorsScheme.getFont(EditorFontType.PLAIN)
-          renderer.setFont(font)
-          list.setFont(font)
-          list.setCellRenderer(renderer.asInstanceOf[ListCellRenderer[_ >: PsiNamedElement]])
-
-          val builder = JBPopupFactory.getInstance.createListPopupBuilder(list)
-          builder.setTitle("Actual implicit parameters:").
-            setMovable(false).setResizable(false).setRequestFocus(true).
-            setItemChoosenCallback(new Runnable {
-            def run() {
-              val method = list.getSelectedValue.asInstanceOf[PsiNamedElement]
-              method match {
-                case f: ScFunction =>
-                  f.getSyntheticNavigationElement match {
-                    case Some(n: NavigatablePsiElement) => n.navigate(true)
-                    case _ => f.navigate(true)
-                  }
-                case n: NavigatablePsiElement => n.navigate(true)
-                case _ => //do nothing
-              }
-            }
-          }).createPopup.showInBestPositionFor(editor)
+        case Some(seq) => showPopup(editor, seq)
       }
     }
 
@@ -197,4 +180,182 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
       }
     }
   }
+
+  private def getSelectedNode(jTree: JTree): AbstractTreeNode[_] = {
+    val path: TreePath = jTree.getSelectionPath
+    if (path != null) {
+      var component: AnyRef = path.getLastPathComponent
+      component match {
+        case node: DefaultMutableTreeNode =>
+          component = node.getUserObject
+          component match {
+            case abstractTreeNode: AbstractTreeNode[_] => return abstractTreeNode
+            case _ =>
+          }
+        case _ =>
+      }
+    }
+    null
+  }
+
+  private def navigateSelectedElement(popup: JBPopup, jTree: JTree, project: Project): Boolean = {
+    val selectedNode: AbstractTreeNode[_] = getSelectedNode(jTree)
+
+    val succeeded: Ref[Boolean] = new Ref[Boolean]
+    val commandProcessor: CommandProcessor = CommandProcessor.getInstance
+    commandProcessor.executeCommand(project, new Runnable {
+      def run(): Unit = {
+        if (selectedNode != null) {
+          if (selectedNode.canNavigateToSource) {
+            popup.cancel()
+            selectedNode.navigate(true)
+            succeeded.set(true)
+          }
+          else {
+            succeeded.set(false)
+          }
+        }
+        else {
+          succeeded.set(false)
+        }
+        IdeDocumentHistory.getInstance(project).includeCurrentCommandAsNavigation()
+      }
+    }, "Navigate", null)
+    succeeded.get
+  }
+
+  private def showPopup(editor: Editor, results: Seq[ScalaResolveResult]): Unit = {
+    val project = editor.getProject
+
+    val tree = new Tree()
+    val structure = new ImplicitParametersTreeStructure(project, results)
+    val builder = new AbstractTreeBuilder(tree, new DefaultTreeModel(new DefaultMutableTreeNode), structure, null) {
+      override def isSmartExpand: Boolean = false
+    }
+
+    val jTree = builder.getTree
+
+    jTree.setRootVisible(false)
+    val minSize = jTree.getPreferredSize
+
+    val scrollPane = ScrollPaneFactory.createScrollPane(jTree, true)
+
+    val panel = new JPanel(new BorderLayout())
+
+    panel.add(scrollPane, BorderLayout.CENTER)
+
+    val F4: Array[Shortcut] =
+      ActionManager.getInstance.getAction(IdeActions.ACTION_EDIT_SOURCE).getShortcutSet.getShortcuts
+    val ENTER: Array[Shortcut] = CustomShortcutSet.fromString("ENTER").getShortcuts
+    val shortcutSet: CustomShortcutSet = new CustomShortcutSet(ArrayUtil.mergeArrays(F4, ENTER): _*)
+
+
+    val popup: JBPopup = JBPopupFactory.getInstance().createComponentPopupBuilder(panel, jTree).
+      setRequestFocus(true).
+      setResizable(true).
+      setTitle("Implicit parameters:").
+      setMinSize(new Dimension(minSize.width + 500, minSize.height)).
+      createPopup
+
+
+    new AnAction {
+      def actionPerformed(e: AnActionEvent) {
+        val succeeded: Boolean = navigateSelectedElement(popup, jTree, project)
+        if (succeeded) {
+          unregisterCustomShortcutSet(panel)
+        }
+      }
+    }.registerCustomShortcutSet(shortcutSet, panel)
+
+    new ClickListener {
+      def onClick(e: MouseEvent, clickCount: Int): Boolean = {
+        val path: TreePath = jTree.getPathForLocation(e.getX, e.getY)
+        if (path == null) return false
+        navigateSelectedElement(popup, jTree, project)
+        true
+      }
+    }.installOn(jTree)
+
+    Disposer.register(popup, builder)
+
+    popup.showInBestPositionFor(editor)
+  }
+}
+
+class ImplicitParametersTreeStructure(project: Project,
+                                      results: Seq[ScalaResolveResult]) extends AbstractTreeStructure {
+  private val manager = PsiManager.getInstance(project)
+
+  class ImplicitParametersNode(_value: ScalaResolveResult)
+    extends {
+      val value = if (_value == null) new ScalaResolveResult(ScalaPsiElementFactory.createParameterFromText("NotFoundParameter: Int", manager)) else _value
+    } with AbstractPsiBasedNode[ScalaResolveResult](project, value, ViewSettings.DEFAULT) {
+    override def extractPsiFromValue(): PsiNamedElement = value.getElement
+
+    override def getChildrenImpl: util.Collection[AbstractTreeNode[_]] = {
+      val list = new util.ArrayList[AbstractTreeNode[_]]()
+      value.implicitParameters.foreach {
+        case result => list.add(new ImplicitParametersNode(result))
+      }
+      list
+    }
+
+    override def updateImpl(data: PresentationData): Unit = {
+      val namedElement = extractPsiFromValue()
+      if (namedElement != null) {
+        val text: String = namedElement.name
+        if (text == "NotFoundParameter") {
+          data.setPresentableText("Parameter not found")
+          data.setAttributesKey(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES)
+        } else {
+          namedElement match {
+            case s: ScNamedElement =>
+              val presentation = s.getPresentation
+              data.setLocationString(presentation.getLocationString.drop(1).dropRight(1))
+              data.setPresentableText(presentation.getPresentableText)
+            case _ => data.setPresentableText(text)
+          }
+        }
+      }
+    }
+
+    override def equals(obj: Any): Boolean = {
+      obj match {
+        case ref: AnyRef => this eq ref
+        case _ => false
+      }
+    }
+  }
+
+  private class RootNode extends AbstractTreeNode[Any](project, ()) {
+    override def getChildren: util.Collection[_ <: AbstractTreeNode[_]] = {
+      val list = new util.ArrayList[AbstractTreeNode[_]]()
+      results.foreach { result => list.add(new ImplicitParametersNode(result)) }
+      list
+    }
+
+    override def update(presentation: PresentationData): Unit = {}
+  }
+
+  override def getRootElement: AnyRef = new RootNode
+
+  override def getParentElement(p1: Any): AnyRef = null
+
+  override def getChildElements(p1: Any): Array[AnyRef] = {
+    p1 match {
+      case n: ImplicitParametersNode =>
+        val childrenImpl = n.getChildrenImpl
+        childrenImpl.toArray(new Array[AnyRef](childrenImpl.size))
+      case _: RootNode => results.map(new ImplicitParametersNode(_)).toArray
+      case _ => Array.empty
+    }
+  }
+
+  override def createDescriptor(obj: Any, parent: NodeDescriptor[_]): NodeDescriptor[_] = {
+    obj.asInstanceOf[NodeDescriptor[_]]
+  }
+
+  override def hasSomethingToCommit: Boolean = false
+
+  override def commit(): Unit = {}
 }

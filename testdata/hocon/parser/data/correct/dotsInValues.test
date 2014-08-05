@@ -1,0 +1,22 @@
+k = some.fully.qualified.ClassName
+-----
+HOCON_FILE
+  HoconPsiElement(OBJECT_ENTRIES)
+    HoconPsiElement(OBJECT_FIELD)
+      HoconPsiElement(BARE_OBJECT_FIELD)
+        HoconPsiElement(FIELD_PATH)
+          HoconPsiElement(KEY)
+            HoconPsiElement(UNQUOTED_STRING)
+              PsiElement(UNQUOTED_CHARS)('k')
+        PsiWhiteSpace(' ')
+        PsiElement(EQUALS)('=')
+        PsiWhiteSpace(' ')
+        HoconPsiElement(VALUE)
+          HoconPsiElement(UNQUOTED_STRING)
+            PsiElement(UNQUOTED_CHARS)('some')
+            PsiElement(PERIOD)('.')
+            PsiElement(UNQUOTED_CHARS)('fully')
+            PsiElement(PERIOD)('.')
+            PsiElement(UNQUOTED_CHARS)('qualified')
+            PsiElement(PERIOD)('.')
+            PsiElement(UNQUOTED_CHARS)('ClassName')

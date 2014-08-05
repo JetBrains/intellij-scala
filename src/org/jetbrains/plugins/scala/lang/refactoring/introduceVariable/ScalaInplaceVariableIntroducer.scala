@@ -1,39 +1,38 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.introduceVariable
 
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScExpression}
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.{ScrollType, Editor}
-import com.intellij.psi._
-import com.intellij.refactoring.introduce.inplace.InplaceVariableIntroducer
-import javax.swing._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import com.intellij.ui.NonFocusableCheckBox
-import java.awt.event.{ActionEvent, ActionListener}
-import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.application.{ApplicationManager, Result}
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import java.awt._
+import java.awt.event.{ActionEvent, ActionListener}
+import javax.swing._
+
 import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import com.intellij.openapi.application.{ApplicationManager, Result}
+import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.command.impl.StartMarkAction
+import com.intellij.openapi.command.undo.UndoManager
+import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent, DocumentListener}
 import com.intellij.openapi.editor.markup.RangeHighlighter
-import scala.collection.mutable
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import com.intellij.openapi.editor.{Editor, ScrollType}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener, DocumentAdapter}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import com.intellij.openapi.ui.MessageType
-import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
-import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaNamesUtil, ScalaVariableValidator, ConflictsReporter}
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi._
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.ui.awt.RelativePoint
-import com.intellij.openapi.command.undo.UndoManager
-import com.intellij.openapi.command.impl.StartMarkAction
+import com.intellij.refactoring.introduce.inplace.InplaceVariableIntroducer
+import com.intellij.ui.NonFocusableCheckBox
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.refactoring.util.{BalloonConflictsReporter, ScalaNamesUtil, ScalaVariableValidator}
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+
+import scala.collection.mutable
 
 /**
  * Nikolay.Tropin
@@ -106,7 +105,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
   private def getDeclaration: PsiElement = myPointer.getElement
 
   private def setDeclaration(declaration: PsiElement): Unit = {
-    myPointer = if (declaration != null) SmartPointerManager.getInstance(project).createSmartPsiElementPointer(declaration)
+    myPointer = if (declaration != null) SmartPointerManager.getInstance(myProject).createSmartPsiElementPointer(declaration)
     else myPointer
   }
 
@@ -239,7 +238,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
       })
     }
 
-    editor.getDocument.addDocumentListener(myCheckIdentifierListener)
+    myEditor.getDocument.addDocumentListener(myCheckIdentifierListener)
 
     setBalloonPanel(nameIsValid = true)
     myBalloonPanel
@@ -298,7 +297,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
           myEditor.getCaretModel.moveToOffset(declaration.getTextRange.getEndOffset)
         }
       } else if (getDeclaration != null) {
-        val revertInfo = editor.getUserData(ScalaIntroduceVariableHandler.REVERT_INFO)
+        val revertInfo = myEditor.getUserData(ScalaIntroduceVariableHandler.REVERT_INFO)
         if (revertInfo != null) {
           extensions.inWriteAction {
             myEditor.getDocument.replaceString(0, myFile.getTextLength, revertInfo.fileText)
@@ -317,20 +316,6 @@ class ScalaInplaceVariableIntroducer(project: Project,
     }
   }
 
-  private def createWarningBalloon(message: String): Unit = {
-    SwingUtilities invokeLater new Runnable {
-      def run(): Unit = {
-        val popupFactory = JBPopupFactory.getInstance
-        val bestLocation = popupFactory.guessBestPopupLocation(myEditor)
-        val screenPoint: Point = bestLocation.getScreenPoint
-        val y: Int = screenPoint.y - editor.getLineHeight * 2
-        val balloon: Balloon = popupFactory.createHtmlTextBalloonBuilder(message, null, MessageType.WARNING.getPopupBackground, null).
-                setFadeoutTime(-1).setShowCallout(false).createBalloon
-        balloon.show(new RelativePoint(new Point(screenPoint.x, y)), Balloon.Position.above)
-      }
-    }
-  }
-
   protected override def getReferencesSearchScope(file: VirtualFile): SearchScope = {
    new LocalSearchScope(myElementToRename.getContainingFile)
   }
@@ -346,22 +331,18 @@ class ScalaInplaceVariableIntroducer(project: Project,
   }
 
   override def finish(success: Boolean): Unit = {
-    editor.getDocument.removeDocumentListener(myCheckIdentifierListener)
+    myEditor.getDocument.removeDocumentListener(myCheckIdentifierListener)
 
     if (myVarCheckbox != null) ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_IS_VAR = myVarCheckbox.isSelected
     if (mySpecifyTypeChb != null && !isEnumerator) ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE = mySpecifyTypeChb.isSelected
 
     try {
-      val named = namedElement(getDeclaration).getOrElse(null)
+      val named = namedElement(getDeclaration).orNull
       val templateState: TemplateState = TemplateManagerImpl.getTemplateState(myEditor)
       if (named != null && templateState != null) {
         val occurrences = (for (i <- 0 to templateState.getSegmentsCount - 1) yield templateState.getSegmentRange(i)).toArray
-        val validator = ScalaVariableValidator(new ConflictsReporter {
-          def reportConflicts(conflicts: Array[String], project: Project): Boolean = {
-            createWarningBalloon(conflicts.toSet.mkString("\n"))
-            true //this means that we do nothing, only show balloon
-          }
-        }, project, editor, myFile, named, occurrences)
+        val validator = ScalaVariableValidator(new BalloonConflictsReporter(myEditor),
+          myProject, myEditor, myFile, named, occurrences)
         validator.isOK(named.name, replaceAll)
       }
     }
