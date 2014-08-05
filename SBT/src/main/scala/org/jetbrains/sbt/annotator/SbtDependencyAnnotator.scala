@@ -6,6 +6,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
+import org.jetbrains.sbt.annotator.quickfix.{SbtRefreshProjectQuickFix, SbtUpdateResolverIndexesQuickFix}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.resolvers.{SbtResolverIndexesManager, SbtResolverUtils}
 
@@ -53,8 +54,11 @@ class SbtDependencyAnnotator extends Annotator {
         val isInRepo = indexes.map { index =>
           index.versions(group, artifact).contains(version)
         }.fold(false) { (a,b) => a || b }
-        if (!isInRepo && !isInCache)
-          holder.createErrorAnnotation(element, SbtDependencyAnnotator.ERROR_MESSAGE)
+        if (!isInRepo && !isInCache) {
+          val annotation = holder.createErrorAnnotation(element, SbtDependencyAnnotator.ERROR_MESSAGE)
+          annotation.registerFix(new SbtUpdateResolverIndexesQuickFix)
+          annotation.registerFix(new SbtRefreshProjectQuickFix)
+        }
       case _ => // do nothing
     }
 
