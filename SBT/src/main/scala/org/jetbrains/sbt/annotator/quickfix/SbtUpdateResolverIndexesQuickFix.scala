@@ -13,7 +13,7 @@ import org.jetbrains.sbt.resolvers.{SbtResolverIndexesManager, SbtResolverUtils}
  */
 class SbtUpdateResolverIndexesQuickFix extends AbstractIntentionAction {
 
-  def getText = "Update project resolvers' indexes"
+  def getText = SbtBundle("sbt.fix.updateIndexes")
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
     val resolvers = SbtResolverUtils.getProjectResolvers(Option(file))

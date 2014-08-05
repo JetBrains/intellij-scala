@@ -21,7 +21,7 @@ class SbtResolverIndexer private (val root: String, val indexDir: File) extends 
 
   indexDir.mkdirs()
   if (!indexDir.exists || !indexDir.isDirectory)
-    throw new RuntimeException("Can't create Maven Indexer index dir: %s" format indexDir.absolutePath)
+    throw new RuntimeException(SbtBundle("sbt.resolverIndexer.cantCreateMavenIndexDir", indexDir.absolutePath))
 
   // This lines are absolutely necessary
   // Otherwise Plexus container won't find maven-indexer interfaces' implementations
@@ -66,7 +66,7 @@ class SbtResolverIndexer private (val root: String, val indexDir: File) extends 
   private def updateLocal(progressIndicator: Option[ProgressIndicator]) {
     val scannerListener = new ArtifactScanningListener {
       override def scanningStarted(p1: IndexingContext) = progressIndicator foreach { indicator =>
-        indicator.setText2("Scanning files")
+        indicator.setText2(SbtBundle("sbt.resolverIndexer.progress.scanning"))
         indicator.setFraction(0.0)
       }
       override def scanningFinished(p1: IndexingContext, p2: ScanningResult) =
@@ -102,7 +102,7 @@ class SbtResolverIndexer private (val root: String, val indexDir: File) extends 
         }
       override def transferStarted(evt: TransferEvent) =
         progressIndicator foreach { indicator =>
-          indicator.setText2("Downloading Maven indexes")
+          indicator.setText2(SbtBundle("sbt.resolverIndexer.progress.downloading"))
           indicator.setFraction(0.0)
         }
     }
@@ -112,7 +112,7 @@ class SbtResolverIndexer private (val root: String, val indexDir: File) extends 
   }
 
   def foreach(f: (ArtifactInfo => Unit), progressIndicator: Option[ProgressIndicator]) {
-    progressIndicator foreach (_.setText2("Converting Maven indexes"))
+    progressIndicator foreach (_.setText2(SbtBundle("sbt.resolverIndexer.progress.converting")))
     val searcher = context.acquireIndexSearcher()
     try {
       val reader = searcher.getIndexReader

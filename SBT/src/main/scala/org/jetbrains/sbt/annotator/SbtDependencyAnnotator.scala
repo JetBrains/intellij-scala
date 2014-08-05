@@ -55,7 +55,7 @@ class SbtDependencyAnnotator extends Annotator {
           index.versions(group, artifact).contains(version)
         }.fold(false) { (a,b) => a || b }
         if (!isInRepo && !isInCache) {
-          val annotation = holder.createErrorAnnotation(element, SbtDependencyAnnotator.ERROR_MESSAGE)
+          val annotation = holder.createErrorAnnotation(element, SbtBundle("sbt.annotation.unresolvedDependency"))
           annotation.registerFix(new SbtUpdateResolverIndexesQuickFix)
           annotation.registerFix(new SbtRefreshProjectQuickFix)
         }
@@ -76,8 +76,4 @@ class SbtDependencyAnnotator extends Annotator {
       case _ => // do nothing
     }
   }
-}
-
-object SbtDependencyAnnotator {
-  val ERROR_MESSAGE = "Unresolved dependency"
 }
