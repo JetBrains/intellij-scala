@@ -65,6 +65,11 @@
 
       <defaultLiveTemplatesProvider implementation="org.jetbrains.sbt.codeInsight.template.SbtDefaultLiveTemplatesProvider"/>
       <liveTemplateContext implementation="org.jetbrains.sbt.codeInsight.template.SbtLiveTemplateContextType"/>
+
+      <localInspection implementationClass="org.jetbrains.sbt.codeInspection.SbtReplaceProjectCallWithProjectInShortcutInspection"
+                       displayName="Replace Project() with project.in()" groupName="Sbt: General"
+                       shortName="SbtReplaceProjectWithProjectIn"
+                       level="WARNING" enabledByDefault="true" language="Scala"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">
