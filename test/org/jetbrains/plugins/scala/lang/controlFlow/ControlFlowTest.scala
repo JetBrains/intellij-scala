@@ -57,6 +57,7 @@ class ControlFlowTest extends LightCodeInsightFixtureTestCase {
   def testTry2() {doTest()}
   def testTry3() {doTest()}
   def testNoneThrow() = doTest()
-
+  def testScl_7393() = doTest()
+  def testUnresolvedParamThrow() = doTest()
 }
 
