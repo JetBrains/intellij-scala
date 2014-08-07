@@ -23,11 +23,14 @@ import com.intellij.openapi.vfs.ReadonlyStatusHandler
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.HelpID
+import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
 import com.intellij.refactoring.util.CommonRefactoringUtil
+import org.jetbrains.plugins.scala.config.ScalaVersionUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScLiteralPattern, ScPattern, ScReferencePattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{InterpolatedStringType, ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -41,9 +44,11 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 
@@ -115,47 +120,69 @@ object ScalaRefactoringUtil {
   }
 
   def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[(ScExpression, Array[ScType])] = {
-    val element = PsiTreeUtil.findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScExpression])
-    if (element == null || element.getTextRange.getStartOffset != startOffset || element.getTextRange.getEndOffset != endOffset) {
-      val rangeText = file.getText.substring(startOffset, endOffset)
+    val rangeText = file.getText.substring(startOffset, endOffset)
+
+    def selectedInfixExpr(): Option[(ScExpression, Array[ScType])] = {
       val expr = ScalaPsiElementFactory.createOptionExpressionFromText(rangeText, file.getManager)
       expr match {
         case Some(expression: ScInfixExpr) =>
           val op1 = expression.operation
           if (ScalaRefactoringUtil.ensureFileWritable(project, file)) {
             var res: Option[(ScExpression, Array[ScType])] = None
-            ScalaUtils.runWriteAction(new Runnable {
-              def run() {
-                val document = editor.getDocument
-                document.insertString(endOffset, ")")
-                document.insertString(startOffset, "(")
-                val documentManager: PsiDocumentManager = PsiDocumentManager.getInstance(project)
-                documentManager.commitDocument(document)
-                val newOpt = getExpression(project, editor, file, startOffset, endOffset + 2)
-                newOpt match {
-                  case Some((expression: ScExpression, typez)) =>
-                    expression.getParent match {
-                      case inf: ScInfixExpr =>
-                        val op2 = inf.operation
-                        import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.priority
-                        if (priority(op1.getText) == priority(op2.getText)) {
-                          res = Some((expression.copy.asInstanceOf[ScExpression], typez))
-                        }
-                      case _ =>
-                    }
-                  case None =>
-                }
-                document.deleteString(endOffset + 1, endOffset + 2)
-                document.deleteString(startOffset, startOffset + 1)
-                documentManager.commitDocument(document)
+            inWriteCommandAction(project) {
+              val document = editor.getDocument
+              document.insertString(endOffset, ")")
+              document.insertString(startOffset, "(")
+              val documentManager: PsiDocumentManager = PsiDocumentManager.getInstance(project)
+              documentManager.commitDocument(document)
+              val newOpt = getExpression(project, editor, file, startOffset, endOffset + 2)
+              newOpt match {
+                case Some((expression: ScExpression, typez)) =>
+                  expression.getParent match {
+                    case inf: ScInfixExpr =>
+                      val op2 = inf.operation
+                      import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.priority
+                      if (priority(op1.getText) == priority(op2.getText)) {
+                        res = Some((expression.copy.asInstanceOf[ScExpression], typez))
+                      }
+                    case _ =>
+                  }
+                case None =>
               }
-            }, project, "IntroduceVariable helping writer")
+              document.deleteString(endOffset + 1, endOffset + 2)
+              document.deleteString(startOffset, startOffset + 1)
+              documentManager.commitDocument(document)
+            }
             return res
           } else return None
         case _ => return None
       }
-      return None
+      None
     }
+
+    def partOfStringLiteral(): Option[(ScExpression, Array[ScType])] = {
+      val lit = PsiTreeUtil.findElementOfClassAtOffset(file, startOffset, classOf[ScLiteral], false)
+      val endLit = PsiTreeUtil.findElementOfClassAtOffset(file, endOffset, classOf[ScLiteral], false)
+      if (lit == null || !lit.isString || lit != endLit) return None
+
+      val prefix = lit match {
+        case intrp: ScInterpolatedStringLiteral if rangeText.contains('$') => intrp.reference.fold("")(_.refName)
+        case _ => ""
+      }
+      val quote = if (lit.isMultiLineString) "\"\"\"" else "\""
+
+      val text = s"$prefix$quote$rangeText$quote"
+      val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, lit.getContext, lit).asInstanceOf[ScLiteral]
+      val tpe = expr.getNonValueType().getOrAny
+      Some(expr, Array(tpe))
+    }
+
+    val element = PsiTreeUtil.findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScExpression])
+
+    if (element == null || element.getTextRange.getEndOffset != endOffset) {
+      return selectedInfixExpr() orElse partOfStringLiteral()
+    }
+
     val cachedType = element.getType(TypingContext.empty).getOrAny
 
     object ReferenceToFunction {
@@ -197,10 +224,65 @@ object ScalaRefactoringUtil {
     !operationStatus.hasReadonlyFiles
   }
 
-  def getOccurrenceRanges(element: PsiElement, enclosingContainer: PsiElement): Array[TextRange] =
-    getOccurrences(element, enclosingContainer).map(_.getTextRange)
+  def getOccurrenceRanges(element: PsiElement, enclosingContainer: PsiElement): Array[TextRange] = {
+    def collectOccurrencesInLiteral(literal: ScLiteral, text: String, result: ArrayBuffer[TextRange]) {
+      val litStart = literal.getTextRange.getStartOffset
+      val textToCheck = literal.getText
+      var fromIdx = 0
+      var indexOf = 0
+      while (fromIdx < textToCheck.length && indexOf >= 0) {
+        indexOf = textToCheck.indexOf(text, fromIdx)
+        if (indexOf >= 0) {
+          val start = litStart + indexOf
+          val end = start + text.length
+          fromIdx = end - litStart
+          result += new TextRange(start, end)
+        }
+      }
+    }
+    def getTextOccurrenceInLiterals(text: String, enclosingContainer: PsiElement, filter: ScLiteral => Boolean): Array[TextRange] = {
+      val result = ArrayBuffer[TextRange]()
+      for (child <- enclosingContainer.getChildren) {
+        child match {
+          case toCheck: ScLiteral if PsiEquivalenceUtil.areElementsEquivalent(element, toCheck) =>
+            result += toCheck.getTextRange
+          case lit: ScLiteral if filter(lit) => collectOccurrencesInLiteral(lit, text, result)
+          case _ => result ++= getTextOccurrenceInLiterals(text, child, filter)
+        }
+      }
+      result.toArray
+    }
+    element match {
+      case intrp: ScInterpolatedStringLiteral => 
+        val prefix = intrp.reference.fold("")(_.refName)
+        val fileText = intrp.getContainingFile.getText
+        val text = fileText.substring(intrp.contentRange.getStartOffset, intrp.contentRange.getEndOffset)
+        val refNameToResolved = mutable.HashMap[String, PsiElement]()
+        intrp.depthFirst.foreach {
+          case ref: ScReferenceExpression => refNameToResolved += ((ref.refName, ref.resolve()))
+          case _ =>
+        }
+        val filter: ScLiteral => Boolean = {
+          case toCheck: ScInterpolatedStringLiteral =>
+            toCheck.reference.fold("")(_.refName) == prefix && toCheck.depthFirst.forall {
+              case ref: ScReferenceExpression => refNameToResolved(ref.refName) == ref.resolve()
+              case _ => true
+            }
+          case _ => false
+        }
+        getTextOccurrenceInLiterals(text, enclosingContainer, filter)
+      case lit: ScLiteral if lit.isString =>
+        val text = lit.getValue.asInstanceOf[String]
+        val filter: ScLiteral => Boolean = {
+          case toCheck: ScInterpolatedStringLiteral if text.contains('$') => false
+          case _ => true
+        }
+        getTextOccurrenceInLiterals(text, enclosingContainer, filter)
+      case _ => getExprOccurrences(element, enclosingContainer).map(_.getTextRange)
+    }
+  }
 
-  def getOccurrences(element: PsiElement, enclosingContainer: PsiElement): Array[ScExpression] = {
+  def getExprOccurrences(element: PsiElement, enclosingContainer: PsiElement): Array[ScExpression] = {
     val occurrences: ArrayBuffer[ScExpression] = new ArrayBuffer[ScExpression]()
     if (enclosingContainer == element) occurrences += enclosingContainer.asInstanceOf[ScExpression]
     else
@@ -215,7 +297,7 @@ object ScalaRefactoringUtil {
             case _ =>
           }
         } else {
-          occurrences ++= getOccurrences(element, child)
+          occurrences ++= getExprOccurrences(element, child)
         }
       }
     occurrences.toArray
@@ -611,17 +693,20 @@ object ScalaRefactoringUtil {
   }
 
   def replaceOccurences(occurences: Array[TextRange], newString: String, file: PsiFile, editor: Editor): Array[TextRange] = {
+    val document = editor.getDocument
+    val documentManager = PsiDocumentManager.getInstance(editor.getProject)
+
     def replaceOccurence(textRange: TextRange): RangeMarker = {
       var shift = 0
-      val document = editor.getDocument
       val start = textRange.getStartOffset
       document.replaceString(start, textRange.getEndOffset, newString)
-      val documentManager = PsiDocumentManager.getInstance(editor.getProject)
+      val newRange = new TextRange(start, start + newString.length)
       documentManager.commitDocument(document)
-      val leafIdentifier = file.findElementAt(start)
-      val parent = leafIdentifier.getParent
-      if (parent != null) parent.getParent match {
-        case pars @ ScParenthesisedExpr(inner) if !ScalaPsiUtil.needParentheses(pars, inner) =>
+      val leaf = file.findElementAt(start)
+      val parent = leaf.getParent
+      parent match {
+        case null =>
+        case ChildOf(pars @ ScParenthesisedExpr(inner)) if !ScalaPsiUtil.needParentheses(pars, inner) =>
           val textRange = pars.getTextRange
           val afterWord = textRange.getStartOffset > 0 && {
             val prevElemType = file.findElementAt(textRange.getStartOffset - 1).getNode.getElementType
@@ -629,19 +714,43 @@ object ScalaRefactoringUtil {
           }
           shift = pars.getTextRange.getStartOffset - inner.getTextRange.getStartOffset + (if (afterWord) 1 else 0)
           document.replaceString(textRange.getStartOffset, textRange.getEndOffset, (if (afterWord) " " else "") + newString)
-          documentManager.commitDocument(document)
-        case ScPostfixExpr(_, `parent`) =>
+        case ChildOf(ScPostfixExpr(_, `parent`))=>
           //This case for block argument expression
           val textRange = parent.getTextRange
           document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "(" + newString + ")")
-          documentManager.commitDocument(document)
           shift = 1
-        case _ if parent.isInstanceOf[ScReferencePattern] =>
+        case _: ScReferencePattern =>
           val textRange = parent.getTextRange
           document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "`" + newString + "`")
-          documentManager.commitDocument(document)
+        case lit: ScLiteral =>
+          val prefix = lit match {
+            case intrp: ScInterpolatedStringLiteral => intrp.reference.fold("")(_.refName)
+            case _ => ""
+          }
+          val replaceAsInjection = Seq("s", "raw").contains(prefix)
+
+          if (replaceAsInjection) {
+            val withNextChar = file.getText.substring(newRange.getStartOffset, newRange.getEndOffset + 1)
+            val needBraces = ScalaNamesUtil.isIdentifier(withNextChar) && withNextChar.last != '$'
+            val text = if (needBraces) s"$${$newString}" else s"$$$newString"
+            shift += (if (needBraces) 2 else 1)
+            document.replaceString(newRange.getStartOffset, newRange.getEndOffset, text)
+          } else {
+            val quote = if (lit.isMultiLineString) "\"\"\"" else "\""
+            val isStart = newRange.getStartOffset == lit.contentRange.getStartOffset
+            val isEnd = newRange.getEndOffset == lit.contentRange.getEndOffset
+            val firstPart = if (!isStart) s"$quote + " else ""
+            val lastPart = if (!isEnd) s" + $prefix$quote" else ""
+            val text = s"$firstPart$newString$lastPart"
+            val literalRange = lit.getTextRange
+            val startOffset = if (isStart) literalRange.getStartOffset else newRange.getStartOffset
+            val endOffset = if (isEnd) literalRange.getEndOffset else newRange.getEndOffset
+            document.replaceString(startOffset, endOffset, text)
+            shift = if (isStart) startOffset - newRange.getStartOffset else firstPart.length
+          }
         case _ =>
       }
+      documentManager.commitDocument(document)
       val newStart = start + shift
       val newEnd = newStart + newString.length
       val newExpr = PsiTreeUtil.findElementOfClassAtRange(file, newStart, newEnd, classOf[ScExpression])

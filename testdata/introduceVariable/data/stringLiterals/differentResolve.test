@@ -1,0 +1,23 @@
+class a {
+  def foo() = {
+    val x = "true"
+    <all>s"Is $x"<end>
+
+    if (false) {
+      val x = "false"
+      s"Is $x"
+    }
+  }
+}
+------
+class a {
+  def foo() = {
+    val x = "true"
+    val value: String = s"Is $x"
+
+    if (false) {
+      val x = "false"
+      s"Is $x"
+    }
+  }
+}
