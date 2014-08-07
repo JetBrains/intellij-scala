@@ -4,6 +4,7 @@ package refactoring
 package introduceVariable
 
 
+import java.util
 import java.util.LinkedHashSet
 
 import com.intellij.internal.statistic.UsageTrigger
@@ -33,6 +34,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{I
 import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaRefactoringUtil, ScalaVariableValidator}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.ScalaUtils
+
+import scala.collection.JavaConverters._
 
 
 /**
@@ -79,12 +82,6 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
       }
 
       def runInplace() {
-        val allExpressions: Array[ScExpression] = occurrences map {
-          r => ScalaRefactoringUtil.getExpression(project, editor, file, r.getStartOffset, r.getEndOffset)
-        } collect { case Some((expression, _)) => expression}
-        import scala.collection.JavaConversions.asJavaCollection
-        val allExpressionsList = new java.util.ArrayList[ScExpression](allExpressions.toIterable)
-
         val callback = new Pass[OccurrencesChooser.ReplaceChoice] {
           def pass(replaceChoice: OccurrencesChooser.ReplaceChoice) {
             val replaceAll = OccurrencesChooser.ReplaceChoice.NO != replaceChoice
@@ -126,19 +123,21 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
             }, REFACTORING_NAME, null)
           }
         }
-        if (ScalaRefactoringUtil.isInplaceAvailable(editor)) {
-          OccurrencesChooser.simpleChooser[ScExpression](editor).showChooser(expr, allExpressionsList, callback)
+
+        val chooser = new OccurrencesChooser[TextRange](editor) {
+          override def getOccurrenceRange(occurrence: TextRange) = occurrence
         }
-        else {
-          callback.pass(OccurrencesChooser.ReplaceChoice.ALL)
+
+        if (occurrences.isEmpty) {
+          callback.pass(OccurrencesChooser.ReplaceChoice.NO)
+        } else {
+          chooser.showChooser(new TextRange(startOffset, endOffset), occurrences.toList.asJava, callback)
         }
       }
 
       if (ScalaRefactoringUtil.isInplaceAvailable(editor)) runInplace()
       else runWithDialog()
-
     }
-
     catch {
       case _: IntroduceException => return
     }
