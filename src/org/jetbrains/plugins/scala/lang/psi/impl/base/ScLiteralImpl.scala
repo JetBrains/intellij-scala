@@ -4,6 +4,7 @@ package psi
 package impl
 package base
 
+import com.intellij.openapi.util.TextRange
 import lexer.ScalaTokenTypes
 import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
@@ -14,7 +15,7 @@ import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.impl.source.tree.java.PsiLiteralExpressionImpl
 import java.lang.{StringBuilder, String}
-import api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import api.ScalaElementVisitor
@@ -161,8 +162,29 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
 
   override def isSymbol: Boolean = getFirstChild.getNode.getElementType == ScalaTokenTypes.tSYMBOL
 
+  override def isChar: Boolean = getFirstChild.getNode.getElementType == ScalaTokenTypes.tCHAR
+
   override def getReferences: Array[PsiReference] = {
     PsiReferenceService.getService.getContributedReferences(this)
+  }
+
+  def contentRange: TextRange = {
+    val range = getTextRange
+    if (isString) {
+      val quote = if (isMultiLineString) "\"\"\"" else "\""
+      val prefix = this match {
+        case intrp: ScInterpolatedStringLiteral => intrp.reference.fold("")(_.refName)
+        case _ => ""
+      }
+      new TextRange(range.getStartOffset + prefix.length + quote.length, range.getEndOffset - quote.length)
+    }
+    else if (isChar) {
+      new TextRange(range.getStartOffset + 1, range.getEndOffset - 1)
+    }
+    else if (isSymbol) {
+      new TextRange(range.getStartOffset + 1, range.getEndOffset)
+    }
+    else range
   }
 
   override def accept(visitor: ScalaElementVisitor) {
