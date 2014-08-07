@@ -80,7 +80,7 @@ object WorksheetDiffSplitters {
 
     override def redrawDiffs(): Unit = getDivider.repaint()
 
-    override def createDivider() = new Divider {
+    override def createDivider() = new DividerImpl {
       override def paint(g: Graphics) {
         super.paint(g)
         val width = getWidth
