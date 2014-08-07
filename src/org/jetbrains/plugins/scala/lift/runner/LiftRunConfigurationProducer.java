@@ -79,7 +79,7 @@ public class LiftRunConfigurationProducer extends RuntimeConfigurationProducer i
 
     mySourceElement = element;
 
-    Collection<String> profiles = MavenProjectsManager.getInstance(project).getExplicitProfiles();
+    Collection<String> profiles = MavenProjectsManager.getInstance(project).getExplicitProfiles().getEnabledProfiles();
     List<String> goals = new ArrayList<String>();
 
     goals.add(JETTY_RUN);
