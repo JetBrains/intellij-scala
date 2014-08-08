@@ -197,7 +197,8 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
             }
           case member: ScMember if !member.isLocal => member.containingClass.toOption
           case td: ScTypeDefinition => td.parent
-          case ScalaPsiUtil.inNameContext(varDef: ScVariableDefinition) if ScalaPsiUtil.isLValue(ref) => varDef.parent
+          case ScalaPsiUtil.inNameContext(varDef: ScVariableDefinition)
+            if ScalaPsiUtil.isLValue(ref) && !elements.exists(_.isAncestorOf(varDef)) => varDef.parent
           case member: PsiMember => member.containingClass.toOption
           case _ => return None
         }
