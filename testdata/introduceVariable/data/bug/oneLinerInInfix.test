@@ -1,0 +1,10 @@
+object O {
+  1 +
+  <begin>1<end>
+}
+------
+object O {
+  private val value: Int = 1
+  1 +
+  value
+}
