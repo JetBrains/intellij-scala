@@ -692,75 +692,75 @@ object ScalaRefactoringUtil {
     errorMessage == null
   }
 
-  def replaceOccurences(occurences: Array[TextRange], newString: String, file: PsiFile, editor: Editor): Array[TextRange] = {
+  def replaceOccurence(textRange: TextRange, newString: String, file: PsiFile, editor: Editor): RangeMarker = {
     val document = editor.getDocument
     val documentManager = PsiDocumentManager.getInstance(editor.getProject)
+    var shift = 0
+    val start = textRange.getStartOffset
+    document.replaceString(start, textRange.getEndOffset, newString)
+    val newRange = new TextRange(start, start + newString.length)
+    documentManager.commitDocument(document)
+    val leaf = file.findElementAt(start)
+    val parent = leaf.getParent
+    parent match {
+      case null =>
+      case ChildOf(pars @ ScParenthesisedExpr(inner)) if !ScalaPsiUtil.needParentheses(pars, inner) =>
+        val textRange = pars.getTextRange
+        val afterWord = textRange.getStartOffset > 0 && {
+          val prevElemType = file.findElementAt(textRange.getStartOffset - 1).getNode.getElementType
+          ScalaTokenTypes.IDENTIFIER_TOKEN_SET.contains(prevElemType) || ScalaTokenTypes.KEYWORDS.contains(prevElemType)
+        }
+        shift = pars.getTextRange.getStartOffset - inner.getTextRange.getStartOffset + (if (afterWord) 1 else 0)
+        document.replaceString(textRange.getStartOffset, textRange.getEndOffset, (if (afterWord) " " else "") + newString)
+      case ChildOf(ScPostfixExpr(_, `parent`))=>
+        //This case for block argument expression
+        val textRange = parent.getTextRange
+        document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "(" + newString + ")")
+        shift = 1
+      case _: ScReferencePattern =>
+        val textRange = parent.getTextRange
+        document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "`" + newString + "`")
+      case lit: ScLiteral =>
+        val prefix = lit match {
+          case intrp: ScInterpolatedStringLiteral => intrp.reference.fold("")(_.refName)
+          case _ => ""
+        }
+        val replaceAsInjection = Seq("s", "raw").contains(prefix)
 
-    def replaceOccurence(textRange: TextRange): RangeMarker = {
-      var shift = 0
-      val start = textRange.getStartOffset
-      document.replaceString(start, textRange.getEndOffset, newString)
-      val newRange = new TextRange(start, start + newString.length)
-      documentManager.commitDocument(document)
-      val leaf = file.findElementAt(start)
-      val parent = leaf.getParent
-      parent match {
-        case null =>
-        case ChildOf(pars @ ScParenthesisedExpr(inner)) if !ScalaPsiUtil.needParentheses(pars, inner) =>
-          val textRange = pars.getTextRange
-          val afterWord = textRange.getStartOffset > 0 && {
-            val prevElemType = file.findElementAt(textRange.getStartOffset - 1).getNode.getElementType
-            ScalaTokenTypes.IDENTIFIER_TOKEN_SET.contains(prevElemType) || ScalaTokenTypes.KEYWORDS.contains(prevElemType)
-          }
-          shift = pars.getTextRange.getStartOffset - inner.getTextRange.getStartOffset + (if (afterWord) 1 else 0)
-          document.replaceString(textRange.getStartOffset, textRange.getEndOffset, (if (afterWord) " " else "") + newString)
-        case ChildOf(ScPostfixExpr(_, `parent`))=>
-          //This case for block argument expression
-          val textRange = parent.getTextRange
-          document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "(" + newString + ")")
-          shift = 1
-        case _: ScReferencePattern =>
-          val textRange = parent.getTextRange
-          document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "`" + newString + "`")
-        case lit: ScLiteral =>
-          val prefix = lit match {
-            case intrp: ScInterpolatedStringLiteral => intrp.reference.fold("")(_.refName)
-            case _ => ""
-          }
-          val replaceAsInjection = Seq("s", "raw").contains(prefix)
-
-          if (replaceAsInjection) {
-            val withNextChar = file.getText.substring(newRange.getStartOffset, newRange.getEndOffset + 1)
-            val needBraces = ScalaNamesUtil.isIdentifier(withNextChar) && withNextChar.last != '$'
-            val text = if (needBraces) s"$${$newString}" else s"$$$newString"
-            shift += (if (needBraces) 2 else 1)
-            document.replaceString(newRange.getStartOffset, newRange.getEndOffset, text)
-          } else {
-            val quote = if (lit.isMultiLineString) "\"\"\"" else "\""
-            val isStart = newRange.getStartOffset == lit.contentRange.getStartOffset
-            val isEnd = newRange.getEndOffset == lit.contentRange.getEndOffset
-            val firstPart = if (!isStart) s"$quote + " else ""
-            val lastPart = if (!isEnd) s" + $prefix$quote" else ""
-            val text = s"$firstPart$newString$lastPart"
-            val literalRange = lit.getTextRange
-            val startOffset = if (isStart) literalRange.getStartOffset else newRange.getStartOffset
-            val endOffset = if (isEnd) literalRange.getEndOffset else newRange.getEndOffset
-            document.replaceString(startOffset, endOffset, text)
-            shift = if (isStart) startOffset - newRange.getStartOffset else firstPart.length
-          }
-        case _ =>
-      }
-      documentManager.commitDocument(document)
-      val newStart = start + shift
-      val newEnd = newStart + newString.length
-      val newExpr = PsiTreeUtil.findElementOfClassAtRange(file, newStart, newEnd, classOf[ScExpression])
-      val newPattern = PsiTreeUtil.findElementOfClassAtOffset(file, newStart, classOf[ScPattern], true)
-      Option(newExpr).orElse(Option(newPattern))
-              .map(elem => document.createRangeMarker(elem.getTextRange))
-              .getOrElse(throw new IntroduceException)
+        if (replaceAsInjection) {
+          val withNextChar = file.getText.substring(newRange.getStartOffset, newRange.getEndOffset + 1)
+          val needBraces = ScalaNamesUtil.isIdentifier(withNextChar) && withNextChar.last != '$'
+          val text = if (needBraces) s"$${$newString}" else s"$$$newString"
+          shift += (if (needBraces) 2 else 1)
+          document.replaceString(newRange.getStartOffset, newRange.getEndOffset, text)
+        } else {
+          val quote = if (lit.isMultiLineString) "\"\"\"" else "\""
+          val isStart = newRange.getStartOffset == lit.contentRange.getStartOffset
+          val isEnd = newRange.getEndOffset == lit.contentRange.getEndOffset
+          val firstPart = if (!isStart) s"$quote + " else ""
+          val lastPart = if (!isEnd) s" + $prefix$quote" else ""
+          val text = s"$firstPart$newString$lastPart"
+          val literalRange = lit.getTextRange
+          val startOffset = if (isStart) literalRange.getStartOffset else newRange.getStartOffset
+          val endOffset = if (isEnd) literalRange.getEndOffset else newRange.getEndOffset
+          document.replaceString(startOffset, endOffset, text)
+          shift = if (isStart) startOffset - newRange.getStartOffset else firstPart.length
+        }
+      case _ =>
     }
+    documentManager.commitDocument(document)
+    val newStart = start + shift
+    val newEnd = newStart + newString.length
+    val newExpr = PsiTreeUtil.findElementOfClassAtRange(file, newStart, newEnd, classOf[ScExpression])
+    val newPattern = PsiTreeUtil.findElementOfClassAtOffset(file, newStart, classOf[ScPattern], true)
+    Option(newExpr).orElse(Option(newPattern))
+            .map(elem => document.createRangeMarker(elem.getTextRange))
+            .getOrElse(throw new IntroduceException)
+  }
 
-    val revercedRangeMarkers = occurences.reverseMap(replaceOccurence)
+
+  def replaceOccurences(occurences: Array[TextRange], newString: String, file: PsiFile, editor: Editor): Array[TextRange] = {
+    val revercedRangeMarkers = occurences.reverseMap(replaceOccurence(_, newString, file, editor))
     revercedRangeMarkers.reverseMap(rm => new TextRange(rm.getStartOffset, rm.getEndOffset))
   }
 
