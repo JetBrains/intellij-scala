@@ -25,7 +25,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBody, ScClassParents, ScExtendsBlock}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -182,6 +183,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
       lazy val enum = PsiTreeUtil.findElementOfClassAtOffset(file, start, classOf[ScEnumerator], /*strictStart =*/false)
       Option(decl).getOrElse(enum)
     }
+
     object inExtendsBlock {
       def unapply(e: PsiElement): Option[ScExtendsBlock] = {
         e match {
@@ -195,6 +197,28 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
           case _ => None
         }
       }
+    }
+
+    def isOneLiner = {
+      val lineText = ScalaRefactoringUtil.getLineText(editor)
+      val model = editor.getSelectionModel
+      val document = editor.getDocument
+      val selectedText = model.getSelectedText
+      val lineNumber = document.getLineNumber(model.getSelectionStart)
+
+      val oneLineSelected = selectedText != null && lineText != null && selectedText.trim == lineText.trim
+
+      val element = file.findElementAt(model.getSelectionStart)
+      var parent = element
+      def atSameLine(offsets: Int*) = offsets.forall(document.getLineNumber(_) == lineNumber)
+      while (parent != null && atSameLine(parent.getTextRange.getStartOffset, parent.getTextRange.getEndOffset)) {
+        parent = parent.getParent
+      }
+      val insideExpression = parent match {
+        case null | _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions | _: PsiFile => false
+        case _ => true
+      }
+      oneLineSelected && !insideExpression
     }
 
     val revertInfo = ScalaRefactoringUtil.RevertInfo(file.getText, editor.getCaretModel.getOffset)
@@ -211,10 +235,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
     val occCount = occurrences.length
 
     val mainOcc = occurrences.indexWhere(range => range.contains(mainRange) || mainRange.contains(range))
-    val lineText = ScalaRefactoringUtil.getLineText(editor)
+    val fastDefinition = occCount == 1 && isOneLiner
 
-    val fastDefinition = editor.getSelectionModel.getSelectedText != null &&
-            lineText != null && editor.getSelectionModel.getSelectedText.trim == lineText.trim && occCount == 1
     //changes document directly
     val replacedOccurences = ScalaRefactoringUtil.replaceOccurences(occurrences, varName, file, editor)
 
