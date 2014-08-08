@@ -101,29 +101,31 @@ object ScalaExtractMethodUtils {
     val secondPart = s"$elementsText$returnText\n}"
     val method = ScalaPsiElementFactory.createMethodFromText(firstPart + secondPart, settings.elements.apply(0).getManager)
 
-    val returnVisitor = new ScalaRecursiveElementVisitor {
-      override def visitReturnStatement(ret: ScReturnStmt) {
-        if (ret.returnFunction != Some(method)) return
-        val retExprText = ret.expr.map(_.getText).mkString
-        val newText = settings.returnType match {
-          case Some(psi.types.Unit) => byOutputsSize(
-            "true",
-            "None",
-            "None"
-          )
-          case Some(_) => byOutputsSize(
-            s"Some($retExprText)",
-            s"Left($retExprText)",
-            s"Left($retExprText)"
-          )
-          case None => "" //should not occur
+    if (!settings.lastReturn) {
+      val returnVisitor = new ScalaRecursiveElementVisitor {
+        override def visitReturnStatement(ret: ScReturnStmt) {
+          if (ret.returnFunction != Some(method)) return
+          val retExprText = ret.expr.map(_.getText).mkString
+          val newText = settings.returnType match {
+            case Some(psi.types.Unit) => byOutputsSize(
+              "true",
+              "None",
+              "None"
+            )
+            case Some(_) => byOutputsSize(
+              s"Some($retExprText)",
+              s"Left($retExprText)",
+              s"Left($retExprText)"
+            )
+            case None => "" //should not occur
+          }
+          val retElem = ScalaPsiElementFactory.createExpressionFromText(s"return $newText", ret.getManager)
+          ret.replace(retElem)
+          super.visitReturnStatement(ret)
         }
-        val retElem = ScalaPsiElementFactory.createExpressionFromText(s"return $newText", ret.getManager)
-        ret.replace(retElem)
-        super.visitReturnStatement(ret)
       }
+      returnVisitor.visitElement(method: ScalaPsiElement)
     }
-    returnVisitor.visitElement(method: ScalaPsiElement)
 
     val visitor = new ScalaRecursiveElementVisitor() {
       override def visitReference(ref: ScReferenceElement) {
