@@ -130,7 +130,10 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     val hasReturn: Option[ScType] = returnType
     val stopAtScope: PsiElement = findScopeBound(elements).getOrElse(file)
     val siblings: Array[PsiElement] = getSiblings(elements(0), stopAtScope)
-    if (siblings.length == 0) return
+    if (siblings.length == 0) {
+      showErrorMessage(ScalaBundle.message("extract.method.cannot.find.possible.scope"), project, editor)
+      return
+    }
     val array = elements.toArray
     if (ApplicationManager.getApplication.isUnitTestMode && siblings.length > 0) {
       invokeDialog(project, editor, array, hasReturn, lastReturn, siblings(0), siblings.length == 1,
