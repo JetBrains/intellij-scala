@@ -226,6 +226,8 @@ object ScalaRefactoringUtil {
 
   def getOccurrenceRanges(element: PsiElement, enclosingContainer: PsiElement): Array[TextRange] = {
     def collectOccurrencesInLiteral(literal: ScLiteral, text: String, result: ArrayBuffer[TextRange]) {
+      if (text.isEmpty) return
+
       val litStart = literal.getTextRange.getStartOffset
       val textToCheck = literal.getText
       var fromIdx = 0
