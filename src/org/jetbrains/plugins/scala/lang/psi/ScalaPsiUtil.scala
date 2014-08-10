@@ -1278,6 +1278,10 @@ object ScalaPsiUtil {
                 case binding: ScBindingPattern => replaceStablePath(stableRef, binding.name, binding)
                 case _ => adjustTypes(child)
               }
+            case fun: ScFunction if fun.isConstructor =>
+              val clazz = fun.containingClass
+              if (hasStablePath(clazz)) replaceStablePath(stableRef, clazz.name, fun)
+              else adjustTypes(child)
             case _ => adjustTypes(child)
           }
         case tp: ScTypeProjection =>
