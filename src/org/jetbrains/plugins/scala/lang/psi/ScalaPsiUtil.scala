@@ -1264,6 +1264,8 @@ object ScalaPsiUtil {
       replaced.asInstanceOf[ScStableCodeReferenceElement].bindToElement(toBind)
     }
     if (element == null) return
+    if (element.isInstanceOf[ScImportStmt] || PsiTreeUtil.getParentOfType(element, classOf[ScImportStmt]) != null) return
+
     for (child <- element.getChildren) {
       child match {
         case stableRef: ScStableCodeReferenceElement =>
