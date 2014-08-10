@@ -63,13 +63,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
       return
     }
     if (!editor.getSelectionModel.hasSelection) return
-    ScalaRefactoringUtil.trimSpacesAndComments(editor, file, trimComments = false)
-    val startElement: PsiElement = file.findElementAt(editor.getSelectionModel.getSelectionStart)
-    val endElement: PsiElement = file.findElementAt(editor.getSelectionModel.getSelectionEnd - 1)
-    val elements = ScalaPsiUtil.getElementsRange(startElement, endElement) match {
-      case Seq(b: ScBlock) if !b.hasRBrace => b.children.toSeq
-      case elems => elems
-    }
+    val elements: Seq[PsiElement] = ScalaRefactoringUtil.selectedElements(editor, file, trimComments = false)
 
     if (showNotPossibleWarnings(elements, project, editor)) return
 

@@ -879,6 +879,17 @@ object ScalaRefactoringUtil {
     }
   }
 
+  def selectedElements(editor: Editor, file: ScalaFile, trimComments: Boolean): Seq[PsiElement] = {
+    trimSpacesAndComments(editor, file, trimComments = trimComments)
+    val startElement: PsiElement = file.findElementAt(editor.getSelectionModel.getSelectionStart)
+    val endElement: PsiElement = file.findElementAt(editor.getSelectionModel.getSelectionEnd - 1)
+    val elements = ScalaPsiUtil.getElementsRange(startElement, endElement) match {
+      case Seq(b: ScBlock) if !b.hasRBrace => b.children.toSeq
+      case elems => elems
+    }
+    elements
+  }
+
   private[refactoring] case class RevertInfo(fileText: String, caretOffset: Int)
 
   private[refactoring] class IntroduceException extends Exception
