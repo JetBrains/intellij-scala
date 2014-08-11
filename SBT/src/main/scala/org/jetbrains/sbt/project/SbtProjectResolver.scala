@@ -275,7 +275,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val sourceRoots = project.configurations
             .filter(it => scopes.contains(it.id))
-            .flatMap(it => it.resources ++ it.resources)
+            .flatMap(it => it.sources ++ it.resources)
             .map(_.file)
 
     sourceRoots.filter(_.isOutsideOf(project.base))
