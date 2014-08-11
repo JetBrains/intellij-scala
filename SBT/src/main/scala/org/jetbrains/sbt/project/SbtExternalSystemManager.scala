@@ -79,11 +79,13 @@ object SbtExternalSystemManager {
 
     val settings = SbtSettings.getInstance(project)
 
-    val projectSettings = settings.getLinkedProjectSettings(path)
+    val projectSettings = Option(settings.getLinkedProjectSettings(path))
+
+    val projectJdkName = projectSettings.flatMap(_.jdkName)
+            .orElse(Option(ProjectRootManager.getInstance(project).getProjectSdk).map(_.getName))
 
     val vmExecutable = customVmExecutable.orElse {
-      val projectSdk = projectSettings.jdkName.flatMap(name => Option(ProjectJdkTable.getInstance().findJdk(name)))
-              .orElse(Option(ProjectRootManager.getInstance(project).getProjectSdk))
+      val projectSdk = projectJdkName.flatMap(name => Option(ProjectJdkTable.getInstance().findJdk(name)))
 
       projectSdk.map { sdk =>
         val sdkType = sdk.getSdkType.asInstanceOf[JavaSdkType]
@@ -93,8 +95,11 @@ object SbtExternalSystemManager {
       throw new ExternalSystemException("Cannot determine Java VM executable in selected JDK")
     }
 
-    new SbtExecutionSettings(vmExecutable, vmOptions, customLauncher, projectSettings.jdkName,
-      projectSettings.resolveClassifiers, projectSettings.resolveSbtClassifiers)
+    val resolveClassifiers = projectSettings.fold(settings.resolveClassifiers)(_.resolveClassifiers)
+    val resolveSbtClassifiers = projectSettings.fold(settings.resolveSbtClassifiers)(_.resolveSbtClassifiers)
+
+    new SbtExecutionSettings(vmExecutable, vmOptions, customLauncher, projectJdkName,
+      resolveClassifiers, resolveSbtClassifiers)
   }
 
   private def proxyOptionsFor(http: HttpConfigurable): Seq[String] = {
