@@ -5,7 +5,7 @@ empty
 0(1) element: None
 1(2) READ None
 2(3) VAL empty
-3(4) READ None
+3(4,5) READ None
 4(6) element: ThrowStatement
 5(6) READ empty
 6() element: None

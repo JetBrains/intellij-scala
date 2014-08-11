@@ -9,6 +9,7 @@ import com.intellij.usageView.{UsageViewUtil, UsageViewDescriptor, UsageInfo}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import collection.mutable.ArrayBuffer
 import java.util.{Comparator, Arrays}
 import com.intellij.openapi.editor.Editor
@@ -116,15 +117,10 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
               val refExpr = ScalaPsiElementFactory.createExpressionFromText(paramName, element.getManager)
               expr.replaceExpression(refExpr, removeParenthesis = true)
             case _ =>
-              PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(document)
-              document.replaceString(range.getStartOffset, range.getEndOffset, paramName)
-              PsiDocumentManager.getInstance(project).commitDocument(document)
+              ScalaRefactoringUtil.replaceOccurence(range, paramName, file, editor)
           }
         case FileRangeUsageInfo(file, range) =>
-          PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(document)
-          document.replaceString(range.getStartOffset, range.getEndOffset, paramName)
-          PsiDocumentManager.getInstance(project).commitDocument(document)
-
+          ScalaRefactoringUtil.replaceOccurence(range, paramName, file, editor)
       }
     }
   }

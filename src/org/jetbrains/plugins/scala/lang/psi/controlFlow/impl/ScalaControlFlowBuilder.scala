@@ -254,7 +254,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     val matchedParams = call.matchedParameters
     def isByNameOrFunction(arg: ScExpression) = {
       val param = matchedParams.toMap.get(arg)
-      param.exists(_.isByName) || param.exists(p => ScFunctionType.isFunctionType(p.paramType))
+      param.isEmpty || param.exists(_.isByName) || param.exists(p => ScFunctionType.isFunctionType(p.paramType))
     }
     val receiver = call.getInvokedExpr
     if (receiver != null) {
@@ -497,10 +497,10 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
         tb.accept(this)
         val head = Option(myHead).getOrElse(tryStmtInstr)
         advancePendingEdges(tb, tryStmt)
-        getClosestFinallyInfo.fold {
+        tryStmt.finallyBlock.fold {
           addPendingEdge(tryStmt, head)
         } {
-          finfo => myTransitionInstructions += ((head, finfo))
+          fblock => myTransitionInstructions += ((head, FinallyInfo(fblock)))
         }
       }
 

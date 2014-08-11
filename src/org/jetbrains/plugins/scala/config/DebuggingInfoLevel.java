@@ -25,9 +25,4 @@ public enum DebuggingInfoLevel {
   public String getOption() {
     return myOption;
   }
-
-  @Override
-  public String toString() {
-    return myDescription;
-  }
 }

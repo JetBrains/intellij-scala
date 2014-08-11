@@ -186,4 +186,6 @@ package object extensions {
       resource.close()
     }
   }
+
+  val ChildOf = Parent
 }
