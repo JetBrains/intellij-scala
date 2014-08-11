@@ -2,6 +2,7 @@ package intellijscalastyle
 package codeInspection
 
 import com.intellij.codeInspection._
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
@@ -62,12 +63,21 @@ class ScalastyleCodeInspection extends LocalInspectionTool {
       val result = new ScalastyleChecker().checkFiles(configuration, Seq(new SourceSpec(file.getName, file.getText)))
       val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
 
+      def atPosition(e: PsiElement, line: Int, column: Option[Int]): Boolean = {
+        val correctLine = if (line > 0) line - 1 else 0
+        val sameLine = correctLine == document.getLineNumber(e.getTextOffset)
+        column match {
+          case Some(col) =>
+            val offset = document.getLineStartOffset(correctLine) + col
+            sameLine && e.getTextRange.contains(offset)
+          case None => sameLine
+        }
+      }
+
       def findPsiElement(line: Int, column: Option[Int]): Option[PsiElement] = {
         (for {
           element    <- scalaFile.depthFirst
-          if element != scalaFile
-          psiLine    =  document.getLineNumber(element.getTextOffset) + 1
-          if line    == psiLine
+          if element != scalaFile && atPosition(element, line, column)
         } yield element).toList.headOption
       }
 
@@ -80,7 +90,7 @@ class ScalastyleCodeInspection extends LocalInspectionTool {
 
       result.flatMap {
         case StyleError(_, _, key, level, args, Some(line), column, customMessage) =>
-          findPsiElement(line, column).map { e =>
+          findPsiElement(line, column).filter(e => e.isPhysical && !e.getTextRange.isEmpty).map { e =>
             val message = Messages.format(key, args, customMessage)
             manager.createProblemDescriptor(e, message, Array.empty[LocalQuickFix], levelToProblemType(level), true, false)
           }
