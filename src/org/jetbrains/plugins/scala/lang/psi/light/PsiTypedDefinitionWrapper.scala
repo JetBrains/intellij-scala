@@ -75,6 +75,8 @@ class PsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition, isStatic
   override def getNextSibling: PsiElement = typedDefinition.getNextSibling
 
   override def getNameIdentifier: PsiIdentifier = typedDefinition.getNameIdentifier
+
+  override def isWritable: Boolean = getContainingFile.isWritable
 }
 
 object PsiTypedDefinitionWrapper {

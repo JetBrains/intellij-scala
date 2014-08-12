@@ -52,6 +52,8 @@ class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor, isJavaVararg
   override def getPrevSibling: PsiElement = constr.getPrevSibling
 
   override def getNextSibling: PsiElement = constr.getNextSibling
+
+  override def isWritable: Boolean = getContainingFile.isWritable
 }
 
 object ScPrimaryConstructorWrapper {
@@ -153,6 +155,8 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
   }
 
   override def getNameIdentifier = function.getNameIdentifier
+
+  override def isWritable: Boolean = getContainingFile.isWritable
 }
 
 object ScFunctionWrapper {
