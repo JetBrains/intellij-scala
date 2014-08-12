@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="android">
+    <CLASSES>
+      <root url="file://$CARDEA_HOME$/plugins/android/lib" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+    <jarDirectory url="file://$CARDEA_HOME$/plugins/android/lib" recursive="false" />
+    <jarDirectory url="file://$CARDEA_HOME$/plugins/android/lib" recursive="false" type="SOURCES" />
+  </library>
+</component>
