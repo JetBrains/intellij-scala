@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
+import com.intellij.openapi.util.TextRange
+
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -26,11 +28,16 @@ class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor, isJavaVararg
     }
   }
 } with LightMethodAdapter(constr.getManager, method, containingClass) with LightScalaMethod {
-  override def getNavigationElement: PsiElement = constr.getNavigationElement
+
+  override def getNavigationElement: PsiElement = this
 
   override def canNavigate: Boolean = constr.canNavigate
 
   override def canNavigateToSource: Boolean = constr.canNavigateToSource
+
+  override def navigate(requestFocus: Boolean): Unit = constr.navigate(requestFocus)
+
+  override def getTextRange: TextRange = constr.getTextRange
 
   override def getParent: PsiElement = containingClass
 
@@ -86,15 +93,20 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
     }
   }
 } with LightMethodAdapter(function.getManager, method, containingClass) with LightScalaMethod {
-  override def getNavigationElement: PsiElement = function.getNavigationElement
+
+  override def getNavigationElement: PsiElement = this
 
   override def canNavigate: Boolean = function.canNavigate
 
   override def canNavigateToSource: Boolean = function.canNavigateToSource
 
+  override def navigate(requestFocus: Boolean): Unit = function.navigate(requestFocus)
+
   override def getParent: PsiElement = containingClass
 
   override def getTextOffset: Int = function.getTextOffset
+
+  override def getTextRange: TextRange = function.getTextRange
 
   override def hasModifierProperty(name: String): Boolean = {
     name match {

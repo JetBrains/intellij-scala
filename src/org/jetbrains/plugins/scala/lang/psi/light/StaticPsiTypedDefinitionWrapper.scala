@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.{PsiElement, PsiMethod, JavaPsiFacade}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -25,11 +26,18 @@ class StaticPsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition,
     }
   }
 } with LightMethodAdapter(typedDefinition.getManager, method, containingClass) with LightScalaMethod {
-  override def getNavigationElement: PsiElement = typedDefinition
+
+  override def getNavigationElement: PsiElement = this
+
+  override def navigate(requestFocus: Boolean): Unit = typedDefinition.navigate(requestFocus)
 
   override def canNavigate: Boolean = typedDefinition.canNavigate
 
   override def canNavigateToSource: Boolean = typedDefinition.canNavigateToSource
+
+  override def getTextRange: TextRange = typedDefinition.getTextRange
+
+  override def getTextOffset: Int = typedDefinition.getTextOffset
 
   override def getParent: PsiElement = containingClass
 }
