@@ -36,6 +36,8 @@ class StaticPsiMethodWrapper private (val method: PsiMethod, containingClass: Ps
       }
     }
   }
+
+  override def isWritable: Boolean = getContainingFile.isWritable
 }
 
 object StaticPsiMethodWrapper {

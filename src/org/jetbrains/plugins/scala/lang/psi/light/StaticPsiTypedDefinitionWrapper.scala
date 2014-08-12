@@ -40,6 +40,8 @@ class StaticPsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition,
   override def getTextOffset: Int = typedDefinition.getTextOffset
 
   override def getParent: PsiElement = containingClass
+
+  override def isWritable: Boolean = getContainingFile.isWritable
 }
 
 object StaticPsiTypedDefinitionWrapper {
