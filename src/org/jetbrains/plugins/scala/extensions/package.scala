@@ -1,24 +1,25 @@
 package org.jetbrains.plugins.scala
 
-import com.intellij.openapi.util.Computable
-import com.intellij.openapi.application.{Result, ApplicationManager}
-import extensions.implementation._
-import com.intellij.psi.impl.source.PostprocessReformattingAspect
-import com.intellij.openapi.project.Project
-import com.intellij.psi._
-import scala.util.matching.Regex
-import javax.swing.SwingUtilities
-import scala.runtime.NonLocalReturnControl
-import java.lang.reflect.InvocationTargetException
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import java.io.Closeable
-import com.intellij.openapi.command.{WriteCommandAction, CommandProcessor}
+import java.lang.reflect.InvocationTargetException
+import javax.swing.SwingUtilities
+
+import com.intellij.openapi.application.{ApplicationManager, Result}
+import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Computable
+import com.intellij.psi._
+import com.intellij.psi.impl.source.PostprocessReformattingAspect
+import com.intellij.util.Processor
 import org.jetbrains.annotations.NotNull
-import com.intellij.openapi.progress.{EmptyProgressIndicator, ProgressIndicator, Task, ProgressManager}
-import com.intellij.openapi.progress.util.ProgressWindow
+import org.jetbrains.plugins.scala.extensions.implementation._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+
+import scala.runtime.NonLocalReturnControl
+import scala.util.matching.Regex
 
 /**
   * Pavel Fatin
@@ -63,6 +64,10 @@ package object extensions {
   }
 
   implicit def regexToRichRegex(r: Regex) = new RegexExt(r)
+
+  implicit def toProcessor[T](action: T => Boolean): Processor[T] = new Processor[T] {
+    override def process(t: T): Boolean = action(t)
+  }
   
   def startCommand(project: Project, commandName: String)(body: => Unit): Unit = {
     CommandProcessor.getInstance.executeCommand(project, new Runnable {
