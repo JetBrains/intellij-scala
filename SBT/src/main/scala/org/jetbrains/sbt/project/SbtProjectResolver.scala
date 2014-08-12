@@ -93,6 +93,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       moduleNode.add(createContentRoot(project))
       moduleNode.addAll(createLibraryDependencies(project.dependencies.modules)(moduleNode, libraries.map(_.data)))
       moduleNode.addAll(project.scala.map(createFacet(project, _)).toSeq)
+      moduleNode.addAll(project.android.map(createFacet(project, _)).toSeq)
       moduleNode.addAll(createUnmanagedDependencies(project.dependencies.jars)(moduleNode))
       moduleNode
     }
@@ -119,6 +120,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val basePackage = Some(project.organization).filter(_.contains(".")).mkString
 
     new ScalaFacetNode(scala.version, basePackage, internalNameFor(scala), scala.options)
+  }
+
+  private def createFacet(project: Project, android: Android): AndroidFacetNode = {
+    new AndroidFacetNode(android.version, android.manifestFile, android.apkPath,
+                         android.resPath, android.assetsPath, android.genPath, android.libsPath,
+                         android.isLibrary)
   }
 
   private def createUnresolvedLibrary(moduleId: ModuleId): LibraryNode = {
