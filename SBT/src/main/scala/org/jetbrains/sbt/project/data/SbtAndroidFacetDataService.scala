@@ -34,13 +34,14 @@ class SbtAndroidFacetDataService(platformFacade: PlatformFacade, helper: Project
         val data  = facetNode.getData
         val props = new JpsAndroidModuleProperties
         val base  = new File(AndroidRootUtil.getModuleDirPath(module))
-        props.GEN_FOLDER_RELATIVE_PATH_APT  = FileUtil.getRelativePath(base, data.gen)
-        props.GEN_FOLDER_RELATIVE_PATH_AIDL = FileUtil.getRelativePath(base, data.gen)
-        props.MANIFEST_FILE_RELATIVE_PATH   = FileUtil.getRelativePath(base, data.manifest)
-        props.RES_FOLDER_RELATIVE_PATH      = FileUtil.getRelativePath(base, data.res)
-        props.ASSETS_FOLDER_RELATIVE_PATH   = FileUtil.getRelativePath(base, data.assets)
-        props.LIBS_FOLDER_RELATIVE_PATH     = FileUtil.getRelativePath(base, data.libs)
-        props.APK_PATH = FileUtil.getRelativePath(base, data.apk)
+        def getRelativePath(f: File) = "/" + FileUtil.getRelativePath(base, f)
+        props.GEN_FOLDER_RELATIVE_PATH_APT  = getRelativePath(data.gen)
+        props.GEN_FOLDER_RELATIVE_PATH_AIDL = getRelativePath(data.gen)
+        props.MANIFEST_FILE_RELATIVE_PATH   = getRelativePath(data.manifest)
+        props.RES_FOLDER_RELATIVE_PATH      = getRelativePath(data.res)
+        props.ASSETS_FOLDER_RELATIVE_PATH   = getRelativePath(data.assets)
+        props.LIBS_FOLDER_RELATIVE_PATH     = getRelativePath(data.libs)
+        props.APK_PATH = getRelativePath(data.apk)
         props.LIBRARY_PROJECT = data.isLibrary
         props
       }
