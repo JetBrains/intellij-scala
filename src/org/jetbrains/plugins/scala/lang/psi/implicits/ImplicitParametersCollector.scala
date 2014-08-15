@@ -142,6 +142,14 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
                 else Some(c, subst)
               case _ => None
             }
+          case f: ScFieldId
+            if !PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(f), place, false) =>
+            f.getType(TypingContext.empty) match {
+              case Success(fType: ScType, _) =>
+                if (!subst.subst(fType).conforms(tp)) None
+                else Some(c, subst)
+              case _ => None
+            }
           case fun: ScFunction if !PsiTreeUtil.isContextAncestor(fun, place, false) =>
             val oneImplicit = fun.effectiveParameterClauses.length == 1 && fun.effectiveParameterClauses.apply(0).isImplicit
             //to avoid checking implicit functions in case of simple implicit parameter search
