@@ -3,4 +3,4 @@ class SelfInvocationExpected(x: Map[Int, Int]) {
     this(/*start*/Map.empty/*end*/)
   }
 }
-//Map[Int, Nothing]
+//Map[Int, Int]
