@@ -10,4 +10,4 @@ def breakOut[From, T, To](implicit b: CanBuildFrom[Nothing, T, To]): CanBuildFro
 def map(bf: CanBuildFrom[List[Int], Int, M[Int]]) = ()
 map(/*start*/breakOut/*end*/)
 
-// CanBuildFrom[Any, Int, M[Int]]
+// CanBuildFrom[List[Int], Int, M[Int]]
