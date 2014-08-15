@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
 import base.patterns.ScBindingPattern
-import base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScLiteral}
 import expr.ScExpression
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
@@ -154,6 +154,8 @@ object InferUtil {
               exprs += new Expression(polymorphicSubst subst subst.subst(param.getType(TypingContext.empty).get))
             case ScalaResolveResult(patt: ScBindingPattern, subst) =>
               exprs += new Expression(polymorphicSubst subst subst.subst(patt.getType(TypingContext.empty).get))
+            case ScalaResolveResult(f: ScFieldId, subst) =>
+              exprs += new Expression(polymorphicSubst subst subst.subst(f.getType(TypingContext.empty).get))
             case ScalaResolveResult(fun: ScFunction, subst) =>
               val funType = {
                 if (fun.parameters.length == 0 || fun.paramClauses.clauses.apply(0).isImplicit) {
