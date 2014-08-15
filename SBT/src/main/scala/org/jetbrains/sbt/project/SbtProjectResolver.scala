@@ -68,7 +68,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val javacOptions = project.java.map(_.options).getOrElse(Seq.empty)
 
-    projectNode.add(new ScalaProjectNode(jdk, javacOptions))
+    if (project.android.isDefined) {
+      projectNode.add(new ScalaProjectNode(Some(ScalaProjectData.Android(project.android.get.version)), javacOptions))
+    } else {
+      projectNode.add(new ScalaProjectNode(jdk map ScalaProjectData.Jdk, javacOptions))
+    }
 
     val libraries = {
       val repositoryModules = data.repository.map(_.modules).getOrElse(Seq.empty)
