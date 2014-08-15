@@ -919,13 +919,13 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                     annotation.registerFix(wrapInOptionFix)
                   }
                   typeElement match {
-                    case Some(te) =>
+                    case Some(te) if te.getContainingFile == expr.getContainingFile =>
                       val fix = new ChangeTypeFix(te, exprType.getOrNothing)
                       annotation.registerFix(fix)
                       val teAnnotation = holder.createErrorAnnotation(te, null)
                       teAnnotation.setHighlightType(ProblemHighlightType.INFORMATION)
                       teAnnotation.registerFix(fix)
-                    case None =>
+                    case _ =>
                   }
                 }
               }
