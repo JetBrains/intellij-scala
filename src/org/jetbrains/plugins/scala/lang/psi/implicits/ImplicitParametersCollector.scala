@@ -187,7 +187,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
                         val expected = Some(tp)
                         InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type: " + nonValueType.toString)
                         nonValueType = InferUtil.updateAccordingToExpectedType(nonValueType,
-                          fromImplicitParameters = true, expected, place, check = true)
+                          fromImplicitParameters = true, filterTypeParams = true, expected, place, check = true)
 
                         InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type after expected type: " + nonValueType.toString)
 
