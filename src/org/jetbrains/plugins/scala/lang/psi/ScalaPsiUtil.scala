@@ -1502,6 +1502,8 @@ object ScalaPsiUtil {
       def putAll(another: PsiSubstitutor): PsiSubstitutor = PsiSubstitutor.EMPTY
 
       def substituteWithBoundsPromotion(typeParameter: PsiTypeParameter): PsiType = substitute(typeParameter)
+
+      def ensureValid() {}
     }
 
     PseudoPsiSubstitutor(subst)
