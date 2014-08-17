@@ -154,7 +154,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
             def tryUpdateRes(checkExpectedType: Boolean) {
               if (checkExpectedType) {
                 InferUtil.updateAccordingToExpectedType(Success(res, Some(this)), fromImplicitParameters = true,
-                  expectedType = expectedType(fromUnderscore), expr = this, check = checkExpectedType) match {
+                  filterTypeParams = false, expectedType = expectedType(fromUnderscore), expr = this,
+                  check = checkExpectedType) match {
                   case Success(newRes, _) => res = newRes
                   case _ =>
                 }
