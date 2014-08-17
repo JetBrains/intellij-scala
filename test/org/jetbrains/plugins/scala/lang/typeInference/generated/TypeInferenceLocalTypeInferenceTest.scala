@@ -7,8 +7,7 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
 
   def testAbstractExpectedType() {doTest()}
 
-  //todo:
-  /*def testAnyValUpperLowerBound() {doTest()}*/
+  def testAnyValUpperLowerBound() {doTest()}
 
   def testArrayCreation() {doTest()}
 
