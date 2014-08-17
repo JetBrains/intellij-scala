@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n
 
 import org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings
-import com.intellij.lang.properties.{PropertiesReferenceManager, PropertiesUtil, IProperty}
+import com.intellij.lang.properties.{PropertiesImplUtil, PropertiesReferenceManager, IProperty}
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
@@ -208,7 +208,7 @@ object ScalaI18nUtil {
 
   def isPropertyRef(expression: ScLiteral, key: String, resourceBundleName: String): Boolean = {
     if (resourceBundleName == null) {
-      !PropertiesUtil.findPropertiesByKey(expression.getProject, key).isEmpty
+      !PropertiesImplUtil.findPropertiesByKey(expression.getProject, key).isEmpty
     }
     else {
       val propertiesFiles = propertiesFilesByBundleName(resourceBundleName, expression)

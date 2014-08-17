@@ -1,17 +1,18 @@
 package org.jetbrains.plugins.scala
 package compiler
 
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectRootManager
 import java.io.File
-import scala.io.Source
-import config.{Version, Libraries}
-import com.intellij.openapi.components.ProjectComponent
-import com.intellij.openapi.projectRoots.JavaSdkType
 import java.net.InetAddress
-import com.intellij.compiler.impl.CompilerUtil
 import java.util
-import collection.JavaConverters._
+
+import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.JavaSdkType
+import com.intellij.openapi.roots.ProjectRootManager
+import org.jetbrains.plugins.scala.config.{Libraries, Version}
+
+import scala.collection.JavaConverters._
+import scala.io.Source
 
 /**
  * Pavel Fatin
@@ -58,7 +59,6 @@ class FscServerLauncher(project: Project) extends ProjectComponent {
 
   private def localeOptions: Seq[String] = {
     val list = new util.LinkedList[String]()
-    CompilerUtil.addLocaleOptions(list, false)
     list.asScala
   }
 
