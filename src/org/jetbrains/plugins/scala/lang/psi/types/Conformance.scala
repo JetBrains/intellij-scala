@@ -1640,12 +1640,8 @@ object Conformance {
           ScParameterizedType(r, a.tpt.args)
         else r
 
-      if (!a.upper.equiv(Any)) {
         result = conformsInner(a.upper, right, visited, undefinedSubst, checkWeak)
-      } else {
-        result = (true, undefinedSubst)
-      }
-      if (result._1 && !a.lower.equiv(Nothing)) {
+      if (result._1) {
         val t = conformsInner(right, a.lower, visited, result._2, checkWeak)
         if (t._1) result = t
       }

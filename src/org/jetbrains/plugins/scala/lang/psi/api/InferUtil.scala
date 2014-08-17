@@ -220,6 +220,7 @@ object InferUtil {
    */
   def updateAccordingToExpectedType(_nonValueType: TypeResult[ScType],
                                     fromImplicitParameters: Boolean,
+                                    filterTypeParams: Boolean,
                                     expectedType: Option[ScType], expr: PsiElement,
                                     check: Boolean): TypeResult[ScType] = {
     var nonValueType = _nonValueType
@@ -235,7 +236,7 @@ object InferUtil {
           val update: ScTypePolymorphicType = ScalaPsiUtil.localTypeInference(m,
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
             Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(innerInternal.inferValueType))),
-            typeParams, shouldUndefineParameters = false, safeCheck = check, filterTypeParams = fromImplicitParameters)
+            typeParams, shouldUndefineParameters = false, safeCheck = check, filterTypeParams = filterTypeParams)
           nonValueType = Success(update, Some(expr)) //here should work in different way:
         }
         updateRes(expectedType.get)
@@ -246,7 +247,7 @@ object InferUtil {
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
               Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(internal.inferValueType))),
             typeParams, shouldUndefineParameters = false, safeCheck = check,
-            filterTypeParams = fromImplicitParameters), Some(expr)) //here should work in different way:
+            filterTypeParams = filterTypeParams), Some(expr)) //here should work in different way:
         }
         updateRes(expectedType.get)
       case _ =>
