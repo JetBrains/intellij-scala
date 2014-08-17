@@ -1,18 +1,20 @@
 package org.jetbrains.plugins.scala
 package worksheet.ui
 
-import com.intellij.openapi.editor.{Document, Editor}
+import java.awt._
+import java.lang.ref.WeakReference
+import java.util
+import javax.swing.JComponent
+
 import com.intellij.openapi.diff.impl._
 import com.intellij.openapi.diff.impl.highlighting.FragmentSide
-import com.intellij.openapi.diff.impl.splitter._
-import java.lang.ref.WeakReference
 import com.intellij.openapi.diff.impl.incrementalMerge.ChangeList
+import com.intellij.openapi.diff.impl.splitter._
+import com.intellij.openapi.editor.event.{VisibleAreaEvent, VisibleAreaListener}
+import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Splitter
-import com.intellij.openapi.editor.event.{VisibleAreaEvent, VisibleAreaListener}
-import javax.swing.JComponent
-import java.awt.{Point, Color, Graphics2D, Graphics}
-import java.util
+
 import scala.collection.convert.wrapAsJava
 
 /**
@@ -80,7 +82,7 @@ object WorksheetDiffSplitters {
 
     override def redrawDiffs(): Unit = getDivider.repaint()
 
-    override def createDivider() = new Divider {
+    override def createDivider() = new DividerImpl {
       override def paint(g: Graphics) {
         super.paint(g)
         val width = getWidth
