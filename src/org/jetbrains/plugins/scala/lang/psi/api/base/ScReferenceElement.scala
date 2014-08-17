@@ -201,7 +201,9 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
   protected def safeBindToElement[T <: ScReferenceElement](qualName: String, referenceCreator: (String, Boolean) => T)
                                                         (simpleImport: => PsiElement): PsiElement = {
     val parts: Array[String] = qualName.split('.')
-    val anotherRef: T = referenceCreator(parts.last, true)
+    val last = parts.last
+    assert(!last.trim.isEmpty, s"Empty last part with safe bind to element with qualName: '$qualName'")
+    val anotherRef: T = referenceCreator(last, true)
     val resolve: Array[ResolveResult] = anotherRef.multiResolve(false)
     def checkForPredefinedTypes(): Boolean = {
       if (resolve.isEmpty) return true
