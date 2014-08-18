@@ -1,14 +1,16 @@
 package org.jetbrains.plugins.scala
-package config
+package configuration.gradle
 
 import java.util
-import collection.JavaConverters._
+
 import com.intellij.openapi.externalSystem.model.DataNode
-import com.intellij.openapi.externalSystem.service.project.{ProjectStructureHelper, PlatformFacade}
+import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, ProjectStructureHelper}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
 import org.jetbrains.plugins.gradle.model.data.ScalaModelData
-import configuration._
+import org.jetbrains.plugins.scala.configuration._
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
