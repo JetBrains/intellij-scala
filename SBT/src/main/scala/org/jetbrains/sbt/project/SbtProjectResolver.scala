@@ -274,7 +274,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   def createSbtModuleData(project: Project): SbtModuleNode = {
     val imports = project.build.imports.flatMap(_.substring(7).split(", "))
-    val resolvers = project.resolvers map { r => new SbtResolver(r.name, r.root) }
+    val resolvers = project.resolvers map { r => new SbtResolver(SbtResolver.Kind.Maven, r.name, r.root) }
     new SbtModuleNode(imports, resolvers)
   }
 

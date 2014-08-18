@@ -32,7 +32,7 @@ class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Dispos
   def add(resolver: SbtResolver) = find(resolver) match {
     case Some(index) => index
     case None =>
-      val newIndex = SbtResolverIndex.create(resolver.root, getIndexDirectory(resolver.root))
+      val newIndex = SbtResolverIndex.create(resolver.kind, resolver.root, getIndexDirectory(resolver.root))
       indexes.add(newIndex)
       newIndex
   }

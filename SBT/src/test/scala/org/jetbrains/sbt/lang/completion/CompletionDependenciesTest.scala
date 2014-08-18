@@ -11,7 +11,7 @@ import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndexesManager}
  */
 class CompletionDependenciesTest extends CompletionTestBase {
 
-  val testResolver = new SbtResolver("Test repo", "file:/%s/sbt/resolvers/testRepository" format baseRootPath)
+  val testResolver = new SbtResolver(SbtResolver.Kind.Maven, "Test repo", "file:/%s/sbt/resolvers/testRepository" format baseRootPath)
 
   override def setUp() = {
     super.setUp()
