@@ -7,6 +7,7 @@ import com.intellij.openapi.externalSystem.service.project.{ProjectStructureHelp
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jetbrains.sbt.project.module.SbtModule
+import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndex}
 import collection.JavaConverters._
 import java.util
 
@@ -26,7 +27,7 @@ class SbtModuleDataService(platformFacade: PlatformFacade, helper: ProjectStruct
       }
 
       SbtModule.setImportsTo(module, moduleData.imports)
-      SbtModule.setResolversTo(module, moduleData.resolvers)
+      SbtModule.setResolversTo(module, moduleData.resolvers + SbtResolver.localCacheResolver)
     }
   }
 

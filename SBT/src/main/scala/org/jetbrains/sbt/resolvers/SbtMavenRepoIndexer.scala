@@ -16,7 +16,7 @@ import org.codehaus.plexus.DefaultPlexusContainer
  * @author Nikolay Obedin
  * @since 7/28/14.
  */
-class SbtResolverIndexer private (val root: String, val indexDir: File) extends Closeable {
+class SbtMavenRepoIndexer private (val root: String, val indexDir: File) extends Closeable {
   import scala.collection.JavaConverters._
 
   indexDir.mkdirs()
@@ -129,12 +129,12 @@ class SbtResolverIndexer private (val root: String, val indexDir: File) extends 
   }
 }
 
-object SbtResolverIndexer {
+object SbtMavenRepoIndexer {
   object Paths {
     val INDEX_DIR = "index"
   }
 
   def apply(root: String, indexDir: File) =
-    new SbtResolverIndexer(root, indexDir / Paths.INDEX_DIR)
+    new SbtMavenRepoIndexer(root, indexDir / Paths.INDEX_DIR)
 }
 
