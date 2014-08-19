@@ -141,6 +141,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
           ScalaUtils.runWriteAction(new Runnable {
             def run() {
               PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+              if (!ref.isValid) return
               if (!ref.isInstanceOf[ScDocResolvableCodeReference]) {
                 ref.bindToElement(clazz.element)
               } else {
