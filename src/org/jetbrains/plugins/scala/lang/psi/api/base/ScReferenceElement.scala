@@ -20,8 +20,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelecto
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportExprUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
+import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+
 import scala.collection.{Set, mutable}
 
 /**
@@ -102,7 +105,13 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
 
   def isReferenceTo(element: PsiElement, resolved: PsiElement): Boolean = {
     if (ScEquivalenceUtil.smartEquivalence(resolved, element)) return true
+    resolved match {
+      case isLightScNamedElement(named) => return isReferenceTo(element, named)
+      case isWrapper(named) => return isReferenceTo(element, named)
+      case _ =>
+    }
     element match {
+      case isWrapper(named) => return isReferenceTo(named, resolved)
       case td: ScTypeDefinition =>
         resolved match {
           case method: PsiMethod if method.isConstructor =>
