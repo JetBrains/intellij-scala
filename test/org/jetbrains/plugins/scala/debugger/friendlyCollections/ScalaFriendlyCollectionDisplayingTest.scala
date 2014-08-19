@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.debugger.friendlyCollections
 
 import org.jetbrains.plugins.scala.debugger.ui.ListLikeCollectionNodeRenderer
-import com.intellij.debugger.ui.tree.render.{ChildrenBuilder, DescriptorLabelListener}
+import com.intellij.debugger.ui.tree.render.{ArrayRenderer, ChildrenBuilder, DescriptorLabelListener}
 import com.intellij.debugger.ui.impl.FrameVariablesTree
 import com.intellij.debugger.ui.impl.watch.{NodeDescriptorImpl, DebuggerTree, LocalVariableDescriptorImpl}
 import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContextImpl}
@@ -37,6 +37,10 @@ class ScalaFriendlyCollectionDisplayingTest extends ScalaDebuggerTestCase {
         def getDescriptorManager: NodeDescriptorFactory = frameTree.getNodeFactory
 
         def getNodeManager: NodeManager = frameTree.getNodeFactory
+
+        def setRemaining(remaining: Int) {}
+
+        def initChildrenArrayRenderer(renderer: ArrayRenderer) {}
 
         def getParentDescriptor: ValueDescriptor = testVariable
       }, context)

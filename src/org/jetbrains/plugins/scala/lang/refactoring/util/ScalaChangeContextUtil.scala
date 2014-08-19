@@ -20,7 +20,7 @@ object ScalaChangeContextUtil {
       val range: TextRange = elem.getTextRange
       val associations = processor.collectTransferableData(elem.getContainingFile, null,
         Array[Int](range.getStartOffset), Array[Int](range.getEndOffset))
-      elem.putCopyableUserData(ASSOCIATIONS_KEY, associations)
+      elem.putCopyableUserData(ASSOCIATIONS_KEY, if (associations.isEmpty) null else associations.get(0))
     }
     scope.foreach(collectDataForElement)
   }

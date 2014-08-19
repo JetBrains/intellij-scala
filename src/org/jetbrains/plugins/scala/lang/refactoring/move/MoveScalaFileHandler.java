@@ -68,9 +68,9 @@ public class MoveScalaFileHandler extends MoveFileHandler {
       UsageTrigger.trigger(ScalaBundle.message("move.file.id"));
       ChangeContextUtil.encodeContextInfo(file, true);
       TextRange range = file.getTextRange();
-      Associations associations = PROCESSOR.collectTransferableData(file, null,
+      List<Associations> associations = PROCESSOR.collectTransferableData(file, null,
           new int[]{range.getStartOffset()}, new int[]{range.getEndOffset()});
-      file.putCopyableUserData(ASSOCIATIONS_KEY, associations);
+      file.putCopyableUserData(ASSOCIATIONS_KEY, associations.isEmpty() ? null : associations.get(0));
     }
   }
 
