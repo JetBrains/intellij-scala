@@ -5,27 +5,30 @@ package api
 package toplevel
 package typedef
 
-import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.util.{PsiUtil, PsiTreeUtil}
-import psi.impl.ScalaPsiElementFactory
-import psi.impl.toplevel.typedef.TypeDefinitionMembers
-import parser.ScalaElementTypes
-import statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
-import templates.ScExtendsBlock
-import com.intellij.openapi.progress.ProgressManager
-import lang.resolve.processor.BaseProcessor
-import types._
-import result.{TypingContext, TypeResult}
-import com.intellij.psi._
-import base.types.ScSelfTypeElement
-import impl.PsiClassImplUtil.MemberType
-import impl.{PsiSuperMethodImplUtil, PsiClassImplUtil}
-import search.GlobalSearchScope
-import com.intellij.openapi.project.{DumbServiceImpl, DumbService}
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
-import com.intellij.pom.java.LanguageLevel
-import com.intellij.psi.scope.processor.MethodsProcessor
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.project.{DumbService, DumbServiceImpl}
+import com.intellij.pom.java.LanguageLevel
+import com.intellij.psi._
+import com.intellij.psi.impl.PsiClassImplUtil.MemberType
+import com.intellij.psi.impl.{PsiClassImplUtil, PsiSuperMethodImplUtil}
+import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.scope.processor.MethodsProcessor
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt, _}
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{MixinNodes, TypeDefinitionMembers}
+import org.jetbrains.plugins.scala.lang.psi.light.{PsiTypedDefinitionWrapper, StaticPsiMethodWrapper}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
 /**
  * @author ven
@@ -95,9 +98,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     PsiClassImplUtil.findInnerByName(this, name, checkBases)
   }
 
-  import com.intellij.openapi.util.{Pair => IPair}
-  import java.util.{List => JList}
-  import java.util.{Collection => JCollection}
+  import java.util.{Collection => JCollection, List => JList}
+
+import com.intellij.openapi.util.{Pair => IPair}
 
   def getAllFields: Array[PsiField] = {
     PsiClassImplUtil.getAllFields(this)
