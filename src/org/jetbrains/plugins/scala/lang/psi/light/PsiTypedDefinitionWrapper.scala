@@ -77,6 +77,11 @@ class PsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition, isStatic
   override def getNameIdentifier: PsiIdentifier = typedDefinition.getNameIdentifier
 
   override def isWritable: Boolean = getContainingFile.isWritable
+
+  override def setName(name: String) = {
+    if (role == PsiTypedDefinitionWrapper.DefinitionRole.SIMPLE_ROLE) typedDefinition.setName(name)
+    else this
+  }
 }
 
 object PsiTypedDefinitionWrapper {

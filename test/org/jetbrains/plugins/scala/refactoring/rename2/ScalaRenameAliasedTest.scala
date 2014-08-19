@@ -81,8 +81,8 @@ class ScalaRenameAliasedTest extends ScalaRenameTestBase {
       |""".stripMargin('|').replaceAll("\r", "").trim()
     myFixture.configureByText("dummy.scala", fileText)
     val objectElement = myFixture.getElementAtCaret
-    val usages = myFixture.findUsages(objectElement)
-    Assert.assertEquals(usages.size(), 3)
+    val usages = myFixture.findUsages(objectElement).toArray.distinct
+    Assert.assertEquals(usages.length, 3)
     myFixture.renameElementAtCaret("newObjectName")
 
     val resultText =
