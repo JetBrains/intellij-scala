@@ -4,24 +4,27 @@ package psi
 package impl
 package expr
 
+import com.intellij.lang.ASTNode
+import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
-import toplevel.PsiClassFake
-import com.intellij.lang.ASTNode
-import com.intellij.psi._
-import api.expr._
-import api.toplevel.templates.ScTemplateBody
-import api.statements.{ScTypeAlias, ScDeclaredElementsHolder}
-import collection.mutable.ArrayBuffer
-import types.result.{Success, TypingContext}
-import api.toplevel.typedef.ScTemplateDefinition
-import psi.stubs.ScTemplateDefinitionStub
-import icons.Icons
-import types._
-import api.ScalaElementVisitor
-import extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiMemberExt}
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScDeclaredElementsHolder, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypedDefinition, ScEarlyDefinitions}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
 * @author Alexander Podkhalyuzin
@@ -135,9 +138,8 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
     super[ScNewTemplateDefinition].findMethodsBySignature(patternMethod, checkBases)
   }
 
+  import java.util.{Collection => JCollection, List => JList}
   import com.intellij.openapi.util.{Pair => IPair}
-  import java.util.{List => JList}
-  import java.util.{Collection => JCollection}
 
   override def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = {
     super[ScNewTemplateDefinition].findMethodsByName(name, checkBases)
@@ -167,4 +169,14 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
   override def getVisibleSignatures: JCollection[HierarchicalMethodSignature] = {
     super[ScNewTemplateDefinition].getVisibleSignatures
   }
+
+  override def getAllMethods: Array[PsiMethod] = {
+    val res = new ArrayBuffer[PsiMethod]()
+    TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(this) { node =>
+      this.processPsiMethodsForNode(node, isStatic = false, isInterface = false)(res += _)
+    }
+    res.toArray
+  }
+
+  override def getMethods: Array[PsiMethod] = getAllMethods.filter(_.containingClass == this)
 }
