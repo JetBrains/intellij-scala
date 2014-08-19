@@ -48,4 +48,6 @@ class ScalaRenameTest extends ScalaRenameTestBase {
   def testMultipleBaseMembers() = doTest()
 
   def testTypeAlias() = doTest()
+
+  def testOverridenFromJava() = doTest()
 }
