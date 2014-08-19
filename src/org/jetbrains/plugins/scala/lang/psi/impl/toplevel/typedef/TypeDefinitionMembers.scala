@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBloc
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
+import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
@@ -443,6 +444,13 @@ object TypeDefinitionMembers {
           map addToMap (sign, new Node(sign, sign.substitutor))
         }
       }
+    }
+
+    def forAllSignatureNodes(c: PsiClass)(action: Node => Unit): Unit = {
+      for {
+        signature <- TypeDefinitionMembers.getSignatures(c).allFirstSeq()
+        (_, node) <- signature
+      } action(node)
     }
   }
 
