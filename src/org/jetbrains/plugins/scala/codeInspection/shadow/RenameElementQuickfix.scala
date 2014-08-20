@@ -42,7 +42,7 @@ class RenameElementQuickfix(ref: PsiElement, name: String) extends AbstractFix(n
       map.put(CommonDataKeys.PSI_ELEMENT.getName, ref)
     } else if (ApplicationManager.getApplication.isUnitTestMode) {
       val element = new TextEditorPsiDataProvider().getData(CommonDataKeys.PSI_ELEMENT.getName,
-        editor, containingFile.getVirtualFile)
+        editor, editor.getCaretModel.getCurrentCaret)
       map.put(CommonDataKeys.PSI_ELEMENT.getName, element)
     }
     val dataContext = SimpleDataContext.getSimpleContext(map, DataManager.getInstance.getDataContext)
