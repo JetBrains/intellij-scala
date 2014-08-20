@@ -30,27 +30,24 @@ class SbtAndroidFacetDataService(platformFacade: PlatformFacade, helper: Project
         helper.findIdeModule(moduleData.getName, project)
       }
 
-      val facetProperties = {
-        val data  = facetNode.getData
-        val props = new JpsAndroidModuleProperties
-        val base  = AndroidRootUtil.getModuleDirPath(module)
-        def getRelativePath(f: File) = "/" + FileUtil.getRelativePath(base, f.getAbsolutePath, File.separatorChar)
-        props.GEN_FOLDER_RELATIVE_PATH_APT  = getRelativePath(data.gen)
-        props.GEN_FOLDER_RELATIVE_PATH_AIDL = getRelativePath(data.gen)
-        props.MANIFEST_FILE_RELATIVE_PATH   = getRelativePath(data.manifest)
-        props.RES_FOLDER_RELATIVE_PATH      = getRelativePath(data.res)
-        props.ASSETS_FOLDER_RELATIVE_PATH   = getRelativePath(data.assets)
-        props.LIBS_FOLDER_RELATIVE_PATH     = getRelativePath(data.libs)
-        props.APK_PATH = getRelativePath(data.apk)
-        props.LIBRARY_PROJECT = data.isLibrary
-        props
-      }
-
       val facet = Option(FacetManager.getInstance(module)).flatMap { manager =>
         Option(manager.getFacetByType(AndroidFacet.ID))
       }
 
-      def configure(facet: AndroidFacet) = facet.getConfiguration.loadState(facetProperties)
+      def configure(facet: AndroidFacet) = {
+        val data = facetNode.getData
+        val props = facet.getConfiguration.getState
+        val base = AndroidRootUtil.getModuleDirPath(module)
+        def getRelativePath(f: File) = "/" + FileUtil.getRelativePath(base, f.getAbsolutePath, File.separatorChar)
+        props.GEN_FOLDER_RELATIVE_PATH_APT = getRelativePath(data.gen)
+        props.GEN_FOLDER_RELATIVE_PATH_AIDL = getRelativePath(data.gen)
+        props.MANIFEST_FILE_RELATIVE_PATH = getRelativePath(data.manifest)
+        props.RES_FOLDER_RELATIVE_PATH = getRelativePath(data.res)
+        props.ASSETS_FOLDER_RELATIVE_PATH = getRelativePath(data.assets)
+        props.LIBS_FOLDER_RELATIVE_PATH = getRelativePath(data.libs)
+        props.APK_PATH = getRelativePath(data.apk)
+        props.LIBRARY_PROJECT = data.isLibrary
+      }
 
       def createFacet() {
         val facetManager = FacetManager.getInstance(module)
