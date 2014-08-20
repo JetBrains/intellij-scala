@@ -1101,4 +1101,22 @@ object ScalaPsiElementFactory {
   def createInterpolatedStringPrefix(prefix: String, manager: PsiManager): PsiElement = {
     createScalaFile(prefix + "\"blah\"", manager).getFirstChild.getFirstChild
   }
+
+  def createEquivMethodCall(infixExpr: ScInfixExpr): ScMethodCall = {
+    val baseText = infixExpr.getBaseExpr.getText
+    val opText = infixExpr.operation.getText
+    val argText = infixExpr.getArgExpr match {
+      case x: ScTuple =>  x.getText
+      case x: ScParenthesisedExpr =>  x.getText
+      case _ =>  s"(${infixExpr.getArgExpr.getText})"
+    }
+    val exprText = s"($baseText).$opText$argText"
+
+    val exprA : ScExpression = createExpressionWithContextFromText(baseText, infixExpr, infixExpr.getBaseExpr)
+
+    val methodCallExpr =
+      createExpressionWithContextFromText(exprText.toString, infixExpr.getContext, infixExpr).asInstanceOf[ScMethodCall]
+    methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression].qualifier.get.replaceExpression(exprA, removeParenthesis = true)
+    methodCallExpr
+  }
 }
