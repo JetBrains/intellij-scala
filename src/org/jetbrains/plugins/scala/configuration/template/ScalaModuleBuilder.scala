@@ -7,7 +7,9 @@ import com.intellij.facet.impl.ui.libraries.{LibraryCompositionSettings, Library
 import com.intellij.framework.library.FrameworkLibraryVersionFilter
 import com.intellij.ide.util.projectWizard.ModuleBuilder.ModuleConfigurationUpdater
 import com.intellij.ide.util.projectWizard.{JavaModuleBuilder, ModuleWizardStep, SettingsStep}
+import com.intellij.ide.wizard.CommitStepException
 import com.intellij.openapi.module.{JavaModuleType, Module}
+import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.ui.configuration.projectRoot.{LibrariesContainer, LibrariesContainerFactory}
@@ -49,6 +51,8 @@ class ScalaModuleBuilder extends JavaModuleBuilder {
     override def getComponent = libraryPanel.getMainPanel
 
     override def disposeUIResources() {
+      super.disposeUIResources()
+      javaStep.disposeUIResources()
       Disposer.dispose(libraryPanel)
     }
 
