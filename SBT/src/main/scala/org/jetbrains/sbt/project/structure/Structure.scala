@@ -15,7 +15,7 @@ case class Java(home: Option[File], options: Seq[String])
 
 case class Scala(version: String, libraryJar: File, compilerJar: File, extraJars: Seq[File], options: Seq[String])
 
-case class Android(version: String, manifestFile: File, apkPath: File, resPath: File, assetsPath: File, genPath: File, libsPath: File, isLibrary: Boolean)
+case class Android(version: String, manifestFile: File, apkPath: File, resPath: File, assetsPath: File, genPath: File, libsPath: File, isLibrary: Boolean, proguardConfig: Seq[String])
 
 case class Dependencies(projects: Seq[ProjectDependency], modules: Seq[ModuleDependency], jars: Seq[JarDependency])
 

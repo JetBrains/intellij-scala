@@ -2,17 +2,17 @@ package org.jetbrains.sbt
 package project.data
 
 
-import java.io.File
+import java.io.{File, OutputStreamWriter}
 import java.util
 
 import com.intellij.facet.FacetManager
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.project.ModuleData
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, ProjectStructureHelper}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.android.facet.{AndroidFacet, AndroidFacetType, AndroidRootUtil}
-import org.jetbrains.jps.android.model.impl.JpsAndroidModuleProperties
 
 import scala.collection.JavaConverters._
 
@@ -36,6 +36,21 @@ class SbtAndroidFacetDataService(platformFacade: PlatformFacade, helper: Project
 
       def configure(facet: AndroidFacet) = {
         val data = facetNode.getData
+        var proguardFilePath: String = ""
+        if (data.proguardConfig.nonEmpty)
+          ApplicationManager.getApplication.runWriteAction(new Runnable{
+            def run(): Unit = {
+              val proguardFile = project.getBaseDir.createChildData(this, "proguard-sbt.txt")
+              if (proguardFile.isValid && proguardFile.isWritable) {
+                proguardFile.setBOM(null)
+                using(new OutputStreamWriter(proguardFile.getOutputStream(this))) { output =>
+                  output.write(data.proguardConfig.mkString(System.lineSeparator))
+                }
+                proguardFilePath = proguardFile.getCanonicalPath
+              }
+            }
+          })
+
         val props = facet.getConfiguration.getState
         val base = AndroidRootUtil.getModuleDirPath(module)
         def getRelativePath(f: File) = "/" + FileUtil.getRelativePath(base, f.getAbsolutePath, File.separatorChar)
@@ -47,6 +62,10 @@ class SbtAndroidFacetDataService(platformFacade: PlatformFacade, helper: Project
         props.LIBS_FOLDER_RELATIVE_PATH = getRelativePath(data.libs)
         props.APK_PATH = getRelativePath(data.apk)
         props.LIBRARY_PROJECT = data.isLibrary
+        props.RUN_PROGUARD = true
+        props.myProGuardCfgFiles = new util.ArrayList[String]()
+        if (proguardFilePath.nonEmpty)
+          props.myProGuardCfgFiles.add(proguardFilePath)
       }
 
       def createFacet() {

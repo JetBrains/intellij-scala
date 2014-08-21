@@ -13,7 +13,8 @@ import com.intellij.openapi.externalSystem.model.{ProjectSystemId, ProjectKeys, 
 class AndroidFacetData(val owner: ProjectSystemId,
                        val version: String, val manifest: File, val apk: File,
                        val res: File, val assets: File, val gen: File, val libs: File,
-                       val isLibrary: Boolean) extends AbstractExternalEntityData(owner)
+                       val isLibrary: Boolean, val proguardConfig: Seq[String])
+        extends AbstractExternalEntityData(owner)
 
 object AndroidFacetData {
   val Key: Key[AndroidFacetData] = new Key(classOf[AndroidFacetData].getName,
