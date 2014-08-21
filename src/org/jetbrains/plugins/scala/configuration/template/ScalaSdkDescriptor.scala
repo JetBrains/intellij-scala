@@ -1,17 +1,19 @@
 package org.jetbrains.plugins.scala
 package configuration.template
 
-import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
 import com.intellij.openapi.roots.libraries.NewLibraryConfiguration
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.LibraryEditor
-import com.intellij.openapi.vfs.{JarFileSystem, VfsUtilCore, VirtualFile}
-import org.jetbrains.plugins.scala.configuration.template.JarDescriptor._
+import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
+import com.intellij.openapi.vfs.VfsUtilCore.virtualToIoFile
+import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.plugins.scala.configuration.template.JarPattern._
 import org.jetbrains.plugins.scala.configuration.{ScalaLanguageLevel, ScalaLibraryProperties, ScalaLibraryType}
 
 /**
  * @author Pavel Fatin
  */
-case class ScalaSdkDescriptor(compilerFiles: Seq[VirtualFile],
+case class ScalaSdkDescriptor(version: String,
+                              compilerFiles: Seq[VirtualFile],
                               libraryFiles: Seq[VirtualFile],
                               sourceFiles: Seq[VirtualFile],
                               docFiles: Seq[VirtualFile]) {
@@ -20,9 +22,11 @@ case class ScalaSdkDescriptor(compilerFiles: Seq[VirtualFile],
     val properties = new ScalaLibraryProperties()
 
     properties.languageLevel = ScalaLanguageLevel.getDefault
-    properties.compilerClasspath = compilerFiles.map(VfsUtilCore.virtualToIoFile)
+    properties.compilerClasspath = compilerFiles.map(virtualToIoFile)
 
-    new NewLibraryConfiguration("scala-sdk", ScalaLibraryType.instance, properties) {
+    val name = "scala-sdk-" + version
+
+    new NewLibraryConfiguration(name, ScalaLibraryType.instance, properties) {
       override def addRoots(editor: LibraryEditor): Unit = {
         libraryFiles.map(toJarFile).foreach(editor.addRoot(_, OrderRootType.CLASSES))
         sourceFiles.map(toJarFile).foreach(editor.addRoot(_, OrderRootType.SOURCES))
@@ -34,7 +38,7 @@ case class ScalaSdkDescriptor(compilerFiles: Seq[VirtualFile],
 
 object ScalaSdkDescriptor {
   def from(files: Seq[VirtualFile]): Either[String, ScalaSdkDescriptor] = {
-    val requiredBinaries = Seq(Library, Compiler, Reflection).map(jar => (jar, files.find(jar.isBinary))).toMap
+    val requiredBinaries = Seq(Library, Compiler, Reflect).map(jar => (jar, files.find(jar.isBinary))).toMap
 
     val missingBinaries = requiredBinaries.collect {
       case (descriptor, None) => descriptor.title
@@ -48,14 +52,21 @@ object ScalaSdkDescriptor {
 
       val libraryBinary = requiredBinaries(Library).get
       val compilerBinary = requiredBinaries(Compiler).get
-      val reflectionBinary = requiredBinaries(Reflection).get
+      val reflectBinary = requiredBinaries(Reflect).get
 
-      val compilerBinaries = Seq(libraryBinary, compilerBinary, reflectionBinary)
+      val compilerBinaries = Seq(libraryBinary, compilerBinary, reflectBinary)
       val libraryBinaries = libraryBinary +: optionalBinaries
 
-      val descriptor = ScalaSdkDescriptor(compilerBinaries, libraryBinaries, Seq.empty, docs)
+      val libraryVersion = JarFile.Library.versionOf(virtualToIoFile(libraryBinary))
+      val compilerVersion = JarFile.Compiler.versionOf(virtualToIoFile(compilerBinary))
+      val reflectVersion = JarFile.Reflect.versionOf(virtualToIoFile(reflectBinary))
 
-      Right(descriptor)
+      if (libraryVersion.isDefined && libraryVersion == compilerVersion && reflectVersion == compilerVersion) {
+        val descriptor = ScalaSdkDescriptor(libraryVersion.get, compilerBinaries, libraryBinaries, Seq.empty, docs)
+        Right(descriptor)
+      } else {
+        Left("Different versions of the core JARs")
+      }
     } else {
       Left("Not found: " + missingBinaries.mkString(", "))
     }
