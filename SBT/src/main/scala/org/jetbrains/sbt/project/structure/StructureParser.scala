@@ -72,8 +72,9 @@ object StructureParser {
     val genPath = file((node \ "generatedFiles").text)
     val libsPath = file((node \ "nativeLibs").text)
     val isLibrary = (node \ "isLibrary").text.toBoolean
+    val proguardConfig = (node \ "proguard" \ "option").map(_.text)
 
-    Android(version, manifestFile, apkPath, resPath, assetsPath, genPath, libsPath, isLibrary)
+    Android(version, manifestFile, apkPath, resPath, assetsPath, genPath, libsPath, isLibrary, proguardConfig)
   }
 
   private def parseConfiguration(node: Node)(implicit fs: FS): Configuration = {

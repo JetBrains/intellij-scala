@@ -129,7 +129,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def createFacet(project: Project, android: Android): AndroidFacetNode = {
     new AndroidFacetNode(android.version, android.manifestFile, android.apkPath,
                          android.resPath, android.assetsPath, android.genPath, android.libsPath,
-                         android.isLibrary)
+                         android.isLibrary, android.proguardConfig)
   }
 
   private def createUnresolvedLibrary(moduleId: ModuleId): LibraryNode = {

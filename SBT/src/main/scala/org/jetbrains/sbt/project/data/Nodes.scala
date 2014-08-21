@@ -95,8 +95,8 @@ class ScalaFacetNode(val data: ScalaFacetData)
 
 class AndroidFacetNode(val data: AndroidFacetData)
   extends Node[AndroidFacetData] {
-  def this(version: String, manifest: File, apk: File, res: File, assets: File, gen: File, libs: File, isLibrary: Boolean) {
-    this(new AndroidFacetData(SbtProjectSystem.Id, version, manifest, apk, res, assets, gen, libs, isLibrary))
+  def this(version: String, manifest: File, apk: File, res: File, assets: File, gen: File, libs: File, isLibrary: Boolean, proguardConfig: Seq[String]) {
+    this(new AndroidFacetData(SbtProjectSystem.Id, version, manifest, apk, res, assets, gen, libs, isLibrary, proguardConfig))
   }
 
   protected def key = AndroidFacetData.Key
