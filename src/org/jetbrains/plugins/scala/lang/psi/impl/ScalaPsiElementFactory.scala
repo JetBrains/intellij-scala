@@ -1119,4 +1119,14 @@ object ScalaPsiElementFactory {
     methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression].qualifier.get.replaceExpression(exprA, removeParenthesis = true)
     methodCallExpr
   }
+
+  def createEquivQualifiedReference(postfix: ScPostfixExpr): ScReferenceExpression = {
+    val operand = postfix.operand
+    val operandText = operand.getText
+    val qualRefText = s"($operandText).${postfix.operation.getText}"
+    val expr = createExpressionWithContextFromText(qualRefText, postfix.getContext, postfix).asInstanceOf[ScReferenceExpression]
+    val qualWithoutPars = createExpressionWithContextFromText(operandText, postfix, operand)
+    expr.qualifier.foreach(_.replaceExpression(qualWithoutPars, removeParenthesis = true))
+    expr
+  }
 }
