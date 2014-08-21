@@ -8,7 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile
 /**
  * @author Pavel Fatin
  */
-class JarDescriptor(prefix: String) {
+class JarPattern(prefix: String) {
   private val binary = Pattern.compile(prefix + ".*\\.jar")
 
   private val docs = Pattern.compile(prefix + ".*-javadoc\\.jar")
@@ -20,18 +20,18 @@ class JarDescriptor(prefix: String) {
   def isDocs(file: VirtualFile): Boolean = docs.matcher(file.getName).matches
 }
 
-object JarDescriptor {
-  val Library = new JarDescriptor("scala-library")
+object JarPattern {
+  val Library = new JarPattern("scala-library")
 
-  val Compiler = new JarDescriptor("scala-compiler")
+  val Compiler = new JarPattern("scala-compiler")
 
-  val Reflection = new JarDescriptor("scala-reflect")
+  val Reflect = new JarPattern("scala-reflect")
 
-  val XML = new JarDescriptor("scala-xml")
+  val XML = new JarPattern("scala-xml")
 
-  val Swing = new JarDescriptor("scala-swing")
+  val Swing = new JarPattern("scala-swing")
 
-  val Combinators = new JarDescriptor("scala-parser-combinators")
+  val Combinators = new JarPattern("scala-parser-combinators")
 
-  val Actors = new JarDescriptor("scala-actors")
+  val Actors = new JarPattern("scala-actors")
 }
