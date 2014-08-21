@@ -35,15 +35,7 @@ class PostfixMethodCallInspection extends AbstractInspection("UseOfPostfixMethod
 
 class AddDotFix(pexpr: ScPostfixExpr) extends AbstractFix("Add dot to method call", pexpr) {
   def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
-    val operand = pexpr.operand
-    val needParens = operand match {
-      case lit: ScLiteral if lit.getText.endsWith(".") => true
-      case _: ScInfixExpr => true
-      case _ => false // TODO others?
-    }
-    val operandText = if (needParens) "(" + operand.getText + ")" else operand.getText
-    val call = operandText + "." + pexpr.operation.getText
-    val exp = ScalaPsiElementFactory.createExpressionFromText(call, pexpr.getManager)
-    pexpr.replace(exp)
+    val expr = ScalaPsiElementFactory.createEquivQualifiedReference(pexpr)
+    pexpr.replaceExpression(expr, removeParenthesis = true)
   }
 }
