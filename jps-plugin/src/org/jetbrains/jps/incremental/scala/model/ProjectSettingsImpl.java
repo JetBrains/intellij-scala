@@ -13,6 +13,8 @@ import java.util.List;
  * @author Pavel Fatin
  */
 public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> implements ProjectSettings {
+  public static final ProjectSettingsImpl DEFAULT = new ProjectSettingsImpl(new State());
+
   private State myState;
 
   public ProjectSettingsImpl(State state) {

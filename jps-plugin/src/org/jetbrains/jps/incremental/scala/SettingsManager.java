@@ -31,7 +31,8 @@ public class SettingsManager {
   }
 
   public static ProjectSettings getProjectSettings(JpsProject project) {
-    return project.getContainer().getChild(PROJECT_SETTINGS_ROLE);
+    ProjectSettings settings = project.getContainer().getChild(PROJECT_SETTINGS_ROLE);
+    return settings == null ? ProjectSettingsImpl.DEFAULT : settings;
   }
 
   public static void setProjectSettings(JpsProject project, ProjectSettings settings) {
