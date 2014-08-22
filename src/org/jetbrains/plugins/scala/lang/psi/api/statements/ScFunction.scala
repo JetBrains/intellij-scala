@@ -415,8 +415,8 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     if (hasAnnotation("scala.annotation.varargs").isDefined) true
     else {
       superMethod match {
-        case f: ScFunction => f.isJavaVarargs
-        case m: PsiMethod => m.isVarArgs
+        case Some(f: ScFunction) => f.isJavaVarargs
+        case Some(m: PsiMethod) => m.isVarArgs
         case _ => false
       }
     }

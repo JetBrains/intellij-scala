@@ -46,7 +46,7 @@ object ImportMembersUtil {
   def replaceWithName(oldRef: ScReferenceElement, name: String): ScReferenceElement = {
     oldRef match {
       case _ childOf (inf @ ScInfixExpr(qual: ScReferenceExpression, `oldRef`, _)) =>
-        val call = ConvertFromInfixExpressionIntention.createEquivMethodCall(inf)
+        val call = ScalaPsiElementFactory.createEquivMethodCall(inf)
         val replacedCall = inf.replace(call).asInstanceOf[ScMethodCall]
         val ref = replacedCall.getInvokedExpr.asInstanceOf[ScReferenceExpression]
         replaceWithName(ref, name)
@@ -66,7 +66,7 @@ object ImportMembersUtil {
   def replaceAndBind(oldRef: ScReferenceElement, name: String, toBind: PsiNamedElement) {
     oldRef match {
       case _ childOf (inf @ ScInfixExpr(qual: ScReferenceExpression, `oldRef`, _)) =>
-        val call = ConvertFromInfixExpressionIntention.createEquivMethodCall(inf)
+        val call = ScalaPsiElementFactory.createEquivMethodCall(inf)
         val replacedCall = inf.replace(call).asInstanceOf[ScMethodCall]
         val ref = replacedCall.getInvokedExpr.asInstanceOf[ScReferenceExpression]
         replaceAndBind(ref, name, toBind)

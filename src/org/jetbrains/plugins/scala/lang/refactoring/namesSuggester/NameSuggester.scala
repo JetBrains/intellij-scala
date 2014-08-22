@@ -149,7 +149,7 @@ object NameSuggester {
         val eitherClassName = "scala.util.Either"
         def isInheritor(c: PsiClass, baseFqn: String) = {
           val baseClass = JavaPsiFacade.getInstance(project).findClass(baseFqn, GlobalSearchScope.allScope(project))
-          c.isInheritor(baseClass, true) || ScEquivalenceUtil.areClassesEquivalent(c, baseClass)
+          baseClass != null && (c.isInheritor(baseClass, true) || ScEquivalenceUtil.areClassesEquivalent(c, baseClass))
         }
         val needPrefix = Map(
           "scala.Option" -> "maybe",
