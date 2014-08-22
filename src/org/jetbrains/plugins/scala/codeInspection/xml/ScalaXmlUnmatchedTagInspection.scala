@@ -23,6 +23,8 @@ class ScalaXmlUnmatchedTagInspection extends LocalInspectionTool{
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
       override def visitXmlStartTag(s: ScXmlStartTag) {
+        if (s.getTextRange.isEmpty) return
+
         val endTag = s.getClosingTag
         def register(fixes: LocalQuickFix*) {
           holder.registerProblem(s, ScalaBundle.message("xml.no.closing.tag"), fixes: _*)

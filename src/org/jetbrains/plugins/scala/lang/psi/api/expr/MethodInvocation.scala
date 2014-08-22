@@ -121,8 +121,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
    */
   def updateAccordingToExpectedType(nonValueType: TypeResult[ScType],
                                     check: Boolean = false): TypeResult[ScType] = {
-    InferUtil.updateAccordingToExpectedType(nonValueType, fromImplicitParameters = false, expectedType = expectedType(),
-      expr = this, check = check)
+    InferUtil.updateAccordingToExpectedType(nonValueType, fromImplicitParameters = false, filterTypeParams = false,
+      expectedType = expectedType(), expr = this, check = check)
   }
 
   /**

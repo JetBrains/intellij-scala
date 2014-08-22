@@ -1,6 +1,9 @@
 package org.jetbrains.sbt
 package project.template
 
+import com.intellij.ide.util.projectWizard.{SdkSettingsStep, ModuleWizardStep, SettingsStep}
+import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
+import com.intellij.openapi.util.Condition
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.SbtProjectSystem
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel}
@@ -37,7 +40,17 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     val path = file.getParent + "/" + Sbt.ModulesDirectory + "/" + file.getName.toLowerCase
     setModuleFilePath(path)
   }
-  
+
+  override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
+    new SdkSettingsStep(settingsStep, this, new Condition[SdkTypeId] {
+      def value(t: SdkTypeId): Boolean = t != null && t.isInstanceOf[JavaSdk]
+    }) {
+      override def updateDataModel() {
+        settingsStep.getContext setProjectJdk myJdkComboBox.getSelectedJdk
+      }
+    }
+  }
+
   private def createProjectTemplateIn(root: File, name: String) {
     val buildFile = root / Sbt.BuildFile
     val projectDir = root / Sbt.ProjectDirectory

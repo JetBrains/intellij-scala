@@ -1,0 +1,25 @@
+<component name="libraryTable">
+  <library name="maven-indexer" type="repository">
+    <properties maven-id="org.apache.maven.indexer:indexer-core:5.1.1" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/indexer-core-5.1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/indexer-artifact-5.1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/plexus-component-annotations-1.5.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/plexus-utils-3.0.8.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/lucene-core-3.6.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/lucene-highlighter-3.6.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/lucene-memory-3.6.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/lucene-queries-3.6.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/jakarta-regexp-1.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/aether-api-1.13.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/aether-util-1.13.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/maven-model-3.0.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/sisu-inject-plexus-2.2.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/plexus-classworlds-2.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/sisu-inject-bean-2.2.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/sisu-guice-3.0.3-no_aop.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

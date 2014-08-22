@@ -39,7 +39,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase {
           forceFSRescan()
         }
       })
-      CompilerTestUtil.enableExternalCompiler(myProject)
+      CompilerTestUtil.enableExternalCompiler()
     }
     else CompilerTestUtil.disableExternalCompiler(myProject)
 
