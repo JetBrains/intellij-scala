@@ -44,7 +44,7 @@ object TypeCheckCanBeMatchInspection {
 class TypeCheckCanBeMatchInspection extends AbstractInspection(inspectionId, inspectionName){
 
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case call: ScGenericCall if isIsInstOfCall(call) =>
+    case IsInstanceOfCall(call) =>
       for {
         ifStmt <- Option(PsiTreeUtil.getParentOfType(call, classOf[ScIfStmt]))
         condition <- ifStmt.condition
@@ -247,16 +247,14 @@ object TypeCheckToMatchUtil {
   def findIsInstanceOfCalls(condition: ScExpression, onlyFirst: Boolean): List[ScGenericCall] = {
     if (onlyFirst) {
       condition match {
-        case call: ScGenericCall if isIsInstOfCall(call) => List(call)
+        case IsInstanceOfCall(call) => List(call)
         case infixExpr: ScInfixExpr if infixExpr.operation.refName == "&&" => findIsInstanceOfCalls(infixExpr.lOp, onlyFirst)
         case parenth: ScParenthesisedExpr => findIsInstanceOfCalls(parenth.expr.orNull, onlyFirst)
         case _ => Nil
       }
     }
     else {
-      separateConditions(condition).
-              filter(isIsInstOfCall).
-              map(_.asInstanceOf[ScGenericCall])
+      separateConditions(condition).collect {case IsInstanceOfCall(call) => call}
     }
   }
 
@@ -381,21 +379,21 @@ object TypeCheckToMatchUtil {
     PsiEquivalenceUtil.areElementsEquivalent(elem1, elem2, comparator, false)
   }
 
-
-  @tailrec
-  final def isIsInstOfCall(expression: ScExpression): Boolean = {
-    expression match {
-      case parenthesized: ScParenthesisedExpr => isIsInstOfCall(parenthesized.expr.orNull)
-      case call: ScGenericCall =>
-        call.referencedExpr match {
-          case ref: ScReferenceExpression if ref.refName == "isInstanceOf" =>
-            ref.resolve() match {
-              case synth: ScSyntheticFunction => true
-              case _ => false
-            }
-          case _ => false
-        }
-      case _ => false
+  object IsInstanceOfCall {
+    def unapply(expression: ScExpression): Option[ScGenericCall] = {
+      expression match {
+        case ScParenthesisedExpr(IsInstanceOfCall(call)) => Some(call)
+        case call: ScGenericCall =>
+          call.referencedExpr match {
+            case ref: ScReferenceExpression if ref.refName == "isInstanceOf" =>
+              ref.resolve() match {
+                case synth: ScSyntheticFunction => Some(call)
+                case _ => None
+              }
+            case _ => None
+          }
+        case _ => None
+      }
     }
   }
 
