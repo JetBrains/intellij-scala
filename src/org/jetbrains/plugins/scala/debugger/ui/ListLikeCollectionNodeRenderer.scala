@@ -234,5 +234,7 @@ object ListLikeCollectionNodeRenderer {
         case e: IncorrectOperationException => null 
       }
     }
+
+    override def getName: String = name
   }
 }

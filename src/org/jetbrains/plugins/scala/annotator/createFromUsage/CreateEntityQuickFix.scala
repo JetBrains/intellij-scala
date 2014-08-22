@@ -57,6 +57,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, entity: String, 
   }
 
   def invokeInner(project: Project, editor: Editor, file: PsiFile) {
+    if (!ref.isValid) return
     val entityType = typeFor(ref)
     val genericParams = genericParametersFor(ref)
     val parameters = parametersFor(ref)

@@ -23,7 +23,8 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <fileTypeFactory implementation="org.jetbrains.sbt.language.SbtFileTypeFactory"/>
-        <annotator language="Scala" implementationClass="org.jetbrains.sbt.language.SbtAnnotator" />
+        <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtAnnotator" />
+        <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtDependencyAnnotator"/>
 
         <externalSystemManager implementation="org.jetbrains.sbt.project.SbtExternalSystemManager"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtFacetDataService"/>
@@ -42,6 +43,8 @@
         <moduleType id="SBT_MODULE" implementationClass="org.jetbrains.sbt.project.module.SbtModuleType"/>
         <moduleConfigurationEditorProvider implementation="org.jetbrains.sbt.project.module.SbtModuleEditorProvider"/>
 
+        <applicationService serviceImplementation="org.jetbrains.sbt.resolvers.SbtResolverIndexesManager"/>
+
         <projectTemplatesFactory implementation="org.jetbrains.sbt.project.template.SbtProjectTemplateFactory"/>
 
         <applicationConfigurable instance="org.jetbrains.sbt.settings.SbtConfigurable"/>
@@ -54,9 +57,14 @@
 
       <externalSystemTaskNotificationListener implementation="org.jetbrains.sbt.project.SbtNotificationListener"/>
       <completion.contributor language="Scala" implementationClass="org.jetbrains.sbt.language.completion.SbtCompletionContributor"
-          order="first, before liveTemplates" />
+          order="first, before liveTemplates" id="sbtCompletionContributor"/>
+      <completion.contributor language="Scala" implementationClass="org.jetbrains.sbt.language.completion.SbtDependencyCompletionContributor"
+                              order="first, before sbtCompletionContributor" />
       <weigher key="completion" implementationClass="org.jetbrains.sbt.language.completion.SbtDefinitionWeigher"
                id="scalaSbtDefinitionWeigher" order="before scalaContainingClassWeigher, before scalaMethodCompletionWeigher, before scalaClassesCompletionWeigher"/>
+
+      <defaultLiveTemplatesProvider implementation="org.jetbrains.sbt.codeInsight.template.SbtDefaultLiveTemplatesProvider"/>
+      <liveTemplateContext implementation="org.jetbrains.sbt.codeInsight.template.SbtLiveTemplateContextType"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package worksheet.processor
 
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.config.ScalaFacet
@@ -13,10 +14,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
+
 import scala.annotation.tailrec
 import scala.collection.mutable
-import com.intellij.openapi.util.Key
-import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
 
 /**
  * User: Dmitry Naydanov
@@ -349,17 +350,10 @@ object WorksheetSourceProcessor {
   }
   
   private def isForObject(file: ScalaFile) = {
-//    @tailrec
-//    def isOk(psi: PsiElement): Boolean = psi match {
-//      case null => true
-//      case _: ScImportStmt | _: PsiWhiteSpace | _: PsiComment | _: PsiClass => isOk(psi.getNextSibling)
-//      case _ => false
-//    }
-    
     @tailrec
     def isObjectOk(psi: PsiElement): Boolean = psi match {
       case _: ScImportStmt | _: PsiWhiteSpace | _: PsiComment  => isObjectOk(psi.getNextSibling)
-      case _: ScObject => true //isOk(psi.getNextSibling) - for compatibility with Eclipse. Its worksheet proceeds with expressions inside first object found
+      case obj: ScObject => obj.extendsBlock.templateParents.isEmpty //isOk(psi.getNextSibling) - for compatibility with Eclipse. Its worksheet proceeds with expressions inside first object found
       case _: PsiClass => isObjectOk(psi.getNextSibling)
       case _ => false
     }

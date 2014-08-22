@@ -443,6 +443,8 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), HashSet[ScType]
     var index = 0
     val lower = _lower match {
       case ScAbstractType(_, absLower, upper) => absLower //upper will be added separately
+        if (absLower.equiv(Nothing)) return this
+        absLower //upper will be added separately
       case _ =>
         _lower.recursiveVarianceUpdate((tp: ScType, i: Int) => {
           tp match {
@@ -477,7 +479,10 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), HashSet[ScType]
     var index = 0
     val upper =
       (_upper match {
-        case ScAbstractType(_, lower, absUpper) if variance == 0 => absUpper // lower will be added separately
+        case ScAbstractType(_, lower, absUpper) if variance == 0 =>
+          if (absUpper.equiv(Any)) return this
+          absUpper // lower will be added separately
+        case ScAbstractType(_, lower, absUpper) if variance == 1 && absUpper.equiv(Any) => return this
         case _ =>
           _upper.recursiveVarianceUpdate((tp: ScType, i: Int) => {
             tp match {

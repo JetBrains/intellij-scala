@@ -1,20 +1,21 @@
 package org.jetbrains.plugins.scala
 package refactoring.introduceField
 
-import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import java.io.File
-import com.intellij.openapi.util.text.StringUtil
+
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.openapi.fileEditor.{OpenFileDescriptor, FileEditorManager}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
+import com.intellij.testFramework.UsefulTestCase
 import junit.framework.Assert._
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import org.jetbrains.plugins.scala.lang.refactoring.introduceField.{IntroduceFieldSettings, IntroduceFieldContext, ScalaIntroduceFieldFromExpressionHandler}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.StdType
+import org.jetbrains.plugins.scala.lang.refactoring.introduceField.{IntroduceFieldContext, IntroduceFieldSettings, ScalaIntroduceFieldFromExpressionHandler}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
 /**
@@ -75,7 +76,10 @@ abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTes
       settings.explicitType = true
       settings.scType = StdType.QualNameToType("scala.Int")
       ScalaUtils.runWriteActionDoNotRequestConfirmation(new Runnable {
-        def run() {handler.runRefactoring(ifc, settings)}
+        def run() {
+          handler.runRefactoring(ifc, settings)
+          UsefulTestCase.doPostponedFormatting(getProjectAdapter)
+        }
       }, getProjectAdapter, "Test")
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim
     }

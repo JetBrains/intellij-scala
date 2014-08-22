@@ -8,6 +8,7 @@ import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import java.io.File
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import com.intellij.testFramework.UsefulTestCase
 import junit.framework.Assert._
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.io.FileUtil
@@ -49,6 +50,7 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightPlatformCodeInsightT
     try {
       val handler = new ScalaExtractMethodHandler
       handler.invoke(getProjectAdapter, editor, scalaFile, null)
+      UsefulTestCase.doPostponedFormatting(getProjectAdapter)
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim
     }
     catch {
