@@ -1,25 +1,27 @@
 package org.jetbrains.plugins.scala
 package base
 
-import com.intellij.openapi.roots._
-import com.intellij.openapi.roots.libraries.{LibraryTable, Library}
-import com.intellij.util.Processor
-import org.jetbrains.plugins.scala.util.TestUtils
-import java.util
 import java.io.File
-import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile, VfsUtil}
-import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
-import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
-import com.intellij.openapi.application.ApplicationManager
+import java.util
+
 import com.intellij.ide.startup.impl.StartupManagerImpl
-import com.intellij.openapi.startup.StartupManager
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
-import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
-import org.jetbrains.plugins.scala.config.{ScalaFacetConfiguration, ScalaFacet}
+import com.intellij.openapi.roots._
+import com.intellij.openapi.roots.libraries.{Library, LibraryTable}
+import com.intellij.openapi.startup.StartupManager
+import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
+import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
+import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
+import com.intellij.testFramework.PsiTestUtil
+import com.intellij.util.Processor
+import org.jetbrains.plugins.scala.config.ScalaFacet
 import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
+import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
 /**
  * Nikolay.Tropin
@@ -100,17 +102,13 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
   }
 
   def clean() {
-    if (contentEntry != null) {
-      val rootManager: ModuleRootManager = ModuleRootManager.getInstance(module)
-      val rootModel: ModifiableRootModel = rootManager.getModifiableModel
-      rootModel.removeContentEntry(contentEntry)
-      contentEntry = null
-      ApplicationManager.getApplication.runWriteAction(new Runnable {
-        def run() {
-          rootModel.commit()
-        }
-      })
+    if (rootPath != null) {
+      val testDataRoot: VirtualFile = LocalFileSystem.getInstance.refreshAndFindFileByPath(rootPath)
+      assert(testDataRoot != null)
+
+      PsiTestUtil.removeContentEntry(module, testDataRoot)
     }
+
     if (!ScalaFacet.findIn(module).isEmpty) {
       val modelsProvider = ModifiableModelsProvider.SERVICE.getInstance()
       val facetModifiableModel = modelsProvider.getFacetModifiableModel(module)
