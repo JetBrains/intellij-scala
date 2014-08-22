@@ -7,14 +7,13 @@ import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 
 /**
  * @author Nikolay Obedin
- * @since 8/1/14.
+ * @since 8/22/14.
  */
-class ResolverIndexLocalIndexingTest extends ScalaFixtureTestCase {
-
+class ResolverIvyCacheTest extends ScalaFixtureTestCase {
   import _root_.junit.framework.Assert._
 
-  def testIndexUpdate() = {
-    val testResolver = new SbtResolver(SbtResolver.Kind.Maven, "Test repo", "file:/%s/sbt/resolvers/testRepository" format rootPath)
+  def testIndexing() = {
+    val testResolver = new SbtResolver(SbtResolver.Kind.Ivy, "Test repo", "/%s/sbt/resolvers/testIvyCache" format rootPath)
     val tmpPath = new File(myFixture.getTempDirPath)
     val storingManager = new SbtResolverIndexesManager(Some(tmpPath))
     val newIndex = storingManager.add(testResolver)
@@ -28,5 +27,4 @@ class ResolverIndexLocalIndexingTest extends ScalaFixtureTestCase {
     assertEquals(newIndex.artifacts(), artifacts)
     artifacts foreach { a => assertEquals(newIndex.versions(groups.head, a), versions) }
   }
-
 }
