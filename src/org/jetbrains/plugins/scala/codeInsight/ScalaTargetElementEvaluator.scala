@@ -2,15 +2,17 @@ package org.jetbrains.plugins.scala
 package codeInsight
 
 import com.intellij.codeInsight.TargetElementEvaluatorEx
-import com.intellij.psi.{PsiReferenceExpression, PsiFile, PsiElement, PsiReference}
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScReferencePattern, ScBindingPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScFunctionDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import com.intellij.psi.{PsiElement, PsiFile, PsiReference, PsiReferenceExpression}
+import org.jetbrains.plugins.scala.extensions.Resolved
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
+import org.jetbrains.plugins.scala.lang.psi.light.scala._
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * Nikolay.Tropin
@@ -24,6 +26,7 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx {
     case isUnapplyFromVal(binding) => binding
     case isVarSetterFakeMethod(refPattern) => refPattern
     case isVarSetterWrapper(refPattern) => refPattern
+    case Resolved(isLightScNamedElement(named), _) => named
     case _ => null
   }
 

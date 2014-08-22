@@ -97,9 +97,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     PsiClassImplUtil.findInnerByName(this, name, checkBases)
   }
 
-  import java.util.{Collection => JCollection, List => JList}
-
-import com.intellij.openapi.util.{Pair => IPair}
+  import com.intellij.openapi.util.{Pair => IPair}
+  import java.util.{List => JList}
+  import java.util.{Collection => JCollection}
 
   def getAllFields: Array[PsiField] = {
     PsiClassImplUtil.getAllFields(this)

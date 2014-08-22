@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import impl.light.LightMethod
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
@@ -47,11 +48,18 @@ class PsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition, isStatic
     }
   }
 } with LightMethodAdapter(typedDefinition.getManager, method, containingClass) with LightScalaMethod {
-  override def getNavigationElement: PsiElement = typedDefinition
+
+  override def getNavigationElement: PsiElement = this
 
   override def canNavigate: Boolean = typedDefinition.canNavigate
 
   override def canNavigateToSource: Boolean = typedDefinition.canNavigateToSource
+
+  override def navigate(requestFocus: Boolean): Unit = typedDefinition.navigate(requestFocus)
+
+  override def getTextRange: TextRange = typedDefinition.getTextRange
+
+  override def getTextOffset: Int = typedDefinition.getTextOffset
 
   override def getParent: PsiElement = containingClass
 
@@ -67,6 +75,13 @@ class PsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition, isStatic
   override def getNextSibling: PsiElement = typedDefinition.getNextSibling
 
   override def getNameIdentifier: PsiIdentifier = typedDefinition.getNameIdentifier
+
+  override def isWritable: Boolean = getContainingFile.isWritable
+
+  override def setName(name: String) = {
+    if (role == PsiTypedDefinitionWrapper.DefinitionRole.SIMPLE_ROLE) typedDefinition.setName(name)
+    else this
+  }
 }
 
 object PsiTypedDefinitionWrapper {
@@ -123,5 +138,42 @@ object PsiTypedDefinitionWrapper {
       builder.append(";")
 
     builder.toString()
+  }
+
+  def processWrappersFor(t: ScTypedDefinition, cClass: Option[PsiClass], nodeName: String, isStatic: Boolean, isInterface: Boolean,
+                 processMethod: PsiMethod => Unit, processName: String => Unit = _ => ()): Unit  = {
+    if (nodeName == t.name) {
+      processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = SIMPLE_ROLE))
+      processName(t.name)
+      if (t.isVar) {
+        processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = EQ))
+        processName(t.name + "_eq")
+      }
+    }
+    t.nameContext match {
+      case s: ScAnnotationsHolder =>
+        val beanProperty = ScalaPsiUtil.isBeanProperty(s)
+        val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s)
+        if (beanProperty) {
+          if (nodeName == "get" + t.name.capitalize) {
+            processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = GETTER, cClass))
+            processName("get" + t.getName.capitalize)
+          }
+          if (t.isVar && nodeName == "set" + t.name.capitalize) {
+            processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = SETTER, cClass))
+            processName("set" + t.getName.capitalize)
+          }
+        } else if (booleanBeanProperty) {
+          if (nodeName == "is" + t.name.capitalize) {
+            processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = IS_GETTER, cClass))
+            processName("is" + t.getName.capitalize)
+          }
+          if (t.isVar && nodeName == "set" + t.name.capitalize) {
+            processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = SETTER, cClass))
+            processName("set" + t.getName.capitalize)
+          }
+        }
+      case _ =>
+    }
   }
 }

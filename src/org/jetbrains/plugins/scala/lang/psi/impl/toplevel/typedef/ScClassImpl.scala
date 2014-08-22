@@ -5,30 +5,26 @@ package impl
 package toplevel
 package typedef
 
-import api.base.ScPrimaryConstructor
-import psi.stubs.ScTemplateDefinitionStub
-import com.intellij.openapi.progress.ProgressManager
 import com.intellij.lang.ASTNode
-
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-
-import org.jetbrains.plugins.scala.icons.Icons
-
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import com.intellij.psi._
-import api.ScalaElementVisitor
-import lang.resolve.processor.BaseProcessor
-import caches.CachesUtil
-import util.PsiModificationTracker
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbServiceImpl
-import types.ScType
-import api.toplevel.{ScTypedDefinition, ScTypeParametersOwner}
-import collection.mutable.ArrayBuffer
-import light.StaticPsiMethodWrapper
-import api.statements._
-import extensions.toPsiMemberExt
-import params.{ScParameter, ScParameterClause, ScClassParameter}
-import collection.mutable
+import com.intellij.psi._
+import com.intellij.psi.util.PsiModificationTracker
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiClassExt}
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander.Podkhalyuzin
@@ -76,8 +72,8 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
     case _ => super.members
   }
 
-  import com.intellij.psi.{PsiElement, ResolveState}
   import com.intellij.psi.scope.PsiScopeProcessor
+  import com.intellij.psi.{PsiElement, ResolveState}
   override def processDeclarationsForTemplateBody(processor: PsiScopeProcessor,
                                   state: ResolveState,
                                   lastParent: PsiElement,
@@ -102,8 +98,6 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
 
   override def isCase: Boolean = hasModifierProperty("case")
 
-  import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
-
   override def getMethods: Array[PsiMethod] = {
     getAllMethods.filter(_.containingClass == this)
   }
@@ -112,85 +106,15 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
     val res = new ArrayBuffer[PsiMethod]()
     val names = new mutable.HashSet[String]
     res ++= getConstructors
-    val linearization = MixinNodes.linearization(this).flatMap(tp => ScType.extractClass(tp, Some(getProject)))
-    def getClazz(t: ScTrait): PsiClass = {
-      var index = linearization.indexWhere(_ == t)
-      while (index >= 0) {
-        val clazz = linearization(index)
-        if (!clazz.isInterface) return clazz
-        index -= 1
+
+    TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(this) { node =>
+      val isInterface = node.info.namedElement match {
+        case t: ScTypedDefinition if t.isAbstractMember => true
+        case _ => false
       }
-      this
+      this.processPsiMethodsForNode(node, isStatic = false, isInterface = isInterface)(res += _, names += _)
     }
-    val signatures = TypeDefinitionMembers.getSignatures(this).allFirstSeq().iterator
-    while (signatures.hasNext) {
-      val signature = signatures.next()
-      signature.foreach {
-        case (t, node) => node.info.namedElement match {
-          case fun: ScFunction if !fun.isConstructor && fun.containingClass.isInstanceOf[ScTrait] &&
-            fun.isInstanceOf[ScFunctionDefinition] =>
-            res ++= fun.getFunctionWrappers(isStatic = false, isInterface = false,
-              cClass = Some(getClazz(fun.containingClass.asInstanceOf[ScTrait])))
-            names += fun.getName
-          case fun: ScFunction if !fun.isConstructor =>
-            res ++= fun.getFunctionWrappers(isStatic = false, isInterface = fun.isInstanceOf[ScFunctionDeclaration])
-            names += fun.getName
-          case method: PsiMethod if !method.isConstructor =>
-            res += method
-            names += method.getName
-          case t: ScTypedDefinition if t.isVal || t.isVar ||
-            (t.isInstanceOf[ScClassParameter] && t.asInstanceOf[ScClassParameter].isCaseClassVal) =>
-            val (isInterface, cClass) = t.nameContext match {
-              case m: ScMember =>
-                val isConcrete = m.isInstanceOf[ScPatternDefinition] || m.isInstanceOf[ScVariableDefinition] ||
-                   m.isInstanceOf[ScClassParameter]
-                (!isConcrete, m.containingClass match {
-                  case t: ScTrait =>
-                    if (isConcrete) {
-                      Some(getClazz(t))
-                    } else None
-                  case _ => None
-                })
-              case _ => (false, None)
-            }
-            val nodeName = node.info.name
-            if (t.name == nodeName) {
-              res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = SIMPLE_ROLE, cClass = cClass)
-              if (t.isVar) {
-                res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = EQ, cClass = cClass)
-              }
-            }
-            names += t.getName
-            t.nameContext match {
-              case s: ScAnnotationsHolder =>
-                val beanProperty = ScalaPsiUtil.isBeanProperty(s)
-                val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s)
-                if (beanProperty) {
-                  if (nodeName == "get" + t.name.capitalize) {
-                    res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = GETTER, cClass = cClass)
-                    names += "get" + t.getName.capitalize
-                  }
-                  if (t.isVar && nodeName == "set" + t.name.capitalize) {
-                    res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = SETTER, cClass = cClass)
-                    names += "set" + t.getName.capitalize
-                  }
-                } else if (booleanBeanProperty) {
-                  if (nodeName == "is" + t.name.capitalize) {
-                    res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = IS_GETTER, cClass = cClass)
-                    names += "is" + t.getName.capitalize
-                  }
-                  if (t.isVar && nodeName == "set" + t.name.capitalize) {
-                    res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = SETTER, cClass = cClass)
-                    names += "set" + t.getName.capitalize
-                  }
-                }
-              case _ =>
-            }
-          case _ =>
-        }
-      }
-    }
-    
+
     ScalaPsiUtil.getCompanionModule(this) match {
       case Some(o: ScObject) =>
         def add(method: PsiMethod) {
@@ -198,50 +122,8 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
             res += method
           }
         }
-        val signatures = TypeDefinitionMembers.getSignatures(o).allFirstSeq().iterator
-        while (signatures.hasNext) {
-          val signature = signatures.next()
-          signature.foreach {
-            case (t, node) =>
-              node.info.namedElement match {
-                case fun: ScFunction if !fun.isConstructor =>
-                  fun.getFunctionWrappers(isStatic = true, isInterface = false, cClass = Some(this)).foreach(add)
-                case method: PsiMethod if !method.isConstructor =>
-                  if (method.containingClass != null && method.containingClass.getQualifiedName != "java.lang.Object") {
-                    add(StaticPsiMethodWrapper.getWrapper(method, this))
-                  }
-                case t: ScTypedDefinition if t.isVal || t.isVar =>
-                  val nodeName = node.info.name
-                  if (nodeName == t.name) {
-                    add(t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = SIMPLE_ROLE))
-                    if (t.isVar) {
-                      add(t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = EQ))
-                    }
-                  }
-                  t.nameContext match {
-                    case s: ScAnnotationsHolder =>
-                      val beanProperty = ScalaPsiUtil.isBeanProperty(s)
-                      val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s)
-                      if (beanProperty) {
-                        if (nodeName == "get" + t.name.capitalize) {
-                          add(t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = GETTER))
-                        }
-                        if (t.isVar && nodeName == "set" + t.name.capitalize) {
-                          add(t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = SETTER))
-                        }
-                      } else if (booleanBeanProperty) {
-                        if (nodeName == "is" + t.name.capitalize) {
-                          add(t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = IS_GETTER))
-                        }
-                        if (t.isVar && nodeName == "set" + t.name.capitalize) {
-                          add(t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = SETTER))
-                        }
-                      }
-                    case _ =>
-                  }
-                case _ =>
-              }
-          }
+        TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(o) { node =>
+          this.processPsiMethodsForNode(node, isStatic = true, isInterface = false)(add)
         }
       case _ =>
     }

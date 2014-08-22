@@ -9,7 +9,7 @@ import types.result.{TypingContext, TypingContextOwner}
 import com.intellij.openapi.util.text.StringUtil
 import types.ScType
 import statements.params.ScClassParameter
-import statements.{ScAnnotationsHolder, ScVariable, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import types.nonvalue.Parameter
 import com.intellij.psi.{PsiElement, PsiClass, PsiMethod}
 import com.intellij.util.containers.ConcurrentHashMap
@@ -199,4 +199,10 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
   def nameContext: PsiElement = ScalaPsiUtil.nameContext(this)
   def isVar: Boolean = false
   def isVal: Boolean = false
+
+  def isAbstractMember: Boolean = ScalaPsiUtil.nameContext(this) match {
+    case _: ScFunctionDefinition | _: ScPatternDefinition | _: ScVariableDefinition => false
+    case cp: ScClassParameter if cp.isCaseClassVal => false
+    case _ => true
+  }
 }
