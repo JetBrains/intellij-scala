@@ -28,14 +28,15 @@ class ScalaSomeRule private (val minimalCount: Int,
   override def checkSome(blocks: List[Block],
                          parentInfo: Option[RuleParentInfo],
                          top: ScalaFormattingRule,
-                         matcher: ScalaFormattingRuleMatcher) = {
+                         matcher: ScalaFormattingRuleMatcher,
+                         missingBlocks: MissingBlocksData*) = {
 //    println("checking some rule " + id)
     val ruleInstance = matcher.ruleInstance(parentInfo, this, top)
     val (before, found, after, count, _) = blocks.foldLeft(List[Block](), None: Option[List[RuleMatch]], blocks, 0, true)(
       (acc, block) => {
       val (before, found, tail, count, proceed) = acc
       if (proceed && !tail.isEmpty) {
-        (innerCondition.checkSome(tail, Some(RuleParentInfo(ruleInstance, 0)), top, matcher), found) match {
+        (innerCondition.checkSome(tail, Some(RuleParentInfo(ruleInstance, 0)), top, matcher, missingBlocks:_*), found) match {
           case (None, None) => (block::before, found, tail.tail, count, true)
           case (None, Some(foundVal)) => (before, found, tail, count, false)
           case (Some((innerBefore, innerFound, innerAfter)), None) =>

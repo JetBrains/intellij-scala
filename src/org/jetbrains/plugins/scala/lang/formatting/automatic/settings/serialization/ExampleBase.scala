@@ -20,6 +20,7 @@ import org.jdom.output.XMLOutputter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.psi.PsiManager
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.lang.formatting.automatic.AutoFormattingUtil
 
 /**
  * Created by Roman.Shein on 26.06.2014.
@@ -126,24 +127,15 @@ object ExampleBase {
 
   def build(path: Path, examplesPerRule: Int = 100, project: Project): ExampleBase = {
 
-    val codeStyleSettings: CodeStyleSettings = new CodeStyleSettings
-
-    def getRoot(code: String) = {
-      val astNode = ScalaPsiElementFactory.createScalaFile(code, PsiManager.getInstance(project)).getNode
-      new ScalaBlock(null, astNode, null, null, Indent.getAbsoluteNoneIndent, null, codeStyleSettings)
-    }
-
-
     var res = new ExampleBase()
-    val rootNameCount = path.getNameCount
     Files.walkFileTree(path,
       new SimpleFileVisitor[Path]() {
         override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
           if (file.toFile.getName.endsWith(".scala")) {
             val code = new String(FileUtil.loadFileText(file.toFile, "UTF-8"))
             try {
-              val codeRoot =  getRoot(code)
-              res = build(codeRoot, ScalaFormattingRuleMatcher.getDefaultMatcher(), res, examplesPerRule)
+              val codeRoot = AutoFormattingUtil.getRoot(code, PsiManager.getInstance(project))
+              res = build(codeRoot, ScalaFormattingRuleMatcher.createDefaultMatcher(), res, examplesPerRule)
             } catch {
               case e: Throwable =>
                 e.printStackTrace

@@ -13,12 +13,14 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation
+import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.{IndentTypeRelation, RuleRelation}
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings._
 import scala.Some
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.serialization.{ExampleBase, ScalaFormattingSettingsSerializer}
 import org.jdom.input.SAXBuilder
 import java.io.File
+import org.jetbrains.plugins.scala.lang.formatting.automatic.AutoFormattingUtil.wrapInReadAction
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.tree.FormattingSettingsTree
 
 /**
  * @author Roman.Shein
@@ -109,13 +111,35 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
     blocksToRules.getOrElse((block.getTextRange, block.getNode.getElementType), List[ScalaFormattingRuleInstance]())
   }
 
-  def matchBlockTree(root: ScalaBlock, matchLogMap: Option[mutable.Map[ScalaFormattingRule, List[ScalaBlock]]] = None) {
+  def matchAroundBlock(block: ScalaBlock, matchLogMap: Option[mutable.Map[ScalaFormattingRule, List[ScalaBlock]]],
+                              needWrapInReadAction: Boolean, missingBlocksData: MissingBlocksData*) {
     for (rule <- rulesByNames.values) {
-      matchRule(rule, root, matchLogMap)
+      if (needWrapInReadAction) {
+        wrapInReadAction {matchRule(rule, block, matchLogMap, missingBlocksData:_*)}
+      } else {
+        matchRule(rule, block, matchLogMap, missingBlocksData:_*)
+      }
+    }
+
+    if (block.myParentBlock != null) {
+      matchAroundBlock(block.myParentBlock, matchLogMap, needWrapInReadAction, missingBlocksData:_*)
+    }
+  }
+
+  def matchBlockTree(root: ScalaBlock, matchLogMap: Option[mutable.Map[ScalaFormattingRule, List[ScalaBlock]]] = None,
+                     needWrapInReadAction: Boolean = false) {
+//    println("match block tree on block\n" + root.getNode.getText)
+    for (rule <- rulesByNames.values) {
+      if (needWrapInReadAction) {
+        wrapInReadAction {matchRule(rule, root, matchLogMap)}
+      } else {
+        matchRule(rule, root, matchLogMap)
+      }
+
     }
 
     for (block <- root.getSubBlocks().toList if block.isInstanceOf[ScalaBlock]) {
-      matchBlockTree(block.asInstanceOf[ScalaBlock], matchLogMap)
+      matchBlockTree(block.asInstanceOf[ScalaBlock], matchLogMap, needWrapInReadAction)
     }
   }
 
@@ -143,9 +167,14 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
 
   def matchRule(rule: ScalaFormattingRule,
                 parentBlock: ScalaBlock,
-                matchLogMap: Option[mutable.Map[ScalaFormattingRule, List[ScalaBlock]]] = None) = {
+                missingBlocks: MissingBlocksData*) {matchRule(rule, parentBlock, None, missingBlocks:_*)}
+
+  def matchRule(rule: ScalaFormattingRule,
+                parentBlock: ScalaBlock,
+                matchLogMap: Option[mutable.Map[ScalaFormattingRule, List[ScalaBlock]]],
+                missingBlocks: MissingBlocksData*) {
     topBlocks = parentBlock :: topBlocks
-    rule.check(parentBlock, None, rule, this) match {
+    rule.check(parentBlock, None, rule, this, missingBlocks:_*) match {
       case Some(ruleMatch) /*if ruleMatch.childMatches.size > 0*/ =>
 //        println("rule " + rule.id + " matched")
         matchLogMap match {
@@ -183,7 +212,10 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
    * @param arg2 second formatter entry
    * @return unifying entry, if it is possible to build one, nothing otherwise
    */
-  def unifySpacingsAndIndents(arg1: ScalaBlockFormatterEntry, arg2: ScalaBlockFormatterEntry, failLogger: Option[SettingDeductionFailLogger] = None): List[ScalaBlockFormatterEntry] = {
+  def unifySpacingsAndIndents(arg1: ScalaBlockFormatterEntry,
+                              arg2: ScalaBlockFormatterEntry,
+                              failLogger: Option[SettingDeductionFailLogger] = None,
+                              unifyIndentsOnly: Boolean = false): List[ScalaBlockFormatterEntry] = {
 
     //must use flag to determine whether arg1 is based on spacing or belongs to first child stripped of spacings
 
@@ -209,6 +241,10 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
           return List() //inconsistency spotted
         }
       case (None, None) => None
+    }
+
+    if (unifyIndentsOnly && indentInfo.isDefined) {
+      return List(arg1)
     }
 
     def buildEntry(spacing: SpacingInfo, wrap: Boolean, alignment: Boolean) =
@@ -307,7 +343,9 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
    */
   def processSingleRules(rules: List[ScalaFormattingRuleInstance],
                          settings: mutable.Map[ScalaFormattingRuleInstance, List[(ScalaBlock, List[ScalaBlockFormatterEntry])]],
-                         failLogger: Option[SettingDeductionFailLogger] = None):
+                         failLogger: Option[SettingDeductionFailLogger] = None,
+                         needWrapInReadAction: Boolean,
+                         processIndentsOnly: Boolean):
   mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]] = {
     val res = getDefaultSettings
     for (ruleInstance <- rules) {
@@ -318,14 +356,29 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
             var newCheckedSettings = List[ScalaBlockFormatterEntry]()
             for (blockPossibleEntry <- blockPossibleEntries) {
               for (compareBlockPossibleEntry <- checkedEntries) {
-                  newCheckedSettings = unifySpacingsAndIndents(blockPossibleEntry, compareBlockPossibleEntry, failLogger) ::: newCheckedSettings
+                if (needWrapInReadAction) {
+                  wrapInReadAction {
+                    newCheckedSettings =
+                            unifySpacingsAndIndents(blockPossibleEntry, compareBlockPossibleEntry, failLogger, processIndentsOnly) :::
+                                    newCheckedSettings
+                  }
+                } else {
+                  newCheckedSettings =
+                          unifySpacingsAndIndents(blockPossibleEntry, compareBlockPossibleEntry, failLogger, processIndentsOnly) :::
+                                  newCheckedSettings
+                }
               }
             }
             checkedEntries = newCheckedSettings.toSet
-//            println("DNIWE")
           }
           val ruleInstanceBlocks = List(rulesToSpacingDefiningBlocks.get(ruleInstance).getOrElse(List()))
-          res.put(ruleInstance, ScalaFormattingRuleMatcher.deduceWraps(checkedEntries.toList, ruleInstanceBlocks))
+          if (needWrapInReadAction) {
+            wrapInReadAction {
+              res.put(ruleInstance, ScalaFormattingRuleMatcher.deduceWraps(checkedEntries.toList, ruleInstanceBlocks))
+            }
+          } else {
+            res.put(ruleInstance, ScalaFormattingRuleMatcher.deduceWraps(checkedEntries.toList, ruleInstanceBlocks))
+          }
         case _ => //there were no blocks matched with this block rule, use defaults
       }
     }
@@ -373,7 +426,6 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
     }
   }
 
-
   def getBlocksFromClusters(clusters: List[Set[ScalaFormattingRuleInstance]]): List[List[ScalaBlock]] = {
     var res = List[List[ScalaBlock]]()
     for (cluster <- clusters) {
@@ -388,13 +440,13 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
   }
 
   /**
-   * Returns all relations active for given rule instances.
+   * Returns all relations different from normal/continuation indent relations active for given rule instances.
    * @param ruleInstances
    * @return
    */
-  private def getRelations(ruleInstances: Iterable[ScalaFormattingRuleInstance]): Set[RuleRelation] = {
+  private def getNonIndentRelations(ruleInstances: Iterable[ScalaFormattingRuleInstance]): Set[RuleRelation] = {
     val rules = ruleInstances.map(_.rule).toSet
-    rules.map(_.relations.map(_._1)).fold(Set())((acc, cur) => acc.union(cur))
+    rules.map(_.relations.map(_._1).filter(!_.isIndentTypeRelation)).fold(Set())((acc, cur) => acc.union(cur))
   }
 
   /**
@@ -513,7 +565,10 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
     null
   }
 
-  def deriveInitialSettings(failLogger: Option[SettingDeductionFailLogger] = None): mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]] = {
+  def deriveInitialSettings(failLogger: Option[SettingDeductionFailLogger] = None,
+                            needWrapInReadAction: Boolean,
+                            processIndentsOnly: Boolean):
+  mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]] = {
     val rulesToEntries = mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]]()
     val processedRules = mutable.Set[ScalaFormattingRuleInstance]()
 
@@ -523,7 +578,17 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
       for (child <- childRules if !processedRules.contains(child)) {
         var possibleRuleSettings = List[(ScalaBlock, List[ScalaBlockFormatterEntry])]()
         for (matchedBlock <- rulesToSpacingDefiningBlocks.getOrElse(child, List())) {
-          possibleRuleSettings = (matchedBlock, ScalaFormattingRuleMatcher.getPossibleSpacingSettings(matchedBlock, child)) :: possibleRuleSettings
+          if (needWrapInReadAction) {
+            wrapInReadAction {
+              possibleRuleSettings =
+                      (matchedBlock, ScalaFormattingRuleMatcher.getPossibleSpacingSettings(matchedBlock, child)) ::
+                              possibleRuleSettings
+            }
+          } else {
+            possibleRuleSettings =
+                    (matchedBlock, ScalaFormattingRuleMatcher.getPossibleSpacingSettings(matchedBlock, child)) ::
+                            possibleRuleSettings
+          }
         }
         possibleSettings.put(child, possibleRuleSettings)
         //mark the rule so that we don't try to deduce entries for it multiple times
@@ -532,7 +597,8 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
         rulesToUnifyBlocksFor = child :: rulesToUnifyBlocksFor
       }
       //make entries for blocks within single rule consistent in terms of spacings, indents and wraps
-      val singleRulesProcessed = processSingleRules(rulesToUnifyBlocksFor, possibleSettings)
+      val singleRulesProcessed =
+        processSingleRules(rulesToUnifyBlocksFor, possibleSettings, failLogger, needWrapInReadAction, processIndentsOnly)
       for (entry <- singleRulesProcessed) {
         rulesToEntries += entry
       }
@@ -542,9 +608,38 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
   }
 
   def processRelations(rulesToEntries: mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]],
+                       doProcessNonIndentRelations: Boolean = true,
+                       failLogger: Option[SettingDeductionFailLogger] = None): FormattingSettingsTree#LayeredTraversal = {
+    val baseMap = Map(rulesToEntries.toSeq:_*)
+
+    val root = FormattingSettingsTree(rulesToEntries.keys.toSeq, new FormattingSettings(None, None, baseMap))
+
+    val startingLayer: FormattingSettingsTree#LayeredTraversal = root.getRootTraversal
+
+    val indentsStartLayer = if (doProcessNonIndentRelations) {
+      processNonIndentRelations(startingLayer, rulesToEntries, failLogger)
+    } else {
+      startingLayer
+    }
+
+    processIndentRelations(indentsStartLayer)
+
+  }
+
+
+  def processIndentRelations(startingLayer: FormattingSettingsTree#LayeredTraversal,
+                             failLogger: Option[SettingDeductionFailLogger] = None): FormattingSettingsTree#LayeredTraversal = {
+
+    val currentLayer = IndentTypeRelation.continuationIndentRelation.filter(startingLayer)
+
+    IndentTypeRelation.normalIndentRelation.filter(currentLayer)
+  }
+
+  def processNonIndentRelations(startingLayer: FormattingSettingsTree#LayeredTraversal,
+                       rulesToEntries: mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]],
                        failLogger: Option[SettingDeductionFailLogger] = None):
   FormattingSettingsTree#LayeredTraversal = {
-    val relations = getRelations(rulesToEntries.keySet)
+    val relations = getNonIndentRelations(rulesToEntries.keySet)
 
     processAlignments(rulesToEntries, relations)
 
@@ -552,11 +647,7 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
 
     //var relationSettings = List(rulesToEntries)
 
-    val baseMap = Map(rulesToEntries.toSeq:_*)
-
-    val root = FormattingSettingsTree(rulesToEntries.keys.toSeq, new FormattingSettings(None, None, baseMap))
-
-    var currentLayer: FormattingSettingsTree#LayeredTraversal = root.getRootTraversal
+    var currentLayer: FormattingSettingsTree#LayeredTraversal = startingLayer
 
     for (relation <- relations) {
       currentLayer = relation.filter(currentLayer)
@@ -571,26 +662,30 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
    *
    * @return
    */
-  def deriveSettings(project: Project): FormattingSettings = {
+  def deriveSettings(project: Project,
+                     failLogger: Option[SettingDeductionFailLogger] = None,
+                     needWrapInReadAction: Boolean = false,
+                     processNonIndentRelations: Boolean = true): FormattingSettings = {
 
-    val rulesToEntries = deriveInitialSettings()
+    val rulesToEntries = deriveInitialSettings(failLogger, needWrapInReadAction, !processNonIndentRelations)
 
-    val relationPossibilitiesLayer = processRelations(rulesToEntries)
+    val relationPossibilitiesLayer = processRelations(rulesToEntries, processNonIndentRelations)
 
-    relationPossibilitiesLayer.traverse(
-      (node, nodeEntry) => {
-        node.formattingSettings match {
-          case Some(settings) =>
-            val deducedSettings = deduceIndentSettings(settings.instances)
-            node.splitIndents(deducedSettings)
-          case _ =>
-        }
-      }
-    )
+//    relationPossibilitiesLayer.traverse(
+//      (node, nodeEntry) => {
+//        node.formattingSettings match {
+//          case Some(settings) =>
+//            val deducedSettings = deduceIndentSettings(settings.instances)
+//            node.splitIndents(deducedSettings)
+//          case _ =>
+//        }
+//      }
+//    )
 
     val finalLayer = relationPossibilitiesLayer.descend
 
-    currentSettings = resolveMultiplePossibleSettings(finalLayer, isInteractive = true, project)
+    currentSettings = resolveMultiplePossibleSettings(finalLayer, isInteractive = false, project)
+//    currentSettings = deduceIndentSettings(Map(rulesToEntries.toList:_*)).head
     currentSettings
   }
 
@@ -758,24 +853,24 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
 
 object ScalaFormattingRuleMatcher {
 
-  def getDefaultMatcher(project: Option[Project] = None): ScalaFormattingRuleMatcher =
+  def createDefaultMatcher(project: Option[Project] = None): ScalaFormattingRuleMatcher =
     new ScalaFormattingRuleMatcher(topRulesByIds, project)
 
-  def getDefaultMatcher(project: Project): ScalaFormattingRuleMatcher = getDefaultMatcher(Some(project))
+  def createDefaultMatcher(project: Project): ScalaFormattingRuleMatcher = createDefaultMatcher(Some(project))
 
   def topRulesByIds: Map[String, ScalaFormattingRule] =
   //first, construct default rules
     Map[String, ScalaFormattingRule](
-      rule.whileDefault.id -> rule.whileDefault,
-      rule.doDefault.id -> rule.doDefault,
+//      rule.whileDefault.id -> rule.whileDefault,
+//      rule.doDefault.id -> rule.doDefault,
       rule.ifDefault.id -> rule.ifDefault,
-      rule.caseClausesComposite.id -> rule.caseClausesComposite,
-      rule.tryDefault.id -> rule.tryDefault,
-      rule.matchRule.id -> rule.matchRule,
-      rule.idChainDefault.id -> rule.idChainDefault,
-      rule.parametersDefault.id -> rule.parametersDefault,
-      rule.typeParametersList.id -> rule.typeParametersList,
-      rule.forDefault.id -> rule.forDefault
+//      rule.caseClausesComposite.id -> rule.caseClausesComposite,
+//      rule.tryDefault.id -> rule.tryDefault,
+//      rule.matchRule.id -> rule.matchRule,
+      rule.idChainDefault.id -> rule.idChainDefault
+//      rule.parametersDefault.id -> rule.parametersDefault,
+//      rule.typeParametersList.id -> rule.typeParametersList,
+//      rule.forDefault.id -> rule.forDefault
 //      rule.importChainDefault.id -> rule.importChainDefault
     )
   //Map[String, ScalaFormattingRule](rule.caseClausesComposite.id -> rule.caseClausesComposite)

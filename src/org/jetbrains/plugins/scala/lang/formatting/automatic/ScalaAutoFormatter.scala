@@ -17,6 +17,8 @@ import com.intellij.openapi.project.Project
  */
 class ScalaAutoFormatter(matcher: ScalaFormattingRuleMatcher) {
 
+  def getMatcher = matcher
+
   //  private val anchorToAlignment = mutable.HashMap[ScalaFormattingRule.Anchor, Alignment]()
 
   private val topMatchToAlignmentData = mutable.Map[RuleMatch, mutable.Map[RuleRelation, Alignment]]()
@@ -124,9 +126,14 @@ class ScalaAutoFormatter(matcher: ScalaFormattingRuleMatcher) {
           if (indentEntry.originatingFromNoSpaceChild) Indent.getNoneIndent else
           indentEntry.indentInfo match {
             case Some(indentInfo) => indentInfo.indentType match {
-              case Some(IndentType.ContinuationIndent) => Indent.getContinuationIndent(indentInfo.indentRelativeToDirectParent)
-              case Some(IndentType.NormalIndent) => Indent.getNormalIndent(indentInfo.indentRelativeToDirectParent)
-              case _ => Indent.getSpaceIndent(indentInfo.indentLength, indentInfo.indentRelativeToDirectParent)
+              case Some(IndentType.ContinuationIndent) =>
+//                Indent.getContinuationIndent(indentInfo.indentRelativeToDirectParent)
+                Indent.getSpaceIndent(indentInfo.indentLength, indentInfo.indentRelativeToDirectParent)
+              case Some(IndentType.NormalIndent) =>
+//                Indent.getNormalIndent(indentInfo.indentRelativeToDirectParent)
+                Indent.getSpaceIndent(indentInfo.indentLength, indentInfo.indentRelativeToDirectParent)
+              case _ =>
+                Indent.getSpaceIndent(indentInfo.indentLength, indentInfo.indentRelativeToDirectParent)
             }
             case None => getDefaultIndent
           }
@@ -135,15 +142,19 @@ class ScalaAutoFormatter(matcher: ScalaFormattingRuleMatcher) {
     }
   }
 
-  def runMatcher(rootBlock: ScalaBlock) = matcher.matchBlockTree(rootBlock)
+  def runMatcher(rootBlock: ScalaBlock, needWrapInReadAction: Boolean = true) = matcher.matchBlockTree(rootBlock, None, needWrapInReadAction)
 
-  def educateMatcher(project: Project) {
-    matcher.deriveSettings(project)
+  def educateMatcher(project: Project, needWrapInReadAction: Boolean = true) {
+    matcher.deriveSettings(project, None, needWrapInReadAction)
     matcher.reset()
   }
 
-  def resetMatcher {matcher.reset()}
-}
+  def educateAutoIndent(project: Project, needWrapInReadAction: Boolean = true) {
+    matcher.deriveSettings(project, None, needWrapInReadAction, false)
+    matcher.reset()
+  }
 
-object ScalaAutoFormatter {
+  def getSettings = matcher.getCurrentSettings
+
+  def resetMatcher {matcher.reset()}
 }

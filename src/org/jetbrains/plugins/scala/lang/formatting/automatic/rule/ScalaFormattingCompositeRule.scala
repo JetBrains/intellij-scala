@@ -31,7 +31,8 @@ class ScalaFormattingCompositeRule private (val composingConditions: List[ScalaF
   override def checkSome(blocks: List[Block],
                          parentAndPosition: Option[RuleParentInfo],
                          top: ScalaFormattingRule,
-                         matcher: ScalaFormattingRuleMatcher): Option[(List[Block], RuleMatch, List[Block])] = {
+                         matcher: ScalaFormattingRuleMatcher,
+                         missingBlocks: MissingBlocksData*): Option[(List[Block], RuleMatch, List[Block])] = {
 //    println("checking composite rule " + id)
     val ruleInstance = matcher.ruleInstance(parentAndPosition, this, top)
     blocks.foldLeft(List[Block](), None: Option[RuleMatch], blocks, true)(
@@ -47,7 +48,7 @@ class ScalaFormattingCompositeRule private (val composingConditions: List[ScalaF
             if (!proceed) {
               (found, tail, false)
             } else {
-              condition.checkSome(tail, Some(parentInfo), top, matcher) match {
+              condition.checkSome(tail, Some(parentInfo), top, matcher, missingBlocks:_*) match {
                 case None => composingCheckFailed
                 case Some((innerBefore, innerFound, innerAfter)) =>
                   if (innerBefore.isEmpty) (Some(innerFound :: found.getOrElse(List[RuleMatch]())), innerAfter, true)

@@ -34,11 +34,12 @@ class OrRule private (val composingConditions: List[ScalaFormattingRule],
   override def checkSome(blocks: List[Block],
                          parentInfo: Option[RuleParentInfo],
                          top: ScalaFormattingRule,
-                         matcher: ScalaFormattingRuleMatcher): Option[(List[Block], RuleMatch, List[Block])] = {
+                         matcher: ScalaFormattingRuleMatcher,
+                         missingBlocks: MissingBlocksData*): Option[(List[Block], RuleMatch, List[Block])] = {
 //    println("checking or rule " + id)
     val ruleInstance = matcher.ruleInstance(parentInfo, this, top)
     for ((condition, position) <- childrenWithPosition) {
-      condition.checkSome(blocks, Some(RuleParentInfo(ruleInstance, position)), top, matcher) match {
+      condition.checkSome(blocks, Some(RuleParentInfo(ruleInstance, position)), top, matcher, missingBlocks:_*) match {
         case Some((before, found, after)) => return Some(before, ruleInstance.createMatch(found), after)
         case None =>
       }

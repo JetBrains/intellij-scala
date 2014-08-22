@@ -25,16 +25,26 @@ class ScalaBlockRule private (val testFunction: Block => Boolean,
   override def checkSome(blocks: List[Block],
                          parentInfo: Option[RuleParentInfo],
                          top: ScalaFormattingRule,
-                         matcher: ScalaFormattingRuleMatcher) = {
+                         matcher: ScalaFormattingRuleMatcher,
+                         missingBlocks: MissingBlocksData*) = {
+    val parentBlock = blocks.headOption.map(_.asInstanceOf[ScalaBlock].myParentBlock)
 //    println("checking block rule " + id)
-    val (before, found, after) = blocks.foldLeft(List[Block](), None: Option[Block], List[Block]())((acc, block) => {
-      val (before, found, after) = acc
-      if (found.isDefined) (before, found, block::after)
-      else if (testFunction(block)) (before, Some(block), after)
-      else (block::before, found, after)
+    val (before, foundBlock, after, isMatched) =
+    blocks.zipWithIndex.foldLeft(List[Block](), None: Option[Block], List[Block](), false)((acc, blockAndIndex) => {
+      val (block, index) = blockAndIndex
+      val (before, foundBlock, after, isMatched) = acc
+      if (parentBlock.isDefined && missingBlocks.contains(MissingBlocksData(parentBlock.get, index)))
+        (before, None, after, true)
+      else if (isMatched) (before, foundBlock, block::after, isMatched)
+      else if (testFunction(block)) (before, Some(block), after, true)
+      else (block::before, foundBlock, after, isMatched)
     })
     val ruleInstance = matcher.ruleInstance(parentInfo, this, top)
-    if (found.isDefined && found.get.isInstanceOf[ScalaBlock]) Some(before.reverse, ruleInstance.createMatch(found.get.asInstanceOf[ScalaBlock]), after.reverse) else None
+    if (isMatched) Some(before.reverse,
+      if (foundBlock.isDefined && foundBlock.get.isInstanceOf[ScalaBlock])
+        ruleInstance.createMatch(foundBlock.get.asInstanceOf[ScalaBlock])
+      else ruleInstance.createMatch(),
+    after.reverse) else None
   }
 
   override def getPresetIndentType: Option[IndentType.IndentType] = indentType
@@ -58,31 +68,42 @@ class ScalaBlockRule private (val testFunction: Block => Boolean,
 }
 
 object ScalaBlockRule {
-  def apply(testFunction: Block => Boolean, id: String) = addRule(new ScalaBlockRule(testFunction, None, id))
-  def apply(expectedText: String, id:String) = addRule(new ScalaBlockRule(
+  def apply(testFunction: Block => Boolean, id: String, indentType: Option[IndentType.IndentType]): ScalaFormattingRule =
+    addRule(new ScalaBlockRule(testFunction, None, id))
+  def apply(testFunction: Block => Boolean, id: String): ScalaFormattingRule = apply(testFunction, id, None)
+  def apply(expectedText: String, id:String, indentType: Option[IndentType.IndentType]): ScalaFormattingRule =
+    addRule(new ScalaBlockRule(
   {
     case scalaBlock: ScalaBlock => scalaBlock.getNode.getText == expectedText
     case _ => false
   }, None, id
   ))
-  def apply(id:String, expectedType: IElementType*) = addRule(new ScalaBlockRule(
+
+  def apply(expectedText: String, id:String): ScalaFormattingRule = apply(expectedText, id, None)
+  def apply(id:String, indentType: Option[IndentType.IndentType], expectedType: IElementType*): ScalaFormattingRule = addRule(new ScalaBlockRule(
+  {
+    case scalaBlock: ScalaBlock => expectedType.contains(scalaBlock.getNode.getElementType)
+    case _ => false
+  }, indentType, id
+  ))
+  def apply(id: String, expectedType: IElementType*): ScalaFormattingRule = apply(id, None, expectedType:_*)
+  def apply(id:String, expectedType: List[IElementType], indentType: Option[IndentType.IndentType]): ScalaFormattingRule =
+  addRule(new ScalaBlockRule(
   {
     case scalaBlock: ScalaBlock => expectedType.contains(scalaBlock.getNode.getElementType)
     case _ => false
   }, None, id
   ))
-  def apply(id:String, expectedType: List[IElementType]) = addRule(new ScalaBlockRule(
-  {
-    case scalaBlock: ScalaBlock => expectedType.contains(scalaBlock.getNode.getElementType)
-    case _ => false
-  }, None, id
-  ))
-  def apply(expectedType: IElementType, expectedText: String, id: String) = addRule(new ScalaBlockRule(
+  def apply(id:String, expectedType: List[IElementType]): ScalaFormattingRule = apply(id, expectedType, None)
+  def apply(expectedType: IElementType, expectedText: String, id: String,
+            indentType: Option[IndentType.IndentType] = None): ScalaFormattingRule = addRule(new ScalaBlockRule(
   {
     case scalaBlock: ScalaBlock => scalaBlock.getNode.getElementType == expectedType && scalaBlock.getNode.getText == expectedText
     case _ => false
   }, None, id
   ))
+  def apply(expectedType: IElementType, expectedText: String, id: String): ScalaFormattingRule =
+    apply(expectedType, expectedText, id, None)
 }
 
 

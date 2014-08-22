@@ -12,10 +12,11 @@ import com.intellij.openapi.project.Project
 class DeriveSettingsAction extends AnAction {
   override def actionPerformed(e: AnActionEvent) {
     println("derive settings action is performed")
+    val startTime = System.currentTimeMillis()
     val dataContext: DataContext = e.getDataContext
     val project: Project = CommonDataKeys.PROJECT.getData(dataContext)
     ScalaBlock.educateFormatter(project)
-    ScalaBlock.resetMatcher
+    println("time consumed = " + (System.currentTimeMillis() - startTime))
   }
 
   override def update(e: AnActionEvent) {

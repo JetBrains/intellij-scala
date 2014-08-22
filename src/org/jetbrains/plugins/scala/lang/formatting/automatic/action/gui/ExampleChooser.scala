@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala
-package lang.formatting.automatic.settings.gui
+package lang.formatting.automatic.action.gui
 
 /**
  * Created by Roman.Shein on 17.07.2014.

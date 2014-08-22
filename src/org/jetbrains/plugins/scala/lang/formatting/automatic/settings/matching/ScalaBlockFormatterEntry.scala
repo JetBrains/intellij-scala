@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.ScalaFormattin
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings._
 import scala.Some
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.IndentType.IndentType
 
 /**
  * @author Roman.Shein
@@ -18,6 +19,9 @@ class ScalaBlockFormatterEntry (val spacing: SpacingInfo,
                                val instances: List[ScalaBlock],
                                val rule: ScalaFormattingRuleInstance,
                                val originatingFromNoSpaceChild: Boolean = false) {
+  def setIndentType(indentType: IndentType.IndentType) =
+    new ScalaBlockFormatterEntry(spacing, indentInfo.map(_.setIndentType(indentType)), alignment, wrap, instances, rule)
+
   def setIndent(option: Option[IndentInfo]) = new ScalaBlockFormatterEntry(spacing, option, alignment, wrap, instances, rule)
 
   def setWrap(wrapType: WrapType) = new ScalaBlockFormatterEntry(spacing, indentInfo, alignment, new WrapSetting(true, Some(wrapType)), instances, rule)

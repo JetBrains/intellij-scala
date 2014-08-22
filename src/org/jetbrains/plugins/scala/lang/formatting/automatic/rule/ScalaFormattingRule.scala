@@ -32,12 +32,19 @@ trait ScalaFormattingRule {
   def check(blocks: List[Block],
             parentAndPosition:Option[RuleParentInfo],
             top: ScalaFormattingRule,
-            matcher: ScalaFormattingRuleMatcher): Option[RuleMatch] = checkSome(blocks, parentAndPosition, top, matcher) match {
-    case Some((before, found, after)) /*if before.size == 0 && after.size == 0*/ => Some(found)
-    case _ => None
-  }
+            matcher: ScalaFormattingRuleMatcher,
+            missingBlocks: MissingBlocksData*): Option[RuleMatch] =
+    checkSome(blocks, parentAndPosition, top, matcher, missingBlocks:_*) match {
+      case Some((before, found, after)) /*if before.size == 0 && after.size == 0*/ => Some(found)
+      case _ => None
+    }
 
-  def check(block: ScalaBlock, parentAndPosition:Option[RuleParentInfo], top: ScalaFormattingRule, matcher: ScalaFormattingRuleMatcher): Option[RuleMatch] = check(block.getSubBlocks().toList, parentAndPosition, top, matcher)
+  def check(block: ScalaBlock,
+            parentAndPosition:Option[RuleParentInfo],
+            top: ScalaFormattingRule,
+            matcher: ScalaFormattingRuleMatcher,
+            missingBlocks: MissingBlocksData*): Option[RuleMatch] =
+    check(block.getSubBlocks().toList, parentAndPosition, top, matcher, missingBlocks:_*)
 
   /**
    * Check whether some continuous subsequence of the given sequence of blocks complies with the rule.
@@ -45,7 +52,11 @@ trait ScalaFormattingRule {
    * @return (before, found, after) where found is a list of blocks that comply with the rule and
    *         before ++ found ++ after == blocks
    */
-  def checkSome(blocks: List[Block], parentAndPosition:Option[RuleParentInfo], top: ScalaFormattingRule, matcher: ScalaFormattingRuleMatcher): Option[(List[Block], RuleMatch, List[Block])]
+  def checkSome(blocks: List[Block],
+                parentAndPosition: Option[RuleParentInfo],
+                top: ScalaFormattingRule,
+                matcher: ScalaFormattingRuleMatcher,
+                missingBlocks: MissingBlocksData*): Option[(List[Block], RuleMatch, List[Block])]
 
   def getPresetIndentType: Option[IndentType]
 
@@ -92,6 +103,10 @@ trait ScalaFormattingRule {
   def + = ScalaSomeRule(1, this, oneOrMoreId + id)
 
   def &(relationId: String, additionalIds: String*) = rule.&(this, relationId, additionalIds:_*)
+
+  def n = rule.n(this)
+
+  def c = rule.c(this)
 
   def isBlockRule: Boolean = false
 }

@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala
-package lang.formatting.automatic.settings.gui
+package lang.formatting.automatic.action.gui
 
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.project.Project

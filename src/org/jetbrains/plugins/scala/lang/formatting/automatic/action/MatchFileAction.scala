@@ -16,6 +16,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettings
 class MatchFileAction extends AnAction {
   override def actionPerformed(e: AnActionEvent) {
     println("match file action is performed")
+    val startTime = System.currentTimeMillis()
     val dataContext: DataContext = e.getDataContext
     val project: Project = CommonDataKeys.PROJECT.getData(dataContext)
     if (project == null) {
@@ -30,6 +31,7 @@ class MatchFileAction extends AnAction {
       val codeStyleSettings = new CodeStyleSettings
       val topBlock = new ScalaBlock(null, astNode, null, null, Indent.getAbsoluteNoneIndent, null, codeStyleSettings)
       ScalaBlock.matchBlock(topBlock)
+      println("time consumed = " + (System.currentTimeMillis() - startTime))
     }
   }
 

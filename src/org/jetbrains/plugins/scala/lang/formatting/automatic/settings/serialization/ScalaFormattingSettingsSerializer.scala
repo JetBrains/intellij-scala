@@ -5,10 +5,8 @@ import com.intellij.openapi.components._
 import com.intellij.openapi.project.Project
 import org.jdom.Element
 import scala.collection.mutable
-import com.intellij.openapi.util.DefaultJDOMExternalizer
 import scala.collection.JavaConversions._
 import com.intellij.formatting.WrapType
-import java.io.File
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.matching.{ScalaBlockFormatterEntry, RuleParentInfo, ScalaFormattingRuleInstance, ScalaFormattingRuleMatcher}
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings._
@@ -34,11 +32,6 @@ class ScalaFormattingSettingsSerializer extends PersistentStateComponent[Element
   private var instance: Option[FormattingSettings] = None
 
   def getInstance = instance
-
-  private def loadIntChild(element: Element, id: String) = Integer.parseInt(element.getChild(id).getText)
-
-  private def loadBooleanChild(element: Element, id: String) =
-    if (element.getChild(id).getText.toLowerCase == "true") true else false
 
   /**
    * Builds a bimap of top ruleInstances to Int ids.
@@ -100,7 +93,7 @@ class ScalaFormattingSettingsSerializer extends PersistentStateComponent[Element
       //now build a set from relations
       val relationsSet = Set(relations.map(arg => (rule.getRelationById(arg._1), arg._2)):_*)
 
-      val id = loadIntChild(instanceElement, ruleInstanceIdId)
+      val id = ScalaFormattingSettingsSerializer.loadIntChild(instanceElement, ruleInstanceIdId)
       val parentElement = instanceElement.getChild(ruleInstanceParentId)
       val positionElement = instanceElement.getChild(ruleInstancePositionId)
 
@@ -144,7 +137,7 @@ class ScalaFormattingSettingsSerializer extends PersistentStateComponent[Element
           var entries = List[ScalaBlockFormatterEntry]()
           if (instanceEntriesElement != null) {
             for (entryElement <- instanceEntriesElement.getChildren.toList) {
-              entries = loadEntry(entryElement, newInstance) :: entries
+              entries = ScalaFormattingSettingsSerializer.loadEntry(entryElement, newInstance) :: entries
             }
           }
 
@@ -165,111 +158,6 @@ class ScalaFormattingSettingsSerializer extends PersistentStateComponent[Element
     } else None
 
     instance = Some(new FormattingSettings(normalIndentSize, continuationIndentSize, instancesToEntries))
-  }
-
-  val alignmentId = "ALIGNMENT"
-  val indentInfoId = "INDENT_INFO"
-  val indentLengthId = "INDENT_LENGTH"
-  val indentRelativeToDirectParentId = "INDENT_RELATIVE_TO_DIRECT_PARENT"
-  val indentTypeId = "INDENT_TYPE"
-
-
-  private def storeIndentInfo(indentInfo: IndentInfo): Element = {
-    val res = new Element(indentInfoId)
-    res.addContent(new Element(indentLengthId).setText(indentInfo.indentLength.toString))
-    res.addContent(new Element(indentRelativeToDirectParentId).setText(indentInfo.indentRelativeToDirectParent.toString))
-    if (indentInfo.indentType.isDefined) {
-      res.addContent(new Element(indentTypeId).setText(indentInfo.indentType.get.toString))
-    }
-    res
-  }
-
-  private def parseIndentType(text: String) = {
-    if (text == IndentType.ContinuationIndent.toString) {
-      IndentType.ContinuationIndent
-    } else {
-      IndentType.NormalIndent
-    }
-  }
-
-  private def loadIndentInfo(element: Element): Option[IndentInfo] = {
-    if (element != null) {
-      val indentTypeElement = element.getChild(indentTypeId)
-      Some(new IndentInfo(loadIntChild(element, indentLengthId),
-        loadBooleanChild(element, indentRelativeToDirectParentId),
-        if (indentTypeElement != null) Some(parseIndentType(indentTypeElement.getText)) else None))
-    } else None
-  }
-
-  val spacingInfoId = "SPACING"
-  val spacesCountId = "SPACES_COUNT"
-  val minLinebreaksCountId = "MIN_LINEBREAKS"
-  val maxLinebreaksCountId = "MAX_LINEBREAKS"
-  val actualLinebreaksCountId = "LINEBREAKS"
-
-  private def storeSpacingInfo(info: SpacingInfo): Element = {
-    val res = new Element(spacingInfoId)
-    res.addContent(new Element(spacesCountId).setText(info.spacesCount.toString))
-//    res.addContent(new Element(minLinebreaksCountId).setText(info.minLineBreaksCount.toString))
-    info.minLineBreaksCount.map(_.toString).map(new Element(minLinebreaksCountId).setText).map(res.addContent)
-//    res.addContent(new Element(maxLinebreaksCountId).setText(info.maxLineBreaksCount.toString))
-    info.maxLineBreaksCount.map(_.toString).map(new Element(maxLinebreaksCountId).setText).map(res.addContent)
-    res.addContent(new Element(actualLinebreaksCountId).setText(info.lineBreaksCount.toString))
-    res
-  }
-
-  private def loadSpacingInfo(element: Element): SpacingInfo = {
-    val spacesCount = loadIntChild(element, spacesCountId)
-    val minLinebreaksCountChild = element.getChild(minLinebreaksCountId)
-    val maxLinebreaksCountChild = element.getChild(maxLinebreaksCountId)
-    val linebreaksCount = loadIntChild(element, actualLinebreaksCountId)
-    new SpacingInfo(spacesCount,
-      if (minLinebreaksCountChild != null) Some(Integer.parseInt(minLinebreaksCountChild.getText)) else None,
-      if (maxLinebreaksCountChild != null) Some(Integer.parseInt(maxLinebreaksCountChild.getText)) else None,
-      linebreaksCount)
-  }
-
-  val wrapInfoId = "WRAP"
-  val wrapNeededId = "NEED_WRAP"
-  val wrapTypeId = "WRAP_TYPE"
-
-  private def storeWrap(wrap: WrapSetting): Element = {
-    val res = new Element(wrapInfoId)
-    res.addContent(new Element(wrapNeededId).setText(wrap.wrapDefined.toString))
-    wrap.wrapType.map((wrapType) => res.addContent(new Element(wrapTypeId).setText(wrapType.toString)))
-    res
-  }
-
-  private def loadWrap(element: Element): WrapSetting = {
-    val wrapTypeElement = element.getChild(wrapTypeId)
-    new WrapSetting(loadBooleanChild(element, wrapNeededId),
-      if (wrapTypeElement != null) {
-        Some(WrapType.valueOf(wrapTypeElement.getText))
-      } else None
-    )
-  }
-
-  val entryRuleInstanceId = "RULE_INSTANCE"
-  val originatingFromNoSpaceChildId = "FROM_FIRST_CHILD"
-
-  private def storeEntry(entry: ScalaBlockFormatterEntry, instancesToIds: mutable.Map[ScalaFormattingRuleInstance, Int], name: String): Element = {
-    val res = new Element("name")
-    res.addContent(storeSpacingInfo(entry.spacing))
-    res.addContent(new Element(alignmentId).setText(entry.alignment.needAlignment.toString))
-    entry.indentInfo.map(storeIndentInfo).map(res.addContent)
-    res.addContent(storeWrap(entry.wrap))
-//    res.addContent(new Element(entryRuleInstanceId).setText(instancesToIds(entry.ruleInstance).toString))
-    res.addContent(new Element(originatingFromNoSpaceChildId).setText(entry.originatingFromNoSpaceChild.toString))
-    res
-  }
-
-  private def loadEntry(element: Element, instance: ScalaFormattingRuleInstance): ScalaBlockFormatterEntry = {
-    val spacingInfo = loadSpacingInfo(element.getChild(spacingInfoId))
-    val alignmentInfo = AlignmentSetting(loadBooleanChild(element, alignmentId))
-    val indentInfo = loadIndentInfo(element.getChild(indentInfoId))
-    val wrapInfo = loadWrap(element.getChild(wrapInfoId))
-    val originatingFromNoSpaceChild = loadBooleanChild(element, originatingFromNoSpaceChildId)
-    new ScalaBlockFormatterEntry(spacingInfo, indentInfo, alignmentInfo, wrapInfo, List(), instance, originatingFromNoSpaceChild)
   }
 
   val entriesId = "ENTRIES"
@@ -325,7 +213,10 @@ class ScalaFormattingSettingsSerializer extends PersistentStateComponent[Element
             val instanceEntriesElement = new Element("instance" + id.toString)
             for ((entry, index) <- settings.instances(instance).zipWithIndex) {
               assert(entry.rule == instance)
-              instanceEntriesElement.addContent(storeEntry(entry, instancesToIds, "entry"+index))
+              instanceEntriesElement.addContent(
+//                ScalaFormattingSettingsSerializer.storeEntry(entry, instancesToIds, "entry"+index)
+                ScalaFormattingSettingsSerializer.storeEntry(entry, "entry"+index)
+              )
             }
             entriesElement.addContent(instanceEntriesElement)
           }
@@ -346,4 +237,113 @@ class ScalaFormattingSettingsSerializer extends PersistentStateComponent[Element
 object ScalaFormattingSettingsSerializer {
 
   def getInstance(project: Project): ScalaFormattingSettingsSerializer = ServiceManager.getService(project, classOf[ScalaFormattingSettingsSerializer])
+
+  val spacingInfoId = "SPACING"
+  val spacesCountId = "SPACES_COUNT"
+  val minLinebreaksCountId = "MIN_LINEBREAKS"
+  val maxLinebreaksCountId = "MAX_LINEBREAKS"
+  val actualLinebreaksCountId = "LINEBREAKS"
+  val alignmentId = "ALIGNMENT"
+  val indentInfoId = "INDENT_INFO"
+  val indentLengthId = "INDENT_LENGTH"
+  val indentRelativeToDirectParentId = "INDENT_RELATIVE_TO_DIRECT_PARENT"
+  val indentTypeId = "INDENT_TYPE"
+  val wrapInfoId = "WRAP"
+  val wrapNeededId = "NEED_WRAP"
+  val wrapTypeId = "WRAP_TYPE"
+  val entryRuleInstanceId = "RULE_INSTANCE"
+  val originatingFromNoSpaceChildId = "FROM_FIRST_CHILD"
+
+  private def storeSpacingInfo(info: SpacingInfo): Element = {
+    val res = new Element(spacingInfoId)
+    res.addContent(new Element(spacesCountId).setText(info.spacesCount.toString))
+    //    res.addContent(new Element(minLinebreaksCountId).setText(info.minLineBreaksCount.toString))
+    info.minLineBreaksCount.map(_.toString).map(new Element(minLinebreaksCountId).setText).map(res.addContent)
+    //    res.addContent(new Element(maxLinebreaksCountId).setText(info.maxLineBreaksCount.toString))
+    info.maxLineBreaksCount.map(_.toString).map(new Element(maxLinebreaksCountId).setText).map(res.addContent)
+    res.addContent(new Element(actualLinebreaksCountId).setText(info.lineBreaksCount.toString))
+    res
+  }
+
+  private def storeIndentInfo(indentInfo: IndentInfo): Element = {
+    val res = new Element(indentInfoId)
+    res.addContent(new Element(indentLengthId).setText(indentInfo.indentLength.toString))
+    res.addContent(new Element(indentRelativeToDirectParentId).setText(indentInfo.indentRelativeToDirectParent.toString))
+    if (indentInfo.indentType.isDefined) {
+      res.addContent(new Element(indentTypeId).setText(indentInfo.indentType.get.toString))
+    }
+    res
+  }
+
+  private def storeWrap(wrap: WrapSetting): Element = {
+    val res = new Element(wrapInfoId)
+    res.addContent(new Element(wrapNeededId).setText(wrap.wrapDefined.toString))
+    wrap.wrapType.map((wrapType) => res.addContent(new Element(wrapTypeId).setText(wrapType.toString)))
+    res
+  }
+
+//  def storeEntry(entry: ScalaBlockFormatterEntry, instancesToIds: mutable.Map[ScalaFormattingRuleInstance, Int], name: String): Element = {
+  def storeEntry(entry: ScalaBlockFormatterEntry, name: String): Element = {
+    val res = new Element("name")
+    res.addContent(storeSpacingInfo(entry.spacing))
+    res.addContent(new Element(alignmentId).setText(entry.alignment.needAlignment.toString))
+    entry.indentInfo.map(storeIndentInfo).map(res.addContent)
+    res.addContent(storeWrap(entry.wrap))
+    //    res.addContent(new Element(entryRuleInstanceId).setText(instancesToIds(entry.ruleInstance).toString))
+    res.addContent(new Element(originatingFromNoSpaceChildId).setText(entry.originatingFromNoSpaceChild.toString))
+    res
+  }
+
+  private def loadIntChild(element: Element, id: String) = Integer.parseInt(element.getChild(id).getText)
+
+  private def loadBooleanChild(element: Element, id: String) =
+    if (element.getChild(id).getText.toLowerCase == "true") true else false
+
+
+  private def parseIndentType(text: String) = {
+    if (text == IndentType.ContinuationIndent.toString) {
+      IndentType.ContinuationIndent
+    } else {
+      IndentType.NormalIndent
+    }
+  }
+
+  private def loadIndentInfo(element: Element): Option[IndentInfo] = {
+    if (element != null) {
+      val indentTypeElement = element.getChild(indentTypeId)
+      Some(new IndentInfo(loadIntChild(element, indentLengthId),
+        loadBooleanChild(element, indentRelativeToDirectParentId),
+        if (indentTypeElement != null) Some(parseIndentType(indentTypeElement.getText)) else None))
+    } else None
+  }
+
+  private def loadSpacingInfo(element: Element): SpacingInfo = {
+    val spacesCount = loadIntChild(element, spacesCountId)
+    val minLinebreaksCountChild = element.getChild(minLinebreaksCountId)
+    val maxLinebreaksCountChild = element.getChild(maxLinebreaksCountId)
+    val linebreaksCount = loadIntChild(element, actualLinebreaksCountId)
+    new SpacingInfo(spacesCount,
+      if (minLinebreaksCountChild != null) Some(Integer.parseInt(minLinebreaksCountChild.getText)) else None,
+      if (maxLinebreaksCountChild != null) Some(Integer.parseInt(maxLinebreaksCountChild.getText)) else None,
+      linebreaksCount)
+  }
+
+  private def loadWrap(element: Element): WrapSetting = {
+    val wrapTypeElement = element.getChild(wrapTypeId)
+    new WrapSetting(loadBooleanChild(element, wrapNeededId),
+      if (wrapTypeElement != null) {
+        Some(WrapType.valueOf(wrapTypeElement.getText))
+      } else None
+    )
+  }
+
+  def loadEntry(element: Element, instance: ScalaFormattingRuleInstance): ScalaBlockFormatterEntry = {
+    val spacingInfo = loadSpacingInfo(element.getChild(spacingInfoId))
+    val alignmentInfo = AlignmentSetting(loadBooleanChild(element, alignmentId))
+    val indentInfo = loadIndentInfo(element.getChild(indentInfoId))
+    val wrapInfo = loadWrap(element.getChild(wrapInfoId))
+    val originatingFromNoSpaceChild = loadBooleanChild(element, originatingFromNoSpaceChildId)
+    new ScalaBlockFormatterEntry(spacingInfo, indentInfo, alignmentInfo, wrapInfo, List(), instance, originatingFromNoSpaceChild)
+  }
+
 }

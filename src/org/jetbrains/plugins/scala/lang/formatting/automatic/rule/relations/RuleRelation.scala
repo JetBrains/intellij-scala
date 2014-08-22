@@ -2,18 +2,20 @@ package org.jetbrains.plugins.scala
 package lang.formatting.automatic.rule.relations
 
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.ScalaFormattingRule
-import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.FormattingSettingsTree
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation.RelationParticipantId
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.matching.ScalaFormattingRuleInstance
 import org.jdom.Element
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.tree.FormattingSettingsTree
 
 /**
  * @author Roman.Shein
  *         Date: 08.05.2014
  */
 abstract class RuleRelation{
+
+  val isIndentTypeRelation = false
 
   val id: String
 

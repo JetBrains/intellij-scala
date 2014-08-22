@@ -44,7 +44,21 @@ class ScalaFormattingRuleInstance(val parentAndPosition: Option[RuleParentInfo],
     case None => ""
   })
 
-  class RuleMatch private[ScalaFormattingRuleInstance] (val childMatches: List[ScalaFormattingRuleInstance#RuleMatch], val formatBlock: Option[ScalaBlock]) {
+  class MatchContext private[ScalaFormattingRuleInstance] (val matchedBlocks: List[ScalaBlock],
+                                                           val parentAndIndexInfo: Option[(ScalaBlock, Int)],
+                                                           val formatBlock: Option[ScalaBlock]){
+  }
+
+  object MatchContext {
+    def apply(matchedBlocks: List[ScalaBlock], formatBlock: ScalaBlock) = new MatchContext(matchedBlocks, None, Some(formatBlock))
+    def apply(matchedBlocks: List[ScalaBlock], parent: ScalaBlock, index: Int) = new MatchContext(matchedBlocks, Some((parent, index)), None)
+    def apply(childMatches: List[ScalaFormattingRuleInstance#RuleMatch]) = new MatchContext(
+      childMatches.map(_.matchContex.matchedBlocks).flatten, None, None
+    )
+  }
+
+  class RuleMatch private[ScalaFormattingRuleInstance] (val childMatches: List[ScalaFormattingRuleInstance#RuleMatch],
+                                                        val matchContex: MatchContext) {
 
 //    override def equals(other: Any): Boolean = {
 //      other match {
@@ -53,6 +67,8 @@ class ScalaFormattingRuleInstance(val parentAndPosition: Option[RuleParentInfo],
 //        case _ => false
 //      }
 //    }
+
+    def formatBlock = matchContex.formatBlock
 
     override def hashCode: Int = rule.hashCode
 
@@ -93,7 +109,7 @@ class ScalaFormattingRuleInstance(val parentAndPosition: Option[RuleParentInfo],
   }
 
   def createMatch(childMatches: List[ScalaFormattingRuleInstance#RuleMatch]): ScalaFormattingRuleInstance#RuleMatch = {
-    val res = new RuleMatch(childMatches.toList, None)
+    val res = new RuleMatch(childMatches.toList, MatchContext(childMatches))
     res
   }
   def createMatch(childMatches: ScalaFormattingRuleInstance#RuleMatch*): ScalaFormattingRuleInstance#RuleMatch = createMatch(childMatches.toList)
@@ -102,7 +118,7 @@ class ScalaFormattingRuleInstance(val parentAndPosition: Option[RuleParentInfo],
     case None => createMatch()
   }
   def createMatch(block: ScalaBlock, childMatches: ScalaFormattingRuleInstance#RuleMatch*): ScalaFormattingRuleInstance#RuleMatch = {
-    val res = new RuleMatch(childMatches.toList, Some(block))
+    val res = new RuleMatch(childMatches.toList, MatchContext(List(block), block))
     res
   }
 }

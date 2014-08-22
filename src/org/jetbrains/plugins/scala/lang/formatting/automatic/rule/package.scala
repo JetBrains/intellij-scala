@@ -7,7 +7,7 @@ import scala.collection.mutable
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.IndentType.IndentType
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.IndentType
-import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.{RuleRelation, SameAlignmentRelation, SameSettingsRelation}
+import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.{IndentTypeRelation, RuleRelation, SameAlignmentRelation, SameSettingsRelation}
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.RuleRelation._
 import scala.Some
 import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.relations.SameSettingsRelation._
@@ -92,6 +92,18 @@ package object rule {
         relation
     }, additionalIds: _*)
 
+  /**
+   * Force the rule instance to use normal indent.
+   * @param rule
+   */
+  def n(rule: ScalaFormattingRule) = {
+    rule.acceptRelation(IndentTypeRelation.normalIndentRelation)
+  }
+
+  def c(rule: ScalaFormattingRule) = {
+    rule.acceptRelation(IndentTypeRelation.continuationIndentRelation)
+  }
+
   def alignment(rule: ScalaFormattingRule, relationId: String) =
     rule.acceptRelation(relationsByIds.get(relationId) match {
       case Some(relation) =>
@@ -107,6 +119,9 @@ package object rule {
   //  val sameSettingsRelationsByIds = mutable.Map[String, SameSettingsRelation]()
   //  val sameAlignmentRelationsByIds = mutable.Map[String, SameAlignmentRelation]()
   private val relationsByIds = mutable.Map[String, RuleRelation]()
+
+  relationsByIds.put(IndentTypeRelation.normalIndentRelation.id, IndentTypeRelation.normalIndentRelation)
+  relationsByIds.put(IndentTypeRelation.continuationIndentRelation.id, IndentTypeRelation.continuationIndentRelation)
 
   def getRelationById(id: String) = relationsByIds.get(id).get
 
@@ -165,7 +180,8 @@ package object rule {
     ScalaElementTypes.THROW_STMT,
     ScalaElementTypes.ASSIGN_STMT,
     ScalaElementTypes.MATCH_STMT,
-    ScalaElementTypes.TYPED_EXPR_STMT
+    ScalaElementTypes.TYPED_EXPR_STMT,
+    ScalaElementTypes.LITERAL
   )
 
   val patterns = List[IElementType](
@@ -272,7 +288,7 @@ package object rule {
 
   val block = ScalaBlockRule("BLOCK", ScalaElementTypes.BLOCK) //TODO: find out if it matches correctly with the grammatics
 
-  val bracedExpr = ScalaFormattingCompositeRule(ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "BRACED EXPR", leftBrace, expr, rightBrace)
+  val bracedExpr = ScalaFormattingCompositeRule(ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "BRACED EXPR", leftBrace, expr.n, rightBrace)
 
   val bracedBlockExpr = ScalaBlockCompositeRule(bracedExpr, ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "BRACED BLOCK EXPR", exprElementTypes) // BLOCK_EXPR?
 
@@ -302,7 +318,7 @@ package object rule {
   val whileComposite = ScalaFormattingCompositeRule("WHILE COMPOSITE",
     whileWord.tag(whileWordTag),
     leftParenthesis,
-    expr,
+    expr.n,
     rightParenthesis,
     maybeBlockExpr)
 
@@ -319,7 +335,10 @@ package object rule {
   val caseClauseArrowAnchor = "CASE CLAUSE ARROW ANCHOR"
 
   val caseClause = ScalaBlockCompositeRule(ScalaElementTypes.CASE_CLAUSE,
-    ScalaFormattingCompositeRule("CASE CLAUSE", caseWord, pattern, maybeGuard, `=>`.&(caseClauseArrowAnchor), block)
+    ScalaFormattingCompositeRule("CASE CLAUSE", caseWord,
+      maybe(
+        seq(pattern, maybeGuard, `=>`.&(caseClauseArrowAnchor), maybe(block.c))
+      )).n
     , ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "CASE CLAUSE COMPOSITE")
 
   val caseClauses = ScalaSomeRule(1, caseClause.&("CASE CLAUSE ANCHOR"), "CASE CLAUSES")
@@ -459,11 +478,11 @@ package object rule {
     ScalaSomeRule(1,
       ScalaFormattingCompositeRule(
         "ID CHAIN HEAD COMPOSITE",
-        idRule.&(idChainAnchor),
+        idRule.&(idChainAnchor).c,
         idChainMaybeArgsRule,
         dot.&(idChainDotAnchor)), "ID CHAIN HEAD"
     ),
-    idRule.&(idChainAnchor),
+    idRule.&(idChainAnchor).c,
     idChainMaybeArgsRule
   ).tag(idChainTag)
 
@@ -495,13 +514,13 @@ package object rule {
   val parametersList = ScalaFormattingCompositeRule(
     "PARAMETERS LIST",
     leftParenthesis,
-    expr.&(parameterAlignmentAnchor, noSpacingId),
+    expr.&(parameterAlignmentAnchor, noSpacingId).c,
     ScalaSomeRule(
       0,
       ScalaFormattingCompositeRule(
         "PARAMETERS LIST INNER",
         comma,
-        expr.&(parameterAlignmentAnchor)
+        expr.&(parameterAlignmentAnchor).c
       ),
       "HEAD ARGS"
     ),
@@ -524,8 +543,8 @@ package object rule {
     ScalaFormattingRule.RULE_PRIORITY_DEFAULT,
     seq(
       leftBracket,
-      typeRule.&(typeRuleParamListId, noSpacingId),
-      seq(comma, typeRule.&(typeRuleParamListId)).*,
+      typeRule.&(typeRuleParamListId, noSpacingId).c,
+      seq(comma, typeRule.&(typeRuleParamListId).c).*,
       rightBracket
     )
   )

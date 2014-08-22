@@ -29,10 +29,11 @@ class MaybeRule private (val inner: ScalaFormattingRule,
   override def checkSome(blocks: List[Block],
                          parentAndPosition: Option[RuleParentInfo],
                          top: ScalaFormattingRule,
-                         matcher: ScalaFormattingRuleMatcher): Option[(List[Block], RuleMatch, List[Block])] = {
+                         matcher: ScalaFormattingRuleMatcher,
+                         missingBlocks: MissingBlocksData*): Option[(List[Block], RuleMatch, List[Block])] = {
 //    println("checking maybe rule " + id)
     val ruleInstance = matcher.ruleInstance(parentAndPosition, this, top)
-    inner.checkSome(blocks, Some(RuleParentInfo(ruleInstance, 0)), top, matcher) match {
+    inner.checkSome(blocks, Some(RuleParentInfo(ruleInstance, 0)), top, matcher, missingBlocks:_*) match {
       case Some((before, found, after)) if before.isEmpty => Some((before, ruleInstance.createMatch(found), after))
       case _ => Some((List.empty, ruleInstance.createMatch(), blocks))
     }

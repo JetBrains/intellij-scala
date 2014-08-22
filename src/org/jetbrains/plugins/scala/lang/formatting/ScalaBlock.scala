@@ -27,6 +27,9 @@ import scala.Some
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.matching.ScalaFormattingRuleMatcher
 import org.jetbrains.plugins.scala.lang.formatting.automatic.ScalaAutoFormatter
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.formatting.automatic.rule.MissingBlocksData
+import org.jetbrains.plugins.scala.lang.formatting.automatic.autoIndenter.AutoIndenter
 
 class ScalaBlock (val myParentBlock: ScalaBlock,
                   protected val myNode: ASTNode,
@@ -77,20 +80,38 @@ class ScalaBlock (val myParentBlock: ScalaBlock,
 
   def getChildAttributes(newChildIndex: Int): ChildAttributes = {
     val scalaSettings = mySettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    val indentSize = mySettings.getIndentSize(ScalaFileType.SCALA_FILE_TYPE)
+    val virtualFile = getNode.getPsi.getContainingFile.getVirtualFile
+    val normalIndentSize = AutoIndenter.getNormalIndentSize(virtualFile)
+    val indentSize = normalIndentSize match {
+      case Some(size) => size
+      case _ => mySettings.getIndentSize(ScalaFileType.SCALA_FILE_TYPE)
+    }
+    val continuationIndentSize = AutoIndenter.getContinuationIndentSize(virtualFile)
+    def getNormalIndent(isRelativeToDirectParent: Boolean = false) = normalIndentSize match {
+      case Some(size) =>
+        Indent.getSpaceIndent(size, isRelativeToDirectParent)
+      case _ =>
+        Indent.getNormalIndent(isRelativeToDirectParent)
+    }
+    def getContinuationIndent(isRelativeToDirectParent: Boolean = false) = continuationIndentSize match {
+      case Some(size) =>
+        Indent.getSpaceIndent(size, isRelativeToDirectParent)
+      case _ =>
+        Indent.getContinuationIndent(isRelativeToDirectParent)
+    }
     val parent = getNode.getPsi
     val braceShifted = mySettings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED
     parent match {
       case m: ScMatchStmt => {
         if (m.caseClauses.length == 0) {
-          new ChildAttributes(if (braceShifted) Indent.getNoneIndent else Indent.getNormalIndent, null)
+          new ChildAttributes(if (braceShifted) Indent.getNoneIndent else getNormalIndent(), null)
         } else {
           val indent = if (mySettings.INDENT_CASE_FROM_SWITCH) Indent.getSpaceIndent(2 * indentSize)
-          else Indent.getNormalIndent
+          else getNormalIndent()
           new ChildAttributes(indent, null)
         }
       }
-      case c: ScCaseClauses => new ChildAttributes(Indent.getNormalIndent, null)
+      case c: ScCaseClauses => new ChildAttributes(getNormalIndent(), null)
       case l: ScLiteral
         if l.isMultiLineString && scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE =>
         new ChildAttributes(Indent.getSpaceIndent(3, true), null)
@@ -102,23 +123,23 @@ class ScalaBlock (val myParentBlock: ScalaBlock,
         new ChildAttributes(Indent.getSpaceIndent(indent * indentSize), null)
       case _: ScBlockExpr | _: ScEarlyDefinitions | _: ScTemplateBody | _: ScForStatement  | _: ScWhileStmt |
            _: ScTryBlock | _: ScCatchBlock =>
-        new ChildAttributes(if (braceShifted) Indent.getNoneIndent else Indent.getNormalIndent, null)
-      case p : ScPackaging if p.isExplicit => new ChildAttributes(Indent.getNormalIndent, null)
+        new ChildAttributes(if (braceShifted) Indent.getNoneIndent else getNormalIndent(), null)
+      case p : ScPackaging if p.isExplicit => new ChildAttributes(getNormalIndent(), null)
       case _: ScBlock =>
         val grandParent = parent.getParent
-        new ChildAttributes(if (grandParent != null && grandParent.isInstanceOf[ScCaseClause]) Indent.getNormalIndent
+        new ChildAttributes(if (grandParent != null && grandParent.isInstanceOf[ScCaseClause]) getNormalIndent()
         else Indent.getNoneIndent, null)
-      case _: ScIfStmt => new ChildAttributes(Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE),
+      case _: ScIfStmt => new ChildAttributes(getNormalIndent(scalaSettings.ALIGN_IF_ELSE),
         this.getAlignment)
       case x: ScDoStmt => {
         if (x.hasExprBody)
           new ChildAttributes(Indent.getNoneIndent, null)
         else new ChildAttributes(if (mySettings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED)
-          Indent.getNoneIndent else Indent.getNormalIndent, null)
+          Indent.getNoneIndent else getNormalIndent(), null)
       }
-      case _: ScXmlElement => new ChildAttributes(Indent.getNormalIndent, null)
+      case _: ScXmlElement => new ChildAttributes(getNormalIndent(), null)
       case _: ScalaFile => new ChildAttributes(Indent.getNoneIndent, null)
-      case _: ScCaseClause => new ChildAttributes(Indent.getNormalIndent, null)
+      case _: ScCaseClause => new ChildAttributes(getNormalIndent(), null)
       case _: ScExpression | _: ScPattern | _: ScParameters =>
         new ChildAttributes(Indent.getContinuationWithoutFirstIndent, this.getAlignment)
       case comment: ScDocComment if comment.version > 1 =>
@@ -126,10 +147,22 @@ class ScalaBlock (val myParentBlock: ScalaBlock,
       case _: ScDocComment =>
         new ChildAttributes(Indent.getSpaceIndent(1), null)
       case _ if parent.getNode.getElementType == ScalaTokenTypes.kIF =>
-        new ChildAttributes(Indent.getNormalIndent, null)
+        new ChildAttributes(getNormalIndent(), null)
       case _ => new ChildAttributes(Indent.getNoneIndent, null)
     }
   }
+
+//  def getChildAttributes(newChildIndex: Int): ChildAttributes = {
+//    val matcher = ScalaBlock.myFormatter.getMatcher
+//    matcher.matchAroundBlock(this, None, false, MissingBlocksData(this, newChildIndex))
+//    if (rules.isEmpty) {
+//      val startTime = System.currentTimeMillis()
+//      println("matching around block")
+//      matcher.matchAroundBlock(block)
+//      println("time spent in local match " + (System.currentTimeMillis() - startTime))
+//      rules = matcher.getFormattingRules(block)
+//    }
+//  }
 
   def getSpacing(child1: Block, child2: Block) = if (ScalaBlock.useAutoFormatter) {
     ScalaBlock.myFormatter.getSpacing(child1, child2)
@@ -203,7 +236,12 @@ class ScalaBlock (val myParentBlock: ScalaBlock,
   def getInLineOffset: Int = {
     val document = PsiDocumentManager.getInstance(getNode.getPsi.getProject).getDocument(getNode.getPsi.getContainingFile)
     val startOffset = getTextRange.getStartOffset
-    startOffset - document.getLineStartOffset(document.getLineNumber(startOffset))
+    if (document != null) {
+      startOffset - document.getLineStartOffset(document.getLineNumber(startOffset))
+    } else {
+      val fileText = getNode.getPsi.getContainingFile.getText
+      getOffsetInLine(startOffset, fileText)
+    }
   }
 
   def isFirstInFile: Boolean = getTextRange.getStartOffset == 0
@@ -258,8 +296,25 @@ class ScalaBlock (val myParentBlock: ScalaBlock,
     }
   }
 
-  def getLineNumber: Int = PsiDocumentManager.getInstance(getNode.getPsi.getProject).
-          getDocument(getNode.getPsi.getContainingFile).getLineNumber(getTextRange.getStartOffset)
+  private def getLineNumber(offset: Int, fileText: String): Int = fileText.substring(0, offset).count(_ == '\n')
+
+  private def getLineStartOffset(offset: Int, fileText: String): Int =
+    fileText.substring(0, offset).lastIndexOf('\n') + 1
+
+  private def getOffsetInLine(offset: Int, fileText: String): Int =
+    offset - (fileText.substring(0, offset).lastIndexOf('\n') + 1)
+
+  def getLineNumber: Int = {
+    val document = PsiDocumentManager.getInstance(getNode.getPsi.getProject).
+            getDocument(getNode.getPsi.getContainingFile)
+    if (document != null) {
+      val documentNewLines = document.getLineNumber(getTextRange.getStartOffset)
+      documentNewLines
+    } else {
+      val fileText = getNode.getPsi.getContainingFile.getText
+      getLineNumber(getNode.getStartOffset, fileText)
+    }
+  }
 
   //  /**
   //   * Checks whether this block crosses right margin with spacings that are currently present in the document.
@@ -282,16 +337,17 @@ class ScalaBlock (val myParentBlock: ScalaBlock,
   def wouldCrossRightMargin: Boolean = getPrevPsi(myNode.getPsi) match {
     case Some(psi) =>
       val document = PsiDocumentManager.getInstance(getNode.getPsi.getProject).getDocument(getNode.getPsi.getContainingFile)
-//      val myLineNumber = document.getLineNumber(myNode.getTextRange.getStartOffset)
       val psiTextRange = psi.getTextRange
       val prevLineOffset = if (psi.isInstanceOf[PsiWhiteSpace]) psiTextRange.getStartOffset else psiTextRange.getEndOffset
-//      val psiLineNumber = document.getLineNumber(prevLineOffset)
-//      if (myLineNumber == psiLineNumber && getNode.getTextRange.getEndOffset - document.getLineStartOffset(document.getLineNumber(prevLineOffset)) > getSettings.RIGHT_MARGIN) return false
       val text = getNode.getText
       val newLine = text.indexOf("\n")
       val length = if (newLine >= 0) text.substring(0, newLine).length else text.length
       val resultingOffset = prevLineOffset + length
-      resultingOffset - document.getLineStartOffset(document.getLineNumber(prevLineOffset)) > getSettings.RIGHT_MARGIN
+      (if (document != null) {
+        resultingOffset - document.getLineStartOffset(document.getLineNumber(prevLineOffset))
+      } else {
+        resultingOffset - getLineStartOffset(prevLineOffset, getNode.getPsi.getContainingFile.getText)
+      })  > getSettings.RIGHT_MARGIN
     case None => false
   }
 }
@@ -299,7 +355,7 @@ class ScalaBlock (val myParentBlock: ScalaBlock,
 object ScalaBlock {
   //TODO: remove this. This is a temporary means of testing used before serialization/deserialization is implemented properly
   // Actually all the ScalaBlock.scala file should be rewritten as blocks should be constructed and not altered during formatting
-  protected var myFormatter: ScalaAutoFormatter = new ScalaAutoFormatter(ScalaFormattingRuleMatcher.getDefaultMatcher())
+  protected var myFormatter: ScalaAutoFormatter = new ScalaAutoFormatter(ScalaFormattingRuleMatcher.createDefaultMatcher())
 
   var useAutoFormatter = false
 
@@ -316,7 +372,7 @@ object ScalaBlock {
     myFormatter.runMatcher(formatRoot)
   }
 
-  def resetMatcher = {
+  def resetMatcher() = {
     myFormatter.resetMatcher
   }
 

@@ -917,6 +917,9 @@
         <component>
             <implementation-class>org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook</implementation-class>
         </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.lang.formatting.automatic.autoIndenter.AutoIndentFileHook</implementation-class>
+        </component>
     </project-components>
 
     <actions>
@@ -1039,8 +1042,13 @@
       </action>
       <action id="Scala.ToggleAutoFormatter" class="org.jetbrains.plugins.scala.lang.formatting.automatic.action.ToggleAutoFormatterUseAction"
               description="Toggle auto formatter usage" text="Toggle auto formatter usage">
-        <keyboard-shortcut first-keystroke="control alt shift 0" keymap="$default"/>
-        <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl shift 0"/>
+        <keyboard-shortcut first-keystroke="control alt shift 9" keymap="$default"/>
+        <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl shift 9"/>
+      </action>
+      <action id="Scala.CollectFormattingStatistics" class="org.jetbrains.plugins.scala.lang.formatting.automatic.action.CollectStatisticsAction"
+              description="Collect formatting statistics" text="Collect formatting statistics">
+        <keyboard-shortcut first-keystroke="control alt shift 7" keymap="$default"/>
+        <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl shift 7"/>
       </action>
       </actions>
 
