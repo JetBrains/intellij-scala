@@ -247,4 +247,10 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     
     myAnnotationOwner
   }
+
+  def stringValue =
+    if (isString)
+      Some(getValue.asInstanceOf[String])
+    else
+      None
 }

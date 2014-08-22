@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package debugger
 
+import com.intellij.debugger.ui.impl.watch.WatchItemDescriptor
 import org.jetbrains.plugins.scala.config.{LibraryLevel, LibraryId, ScalaFacet}
 import com.intellij.testFramework.{PlatformTestCase, UsefulTestCase}
 import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
@@ -153,7 +154,7 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestBase {
   }
 
   protected def getDebugSession: DebuggerSession = {
-    DebuggerPanelsManager.getInstance(getProject).getSessionTab.getSession
+    DebuggerManagerEx.getInstanceEx(getProject).getContext.getDebuggerSession
   }
 
   private def resume() {
@@ -217,25 +218,28 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestBase {
   protected def evalResult(codeText: String): String = {
     val semaphore = new Semaphore()
     semaphore.down()
-    val result = managed[String] {
-      val ctx: EvaluationContextImpl = evaluationContext()
-      val factory = new ScalaCodeFragmentFactory()
-      val codeFragment: PsiCodeFragment = new CodeFragmentFactoryContextWrapper(factory).
-        createCodeFragment(new TextWithImportsImpl(CodeFragmentKind.EXPRESSION, codeText),
-        ContextUtil.getContextElement(ctx), getProject)
-      codeFragment.forceResolveScope(GlobalSearchScope.allScope(getProject))
-      DebuggerUtils.checkSyntax(codeFragment)
-      val evaluatorBuilder: EvaluatorBuilder = factory.getEvaluatorBuilder
-      val evaluator = evaluatorBuilder.build(codeFragment, ContextUtil.getSourcePosition(ctx))
+    val result =
+        managed[String] {
+          inReadAction {
+            val ctx: EvaluationContextImpl = evaluationContext()
+            val factory = new ScalaCodeFragmentFactory()
+            val codeFragment: PsiCodeFragment = new CodeFragmentFactoryContextWrapper(factory).
+              createCodeFragment(new TextWithImportsImpl(CodeFragmentKind.EXPRESSION, codeText),
+                ContextUtil.getContextElement(ctx), getProject)
+            codeFragment.forceResolveScope(GlobalSearchScope.allScope(getProject))
+            DebuggerUtils.checkSyntax(codeFragment)
+            val evaluatorBuilder: EvaluatorBuilder = factory.getEvaluatorBuilder
+            val evaluator = evaluatorBuilder.build(codeFragment, ContextUtil.getSourcePosition(ctx))
 
-      val value = evaluator.evaluate(ctx)
-      val res = value match {
-        case v: VoidValue => "undefined"
-        case _ => DebuggerUtils.getValueAsString(ctx, value)
-      }
-      semaphore.up()
-      res
-    }
+            val value = evaluator.evaluate(ctx)
+            val res = value match {
+              case v: VoidValue => "undefined"
+              case _ => DebuggerUtils.getValueAsString(ctx, value)
+            }
+            semaphore.up()
+            res
+          }
+        }
     assert(semaphore.waitFor(10000), "Too long evaluate expression: " + codeText)
     result
   }

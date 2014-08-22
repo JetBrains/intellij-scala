@@ -106,7 +106,7 @@ object ScalaMoveUtil {
       val range: TextRange = clazz.getTextRange
       val associations = PROCESSOR.collectTransferableData(file, null,
         Array[Int](range.getStartOffset), Array[Int](range.getEndOffset))
-      clazz.putCopyableUserData(ASSOCIATIONS_KEY, associations)
+      clazz.putCopyableUserData(ASSOCIATIONS_KEY, if (associations.isEmpty) null else associations.get(0))
     }
     val alreadyMoved = getMoveDestination(aClass) == aClass.getContainingFile.getContainingDirectory
     aClass.getContainingFile match {

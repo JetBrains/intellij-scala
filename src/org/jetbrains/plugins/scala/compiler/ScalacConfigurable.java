@@ -58,7 +58,8 @@ public class ScalacConfigurable implements Configurable {
 
     updateLibrariesList();
 
-    boolean externalCompiler = CompilerWorkspaceConfiguration.getInstance(myProject).USE_OUT_OF_PROCESS_BUILD;
+    // TODO in-process build is now depreacted
+    boolean externalCompiler = true;
 
     myFscSettingsPanel.setVisible(!externalCompiler);
     myCompileOrderPanel.setVisible(!externalCompiler);
@@ -189,20 +190,13 @@ public class ScalacConfigurable implements Configurable {
     mySettings.REMOTE_PORT = myRemotePort.getText();
     mySettings.SHARED_DIRECTORY = mySharedDirectory.getText();
 
-    boolean externalCompiler = CompilerWorkspaceConfiguration.getInstance(myProject).USE_OUT_OF_PROCESS_BUILD;
+    // TODO in-process build is now depreacted
+    boolean externalCompiler = true;
 
     if (externalCompiler || !myRunInternalServerRadioButton.isSelected()) {
       myProject.getComponent(FscServerLauncher.class).stop();
     }
     myProject.getComponent(FscServerManager.class).configureWidget();
-
-    CompilerProjectComponent component = myProject.getComponent(CompilerProjectComponent.class);
-
-    if (scalacBeforeRadioButton.isSelected() && mySettings.SCALAC_BEFORE != scalacBeforeRadioButton.isSelected()) {
-      component.configureToCompileScalaFirst();
-    } else if (!scalacBeforeRadioButton.isSelected() && mySettings.SCALAC_BEFORE != scalacBeforeRadioButton.isSelected()){
-      component.configureToCompileJavaFirst();
-    }
 
     mySettings.SCALAC_BEFORE = scalacBeforeRadioButton.isSelected();
   }

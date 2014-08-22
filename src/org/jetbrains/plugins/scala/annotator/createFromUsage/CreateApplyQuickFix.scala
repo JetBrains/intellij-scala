@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.createFromUsage
 
 import com.intellij.codeInsight.template.TemplateBuilder
-import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil
 import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement

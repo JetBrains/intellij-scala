@@ -63,4 +63,6 @@ class CaretModelStub extends CaretModel {
   override def runForEachCaret(action: CaretAction): Unit = ???
 
   override def getCaretsAndSelections: util.List[CaretState] = ???
+
+  override def runForEachCaret(action: CaretAction, reverseOrder: Boolean): Unit = ???
 }

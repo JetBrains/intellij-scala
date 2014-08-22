@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.adjustTypes
 
+import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import java.io.File
@@ -48,6 +49,7 @@ abstract class AdjustTypesTestBase extends ScalaLightPlatformCodeInsightTestCase
       ScalaUtils.runWriteAction(new Runnable {
         def run() {
           ScalaPsiUtil.adjustTypes(element)
+          UsefulTestCase.doPostponedFormatting(getProjectAdapter)
         }
       }, getProjectAdapter, "Test")
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim
