@@ -2,7 +2,6 @@ package org.jetbrains.sbt
 package resolvers
 
 import com.intellij.openapi.module.ModuleManager
-import com.intellij.openapi.roots.libraries.{LibraryTablesRegistrar, Library}
 import com.intellij.psi.PsiFile
 import org.apache.maven.index.ArtifactInfo
 import org.jetbrains.sbt.project.module.SbtModule
