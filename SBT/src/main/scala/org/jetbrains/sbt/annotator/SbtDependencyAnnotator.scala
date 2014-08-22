@@ -45,16 +45,10 @@ class SbtDependencyAnnotator extends Annotator {
         val indexes = resolversToUse.flatMap(indexManager.find).toSet
         if (indexes.isEmpty) return
 
-        val libs = SbtResolverUtils.getProjectLibraries(Option(ScalaPsiUtil.fileContext(element)))
-        val isInCache = libs.map { lib =>
-          val artifactStr = SbtResolverUtils.joinGroupArtifactVersion(group, artifact, version)
-          lib.getName == "%s: %s".format(SbtProjectSystem.Id.getReadableName, artifactStr) // Format taken from LibraryData ctor
-        }.fold(false) { (a,b) => a || b}
-
         val isInRepo = indexes.map { index =>
           index.versions(group, artifact).contains(version)
         }.fold(false) { (a,b) => a || b }
-        if (!isInRepo && !isInCache) {
+        if (!isInRepo) {
           val annotation = holder.createErrorAnnotation(element, SbtBundle("sbt.annotation.unresolvedDependency"))
           annotation.registerFix(new SbtUpdateResolverIndexesQuickFix)
           annotation.registerFix(new SbtRefreshProjectQuickFix)

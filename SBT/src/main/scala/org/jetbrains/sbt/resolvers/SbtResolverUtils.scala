@@ -13,12 +13,6 @@ import org.jetbrains.sbt.project.module.SbtModule
  */
 object SbtResolverUtils {
 
-  def getProjectLibraries(fileOpt: Option[PsiFile]): Seq[Library] = fileOpt match {
-    case Some(file) if file.getProject != null =>
-      LibraryTablesRegistrar.getInstance().getLibraryTable(file.getProject).getLibraries
-    case _ => Seq.empty
-  }
-
   def getProjectResolvers(fileOpt: Option[PsiFile]): Seq[SbtResolver] = fileOpt match {
     case Some(file) =>
       val moduleManager = ModuleManager.getInstance(file.getProject)
@@ -29,5 +23,4 @@ object SbtResolverUtils {
 
   def joinGroupArtifact(group: String, artifact: String) = group + ":" + artifact
   def joinGroupArtifact(artifact: ArtifactInfo) = artifact.groupId + ":" + artifact.artifactId
-  def joinGroupArtifactVersion(group: String, artifact: String, version: String) = group + ":" + artifact + ":" + version
 }
