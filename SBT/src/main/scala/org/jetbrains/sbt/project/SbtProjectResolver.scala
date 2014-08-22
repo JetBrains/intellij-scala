@@ -9,6 +9,7 @@ import com.intellij.openapi.externalSystem.model.{ExternalSystemException, DataN
 import com.intellij.openapi.roots.DependencyScope
 import java.io.File
 import module.SbtModuleType
+import org.jetbrains.sbt.resolvers.SbtResolver
 import settings._
 import structure._
 import data._
@@ -256,7 +257,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   def createSbtModuleData(project: Project): SbtModuleNode = {
     val imports = project.build.imports.flatMap(_.substring(7).split(", "))
-    new SbtModuleNode(imports)
+    val resolvers = project.resolvers map { r => new SbtResolver(r.name, r.root) }
+    new SbtModuleNode(imports, resolvers)
   }
 
   private def validRootPathsIn(project: Project, scope: String)
@@ -275,7 +277,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val sourceRoots = project.configurations
             .filter(it => scopes.contains(it.id))
-            .flatMap(it => it.resources ++ it.resources)
+            .flatMap(it => it.sources ++ it.resources)
             .map(_.file)
 
     sourceRoots.filter(_.isOutsideOf(project.base))

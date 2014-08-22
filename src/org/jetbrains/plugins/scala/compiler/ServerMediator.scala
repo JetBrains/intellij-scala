@@ -27,7 +27,7 @@ class ServerMediator(project: Project) extends ProjectComponent {
     def execute(context: CompileContext): Boolean = {
       val scalaProject = ScalaFacet.isPresentIn(project)
 
-      val externalCompiler = CompilerWorkspaceConfiguration.getInstance(project).USE_OUT_OF_PROCESS_BUILD
+      val externalCompiler = true // TODO In-process build is now deprecated
 
       def collectStats() {
         val withCompileServerId = "scala.compilation.with.server"

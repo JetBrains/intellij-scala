@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
   <artifact name="ScalaPlugins">
-    <output-path>$PROJECT_DIR$/out/cardea/artifacts/Scala</output-path>
+    <output-path>$PROJECT_DIR$/out/IDEA-14/artifacts/Scala</output-path>
     <root id="root">
       <element id="directory" name="lib">
         <element id="library" level="project" name="evo-inflector-0.6" />
@@ -37,6 +37,8 @@
           <element id="module-output" name="NailgunRunners" />
         </element>
         <element id="library" level="project" name="scalastyle" />
+        <element id="library" level="project" name="maven-indexer" />
+        <element id="library" level="project" name="wagon-http" />
       </element>
       <element id="directory" name="launcher">
         <element id="file-copy" path="$PROJECT_DIR$/SBT/lib/sbt-launch.jar" />

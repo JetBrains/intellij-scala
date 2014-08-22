@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package autoImport
 
+import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import java.io.File
@@ -61,6 +62,7 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
               org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.
                 getImportHolder(ref, getProjectAdapter).addImportForPath(ta.qualifiedName, ref)
           }
+          UsefulTestCase.doPostponedFormatting(getProjectAdapter)
         }
       }, getProjectAdapter, "Test")
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")

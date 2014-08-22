@@ -32,7 +32,7 @@ class CompilerConfigurationMonitor(project: Project) extends ProjectComponent {
 
   private def compileServerConfiguration = ScalaApplicationSettings.getInstance
 
-  private def isScalaProject = ScalacBackendCompiler.isScalaProject(ModuleManager.getInstance(project).getModules)
+  private def isScalaProject = ScalaFacet.isPresentIn(project)
 
   private def isCompileServerEnabled = compileServerConfiguration.COMPILE_SERVER_ENABLED
 
