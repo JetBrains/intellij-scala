@@ -9,6 +9,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.{VfsUtil, CharsetToolkit, LocalFileSystem}
 import com.intellij.psi._
+import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.refactoring.changeSignature.{ChangeSignatureProcessor, ParameterInfoImpl}
 import com.intellij.testFramework.LightPlatformTestCase
 import junit.framework.Assert._
@@ -46,6 +47,8 @@ abstract class ChangeSignatureFromJavaTestBase extends ScalaLightPlatformCodeIns
     val processor = new ChangeSignatureProcessor(getProjectAdapter, targetMethod, /*generateDelegate = */ false,
       newVisibility, newName, retType, newParams, Array.empty)
     processor.run()
+
+    PostprocessReformattingAspect.getInstance(getProjectAdapter).doPostponedFormatting()
 
     val afterScalaText = getTextFromTestData(testName + "_after.scala")
     val afterJavaText = getTextFromTestData(testName + "_after.java")
