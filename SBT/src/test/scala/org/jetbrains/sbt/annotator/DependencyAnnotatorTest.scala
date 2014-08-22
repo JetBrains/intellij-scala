@@ -28,16 +28,9 @@ class DependencyAnnotatorTest extends AnnotatorTestBase(classOf[SbtDependencyAnn
         SbtModule.setResolversTo(module, resolvers + testResolver)
       }
     }
-
-    val libraryTable = LibraryTablesRegistrar.getInstance().getLibraryTable(getProjectAdapter)
-    ApplicationManager.getApplication.runWriteAction(new Runnable {
-      def run() = libraryTable.createLibrary("SBT: org.jetbrains:some-cool-lib:0.0.1")
-    })
   }
 
   def testDoNotAnnotateIndexedDep =
-    doTest(Seq.empty)
-  def testDoNotAnnotateCachedDep =
     doTest(Seq.empty)
   def testAnnotateUnresolvedDep = {
     val msg = SbtBundle("sbt.annotation.unresolvedDependency")
