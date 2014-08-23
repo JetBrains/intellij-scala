@@ -4,27 +4,26 @@ package resolve
 package processor
 
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.util.{RecursionManager, Key}
-import com.intellij.psi.scope._
+import com.intellij.openapi.util.{Key, RecursionManager}
 import com.intellij.psi._
-import collection.{mutable, Set}
-import impl.compiled.ClsClassImpl
-import impl.light.LightMethod
-import org.jetbrains.plugins.scala.lang.psi.api._
-import base.types.ScTypeProjection
-import statements.ScTypeAlias
-import psi.types._
-import psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Success, TypingContext}
-import toplevel.imports.usages.ImportUsed
-import ResolveTargets._
-import psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
-import toplevel.ScTypedDefinition
-import toplevel.typedef.{ScObject, ScTemplateDefinition}
+import com.intellij.psi.impl.light.LightMethod
+import com.intellij.psi.scope._
 import org.jetbrains.plugins.scala.extensions._
-import psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.api._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes
+
+import scala.collection.{Set, mutable}
 
 object BaseProcessor {
   def unapply(p: BaseProcessor) = Some(p.kinds)
@@ -122,7 +121,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
   //java compatibility
   object MyElementClassHint extends ElementClassHint {
-    import ElementClassHint.DeclarationKind
+    import com.intellij.psi.scope.ElementClassHint.DeclarationKind
     def shouldProcess(kind: DeclarationKind): Boolean = {
       kind match {
         case null => true
@@ -191,8 +190,10 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
       case d@ScDesignatorType(e: PsiClass) if d.isStatic && !e.isInstanceOf[ScTemplateDefinition] =>
         //not scala from scala
         var break = true
+        var containsValues = false
         for (method <- e.getMethods if break && method.hasModifierProperty("static")) {
           if (!execute(method, state)) break = false
+          if (method.getName == "values" && method.getParameterList.getParametersCount == 0) containsValues = true
         }
         for (cl <- e.getInnerClasses if break && cl.hasModifierProperty("static")) {
           if (!execute(cl, state)) break = false
@@ -203,7 +204,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
         //todo: duplicate TypeDefinitionMembers
         //fake enum static methods
-        val isJavaSourceEnum = !e.isInstanceOf[ClsClassImpl] && e.isEnum
+        val isJavaSourceEnum = !containsValues && e.isEnum
         if (isJavaSourceEnum) {
           val elementFactory: PsiElementFactory = JavaPsiFacade.getInstance(e.getProject).getElementFactory
           //todo: cache like in PsiClassImpl
