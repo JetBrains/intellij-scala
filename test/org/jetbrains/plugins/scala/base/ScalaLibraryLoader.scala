@@ -13,6 +13,7 @@ import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.libraries.{Library, LibraryTable}
 import com.intellij.openapi.startup.StartupManager
 import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
+import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
 import com.intellij.testFramework.PsiTestUtil
@@ -145,6 +146,8 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
       val scalaLib: Library = libraryTable.createLibrary(scalaLibraryName)
       val libModel: Library.ModifiableModel = scalaLib.getModifiableModel
       libModels.add(libModel)
+      VfsRootAccess.allowRootAccess(mockLib)
+      if (mockLibSrc != null) VfsRootAccess.allowRootAccess(mockLibSrc)
       addLibraryRoots(libVersion, libModel, mockLib, mockLibSrc)
     }
     usedRootModel
