@@ -48,7 +48,6 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
       rootModel = rootManager.getModifiableModel
       val testDataRoot: VirtualFile = LocalFileSystem.getInstance.refreshAndFindFileByPath(rootPath)
       assert(testDataRoot != null)
-      refreshDirectory(testDataRoot)
       contentEntry = rootModel.addContentEntry(testDataRoot)
       contentEntry.addSourceFolder(testDataRoot, false)
     }
