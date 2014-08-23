@@ -318,6 +318,8 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
         superReference == that.superReference
     case _ => false
   }
+
+  override def typeDepth: Int = projected.typeDepth
 }
 
 /**

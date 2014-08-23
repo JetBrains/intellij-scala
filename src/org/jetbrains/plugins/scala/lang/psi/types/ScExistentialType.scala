@@ -467,6 +467,29 @@ case class ScExistentialType(quantified : ScType,
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitExistentialType(this)
   }
+
+  override def typeDepth: Int = {
+    def typeParamsDepth(typeParams: List[ScTypeParameterType]): Int = {
+      typeParams.map {
+        case typeParam =>
+          val boundsDepth = typeParam.lower.v.typeDepth.max(typeParam.upper.v.typeDepth)
+          if (typeParam.args.nonEmpty) {
+            (typeParamsDepth(typeParam.args) + 1).max(boundsDepth)
+          } else boundsDepth
+      }.max
+    }
+
+    val quantDepth = quantified.typeDepth
+    if (wildcards.nonEmpty) {
+      (wildcards.map {
+        wildcard =>
+          val boundsDepth = wildcard.lowerBound.typeDepth.max(wildcard.upperBound.typeDepth)
+          if (wildcard.args.nonEmpty) {
+            (typeParamsDepth(wildcard.args) + 1).max(boundsDepth)
+          } else boundsDepth
+      }.max + 1).max(quantDepth)
+    } else quantDepth
+  }
 }
 
 object ScExistentialType {
