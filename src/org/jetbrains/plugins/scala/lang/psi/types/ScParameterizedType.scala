@@ -81,6 +81,8 @@ case class JavaArrayType(arg: ScType) extends ValueType {
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitJavaArrayType(this)
   }
+
+  override def typeDepth: Int = arg.typeDepth
 }
 
 class ScParameterizedType private (val designator : ScType, val typeArgs : Seq[ScType]) extends ValueType {
@@ -270,6 +272,10 @@ class ScParameterizedType private (val designator : ScType, val typeArgs : Seq[S
 
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitParameterizedType(this)
+  }
+
+  override def typeDepth: Int = {
+    designator.typeDepth.max(typeArgs.map(_.typeDepth).max + 1)
   }
 
   override def isFinalType: Boolean = designator.isFinalType && !typeArgs.exists {

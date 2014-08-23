@@ -32,6 +32,25 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
     visitor.visitCompoundType(this)
   }
 
+  override def typeDepth: Int = {
+    val depths = signatureMap.map {
+      case (sign: Signature, tp: ScType) =>
+        val rtDepth = tp.typeDepth
+        if (sign.typeParams.nonEmpty) {
+          (ScType.typeParamsDepth(sign.typeParams) + 1).max(rtDepth)
+        } else rtDepth
+    } ++ typesMap.map {
+      case (s: String, sign: TypeAliasSignature) =>
+        val boundsDepth = sign.lowerBound.typeDepth.max(sign.upperBound.typeDepth)
+        if (sign.typeParams.nonEmpty) {
+          (ScType.typeParamsDepth(sign.typeParams.toArray) + 1).max(boundsDepth)
+        } else boundsDepth
+    }
+    val componentsDepth = components.map(_.typeDepth).max
+    if (depths.nonEmpty) componentsDepth.max(depths.max + 1)
+    else componentsDepth
+  }
+
   override def removeAbstracts = ScCompoundType(components.map(_.removeAbstracts),
     signatureMap.map {
       case (s: Signature, tp: ScType) =>
