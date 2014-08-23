@@ -40,6 +40,8 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
       syntheticClasses.registerClasses()
     }
 
+    VfsRootAccess.allowRootAccess(TestUtils.getTestDataPath)
+
     var rootModel: ModifiableRootModel = null
     val rootManager: ModuleRootManager = ModuleRootManager.getInstance(module)
     if (rootPath != null) {
@@ -110,7 +112,7 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
       PsiTestUtil.removeContentEntry(module, testDataRoot)
     }
 
-    if (!ScalaFacet.findIn(module).isEmpty) {
+    if (ScalaFacet.findIn(module).isDefined) {
       val modelsProvider = ModifiableModelsProvider.SERVICE.getInstance()
       val facetModifiableModel = modelsProvider.getFacetModifiableModel(module)
       facetModifiableModel.removeFacet(ScalaFacet.findIn(module).get)
