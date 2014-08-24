@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package debugger
 
+import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil, ModuleTestCase}
 import com.intellij.ProjectTopics
 import com.intellij.compiler.CompilerTestUtil
@@ -63,9 +64,9 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase {
     ScalaLoader.loadScala()
     val cl = SyntheticClasses.get(getProject)
     if (!cl.isClassesRegistered) cl.registerClasses()
-    PsiTestUtil.addLibrary(myModule, "scala-compiler",
-      TestUtils.getTestDataPath.replace("\\", "/") + "/scala-compiler/", "scala-compiler.jar",
-      "scala-library.jar")
+    val libsPath = TestUtils.getTestDataPath.replace("\\", "/") + "/scala-compiler/"
+    VfsRootAccess.allowRootAccess(libsPath)
+    PsiTestUtil.addLibrary(myModule, "scala-compiler", libsPath, "scala-compiler.jar", "scala-library.jar")
   }
 
   override protected def getTestProjectJdk: Sdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
