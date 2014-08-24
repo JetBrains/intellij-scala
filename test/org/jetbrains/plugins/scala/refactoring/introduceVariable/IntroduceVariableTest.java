@@ -5,6 +5,7 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.base.ScalaLibraryLoader;
@@ -30,7 +31,9 @@ public class IntroduceVariableTest extends AbstractIntroduceVariableTestBase {
   protected void setUp(Project project) {
     super.setUp(project);
     Module[] modules = ModuleManager.getInstance(project).getModules();
-    Sdk sdk = JavaSdk.getInstance().createJdk("java sdk", TestUtils.getMockJdk(), false);
+    String mockJdk = TestUtils.getMockJdk();
+    VfsRootAccess.allowRootAccess(mockJdk);
+    Sdk sdk = JavaSdk.getInstance().createJdk("java sdk", mockJdk, false);
     ScalaLibraryLoader loader = new ScalaLibraryLoader(project, modules[0], null, false, false, Option$.MODULE$.apply(sdk));
     loader.loadLibrary(TestUtils.DEFAULT_SCALA_SDK_VERSION);
   }
