@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.util.TestUtils
  */
 
 abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase {
-  private val JDK_HOME = TestUtils.getMockJdk
 
   protected def rootPath = TestUtils.getTestDataPath + "/"
 
@@ -21,8 +20,7 @@ abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase {
   override protected def setUp {
     super.setUp()
 
-    libLoader = new ScalaLibraryLoader(myFixture.getProject, myFixture.getModule, rootPath,
-      javaSdk = Some(JavaSdk.getInstance.createJdk("java sdk", JDK_HOME, false)))
+    libLoader = ScalaLibraryLoader.withMockJdk(myFixture.getProject, myFixture.getModule, rootPath)
     libLoader.loadLibrary(TestUtils.DEFAULT_SCALA_SDK_VERSION)
   }
 

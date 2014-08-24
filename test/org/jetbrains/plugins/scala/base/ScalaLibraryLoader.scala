@@ -8,7 +8,7 @@ import com.intellij.ide.startup.impl.StartupManagerImpl
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.openapi.projectRoots.{JavaSdk, Sdk}
 import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.libraries.{Library, LibraryTable}
 import com.intellij.openapi.startup.StartupManager
@@ -180,4 +180,13 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
 
 object ScalaLibraryLoader {
   def getSdkNone: Option[Sdk] = None
+
+  def withMockJdk(project: Project, module: Module, rootPath: String,
+                  isIncludeScalazLibrary: Boolean = false, isIncludeReflectLibrary: Boolean = false): ScalaLibraryLoader = {
+
+    val mockJdk = TestUtils.getMockJdk
+    VfsRootAccess.allowRootAccess(mockJdk)
+    val javaSdk = Some(JavaSdk.getInstance.createJdk("java sdk", mockJdk, false))
+    new ScalaLibraryLoader(project, module, rootPath, isIncludeScalazLibrary, isIncludeReflectLibrary, javaSdk)
+  }
 }
