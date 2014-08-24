@@ -3,24 +3,24 @@ package codeInsight
 package intention
 package matcher
 
-import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.Editor
-import lang.psi.types.result.TypingContext
-import collection.Seq
-import java.lang.String
-import lang.psi.types.{ScSubstitutor, ScType}
-import lang.psi.ScalaPsiUtil
 import com.intellij.codeInsight.FileModificationService
+import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
-import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject, ScClass}
-import lang.psi.api.base.patterns.{ScPattern, ScCaseClause}
-import lang.psi.api.expr.{ScExpression, ScMatchStmt}
-import lang.psi.impl.ScalaPsiElementFactory
-import com.intellij.psi.search.searches.ClassInheritorsSearch
+import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import lang.psi.api.base.ScReferenceElement
-import extensions._
+import com.intellij.psi.search.searches.ClassInheritorsSearch
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern, ScWildcardPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMatchStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
+
+import scala.collection.Seq
 
 final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
   def getFamilyName: String = "Generate case clauses"
@@ -83,6 +83,7 @@ final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
   private def bindReferences(newMatchStmt: ScMatchStmt, bindTargets: Int => PsiNamedElement) {
     for {
       (caseClause, i) <- newMatchStmt.caseClauses.zipWithIndex
+      if !caseClause.pattern.exists(_.isInstanceOf[ScWildcardPattern])
     } {
       val bindTo = bindTargets(i)
       bindReference(caseClause, bindTo)
