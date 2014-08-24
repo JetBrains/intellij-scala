@@ -7,11 +7,11 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, ScMethodType}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScNamedElement, ScEarlyDefinitions, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{TypeParameter, NonValueType, ScMethodType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
@@ -188,9 +188,48 @@ trait ScType {
   def getValType: Option[StdType] = None
 
   def visitType(visitor: ScalaTypeVisitor)
+
+  def typeDepth: Int = 1
+
+  def baseTypeSeqDepth: Int = 1 //todo: should be implemented according to Scala compiler sources. However concerns about performance stops me.
 }
 
 object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
+  def typeParamsDepth(typeParams: Array[TypeParameter]): Int = {
+    typeParams.map {
+      case typeParam =>
+        val boundsDepth = typeParam.lowerType().typeDepth.max(typeParam.upperType().typeDepth)
+        if (typeParam.typeParams.nonEmpty) {
+          (typeParamsDepth(typeParam.typeParams.toArray) + 1).max(boundsDepth)
+        } else boundsDepth
+    }.max
+  }
+
+  def typeParametersOwnerDepth(f: ScTypeParametersOwner, typeDepth: Int): Int = {
+    if (f.typeParameters.nonEmpty) {
+      (f.typeParameters.map(elemTypeDepth(_)).max + 1).max(typeDepth)
+    } else typeDepth
+  }
+
+  def elemTypeDepth(elem: ScNamedElement): Int = {
+    elem match {
+      case tp: ScTypeParam =>
+        val boundsDepth = tp.lowerBound.getOrNothing.typeDepth.max(tp.upperBound.getOrAny.typeDepth)
+        typeParametersOwnerDepth(tp, boundsDepth)
+      case f: ScFunction =>
+        val returnTypeDepth = f.returnType.getOrAny.typeDepth
+        typeParametersOwnerDepth(f, returnTypeDepth)
+      case ta: ScTypeAliasDefinition =>
+        val aliasedDepth = ta.aliasedType(TypingContext.empty).getOrAny.typeDepth
+        typeParametersOwnerDepth(ta, aliasedDepth)
+      case ta: ScTypeAliasDeclaration =>
+        val boundsDepth = ta.lowerBound.getOrNothing.typeDepth.max(ta.upperBound.getOrAny.typeDepth)
+        typeParametersOwnerDepth(ta, boundsDepth)
+      case t: ScTypedDefinition => t.getType(TypingContext.empty).getOrAny.typeDepth
+      case _ => 1
+    }
+  }
+
   val baseTypesQualMap: Map[String, StdType] = HashMap(
     "scala.Unit" -> Unit,
     "scala.Boolean" -> Boolean,
