@@ -22,7 +22,7 @@ unmanagedSourceDirectories in Test += baseDirectory.value / "test"
 
 unmanagedResourceDirectories in Compile += baseDirectory.value / "resources"
 
-val ideaBasePath = "SDK/ideaSDK/idea13"
+val ideaBasePath = "SDK/ideaSDK/idea14"
 
 unmanagedJars in Compile ++= (baseDirectory.value / ideaBasePath / "lib" * "*.jar").classpath
 
@@ -35,6 +35,7 @@ unmanagedJars in Compile ++= {
       basePluginsDir / "IntelliLang" / "lib" +++
       basePluginsDir / "java-i18n" / "lib" +++
       basePluginsDir / "maven" / "lib" +++
+      basePluginsDir / "junit" / "lib" +++
       basePluginsDir / "properties" / "lib"
   val customJars = baseDirectories * "*.jar"
   customJars.classpath
