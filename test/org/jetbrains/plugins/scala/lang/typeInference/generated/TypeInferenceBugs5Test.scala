@@ -17,6 +17,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testCyclicGetClass() {doTest()}
 
+  def testDeeperLub() {doTest()}
+
   def testDefaultParamInference() {doTest()}
 
   def testEA52539() {doTest()}
