@@ -21,7 +21,7 @@ case class ScalaSdkDescriptor(version: String,
   def createNewLibraryConfiguration() = {
     val properties = new ScalaLibraryProperties()
 
-    properties.languageLevel = ScalaLanguageLevel.getDefault
+    properties.languageLevel = ScalaLanguageLevel.from(version, true)
     properties.compilerClasspath = compilerFiles.map(virtualToIoFile)
 
     val name = "scala-sdk-" + version
