@@ -12,8 +12,6 @@ import org.jetbrains.plugins.scala.configuration.template.ScalaProjectTemplatesF
 class SbtProjectTemplateFactory extends ProjectTemplatesFactory {
   override def getGroups = Array(ScalaProjectTemplatesFactory.Group)
 
-  override def createTemplates(group: String, context: WizardContext) = group match {
-    case ScalaProjectTemplatesFactory.Group => Array(new SbtProjectTemplate())
-    case _ => Array.empty
-  }
+  override def createTemplates(group: String, context: WizardContext) =
+    if (context.isCreatingNewProject) Array(new SbtProjectTemplate()) else Array.empty
 }
