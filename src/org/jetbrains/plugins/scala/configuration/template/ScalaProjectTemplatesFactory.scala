@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package configuration.template
 
 import com.intellij.ide.util.projectWizard.WizardContext
-import com.intellij.platform.{ProjectTemplate, ProjectTemplatesFactory}
+import com.intellij.platform.ProjectTemplatesFactory
 import org.jetbrains.plugins.scala.icons.Icons
 
 /**
@@ -11,8 +11,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 class ScalaProjectTemplatesFactory extends ProjectTemplatesFactory {
   def getGroups = Array("Scala")
 
-  def createTemplates(group: String, context: WizardContext) =
-    Array[ProjectTemplate](new ScalaProjectTemplate())
+  def createTemplates(group: String, context: WizardContext) = Array(new ScalaProjectTemplate())
 
   override def getGroupIcon(group: String) = Icons.SCALA_SMALL_LOGO
 }
