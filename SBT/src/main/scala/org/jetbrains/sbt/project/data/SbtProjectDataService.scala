@@ -13,7 +13,6 @@ import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootMan
 import com.intellij.pom.java.LanguageLevel
 import org.jdom.Element
 import org.jetbrains.android.sdk.{AndroidPlatform, AndroidSdkType}
-import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 import org.jetbrains.sbt.project.data.SbtProjectDataService._
 
 import scala.collection.JavaConverters._
@@ -43,8 +42,6 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
 
       javaLanguageLevel.foreach(upgradeJavaLanguageLevelIn(project, _))
     }
-
-    configureHighlightingIn(project)
   }
 
   def doRemoveData(toRemove: util.Collection[_ <: Project], project: Project) {}
@@ -131,12 +128,5 @@ object SbtProjectDataService {
     val element = new Element("component").setAttribute("languageLevel", level.name)
     val projectExtension = new LanguageLevelProjectExtensionImpl.MyProjectExtension(project)
     projectExtension.readExternal(element)
-  }
-
-  def configureHighlightingIn(project: Project) {
-    val highlightingSettings = project.getComponent(classOf[HighlightingAdvisor]).getState()
-    
-    highlightingSettings.TYPE_AWARE_HIGHLIGHTING_ENABLED = true
-    highlightingSettings.SUGGEST_TYPE_AWARE_HIGHLIGHTING = false
   }
 }
