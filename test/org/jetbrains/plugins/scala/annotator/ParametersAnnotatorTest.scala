@@ -50,13 +50,19 @@ class ParametersAnnotatorTest extends SimpleTestCase {
               Error("b: B*", "*-parameter must come last") :: Nil =>
     }
   }
+
+  def testRepeatedWithDefault: Unit = {
+    assertMatches(messages("def f(i: Int, js: Int* = 1) {}")) {
+      case Error("(i: Int, js: Int* = 1)", "Parameter section with *-parameter cannot have default arguments") :: Nil =>
+    }
+  }
    
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val annotator = new ParametersAnnotator() {}
     val mock = new AnnotatorHolderMock
 
     val function = (Header + code).parse.depthFirst.findByType(classOf[ScFunctionDefinition]).get
-    
+
     annotator.annotateParameters(function.paramClauses, mock)
     mock.annotations
   }
