@@ -24,7 +24,7 @@ import extensions._
  * @author Alexander Podkhalyuzin
  * Date: 28.02.2008
  */
-class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScReferencePattern] with ScReferencePattern {
+class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScReferencePattern] with ScReferencePattern with ContributedReferenceHost {
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
@@ -50,6 +50,9 @@ class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScRefe
     }
   }
 
+  override def getReferences: Array[PsiReference] = {
+    PsiReferenceService.getService.getContributedReferences(this)
+  }
 
   override def getNavigationElement = getContainingFile match {
     case sf: ScalaFile if sf.isCompiled => {
