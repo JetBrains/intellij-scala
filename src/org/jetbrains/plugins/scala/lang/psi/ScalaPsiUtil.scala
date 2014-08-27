@@ -1716,6 +1716,16 @@ object ScalaPsiUtil {
    *         parameter; None otherwise.
    */
   def parameterOf(exp: ScExpression): Option[Parameter] = {
+    def forArgumentList(expr: ScExpression, args: ScArgumentExprList): Option[Parameter] = {
+      args.getParent match {
+        case constructor: ScConstructor =>
+          constructor.reference
+                  .flatMap(_.resolve().asOptionOf[ScPrimaryConstructor]) // TODO secondary constructors
+                  .flatMap(_.parameters.lift(args.exprs.indexOf(expr))) // TODO secondary parameter lists
+                  .map(p => new Parameter(p))
+        case _ => args.matchedParameters.getOrElse(Seq.empty).find(_._1 == expr).map(_._2)
+      }
+    }
     exp match {
       case assignment: ScAssignStmt =>
         assignment.getLExpression match {
@@ -1725,20 +1735,24 @@ object ScalaPsiUtil {
         }
       case _ =>
         exp.getParent match {
+          case parenth: ScParenthesisedExpr => parameterOf(parenth)
           case ie: ScInfixExpr if exp == (if (ie.isLeftAssoc) ie.lOp else ie.rOp) =>
             ie.operation match {
               case Resolved(f: ScFunction, _) => f.parameters.headOption.map(p => new Parameter(p))
+              case Resolved(method: PsiMethod, _) =>
+                method.getParameterList.getParameters match {
+                  case Array(p) => Some(new Parameter(p))
+                  case _ => None
+                }
               case _ => None
             }
-          case args: ScArgumentExprList =>
-            args.getParent match {
-              case constructor: ScConstructor =>
-                constructor.reference
-                        .flatMap(_.resolve().asOptionOf[ScPrimaryConstructor]) // TODO secondary constructors
-                        .flatMap(_.parameters.lift(args.exprs.indexOf(exp)))   // TODO secondary parameter lists
-                        .map(p => new Parameter(p))
-              case _ => args.matchedParameters.getOrElse(Seq.empty).find(_._1 == exp).map(_._2)
-            }
+          case (tuple: ScTuple) childOf (inf: ScInfixExpr) =>
+            val equivCall = ScalaPsiElementFactory.createEquivMethodCall(inf)
+            val argsList = equivCall.args
+            val idx = tuple.exprs.indexOf(exp)
+            val newExpr = argsList.exprs(idx)
+            forArgumentList(newExpr, argsList)
+          case args: ScArgumentExprList => forArgumentList(exp, args)
           case _ => None
         }
     }

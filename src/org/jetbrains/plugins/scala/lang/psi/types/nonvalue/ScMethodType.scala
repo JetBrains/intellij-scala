@@ -1,9 +1,10 @@
-package org.jetbrains.plugins.scala.lang.psi.types.nonvalue
+package org.jetbrains.plugins.scala
+package lang.psi.types.nonvalue
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiTypeParameter
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.Suspension
+import com.intellij.psi.{PsiParameter, PsiTypeParameter}
+import org.jetbrains.plugins.scala.extensions.PsiParameterExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -38,6 +39,10 @@ case class Parameter(name: String, deprecatedName: Option[String], paramType: Sc
   def this(param: ScParameter) {
     this(param.name, param.deprecatedName, param.getType(TypingContext.empty).getOrAny, param.getType(TypingContext.empty).getOrAny,
       param.isDefaultParam, param.isRepeatedParameter, param.isCallByNameParameter, param.index, Some(param))
+  }
+
+  def this(param: PsiParameter) {
+    this(param.getName, None, param.paramType, false, param.isVarArgs, false, param.index)
   }
 }
 
