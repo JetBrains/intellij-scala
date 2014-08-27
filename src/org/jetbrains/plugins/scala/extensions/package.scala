@@ -437,6 +437,18 @@ package object extensions {
             treatJavaObjectAsAny = treatJavaObjectAsAny)
       }
     }
+
+    def index: Int = {
+      param match {
+        case f: FakePsiParameter => f.parameter.index
+        case p: ScParameter => p.index
+        case _ =>
+          param.getParent match {
+            case pList: PsiParameterList => pList.getParameterIndex(param)
+            case _ => -1
+          }
+      }
+    }
   }
 
   def using[A <: Closeable, B](resource: A)(block: A => B): B = {
