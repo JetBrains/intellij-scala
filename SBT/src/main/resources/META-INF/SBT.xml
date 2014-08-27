@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <idea-plugin version="2">
+  <depends optional="true" config-file="android-support.xml">org.jetbrains.android</depends>
 
     <application-components>
         <component>
@@ -25,6 +26,7 @@
         <fileTypeFactory implementation="org.jetbrains.sbt.language.SbtFileTypeFactory"/>
         <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtAnnotator" />
         <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtDependencyAnnotator"/>
+        <lang.documentationProvider language="Scala" implementationClass="org.jetbrains.sbt.editor.documentationProvider.SbtDocumentationProvider" order="first"/>
 
         <externalSystemManager implementation="org.jetbrains.sbt.project.SbtExternalSystemManager"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtFacetDataService"/>
@@ -65,6 +67,11 @@
 
       <defaultLiveTemplatesProvider implementation="org.jetbrains.sbt.codeInsight.template.SbtDefaultLiveTemplatesProvider"/>
       <liveTemplateContext implementation="org.jetbrains.sbt.codeInsight.template.SbtLiveTemplateContextType"/>
+
+      <localInspection implementationClass="org.jetbrains.sbt.codeInspection.SbtReplaceProjectWithProjectInInspection"
+                       displayName="Replace Project() with project.in()" groupName="Sbt: General"
+                       shortName="SbtReplaceProjectWithProjectIn"
+                       level="WARNING" enabledByDefault="true" language="Scala"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">

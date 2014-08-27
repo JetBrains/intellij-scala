@@ -8,6 +8,7 @@
       <root url="file://$IDEA-14_HOME$/plugins/maven/lib" />
       <root url="file://$IDEA-14_HOME$/plugins/properties/lib" />
       <root url="file://$IDEA-14_HOME$/plugins/Groovy/lib" />
+      <root url="file://$IDEA-14_HOME$/plugins/junit/lib" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
@@ -16,6 +17,7 @@
     <jarDirectory url="file://$IDEA-14_HOME$/plugins/Groovy/lib" recursive="false" />
     <jarDirectory url="file://$IDEA-14_HOME$/plugins/IntelliLang/lib" recursive="false" />
     <jarDirectory url="file://$IDEA-14_HOME$/plugins/java-i18n/lib" recursive="false" />
+    <jarDirectory url="file://$IDEA-14_HOME$/plugins/junit/lib" recursive="false" />
     <jarDirectory url="file://$IDEA-14_HOME$/plugins/maven/lib" recursive="false" />
     <jarDirectory url="file://$IDEA-14_HOME$/plugins/properties/lib" recursive="false" />
   </library>

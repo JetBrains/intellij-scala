@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
  * @author Alefas
  * @since 03/04/14.
  */
-class ScLightParameter(param: ScParameter, tp: ScType, i: Int)
+class ScLightParameter(val param: ScParameter, tp: ScType, i: Int)
   extends LightElement(param.getManager, param.getLanguage) with ScParameter {
   override def nameId: PsiElement = param.nameId
 

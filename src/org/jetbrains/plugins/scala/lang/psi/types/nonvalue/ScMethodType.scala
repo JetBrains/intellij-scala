@@ -82,6 +82,8 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     visitor.visitMethodType(this)
   }
 
+  override def typeDepth: Int = returnType.typeDepth
+
   def inferValueType: ValueType = {
     ScFunctionType(returnType.inferValueType, params.map(p => {
       val inferredParamType = p.paramType.inferValueType
@@ -312,4 +314,9 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
   }
 
   def visitType(visitor: ScalaTypeVisitor) {}
+
+  override def typeDepth: Int = {
+    if (typeParameters.nonEmpty) internalType.typeDepth.max(ScType.typeParamsDepth(typeParameters.toArray) + 1)
+    else internalType.typeDepth
+  }
 }

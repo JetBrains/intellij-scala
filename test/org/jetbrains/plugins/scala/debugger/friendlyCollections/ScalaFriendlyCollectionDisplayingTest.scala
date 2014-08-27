@@ -88,7 +88,7 @@ class ScalaFriendlyCollectionDisplayingTest extends ScalaDebuggerTestCase {
       
       var testIndex = 0
       children foreach { childLabel => 
-        val expectedChildLabel = "(" + testIndex + ")  = " + INT_TYPE + "\"" + (testIndex + 1) + "\"" //compiler bug? 
+        val expectedChildLabel = s"($testIndex)  = ${INT_TYPE}${testIndex + 1}"//compiler bug?
         
         assertEquals(childLabel, expectedChildLabel)
         testIndex += 1

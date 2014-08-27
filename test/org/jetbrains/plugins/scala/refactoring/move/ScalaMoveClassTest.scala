@@ -129,7 +129,6 @@ def testPackageObject() {
         new SingleSourceRootMoveDestination(PackageWrapper.create(JavaDirectoryService.getInstance.getPackage(dirs(0))), dirs(0)), true, true, null).run()
     }
     PsiDocumentManager.getInstance(getProjectAdapter).commitAllDocuments()
-    FileDocumentManager.getInstance.saveAllDocuments()
   }
 
   object Kinds extends Enumeration {
