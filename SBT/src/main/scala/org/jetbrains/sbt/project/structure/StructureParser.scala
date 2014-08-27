@@ -30,10 +30,11 @@ object StructureParser {
     val configurations = (node \ "configuration").map(parseConfiguration(_)(fs.withBase(base)))
     val java = (node \ "java").headOption.map(parseJava(_)(fs.withBase(base)))
     val scala = (node \ "scala").headOption.map(parseScala(_)(fs.withBase(base)))
+    val android = (node \ "android").headOption.map(parseAndroid(_)(fs.withBase(base)))
     val dependencies = parseDependencies(node)(fs.withBase(base))
     val resolvers = parseResolvers(node)
 
-    Project(id, name, organization, version, base, target, build, configurations, java, scala, dependencies, resolvers)
+    Project(id, name, organization, version, base, target, build, configurations, java, scala, android, dependencies, resolvers)
   }
 
   private def parseBuild(node: Node)(implicit fs: FS): Build = {
@@ -60,6 +61,20 @@ object StructureParser {
     val options = (node \ "option").map(_.text)
 
     Scala(version, library, compiler, extra, options)
+  }
+
+  private def parseAndroid(node: Node)(implicit fs: FS): Android = {
+    val version = (node \ "version").text
+    val manifestFile = file((node \ "manifest").text)
+    val apkPath = file((node \ "apk").text)
+    val resPath = file((node \ "resources").text)
+    val assetsPath = file((node \ "assets").text)
+    val genPath = file((node \ "generatedFiles").text)
+    val libsPath = file((node \ "nativeLibs").text)
+    val isLibrary = (node \ "isLibrary").text.toBoolean
+    val proguardConfig = (node \ "proguard" \ "option").map(_.text)
+
+    Android(version, manifestFile, apkPath, resPath, assetsPath, genPath, libsPath, isLibrary, proguardConfig)
   }
 
   private def parseConfiguration(node: Node)(implicit fs: FS): Configuration = {

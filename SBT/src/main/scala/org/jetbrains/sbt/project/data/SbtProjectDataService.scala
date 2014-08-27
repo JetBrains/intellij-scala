@@ -1,21 +1,22 @@
 package org.jetbrains.sbt
 package project.data
 
-import java.io.File
 import java.util
-import com.intellij.openapi.externalSystem.model.DataNode
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.externalSystem.service.project.{ProjectStructureHelper, PlatformFacade}
-import com.intellij.openapi.projectRoots.{Sdk, ProjectJdkTable, JavaSdk}
-import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil._
-import collection.JavaConverters._
-import org.jetbrains.plugins.scala.components.HighlightingAdvisor
+
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
+import com.intellij.openapi.externalSystem.model.DataNode
+import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, ProjectStructureHelper}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
+import com.intellij.openapi.roots.impl.{DirectoryIndex, JavaLanguageLevelPusher, LanguageLevelProjectExtensionImpl}
+import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
 import com.intellij.pom.java.LanguageLevel
-import SbtProjectDataService._
-import com.intellij.openapi.roots.impl.{LanguageLevelProjectExtensionImpl, DirectoryIndex, JavaLanguageLevelPusher}
 import org.jdom.Element
+import org.jetbrains.android.sdk.{AndroidPlatform, AndroidSdkType}
+import org.jetbrains.plugins.scala.components.HighlightingAdvisor
+import org.jetbrains.sbt.project.data.SbtProjectDataService._
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -58,7 +59,20 @@ object SbtProjectDataService {
     "1.7" -> LanguageLevel.JDK_1_7,
     "1.8" -> LanguageLevel.JDK_1_8)
   
-  def findJdkBy(name: String): Option[Sdk] = Option(ProjectJdkTable.getInstance().findJdk(name))
+  def findJdkBy(sdk: ScalaProjectData.Sdk): Option[Sdk] = sdk match {
+    case ScalaProjectData.Android(version) => findAndroidJdkByVersion(version)
+    case ScalaProjectData.Jdk(version) => Option(ProjectJdkTable.getInstance().findJdk(version))
+  }
+
+  def findAndroidJdkByVersion(version: String): Option[Sdk] = {
+    val sdks = ProjectJdkTable.getInstance().getSdksOfType(AndroidSdkType.getInstance()).asScala
+    for (sdk <- sdks) {
+      val platformVersion = Option(AndroidPlatform.getInstance(sdk)).map { _.getApiLevel.toString }
+      if (platformVersion.fold(false){ _ == version })
+        return Some(sdk)
+    }
+    None
+  }
 
   def allJdks: Seq[Sdk] = ProjectJdkTable.getInstance.getSdksOfType(JavaSdk.getInstance).asScala
   

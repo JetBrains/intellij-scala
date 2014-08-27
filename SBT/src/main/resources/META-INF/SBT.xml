@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <idea-plugin version="2">
+  <depends optional="true" config-file="android-support.xml">org.jetbrains.android</depends>
 
     <application-components>
         <component>
