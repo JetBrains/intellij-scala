@@ -5,7 +5,7 @@ import java.io.File
 
 case class Structure(projects: Seq[Project], repository: Option[Repository])
 
-case class Project(id: String, name: String, organization: String, version: String, base: File, target: File, build: Build, configurations: Seq[Configuration], java: Option[Java], scala: Option[Scala], dependencies: Dependencies, resolvers: Set[Resolver])
+case class Project(id: String, name: String, organization: String, version: String, base: File, target: File, build: Build, configurations: Seq[Configuration], java: Option[Java], scala: Option[Scala], android: Option[Android], dependencies: Dependencies, resolvers: Set[Resolver])
 
 case class Build(imports: Seq[String], classes: Seq[File], docs: Seq[File], sources: Seq[File])
 
@@ -14,6 +14,8 @@ case class Configuration(id: String, sources: Seq[Directory], resources: Seq[Dir
 case class Java(home: Option[File], options: Seq[String])
 
 case class Scala(version: String, libraryJar: File, compilerJar: File, extraJars: Seq[File], options: Seq[String])
+
+case class Android(version: String, manifestFile: File, apkPath: File, resPath: File, assetsPath: File, genPath: File, libsPath: File, isLibrary: Boolean, proguardConfig: Seq[String])
 
 case class Dependencies(projects: Seq[ProjectDependency], modules: Seq[ModuleDependency], jars: Seq[JarDependency])
 

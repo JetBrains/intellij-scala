@@ -63,6 +63,7 @@ object StructureParserTest {
       configurations = Seq(configuration),
       java = Some(java),
       scala = Some(scala),
+      android = None,
       dependencies = dependencies,
       resolvers = Set.empty)
 
