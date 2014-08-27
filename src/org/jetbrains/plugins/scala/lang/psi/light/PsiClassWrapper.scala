@@ -76,94 +76,42 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
 
   def getMethods: Array[PsiMethod] = {
     definition match {
-      case o: ScObject =>
+      case obj: ScObject =>
         val res = new ArrayBuffer[PsiMethod]()
-        val signatures = TypeDefinitionMembers.getSignatures(o).allFirstSeq().iterator
-        while (signatures.hasNext) {
-          val signature = signatures.next()
-          signature.foreach {
-            case (t, node) =>
-              node.info.namedElement match {
-                case fun: ScFunction if !fun.isConstructor => res ++= fun.getFunctionWrappers(isStatic = true, isInterface = false, cClass = Some(definition))
-                case method: PsiMethod if !method.isConstructor =>
-                  if (method.containingClass != null && method.containingClass.qualifiedName != "java.lang.Object") {
-                    res += StaticPsiMethodWrapper.getWrapper(method, this)
-                  }
-                case t: ScTypedDefinition if t.isVal || t.isVar =>
-                  val nodeName = node.info.name
-                  if (t.name == nodeName) {
-                    res += t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = SIMPLE_ROLE, cClass = Some(definition))
-                    if (t.isVar) {
-                      res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = EQ)
-                    }
-                  }
-                  t.nameContext match {
-                    case s: ScAnnotationsHolder =>
-                      val beanProperty = ScalaPsiUtil.isBeanProperty(s)
-                      val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s)
-                      if (beanProperty) {
-                        if (nodeName == "get" + t.name.capitalize) {
-                          res += t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = GETTER, cClass = Some(definition))
-                        }
-                        if (t.isVar && nodeName == "set" + t.name.capitalize) {
-                          res += t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = SETTER, cClass = Some(definition))
-                        }
-                      } else if (booleanBeanProperty) {
-                        if (nodeName == "is" + t.name.capitalize) {
-                          res += t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = IS_GETTER, cClass = Some(definition))
-                        }
-                        if (t.isVar && nodeName == "set" + t.name.capitalize) {
-                          res += t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = SETTER, cClass = Some(definition))
-                        }
-                      }
-                    case _ =>
-                  }
-                case _ =>
-              }
-          }
+        TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(obj) { node =>
+          this.processPsiMethodsForNode(node, isStatic = true, isInterface = false)(res += _)
         }
         res.toArray
+
       case t: ScTrait =>
         val res = new ArrayBuffer[PsiMethod]()
+
+        def addGettersAndSetters(holder: ScAnnotationsHolder, declaredElements: Seq[ScTypedDefinition]): Unit = {
+          val beanProperty = ScalaPsiUtil.isBeanProperty(holder)
+          val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(holder)
+          if (beanProperty || booleanBeanProperty) {
+            for (t <- declaredElements) {
+              if (beanProperty) {
+                res += t.getStaticTypedDefinitionWrapper(GETTER, this)
+                if (t.isVar) {
+                  res += t.getStaticTypedDefinitionWrapper(SETTER, this)
+                }
+              } else if (booleanBeanProperty) {
+                res += t.getStaticTypedDefinitionWrapper(IS_GETTER, this)
+                if (t.isVar) {
+                  res += t.getStaticTypedDefinitionWrapper(SETTER, this)
+                }
+              }
+            }
+          }
+        }
         val members = t.members
         members foreach {
           case fun: ScFunctionDefinition => res += fun.getStaticTraitFunctionWrapper(this)
           case definition: ScPatternDefinition => //only getters and setters should be added
-            val beanProperty = ScalaPsiUtil.isBeanProperty(definition)
-            val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(definition)
-            if (beanProperty || booleanBeanProperty) {
-              for (t <- definition.declaredElements) {
-                if (beanProperty) {
-                  res += t.getStaticTypedDefinitionWrapper(GETTER, this)
-                  if (t.isVar) {
-                    res += t.getStaticTypedDefinitionWrapper(SETTER, this)
-                  }
-                } else if (booleanBeanProperty) {
-                  res += t.getStaticTypedDefinitionWrapper(IS_GETTER, this)
-                  if (t.isVar) {
-                    res += t.getStaticTypedDefinitionWrapper(SETTER, this)
-                  }
-                }
-              }
-            }
+            addGettersAndSetters(definition, definition.declaredElements)
           case definition: ScVariableDefinition => //only getters and setters should be added
-            val beanProperty = ScalaPsiUtil.isBeanProperty(definition)
-            val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(definition)
-            if (beanProperty || booleanBeanProperty) {
-              for (t <- definition.declaredElements) {
-                if (beanProperty) {
-                  res += t.getStaticTypedDefinitionWrapper(GETTER, this)
-                  if (t.isVar) {
-                    res += t.getStaticTypedDefinitionWrapper(SETTER, this)
-                  }
-                } else if (booleanBeanProperty) {
-                  res += t.getStaticTypedDefinitionWrapper(IS_GETTER, this)
-                  if (t.isVar) {
-                    res += t.getStaticTypedDefinitionWrapper(SETTER, this)
-                  }
-                }
-              }
-            }
+            addGettersAndSetters(definition, definition.declaredElements)
           case _ =>
         }
         res.toArray

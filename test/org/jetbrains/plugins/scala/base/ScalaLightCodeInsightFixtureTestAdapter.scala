@@ -29,9 +29,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
   override protected def setUp() {
     super.setUp()
 
-    libLoader = new ScalaLibraryLoader(myFixture.getProject, myFixture.getModule, rootPath = null,
-      javaSdk = Some(JavaSdk.getInstance.createJdk("java sdk", TestUtils.getMockJdk, false)))
-
+    libLoader = ScalaLibraryLoader.withMockJdk(myFixture.getProject, myFixture.getModule, rootPath = null)
     libLoader.loadLibrary(TestUtils.DEFAULT_SCALA_SDK_VERSION)
   }
 

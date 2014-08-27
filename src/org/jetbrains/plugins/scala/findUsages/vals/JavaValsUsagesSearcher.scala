@@ -36,8 +36,9 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
                       refElement.resolve match {
                         case f: FakePsiMethod if f.navElement == vals =>
                           if (!consumer.process(refElement)) return false
-                        case t @ (_: StaticPsiTypedDefinitionWrapper | _: PsiTypedDefinitionWrapper)
-                          if t.getNavigationElement == vals =>
+                        case t: StaticPsiTypedDefinitionWrapper if t.typedDefinition == vals =>
+                          if (!consumer.process(refElement)) return false
+                        case t: PsiTypedDefinitionWrapper if t.typedDefinition == vals =>
                           if (!consumer.process(refElement)) return false
                         case _ =>
                       }
@@ -60,10 +61,10 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
                 ref match {
                   case refElement: PsiReferenceExpression =>
                     refElement.resolve match {
-                      case t: PsiTypedDefinitionWrapper if t.getNavigationElement == wrapper.getNavigationElement &&
+                      case t: PsiTypedDefinitionWrapper if t.typedDefinition == wrapper.typedDefinition &&
                               t.getName == wrapper.getName =>
                         if (!consumer.process(refElement)) return false
-                      case t: StaticPsiTypedDefinitionWrapper if t.getNavigationElement == wrapper.getNavigationElement &&
+                      case t: StaticPsiTypedDefinitionWrapper if t.typedDefinition == wrapper.typedDefinition &&
                               t.getName == wrapper.getName =>
                         if (!consumer.process(refElement)) return false
                       case _ =>

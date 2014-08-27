@@ -1,10 +1,11 @@
 package org.jetbrains.sbt
 package project.data
 
-import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys, Key}
-import com.intellij.openapi.externalSystem.model.project._
-import org.jetbrains.sbt.project.SbtProjectSystem
 import java.io.File
+
+import com.intellij.openapi.externalSystem.model.project._
+import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
+import org.jetbrains.sbt.project.SbtProjectSystem
 
 import org.jetbrains.sbt.project.structure.Resolver
 import org.jetbrains.sbt.resolvers.SbtResolver
@@ -76,7 +77,7 @@ class LibraryDependencyNode(val data: LibraryDependencyData)
 
 class ScalaProjectNode(val data: ScalaProjectData)
   extends Node[ScalaProjectData] {
-  def this(jdk: Option[String], javacOptions: Seq[String]) {
+  def this(jdk: Option[ScalaProjectData.Sdk], javacOptions: Seq[String]) {
     this(new ScalaProjectData(SbtProjectSystem.Id, jdk, javacOptions))
   }
 
@@ -90,6 +91,15 @@ class ScalaFacetNode(val data: ScalaFacetData)
   }
 
   protected def key = ScalaFacetData.Key
+}
+
+class AndroidFacetNode(val data: AndroidFacetData)
+  extends Node[AndroidFacetData] {
+  def this(version: String, manifest: File, apk: File, res: File, assets: File, gen: File, libs: File, isLibrary: Boolean, proguardConfig: Seq[String]) {
+    this(new AndroidFacetData(SbtProjectSystem.Id, version, manifest, apk, res, assets, gen, libs, isLibrary, proguardConfig))
+  }
+
+  protected def key = AndroidFacetData.Key
 }
 
 class SbtModuleNode(val data: SbtModuleData)

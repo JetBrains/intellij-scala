@@ -8,11 +8,12 @@ import com.intellij.ide.startup.impl.StartupManagerImpl
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.openapi.projectRoots.{JavaSdk, Sdk}
 import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.libraries.{Library, LibraryTable}
 import com.intellij.openapi.startup.StartupManager
 import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
+import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
 import com.intellij.testFramework.PsiTestUtil
@@ -39,13 +40,14 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
       syntheticClasses.registerClasses()
     }
 
+    VfsRootAccess.allowRootAccess(TestUtils.getTestDataPath)
+
     var rootModel: ModifiableRootModel = null
     val rootManager: ModuleRootManager = ModuleRootManager.getInstance(module)
     if (rootPath != null) {
       rootModel = rootManager.getModifiableModel
       val testDataRoot: VirtualFile = LocalFileSystem.getInstance.refreshAndFindFileByPath(rootPath)
       assert(testDataRoot != null)
-      refreshDirectory(testDataRoot)
       contentEntry = rootModel.addContentEntry(testDataRoot)
       contentEntry.addSourceFolder(testDataRoot, false)
     }
@@ -109,7 +111,7 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
       PsiTestUtil.removeContentEntry(module, testDataRoot)
     }
 
-    if (!ScalaFacet.findIn(module).isEmpty) {
+    if (ScalaFacet.findIn(module).isDefined) {
       val modelsProvider = ModifiableModelsProvider.SERVICE.getInstance()
       val facetModifiableModel = modelsProvider.getFacetModifiableModel(module)
       facetModifiableModel.removeFacet(ScalaFacet.findIn(module).get)
@@ -145,6 +147,8 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
       val scalaLib: Library = libraryTable.createLibrary(scalaLibraryName)
       val libModel: Library.ModifiableModel = scalaLib.getModifiableModel
       libModels.add(libModel)
+      VfsRootAccess.allowRootAccess(mockLib)
+      if (mockLibSrc != null) VfsRootAccess.allowRootAccess(mockLibSrc)
       addLibraryRoots(libVersion, libModel, mockLib, mockLibSrc)
     }
     usedRootModel
@@ -176,4 +180,13 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
 
 object ScalaLibraryLoader {
   def getSdkNone: Option[Sdk] = None
+
+  def withMockJdk(project: Project, module: Module, rootPath: String,
+                  isIncludeScalazLibrary: Boolean = false, isIncludeReflectLibrary: Boolean = false): ScalaLibraryLoader = {
+
+    val mockJdk = TestUtils.getMockJdk
+    VfsRootAccess.allowRootAccess(mockJdk)
+    val javaSdk = Some(JavaSdk.getInstance.createJdk("java sdk", mockJdk, false))
+    new ScalaLibraryLoader(project, module, rootPath, isIncludeScalazLibrary, isIncludeReflectLibrary, javaSdk)
+  }
 }
