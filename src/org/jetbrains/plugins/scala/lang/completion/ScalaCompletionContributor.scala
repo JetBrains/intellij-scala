@@ -232,7 +232,11 @@ class ScalaCompletionContributor extends CompletionContributor {
       }
       val rest = ref match {
         case ref: PsiElement => text.substring(offset - ref.getTextRange.getStartOffset + 1)
-        case ref: PsiReference => text.substring(offset - ref.getElement.getTextRange.getStartOffset + 1)
+        case ref: PsiReference =>
+          assert(assertion = offset + 1 >= ref.getElement.getTextRange.getStartOffset,
+            s"Offset is too small for reference, offset: $offset, " +
+              s"range: ${ref.getElement.getTextRange}, in file:\n${file.getText}")
+          text.substring(offset - ref.getElement.getTextRange.getStartOffset + 1)
       }
       val id = if (isOpChar(text(text.length - 1))) {
         "+++++++++++++++++++++++"
