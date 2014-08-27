@@ -10,7 +10,6 @@ import com.intellij.openapi.projectRoots.{Sdk, ProjectJdkTable, JavaSdk}
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil._
 import collection.JavaConverters._
-import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
 import com.intellij.pom.java.LanguageLevel
 import SbtProjectDataService._
@@ -42,8 +41,6 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
 
       javaLanguageLevel.foreach(upgradeJavaLanguageLevelIn(project, _))
     }
-
-    configureHighlightingIn(project)
   }
 
   def doRemoveData(toRemove: util.Collection[_ <: Project], project: Project) {}
@@ -117,12 +114,5 @@ object SbtProjectDataService {
     val element = new Element("component").setAttribute("languageLevel", level.name)
     val projectExtension = new LanguageLevelProjectExtensionImpl.MyProjectExtension(project)
     projectExtension.readExternal(element)
-  }
-
-  def configureHighlightingIn(project: Project) {
-    val highlightingSettings = project.getComponent(classOf[HighlightingAdvisor]).getState()
-    
-    highlightingSettings.TYPE_AWARE_HIGHLIGHTING_ENABLED = true
-    highlightingSettings.SUGGEST_TYPE_AWARE_HIGHLIGHTING = false
   }
 }
