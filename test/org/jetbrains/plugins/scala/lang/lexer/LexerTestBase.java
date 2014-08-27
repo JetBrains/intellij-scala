@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
  * Date: 11/21/11
  */
 abstract public class LexerTestBase extends BaseScalaFileSetTestCase {
-  private final Lexer lexer;
+  protected final Lexer lexer;
   
   public LexerTestBase(String dataPath, Lexer lexer) {
     super(System.getProperty("path") != null ? System.getProperty("path") : dataPath);
@@ -26,11 +26,8 @@ abstract public class LexerTestBase extends BaseScalaFileSetTestCase {
 
     StringBuilder buffer = new StringBuilder();
 
-    IElementType type;
-    while ((type = lexer.getTokenType()) != null) {
-      CharSequence s = lexer.getBufferSequence();
-      s = s.subSequence(lexer.getTokenStart(), lexer.getTokenEnd());
-      buffer.append(type.toString()).append(" {").append(s).append("}");
+    while (lexer.getTokenType() != null) {
+      buffer.append(prettyPrintToken());
       lexer.advance();
       if (lexer.getTokenType() != null) {
         buffer.append("\n");
@@ -38,5 +35,13 @@ abstract public class LexerTestBase extends BaseScalaFileSetTestCase {
     }
 
     return buffer.toString();
+  }
+
+  protected String prettyPrintToken() {
+    if (lexer.getTokenType() == null) return "null";
+
+    CharSequence s = lexer.getBufferSequence();
+    s = s.subSequence(lexer.getTokenStart(), lexer.getTokenEnd());
+    return lexer.getTokenType().toString() + " {" + s + "}";
   }
 }
