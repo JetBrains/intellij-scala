@@ -38,7 +38,11 @@ case class ScalaSdkDescriptor(version: String,
 
 object ScalaSdkDescriptor {
   def from(files: Seq[VirtualFile]): Either[String, ScalaSdkDescriptor] = {
-    val requiredBinaries = Seq(Library, Compiler, Reflect).map(jar => (jar, files.find(jar.isBinary))).toMap
+    val reflectRequired = languageLevelFor(files).exists(_.isSinceScala2_10)
+
+    val requiredJars = if (reflectRequired) Seq(Library, Compiler, Reflect) else Seq(Library, Compiler)
+    
+    val requiredBinaries = requiredJars.map(jar => (jar, files.find(jar.isBinary))).toMap
 
     val missingBinaries = requiredBinaries.collect {
       case (descriptor, None) => descriptor.title
@@ -52,23 +56,35 @@ object ScalaSdkDescriptor {
 
       val libraryBinary = requiredBinaries(Library).get
       val compilerBinary = requiredBinaries(Compiler).get
-      val reflectBinary = requiredBinaries(Reflect).get
+      val reflectBinary = requiredBinaries.get(Reflect).flatten
 
-      val compilerBinaries = Seq(libraryBinary, compilerBinary, reflectBinary)
+      val compilerBinaries = Seq(libraryBinary, compilerBinary) ++ reflectBinary.toSeq
       val libraryBinaries = libraryBinary +: optionalBinaries
 
-      val libraryVersion = JarFile.Library.versionOf(virtualToIoFile(libraryBinary))
-      val compilerVersion = JarFile.Compiler.versionOf(virtualToIoFile(compilerBinary))
-      val reflectVersion = JarFile.Reflect.versionOf(virtualToIoFile(reflectBinary))
+      JarFile.Library.versionOf(virtualToIoFile(libraryBinary)) match {
+        case Some(libraryVersion) =>
+          val compilerVersion = JarFile.Compiler.versionOf(virtualToIoFile(compilerBinary))
+          val reflectVersion = reflectBinary.flatMap(it => JarFile.Reflect.versionOf(virtualToIoFile(it)))
 
-      if (libraryVersion.isDefined && libraryVersion == compilerVersion && reflectVersion == compilerVersion) {
-        val descriptor = ScalaSdkDescriptor(libraryVersion.get, compilerBinaries, libraryBinaries, Seq.empty, docs)
-        Right(descriptor)
-      } else {
-        Left("Different versions of the core JARs")
+          val otherVersions = Seq(compilerVersion, reflectVersion).flatten
+
+          if (otherVersions.forall(_ == libraryVersion)) {
+            val descriptor = ScalaSdkDescriptor(libraryVersion, compilerBinaries, libraryBinaries, Seq.empty, docs)
+            Right(descriptor)
+          } else {
+            Left("Different versions of the core Scala JARs")
+          }
+        case None => Left("Cannot read Scala library version")
       }
     } else {
       Left("Not found: " + missingBinaries.mkString(", "))
     }
+  }
+
+  private def languageLevelFor(files: Seq[VirtualFile]): Option[ScalaLanguageLevel] = {
+    files.find(Library.isBinary)
+            .map(virtualToIoFile)
+            .flatMap(JarFile.Library.versionOf)
+            .flatMap(version => Option(ScalaLanguageLevel.from(version, false)))
   }
 }
