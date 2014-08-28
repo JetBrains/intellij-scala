@@ -75,7 +75,8 @@ object SbtExternalSystemManager {
       appSettings.getVmParameters.split("\\s+").toSeq ++
       proxyOptionsFor(HttpConfigurable.getInstance)
 
-    val customVmExecutable = appSettings.customVMEnabled.option(appSettings.getCustomVMPath).map(_.toFile)
+    val customVmFile = new File(appSettings.getCustomVMPath) / "bin" / "java"
+    val customVmExecutable = appSettings.customVMEnabled.option(customVmFile)
 
     val settings = SbtSettings.getInstance(project)
 
