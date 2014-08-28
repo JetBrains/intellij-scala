@@ -1,21 +1,20 @@
 package org.jetbrains.sbt
 package project.data
 
-import java.io.File
 import java.util
-import com.intellij.openapi.externalSystem.model.DataNode
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.externalSystem.service.project.{ProjectStructureHelper, PlatformFacade}
-import com.intellij.openapi.projectRoots.{Sdk, ProjectJdkTable, JavaSdk}
-import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil._
-import collection.JavaConverters._
-import org.jetbrains.plugins.scala.components.HighlightingAdvisor
+
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
+import com.intellij.openapi.externalSystem.model.DataNode
+import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, ProjectStructureHelper}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
+import com.intellij.openapi.roots.impl.{DirectoryIndex, JavaLanguageLevelPusher, LanguageLevelProjectExtensionImpl}
+import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
 import com.intellij.pom.java.LanguageLevel
-import SbtProjectDataService._
-import com.intellij.openapi.roots.impl.{LanguageLevelProjectExtensionImpl, DirectoryIndex, JavaLanguageLevelPusher}
 import org.jdom.Element
+import org.jetbrains.sbt.project.data.SbtProjectDataService._
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -42,8 +41,6 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
 
       javaLanguageLevel.foreach(upgradeJavaLanguageLevelIn(project, _))
     }
-
-    configureHighlightingIn(project)
   }
 
   def doRemoveData(toRemove: util.Collection[_ <: Project], project: Project) {}
@@ -117,12 +114,5 @@ object SbtProjectDataService {
     val element = new Element("component").setAttribute("languageLevel", level.name)
     val projectExtension = new LanguageLevelProjectExtensionImpl.MyProjectExtension(project)
     projectExtension.readExternal(element)
-  }
-
-  def configureHighlightingIn(project: Project) {
-    val highlightingSettings = project.getComponent(classOf[HighlightingAdvisor]).getState()
-    
-    highlightingSettings.TYPE_AWARE_HIGHLIGHTING_ENABLED = true
-    highlightingSettings.SUGGEST_TYPE_AWARE_HIGHLIGHTING = false
   }
 }
