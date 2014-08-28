@@ -46,8 +46,8 @@ case class Parameter(name: String, deprecatedName: Option[String], paramType: Sc
  * @param lowerType important to be lazy, see SCL-7216
  * @param upperType important to be lazy, see SCL-7216
  */
-case class TypeParameter(name: String, typeParams: Seq[TypeParameter], lowerType: () => ScType, upperType: () => ScType,
-                         ptp: PsiTypeParameter) {
+class TypeParameter(val name: String, val typeParams: Seq[TypeParameter], val lowerType: () => ScType,
+                    val upperType: () => ScType, val ptp: PsiTypeParameter) {
   def this(ptp: PsiTypeParameter) {
     this(ptp match {
       case tp: ScTypeParam => tp.name
@@ -72,6 +72,35 @@ case class TypeParameter(name: String, typeParams: Seq[TypeParameter], lowerType
       val res = fun(upperType())
       () => res
     }, ptp)
+  }
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[TypeParameter]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: TypeParameter =>
+      (that canEqual this) &&
+        name == that.name &&
+        typeParams == that.typeParams &&
+        lowerType() == that.lowerType() &&
+        upperType() == that.upperType() &&
+        ptp == that.ptp
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(name, typeParams, ptp)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
+}
+
+object TypeParameter {
+  def apply(name: String, typeParams: Seq[TypeParameter], lowerType: () => ScType, upperType: () => ScType,
+            ptp: PsiTypeParameter): TypeParameter = {
+    new TypeParameter(name, typeParams, lowerType, upperType, ptp)
+  }
+
+  def unapply(t: TypeParameter): Option[(String, Seq[TypeParameter], () => ScType, () => ScType, PsiTypeParameter)] = {
+    Some(t.name, t.typeParams, t.lowerType, t.upperType, t.ptp)
   }
 }
 
