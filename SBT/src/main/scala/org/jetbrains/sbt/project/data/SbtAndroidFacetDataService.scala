@@ -10,10 +10,12 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.project.ModuleData
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, ProjectStructureHelper}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.SystemProperties
 import org.jetbrains.android.facet.{AndroidFacet, AndroidFacetType, AndroidRootUtil}
+import org.jetbrains.plugins.scala.util.ScalaUtil
 
 import scala.collection.JavaConverters._
 
@@ -28,57 +30,47 @@ class SbtAndroidFacetDataService(platformFacade: PlatformFacade, helper: Project
     toImport.asScala.foreach { facetNode =>
       val module = {
         val moduleData: ModuleData = facetNode.getData(ProjectKeys.MODULE)
-        helper.findIdeModule(moduleData.getName, project)
+        helper.findIdeModule(moduleData.getExternalName, project)
       }
 
-      val facet = Option(FacetManager.getInstance(module)).flatMap { manager =>
-        Option(manager.getFacetByType(AndroidFacet.ID))
-      }
+      val facet = Option(FacetManager.getInstance(module))
+                    .safeMap { _.getFacetByType(AndroidFacet.ID) }
+                    .getOrElse(createFacet(module))
+      configureFacet(facet, facetNode.getData)
+    }
+  }
 
-      def configure(facet: AndroidFacet) = {
-        val data = facetNode.getData
-        var proguardFilePath: String = ""
-        if (data.proguardConfig.nonEmpty)
-          ApplicationManager.getApplication.runWriteAction(new Runnable{
-            def run(): Unit = {
-              val proguardFile = project.getBaseDir.createChildData(this, "proguard-sbt.txt")
-              if (proguardFile.isValid && proguardFile.isWritable) {
-                proguardFile.setBOM(null)
-                using(new OutputStreamWriter(proguardFile.getOutputStream(this))) { output =>
-                  output.write(data.proguardConfig.mkString(SystemProperties.getLineSeparator))
-                }
-                proguardFilePath = proguardFile.getCanonicalPath
-              }
-            }
-          })
+  private def createFacet(module: Module) = {
+    val facetManager = FacetManager.getInstance(module)
+    val model = facetManager.createModifiableModel
+    val facet = facetManager.createFacet(new AndroidFacetType, "Android", null)
+    model.addFacet(facet)
+    model.commit()
+    facet
+  }
 
-        val props = facet.getConfiguration.getState
-        val base = AndroidRootUtil.getModuleDirPath(module)
-        def getRelativePath(f: File) = "/" + FileUtil.getRelativePath(base, f.getAbsolutePath, File.separatorChar)
-        props.GEN_FOLDER_RELATIVE_PATH_APT = getRelativePath(data.gen)
-        props.GEN_FOLDER_RELATIVE_PATH_AIDL = getRelativePath(data.gen)
-        props.MANIFEST_FILE_RELATIVE_PATH = getRelativePath(data.manifest)
-        props.RES_FOLDER_RELATIVE_PATH = getRelativePath(data.res)
-        props.ASSETS_FOLDER_RELATIVE_PATH = getRelativePath(data.assets)
-        props.LIBS_FOLDER_RELATIVE_PATH = getRelativePath(data.libs)
-        props.APK_PATH = getRelativePath(data.apk)
-        props.LIBRARY_PROJECT = data.isLibrary
-        props.RUN_PROGUARD = true
-        props.myProGuardCfgFiles = new util.ArrayList[String]()
-        if (proguardFilePath.nonEmpty)
-          props.myProGuardCfgFiles.add(proguardFilePath)
-      }
+  private def configureFacet(facet: AndroidFacet, data: AndroidFacetData) = {
+    val module = facet.getModule
+    val props = facet.getConfiguration.getState
 
-      def createFacet() {
-        val facetManager = FacetManager.getInstance(module)
-        val model = facetManager.createModifiableModel
-        val facet = facetManager.createFacet(new AndroidFacetType, "Android", null)
-        configure(facet)
-        model.addFacet(facet)
-        model.commit()
-      }
+    val base = AndroidRootUtil.getModuleDirPath(module)
+    def getRelativePath(f: File) = "/" + FileUtil.getRelativePath(base, f.getAbsolutePath, File.separatorChar)
 
-      facet map configure getOrElse createFacet
+    props.GEN_FOLDER_RELATIVE_PATH_APT = getRelativePath(data.gen)
+    props.GEN_FOLDER_RELATIVE_PATH_AIDL = getRelativePath(data.gen)
+    props.MANIFEST_FILE_RELATIVE_PATH = getRelativePath(data.manifest)
+    props.RES_FOLDER_RELATIVE_PATH = getRelativePath(data.res)
+    props.ASSETS_FOLDER_RELATIVE_PATH = getRelativePath(data.assets)
+    props.LIBS_FOLDER_RELATIVE_PATH = getRelativePath(data.libs)
+    props.APK_PATH = getRelativePath(data.apk)
+    props.LIBRARY_PROJECT = data.isLibrary
+    props.myProGuardCfgFiles = new util.ArrayList[String]()
+
+    if (data.proguardConfig.nonEmpty) {
+      val proguardFile = new File(module.getProject.getBasePath) / "proguard-sbt.txt"
+      FileUtil.writeToFile(proguardFile, data.proguardConfig.mkString(SystemProperties.getLineSeparator))
+      props.myProGuardCfgFiles.add(proguardFile.getCanonicalPath)
+      props.RUN_PROGUARD = true
     }
   }
 
