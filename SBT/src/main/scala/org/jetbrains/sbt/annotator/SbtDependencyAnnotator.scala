@@ -6,8 +6,10 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 import org.jetbrains.sbt.annotator.quickfix.{SbtRefreshProjectQuickFix, SbtUpdateResolverIndexesQuickFix}
 import org.jetbrains.sbt.resolvers.{SbtResolverIndexesManager, SbtResolverUtils}
+
 
 /**
  * @author Nikolay Obedin
@@ -23,19 +25,14 @@ class SbtDependencyAnnotator extends Annotator {
 
     def isValidOp(op: ScReferenceExpression) = op.getText == "%" || op.getText == "%%"
 
-    def extractInfo(from: PsiElement): Option[ArtifactInfo] = from match {
-      case expr: ScInfixExpr => (expr.lOp, expr.rOp) match {
-        case (lexpr: ScInfixExpr, versionLit: ScLiteral) if versionLit.isString => (lexpr.lOp, lexpr.rOp) match {
-          case (groupLit: ScLiteral, artifactLit: ScLiteral) if groupLit.isString && artifactLit.isString =>
-            Some(ArtifactInfo(groupLit.getValue.asInstanceOf[String],
-                              artifactLit.getValue.asInstanceOf[String],
-                              versionLit.getValue.asInstanceOf[String]))
-          case _ => None
-        }
-        case _ => None
-      }
-      case _ => None
-    }
+    def extractInfo(from: PsiElement): Option[ArtifactInfo] =
+      for {
+        ScInfixExpr(lexpr, _, rOp) <- Option(from)
+        ScInfixExpr(llOp, _, lrOp) <- Option(lexpr)
+        ScLiteralImpl.string(version)  <- Option(rOp)
+        ScLiteralImpl.string(group)    <- Option(llOp)
+        ScLiteralImpl.string(artifact) <- Option(lrOp)
+      } yield ArtifactInfo(group, artifact, version)
 
     def doAnnotate(info: Option[ArtifactInfo]): Unit = info match {
       case Some(ArtifactInfo(group, artifact, version)) =>
@@ -55,18 +52,17 @@ class SbtDependencyAnnotator extends Annotator {
       case _ => // do nothing
     }
 
-    element match {
-      case lit: ScLiteral => lit.getParent match {
-        case parentExpr: ScInfixExpr if isValidOp(parentExpr.operation) => parentExpr.lOp match {
-          case _: ScLiteral =>
-            doAnnotate(extractInfo(parentExpr.getParent))
-          case leftExp: ScInfixExpr if isValidOp(leftExp.operation) =>
-            doAnnotate(extractInfo(parentExpr))
-          case _ => // do nothing
-        }
-        case _ => // do nothing
-      }
+    for {
+      lit@ScLiteral(_) <- Option(element)
+      parentExpr@ScInfixExpr(lOp, operation, _) <- Option(lit.getParent)
+      if isValidOp(operation)
+    } yield lOp match {
+      case _: ScLiteral =>
+        doAnnotate(extractInfo(parentExpr.getParent))
+      case leftExp: ScInfixExpr if isValidOp(leftExp.operation) =>
+        doAnnotate(extractInfo(parentExpr))
       case _ => // do nothing
     }
   }
 }
+
