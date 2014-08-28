@@ -15,14 +15,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall,
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScClassParents
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 
 /**
  * @author Nikolay Obedin
  * @since 8/26/14.
  */
 class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
-
-  import org.jetbrains.sbt.language.references.SbtSubprojectReferenceProvider._
 
   def getReferencesByElement(element: PsiElement, context: ProcessingContext): Array[PsiReference] = {
     if (element.getContainingFile.getFileType.getName != Sbt.Name) return Array.empty
@@ -88,14 +87,14 @@ class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
 
   private def extractPathFromFileCtor(ctor: ScConstructor): Option[String] = {
     ctor.args.map(_.exprs).flatMap {
-      case Seq(pathLit : ScLiteral) =>
+      case Seq(pathLit : ScLiteralImpl) =>
         pathLit.stringValue
-      case Seq(parentLit : ScLiteral, childLit : ScLiteral) =>
+      case Seq(parentLit : ScLiteralImpl, childLit : ScLiteralImpl) =>
         for {
           parent <- parentLit.stringValue
           child  <- childLit.stringValue
         } yield parent + File.separator + child
-      case Seq(parentElt, childLit : ScLiteral) if childLit.isString =>
+      case Seq(parentElt, childLit : ScLiteralImpl) if childLit.isString =>
         for {
           parent <- extractPathFromFileParam(parentElt)
           child  <- childLit.stringValue
@@ -106,7 +105,7 @@ class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
 
   private def extractPathFromConcatenation(concatExpr: ScInfixExpr): Option[String] =
     concatExpr.rOp match {
-      case partLit : ScLiteral =>
+      case partLit : ScLiteralImpl =>
         for {
           parent <- extractPathFromFileParam(concatExpr.lOp)
           child  <- partLit.stringValue
@@ -134,14 +133,3 @@ private class SbtSubprojectReference[T <: PsiElement](val element: T, val sbtFil
         extends PsiReferenceBase.Immediate[T](element,
           TextRange.create(element.getStartOffsetInParent, element.getStartOffsetInParent + element.getTextLength),
           sbtFile)
-
-private object SbtSubprojectReferenceProvider {
-  implicit class RichScLiteral(literal: ScLiteral) {
-    def stringValue: Option[String] = {
-      if (literal.isString)
-        Some(literal.getValue.asInstanceOf[String])
-      else
-        None
-    }
-  }
-}
