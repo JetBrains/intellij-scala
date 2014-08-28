@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScClassParents
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 
 /**
@@ -39,18 +38,15 @@ class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
   }
 
   private def extractSubprojectPath(element: PsiElement): Option[String] = {
-    for {
-      listOfPatterns <- Option(element.getParent)
-      patternDef <- Option(listOfPatterns.getParent)
-    } yield patternDef match {
-      case ScPatternDefinition.expr(e) => e match {
+    Option(element.getParent).safeMap(_.getParent) match {
+      case Some(ScPatternDefinition.expr(e)) => e match {
         case expr: ScReferenceExpression if expr.getText == "project" => Some(element.getText)
         case call: ScMethodCall => extractSubprojectPathFromProjectCall(call, element)
         case _ => None
       }
       case _ => None
     }
-  }.flatten
+  }
 
   private def extractSubprojectPathFromProjectCall(call: ScMethodCall, element: PsiElement) = {
     var result: Option[String] = None
@@ -74,8 +70,8 @@ class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
   // TODO: extract these methods into another class and use them to write path completion
 
   private def extractPathFromFileParam(element: PsiElement): Option[String] = element match {
-    case ScTemplateDefinition.ExtendsBlock(block) if element.isInstanceOf[ScNewTemplateDefinition] =>
-      block.getChildren.toSeq.headOption.collect {
+    case newFileDef : ScNewTemplateDefinition =>
+      newFileDef.extendsBlock.getChildren.toSeq.headOption.collect {
         case classParent : ScClassParents => classParent.constructor.flatMap(extractPathFromFileCtor)
       }.flatten
     case expr@ScInfixExpr(_, op, _) if op.getText == "/" =>
