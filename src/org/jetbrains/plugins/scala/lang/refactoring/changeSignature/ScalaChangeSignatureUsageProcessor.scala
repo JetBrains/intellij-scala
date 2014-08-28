@@ -3,6 +3,7 @@ package lang.refactoring.changeSignature
 
 import java.util
 
+import com.incors.plaf.alloy.{r, bp}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Ref
 import com.intellij.psi._
@@ -77,8 +78,8 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
     val result = new MultiMap[PsiElement, String]()
 
     usages.foreach {
-      case ScalaOverriderUsageInfo(cp: ScClassParameter) => ConflictsUtil.addClassParameterConflicts(cp, info, result)
-      case ScalaOverriderUsageInfo(bp: ScBindingPattern) => ConflictsUtil.addBindingPatternConflicts(bp, info, result)
+      case ScalaOverriderUsageInfo(u: OverriderClassParamUsageInfo) => ConflictsUtil.addClassParameterConflicts(u.overrider, info, result)
+      case ScalaOverriderUsageInfo(u: OverriderValUsageInfo) => ConflictsUtil.addBindingPatternConflicts(u.overrider, info, result)
       case _ =>
     }
     result
@@ -97,10 +98,10 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
 
   private def processOverriderUsages(change: ChangeInfo, usage: UsageInfo, beforeMethodChange: Boolean): Unit = {
     usage match {
-      case ScalaOverriderUsageInfo(_) =>
+      case ScalaOverriderUsageInfo(scUsage) =>
         handleChangedName(change, usage)
-        handleReturnTypeChange(change, usage)
-        handleChangedParameters(change, usage)
+        handleReturnTypeChange(change, scUsage)
+        handleChangedParameters(change, scUsage)
       case _ =>
     }
   }

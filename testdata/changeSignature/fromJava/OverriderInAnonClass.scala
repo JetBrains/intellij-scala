@@ -4,4 +4,7 @@ object Test {
   }
 
   x.foo(1)
+  x.foo(i = 1)
+  x foo 1
+  x foo (i = 1)
 }

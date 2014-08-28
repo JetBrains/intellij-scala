@@ -8,4 +8,8 @@ class VarargsTest extends Varargs {
   foo(1)
   foo(1, "2")
   foo(1, "2", "3")
+
+  foo(i = 1, "2", "3")
+  foo(strs = "2", i = 1)
+  this foo (i = 1, "2", "3")
 }
