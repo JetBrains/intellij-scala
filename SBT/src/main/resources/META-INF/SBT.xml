@@ -71,7 +71,7 @@
         <liveTemplateContext implementation="org.jetbrains.sbt.codeInsight.template.SbtLiveTemplateContextType"/>
 
         <localInspection implementationClass="org.jetbrains.sbt.codeInspection.SbtReplaceProjectWithProjectInInspection"
-                        displayName="Replace Project() with project.in()" groupName="Sbt: General"
+                        displayName="Replace Project() with project.in()" groupName="Sbt"
                         shortName="SbtReplaceProjectWithProjectIn"
                         level="WARNING" enabledByDefault="true" language="Scala"/>
     </extensions>
