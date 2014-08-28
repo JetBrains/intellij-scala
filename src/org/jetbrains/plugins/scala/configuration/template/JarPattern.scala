@@ -11,11 +11,15 @@ import com.intellij.openapi.vfs.VirtualFile
 class JarPattern(prefix: String) {
   private val binary = Pattern.compile(prefix + ".*\\.jar")
 
+  private val sources = Pattern.compile(prefix + ".*-src\\.jar")
+
   private val docs = Pattern.compile(prefix + ".*-javadoc\\.jar")
 
   def title: String = prefix + "*.jar"
 
-  def isBinary(file: VirtualFile): Boolean = !isDocs(file) && binary.matcher(file.getName).matches
+  def isBinary(file: VirtualFile): Boolean = !isSources(file) && !isDocs(file) && binary.matcher(file.getName).matches
+
+  def isSources(file: VirtualFile): Boolean = sources.matcher(file.getName).matches
 
   def isDocs(file: VirtualFile): Boolean = docs.matcher(file.getName).matches
 }
