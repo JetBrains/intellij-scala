@@ -4,4 +4,7 @@ object Test {
   }
 
   x.bar(true, 1)
+  x.bar(true, ii = 1)
+  x.bar(true, 1)
+  x.bar(true, ii = 1)
 }

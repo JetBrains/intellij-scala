@@ -4,4 +4,6 @@ class ArrayToVarargsTest extends ArrayToVarargs {
   foo(1, Array(2, 2), true)
   val xs = Array(3, 3)
   foo(1, xs, true)
+  foo(js = Array(1, 2), b = false, i = 1)
+  foo(1, js = xs, b = true)
 }

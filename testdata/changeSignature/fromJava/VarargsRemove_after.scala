@@ -8,4 +8,7 @@ class VarargsTest extends VarargsRemove {
   foo(1, true)
   foo(1, true)
   foo(1, true)
+
+  foo(i = 1, true)
+  foo(i = 1, true)
 }
