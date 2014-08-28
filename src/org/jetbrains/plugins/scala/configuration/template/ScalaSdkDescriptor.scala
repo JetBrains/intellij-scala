@@ -52,6 +52,7 @@ object ScalaSdkDescriptor {
       val optionalJars = Seq(XML, Actors, Combinators, Swing)
 
       val optionalBinaries = optionalJars.map(jar => files.find(jar.isBinary)).flatten
+      val sources = (Library +: optionalJars).map(jar => files.find(jar.isSources)).flatten
       val docs = (Library +: optionalJars).map(jar => files.find(jar.isDocs)).flatten
 
       val libraryBinary = requiredBinaries(Library).get
@@ -69,7 +70,7 @@ object ScalaSdkDescriptor {
           val otherVersions = Seq(compilerVersion, reflectVersion).flatten
 
           if (otherVersions.forall(_ == libraryVersion)) {
-            val descriptor = ScalaSdkDescriptor(libraryVersion, compilerBinaries, libraryBinaries, Seq.empty, docs)
+            val descriptor = ScalaSdkDescriptor(libraryVersion, compilerBinaries, libraryBinaries, sources, docs)
             Right(descriptor)
           } else {
             Left("Different versions of the core Scala JARs")
