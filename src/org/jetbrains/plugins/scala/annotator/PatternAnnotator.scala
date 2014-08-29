@@ -138,6 +138,7 @@ object PatternAnnotator {
     case _ if ScType.isSingletonType(scType) => ScType.extractDesignatorSingletonType(scType).getOrElse(scType)
     case _ =>
       scType.recursiveUpdate {
+        case ScAbstractType(_, _, upper) => (true, upper)
         case ScTypeParameterType(_, _, _, upper, _) => (true, upper.v)
         case tp => (false, tp)
       }
