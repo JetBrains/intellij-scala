@@ -115,7 +115,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       }
     }
 
-    projectNode.addAll(projects.map(createBuildModule(_, moduleFilesDirectory)))
+    val localCachePath = data.localCachePath
+    projectNode.addAll(projects.map(createBuildModule(_, moduleFilesDirectory, localCachePath)))
 
     projectNode
   }
@@ -227,7 +228,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     } else List(project.target)
   }
 
-  private def createBuildModule(project: Project, moduleFilesDirectory: File): ModuleNode = {
+  private def createBuildModule(project: Project, moduleFilesDirectory: File, localCachePath: Option[String]): ModuleNode = {
     val id = project.id + Sbt.BuildModuleSuffix
     val name = project.name + Sbt.BuildModuleSuffix
     val buildRoot = project.base / Sbt.ProjectDirectory
@@ -252,7 +253,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     result.add(library)
 
-    result.add(createSbtModuleData(project))
+    result.add(createSbtModuleData(project, localCachePath))
 
     result
   }
@@ -272,10 +273,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  def createSbtModuleData(project: Project): SbtModuleNode = {
+  def createSbtModuleData(project: Project, localCachePath: Option[String]): SbtModuleNode = {
     val imports = project.build.imports.flatMap(_.substring(7).split(", "))
     val resolvers = project.resolvers map { r => new SbtResolver(SbtResolver.Kind.Maven, r.name, r.root) }
-    new SbtModuleNode(imports, resolvers)
+    new SbtModuleNode(imports, resolvers + SbtResolver.localCacheResolver(localCachePath))
   }
 
   private def validRootPathsIn(project: Project, scope: String)

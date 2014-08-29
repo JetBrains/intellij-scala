@@ -21,9 +21,9 @@ object SbtResolver {
     val Ivy   = Value(1, "ivy")
   }
 
-  val localCacheResolver = {
-    val defaultPath = System.getProperty("user.home") + "/.ivy2/cache".replace("/", File.separator)
-    SbtResolver(Kind.Ivy, "Local cache", defaultPath)
+  def localCacheResolver(localCachePath: Option[String]) = {
+    val defaultPath = System.getProperty("user.home") + "/.ivy2/cache".replace('/', File.separatorChar)
+    SbtResolver(Kind.Ivy, "Local cache", localCachePath getOrElse defaultPath)
   }
 
   val DELIMITER = "|"
