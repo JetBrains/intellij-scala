@@ -211,14 +211,14 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
   }
 
   def has(prop: IElementType) = {
-    val access = getStubOrPsiChild(ScalaElementTypes.ACCESS_MODIFIER)
+    val modifier = getStubOrPsiChild(ScalaElementTypes.ACCESS_MODIFIER)
     prop match {
-      case ScalaTokenTypes.kPRIVATE if access != null => access.access match {
-        case access.Access.PRIVATE | access.Access.THIS_PRIVATE => true
+      case ScalaTokenTypes.kPRIVATE if modifier != null => modifier.access match {
+        case ScAccessModifier.Type.PRIVATE | ScAccessModifier.Type.THIS_PRIVATE => true
         case _ => false
       }
-      case ScalaTokenTypes.kPROTECTED if access != null => access.access match {
-        case access.Access.PROTECTED | access.Access.THIS_PROTECTED => true
+      case ScalaTokenTypes.kPROTECTED if modifier != null => modifier.access match {
+        case ScAccessModifier.Type.PROTECTED | ScAccessModifier.Type.THIS_PROTECTED => true
         case _ => false
       }
       case _ => {

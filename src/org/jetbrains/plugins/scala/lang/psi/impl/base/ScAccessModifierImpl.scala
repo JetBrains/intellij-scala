@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScAccessModifierStub
 
 import _root_.scala.collection.mutable.ArrayBuffer
-;
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -155,7 +154,9 @@ class ScAccessModifierImpl extends ScalaStubBasedElementImpl[ScAccessModifier] w
 
   def access = {
     assert(isPrivate || isProtected)
-    if (isPrivate) if (isThis) Access.THIS_PRIVATE else Access.PRIVATE
-    else if (isThis) Access.THIS_PROTECTED else Access.PROTECTED 
+    if (isPrivate && isThis) ScAccessModifier.Type.THIS_PRIVATE
+    else if (isPrivate) ScAccessModifier.Type.PRIVATE
+    else if (isThis) ScAccessModifier.Type.THIS_PROTECTED
+    else ScAccessModifier.Type.PROTECTED
   }
 }
