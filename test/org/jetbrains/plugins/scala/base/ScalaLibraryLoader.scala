@@ -4,6 +4,7 @@ package base
 import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.libraries.{LibraryTable, Library}
 import com.intellij.util.Processor
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.TestUtils
 import java.util
 import java.io.File
@@ -18,8 +19,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.Sdk
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
-import org.jetbrains.plugins.scala.config.{ScalaFacetConfiguration, ScalaFacet}
-import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
+import configuration._
 
 /**
  * Nikolay.Tropin
@@ -48,18 +48,11 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
       contentEntry.addSourceFolder(testDataRoot, false)
     }
     
-    if (libVersion == ScalaSdkVersion._2_11) {
-      val modelsProvider = ModifiableModelsProvider.SERVICE.getInstance()
-      val facetModifiableModel = modelsProvider.getFacetModifiableModel(module)
-      val defaultConfiguration = ScalaFacet.Type.createDefaultConfiguration
-      defaultConfiguration.setLanguageLevel(ScalaLanguageLevel.SCALA2_11.toString)
-      val scalaFacet = ScalaFacet.Type.createFacet(module, "Scala", defaultConfiguration, null)
-      facetModifiableModel.addFacet(scalaFacet)
-      ApplicationManager.getApplication.runWriteAction(new Runnable {
-        def run() {
-          modelsProvider.commitFacetModifiableModel(module, facetModifiableModel)
-        }
-      })
+    if (libVersion == ScalaSdkVersion._2_11) inWriteAction {
+      val scalaSdk = project.createScalaSdk("scala_sdk",
+        Seq.empty, Seq.empty, Seq.empty, Seq.empty, ScalaLanguageLevel.SCALA_2_11)
+
+      module.attach(scalaSdk)
     }
     
     val libs: OrderEnumerator = rootManager.orderEntries.librariesOnly
@@ -111,15 +104,11 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
         }
       })
     }
-    if (!ScalaFacet.findIn(module).isEmpty) {
-      val modelsProvider = ModifiableModelsProvider.SERVICE.getInstance()
-      val facetModifiableModel = modelsProvider.getFacetModifiableModel(module)
-      facetModifiableModel.removeFacet(ScalaFacet.findIn(module).get)
-      ApplicationManager.getApplication.runWriteAction(new Runnable {
-        def run() {
-          modelsProvider.commitFacetModifiableModel(module, facetModifiableModel)
-        }
-      })
+    inWriteAction {
+      project.scalaSdks.foreach { scalaSdk =>
+        module.detach(scalaSdk)
+        project.remove(scalaSdk)
+      }
     }
   }
 

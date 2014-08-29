@@ -89,7 +89,7 @@ package object configuration {
 
     def scalaSdks: Seq[ScalaSdk] = libraries.filter(_.isScalaSdk).map(new ScalaSdk(_))
 
-    def createScalaSdk(name: String, classes: Seq[File], sources: Seq[File], docs: Seq[File], compilerClasspath: Seq[File]): ScalaSdk = {
+    def createScalaSdk(name: String, classes: Seq[File], sources: Seq[File], docs: Seq[File], compilerClasspath: Seq[File], languageLevel: ScalaLanguageLevel): ScalaSdk = {
       val library = ProjectLibraryTable.getInstance(project).createLibrary(name)
 
       val editor = new NewLibraryEditor()
@@ -104,6 +104,7 @@ package object configuration {
 
       val properties = new ScalaLibraryProperties()
       properties.compilerClasspath = compilerClasspath
+      properties.languageLevel = languageLevel
 
       editor.setType(ScalaLibraryType.instance)
       editor.setProperties(properties)
