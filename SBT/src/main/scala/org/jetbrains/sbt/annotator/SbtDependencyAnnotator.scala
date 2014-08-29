@@ -23,7 +23,7 @@ class SbtDependencyAnnotator extends Annotator {
 
     if (ScalaPsiUtil.fileContext(element).getFileType.getName != Sbt.Name) return
 
-    def isValidOp(op: ScReferenceExpression) = op.getText == "%" || op.getText == "%%"
+    def isValidOperation(op: ScReferenceExpression) = op.getText == "%" || op.getText == "%%"
 
     def extractInfo(from: PsiElement): Option[ArtifactInfo] =
       for {
@@ -55,11 +55,11 @@ class SbtDependencyAnnotator extends Annotator {
     for {
       lit@ScLiteral(_) <- Option(element)
       parentExpr@ScInfixExpr(lOp, operation, _) <- Option(lit.getParent)
-      if isValidOp(operation)
+      if isValidOperation(operation)
     } yield lOp match {
       case _: ScLiteral =>
         doAnnotate(extractInfo(parentExpr.getParent))
-      case leftExp: ScInfixExpr if isValidOp(leftExp.operation) =>
+      case leftExp: ScInfixExpr if isValidOperation(leftExp.operation) =>
         doAnnotate(extractInfo(parentExpr))
       case _ => // do nothing
     }
