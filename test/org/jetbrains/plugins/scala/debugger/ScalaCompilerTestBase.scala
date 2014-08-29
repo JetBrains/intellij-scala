@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import extensions._
+import configuration._
 
 /**
  * Nikolay.Tropin
@@ -59,13 +60,16 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase {
     }
   }
 
-  protected def addScalaLibrary() {
+  protected def addScalaSdk() {
     ScalaLoader.loadScala()
     val cl = SyntheticClasses.get(getProject)
     if (!cl.isClassesRegistered) cl.registerClasses()
-    PsiTestUtil.addLibrary(myModule, "scala-compiler",
-      TestUtils.getTestDataPath.replace("\\", "/") + "/scala-compiler/", "scala-compiler.jar",
-      "scala-library.jar")
+    val root = TestUtils.getTestDataPath.replace("\\", "/") + "/scala-compiler/"
+    PsiTestUtil.addLibrary(myModule, "scala-compiler", root, "scala-compiler.jar", "scala-library.jar")
+    myModule.libraries.find(_.getName == "scala-compiler").foreach { library =>
+      val compilerClasspath = Seq(new File(root, "scala-compiler.jar"), new File(root, "scala-library.jar"))
+      library.convertToScalaSdkWith(ScalaLanguageLevel.getDefault, compilerClasspath)
+    }
   }
 
   override protected def getTestProjectJdk: Sdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk

@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package debugger
 
-import org.jetbrains.plugins.scala.config.{LibraryLevel, LibraryId, ScalaFacet}
 import com.intellij.testFramework.{PlatformTestCase, UsefulTestCase}
 import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
 import com.intellij.debugger.ui.DebuggerPanelsManager
@@ -57,11 +56,8 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestBase {
     UsefulTestCase.edt(new Runnable {
       def run() {
         ScalaDebuggerTestCase.super.setUp()
-        addScalaLibrary()
         inWriteAction {
-          ScalaFacet.createIn(myModule) { facet =>
-            facet.compilerLibraryId = LibraryId("scala-compiler", LibraryLevel.Project)
-          }
+          addScalaSdk()
         }
       }
     })
