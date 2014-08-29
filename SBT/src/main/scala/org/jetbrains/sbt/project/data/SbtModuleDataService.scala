@@ -27,7 +27,7 @@ class SbtModuleDataService(platformFacade: PlatformFacade, helper: ProjectStruct
       }
 
       SbtModule.setImportsTo(module, moduleData.imports)
-      SbtModule.setResolversTo(module, moduleData.resolvers + SbtResolver.localCacheResolver)
+      SbtModule.setResolversTo(module, moduleData.resolvers)
     }
   }
 
