@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackageCont
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScAccessModifierStub
 
-import _root_.scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.ArrayBuffer
 
 /** 
 * @author Alexander Podkhalyuzin
