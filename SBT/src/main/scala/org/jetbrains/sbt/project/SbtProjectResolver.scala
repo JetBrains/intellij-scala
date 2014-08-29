@@ -199,8 +199,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result.storePaths(ExternalSystemSourceType.TEST, testSources)
     result.storePaths(ExternalSystemSourceType.TEST_RESOURCE, testResources)
 
-    if(canExcludeTargetIn(project)) {
-      result.storePath(ExternalSystemSourceType.EXCLUDED, project.target.path)
+    getExcludedTargetDirs(project).foreach { path =>
+      result.storePath(ExternalSystemSourceType.EXCLUDED, path.path)
     }
 
     result
@@ -208,7 +208,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   // We cannot always exclude the whole ./target/ directory because of
   // the generated sources, so we resort to an heuristics.
-  private def canExcludeTargetIn(project: Project): Boolean = {
+  private def getExcludedTargetDirs(project: Project): List[File] = {
     val managedDirectories = project.configurations
             .flatMap(configuration => configuration.sources ++ configuration.resources)
             .filter(_.managed)
@@ -217,8 +217,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val defaultNames = Set("main", "test")
 
     val relevantDirectories = managedDirectories.filter(file => file.exists || !defaultNames.contains(file.getName))
+    def isRelevant(f: File): Boolean = !relevantDirectories.forall(_.isOutsideOf(f))
 
-    relevantDirectories.forall(_.isOutsideOf(project.target))
+    if (isRelevant(project.target)) {
+      // If we can't exclude the target directory, go one level deeper (which may hit resolution-cache and streams)
+      Option(project.target.listFiles()).toList.flatten.filter {
+        child => child.isDirectory && !isRelevant(child)
+      }
+    } else List(project.target)
   }
 
   private def createBuildModule(project: Project, moduleFilesDirectory: File): ModuleNode = {
