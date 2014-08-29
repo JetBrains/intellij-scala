@@ -40,7 +40,7 @@ class SbtResolverIndex private (val kind: SbtResolver.Kind.Value, val root: Stri
         indexer.foreach(processArtifact, progressIndicator)
       }
     else
-      new SbtIvyCacheIndexer(new File(root)).foreach(processArtifact)
+      new SbtIvyCacheIndexer(new File(root)).artifacts.foreach(processArtifact)
 
     progressIndicator foreach (_.setText2(SbtBundle("sbt.resolverIndexer.progress.saving")))
 
