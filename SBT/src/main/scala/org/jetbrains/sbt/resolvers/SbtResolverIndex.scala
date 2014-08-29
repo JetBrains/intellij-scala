@@ -15,7 +15,7 @@ import scala.collection.JavaConversions._
  * @author Nikolay Obedin
  * @since 7/25/14.
  */
-class SbtResolverIndex private (val root: String, var timestamp: Long, val indexDir: File) {
+class SbtResolverIndex private (val kind: SbtResolver.Kind.Value, val root: String, var timestamp: Long, val indexDir: File) {
   import org.jetbrains.sbt.resolvers.SbtResolverIndex._
 
   ensureIndexDir()
@@ -34,10 +34,13 @@ class SbtResolverIndex private (val root: String, var timestamp: Long, val index
       gavMap.getOrElseUpdate(SbtResolverUtils.joinGroupArtifact(artifact), mutable.Set.empty) += artifact.version
     }
 
-    using(SbtResolverIndexer(root, indexDir)) { indexer =>
-      indexer.update(progressIndicator)
-      indexer.foreach(processArtifact, progressIndicator)
-    }
+    if (kind == SbtResolver.Kind.Maven)
+      using(SbtMavenRepoIndexer(root, indexDir)) { indexer =>
+        indexer.update(progressIndicator)
+        indexer.foreach(processArtifact, progressIndicator)
+      }
+    else
+      new SbtIvyCacheIndexer(new File(root)).artifacts.foreach(processArtifact)
 
     progressIndicator foreach (_.setText2(SbtBundle("sbt.resolverIndexer.progress.saving")))
 
@@ -55,6 +58,7 @@ class SbtResolverIndex private (val root: String, var timestamp: Long, val index
     props.setProperty(Keys.VERSION, CURRENT_INDEX_VERSION)
     props.setProperty(Keys.ROOT, root)
     props.setProperty(Keys.UPDATE_TIMESTAMP, timestamp.toString)
+    props.setProperty(Keys.KIND, kind.toString)
 
     val propFile = indexDir / Paths.PROPERTIES_FILE
     using(new FileOutputStream(propFile)) { outputStream =>
@@ -96,7 +100,7 @@ class SbtResolverIndex private (val root: String, var timestamp: Long, val index
 object SbtResolverIndex {
   val NO_TIMESTAMP = -1
 
-  val CURRENT_INDEX_VERSION = "1"
+  val CURRENT_INDEX_VERSION = "2"
 
   object Paths {
     val PROPERTIES_FILE = "index.properties"
@@ -109,10 +113,11 @@ object SbtResolverIndex {
     val VERSION = "version"
     val ROOT = "root"
     val UPDATE_TIMESTAMP = "update-timestamp"
+    val KIND = "kind"
   }
 
-  def create(root: String, indexDir: File) = {
-    val index = new SbtResolverIndex(root, NO_TIMESTAMP, indexDir)
+  def create(kind: SbtResolver.Kind.Value, root: String, indexDir: File) = {
+    val index = new SbtResolverIndex(kind, root, NO_TIMESTAMP, indexDir)
     index.store()
     index
   }
@@ -131,7 +136,14 @@ object SbtResolverIndex {
 
     val root = props.getProperty(Keys.ROOT)
     val timestamp = props.getProperty(Keys.UPDATE_TIMESTAMP).toLong
-    new SbtResolverIndex(root, timestamp, indexDir)
+    val kind = {
+      if (props.getProperty(Keys.KIND) == SbtResolver.Kind.Maven.toString)
+        SbtResolver.Kind.Maven
+      else
+        SbtResolver.Kind.Ivy
+    }
+
+    new SbtResolverIndex(kind, root, timestamp, indexDir)
   }
 }
 
