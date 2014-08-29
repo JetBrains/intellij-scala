@@ -58,20 +58,20 @@ class SbtDependencyCompletionContributor extends CompletionContributor {
         results.stopHere()
       }
 
-      def isValidOp(operation: String) = operation == "%" || operation == "%%"
+      def isValidOperation(operation: String) = operation == "%" || operation == "%%"
 
       (infixExpr.lOp, infixExpr.operation, infixExpr.rOp) match {
         case (lop, oper, ScLiteralImpl.string(artifact))
-          if lop == place.getParent && isValidOp(oper.getText) =>
+          if lop == place.getParent && isValidOperation(oper.getText) =>
             completeGroup(artifact)
         case (ScLiteralImpl.string(group), oper, rop)
-          if rop == place.getParent && isValidOp(oper.getText) =>
+          if rop == place.getParent && isValidOperation(oper.getText) =>
             completeArtifact(group)
-        case (ScInfixExpr(llOp, loper, lrOp), oper, rop)
-          if rop == place.getParent && oper.getText == "%" && isValidOp(loper.getText) =>
+        case (ScInfixExpr(llop, loper, lrop), oper, rop)
+          if rop == place.getParent && oper.getText == "%" && isValidOperation(loper.getText) =>
             for {
-              ScLiteralImpl.string(group) <- Option(llOp)
-              ScLiteralImpl.string(artifact) <- Option(lrOp)
+              ScLiteralImpl.string(group) <- Option(llop)
+              ScLiteralImpl.string(artifact) <- Option(lrop)
             } yield completeVersion(group, artifact)
         case _ => // do nothing
       }
