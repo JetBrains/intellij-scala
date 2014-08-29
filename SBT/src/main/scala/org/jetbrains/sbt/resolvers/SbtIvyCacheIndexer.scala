@@ -1,11 +1,10 @@
 package org.jetbrains.sbt
 package resolvers
 
-import java.io.File
+import java.io.{File, FilenameFilter}
 
 import org.apache.maven.index.ArtifactInfo
 
-import scala.collection.mutable
 import scala.xml.XML
 
 /**
@@ -14,19 +13,18 @@ import scala.xml.XML
  */
 class SbtIvyCacheIndexer(val cacheDir: File) {
 
-  def foreach(fn: (ArtifactInfo => Unit)): Unit = {
-    val queue: mutable.Queue[File] = mutable.Queue(cacheDir)
-    while (queue.nonEmpty) {
-      val currentEntry = queue.dequeue()
-      if (currentEntry.isDirectory) {
-        currentEntry.listFiles().foreach { queue.enqueue(_) }
-      } else if (currentEntry.isFile && currentEntry.getName.endsWith(".xml")) {
-        extractArtifact(currentEntry) foreach fn
-      }
-    }
+  def artifacts: Stream[ArtifactInfo] = listArtifacts(cacheDir)
+
+  private val ivyFileFilter = new FilenameFilter {
+    override def accept(dir: File, name: String): Boolean = name.endsWith(".xml")
   }
 
-  def extractArtifact(ivyFile: File): Option[ArtifactInfo] = {
+  private def listArtifacts(dir: File): Stream[ArtifactInfo] = {
+    val artifactsHere = dir.listFiles(ivyFileFilter).map(extractArtifact).flatten.toStream
+    artifactsHere ++ dir.listFiles.toStream.filter(_.isDirectory).map(listArtifacts).flatten
+  }
+
+  private def extractArtifact(ivyFile: File): Option[ArtifactInfo] = {
     try {
       val xml = XML.loadFile(ivyFile)
       val group    = (xml \\ "ivy-module" \\ "info" \\ "@organisation").text
