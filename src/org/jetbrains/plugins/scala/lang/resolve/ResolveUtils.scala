@@ -192,7 +192,7 @@ object ResolveUtils {
         case None => true
         case Some(am: ScAccessModifier) =>
           if (am.isPrivate) {
-            if (am.access == am.Access.THIS_PRIVATE) {
+            if (am.access == ScAccessModifier.Type.THIS_PRIVATE) {
               /*
               ScalaRefernce.pdf:
                 A member M marked with this modifier can be accessed only from
@@ -288,7 +288,7 @@ object ResolveUtils {
               }
             }
           } else if (am.isProtected) { //todo: it's wrong if reference after not appropriate class type
-            val withCompanion = am.access != am.Access.THIS_PROTECTED
+            val withCompanion = am.access != ScAccessModifier.Type.THIS_PROTECTED
             val ref = am.getReference
             if (ref != null) {
               val bind = ref.resolve

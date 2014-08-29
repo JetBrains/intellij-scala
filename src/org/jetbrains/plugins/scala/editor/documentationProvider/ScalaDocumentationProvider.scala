@@ -499,10 +499,10 @@ object ScalaDocumentationProvider {
 
     buffer.append(elem.getModifierList.accessModifier match {
       case Some(x: ScAccessModifier) => x.access match {
-        case x.Access.PRIVATE => "private" + accessQualifier(x)
-        case x.Access.PROTECTED => "protected" + accessQualifier(x)
-        case x.Access.THIS_PRIVATE => "private[this] "
-        case x.Access.THIS_PROTECTED => "protected[this] "
+        case ScAccessModifier.Type.PRIVATE => "private" + accessQualifier(x)
+        case ScAccessModifier.Type.PROTECTED => "protected" + accessQualifier(x)
+        case ScAccessModifier.Type.THIS_PRIVATE => "private[this] "
+        case ScAccessModifier.Type.THIS_PROTECTED => "protected[this] "
       }
       case None => ""
     })
