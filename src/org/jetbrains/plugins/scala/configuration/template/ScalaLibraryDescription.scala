@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala
-package configuration.template
+package configuration
+package template
 
 import java.io.File
 import java.util.Collections
@@ -8,8 +9,7 @@ import javax.swing.JComponent
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.roots.ui.configuration.libraries.CustomLibraryDescription
 import com.intellij.openapi.util.SystemInfo
-import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
-import org.jetbrains.plugins.scala.configuration.ScalaLibraryKind
+import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore, VirtualFile}
 
 /**
  * @author Pavel Fatin
@@ -20,9 +20,15 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
   def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile) = {
     val initialDirectory = guessScalaHome.flatMap(path => Option(VfsUtil.findFileByIoFile(new File(path), false)))
 
-    val files = FileChooser.chooseFiles(new ScalaFilesChooserDescriptor(), null, initialDirectory.orNull)
+    val virtualFiles = FileChooser.chooseFiles(new ScalaFilesChooserDescriptor(), null, initialDirectory.orNull).toSeq
 
-    if (files.length > 0) ScalaSdkDescriptor.from(allFilesWithin(files.toSeq)) match {
+    val files = virtualFiles.map(VfsUtilCore.virtualToIoFile)
+
+    val allFiles = files.filter(_.isFile) ++ files.flatMap(_.allFiles)
+
+    val components = Component.discoverIn(allFiles)
+
+    if (files.length > 0) ScalaSdkDescriptor.from(components) match {
       case Left(message) => throw new ValidationException(message)
       case Right(sdk) => sdk.createNewLibraryConfiguration()
     } else {
@@ -64,6 +70,5 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
   private def findScalaInCommandPath(path: String): Option[String] =
     path.split(File.pathSeparator)
             .find(_.toLowerCase.contains("scala"))
-            .map(_.replaceFirst("""[/\\]?bin[/\\]?$""", ""))
-
+            .map(_.replaceFirst( """[/\\]?bin[/\\]?$""", ""))
 }
