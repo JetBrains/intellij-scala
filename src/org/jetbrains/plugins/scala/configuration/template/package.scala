@@ -1,21 +1,34 @@
 package org.jetbrains.plugins.scala
 package configuration
 
-import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
+import java.io.File
+
+import com.intellij.openapi.vfs.VfsUtil
 
 /**
  * @author Pavel Fatin
  */
 package object template {
-  def allFilesWithin(roots: Seq[VirtualFile]): Seq[VirtualFile] = allFilesWithin0(roots.toStream)
+  implicit class FileExt(val delegate: File) extends AnyVal {
+    def /(path: String): File = new File(delegate, path)
 
-  private def allFilesWithin0(roots: Stream[VirtualFile]): Stream[VirtualFile] = {
-    val (directories, files) = roots.span(_.isDirectory)
-    files #::: directories.flatMap(it => allFilesWithin0(it.getChildren.toStream))
-  }
+    def /(paths: Seq[String]): File = paths.foldLeft(delegate)(_ / _)
 
-  def toJarFile(file: VirtualFile): VirtualFile = {
-    val path = file.getPath
-    JarFileSystem.getInstance.findFileByPath(path + JarFileSystem.JAR_SEPARATOR)
+    def parent: Option[File] = Option(delegate.getParentFile)
+
+    def children: Seq[File] = Option(delegate.listFiles).map(_.toSeq).getOrElse(Seq.empty)
+
+    def directories: Seq[File] = children.filter(_.isDirectory)
+    
+    def files: Seq[File] = children.filter(_.isFile)
+
+    def findByName(name: String): Option[File] = children.find(_.getName == name)
+
+    def allFiles: Stream[File] = {
+      val (files, directories) = children.toStream.span(_.isFile)
+      files #::: directories.flatMap(_.allFiles)
+    }
+
+    def toLibraryRootURL: String = VfsUtil.getUrlForLibraryRoot(delegate)
   }
 }

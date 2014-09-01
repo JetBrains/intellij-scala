@@ -1,91 +1,85 @@
 package org.jetbrains.plugins.scala
 package configuration.template
 
+import java.io.File
+
 import com.intellij.openapi.roots.libraries.NewLibraryConfiguration
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.LibraryEditor
 import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
-import com.intellij.openapi.vfs.VfsUtilCore.virtualToIoFile
-import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.plugins.scala.configuration.template.JarPattern._
+import org.jetbrains.plugins.scala.configuration.template.Artifact.ScalaLibrary
 import org.jetbrains.plugins.scala.configuration.{ScalaLanguageLevel, ScalaLibraryProperties, ScalaLibraryType}
 
 /**
  * @author Pavel Fatin
  */
 case class ScalaSdkDescriptor(version: String,
-                              compilerFiles: Seq[VirtualFile],
-                              libraryFiles: Seq[VirtualFile],
-                              sourceFiles: Seq[VirtualFile],
-                              docFiles: Seq[VirtualFile]) {
+                              compilerFiles: Seq[File],
+                              libraryFiles: Seq[File],
+                              sourceFiles: Seq[File],
+                              docFiles: Seq[File]) {
 
   def createNewLibraryConfiguration() = {
     val properties = new ScalaLibraryProperties()
 
     properties.languageLevel = ScalaLanguageLevel.from(version, true)
-    properties.compilerClasspath = compilerFiles.map(virtualToIoFile)
+    properties.compilerClasspath = compilerFiles
 
     val name = "scala-sdk-" + version
 
     new NewLibraryConfiguration(name, ScalaLibraryType.instance, properties) {
       override def addRoots(editor: LibraryEditor): Unit = {
-        libraryFiles.map(toJarFile).foreach(editor.addRoot(_, OrderRootType.CLASSES))
-        sourceFiles.map(toJarFile).foreach(editor.addRoot(_, OrderRootType.SOURCES))
-        docFiles.map(toJarFile).foreach(editor.addRoot(_, JavadocOrderRootType.getInstance))
+        libraryFiles.map(_.toLibraryRootURL).foreach(editor.addRoot(_, OrderRootType.CLASSES))
+        sourceFiles.map(_.toLibraryRootURL).foreach(editor.addRoot(_, OrderRootType.SOURCES))
+        docFiles.map(_.toLibraryRootURL).foreach(editor.addRoot(_, JavadocOrderRootType.getInstance))
       }
     }
   }
 }
 
 object ScalaSdkDescriptor {
-  def from(files: Seq[VirtualFile]): Either[String, ScalaSdkDescriptor] = {
-    val reflectRequired = languageLevelFor(files).exists(_.isSinceScala2_10)
+  def from(components: Seq[Component]): Either[String, ScalaSdkDescriptor] = {
+    val (binaryComponents, sourceComponents, docComponents) = {
+      val componentsByKind = components.groupBy(_.kind)
 
-    val requiredJars = if (reflectRequired) Seq(Library, Compiler, Reflect) else Seq(Library, Compiler)
-    
-    val requiredBinaries = requiredJars.map(jar => (jar, files.find(jar.isBinary))).toMap
-
-    val missingBinaries = requiredBinaries.collect {
-      case (descriptor, None) => descriptor.title
+      (componentsByKind.getOrElse(Kind.Binaries, Seq.empty),
+              componentsByKind.getOrElse(Kind.Sources, Seq.empty),
+              componentsByKind.getOrElse(Kind.Docs, Seq.empty))
     }
 
-    if (missingBinaries.isEmpty) {
-      val optionalJars = Seq(XML, Actors, Combinators, Swing)
-
-      val optionalBinaries = optionalJars.map(jar => files.find(jar.isBinary)).flatten
-      val sources = (Library +: optionalJars).map(jar => files.find(jar.isSources)).flatten
-      val docs = (Library +: optionalJars).map(jar => files.find(jar.isDocs)).flatten
-
-      val libraryBinary = requiredBinaries(Library).get
-      val compilerBinary = requiredBinaries(Compiler).get
-      val reflectBinary = requiredBinaries.get(Reflect).flatten
-
-      val compilerBinaries = Seq(libraryBinary, compilerBinary) ++ reflectBinary.toSeq
-      val libraryBinaries = libraryBinary +: optionalBinaries
-
-      JarFile.Library.versionOf(virtualToIoFile(libraryBinary)) match {
-        case Some(libraryVersion) =>
-          val compilerVersion = JarFile.Compiler.versionOf(virtualToIoFile(compilerBinary))
-          val reflectVersion = reflectBinary.flatMap(it => JarFile.Reflect.versionOf(virtualToIoFile(it)))
-
-          val otherVersions = Seq(compilerVersion, reflectVersion).flatten
-
-          if (otherVersions.forall(_ == libraryVersion)) {
-            val descriptor = ScalaSdkDescriptor(libraryVersion, compilerBinaries, libraryBinaries, sources, docs)
-            Right(descriptor)
-          } else {
-            Left("Different versions of the core Scala JARs")
-          }
-        case None => Left("Cannot read Scala library version")
+    val reflectRequired = binaryComponents.exists { component =>
+      component.version.exists { version =>
+        Option(ScalaLanguageLevel.from(version, false)).exists(_.isSinceScala2_10)
       }
-    } else {
-      Left("Not found: " + missingBinaries.mkString(", "))
     }
-  }
 
-  private def languageLevelFor(files: Seq[VirtualFile]): Option[ScalaLanguageLevel] = {
-    files.find(Library.isBinary)
-            .map(virtualToIoFile)
-            .flatMap(JarFile.Library.versionOf)
-            .flatMap(version => Option(ScalaLanguageLevel.from(version, false)))
+    val requiredBinaryArtifacts: Set[Artifact] =
+      if (reflectRequired) Set(Artifact.ScalaLibrary, Artifact.ScalaCompiler, Artifact.ScalaReflect)
+      else Set(Artifact.ScalaLibrary, Artifact.ScalaCompiler)
+
+    val existingBinaryArtifacts = binaryComponents.map(_.artifact).toSet
+
+    val missingBinaryArtifacts = requiredBinaryArtifacts -- existingBinaryArtifacts
+
+    if (missingBinaryArtifacts.isEmpty) {
+      val compilerBinaries = binaryComponents.filter(it => requiredBinaryArtifacts.contains(it.artifact))
+
+      val libraryArtifacts = Artifact.values - Artifact.ScalaCompiler
+
+      val libraryBinaries = binaryComponents.filter(it => libraryArtifacts.contains(it.artifact))
+      val librarySources = sourceComponents.filter(it => libraryArtifacts.contains(it.artifact))
+      val libraryDocs = docComponents.filter(it => libraryArtifacts.contains(it.artifact))
+
+      val libraryVersion = binaryComponents.find(_.artifact == ScalaLibrary).flatMap(_.version).getOrElse("Unknown")
+
+      val descriptor = ScalaSdkDescriptor(libraryVersion,
+        compilerBinaries.map(_.file),
+        libraryBinaries.map(_.file),
+        librarySources.map(_.file),
+        libraryDocs.map(_.file))
+
+      Right(descriptor)
+    } else {
+      Left("Not found: " + missingBinaryArtifacts.map(_.title).mkString(", "))
+    }
   }
 }
