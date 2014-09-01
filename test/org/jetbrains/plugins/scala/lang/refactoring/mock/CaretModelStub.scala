@@ -12,6 +12,8 @@ import java.util
 class CaretModelStub extends CaretModel {
   override def setCaretsAndSelections(caretStates: util.List[CaretState]): Unit = ???
 
+  override def setCaretsAndSelections(caretStates: util.List[CaretState], updateSystemSelection: Boolean): Unit = ???
+
   override def getCaretCount: Int = ???
 
   override def getTextAttributes: TextAttributes = null
@@ -65,4 +67,6 @@ class CaretModelStub extends CaretModel {
   override def getCaretsAndSelections: util.List[CaretState] = ???
 
   override def runForEachCaret(action: CaretAction, reverseOrder: Boolean): Unit = ???
+
+
 }

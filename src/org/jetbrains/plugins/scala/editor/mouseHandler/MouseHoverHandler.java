@@ -39,7 +39,9 @@ import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.event.*;
 import com.intellij.openapi.editor.ex.util.EditorUtil;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.util.ProgressIndicatorUtils;
+import com.intellij.openapi.progress.util.ReadTask;
 import com.intellij.openapi.project.DumbAwareRunnable;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.IndexNotReadyException;
@@ -506,11 +508,14 @@ public class MouseHoverHandler extends AbstractProjectComponent {
       ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {
         @Override
         public void run() {
-          ProgressIndicatorUtils.runWithWriteActionPriority(new Runnable() {
+          ProgressIndicatorUtils.scheduleWithWriteActionPriority(new ReadTask() {
             @Override
-            public void run() {
+            public void computeInReadAction(@NotNull ProgressIndicator indicator) {
               doExecute(file, offset);
             }
+
+            @Override
+            public void onCanceled(@NotNull ProgressIndicator indicator) {}
           });
         }
       });
@@ -792,7 +797,7 @@ public class MouseHoverHandler extends AbstractProjectComponent {
         if (hint != null) {
           hint.hide(true);
         }
-        myDocumentationManager.showJavaDocInfo(targetElement, myContext, true, null);
+        myDocumentationManager.showJavaDocInfo(targetElement, myContext, null);
       }
     }
   }
