@@ -79,13 +79,15 @@ class IncrementalTypeChecker(context: CompileContext) {
 
   private def getPreviousIncrementalType: Option[IncrementalType] = {
     storageFile.filter(_.exists).flatMap { file =>
-      using(new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) { in =>
+      val result = using(new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) { in =>
         try {
           Some(IncrementalType.valueOf(in.readUTF()))
         } catch {
-          case _: IOException => None
+          case _: IOException | _: IllegalArgumentException | _: NullPointerException => None
         }
       }
+      if (result.isEmpty) file.delete()
+      result
     }
   }
 
