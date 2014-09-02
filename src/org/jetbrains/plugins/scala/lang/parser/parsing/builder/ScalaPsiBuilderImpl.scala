@@ -42,6 +42,8 @@ class ScalaPsiBuilderImpl(builder: PsiBuilder)
     else 1
   }
 
+  def isNewlinesEnabled = newlinesEnabled.isEmpty || newlinesEnabled.top
+
   def disableNewlines {
     newlinesEnabled.push(false)
   }
