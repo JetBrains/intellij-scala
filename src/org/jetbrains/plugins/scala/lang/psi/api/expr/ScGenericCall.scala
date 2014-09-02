@@ -4,10 +4,10 @@ package psi
 package api
 package expr
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import base.types.{ScTypeElement, ScTypeArgs}
-import types.result.TypeResult
-import types.ScType
+import com.intellij.psi.ResolveResult
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -29,5 +29,9 @@ trait ScGenericCall extends ScExpression {
 
   def shapeMultiType: Array[TypeResult[ScType]]
 
+  def shapeMultiResolve: Option[Array[ResolveResult]]
+
   def multiType: Array[TypeResult[ScType]]
+
+  def multiResolve: Option[Array[ResolveResult]]
 }

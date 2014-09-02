@@ -536,16 +536,14 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
     res
   }
 
-  def applyShapeResolveForExpectedType(tp: ScType, exprs: Seq[ScExpression], call: Option[MethodInvocation],
-                                       tr: TypeResult[ScType]): Array[ScalaResolveResult] = {
-    def inner(expr: ScExpression, tp: ScType, exprs: Seq[ScExpression], call: Option[MethodInvocation],
-              tr: TypeResult[ScType]): Array[ScalaResolveResult] = {
+  def applyShapeResolveForExpectedType(tp: ScType, exprs: Seq[ScExpression], call: Option[MethodInvocation]): Array[ScalaResolveResult] = {
+    def inner(expr: ScExpression, tp: ScType, exprs: Seq[ScExpression], call: Option[MethodInvocation]): Array[ScalaResolveResult] = {
       val applyProc =
         new MethodResolveProcessor(expr, "apply", List(exprs), Seq.empty, Seq.empty /* todo: ? */,
           StdKinds.methodsOnly, isShapeResolve = true)
       applyProc.processType(tp, expr)
       var cand = applyProc.candidates
-      if (cand.length == 0 && call != None && !tr.isEmpty) {
+      if (cand.length == 0 && call != None) {
         val expr = call.get.getEffectiveInvokedExpr
         ScalaPsiUtil.findImplicitConversion(expr, "apply", expr, applyProc, noImplicitsForArgs = false) match {
           case Some(res) =>
@@ -559,13 +557,16 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
           case _ =>
         }
       }
+      if (cand.length == 0 && ScalaPsiUtil.approveDynamic(tp, getProject, getResolveScope) && call.isDefined) {
+        cand = ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(call.get, tp, isShape = true, noImplicits = true, isDynamic = true)
+      }
       cand
     }
-    type Data = (ScType, Seq[ScExpression], Option[MethodInvocation], TypeResult[ScType])
+    type Data = (ScType, Seq[ScExpression], Option[MethodInvocation])
     CachesUtil.getMappedWithRecursionPreventingWithRollback[ScExpression, Data,
-      Array[ScalaResolveResult]](this, (tp, exprs, call, tr),
+      Array[ScalaResolveResult]](this, (tp, exprs, call),
       CachesUtil.EXPRESSION_APPLY_SHAPE_RESOLVE_KEY,
-      (expr: ScExpression, tuple: Data) => inner(expr, tuple._1, tuple._2, tuple._3, tuple._4),
+      (expr: ScExpression, tuple: Data) => inner(expr, tuple._1, tuple._2, tuple._3),
       Array.empty[ScalaResolveResult], PsiModificationTracker.MODIFICATION_COUNT)
   }
 }

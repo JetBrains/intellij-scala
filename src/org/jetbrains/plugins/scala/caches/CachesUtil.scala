@@ -46,7 +46,7 @@ object CachesUtil {
     Key.create("implicit.simple.map.key")
   val RESOLVE_KEY: MappedKey[Boolean, Array[ResolveResult]] =
     Key.create("resolve.key")
-  val EXPRESSION_APPLY_SHAPE_RESOLVE_KEY: MappedKey[(ScType, Seq[ScExpression], Option[MethodInvocation], TypeResult[ScType]), Array[ScalaResolveResult]] =
+  val EXPRESSION_APPLY_SHAPE_RESOLVE_KEY: MappedKey[(ScType, Seq[ScExpression], Option[MethodInvocation]), Array[ScalaResolveResult]] =
     Key.create("expression.apply.shape.resolve.key")
 
   //keys for cachedValue

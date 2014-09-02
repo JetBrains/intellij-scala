@@ -371,16 +371,15 @@ object ScalaPsiUtil {
     }
   }
 
+  def approveDynamic(tp: ScType, project: Project, scope: GlobalSearchScope): Boolean = {
+    val cachedClass = ScalaPsiManager.instance(project).getCachedClass(scope, "scala.Dynamic")
+    if (cachedClass == null) return false
+    val dynamicType = ScDesignatorType(cachedClass)
+    tp.conforms(dynamicType)
+  }
+
   def processTypeForUpdateOrApplyCandidates(call: MethodInvocation, tp: ScType, isShape: Boolean,
                                             noImplicits: Boolean, isDynamic: Boolean): Array[ScalaResolveResult] = {
-    def approveDynamic(tp: ScType): Boolean = {
-      if (!isDynamic) return true
-      val cachedClass = ScalaPsiManager.instance(call.getProject).getCachedClass(call.getResolveScope, "scala.Dynamic")
-      if (cachedClass == null) return false
-      val dynamicType = ScDesignatorType(cachedClass)
-      tp.conforms(dynamicType)
-    }
-
     val isUpdate = call.isUpdateCall
     val methodName =
       if (isDynamic) ResolvableReferenceExpression.getDynamicNameForMethodInvocation(call)
@@ -419,14 +418,14 @@ object ScalaPsiUtil {
     exprTp match {
       case ScTypePolymorphicType(internal, typeParam) if typeParam.nonEmpty &&
         !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[ScUndefinedType] =>
-        if (approveDynamic(internal)) {
+        if (!isDynamic || approveDynamic(internal, call.getProject, call.getResolveScope)) {
           val state: ResolveState = ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, internal)
           processor.processType(internal, call.getEffectiveInvokedExpr, state)
         }
         candidates = processor.candidatesS
       case _ =>
     }
-    if (candidates.isEmpty && approveDynamic(exprTp.inferValueType)) {
+    if (candidates.isEmpty && (!isDynamic || approveDynamic(exprTp.inferValueType, call.getProject, call.getResolveScope))) {
       val state: ResolveState = ResolveState.initial.put(BaseProcessor.FROM_TYPE_KEY, exprTp.inferValueType)
       processor.processType(exprTp.inferValueType, call.getEffectiveInvokedExpr, state)
       candidates = processor.candidatesS
