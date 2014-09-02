@@ -12,6 +12,7 @@ import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, ProjectStructureHelper}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.util.SystemProperties
 import org.jetbrains.android.facet.{AndroidFacet, AndroidFacetType, AndroidRootUtil}
 
 import scala.collection.JavaConverters._
@@ -44,7 +45,7 @@ class SbtAndroidFacetDataService(platformFacade: PlatformFacade, helper: Project
               if (proguardFile.isValid && proguardFile.isWritable) {
                 proguardFile.setBOM(null)
                 using(new OutputStreamWriter(proguardFile.getOutputStream(this))) { output =>
-                  output.write(data.proguardConfig.mkString(System.lineSeparator))
+                  output.write(data.proguardConfig.mkString(SystemProperties.getLineSeparator))
                 }
                 proguardFilePath = proguardFile.getCanonicalPath
               }
