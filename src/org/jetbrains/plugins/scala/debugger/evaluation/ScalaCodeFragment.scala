@@ -88,8 +88,7 @@ class ScalaCodeFragment(project: Project, text: String) extends {
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                    lastParent: PsiElement, place: PsiElement): Boolean = {
     for (qName <- imports) {
-      val imp = ScalaPsiElementFactory.createImportFromTextWithContext("import _root_." + qName, this.getContext,
-        this)
+      val imp = ScalaPsiElementFactory.createImportFromTextWithContext("import _root_." + qName, this, this)
       if (!imp.processDeclarations(processor, state, lastParent, place)) return false
     }
     if (!super.processDeclarations(processor, state, lastParent, place)) return false
