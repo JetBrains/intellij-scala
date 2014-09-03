@@ -39,7 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.{ScPackageContainer, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypeParametersOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScEarlyDefinitions, ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockExprImpl
@@ -2014,6 +2014,26 @@ object ScalaPsiUtil {
     else anchor.replace(ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi)
 
     addedStmt
+  }
+
+  def changeVisibility(member: ScModifierListOwner, newVisibility: String): Unit = {
+    val manager = member.getManager
+    val modifierList = member.getModifierList
+    if (newVisibility == "" || newVisibility == "public") {
+      modifierList.accessModifier.foreach(_.delete())
+      return
+    }
+    val newElem = ScalaPsiElementFactory.createModifierFromText(newVisibility, manager).getPsi
+    modifierList.accessModifier match {
+      case Some(mod) => mod.replace(newElem)
+      case None =>
+        if (modifierList.getChildren.isEmpty) {
+          modifierList.add(newElem)
+        } else {
+          modifierList.addBefore(ScalaPsiElementFactory.createWhitespace(manager), modifierList.getFirstChild)
+          modifierList.addBefore(newElem, modifierList.getFirstChild)
+        }
+    }
   }
 
 }
