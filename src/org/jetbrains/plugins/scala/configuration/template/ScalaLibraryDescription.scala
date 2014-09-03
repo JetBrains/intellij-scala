@@ -70,5 +70,25 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
   private def findScalaInCommandPath(path: String): Option[String] =
     path.split(File.pathSeparator)
             .find(_.toLowerCase.contains("scala"))
-            .map(_.replaceFirst( """[/\\]?bin[/\\]?$""", ""))
+            .map(_.replaceFirst("""[/\\]?bin[/\\]?$""", ""))
+
+  def mavenSdks: Seq[ScalaSdkDescriptor] = {
+    val root = new File(System.getProperty("user.home")) / ".m2"
+
+    sdksIn(root / "repository" / "org" / "scala-lang")
+  }
+
+  def ivySdks: Seq[ScalaSdkDescriptor] = {
+    val root = new File(System.getProperty("user.home")) / ".ivy2"
+
+    sdksIn(root / "cache" / "org.scala-lang")
+  }
+
+  private def sdksIn(root: File): Seq[ScalaSdkDescriptor] = {
+    val components = Component.discoverIn(root.allFiles)
+
+    components.groupBy(_.version).mapValues(ScalaSdkDescriptor.from).toSeq.collect {
+      case (Some(version), Right(sdk)) => sdk
+    }
+  }
 }
