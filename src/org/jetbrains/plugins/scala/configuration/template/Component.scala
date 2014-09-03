@@ -14,7 +14,19 @@ import org.jetbrains.jps.incremental.scala._
 sealed class Artifact(val prefix: String, resource: Option[String] = None) {
   def title: String = prefix + "*.jar"
 
-  def versionOf(file: File): Option[String] = resource.flatMap(it => Artifact.readProperty(file, it, "version.number"))
+  def versionOf(file: File): Option[String] = externalVersionOf(file).orElse(internalVersionOf(file))
+
+  private def externalVersionOf(file: File): Option[String] = {
+    val FileName = (prefix + "-(.*?)(?:-src|-javadoc).jar").r
+
+    file.getName match {
+      case FileName(version) => Some(version)
+      case _ => None
+    }
+  }
+
+  private def internalVersionOf(file: File): Option[String] =
+    resource.flatMap(it => Artifact.readProperty(file, it, "version.number"))
 }
 
 object Artifact {
@@ -73,7 +85,7 @@ object Component {
       Kind.values.map(kind => (kind.patternFor(artifact.prefix), artifact, kind))
     }
 
-    files.flatMap { file =>
+    files.filter(it => it.isFile && it.getName.endsWith(".jar")).flatMap { file =>
       patterns.collect {
         case (pattern, artifact, kind) if pattern.matcher(file.getName).matches =>
           Component(artifact, kind, artifact.versionOf(file), file)
