@@ -27,7 +27,7 @@ class ScalaGradleDataService(platformFacade: PlatformFacade, helper: ProjectStru
   def doImportData(toImport: util.Collection[DataNode[ScalaModelData]], project: Project) {
     toImport.asScala.foreach { facetNode =>
       val module = {
-        val moduleName = facetNode.getData(ProjectKeys.MODULE).getName
+        val moduleName = facetNode.getData(ProjectKeys.MODULE).getExternalName
         helper.findIdeModule(moduleName, project)
       }
 
@@ -47,13 +47,13 @@ class ScalaGradleDataService(platformFacade: PlatformFacade, helper: ProjectStru
         facet.compilerParameters = compilerOptions.toArray
       }
 
-      ScalaFacet.findIn(module).map(setup(_)).getOrElse(
-        ScalaFacet.createIn(module)(setup(_)))
+      ScalaFacet.findIn(module).map(setup).getOrElse(
+        ScalaFacet.createIn(module)(setup))
     }
   }
 
   def doRemoveData(toRemove: util.Collection[_ <: ScalaFacet], project: Project) {
-    toRemove.asScala.foreach(delete(_))
+    toRemove.asScala.foreach(delete)
   }
 }
 

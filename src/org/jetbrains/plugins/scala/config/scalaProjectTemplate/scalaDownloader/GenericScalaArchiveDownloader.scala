@@ -48,12 +48,12 @@ class GenericScalaArchiveDownloader(localDescriptor: URL, downloadableName: Stri
     case Some(description) =>
       import java.io.File
 
-      val downloader = service.createDownloader(description, project, dialogParent)
+      val downloader = service.createDownloader(description)
 
-      val files = downloader.download()
-      if (files == null || files.length == 0) return null
+      val files = downloader.downloadFilesWithProgress(null, project, dialogParent)
+      if (files == null || files.size() == 0) return null
 
-      val path = files(0).getCanonicalPath
+      val path = files.get(0).getCanonicalPath
       val downloadedArchive = new File(if ((path endsWith "!") || (path endsWith "!/")) path stripSuffix "!" stripSuffix "!/" else path)
       val dirToExtract = downloadedArchive.getParentFile
       val downloadedZipEntries = new ZipFile(downloadedArchive).entries()

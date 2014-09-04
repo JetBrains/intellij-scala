@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.annotator.gutter
+package org.jetbrains.plugins.scala
+package annotator.gutter
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScIfStmt, ScNewTemplateDefinition}
@@ -52,7 +53,7 @@ trait ScalaSeparatorProvider {
               _: ScObject |
               _: ScTrait |
               _: ScBlock => Some(DefaultGroup)
-      case it: ScNewTemplateDefinition if (it.extendsBlock != null) => Some(DefaultGroup)
+      case it: ScNewTemplateDefinition if it.extendsBlock != null => Some(DefaultGroup)
       case _ => None
     }
   }
@@ -76,7 +77,7 @@ trait ScalaSeparatorProvider {
   def isSeparationBlocker(element: PsiElement) = {
     element match {
       case _: ScBlock | _: ScIfStmt => true
-      case it: ScNewTemplateDefinition if(it.extendsBlock != null) => true
+      case it: ScNewTemplateDefinition if it.extendsBlock != null => true
       case _ => false
     }
   }

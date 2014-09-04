@@ -68,6 +68,7 @@ abstract public class AbstractEnterActionTestBase extends ActionTestBase {
     myFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
     fileEditorManager = FileEditorManager.getInstance(getProject());
     myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(getProject(), myFile.getVirtualFile(), 0), false);
+    assert myEditor != null;
     myEditor.getCaretModel().moveToOffset(offset);
 
     final myDataContext dataContext = getDataContext(myFile);

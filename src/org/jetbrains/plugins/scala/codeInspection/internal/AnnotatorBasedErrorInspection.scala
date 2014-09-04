@@ -44,7 +44,7 @@ class AnnotatorBasedErrorInspection extends LocalInspectionTool {
             override def isAdvancedHighlightingEnabled(element: PsiElement): Boolean = true
           }
           val FakeAnnotation = new com.intellij.lang.annotation.Annotation(
-            0, 0, HighlightSeverity.INFO, "message", "tooltip")
+            0, 0, HighlightSeverity.WEAK_WARNING, "message", "tooltip")
           val annotationHolder = new AnnotationHolder {
             def createAnnotation(severity: HighlightSeverity, range: TextRange, str: String) = FakeAnnotation
             

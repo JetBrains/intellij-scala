@@ -34,7 +34,7 @@ class ScalaStatementMoverTest extends StatementMoverTestBase {
   }
 
   def testCursorLinePositioning() {
-    "def a {\n|\n}\ndef b {\n\n}" moveDownIsDisabled
+    "def a {\n|\n}\ndef b {\n\n}".moveDownIsDisabled()
   }
 
   def testLineSpace() {
@@ -43,7 +43,7 @@ class ScalaStatementMoverTest extends StatementMoverTestBase {
   }
 
   def testExpressionAsSource() {
-    "|v = 1\ndef a" moveDownIsDisabled
+    "|v = 1\ndef a".moveDownIsDisabled()
   }
 
   def testExpressionAsTarget() {

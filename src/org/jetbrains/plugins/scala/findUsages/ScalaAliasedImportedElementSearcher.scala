@@ -7,7 +7,6 @@ import com.intellij.psi._
 import com.intellij.psi.search._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.util.Processor
-import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
@@ -16,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelecto
 
 class ScalaAliasedImportedElementSearcher extends QueryExecutorBase[PsiReference, ReferencesSearch.SearchParameters](true) {
 
-  def processQuery(@NotNull parameters: ReferencesSearch.SearchParameters, @NotNull consumer: Processor[PsiReference]) {
+  def processQuery(parameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]) {
     extensions.inReadAction {
       val target: PsiElement = parameters.getElementToSearch
       target match {
@@ -27,7 +26,7 @@ class ScalaAliasedImportedElementSearcher extends QueryExecutorBase[PsiReference
           }
         case _ => return
       }
-      val name: String = (target.asInstanceOf[PsiNamedElement]).name
+      val name: String = target.asInstanceOf[PsiNamedElement].name
       if (name == null || StringUtil.isEmptyOrSpaces(name)) return
       val scope: SearchScope = parameters.getEffectiveSearchScope // TODO PsiUtil.restrictScopeToGroovyFiles(parameters.getEffectiveSearchScope)
       val collector: SearchRequestCollector = parameters.getOptimizer
@@ -36,9 +35,10 @@ class ScalaAliasedImportedElementSearcher extends QueryExecutorBase[PsiReference
     }
   }
 
-  private class MyProcessor(myTarget: PsiElement, @Nullable prefix: String, mySession: SearchSession) extends RequestResultProcessor(myTarget, prefix) {
+  private class MyProcessor(myTarget: PsiElement, prefix: String,
+                            mySession: SearchSession) extends RequestResultProcessor(myTarget, prefix) {
     private def getAlias(element: PsiElement): String = {
-        if (!(element.getParent.isInstanceOf[ScImportSelector])) return null
+        if (!element.getParent.isInstanceOf[ScImportSelector]) return null
       val importStatement: ScImportSelector = element.getParent.asInstanceOf[ScImportSelector]
       importStatement.importedName
     }

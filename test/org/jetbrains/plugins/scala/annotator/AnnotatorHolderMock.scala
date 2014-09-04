@@ -11,7 +11,7 @@ import com.intellij.psi.PsiElement
 
 class AnnotatorHolderMock extends AnnotationHolder {
   private val FakeAnnotation = new com.intellij.lang.annotation.Annotation(
-    0, 0, HighlightSeverity.INFO, "message", "tooltip")
+    0, 0, HighlightSeverity.WEAK_WARNING, "message", "tooltip")
   
   def annotations = myAnnotations.reverse
   
