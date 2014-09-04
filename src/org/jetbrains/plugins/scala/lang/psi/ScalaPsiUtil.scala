@@ -1257,8 +1257,15 @@ object ScalaPsiUtil {
   def getEmptyModifierList(manager: PsiManager): PsiModifierList =
     new LightModifierList(manager, ScalaFileType.SCALA_LANGUAGE)
 
-  def adjustTypes(element: PsiElement) {
+  def adjustTypes(element: PsiElement, addImports: Boolean = true) {
     def replaceStablePath(ref: ScReferenceElement, name: String, toBind: PsiElement): PsiElement = {
+      if (!addImports) {
+        val checkRef = ScalaPsiElementFactory.createReferenceFromText(name, ref.getContext, ref)
+        val resolved = checkRef.resolve()
+        if (resolved == null || !PsiEquivalenceUtil.areElementsEquivalent(resolved, toBind)) {
+          return ref
+        }
+      }
       val replaced = ref.replace(ScalaPsiElementFactory.createReferenceFromText(name, toBind.getManager))
       replaced.asInstanceOf[ScStableCodeReferenceElement].bindToElement(toBind)
     }
@@ -1272,6 +1279,14 @@ object ScalaPsiUtil {
           stableRef.resolve() match {
             case resolved if {aliasedRef = ScalaPsiUtil.importAliasFor(resolved, stableRef); aliasedRef.isDefined} =>
               stableRef.replace(aliasedRef.get)
+            case fun: ScFunction if fun.isConstructor =>
+              val clazz = fun.containingClass
+              if (hasStablePath(clazz)) replaceStablePath(stableRef, clazz.name, fun)
+              else adjustTypes(child)
+            case m: PsiMethod if m.isConstructor =>
+              val clazz = m.getContainingClass
+              if (hasStablePath(clazz)) replaceStablePath(stableRef, clazz.name, m)
+              else adjustTypes(child)
             case named: PsiNamedElement if hasStablePath(named) =>
               named match {
                 case clazz: PsiClass => replaceStablePath(stableRef, clazz.name, clazz)
@@ -1279,10 +1294,6 @@ object ScalaPsiUtil {
                 case binding: ScBindingPattern => replaceStablePath(stableRef, binding.name, binding)
                 case _ => adjustTypes(child)
               }
-            case fun: ScFunction if fun.isConstructor =>
-              val clazz = fun.containingClass
-              if (hasStablePath(clazz)) replaceStablePath(stableRef, clazz.name, fun)
-              else adjustTypes(child)
             case _ => adjustTypes(child)
           }
         case tp: ScTypeProjection =>
@@ -1291,7 +1302,7 @@ object ScalaPsiUtil {
               val newTypeElement = ScalaPsiElementFactory.createTypeElementFromText(ScalaNamesUtil.scalaName(m), tp.getContext, tp)
               val resolved = newTypeElement.getFirstChild.asInstanceOf[ScReferenceElement].resolve()
               if (resolved != null && PsiEquivalenceUtil.areElementsEquivalent(resolved, m)) {
-                //cannot use newTypeElement becouse of bug with indentation
+                //cannot use newTypeElement because of bug with indentation
                 tp.replace(ScalaPsiElementFactory.createTypeElementFromText(ScalaNamesUtil.scalaName(m), tp.getManager))
               }
               else adjustTypes(child)
