@@ -3,7 +3,9 @@ package lang
 package psi
 package types
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi._
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -11,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScTemplateBodyImpl
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
@@ -460,5 +463,14 @@ case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
   override def isFinalType = element match {
     case cl: PsiClass if cl.isEffectivelyFinal => true
     case _ => false
+  }
+}
+
+object ScDesignatorType {
+  def fromClassFqn(fqn: String, project: Project, scope: GlobalSearchScope): ScType = {
+    Option(ScalaPsiManager.instance(project).getCachedClass(scope, fqn)) match {
+      case Some(c) => ScType.designator(c)
+      case _ => types.Nothing
+    }
   }
 }
