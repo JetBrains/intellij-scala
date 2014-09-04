@@ -1,17 +1,15 @@
 package org.jetbrains.plugins.scala
 package lang.completion.handlers
 
+import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegate.Result
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegateAdapter
 import com.intellij.openapi.actionSystem.DataContext
-import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegate.Result
 import com.intellij.openapi.editor.Editor
-import lang.psi.api.ScalaFile
-import lang.scaladoc.psi.api.ScDocTag
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
-import org.jetbrains.plugins.scala.extensions
-import lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTag
 
 /**
  * User: Dmitry Naydanov

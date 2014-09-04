@@ -5,24 +5,24 @@ package psi
 package impl
 
 import com.intellij.lang.ASTNode
-import java.lang.String
-import com.intellij.openapi.util.TextRange
-import parser.parsing.MyScaladocParsing
-import lang.psi.api.toplevel.ScNamedElement
-import lang.psi.api.base.ScPrimaryConstructor
-import api.{ScDocReferenceElement, ScDocComment, ScDocTag, ScDocTagValue}
-import collection.mutable.ArrayBuilder
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import lang.psi.api.statements.params.{ScTypeParam, ScParameter, ScTypeParamClause}
-import collection.Set
-import resolve.{ScalaResolveResult, ResolveTargets}
-import refactoring.util.ScalaNamesUtil
-import com.intellij.psi.{PsiDocumentManager, ResolveResult, PsiElement}
-import lang.psi.api.statements.{ScTypeAlias, ScFunction}
-import lang.psi.api.toplevel.typedef.{ScTrait, ScClass}
-import lang.psi.{ScalaPsiUtil, ScalaPsiElement, ScalaPsiElementImpl}
-import extensions.toPsiNamedElementExt
-import lang.completion.lookups.ScalaLookupItem
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi.{PsiDocumentManager, PsiElement, ResolveResult}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, ScTypeParamClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiElementImpl, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocReferenceElement, ScDocTag, ScDocTagValue}
+
+import scala.collection.Set
+import scala.collection.mutable.ArrayBuilder
 
 /**
  * User: Dmitry Naydanov
@@ -93,7 +93,7 @@ class ScDocTagValueImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
   override def isSoft: Boolean = getParent.asInstanceOf[ScDocTag].name == MyScaladocParsing.THROWS_TAG
 
   def getParametersVariants: Array[ScNamedElement] = {
-    import MyScaladocParsing.{PARAM_TAG, TYPE_PARAM_TAG}
+    import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing.{PARAM_TAG, TYPE_PARAM_TAG}
     val parentTagType: String = getParent match {
       case a: ScDocTag => a.name
       case _ => null

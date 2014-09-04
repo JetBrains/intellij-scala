@@ -1,18 +1,19 @@
 package org.jetbrains.plugins.scala
 package lang.adjustTypes
 
+import java.io.File
+
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
+import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
-import java.io.File
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.util.ScalaUtils
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.util.ScalaUtils
 
 /**
  * Nikolay.Tropin

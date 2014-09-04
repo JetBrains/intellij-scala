@@ -1,16 +1,18 @@
 package org.jetbrains.plugins.scala.settings
 
+import java.util
+import javax.swing.{DefaultListModel, JComponent, JList, JPanel}
+
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.application.ApplicationBundle
 import com.intellij.openapi.ui.{InputValidator, Messages}
 import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.ui.{AnActionButton, AnActionButtonRunnable, ListScrollingUtil, ToolbarDecorator}
-import java.util
-import javax.swing.{DefaultListModel, JComponent, JList, JPanel}
+import com.intellij.util.IconUtil
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+
 import scala.annotation.tailrec
-import com.intellij.openapi.application.ApplicationBundle
-import com.intellij.util.IconUtil
-import com.intellij.openapi.actionSystem.AnActionEvent
 
 /**
  * @author Alefas
@@ -62,7 +64,7 @@ object ScalaProjectSettingsUtil {
       if (pattern == null) return
       val listModel = patternJBList.getModel match {
         case null => return
-        case default: DefaultListModel[Any] => default
+        case default: DefaultListModel[Any @unchecked] => default
         case _ => return
       }
       val index: Int = - util.Arrays.binarySearch(listModel.toArray, pattern) - 1
@@ -87,7 +89,7 @@ object ScalaProjectSettingsUtil {
       if (pattern == null) return
       val listModel = patternJBList.getModel match {
         case null => return
-        case default: DefaultListModel[Any] => default
+        case default: DefaultListModel[Any @unchecked] => default
         case _ => return
       }
       val index = patternJBList.getSelectedIndex
@@ -111,7 +113,7 @@ object ScalaProjectSettingsUtil {
       override def run(t: AnActionButton): Unit = {
         val listModel = patternJBList.getModel match {
           case null => return
-          case default: DefaultListModel[Any] => default
+          case default: DefaultListModel[Any @unchecked] => default
           case _ => return
         }
         val index = patternJBList.getSelectedIndex

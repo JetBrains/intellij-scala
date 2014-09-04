@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.refactoring.util
 
 import com.intellij.lang.refactoring.NamesValidator
 import com.intellij.openapi.project.Project
-import java.lang.String
 
 /**
  * User: Alexander Podkhalyuzin

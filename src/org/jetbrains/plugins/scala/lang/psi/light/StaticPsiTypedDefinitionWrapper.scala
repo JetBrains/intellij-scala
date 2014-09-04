@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.impl.light.LightMethod
-import com.intellij.psi.{PsiElement, PsiMethod, JavaPsiFacade}
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{JavaPsiFacade, PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 
 /**
  * @author Alefas
@@ -45,7 +44,7 @@ class StaticPsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition,
 }
 
 object StaticPsiTypedDefinitionWrapper {
-  import PsiTypedDefinitionWrapper.DefinitionRole._
+  import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 
   def methodText(b: ScTypedDefinition, role: DefinitionRole, containingClass: PsiClassWrapper): String = {
     val builder = new StringBuilder

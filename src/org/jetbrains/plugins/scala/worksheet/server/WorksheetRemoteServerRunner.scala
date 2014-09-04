@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala
 package worksheet.server
 
-import org.jetbrains.jps.incremental.scala.remote.RemoteResourceOwner
-import java.net.{UnknownHostException, ConnectException, InetAddress}
-import org.jetbrains.plugins.scala.compiler.ScalaApplicationSettings
-import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.plugins.scala.components.WorksheetProcess
-import com.intellij.util.Base64Converter
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
+import java.net.{ConnectException, InetAddress, UnknownHostException}
+
 import com.intellij.openapi.project.Project
+import com.intellij.util.Base64Converter
+import org.jetbrains.jps.incremental.scala.Client
+import org.jetbrains.jps.incremental.scala.remote.RemoteResourceOwner
+import org.jetbrains.plugins.scala.compiler.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.components.WorksheetProcess
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 
 /**
  * User: Dmitry Naydanov

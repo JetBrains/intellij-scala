@@ -4,11 +4,9 @@ package parser
 package parsing
 package expressions
 
-import _root_.scala.collection.mutable.Stack
 import com.intellij.lang.PsiBuilder
-import lexer.ScalaTokenTypes
-import nl.LineTerminator
-import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 
 /**
@@ -22,7 +20,7 @@ import builder.ScalaPsiBuilder
  */
 
 object InfixExpr {
-  import util.ParserUtils._
+  import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils._
   def parse(builder: ScalaPsiBuilder): Boolean = {
 
     type MStack[X] = _root_.scala.collection.mutable.Stack[X]

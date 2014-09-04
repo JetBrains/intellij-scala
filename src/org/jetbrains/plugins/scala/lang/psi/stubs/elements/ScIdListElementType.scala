@@ -5,13 +5,11 @@ package stubs
 package elements
 
 
-import api.base.ScIdList
-import api.toplevel.ScEarlyDefinitions
-import com.intellij.psi.stubs._
-import impl.{ScIdListStubImpl, ScEarlyDefinitionsStubImpl}
-import psi.impl.base.ScIdListImpl
-import psi.impl.toplevel.ScEarlyDefinitionsImpl
 import com.intellij.psi.PsiElement
+import com.intellij.psi.stubs._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScIdList
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScIdListImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScIdListStubImpl
 /**
  * User: Alexander Podkhalyuzin
  * Date: 19.07.2009

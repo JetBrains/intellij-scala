@@ -4,8 +4,7 @@ package psi
 package api
 package expr
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /** 
 * @author Alexander Podkhalyuzin

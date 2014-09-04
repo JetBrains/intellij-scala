@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInsight.generation.ui
 
 import java.util
+
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.ui.ScalaMemberSelectionPanelBase
 

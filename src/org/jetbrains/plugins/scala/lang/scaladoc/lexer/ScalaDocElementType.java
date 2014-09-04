@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.lexer;
 
-import org.jetbrains.plugins.scala.ScalaFileType;
 import com.intellij.psi.tree.IElementType;
+import org.jetbrains.plugins.scala.ScalaFileType;
 
 /**
  * User: Alexander Podkhalyuzin

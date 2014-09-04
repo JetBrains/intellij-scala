@@ -2,19 +2,19 @@ package org.jetbrains.plugins.scala
 package lang
 package typeConformance
 
+import java.io.File
+
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.PsiElement
-import java.io.File
-import java.lang.String
-import lexer.ScalaTokenTypes
-import parser.ScalaElementTypes
-import psi.api.ScalaFile
-import psi.api.statements.ScPatternDefinition
-import psi.types.Conformance
-import psi.types.result.{TypingContext, Failure, Success}
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.util.io.FileUtil
-import base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.Conformance
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
 
 /**
  * User: Alexander Podkhalyuzin

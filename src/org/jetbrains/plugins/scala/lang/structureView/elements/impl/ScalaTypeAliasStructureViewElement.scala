@@ -6,9 +6,8 @@ package impl
 
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.navigation.ItemPresentation
-import itemsPresentations.impl.ScalaTypeAliasItemPresentation
-import psi.api.statements.ScTypeAlias
-import psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl.ScalaTypeAliasItemPresentation
 
 /**
  * User: Alexander Podkhalyuzin

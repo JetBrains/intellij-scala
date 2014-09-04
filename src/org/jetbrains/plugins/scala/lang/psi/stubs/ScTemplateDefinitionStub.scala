@@ -4,7 +4,7 @@ package psi
 package stubs
 
 import com.intellij.psi.impl.java.stubs.PsiClassStub
-import api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 /**
  * @author ilyas

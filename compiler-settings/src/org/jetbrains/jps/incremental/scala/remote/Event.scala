@@ -2,8 +2,9 @@ package org.jetbrains.jps.incremental.scala
 package remote
 
 import java.io._
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 
 /**
  * @author Pavel Fatin

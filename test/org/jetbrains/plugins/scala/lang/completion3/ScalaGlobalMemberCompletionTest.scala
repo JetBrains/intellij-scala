@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
-import org.junit.Assert
-import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.junit.Assert
 
 /**
  * @author Alexander Podkhalyuzin

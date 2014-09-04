@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.annotator
 
-import com.intellij.openapi.util.TextRange
 import com.intellij.lang.ASTNode
-import java.lang.String
+import com.intellij.lang.annotation.{Annotation, AnnotationHolder, AnnotationSession, HighlightSeverity}
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import com.intellij.lang.annotation.{Annotation, AnnotationSession, HighlightSeverity, AnnotationHolder}
 
 /**
  * Pavel.Fatin, 18.05.2010

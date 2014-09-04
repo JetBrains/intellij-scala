@@ -1,17 +1,16 @@
 package org.jetbrains
 
+import _root_.java.io._
+import _root_.java.lang.{Boolean => JavaBoolean}
 import _root_.java.security.MessageDigest
 
-import _root_.org.apache.maven.index.ArtifactInfo
-import com.intellij.util.io.PersistentHashMap
-import com.intellij.util.{Function => IdeaFunction, PathUtil}
-import com.intellij.openapi.util.{Pair => IdeaPair}
-import reflect.ClassTag
-import _root_.java.io._
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import _root_.java.lang.{Boolean => JavaBoolean}
-import com.intellij.openapi.vfs.{VirtualFile, VfsUtil}
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.{Pair => IdeaPair}
+import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
+import com.intellij.util.{PathUtil, Function => IdeaFunction}
+
+import scala.reflect.ClassTag
 
 /**
  * @author Pavel Fatin

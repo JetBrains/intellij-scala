@@ -4,10 +4,11 @@ package psi
 package api
 package base
 
-import api.toplevel._
-import scala.annotation.tailrec
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.light.scala.ScLightFieldId
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+
+import scala.annotation.tailrec
 
 /**
 * @author ilyas

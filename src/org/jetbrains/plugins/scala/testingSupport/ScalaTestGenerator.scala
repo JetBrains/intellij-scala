@@ -1,20 +1,20 @@
 package org.jetbrains.plugins.scala
 package testingSupport
 
-import com.intellij.openapi.project.Project
-import com.intellij.testIntegration.createTest.{CreateTestDialog, TestGenerator}
-import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
-import com.intellij.openapi.editor.Editor
-import com.intellij.util.IncorrectOperationException
-import actions.NewScalaTypeDefinitionAction
-import com.intellij.openapi.ui.Messages
 import com.intellij.codeInsight.{CodeInsightBundle, CodeInsightUtil}
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.Messages
 import com.intellij.psi._
-import search.GlobalSearchScope
-import extensions._
-import lang.psi.api.toplevel.typedef.ScTypeDefinition
-import lang.psi.api.base.ScStableCodeReferenceElement
-import lang.psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.testIntegration.createTest.{CreateTestDialog, TestGenerator}
+import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.actions.NewScalaTypeDefinitionAction
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 
 
 class ScalaTestGenerator extends TestGenerator {

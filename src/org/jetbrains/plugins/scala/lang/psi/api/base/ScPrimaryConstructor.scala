@@ -4,17 +4,18 @@ package psi
 package api
 package base
 
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType, TypeParameter}
-import psi.types._
-import impl.ScalaPsiElementFactory
-import toplevel.ScTypeParametersOwner
-import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
-import light.ScPrimaryConstructorWrapper
-import scala.collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.light.ScPrimaryConstructorWrapper
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType, TypeParameter}
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
 * @author Alexander Podkhalyuzin

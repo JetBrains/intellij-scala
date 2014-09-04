@@ -4,18 +4,18 @@ package psi
 package api
 package statements
 
-import icons.Icons
 import javax.swing.Icon
-import psi.ScalaPsiElement
-import toplevel.ScPolymorphicElement
-import org.jetbrains.plugins.scala.lang.psi.types.{TypeAliasSignature, ScType}
-import base.types.ScExistentialClause
-import lexer.ScalaTokenTypes
-import com.intellij.psi.{PsiClass, PsiElement, PsiDocCommentOwner}
-import toplevel.typedef.{ScTypeDefinition, ScDocCommentOwner, ScMember}
+
+import com.intellij.psi.{PsiClass, PsiElement}
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPolymorphicElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightTypeAliasDeclaration, ScLightTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.TypeAliasSignature
+
 import scala.annotation.tailrec
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
-import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightTypeAliasDefinition, ScLightTypeAliasDeclaration}
 
 /**
  * @author Alexander Podkhalyuzin

@@ -4,26 +4,26 @@ package formatting
 package processors
 
 import com.intellij.formatting._
-import psi.api.ScalaFile
-import scaladoc.lexer.ScalaDocTokenType
-import settings.ScalaCodeStyleSettings
 import com.intellij.lang.ASTNode
+import com.intellij.psi.PsiComment
+import com.intellij.psi.codeStyle.CommonCodeStyleSettings
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
-import com.intellij.psi.codeStyle.CommonCodeStyleSettings
-import com.intellij.psi.{PsiWhiteSpace, PsiComment}
-import psi.api.toplevel.ScEarlyDefinitions
-import scaladoc.psi.api.ScDocComment
-import extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 
 object ScalaIndentProcessor extends ScalaTokenTypes {

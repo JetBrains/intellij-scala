@@ -4,10 +4,9 @@ package psi
 package stubs
 
 
-import api.base.types.ScTypeElement
-import api.statements.params.ScTypeParam
 import com.intellij.psi.stubs.NamedStub
-import types.ScType
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 
 /**
  * User: Alexander Podkhalyuzin

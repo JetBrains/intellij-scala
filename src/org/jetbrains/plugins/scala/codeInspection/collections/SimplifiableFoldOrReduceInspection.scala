@@ -2,12 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection.collections
 
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
-import org.jetbrains.plugins.scala.codeInspection.collections.SimplifiableFoldOrReduceInspection._
-import scala.Some
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * Nikolay.Tropin

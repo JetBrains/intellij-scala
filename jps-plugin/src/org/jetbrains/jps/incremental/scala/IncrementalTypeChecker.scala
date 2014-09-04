@@ -1,12 +1,13 @@
 package org.jetbrains.jps.incremental.scala
 
 import java.io._
-import java.nio.file.Files
-import org.jetbrains.jps.incremental.{ProjectBuildException, FSCache, CompileContext}
+
 import org.jetbrains.jps.builders.java.JavaBuilderUtil
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage}
-import scala.collection.JavaConverters._
+import org.jetbrains.jps.incremental.{CompileContext, FSCache, ProjectBuildException}
 import org.jetbrains.plugin.scala.compiler.IncrementalType
+
+import scala.collection.JavaConverters._
 
 /**
  * Nikolay.Tropin

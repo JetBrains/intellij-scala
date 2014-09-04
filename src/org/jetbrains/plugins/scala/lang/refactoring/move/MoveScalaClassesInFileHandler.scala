@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.move
 
-import com.intellij.refactoring.move.moveClassesOrPackages.{MoveClassesOrPackagesUtil, MoveAllClassesInFileHandler}
-import java.util
-import com.intellij.psi.{PsiElement, PsiClass}
 import java.lang.Boolean
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import java.util
+
+import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.refactoring.move.moveClassesOrPackages.MoveAllClassesInFileHandler
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /**

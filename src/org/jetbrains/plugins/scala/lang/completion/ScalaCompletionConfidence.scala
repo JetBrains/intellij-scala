@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala.lang.completion
 
-import com.intellij.codeInsight.completion.{CompletionParameters, CompletionConfidence}
-import com.intellij.util.ThreeState
-import com.intellij.psi.{PsiFile, PsiElement}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import com.intellij.codeInsight.completion.CompletionConfidence
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.util.ThreeState
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 /**
  * @author Alexander Podkhalyuzin

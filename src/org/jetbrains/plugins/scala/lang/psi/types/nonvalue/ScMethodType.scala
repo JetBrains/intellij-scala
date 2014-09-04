@@ -1,15 +1,16 @@
 package org.jetbrains.plugins.scala.lang.psi.types.nonvalue
 
-import org.jetbrains.plugins.scala.Suspension
-import org.jetbrains.plugins.scala.lang.psi.types._
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiTypeParameter
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.Suspension
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
-import result.TypingContext
-import com.intellij.psi.PsiTypeParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import collection.immutable.{HashSet, HashMap}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+
+import scala.collection.immutable.{HashMap, HashSet}
 
 /**
  * @author ilyas

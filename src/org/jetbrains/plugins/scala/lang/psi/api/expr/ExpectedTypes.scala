@@ -4,22 +4,23 @@ package psi
 package api
 package expr
 
-import base.patterns.ScCaseClause
-import statements._
-import params.ScParameter
-import base.ScConstructor
-import collection.mutable.ArrayBuffer
-import types._
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi._
-import nonvalue.{Parameter, ScTypePolymorphicType, ScMethodType}
-import toplevel.ScTypedDefinition
-import result.{TypeResult, Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTupleTypeElement, ScSequenceArg, ScTypeElement}
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScTupleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
-import psi.impl.ScalaPsiManager
-import toplevel.typedef.ScObject
+
 import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author ilyas

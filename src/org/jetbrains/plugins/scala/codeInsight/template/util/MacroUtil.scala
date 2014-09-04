@@ -3,7 +3,7 @@ package codeInsight.template.util
 
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, ResolveState}
-import lang.resolve.{ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
 /**
  * User: Alexander Podkhalyuzin

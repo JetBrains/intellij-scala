@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.statements
 
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import com.intellij.lang.PsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
 
 /**
  * @author Alexander Podkhalyuzin

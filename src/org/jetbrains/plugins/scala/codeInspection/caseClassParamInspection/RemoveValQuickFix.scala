@@ -2,15 +2,15 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package caseClassParamInspection
 
-import com.intellij.openapi.project.Project
-import com.intellij.psi.codeStyle.CodeStyleManager
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import com.intellij.codeInspection.{ProblemDescriptor, LocalQuickFix}
-import lang.psi.api.expr.{ScGenerator, ScEnumerator}
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor}
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import com.intellij.psi.codeStyle.CodeStyleManager
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScGenerator}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 
 class RemoveValQuickFix(param: ScClassParameter) extends LocalQuickFix{
   def applyFix(project: Project, descriptor: ProblemDescriptor) {

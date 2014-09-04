@@ -2,18 +2,16 @@ package org.jetbrains.plugins.scala
 package lang.refactoring
 
 import com.intellij.codeInsight.editorActions.moveUpDown.StatementUpDownMover.MoveInfo
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.codeInsight.editorActions.moveUpDown.{LineMover, LineRange}
 import com.intellij.openapi.editor.Editor
-import com.intellij.codeInsight.editorActions.moveUpDown.{LineRange, LineMover}
-import lang.psi.api.toplevel.typedef.ScMember
-import lang.psi.ScalaPsiElement
-import lang.psi.api.base.patterns.ScCaseClause
-import com.intellij.psi.{PsiComment, PsiWhiteSpace, PsiElement, PsiFile}
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiComment, PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions._
-import lang.psi.api.toplevel.imports.ScImportStmt
-import lang.psi.api.expr._
-import extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
 /**
  * Pavel Fatin

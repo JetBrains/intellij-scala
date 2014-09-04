@@ -1,24 +1,24 @@
 package org.jetbrains.plugins.scala
 package worksheet.actions
 
-import com.intellij.openapi.actionSystem._
-import lang.psi.api.ScalaFile
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiDocumentManager, PsiFile}
-import com.intellij.openapi.util.TextRange
+import java.awt.BorderLayout
+import javax.swing.DefaultBoundedRangeModel
+
 import com.intellij.icons.AllIcons
 import com.intellij.lang.ASTNode
-import extensions._
-import com.intellij.openapi.vfs.VirtualFile
-import worksheet.runconfiguration.WorksheetViewerInfo
-import java.awt.BorderLayout
-import com.intellij.ui.JBSplitter
-import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.editor.impl.EditorImpl
-import javax.swing.{Icon, DefaultBoundedRangeModel}
-import com.intellij.openapi.command.CommandProcessor
+import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.command.CommandProcessor
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.impl.EditorImpl
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 
 /**

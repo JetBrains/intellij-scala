@@ -1,18 +1,20 @@
 package org.jetbrains.plugins.scala
 package codeInsight.generation.ui
 
+import java.util
+import java.util.Collections
+
+import com.intellij.codeInsight.CodeInsightBundle
+import com.intellij.codeInsight.generation.ui.AbstractGenerateEqualsWizard
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import java.util
-import com.intellij.util.containers.HashMap
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import scala.collection.JavaConversions._
-import com.intellij.codeInsight.CodeInsightBundle
-import java.util.Collections
-import org.jetbrains.plugins.scala.codeInsight.generation.GenerationUtil
 import com.intellij.refactoring.classMembers.AbstractMemberInfoModel
 import com.intellij.refactoring.ui.AbstractMemberSelectionPanel
-import com.intellij.codeInsight.generation.ui.AbstractGenerateEqualsWizard
+import com.intellij.util.containers.HashMap
+import org.jetbrains.plugins.scala.codeInsight.generation.GenerationUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+
+import scala.collection.JavaConversions._
 
 /**
  * Nikolay.Tropin

@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala
 package config
 
-import java.io.{FilenameFilter, File}
-import FileAPI._
-import com.intellij.openapi.roots.{ModifiableRootModel, JavadocOrderRootType, OrderRootType}
+import java.io.{File, FilenameFilter}
+
+import com.intellij.openapi.roots.{JavadocOrderRootType, ModifiableRootModel, OrderRootType}
+import org.jetbrains.plugins.scala.config.FileAPI._
 /**
  * Pavel.Fatin, 01.07.2010
  */
@@ -53,7 +54,7 @@ abstract class ScalaDistribution(val home: File) {
 
   def hasDocs = docs.exists
 
-  def missing: String = (classes ++ sources).filterNot(_ exists).map(_.getName).mkString(", ")
+  def missing: String = (classes ++ sources).filterNot(_.exists).map(_.getName).mkString(", ")
 
   def compilerPath: String = compilerFile.map(_.getPath).mkString
 
@@ -146,7 +147,7 @@ class Scala211Distribution(home: File) extends ScalaDistribution(home) {
 
   override protected def docs: File = home / "doc" / "tools"
 
-  override def missing: String = classes.filterNot(_ exists).map(_.getName).mkString(", ")
+  override def missing: String = classes.filterNot(_.exists).map(_.getName).mkString(", ")
 
   override protected def sources: Seq[File] = jarNames.flatMap {
     case (_, sr) => findWithPrefix(sr, Lib)

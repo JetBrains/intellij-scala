@@ -4,10 +4,11 @@ package parser
 package parsing
 package top
 
-import lexer.ScalaTokenTypes
-import statements.PatVarDef
-import builder.ScalaPsiBuilder
-import annotation.tailrec
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.statements.PatVarDef
+
+import scala.annotation.tailrec
 
 /**
 * @author Alexander Podkhalyuzin

@@ -5,8 +5,8 @@ package api
 package statements
 package params
 
-import toplevel.ScModifierListOwner
-import toplevel.typedef.{ScClass, ScMember}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
 
 /**
 * @author Alexander Podkhalyuzin

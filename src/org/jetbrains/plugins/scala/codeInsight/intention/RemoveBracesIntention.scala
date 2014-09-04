@@ -2,18 +2,18 @@ package org.jetbrains.plugins.scala
 package codeInsight.intention
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import lang.psi.ScalaPsiUtil
-import lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
-import lang.psi.api.expr._
-import lang.psi.api.base.patterns.ScCaseClause
 import com.intellij.psi.tree.TokenSet
-import lang.lexer.ScalaTokenTypes
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**

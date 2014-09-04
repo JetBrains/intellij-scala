@@ -4,11 +4,11 @@ package psi
 package stubs
 package elements
 
-import api.base.{ScPrimaryConstructor, ScModifierList}
-import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
 import com.intellij.psi.PsiElement
-import impl.ScPrimaryConstructorStubImpl
-import psi.impl.base.ScPrimaryConstructorImpl
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScPrimaryConstructorImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScPrimaryConstructorStubImpl
 
 /**
  * User: Alexander Podkhalyuzin

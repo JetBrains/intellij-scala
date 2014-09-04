@@ -1,11 +1,12 @@
 package org.jetbrains.jps.incremental.scala.remote
 
-import java.net.{Socket, InetAddress}
 import java.io._
-import org.jetbrains.jps.incremental.scala._
-import com.martiansoftware.nailgun.NGConstants
+import java.net.{InetAddress, Socket}
+
 import com.intellij.util.Base64Converter
+import com.martiansoftware.nailgun.NGConstants
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+import org.jetbrains.jps.incremental.scala._
 
 /**
  * @author Pavel Fatin
@@ -27,14 +28,6 @@ trait RemoteResourceOwner {
           handle(input, client)
         }
       }
-    }
-  }
-  
-  protected def using[A <: { def close() }, B](resource: A)(block: A => B): B = {
-    try {
-      block(resource)
-    } finally {
-      resource.close()
     }
   }
 

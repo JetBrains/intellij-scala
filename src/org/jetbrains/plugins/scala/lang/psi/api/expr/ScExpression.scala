@@ -521,7 +521,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
             case Some(e) =>
               calculateReturns0(e)
               i.thenBranch match {
-                case Some(then) => calculateReturns0(then)
+                case Some(thenBranch) => calculateReturns0(thenBranch)
                 case _ =>
               }
             case _ => res += i

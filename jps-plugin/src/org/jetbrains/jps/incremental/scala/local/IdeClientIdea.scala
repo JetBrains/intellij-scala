@@ -1,15 +1,17 @@
 package org.jetbrains.jps.incremental.scala
 package local
 
-import org.jetbrains.jps.incremental.{Utils, CompileContext}
+import java.io.{File, IOException}
+import java.util.Collections
+
+import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.builders.java.dependencyView.Callbacks
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.OutputConsumer
-import scala.collection._
-import java.io.{IOException, File}
-import java.util.Collections
-import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage}
+import org.jetbrains.jps.incremental.{CompileContext, Utils}
 import org.jetbrains.org.objectweb.asm.ClassReader
+
+import scala.collection._
 
 /**
  * Nikolay.Tropin

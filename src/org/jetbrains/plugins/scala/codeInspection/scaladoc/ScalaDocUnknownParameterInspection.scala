@@ -2,19 +2,19 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package scaladoc
 
-import java.lang.String
-import com.intellij.psi.PsiElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocTag}
-import collection.mutable.{HashSet, HashMap}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParamClause, ScTypeParam, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScFunction}
-import com.intellij.openapi.project.Project
 import com.intellij.codeInspection._
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, ScTypeParamClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScClass}
-import extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocTag}
+
+import scala.collection.mutable.{HashMap, HashSet}
 
 /**
  * User: Dmitry Naidanov

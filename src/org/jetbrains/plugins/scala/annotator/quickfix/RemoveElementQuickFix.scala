@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala
 package annotator.quickfix
 
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.{PsiFile, PsiElement}
+import com.intellij.openapi.project.Project
+import com.intellij.psi.{PsiElement, PsiFile}
 
 /**
  * Pavel Fatin

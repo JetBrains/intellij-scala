@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package lang.navigation
 
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import com.intellij.ide.util.gotoByName.GotoClassModel2
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 
 /**
  * @author Alefas

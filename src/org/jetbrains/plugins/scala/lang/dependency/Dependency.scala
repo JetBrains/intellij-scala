@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.scala
 package lang.dependency
 
-import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import com.intellij.psi._
-import lang.psi.api.base.{ScReferenceElement, ScPrimaryConstructor}
-import lang.psi.api.statements.ScFunctionDefinition
-import lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScMember}
-import lang.psi.api.base.patterns.{ScReferencePattern, ScConstructorPattern}
-import extensions._
-import lang.psi.api.toplevel.ScNamedElement
-import lang.psi.api.expr.{ScInfixExpr, ScPostfixExpr}
-import lang.psi.types.ScType
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScPostfixExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
  * Pavel Fatin

@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intentions
 
-import com.intellij.codeInsight.intention.IntentionAction
-import org.junit.Assert
 import java.util
-import extensions._
-import scala.Some
+
+import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.psi.codeStyle.CodeStyleManager
-import base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.extensions._
+import org.junit.Assert
+
 import scala.collection.JavaConversions._
 
 /**

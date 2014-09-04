@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala
 package editor.todo
 
 import com.intellij.lexer.Lexer
-import com.intellij.psi.impl.search.IndexPatternBuilder
 import com.intellij.psi.PsiFile
-import com.intellij.psi.tree.{TokenSet, IElementType}
-import lang.lexer.{ScalaLexer, ScalaTokenTypes}
-import lang.psi.api.ScalaFile
+import com.intellij.psi.impl.search.IndexPatternBuilder
+import com.intellij.psi.tree.{IElementType, TokenSet}
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
  * User: Alexander Podkhalyuzin

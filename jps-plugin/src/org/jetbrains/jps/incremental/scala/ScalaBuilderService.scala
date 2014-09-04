@@ -1,8 +1,9 @@
 package org.jetbrains.jps.incremental.scala
 
 import java.util
-import org.jetbrains.jps.incremental._
+
 import org.jetbrains.annotations.NotNull
+import org.jetbrains.jps.incremental._
 
 /**
  * Nikolay.Tropin

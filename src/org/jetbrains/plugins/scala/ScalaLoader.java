@@ -16,7 +16,6 @@
 package org.jetbrains.plugins.scala;
 
 import com.intellij.debugger.DebuggerManager;
-import com.intellij.debugger.settings.NodeRendererSettings;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.project.Project;
@@ -25,15 +24,13 @@ import com.intellij.openapi.project.ProjectManagerAdapter;
 import com.intellij.util.containers.HashSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.debugger.ScalaJVMNameMapper;
-import org.jetbrains.plugins.scala.debugger.ui.ListLikeCollectionNodeRenderer;
-import org.jetbrains.plugins.scala.debugger.ui.ObjectRefElementRenderer;
 
 import java.util.Set;
 
 /**
  * @author ilyas
  */
-public class ScalaLoader implements ApplicationComponent {
+public class ScalaLoader implements ApplicationComponent { //todo: to remove?
 
   @NotNull
   public static final String SCALA_EXTENSION = "scala";
@@ -60,8 +57,6 @@ public class ScalaLoader implements ApplicationComponent {
         compilerManager.addCompilableFileType(ScalaFileType.SCALA_FILE_TYPE);
 
         DebuggerManager.getInstance(project).addClassNameMapper(new ScalaJVMNameMapper());
-        NodeRendererSettings.getInstance().addPluginRenderer(new ListLikeCollectionNodeRenderer());
-        NodeRendererSettings.getInstance().addPluginRenderer(new ObjectRefElementRenderer());
       }
     });
 

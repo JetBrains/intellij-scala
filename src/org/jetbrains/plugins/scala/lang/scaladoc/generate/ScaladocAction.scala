@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.generate
 
+import javax.swing.JComponent
+import javax.swing.event.DocumentEvent
+
 import com.intellij.CommonBundle
 import com.intellij.analysis.{AnalysisScope, BaseAnalysisAction, BaseAnalysisActionDialog}
 import com.intellij.execution.configurations._
@@ -12,8 +15,6 @@ import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
 import com.intellij.ui.DocumentAdapter
-import javax.swing.JComponent
-import javax.swing.event.DocumentEvent
 import org.jetbrains.plugins.scala.console.ScalaConsoleConfigurationType
 import org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocAction.ScaladocRunConfiguration
 

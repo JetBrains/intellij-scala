@@ -5,15 +5,15 @@ package impl
 package expr
 package xml
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import api.ScalaElementVisitor
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScPatterns}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
-import collection.mutable.ArrayBuffer
-import api.base.patterns.{ScPatterns, ScPattern}
-import types.{ScDesignatorType, ScType}
-import types.result.{Success, Failure, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScType}
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
 * @author Alexander Podkhalyuzin

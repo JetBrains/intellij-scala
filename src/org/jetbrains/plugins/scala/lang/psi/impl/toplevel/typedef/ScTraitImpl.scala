@@ -7,7 +7,7 @@ package typedef
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
-import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiClassExt}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner

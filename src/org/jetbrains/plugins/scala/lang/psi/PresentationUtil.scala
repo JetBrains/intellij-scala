@@ -1,17 +1,17 @@
 package org.jetbrains.plugins.scala.lang
 package psi
 
-import api.statements.params._
-import api.statements.ScFunction
-import api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
-import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
+import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
 import org.jetbrains.plugins.scala.util.ScalaUtils
-import types.nonvalue.Parameter
-import types.{ScType, ScSubstitutor}
-import refactoring.util.ScTypeUtil
-import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
 
 /**
  * User: Alexander Podkhalyuzin

@@ -5,7 +5,6 @@ package api
 package statements
 package params
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.{PsiTypeParameter, PsiTypeParameterList}
 
 /** 

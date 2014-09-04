@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala
 package format
 
-import lang.psi.api.expr._
-import com.intellij.psi.{PsiClass, PsiMethod, PsiElement}
-import lang.psi.api.base.ScLiteral
-import lang.psi.api.statements.ScFunction
-import lang.psi.api.toplevel.typedef.{ScClass, ScTrait}
 import com.intellij.openapi.util.text.StringUtil
-import extensions._
-import lang.psi.impl.ScalaPsiElementFactory
+import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * Pavel Fatin

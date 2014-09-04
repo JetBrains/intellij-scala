@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.config
 
-import com.intellij.facet.{FacetConfiguration, Facet, FacetType}
+import com.intellij.facet.{Facet, FacetConfiguration, FacetType}
 import com.intellij.ide.util.projectWizard.ModuleBuilder
+import com.intellij.openapi.module.{JavaModuleType, Module, ModuleType}
 import org.jetbrains.plugins.scala.icons.Icons
-import com.intellij.openapi.module.{JavaModuleType, ModuleType, Module}
 
 /**
  * Pavel.Fatin, 26.07.2010

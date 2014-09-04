@@ -1,15 +1,17 @@
 package org.jetbrains.sbt
 package project.settings
 
-import com.intellij.openapi.externalSystem.settings.{ExternalSystemSettingsListener, AbstractExternalSystemSettings}
-import com.intellij.openapi.project.Project
+import java.util
+
 import com.intellij.openapi.components._
+import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSettings, ExternalSystemSettingsListener}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Comparing
 import com.intellij.util.containers.ContainerUtilRt
 import com.intellij.util.xmlb.annotations.AbstractCollection
-import java.util
 import org.jetbrains.annotations.Nullable
+
 import scala.beans.BeanProperty
-import com.intellij.openapi.util.Comparing
 
 /**
  * @author Pavel Fatin

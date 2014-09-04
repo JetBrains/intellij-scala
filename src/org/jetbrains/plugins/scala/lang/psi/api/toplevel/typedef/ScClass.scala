@@ -5,15 +5,14 @@ package api
 package toplevel
 package typedef
 
-import base.ScPrimaryConstructor
-import impl.ScalaPsiElementFactory
-import lexer.ScalaTokenTypes
-import com.intellij.psi.{PsiMethod, PsiElement}
-import statements.params.ScParameters
-import statements.{ScFunction, ScFunctionDefinition, ScParameterOwner}
-import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTupleTypeElement, ScTypeElement}
+import com.intellij.psi.{PsiElement, PsiMethod}
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScParameterOwner}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
 * @author Alexander Podkhalyuzin
@@ -80,7 +79,7 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
             val next = ScalaPsiUtil.getNextStubOrPsiElement(clazz)
             val obj: ScObject =
               ScalaPsiElementFactory.createObjectWithContext(objText, clazz.getParent, if (next != null) next else clazz)
-            import extensions._
+            import org.jetbrains.plugins.scala.extensions._
             val objOption: Option[ScObject] = obj.toOption
             objOption.foreach { (obj: ScObject) =>
               obj.setSyntheticObject()

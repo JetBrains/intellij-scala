@@ -1,21 +1,22 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.rename
 
-import com.intellij.refactoring.rename.RenameHandler
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.Editor
-import com.intellij.psi.{PsiFile, PsiElement}
-import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
-import com.intellij.codeInsight.daemon.impl.quickfix.EmptyExpression
-import com.intellij.codeInsight.template._
-import com.intellij.openapi.command.CommandProcessor
-import com.intellij.refactoring.RefactoringBundle
-import com.intellij.util.PairProcessor
-import lang.psi.api.expr.xml.ScXmlPairedTag
-import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
-import com.intellij.codeInsight.highlighting.HighlightManager
-import com.intellij.openapi.editor.markup.RangeHighlighter
 import java.util.ArrayList
+
+import com.intellij.codeInsight.daemon.impl.quickfix.EmptyExpression
+import com.intellij.codeInsight.highlighting.HighlightManager
+import com.intellij.codeInsight.template._
+import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
+import com.intellij.openapi.command.CommandProcessor
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
+import com.intellij.openapi.editor.markup.RangeHighlighter
+import com.intellij.openapi.project.Project
+import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.refactoring.RefactoringBundle
+import com.intellij.refactoring.rename.RenameHandler
+import com.intellij.util.PairProcessor
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPairedTag
 
 /**
  * User: Dmitry Naydanov

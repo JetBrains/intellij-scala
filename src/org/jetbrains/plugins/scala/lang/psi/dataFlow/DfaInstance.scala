@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi
 package dataFlow
 
-import controlFlow.Instruction
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 
 /**
  * @author ilyas

@@ -5,20 +5,18 @@ package impl
 package statements
 
 import com.intellij.ide.util.EditSourceUtil
+import com.intellij.lang.ASTNode
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import com.intellij.lang.ASTNode
-import stubs.ScTypeAliasStub
-import types.result.{TypingContext, Success}
-
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.{Nothing, Any}
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import com.intellij.psi.util.PsiTreeUtil
-import api.ScalaElementVisitor
-import com.intellij.psi.{PsiElementVisitor, PsiElement}
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Any, Nothing}
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -55,7 +53,7 @@ class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] 
   }
 
   override def upperTypeElement: Option[ScTypeElement] = {
-    import extensions._
+    import org.jetbrains.plugins.scala.extensions._
     val stub = getStub
     if (stub != null) {
       return stub.asInstanceOf[ScTypeAliasStub].getUpperBoundTypeElement.toOption
@@ -70,7 +68,7 @@ class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] 
   }
 
   override def lowerTypeElement: Option[ScTypeElement] = {
-    import extensions._
+    import org.jetbrains.plugins.scala.extensions._
     val stub = getStub
     if (stub != null) {
       return stub.asInstanceOf[ScTypeAliasStub].getLowerBoundTypeElement.toOption

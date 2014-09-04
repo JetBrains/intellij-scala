@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.debugger.filters;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.options.Configurable;
-import com.intellij.xdebugger.settings.XDebuggerSettings;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.intellij.xdebugger.settings.XDebuggerSettings;
 import org.jetbrains.annotations.NotNull;
 
 /**

@@ -1,17 +1,18 @@
 package org.jetbrains.plugins.scala
 package editor.selectioner
 
+import java.util.ArrayList
+
 import com.intellij.codeInsight.editorActions.ExtendWordSelectionHandlerBase
 import com.intellij.openapi.editor.Editor
-import java.util.ArrayList
-import com.intellij.psi._
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.LineTokenizer
-import impl.source.tree.LeafPsiElement
-import tree.IElementType
+import com.intellij.psi._
+import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScBlock}
-import lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement}
 
 /**
  * @author yole

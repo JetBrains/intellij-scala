@@ -5,8 +5,7 @@ package api
 package expr
 
 import com.intellij.psi.PsiAnnotation
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 
 /**
  * @author Alexander Podkhalyuzin

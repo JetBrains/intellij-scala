@@ -7,15 +7,12 @@ import com.intellij.psi.PsiReference;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFun;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaration;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
-import org.jetbrains.plugins.scala.util.TestUtils;
 
 /**
  * @author ven

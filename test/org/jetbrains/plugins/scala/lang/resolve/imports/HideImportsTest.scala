@@ -5,7 +5,6 @@ package imports
 
 
 import com.intellij.psi.PsiPolyVariantReference
-import java.lang.String
 import org.junit.Assert
 
 class HideImportsTest extends ScalaResolveTestCase {

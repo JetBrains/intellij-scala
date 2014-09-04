@@ -5,11 +5,11 @@ package stubs
 package index
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.search.ScSourceFilterScope
-import api.statements.ScValue
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{StringStubIndexExtension, StubIndexKey}
-import api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 
 /**
  * User: Alexander Podkhalyuzin

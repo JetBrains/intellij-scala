@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala
 package config.scalaProjectTemplate
 
-import com.intellij.platform.ProjectTemplate
-import com.intellij.openapi.ui.ValidationInfo
-import com.intellij.ide.util.projectWizard.ModuleBuilder
 import javax.swing.Icon
+
+import com.intellij.ide.util.projectWizard.ModuleBuilder
+import com.intellij.openapi.ui.ValidationInfo
+import com.intellij.platform.ProjectTemplate
 import org.jetbrains.plugins.scala.icons.Icons
 
 /**

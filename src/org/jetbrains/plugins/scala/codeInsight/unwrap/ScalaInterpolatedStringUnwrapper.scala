@@ -20,7 +20,7 @@ class ScalaInterpolatedStringUnwrapper extends ScalaUnwrapper {
     (expr, lit) =>
       context.extractBlockOrSingleStatement(expr, lit)
       context.delete(lit)
-  } ()
+  } {}
   
   override def getDescription(e: PsiElement) = ScalaBundle.message("unwrap.interpolated.string.injection")
 

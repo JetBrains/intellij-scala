@@ -4,8 +4,8 @@ package psi
 package stubs
 
 
-import api.statements.params.ScTypeParamClause
 import com.intellij.psi.stubs.StubElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
 
 /**
  * User: Alexander Podkhalyuzin

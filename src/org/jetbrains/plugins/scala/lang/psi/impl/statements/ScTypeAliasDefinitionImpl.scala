@@ -5,19 +5,14 @@ package impl
 package statements
 
 import com.intellij.ide.util.EditSourceUtil
+import com.intellij.lang.ASTNode
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import com.intellij.lang.ASTNode
-import stubs.ScTypeAliasStub;
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import api.ScalaElementVisitor
-import psi.types.{ScTypeParameterType, ScType, Equivalence, ScParameterizedType}
-import api.toplevel.ScTypeParametersOwner
-import api.statements.params.ScTypeParam
-import api.toplevel.typedef.{ScMember, ScObject, ScTrait, ScClass}
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
 
 /**
 * @author Alexander Podkhalyuzin

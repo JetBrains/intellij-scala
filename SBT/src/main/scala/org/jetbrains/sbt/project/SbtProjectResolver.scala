@@ -1,18 +1,19 @@
 package org.jetbrains.sbt
 package project
 
-import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
-import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskNotificationListener, ExternalSystemTaskNotificationEvent, ExternalSystemTaskId}
-import com.intellij.openapi.externalSystem.model.project._
-import com.intellij.openapi.module.StdModuleTypes
-import com.intellij.openapi.externalSystem.model.{ExternalSystemException, DataNode}
-import com.intellij.openapi.roots.DependencyScope
 import java.io.File
-import module.SbtModuleType
+
+import com.intellij.openapi.externalSystem.model.project._
+import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
+import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
+import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
+import com.intellij.openapi.module.StdModuleTypes
+import com.intellij.openapi.roots.DependencyScope
+import org.jetbrains.sbt.project.data._
+import org.jetbrains.sbt.project.module.SbtModuleType
+import org.jetbrains.sbt.project.settings._
+import org.jetbrains.sbt.project.structure._
 import org.jetbrains.sbt.resolvers.SbtResolver
-import settings._
-import structure._
-import data._
 
 /**
  * @author Pavel Fatin

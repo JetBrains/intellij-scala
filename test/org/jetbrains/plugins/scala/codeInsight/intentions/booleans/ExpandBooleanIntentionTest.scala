@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.intentions.booleans
 
-import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 import org.jetbrains.plugins.scala.codeInsight.intention.booleans.ExpandBooleanIntention
+import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 /**
  * @author Ksenia.Sautina

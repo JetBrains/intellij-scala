@@ -1,8 +1,8 @@
 package intellijhocon
 package lang
 
-import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.fileTypes.LanguageFileType
 
 object HoconLanguageFileType extends LanguageFileType(HoconLanguage) {
   val DefaultExtension = "conf"

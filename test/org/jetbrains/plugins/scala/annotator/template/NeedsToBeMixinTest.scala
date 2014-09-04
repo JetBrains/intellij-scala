@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package annotator.template
 
-import annotator.{Error, AnnotatorTestBase}
+import org.jetbrains.plugins.scala.annotator.{AnnotatorTestBase, Error}
 
 /**
  * @author Alefas

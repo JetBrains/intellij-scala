@@ -23,7 +23,6 @@ package org.jetbrains.plugins.scala.testcases;
 
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
-import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.Assert;
 
 import java.io.BufferedOutputStream;

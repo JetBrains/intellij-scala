@@ -10,7 +10,6 @@ import com.intellij.profile.codeInspection.ui.ErrorsConfigurable;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.ui.EnumComboBoxModel;
 import com.intellij.ui.HyperlinkLabel;
-import com.intellij.ui.components.labels.LinkLabel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaFileType;

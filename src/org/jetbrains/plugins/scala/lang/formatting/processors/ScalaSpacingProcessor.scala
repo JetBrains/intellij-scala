@@ -3,41 +3,40 @@ package lang
 package formatting
 package processors
 
-import com.intellij.psi.tree.TokenSet
-import psi.api.ScalaFile
-import scaladoc.psi.api.ScDocComment
-import settings.ScalaCodeStyleSettings
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.formatting.Spacing
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi.codeStyle.CommonCodeStyleSettings
+import com.intellij.psi.javadoc.PsiDocComment
+import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.xml._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaTokenTypesEx}
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import com.intellij.formatting.Spacing
-import com.intellij.psi.codeStyle.CommonCodeStyleSettings
-import com.intellij.psi.{PsiElement, PsiComment, PsiWhiteSpace}
-import psi.api.toplevel.imports. {ScImportSelectors, ScImportStmt}
-import psi.ScalaPsiUtil
-import xml.ScXmlPattern
-import com.intellij.psi.javadoc.PsiDocComment
-import psi.api.toplevel.ScEarlyDefinitions
-import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.diagnostic.Logger
-import refactoring.util.ScalaNamesUtil
-import scaladoc.lexer.ScalaDocTokenType
-import parser.ScalaElementTypes
-import psi.api.toplevel.typedef._
-import extensions._
-import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelectors, ScImportStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
+
+import scala.annotation.tailrec
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.formatting.processors.ScalaSpacingProcessor")
@@ -48,7 +47,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
   val IMPORT_OTHER_SPACING = Spacing.createSpacing(0, 0, 2, true, 100)
 
   val BLOCK_ELEMENT_TYPES = {
-    import ScalaElementTypes._
+    import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
     TokenSet.create(BLOCK_EXPR, TEMPLATE_BODY, PACKAGING, TRY_BLOCK, MATCH_STMT, CATCH_BLOCK)
   }
 
@@ -119,7 +118,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         (leftPsi.getText, rightPsi.getText)
       } else (left.getTextRange.substring(fileText),
             right.getTextRange.substring(fileText))
-    import ScalaTokenTypes._
+    import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
     if ((leftPsi.isInstanceOf[PsiComment] || leftPsi.isInstanceOf[PsiDocComment]) &&
             (rightPsi.isInstanceOf[PsiComment] || rightPsi.isInstanceOf[PsiDocComment])) {
       return ON_NEW_LINE

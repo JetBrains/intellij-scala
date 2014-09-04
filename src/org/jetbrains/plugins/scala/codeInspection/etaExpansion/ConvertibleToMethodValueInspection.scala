@@ -1,17 +1,16 @@
 package org.jetbrains.plugins.scala
 package codeInspection.etaExpansion
 
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, InspectionBundle, AbstractInspection}
-import ConvertibleToMethodValueInspection._
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemDescriptor, ProblemsHolder}
+import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
+import org.jetbrains.plugins.scala.codeInspection.etaExpansion.ConvertibleToMethodValueInspection._
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import scala.Some
+import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**

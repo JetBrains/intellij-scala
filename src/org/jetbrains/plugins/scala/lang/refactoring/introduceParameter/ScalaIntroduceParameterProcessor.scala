@@ -1,24 +1,25 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceParameter
 
-import com.intellij.refactoring.BaseRefactoringProcessor
-import java.lang.String
-import com.intellij.openapi.project.Project
-import com.intellij.psi.search.searches.{MethodReferencesSearch, OverridingMethodsSearch}
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.usageView.{UsageViewUtil, UsageViewDescriptor, UsageInfo}
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
-import collection.mutable.ArrayBuffer
-import java.util.{Comparator, Arrays}
+import java.util.{Arrays, Comparator}
+
 import com.intellij.openapi.editor.Editor
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.search.searches.{MethodReferencesSearch, OverridingMethodsSearch}
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.refactoring.BaseRefactoringProcessor
+import com.intellij.refactoring.introduceParameter.{IntroduceParameterData, IntroduceParameterMethodUsagesProcessor, JavaExpressionWrapper}
+import com.intellij.usageView.{UsageInfo, UsageViewDescriptor, UsageViewUtil}
 import gnu.trove.TIntArrayList
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import com.intellij.refactoring.introduceParameter.{JavaExpressionWrapper, IntroduceParameterMethodUsagesProcessor, IntroduceParameterData}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin

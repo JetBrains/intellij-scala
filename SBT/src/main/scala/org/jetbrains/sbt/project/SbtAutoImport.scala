@@ -1,10 +1,11 @@
 package org.jetbrains.sbt
 package project
 
+import java.io.File
+
 import com.intellij.openapi.externalSystem.ExternalSystemAutoImportAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VfsUtilCore._
-import java.io.File
 
 /**
  * @author Pavel Fatin

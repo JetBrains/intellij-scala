@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala
 package config.scalaProjectTemplate.scalaDownloader
 
-import com.intellij.openapi.project.Project
 import javax.swing.JComponent
-import com.intellij.util.download.DownloadableFileSetDescription
+
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
+import com.intellij.util.download.DownloadableFileSetDescription
 
 /**
  * User: Dmitry Naydanov

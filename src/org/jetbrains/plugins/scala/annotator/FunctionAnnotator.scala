@@ -1,17 +1,15 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.psi.types.{Unit => UnitType, Any => AnyType}
-import quickfix.modifiers.AddModifierQuickFix
-import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
-import lang.psi.types.result.{TypingContext, Success, TypeResult}
-import lang.psi.api.statements.ScFunctionDefinition
-import lang.psi.api.expr._
 import com.intellij.psi.PsiElement
-import quickfix.{ReportHighlightingErrorQuickFix, RemoveElementQuickFix}
+import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
+import org.jetbrains.plugins.scala.annotator.quickfix.modifiers.AddModifierQuickFix
+import org.jetbrains.plugins.scala.annotator.quickfix.{RemoveElementQuickFix, ReportHighlightingErrorQuickFix}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Any => AnyType, Unit => UnitType}
 
 /**
  * Pavel.Fatin, 18.05.2010

@@ -1,24 +1,25 @@
 package org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.ScControlFlowOwner
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.dataFlow.DfaEngine
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
-import collection.mutable.ArrayBuffer
-import com.intellij.psi.{PsiPackage, PsiMethod, PsiNamedElement, PsiElement}
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{DefinitionInstruction, ExtractMethodControlFlowPolicy, ReadWriteVariableInstruction}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValueDeclaration, ScTypeAlias, ScFun, ScFunction}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.extensions._
 import com.intellij.codeInsight.PsiEquivalenceUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticNamedElement
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil._
-import ReachingDefinitions._
+import com.intellij.psi.{PsiElement, PsiMethod, PsiNamedElement, PsiPackage}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias, ScValueDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{DefinitionInstruction, ExtractMethodControlFlowPolicy, ReadWriteVariableInstruction}
+import org.jetbrains.plugins.scala.lang.psi.dataFlow.DfaEngine
+import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefinitions._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticNamedElement
+
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author ilyas
@@ -65,7 +66,7 @@ object ReachingDefintionsCollector {
       case fun: ScFunction => fun.isSynthetic
       case _ => false
     }
-    import ScalaPsiElementFactory.{createExpressionWithContextFromText, createDeclarationFromText}
+    import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createDeclarationFromText, createExpressionWithContextFromText}
     val resolvesAtNewPlace = element match {
       case _: PsiMethod | _: ScFun =>
         checkResolve(createExpressionWithContextFromText(element.name + " _", place.getContext, place).getFirstChild)

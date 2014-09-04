@@ -6,7 +6,6 @@ package expr
 package xml
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 /**
 * @author Alexander Podkhalyuzin

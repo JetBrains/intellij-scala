@@ -1,15 +1,16 @@
 package org.jetbrains.plugins.scala.console
 
 import com.intellij.execution.console.LanguageConsoleImpl
-import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import collection.mutable.HashMap
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScClass, ScObject}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScFunction, ScVariable, ScValue}
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
+import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+
+import scala.collection.mutable.HashMap
 
 /**
  * User: Alefas

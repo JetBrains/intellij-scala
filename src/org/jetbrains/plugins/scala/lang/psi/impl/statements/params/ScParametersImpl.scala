@@ -5,14 +5,13 @@ package impl
 package statements
 package params
 
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import com.intellij.lang.ASTNode
-import stubs.ScParamClausesStub;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi._
-import scope.PsiScopeProcessor
-import api.ScalaElementVisitor
-import lexer.ScalaTokenTypes
+import com.intellij.psi.scope.PsiScopeProcessor
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClausesStub
 
 /**
 * @author Alexander Podkhalyuzin

@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package lang.psi.light
 
-import lang.psi.api.statements.ScAnnotationsHolder
-import lang.psi.types.result.{Success, TypingContext}
-import lang.psi.types.{ScType, ScParameterizedType}
 import com.intellij.psi.{PsiClass, PsiClassType}
-import extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 
 /**
  * @author Alefas

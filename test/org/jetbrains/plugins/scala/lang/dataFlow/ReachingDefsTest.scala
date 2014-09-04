@@ -1,19 +1,20 @@
 package org.jetbrains.plugins.scala.lang.dataFlow
 
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
-import junit.framework.Assert
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.ScalaControlFlowBuilder
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile}
-import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.openapi.editor.SelectionModel
+import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
+import junit.framework.Assert
+import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.ScalaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.DfaEngine
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefinitions
-import collection.immutable.Set
-import collection.mutable.Map
+import org.jetbrains.plugins.scala.util.TestUtils
+
+import scala.collection.immutable.Set
+import scala.collection.mutable.Map
 
 /**
  * @author ilyas
@@ -38,7 +39,7 @@ class ReachingDefsTest extends LightCodeInsightFixtureTestCase {
     val builder: ScalaControlFlowBuilder = new ScalaControlFlowBuilder(null, null)
     val instructions = builder.buildControlflow(owner)
 
-    import ReachingDefinitions._
+    import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefinitions._
 
     val engine = new DfaEngine(instructions, ReachingDefinitionsInstance, ReachingDefinitionsLattice)
     val markup: Map[Instruction, Set[Instruction]] = engine.performDFA

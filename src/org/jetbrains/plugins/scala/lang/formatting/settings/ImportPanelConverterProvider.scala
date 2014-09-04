@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala
 package lang.formatting.settings
 
+import java.io.File
+import java.util
+import java.util.Collections
+
 import com.intellij.conversion._
 import com.intellij.conversion.impl.{ComponentManagerSettingsImpl, ConversionContextImpl}
 import com.intellij.openapi.util.JDOMUtil
-import org.jdom.Document
 import com.intellij.util.SystemProperties
-import java.util
-import java.io.File
-import java.util.Collections
+import org.jdom.Document
 
 /**
  * @author Alefas

@@ -2,16 +2,16 @@ package org.jetbrains.plugins.scala
 package lang
 package formatting
 
-import com.intellij.psi.tree.IElementType
+import com.intellij.formatting._
+import com.intellij.lang._
+import com.intellij.openapi.util._
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettings
-import com.intellij.openapi.util._
-import com.intellij.lang._
-import formatter.{PsiBasedFormattingModel, FormattingDocumentModelImpl}
-import lexer.ScalaTokenTypes
+import com.intellij.psi.formatter.{FormattingDocumentModelImpl, PsiBasedFormattingModel}
 import com.intellij.psi.impl.source.tree.TreeUtil
-import com.intellij.formatting._
-import formatting.ScalaFormattingModelBuilder._
+import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.lang.formatting.ScalaFormattingModelBuilder._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 sealed class ScalaFormattingModelBuilder extends FormattingModelBuilder {
 

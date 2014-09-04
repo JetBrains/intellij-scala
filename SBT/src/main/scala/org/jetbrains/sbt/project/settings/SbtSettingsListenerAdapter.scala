@@ -1,7 +1,7 @@
 package org.jetbrains.sbt
 package project.settings
 
-import com.intellij.openapi.externalSystem.settings.{ExternalSystemSettingsListener, DelegatingExternalSystemSettingsListener}
+import com.intellij.openapi.externalSystem.settings.{DelegatingExternalSystemSettingsListener, ExternalSystemSettingsListener}
 
 /**
  * @author Pavel Fatin

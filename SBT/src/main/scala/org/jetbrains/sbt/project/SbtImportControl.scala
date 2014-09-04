@@ -2,9 +2,9 @@ package org.jetbrains.sbt
 package project
 
 import com.intellij.openapi.externalSystem.service.settings.AbstractImportFromExternalSystemControl
-import org.jetbrains.sbt.project.settings._
-import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
+import com.intellij.openapi.project.ProjectManager
+import org.jetbrains.sbt.project.settings._
 
 /**
  * @author Pavel Fatin

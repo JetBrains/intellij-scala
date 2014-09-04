@@ -3,12 +3,11 @@ package codeInspection
 package fileNameInspection
 
 
-import com.intellij.codeInspection.{ProblemDescriptor, LocalQuickFix}
-import com.intellij.openapi.project.Project
-import com.intellij.refactoring.{RefactoringFactory, RefactoringActionHandlerFactory}
-import java.lang.String
-import lang.psi.api.toplevel.typedef.ScTypeDefinition
+import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor}
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.project.Project
+import com.intellij.refactoring.RefactoringFactory
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
  * User: Alexander Podkhalyuzin

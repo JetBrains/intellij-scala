@@ -5,7 +5,6 @@ package api
 package toplevel
 package imports
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 
 /** 

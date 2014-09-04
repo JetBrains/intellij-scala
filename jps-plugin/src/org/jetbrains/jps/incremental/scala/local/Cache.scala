@@ -1,9 +1,9 @@
 package org.jetbrains.jps.incremental.scala
 package local
 
-import java.util.Map.Entry
-import java.util.LinkedHashMap
 import java.lang.ref.SoftReference
+import java.util.LinkedHashMap
+import java.util.Map.Entry
 
 /**
  * @author Pavel Fatin

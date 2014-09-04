@@ -1,9 +1,7 @@
 package org.jetbrains.plugins.scala.editor.autoimport
 
 import com.intellij.application.options.editor.AutoImportOptionsProvider
-import javax.swing.JPanel
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzerSettings
 
 /**
  * @author Alefas

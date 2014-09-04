@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package codeInspection.etaExpansion
 
-import org.jetbrains.plugins.scala.codeInspection.{ScalaLightInspectionFixtureTestAdapter, InspectionBundle}
 import com.intellij.codeInspection.LocalInspectionTool
+import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaLightInspectionFixtureTestAdapter}
 
 /**
  * Nikolay.Tropin

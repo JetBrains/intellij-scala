@@ -5,12 +5,12 @@ package api
 package toplevel
 package typedef
 
-import statements._
-import com.intellij.psi._
 import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.util.Iconable
-import types.PhysicalSignature
+import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 
 /**
  * @author AlexanderPodkhalyuzin

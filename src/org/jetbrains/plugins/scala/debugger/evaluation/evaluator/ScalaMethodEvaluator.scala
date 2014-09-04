@@ -1,14 +1,12 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
+import com.intellij.debugger.engine.evaluation.expression.{DisableGC, Evaluator, Modifier}
+import com.intellij.debugger.engine.evaluation.{EvaluateExceptionUtil, EvaluationContextImpl}
+import com.intellij.debugger.engine.{DebugProcessImpl, JVMName}
 import com.intellij.debugger.impl.DebuggerUtilsEx
-import com.intellij.debugger.engine.{JVMName, DebugProcessImpl}
-import com.intellij.debugger.engine.evaluation.{EvaluationContextImpl, EvaluateExceptionUtil}
-import com.intellij.debugger.engine.evaluation.expression.{DisableGC, Modifier, Evaluator}
-import collection.mutable.ArrayBuffer
-import com.sun.jdi._
-import java.lang.String
-import com.intellij.debugger.{SourcePosition, DebuggerBundle}
+import com.intellij.debugger.{DebuggerBundle, SourcePosition}
 import com.intellij.openapi.application.ApplicationManager
+import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
 /**

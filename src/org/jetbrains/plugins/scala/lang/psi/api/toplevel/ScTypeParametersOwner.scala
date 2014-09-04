@@ -4,10 +4,10 @@ package psi
 package api
 package toplevel
 
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import com.intellij.psi._
-import parser.ScalaElementTypes
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 trait ScTypeParametersOwner extends ScalaPsiElement {
   @volatile

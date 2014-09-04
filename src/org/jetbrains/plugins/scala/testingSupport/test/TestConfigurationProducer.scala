@@ -3,13 +3,13 @@ package testingSupport.test
 
 import com.intellij.execution.actions.{ConfigurationContext, RunConfigurationProducer}
 import com.intellij.execution.configurations.ConfigurationType
-import com.intellij.execution.{RunnerAndConfigurationSettings, Location}
-import com.intellij.psi.PsiElement
-import com.intellij.openapi.util.Ref
+import com.intellij.execution.{Location, RunnerAndConfigurationSettings}
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.util.Ref
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 /**
  * @author Roman.Shein

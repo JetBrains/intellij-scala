@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{JavaPsiFacade, PsiClass}
 import org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.ReferenceMustBePrefixedInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
-import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression

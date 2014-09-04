@@ -5,14 +5,15 @@ package impl
 package expr
 
 
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import java.util.{ArrayList, List}
+
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
-import parser.ScalaElementTypes
+import com.intellij.psi.{PsiClass, PsiElement, PsiElementVisitor, PsiModifiableCodeBlock}
 import com.intellij.util.ReflectionCache
-import java.util.{List, ArrayList}
-import api.statements.{ScFunction, ScVariable, ScValue}
-import com.intellij.psi.{PsiElementVisitor, PsiClass, PsiModifiableCodeBlock, PsiElement}
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 
 /**
 * @author Alexander Podkhalyuzin

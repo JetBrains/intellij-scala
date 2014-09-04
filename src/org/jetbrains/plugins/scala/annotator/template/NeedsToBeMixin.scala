@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala
 package annotator.template
 
-import annotator.AnnotatorPart
-import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait, ScTemplateDefinition}
 import com.intellij.lang.annotation.AnnotationHolder
-import lang.psi.types.PhysicalSignature
-import lang.psi.api.statements.{ScPatternDefinition, ScVariableDefinition, ScFunctionDefinition}
-import lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import lang.psi.api.base.patterns.ScBindingPattern
-import com.intellij.psi.{PsiMethod, PsiElement}
-import lang.psi.api.expr.ScNewTemplateDefinition
+import com.intellij.psi.{PsiElement, PsiMethod}
+import org.jetbrains.plugins.scala.annotator.AnnotatorPart
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 
 /**
  * @author Alefas

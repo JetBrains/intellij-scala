@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.lexer;
 
 import com.intellij.lexer.LayeredLexer;
-import com.intellij.lexer.Lexer;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.scala.lang.lexer.core.ScalaCoreLexer;
 import org.jetbrains.plugins.scala.lang.lexer.core.ScalaSplittingLexer;

@@ -5,10 +5,8 @@ package api
 package base
 package patterns
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScTupleType, Nothing}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.Any
+import org.jetbrains.plugins.scala.lang.psi.types.{Any, ScTupleType}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /** 
 * @author Alexander Podkhalyuzin

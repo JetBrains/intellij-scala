@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.extensions
 
-import com.intellij.psi.{PsiElementVisitor, PsiElement}
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 
 /**
  * Pavel Fatin

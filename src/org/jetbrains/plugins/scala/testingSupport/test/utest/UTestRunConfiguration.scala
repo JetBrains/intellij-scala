@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test.utest
 
-import com.intellij.openapi.project.Project
 import com.intellij.execution.configurations.ConfigurationFactory
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
+import com.intellij.openapi.project.Project
+import com.intellij.psi.{PsiClass, PsiModifierList}
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
-import com.intellij.psi.{PsiModifierList, PsiClass}
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
 
 class UTestRunConfiguration(override val project: Project,
                             override val configurationFactory: ConfigurationFactory,

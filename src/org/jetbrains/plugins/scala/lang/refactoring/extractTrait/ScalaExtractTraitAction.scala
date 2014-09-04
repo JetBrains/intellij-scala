@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.extractTrait
 
-import com.intellij.refactoring.actions.ExtractSuperActionBase
 import com.intellij.lang.refactoring.RefactoringSupportProvider
+import com.intellij.refactoring.actions.ExtractSuperActionBase
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringSupportProvider
 
 /**

@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.parser.stress;
 
-import org.jetbrains.plugins.scala.Console;
 import com.intellij.lang.Language;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiBuilderFactory;
@@ -15,7 +14,6 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.impl.DebugUtil;
 import com.intellij.util.containers.ContainerUtil;
-import junit.framework.Assert;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.ScalaFileType;
@@ -25,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaParser;
 import org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import org.junit.Assert;
 
 import java.io.File;
 import java.util.Arrays;

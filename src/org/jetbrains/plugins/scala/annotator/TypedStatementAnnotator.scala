@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
-import lang.psi.api.expr.ScTypedStmt
-import AnnotatorUtils._
+import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTypedStmt
 
 
 trait TypedStatementAnnotator {

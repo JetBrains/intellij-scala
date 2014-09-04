@@ -5,16 +5,16 @@ package impl
 package statements
 
 import com.intellij.lang.ASTNode
-import api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import parser.ScalaElementTypes
-import stubs.ScVariableStub
-import com.intellij.psi.PsiElementVisitor
-import api.ScalaElementVisitor
-import api.expr.ScExpression
-import psi.types.result.{Failure, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScVariableStub
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypingContext}
 
 /**
  * @author Alexander Podkhalyuzin

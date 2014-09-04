@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.ui
 
+import com.intellij.lang.java.JavaLanguage
+import com.intellij.psi.{PsiElement, PsiMethod, PsiModifier}
 import com.intellij.refactoring.classMembers.MemberInfoBase
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import com.intellij.psi.{PsiElement, PsiModifier, PsiMethod}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import com.intellij.lang.java.JavaLanguage
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTemplateDefinition, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 
 /**

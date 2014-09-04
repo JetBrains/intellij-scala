@@ -1,7 +1,8 @@
 package org.jetbrains.jps.incremental.scala
 package remote
 
-import java.io.{StringWriter, PrintWriter, File}
+import java.io.{File, PrintWriter, StringWriter}
+
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 
 /**

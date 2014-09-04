@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import com.intellij.openapi.util.Key
 import com.intellij.psi.{PsiElement, PsiNamedElement}
-import org.jetbrains.plugins.scala.extensions.toSeqExt
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil

@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala
 package testingSupport.test
 
 import com.intellij.execution.actions.ConfigurationContext
-import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl
-import com.intellij.psi.search.GlobalSearchScope
-import lang.psi.impl.ScalaPsiManager
 import com.intellij.execution.configurations.RunConfiguration
+import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl
+import com.intellij.execution.{Location, RunnerAndConfigurationSettings}
 import com.intellij.psi.PsiElement
-import com.intellij.execution.{RunnerAndConfigurationSettings, Location}
+import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 /**
  * @author Ksenia.Sautina

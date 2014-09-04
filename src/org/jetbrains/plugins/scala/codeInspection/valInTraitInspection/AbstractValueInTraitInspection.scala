@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package valInTraitInspection
 
-import lang.psi.api.statements.{ScVariableDeclaration, ScValueDeclaration}
-import lang.psi.api.toplevel.templates.ScTemplateBody
-import lang.psi.api.toplevel.typedef.ScTrait
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValueDeclaration, ScVariableDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 
 /**
  * User: Alexander Podkhalyuzin

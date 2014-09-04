@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package worksheet.processor
 
-import com.intellij.openapi.vfs.{VirtualFileWithId, VirtualFile}
 import com.intellij.openapi.vfs.newvfs.FileAttribute
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
 import com.intellij.psi.PsiFile
 
 import scala.collection.mutable

@@ -2,7 +2,6 @@ package intellijscalastyle
 package codeInspection
 
 import com.intellij.codeInspection._
-import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}

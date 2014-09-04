@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.config
 
-import scala.beans.BeanProperty
 import org.jetbrains.annotations.Nullable
-import scala.util.matching.Regex
 import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel._
+
+import scala.beans.BeanProperty
+import scala.util.matching.Regex
 
 /**
  * Pavel.Fatin, 26.07.2010

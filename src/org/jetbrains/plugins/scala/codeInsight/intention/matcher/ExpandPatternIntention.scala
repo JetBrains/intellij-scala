@@ -3,24 +3,20 @@ package codeInsight
 package intention
 package matcher
 
+import com.intellij.codeInsight.FileModificationService
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
-import com.intellij.codeInsight.{FileModificationService, CodeInsightUtilBase}
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
-import lang.psi.api.expr.{ScExpression, ScMatchStmt}
-import lang.psi.impl.ScalaPsiElementFactory
+import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import lang.psi.api.base.ScReferenceElement
-import search.searches.ClassInheritorsSearch
-import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition, ScClass}
-import lang.psi.ScalaPsiUtil
-import lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScTupleType, ScType, ScSubstitutor}
-import extensions._
-import lang.refactoring.namesSuggester.NameSuggester
-import lang.psi.api.base.patterns.{ScWildcardPattern, ScReferencePattern, ScPattern, ScCaseClause}
 import org.apache.commons.lang.StringUtils
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScReferencePattern, ScWildcardPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.{ScTupleType, ScType}
+import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
 /**
   * Expands reference or wildcard pattern to a constructor/tuple pattern.
@@ -67,7 +63,7 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
   def nestedPatternText(expectedType: Option[ScType]): Option[String] = {
     expectedType match {
       case Some(ScTupleType(comps)) =>
-        import NameSuggester.suggestNamesByType
+        import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester.suggestNamesByType
         val names = comps.map(t => suggestNamesByType(t).head)
         val tuplePattern = names.mkParenString
         Some(tuplePattern)

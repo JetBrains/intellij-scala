@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala
 package editor
 package joinlines
 
+import com.intellij.codeInsight.editorActions.{JoinLinesHandlerDelegate, JoinRawLinesHandlerDelegate}
 import com.intellij.openapi.editor.Document
 import com.intellij.psi._
-import com.intellij.codeInsight.editorActions.{JoinRawLinesHandlerDelegate, JoinLinesHandlerDelegate}
-import lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 
 /** `package a\npackageb` => `package a.b` */
 class PackageJoinLinesHandler extends JoinRawLinesHandlerDelegate {

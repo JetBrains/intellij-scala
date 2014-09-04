@@ -1,15 +1,16 @@
 package intellijhocon
 package parser
 
-import com.intellij.lang.{WhitespacesAndCommentsBinder, WhitespacesBinders, PsiBuilder, PsiParser}
-import com.intellij.psi.tree.IElementType
-import scala.util.matching.Regex
-import com.intellij.lang.PsiBuilder.Marker
-import java.{util => ju, lang => jl}
-import com.intellij.lang.WhitespacesAndCommentsBinder.TokenTextGetter
-import intellijhocon.lexer.{HoconTokenType, HoconTokenSets}
-import intellijhocon.Util
 import java.net.{MalformedURLException, URL}
+import java.{lang => jl, util => ju}
+
+import com.intellij.lang.PsiBuilder.Marker
+import com.intellij.lang.WhitespacesAndCommentsBinder.TokenTextGetter
+import com.intellij.lang.{PsiBuilder, PsiParser, WhitespacesAndCommentsBinder, WhitespacesBinders}
+import com.intellij.psi.tree.IElementType
+import intellijhocon.lexer.{HoconTokenSets, HoconTokenType}
+
+import scala.util.matching.Regex
 
 object HoconPsiParser {
   val IncludeQualifiers = Set("url(", "classpath(", "file(")
@@ -20,11 +21,11 @@ object HoconPsiParser {
 
 class HoconPsiParser extends PsiParser {
 
-  import Util._
-  import HoconTokenType._
-  import HoconTokenSets._
-  import HoconElementType._
-  import HoconPsiParser._
+  import intellijhocon.Util._
+  import intellijhocon.lexer.HoconTokenSets._
+  import intellijhocon.lexer.HoconTokenType._
+  import intellijhocon.parser.HoconElementType._
+  import intellijhocon.parser.HoconPsiParser._
 
   def parse(root: IElementType, builder: PsiBuilder) = {
     val file = builder.mark()
@@ -112,7 +113,7 @@ class HoconPsiParser extends PsiParser {
     }
 
     def setEdgeTokenBinders(marker: Marker, nonGreedyLeft: Boolean, nonGreedyRight: Boolean) {
-      import WhitespacesBinders._
+      import com.intellij.lang.WhitespacesBinders._
       marker.setCustomEdgeTokenBinders(
         if (nonGreedyLeft) DEFAULT_LEFT_BINDER else GREEDY_LEFT_BINDER,
         if (nonGreedyRight) DEFAULT_RIGHT_BINDER else GREEDY_RIGHT_BINDER)

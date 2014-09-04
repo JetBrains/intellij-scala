@@ -5,7 +5,6 @@ package api
 package base
 
 import com.intellij.psi.PsiNamedElement
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 /** 
 * @author Alexander Podkhalyuzin

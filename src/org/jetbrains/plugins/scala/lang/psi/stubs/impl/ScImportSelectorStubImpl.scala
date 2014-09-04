@@ -5,13 +5,13 @@ package stubs
 package impl
 
 
-import api.base.ScStableCodeReferenceElement
-import psi.impl.ScalaPsiElementFactory
-import api.toplevel.imports.ScImportSelector
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
-import com.intellij.util.io.StringRef
 import com.intellij.reference.SoftReference
+import com.intellij.util.io.StringRef
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * User: Alexander Podkhalyuzin

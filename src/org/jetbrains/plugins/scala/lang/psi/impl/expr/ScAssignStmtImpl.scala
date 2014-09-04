@@ -4,18 +4,17 @@ package psi
 package impl
 package expr
 
-import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import api.expr._
-import types.Unit
-import types.result.{Success, TypingContext}
-import com.intellij.psi.{PsiField, ResolveState, PsiElementVisitor}
-import api.ScalaElementVisitor
-import resolve.{StdKinds, ScalaResolveResult}
-import api.statements.{ScFunction, ScVariable}
-import resolve.processor.MethodResolveProcessor
-import psi.types.Compatibility.Expression
-import api.statements.params.ScClassParameter
+import com.intellij.psi.{PsiElementVisitor, PsiField, ResolveState}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
+import org.jetbrains.plugins.scala.lang.psi.types.Unit
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
 /**
  * @author Alexander Podkhalyuzin

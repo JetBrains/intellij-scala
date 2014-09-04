@@ -5,21 +5,23 @@ package api
 package statements
 package params
 
-import icons.Icons
 import javax.swing.Icon
-import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import com.intellij.psi._
-import toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScParameterizedType, ScType}
-import util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScUnderScoreSectionUtil, ScFunctionExpr, ScExpression}
+
 import com.intellij.lang.java.lexer.JavaLexer
 import com.intellij.pom.java.LanguageLevel
-import com.intellij.psi.search.{LocalSearchScope, GlobalSearchScope}
+import com.intellij.psi._
+import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScUnderScoreSectionUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScParameterizedType, ScType}
+
 import scala.annotation.tailrec
 import scala.collection.immutable.HashSet
 

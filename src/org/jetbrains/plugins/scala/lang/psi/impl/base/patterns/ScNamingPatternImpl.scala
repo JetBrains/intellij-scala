@@ -5,15 +5,14 @@ package impl
 package base
 package patterns
 
-import api.base.patterns._
-import lexer.ScalaTokenTypes
-import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import psi.types.result.{TypeResult, Failure, Success, TypingContext}
-import scope.PsiScopeProcessor
-import api.ScalaElementVisitor
-import psi.types.{Bounds, ScType}
+import com.intellij.psi.scope.PsiScopeProcessor
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Bounds, ScType}
 
 /**
  * @author Alexander Podkhalyuzin

@@ -3,14 +3,13 @@ package lang
 package psi
 package types
 
-import impl.toplevel.synthetic.{SyntheticClasses, ScSyntheticClass}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiElement, PsiManager}
-import impl.ScalaPsiManager
-import extensions.toPsiClassExt
-import api.toplevel.typedef.ScObject
-import scala.Some
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, SyntheticClasses}
 
 
 abstract class StdType(val name: String, val tSuper: Option[StdType]) extends ValueType {

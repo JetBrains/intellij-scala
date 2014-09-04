@@ -1,26 +1,28 @@
 package org.jetbrains.plugins.scala.conversion.copy
 
-import com.intellij.openapi.editor.{RangeMarker, Editor}
-import java.lang.Boolean
 import java.awt.datatransfer.Transferable
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import java.lang.Boolean
+
+import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.daemon.impl.CollectHighlightsUtil
-import collection.JavaConversions._
+import com.intellij.diagnostic.LogMessageEx
+import com.intellij.openapi.diagnostic.{Attachment, Logger}
+import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util.Ref
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
-import com.intellij.codeInsight.CodeInsightSettings
-import org.jetbrains.plugins.scala.lang.dependency.Dependency
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.settings._
-import com.intellij.openapi.ui.DialogWrapper
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import scala.util.control.Breaks._
-import com.intellij.openapi.diagnostic.{Attachment, Logger}
-import com.intellij.diagnostic.LogMessageEx
 import com.intellij.util.ExceptionUtil
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.dependency.Dependency
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.settings._
+
+import scala.collection.JavaConversions._
+import scala.util.control.Breaks._
 
 /**
  * Pavel Fatin

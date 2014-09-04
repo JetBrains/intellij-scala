@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
 package lang.dependency
 
-import base.SimpleTestCase
-import org.junit.Assert
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.base.SimpleTestCase
+import org.junit.Assert
 
 /**
  * Pavel Fatin

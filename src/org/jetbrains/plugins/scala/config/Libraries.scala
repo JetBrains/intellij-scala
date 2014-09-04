@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala
 package config
 
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.roots.impl.libraries.{ProjectLibraryTable, ApplicationLibraryTable}
-import com.intellij.openapi.roots.libraries.Library.ModifiableModel
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots._
+import com.intellij.openapi.roots.impl.libraries.{ApplicationLibraryTable, ProjectLibraryTable}
+import com.intellij.openapi.roots.libraries.Library.ModifiableModel
 import com.intellij.openapi.roots.libraries.{Library, LibraryTable}
+import org.jetbrains.plugins.scala.config.FileAPI._
 import org.jetbrains.plugins.scala.extensions._
-import config.FileAPI._
 
 /**
  * Pavel.Fatin, 04.08.2010

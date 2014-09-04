@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.actions
 
 import com.intellij.ide.actions.{JavaQualifiedNameProvider, QualifiedNameProvider}
-import com.intellij.psi.PsiElement
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 
 /**
  * @author Alefas

@@ -1,27 +1,25 @@
 package org.jetbrains.plugins.scala
 package overrideImplement
 
-import com.intellij.codeInsight.generation.GenerateMembersUtil
-import com.intellij.openapi.editor.Editor
-
-import com.intellij.psi.util.PsiTreeUtil
-
-import com.intellij.util.IncorrectOperationException
-import com.intellij.psi._
-import lang.psi.api.toplevel.typedef.{ScTrait, ScTypeDefinition, ScMember, ScTemplateDefinition}
-import lang.psi.api.toplevel.ScTypedDefinition
-import lang.psi.api.statements._
-import lang.psi.types._
-import lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.util.ScalaUtils
-import scala.collection.mutable.ListBuffer
-import com.intellij.openapi.project.Project
-import collection.immutable.HashSet
-import extensions._
+import com.intellij.codeInsight.generation.{GenerateMembersUtil, ClassMember => JClassMember}
 import com.intellij.openapi.application.ApplicationManager
-import scala.collection.JavaConversions._
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
+import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
-import com.intellij.codeInsight.generation.{ClassMember => JClassMember}
+import org.jetbrains.plugins.scala.util.ScalaUtils
+
+import scala.collection.JavaConversions._
+import scala.collection.immutable.HashSet
+import scala.collection.mutable.ListBuffer
 
 /**
  * User: Alexander Podkhalyuzin

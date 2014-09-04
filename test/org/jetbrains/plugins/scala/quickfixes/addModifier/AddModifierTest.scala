@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.quickfixes.addModifier
 
-import junit.framework.Assert
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 
 /**
  * User: Alefas

@@ -23,14 +23,11 @@ import com.intellij.openapi.vfs.ReadonlyStatusHandler
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.HelpID
-import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
 import com.intellij.refactoring.util.CommonRefactoringUtil
-import org.jetbrains.plugins.scala.config.ScalaVersionUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScLiteralPattern, ScPattern, ScReferencePattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{InterpolatedStringType, ScInterpolatedStringLiteral, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -44,8 +41,6 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.util.ScalaUtils
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -101,8 +96,8 @@ object ScalaRefactoringUtil {
   def addPossibleTypes(scType: ScType, expr: ScExpression): Array[ScType] = {
     val types = new ArrayBuffer[ScType]
     if (scType != null) types += scType
-    expr.getTypeWithoutImplicits(TypingContext.empty).foreach(types +=)
-    expr.getTypeIgnoreBaseType(TypingContext.empty).foreach(types +=)
+    expr.getTypeWithoutImplicits(TypingContext.empty).foreach(types += _)
+    expr.getTypeIgnoreBaseType(TypingContext.empty).foreach(types += _)
     if (types.isEmpty) types += psi.types.Any
     val unit = psi.types.Unit
     val result = if (types.contains(unit)) (types.distinct - unit) :+ unit else types.distinct

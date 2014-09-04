@@ -5,8 +5,8 @@ package completion3
 import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.PsiClass
-import extensions.toPsiClassExt
-import codeInsight.ScalaCodeInsightTestBase
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * User: Dmitry Naydanov

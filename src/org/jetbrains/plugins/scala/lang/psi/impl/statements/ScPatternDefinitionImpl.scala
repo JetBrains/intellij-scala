@@ -4,19 +4,17 @@ package psi
 package impl
 package statements
 
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base._
 import com.intellij.lang.ASTNode
-import stubs.ScValueStub
-
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import types.ScTypeElement
-import api.expr.ScExpression
 import com.intellij.psi.PsiElementVisitor
-import api.ScalaElementVisitor
-import psi.types.result.{Failure, TypingContext}
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, _}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScValueStub
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypingContext}
 
 /**
 * @author Alexander Podkhalyuzin

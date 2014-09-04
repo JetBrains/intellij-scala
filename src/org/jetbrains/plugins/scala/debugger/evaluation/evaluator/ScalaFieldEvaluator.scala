@@ -1,18 +1,18 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
 import com.intellij.debugger.DebuggerBundle
-import com.sun.jdi._
+import com.intellij.debugger.engine.JVMNameUtil
+import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
+import com.intellij.debugger.engine.evaluation.{EvaluateExceptionUtil, EvaluationContextImpl}
 import com.intellij.debugger.impl.DebuggerUtilsEx
-import com.intellij.debugger.engine.evaluation.expression.{Modifier, Evaluator}
 import com.intellij.debugger.ui.impl.watch.{FieldDescriptorImpl, NodeDescriptorImpl}
-import com.intellij.debugger.engine.evaluation.{EvaluationContextImpl, EvaluateExceptionUtil}
 import com.intellij.openapi.project.Project
+import com.intellij.psi.{PsiAnonymousClass, PsiClass, PsiElement}
+import com.sun.jdi._
+import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import com.intellij.psi.{PsiClass, PsiAnonymousClass, PsiElement}
-import com.intellij.debugger.engine.JVMNameUtil
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
 /**
  * User: Alefas

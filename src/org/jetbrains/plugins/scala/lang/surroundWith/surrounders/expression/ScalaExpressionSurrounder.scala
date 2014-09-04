@@ -10,19 +10,17 @@ package expression
  *
  */
 
+import com.intellij.lang.ASTNode
 import com.intellij.lang.surroundWith.Surrounder
-import com.intellij.psi.{PsiElement, PsiWhiteSpace}
-import psi.impl.ScalaPsiElementFactory
-import psi.ScalaPsiUtil
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-
 import com.intellij.openapi.util.TextRange
-import com.intellij.lang.ASTNode
-
+import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /*
  * Surrounds an expression and return an expression

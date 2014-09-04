@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection.booleans
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import com.intellij.codeInsight.CodeInsightTestCase
 
 /**
  * Nikolay.Tropin

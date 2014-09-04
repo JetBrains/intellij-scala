@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package codeInsight
 
+import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionType}
 import com.intellij.codeInsight.lookup.impl.LookupImpl
 import com.intellij.codeInsight.lookup.{LookupElement, LookupManager}
-import com.intellij.codeInsight.completion.{CompletionType, CodeCompletionHandlerBase}
+import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import com.intellij.openapi.actionSystem.IdeActions
 
 /**
  * @author Alexander Podkhalyuzin

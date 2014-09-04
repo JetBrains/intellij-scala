@@ -3,7 +3,7 @@ package codeInspection.collections
 
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScExpression, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**

@@ -5,11 +5,9 @@ package stubs
 package impl
 
 
-import api.statements.ScTypeAlias
-import api.toplevel.templates.ScTemplateBody
-import com.intellij.psi.stubs.{IStubElementType, StubElement}
-
 import com.intellij.psi.PsiElement
+import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 
 /**
  * User: Alexander Podkhalyuzin

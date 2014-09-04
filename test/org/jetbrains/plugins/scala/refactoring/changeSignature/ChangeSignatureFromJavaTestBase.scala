@@ -4,10 +4,8 @@ package refactoring.changeSignature
 import java.io.File
 
 import com.intellij.codeInsight.TargetElementUtilBase
-import com.intellij.openapi.editor.{Document, Editor}
-import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.util.io.FileUtilRt
-import com.intellij.openapi.vfs.{VfsUtil, CharsetToolkit, LocalFileSystem}
+import com.intellij.openapi.vfs.{CharsetToolkit, VfsUtil}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.refactoring.changeSignature.{ChangeSignatureProcessor, ParameterInfoImpl}

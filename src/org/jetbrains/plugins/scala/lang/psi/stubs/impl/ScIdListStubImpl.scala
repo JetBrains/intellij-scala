@@ -5,9 +5,9 @@ package stubs
 package impl
 
 
-import api.base.{ScIdList}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScIdList
 /**
  * User: Alexander Podkhalyuzin
  * Date: 19.07.2009

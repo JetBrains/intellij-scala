@@ -4,10 +4,9 @@ package parser
 package parsing
 package top
 
-import com.intellij.lang.PsiBuilder
-import lexer.ScalaTokenTypes
-import types.AnnotType
-import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.AnnotType
 
 /**
 * @author Alexander Podkhalyuzin

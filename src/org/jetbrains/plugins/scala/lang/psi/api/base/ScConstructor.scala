@@ -4,11 +4,10 @@ package psi
 package api
 package base
 
-import psi.ScalaPsiElement
-import psi.types.ScType
-import expr.{ScNewTemplateDefinition, ScArgumentExprList}
-import psi.types.result.TypeResult
-import types.{ScTypeArgs, ScParameterizedTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeArgs, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 /**
 * @author Alexander Podkhalyuzin

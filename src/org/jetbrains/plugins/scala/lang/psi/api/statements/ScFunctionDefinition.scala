@@ -6,7 +6,7 @@ package statements
 
 import com.intellij.psi._
 import com.intellij.util.containers.ConcurrentHashMap
-import org.jetbrains.plugins.scala.extensions.{&&, Parent, toRichIterator}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -64,8 +64,8 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
       elem match {
         case i: ScIfStmt if i.elseBranch.isEmpty =>
           i.thenBranch match {
-            case Some(then) =>
-              then.calculateReturns().flatMap(expandIf) :+ elem
+            case Some(thenBranch) =>
+              thenBranch.calculateReturns().flatMap(expandIf) :+ elem
             case _ => Seq(elem)
           }
         case _ => Seq(elem)

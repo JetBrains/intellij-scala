@@ -5,9 +5,9 @@ package stubs
 package impl
 
 
-import api.toplevel.ScEarlyDefinitions
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 /**
  * User: Alexander Podkhalyuzin
  * Date: 17.06.2009

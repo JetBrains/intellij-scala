@@ -5,15 +5,13 @@ package impl
 package base
 package types
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import api.base.types._
-import scala.Some
-import psi.types.result.TypingContext
-import psi.types.{ScSubstitutor, ScCompoundType}
-import api.ScalaElementVisitor
 import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.types
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScSubstitutor}
 
 /**
  * @author Alexander Podkhalyuzin

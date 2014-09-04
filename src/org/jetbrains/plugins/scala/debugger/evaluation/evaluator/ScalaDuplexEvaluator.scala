@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package debugger.evaluation.evaluator
 
-import com.intellij.debugger.engine.evaluation.expression.{Modifier, Evaluator}
+import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
 import com.intellij.debugger.engine.evaluation.{EvaluateExceptionUtil, EvaluationContextImpl}
 
 /**

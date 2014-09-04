@@ -1,21 +1,22 @@
 package org.jetbrains.plugins.scala
 package editor.documentationProvider
 
-import com.intellij.openapi.actionSystem.{CommonDataKeys, AnActionEvent, AnAction}
-import org.jetbrains.plugins.scala.actions.ScalaActionUtil
-import com.intellij.psi.util.PsiUtilBase
-import lang.psi.api.toplevel.typedef.{ScTrait, ScClass, ScDocCommentOwner}
-import lang.lexer.ScalaTokenTypes
-import lang.psi.impl.ScalaPsiElementFactory
-import com.intellij.openapi.editor.Document
-import com.intellij.psi.{PsiElement, PsiDocumentManager}
-import com.intellij.psi.codeStyle.CodeStyleManager
-import lang.psi.api.statements.{ScTypeAlias, ScFunctionDefinition}
-import lang.scaladoc.psi.api.ScDocComment
-import collection.mutable
-import lang.psi.api.toplevel.ScNamedElement
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.command.CommandProcessor
+import com.intellij.openapi.editor.Document
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.psi.util.PsiUtilBase
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.plugins.scala.actions.ScalaActionUtil
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScDocCommentOwner, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
+
+import scala.collection.mutable
 
 /**
  * User: Dmitry Naydanov

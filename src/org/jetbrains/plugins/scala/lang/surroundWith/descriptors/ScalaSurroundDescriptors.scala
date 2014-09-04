@@ -9,7 +9,6 @@ package descriptors
  *
  */
 import com.intellij.lang.surroundWith.SurroundDescriptor
-import org.jetbrains.plugins.scala.lang.surroundWith.SurroundDescriptors
 
 class ScalaSurroundDescriptors extends SurroundDescriptors {
   private val SURROUND_DESCRIPTORS : Array[SurroundDescriptor] = Array.apply(

@@ -4,12 +4,12 @@ package psi
 package impl
 package expr
 
-import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import api.expr._
-import collection.Seq
 import com.intellij.psi.PsiElementVisitor
-import api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+
+import scala.collection.Seq
 
 /**
  * @author Alexander Podkhalyuzin

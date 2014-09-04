@@ -1,22 +1,22 @@
 package org.jetbrains.plugins.scala
 package codeInspection.parameters
 
-import lang.psi.api.ScalaElementVisitor
-import codeInspection.InspectionBundle
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
-import lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.util.IntentionUtils
-import lang.psi.types.result.TypingContext
-import com.intellij.psi.{PsiElementVisitor, PsiElement}
-import org.jetbrains.plugins.scala.extensions._
-import com.intellij.psi.util.PsiTreeUtil
-import collection.Seq
-import lang.psi.types.nonvalue.Parameter
-import lang.psi.api.base.ScLiteral
-import lang.psi.api.expr._
 import com.intellij.openapi.diagnostic.Logger
-import scala.Some
-import lang.psi.api.statements.ScFunction
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.util.IntentionUtils
+
+import scala.collection.Seq
 
 /**
  * @author Ksenia.Sautina

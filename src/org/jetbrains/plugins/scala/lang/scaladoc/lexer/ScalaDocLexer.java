@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.lexer;
 
-import com.intellij.lexer.MergingLexerAdapter;
 import com.intellij.lexer.LexerBase;
-import com.intellij.psi.tree.TokenSet;
+import com.intellij.lexer.MergingLexerAdapter;
 import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.TokenSet;
 import com.intellij.util.text.CharArrayUtil;
 
 import java.io.IOException;

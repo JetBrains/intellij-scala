@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intentions.booleans
 
-import codeInsight.intentions.ScalaIntentionTestBase
-import codeInsight.intention.booleans.FlipComparisonInMethodCallExprIntention
+import org.jetbrains.plugins.scala.codeInsight.intention.booleans.FlipComparisonInMethodCallExprIntention
+import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 /**
  * @author Ksenia.Sautina

@@ -2,26 +2,26 @@ package org.jetbrains.plugins.scala.editor.typedHandler
 
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate.Result
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import com.intellij.psi.codeStyle.CodeStyleManager
-import com.intellij.openapi.editor.{Document, Editor}
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
-import com.intellij.psi.{PsiElement, PsiDocumentManager, PsiWhiteSpace, PsiFile}
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
-import com.intellij.openapi.fileTypes.FileType
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
-import org.jetbrains.plugins.scala.extensions
-import com.intellij.psi.xml.XmlTokenType
 import com.intellij.lexer.XmlLexer
+import com.intellij.openapi.editor.{Document, Editor}
+import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.project.Project
+import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.psi.xml.XmlTokenType
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 
@@ -189,7 +189,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
   
   private def completeInterpolatedStringBraces(document: Document, project: Project, element: PsiElement, offset: Int) {
     if (element == null) return
-    import ScalaTokenTypes._
+    import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
     
     if (element.getNode.getElementType == tLBRACE && 
       Option(element.getParent.getPrevSibling).exists(_.getNode.getElementType == tINTERPOLATED_STRING_INJECTION)) {
@@ -221,7 +221,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
   }
 
   private def getScaladocTask(text: String, offset: Int): (Document, Project, PsiElement, Int) => Unit = {
-    import ScalaTypedHandler._
+    import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler._
     if (offset < 3 || text.length < offset) {
       return null
     }

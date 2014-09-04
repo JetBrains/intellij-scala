@@ -2,16 +2,18 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
-import api.base.ScStableCodeReferenceElement
-import api.statements.ScDeclaredElementsHolder
-import api.toplevel.ScNamedElement
-import api.toplevel.typedef.{ScClass, ScObject}
-import com.intellij.psi._
-import scope._
-import com.intellij.openapi.progress.ProgressManager
-import collection.Seq
-import lang.resolve.processor.BaseProcessor
 import java.lang
+
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.psi._
+import com.intellij.psi.scope._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+
+import scala.collection.Seq
 
 trait ScDeclarationSequenceHolder extends ScalaPsiElement {
   override def processDeclarations(processor: PsiScopeProcessor,

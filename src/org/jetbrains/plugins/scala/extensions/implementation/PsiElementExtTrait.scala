@@ -1,19 +1,17 @@
 package org.jetbrains.plugins.scala.extensions.implementation
 
-import iterator._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
-import com.intellij.lang.ASTNode
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.implementation.iterator._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
  * Pavel Fatin
  */
 
-trait PsiElementExt {
+trait PsiElementExtTrait {
   protected def repr: PsiElement
 
   def firstChild: Option[PsiElement] = {

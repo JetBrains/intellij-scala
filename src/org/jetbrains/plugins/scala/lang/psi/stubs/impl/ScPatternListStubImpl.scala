@@ -5,9 +5,9 @@ package stubs
 package impl
 
 
-import api.base.ScPatternList
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubElement, IStubElementType}
+import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
 /**
  * User: Alexander Podkhalyuzin
  * Date: 17.07.2009

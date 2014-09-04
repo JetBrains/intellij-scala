@@ -3,13 +3,12 @@ package lang
 package parser
 package parsing
 
-import builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
-import parser.util.{ParserPatcher, ParserUtils}
-import com.intellij.lang.PsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
-import top.template.TemplateStat
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateStat
+import org.jetbrains.plugins.scala.lang.parser.util.{ParserPatcher, ParserUtils}
 
 /**
  * @author Alexander Podkhalyuzin

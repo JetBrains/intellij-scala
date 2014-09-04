@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.annotator.gutter
 
-import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerImpl
-
 /**
  * Pavel.Fatin, 21.01.2010
  */

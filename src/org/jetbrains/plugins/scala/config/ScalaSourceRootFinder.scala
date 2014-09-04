@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.config
 
 import com.intellij.ide.util.projectWizard.importSources.JavaSourceRootDetector
 import com.intellij.util.NullableFunction
-import java.lang.String
 
 /**
  * @author Alexander Podkhalyuzin

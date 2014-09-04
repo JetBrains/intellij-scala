@@ -1,22 +1,22 @@
 package org.jetbrains.plugins.scala.lang.completion.weighter
 
-import com.intellij.psi._
-import util.proximity.ProximityWeigher
-import util.ProximityLocation
-import java.lang.Integer
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScValue}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
-import collection.mutable.ArrayBuffer
 import com.intellij.openapi.util.Key
+import com.intellij.psi._
+import com.intellij.psi.util.ProximityLocation
+import com.intellij.psi.util.proximity.ProximityWeigher
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import annotation.tailrec
-import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiClassExt}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+
+import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 
 /**
   * @author Alexander Podkhalyuzin

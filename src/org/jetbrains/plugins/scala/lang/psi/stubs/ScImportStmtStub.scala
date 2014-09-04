@@ -4,8 +4,8 @@ package psi
 package stubs
 
 
-import api.toplevel.imports.ScImportStmt
 import com.intellij.psi.stubs.StubElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 
 /**
  * User: Alexander Podkhalyuzin

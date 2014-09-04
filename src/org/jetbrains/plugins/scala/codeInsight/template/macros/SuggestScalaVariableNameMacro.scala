@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala
 package codeInsight.template.macros
 
-import com.intellij.codeInsight.lookup.{LookupItem, LookupElement}
+import com.intellij.codeInsight.lookup.{LookupElement, LookupItem}
 import com.intellij.codeInsight.template._
 import com.intellij.psi.{PsiDocumentManager, PsiNamedElement}
-import lang.psi.api.toplevel.ScTypedDefinition
-import lang.refactoring.namesSuggester.NameSuggester
-import lang.psi.types.result.{Success, TypingContext}
-import lang.psi.types.{JavaArrayType, ScParameterizedType, ScType}
-import extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{JavaArrayType, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
 /**
  * User: Alexander Podkhalyuzin

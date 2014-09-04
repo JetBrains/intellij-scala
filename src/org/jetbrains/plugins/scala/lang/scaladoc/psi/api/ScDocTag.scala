@@ -6,7 +6,7 @@ package api
 
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import com.intellij.psi.javadoc.{PsiDocTagValue, PsiDocTag}
+import com.intellij.psi.javadoc.PsiDocTag
 
 /**
  * User: Alexander Podkhalyuzin

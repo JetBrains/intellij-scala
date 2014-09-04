@@ -1,15 +1,14 @@
 package org.jetbrains.plugins.scala
 package codeInspection.collections
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScExpression}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
-import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.config.ScalaVersionUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 
 /**
  * Nikolay.Tropin

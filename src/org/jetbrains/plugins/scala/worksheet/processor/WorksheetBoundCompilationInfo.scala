@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala
 package worksheet.processor
 
-import java.util
-import com.intellij.openapi.util.io.FileUtil
 import java.io.File
+import java.util
+
+import com.intellij.openapi.util.io.FileUtil
 
 /**
  * User: Dmitry Naydanov

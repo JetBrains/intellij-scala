@@ -4,16 +4,16 @@ package psi
 package api
 package statements
 
-import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeParameterType, Equivalence, ScParameterizedType, ScType}
-import base.types.ScTypeElement
-import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
-import stubs.ScTypeAliasStub
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import types.result.{TypeResult, Failure, TypingContext}
 import com.intellij.psi.{PsiClass, PsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScClass, ScObject}
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Equivalence, ScParameterizedType, ScType, ScTypeParameterType}
 
 /**
 * @author Alexander Podkhalyuzin

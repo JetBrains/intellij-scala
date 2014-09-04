@@ -4,11 +4,9 @@ package parser
 package parsing
 package top
 
-import com.intellij.lang.PsiBuilder
-import lexer.ScalaTokenTypes
-import nl.LineTerminator
-import template.TemplateBody
-import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateBody
 
 /**
 * @author Alexander Podkhalyuzin
