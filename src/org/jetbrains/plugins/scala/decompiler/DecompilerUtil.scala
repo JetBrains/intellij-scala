@@ -23,7 +23,7 @@ import scala.tools.scalap.scalax.rules.scalasig._
  */
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil")
-  val DECOMPILER_VERSION = 251
+  val DECOMPILER_VERSION = 252
   private val SCALA_DECOMPILER_FILE_ATTRIBUTE = new FileAttribute("_is_scala_compiled_", DECOMPILER_VERSION, true)
   private val SCALA_DECOMPILER_KEY = new Key[SoftReference[DecompilationResult]]("Is Scala File Key")
   
@@ -35,7 +35,7 @@ object DecompilerUtil {
   private def openedNotDisposedProjects: Array[Project] = {
     val manager = ProjectManager.getInstance
     if (ApplicationManager.getApplication.isUnitTestMode) {
-      val testProject = manager.asInstanceOf[ProjectManagerEx].getOpenProjects.find(!_.isDisposed).getOrElse(null)
+      val testProject = manager.asInstanceOf[ProjectManagerEx].getOpenProjects.find(!_.isDisposed).orNull
       if (testProject != null) Array(testProject)
       else Array.empty
     } else {
@@ -133,7 +133,7 @@ object DecompilerUtil {
         case Some(other) => other
         case None => null
       }
-      if (scalaSig == null) return DecompilationResult(false, "", "", file.getTimeStamp)
+      if (scalaSig == null) return DecompilationResult(isScala = false, "", "", file.getTimeStamp)
       val sourceText = {
         val baos = new ByteArrayOutputStream
         val stream = new PrintStream(baos, true, CharsetToolkit.UTF8)
@@ -144,7 +144,7 @@ object DecompilerUtil {
         // Print package with special treatment for package objects
         syms.head.parent match {
           //Partial match
-          case Some(p) if (p.name != "<empty>") => {
+          case Some(p) if p.name != "<empty>" =>
             val path = p.path
             if (!isPackageObject) {
               stream.print("package ")
@@ -158,7 +158,6 @@ object DecompilerUtil {
                 stream.print("\n")
               }
             }
-          }
           case _ =>
         }
 
@@ -187,11 +186,11 @@ object DecompilerUtil {
         }
       }
 
-      DecompilationResult(true, sourceFileName, sourceText, file.getTimeStamp)
+      DecompilationResult(isScala = true, sourceFileName, sourceText, file.getTimeStamp)
     } catch {
       case t: Throwable =>
 //        LOG.info(s"Error during decompiling ${file.getName}: ${t.getMessage}", t)
-        DecompilationResult(false, "", "", file.getTimeStamp)
+        DecompilationResult(isScala = false, "", "", file.getTimeStamp)
     }
   }
 }
