@@ -2,11 +2,10 @@ package org.jetbrains.sbt
 package project.data
 
 
-import java.io.{File, OutputStreamWriter}
+import java.io.File
 import java.util
 
 import com.intellij.facet.FacetManager
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.project.ModuleData
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, ProjectStructureHelper}
@@ -15,7 +14,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.SystemProperties
 import org.jetbrains.android.facet.{AndroidFacet, AndroidFacetType, AndroidRootUtil}
-import org.jetbrains.plugins.scala.util.ScalaUtil
 
 import scala.collection.JavaConverters._
 
