@@ -1,11 +1,12 @@
 package org.jetbrains.jps.incremental.scala
 package remote
 
-import data._
 import java.io.File
-import Arguments._
+
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.plugin.scala.compiler.{NameHashing, CompileOrder, IncrementalType}
+import org.jetbrains.jps.incremental.scala.data._
+import org.jetbrains.jps.incremental.scala.remote.Arguments._
+import org.jetbrains.plugin.scala.compiler.{CompileOrder, IncrementalType, NameHashing}
 
 /**
  * @author Pavel Fatin

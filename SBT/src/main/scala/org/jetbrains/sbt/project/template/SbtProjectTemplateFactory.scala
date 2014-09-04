@@ -1,9 +1,9 @@
 package org.jetbrains.sbt
 package project.template
 
-import com.intellij.platform.ProjectTemplatesFactory
 import com.intellij.ide.util.projectWizard.WizardContext
-import SbtProjectTemplateFactory._
+import com.intellij.platform.ProjectTemplatesFactory
+import org.jetbrains.sbt.project.template.SbtProjectTemplateFactory._
 
 /**
  * User: Dmitry.Naydanov, Pavel Fatin

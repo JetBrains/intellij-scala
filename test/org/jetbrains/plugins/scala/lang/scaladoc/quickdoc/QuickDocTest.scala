@@ -4,11 +4,11 @@ package scaladoc
 package quickdoc
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
-import base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import org.junit.Assert
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
+import org.junit.Assert
 
 /**
  * User: Dmitry Naydanov

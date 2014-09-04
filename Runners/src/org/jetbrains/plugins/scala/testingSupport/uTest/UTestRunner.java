@@ -8,7 +8,9 @@ import utest.framework.Test;
 import utest.framework.TestTreeSeq;
 import utest.util.Tree;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;

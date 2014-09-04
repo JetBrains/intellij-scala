@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala.findUsages.function
 
-import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.util.{Processor, QueryExecutor}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
-import com.intellij.psi.search.{UsageSearchContext, PsiSearchHelper, TextOccurenceProcessor}
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.light.{StaticPsiMethodWrapper, ScFunctionWrapper}
-import scala.collection.mutable
+import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.psi.search.{PsiSearchHelper, TextOccurenceProcessor, UsageSearchContext}
+import com.intellij.util.{Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.light.{ScFunctionWrapper, StaticPsiMethodWrapper}
+
+import scala.collection.mutable
 
 /**
  * @author Alefas

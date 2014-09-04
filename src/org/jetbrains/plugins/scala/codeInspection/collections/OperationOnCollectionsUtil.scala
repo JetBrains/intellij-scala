@@ -13,8 +13,10 @@ import org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
+import scala.language.implicitConversions
 
 /**
  * Nikolay.Tropin

@@ -4,10 +4,9 @@ package parser
 package parsing
 package statements
 
-import com.intellij.lang.PsiBuilder
-import expressions.SelfInvocation
-import lexer.ScalaTokenTypes
-import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.SelfInvocation
 
 /**
 * @author Alexander Podkhalyuzin

@@ -3,34 +3,38 @@ package lang
 package psi
 package impl
 
-import api.statements.params.ScTypeParam
-import com.intellij.openapi.components.ProjectComponent
-import toplevel.synthetic.{SyntheticPackageCreator, ScSyntheticPackage}
-import light.PsiClassWrapper
-import toplevel.typedef.TypeDefinitionMembers._
-import types._
-import com.intellij.openapi.util.{LowMemoryWatcher, Key}
-import com.intellij.ProjectTopics
-import com.intellij.util.SofterReference
-import collection.{mutable, Seq}
-import com.intellij.psi._
-import com.intellij.util.containers.WeakValueHashMap
-import impl.{JavaPsiFacadeImpl, PsiManagerEx}
-import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
-import caches.ScalaShortNamesCacheManager
-import api.toplevel.typedef.{ScTemplateDefinition, ScObject}
-import extensions.toPsiNamedElementExt
-import com.intellij.openapi.project.{DumbServiceImpl, Project}
-import stubs.StubIndex
-import psi.stubs.index.ScalaIndexKeys
-import finder.ScalaSourceFilterScope
-import com.intellij.psi.search.{PsiShortNamesCache, GlobalSearchScope}
-import java.util.Collections
-import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
-import ParameterlessNodes.{Map => PMap}, TypeNodes.{Map => TMap}, SignatureNodes.{Map => SMap}
 import java.util
+import java.util.Collections
+import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
+
+import com.intellij.ProjectTopics
+import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.project.{DumbServiceImpl, Project}
+import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
+import com.intellij.openapi.util.{Key, LowMemoryWatcher}
+import com.intellij.psi._
+import com.intellij.psi.impl.{JavaPsiFacadeImpl, PsiManagerEx}
+import com.intellij.psi.search.{GlobalSearchScope, PsiShortNamesCache}
+import com.intellij.psi.stubs.StubIndex
+import com.intellij.util.SofterReference
+import com.intellij.util.containers.WeakValueHashMap
+import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticPackage, SyntheticPackageCreator}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.ParameterlessNodes.{Map => PMap}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers._
+import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+
+import scala.collection.{Seq, mutable}
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val implicitObjectMap: ConcurrentMap[String, SofterReference[java.util.Map[GlobalSearchScope, Seq[ScObject]]]] =
@@ -204,7 +208,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
 
   def getStableAliasesByName(name: String, scope: GlobalSearchScope): Seq[ScTypeAlias] = {
     val types: util.Collection[ScTypeAlias] =
-      StubIndex.getInstance.safeGet(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY, name, project,
+      StubIndex.getElements(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY, name, project,
         new ScalaSourceFilterScope(scope, project), classOf[ScTypeAlias])
     import scala.collection.JavaConversions._
     types.toSeq
@@ -223,7 +227,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     buffer.toSeq
   }
 
-  import ScalaPsiManager.ClassCategory._
+  import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory._
   def getCachedClass(fqn: String, scope: GlobalSearchScope, classCategory: ClassCategory): PsiClass = {
     val allClasses = getCachedClasses(scope, fqn)
     val classes =
@@ -316,7 +320,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     def calc: JSet[String] = {
       if (DumbServiceImpl.getInstance(project).isDumb) return Collections.emptySet()
       val classes: util.Collection[PsiClass] =
-        StubIndex.getInstance.safeGet(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, qualifier, project,
+        StubIndex.getElements(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, qualifier, project,
           new ScalaSourceFilterScope(scope, project), classOf[PsiClass])
       val strings: util.HashSet[String] = new util.HashSet[String]
       val classesIterator = classes.iterator()
@@ -345,7 +349,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     def calc: mutable.HashSet[String] = {
       if (DumbServiceImpl.getInstance(project).isDumb) return mutable.HashSet.empty
       val classes: util.Collection[PsiClass] =
-        StubIndex.getInstance.safeGet(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, qualifier, project,
+        StubIndex.getElements(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, qualifier, project,
           new ScalaSourceFilterScope(scope, project), classOf[PsiClass])
       var strings: mutable.HashSet[String] = new mutable.HashSet[String]
       val classesIterator = classes.iterator()
@@ -462,7 +466,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   }
 
   def typeVariable(tp: PsiTypeParameter) : ScTypeParameterType = {
-    import Misc.fun2suspension
+    import org.jetbrains.plugins.scala.Misc.fun2suspension
     tp match {
       case stp: ScTypeParam =>
         val inner = stp.typeParameters.map{typeVariable(_)}.toList

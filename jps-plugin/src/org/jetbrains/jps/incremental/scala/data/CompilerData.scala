@@ -2,17 +2,18 @@ package org.jetbrains.jps.incremental.scala
 package data
 
 import java.io.File
-import org.jetbrains.jps.incremental.scala.model.LibraryLevel._
-import org.jetbrains.jps.model.library.{JpsOrderRootType, JpsLibrary}
-import org.jetbrains.jps.incremental.scala.SettingsManager
-import org.jetbrains.jps.model.JpsModel
-import org.jetbrains.jps.model.module.JpsModule
-import org.jetbrains.jps.incremental.CompileContext
+
 import org.jetbrains.jps.ModuleChunk
-import org.jetbrains.jps.model.java.JpsJavaSdkType
-import collection.JavaConverters._
 import org.jetbrains.jps.builders.java.JavaBuilderUtil
+import org.jetbrains.jps.incremental.CompileContext
+import org.jetbrains.jps.incremental.scala.model.LibraryLevel._
+import org.jetbrains.jps.model.JpsModel
+import org.jetbrains.jps.model.java.JpsJavaSdkType
+import org.jetbrains.jps.model.library.{JpsLibrary, JpsOrderRootType}
+import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.plugin.scala.compiler.IncrementalType
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin

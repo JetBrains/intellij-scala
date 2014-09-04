@@ -1,24 +1,23 @@
 package org.jetbrains.plugins.scala
 package worksheet.server
 
-import _root_.scala.collection.JavaConverters._
-import _root_.scala.Some
-import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
-import java.io.{InputStreamReader, BufferedReader, Reader, File}
-import com.intellij.openapi.util.io.FileUtil
-import com.intellij.notification.{NotificationType, Notification, Notifications}
-import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala
-import com.intellij.execution.process._
-import com.intellij.util.io.{BaseDataReader, BaseOutputReader}
+import java.io.{BufferedReader, File, InputStreamReader, Reader}
 import java.util.concurrent.Future
-import org.jetbrains.plugins.scala.compiler.JDK
-import java.nio.{CharBuffer, ByteBuffer}
+
 import com.intellij.execution.TaskExecutor
+import com.intellij.execution.process._
+import com.intellij.notification.{Notification, NotificationType, Notifications}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
+import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.Consumer
+import com.intellij.util.io.BaseDataReader
+import org.jetbrains.plugins.scala
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, JDK}
 import org.jetbrains.plugins.scala.components.WorksheetProcess
+
+import _root_.scala.collection.JavaConverters._
 
 /**
  * User: Dmitry Naydanov

@@ -1,18 +1,17 @@
 package org.jetbrains.plugins.scala
 package compiler
 
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.components.ProjectComponent
-import config.ScalaFacet
-import com.intellij.compiler.CompilerWorkspaceConfiguration
-import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManager}
-import com.intellij.openapi.module.{Module, ModuleManager}
-import com.intellij.openapi.roots.{ModuleRootManager, CompilerModuleExtension}
-import com.intellij.openapi.ui.Messages
-import extensions._
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.internal.statistic.UsageTrigger
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManager}
+import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.module.{Module, ModuleManager}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.{CompilerModuleExtension, ModuleRootManager}
+import com.intellij.openapi.ui.Messages
 import org.jetbrains.plugin.scala.compiler.IncrementalType
+import org.jetbrains.plugins.scala.config.ScalaFacet
+import org.jetbrains.plugins.scala.extensions._
 
 
 /**

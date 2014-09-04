@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test
 
-import com.intellij.psi._
-import com.intellij.execution.{RunnerAndConfigurationSettings, Location, JavaRunConfigurationExtensionManager, RunManager}
 import com.intellij.execution.configurations.RunConfiguration
+import com.intellij.execution.{JavaRunConfigurationExtensionManager, Location, RunManager, RunnerAndConfigurationSettings}
+import com.intellij.psi._
 
 /**
  * @author Ksenia.Sautina

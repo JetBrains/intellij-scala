@@ -6,22 +6,20 @@ package expr
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import _root_.scala.collection.mutable.ArrayBuffer
-import api.expr._
-import api.toplevel.templates.ScExtendsBlock
-import api.toplevel.typedef.{ScObject, ScTypeDefinition, ScTemplateDefinition}
-import lexer.ScalaTokenTypes
-import psi.ScalaPsiElementImpl
-import com.intellij.util.IncorrectOperationException
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.openapi.util.TextRange
 import com.intellij.lang.ASTNode
-import types.result.TypingContext
-import api.{ScalaFile, ScalaElementVisitor}
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
-import types.result.Failure
-import scala.Some
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypingContext}
+
+import _root_.scala.collection.mutable.ArrayBuffer
 
 /**
 * @author Alexander Podkhalyuzin

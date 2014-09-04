@@ -1,21 +1,22 @@
 package org.jetbrains.sbt
 package project
 
-import com.intellij.openapi.externalSystem.{ExternalSystemConfigurableAware, ExternalSystemAutoImportAware, ExternalSystemManager}
-import com.intellij.openapi.project.Project
-import com.intellij.execution.configurations.SimpleJavaParameters
-import settings._
-import com.intellij.openapi.externalSystem.util._
-import com.intellij.openapi.externalSystem.service.project.autoimport.CachingExternalSystemAutoImportAware
-import com.intellij.util.net.HttpConfigurable
-import org.jetbrains.sbt.settings.SbtApplicationSettings
-import java.util
-import java.net.URL
-import com.intellij.openapi.options.Configurable
-import com.intellij.openapi.projectRoots.{JavaSdkType, Sdk, ProjectJdkTable}
-import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import java.io.File
+import java.net.URL
+import java.util
+
+import com.intellij.execution.configurations.SimpleJavaParameters
+import com.intellij.openapi.externalSystem.model.ExternalSystemException
+import com.intellij.openapi.externalSystem.service.project.autoimport.CachingExternalSystemAutoImportAware
+import com.intellij.openapi.externalSystem.util._
+import com.intellij.openapi.externalSystem.{ExternalSystemAutoImportAware, ExternalSystemConfigurableAware, ExternalSystemManager}
+import com.intellij.openapi.options.Configurable
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.{JavaSdkType, ProjectJdkTable}
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.util.net.HttpConfigurable
+import org.jetbrains.sbt.project.settings._
+import org.jetbrains.sbt.settings.SbtApplicationSettings
 
 /**
  * @author Pavel Fatin

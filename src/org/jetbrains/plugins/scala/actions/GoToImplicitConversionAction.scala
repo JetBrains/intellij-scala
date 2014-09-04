@@ -1,30 +1,31 @@
 package org.jetbrains.plugins.scala.actions
 
-import com.intellij.psi.util.PsiUtilBase
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.openapi.actionSystem._
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
-import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory}
+import java.awt.event.{MouseAdapter, MouseEvent}
+import java.awt.{Color, Point, Rectangle}
 import javax.swing._
-import org.jetbrains.plugins.scala.lang.psi.presentation.ScImplicitFunctionListCellRenderer
+import javax.swing.border.Border
+import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
+
+import com.intellij.codeInsight.CodeInsightBundle
+import com.intellij.openapi.actionSystem._
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.colors.EditorFontType
+import com.intellij.openapi.keymap.KeymapUtil
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory}
+import com.intellij.openapi.util.IconLoader
 import com.intellij.psi._
-import collection.mutable.ArrayBuffer
+import com.intellij.psi.util.PsiUtilBase
+import com.intellij.util.Alarm
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.IconLoader
-import com.intellij.openapi.keymap.KeymapUtil
-import com.intellij.codeInsight.CodeInsightBundle
-import java.awt.event.{MouseAdapter, MouseEvent}
-import javax.swing.border.Border
-import java.awt.{Point, Rectangle, Color}
-import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
-import com.intellij.util.Alarm
-import scala.Some
+import org.jetbrains.plugins.scala.lang.psi.presentation.ScImplicitFunctionListCellRenderer
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.util.IntentionUtils
-import com.intellij.openapi.editor.colors.EditorFontType
-import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -85,7 +86,7 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
       }
       val functions = implicitConversions._1
       if (functions.length == 0) return true
-      val conversionFun = implicitConversions._2.getOrElse(null)
+      val conversionFun = implicitConversions._2.orNull
       val model: DefaultListModel[Parameters] = new DefaultListModel
       val firstPart = implicitConversions._3.sortBy(_.name)
       val secondPart = implicitConversions._4.sortBy(_.name)
@@ -110,7 +111,7 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
       list.getSelectionModel.addListSelectionListener(new ListSelectionListener {
         def valueChanged(e: ListSelectionEvent) {
           hintAlarm.cancelAllRequests
-          val item = list.getSelectedValue.asInstanceOf[Parameters]
+          val item = list.getSelectedValue
           if (item == null) return
           updateHint(item, project)
         }
@@ -122,7 +123,7 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
       setMovable(false).setResizable(false).setRequestFocus(true).
       setItemChoosenCallback(new Runnable {
         def run() {
-          val entity = list.getSelectedValue.asInstanceOf[Parameters]
+          val entity = list.getSelectedValue
           entity.getNewExpression match {
             case f: ScFunction =>
               f.getSyntheticNavigationElement match {
@@ -170,14 +171,13 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
         var parent = element
         while (parent != null) {
           parent match {
-            case expr: ScReferenceExpression if guard => {
+            case expr: ScReferenceExpression if guard =>
               expr.getContext match {
                 case postf: ScPostfixExpr if postf.operation == expr =>
                 case pref: ScPrefixExpr if pref.operation == expr =>
                 case inf: ScInfixExpr if inf.operation == expr =>
                 case _ => res += expr
               }
-            }
             case expr: ScExpression if guard || expr.getImplicitConversions(fromUnder = false)._2 != None ||
               (ScUnderScoreSectionUtil.isUnderscoreFunction(expr) &&
                 expr.getImplicitConversions(fromUnder = true)._2 != None) || (expr.getAdditionalExpression != None &&

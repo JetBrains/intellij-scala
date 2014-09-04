@@ -6,18 +6,17 @@ package base
 package patterns
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types._
-import api.toplevel.typedef.{ScClass, ScObject}
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import lang.resolve.ScalaResolveResult
-import api.base.ScPrimaryConstructor
-import api.statements.ScFunction
-import api.statements.params.ScTypeParam
-import result.{Failure, Success, TypeResult, TypingContext}
-import types.ScSimpleTypeElementImpl
-import api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /** 
 * @author Alexander Podkhalyuzin

@@ -1,25 +1,25 @@
 package org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates
 
-import com.intellij.psi.{PsiComment, PsiWhiteSpace, PsiElement}
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.{ScalaExtractMethodUtils, ScalaExtractMethodSettings}
-import com.intellij.openapi.application.{ApplicationNamesInfo, ApplicationManager}
-import com.intellij.openapi.ui.Messages
-import com.intellij.refactoring.RefactoringBundle
+import java.util
+
 import com.intellij.codeInsight.folding.CodeFoldingManager
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.{ScrollType, LogicalPosition, FoldRegion, Editor}
-import com.intellij.openapi.util.TextRange
+import com.intellij.codeInsight.highlighting.HighlightManager
+import com.intellij.find.FindManager
+import com.intellij.openapi.application.{ApplicationManager, ApplicationNamesInfo}
 import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
 import com.intellij.openapi.editor.markup.{RangeHighlighter, TextAttributes}
-import com.intellij.codeInsight.highlighting.HighlightManager
-import java.util
+import com.intellij.openapi.editor.{Editor, FoldRegion, LogicalPosition, ScrollType}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
+import com.intellij.refactoring.RefactoringBundle
 import com.intellij.ui.ReplacePromptDialog
-import com.intellij.find.FindManager
-import scala.Some
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.{ScalaExtractMethodSettings, ScalaExtractMethodUtils}
 
 /**
  * Nikolay.Tropin

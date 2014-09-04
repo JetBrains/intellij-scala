@@ -4,8 +4,7 @@ package psi
 package api
 package toplevel
 
-import psi.ScalaPsiElement
-import typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
 /** 
 * @author Alexander Podkhalyuzin

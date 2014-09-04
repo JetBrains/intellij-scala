@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings
 
-import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.application.options._
 import com.intellij.psi.codeStyle.CodeStyleSettings
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.rearranger.ScalaArrangementPanel
 
 /**

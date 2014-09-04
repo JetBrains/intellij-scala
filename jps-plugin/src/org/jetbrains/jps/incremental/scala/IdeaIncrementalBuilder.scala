@@ -1,19 +1,21 @@
 package org.jetbrains.jps.incremental.scala
 
 import java.io.File
-import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
-import scala.collection.JavaConverters._
-import org.jetbrains.jps.builders.{FileProcessor, DirtyFilesHolder}
-import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
-import org.jetbrains.jps.incremental.messages.ProgressMessage
-import org.jetbrains.jps.incremental.ModuleLevelBuilder.{ExitCode, OutputConsumer}
-import org.jetbrains.jps.incremental.scala.local.IdeClientIdea
-import org.jetbrains.jps.incremental._
-import org.jetbrains.jps.ModuleChunk
-import org.jetbrains.plugin.scala.compiler.CompileOrder
+
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.Processor
+import org.jetbrains.jps.ModuleChunk
+import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
+import org.jetbrains.jps.builders.{DirtyFilesHolder, FileProcessor}
+import org.jetbrains.jps.incremental.ModuleLevelBuilder.{ExitCode, OutputConsumer}
+import org.jetbrains.jps.incremental.messages.ProgressMessage
+import org.jetbrains.jps.incremental.scala.local.IdeClientIdea
+
+import scala.collection.JavaConverters._
+import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
+import org.jetbrains.jps.incremental._
+import org.jetbrains.plugin.scala.compiler.CompileOrder
 
 /**
  * Nikolay.Tropin

@@ -1,6 +1,6 @@
 package org.jetbrains.sbt
 
-import java.lang.ref.{SoftReference, Reference}
+import java.lang.ref.{Reference, SoftReference}
 import java.util.ResourceBundle
 
 import com.intellij.CommonBundle

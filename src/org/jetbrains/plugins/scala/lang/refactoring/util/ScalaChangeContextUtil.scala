@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.util
 
+import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import com.intellij.openapi.util.{TextRange, Key}
 import org.jetbrains.plugins.scala.conversion.copy.{Associations, ScalaCopyPastePostProcessor}
 
 /**

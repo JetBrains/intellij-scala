@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
 package lang.scaladoc
 
-import com.intellij.openapi.editor.actionSystem.EditorActionManager
 import com.intellij.openapi.actionSystem.{DataContext, IdeActions}
-import base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import com.intellij.openapi.editor.actionSystem.EditorActionManager
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 
 /**
  * User: Dmitry Naydanov

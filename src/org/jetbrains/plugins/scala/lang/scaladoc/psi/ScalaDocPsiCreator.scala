@@ -3,17 +3,15 @@ package lang
 package scaladoc
 package psi
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import api.{ScDocTagValue, ScDocTag, ScDocInlinedTag}
-import impl._
-import parser.ScalaDocElementTypes
 import com.intellij.lang.ASTNode
-import lexer.docsyntax.ScaladocSyntaxElementType
-import lexer.ScalaDocTokenType
-import com.intellij.psi.{JavaDocTokenType, PsiElement}
-import lang.psi.impl.base.ScStableCodeReferenceElementImpl
-import parser.parsing.MyScaladocParsing
-import extensions.toPsiNamedElementExt
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTag
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl._
 
 /**
 * User: Alexander Podkhalyuzin
@@ -21,7 +19,7 @@ import extensions.toPsiNamedElementExt
 */
 
 object ScalaDocPsiCreator {
-  import ScalaDocElementTypes._
+  import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes._
   def createElement(node: ASTNode): PsiElement =
     node.getElementType match {
       case a: ScaladocSyntaxElementType => 

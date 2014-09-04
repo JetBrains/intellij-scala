@@ -1,11 +1,11 @@
 package org.jetbrains.sbt
 package project.settings
 
+import com.intellij.openapi.components._
+import com.intellij.openapi.externalSystem.service.project.PlatformFacade
 import com.intellij.openapi.externalSystem.settings.AbstractExternalSystemLocalSettings
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.components._
-import project.SbtProjectSystem
-import com.intellij.openapi.externalSystem.service.project.PlatformFacade
+import org.jetbrains.sbt.project.SbtProjectSystem
 
 /**
  * @author Pavel Fatin

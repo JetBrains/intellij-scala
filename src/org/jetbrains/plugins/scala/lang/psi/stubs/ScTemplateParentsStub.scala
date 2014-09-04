@@ -4,10 +4,10 @@ package psi
 package stubs
 
 
-import api.toplevel.templates.ScTemplateParents
 import com.intellij.psi.stubs.StubElement
-import types.ScType
-import api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
  * User: Alexander Podkhalyuzin

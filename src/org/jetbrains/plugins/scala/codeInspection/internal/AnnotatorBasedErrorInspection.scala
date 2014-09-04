@@ -1,16 +1,14 @@
 package org.jetbrains.plugins.scala.codeInspection.internal
 
-import com.intellij.psi.{PsiJavaFile, PsiElement, PsiElementVisitor}
-import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
-import java.lang.String
-import com.intellij.openapi.util.TextRange
-import com.intellij.lang.ASTNode
-import com.intellij.lang.annotation.{HighlightSeverity, Annotation, AnnotationHolder}
-import com.intellij.codeInspection._
-import com.intellij.lang.annotation.AnnotationSession
 import com.intellij.codeHighlighting.HighlightDisplayLevel
 import com.intellij.codeInsight.daemon.impl.analysis.{HighlightInfoHolder, HighlightVisitorImpl}
+import com.intellij.codeInspection._
+import com.intellij.lang.ASTNode
+import com.intellij.lang.annotation.{Annotation, AnnotationHolder, AnnotationSession, HighlightSeverity}
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.impl.source.resolve.PsiResolveHelperImpl
+import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiJavaFile}
+import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
 
 /**
  * @author Alexander Podkhalyuzin

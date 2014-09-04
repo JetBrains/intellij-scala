@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
-import org.junit.Assert
 import com.intellij.openapi.vfs.VfsUtil
-import com.intellij.codeInsight.lookup.LookupElementPresentation
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
+import org.junit.Assert
 
 /**
  * User: Alexander Podkhalyuzin

@@ -4,7 +4,7 @@ package psi
 package implicits
 
 
-import types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
  * @author ilyas

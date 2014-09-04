@@ -5,13 +5,10 @@ package api
 package toplevel
 package templates
 
-import base.types.ScSelfTypeElement
-import statements.{ScFunction, ScDeclaredElementsHolder, ScTypeAlias}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import api.toplevel.typedef._
-import expr.ScExpression
-import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.{PsiElement, ResolveState}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 /**
 * @author Alexander Podkhalyuzin

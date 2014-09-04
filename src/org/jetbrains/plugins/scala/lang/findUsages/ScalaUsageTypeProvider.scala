@@ -3,25 +3,24 @@ package lang
 package findUsages
 
 import com.intellij.psi.PsiElement
-import psi.api.toplevel.imports.ScImportExpr
-import org.jetbrains.plugins.scala.extensions._
 import com.intellij.psi.util.PsiTreeUtil
-import psi.api.toplevel.typedef.ScTemplateDefinition
-import psi.api.statements.{ScVariable, ScValue, ScPatternDefinition, ScFunction}
-import psi.api.toplevel.templates.{ScTemplateBody, ScTemplateParents}
-import psi.api.statements.params.ScParameter
-import com.intellij.usageView.UsageViewBundle
-import psi.api.base.patterns.{ScTypedPattern, ScConstructorPattern}
-import com.intellij.usages.impl.rules.{UsageTypeProviderEx, UsageType, UsageTypeProvider}
+import com.intellij.usages.impl.rules.{UsageType, UsageTypeProviderEx}
 import com.intellij.usages.{PsiElementUsageTarget, UsageTarget}
-import psi.api.expr.{ScReferenceExpression, ScNewTemplateDefinition}
-import psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScTypedPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
   def getUsageType(element: PsiElement): UsageType = getUsageType(element, null)
 
   def getUsageType(element: PsiElement, targets: Array[UsageTarget]): UsageType = {
-    import PsiTreeUtil._
+    import com.intellij.psi.util.PsiTreeUtil._
     def parentOfType[T <: PsiElement : Manifest]: Option[T] = Option(getParentOfType[T](element, classManifest[T].erasure.asInstanceOf[Class[T]]))
 
     if (element.containingScalaFile.isDefined) {

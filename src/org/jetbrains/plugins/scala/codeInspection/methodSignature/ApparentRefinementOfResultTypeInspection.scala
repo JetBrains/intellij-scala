@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
+import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.InsertMissingEquals
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScCompoundTypeElement
-import quickfix.InsertMissingEquals
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
 
 /**
  * Pavel Fatin

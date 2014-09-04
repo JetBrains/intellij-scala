@@ -4,8 +4,9 @@ package resolve
 package processor
 
 import com.intellij.psi._
-import collection.Set
-import psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
+
+import scala.collection.Set
 
 class CollectAllForImportProcessor(override val kinds: Set[ResolveTargets.Value],
                           override val ref: PsiElement,

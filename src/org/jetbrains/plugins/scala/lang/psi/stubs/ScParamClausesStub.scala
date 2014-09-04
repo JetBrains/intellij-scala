@@ -3,8 +3,8 @@ package lang
 package psi
 package stubs
 
-import api.statements.params.ScParameters
 import com.intellij.psi.stubs.StubElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 
 /**
  * User: Alexander Podkhalyuzin

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package worksheet.actions
 
-import com.intellij.openapi.actionSystem.{AnActionEvent, AnAction}
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.psi.PsiFileFactory
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 

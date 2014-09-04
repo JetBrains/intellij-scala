@@ -5,20 +5,20 @@ package impl
 package base
 package patterns
 
-import api.base.patterns._
-import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import lang.lexer._
-import psi.stubs.ScReferencePatternStub
-import psi.types.result.{Failure, TypingContext, Success}
-import psi.types.ScType
+import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
-import api.toplevel.typedef.ScMember
-import api.{ScalaElementVisitor, ScalaFile}
-import api.statements.ScDeclaredElementsHolder
-import api.base.ScPatternList
-import extensions._
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScReferencePatternStub
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
 
 /**
  * @author Alexander Podkhalyuzin

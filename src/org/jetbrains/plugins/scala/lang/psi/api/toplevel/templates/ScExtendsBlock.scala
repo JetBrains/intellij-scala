@@ -5,12 +5,11 @@ package api
 package toplevel
 package templates
 
-import base.types.ScSelfTypeElement
-import com.intellij.psi.{PsiElement, PsiClass}
-import psi.ScalaPsiElement
-import statements.{ScFunction, ScTypeAlias}
-import typedef.{ScTypeDefinition, ScMember}
-import types.ScType
+import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /** 
 * @author Alexander Podkhalyuzin

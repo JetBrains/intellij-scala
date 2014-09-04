@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.findUsages.typeDef
 
-import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.util.{Processor, QueryExecutor}
-import com.intellij.psi.{PsiElement, PsiReference}
-import com.intellij.psi.search.{UsageSearchContext, PsiSearchHelper, TextOccurenceProcessor}
-import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScObject}
 import com.intellij.openapi.project.IndexNotReadyException
+import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.psi.search.{PsiSearchHelper, TextOccurenceProcessor, UsageSearchContext}
+import com.intellij.psi.{PsiElement, PsiReference}
+import com.intellij.util.{Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 
 /**
  * User: Alefas

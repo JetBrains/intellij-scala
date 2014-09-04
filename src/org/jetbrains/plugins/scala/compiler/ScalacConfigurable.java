@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.compiler;
 
-import com.intellij.compiler.CompilerWorkspaceConfiguration;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;

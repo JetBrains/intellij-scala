@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.builder
 
 import com.intellij.lang.PsiBuilder
-import collection.mutable.Stack
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import com.intellij.lang.impl.PsiBuilderAdapter
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.plugins.scala.lang.TokenSets
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+
+import scala.collection.mutable.Stack
 
 /**
  * @author Alexander Podkhalyuzin

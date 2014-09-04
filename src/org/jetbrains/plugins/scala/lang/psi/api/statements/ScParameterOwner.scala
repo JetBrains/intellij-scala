@@ -4,7 +4,6 @@ package psi
 package api
 package statements
 
-import impl.statements.params.ScParameterClauseImpl
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 /** 

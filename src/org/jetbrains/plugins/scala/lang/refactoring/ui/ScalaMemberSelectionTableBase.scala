@@ -1,15 +1,16 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.ui
 
-import com.intellij.psi.{PsiModifierList, PsiModifierListOwner, PsiElement}
+import javax.swing.Icon
+
+import com.intellij.icons.AllIcons
+import com.intellij.psi.{PsiElement, PsiModifierList, PsiModifierListOwner}
 import com.intellij.refactoring.classMembers.MemberInfoModel
 import com.intellij.refactoring.ui.AbstractMemberSelectionTable
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
 import com.intellij.ui.RowIcon
 import com.intellij.util.{IconUtil, VisibilityIcons}
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import com.intellij.icons.AllIcons
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 
 /**
  * Nikolay.Tropin

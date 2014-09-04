@@ -5,15 +5,15 @@ package stubs
 package impl
 
 
-import api.base.{ScPatternList, ScIdList}
-import api.expr.ScExpression
-import api.base.types.ScTypeElement
-import api.statements.ScVariable
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubElement, IStubElementType}
-import com.intellij.util.io.StringRef
-import psi.impl.ScalaPsiElementFactory
+import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.reference.SoftReference
+import com.intellij.util.io.StringRef
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScIdList, ScPatternList}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * User: Alexander Podkhalyuzin

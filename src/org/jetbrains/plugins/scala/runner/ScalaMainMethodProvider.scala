@@ -3,8 +3,8 @@ package runner
 
 import com.intellij.codeInsight.runner.JavaMainMethodProvider
 import com.intellij.psi._
-import lang.psi.api.ScalaFile
-import lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 /**
  * @author ilyas

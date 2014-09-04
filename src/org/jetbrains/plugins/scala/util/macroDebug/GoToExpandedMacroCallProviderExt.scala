@@ -1,21 +1,22 @@
 package org.jetbrains.plugins.scala
 package util.macroDebug
 
-import com.intellij.codeInsight.daemon._
-import java.util
-import com.intellij.psi.{PsiDocumentManager, NavigatablePsiElement, PsiElement}
-import lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.icons.Icons
-import com.intellij.codeHighlighting.Pass
-import com.intellij.util.Function
 import java.awt.event.MouseEvent
+import java.util
+
+import com.intellij.codeHighlighting.Pass
+import com.intellij.codeInsight.daemon._
 import com.intellij.codeInsight.daemon.impl.PsiElementListNavigator
 import com.intellij.ide.util.gotoByName.GotoFileCellRenderer
-import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.navigation.GotoRelatedItem
+import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.util.TextRange
-import collection.GenIterable
-import scala.Some
+import com.intellij.psi.{NavigatablePsiElement, PsiDocumentManager, PsiElement}
+import com.intellij.util.Function
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+
+import scala.collection.GenIterable
 
 /**
  * User: Dmitry Naydanov

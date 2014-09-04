@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala
 package codeInsight.delegateMethod
 
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.codeInsight.delegate.ScalaGenerateDelegateHandler
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /**
  * Nikolay.Tropin

@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala
 package console
 
-import com.intellij.openapi.actionSystem.{CommonDataKeys, AnActionEvent, AnAction}
-import com.intellij.openapi.util.TextRange
 import java.io.{IOException, OutputStream}
-import com.intellij.openapi.editor.ex.EditorEx
+
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.util.TextRange
 
 /**
  * @author Ksenia.Sautina

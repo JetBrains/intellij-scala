@@ -5,9 +5,8 @@ package stubs
 package elements
 
 
-import api.base.ScConstructor
-import api.toplevel.templates.{ScTemplateParents, ScClassParents}
-import psi.impl.toplevel.templates.ScClassParentsImpl
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateParents}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScClassParentsImpl
 
 /**
  * User: Alexander Podkhalyuzin

@@ -1,18 +1,14 @@
 package org.jetbrains.plugins.scala.testingSupport.scalaTest;
 
 import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil;
-import org.scalatest.Filter$;
-import org.scalatest.Reporter;
-import org.scalatest.Stopper;
-import org.scalatest.Suite;
-import org.scalatest.Tracker;
+import org.scalatest.*;
 import org.scalatest.tools.Runner;
 import scala.None$;
 import scala.Option;
 import scala.Some$;
 import scala.collection.immutable.Map;
 
-import java.io.*;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;

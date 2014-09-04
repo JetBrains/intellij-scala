@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package format
 
-import base.SimpleTestCase
-import lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.psi.PsiManager
-import extensions.ElementText
-import lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.base.SimpleTestCase
+import org.jetbrains.plugins.scala.extensions.ElementText
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * Pavel Fatin

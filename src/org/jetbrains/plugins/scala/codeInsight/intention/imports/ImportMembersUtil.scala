@@ -1,17 +1,18 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intention.imports
 
+import java.util
+
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScPostfixExpr, ScReferenceExpression, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import scala.annotation.tailrec
-import org.jetbrains.plugins.scala.codeInsight.intention.expression.ConvertFromInfixExpressionIntention
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScPostfixExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import java.util
+
+import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 
 /**

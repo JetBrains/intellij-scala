@@ -5,24 +5,15 @@ package psi
 package impl
 
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
-import lang.psi.impl.base.ScStableCodeReferenceElementImpl
-import lang.psi.api.base.ScStableCodeReferenceElement
-import resolve.processor.BaseProcessor
-import com.intellij.openapi.progress.ProgressManager
-import lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
-import lang.psi.api.toplevel.imports.ScImportExpr
-import lang.psi.types.result.TypingContext
-import lang.psi.api.expr.{ScSuperReference, ScThisReference}
-import resolve.ResolveUtils
-import api.{ScDocComment, ScDocResolvableCodeReference}
-import com.intellij.psi.scope.PsiScopeProcessor
-import lang.psi.impl.ScPackageImpl._
-import com.intellij.psi.{JavaPsiFacade, ResolveState, PsiElement, PsiClass}
-import lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory}
-import extensions.toPsiClassExt
+import com.intellij.psi.{JavaPsiFacade, ResolveState}
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
 import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory}
+import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 
 /**
  * User: Dmitry Naydanov

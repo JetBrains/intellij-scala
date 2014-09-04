@@ -1,15 +1,16 @@
 package org.jetbrains.plugins.scala
 package worksheet.actions
 
+import javax.swing.{Icon, JPanel}
+
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.actionSystem.impl.ActionButton
-import javax.swing.{JPanel, Icon}
-import com.intellij.openapi.keymap.{KeymapUtil, KeymapManager}
-import com.intellij.openapi.application.{ModalityState, ApplicationManager}
+import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.psi.{PsiDocumentManager, PsiFile}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import com.intellij.openapi.keymap.{KeymapManager, KeymapUtil}
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiDocumentManager
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
  * User: Dmitry Naydanov

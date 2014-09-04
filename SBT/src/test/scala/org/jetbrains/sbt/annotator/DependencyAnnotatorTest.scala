@@ -1,9 +1,7 @@
 package org.jetbrains.sbt
 package annotator
 
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.module.ModuleManager
-import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar
 import org.jetbrains.plugins.scala.annotator.Error
 import org.jetbrains.sbt.project.module.SbtModule
 import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndexesManager}

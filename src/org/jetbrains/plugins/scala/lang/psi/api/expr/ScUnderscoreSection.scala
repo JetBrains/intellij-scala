@@ -4,12 +4,13 @@ package psi
 package api
 package expr
 
-import base.ScConstructor
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.PsiElement
-import collection.mutable.ListBuffer
-import annotation.tailrec
-import ScUnderScoreSectionUtil.isUnderscore
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderScoreSectionUtil.isUnderscore
+
+import scala.annotation.tailrec
+import scala.collection.mutable.ListBuffer
 
 /**
 * @author Alexander Podkhalyuzin

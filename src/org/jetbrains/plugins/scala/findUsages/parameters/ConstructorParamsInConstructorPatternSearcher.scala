@@ -2,21 +2,17 @@ package org.jetbrains.plugins.scala
 package findUsages
 package parameters
 
-import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.util.{Processor, QueryExecutor}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import com.intellij.find.findUsages.{CustomUsageSearcher, FindUsagesOptions}
 import com.intellij.psi._
-import search.{UsageSearchContext, PsiSearchHelper, TextOccurenceProcessor}
-import collection.mutable.HashSet
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignStmt}
-import lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.extensions.inReadAction
-import lang.psi.api.toplevel.typedef.ScClass
-import lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import lang.psi.api.base.patterns.ScConstructorPattern
-import com.intellij.find.findUsages.{FindUsagesOptions, CustomUsageSearcher}
+import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.usageView.UsageInfo
-import com.intellij.usages.{UsageInfoToUsageConverter, Usage}
+import com.intellij.usages.{Usage, UsageInfoToUsageConverter}
+import com.intellij.util.Processor
+import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 
 /**
  * {{{

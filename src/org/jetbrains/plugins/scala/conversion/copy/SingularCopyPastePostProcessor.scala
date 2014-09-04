@@ -1,16 +1,18 @@
 package org.jetbrains.plugins.scala
 package conversion.copy
 
-import com.intellij.codeInsight.editorActions.{TextBlockTransferableData, CopyPastePostProcessor}
-import com.intellij.psi.PsiFile
-import com.intellij.openapi.editor.{RangeMarker, Editor}
+import java.awt.datatransfer.Transferable
+import java.util.Collections._
+import java.{lang, util}
+
+import com.intellij.codeInsight.editorActions.{CopyPastePostProcessor, TextBlockTransferableData}
+import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Ref
-import java.awt.datatransfer.Transferable
-import java.{util, lang}
-import java.util.Collections._
-import scala.collection.JavaConverters._
+import com.intellij.psi.PsiFile
 import org.jetbrains.annotations.{NotNull, Nullable}
+
+import scala.collection.JavaConverters._
 
 
 /**

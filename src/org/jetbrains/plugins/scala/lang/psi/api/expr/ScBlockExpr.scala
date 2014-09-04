@@ -4,9 +4,8 @@ package psi
 package api
 package expr
 
-import base.patterns.ScCaseClauses
-import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.{Instruction, ScControlFlowPolicy}
 
 /**

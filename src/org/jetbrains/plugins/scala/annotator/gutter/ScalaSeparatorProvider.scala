@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.annotator.gutter
 
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScObject, ScClass}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackageContainer
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScIfStmt, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScIfStmt, ScBlock, ScNewTemplateDefinition}
-import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackageContainer
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 
 /**
  * Pavel.Fatin, 20.01.2010

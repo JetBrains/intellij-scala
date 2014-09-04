@@ -2,14 +2,15 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import java.awt.Color
+
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
-import lang.psi.api.expr._
-import lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.extensions._
-import lang.psi.ScalaPsiUtil
-import settings._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.settings._
 
 /**
  * Pavel Fatin

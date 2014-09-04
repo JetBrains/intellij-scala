@@ -3,9 +3,9 @@ package findUsages
 package apply
 
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
 import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
-import lang.psi.api.base.patterns.ScConstructorPattern
-import lang.psi.api.base.ScStableCodeReferenceElement
 
 class UnapplyMethodSearcher extends ApplyUnapplyMethodSearcherBase {
 

@@ -3,11 +3,11 @@ package codeInspection
 package inference
 
 import com.intellij.codeInspection._
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Any, AnyVal}
 import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScBlock, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Any, AnyVal, ScType}
 
 class SuspiciousInferredTypeInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean =  false // jzaugg: Disabled by default while I try this out.
@@ -32,7 +32,7 @@ class SuspiciousInferredTypeInspection extends LocalInspectionTool {
               val presentable = ScType.presentableText(inferredType)
               holder.registerProblem(holder.getManager.
                       createProblemDescriptor(expr, ScalaBundle.message("suspicicious.inference", presentable),
-                Array[LocalQuickFix](), ProblemHighlightType.INFO))
+                Array[LocalQuickFix](), ProblemHighlightType.WEAK_WARNING))
               // We don't call super.visitExpresion() to recurse further, as we couldn't annotate a sub-expression in an visually appealling manner.
               return
             case _ =>

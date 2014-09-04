@@ -5,17 +5,13 @@ package impl
 package base
 package patterns
 
-import api.base.patterns._
-import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-
 import com.intellij.psi._
-import impl.source.JavaDummyHolder
-import scope.PsiScopeProcessor
-import api.ScalaElementVisitor
-import tree.TokenSet
-import parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.InterpolationPattern
+import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.tree.TokenSet
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 
 /** 
 * @author Alexander Podkhalyuzin

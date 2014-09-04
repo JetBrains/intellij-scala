@@ -5,16 +5,15 @@ package impl
 package base
 package types
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
+import com.intellij.psi.{PsiElementVisitor, PsiMethod, PsiNamedElement, PsiTypeParameterListOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.types._
-import result.{TypeResult, Success, Failure, TypingContext}
-import api.base.ScConstructor
-import resolve.ScalaResolveResult
-import api.toplevel.ScTypeParametersOwner
-import api.ScalaElementVisitor
-import com.intellij.psi.{PsiElementVisitor, PsiTypeParameterListOwner, PsiNamedElement, PsiMethod}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * @author Alexander Podkhalyuzin, ilyas

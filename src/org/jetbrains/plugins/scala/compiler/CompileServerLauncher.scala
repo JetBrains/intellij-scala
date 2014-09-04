@@ -1,19 +1,21 @@
 package org.jetbrains.plugins.scala
 package compiler
 
-import com.intellij.openapi.components.ApplicationComponent
-import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
-import collection.JavaConverters._
-import com.intellij.util.PathUtil
-import java.io.{IOException, File}
-import com.intellij.openapi.application.ApplicationManager
-import extensions._
-import com.intellij.notification.{NotificationListener, Notifications, NotificationType, Notification}
-import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.project.Project
-import scala.util.control.Exception._
+import java.io.{File, IOException}
 import javax.swing.event.HyperlinkEvent
+
+import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.options.ShowSettingsUtil
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
+import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.util.PathUtil
+import org.jetbrains.plugins.scala.extensions._
+
+import scala.collection.JavaConverters._
+import scala.util.control.Exception._
 
 /**
  * @author Pavel Fatin
@@ -67,7 +69,7 @@ class CompileServerLauncher extends ApplicationComponent {
   }
 
    private def start(jdk: JDK): Either[String, Process] = {
-     import CompileServerLauncher.{compilerJars, jvmParameters}
+     import org.jetbrains.plugins.scala.compiler.CompileServerLauncher.{compilerJars, jvmParameters}
      val settings = ScalaApplicationSettings.getInstance
      
 

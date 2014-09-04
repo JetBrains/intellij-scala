@@ -6,14 +6,14 @@ package search
 
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Computable
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.DirectClassInheritorsSearch
-import com.intellij.util.{QueryExecutor, Processor}
-import stubs.util.ScalaStubsUtil
-import api.toplevel.typedef.ScTemplateDefinition
-import com.intellij.openapi.progress.ProgressManager
+import com.intellij.util.{Processor, QueryExecutor}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 
 /**
  * User: Alexander Podkhalyuzin

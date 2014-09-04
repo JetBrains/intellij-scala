@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
-import com.intellij.openapi.diagnostic.Logger
+import java.util.LinkedList
+
+import com.intellij.debugger.DebuggerBundle
+import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier, TypeEvaluator}
+import com.intellij.debugger.engine.evaluation.{EvaluateExceptionUtil, EvaluationContextImpl}
 import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.psi.PsiType
-import com.intellij.debugger.DebuggerBundle
 import com.sun.jdi._
-import java.util.LinkedList
-import com.intellij.debugger.engine.evaluation.expression.{TypeEvaluator, Modifier, Evaluator}
-import com.intellij.debugger.engine.evaluation.{EvaluationContextImpl, EvaluateExceptionUtil}
 
 /**
  * User: Alexander Podkhalyuzin

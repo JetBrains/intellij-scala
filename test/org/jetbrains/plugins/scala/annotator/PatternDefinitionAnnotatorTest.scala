@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.intellij.lang.annotations.Language
-import lang.psi.api.statements.ScPatternDefinition
+import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 
 /**
  * Pavel.Fatin, 18.05.2010

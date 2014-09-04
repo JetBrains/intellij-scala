@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala
 
+import scala.language.implicitConversions
+
 /**
  * @author ven
  */

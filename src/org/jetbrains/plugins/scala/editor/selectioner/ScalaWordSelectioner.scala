@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala
 package editor.selectioner
 
-import lang.psi.api.base.ScReferenceElement
-import lang.psi.api.expr.ScMethodCall
-import lang.psi.api.toplevel.templates.ScExtendsBlock
-import lang.psi.api.statements.params.{ScArguments, ScParameterClause}
-import lang.lexer.ScalaTokenTypes
-import com.intellij.openapi.util.TextRange
 import com.intellij.codeInsight.editorActions.ExtendWordSelectionHandlerBase
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScArguments, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 
 /**
  * User: Alexander Podkhalyuzin

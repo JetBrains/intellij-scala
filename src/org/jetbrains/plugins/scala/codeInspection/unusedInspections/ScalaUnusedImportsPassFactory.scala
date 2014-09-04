@@ -10,7 +10,6 @@ import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
-import java.lang.String
 
 /**
  * User: Alexander Podkhalyuzin

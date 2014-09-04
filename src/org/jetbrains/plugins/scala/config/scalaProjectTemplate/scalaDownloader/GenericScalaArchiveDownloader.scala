@@ -1,16 +1,17 @@
 package org.jetbrains.plugins.scala
 package config.scalaProjectTemplate.scalaDownloader
 
-import com.intellij.util.download.{DownloadableFileSetVersions, DownloadableFileService, DownloadableFileSetDescription}
-import com.intellij.openapi.project.Project
-import java.util.concurrent.locks.LockSupport
-import com.intellij.openapi.progress.ProgressManager
-import javax.swing.JComponent
 import java.io.{File, IOException}
-import java.util.zip.ZipFile
-import com.intellij.util.io.ZipUtil
 import java.net.URL
-import com.intellij.notification.{NotificationType, Notification, Notifications}
+import java.util.concurrent.locks.LockSupport
+import java.util.zip.ZipFile
+import javax.swing.JComponent
+
+import com.intellij.notification.{Notification, NotificationType, Notifications}
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.project.Project
+import com.intellij.util.download.{DownloadableFileService, DownloadableFileSetDescription, DownloadableFileSetVersions}
+import com.intellij.util.io.ZipUtil
 
 /**
  * User: Dmitry Naydanov

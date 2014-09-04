@@ -4,8 +4,8 @@ package scaladoc
 package psi
 package api
 
-import lang.psi.ScalaPsiElement
-import resolve.ResolvableStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.resolve.ResolvableStableCodeReferenceElement
 
 /**
  * User: Dmitry Naydanov

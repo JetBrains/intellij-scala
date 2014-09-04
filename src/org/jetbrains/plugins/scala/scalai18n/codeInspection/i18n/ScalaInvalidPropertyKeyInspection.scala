@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n
 import java.util
 
 import com.intellij.codeHighlighting.HighlightDisplayLevel
-import com.intellij.codeInsight.{AnnotationUtil, CodeInsightBundle}
 import com.intellij.codeInsight.daemon.GroupNames
+import com.intellij.codeInsight.{AnnotationUtil, CodeInsightBundle}
 import com.intellij.codeInspection._
 import com.intellij.codeInspection.i18n.JavaCreatePropertyFix
 import com.intellij.lang.properties.PropertiesReferenceManager

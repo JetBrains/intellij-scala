@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.lang.psi.util
 
-import com.intellij.psi.impl.ConstantExpressionEvaluator
 import com.intellij.psi.PsiConstantEvaluationHelper.AuxEvaluator
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScParenthesisedExpr, ScExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
+import com.intellij.psi.impl.ConstantExpressionEvaluator
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesisedExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 
 /**
  * @author Alexander Podkhalyuzin

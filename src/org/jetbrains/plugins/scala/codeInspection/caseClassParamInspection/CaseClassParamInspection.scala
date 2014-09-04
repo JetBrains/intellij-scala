@@ -2,13 +2,11 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package caseClassParamInspection
 
-import collection.mutable.ArrayBuffer
 import com.intellij.codeInspection._
-import java.lang.String
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import com.intellij.psi.{PsiElementVisitor, PsiFile}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 
 
 class CaseClassParamInspection extends LocalInspectionTool {

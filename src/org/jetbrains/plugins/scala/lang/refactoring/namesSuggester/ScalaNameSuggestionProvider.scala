@@ -3,17 +3,16 @@ package lang
 package refactoring
 package namesSuggester
 
+import java.util
+
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.codeStyle.SuggestedNameInfo
-import com.intellij.psi.{PsiNamedElement, PsiElement}
-
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.refactoring.rename.NameSuggestionProvider
-import psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
-import psi.types.result.TypingContext
-import java.lang.String
-import java.util
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
  * User: Alexander Podkhalyuzin

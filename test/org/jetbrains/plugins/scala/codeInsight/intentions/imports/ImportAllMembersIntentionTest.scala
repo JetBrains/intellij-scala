@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intentions.imports
 
-import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 import org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportAllMembersIntention
+import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 /**
  * Nikolay.Tropin

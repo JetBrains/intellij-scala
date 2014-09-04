@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.config.ui
 
-import com.intellij.util.ui.{ColumnInfo, ListTableModel}
-import org.jetbrains.plugins.scala.config.CompilerPlugin
 import java.awt.Color
 import javax.swing.table.DefaultTableCellRenderer
-import javax.swing.{UIManager, JTable}
+import javax.swing.{JTable, UIManager}
+
+import com.intellij.util.ui.{ColumnInfo, ListTableModel}
+import org.jetbrains.plugins.scala.config.CompilerPlugin
 
 /**
  * Pavel.Fatin, 31.07.2010

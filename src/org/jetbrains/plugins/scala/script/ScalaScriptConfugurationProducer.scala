@@ -1,17 +1,18 @@
 package org.jetbrains.plugins.scala
 package script
 
-import org.jetbrains.plugins.scala.testingSupport.RuntimeConfigurationProducerAdapter
-import com.intellij.psi.{PsiFile, PsiElement}
-import com.intellij.execution.{RunManager, RunnerAndConfigurationSettings, Location}
-import com.intellij.execution.actions.ConfigurationContext
-import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.openapi.module.ModuleUtilCore
-import org.jetbrains.plugins.scala.config.ScalaFacet
-import com.intellij.execution.configurations.RunConfiguration
-import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 import java.util
+
+import com.intellij.execution.actions.ConfigurationContext
+import com.intellij.execution.configurations.RunConfiguration
+import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl
+import com.intellij.execution.{Location, RunManager, RunnerAndConfigurationSettings}
+import com.intellij.openapi.module.ModuleUtilCore
+import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.config.ScalaFacet
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.testingSupport.RuntimeConfigurationProducerAdapter
 
 /**
  * @author Alefas
@@ -26,7 +27,7 @@ class ScalaScriptConfugurationProducer extends {
 
   override def findExistingByElement(location: Location[_ <: PsiElement], existingConfigurations: util.List[RunnerAndConfigurationSettings],
                                      context: ConfigurationContext): RunnerAndConfigurationSettings = {
-    import collection.JavaConversions._
+    import scala.collection.JavaConversions._
     existingConfigurations.find(c => isConfigurationByLocation(c.getConfiguration, location)).getOrElse(null)
   }
 

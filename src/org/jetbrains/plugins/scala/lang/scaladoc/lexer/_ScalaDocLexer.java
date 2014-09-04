@@ -19,7 +19,6 @@ package org.jetbrains.plugins.scala.lang.scaladoc.lexer;
 
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.*;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 
 

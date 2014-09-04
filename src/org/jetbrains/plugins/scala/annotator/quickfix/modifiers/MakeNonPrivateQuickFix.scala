@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala
 package annotator.quickfix.modifiers
 
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
-import com.intellij.openapi.project.Project
-import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
+import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 
 /**
  * Nikolay.Tropin

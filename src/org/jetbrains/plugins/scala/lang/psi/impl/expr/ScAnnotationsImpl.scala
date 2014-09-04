@@ -5,10 +5,9 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.util.ArrayFactory
-import parser.ScalaElementTypes
-import psi.stubs.ScAnnotationsStub
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScAnnotationsStub
 
 /** 
 * @author Alexander Podkhalyuzin

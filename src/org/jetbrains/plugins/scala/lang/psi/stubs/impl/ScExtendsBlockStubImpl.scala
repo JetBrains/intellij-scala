@@ -3,10 +3,10 @@ package lang
 package psi
 package stubs
 package impl
-import api.toplevel.templates.ScExtendsBlock
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubElement, IStubElementType}
+import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.util.io.StringRef
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 
 /**
  * @author ilyas

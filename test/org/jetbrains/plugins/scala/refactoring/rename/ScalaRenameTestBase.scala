@@ -1,19 +1,18 @@
 package org.jetbrains.plugins.scala
 package refactoring.rename
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import java.io.File
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import com.intellij.psi.{PsiMethod, PsiElement}
-import util.{TestUtils, ScalaUtils}
-import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.vfs.CharsetToolkit
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.refactoring.rename.{RenamePsiElementProcessor, RenameProcessor}
+
 import com.intellij.codeInsight.TargetElementUtilBase
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
-import base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import com.intellij.refactoring.rename.{RenameProcessor, RenamePsiElementProcessor}
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.util.{ScalaUtils, TestUtils}
 
 /**
  * User: Alexander Podkhalyuzin

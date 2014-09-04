@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala
 package codeInspection.collections
 
-import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
-import scala.Some
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
+import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
 
 /**
  * Nikolay.Tropin

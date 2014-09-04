@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala
 package format
 
-import lang.psi.api.expr.{ScBlockExpr, ScExpression}
-import org.jetbrains.plugins.scala.lang.psi.types
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import types.result.{Success, TypingContext}
-import com.intellij.psi.{PsiManager, PsiElement}
-import types.ScType
 import java.util.{IllegalFormatConversionException, IllegalFormatException}
+
+import com.intellij.psi.{PsiElement, PsiManager}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 
 /**
  * Pavel Fatin

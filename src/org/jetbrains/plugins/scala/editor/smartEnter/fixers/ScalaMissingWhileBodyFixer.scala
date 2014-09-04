@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package editor.smartEnter.fixers
 
-import com.intellij.psi.{PsiBlockStatement, PsiElement}
-import com.intellij.openapi.editor.{Editor, Document}
-import editor.smartEnter.ScalaSmartEnterProcessor
+import com.intellij.openapi.editor.{Document, Editor}
+import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import lang.psi.api.expr.{ScBlockExpr, ScWhileStmt}
+import org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScWhileStmt}
 
 /**
  * @author Ksenia.Sautina

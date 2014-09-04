@@ -4,15 +4,13 @@ package psi
 package impl
 package toplevel
 
-import api.statements.{ScVariableDefinition, ScPatternDefinition}
-
-import stubs.ScEarlyDefinitionsStub
-import com.intellij.psi.{ResolveState, PsiElement}
-import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.lang.ASTNode
-
+import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.{PsiElement, ResolveState}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScEarlyDefinitionsStub
 
 /** 
 * @author Alexander Podkhalyuzin

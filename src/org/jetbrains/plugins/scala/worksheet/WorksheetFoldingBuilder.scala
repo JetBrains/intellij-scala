@@ -1,17 +1,18 @@
 package org.jetbrains.plugins.scala
 package worksheet
 
-import java.lang.String
+import java.util
+import java.util.Collections
+
+import com.intellij.lang.ASTNode
 import com.intellij.lang.folding.{FoldingBuilder, FoldingDescriptor}
 import com.intellij.openapi.editor.Document
-import com.intellij.psi._
-import impl.source.SourceTreeToPsiMap
-import com.intellij.lang.ASTNode
-import collection.mutable.ArrayBuffer
-import java.util
-import lang.lexer.ScalaTokenTypes
 import com.intellij.openapi.util.TextRange
-import util.Collections
+import com.intellij.psi._
+import com.intellij.psi.impl.source.SourceTreeToPsiMap
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Ksenia.Sautina

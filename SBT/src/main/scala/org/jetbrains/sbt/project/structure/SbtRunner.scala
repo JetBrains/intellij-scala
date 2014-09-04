@@ -2,12 +2,14 @@ package org.jetbrains.sbt
 package project.structure
 
 import java.io._
-import scala.xml.{Elem, XML}
-import scala.collection.mutable
-import com.intellij.execution.process.OSProcessHandler
-import java.util.jar.{JarEntry, JarFile}
 import java.util.Properties
-import SbtRunner._
+import java.util.jar.{JarEntry, JarFile}
+
+import com.intellij.execution.process.OSProcessHandler
+import org.jetbrains.sbt.project.structure.SbtRunner._
+
+import scala.collection.mutable
+import scala.xml.{Elem, XML}
 
 /**
  * @author Pavel Fatin

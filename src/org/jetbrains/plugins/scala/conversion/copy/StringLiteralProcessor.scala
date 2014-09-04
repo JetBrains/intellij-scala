@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.conversion.copy
 
 import com.intellij.codeInsight.editorActions.CopyPastePreProcessor
+import com.intellij.openapi.editor.{Editor, RawText}
 import com.intellij.openapi.project.Project
-import java.lang.String
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import com.intellij.openapi.editor.{RawText, Editor}
 import com.intellij.openapi.util.text.{LineTokenizer, StringUtil}
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 /**
  * Pavel.Fatin, 21.07.2010

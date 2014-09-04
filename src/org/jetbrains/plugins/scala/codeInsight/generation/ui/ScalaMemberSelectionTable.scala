@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package codeInsight.generation.ui
 
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import com.intellij.refactoring.classMembers.MemberInfoModel
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.ui.ScalaMemberSelectionTableBase
 
 

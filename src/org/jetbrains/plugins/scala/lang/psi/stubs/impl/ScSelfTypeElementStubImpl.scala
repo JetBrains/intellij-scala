@@ -8,8 +8,7 @@ package impl
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.util.io.StringRef
-import java.lang.String
-import api.base.types.{ScTypeElement, ScSelfTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 
 /**
  * User: Alexander Podkhalyuzin

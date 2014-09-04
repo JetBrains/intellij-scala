@@ -2,40 +2,39 @@ package org.jetbrains.plugins.scala
 package lang
 package refactoring.extractMethod
 
-import com.intellij.psi._
-import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.DataContext
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.{ScrollType, Editor}
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
+import com.intellij.openapi.editor.{Editor, ScrollType}
+import com.intellij.openapi.project.Project
+import com.intellij.psi._
+import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.psi.search.LocalSearchScope
+import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.refactoring.util.CommonRefactoringUtil
+import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
+import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
-import scala.collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition, ScPatternDefinition, ScFunction, ScFunctionDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaRecursiveElementVisitor, ScalaFile}
-import psi.api.base.patterns.ScCaseClause
-import psi.types.result.TypingContext
-import com.intellij.refactoring.util.CommonRefactoringUtil
-import com.intellij.psi.codeStyle.CodeStyleManager
-import scala.annotation.tailrec
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
-import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.search.LocalSearchScope
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicatesUtil
-import org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger
-import com.intellij.internal.statistic.UsageTrigger
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+
+import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin

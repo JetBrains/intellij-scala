@@ -1,21 +1,9 @@
 package org.jetbrains.plugins.scala.lang.resolve;
 
-import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
-import com.intellij.psi.codeStyle.CodeStyleManager;
-import com.intellij.psi.codeStyle.CodeStyleSettings;
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId;
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition;
-import org.jetbrains.plugins.scala.util.TestUtils;
 
 /**
  * @author ilyas

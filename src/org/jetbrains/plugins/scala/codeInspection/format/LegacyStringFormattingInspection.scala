@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala
 package codeInspection.format
 
-import format._
-import lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.format._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * Pavel Fatin

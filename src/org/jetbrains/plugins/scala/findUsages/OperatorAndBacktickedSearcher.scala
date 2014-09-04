@@ -1,23 +1,24 @@
 package org.jetbrains.plugins.scala
 package findUsages
 
+import java.util
+
+import com.intellij.openapi.application.ReadActionProcessor
+import com.intellij.openapi.project.IndexNotReadyException
+import com.intellij.openapi.roots.FileIndexFacade
+import com.intellij.openapi.util.Condition
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.impl.PsiManagerEx
+import com.intellij.psi.impl.cache.impl.id.{IdIndex, IdIndexEntry}
+import com.intellij.psi.impl.search.PsiSearchHelperImpl
 import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.util.{CommonProcessors, QueryExecutor, Processor}
+import com.intellij.psi.search.{GlobalSearchScope, PsiSearchHelper, TextOccurenceProcessor, UsageSearchContext}
 import com.intellij.psi.{PsiElement, PsiReference}
-import com.intellij.psi.search.{GlobalSearchScope, UsageSearchContext, PsiSearchHelper, TextOccurenceProcessor}
+import com.intellij.util.containers.ContainerUtil
+import com.intellij.util.indexing.FileBasedIndex
+import com.intellij.util.{CommonProcessors, Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import com.intellij.openapi.project.IndexNotReadyException
-import com.intellij.psi.impl.PsiManagerEx
-import com.intellij.psi.impl.search.PsiSearchHelperImpl
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.util.Condition
-import com.intellij.openapi.roots.FileIndexFacade
-import com.intellij.util.containers.ContainerUtil
-import com.intellij.openapi.application.ReadActionProcessor
-import java.util
-import com.intellij.psi.impl.cache.impl.id.{IdIndex, IdIndexEntry}
-import com.intellij.util.indexing.FileBasedIndex
 
 /**
  * Nikolay.Tropin

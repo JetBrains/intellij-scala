@@ -4,9 +4,6 @@ package psi
 package api
 package expr
 
-import psi.ScalaPsiElement
-import com.intellij.psi._
-
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008

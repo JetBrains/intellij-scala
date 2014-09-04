@@ -4,20 +4,19 @@ package psi
 package impl
 package expr
 
-import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import api.expr._
-import java.lang.String
-import api.statements.params.ScTypeParam
-import types._
-import api.statements.ScFunction
-import collection.mutable.ArrayBuffer
-import resolve.ScalaResolveResult
-import collection.Seq
-import result.{Success, TypeResult, TypingContext}
-import api.ScalaElementVisitor
-import com.intellij.psi.{PsiElementVisitor, PsiParameter, PsiMethod, PsiTypeParameter}
-import org.jetbrains.plugins.scala.extensions.{PsiParameterExt, toPsiNamedElementExt}
+import com.intellij.psi.{PsiElementVisitor, PsiMethod, PsiParameter, PsiTypeParameter}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+
+import scala.collection.Seq
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin

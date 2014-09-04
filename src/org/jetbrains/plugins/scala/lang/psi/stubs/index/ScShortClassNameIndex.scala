@@ -4,8 +4,7 @@ package psi
 package stubs
 package index
 import com.intellij.psi.PsiClass
-import api.toplevel.typedef.ScTypeDefinition
-import com.intellij.psi.stubs.{StringStubIndexExtension, StubIndexKey}
+import com.intellij.psi.stubs.StringStubIndexExtension
 
 /**
  * @author ilyas

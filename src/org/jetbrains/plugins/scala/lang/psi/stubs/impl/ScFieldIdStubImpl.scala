@@ -5,10 +5,10 @@ package stubs
 package impl
 
 
-import api.base.ScFieldId
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.util.io.StringRef
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 
 /**
  * User: Alexander Podkhalyuzin

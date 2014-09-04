@@ -5,8 +5,7 @@ package api
 package base
 package types
 
-import statements.{ScDeclaredElementsHolder, ScTypeAlias}
-import psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScTypeAlias}
 
 /**
 * @author Alexander Podkhalyuzin

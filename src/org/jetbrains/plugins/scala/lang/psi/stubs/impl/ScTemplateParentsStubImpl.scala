@@ -5,15 +5,15 @@ package stubs
 package impl
 
 
-import api.base.types.ScTypeElement
-import api.toplevel.templates.ScTemplateParents
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
-import com.intellij.util.io.StringRef
-import types.result.TypingContext
-import psi.impl.ScalaPsiElementFactory
-import types._
 import com.intellij.reference.SoftReference
+import com.intellij.util.io.StringRef
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
  * User: Alexander Podkhalyuzin

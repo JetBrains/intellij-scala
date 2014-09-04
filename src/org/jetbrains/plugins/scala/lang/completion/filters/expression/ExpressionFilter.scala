@@ -3,13 +3,13 @@ package lang
 package completion
 package filters.expression
 
-import psi.api.base.patterns.ScStableReferenceElementPattern
+import com.intellij.psi._
 import com.intellij.psi.filters.ElementFilter
 import org.jetbrains.annotations.NonNls
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
+import org.jetbrains.plugins.scala.lang.parser._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferenceElementPattern
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /** 
  * @author Alexander Podkhalyuzin

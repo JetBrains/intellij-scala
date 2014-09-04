@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package codeInspection.functionExpressions
 
-import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
 import com.intellij.codeInspection.LocalInspectionTool
+import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
 
 /**
  * Nikolay.Tropin

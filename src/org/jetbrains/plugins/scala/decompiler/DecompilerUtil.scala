@@ -1,27 +1,29 @@
 package org.jetbrains.plugins.scala
 package decompiler
 
+import java.io._
+
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.openapi.project.ex.ProjectManagerEx
-import com.intellij.openapi.util.Key
-import com.intellij.openapi.vfs.{VirtualFileWithId, CharsetToolkit, VirtualFile}
-import java.io._
-import scala.tools.scalap.scalax.rules.scalasig._
-import scala.tools.scalap.scalax.rules.scalasig.ClassFileParser.{ArrayValue, ConstValueIndex, Annotation}
-import scala.reflect.internal.pickling.ByteCodecs
-import CharsetToolkit.UTF8
 import com.intellij.openapi.project.{Project, ProjectManager}
+import com.intellij.openapi.util.Key
+import com.intellij.openapi.vfs.CharsetToolkit.UTF8
 import com.intellij.openapi.vfs.newvfs.FileAttribute
+import com.intellij.openapi.vfs.{CharsetToolkit, VirtualFile, VirtualFileWithId}
 import com.intellij.reference.SoftReference
+
+import scala.reflect.internal.pickling.ByteCodecs
+import scala.tools.scalap.scalax.rules.scalasig.ClassFileParser.{Annotation, ArrayValue, ConstValueIndex}
+import scala.tools.scalap.scalax.rules.scalasig._
 
 /**
  * @author ilyas
  */
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil")
-  val DECOMPILER_VERSION = 250
+  val DECOMPILER_VERSION = 251
   private val SCALA_DECOMPILER_FILE_ATTRIBUTE = new FileAttribute("_is_scala_compiled_", DECOMPILER_VERSION, true)
   private val SCALA_DECOMPILER_KEY = new Key[SoftReference[DecompilationResult]]("Is Scala File Key")
   

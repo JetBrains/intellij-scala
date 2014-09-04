@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.extensions
 
+import com.intellij.psi.{PsiElement, PsiReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import com.intellij.psi.{PsiReference, PsiElement}
 
 /**
  * Pavel Fatin

@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala
 package config
 
 import java.io.File
-import FileAPI._
+
 import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.roots.libraries.Library
+import org.jetbrains.plugins.scala.config.FileAPI._
 /**
  * Pavel.Fatin, 26.07.2010
  */

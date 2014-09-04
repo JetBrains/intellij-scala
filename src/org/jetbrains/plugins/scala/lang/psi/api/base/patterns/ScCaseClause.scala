@@ -5,11 +5,10 @@ package api
 package base
 package patterns
 
-import psi.ScalaPsiElement
-import expr.{ScExpression, ScGuard}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.TokenSet
-import lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScGuard}
 
 /** 
 * @author Alexander Podkhalyuzin

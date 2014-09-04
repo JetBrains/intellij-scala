@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala
 
+import java.io.File
+
+import com.intellij.ide.util.projectWizard.ModuleBuilder
+import com.intellij.openapi.module.{Module, ModuleType, StdModuleTypes}
+import com.intellij.openapi.roots.{ContentEntry, ModifiableRootModel, OrderRootType}
+import com.intellij.openapi.vfs.{JarFileSystem, VfsUtil}
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
 import com.intellij.testFramework.{IdeaTestUtil, LightProjectDescriptor}
-import com.intellij.openapi.projectRoots.impl.JavaSdkImpl
-import lang.psi.impl.toplevel.synthetic.SyntheticClasses
-import util.TestUtils
-import com.intellij.openapi.roots.{OrderRootType, ContentEntry, ModifiableRootModel}
-import com.intellij.openapi.module.{ModuleType, Module, StdModuleTypes}
-import com.intellij.ide.util.projectWizard.ModuleBuilder
-import com.intellij.openapi.vfs.{VfsUtil, JarFileSystem}
-import java.io.File
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
+import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
  * @author ilyas

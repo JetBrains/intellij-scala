@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi
 
-import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.{ResolveState, PsiElementVisitor, PsiElement}
 import com.intellij.openapi.util.Key
+import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.{PsiElement, PsiElementVisitor, ResolveState}
 
 /**
  * Pavel.Fatin, 11.05.2010

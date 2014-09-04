@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInspection
 
-import base.SimpleTestCase
-import com.intellij.codeInspection.{ProblemDescriptor, InspectionManager}
+import org.jetbrains.plugins.scala.base.SimpleTestCase
 
 class SuspiciousNewLineInMethodCallTest extends SimpleTestCase {
 

@@ -8,7 +8,7 @@ package lang.scaladoc
 
 class DocStubGenerationTest extends ScalaDocEnterActionTestBase {
 
-  import DocStubGenerationTest._
+  import org.jetbrains.plugins.scala.lang.scaladoc.DocStubGenerationTest._
 
   private def transformateGeneratedText(text: String): String = {
     text.substring(standartHeader.length(), text.length())

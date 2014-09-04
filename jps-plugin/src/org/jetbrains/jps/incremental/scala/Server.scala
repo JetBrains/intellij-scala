@@ -1,7 +1,7 @@
 package org.jetbrains.jps.incremental.scala
 
-import data.{CompilationData, CompilerData, SbtData}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
+import org.jetbrains.jps.incremental.scala.data.{CompilationData, CompilerData, SbtData}
 
 /**
  * @author Pavel Fatin

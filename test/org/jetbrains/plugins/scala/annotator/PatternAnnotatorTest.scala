@@ -2,10 +2,9 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
-import org.jetbrains.plugins.scala.extensions.toPsiElementExt
 import org.junit.Assert.assertEquals
-import org.jetbrains.plugins.scala.ScalaBundle
 
 /**
  * Nikolay.Tropin

@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.extensions
 
-import com.intellij.psi.{PsiMember, PsiClass, PsiElement}
+import com.intellij.psi.{PsiClass, PsiMember}
 
 /**
  * Pavel Fatin

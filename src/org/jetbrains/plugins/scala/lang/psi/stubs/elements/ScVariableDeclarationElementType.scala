@@ -5,11 +5,10 @@ package stubs
 package elements
 
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.ScValueDeclarationImpl
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.ScVariableDeclarationImpl
-import api.statements.{ScValue, ScVariable}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 
 /**
  * User: Alexander Podkhalyuzin

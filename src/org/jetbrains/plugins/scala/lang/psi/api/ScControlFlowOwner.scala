@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.{ScControlFlowPolicy, Instruction}
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{ScalaControlFlowBuilder, AllVariablesControlFlowPolicy}
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{AllVariablesControlFlowPolicy, ScalaControlFlowBuilder}
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.{Instruction, ScControlFlowPolicy}
+
 import scala.collection.mutable
 
 /**

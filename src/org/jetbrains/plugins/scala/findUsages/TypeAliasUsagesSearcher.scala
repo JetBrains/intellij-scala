@@ -6,14 +6,13 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.search._
 import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.util.Processor
-import org.jetbrains.annotations.NotNull
-import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import lang.resolve.ResolvableReferenceElement
-import lang.psi.api.base.ScConstructor
 import com.intellij.psi.util.PsiTreeUtil
-import lang.psi.api.statements.ScTypeAliasDefinition
+import com.intellij.util.Processor
+import org.jetbrains.annotations.{NotNull, Nullable}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
 
 
 /**

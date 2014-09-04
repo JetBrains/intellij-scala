@@ -4,7 +4,6 @@ package psi
 package api
 package expr
 
-import java.lang.UnsupportedOperationException
 import com.intellij.psi.PsiElement
 
 /** 

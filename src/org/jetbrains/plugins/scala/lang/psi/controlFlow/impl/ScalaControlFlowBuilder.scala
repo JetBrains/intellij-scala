@@ -2,20 +2,19 @@ package org.jetbrains.plugins.scala
 package lang.psi.controlFlow.impl
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.{ScControlFlowPolicy, Instruction}
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScPattern, ScCaseClause}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScParameterOwner, ScFunction, ScVariableDefinition, ScPatternDefinition}
-import collection.mutable.ArrayBuffer
-import scala.collection.mutable
 import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.types
-import extensions.childOf
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParameterOwner, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.{Instruction, ScControlFlowPolicy}
+import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author ilyas
@@ -113,7 +112,6 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
     if (!myPending.contains((instruction, scopeWhenAdded)))
       myPending.insert(math.max(index, 0), (instruction, scopeWhenAdded))
-    None.getOrElse()
   }
 
   private def advancePendingEdges(fromScope: ScalaPsiElement, toScope: ScalaPsiElement) {

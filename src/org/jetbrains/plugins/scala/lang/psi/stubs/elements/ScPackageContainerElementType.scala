@@ -4,11 +4,11 @@ package psi
 package stubs
 package elements
 
-import api.toplevel.packaging.ScPackageContainer
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
-import impl.ScPackageContainerStubImpl
-import index.ScalaIndexKeys
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackageContainer
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScPackageContainerStubImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 
 /**
  * @author ilyas

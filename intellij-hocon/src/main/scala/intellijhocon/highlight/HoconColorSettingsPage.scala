@@ -1,12 +1,13 @@
 package intellijhocon
 package highlight
 
-import com.intellij.openapi.options.colors.{AttributesDescriptor, ColorSettingsPage}
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory
-import scala.collection.JavaConverters._
-import intellijhocon.lang.HoconLanguage
+import com.intellij.openapi.options.colors.{AttributesDescriptor, ColorSettingsPage}
 import intellijhocon.highlight.{HoconHighlighterColors => HHC}
+import intellijhocon.lang.HoconLanguage
+
+import scala.collection.JavaConverters._
 
 class HoconColorSettingsPage extends ColorSettingsPage {
   def getIcon =

@@ -5,25 +5,25 @@ package impl
 package toplevel
 package packaging
 
-import api.base.ScStableCodeReferenceElement
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
-import lexer.ScalaTokenTypes
-import parser.ScalaElementTypes
-import api.toplevel.packaging._
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.tree.TokenSet
+import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackageContainerStub
-import com.intellij.openapi.progress.ProgressManager
-import java.lang.String
-import api.toplevel.typedef.ScTypeDefinition
-import search.GlobalSearchScope
-import tree.TokenSet
-import collection.mutable.ArrayBuffer
-import com.intellij.openapi.project.DumbService
-import caches.ScalaShortNamesCacheManager
-import types.result.TypingContext
-import types.ScType
-import lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin, Pavel Fatin

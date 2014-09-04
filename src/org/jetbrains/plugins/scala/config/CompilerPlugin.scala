@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.config
 
-import org.jetbrains.plugins.scala.config.FileAPI._
 import java.io.File
 import java.util.List
-import collection.JavaConversions._
+
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.vfs.{VfsUtilCore, VfsUtil}
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.vfs.VfsUtilCore
+import org.jetbrains.plugins.scala.config.FileAPI._
+
+import scala.collection.JavaConversions._
 
 /**
  * Pavel.Fatin, 31.07.2010

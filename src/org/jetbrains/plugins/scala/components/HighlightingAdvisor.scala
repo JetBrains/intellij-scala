@@ -1,22 +1,24 @@
 package org.jetbrains.plugins.scala.components
 
-import org.intellij.lang.annotations.Language
-import com.intellij.openapi.wm.{StatusBarWidget, WindowManager, StatusBar}
-import com.intellij.openapi.wm.StatusBarWidget.PlatformType
-import org.jetbrains.plugins.scala.icons.Icons
 import java.awt.event.MouseEvent
-import com.intellij.ide.DataManager
-import com.intellij.util.{FileContentUtil, Consumer}
-import collection.JavaConversions._
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.config.ScalaFacet
+
 import com.intellij.facet.{ProjectWideFacetAdapter, ProjectWideFacetListenersRegistry}
-import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
-import com.intellij.openapi.editor.ex.EditorEx
-import com.intellij.openapi.util._
-import com.intellij.openapi.components._
+import com.intellij.ide.DataManager
 import com.intellij.notification._
+import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
+import com.intellij.openapi.components._
+import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util._
+import com.intellij.openapi.wm.StatusBarWidget.PlatformType
+import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
+import com.intellij.util.{Consumer, FileContentUtil}
+import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.config.ScalaFacet
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.util.NotificationUtil
+
+import scala.collection.JavaConversions._
 
 @State(name = "HighlightingAdvisor", storages = Array(
   new Storage(id = "default", file = "$PROJECT_FILE$"),

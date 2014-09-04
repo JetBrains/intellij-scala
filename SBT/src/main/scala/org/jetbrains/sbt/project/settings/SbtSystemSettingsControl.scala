@@ -15,7 +15,7 @@ class SbtSystemSettingsControl(settings: SbtSettings) extends ExternalSystemSett
 
   def disposeUIResources() {}
 
-  def apply(settings: SbtSettings) = null
+  def apply(settings: SbtSettings) {}
 
   def reset() {}
 

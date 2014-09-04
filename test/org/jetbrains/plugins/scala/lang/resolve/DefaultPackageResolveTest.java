@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala.lang.resolve;
 
-import com.intellij.testFramework.ResolveTestCase;
 import com.intellij.psi.PsiReference;
-import org.jetbrains.plugins.scala.util.TestUtils;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaration;
 
 /**
  * User: Alexander Podkhalyuzin

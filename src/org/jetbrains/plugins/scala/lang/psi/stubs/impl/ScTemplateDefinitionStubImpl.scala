@@ -6,9 +6,9 @@ package impl
 
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiElement
+import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.util.io.StringRef
-import com.intellij.psi.stubs.{StubElement, IStubElementType}
-import api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 /**
  * @author ilyas

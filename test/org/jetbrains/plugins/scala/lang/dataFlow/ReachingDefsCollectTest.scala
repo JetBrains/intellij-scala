@@ -1,17 +1,16 @@
 package org.jetbrains.plugins.scala.lang.dataFlow
 
+import com.intellij.openapi.editor.SelectionModel
 import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
+import junit.framework.Assert
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs._
 import org.jetbrains.plugins.scala.util.TestUtils
-import junit.framework.Assert
-import com.intellij.openapi.editor.SelectionModel
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.{LightScalaTestCase, ScalaFileType}
+
 import scala.util.Sorting
-import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 
 /**
  * @author ilyas
@@ -38,7 +37,7 @@ class ReachingDefsCollectTest extends LightScalaTestCase {
     val scope: ScControlFlowOwner = PsiTreeUtil.getParentOfType(PsiTreeUtil.findCommonParent(start, end), 
       classOf[ScControlFlowOwner], false)
 
-    import ReachingDefintionsCollector._
+    import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector._
     val infos = collectVariableInfo(range, scope)
     val cf = dumpDefInfos(infos)
     Assert.assertEquals(input.get(1).trim, cf.trim)

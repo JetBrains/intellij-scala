@@ -4,20 +4,16 @@ package refactoring
 package rename
 
 
-import com.intellij.psi.{PsiNamedElement, PsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
-import com.intellij.refactoring.rename.{RenameJavaMemberProcessor, RenameJavaMethodProcessor}
-import com.intellij.psi.search.searches.ReferencesSearch
+import java.util
+
 import com.intellij.openapi.editor.Editor
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import com.intellij.openapi.util.Pass
 import com.intellij.psi.search.PsiElementProcessor
-import java.util
-import scala.collection.mutable.ArrayBuffer
+import com.intellij.psi.{PsiElement, PsiNamedElement}
+import com.intellij.refactoring.rename.RenameJavaMemberProcessor
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.ui.DialogWrapper
 
 /**
  * User: Jason Zaugg

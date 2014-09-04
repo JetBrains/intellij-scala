@@ -3,12 +3,12 @@ package lang
 package psi
 package api
 
-import com.intellij.psi.impl.source.PsiFileWithStubSupport
-import toplevel.packaging.ScPackaging
-import toplevel.ScToplevelElement
-import org.jetbrains.annotations.Nullable
-import com.intellij.psi.{PsiClassOwnerEx, PsiClassOwner, PsiImportHolder, PsiClass}
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.impl.source.PsiFileWithStubSupport
+import com.intellij.psi.{PsiClass, PsiClassOwnerEx, PsiImportHolder}
+import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScToplevelElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 
 /**
  * @author ilyas

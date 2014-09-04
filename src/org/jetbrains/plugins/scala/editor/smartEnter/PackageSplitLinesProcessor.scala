@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala
 package editor.smartEnter
 
 import com.intellij.codeInsight.editorActions.smartEnter.SmartEnterProcessor
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.PsiFile
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiFile
 
 /**
  * Pavel Fatin

@@ -4,7 +4,7 @@ package project.data
 import java.io.File
 
 import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
-import com.intellij.openapi.externalSystem.model.{ProjectSystemId, ProjectKeys, Key}
+import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys, ProjectSystemId}
 
 /**
  * @author Nikolay Obedin

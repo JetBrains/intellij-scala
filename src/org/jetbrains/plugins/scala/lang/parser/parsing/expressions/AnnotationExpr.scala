@@ -4,10 +4,10 @@ package parser
 package parsing
 package expressions
 
-import base.Constructor
-import lexer.ScalaTokenTypes
-import builder.ScalaPsiBuilder
-import util.ParserUtils
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.Constructor
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin

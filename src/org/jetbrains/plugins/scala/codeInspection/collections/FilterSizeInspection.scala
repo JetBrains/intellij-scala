@@ -3,7 +3,6 @@ package codeInspection.collections
 
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 
 /**
  * Nikolay.Tropin

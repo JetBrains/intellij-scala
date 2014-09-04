@@ -1,23 +1,24 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.memberPullUp
 
-import com.intellij.refactoring.{RefactoringBundle, BaseRefactoringProcessor}
 import com.intellij.openapi.project.Project
-import com.intellij.usageView.{UsageViewDescriptor, UsageInfo}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractMemberInfo
-import com.intellij.psi.{PsiDocumentManager, PsiElement}
-import scala.collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.psi.codeStyle.CodeStyleManager
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContext, Success}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import com.intellij.refactoring.{BaseRefactoringProcessor, RefactoringBundle}
+import com.intellij.usageView.{UsageInfo, UsageViewDescriptor}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractMemberInfo
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeContextUtil
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * Nikolay.Tropin

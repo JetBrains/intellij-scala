@@ -4,12 +4,12 @@ package psi
 package stubs
 package elements
 
+import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs._
 import com.intellij.util.io.StringRef
-import impl.{ScFieldIdStubImpl}
-import api.base.ScFieldId
-import com.intellij.psi.PsiElement
-import psi.impl.base.ScFieldIdImpl
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScFieldIdImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFieldIdStubImpl
 /**
  * User: Alexander Podkhalyuzin
  * Date: 19.07.2009

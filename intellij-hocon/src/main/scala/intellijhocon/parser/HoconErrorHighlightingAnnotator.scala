@@ -1,20 +1,19 @@
 package intellijhocon
 package parser
 
-import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
-import com.intellij.psi.{StringEscapesTokenTypes, TokenType, PsiElement}
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType
-import intellijhocon.lexer.HoconTokenType
-import intellijhocon.Util
+import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.lexer.StringLiteralLexer
+import com.intellij.psi.tree.IElementType
+import com.intellij.psi.{PsiElement, StringEscapesTokenTypes, TokenType}
+import intellijhocon.lexer.HoconTokenType
 
 class HoconErrorHighlightingAnnotator extends Annotator {
 
-  import HoconTokenType._
-  import HoconElementType._
-  import HoconElementSets._
-  import Util._
+  import intellijhocon.Util._
+  import intellijhocon.lexer.HoconTokenType._
+  import intellijhocon.parser.HoconElementSets._
+  import intellijhocon.parser.HoconElementType._
 
   def annotate(element: PsiElement, holder: AnnotationHolder) {
     element.getNode.getElementType match {

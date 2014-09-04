@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import org.jetbrains.plugins.scala.base.SimpleTestCase
-import org.intellij.lang.annotations.Language
 import junit.framework.Assert
+import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.base.SimpleTestCase
 
 /**
  * Pavel.Fatin, 18.05.2010

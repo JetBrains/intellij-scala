@@ -4,12 +4,12 @@ package psi
 package stubs
 package elements
 
-import api.statements.{ScPatternDefinition, ScValue, ScValueDeclaration}
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io.StringRef
-import impl.ScValueStubImpl
-import index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScValue, ScValueDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScValueStubImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 
 /**
  * User: Alexander Podkhalyuzin

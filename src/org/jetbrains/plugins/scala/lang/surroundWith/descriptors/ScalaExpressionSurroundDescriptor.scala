@@ -8,18 +8,13 @@ package descriptors;
  * Date: 09.01.2007
  *
  */
-import com.intellij.lang.surroundWith.SurroundDescriptor
-import psi.ScalaPsiUtil
-import com.intellij.lang.surroundWith.Surrounder
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiFile
-import com.intellij.psi.PsiWhiteSpace;
+import com.intellij.lang.surroundWith.{SurroundDescriptor, Surrounder}
+import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-
-
-import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression._
 
 
 class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {

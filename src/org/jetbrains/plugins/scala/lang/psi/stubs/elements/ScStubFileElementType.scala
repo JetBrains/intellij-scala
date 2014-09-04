@@ -3,12 +3,12 @@ package lang
 package psi
 package stubs
 package elements
-import api.ScalaFile
 import com.intellij.lang.Language
-import com.intellij.psi.stubs.{IndexSink, StubOutputStream, StubInputStream}
-import decompiler.DecompilerUtil
-import wrappers.IStubFileElementWrapper
 import com.intellij.psi.StubBuilder
+import com.intellij.psi.stubs.{IndexSink, StubInputStream, StubOutputStream}
+import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.wrappers.IStubFileElementWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 
 /**

@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.lang.completion.lookups
 
 import com.intellij.psi.impl.light.LightElement
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, PsiManager}
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 /**
  * @author Alefas

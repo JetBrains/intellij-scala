@@ -4,12 +4,13 @@ package psi
 package stubs
 package index
 
+import java.util
+
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.search.ScSourceFilterScope
-import api.statements.ScTypeAlias
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{StringStubIndexExtension, StubIndexKey}
-import java.util
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 
 /**
  * User: Alexander Podkhalyuzin

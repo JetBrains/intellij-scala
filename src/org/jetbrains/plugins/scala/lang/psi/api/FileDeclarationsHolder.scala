@@ -1,28 +1,29 @@
 package org.jetbrains.plugins.scala
 package lang.psi.api
 
-import extensions._
-import lang.psi.api.base.ScStableCodeReferenceElement
-import com.intellij.psi._
-import com.intellij.psi.scope.PsiScopeProcessor
-import lang.psi.impl._
-import lang.resolve.processor.{BaseProcessor, ResolveProcessor, ImplicitProcessor, ResolverEnv}
-import lang.psi.impl.expr.ScReferenceExpressionImpl
-import util.PsiTreeUtil
-import lang.psi.api.toplevel.packaging.ScPackaging
-import lang.resolve.ResolveUtils
-import com.intellij.psi.impl.migration.PsiMigrationManager
-import lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import com.intellij.openapi.progress.ProgressManager
-import scala.collection.mutable
-import lang.psi.api.toplevel.typedef.ScTypeDefinition
-import lang.psi.types.result.TypingContext
-import lang.psi.types.ScType
-import caches.ScalaShortNamesCacheManager
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScImportsHolder, ScDeclarationSequenceHolder}
+import com.intellij.psi._
+import com.intellij.psi.impl.migration.PsiMigrationManager
+import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
-import collection.mutable.ArrayBuffer
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl._
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder}
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes
+import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
+
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Dmitry Naydanov

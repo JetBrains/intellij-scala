@@ -1,19 +1,21 @@
 package org.jetbrains.plugins.scala
 package config
 
-import org.jetbrains.idea.maven.importing.{FacetImporter, MavenModifiableModelsProvider, MavenRootModelAdapter}
-import com.intellij.openapi.module.Module
 import java.util.{List, Map}
-import org.jetbrains.idea.maven.project._
-import com.intellij.openapi.roots.OrderRootType
-import collection.JavaConversions._
-import org.jdom.Element
-import FileAPI._
-import org.jetbrains.idea.maven.model.{MavenArtifactInfo, MavenId}
-import org.jetbrains.idea.maven.server.{NativeMavenProjectHolder, MavenEmbedderWrapper}
-import org.jetbrains.plugins.scala.extensions._
-import com.intellij.openapi.project.Project
+
 import com.intellij.compiler.{CompilerConfiguration, CompilerConfigurationImpl}
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.OrderRootType
+import org.jdom.Element
+import org.jetbrains.idea.maven.importing.{FacetImporter, MavenModifiableModelsProvider, MavenRootModelAdapter}
+import org.jetbrains.idea.maven.model.{MavenArtifactInfo, MavenId}
+import org.jetbrains.idea.maven.project._
+import org.jetbrains.idea.maven.server.{MavenEmbedderWrapper, NativeMavenProjectHolder}
+import org.jetbrains.plugins.scala.config.FileAPI._
+import org.jetbrains.plugins.scala.extensions._
+
+import scala.collection.JavaConversions._
 
 /**
  * Pavel.Fatin, 03.08.2010
@@ -24,7 +26,7 @@ class ScalaMavenImporter extends FacetImporter[ScalaFacet, ScalaFacetConfigurati
 
   private val LibraryName = "Maven: org.scala-lang:scala-compiler-bundle:%s".format(_: String)
 
-  private implicit def toRichMavenProject(project: MavenProject) = new {
+  private implicit class RichMavenProject(val project: MavenProject) {
     def localPathTo(id: MavenId) = project.getLocalRepository / id.getGroupId.replaceAll("\\.", "/") /
             id.getArtifactId / id.getVersion / "%s-%s.jar".format(id.getArtifactId, id.getVersion)
   }

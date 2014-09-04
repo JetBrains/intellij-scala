@@ -1,20 +1,15 @@
 package org.jetbrains.plugins.scala.lang.parser
 
-import org.jetbrains.plugins.scala.base.SimpleTestCase
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.psi.{PsiFileFactory, PsiElement}
-import com.intellij.psi.impl.source.DummyHolderFactory
-import parsing.builder.ScalaPsiBuilderImpl
 import com.intellij.lang.PsiBuilderFactory
-import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
-import org.jetbrains.plugins.scala.ScalaFileType
-import parsing.expressions.BlockExpr
-import parsing.statements.Dcl
-import com.intellij.psi.impl.source.tree.{TreeElement, FileElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScIdList
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValueDeclaration, ScPatternDefinition}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import com.intellij.psi.impl.source.DummyHolderFactory
+import com.intellij.psi.impl.source.tree.{FileElement, TreeElement}
+import com.intellij.psi.{PsiElement, PsiFileFactory}
 import junit.framework.Assert
+import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.base.SimpleTestCase
+import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockExpr
 
 /**
  * @author Alexander Podkhalyuzin

@@ -2,17 +2,14 @@ package org.jetbrains.plugins.scala
 package decompiler
 
 import _root_.org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter
-
-
-import lang.psi.api.ScalaFile
 import com.intellij.lang.Language
-import com.intellij.openapi.fileTypes.ContentBasedClassFileProcessor
-import com.intellij.openapi.fileTypes.StdFileTypes
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.fileTypes.{ContentBasedClassFileProcessor, StdFileTypes}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiManager}
-import settings._
-import com.intellij.openapi.application.ApplicationManager
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.settings._
 
 /**
  * @author ilyas

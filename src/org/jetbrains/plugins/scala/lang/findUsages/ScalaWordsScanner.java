@@ -9,7 +9,6 @@ import com.intellij.util.Processor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
-import scala.xml.dtd.EMPTY;
 
 /**
  * Nikolay.Tropin

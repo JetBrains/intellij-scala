@@ -4,22 +4,23 @@ package psi
 package api
 package expr
 
-import base.patterns.ScCaseClause
-import statements._
-import params.ScParameter
-import base.ScConstructor
-import collection.mutable.ArrayBuffer
-import types._
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi._
-import nonvalue.{Parameter, ScTypePolymorphicType, ScMethodType}
-import toplevel.ScTypedDefinition
-import result.{TypeResult, Success, TypingContext}
-import base.types.{ScSequenceArg, ScTypeElement}
-import lang.resolve.ScalaResolveResult
-import psi.impl.ScalaPsiManager
-import toplevel.typedef.ScObject
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScTupleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
+
 import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author ilyas
@@ -63,6 +64,15 @@ private[expr] object ExpectedTypes {
           case Some((des, param, ret)) => Array[(ScType, Option[ScTypeElement])]((ret, None))
           case None => Array[(ScType, Option[ScTypeElement])]()
         }
+      }
+    }
+
+    def mapResolves(resolves: Array[ResolveResult], types: Array[TypeResult[ScType]]): Array[(TypeResult[ScType], Boolean)] = {
+      resolves.zip(types).map {
+        case (r: ScalaResolveResult, tp) =>
+          val isNamedDynamic = r.isDynamic && r.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED
+          (tp, isNamedDynamic)
+        case (_, tp) => (tp, false)
       }
     }
 
@@ -156,11 +166,13 @@ private[expr] object ExpectedTypes {
         if (callExpression != null) {
           val tps = callExpression match {
             case ref: ScReferenceExpression =>
-              if (!withResolvedFunction) ref.shapeMultiType
-              else ref.multiType
-            case _ => Array(callExpression.getNonValueType(TypingContext.empty))
+              if (!withResolvedFunction) mapResolves(ref.shapeResolve, ref.shapeMultiType)
+              else mapResolves(ref.multiResolve(false), ref.multiType)
+            case _ => Array((callExpression.getNonValueType(TypingContext.empty), false))
           }
-          tps.foreach(processArgsExpected(res, expr, i, _, exprs))
+          tps.foreach { case (r, isDynamicNamed) =>
+            processArgsExpected(res, expr, i, r, exprs, isDynamicNamed = isDynamicNamed)
+          }
         }
         res.toArray
       case tuple: ScTuple =>
@@ -184,9 +196,15 @@ private[expr] object ExpectedTypes {
           case _ => expr
         }
         val op = infix.operation
-        var tps = if (!withResolvedFunction) op.shapeMultiType else op.multiType
-        tps = tps.map(infix.updateAccordingToExpectedType(_))
-        tps.foreach(processArgsExpected(res, zExpr, 0, _, Seq(zExpr), Some(infix)))
+        var tps =
+          if (!withResolvedFunction) mapResolves(op.shapeResolve, op.shapeMultiType)
+          else mapResolves(op.multiResolve(false), op.multiType)
+        tps = tps.map { case (tp, isDynamicNamed) =>
+          (infix.updateAccordingToExpectedType(tp), isDynamicNamed)
+        }
+        tps.foreach { case (tp, isDynamicNamed) =>
+            processArgsExpected(res, zExpr, 0, tp, Seq(zExpr), Some(infix), isDynamicNamed = isDynamicNamed)
+        }
         res.toArray
       //SLS[4.1]
       case v @ ScPatternDefinition.expr(expr) if expr == expr.getSameElementInContext =>
@@ -233,27 +251,36 @@ private[expr] object ExpectedTypes {
         val i = if (actExpr == null) 0 else exprs.indexWhere(_ == actExpr)
         val callExpression = args.callExpression
         if (callExpression != null) {
-          var tps: Array[TypeResult[ScType]] = callExpression match {
+          var tps: Array[(TypeResult[ScType], Boolean)] = callExpression match {
             case ref: ScReferenceExpression =>
-              if (!withResolvedFunction) ref.shapeMultiType
-              else ref.multiType
+              if (!withResolvedFunction) mapResolves(ref.shapeResolve, ref.shapeMultiType)
+              else mapResolves(ref.multiResolve(false), ref.multiType)
             case gen: ScGenericCall =>
-              if (!withResolvedFunction) gen.shapeMultiType
-              else gen.multiType
-            case _ => Array(callExpression.getNonValueType(TypingContext.empty))
+              if (!withResolvedFunction) {
+                val multiType = gen.shapeMultiType
+                gen.shapeMultiResolve.map(mapResolves(_, multiType)).getOrElse(multiType.map((_, false)))
+              } else {
+                val multiType = gen.multiType
+                gen.multiResolve.map(mapResolves(_, multiType)).getOrElse(multiType.map((_, false)))
+              }
+            case _ => Array((callExpression.getNonValueType(TypingContext.empty), false))
           }
           val callOption = args.getParent match {
             case call: MethodInvocation => Some(call)
             case _ => None
           }
-          callOption.foreach(call => tps = tps.map(call.updateAccordingToExpectedType(_)))
-          tps.foreach(processArgsExpected(res, expr, i, _, exprs, callOption))
+          callOption.foreach(call => tps = tps.map { case (r, isDynamicNamed) =>
+            (call.updateAccordingToExpectedType(r), isDynamicNamed)
+          })
+          tps.foreach { case (r, isDynamicNamed) =>
+            processArgsExpected(res, expr, i, r, exprs, callOption, isDynamicNamed = isDynamicNamed)
+          }
         } else {
           //it's constructor
           args.getContext match {
             case constr: ScConstructor =>
               val j = constr.arguments.indexOf(args)
-              var tps =
+              val tps =
                 if (!withResolvedFunction) constr.shapeMultiType(j)
                 else constr.multiType(j)
               tps.foreach(processArgsExpected(res, expr, i, _, exprs))
@@ -301,7 +328,7 @@ private[expr] object ExpectedTypes {
 
   private def processArgsExpected(res: ArrayBuffer[(ScType, Option[ScTypeElement])], expr: ScExpression, i: Int,
                                   tp: TypeResult[ScType], exprs: Seq[ScExpression], call: Option[MethodInvocation] = None,
-                                  forApply: Boolean = false) {
+                                  forApply: Boolean = false, isDynamicNamed: Boolean = false) {
     def applyForParams(params: Seq[Parameter]) {
       val p: (ScType, Option[ScTypeElement]) =
         if (i >= params.length && params.length > 0 && params(params.length - 1).isRepeated)
@@ -310,15 +337,26 @@ private[expr] object ExpectedTypes {
         else (params(i).paramType, params(i).paramInCode.flatMap(_.typeElement))
       expr match {
         case assign: ScAssignStmt =>
-          val lE = assign.getLExpression
-          lE match {
-            case ref: ScReferenceExpression if ref.qualifier == None =>
-              val name = ref.refName
-              params.find(_.name == name) match {
-                case Some(param) => res += ((param.paramType, param.paramInCode.flatMap(_.typeElement)))
-                case _ => res += p
-              }
-            case _ => res += p
+          if (isDynamicNamed) {
+            p match {
+              case (ScTupleType(comps), te) if comps.length == 2 =>
+                res += ((comps(1), te.map {
+                  case t: ScTupleTypeElement if t.components.length == 2 => t.components(1)
+                  case t => t
+                }))
+              case _ => res += p
+            }
+          } else {
+            val lE = assign.getLExpression
+            lE match {
+              case ref: ScReferenceExpression if ref.qualifier == None =>
+                val name = ref.refName
+                params.find(_.name == name) match {
+                  case Some(param) => res += ((param.paramType, param.paramInCode.flatMap(_.typeElement)))
+                  case _ => res += p
+                }
+              case _ => res += p
+            }
           }
         case typedStmt: ScTypedStmt if typedStmt.isSequenceArg && params.length > 0 =>
           val seqClass: Array[PsiClass] = ScalaPsiManager.instance(expr.getProject).
@@ -352,28 +390,38 @@ private[expr] object ExpectedTypes {
           }
         } else applyForParams(newParams)
       case Success(t@ScTypePolymorphicType(anotherType, typeParams), _) if !forApply =>
-        val cand = call.getOrElse(expr).applyShapeResolveForExpectedType(anotherType, exprs, call, tp)
+        val cand = call.getOrElse(expr).applyShapeResolveForExpectedType(anotherType, exprs, call)
         if (cand.length == 1) {
           cand(0) match {
-            case ScalaResolveResult(fun: ScFunction, s) =>
+            case r@ScalaResolveResult(fun: ScFunction, s) =>
+              val isDynamicNamed = r.isDynamic && r.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED
+              def update(tp: ScType): ScType = {
+                if (r.isDynamic) ResolvableReferenceExpression.getDynamicReturn(tp)
+                else tp
+              }
               var polyType: TypeResult[ScType] = Success(s.subst(fun.polymorphicType()) match {
                 case ScTypePolymorphicType(internal, params) =>
-                  ScTypePolymorphicType(internal, params ++ typeParams)
-                case tp => ScTypePolymorphicType(tp, typeParams)
+                  update(ScTypePolymorphicType(internal, params ++ typeParams))
+                case tp => update(ScTypePolymorphicType(tp, typeParams))
               }, Some(expr))
               call.foreach(call => polyType = call.updateAccordingToExpectedType(polyType))
-              processArgsExpected(res, expr, i, polyType, exprs, forApply = true)
+              processArgsExpected(res, expr, i, polyType, exprs, forApply = true, isDynamicNamed = isDynamicNamed)
             case _ =>
           }
         }
       case Success(anotherType, _) if !forApply =>
-        val cand = call.getOrElse(expr).applyShapeResolveForExpectedType(anotherType, exprs, call, tp)
+        val cand = call.getOrElse(expr).applyShapeResolveForExpectedType(anotherType, exprs, call)
         if (cand.length == 1) {
           cand(0) match {
-            case ScalaResolveResult(fun: ScFunction, subst) =>
-              var polyType: TypeResult[ScType] = Success(subst.subst(fun.polymorphicType()), Some(expr))
+            case r@ScalaResolveResult(fun: ScFunction, subst) =>
+              val isDynamicNamed = r.isDynamic && r.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED
+              def update(tp: ScType): ScType = {
+                if (r.isDynamic) ResolvableReferenceExpression.getDynamicReturn(tp)
+                else tp
+              }
+              var polyType: TypeResult[ScType] = Success(update(subst.subst(fun.polymorphicType())), Some(expr))
               call.foreach(call => polyType = call.updateAccordingToExpectedType(polyType))
-              processArgsExpected(res, expr, i, polyType, exprs, forApply = true)
+              processArgsExpected(res, expr, i, polyType, exprs, forApply = true, isDynamicNamed = isDynamicNamed)
             case _ =>
           }
         }

@@ -1,11 +1,7 @@
 package org.jetbrains.plugins.scala.lang.resolve;
 
 import com.intellij.psi.PsiReference;
-import com.intellij.psi.ResolveResult;
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement;
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition;
-import org.jetbrains.plugins.scala.util.TestUtils;
 
 /**
  * User: Alexander Podkhalyuzin

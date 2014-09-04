@@ -11,7 +11,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Date;
 
-import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.*;
+import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeString;
+import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.formatTimestamp;
 
 /**
  * @author Alexander Podkhalyuzin

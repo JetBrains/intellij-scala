@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.extensions.implementation.iterator
 
 import com.intellij.psi.PsiElement
-import junit.framework.{TestCase, Assert}
+import junit.framework.{Assert, TestCase}
 import org.jetbrains.plugins.scala.lang.psi.PsiElementMock
 
 /**

@@ -1,16 +1,11 @@
 package org.jetbrains.plugins.scala
 package editor.smartEnter.fixers
 
-import com.intellij.psi._
-import codeStyle.CodeStyleSettingsManager
-import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.editor.{Document, Editor}
-import editor.smartEnter.ScalaSmartEnterProcessor
-import impl.source.tree.JavaJspElementType
-import util.PsiTreeUtil
-import lang.psi.api.expr.{ScExpression, ScForStatement}
-import com.intellij.openapi.project.Project
-import com.intellij.lang.ASTNode
+import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement
 
 /**
  * @author Ksenia.Sautina

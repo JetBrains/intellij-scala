@@ -5,14 +5,15 @@ package parser
 package parsing
 
 import com.intellij.lang.PsiBuilder
-import ScalaDocElementTypes._
-import lexer.docsyntax.ScaladocSyntaxElementType
-import lexer.ScalaDocTokenType._
 import com.intellij.psi.tree.IElementType
-import collection.immutable.HashMap
-import lang.parser.parsing.types.StableId
-import lang.parser.parsing.builder.ScalaPsiBuilderImpl
-import lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType._
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes._
+
+import scala.collection.immutable.HashMap
 
 /**
  * User: Dmitry Naidanov
@@ -221,7 +222,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
   }
 
   private def parseTag(implicit builder: PsiBuilder): Boolean = {
-    import MyScaladocParsing._
+    import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing._
 
     val marker = builder.mark()
     if (isInInlinedTag) {

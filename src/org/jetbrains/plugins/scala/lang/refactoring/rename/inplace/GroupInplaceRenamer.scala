@@ -1,20 +1,21 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.rename.inplace
 
+import com.intellij.codeInsight.CodeInsightUtilCore
+import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.codeInsight.template._
+import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
+import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
+import com.intellij.openapi.editor.markup.{RangeHighlighter, TextAttributes}
+import com.intellij.openapi.editor.{Document, Editor, EditorFactory, RangeMarker}
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.refactoring.rename.inplace.MyLookupExpression
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import scala.collection.mutable
-import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.editor.markup.{RangeHighlighter, TextAttributes}
-import com.intellij.openapi.editor.{EditorFactory, Document, RangeMarker, Editor}
-import scala.collection.mutable.ArrayBuffer
-import com.intellij.codeInsight.highlighting.HighlightManager
-import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
-import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
-import com.intellij.codeInsight.{CodeInsightUtilCore, CodeInsightUtilBase}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * Nikolay.Tropin

@@ -5,19 +5,20 @@ package impl
 package statements
 package params
 
-import psi.stubs._
-import api.statements.params._
-import lexer.ScalaTokenTypes
 import com.intellij.lang.ASTNode
-import toplevel.synthetic.JavaIdentifier
 import com.intellij.psi._
-import api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types._
-import result.{Failure, Success, TypingContext, TypeResult}
-import api.base.types.ScTypeElement
-import collection.mutable.ArrayBuffer
-import api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
+import org.jetbrains.plugins.scala.lang.psi.stubs._
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin

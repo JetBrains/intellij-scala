@@ -1,22 +1,22 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
-import com.intellij.psi.impl.file.PsiPackageImpl
-import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.psi._
-import impl.PsiManagerEx
-import java.lang.String
-import scope.PsiScopeProcessor
-import toplevel.synthetic.SyntheticClasses
+import com.intellij.psi.impl.PsiManagerEx
+import com.intellij.psi.impl.file.PsiPackageImpl
+import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.caches.{ScalaShortNamesCacheManager, CachesUtil}
-import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
-import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ImplicitProcessor}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
+import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
+
 import scala.util.control.ControlThrowable
 
 /**
