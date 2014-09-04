@@ -60,8 +60,8 @@ class ScalaVariableOfTypeMacro extends Macro {
               for (t <- typed.getType(TypingContext.empty))
               exprs.apply(0) match {
                 case "" =>
-                  val item = LookupElementBuilder.create(variant.getElement, variant.getElement.name)
-                  item.setTypeText(ScType.presentableText(t))
+                  val item = LookupElementBuilder.create(variant.getElement, variant.getElement.name).
+                    withTypeText(ScType.presentableText(t))
                   array += item
                 case "foreach" =>
                   ScType.extractClass(t) match {
