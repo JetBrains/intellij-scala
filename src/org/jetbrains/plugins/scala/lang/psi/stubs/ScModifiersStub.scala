@@ -3,8 +3,8 @@ package lang
 package psi
 package stubs
 
-import api.base.ScModifierList
 import com.intellij.psi.stubs.StubElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 
 /**
  * User: Alexander Podkhalyuzin

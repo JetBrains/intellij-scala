@@ -5,8 +5,10 @@
       <configuration>
         <option name="compilerLibraryLevel" value="Project" />
         <option name="compilerLibraryName" value="main-scala-compiler" />
-        <option name="compilerOptions" value="-target:jvm-1.6" />
+        <option name="compilerOptions" value="-target:jvm-1.6 -feature" />
+        <option name="deprecationWarnings" value="true" />
         <option name="maximumHeapSize" value="1024" />
+        <option name="uncheckedWarnings" value="true" />
         <option name="vmOptions" value="" />
       </configuration>
     </facet>

@@ -3,14 +3,15 @@ package lang
 package psi
 package types
 
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDefinition, ScTypeAlias, ScFunction}
-import com.intellij.psi._
 import com.intellij.ide.highlighter.JavaFileType
-import util.MethodSignatureUtil
+import com.intellij.psi._
+import com.intellij.psi.util.MethodSignatureUtil
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
-import extensions.toPsiNamedElementExt
-import collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+
+import scala.collection.mutable.ArrayBuffer
 
 case class TypeAliasSignature(name: String, typeParams: List[TypeParameter], lowerBound: ScType,
                               upperBound: ScType, isDefinition: Boolean, ta: ScTypeAlias) {
@@ -111,7 +112,7 @@ class Signature(val name: String, private val typesEval: List[Stream[ScType]], v
 
   def paramTypesEquivExtended(other: Signature, uSubst: ScUndefinedSubstitutor,
                               falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
-    import Signature._
+    import org.jetbrains.plugins.scala.lang.psi.types.Signature._
 
     var undefSubst = uSubst
     if (paramLength != other.paramLength && !(paramLength.sum == 0 && other.paramLength.sum == 0)) return (false, undefSubst)

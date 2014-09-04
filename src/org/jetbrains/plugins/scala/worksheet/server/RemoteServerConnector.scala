@@ -4,31 +4,32 @@ package worksheet.server
 
 import java.io._
 import java.net._
-import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
-import com.intellij.util.{Base64Converter, PathUtil}
-import org.jetbrains.plugins.scala.compiler.ScalaApplicationSettings
-import org.jetbrains.jps.incremental.scala.remote._
+
+import com.intellij.compiler.CompilerMessageImpl
+import com.intellij.compiler.progress.CompilerTask
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.compiler.{CompilerMessageCategory, CompilerPaths}
 import com.intellij.openapi.module.Module
-import org.jetbrains.plugins.scala
-import org.jetbrains.plugin.scala.compiler.{NameHashing, IncrementalType}
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ModuleRootManager, OrderEnumerator}
-import org.jetbrains.plugins.scala.config.ScalaFacet
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.util.{Base64Converter, PathUtil}
+import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
+import org.jetbrains.jps.incremental.messages.BuildMessage
+import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.data.SbtData
-import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.{OuterCompilerInterface, DummyClient}
-import com.intellij.openapi.progress.{ProgressManager, ProgressIndicator}
-import com.intellij.openapi.project.Project
-import com.intellij.compiler.CompilerMessageImpl
-import org.jetbrains.jps.incremental.messages.BuildMessage
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
-import com.intellij.openapi.compiler.{CompilerPaths, CompilerMessageCategory}
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.compiler.progress.CompilerTask
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
+import org.jetbrains.jps.incremental.scala.remote._
+import org.jetbrains.plugin.scala.compiler.{IncrementalType, NameHashing}
+import org.jetbrains.plugins.scala
+import org.jetbrains.plugins.scala.compiler.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.config.ScalaFacet
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
-import com.intellij.openapi.application.ApplicationManager
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
+import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.{DummyClient, OuterCompilerInterface}
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 
 /**
   * User: Dmitry Naydanov
@@ -83,6 +84,8 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File) {
    */
   def compileAndRun(callback: Runnable, originalFile: VirtualFile, consumer: OuterCompilerInterface, 
                     worksheetClassName: String, runType: WorksheetMakeType): ExitCode = {
+    import _root_.scala.language.implicitConversions
+
     implicit def file2path(file: File) = FileUtil.toCanonicalPath(file.getAbsolutePath)
     implicit def option2string(opt: Option[String]) = opt getOrElse ""
     implicit def files2paths(files: Iterable[File]) = files map file2path mkString "\n"

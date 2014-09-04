@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala.config;
 
 import com.intellij.facet.Facet;
-import com.intellij.facet.FacetConfiguration;
-import com.intellij.facet.FacetType;
 import com.intellij.openapi.module.Module;
 
 /**

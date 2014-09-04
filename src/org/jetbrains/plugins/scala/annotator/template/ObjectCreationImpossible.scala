@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.annotator.template
 
-import org.jetbrains.plugins.scala.annotator.AnnotatorPart
 import com.intellij.lang.annotation.AnnotationHolder
+import org.jetbrains.plugins.scala.annotator.AnnotatorPart
+import org.jetbrains.plugins.scala.annotator.quickfix.ImplementMethodsQuickFix
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.annotator.quickfix.ImplementMethodsQuickFix
 import org.jetbrains.plugins.scala.overrideImplement.{ScAliasMember, ScalaOIUtil}
 
 /**
@@ -29,7 +29,7 @@ object ObjectCreationImpossible extends AnnotatorPart[ScTemplateDefinition] {
     if(hasAbstract) {
       refs.headOption.foreach {
         case (refElement, Some(psiClass)) =>
-          import ScalaOIUtil._
+          import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil._
 
           val undefined = for {
             member <- getMembersToImplement(definition)

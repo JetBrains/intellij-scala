@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package base
 
 
-import com.intellij.openapi.projectRoots.JavaSdk
 import com.intellij.testFramework.fixtures.CodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.util.TestUtils
 

@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection._
 import com.intellij.psi.PsiMethod
+import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.AddCallParentheses
 import org.jetbrains.plugins.scala.extensions._
-import quickfix.AddCallParentheses
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 /**
  * Pavel Fatin

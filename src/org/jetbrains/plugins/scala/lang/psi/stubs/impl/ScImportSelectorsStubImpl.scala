@@ -5,10 +5,9 @@ package stubs
 package impl
 
 
-import api.toplevel.imports.ScImportSelectors
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
-import stubs.ScImportSelectorsStub
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelectors
 
 /**
  * User: Alexander Podkhalyuzin

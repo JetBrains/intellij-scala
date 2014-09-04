@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala
 package lang.languageLevel
 
-import com.intellij.psi.{PsiFile, PsiElement}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.ProjectFileIndex
-import config.ScalaFacet
-import annotation.tailrec
+import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.config.ScalaFacet
+
+import scala.annotation.tailrec
 
 /**
  * @author Alefas

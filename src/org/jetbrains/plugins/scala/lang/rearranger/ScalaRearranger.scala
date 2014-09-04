@@ -1,26 +1,24 @@
 package org.jetbrains.plugins.scala
 package lang.rearranger
 
-import com.intellij.psi.codeStyle.arrangement._
-import com.intellij.psi.PsiElement
+import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.util.{Pair, TextRange}
+import com.intellij.psi.PsiElement
 import com.intellij.psi.codeStyle.CodeStyleSettings
-import collection.JavaConversions._
-import scala.collection.immutable
-import scala.collection.mutable
-import com.intellij.psi.codeStyle.arrangement.group.ArrangementGroupingRule
-import com.intellij.psi.codeStyle.arrangement.std._
-import com.intellij.psi.codeStyle.arrangement.model.{ArrangementCompositeMatchCondition, ArrangementAtomMatchCondition, ArrangementMatchCondition}
+import com.intellij.psi.codeStyle.arrangement.{ArrangementSettings, _}
 import com.intellij.psi.codeStyle.arrangement.`match`.{ArrangementSectionRule, StdArrangementEntryMatcher, StdArrangementMatchRule}
-import com.intellij.psi.codeStyle.arrangement.ArrangementSettings
-
-import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens._
-import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Grouping._
-import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Order._
+import com.intellij.psi.codeStyle.arrangement.group.ArrangementGroupingRule
+import com.intellij.psi.codeStyle.arrangement.model.{ArrangementAtomMatchCondition, ArrangementCompositeMatchCondition, ArrangementMatchCondition}
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.EntryType._
+import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Grouping._
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Modifier._
-import com.intellij.internal.statistic.UsageTrigger
+import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Order._
+import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens._
+import com.intellij.psi.codeStyle.arrangement.std._
+
+import scala.collection.JavaConversions._
+import scala.collection.{immutable, mutable}
 
 /**
  * @author Roman.Shein

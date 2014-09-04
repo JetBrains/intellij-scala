@@ -3,16 +3,15 @@ package lang
 package scaladoc
 package completion
 
-import com.intellij.patterns.PlatformPatterns
-import lexer.ScalaDocTokenType
-import com.intellij.util.ProcessingContext
 import com.intellij.codeInsight.completion._
-import parser.parsing.MyScaladocParsing
-import java.lang.String
 import com.intellij.codeInsight.lookup.LookupElement
-import psi.api.ScDocComment
-import lang.psi.api.statements.{ScTypeAlias, ScFunction}
-import lang.psi.api.toplevel.typedef.{ScTrait, ScClass}
+import com.intellij.patterns.PlatformPatterns
+import com.intellij.util.ProcessingContext
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait}
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 
 /**

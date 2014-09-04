@@ -2,21 +2,22 @@ package org.jetbrains.plugins.scala
 package codeInsight.intention.types
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
-import scala.collection.JavaConverters
-import com.intellij.psi.{PsiClass, PsiElement}
-import scala.reflect.runtime.universe._
-import scala.annotation.tailrec
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import com.intellij.openapi.project.Project
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+
+import scala.annotation.tailrec
+import scala.collection.JavaConverters
+import scala.reflect.runtime.universe._
 
 /**
  * @author Eugene Platonov

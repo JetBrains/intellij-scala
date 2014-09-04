@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection._
-import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.RemoveTypeAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
-import quickfix.RemoveTypeAnnotation
 
 /**
  * Pavel Fatin

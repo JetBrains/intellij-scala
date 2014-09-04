@@ -16,7 +16,7 @@ import com.intellij.psi.impl.source.resolve.reference.impl.providers.{FileRefere
 import com.intellij.util.ProcessingContext
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.NotNull
-import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 

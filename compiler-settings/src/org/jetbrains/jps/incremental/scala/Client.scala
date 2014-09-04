@@ -1,7 +1,8 @@
 package org.jetbrains.jps.incremental.scala
 
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import java.io.File
+
+import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 
 /**
  * @author Pavel Fatin

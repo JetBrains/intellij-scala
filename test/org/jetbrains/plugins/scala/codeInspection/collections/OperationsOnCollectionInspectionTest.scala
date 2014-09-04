@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package codeInspection.collections
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import com.intellij.codeInsight.CodeInsightTestCase
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * Nikolay.Tropin

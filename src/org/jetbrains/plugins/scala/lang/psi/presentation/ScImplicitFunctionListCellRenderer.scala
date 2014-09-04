@@ -1,20 +1,19 @@
 package org.jetbrains.plugins.scala.lang.psi.presentation
 
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.PresentationUtil
-import java.awt.{BorderLayout, Component, Color, Container}
-import com.intellij.ui.{SimpleTextAttributes, SimpleColoredComponent}
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import com.intellij.ide.util.PsiElementListCellRenderer
+import java.awt.{BorderLayout, Color, Component, Container}
 import javax.swing._
+
+import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.psi.PsiNamedElement
-import java.lang.String
-import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
+import com.intellij.ui.{SimpleColoredComponent, SimpleTextAttributes}
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.actions.Parameters
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
-import com.intellij.openapi.editor.colors.EditorColorsManager
+import org.jetbrains.plugins.scala.lang.psi.PresentationUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.DefaultListCellRendererAdapter
 
 /**

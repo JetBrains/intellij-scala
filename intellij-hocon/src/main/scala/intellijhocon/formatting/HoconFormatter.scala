@@ -1,23 +1,22 @@
 package intellijhocon
 package formatting
 
-import com.intellij.psi.codeStyle.CodeStyleSettings
-import com.intellij.formatting.{Alignment, Wrap, Spacing, Indent}
+import com.intellij.formatting.{Alignment, Indent, Spacing, Wrap}
 import com.intellij.lang.ASTNode
-import intellijhocon.parser.{HoconElementSets, HoconElementType}
-import intellijhocon.Util
-import intellijhocon.lexer.{HoconTokenSets, HoconTokenType}
-import intellijhocon.lang.HoconLanguage
-import intellijhocon.codestyle.HoconCustomCodeStyleSettings
+import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.tree.IElementType
+import intellijhocon.codestyle.HoconCustomCodeStyleSettings
+import intellijhocon.lang.HoconLanguage
+import intellijhocon.lexer.{HoconTokenSets, HoconTokenType}
+import intellijhocon.parser.{HoconElementSets, HoconElementType}
 
 class HoconFormatter(settings: CodeStyleSettings) {
 
-  import HoconElementSets._
-  import HoconElementType._
-  import HoconTokenType._
-  import HoconTokenSets._
-  import Util._
+  import intellijhocon.Util._
+  import intellijhocon.lexer.HoconTokenSets._
+  import intellijhocon.lexer.HoconTokenType._
+  import intellijhocon.parser.HoconElementSets._
+  import intellijhocon.parser.HoconElementType._
 
   val commonSettings = settings.getCommonSettings(HoconLanguage)
   val customSettings = settings.getCustomSettings(classOf[HoconCustomCodeStyleSettings])

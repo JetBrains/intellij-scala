@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.config
 
+import com.intellij.openapi.fileEditor.impl.{EditorFileSwapper, EditorWithProviderComposite}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Pair
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import com.intellij.openapi.fileEditor.impl.{EditorWithProviderComposite, EditorFileSwapper}
-import com.intellij.openapi.util.Pair
 
 object ScalaEditorFileSwapper {
   def findSourceFile(project: Project, eachFile: VirtualFile): VirtualFile = {

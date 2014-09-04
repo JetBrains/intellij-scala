@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala
 package components
 
-import com.intellij.openapi.actionSystem.{AnActionEvent, AnAction}
-import org.jetbrains.plugins.scala.worksheet.actions.TopComponentAction
 import javax.swing.Icon
+
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import org.jetbrains.plugins.scala.worksheet.actions.TopComponentAction
 
 /**
  * User: Dmitry Naydanov

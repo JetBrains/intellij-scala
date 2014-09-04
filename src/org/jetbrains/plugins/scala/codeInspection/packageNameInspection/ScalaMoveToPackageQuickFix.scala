@@ -3,25 +3,20 @@ package codeInspection
 package packageNameInspection
 
 
-import com.intellij.codeInsight.{FileModificationService, CodeInsightUtilBase}
+import com.intellij.CommonBundle
+import com.intellij.codeInsight.FileModificationService
+import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor}
 import com.intellij.ide.util.PackageUtil
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.ui.Messages
-import com.intellij.refactoring.move.moveClassesOrPackages.{MoveClassesOrPackagesProcessor, SingleSourceRootMoveDestination}
 import com.intellij.psi._
 import com.intellij.refactoring.PackageWrapper
-
-
-
-import com.intellij.CommonBundle
+import com.intellij.refactoring.move.moveClassesOrPackages.{MoveClassesOrPackagesProcessor, SingleSourceRootMoveDestination}
 import com.intellij.refactoring.util.RefactoringMessageUtil
-
-import com.intellij.codeInspection.{ProblemDescriptor, LocalQuickFix}
-import com.intellij.openapi.project.Project
-import java.lang.String
-import lang.psi.api.ScalaFile
-import com.intellij.openapi.module.Module
-import com.intellij.openapi.roots.{ProjectRootManager, ProjectFileIndex}
-import extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
  * User: Alexander Podkhalyuzin

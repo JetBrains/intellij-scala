@@ -4,14 +4,12 @@ package psi
 package impl
 package expr
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import types.result.TypingContext
-import types.{Nothing, Bounds, ScType}
 import com.intellij.psi.PsiElementVisitor
-import api.ScalaElementVisitor
-;
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.{Bounds, Nothing, ScType}
 
 /**
  * @author Alexander Podkhalyuzin

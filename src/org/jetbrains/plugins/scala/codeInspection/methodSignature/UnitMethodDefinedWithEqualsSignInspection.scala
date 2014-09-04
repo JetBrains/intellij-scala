@@ -2,9 +2,8 @@ package org.jetbrains.plugins.scala
 package codeInspection.methodSignature
 
 import com.intellij.codeInspection._
-import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.RemoveEqualsSign
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import quickfix.RemoveEqualsSign
 
 /**
  * Pavel Fatin

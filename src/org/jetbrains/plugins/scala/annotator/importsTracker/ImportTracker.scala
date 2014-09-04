@@ -3,16 +3,13 @@ package annotator
 package importsTracker
 
 
-import collection.Set
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
-import lang.psi.api.ScalaFile
-import lang.psi.api.toplevel.imports.usages.ImportUsed
-import com.intellij.codeInsight.daemon.impl.RefCountHolder
-import java.lang.String
-import com.intellij.psi._
-import impl.light.LightElement
-import collection.mutable.{ArrayBuffer, HashMap}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
+
+import scala.collection.Set
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin

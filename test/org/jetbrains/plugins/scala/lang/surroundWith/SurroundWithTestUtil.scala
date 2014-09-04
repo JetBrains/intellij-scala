@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package surroundWith
 
-import java.lang.Integer
-
 /**
  * User: Alexander Podkhalyuzin
  * Date: 08.11.2008

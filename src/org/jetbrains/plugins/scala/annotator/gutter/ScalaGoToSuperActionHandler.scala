@@ -2,21 +2,22 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
-import collection.mutable.HashSet
 import com.intellij.codeInsight.navigation.NavigationUtil
 import com.intellij.ide.util.EditSourceUtil
+import com.intellij.lang.LanguageCodeInsightActionHandler
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
-import lang.psi.api.statements._
-import lang.psi.ScalaPsiUtil
-import ScalaMarkerType.ScCellRenderer
-import lang.psi.api.toplevel.ScTypedDefinition
-import lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
-import extensions.toPsiClassExt
-import com.intellij.lang.LanguageCodeInsightActionHandler
+import org.jetbrains.plugins.scala.annotator.gutter.ScalaMarkerType.ScCellRenderer
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+
+import scala.collection.mutable.HashSet
 
 /**
  * User: Alexander Podkhalyuzin

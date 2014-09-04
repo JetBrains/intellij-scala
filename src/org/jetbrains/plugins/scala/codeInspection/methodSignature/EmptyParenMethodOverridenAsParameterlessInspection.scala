@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection._
+import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.AddEmptyParentheses
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import quickfix.AddEmptyParentheses
-import org.intellij.lang.annotations.Language
 
 /**
  * Pavel Fatin

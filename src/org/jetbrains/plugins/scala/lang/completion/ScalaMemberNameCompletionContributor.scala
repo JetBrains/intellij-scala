@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.lang.completion
 
-import com.intellij.util.ProcessingContext
 import com.intellij.codeInsight.completion._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScObject, ScClass, ScTypeDefinition}
+import com.intellij.codeInsight.lookup.LookupElementBuilder
+import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
-import com.intellij.codeInsight.lookup.LookupElementBuilder
-import collection.mutable
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
+
+import scala.collection.mutable
 
 
 /**

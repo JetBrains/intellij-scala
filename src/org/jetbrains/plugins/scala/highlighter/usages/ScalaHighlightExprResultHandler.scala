@@ -2,13 +2,15 @@ package org.jetbrains.plugins.scala
 package highlighter
 package usages
 
-import com.intellij.codeInsight.highlighting.HighlightUsagesHandlerBase
-import com.intellij.util.Consumer
-import com.intellij.openapi.editor.Editor
-import com.intellij.psi.{PsiFile, PsiElement}
 import java.util.List
-import collection.JavaConversions._
-import lang.psi.api.expr.ScExpression
+
+import com.intellij.codeInsight.highlighting.HighlightUsagesHandlerBase
+import com.intellij.openapi.editor.Editor
+import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.util.Consumer
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+
+import scala.collection.JavaConversions._
 
 
 class ScalaHighlightExprResultHandler(expr: ScExpression, editor: Editor,

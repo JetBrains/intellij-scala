@@ -1,9 +1,9 @@
 package intellijhocon
 package codestyle
 
-import com.intellij.psi.codeStyle.{CodeStyleSettingsCustomizable, DisplayPriority, CommonCodeStyleSettings, LanguageCodeStyleSettingsProvider}
-import com.intellij.psi.codeStyle.LanguageCodeStyleSettingsProvider.SettingsType
 import com.intellij.application.options.SmartIndentOptionsEditor
+import com.intellij.psi.codeStyle.LanguageCodeStyleSettingsProvider.SettingsType
+import com.intellij.psi.codeStyle.{CodeStyleSettingsCustomizable, CommonCodeStyleSettings, DisplayPriority, LanguageCodeStyleSettingsProvider}
 import intellijhocon.lang.HoconLanguage
 
 class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsProvider {
@@ -20,12 +20,12 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     def showCustomOption(name: String, title: String, group: String, options: AnyRef*) =
       consumer.showCustomOption(classOf[HoconCustomCodeStyleSettings], name, title, group, options: _*)
 
-    import CodeStyleSettingsCustomizable._
-    import SettingsType._
+    import com.intellij.psi.codeStyle.CodeStyleSettingsCustomizable._
+    import com.intellij.psi.codeStyle.LanguageCodeStyleSettingsProvider.SettingsType._
 
     settingsType match {
       case SPACING_SETTINGS =>
-        import SpacingOption._
+        import com.intellij.psi.codeStyle.CodeStyleSettingsCustomizable.SpacingOption._
 
         consumer.showStandardOptions(List(
           SPACE_WITHIN_BRACES,
@@ -47,7 +47,7 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         showCustomOption("SPACE_AFTER_QMARK", "After '?'", SPACES_OTHER)
 
       case WRAPPING_AND_BRACES_SETTINGS =>
-        import WrappingOrBraceOption._
+        import com.intellij.psi.codeStyle.CodeStyleSettingsCustomizable.WrappingOrBraceOption._
 
         consumer.showStandardOptions(KEEP_LINE_BREAKS.name)
 

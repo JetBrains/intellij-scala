@@ -1,19 +1,20 @@
 package org.jetbrains.plugins.scala
 package annotator
 
+import com.intellij.codeHighlighting.Pass
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.codeInsight.daemon.impl._
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightInfoHolder
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.Document
+import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.openapi.project.{DumbService, Project}
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
-import com.intellij.openapi.editor.Document
-import com.intellij.psi._
-import com.intellij.openapi.util.TextRange
-import com.intellij.codeHighlighting.Pass
-import collection.JavaConversions
-import com.intellij.codeInsight.daemon.impl._
 import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
-import com.intellij.openapi.application.ApplicationManager
+
+import scala.collection.JavaConversions
 
 /**
  * User: Alexander Podkhalyuzin
@@ -75,7 +76,7 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
     }
     (new ScalaAnnotator).annotate(element, myAnnotationHolder)
     if (myAnnotationHolder.hasAnnotations) {
-      import JavaConversions._
+      import scala.collection.JavaConversions._
       for (annotation <- myAnnotationHolder) {
         myHolder.add(HighlightInfo.fromAnnotation(annotation))
       }

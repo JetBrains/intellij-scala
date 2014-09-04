@@ -3,22 +3,20 @@ package codeInsight
 package template
 package macros
 
-import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.codeInsight.CodeInsightBundle
-import com.intellij.codeInsight.lookup.{LookupItem, LookupElement}
+import com.intellij.codeInsight.lookup.{LookupElement, LookupItem}
 import com.intellij.codeInsight.template._
-
-import java.lang.String
-import lang.psi.api.ScalaFile
-import lang.psi.api.toplevel.ScTypedDefinition
-import lang.psi.api.toplevel.typedef.ScTypeDefinition
-import lang.psi.types.ScType
-import util.MacroUtil
-import lang.psi.types.result.TypingContext
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiDocumentManager}
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
+import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+
+import _root_.scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin

@@ -4,13 +4,13 @@ package intention
 package comprehension
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import lang.psi.api.expr.ScForStatement
-import extensions._
-import lang.psi.impl.ScalaPsiElementFactory
-import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, CodeStyleManager}
+import com.intellij.psi.codeStyle.CodeStyleManager
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 class DesugarForIntention extends PsiElementBaseIntentionAction {
   def getFamilyName = "Convert to desugared expression"

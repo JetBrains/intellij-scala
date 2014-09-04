@@ -4,11 +4,9 @@ package parser
 package parsing
 package patterns
 
-import _root_.scala.collection.mutable.Stack
 import com.intellij.lang.PsiBuilder
-import lexer.ScalaTokenTypes
-import nl.LineTerminator
-import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin

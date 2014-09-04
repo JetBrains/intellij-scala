@@ -4,16 +4,16 @@ package psi
 package stubs
 package elements
 
+import com.intellij.psi.impl.java.stubs.index.JavaStubIndexKeys
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.util.io.StringRef
-import impl.ScTemplateDefinitionStubImpl
-import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
-import index.ScalaIndexKeys
-import api.toplevel.typedef.{ScClass, ScTemplateDefinition, ScObject, ScTypeDefinition}
-import api.expr.ScAnnotation
-import com.intellij.psi.impl.java.stubs.index.JavaStubIndexKeys
-import extensions.toPsiMemberExt
-import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateDefinitionStubImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 
 /**
  * @author ilyas, alefas

@@ -1,20 +1,17 @@
 package org.jetbrains.plugins.scala
 package worksheet.actions
 
-import com.intellij.openapi.actionSystem.{AnActionEvent, AnAction}
-import com.intellij.openapi.editor._
-import com.intellij.psi.{PsiDocumentManager, PsiFile}
-import worksheet.runconfiguration.WorksheetViewerInfo
-import java.lang.String
 import java.awt.datatransfer.StringSelection
+
+import com.intellij.icons.AllIcons
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import com.intellij.openapi.editor._
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.icons.AllIcons
-import com.intellij.openapi.fileEditor.FileEditorManager
-import lang.psi.api.ScalaFile
-import scala.Predef
-import javax.swing.Icon
+import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
 
 /**
  * @author Ksenia.Sautina

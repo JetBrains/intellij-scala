@@ -5,14 +5,12 @@ package stubs
 package elements
 
 
-import api.base.ScAccessModifier
-import com.intellij.psi.stubs.{StubOutputStream, IndexSink, StubElement, StubInputStream}
-
-
 import com.intellij.psi.PsiElement
-import impl.ScAccessModifierStubImpl
-import psi.impl.base.ScAccessModifierImpl
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io.StringRef
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScAccessModifierImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScAccessModifierStubImpl
 
 /**
  * User: Alexander Podkhalyuzin

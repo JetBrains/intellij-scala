@@ -1,15 +1,16 @@
 package org.jetbrains.sbt
 package project.data
 
-import com.intellij.openapi.externalSystem.model.{ProjectKeys, DataNode}
+import java.util
+
 import com.intellij.openapi.externalSystem.model.project.ModuleData
-import com.intellij.openapi.externalSystem.service.project.{ProjectStructureHelper, PlatformFacade}
+import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
+import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, ProjectStructureHelper}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jetbrains.sbt.project.module.SbtModule
-import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndex}
-import collection.JavaConverters._
-import java.util
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin

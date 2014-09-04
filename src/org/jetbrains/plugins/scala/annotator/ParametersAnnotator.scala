@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 
 /**
  * Pavel.Fatin, 15.06.2010

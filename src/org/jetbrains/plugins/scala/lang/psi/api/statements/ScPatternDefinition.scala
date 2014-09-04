@@ -4,9 +4,9 @@ package psi
 package api
 package statements
 
-import base.patterns.ScBindingPattern
-import base.ScPatternList
-import expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /** 
 * @author Alexander Podkhalyuzin

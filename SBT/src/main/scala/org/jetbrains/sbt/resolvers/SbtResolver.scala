@@ -1,15 +1,15 @@
 package org.jetbrains.sbt
 package resolvers
 
-import java.util.regex.Pattern
 import java.io.File
+import java.util.regex.Pattern
 
 /**
  * @author Nikolay Obedin
  * @since 7/25/14.
  */
 case class SbtResolver(kind: SbtResolver.Kind.Value, name: String, root: String) {
-  import SbtResolver._
+  import org.jetbrains.sbt.resolvers.SbtResolver._
   def associatedIndex = SbtResolverIndexesManager().find(this)
 
   override def toString = s"$root$DELIMITER$kind$DELIMITER$name"

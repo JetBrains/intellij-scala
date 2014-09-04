@@ -5,12 +5,12 @@ package impl
 package toplevel
 package templates
 
-import types._
-import result.TypingContext
-import stubs.ScTemplateParentsStub
 import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
-import api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateParentsStub
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 
 /**

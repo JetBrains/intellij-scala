@@ -8,8 +8,8 @@ import com.intellij.execution.runners.ExecutionEnvironmentBuilder
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.ui.Messages
 import com.intellij.util.ActionRunner
-import icons.Icons
-import lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
  * User: Alexander Podkhalyuzin

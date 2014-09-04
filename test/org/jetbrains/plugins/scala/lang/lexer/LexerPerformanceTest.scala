@@ -1,10 +1,7 @@
 package org.jetbrains.plugins.scala.lang.lexer
 
-import com.intellij.psi.PsiFileFactory
-import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import com.intellij.testFramework.PlatformTestUtil
+import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 
 /**
  * @author Alefas

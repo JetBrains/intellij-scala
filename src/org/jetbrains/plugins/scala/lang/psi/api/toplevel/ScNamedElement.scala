@@ -6,21 +6,19 @@ package toplevel
 
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import impl.toplevel.synthetic.JavaIdentifier
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
-import psi.ScalaPsiElement
-import stubs.NamedStub
-import templates.ScTemplateBody
-import typedef._
-import base.patterns.ScCaseClause
-import icons.Icons
-import psi.impl.ScalaPsiElementFactory
-import statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
-import scala.Some
+import com.intellij.psi.stubs.NamedStub
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with NavigatablePsiElement {
   def name: String = {

@@ -4,11 +4,10 @@ package structureView
 package elements
 package impl
 
-import com.intellij.ide.util.treeView.smartTree.TreeElement;
-import com.intellij.navigation.ItemPresentation;
-import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
-
+import com.intellij.ide.util.treeView.smartTree.TreeElement
+import com.intellij.navigation.ItemPresentation
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
 
 /**
 * @author Alexander Podkhalyuzin

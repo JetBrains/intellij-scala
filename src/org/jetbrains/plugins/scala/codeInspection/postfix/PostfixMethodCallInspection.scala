@@ -2,14 +2,13 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package postfix
 
-import com.intellij.psi.PsiElement
-import lang.lexer.ScalaTokenTypes
-import com.intellij.openapi.project.Project
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
-import lang.psi.impl.ScalaPsiElementFactory
-import lang.psi.api.base.ScLiteral
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions.childOf
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import extensions.childOf
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 class PostfixMethodCallInspection extends AbstractInspection("UseOfPostfixMethodCall", "Use of postfix method call"){
 

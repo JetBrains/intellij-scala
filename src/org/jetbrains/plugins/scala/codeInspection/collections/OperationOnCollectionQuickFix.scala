@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package codeInspection.collections
 
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.codeInspection.AbstractFix
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * Nikolay.Tropin

@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing;
 
+import com.intellij.lang.PsiBuilder;
+import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
-import com.intellij.psi.tree.TokenSet;
-import com.intellij.psi.tree.IElementType;
-import com.intellij.lang.PsiBuilder;
+
 import static org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.ScalaDocParsing.RESULT.*;
 
 /**

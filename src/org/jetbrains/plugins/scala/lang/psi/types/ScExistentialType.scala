@@ -3,17 +3,18 @@ package lang
 package psi
 package types
 
-import scala.collection.immutable.{Set, HashSet}
-import collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
-import api.base.types.ScExistentialClause
-import nonvalue._
-import api.toplevel.typedef.ScTypeDefinition
-import api.statements.params.ScTypeParam
-import collection.mutable
-import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
+
+import scala.collection.immutable.{HashSet, Set}
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /**
 * @author ilyas

@@ -5,14 +5,13 @@ package api
 package toplevel
 package templates
 
-import psi.ScalaPsiElement
-import types.ScType
 import com.intellij.psi.PsiClass
-import base.ScStableCodeReferenceElement
-import resolve.ScalaResolveResult
-import statements.ScTypeAliasDefinition
-import types.result.{Success, TypingContext}
-import base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /** 
 * @author Alexander Podkhalyuzin

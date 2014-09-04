@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala
 package performance.highlighting
 
 
-import base.ScalaFixtureTestCase
 import com.intellij.psi.PsiFileFactory
-import util.TestUtils
+import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
+import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
  * User: Alexander Podkhalyuzin

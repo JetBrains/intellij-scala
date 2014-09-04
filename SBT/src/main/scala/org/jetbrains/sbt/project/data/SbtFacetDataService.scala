@@ -2,13 +2,15 @@ package org.jetbrains.sbt
 package project.data
 
 import java.util
-import com.intellij.openapi.externalSystem.model.{ProjectKeys, DataNode}
-import com.intellij.openapi.project.Project
-import collection.JavaConverters._
-import com.intellij.openapi.externalSystem.model.project.ModuleData
+
 import com.intellij.facet.FacetManager
+import com.intellij.openapi.externalSystem.model.project.ModuleData
+import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
+import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, ProjectStructureHelper}
+import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.config.{LibraryId, LibraryLevel, ScalaFacet}
-import com.intellij.openapi.externalSystem.service.project.{ProjectStructureHelper, PlatformFacade}
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin

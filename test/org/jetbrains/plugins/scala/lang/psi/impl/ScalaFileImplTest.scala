@@ -3,10 +3,8 @@ package lang
 package psi
 package impl
 
-import extensions._
-import org.junit.Assert
 import org.jetbrains.plugins.scala.base.SimpleTestCase
-import api.toplevel.typedef.ScClass
+import org.junit.Assert
 
 /**
  * Pavel Fatin

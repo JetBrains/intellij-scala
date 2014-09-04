@@ -2,15 +2,16 @@ package org.jetbrains.plugins.scala
 package conversion
 
 
-import base.{ScalaLightPlatformCodeInsightTestCaseAdapter, ScalaPsiTestCase}
-import collection.mutable.ArrayBuffer
 import java.io.File
+
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi._
-import codeStyle.CodeStyleManager
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.util.io.FileUtil
-import lang.psi.api.ScalaFile
+import com.intellij.psi.codeStyle.CodeStyleManager
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin

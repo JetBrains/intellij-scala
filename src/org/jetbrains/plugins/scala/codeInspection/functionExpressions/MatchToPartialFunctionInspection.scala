@@ -1,26 +1,26 @@
 package org.jetbrains.plugins.scala
 package codeInspection.functionExpressions
 
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
 import com.intellij.codeInspection._
-import com.intellij.psi.{PsiDocumentManager, PsiElement}
-import MatchToPartialFunctionInspection._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.extensions.childOf
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.impl.source.tree.TreeElement
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.LocalSearchScope
-import scala.collection.JavaConverters._
+import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.plugins.scala.codeInspection.functionExpressions.MatchToPartialFunctionInspection._
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.extensions.childOf
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import scala.Some
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+
+import scala.collection.JavaConverters._
 
 /**
  * Nikolay.Tropin

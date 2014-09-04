@@ -1,12 +1,13 @@
 package org.jetbrains.jps.incremental.scala
 package local
 
-import sbt.compiler.{CompilerCache, CompilerArguments, CompileOutput, AnalyzingCompiler}
-import org.jetbrains.jps.incremental.scala.data.CompilationData
 import java.io.File
+
+import org.jetbrains.jps.incremental.scala.data.CompilationData
+import sbt.compiler.{AnalyzingCompiler, CompileOutput, CompilerArguments, CompilerCache}
+import xsbti.api.SourceAPI
 import xsbti.compile.DependencyChanges
 import xsbti.{Position, Severity}
-import xsbti.api.SourceAPI
 
 /**
  * Nikolay.Tropin

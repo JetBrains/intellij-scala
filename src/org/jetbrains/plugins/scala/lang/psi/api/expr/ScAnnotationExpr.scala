@@ -4,11 +4,10 @@ package psi
 package api
 package expr
 
-import base.ScConstructor
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScNameValuePairImpl
 import com.intellij.psi.{PsiAnnotationMemberValue, PsiElement}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScNameValuePairImpl
 
 /** 
 * @author Alexander Podkhalyuzin

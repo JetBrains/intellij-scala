@@ -2,14 +2,14 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
-import api.{ScalaFile, ScalaElementVisitor}
-import com.intellij.psi.tree.{TokenSet, IElementType}
-import com.intellij.psi.{PsiElementVisitor, PsiElement}
-import org.jetbrains.plugins.scala.util.monads.MonadTransformer
-import extensions.implementation.PsiElementExt
+import com.intellij.psi.PsiElement
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
+import com.intellij.psi.tree.{IElementType, TokenSet}
+import org.jetbrains.plugins.scala.extensions.implementation.PsiElementExtTrait
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.util.monads.MonadTransformer
 
-trait ScalaPsiElement extends PsiElement with PsiElementExt with MonadTransformer {
+trait ScalaPsiElement extends PsiElement with PsiElementExtTrait with MonadTransformer {
   protected override def repr = this
   protected var context: PsiElement = null
   protected var child: PsiElement = null

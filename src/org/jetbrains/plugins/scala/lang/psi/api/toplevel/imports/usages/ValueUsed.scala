@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages
 
 import com.intellij.psi.PsiNamedElement
-import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * @author Alexander Podkhalyuzin

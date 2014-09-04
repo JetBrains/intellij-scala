@@ -19,7 +19,7 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.{MethodSignatureBackedByPsiMethod, PsiModificationTracker}
 import com.intellij.util.containers.ConcurrentHashMap
 import org.jetbrains.plugins.scala.caches.CachesUtil
-import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike

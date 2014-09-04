@@ -3,14 +3,14 @@ package codeInspection.redundantBlock
 
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
-import codeInspection.{AbstractFix, AbstractInspection}
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.extensions.childOf
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClauses, ScCaseClause}
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * Pavel Fatin

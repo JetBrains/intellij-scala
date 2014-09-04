@@ -3,17 +3,18 @@ package lang
 package resolve
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.types._
-import psi.ScalaPsiUtil
-import psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject}
-import psi.api.base.patterns.ScBindingPattern
-import psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportUsed}
-import extensions.{toPsiClassExt, toPsiNamedElementExt}
-import psi.api.toplevel.ScNamedElement
-import scala.annotation.tailrec
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import org.jetbrains.plugins.scala.lang.psi.types._
+
+import scala.annotation.tailrec
 
 object ScalaResolveResult {
   def empty = new ScalaResolveResult(null, ScSubstitutor.empty, Set[ImportUsed]())

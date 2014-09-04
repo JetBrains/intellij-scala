@@ -4,12 +4,11 @@ package psi
 package stubs
 package elements
 package wrappers
-import com.intellij.psi.tree.{TokenSet, IElementType}
 import com.intellij.lang.ASTNode
-import com.intellij.psi.impl.source.tree.{TreeElement, TreeElementVisitor}
-import parser.ScalaElementTypes
-import java.lang.Class
 import com.intellij.psi.PsiElement
+import com.intellij.psi.impl.source.tree.{TreeElement, TreeElementVisitor}
+import com.intellij.psi.tree.{IElementType, TokenSet}
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
 /**
  * @author ilyas

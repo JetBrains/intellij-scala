@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi
 
-import api.base.ScLiteral
-import impl.ScalaPsiElementFactory
-import java.lang.String
-import com.intellij.psi.{PsiLiteral, PsiElement, PsiAnnotationSupport}
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.{PsiAnnotationSupport, PsiElement, PsiLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * @author Alexander Podkhalyuzin

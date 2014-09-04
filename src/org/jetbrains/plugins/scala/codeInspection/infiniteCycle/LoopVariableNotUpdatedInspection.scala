@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package codeInspection.infiniteCycle
 
-import codeInspection.AbstractInspection
-import lang.psi.api.statements.ScVariable
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
-import com.intellij.psi.{PsiReference, PsiElement}
-import extensions._
-import lang.psi.ScalaPsiElement
-import lang.psi.api.expr._
+import com.intellij.psi.{PsiElement, PsiReference}
+import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 
 /**
  * Pavel Fatin

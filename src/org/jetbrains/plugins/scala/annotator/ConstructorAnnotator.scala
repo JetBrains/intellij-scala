@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import com.intellij.lang.annotation.AnnotationHolder
-import lang.resolve.ScalaResolveResult
-import lang.psi.types.result.TypingContext
-import quickfix.ReportHighlightingErrorQuickFix
-import lang.psi.types._
-import lang.psi.api.expr.ScConstrBlock
 import com.intellij.codeInspection.ProblemHighlightType
-import lang.psi.api.base.{ScPrimaryConstructor, ScConstructor}
-import lang.psi.api.statements.ScFunction
-import lang.psi.api.ScalaFile
+import com.intellij.lang.annotation.AnnotationHolder
+import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScConstrBlock
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 trait ConstructorAnnotator {
   // TODO duplication with application annotator.
@@ -78,11 +78,11 @@ trait ConstructorAnnotator {
                 ScalaBundle.message("called.constructor.definition.must.precede"))
               annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
             }
-          case None =>
+          case _ =>
         }
       case None =>
         constr.getContainingFile match {
-          case file: ScalaFile if !file.isCompiled=>
+          case file: ScalaFile if !file.isCompiled =>
             val annotation = holder.createErrorAnnotation(constr,
               ScalaBundle.message("constructor.invocation.expected"))
             annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)

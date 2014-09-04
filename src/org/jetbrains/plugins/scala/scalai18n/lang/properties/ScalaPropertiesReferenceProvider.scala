@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala.scalai18n.lang.properties
 
-import com.intellij.psi._
-import com.intellij.lang.properties.IProperty
 import com.intellij.codeInsight.AnnotationUtil
+import com.intellij.lang.properties.IProperty
 import com.intellij.lang.properties.references.PropertyReference
+import com.intellij.psi._
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import scala.collection.mutable
 import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.ScalaI18nUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+
+import scala.collection.mutable
 
 /**
  * @author Ksenia.Sautina

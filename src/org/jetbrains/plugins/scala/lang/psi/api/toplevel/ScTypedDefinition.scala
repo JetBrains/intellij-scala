@@ -4,17 +4,17 @@ package psi
 package api
 package toplevel
 
-import fake.FakePsiMethod
-import types.result.{TypingContext, TypingContextOwner}
 import com.intellij.openapi.util.text.StringUtil
-import types.ScType
-import statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import types.nonvalue.Parameter
-import com.intellij.psi.{PsiElement, PsiClass, PsiMethod}
+import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
 import com.intellij.util.containers.ConcurrentHashMap
-import light.{PsiClassWrapper, StaticPsiTypedDefinitionWrapper, PsiTypedDefinitionWrapper}
-import extensions.toSeqExt
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
+import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefinitionWrapper, StaticPsiTypedDefinitionWrapper}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContext, TypingContextOwner}
 
 /**
  * Member definitions, classes, named patterns which have types
@@ -51,17 +51,18 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
   @volatile
   private var underEqualsModCount: Long = 0L
 
+  private def typeArr2paramArr(a: Array[ScType]): Array[Parameter] = a.toSeq.mapWithIndex {
+    case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
+  }.toArray
+
   def getUnderEqualsMethod: PsiMethod = {
     def inner(): PsiMethod = {
       val hasModifierProperty: String => Boolean = nameContext match {
-        case v: ScModifierListOwner => v.hasModifierProperty _
+        case v: ScModifierListOwner => v.hasModifierProperty
         case _ => _ => false
       }
       val tType = getType(TypingContext.empty).getOrAny
-      implicit def arr2arr(a: Array[ScType]): Array[Parameter] = a.toSeq.mapWithIndex {
-        case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
-      }.toArray
-      new FakePsiMethod(this, name + "_=", Array[ScType](tType), types.Unit, hasModifierProperty)
+      new FakePsiMethod(this, name + "_=", typeArr2paramArr(Array[ScType](tType)), types.Unit, hasModifierProperty)
     }
 
     val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
@@ -75,7 +76,7 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
   def getGetBeanMethod: PsiMethod = {
     def inner(): PsiMethod = {
       val hasModifierProperty: String => Boolean = nameContext match {
-        case v: ScModifierListOwner => v.hasModifierProperty _
+        case v: ScModifierListOwner => v.hasModifierProperty
         case _ => _ => false
       }
       new FakePsiMethod(this, "get" + StringUtil.capitalize(this.name), Array.empty,
@@ -93,14 +94,11 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
   def getSetBeanMethod: PsiMethod = {
     def inner(): PsiMethod = {
       val hasModifierProperty: String => Boolean = nameContext match {
-        case v: ScModifierListOwner => v.hasModifierProperty _
+        case v: ScModifierListOwner => v.hasModifierProperty
         case _ => _ => false
       }
       val tType = getType(TypingContext.empty).getOrAny
-      implicit def arr2arr(a: Array[ScType]): Array[Parameter] = a.toSeq.mapWithIndex {
-        case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
-      }.toArray
-      new FakePsiMethod(this, "set" + name.capitalize, Array[ScType](tType), types.Unit, hasModifierProperty)
+      new FakePsiMethod(this, "set" + name.capitalize, typeArr2paramArr(Array[ScType](tType)), types.Unit, hasModifierProperty)
     }
 
     val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
@@ -114,7 +112,7 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
   def getIsBeanMethod: PsiMethod = {
     def inner(): PsiMethod = {
       val hasModifierProperty: String => Boolean = nameContext match {
-        case v: ScModifierListOwner => v.hasModifierProperty _
+        case v: ScModifierListOwner => v.hasModifierProperty
         case _ => _ => false
       }
       new FakePsiMethod(this, "is" + StringUtil.capitalize(this.name), Array.empty,
@@ -166,7 +164,7 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
     res
   }
 
-  import PsiTypedDefinitionWrapper.DefinitionRole._
+  import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
   private val typedDefinitionWrapper: ConcurrentHashMap[(Boolean, Boolean, DefinitionRole, Option[PsiClass]), (PsiTypedDefinitionWrapper, Long)] =
     new ConcurrentHashMap()
 

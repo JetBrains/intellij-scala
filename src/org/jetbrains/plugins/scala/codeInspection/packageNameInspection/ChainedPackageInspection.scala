@@ -2,14 +2,13 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package packageNameInspection
 
-import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.codeInspection._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import config.ScalaFacet
-import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.project.Project
-import org.intellij.lang.annotations.Language
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.config.ScalaFacet
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 class ChainedPackageInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true

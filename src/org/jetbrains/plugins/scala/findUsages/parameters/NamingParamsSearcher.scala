@@ -2,16 +2,17 @@ package org.jetbrains.plugins.scala
 package findUsages
 package parameters
 
-import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.util.{Processor, QueryExecutor}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import com.intellij.psi._
-import search.{UsageSearchContext, PsiSearchHelper, TextOccurenceProcessor}
-import collection.mutable.HashSet
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignStmt}
-import lang.psi.ScalaPsiUtil
+import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.psi.search.{PsiSearchHelper, TextOccurenceProcessor, UsageSearchContext}
+import com.intellij.util.{Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+
+import scala.collection.mutable.HashSet
 
 /**
  * User: Alexander Podkhalyuzin

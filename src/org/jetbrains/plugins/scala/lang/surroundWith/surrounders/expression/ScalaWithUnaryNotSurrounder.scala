@@ -7,9 +7,8 @@ package expression
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import psi.api.expr.{ScParenthesisedExpr, ScExpression}
-import psi.types.result.TypingContext
-import psi.types._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesisedExpr}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
  * User: Alexander Podkhalyuzin

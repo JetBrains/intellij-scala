@@ -5,8 +5,8 @@ package stubs
 package elements
 
 
-import api.toplevel.templates.{ScTemplateParents, ScTraitParents}
-import psi.impl.toplevel.templates.ScTraitParentsImpl
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateParents, ScTraitParents}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScTraitParentsImpl
 
 /**
  * User: Alexander Podkhalyuzin

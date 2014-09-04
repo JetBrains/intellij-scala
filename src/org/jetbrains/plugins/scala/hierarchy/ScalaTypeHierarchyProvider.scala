@@ -2,14 +2,12 @@ package org.jetbrains.plugins.scala
 package hierarchy
 
 
-import com.intellij.codeInsight.{TargetElementUtilBase, TargetElementUtil}
-import com.intellij.openapi.actionSystem.{DataContext, PlatformDataKeys, LangDataKeys}
-import com.intellij.psi.{PsiElement, PsiDocumentManager}
-import com.intellij.ide.hierarchy.`type`.JavaTypeHierarchyProvider
-import lang.psi.api.toplevel.typedef.{ScTrait, ScTypeDefinition}
 import com.intellij.ide.hierarchy.HierarchyBrowser
-import collection.mutable
-import collection.immutable.HashSet
+import com.intellij.ide.hierarchy.`type`.JavaTypeHierarchyProvider
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+
+import scala.collection.immutable.HashSet
 
 /**
  * User: Alexander Podkhalyuzin

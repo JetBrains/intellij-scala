@@ -1,17 +1,19 @@
 package org.jetbrains.jps.incremental.scala
 
-import org.jetbrains.jps.incremental.{ModuleBuildTarget, CompileContext, BuilderCategory, ModuleLevelBuilder}
-import org.jetbrains.jps.model.JpsProject
-import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
+import java.util
+
+import org.jetbrains.annotations.NotNull
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.DirtyFilesHolder
 import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor
-import org.jetbrains.annotations.NotNull
-import scala.collection.JavaConverters._
-import java.util
-import ScalaBuilder._
+import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
+import org.jetbrains.jps.incremental.scala.ScalaBuilder._
+import org.jetbrains.jps.incremental.{BuilderCategory, CompileContext, ModuleBuildTarget, ModuleLevelBuilder}
+import org.jetbrains.jps.model.JpsProject
 import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.plugin.scala.compiler.{CompileOrder, IncrementalType}
+
+import scala.collection.JavaConverters._
 
 /**
  * Nikolay.Tropin

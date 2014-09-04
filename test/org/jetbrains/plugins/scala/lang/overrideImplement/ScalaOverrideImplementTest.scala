@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.lang.overrideImplement
 
-import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /**

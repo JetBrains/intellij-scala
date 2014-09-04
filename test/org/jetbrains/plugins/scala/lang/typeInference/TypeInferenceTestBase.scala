@@ -2,21 +2,19 @@ package org.jetbrains.plugins.scala
 package lang
 package typeInference
 
-import org.jetbrains.plugins.scala.lang.psi.types.{Unit, ScType}
-import base.{ScalaLightPlatformCodeInsightTestCaseAdapter, ScalaPsiTestCase}
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiComment, PsiManager}
 import java.io.File
-import java.lang.String
-import lexer.ScalaTokenTypes
-import parser.ScalaElementTypes
-import psi.api.expr.ScExpression
-import psi.api.ScalaFile
-import psi.types.result.{TypingContext, Failure, Success}
-import util.TestUtils
+
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem, VirtualFile}
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.CharsetToolkit
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Unit}
+import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
  * User: Alexander Podkhalyuzin

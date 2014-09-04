@@ -2,9 +2,8 @@ package org.jetbrains.plugins.scala
 package lang
 package resolve
 
-import com.intellij.psi._
-import com.intellij.psi.PsiPolyVariantReference
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.psi.{PsiPolyVariantReference, _}
 import org.jetbrains.annotations.TestOnly
 
 

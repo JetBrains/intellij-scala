@@ -4,17 +4,14 @@ package psi
 package impl
 package expr
 
-import types.{Bounds, Nothing}
-import lexer.ScalaTokenTypes
-import psi.ScalaPsiElementImpl
-import api.expr._
-
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.lang.ASTNode
-import types.result.{TypingContext, Success, Failure}
-import com.intellij.psi.{PsiElement, PsiElementVisitor}
-import api.ScalaElementVisitor
-import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.PsiElementVisitor
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.types.Bounds
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypingContext}
 
 /**
 * @author Alexander Podkhalyuzin

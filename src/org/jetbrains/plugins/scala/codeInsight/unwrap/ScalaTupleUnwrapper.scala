@@ -18,7 +18,7 @@ class ScalaTupleUnwrapper extends ScalaUnwrapper with ShortTextDescription {
     forTupledExpression(element){ (expr, tuple) =>
       context.extractElement(expr, tuple)
       context.delete(tuple)
-    } ()
+    } {}
   }
 
 

@@ -2,25 +2,26 @@ package org.jetbrains.plugins.scala
 package caches
 
 
-import lang.psi.types.result.TypeResult
+import com.intellij.openapi.util.{Computable, Key, RecursionGuard, RecursionManager}
 import com.intellij.psi._
-import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import lang.psi.api.expr.ScExpression.ExpressionTypeResult
-import lang.psi.api.base.types.ScTypeElement
-import com.intellij.openapi.util.{Computable, RecursionManager, RecursionGuard, Key}
-import lang.psi.api.expr.{MethodInvocation, ScExpression}
-import lang.psi.api.toplevel.imports.usages.ImportUsed
-import collection.mutable.ArrayBuffer
-import lang.resolve.ScalaResolveResult
-import lang.psi.types.{ScUndefinedSubstitutor, ScSubstitutor, ScType}
-import lang.psi.api.statements.params.{ScTypeParamClause, ScParameterClause}
+import com.intellij.psi.util.{CachedValue, CachedValueProvider, CachedValuesManager, PsiTreeUtil}
 import com.intellij.util.containers.ConcurrentHashMap
-import util.{PsiTreeUtil, CachedValuesManager, CachedValueProvider, CachedValue}
-import lang.psi.api.statements.ScFunction
-import scala.util.control.ControlThrowable
-import lang.psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScTypeParamClause}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+
+import scala.collection.mutable.ArrayBuffer
+import scala.util.control.ControlThrowable
 
 /**
  * User: Alexander Podkhalyuzin

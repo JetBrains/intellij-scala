@@ -5,9 +5,9 @@ package psi
 package impl
 
 import com.intellij.lang.ASTNode
-import lang.psi.impl.base.ScStableCodeReferenceElementImpl
-import api.ScDocTagValue
-import resolve.StdKinds
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
+import org.jetbrains.plugins.scala.lang.resolve.StdKinds
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTagValue
 
 /**
  * User: Dmitry Naydanov

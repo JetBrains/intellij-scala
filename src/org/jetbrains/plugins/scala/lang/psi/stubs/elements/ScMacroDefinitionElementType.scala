@@ -6,8 +6,8 @@ package elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import psi.impl.statements.ScMacroDefinitionImpl
-import api.statements.ScMacroDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScMacroDefinitionImpl
 
 /**
  * User: Jason Zaugg

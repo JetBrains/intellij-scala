@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.copyright
 
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.module.Module
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.fileTypes.FileType
-import com.maddyhome.idea.copyright.CopyrightProfile
-import com.maddyhome.idea.copyright.psi.{UpdateJavaFileCopyright, UpdateCopyright, UpdateCopyrightsProvider}
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
+import com.maddyhome.idea.copyright.CopyrightProfile
+import com.maddyhome.idea.copyright.psi.{UpdateCopyright, UpdateCopyrightsProvider, UpdateJavaFileCopyright}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**

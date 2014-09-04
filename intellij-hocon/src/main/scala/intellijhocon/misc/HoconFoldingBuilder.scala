@@ -1,8 +1,8 @@
 package intellijhocon
 package misc
 
-import com.intellij.lang.folding.{FoldingDescriptor, FoldingBuilder}
 import com.intellij.lang.ASTNode
+import com.intellij.lang.folding.{FoldingBuilder, FoldingDescriptor}
 import com.intellij.openapi.editor.Document
 import com.intellij.psi.tree.TokenSet
 import intellijhocon.lexer.HoconTokenType
@@ -10,8 +10,8 @@ import intellijhocon.parser.HoconElementType
 
 class HoconFoldingBuilder extends FoldingBuilder {
 
-  import HoconTokenType._
-  import HoconElementType._
+  import intellijhocon.lexer.HoconTokenType._
+  import intellijhocon.parser.HoconElementType._
 
   def buildFoldRegions(node: ASTNode, document: Document): Array[FoldingDescriptor] = {
     val foldableTypes = TokenSet.create(Object, Array, MultilineString)

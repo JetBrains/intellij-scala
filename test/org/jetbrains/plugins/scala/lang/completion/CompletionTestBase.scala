@@ -1,17 +1,18 @@
 package org.jetbrains.plugins.scala
 package lang.completion
 
-import com.intellij.openapi.vfs.{VirtualFile, CharsetToolkit, LocalFileSystem}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import java.io.File
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
+
 import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionType}
-import com.intellij.codeInsight.lookup.{LookupManager, LookupElement}
 import com.intellij.codeInsight.lookup.impl.LookupImpl
-import com.intellij.openapi.util.text.StringUtil
+import com.intellij.codeInsight.lookup.{LookupElement, LookupManager}
+import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.util.io.FileUtil
-import base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem, VirtualFile}
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
  * User: Alexander Podkhalyuzin

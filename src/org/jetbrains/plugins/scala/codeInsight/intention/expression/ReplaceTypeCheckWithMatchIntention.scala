@@ -2,14 +2,14 @@ package org.jetbrains.plugins.scala
 package codeInsight.intention.expression
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.Editor
-import com.intellij.psi.PsiElement
-import codeInspection.typeChecking.TypeCheckToMatchUtil._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMatchStmt, ScIfStmt, ScGenericCall}
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.application.ApplicationManager
-import extensions.inWriteAction
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.codeInspection.typeChecking.TypeCheckToMatchUtil._
+import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScIfStmt, ScMatchStmt}
 import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.GroupInplaceRenamer
 
 

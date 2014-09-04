@@ -2,17 +2,16 @@ package org.jetbrains.plugins.scala
 package testingSupport.test.specs2
 
 import com.intellij.execution._
-import com.intellij.psi.util.PsiTreeUtil
-import configurations.RunConfiguration
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import testingSupport.RuntimeConfigurationProducerAdapter
-import lang.psi.impl.ScalaPsiManager
-import lang.psi.ScalaPsiUtil
-import lang.psi.api.base.ScLiteral
-import testingSupport.test.TestRunConfigurationForm.TestKind
 import com.intellij.execution.actions.ConfigurationContext
-import org.jetbrains.plugins.scala.testingSupport.test.{TestConfigurationProducer, TestConfigurationUtil, AbstractTestConfigurationProducer}
+import com.intellij.execution.configurations.RunConfiguration
+import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, TestConfigurationProducer, TestConfigurationUtil}
 
 /**
  * User: Alexander Podkhalyuzin

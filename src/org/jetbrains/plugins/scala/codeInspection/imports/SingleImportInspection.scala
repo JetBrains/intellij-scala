@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package codeInspection.imports
 
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.PsiElementVisitor
-import lang.psi.api.toplevel.imports.ScImportExpr
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder, LocalInspectionTool}
-import codeInspection.InspectionBundle
-import lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 
 /**
  * @author Ksenia.Sautina

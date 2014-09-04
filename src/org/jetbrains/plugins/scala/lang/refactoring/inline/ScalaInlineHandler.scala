@@ -4,37 +4,36 @@ package refactoring
 package inline
 
 
-import collection.mutable.ArrayBuffer
+import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.lang.refactoring.InlineHandler
+import com.intellij.lang.refactoring.InlineHandler.Settings
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.codeStyle.CodeStyleManager
-import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.refactoring.util.{CommonRefactoringUtil, RefactoringMessageDialog}
-import com.intellij.refactoring.HelpID
-import com.intellij.psi.util.PsiTreeUtil
-import java.lang.String
-import lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScStableReferenceElementPattern, ScBindingPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScExpression}
-import psi.api.statements._
-import util.ScalaRefactoringUtil
-import com.intellij.usageView.UsageInfo
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScStableCodeReferenceElement}
-import collection.JavaConverters.iterableAsScalaIterableConverter
-import com.intellij.lang.refactoring.InlineHandler.Settings
-import com.intellij.psi.{PsiReference, PsiElement}
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
-import org.jetbrains.plugins.scala.extensions.Parent
+import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiReference}
+import com.intellij.refactoring.HelpID
+import com.intellij.refactoring.util.{CommonRefactoringUtil, RefactoringMessageDialog}
+import com.intellij.usageView.UsageInfo
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypedDefinition, ScNamedElement}
-import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
-import extensions.{childOf, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScStableReferenceElementPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import com.intellij.internal.statistic.UsageTrigger
+import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+
+import scala.collection.JavaConverters.iterableAsScalaIterableConverter
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin

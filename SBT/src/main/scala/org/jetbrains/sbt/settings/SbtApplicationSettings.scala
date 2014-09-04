@@ -1,10 +1,10 @@
 package org.jetbrains.sbt
 package settings
 
-import com.intellij.openapi.components._
-import com.intellij.openapi.components.PersistentStateComponent
+import com.intellij.openapi.components.{PersistentStateComponent, _}
 import com.intellij.util.xmlb.XmlSerializerUtil
-import beans.BeanProperty
+
+import scala.beans.BeanProperty
 
 /**
  * @author Pavel Fatin

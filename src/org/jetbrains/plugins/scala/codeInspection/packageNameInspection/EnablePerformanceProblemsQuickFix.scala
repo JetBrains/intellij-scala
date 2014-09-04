@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.packageNameInspection
 
+import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor}
 import com.intellij.openapi.project.Project
-import com.intellij.codeInspection.{ProblemDescriptor, LocalQuickFix}
-import java.lang.String
 import org.jetbrains.plugins.scala.settings._
 
 /**

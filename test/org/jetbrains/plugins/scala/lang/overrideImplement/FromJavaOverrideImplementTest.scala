@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package lang.overrideImplement
 
-import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
-import com.intellij.testFramework.fixtures.{ModuleFixture, JavaCodeInsightFixtureTestCase}
-import junit.framework.Assert.assertEquals
-import com.intellij.testFramework.builders.JavaModuleFixtureBuilder
 import com.intellij.testFramework.IdeaTestUtil
+import com.intellij.testFramework.builders.JavaModuleFixtureBuilder
+import com.intellij.testFramework.fixtures.{JavaCodeInsightFixtureTestCase, ModuleFixture}
+import junit.framework.Assert.assertEquals
+import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /**

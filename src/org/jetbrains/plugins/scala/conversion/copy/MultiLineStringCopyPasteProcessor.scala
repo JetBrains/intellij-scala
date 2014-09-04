@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.conversion.copy
 
 import com.intellij.codeInsight.editorActions.CopyPastePreProcessor
+import com.intellij.openapi.editor.{Editor, RawText}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiFile
-import com.intellij.openapi.editor.{RawText, Editor}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 /**

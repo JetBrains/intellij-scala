@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import org.jetbrains.plugins.scala.base.SimpleTestCase
-import lang.psi.types.Compatibility
-import lang.psi.api.toplevel.typedef.ScClass
 import org.intellij.lang.annotations.Language
-import extensions._
-import lang.psi.api.base.ScConstructor
-import lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.base.SimpleTestCase
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
 
 class ConstructorAnnotatorTest extends SimpleTestCase {
   final val Header = """

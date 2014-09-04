@@ -3,26 +3,27 @@ package lang
 package resolve
 package processor
 
-import psi.api.statements._
 import com.intellij.psi._
-import params.ScTypeParam
-import psi.types._
-import nonvalue.TypeParameter
-import psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtResult, Expression}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import collection.immutable.HashSet
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+
 import scala.collection.Set
-import psi.implicits.ScImplicitlyConvertible
-import psi.api.toplevel.typedef.{ScTemplateDefinition, ScMember, ScClass, ScObject}
-import psi.impl.toplevel.synthetic.ScSyntheticFunction
-import psi.impl.ScPackageImpl
-import caches.CachesUtil
-import psi.{ScalaPsiElement, ScalaPsiUtil}
-import psi.api.expr._
-import psi.api.base.{ScMethodLike, ScPrimaryConstructor}
-import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
-import extensions._
-import psi.types.Compatibility.{ConformanceExtResult, Expression}
+import scala.collection.immutable.HashSet
 
 //todo: remove all argumentClauses, we need just one of them
 class MethodResolveProcessor(override val ref: PsiElement,

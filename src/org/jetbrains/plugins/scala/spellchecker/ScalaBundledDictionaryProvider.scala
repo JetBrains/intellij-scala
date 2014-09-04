@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.spellchecker
 
 import com.intellij.spellchecker.BundledDictionaryProvider
-import java.lang.String
 
 /**
  * User: Alexander Podkhalyuzin

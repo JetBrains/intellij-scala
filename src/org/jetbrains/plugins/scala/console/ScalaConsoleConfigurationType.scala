@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala
 package console
 
 
-import com.intellij.execution.configurations.{ConfigurationType, ConfigurationFactory}
-import icons.Icons
 import javax.swing.Icon
+
+import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType}
+import org.jetbrains.plugins.scala.icons.Icons
 
 /**
  * User: Alexander Podkhalyuzin

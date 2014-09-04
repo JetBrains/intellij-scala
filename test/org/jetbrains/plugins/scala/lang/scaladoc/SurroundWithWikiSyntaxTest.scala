@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
 package lang.scaladoc
 
-import lang.surroundWith.surrounders.scaladoc._
-import util.ScalaToolsFactory
-import base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.scaladoc._
+import org.jetbrains.plugins.scala.util.ScalaToolsFactory
 
 /**
  * User: Dmitry Naydanov
@@ -12,7 +12,7 @@ import base.ScalaLightCodeInsightFixtureTestAdapter
 
 class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  import SurroundWithWikiSyntaxTest._
+  import org.jetbrains.plugins.scala.lang.scaladoc.SurroundWithWikiSyntaxTest._
   val s = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_START
   val e = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_END
 

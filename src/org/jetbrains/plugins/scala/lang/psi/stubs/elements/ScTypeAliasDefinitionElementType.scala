@@ -5,9 +5,9 @@ package stubs
 package elements
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.ScTypeAliasDefinitionImpl
-import api.statements.ScTypeAlias
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 
 /**
  * User: Alexander Podkhalyuzin

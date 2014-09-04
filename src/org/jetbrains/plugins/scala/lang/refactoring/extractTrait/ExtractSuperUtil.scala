@@ -1,32 +1,30 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.extractTrait
 
-import com.intellij.psi._
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.Editor
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition, ScTemplateDefinition}
-import com.intellij.psi.search.PsiElementProcessor
+import java.util
+
 import com.intellij.codeInsight.navigation.NavigationUtil
 import com.intellij.ide.util.PsiClassListCellRenderer
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.IntroduceException
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScNewTemplateDefinition}
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
-import com.intellij.refactoring.util.RefactoringMessageUtil
-import extensions.toPsiNamedElementExt
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.roots.{ProjectRootManager, ProjectFileIndex}
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.util.Comparing
-import com.intellij.util.containers.MultiMap
-import com.intellij.refactoring.extractSuperclass.ExtractSuperClassUtil
-import java.util
-import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi._
+import com.intellij.psi.search.PsiElementProcessor
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.refactoring.util.RefactoringMessageUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.IntroduceException
+
 import scala.collection.JavaConverters._
 
 /**

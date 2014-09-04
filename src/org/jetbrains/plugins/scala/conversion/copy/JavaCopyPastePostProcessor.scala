@@ -2,24 +2,25 @@ package org.jetbrains.plugins.scala
 package conversion
 package copy
 
-import com.intellij.openapi.editor.{RangeMarker, Editor}
 import java.awt.datatransfer.{DataFlavor, Transferable}
-import com.intellij.psi.{PsiDocumentManager, PsiJavaFile, PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, CodeStyleManager}
 import java.lang.Boolean
-import org.jetbrains.plugins.scala.extensions._
-import com.intellij.openapi.extensions.Extensions
-import collection.mutable.{ListBuffer, ArrayBuffer}
-import com.intellij.openapi.project.{DumbService, Project}
-import org.jetbrains.plugins.scala.ScalaFileType
-import com.intellij.codeInsight.editorActions._
-import com.intellij.openapi.util.{TextRange, Ref}
-import com.intellij.openapi.diagnostic.{Attachment, Logger}
-import settings._
-import com.intellij.diagnostic.LogMessageEx
-import com.intellij.util.ExceptionUtil
 import java.util.Collections.singletonList
+
+import com.intellij.codeInsight.editorActions._
+import com.intellij.diagnostic.LogMessageEx
+import com.intellij.openapi.diagnostic.{Attachment, Logger}
+import com.intellij.openapi.editor.{Editor, RangeMarker}
+import com.intellij.openapi.extensions.Extensions
+import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.util.{Ref, TextRange}
+import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiJavaFile}
+import com.intellij.util.ExceptionUtil
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.settings._
+
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -97,7 +98,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
     val dialog = new ScalaPasteFromJavaDialog(project)
     val (text, associations) = value match {
       case code: ConvertedCode => (code.data, code.associations)
-      case _ => ("", Array.empty)
+      case _ => ("", Array.empty[Association])
     }
     if (text == "") return //copy as usually
     if (!ScalaProjectSettings.getInstance(project).isDontShowConversionDialog) dialog.show()

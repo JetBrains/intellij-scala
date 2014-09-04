@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.format
 
-import org.jetbrains.plugins.scala.format.{StringConcatenationFormatter, FormattedStringParser}
+import org.jetbrains.plugins.scala.format.{FormattedStringParser, StringConcatenationFormatter}
 
 /**
  * Pavel Fatin

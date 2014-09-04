@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.controlFlow
 package impl
 
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
-import collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import com.intellij.psi.PsiNamedElement
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author ilyas

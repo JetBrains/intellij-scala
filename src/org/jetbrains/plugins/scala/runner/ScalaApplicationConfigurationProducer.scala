@@ -1,21 +1,22 @@
 package org.jetbrains.plugins.scala.runner
 
-import com.intellij.openapi.module.Module
-import com.intellij.psi.util.PsiMethodUtil
-import com.intellij.execution.configurations.ConfigurationUtil
-import com.intellij.openapi.project.Project
-import com.intellij.execution.application.{ApplicationConfiguration, ApplicationConfigurationType}
-import com.intellij.execution.impl.RunManagerImpl
-import com.intellij.openapi.util.Comparing
-import com.intellij.execution.actions.ConfigurationContext
+import java.util
+
 import com.intellij.execution._
+import com.intellij.execution.actions.ConfigurationContext
+import com.intellij.execution.application.{ApplicationConfiguration, ApplicationConfigurationType}
+import com.intellij.execution.configurations.ConfigurationUtil
+import com.intellij.execution.impl.RunManagerImpl
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Comparing
+import com.intellij.psi.{util => _, _}
+import com.intellij.psi.util.PsiMethodUtil
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions.toPsiMemberExt
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, ScFunctionWrapper}
-import java.util
 
 /**
  * @author Alefas
@@ -89,7 +90,7 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
     val settings: RunnerAndConfigurationSettings = cloneTemplateConfiguration(project, context)
     val configuration: ApplicationConfiguration = settings.getConfiguration.asInstanceOf[ApplicationConfiguration]
     configuration.MAIN_CLASS_NAME = JavaExecutionUtil.getRuntimeQualifiedName(aClass)
-    configuration.setName(configuration.getGeneratedName)
+    configuration.setName(configuration.suggestedName())
     setupConfigurationModule(context, configuration)
     JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(configuration, location)
     settings
@@ -104,7 +105,7 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
     }
     val predefinedModule: Module = RunManagerEx.getInstanceEx(location.getProject).asInstanceOf[RunManagerImpl].
             getConfigurationTemplate(getConfigurationFactory).getConfiguration.asInstanceOf[ApplicationConfiguration].getConfigurationModule.getModule
-    import collection.JavaConversions._
+    import scala.collection.JavaConversions._
     for (existingConfiguration <- existingConfigurations) {
       val appConfiguration: ApplicationConfiguration = existingConfiguration.getConfiguration.asInstanceOf[ApplicationConfiguration]
       if (Comparing.equal(JavaExecutionUtil.getRuntimeQualifiedName(aClass), appConfiguration.MAIN_CLASS_NAME)) {

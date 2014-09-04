@@ -9,7 +9,6 @@ package usages
 
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
-import java.lang.String
 
 /**
  * Base class to store import-provided reference elements

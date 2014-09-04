@@ -5,12 +5,11 @@ package api
 package base
 package types
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.types._
-import caches.CachesUtil
-import result.{Failure, TypeResult, TypingContext, TypingContextOwner}
 import com.intellij.psi.util.PsiModificationTracker
-import statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext, TypingContextOwner}
 
 /**
 * @author Alexander Podkhalyuzin

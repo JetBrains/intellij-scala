@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala
 package config
 
+import java.util
+
+import com.intellij.openapi.components.ComponentManager
 import com.intellij.openapi.externalSystem.model.{DataNode, Key}
 import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataService
-import java.util
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.components.ComponentManager
 import com.intellij.openapi.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil}
+import com.intellij.openapi.project.Project
 
 /**
  * @author Pavel Fatin

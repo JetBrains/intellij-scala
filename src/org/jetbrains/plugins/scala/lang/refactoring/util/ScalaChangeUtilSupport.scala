@@ -1,17 +1,18 @@
 package org.jetbrains.plugins.scala.lang.refactoring.util
 
-import com.intellij.lang.ASTNode
 import java.util.Map
-import com.intellij.psi.impl.source.tree.{CompositeElement, TreeElement, TreeCopyHandler}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import com.intellij.psi.impl.source.SourceTreeToPsiMap
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
-import com.intellij.psi.PsiNamedElement
+
+import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.Key
+import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.impl.source.SourceTreeToPsiMap
+import com.intellij.psi.impl.source.tree.{CompositeElement, TreeCopyHandler, TreeElement}
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * User: Alexander Podkhalyuzin

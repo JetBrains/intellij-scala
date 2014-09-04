@@ -1,17 +1,19 @@
 package org.jetbrains.plugins.scala
 package util.macroDebug
 
-import com.intellij.openapi.vfs.newvfs.FileAttribute
-import com.intellij.psi.{PsiElement, PsiFileFactory, PsiFile}
-import com.intellij.openapi.vfs.VfsUtil
 import java.io.File
-import collection.mutable
-import lang.psi.api.ScalaFile
-import collection.mutable.ListBuffer
-import com.intellij.testFramework.LightVirtualFile
-import lang.psi.api.expr.{ScReferenceExpression, MethodInvocation}
-import lang.psi.api.statements.ScMacroDefinition
+
 import com.intellij.openapi.util.SystemInfo
+import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.openapi.vfs.newvfs.FileAttribute
+import com.intellij.psi.{PsiElement, PsiFile, PsiFileFactory}
+import com.intellij.testFramework.LightVirtualFile
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
+
+import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
 /**
  * User: Dmitry Naydanov

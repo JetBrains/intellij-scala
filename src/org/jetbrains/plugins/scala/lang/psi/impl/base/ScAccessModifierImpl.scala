@@ -4,22 +4,20 @@ package psi
 package impl
 package base
 
-import _root_.scala.collection.mutable.ArrayBuffer
-import api.base.ScAccessModifier
-import api.ScalaFile
-import api.statements.params.ScTypeParamClause
-import api.toplevel.packaging.ScPackageContainer
-import api.toplevel.typedef.ScTypeDefinition
+import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import com.intellij.util.IncorrectOperationException
-import psi.ScalaPsiElementImpl
-import lexer.ScalaTokenTypes
-
-import com.intellij.lang.ASTNode
 import com.intellij.psi.util.PsiTreeUtil
-import psi.stubs.ScAccessModifierStub
-import extensions.toPsiNamedElementExt
+import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackageContainer
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScAccessModifierStub
+
+import _root_.scala.collection.mutable.ArrayBuffer
 ;
 
 /** 

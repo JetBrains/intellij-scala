@@ -1,15 +1,14 @@
 package org.jetbrains.plugins.scala
 package base
 
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.ScalaFileType
-import com.intellij.psi.{PsiElement, PsiWhiteSpace, PsiComment, PsiFileFactory}
+import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.{PsiComment, PsiElement, PsiFileFactory, PsiWhiteSpace}
+import com.intellij.testFramework.UsefulTestCase
+import com.intellij.testFramework.fixtures._
 import junit.framework.Assert
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.extensions._
-import com.intellij.testFramework.fixtures._
-import com.intellij.testFramework.UsefulTestCase
-import com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
  * Pavel.Fatin, 18.05.2010

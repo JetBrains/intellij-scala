@@ -1,16 +1,15 @@
 package org.jetbrains.plugins.scala.codeInspection.internal
 
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import collection.mutable.HashMap
-import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiNamedElementExt}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import annotation.tailrec
-import com.intellij.psi.{PsiElement, PsiMethod, PsiElementVisitor}
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder, LocalInspectionTool}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 import com.intellij.codeHighlighting.HighlightDisplayLevel
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
+import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiMethod}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+
+import scala.collection.mutable.HashMap
 
 
 /**

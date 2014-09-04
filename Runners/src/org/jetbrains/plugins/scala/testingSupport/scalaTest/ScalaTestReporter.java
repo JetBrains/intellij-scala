@@ -9,7 +9,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
 
-import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.*;
+import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeString;
+import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.formatTimestamp;
 
 /**
  * @author Alexander Podkhalyuzin

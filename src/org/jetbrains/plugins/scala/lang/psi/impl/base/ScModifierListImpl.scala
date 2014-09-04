@@ -4,17 +4,17 @@ package psi
 package impl
 package base
 
-import api.expr.ScAnnotations
+import com.intellij.lang.ASTNode
+import com.intellij.psi._
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType
-import stubs.ScModifiersStub
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import collection.mutable.ArrayBuffer
-import api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotations
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
 * @author Alexander Podkhalyuzin

@@ -4,17 +4,15 @@ package psi
 package impl
 package expr
 
-import com.intellij.psi.util.PsiTreeUtil
-import psi.ScalaPsiElementImpl
-import api.expr._
 import com.intellij.lang.ASTNode
-import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
-import api.base.ScConstructor
-import api.toplevel.templates.ScTemplateBody
-import types._
-import result.{TypeResult, TypingContext, Failure, Success}
-import api.ScalaElementVisitor
-import com.intellij.psi.{PsiElementVisitor, PsiElement}
+import com.intellij.psi.PsiElementVisitor
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 
 /**
  * @author Alexander Podkhalyuzin

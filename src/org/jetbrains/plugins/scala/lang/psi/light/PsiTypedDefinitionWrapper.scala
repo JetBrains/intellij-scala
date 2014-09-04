@@ -2,13 +2,12 @@ package org.jetbrains.plugins.scala.lang.psi.light
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import impl.light.LightMethod
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypedDefinition, ScModifierListOwner}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 
 /**
  * User: Alefas
@@ -89,7 +88,7 @@ object PsiTypedDefinitionWrapper {
     type DefinitionRole = Value
     val SIMPLE_ROLE, GETTER, IS_GETTER, SETTER, EQ = Value
   }
-  import DefinitionRole._
+  import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 
   def methodText(b: ScTypedDefinition, isStatic: Boolean, isInterface: Boolean, role: DefinitionRole): String = {
     val builder = new StringBuilder

@@ -5,11 +5,11 @@ package stubs
 package elements
 
 
-import api.base.ScPatternList
-import impl.{ScPatternListStubImpl}
-import psi.impl.base.ScPatternListImpl
-import com.intellij.psi.stubs._
 import com.intellij.psi.PsiElement
+import com.intellij.psi.stubs._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScPatternListImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScPatternListStubImpl
 /**
  * User: Alexander Podkhalyuzin
  * Date: 17.07.2009

@@ -19,7 +19,7 @@ class ScalaMatchUnwrapper extends ScalaUnwrapper {
   override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext) = forCaseClauseInMatch(element) { (cl, m) =>
     context.extractBlockOrSingleStatement(cl.expr.get, m)
     context.delete(m)
-  }()
+  } {}
 
   override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]) = forCaseClauseInMatch[PsiElement](e) { (cl, m) =>
     super.collectAffectedElements(e, toExtract)

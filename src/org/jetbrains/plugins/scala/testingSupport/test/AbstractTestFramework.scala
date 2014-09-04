@@ -2,16 +2,17 @@ package org.jetbrains.plugins.scala
 package testingSupport.test
 
 import javax.swing.Icon
+
 import com.intellij.ide.fileTemplates.FileTemplateDescriptor
-import lang.psi.api.toplevel.typedef.ScTypeDefinition
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.testIntegration.JavaTestFramework
-import icons.Icons
-import com.intellij.psi.{PsiElement, PsiMethod, PsiClass}
-import lang.psi.ScalaPsiUtil
 import com.intellij.lang.Language
-import lang.psi.impl.ScalaPsiManager
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
+import com.intellij.testIntegration.JavaTestFramework
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 /**
  * @author Ksenia.Sautina

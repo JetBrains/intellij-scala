@@ -4,22 +4,22 @@ package refactoring
 package introduceParameter
 
 
-import com.intellij.refactoring.introduceParameter.{IntroduceParameterData, IntroduceParameterMethodUsagesProcessor}
-import java.lang.String
-import com.intellij.usageView.UsageInfo
 import java.util.Collections
-import psi.api.statements.ScFunction
-import resolve.ScalaResolveResult
+
 import com.intellij.psi.PsiElement
-import com.intellij.util.containers.MultiMap
-import psi.types.ScType
-import psi.impl.ScalaPsiElementFactory
-import util.ScalaNamesUtil
-import conversion.JavaToScala
-import com.intellij.psi.util.PsiTreeUtil
-import psi.api.expr._
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
-import psi.ScalaPsiUtil
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.refactoring.introduceParameter.{IntroduceParameterData, IntroduceParameterMethodUsagesProcessor}
+import com.intellij.usageView.UsageInfo
+import com.intellij.util.containers.MultiMap
+import org.jetbrains.plugins.scala.conversion.JavaToScala
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * User: Alexander Podkhalyuzin

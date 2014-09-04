@@ -7,7 +7,6 @@ package org.jetbrains.plugins.scala.editor.codeFolding;
 
 import com.intellij.application.options.editor.CodeFoldingOptionsProvider;
 import com.intellij.openapi.options.BeanConfigurable;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.editor.EditorBundle;
 import org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings;
 

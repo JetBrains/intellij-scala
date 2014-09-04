@@ -1,21 +1,21 @@
 package org.jetbrains.plugins.scala
 package decompiler
 
+import java.io.IOException
+
 import com.intellij.lang.LanguageParserDefinitions
+import com.intellij.openapi.project.{DefaultProjectFactory, Project, ProjectManager}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.compiled.ClsStubBuilderFactory
-
-import com.intellij.psi.stubs.{PsiFileStubImpl, PsiFileStub}
+import com.intellij.psi.stubs.{PsiFileStub, PsiFileStubImpl}
 import com.intellij.psi.tree.IStubFileElementType
-import com.intellij.psi.{PsiManager, PsiFile}
-import lang.psi.api.ScalaFile
-import lang.psi.impl.ScalaPsiElementFactory
-import decompiler.DecompilerUtil.DecompilationResult
-import com.intellij.openapi.project.{DefaultProjectFactory, Project, ProjectManager}
-import reflect.NameTransformer
-import scala.annotation.tailrec
-import java.io.IOException
+import com.intellij.psi.{PsiFile, PsiManager}
+import org.jetbrains.plugins.scala.decompiler.DecompilerUtil.DecompilationResult
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.StubVersion
+
+import scala.annotation.tailrec
 
 /**
  * @author ilyas

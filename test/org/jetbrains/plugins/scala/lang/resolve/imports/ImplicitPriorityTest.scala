@@ -4,8 +4,6 @@ package resolve
 package imports
 
 import com.intellij.psi.PsiPolyVariantReference
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveTestCase}
-import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
  * @author jzaugg

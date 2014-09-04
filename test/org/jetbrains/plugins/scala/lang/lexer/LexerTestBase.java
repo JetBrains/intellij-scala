@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala.lang.lexer;
 
 import com.intellij.lexer.Lexer;
-import com.intellij.psi.tree.IElementType;
-import org.jetbrains.plugins.scala.Console;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 
 /**

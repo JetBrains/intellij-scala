@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.rename
 
-import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import com.intellij.psi.PsiElement
+import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /**

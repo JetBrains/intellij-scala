@@ -10,7 +10,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
-import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiMemberExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferenceElementPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScReferenceExpression}
@@ -183,7 +183,8 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
             r.parentElement match {
               case Some(ta: ScTypeAliasDefinition) => ta.isExactAliasFor(cls)
               case _ => false
-          }
+            }
+          case None => false
         }
       case _ =>
         // TODO indirect references via vals, e.g. `package object scala { val List = scala.collection.immutable.List }` ?

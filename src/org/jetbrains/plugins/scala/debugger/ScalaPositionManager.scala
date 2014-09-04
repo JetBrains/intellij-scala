@@ -1,37 +1,39 @@
 package org.jetbrains.plugins.scala
 package debugger
 
-import com.intellij.openapi.diagnostic.Logger
 import java.util
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait, ScObject}
-import com.intellij.psi._
+
+import com.intellij.debugger.engine.{CompoundPositionManager, DebugProcess, DebugProcessImpl}
 import com.intellij.debugger.requests.ClassPrepareRequestor
-import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl, CompoundPositionManager}
 import com.intellij.debugger.{NoDataException, PositionManager, SourcePosition}
-import com.sun.jdi.{ClassNotPreparedException, AbsentInformationException, Location, ReferenceType}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
-import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
-import com.intellij.psi.util.PsiTreeUtil
-import com.sun.jdi.request.ClassPrepareRequest
 import com.intellij.openapi.application.ApplicationManager
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import com.intellij.openapi.util.{Computable, Ref}
-import ScalaPositionManager._
-import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
-import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
-import org.jetbrains.plugins.scala.util.macroDebug.ScalaMacroDebuggingUtil
-import com.intellij.openapi.roots.impl.DirectoryIndex
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.project.Project
-import com.intellij.util.{Processor, Query}
-import org.jetbrains.annotations.{NotNull, Nullable}
-import scala.annotation.tailrec
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.impl.DirectoryIndex
+import com.intellij.openapi.util.{Computable, Ref}
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi._
+import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.{Processor, Query}
+import com.sun.jdi.request.ClassPrepareRequest
+import com.sun.jdi.{AbsentInformationException, ClassNotPreparedException, Location, ReferenceType}
+import org.jetbrains.annotations.{NotNull, Nullable}
+import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
+import org.jetbrains.plugins.scala.debugger.ScalaPositionManager._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
+import org.jetbrains.plugins.scala.util.macroDebug.ScalaMacroDebuggingUtil
+
+import scala.annotation.tailrec
 
 /**
  * @author ilyas

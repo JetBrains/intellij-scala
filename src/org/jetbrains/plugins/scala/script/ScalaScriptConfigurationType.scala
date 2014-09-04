@@ -1,16 +1,10 @@
 package org.jetbrains.plugins.scala
 package script
 
-import com.intellij.execution.configurations.{ConfigurationType, RunConfiguration, ConfigurationFactory}
-import com.intellij.execution.{RunManager, Location, RunnerAndConfigurationSettings}
-import com.intellij.openapi.module.ModuleUtilCore
-import com.intellij.psi.{PsiElement, PsiFile}
-import config.ScalaFacet
-import icons.Icons
 import javax.swing.Icon
-import java.lang.String
-import lang.psi.api.ScalaFile
-import extensions.toPsiNamedElementExt
+
+import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType}
+import org.jetbrains.plugins.scala.icons.Icons
 
 /**
  * User: Alexander Podkhalyuzin

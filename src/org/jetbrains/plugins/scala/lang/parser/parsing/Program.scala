@@ -3,9 +3,8 @@ package lang
 package parser
 package parsing
 
-import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.util.DebugPrint
-import com.intellij.lang.PsiBuilder
 
 /*
  * Program parses all content in scala source file

@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.controlFlow
 
-import collection.mutable.{ListBuffer, HashSet, ArrayBuffer}
+import scala.collection.mutable.{ArrayBuffer, HashSet, ListBuffer}
 
 /**
  * @author ilyas

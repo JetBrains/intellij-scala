@@ -1,10 +1,11 @@
 package org.jetbrains.jps.incremental.scala
 package remote
 
-import data.{CompilationData, CompilerData, SbtData}
-import java.net.{InetAddress, UnknownHostException, ConnectException}
-import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
+import java.net.{ConnectException, InetAddress, UnknownHostException}
+
 import com.intellij.util.Base64Converter
+import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
+import org.jetbrains.jps.incremental.scala.data.{CompilationData, CompilerData, SbtData}
 
 /**
  * @author Pavel Fatin

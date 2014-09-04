@@ -18,7 +18,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.scope.processor.MethodsProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
-import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
@@ -97,9 +97,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     PsiClassImplUtil.findInnerByName(this, name, checkBases)
   }
 
-  import com.intellij.openapi.util.{Pair => IPair}
-  import java.util.{List => JList}
-  import java.util.{Collection => JCollection}
+  import java.util.{Collection => JCollection, List => JList}
+
+import com.intellij.openapi.util.{Pair => IPair}
 
   def getAllFields: Array[PsiField] = {
     PsiClassImplUtil.getAllFields(this)

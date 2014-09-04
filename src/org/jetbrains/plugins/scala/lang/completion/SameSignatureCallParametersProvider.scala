@@ -2,25 +2,25 @@ package org.jetbrains.plugins.scala
 package lang.completion
 
 import com.intellij.codeInsight.completion._
-import com.intellij.patterns.PlatformPatterns
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScMethodCall, ScArgumentExprList, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScConstructor}
-import com.intellij.util.ProcessingContext
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
-import com.intellij.psi.{PsiParameter, PsiMethod, PsiClass}
-import scala.collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.icons.Icons
-import com.intellij.ui.LayeredIcon
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
+import com.intellij.patterns.PlatformPatterns
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiClass, PsiMethod, PsiParameter}
+import com.intellij.ui.LayeredIcon
+import com.intellij.util.ProcessingContext
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLike}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScMethodCall, ScReferenceExpression, ScSuperReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alefas

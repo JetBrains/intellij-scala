@@ -1,10 +1,10 @@
 package org.jetbrains.sbt
 package language
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiTreeChangeEvent, PsiTreeChangeAdapter, PsiManager}
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.psi.{PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
 
 /**
  * @author Pavel Fatin

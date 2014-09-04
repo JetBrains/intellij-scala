@@ -4,23 +4,24 @@ package psi
 package impl
 package base
 
-import com.intellij.openapi.util.TextRange
-import lexer.ScalaTokenTypes
-import psi.ScalaPsiElementImpl
+import java.lang.StringBuilder
+import java.util.Random
+
 import com.intellij.lang.ASTNode
-import psi.types._
-import result.{TypeResult, Failure, Success, TypingContext}
+import com.intellij.lang.injection.InjectedLanguageManager
+import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafElement
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.impl.source.tree.java.PsiLiteralExpressionImpl
-import java.lang.{StringBuilder, String}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
-import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import api.ScalaElementVisitor
-import com.intellij.lang.injection.InjectedLanguageManager
-import java.util.Random
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+
 import scala.StringContext.InvalidEscapeException
 
 /**

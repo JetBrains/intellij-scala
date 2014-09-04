@@ -58,7 +58,7 @@ abstract class CompletionTestBase extends completion.CompletionTestBase {
   }
 
   override def chechResult(got: Array[String], _expected: String) {
-    import collection.JavaConversions._
+    import scala.collection.JavaConversions._
     val expected = _expected.split("\n")
     assertContainsElements[String](got.toSet.toSeq, expected.toSeq)
   }

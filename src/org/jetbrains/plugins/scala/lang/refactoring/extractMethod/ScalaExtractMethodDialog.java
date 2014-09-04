@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
-import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaVariableData;
 import scala.Option;
 
 import javax.swing.*;

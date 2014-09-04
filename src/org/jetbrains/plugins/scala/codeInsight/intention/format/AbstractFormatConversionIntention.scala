@@ -2,14 +2,14 @@ package org.jetbrains.plugins.scala
 package codeInsight.intention.format
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import format.{StringPart, StringFormatter, StringParser}
-import extensions._
-import org.jetbrains.plugins.scala.util.MultilineStringUtil
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.format.{StringFormatter, StringParser, StringPart}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 /**
  * Pavel Fatin

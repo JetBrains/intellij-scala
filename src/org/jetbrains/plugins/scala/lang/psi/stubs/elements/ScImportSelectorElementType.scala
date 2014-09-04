@@ -5,13 +5,12 @@ package stubs
 package elements
 
 
-import api.toplevel.imports.{ScImportSelector, ScImportStmt}
-import com.intellij.psi.stubs.{IndexSink, StubInputStream, StubElement, StubOutputStream}
-
 import com.intellij.psi.PsiElement
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io.StringRef
-import impl.{ScImportExprStubImpl, ScImportSelectorStubImpl, ScImportStmtStubImpl}
-import psi.impl.toplevel.imports.{ScImportSelectorImpl, ScImportStmtImpl}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.ScImportSelectorImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScImportSelectorStubImpl
 /**
  * User: Alexander Podkhalyuzin
  * Date: 20.06.2009

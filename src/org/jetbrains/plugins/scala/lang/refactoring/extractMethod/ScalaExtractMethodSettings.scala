@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.lang
 package refactoring.extractMethod
 
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import scala.collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin

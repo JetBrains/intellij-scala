@@ -1,20 +1,21 @@
 package org.jetbrains.sbt
 package project.template
 
-import com.intellij.ide.util.projectWizard.{SdkSettingsStep, ModuleWizardStep, SettingsStep}
-import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
-import com.intellij.openapi.util.Condition
-import org.jetbrains.sbt.project.settings.SbtProjectSettings
-import org.jetbrains.sbt.project.SbtProjectSystem
-import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel}
-import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.openapi.util.io.FileUtil._
-import com.intellij.openapi.roots.ModifiableRootModel
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
-import com.intellij.openapi.externalSystem.settings.{ExternalSystemSettingsListener, AbstractExternalSystemSettings}
 import java.io.File
+
+import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SdkSettingsStep, SettingsStep}
+import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
+import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSettings, ExternalSystemSettingsListener}
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
+import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel}
+import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
+import com.intellij.openapi.roots.ModifiableRootModel
+import com.intellij.openapi.util.Condition
+import com.intellij.openapi.util.io.FileUtil._
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.LocalFileSystem
+import org.jetbrains.sbt.project.SbtProjectSystem
+import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
 /**
  * User: Dmitry Naydanov, Pavel Fatin

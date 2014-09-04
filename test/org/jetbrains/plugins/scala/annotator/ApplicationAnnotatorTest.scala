@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import org.jetbrains.plugins.scala.base.SimpleTestCase
-import lang.psi.api.base.ScReferenceElement
-import lang.psi.types.Compatibility
-import lang.psi.api.toplevel.typedef.ScClass
-import lang.psi.api.expr.ScMethodCall
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
 
 /**
  * Pavel.Fatin, 18.05.2010

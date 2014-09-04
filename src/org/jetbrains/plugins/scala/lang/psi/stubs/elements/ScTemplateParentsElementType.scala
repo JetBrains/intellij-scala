@@ -4,13 +4,12 @@ package psi
 package stubs
 package elements
 
-import api.base.ScModifierList
-import com.intellij.util.io.StringRef
-import impl.ScTemplateParentsStubImpl
-import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
-import com.intellij.psi.PsiElement
-import api.toplevel.templates.{ScClassParents, ScTemplateParents}
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.psi.PsiElement
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import com.intellij.util.io.StringRef
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateParents}
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateParentsStubImpl
 
 /**
  * User: Alexander Podkhalyuzin

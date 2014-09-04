@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package format
 
-import base.SimpleTestCase
+import org.jetbrains.plugins.scala.base.SimpleTestCase
 
 /**
  * Pavel Fatin

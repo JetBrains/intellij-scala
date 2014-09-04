@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.config
 package ui
 
-import javax.swing.{DefaultListCellRenderer, JList}
-import org.jetbrains.plugins.scala.lang.refactoring.util.DefaultListCellRendererAdapter
 import java.awt.Component
+import javax.swing.JList
+
+import org.jetbrains.plugins.scala.lang.refactoring.util.DefaultListCellRendererAdapter
 
 /**
  * Pavel.Fatin, 05.07.2010

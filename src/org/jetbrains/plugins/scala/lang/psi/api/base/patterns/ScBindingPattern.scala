@@ -6,20 +6,17 @@ package base
 package patterns
 
 import com.intellij.navigation.NavigationItem
-import com.intellij.psi.impl.ResolveScopeManager
-import com.intellij.psi.search.{SearchScope, LocalSearchScope}
-import com.intellij.psi.util.PsiTreeUtil
-import statements._
-import toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScEarlyDefinitions, ScNamedElement, ScTypedDefinition}
-import toplevel.typedef.{ScTemplateDefinition, ScMember, ScTypeDefinition}
-import com.intellij.psi.javadoc.PsiDocComment
-import extensions.toPsiNamedElementExt
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForStatement, ScGenerator, ScEnumerator, ScBlock}
-import scala.annotation.tailrec
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import com.intellij.psi.javadoc.PsiDocComment
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.scala.ScLightBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+
+import scala.annotation.tailrec
 
 trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinition with NavigationItem with PsiDocCommentOwner {
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset

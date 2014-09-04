@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala
 package compiler
 
-import config.ScalaFacet
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.components.ProjectComponent
-import com.intellij.facet.{ProjectWideFacetListenersRegistry, ProjectWideFacetAdapter}
 import com.intellij.compiler.CompilerWorkspaceConfiguration
-import com.intellij.openapi.module.ModuleManager
-import com.intellij.openapi.compiler.{CompilerMessageCategory, CompileContext, CompileTask, CompilerManager}
+import com.intellij.facet.{ProjectWideFacetAdapter, ProjectWideFacetListenersRegistry}
+import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManager, CompilerMessageCategory}
+import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.config.ScalaFacet
 
 /**
  * @author Pavel Fatin

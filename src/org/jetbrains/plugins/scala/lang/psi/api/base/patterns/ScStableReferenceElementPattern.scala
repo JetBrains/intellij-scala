@@ -5,7 +5,7 @@ package api
 package base
 package patterns
 
-import expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 
 /**
  * @author ilyas

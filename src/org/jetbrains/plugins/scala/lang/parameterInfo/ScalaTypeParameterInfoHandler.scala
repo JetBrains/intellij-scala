@@ -3,27 +3,26 @@ package lang
 package parameterInfo
 
 
-import collection.mutable.ArrayBuffer
+import java.awt.Color
+
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.lookup.LookupElement
+import com.intellij.lang.parameterInfo._
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiClass, PsiMethod, PsiType, PsiTypeParameter}
 import com.intellij.util.ArrayUtil
-import java.awt.Color
-import java.lang.{Class, String}
-import java.util.Set
-import com.intellij.lang.parameterInfo._
-import lexer.ScalaTokenTypes
-import psi.api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScTypeElement, ScTypeArgs}
-import psi.api.expr.ScGenericCall
-import psi.api.statements.params.ScTypeParam
-import psi.types.{ScType, ScSubstitutor}
-import com.intellij.psi.{PsiMethod, PsiType, PsiTypeParameter, PsiClass}
-import extensions.toPsiNamedElementExt
-import resolve.{ResolvableReferenceExpression, ScalaResolveResult}
-import psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import psi.api.statements.{ScTypeAlias, ScFunction}
-import psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgs, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin

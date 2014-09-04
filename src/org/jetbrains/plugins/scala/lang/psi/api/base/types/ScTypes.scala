@@ -5,8 +5,6 @@ package api
 package base
 package types
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-
 /**
  * @author Alexander Podkhalyuzin
  * Date: 22.02.2008

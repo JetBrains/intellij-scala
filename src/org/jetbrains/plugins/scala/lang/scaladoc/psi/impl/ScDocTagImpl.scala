@@ -7,13 +7,12 @@ package impl
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import lang.psi.api.ScalaElementVisitor
-import java.lang.String
-import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import com.intellij.psi.javadoc.{PsiDocComment, PsiDocTagValue}
-import lexer.ScalaDocTokenType
-import api.{ScDocReferenceElement, ScDocTagValue, ScDocTag}
-import lang.psi.impl.ScalaPsiElementFactory
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTag
 
 /**
  * User: Alexander Podkhalyuzin

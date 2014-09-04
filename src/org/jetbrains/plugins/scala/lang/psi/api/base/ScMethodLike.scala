@@ -4,13 +4,13 @@ package psi
 package api
 package base
 
-import psi.types.ScType
 import com.intellij.psi.PsiMethod
-import toplevel.typedef.{ScTypeDefinition, ScMember}
-import impl.ScalaPsiElementFactory
-import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
-import statements.params.{ScParameters, ScParameterClause, ScTypeParamClause}
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScParameters, ScTypeParamClause}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
  * A member that can be converted to a ScMethodType, ie a method or a constructor.

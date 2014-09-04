@@ -5,21 +5,22 @@ package impl
 package toplevel
 package synthetic
 
-import api.toplevel.packaging.ScPackageContainer
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
+import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubIndexKey
-import resolve.ResolveTargets._
-import stubs.index.ScalaIndexKeys
-import com.intellij.psi._
-import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.util.IncorrectOperationException
-import collection.mutable.HashSet
-import lang.resolve.processor.BaseProcessor
-import api.toplevel.typedef.{ScObject, ScClass}
-import extensions.{toPsiClassExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackageContainer
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+
+import scala.collection.mutable.HashSet
 
 /**
  * @author ilyas
@@ -77,13 +78,13 @@ object ScSyntheticPackage {
 
     import com.intellij.psi.stubs.StubIndex
 
-    import scala.collection.JavaConversions._
-    val packages = StubIndex.getInstance().safeGet(
+import scala.collection.JavaConversions._
+    val packages = StubIndex.getElements(
       ScalaIndexKeys.PACKAGE_FQN_KEY.asInstanceOf[StubIndexKey[Any, ScPackageContainer]],
       fqn.hashCode(), project, GlobalSearchScope.allScope(project), classOf[ScPackageContainer]).toSeq
 
     if (packages.isEmpty) {
-      StubIndex.getInstance().safeGet(
+      StubIndex.getElements(
         ScalaIndexKeys.PACKAGE_OBJECT_KEY.asInstanceOf[StubIndexKey[Any, PsiClass]],
         fqn.hashCode(), project, GlobalSearchScope.allScope(project), classOf[PsiClass]).toSeq.
         find(pc => {

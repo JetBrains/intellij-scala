@@ -3,16 +3,16 @@ package lang.refactoring.changeSignature
 
 import com.intellij.lang.Language
 import com.intellij.psi.{PsiElement, PsiReference}
-import com.intellij.refactoring.changeSignature.{JavaChangeInfo, ChangeInfo}
+import com.intellij.refactoring.changeSignature.{ChangeInfo, JavaChangeInfo}
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScClassParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiTypedDefinitionWrapper, ScFunctionWrapper, StaticPsiTypedDefinitionWrapper}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 
 /**
  * Nikolay.Tropin

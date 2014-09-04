@@ -5,12 +5,11 @@ package stubs
 package elements
 
 
-import api.base.patterns.ScReferencePattern
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs._
-import com.intellij.util.io.StringRef
-import impl.{ScReferencePatternStubImpl}
-import psi.impl.base.patterns.ScReferencePatternImpl
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
+import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScReferencePatternImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScReferencePatternStubImpl
 /**
  * User: Alexander Podkhalyuzin
  * Date: 17.07.2009

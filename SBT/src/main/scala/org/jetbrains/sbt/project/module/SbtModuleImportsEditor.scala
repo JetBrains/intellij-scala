@@ -1,15 +1,17 @@
 package org.jetbrains.sbt
 package project.module
 
-import com.intellij.util.ui.UIUtil
-import com.intellij.ui.components.{JBLabel, JBList}
-import com.intellij.ui.{ToolbarDecorator, CollectionListModel}
-import com.intellij.openapi.roots.ui.configuration.{ModuleConfigurationState, ModuleElementsEditor}
-import javax.swing.border.EmptyBorder
-import javax.swing.{JPanel, ListModel, JList, DefaultListModel}
 import java.awt.BorderLayout
 import java.util
-import collection.JavaConverters._
+import javax.swing.border.EmptyBorder
+import javax.swing.{DefaultListModel, JList, JPanel, ListModel}
+
+import com.intellij.openapi.roots.ui.configuration.{ModuleConfigurationState, ModuleElementsEditor}
+import com.intellij.ui.components.{JBLabel, JBList}
+import com.intellij.ui.{CollectionListModel, ToolbarDecorator}
+import com.intellij.util.ui.UIUtil
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin

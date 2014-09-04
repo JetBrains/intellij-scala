@@ -4,14 +4,13 @@ package codeInsight.intention.types
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import com.intellij.psi.{PsiFile, PsiElement}
-import lang.psi.api.base.patterns._
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
-import params.ScParameter
-import lang.psi.api.expr.ScFunctionExpr
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**

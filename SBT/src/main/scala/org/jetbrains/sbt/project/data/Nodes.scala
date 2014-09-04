@@ -6,8 +6,6 @@ import java.io.File
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
 import org.jetbrains.sbt.project.SbtProjectSystem
-
-import org.jetbrains.sbt.project.structure.Resolver
 import org.jetbrains.sbt.resolvers.SbtResolver
 
 /**

@@ -5,10 +5,10 @@ package filters.other
 
 import com.intellij.psi.filters.ElementFilter
 import com.intellij.psi.{PsiComment, PsiElement}
-import psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
-import psi.ScalaPsiUtil
-import psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 
 /**
  * User: Alexander Podkhalyuzin

@@ -1,8 +1,8 @@
 package org.jetbrains.sbt
 package project.module
 
+import com.intellij.openapi.module.{ModuleConfigurationEditor, ModuleType}
 import com.intellij.openapi.roots.ui.configuration._
-import com.intellij.openapi.module.{ModuleType, ModuleConfigurationEditor}
 
 /**
  * @author Pavel Fatin

@@ -4,19 +4,13 @@ package parser
 
 import _root_.com.intellij.psi.util.PsiTreeUtil
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import com.intellij.lang.ParserDefinition, com.intellij.lang.PsiParser
-import com.intellij.lang.ASTNode
+import com.intellij.lang.{ASTNode, ParserDefinition, PsiParser}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.tree.IFileElementType
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiFile
-import com.intellij.psi.FileViewProvider
-import com.intellij.psi.tree.TokenSet
-import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import psi.impl.ScalaFileImpl
-import settings._
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile}
+import com.intellij.psi.tree.{IFileElementType, TokenSet}
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
+import org.jetbrains.plugins.scala.settings._
 
 /**
  * @author ilyas
@@ -51,7 +45,7 @@ class ScalaParserDefinition extends ScalaParserDefinitionWrapper{
   }
 
   override def spaceExistanceTypeBetweenTokens(leftNode: ASTNode, rightNode: ASTNode): ParserDefinition.SpaceRequirements = {
-    import ParserDefinition._
+    import com.intellij.lang.ParserDefinition._
     if ((rightNode.getElementType != ScalaTokenTypes.tWHITE_SPACE_IN_LINE || !rightNode.getText.contains("\n"))) {
       val imp: ScImportStmt = PsiTreeUtil.getParentOfType(leftNode.getPsi, classOf[ScImportStmt])
       if (imp != null && rightNode.getTextRange.getStartOffset == imp.getTextRange.getEndOffset)

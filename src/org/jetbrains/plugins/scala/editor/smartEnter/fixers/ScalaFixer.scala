@@ -3,7 +3,7 @@ package editor.smartEnter.fixers
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
-import editor.smartEnter.ScalaSmartEnterProcessor
+import org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor
 
 /**
  * @author Ksenia.Sautina

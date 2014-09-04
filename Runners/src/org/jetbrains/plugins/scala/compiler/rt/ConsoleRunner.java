@@ -43,7 +43,7 @@ public class ConsoleRunner {
     for (Method method : methods) {
       if (method.getName().equals("name") && method.getParameterTypes().length == 1 &&
           method.getParameterTypes()[0].isArray()) {
-        method.invoke(interpreterLoop, newArgs);
+        method.invoke(interpreterLoop, (Object[]) newArgs);
         return;
       }
     }

@@ -4,9 +4,9 @@ package parser
 package parsing
 
 
-import builder.ScalaPsiBuilder
-import lexer.ScalaTokenTypes
-import top.ObjectDef
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.ObjectDef
 
 /**
  * @author ilyas

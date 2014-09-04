@@ -4,6 +4,8 @@ import _root_.java.io._
 import _root_.java.net.URL
 import _root_.java.util.Properties
 
+import _root_.scala.language.implicitConversions
+
 /**
  * @author Pavel Fatin
  */
@@ -13,6 +15,8 @@ package object scala {
   }
 
   def using[A <: Closeable, B](resource: A)(block: A => B): B = {
+    import _root_.scala.language.reflectiveCalls
+
     try {
       block(resource)
     } finally {
@@ -26,7 +30,7 @@ package object scala {
     def unapply(a: A): Some[B] = Some(f(a))
   }
 
-  implicit def toRightBiasedEiter[A, B](either: Either[A, B]): Either.RightProjection[A, B] = either.right
+  implicit def toRightBiasedEither[A, B](either: Either[A, B]): Either.RightProjection[A, B] = either.right
 
   implicit class PipedObject[T](val v: T) extends AnyVal {
     def |>[R](f: T => R) = f(v)

@@ -1,27 +1,27 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.rename.inplace
 
-import com.intellij.refactoring.rename.inplace.{InplaceRefactoring, MemberInplaceRenamer, MemberInplaceRenameHandler}
-import com.intellij.psi._
-import com.intellij.openapi.editor.Editor
-import com.intellij.refactoring.rename.{PsiElementRenameHandler, RenamePsiElementProcessor}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTrait, ScObject, ScClass}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import com.intellij.openapi.actionSystem.DataContext
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import com.intellij.ui.components.JBList
-import com.intellij.openapi.ui.popup.JBPopupFactory
-import com.intellij.psi.util.PsiUtilBase
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
-import com.intellij.openapi.fileEditor.FileDocumentManager
-import org.jetbrains.plugins.scala.lang.psi.light.{LightScalaMethod, PsiClassWrapper}
 import javax.swing.JList
-import com.intellij.psi.search.LocalSearchScope
+
 import com.intellij.internal.statistic.UsageTrigger
+import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.psi._
+import com.intellij.psi.search.LocalSearchScope
+import com.intellij.psi.util.PsiUtilBase
+import com.intellij.refactoring.rename.inplace.{InplaceRefactoring, MemberInplaceRenameHandler, MemberInplaceRenamer}
+import com.intellij.ui.components.JBList
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
+import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 
 /**
  * Nikolay.Tropin

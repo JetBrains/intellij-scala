@@ -1,15 +1,16 @@
 package org.jetbrains.jps.incremental.scala
 package remote
 
-import local.LocalServer
-import com.intellij.util.Base64Converter
-import com.martiansoftware.nailgun.{ThreadLocalPrintStream, NGContext}
-import java.io.{OutputStream, PrintStream, File}
-import java.net.URLClassLoader
-import org.jetbrains.jps.incremental.scala.data.CompilerJars
-import java.nio.ByteBuffer
+import java.io.{File, OutputStream, PrintStream}
 import java.lang.reflect.InvocationTargetException
+import java.net.URLClassLoader
+import java.nio.ByteBuffer
+
+import com.intellij.util.Base64Converter
+import com.martiansoftware.nailgun.{NGContext, ThreadLocalPrintStream}
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+import org.jetbrains.jps.incremental.scala.data.CompilerJars
+import org.jetbrains.jps.incremental.scala.local.LocalServer
 
 /**
  * @author Pavel Fatin

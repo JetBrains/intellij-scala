@@ -4,33 +4,13 @@ package psi
 package impl
 package toplevel
 
-import api.base.ScModifierList
-import com.intellij.lang.ASTNode
-import com.intellij.psi.{PsiElement, PsiClass}
-import com.intellij.psi.tree._
-import com.intellij.navigation.NavigationItem
-import com.intellij.openapi.editor.colors._
+import _root_.java.util.{Collection, Collections, List}
 
-import org.jetbrains.plugins.scala.lang.parser._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.lexer._
-import psi.api.toplevel.packaging._
-import psi.api.toplevel.templates._
-
-import com.intellij.extapi.psi.ASTWrapperPsiElement
+import com.intellij.openapi.util.Pair
 import com.intellij.psi.PsiReferenceList.Role
-;
-import com.intellij.lang.ASTNode;
-import com.intellij.openapi.util.Pair;
-import com.intellij.psi._;
-import com.intellij.navigation._;
-import com.intellij.psi.javadoc.PsiDocComment;
-import com.intellij.psi.meta.PsiMetaData;
-import com.intellij.util.IncorrectOperationException;
-
-import _root_.java.util.Collection;
-import _root_.java.util.Collections;
-import _root_.java.util.List;
+import com.intellij.psi.javadoc.PsiDocComment
+import com.intellij.psi.meta.PsiMetaData
+import com.intellij.psi.{PsiClass, PsiElement, _};
 
 
 /**

@@ -10,7 +10,7 @@ import com.intellij.openapi.util.text.StringUtil
 
 class DocParamDescrAlignmentTest extends ScalaDocEnterActionTestBase {
   
-  import DocParamDescrAlignmentTest._
+  import org.jetbrains.plugins.scala.lang.scaladoc.DocParamDescrAlignmentTest._
   
   def testSimpleAlignment() {
     val header = "/**\n *" + docParamText + "blah-blah "

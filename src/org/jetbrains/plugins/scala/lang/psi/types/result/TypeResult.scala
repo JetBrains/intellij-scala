@@ -5,8 +5,6 @@ package types
 package result
 
 import com.intellij.psi.PsiElement
-import scala.None
-import org.jetbrains.plugins.scala.lang.psi.types.{Nothing, ScType}
 
 /**
  * @author ilyas
@@ -16,6 +14,7 @@ sealed abstract class TypeResult[+T] {
   def map[U](f: T => U): TypeResult[U]
   def flatMap[U](f: T => TypeResult[U]): TypeResult[U]
   def filter(f: T => Boolean): TypeResult[T]
+  def withFilter(f: T => Boolean): TypeResultWithFilter[T]
   def exists(f: T => Boolean): Boolean = !filter(f).isEmpty
   def foreach[B](f: T => B)
   def get: T
@@ -61,7 +60,8 @@ case class Success[+T](result: T, elem: Option[PsiElement]) extends TypeResult[T
   def flatMap[U](f: (T) => TypeResult[U]) = f(result)
   def map[U](f: T => U) = Success(f(result), elem)
   def filter(f: T => Boolean) = if (f(result)) Success(result, elem) else Failure("Wrong type", elem)
-  def foreach[B](f: T => B) {f(result)}
+  def withFilter(f: (T) => Boolean): TypeResultWithFilter[T] = new TypeResultWithFilter[T](this, f)
+  def foreach[B](f: T => B): Unit = f(result)
   def get = result
   def isEmpty = false
 
@@ -72,10 +72,18 @@ case class Success[+T](result: T, elem: Option[PsiElement]) extends TypeResult[T
   def isCyclic = false
 }
 
+class TypeResultWithFilter[+T](self: TypeResult[T], p: T => Boolean) {
+  def map[B](f: T => B): TypeResult[B] = self filter p map f
+  def foreach[B](f: T => B): Unit = self filter p foreach f
+  def flatMap[B](f: T => TypeResult[B]): TypeResult[B] = self filter p flatMap f
+  def withFilter(q: T => Boolean): TypeResultWithFilter[T] = new TypeResultWithFilter[T](self, x => p(x) && q(x))
+}
+
 case class Failure(cause: String, place: Option[PsiElement]) extends TypeResult[Nothing] {
   def flatMap[U](f: Nothing => TypeResult[U]) = this
   def map[U](f: Nothing => U) = this
   def foreach[B](f: Nothing => B) {}
+  def withFilter(f: (Nothing) => Boolean): TypeResultWithFilter[Nothing] = new TypeResultWithFilter[Nothing](this, f)
   def filter(f: Nothing => Boolean) = this
   def get = throw new NoSuchElementException("Failure.get")
   def isEmpty = true
