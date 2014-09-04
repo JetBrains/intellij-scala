@@ -36,10 +36,10 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
     val expr: PsiElement = scalaFile.findLastChildByType(ScalaElementTypes.PATTERN_DEFINITION)
     assert(expr != null, "Not specified expression in range to check conformance.")
     val valueDecl = expr.asInstanceOf[ScPatternDefinition]
-    val declaredType = valueDecl.declaredType.getOrElse(scala.Predef.error("Must provide type annotation for LHS"))
+    val declaredType = valueDecl.declaredType.getOrElse(sys.error("Must provide type annotation for LHS"))
 
     valueDecl.expr.getOrElse(throw new RuntimeException("Expression not found")).getType(TypingContext.empty) match {
-      case Success(rhsType, _) => {
+      case Success(rhsType, _) =>
         val res: Boolean = Conformance.conforms(declaredType, rhsType)
         val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
         val text = lastPsi.getText
@@ -50,7 +50,6 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
           case _ => fail("Test result must be in last comment statement")
         }
         if (java.lang.Boolean.parseBoolean(output.asInstanceOf[String]) != res) fail("conformance wrong")
-      }
       case Failure(msg, elem) => assert(assertion = false, message = msg + " :: " + elem.get.getText)
     }
   }

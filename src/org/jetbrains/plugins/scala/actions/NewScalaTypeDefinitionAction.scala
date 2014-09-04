@@ -46,7 +46,7 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
     builder.setTitle("Create New Scala Class")
     builder.setValidator(new InputValidatorEx {
       def getErrorText(inputString: String): String = {
-        if (inputString.length > 0 && !JavaPsiFacade.getInstance(project).getNameHelper.isQualifiedName(inputString)) {
+        if (inputString.length > 0 && !PsiNameHelper.getInstance(project).isQualifiedName(inputString)) {
           return "This is not a valid Scala qualified name"
         }
         null
