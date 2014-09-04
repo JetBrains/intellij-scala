@@ -6,7 +6,9 @@
         <option name="basePackage" value="intellijscalastyle" />
         <option name="compilerLibraryLevel" value="Project" />
         <option name="compilerLibraryName" value="main-scala-compiler" />
-        <option name="compilerOptions" value="-language:implicitConversions -language:reflectiveCalls -language:postfixOps" />
+        <option name="compilerOptions" value="-target:jvm-1.6 -feature" />
+        <option name="deprecationWarnings" value="true" />
+        <option name="uncheckedWarnings" value="true" />
       </configuration>
     </facet>
   </component>

@@ -4,9 +4,8 @@ package psi
 package api
 package expr
 
-import base.{ScStableCodeReferenceElement, ScPathElement}
-import psi.ScalaPsiElement
-import toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPathElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 /** 
 * @author Alexander Podkhalyuzin

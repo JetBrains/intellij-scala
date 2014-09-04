@@ -3,13 +3,13 @@ package lang
 package completion
 package filters.expression
 
-import com.intellij.psi.filters.ElementFilter;
-import org.jetbrains.annotations.NonNls;
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.parser._
+import com.intellij.psi.filters.ElementFilter
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
-import lexer.ScalaTokenTypes
-import psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -24,7 +24,7 @@ class IfFilter extends ElementFilter {
       var parent = leaf.getParent
       while (parent != null) {
         if (parent.getNode.getElementType == ScalaElementTypes.FOR_STMT) {
-          import extensions._
+          import org.jetbrains.plugins.scala.extensions._
           if (leaf.getParent != null && //reference
               leaf.getParent.getParent != null &&  //pattern
               leaf.getParent.getParent.getPrevSiblingNotWhitespace != null && //case keyword

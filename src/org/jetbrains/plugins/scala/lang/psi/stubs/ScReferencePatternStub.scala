@@ -4,8 +4,8 @@ package psi
 package stubs
 
 
-import api.base.patterns.ScReferencePattern
 import com.intellij.psi.stubs.NamedStub
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 
 /**
  * User: Alexander Podkhalyuzin

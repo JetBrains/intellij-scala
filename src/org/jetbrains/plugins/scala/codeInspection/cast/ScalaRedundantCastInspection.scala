@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala
 package codeInspection.cast
 
-import lang.psi.types.result.TypingContext
-import lang.psi.api.expr.{ScExpression, ScGenericCall}
-import extensions.ElementText
-import com.intellij.openapi.util.TextRange
 import com.intellij.codeInspection.ex.ProblemDescriptorImpl
-import codeInspection.{AbstractFix, AbstractInspection}
-import com.intellij.openapi.project.Project
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.extensions.ElementText
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScGenericCall}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
  * Pavel Fatin

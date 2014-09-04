@@ -4,17 +4,18 @@ package resolve
 package processor
 
 import com.intellij.psi._
-import scala.collection.{mutable, Set}
-import psi.api.base.patterns.ScBindingPattern
-import psi.api.toplevel.typedef.ScTypeDefinition
-import psi.ScalaPsiUtil
-import caches.CachesUtil
-import extensions.toPsiNamedElementExt
-import processor.CompletionProcessor.QualifiedName
-import psi.types.{PhysicalSignature, Signature, ScType, ScSubstitutor}
-import psi.api.statements.{ScTypeAlias, ScFunction}
-import psi.api.toplevel.imports.usages.ImportUsed
-import completion.ScalaCompletionUtil
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor, ScType, Signature}
+import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor.QualifiedName
+
+import scala.collection.{Set, mutable}
 
 object CompletionProcessor {
   case class QualifiedName(name: String, isNamedParameter: Boolean)

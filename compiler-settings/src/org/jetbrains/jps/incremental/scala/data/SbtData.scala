@@ -1,7 +1,8 @@
 package org.jetbrains.jps.incremental.scala
 package data
 
-import java.io.{BufferedInputStream, File}
+import java.io.File
+
 import org.jetbrains.jps.incremental.scala._
 
 /**

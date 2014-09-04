@@ -4,22 +4,22 @@ package psi
 package impl
 package expr
 
-import api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import lang.resolve.ScalaResolveResult
-import collection.mutable.ArrayBuffer
-import api.toplevel.typedef.ScClass
-import types.result.TypingContext
-import types._
-import api.statements.params.{ScTypeParam, ScParameter}
-import api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement}
-import api.base.{ScStableCodeReferenceElement, ScPrimaryConstructor, ScConstructor}
 import com.intellij.psi._
-import lexer.ScalaTokenTypes
-import nonvalue.Parameter
-import org.jetbrains.plugins.scala.extensions.{PsiParameterExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
 * @author Alexander Podkhalyuzin

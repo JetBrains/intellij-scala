@@ -24,10 +24,10 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.LocalTimeCounter;
-import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.Console;
+import org.junit.Assert;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,16 +46,6 @@ public class TestUtils {
   public static final String CARET_MARKER = "<caret>";
   public static final String BEGIN_MARKER = "<begin>";
   public static final String END_MARKER = "<end>";
-
-  public static PsiFile createPseudoPhysicalFile(final Project project, final String text, int i) throws IncorrectOperationException {
-    String TEMP_FILE = project.getBaseDir() + "temp" + i + ".scala";
-    return PsiFileFactory.getInstance(project).createFileFromText(
-        TEMP_FILE,
-        FileTypeManager.getInstance().getFileTypeByFileName(TEMP_FILE),
-        text,
-        LocalTimeCounter.currentTime(),
-        true);
-  }
 
 
   public static PsiFile createPseudoPhysicalScalaFile(final Project project, final String text) throws IncorrectOperationException {

@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import com.intellij.psi.impl.light.LightMethod
-import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, JavaPsiFacade}
+import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiElement, PsiMethod}
 
 /**
  * User: Alefas

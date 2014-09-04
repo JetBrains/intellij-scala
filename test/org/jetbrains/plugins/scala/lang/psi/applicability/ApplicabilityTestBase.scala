@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala
 package lang.psi.applicability
 
-import org.jetbrains.plugins.scala.base.SimpleTestCase
-import lang.psi.api.base.ScReferenceElement
-import lang.psi.types._
-import nonvalue.Parameter
-import lang.psi.api.expr.{ScAssignStmt, ScExpression}
 import junit.framework.Assert
-import lang.psi.api.ScalaFile
-import lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -147,7 +147,7 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
   }
   
   object Expression {
-    def unapply(e: ScExpression) = toObjectExt(e).toOption.map(_.getText)
+    def unapply(e: ScExpression) = e.toOption.map(_.getText)
   }
   
   object Parameter {

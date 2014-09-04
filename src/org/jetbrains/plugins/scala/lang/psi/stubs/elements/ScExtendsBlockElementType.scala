@@ -4,14 +4,12 @@ package psi
 package stubs
 package elements
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl
-import api.toplevel.templates.ScExtendsBlock
-import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
-
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io.StringRef
-import impl.{ScExtendsBlockStubImpl, ScTemplateDefinitionStubImpl}
-import index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScExtendsBlockStubImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 
 /**
  * @author ilyas

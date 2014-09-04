@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala
 package config
 
-import com.intellij.openapi.roots.libraries.Library
-import com.intellij.openapi.roots.ModifiableRootModel
 import java.io.File
-import ui.{Choice, ScalaSupportWizard}
+
 import com.intellij.ide.util.frameworkSupport.FrameworkSupportConfigurable
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.roots.ModifiableRootModel
+import com.intellij.openapi.roots.libraries.Library
+import org.jetbrains.plugins.scala.config.ui.{Choice, ScalaSupportWizard}
 
 /**
  * Pavel.Fatin, 07.07.2010

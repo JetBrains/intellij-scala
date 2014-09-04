@@ -3,15 +3,16 @@ package lang
 package resolve
 
 import _root_.com.intellij.psi.impl.source.resolve.ResolveCache
+import com.intellij.psi.{PsiElement, ResolveResult}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import processor.MethodResolveProcessor
-import psi.types.Compatibility.Expression
-import psi.types.Compatibility.Expression._
-import com.intellij.psi.{ResolveResult, PsiElement}
-import psi.types.{ScParameterizedType, ScFunctionType, ScType}
-import collection.Set
-import psi.implicits.ScImplicitlyConvertible
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression._
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
+
+import scala.collection.Set
 
 class ReferenceExpressionResolver(shapesOnly: Boolean)
         extends ResolveCache.PolyVariantResolver[ResolvableReferenceExpression] {

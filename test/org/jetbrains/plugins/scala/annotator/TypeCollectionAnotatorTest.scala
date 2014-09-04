@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import lang.psi.api.ScalaFile
-import lang.psi.api.base.ScReferenceElement
-import highlighter.AnnotatorHighlighter
-import settings.ScalaProjectSettings
-import base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.highlighter.AnnotatorHighlighter
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /**
  * User: Dmitry Naydanov

@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 package stubs
-import api.toplevel.templates.ScExtendsBlock
 import com.intellij.psi.stubs.StubElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 
 /**
  * @author ilyas

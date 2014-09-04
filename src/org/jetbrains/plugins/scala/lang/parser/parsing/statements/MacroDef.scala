@@ -4,10 +4,10 @@ package parser
 package parsing
 package statements
 
-import lexer.ScalaTokenTypes
-import builder.ScalaPsiBuilder
-import top.Qual_Id
-import types.{TypeArgs, Type}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.Qual_Id
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Type, TypeArgs}
 
 /**
  * @author Jason Zaugg

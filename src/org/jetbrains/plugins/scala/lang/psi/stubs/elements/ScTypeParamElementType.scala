@@ -5,12 +5,12 @@ package stubs
 package elements
 
 
-import api.statements.params.ScTypeParam
-import psi.impl.statements.params.ScTypeParamImpl
-import com.intellij.psi.stubs.{StubOutputStream, IndexSink, StubElement, StubInputStream}
 import com.intellij.psi.PsiElement
-import impl.ScTypeParamStubImpl
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScTypeParamImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeParamStubImpl
 
 /**
  * User: Alexander Podkhalyuzin

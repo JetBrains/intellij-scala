@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala
 package actions
 
-import com.intellij.openapi.actionSystem.{DataConstants, AnActionEvent}
-import lang.psi.api.ScalaFile
-import com.intellij.openapi.editor.Editor
-import com.intellij.util.ui.UIUtil
-import com.intellij.ui.LightweightHint
-import java.awt.event.{MouseEvent, MouseMotionAdapter}
 import java.awt.Point
+import java.awt.event.{MouseEvent, MouseMotionAdapter}
+
 import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, HintUtil}
+import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys}
+import com.intellij.openapi.editor.Editor
+import com.intellij.ui.LightweightHint
+import com.intellij.util.ui.UIUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 object ScalaActionUtil {
   def enableAndShowIfInScalaFile(e: AnActionEvent) {
@@ -23,7 +24,7 @@ object ScalaActionUtil {
     }
     try {
       val dataContext = e.getDataContext
-      val file = dataContext.getData(DataConstants.PSI_FILE)
+      val file = CommonDataKeys.PSI_FILE.getData(dataContext)
       file match {
         case _: ScalaFile => enable()
         case _ => disable()

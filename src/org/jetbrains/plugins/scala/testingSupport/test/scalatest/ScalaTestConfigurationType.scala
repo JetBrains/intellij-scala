@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala
 package testingSupport.test.scalatest
 
 import javax.swing.Icon
+
+import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType}
 import org.jetbrains.plugins.scala.icons.Icons
-import com.intellij.execution.configurations.{ConfigurationType, ConfigurationFactory}
-import scala.Array
 
 /**
  * User: Alexander Podkhalyuzin

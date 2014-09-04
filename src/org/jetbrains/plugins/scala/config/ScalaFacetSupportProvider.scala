@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.config
 
-import ui.ScalaSupportWizard
-import com.intellij.ide.util.frameworkSupport.{FrameworkSupportProvider, FrameworkSupportModel}
+import com.intellij.ide.util.frameworkSupport.{FrameworkSupportModel, FrameworkSupportProvider}
 import com.intellij.ide.util.projectWizard.ModuleBuilder
+import com.intellij.openapi.module.{JavaModuleType, Module, ModuleType}
+import org.jetbrains.plugins.scala.config.ui.ScalaSupportWizard
 import org.jetbrains.plugins.scala.icons.Icons
-import com.intellij.openapi.module.{Module, JavaModuleType, ModuleType}
 
 class ScalaFacetSupportProvider extends FrameworkSupportProvider("Scala", "Scala") {
   override def createConfigurable(model: FrameworkSupportModel) = 

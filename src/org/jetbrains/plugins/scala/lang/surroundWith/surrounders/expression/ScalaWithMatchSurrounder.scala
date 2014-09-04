@@ -9,12 +9,11 @@ package expression
 * Date: 28.04.2008
  */
 
-import com.intellij.psi.PsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
-import lang.psi.api.expr._
-import psi.ScalaPsiUtil
-import com.intellij.psi.PsiWhiteSpace;
+import com.intellij.psi.{PsiElement, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr._;
 
 class ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
   override def isApplicable(elements: Array[PsiElement]): Boolean = {

@@ -2,14 +2,13 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package scaladoc
 
-import java.lang.String
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocSyntaxElement
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
-import com.intellij.openapi.project.Project
 import com.intellij.codeInspection._
+import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocSyntaxElement
 
 /**
  * User: Dmitry Naidanov
@@ -19,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 class ScalaDocUnbalancedHeaderInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
-      import ScalaDocTokenType._
+      import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType._
       override def visitWikiSyntax(s: ScDocSyntaxElement) {
         val firstChildElementType = s.getFirstChild.getNode.getElementType
         val lastChildElementType = s.getLastChild.getNode.getElementType

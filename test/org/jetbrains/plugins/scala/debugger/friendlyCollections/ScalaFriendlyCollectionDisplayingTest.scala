@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala.debugger.friendlyCollections
 
-import org.jetbrains.plugins.scala.debugger.ui.ListLikeCollectionNodeRenderer
-import com.intellij.debugger.ui.tree.render.{ArrayRenderer, ChildrenBuilder, DescriptorLabelListener}
-import com.intellij.debugger.ui.impl.FrameVariablesTree
-import com.intellij.debugger.ui.impl.watch.{NodeDescriptorImpl, DebuggerTree, LocalVariableDescriptorImpl}
-import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContextImpl}
-import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptorFactory, NodeManager, ValueDescriptor}
 import java.util
+
+import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContextImpl}
+import com.intellij.debugger.ui.impl.FrameVariablesTree
+import com.intellij.debugger.ui.impl.watch.{DebuggerTree, LocalVariableDescriptorImpl, NodeDescriptorImpl}
+import com.intellij.debugger.ui.tree.render.{ArrayRenderer, ChildrenBuilder, DescriptorLabelListener}
+import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptorFactory, NodeManager, ValueDescriptor}
 import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+import org.jetbrains.plugins.scala.debugger.ui.ListLikeCollectionNodeRenderer
 
 /**
  * User: Dmitry Naydanov

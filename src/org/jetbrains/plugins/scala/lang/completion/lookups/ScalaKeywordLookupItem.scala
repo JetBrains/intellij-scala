@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.lang.completion.lookups
 
-import com.intellij.util.ui.EmptyIcon
-import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import com.intellij.codeInsight.completion.InsertionContext
 import com.intellij.codeInsight.lookup.{LookupElementPresentation, LookupItem}
-import org.jetbrains.plugins.scala.ScalaFileType
-import com.intellij.psi.{PsiDocumentManager, PsiElement}
-import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import com.intellij.util.ui.EmptyIcon
+import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 
 /**
  * @author Alefas
@@ -32,7 +32,7 @@ class ScalaKeywordLookupItem(val keyword: String, position: PsiElement) extends 
     presentation.setIcon(new EmptyIcon(16, 16))
   }
 
-  import ScalaKeyword._
+  import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword._
   val expressions = Set(THIS, FALSE, TRUE, NULL, SUPER)
   val parentheses = Set(IF, FOR, WHILE)
   val braces = Set(CATCH, ELSE, EXTENDS, FINALLY, FOR, FOR_SOME, NEW, TRY, DO, YIELD)

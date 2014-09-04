@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
 package codeInsight.generation
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import com.intellij.psi.PsiFile
 import com.intellij.lang.LanguageCodeInsightActionHandler
+import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 /**
  * Nikolay.Tropin

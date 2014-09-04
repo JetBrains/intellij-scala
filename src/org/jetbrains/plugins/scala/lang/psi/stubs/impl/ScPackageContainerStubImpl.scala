@@ -4,10 +4,10 @@ package psi
 package stubs
 package impl
 
-import api.toplevel.packaging.ScPackageContainer
-import com.intellij.psi.stubs.{StubElement, IStubElementType}
-import com.intellij.util.io.StringRef
 import com.intellij.psi.PsiElement
+import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import com.intellij.util.io.StringRef
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackageContainer
 
 /**
  * @author ilyas

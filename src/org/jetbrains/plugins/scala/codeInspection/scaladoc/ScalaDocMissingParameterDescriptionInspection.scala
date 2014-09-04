@@ -2,13 +2,12 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package scaladoc
 
-import java.lang.String
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.PsiElementVisitor
-import lang.psi.api.ScalaElementVisitor
-import lang.scaladoc.psi.api.ScDocTag
-import lang.scaladoc.lexer.ScalaDocTokenType
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder, LocalInspectionTool, LocalInspectionEP}
-import extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTag
 
 
 /**
@@ -44,7 +43,7 @@ class ScalaDocMissingParameterDescriptionInspection extends LocalInspectionTool 
 
 
 object ScalaDocMissingParameterDescriptionInspection {
-  import lang.scaladoc.parser.parsing.MyScaladocParsing._
+  import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing._
 
   val OurTags = Set(PARAM_TAG, THROWS_TAG, TYPE_PARAM_TAG)
 }

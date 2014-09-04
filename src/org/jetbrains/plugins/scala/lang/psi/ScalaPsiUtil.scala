@@ -371,16 +371,15 @@ object ScalaPsiUtil {
     }
   }
 
+  def approveDynamic(tp: ScType, project: Project, scope: GlobalSearchScope): Boolean = {
+    val cachedClass = ScalaPsiManager.instance(project).getCachedClass(scope, "scala.Dynamic")
+    if (cachedClass == null) return false
+    val dynamicType = ScDesignatorType(cachedClass)
+    tp.conforms(dynamicType)
+  }
+
   def processTypeForUpdateOrApplyCandidates(call: MethodInvocation, tp: ScType, isShape: Boolean,
                                             noImplicits: Boolean, isDynamic: Boolean): Array[ScalaResolveResult] = {
-    def approveDynamic(tp: ScType): Boolean = {
-      if (!isDynamic) return true
-      val cachedClass = ScalaPsiManager.instance(call.getProject).getCachedClass(call.getResolveScope, "scala.Dynamic")
-      if (cachedClass == null) return false
-      val dynamicType = ScDesignatorType(cachedClass)
-      tp.conforms(dynamicType)
-    }
-
     val isUpdate = call.isUpdateCall
     val methodName =
       if (isDynamic) ResolvableReferenceExpression.getDynamicNameForMethodInvocation(call)
@@ -419,14 +418,14 @@ object ScalaPsiUtil {
     exprTp match {
       case ScTypePolymorphicType(internal, typeParam) if typeParam.nonEmpty &&
         !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[ScUndefinedType] =>
-        if (approveDynamic(internal)) {
+        if (!isDynamic || approveDynamic(internal, call.getProject, call.getResolveScope)) {
           val state: ResolveState = ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, internal)
           processor.processType(internal, call.getEffectiveInvokedExpr, state)
         }
         candidates = processor.candidatesS
       case _ =>
     }
-    if (candidates.isEmpty && approveDynamic(exprTp.inferValueType)) {
+    if (candidates.isEmpty && (!isDynamic || approveDynamic(exprTp.inferValueType, call.getProject, call.getResolveScope))) {
       val state: ResolveState = ResolveState.initial.put(BaseProcessor.FROM_TYPE_KEY, exprTp.inferValueType)
       processor.processType(exprTp.inferValueType, call.getEffectiveInvokedExpr, state)
       candidates = processor.candidatesS
@@ -1258,8 +1257,15 @@ object ScalaPsiUtil {
   def getEmptyModifierList(manager: PsiManager): PsiModifierList =
     new LightModifierList(manager, ScalaFileType.SCALA_LANGUAGE)
 
-  def adjustTypes(element: PsiElement) {
+  def adjustTypes(element: PsiElement, addImports: Boolean = true) {
     def replaceStablePath(ref: ScReferenceElement, name: String, toBind: PsiElement): PsiElement = {
+      if (!addImports) {
+        val checkRef = ScalaPsiElementFactory.createReferenceFromText(name, ref.getContext, ref)
+        val resolved = checkRef.resolve()
+        if (resolved == null || !PsiEquivalenceUtil.areElementsEquivalent(resolved, toBind)) {
+          return ref
+        }
+      }
       val replaced = ref.replace(ScalaPsiElementFactory.createReferenceFromText(name, toBind.getManager))
       replaced.asInstanceOf[ScStableCodeReferenceElement].bindToElement(toBind)
     }
@@ -1273,6 +1279,14 @@ object ScalaPsiUtil {
           stableRef.resolve() match {
             case resolved if {aliasedRef = ScalaPsiUtil.importAliasFor(resolved, stableRef); aliasedRef.isDefined} =>
               stableRef.replace(aliasedRef.get)
+            case fun: ScFunction if fun.isConstructor =>
+              val clazz = fun.containingClass
+              if (hasStablePath(clazz)) replaceStablePath(stableRef, clazz.name, fun)
+              else adjustTypes(child)
+            case m: PsiMethod if m.isConstructor =>
+              val clazz = m.getContainingClass
+              if (hasStablePath(clazz)) replaceStablePath(stableRef, clazz.name, m)
+              else adjustTypes(child)
             case named: PsiNamedElement if hasStablePath(named) =>
               named match {
                 case clazz: PsiClass => replaceStablePath(stableRef, clazz.name, clazz)
@@ -1280,10 +1294,6 @@ object ScalaPsiUtil {
                 case binding: ScBindingPattern => replaceStablePath(stableRef, binding.name, binding)
                 case _ => adjustTypes(child)
               }
-            case fun: ScFunction if fun.isConstructor =>
-              val clazz = fun.containingClass
-              if (hasStablePath(clazz)) replaceStablePath(stableRef, clazz.name, fun)
-              else adjustTypes(child)
             case _ => adjustTypes(child)
           }
         case tp: ScTypeProjection =>
@@ -1292,7 +1302,7 @@ object ScalaPsiUtil {
               val newTypeElement = ScalaPsiElementFactory.createTypeElementFromText(ScalaNamesUtil.scalaName(m), tp.getContext, tp)
               val resolved = newTypeElement.getFirstChild.asInstanceOf[ScReferenceElement].resolve()
               if (resolved != null && PsiEquivalenceUtil.areElementsEquivalent(resolved, m)) {
-                //cannot use newTypeElement becouse of bug with indentation
+                //cannot use newTypeElement because of bug with indentation
                 tp.replace(ScalaPsiElementFactory.createTypeElementFromText(ScalaNamesUtil.scalaName(m), tp.getManager))
               }
               else adjustTypes(child)

@@ -3,30 +3,31 @@ package lang
 package resolve
 
 import com.intellij.openapi.progress.ProgressManager
-import processor._
-import psi.implicits.ScImplicitlyConvertible
-import psi.api.toplevel.imports.usages.ImportUsed
-import psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import psi.types.Compatibility.Expression
-import psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
-import psi.api.base.{ScPrimaryConstructor, ScConstructor}
 import com.intellij.psi._
-import psi.ScalaPsiUtil
-import collection.mutable.ArrayBuffer
-import psi.fake.FakePsiMethod
-import psi.api.statements.params.{ScParameters, ScParameter}
-import psi.api.toplevel.templates.{ScTemplateBody, ScExtendsBlock}
-import psi.api.toplevel.ScTypedDefinition
-import util.PsiModificationTracker
-import caches.CachesUtil
-import psi.types.result.{Success, TypingContext}
-import psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
-import psi.types._
-import psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
-import annotation.tailrec
-import psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
-import extensions._
+import com.intellij.psi.util.PsiModificationTracker
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.resolve.processor._
+
+import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 
 trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object Resolver extends ReferenceExpressionResolver(false)
@@ -427,7 +428,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
           }
           val argumentExpressions = callOption.map(_.argumentExpressions)
           val emptyStringExpression = ScalaPsiElementFactory.createExpressionFromText("\"\"", e.getManager)
-          import ResolvableReferenceExpression._
+          import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceExpression._
           val name = callOption match {
             case Some(call) => getDynamicNameForMethodInvocation(call)
             case _ =>

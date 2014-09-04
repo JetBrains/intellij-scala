@@ -5,7 +5,7 @@ import java.io.{Closeable, File}
 
 import com.intellij.openapi.progress.ProgressIndicator
 import org.apache.maven.index._
-import org.apache.maven.index.context.{IndexingContext, IndexCreator, IndexUtils}
+import org.apache.maven.index.context.{IndexCreator, IndexUtils, IndexingContext}
 import org.apache.maven.index.updater.{IndexUpdateRequest, IndexUpdater, WagonHelper}
 import org.apache.maven.wagon.Wagon
 import org.apache.maven.wagon.events.TransferEvent

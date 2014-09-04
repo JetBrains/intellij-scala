@@ -6,16 +6,16 @@ package expr
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.lang.ASTNode
-import com.intellij.psi.meta.PsiMetaData
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import psi.stubs.ScAnnotationStub
-import types.result.TypingContext
 import com.intellij.openapi.util.Comparing
-import lexer.ScalaTokenTypes
-import api.base.types.ScTypeElement
-import api.ScalaElementVisitor
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
+import com.intellij.psi._
+import com.intellij.psi.meta.PsiMetaData
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScAnnotationStub
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
 * @author Alexander Podkhalyuzin

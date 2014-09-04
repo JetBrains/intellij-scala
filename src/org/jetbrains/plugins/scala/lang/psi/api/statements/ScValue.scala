@@ -4,18 +4,18 @@ package psi
 package api
 package statements
 
-import expr.ScBlock
 import javax.swing.Icon
-import toplevel.templates.ScExtendsBlock
-import toplevel.ScTypedDefinition
-import types.ScType
-import toplevel.typedef._
-import base.types.ScTypeElement
-import expr.ScBlockStatement
-import icons.Icons
-import types.result.{TypeResult, TypingContext, Success}
+
 import com.intellij.psi.PsiElement
-import lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 
 /**
  * @author Alexander Podkhalyuzin

@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.argument
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScUnderscoreSection, ScArgumentExprList}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import java.lang.String
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**

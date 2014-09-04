@@ -4,19 +4,19 @@ package intention
 package matcher
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
-import org.jetbrains.plugins.scala.extensions._
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import lang.psi.impl.ScalaPsiElementFactory
-import lang.psi.api.base.ScStableCodeReferenceElement
-import lang.psi.api.base.patterns.ScConstructorPattern
-import lang.refactoring.namesSuggester.NameSuggester
-import lang.psi.types.ScType
-import lang.resolve.ScalaResolveResult
-import lang.psi.api.statements.ScFunctionDefinition
-import lang.psi.ScalaPsiUtil
-import lang.psi.api.toplevel.typedef.{ScClass, ScObject}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 
 class ConvertToTypedPatternIntention extends PsiElementBaseIntentionAction {

@@ -3,8 +3,8 @@ package misc
 
 import com.intellij.codeInsight.editorActions.{JavaLikeQuoteHandler, SimpleTokenSetQuoteHandler}
 import com.intellij.openapi.editor.highlighter.HighlighterIterator
-import com.intellij.psi.tree.{TokenSet, IElementType}
 import com.intellij.psi.PsiElement
+import com.intellij.psi.tree.{IElementType, TokenSet}
 import intellijhocon.lexer.HoconTokenType
 
 class HoconQuoteHandler extends SimpleTokenSetQuoteHandler(HoconTokenType.QuotedString) with JavaLikeQuoteHandler {

@@ -4,18 +4,17 @@ package psi
 package impl
 package expr
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import types.result.{Success, TypeResult, Failure, TypingContext}
-import types._
-import api.base.patterns.ScBindingPattern
-import api.statements.{ScVariable, ScValue, ScFunction}
-import api.statements.params.ScClassParameter
-import nonvalue.{ScTypePolymorphicType, ScMethodType}
-import api.ScalaElementVisitor
-import com.intellij.psi.{PsiElementVisitor, PsiElement}
-import resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * @author Alexander Podkhalyuzin, ilyas

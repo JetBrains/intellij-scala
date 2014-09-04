@@ -4,11 +4,10 @@ package psi
 package stubs
 package elements
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.ScPatternDefinitionImpl
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.ScVariableDefinitionImpl
-import api.statements.{ScVariable}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 
 /**
  * User: Alexander Podkhalyuzin

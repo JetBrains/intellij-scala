@@ -1,15 +1,16 @@
 package org.jetbrains.jps.incremental.scala
 package local
 
-import data.{CompilerJars, CompilerData, SbtData}
 import java.io.File
 import java.net.URLClassLoader
-import sbt.{ClasspathOptions, ScalaInstance, Path}
-import sbt.compiler.{AnalyzingCompiler, AggressiveCompile, IC}
-import xsbti.{F0, Logger}
-import CompilerFactoryImpl._
-import sbt.inc.AnalysisStore
+
+import org.jetbrains.jps.incremental.scala.data.{CompilerData, CompilerJars, SbtData}
+import org.jetbrains.jps.incremental.scala.local.CompilerFactoryImpl._
 import org.jetbrains.plugin.scala.compiler.IncrementalType
+import sbt.compiler.{AggressiveCompile, AnalyzingCompiler, IC}
+import sbt.inc.AnalysisStore
+import sbt.{ClasspathOptions, Path, ScalaInstance}
+import xsbti.{F0, Logger}
 
 /**
  * @author Pavel Fatin

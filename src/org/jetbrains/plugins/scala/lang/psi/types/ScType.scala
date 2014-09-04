@@ -7,11 +7,11 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScNamedElement, ScEarlyDefinitions, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{TypeParameter, NonValueType, ScMethodType}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement, ScTypeParametersOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, ScMethodType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
@@ -250,7 +250,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
     }
   }
 
-  def extractClassType(t: ScType, project: Option[Project] = None): Option[Pair[PsiClass, ScSubstitutor]] = t match {
+  def extractClassType(t: ScType, project: Option[Project] = None): Option[(PsiClass, ScSubstitutor)] = t match {
     case n: NonValueType => extractClassType(n.inferValueType)
     case ScThisType(clazz) => Some(clazz, new ScSubstitutor(t))
     case ScDesignatorType(clazz: PsiClass) => Some(clazz, ScSubstitutor.empty)
@@ -285,7 +285,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
    * @param withoutAliases need to expand alias or not
    * @return element and substitutor
    */
-  def extractDesignated(t: ScType, withoutAliases: Boolean): Option[Pair[PsiNamedElement, ScSubstitutor]] = t match {
+  def extractDesignated(t: ScType, withoutAliases: Boolean): Option[(PsiNamedElement, ScSubstitutor)] = t match {
     case n: NonValueType => extractDesignated(n.inferValueType, withoutAliases)
     case ScDesignatorType(ta: ScTypeAliasDefinition) if withoutAliases =>
       val result = ta.aliasedType(TypingContext.empty)

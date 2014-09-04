@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.catchAll
 
-import com.intellij.codeInspection.{ProblemDescriptor, LocalQuickFix}
+import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor}
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScWildcardPattern, ScReferencePattern, ScCaseClause}
 import org.jetbrains.plugins.scala.codeInsight.intention.types.Update
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern, ScWildcardPattern}
 
 /**
  * @author Ksenia.Sautina

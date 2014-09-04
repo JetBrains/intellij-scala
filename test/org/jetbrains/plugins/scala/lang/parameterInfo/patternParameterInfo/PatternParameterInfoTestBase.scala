@@ -3,22 +3,23 @@ package lang
 package parameterInfo
 package patternParameterInfo
 
-import _root_.scala.util.Sorting
-import lexer.ScalaTokenTypes
-import collection.mutable.ArrayBuffer
-import com.intellij.psi.PsiElement
-import com.intellij.codeInsight.hint.{HintUtil, ShowParameterInfoContext}
 import java.awt.Color
-import com.intellij.lang.parameterInfo.ParameterInfoUIContext
-import com.intellij.openapi.fileEditor.{OpenFileDescriptor, FileEditorManager}
-import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
-
-import psi.api.ScalaFile
 import java.io.File
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.openapi.util.text.StringUtil
+
+import com.intellij.codeInsight.hint.{HintUtil, ShowParameterInfoContext}
+import com.intellij.lang.parameterInfo.ParameterInfoUIContext
+import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.util.io.FileUtil
-import base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
+import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+
+import _root_.scala.util.Sorting
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Aleksander Podkhalyuzin

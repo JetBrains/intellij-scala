@@ -6,7 +6,6 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.&&
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
@@ -33,6 +32,6 @@ class AdjustTypesIntention extends PsiElementBaseIntentionAction {
       case _ => return
     }
     val elements = ScalaRefactoringUtil.selectedElements(editor, file, trimComments = true)
-    elements.foreach(ScalaPsiUtil.adjustTypes)
+    elements.foreach(ScalaPsiUtil.adjustTypes(_))
   }
 }

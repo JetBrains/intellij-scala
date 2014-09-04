@@ -66,16 +66,14 @@ class WorksheetCompiler {
 
         task.start(new Runnable {
           override def run() {
-            try {
-              //todo smth with exit code
-              new RemoteServerConnector(
-                RunWorksheetAction getModuleFor worksheetFile, tempFile, outputDir
-              ).compileAndRun(new Runnable {
-                override def run() {
-                  if (runType == OutOfProcessServer) callback(name, outputDir.getAbsolutePath)
-                }
-              }, worksheetVirtual, consumer, name, runType)
-            }
+            //todo smth with exit code
+            new RemoteServerConnector(
+              RunWorksheetAction getModuleFor worksheetFile, tempFile, outputDir
+            ).compileAndRun(new Runnable {
+              override def run() {
+                if (runType == OutOfProcessServer) callback(name, outputDir.getAbsolutePath)
+              }
+            }, worksheetVirtual, consumer, name, runType)
           }
         }, new Runnable {override def run() {}})
       case Right(errorMessage: PsiErrorElement) =>

@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.finder
 
-import org.jetbrains.plugins.scala.ScalaFileType
-import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.project.Project
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
 
 /**

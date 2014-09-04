@@ -2,28 +2,24 @@ package org.jetbrains.plugins.scala
 package lang
 package completion
 
-import psi._
-import api.base.ScReferenceElement
-import psi.api.base.patterns.ScCaseClause
-import psi.api.ScalaFile
-import psi.api.toplevel.typedef.ScTypeDefinition
-import psi.api.base.types.ScTypeElement
-
-
-
-
-
+import com.intellij.codeInsight.completion.{CompletionParameters, PrefixMatcher}
+import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
-import com.intellij.codeInsight.completion.{PrefixMatcher, CompletionParameters}
-import refactoring.namesSuggester.NameSuggester
-import types.ScType
-import collection.mutable.ArrayBuffer
-import com.intellij.openapi.util.Key
+import org.jetbrains.plugins.scala.lang.psi._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
 * User: Alexander Podkhalyuzin

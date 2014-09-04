@@ -3,8 +3,8 @@ package annotator
 package intention
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiFile
 import com.intellij.openapi.vfs._
+import com.intellij.psi.PsiFile
 
 /** 
 * User: Alexander Podkhalyuzin

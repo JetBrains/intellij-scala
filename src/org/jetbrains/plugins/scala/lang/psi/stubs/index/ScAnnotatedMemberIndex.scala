@@ -4,9 +4,8 @@ package psi
 package stubs
 package index
 
-import api.toplevel.typedef.ScMember
 import com.intellij.psi.stubs.{StringStubIndexExtension, StubIndexKey}
-import api.expr.ScAnnotation
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 
 /**
  * @author ilyas

@@ -1,9 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.defaultFileTemplateInspection
 
-import java.lang.String
-import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil
-import com.intellij.psi.PsiFile
 import com.intellij.codeInspection._
+import com.intellij.psi.PsiFile
 /**
  * @author Alexander Podkhalyuzin
  */

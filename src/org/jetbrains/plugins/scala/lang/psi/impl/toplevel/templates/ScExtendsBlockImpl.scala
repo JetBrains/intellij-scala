@@ -6,32 +6,27 @@ package toplevel
 package templates
 
 
-import collection.mutable.ListBuffer
-import api.toplevel.ScEarlyDefinitions
 import com.intellij.lang.ASTNode
-import com.intellij.psi.impl.source.tree.SharedImplUtil
-import com.intellij.psi.{PsiFileFactory, PsiManager, PsiElement, PsiClass}
-import parser.ScalaElementTypes
-import api.toplevel.templates._
-import psi.types._
-import result.{TypingContext, Success}
-import stubs.ScExtendsBlockStub
-import api.toplevel.typedef._
-import collection.Seq
-import api.base.types._
-import caches.CachesUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import com.intellij.psi.util.PsiModificationTracker
-import extensions.toPsiClassExt
-import synthetic.ScSyntheticClass
-import psi.types.ScDesignatorType
-import scala.Some
-import psi.types.ScCompoundType
+import com.intellij.psi.PsiClass
 import com.intellij.psi.stubs.StubElement
-import annotation.tailrec
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScValue}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import com.intellij.psi.util.PsiModificationTracker
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScDesignatorType, _}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+
+import scala.annotation.tailrec
+import scala.collection.Seq
+import scala.collection.mutable.ListBuffer
 
 /**
  * @author AlexanderPodkhalyuzin

@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala.scalai18n.lang.properties
 
+import com.intellij.codeInsight.AnnotationUtil
+import com.intellij.lang.properties.ResourceBundleReferenceProvider
+import com.intellij.lang.properties.psi.impl.PropertyValueImpl
+import com.intellij.patterns.PsiJavaPatterns
+import com.intellij.patterns.PsiJavaPatterns._
 import com.intellij.psi._
 import com.intellij.psi.impl.source.resolve.reference.impl.providers.JavaClassReferenceProvider
-import com.intellij.patterns.PsiJavaPatterns._
-import com.intellij.lang.properties.ResourceBundleReferenceProvider
-import com.intellij.codeInsight.AnnotationUtil
-import com.intellij.patterns.PsiJavaPatterns
-import com.intellij.lang.properties.psi.impl.PropertyValueImpl
-import org.jetbrains.plugins.scala.injection.ScalaPatterns
 import com.intellij.util.ProcessingContext
 import org.jetbrains.annotations.NotNull
+import org.jetbrains.plugins.scala.injection.ScalaPatterns
 
 /**
  * @author Ksenia.Sautina

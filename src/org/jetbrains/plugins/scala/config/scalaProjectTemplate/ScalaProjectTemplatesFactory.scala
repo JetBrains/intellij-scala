@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala
 package config.scalaProjectTemplate
 
-import com.intellij.platform.{ProjectTemplate, ProjectTemplatesFactory}
-import com.intellij.ide.util.projectWizard.WizardContext
 import javax.swing.Icon
+
+import com.intellij.ide.util.projectWizard.WizardContext
+import com.intellij.platform.{ProjectTemplate, ProjectTemplatesFactory}
 
 /**
  * User: Dmitry Naydanov

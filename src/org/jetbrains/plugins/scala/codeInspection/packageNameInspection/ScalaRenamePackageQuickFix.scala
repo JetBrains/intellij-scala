@@ -3,11 +3,10 @@ package codeInspection
 package packageNameInspection
 
 
-import com.intellij.codeInspection.{ProblemDescriptor, LocalQuickFix}
+import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor}
 import com.intellij.openapi.project.Project
-import java.lang.String
-import lang.psi.api.ScalaFile
-import util.ScalaUtils
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.util.ScalaUtils
 
 /**
  * User: Alexander Podkhalyuzin

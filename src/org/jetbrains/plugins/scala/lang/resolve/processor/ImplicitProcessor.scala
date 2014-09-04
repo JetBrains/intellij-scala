@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala
 package lang.resolve.processor
 
+import java.util
+
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import collection.Set
-import java.util
+
+import scala.collection.Set
 
 /**
  * @author Alexander Podkhalyuzin

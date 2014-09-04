@@ -4,7 +4,7 @@ package psi
 package api
 package expr
 
-import toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 /**
 * @author Alexander Podkhalyuzin

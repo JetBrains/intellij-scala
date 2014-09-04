@@ -3,10 +3,8 @@ package lang
 package psi
 package api
 package statements
-import base.ScIdList
-import toplevel.ScTypedDefinition
-import psi.types.Nothing
-import org.jetbrains.plugins.scala.lang.psi.types.Any
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScIdList
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 
 /**
 * @author Alexander Podkhalyuzin

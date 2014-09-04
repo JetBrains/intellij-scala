@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.actions
 
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
  * @author Ksenia.Sautina

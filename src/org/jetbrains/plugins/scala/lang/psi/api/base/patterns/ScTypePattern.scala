@@ -5,7 +5,6 @@ package api
 package base
 package patterns
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 
 /** 

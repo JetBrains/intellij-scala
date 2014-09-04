@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala
 package lang.psi.light.scala
 
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import com.intellij.psi.impl.light.LightElement
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import com.intellij.psi.{PsiAnnotation, PsiElement, PsiTypeParameterListOwner}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import com.intellij.psi.{PsiElement, PsiTypeParameterListOwner, PsiAnnotation}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 
 /**
  * @author Alefas

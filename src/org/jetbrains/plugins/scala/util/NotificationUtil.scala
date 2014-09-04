@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala
 package util
 
-import com.intellij.notification._
 import javax.swing.event.HyperlinkEvent
+
+import com.intellij.notification._
 import com.intellij.openapi.project.Project
 
 /**

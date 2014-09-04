@@ -1,19 +1,19 @@
 package org.jetbrains.plugins.scala
 package config.scalaProjectTemplate
 
-import com.intellij.ide.util.projectWizard._
-import com.intellij.openapi.module.{ModuleType, Module, ModifiableModuleModel}
-import com.intellij.openapi.roots.{ModuleRootModificationUtil, ModuleRootManager}
-import config.{ScalaDistribution, LibraryId, ScalaFacet}
 import java.io.File
-import com.intellij.openapi.roots.ui.configuration.ModulesProvider
-import org.jetbrains.plugins.scala.config.scalaProjectTemplate.ui.{ScalaAdvancedModuleSettings, ScalaModuleSettingsUi}
-import com.intellij.openapi.util.Condition
+import javax.swing.Icon
+
+import com.intellij.ide.util.projectWizard._
+import com.intellij.openapi.module.{ModifiableModuleModel, Module}
 import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
-import javax.swing.{Icon, JComponent}
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar
-import components.{TypeAwareHighlightingApplicationState, HighlightingAdvisor}
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ui.configuration.ModulesProvider
+import com.intellij.openapi.roots.{ModuleRootManager, ModuleRootModificationUtil}
+import com.intellij.openapi.util.Condition
+import org.jetbrains.plugins.scala.components.{HighlightingAdvisor, TypeAwareHighlightingApplicationState}
+import org.jetbrains.plugins.scala.config.scalaProjectTemplate.ui.{ScalaAdvancedModuleSettings, ScalaModuleSettingsUi}
+import org.jetbrains.plugins.scala.config.{LibraryId, ScalaDistribution, ScalaFacet}
 
 /**
  * User: Dmitry Naydanov

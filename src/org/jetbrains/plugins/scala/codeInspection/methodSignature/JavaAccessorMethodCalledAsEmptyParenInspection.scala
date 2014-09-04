@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala
 package codeInspection.methodSignature
 
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
-import com.intellij.psi.PsiMethod
-import quickfix.RemoveCallParentheses
 import com.intellij.codeInspection._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import com.intellij.psi.PsiMethod
+import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.RemoveCallParentheses
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 
 /**
  * Pavel Fatin

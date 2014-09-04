@@ -1,17 +1,17 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.highlighter;
 
-import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
-import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.lexer.Lexer;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
+import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocLexer;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
-import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * User: Alexander Podkhalyuzin

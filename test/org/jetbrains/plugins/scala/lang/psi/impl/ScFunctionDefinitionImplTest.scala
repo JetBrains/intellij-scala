@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package lang.psi.impl
 
-import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.base.SimpleTestCase
+import org.jetbrains.plugins.scala.lang.psi.api.statements.RecursionType.{NoRecursion, OrdinaryRecursion, TailRecursion}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{RecursionType, ScFunctionDefinition}
 import org.junit.Assert._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.RecursionType.{OrdinaryRecursion, TailRecursion, NoRecursion}
-import lang.psi.api.statements.{ScFunctionDefinition, RecursionType}
 
 /**
  * Pavel Fatin

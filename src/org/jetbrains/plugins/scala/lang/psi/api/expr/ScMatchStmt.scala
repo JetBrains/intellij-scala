@@ -4,8 +4,8 @@ package psi
 package api
 package expr
 
-import base.patterns.{ScCaseClause, ScCaseClauses}
-import impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * @author Alexander Podkhalyuzin, ilyas

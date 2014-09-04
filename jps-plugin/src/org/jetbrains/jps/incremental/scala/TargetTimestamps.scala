@@ -1,6 +1,7 @@
 package org.jetbrains.jps.incremental.scala
 
 import java.io._
+
 import org.jetbrains.jps.incremental.{CompileContext, ModuleBuildTarget}
 
 /**

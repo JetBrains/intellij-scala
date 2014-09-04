@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala
 package debugger
 
-import com.intellij.psi.PsiClass
-import com.intellij.openapi.application.ApplicationManager
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScObject, ScTemplateDefinition}
-import com.intellij.openapi.util.Computable
-import org.jetbrains.annotations.NotNull
 import com.intellij.debugger.NameMapper
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.util.Computable
+import com.intellij.psi.PsiClass
+import org.jetbrains.annotations.NotNull
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait}
 
 /**
 *@author ilyas

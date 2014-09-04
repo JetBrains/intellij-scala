@@ -5,9 +5,9 @@ package api
 package base
 package types
 
-import resolve.ScalaResolveResult
 import com.intellij.openapi.progress.ProgressManager
-import psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * Author: Alexander Podkhalyuzin

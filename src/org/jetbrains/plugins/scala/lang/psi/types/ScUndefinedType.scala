@@ -3,8 +3,9 @@ package lang
 package psi
 package types
 
-import nonvalue.NonValueType
-import collection.immutable.HashSet
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
+
+import scala.collection.immutable.HashSet
 
 /**
  * Use this type if you want to resolve generics.

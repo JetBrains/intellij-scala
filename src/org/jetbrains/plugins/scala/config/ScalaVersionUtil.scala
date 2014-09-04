@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.config
 
+import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.psi.PsiElement
-import com.intellij.openapi.module.{ModuleUtilCore, Module}
 
 /**
  * @author Alefas

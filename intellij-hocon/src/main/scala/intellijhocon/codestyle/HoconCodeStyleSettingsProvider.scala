@@ -1,8 +1,8 @@
 package intellijhocon
 package codestyle
 
-import com.intellij.psi.codeStyle.{DisplayPriority, CodeStyleSettings, CodeStyleSettingsProvider}
-import com.intellij.application.options.{TabbedLanguageCodeStylePanel, CodeStyleAbstractConfigurable}
+import com.intellij.application.options.{CodeStyleAbstractConfigurable, TabbedLanguageCodeStylePanel}
+import com.intellij.psi.codeStyle.{CodeStyleSettings, CodeStyleSettingsProvider, DisplayPriority}
 import intellijhocon.lang.HoconLanguage
 
 class HoconCodeStyleSettingsProvider extends CodeStyleSettingsProvider {

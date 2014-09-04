@@ -1,30 +1,31 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
+import java.util
+import javax.swing._
+
 import com.intellij.navigation.ItemPresentation
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.util.{Pair, TextRange}
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi._
+import com.intellij.psi.impl.PsiClassImplUtil.MemberType
+import com.intellij.psi.impl.light.LightElement
+import com.intellij.psi.impl.{PsiClassImplUtil, PsiSuperMethodImplUtil}
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.search.SearchScope
-import impl.light.LightElement
-import impl.PsiClassImplUtil.MemberType
-import impl.{PsiSuperMethodImplUtil, PsiClassImplUtil}
-import javax.swing._
-import com.intellij.openapi.util.text.StringUtil
-import collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import com.intellij.psi.scope.processor.MethodsProcessor
+import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
+import com.intellij.psi.util.PsiUtil
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiMemberExt}
-import com.intellij.openapi.util.{TextRange, Pair}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import java.util
-import com.intellij.pom.java.LanguageLevel
-import com.intellij.psi.scope.processor.MethodsProcessor
-import com.intellij.psi.util.PsiUtil
+
+import _root_.scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alefas

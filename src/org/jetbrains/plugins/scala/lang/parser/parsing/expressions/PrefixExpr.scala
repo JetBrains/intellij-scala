@@ -4,8 +4,7 @@ package parser
 package parsing
 package expressions
 
-import com.intellij.lang.PsiBuilder
-import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /** 
 * @author Alexander Podkhalyuzin

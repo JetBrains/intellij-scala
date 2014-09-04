@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala
 package lang.surroundWith.surrounders.scaladoc
 
 import com.intellij.lang.surroundWith.Surrounder
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.PsiElement
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import lang.psi.impl.ScalaPsiElementFactory
-import lang.scaladoc.lexer.ScalaDocTokenType
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 
 /**
  * User: Dmitry Naydanov

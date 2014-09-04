@@ -5,12 +5,11 @@ package parsing
 package top
 
 import _root_.org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
-import base.AccessModifier
-import com.intellij.lang.PsiBuilder
-import expressions.Annotation
-import lexer.ScalaTokenTypes
-import params.ClassParamClauses
-import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.AccessModifier
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ClassParamClauses
 
 /**
 * @author Alexander Podkhalyuzin

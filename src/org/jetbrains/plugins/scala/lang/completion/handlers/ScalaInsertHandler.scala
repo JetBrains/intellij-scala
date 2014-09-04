@@ -3,22 +3,21 @@ package lang
 package completion
 package handlers
 
-import com.intellij.codeInsight.{CodeInsightSettings, AutoPopupController}
 import com.intellij.codeInsight.completion._
-import psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScFunction, ScFun}
 import com.intellij.codeInsight.lookup.LookupElement
-import extensions._
-import psi.api.expr._
-import psi.api.toplevel.typedef.ScObject
-import com.intellij.openapi.util.Condition
+import com.intellij.codeInsight.{AutoPopupController, CodeInsightSettings}
 import com.intellij.psi._
-import lookups.ScalaLookupItem
-import psi.api.base.ScStableCodeReferenceElement
-import psi.ScalaPsiUtil
-import annotation.tailrec
-import psi.impl.ScalaPsiElementFactory
-import lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
+
+import scala.annotation.tailrec
 
 /**
  * User: Alexander Podkhalyuzin
@@ -51,7 +50,7 @@ object ScalaInsertHandler {
 }
 
 class ScalaInsertHandler extends InsertHandler[LookupElement] {
-  import ScalaInsertHandler._
+  import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler._
   override def handleInsert(context: InsertionContext, _item: LookupElement) {
     if (!_item.isInstanceOf[ScalaLookupItem]) return
     val item = _item.asInstanceOf[ScalaLookupItem]
@@ -214,7 +213,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
                 withSpace = false, withSomeNum = false)
             }
           } else if (count > 0) {
-            import extensions._
+            import org.jetbrains.plugins.scala.extensions._
             element.getParent match {
               //case for infix expressions
               case Both(ref: ScReferenceExpression, Parent(inf: ScInfixExpr)) if inf.operation == ref =>

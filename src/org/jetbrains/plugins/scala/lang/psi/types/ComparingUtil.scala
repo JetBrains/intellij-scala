@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package lang.psi.types
 
-import com.intellij.psi.{PsiTypeParameter, PsiClass}
-import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.search.LocalSearchScope
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
+import com.intellij.psi.search.searches.ClassInheritorsSearch
+import com.intellij.psi.{PsiClass, PsiTypeParameter}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
 /**

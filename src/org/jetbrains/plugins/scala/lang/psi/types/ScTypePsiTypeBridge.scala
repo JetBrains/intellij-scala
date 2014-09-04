@@ -3,19 +3,19 @@ package lang
 package psi
 package types
 
-import impl.ScalaPsiManager
-import impl.toplevel.synthetic.ScSyntheticClass
-import nonvalue.NonValueType
+import java.util
+
+import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
-import result.{Failure, Success, TypingContext}
-import com.intellij.openapi.project.Project
-import api.statements._
-import light.PsiClassWrapper
-import api.toplevel.typedef.{ScTypeDefinition, ScObject}
-import extensions.{toPsiMemberExt, toPsiClassExt}
-import java.util
-import psi.types
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
 
 trait ScTypePsiTypeBridge {
   /**

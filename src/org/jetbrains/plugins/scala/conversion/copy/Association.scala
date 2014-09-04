@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package conversion.copy
 
-import lang.dependency.{Dependency, DependencyKind, Path}
 import com.intellij.openapi.util.TextRange
-import lang.psi.api.base.ScReferenceElement
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.dependency.{Dependency, DependencyKind, Path}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 
 /**
  * Pavel Fatin

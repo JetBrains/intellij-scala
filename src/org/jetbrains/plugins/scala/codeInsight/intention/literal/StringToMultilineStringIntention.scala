@@ -3,21 +3,18 @@ package codeInsight
 package intention
 package literal
 
-import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.Editor
-import java.lang.String
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import com.intellij.codeInsight.FileModificationService
+import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.command.undo.UndoUtil
-import lang.psi.impl.ScalaPsiElementFactory
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.format._
-import org.jetbrains.plugins.scala.extensions.childOf
+import org.jetbrains.plugins.scala.format.{Text, _}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.MultilineStringUtil._
-import org.jetbrains.plugins.scala.format.Text
 
 class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
   def getFamilyName: String = "Regular/Multi-line String conversion"

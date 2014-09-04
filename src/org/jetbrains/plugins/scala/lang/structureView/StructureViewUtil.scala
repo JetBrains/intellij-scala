@@ -3,8 +3,8 @@ package lang
 package structureView
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import psi.types.result.TypingContext
-import psi.types.{ScSubstitutor, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 
 /**
 * @author Alexander Podkhalyuzin

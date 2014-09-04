@@ -1,13 +1,14 @@
 package org.jetbrains.jps.incremental.scala
 package local
 
+import java.io.File
+import java.util
+
+import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.CompileContext
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.OutputConsumer
-import java.io.File
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.messages.{FileDeletedEvent, ProgressMessage, CompilerMessage}
-import com.intellij.openapi.util.io.FileUtil
-import java.util
+import org.jetbrains.jps.incremental.messages.{CompilerMessage, FileDeletedEvent, ProgressMessage}
 
 
 /**

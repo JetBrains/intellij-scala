@@ -1,7 +1,7 @@
 package org.jetbrains.jps.incremental.scala
 package remote
 
-import java.io.{PrintWriter, PrintStream}
+import java.io.{PrintStream, PrintWriter}
 
 /**
  * @author Pavel Fatin

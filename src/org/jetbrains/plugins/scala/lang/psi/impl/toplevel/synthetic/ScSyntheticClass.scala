@@ -6,28 +6,28 @@ package toplevel
 package synthetic
 
 import _root_.javax.swing.Icon
-import api.statements.params.ScTypeParam
-import com.intellij.openapi.startup.StartupManager
-import com.intellij.psi.search.GlobalSearchScope
-import api.statements.ScFun
-import types._
-import nonvalue.Parameter
-import resolve._
-import com.intellij.psi._
-import com.intellij.psi.impl.light.LightElement
-import collection.mutable.ArrayBuffer
+
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
-import java.lang.String
 import com.intellij.openapi.progress.ProcessCanceledException
-import org.jetbrains.plugins.scala.lang.resolve.processor.{ImplicitProcessor, BaseProcessor, ResolveProcessor, ResolverEnv}
-import result.Success
+import com.intellij.openapi.startup.StartupManager
+import com.intellij.psi._
+import com.intellij.psi.impl.light.LightElement
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.util.{IncorrectOperationException, ReflectionCache}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFun
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor, ResolveProcessor, ResolverEnv}
 import org.jetbrains.plugins.scala.util.ScalaUtils
-import api.toplevel.typedef.ScObject
-import api.ScalaFile
-import collection.{mutable, Seq}
-import com.intellij.util.{ReflectionCache, IncorrectOperationException}
-import extensions.{toSeqExt, toPsiClassExt}
+
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.{Seq, mutable}
 
 abstract class SyntheticNamedElement(val manager: PsiManager, name: String)
 extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNameIdentifierOwner {

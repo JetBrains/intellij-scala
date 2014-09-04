@@ -154,12 +154,12 @@ class VarianceTest extends SimpleTestCase {
     mock.annotations.filter((p: Message) => !p.isInstanceOf[Info])
   }
 
-  val ContravariantPosition = containsPattern("occurs in contravariant position")
-  val CovariantPosition = containsPattern("occurs in covariant position")
-  val AbstractModifier = containsPattern("Abstract member may not have private modifier")
-  val NotConformsUpper = containsPattern("doesn't conform to upper bound")
+  val ContravariantPosition = ContainsPattern("occurs in contravariant position")
+  val CovariantPosition = ContainsPattern("occurs in covariant position")
+  val AbstractModifier = ContainsPattern("Abstract member may not have private modifier")
+  val NotConformsUpper = ContainsPattern("doesn't conform to upper bound")
 
-  def containsPattern(fragment: String) = new {
+  case class ContainsPattern(fragment: String) {
     def unapply(s: String) = s.contains(fragment)
   }
 }

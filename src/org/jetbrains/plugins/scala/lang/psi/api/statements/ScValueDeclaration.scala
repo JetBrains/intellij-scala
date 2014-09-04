@@ -4,10 +4,8 @@ package psi
 package api
 package statements
 
-import toplevel.typedef._
-import base.ScIdList
-import base.types.ScTypeElement
-import toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScIdList
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 
 /**
 * @author Alexander Podkhalyuzin

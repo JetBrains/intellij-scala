@@ -4,13 +4,13 @@ package psi
 package impl
 package base
 
-import api.toplevel.ScImportableDeclarationsOwner
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import stubs.{ScFieldIdStub}
-import psi.types.result.{Success, TypingContext}
-import api.statements.{ScValue, ScTypedDeclaration, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypedDeclaration, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScImportableDeclarationsOwner
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScFieldIdStub
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
  * @author ilyas

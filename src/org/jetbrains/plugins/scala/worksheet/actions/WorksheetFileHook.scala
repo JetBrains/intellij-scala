@@ -104,7 +104,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
   private def createAutorunChb(file: VirtualFile) = {
     val psiFile = PsiManager getInstance project findFile file
 
-    import WorksheetAutoRunner._
+    import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner._
     val autorunChb = new JCheckBox("Interactive Mode",
       if (isSetEnabled(psiFile)) true else if (isSetDisabled(psiFile)) false else ScalaProjectSettings.getInstance(project).isInteractiveMode)
     autorunChb addChangeListener new ChangeListener {

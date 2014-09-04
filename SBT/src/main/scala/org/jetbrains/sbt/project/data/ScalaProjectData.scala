@@ -1,8 +1,8 @@
 package org.jetbrains.sbt
 package project.data
 
-import com.intellij.openapi.externalSystem.model.{ProjectKeys, Key, ProjectSystemId}
 import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
+import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys, ProjectSystemId}
 
 /**
  * @author Pavel Fatin

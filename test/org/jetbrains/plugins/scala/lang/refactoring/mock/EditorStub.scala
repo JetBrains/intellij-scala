@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.scala.lang.refactoring.mock
 
-import javax.swing.border.Border
-import com.intellij.openapi.util.Key
-import javax.swing.JComponent
 import java.awt.event.MouseEvent
-import com.intellij.openapi.editor.event._
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor._
-import colors.EditorColorsScheme
-import markup.MarkupModel
-import event.{EditorMouseListener, EditorMouseMotionListener, EditorMouseEventArea}
 import java.awt.{Insets, Point}
+import javax.swing.JComponent
+import javax.swing.border.Border
+
+import com.intellij.openapi.editor._
+import com.intellij.openapi.editor.colors.EditorColorsScheme
+import com.intellij.openapi.editor.event.{EditorMouseEventArea, EditorMouseListener, EditorMouseMotionListener}
+import com.intellij.openapi.editor.markup.MarkupModel
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Key
 
 /**
  * Pavel Fatin

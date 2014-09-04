@@ -2,14 +2,13 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package scaladoc
 
-import java.lang.String
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocInlinedTag
-import com.intellij.openapi.project.Project
 import com.intellij.codeInspection._
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocInlinedTag
 
 /**
  * User: Dmitry Naidanov

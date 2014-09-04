@@ -4,11 +4,10 @@ package psi
 package stubs
 package impl
 
-import api.base.ScModifierList
-import api.toplevel.imports.ScImportStmt
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubElement, IStubElementType}
+import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.util.io.StringRef
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 /**
  * User: Alexander Podkhalyuzin
  * Date: 18.06.2009

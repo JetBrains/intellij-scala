@@ -6,15 +6,14 @@ package base
 package types
 
 import com.intellij.lang.ASTNode
-import psi.stubs.ScSelfTypeElementStub
-import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import com.intellij.psi.util.PsiTreeUtil
-import java.lang.String
-import psi.types.result.{TypeResult, Success, TypingContext}
-import psi.types._
-import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
-import collection.mutable.ArrayBuffer
-import api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScSelfTypeElementStub
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin

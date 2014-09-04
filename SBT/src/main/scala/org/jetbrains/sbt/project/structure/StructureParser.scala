@@ -1,9 +1,11 @@
 package org.jetbrains.sbt
 package project.structure
 
-import scala.xml.Node
 import java.io.File
-import FS._
+
+import org.jetbrains.sbt.project.structure.FS._
+
+import scala.xml.Node
 
 /**
  * @author Pavel Fatin

@@ -6,7 +6,7 @@ package toplevel
 package templates
 
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.{types, ScConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 
 /**
 * @author Alexander Podkhalyuzin

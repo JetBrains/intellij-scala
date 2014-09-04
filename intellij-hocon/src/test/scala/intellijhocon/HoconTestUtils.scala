@@ -4,6 +4,7 @@ import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFileFactory
 import com.intellij.util.LocalTimeCounter
+import scala.language.implicitConversions
 
 object HoconTestUtils {
   def createPseudoPhysicalHoconFile(project: Project, text: String) = {

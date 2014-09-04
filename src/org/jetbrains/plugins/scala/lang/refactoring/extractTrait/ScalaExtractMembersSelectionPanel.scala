@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.extractTrait
 
-import org.jetbrains.plugins.scala.codeInsight.generation.ui._
 import java.util
+
 import com.intellij.refactoring.classMembers.MemberInfoModel
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
-import scala.collection.JavaConverters._
-import org.jetbrains.plugins.scala.lang.refactoring.ui.{ScalaMemberSelectionTableBase, ScalaMemberSelectionPanelBase}
+import org.jetbrains.plugins.scala.lang.refactoring.ui.{ScalaMemberSelectionPanelBase, ScalaMemberSelectionTableBase}
 
 /**
  * Nikolay.Tropin

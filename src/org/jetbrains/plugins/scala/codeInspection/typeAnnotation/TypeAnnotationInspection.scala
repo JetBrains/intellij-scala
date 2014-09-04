@@ -4,13 +4,13 @@ package codeInspection.typeAnnotation
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import codeInspection.{AbstractFix, AbstractInspection}
-import lang.psi.api.statements.{ScPatternDefinition, ScVariableDefinition, ScFunctionDefinition}
-import lang.formatting.settings.{TypeAnnotationPolicy, TypeAnnotationRequirement, ScalaCodeStyleSettings}
-import lang.psi.api.toplevel.typedef.ScMember
-import lang.psi.api.expr.ScExpression
-import lang.psi.api.base.ScLiteral
-import lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, TypeAnnotationPolicy, TypeAnnotationRequirement}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
 /**
  * Pavel Fatin

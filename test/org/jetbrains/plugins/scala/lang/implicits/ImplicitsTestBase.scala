@@ -6,18 +6,18 @@ package implicits
  * @author Alexander Podkhalyuzin
  */
 
-import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
-import com.intellij.psi.util.PsiTreeUtil
 import java.io.File
-import java.lang.String
-import lexer.ScalaTokenTypes
-import psi.api.expr.ScExpression
-import psi.api.ScalaFile
-import com.intellij.psi.{PsiNamedElement, PsiManager}
-import extensions.toPsiNamedElementExt
-import com.intellij.openapi.util.text.StringUtil
+
 import com.intellij.openapi.util.io.FileUtil
-import base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
+import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
  * User: Alexander Podkhalyuzin

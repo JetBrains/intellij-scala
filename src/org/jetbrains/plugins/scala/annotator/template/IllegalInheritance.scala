@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala
 package annotator.template
 
-import org.jetbrains.plugins.scala.annotator.AnnotatorPart
 import com.intellij.lang.annotation.AnnotationHolder
+import org.jetbrains.plugins.scala.annotator.AnnotatorPart
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.extensions._
-import lang.psi.api.base.types.ScSelfTypeElement
 
 /**
  * Pavel Fatin

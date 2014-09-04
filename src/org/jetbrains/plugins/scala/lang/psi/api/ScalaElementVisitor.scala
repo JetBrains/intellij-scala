@@ -1,18 +1,19 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
-import base.types._
-import base.{ScModifierList, ScConstructor, ScLiteral, ScReferenceElement}
-import expr.xml.{ScXmlEndTag, ScXmlStartTag}
+import com.intellij.psi.{PsiElementVisitor, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import com.intellij.psi.{PsiFile, PsiElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScLiteral, ScModifierList, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.{ScXmlEndTag, ScXmlStartTag}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import statements._
-import params.{ScClassParameter, ScParameters, ScParameter}
-import toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
-import collection.mutable.Stack
+
+import scala.collection.mutable.Stack
 
 /**
  * @author ilyas

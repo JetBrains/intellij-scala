@@ -5,10 +5,10 @@ package stubs
 package impl
 
 
-import api.base.patterns.ScReferencePattern
-import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.PsiElement
+import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.util.io.StringRef
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 
 /**
  * User: Alexander Podkhalyuzin

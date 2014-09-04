@@ -3,21 +3,21 @@ package refactoring
 package inline
 
 
-import base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import com.intellij.psi.util.PsiTreeUtil
-import lang.lexer.ScalaTokenTypes
-import util.ScalaUtils
-import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
-
-import com.intellij.refactoring.inline.GenericInlineHandler
-import lang.psi.api.ScalaFile
 import java.io.File
-import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
-import lang.refactoring.inline.ScalaInlineHandler
-import com.intellij.openapi.util.text.StringUtil
+
+import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.refactoring.inline.GenericInlineHandler
 import com.intellij.refactoring.util.CommonRefactoringUtil.RefactoringErrorHintException
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.refactoring.inline.ScalaInlineHandler
+import org.jetbrains.plugins.scala.util.ScalaUtils
 
 /**
  * User: Alexander Podkhalyuzin

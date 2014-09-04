@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala
 package codeInspection.format
 
-import codeInspection.AbstractInspection
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.util.TextRange
-import format._
-import format.Span
-import format.Injection
+import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
+import org.jetbrains.plugins.scala.format.{Injection, Span, _}
 
 /**
   // Acceptance test

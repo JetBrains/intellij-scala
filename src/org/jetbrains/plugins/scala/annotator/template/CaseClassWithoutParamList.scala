@@ -2,14 +2,14 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
-import lang.psi.api.toplevel.typedef.ScClass
-import com.intellij.lang.annotation.AnnotationHolder
-import com.intellij.openapi.project.Project
-import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInspection.ProblemHighlightType
+import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 object CaseClassWithoutParamList extends AnnotatorPart[ScClass] {
   def kind: Class[ScClass] = classOf[ScClass]

@@ -4,10 +4,9 @@ package psi
 package api
 package toplevel
 
-import base.types.ScTypeElement
-import psi.ScalaPsiElement
-import lang.psi.types.ScType
-import types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 trait ScTypeBoundsOwner extends ScalaPsiElement {
   def lowerBound: TypeResult[ScType]

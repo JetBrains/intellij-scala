@@ -3,16 +3,16 @@ package codeInsight
 package intention
 package types
 
-import lang.psi.impl.ScalaPsiElementFactory
-import com.intellij.psi.PsiElement
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.Editor
-import extensions._
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.command.undo.UndoUtil
-import lang.psi.api.base.{ScStableCodeReferenceElement}
-import lang.psi.api.base.types.{ScParenthesisedTypeElement, ScTypeArgs, ScParameterizedTypeElement, ScTypeElement}
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScParenthesisedTypeElement, ScTypeArgs}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /** Converts type element `@@[A, B]` to `(A @@ B)` */
 class ConvertToInfixIntention extends PsiElementBaseIntentionAction {

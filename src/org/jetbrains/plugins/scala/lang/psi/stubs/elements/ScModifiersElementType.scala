@@ -5,14 +5,10 @@ package stubs
 package elements
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.base.ScModifierListImpl
-import api.base.ScModifierList
-import api.statements.ScFunction
-import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
-
-
 import com.intellij.psi.PsiElement
-import com.intellij.util.io.StringRef
-import impl.ScModifiersStubImpl
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScModifiersStubImpl
 
 /**
  * User: Alexander Podkhalyuzin

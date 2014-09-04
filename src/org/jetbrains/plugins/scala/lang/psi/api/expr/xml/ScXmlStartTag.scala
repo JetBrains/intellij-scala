@@ -5,10 +5,6 @@ package api
 package expr
 package xml
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import com.intellij.psi.xml.XmlTokenType
-import com.intellij.psi.PsiElement
-
 /**
 * @author Alexander Podkhalyuzin
 * Date: 21.04.2008

@@ -5,9 +5,9 @@ package stubs
 package elements
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScClassImpl
-import api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 
 /**
  * @author ilyas

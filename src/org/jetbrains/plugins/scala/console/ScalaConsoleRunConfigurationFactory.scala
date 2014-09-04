@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala
 package console
 
 
-import com.intellij.execution.configurations.{RunConfiguration, ConfigurationType, ConfigurationFactory}
+import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType, RunConfiguration}
 import com.intellij.openapi.project.Project
-import config.ScalaFacet
+import org.jetbrains.plugins.scala.config.ScalaFacet
 
 /**
  * User: Alexander Podkhalyuzin

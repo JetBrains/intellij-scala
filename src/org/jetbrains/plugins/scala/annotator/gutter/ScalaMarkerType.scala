@@ -2,31 +2,32 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
-import _root_.scala.collection.mutable.ArrayBuffer
-import com.intellij.codeInsight.daemon.impl.PsiElementListNavigator
-import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
-import com.intellij.ide.util.{PsiClassListCellRenderer, PsiElementListCellRenderer}
-import com.intellij.codeInsight.navigation.NavigationUtil
-import com.intellij.openapi.util.Iconable
-import com.intellij.psi._
-import com.intellij.psi.search.searches.ClassInheritorsSearch
-import com.intellij.ui.awt.RelativePoint
-import javax.swing.Icon
-import com.intellij.util.NullableFunction
 import java.awt.event.MouseEvent
-import lang.psi.api.statements.params.ScClassParameter
-import lang.psi.impl.search.ScalaOverridingMemberSearcher
-import lang.psi.ScalaPsiUtil
-import lang.lexer.ScalaTokenTypes
-import presentation.java.ClassPresentationUtil
-import util.PsiTreeUtil
-import lang.psi.api.toplevel.ScNamedElement
-import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait, ScMember, ScObject}
-import lang.psi.api.statements._
-import lang.psi.types.Signature
-import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 import java.util
-import collection.mutable
+import javax.swing.Icon
+
+import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
+import com.intellij.codeInsight.daemon.impl.PsiElementListNavigator
+import com.intellij.codeInsight.navigation.NavigationUtil
+import com.intellij.ide.util.{PsiClassListCellRenderer, PsiElementListCellRenderer}
+import com.intellij.psi._
+import com.intellij.psi.presentation.java.ClassPresentationUtil
+import com.intellij.psi.search.searches.ClassInheritorsSearch
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.ui.awt.RelativePoint
+import com.intellij.util.NullableFunction
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
+import org.jetbrains.plugins.scala.lang.psi.types.Signature
+
+import _root_.scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 
 /**
  * User: Alexander Podkhalyuzin
@@ -257,7 +258,7 @@ object ScalaMarkerType {
 
     def getContainerText(psiElement: PsiElement, s: String) = null
 
-    def getIconFlags: Int = Iconable.ICON_FLAG_CLOSED
+    def getIconFlags: Int = 0
 
 
     override def getIcon(element: PsiElement): Icon = {

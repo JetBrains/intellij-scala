@@ -4,10 +4,9 @@ package parser
 package parsing
 package expressions
 
-import com.intellij.lang.PsiBuilder
-import lexer.ScalaTokenTypes
-import patterns.Guard
-import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Guard
 
 /**
 * @author Alexander Podkhalyuzin

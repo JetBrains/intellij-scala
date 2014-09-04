@@ -6,8 +6,8 @@ import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import lang.psi.api.toplevel.typedef.{ScTemplateDefinition}
-import overrideImplement.ScalaOIUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 
 /**
  * User: Alexander Podkhalyuzin

@@ -5,13 +5,11 @@ package impl
 package base
 package types
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import psi.types.result.TypingContext
-import psi.types.ScType;
-import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import api.ScalaElementVisitor
 import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
  * @author Alexander Podkhalyuzin, ilyas

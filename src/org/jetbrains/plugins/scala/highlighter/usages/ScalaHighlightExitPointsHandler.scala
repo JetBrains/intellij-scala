@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.highlighter.usages
 
+import java.util
+
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandlerBase
+import com.intellij.openapi.editor.Editor
+import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import com.intellij.openapi.editor.Editor
-import com.intellij.psi.{PsiFile, PsiElement}
-import java.util
 
 /**
  * User: Alexander Podkhalyuzin

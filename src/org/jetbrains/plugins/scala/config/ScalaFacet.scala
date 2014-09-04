@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.config
 
-import java.lang.String
-import com.intellij.facet._
-import com.intellij.openapi.module.{ModuleManager, Module}
-import com.intellij.openapi.project.Project
 import java.io.File
+
+import com.intellij.facet._
+import com.intellij.openapi.module.{Module, ModuleManager}
+import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
 
 /**

@@ -2,14 +2,14 @@ package org.jetbrains.plugins.scala
 package codeInsight.intention.booleans
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanUtil
 import org.jetbrains.plugins.scala.extensions._
-import scala.Some
-import codeInspection.booleans.SimplifyBooleanUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+
+import scala.annotation.tailrec
 
 /**
  * Nikolay.Tropin

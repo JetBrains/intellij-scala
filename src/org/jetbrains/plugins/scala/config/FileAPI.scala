@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala.config
 
-import java.util.jar.JarFile
+import java.io.{File, StringBufferInputStream}
 import java.util.Properties
-import com.intellij.openapi.vfs.{VfsUtilCore, VfsUtil, VirtualFile}
+import java.util.jar.JarFile
+
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore, VirtualFile}
+
 import scala.io.Source
-import java.io.{StringBufferInputStream, File}
 
 /**
  * Pavel.Fatin, 07.07.2010
@@ -48,9 +50,9 @@ object FileAPI {
       val file = new JarFile(archive)
       val result = file.getEntry(entry) != null
       file.close()
-      return result
+      result
     } catch {
-      case _: Exception => return false
+      case _: Exception => false
     }
   }
   
@@ -58,12 +60,7 @@ object FileAPI {
   
   def optional(file: File): Option[File] = if(file.exists) Some(file) else None
   
-  implicit def toRichFile(file: File) = new RichFile(file)
-  
-  implicit def toRichVirtualFile(virtualFile: VirtualFile) = new RichVirtualFile(virtualFile)
-  
-  
-  class RichFile(delegate: File) {
+  implicit class RichFile(val delegate: File) extends AnyVal {
     def /(path: String) = new File(delegate, path)
     def /(paths: Seq[String]) = paths.map(new File(delegate, _))
     def toLibraryRootURL = VfsUtil.getUrlForLibraryRoot(delegate)
@@ -74,7 +71,7 @@ object FileAPI {
     }
   }
   
-  class RichVirtualFile(delegate: VirtualFile) {
+  implicit class RichVirtualFile(val delegate: VirtualFile) extends AnyVal {
     def toFile = VfsUtilCore.virtualToIoFile(delegate)
     def namedLike(name: String) = delegate.getName.startsWith(FileUtil.getNameWithoutExtension(name))
   }

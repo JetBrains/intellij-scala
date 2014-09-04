@@ -5,10 +5,10 @@ package stubs
 package elements
 package signatures
 
-import api.statements.params.{ScClassParameter, ScParameter}
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
-import impl.ScParameterStubImpl
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScParameterStubImpl
 
 /**
  * User: Alexander Podkhalyuzin

@@ -4,7 +4,7 @@ package psi
 package api
 package expr
 
-import base.types.{ScSequenceArg, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScTypeElement}
 
 /** 
 * @author Alexander Podkhalyuzin

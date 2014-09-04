@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix
 
-import com.intellij.openapi.project.Project
 import com.intellij.codeInspection.ProblemDescriptor
+import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.codeInspection.AbstractFix
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.codeInspection.AbstractFix
 
 /**
  * Pavel Fatin

@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
 package lang.psi.api.expr.xml
 
-import lang.psi.ScalaPsiElement
-import com.intellij.psi.xml.XmlTokenType
 import com.intellij.psi.PsiElement
+import com.intellij.psi.xml.XmlTokenType
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 /**
  * User: Dmitry Naydanov

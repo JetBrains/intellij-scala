@@ -5,9 +5,8 @@ package decompiler
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{SingleRootFileViewProvider, PsiManager, PsiFile}
-import lang.psi.impl.ScalaFileImpl
-import com.intellij.psi.impl.compiled.ClassFileStubBuilder
+import com.intellij.psi.{PsiFile, PsiManager, SingleRootFileViewProvider}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 
 /**
  * @author ilyas

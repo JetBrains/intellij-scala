@@ -4,12 +4,13 @@ package refactoring
 package util
 
 import com.intellij.openapi.application.ApplicationManager
-import lexer.{ScalaLexer, ScalaTokenTypes}
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import scala.reflect.NameTransformer
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+
+import scala.reflect.NameTransformer
 
 /**
  * User: Alexander Podkhalyuzin

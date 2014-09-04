@@ -4,13 +4,12 @@ package psi
 package stubs
 package elements
 
-import api.statements.{ScVariableDefinition, ScVariable, ScVariableDeclaration}
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io.StringRef
-import impl.ScVariableStubImpl
-import index.ScalaIndexKeys
-import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScVariableDeclaration, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScVariableStubImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 
 /**
  * User: Alexander Podkhalyuzin

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.psi.impl.expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.{PsiPolyVariantReference, ResolveResult, PsiElement}
+import com.intellij.psi.{PsiElement, PsiPolyVariantReference, ResolveResult}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 

@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
-import org.jetbrains.plugins.scala.annotator.AnnotatorTestBase
-
 
 class NeedsToBeAbstractBugsTest extends AnnotatorTestBase(NeedsToBeAbstract) {
   def testSCL2981() {

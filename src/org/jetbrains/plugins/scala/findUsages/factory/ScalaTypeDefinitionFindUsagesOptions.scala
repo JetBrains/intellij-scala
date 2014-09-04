@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala
 package findUsages.factory
 
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.actionSystem.DataContext
-import lang.psi.api.toplevel.typedef.ScTypeDefinition
-import com.intellij.find.findUsages.JavaFindUsagesOptions
 import java.util.LinkedHashSet
+
 import com.intellij.find.FindBundle
+import com.intellij.find.findUsages.JavaFindUsagesOptions
+import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
  * @author Alefas

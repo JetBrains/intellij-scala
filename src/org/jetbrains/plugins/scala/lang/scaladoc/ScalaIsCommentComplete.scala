@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.lang.scaladoc
 
-import org.jetbrains.plugins.scala.ScalaFileType
+import com.intellij.codeInsight.editorActions.{CommentCompleteHandler, JavaLikeQuoteHandler, QuoteHandler, TypedHandler}
+import com.intellij.lang.{CodeDocumentationAwareCommenter, Language, LanguageParserDefinitions}
 import com.intellij.lexer.Lexer
-import com.intellij.lang.{LanguageParserDefinitions, Language, CodeDocumentationAwareCommenter}
-import com.intellij.codeInsight.editorActions.{JavaLikeQuoteHandler, TypedHandler, QuoteHandler, CommentCompleteHandler}
-import com.intellij.psi.tree.IElementType
-import com.intellij.psi.{PsiErrorElement, PsiElement, PsiFile, PsiComment}
 import com.intellij.openapi.editor.Editor
+import com.intellij.psi.tree.IElementType
+import com.intellij.psi.{PsiComment, PsiElement, PsiErrorElement, PsiFile}
+import org.jetbrains.plugins.scala.ScalaFileType
 
 /**
   * @author Alexander Podkhalyuzin

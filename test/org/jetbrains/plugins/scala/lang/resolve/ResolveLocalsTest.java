@@ -3,10 +3,8 @@ package org.jetbrains.plugins.scala.lang.resolve;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
-import org.jetbrains.plugins.scala.util.TestUtils;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter;
 
 /**
  * @author ilyas

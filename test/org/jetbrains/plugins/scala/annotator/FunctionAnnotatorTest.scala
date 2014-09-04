@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import org.jetbrains.plugins.scala.base.SimpleTestCase
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
-import lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -394,18 +394,18 @@ class FunctionAnnotatorTest extends SimpleTestCase {
     val parse: ScalaFile = (Header + code).parse
 
     parse.depthFirst.filterByType(classOf[ScFunctionDefinition]).foreach {
-      annotator.annotateFunction(_, mock, true)
+      annotator.annotateFunction(_, mock, typeAware = true)
     }
 
     mock.annotations
   }
 
-  val TypeMismatch = containsPattern("Type mismatch")
-  val RedundantReturnData = containsPattern("Unit result type")
-  val NeedsResultType = containsPattern("has return statement")
-  val Recursive = containsPattern("Recursive method")
+  val TypeMismatch = ContainsPattern("Type mismatch")
+  val RedundantReturnData = ContainsPattern("Unit result type")
+  val NeedsResultType = ContainsPattern("has return statement")
+  val Recursive = ContainsPattern("Recursive method")
 
-  def containsPattern(fragment: String) = new {
+  case class ContainsPattern(fragment: String) {
     def unapply(s: String) = s.contains(fragment)
   }
 }

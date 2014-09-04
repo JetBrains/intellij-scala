@@ -1,20 +1,21 @@
 package org.jetbrains.plugins.scala.debugger.evaluation
 
-import com.intellij.openapi.fileTypes.LanguageFileType
-import com.intellij.debugger.engine.evaluation.{TextWithImports, CodeFragmentFactory}
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.ScalaFileType
-import com.intellij.psi._
-import com.intellij.debugger.engine.evaluation.expression.EvaluatorBuilder
-import com.intellij.debugger.ui.DebuggerExpressionComboBox
-import com.intellij.debugger.impl.DebuggerContextImpl
+import java.util.concurrent.atomic.AtomicReference
+
 import com.intellij.debugger.DebuggerManagerEx
-import com.intellij.util.concurrency.Semaphore
+import com.intellij.debugger.engine.evaluation.expression.EvaluatorBuilder
+import com.intellij.debugger.engine.evaluation.{CodeFragmentFactory, TextWithImports}
+import com.intellij.debugger.impl.DebuggerContextImpl
+import com.intellij.debugger.ui.DebuggerExpressionComboBox
+import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.project.Project
+import com.intellij.psi._
+import com.intellij.util.concurrency.Semaphore
+import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import java.util.concurrent.atomic.AtomicReference
-import org.jetbrains.annotations.Nullable
 
 /**
  * @author Alexander Podkhalyuzin

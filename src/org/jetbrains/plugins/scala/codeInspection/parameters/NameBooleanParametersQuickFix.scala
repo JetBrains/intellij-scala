@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package codeInspection.parameters
 
+import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor}
 import com.intellij.openapi.project.Project
-import com.intellij.codeInspection.{ProblemDescriptor, LocalQuickFix}
-import lang.psi.api.base.ScLiteral
-import lang.psi.api.expr.ScMethodCall
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.util.IntentionUtils
 
 /**

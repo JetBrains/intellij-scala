@@ -13,12 +13,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScC
  */
 class ScalaCaseClauseRemover extends ScalaUnwrapper {
 
-  override def isApplicableTo(e: PsiElement) = forCaseClause(e)(_ => true)(false)
+  override def isApplicableTo(e: PsiElement): Boolean = forCaseClause(e)(_ => true)(false)
 
-  override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext) =
-    forCaseClause(element)(context.delete(_))()
+  override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext): Unit =
+    forCaseClause(element)(context.delete(_)) {}
 
-  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]) =
+  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]): PsiElement =
     forCaseClause[PsiElement](e){ cl =>
       super.collectAffectedElements(cl, toExtract)
       cl
@@ -31,5 +31,5 @@ class ScalaCaseClauseRemover extends ScalaUnwrapper {
     }
   }
 
-  override def getDescription(e: PsiElement) = ScalaBundle.message("remove.case.clause")
+  override def getDescription(e: PsiElement): String = ScalaBundle.message("remove.case.clause")
 }

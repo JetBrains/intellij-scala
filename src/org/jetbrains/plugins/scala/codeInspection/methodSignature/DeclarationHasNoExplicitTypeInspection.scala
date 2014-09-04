@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala
 package codeInspection.methodSignature
 
 import com.intellij.codeInspection.ProblemsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
-import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.AddUnitTypeToDeclaration
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
+import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.AddUnitTypeToDeclaration
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
 
 /**
  * Nikolay.Tropin

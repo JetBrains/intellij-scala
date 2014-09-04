@@ -6,15 +6,14 @@ package search
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
+import com.intellij.psi.PsiMember
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.AnnotatedElementsSearch
-import com.intellij.psi.{PsiMember, PsiElement}
-import com.intellij.util.{QueryExecutor, Processor}
 import com.intellij.psi.stubs.StubIndex
-import stubs.index.ScAnnotatedMemberIndex
-import api.expr.{ScAnnotations, ScAnnotation}
-import stubs.util.ScalaStubsUtil
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
+import com.intellij.util.{Processor, QueryExecutor}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScAnnotations}
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScAnnotatedMemberIndex
 
 /**
  * User: Alexander Podkhalyuzin
@@ -33,7 +32,7 @@ class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedEl
 
     ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
       def compute: Boolean = {
-        val candidates: java.util.Collection[ScAnnotation] = StubIndex.getInstance.safeGet(ScAnnotatedMemberIndex.KEY,
+        val candidates: java.util.Collection[ScAnnotation] = StubIndex.getElements(ScAnnotatedMemberIndex.KEY,
           annClass.name, annClass.getProject, scope, classOf[ScAnnotation])
         val iter = candidates.iterator
         while (iter.hasNext) {

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.dataFlow
 
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
+
 import scala.collection.mutable
 
 /**

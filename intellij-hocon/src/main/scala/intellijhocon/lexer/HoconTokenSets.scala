@@ -2,12 +2,12 @@ package intellijhocon
 package lexer
 
 import com.intellij.psi.tree.TokenSet
-import intellijhocon.Util
+import scala.language.implicitConversions
 
 object HoconTokenSets {
 
-  import HoconTokenType._
-  import Util._
+  import intellijhocon.Util._
+  import intellijhocon.lexer.HoconTokenType._
 
   val Empty = TokenSet.EMPTY
   val Whitespace = InlineWhitespace | LineBreakingWhitespace

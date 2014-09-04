@@ -1,13 +1,13 @@
 package org.jetbrains.sbt
 package project
 
-import com.intellij.projectImport.ProjectOpenProcessorBase
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.ide.util.projectWizard.WizardContext
 import com.intellij.ide.util.newProjectWizard.AddModuleWizard
+import com.intellij.ide.util.projectWizard.WizardContext
+import com.intellij.ide.wizard.Step
 import com.intellij.openapi.externalSystem.service.project.wizard.SelectExternalProjectStep
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.ide.wizard.Step
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.projectImport.ProjectOpenProcessorBase
 
 /**
  * @author Pavel Fatin

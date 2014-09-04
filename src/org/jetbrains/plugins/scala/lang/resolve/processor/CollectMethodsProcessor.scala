@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.resolve.processor
 
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
-import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
 /**
  * @author Alexander Podkhalyuzin

@@ -4,23 +4,23 @@ package psi
 package impl
 package expr
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import lang.resolve.processor.MethodResolveProcessor
-import api.statements.ScFunction
-import util.PsiTreeUtil
-import types.Compatibility.Expression
-import lang.resolve.StdKinds
-import api.toplevel.typedef.{ScTemplateDefinition, ScClass}
-import api.toplevel.ScTypeParametersOwner
-import types.result.{Success, Failure, TypeResult}
-import types.nonvalue.{ScTypePolymorphicType, TypeParameter}
-import types.ScType
-import api.base.ScMethodLike
-import collection.Seq
-import api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScTypePolymorphicType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.resolve.StdKinds
+import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
+
+import scala.collection.Seq
 
 /**
 * @author Alexander Podkhalyuzin

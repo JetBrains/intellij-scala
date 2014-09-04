@@ -1,10 +1,12 @@
 package org.jetbrains.sbt
 package model
 
-import org.junit.{Test, Assert}
-import scala.xml.XML
-import org.jetbrains.sbt.project.structure._
 import java.io.File
+
+import org.jetbrains.sbt.project.structure._
+import org.junit.{Assert, Test}
+
+import scala.xml.XML
 
 /**
  * @author Pavel Fatin

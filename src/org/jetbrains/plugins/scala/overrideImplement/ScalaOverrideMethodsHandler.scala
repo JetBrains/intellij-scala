@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package overrideImplement
 
-import com.intellij.psi.PsiFile
+import com.intellij.lang.LanguageCodeInsightActionHandler
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.lang.LanguageCodeInsightActionHandler
+import com.intellij.psi.PsiFile
 
 /**
 * User: Alexander Podkhalyuzin

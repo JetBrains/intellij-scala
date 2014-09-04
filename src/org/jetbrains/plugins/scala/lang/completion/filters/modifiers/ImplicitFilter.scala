@@ -3,13 +3,12 @@ package lang
 package completion
 package filters.modifiers
 
-import org.jetbrains.annotations.NonNls
 import com.intellij.psi.filters.ElementFilter
 import com.intellij.psi.{PsiComment, PsiElement}
-import lexer.ScalaTokenTypes
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
-import psi.api.ScalaFile
-import psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 
 /**
  *  User: Alexander Podkhalyuzin

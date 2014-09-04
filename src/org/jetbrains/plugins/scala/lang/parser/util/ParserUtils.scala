@@ -3,15 +3,14 @@ package lang
 package parser
 package util
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.util.DebugPrint
-import com.intellij.psi.tree.IElementType
-import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.PsiBuilder
-import parsing.builder.ScalaPsiBuilder
 import com.intellij.lang.PsiBuilder.Marker
-import annotation.tailrec
+import com.intellij.psi.tree.{IElementType, TokenSet}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.util.DebugPrint
+
+import scala.annotation.tailrec
 
 
 object ParserUtils extends ParserUtilsBase {

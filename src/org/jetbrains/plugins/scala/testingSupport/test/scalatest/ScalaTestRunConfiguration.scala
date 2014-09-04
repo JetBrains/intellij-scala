@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test.scalatest
 
-import com.intellij.openapi.project.Project
 import com.intellij.execution.configurations._
-import java.lang.String
-import testingSupport.ScalaTestingConfiguration
-import testingSupport.test._
+import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
+import org.jetbrains.plugins.scala.testingSupport.test._
 
 /**
  * @author Ksenia.Sautina

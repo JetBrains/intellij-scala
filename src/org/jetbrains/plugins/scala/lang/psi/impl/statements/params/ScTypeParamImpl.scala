@@ -5,24 +5,22 @@ package impl
 package statements
 package params
 
-import api.base.types.ScTypeElement
-import api.toplevel.ScTypeParametersOwner
-import com.intellij.psi.search.LocalSearchScope
-import java.lang.String
-import lexer.ScalaTokenTypes
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-
-import psi.stubs.ScTypeParamStub
-import toplevel.PsiClassFake
-import api.statements.params._
-import base.ScTypeBoundsOwnerImpl
-import toplevel.synthetic.JavaIdentifier
-import icons.Icons
+import com.intellij.psi.search.LocalSearchScope
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScTypeBoundsOwnerImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeParamStub
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
-import types.result.{Failure, Success}
-import extensions.toPsiNamedElementExt
-import api.toplevel.typedef.ScTemplateDefinition
 
 /**
 * @author Alexander Podkhalyuzin

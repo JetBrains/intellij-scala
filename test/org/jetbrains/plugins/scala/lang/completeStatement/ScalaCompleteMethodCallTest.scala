@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.completeStatement
 
-import codeInsight.ScalaCodeInsightTestBase
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
 
 /**
  * @author Ksenia.Sautina

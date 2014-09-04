@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala
 package codeInspection.unusedInspections
 
+import java.util
+
 import com.intellij.codeHighlighting.TextEditorHighlightingPass
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, UpdateHighlightersUtil}
 import com.intellij.codeInsight.intention.IntentionAction
@@ -9,7 +11,6 @@ import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.openapi.editor.Document
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
-import java.util
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelector, ScImportStmt}

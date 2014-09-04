@@ -13,7 +13,7 @@ import com.intellij.psi.javadoc.{PsiDocComment, PsiDocTag}
 import com.intellij.psi.search.searches.SuperMethodsSearch
 import com.intellij.psi.util.{MethodSignatureBackedByPsiMethod, PsiTreeUtil}
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
-import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiMemberExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern

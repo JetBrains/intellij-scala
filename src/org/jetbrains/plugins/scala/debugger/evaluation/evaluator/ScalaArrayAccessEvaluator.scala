@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
 import com.intellij.debugger.DebuggerBundle
-import com.intellij.debugger.impl.DebuggerUtilsEx
-import com.intellij.debugger.engine.evaluation.expression.{Modifier, Evaluator}
-import com.sun.jdi._
-import com.intellij.debugger.ui.impl.watch.{ArrayElementDescriptorImpl, NodeDescriptorImpl}
-import com.intellij.debugger.engine.evaluation.{EvaluationContextImpl, EvaluateExceptionUtil}
 import com.intellij.debugger.engine.DebuggerUtils
+import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
+import com.intellij.debugger.engine.evaluation.{EvaluateExceptionUtil, EvaluationContextImpl}
+import com.intellij.debugger.ui.impl.watch.{ArrayElementDescriptorImpl, NodeDescriptorImpl}
 import com.intellij.openapi.project.Project
+import com.sun.jdi._
 
 /**
  * User: Alexander Podkhalyuzin

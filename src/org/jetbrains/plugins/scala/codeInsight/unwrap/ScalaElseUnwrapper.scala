@@ -5,9 +5,7 @@ import java.util
 
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScIfStmt, ScExpression}
-
-import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIfStmt}
 
 /**
  * Nikolay.Tropin

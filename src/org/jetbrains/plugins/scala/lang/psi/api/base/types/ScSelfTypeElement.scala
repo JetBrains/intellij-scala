@@ -5,13 +5,7 @@ package api
 package base
 package types
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import toplevel.{ScTypedDefinition, ScNamedElement}
-import com.intellij.psi.util.PsiTreeUtil
-import toplevel.typedef.ScTypeDefinition
-import psi.types.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.Any
-import psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 
 /**
 * @author ilyas, Alexander Podkhalyuzin

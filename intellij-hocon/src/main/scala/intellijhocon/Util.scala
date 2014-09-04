@@ -1,9 +1,10 @@
 package intellijhocon
 
-import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.{IElementType, TokenSet}
 import java.{lang => jl, util => ju}
+
+import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.tree.{IElementType, TokenSet}
 
 object Util {
 

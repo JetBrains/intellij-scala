@@ -3,13 +3,12 @@ package codeInspection
 package fileNameInspection
 
 
-import com.intellij.codeInspection.{ProblemDescriptor, LocalQuickFix}
+import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
-import java.lang.String
-import lang.psi.api.ScalaFile
 import com.intellij.refactoring.rename.RenameProcessor
-import com.intellij.openapi.application.{ApplicationManager, Application}
-import extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
  * User: Alexander Podkhalyuzin

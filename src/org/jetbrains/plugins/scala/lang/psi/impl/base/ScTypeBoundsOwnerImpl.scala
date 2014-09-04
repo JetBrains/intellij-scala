@@ -4,13 +4,12 @@ package psi
 package impl
 package base
 
-import api.toplevel.ScTypeBoundsOwner
-import lexer.ScalaTokenTypes
-import api.base.types.ScTypeElement
-import psi.types.{ScType, Nothing, Any}
-import psi.types.result.{TypingContext, Success, TypeResult}
-import com.intellij.psi.util.{PsiUtil, PsiTreeUtil}
 import com.intellij.psi.PsiWhiteSpace
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Any, Nothing, ScType}
 
 trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
   //todo[CYCLIC]

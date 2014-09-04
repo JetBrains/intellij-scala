@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala
 package worksheet.server
 
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.containers.ConcurrentWeakHashMap
 import org.jetbrains.plugins.scala.components.WorksheetProcess
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.vfs.VirtualFile
 
 /**
  * User: Dmitry Naydanov

@@ -2,17 +2,16 @@ package org.jetbrains.plugins.scala
 package annotator
 package quickfix
 
-import lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import com.intellij.codeInsight.FileModificationService
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.Editor
-import com.intellij.psi.PsiFile
-import lang.psi.api.base.types.ScTypeElement
-import lang.psi.types.ScType
-import lang.psi.impl.ScalaPsiElementFactory
-import lang.psi.ScalaPsiUtil
-import com.intellij.codeInsight.{FileModificationService, CodeInsightUtilBase}
 import com.intellij.openapi.command.undo.UndoUtil
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 class ChangeTypeFix(typeElement: ScTypeElement, newType: ScType) extends IntentionAction {
   val getText: String = "Change type '%s' to '%s'".format(typeElement.getText, newType.presentableText)

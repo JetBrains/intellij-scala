@@ -4,8 +4,8 @@ package psi
 package stubs
 
 
-import com.intellij.psi.stubs.{NamedStub, StubElement}
-import api.base.types.{ScTypeElement, ScSelfTypeElement}
+import com.intellij.psi.stubs.NamedStub
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 
 /**
  * User: Alexander Podkhalyuzin

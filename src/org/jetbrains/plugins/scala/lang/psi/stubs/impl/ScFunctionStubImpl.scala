@@ -4,14 +4,14 @@ package psi
 package stubs
 package impl
 
-import api.base.types.ScTypeElement
-import api.expr.ScExpression
-import api.statements.ScFunction
-import com.intellij.psi.stubs.{StubElement, IStubElementType}
 import com.intellij.psi.PsiElement
-import com.intellij.util.io.StringRef
-import psi.impl.ScalaPsiElementFactory
+import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.reference.SoftReference
+import com.intellij.util.io.StringRef
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  *  User: Alexander Podkhalyuzin

@@ -1,7 +1,7 @@
 package org.jetbrains.sbt
 package codeInspection
 
-import com.intellij.codeInspection.{ProblemDescriptor, LocalQuickFix, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.AbstractInspection

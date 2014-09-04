@@ -2,14 +2,14 @@ package org.jetbrains.plugins.scala
 package codeInspection.forwardReferenceInspection
 
 import com.intellij.codeInspection.ProblemsHolder
-import codeInspection.AbstractInspection
-import lang.psi.api.expr.ScReferenceExpression
 import com.intellij.psi.util.PsiTreeUtil
-import lang.psi.api.toplevel.typedef.ScMember
-import lang.psi.api.toplevel.templates.ScTemplateBody
-import lang.psi.api.statements.{ScVariable, ScValue}
-import lang.resolve.ScalaResolveResult
-import lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * Alefas

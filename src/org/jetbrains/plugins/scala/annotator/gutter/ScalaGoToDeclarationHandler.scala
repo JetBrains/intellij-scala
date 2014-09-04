@@ -2,18 +2,18 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
-import lang.lexer.ScalaTokenTypes
-import lang.psi.api.statements.ScFunction
-import lang.psi.ScalaPsiUtil
-import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject, ScClass}
-import lang.psi.api.statements.params.ScParameter
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
-import lang.resolve.ResolvableReferenceElement
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.actionSystem.DataContext
-import lang.psi.api.expr.{ScAssignStmt, ScMethodCall, ScSelfInvocation}
-import extensions.toPsiMemberExt
-import com.intellij.psi.{PsiFile, PsiMethod, PsiNamedElement, PsiElement}
+import com.intellij.openapi.editor.Editor
+import com.intellij.psi.{PsiElement, PsiFile, PsiMethod}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScSelfInvocation}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
 
 /**
  * User: Alexander Podkhalyuzin

@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package codeInspection.arraySize
 
-import lang.psi.impl.ScalaPsiElementFactory
-import lang.psi.types.{ScDesignatorType, ScParameterizedType}
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemDescriptor, ProblemsHolder}
+import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import codeInspection.{AbstractFix, AbstractInspection}
-import extensions._
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScParameterizedType}
 
 /**
  * Pavel Fatin

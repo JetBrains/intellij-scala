@@ -1,25 +1,26 @@
 package org.jetbrains.plugins.scala
 package findUsages.factory
 
-import com.intellij.find.findUsages.{AbstractFindUsagesDialog, FindUsagesOptions, FindUsagesHandler}
-import com.intellij.psi.{PsiClass, PsiNamedElement, PsiElement}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScClass, ScTrait, ScObject}
-import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScFunction, ScVariable, ScValue}
-import org.jetbrains.plugins.scala.lang.psi.light._
-import com.intellij.openapi.actionSystem.DataContext
 import java.util
-import com.intellij.util.Processor
-import com.intellij.usageView.UsageInfo
+
+import com.intellij.find.findUsages.{AbstractFindUsagesDialog, FindUsagesHandler, FindUsagesOptions}
+import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.search.searches.ClassInheritorsSearch
-import collection.mutable
-import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
+import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
+import com.intellij.usageView.UsageInfo
+import com.intellij.util.Processor
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import extensions.inReadAction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
+import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
+import org.jetbrains.plugins.scala.lang.psi.light._
+
+import _root_.scala.collection.mutable
 
 /**
  * User: Alexander Podkhalyuzin

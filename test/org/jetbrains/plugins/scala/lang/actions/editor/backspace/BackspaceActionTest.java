@@ -1,23 +1,21 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.backspace;
 
-import com.intellij.testFramework.LightPlatformTestCase;
-import org.jetbrains.plugins.scala.Console;
-import org.jetbrains.plugins.scala.lang.actions.ActionTestBase;
-import org.jetbrains.plugins.scala.util.TestUtils;
-import org.jetbrains.annotations.NonNls;
+import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.editor.actionSystem.EditorActionManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
-import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.psi.PsiFile;
+import com.intellij.testFramework.LightPlatformTestCase;
 import com.intellij.util.IncorrectOperationException;
+import junit.framework.Test;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.plugins.scala.lang.actions.ActionTestBase;
+import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.IOException;
-
-import junit.framework.Test;
 
 /**
  * User: Alexander Podkhalyuzin

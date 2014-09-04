@@ -1,19 +1,20 @@
 package org.jetbrains.plugins.scala
 package codeInspection.collections
 
-import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, AbstractInspection}
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import OperationOnCollectionInspectionBase._
-import javax.swing._
-import com.intellij.ui.components.JBList
-import com.intellij.ui.{ListScrollingUtil, AnActionButtonRunnable, AnActionButton, ToolbarDecorator}
-import com.intellij.openapi.ui.{Messages, InputValidator}
+import java.awt.{Component, GridLayout}
 import java.util
-import com.intellij.openapi.wm.IdeFocusManager
-import java.awt.{GridLayout, Component}
+import javax.swing._
 import javax.swing.event.{ChangeEvent, ChangeListener}
+
+import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
+import com.intellij.openapi.ui.{InputValidator, Messages}
+import com.intellij.openapi.wm.IdeFocusManager
+import com.intellij.psi.PsiElement
+import com.intellij.ui.components.JBList
+import com.intellij.ui.{AnActionButton, AnActionButtonRunnable, ListScrollingUtil, ToolbarDecorator}
+import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspectionBase._
+import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettingsUtil
 
 /**

@@ -5,15 +5,14 @@ package impl
 package statements
 package params
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.lang.ASTNode
-import stubs.elements.wrappers.DummyASTNode
-import stubs.ScParameterStub
-
+import com.intellij.psi.{PsiClass, PsiElement, PsiElementVisitor}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import api.toplevel.typedef.ScClass
-import api.ScalaElementVisitor
-import com.intellij.psi.{PsiElementVisitor, PsiClass, PsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScParameterStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.wrappers.DummyASTNode
 
 /**
 * @author Alexander Podkhalyuzin

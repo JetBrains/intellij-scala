@@ -2,8 +2,6 @@ package org.jetbrains.sbt
 package project.module
 
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.util.Key
-import org.jetbrains.sbt.project.structure.Resolver
 import org.jetbrains.sbt.resolvers.SbtResolver
 
 /**

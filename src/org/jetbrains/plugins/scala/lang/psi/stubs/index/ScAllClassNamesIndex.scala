@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.index
 
-import com.intellij.psi.stubs.StringStubIndexExtension
 import com.intellij.psi.PsiClass
+import com.intellij.psi.stubs.StringStubIndexExtension
 
 /**
  * User: Alefas

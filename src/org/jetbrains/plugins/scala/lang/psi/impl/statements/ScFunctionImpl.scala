@@ -4,16 +4,16 @@ package psi
 package impl
 package statements
 
-import api.toplevel.ScTypeParametersOwner
-import parser.ScalaElementTypes
-import stubs.ScFunctionStub
-import com.intellij.psi._
-import lexer._
-import scope.PsiScopeProcessor
-import api.statements._
-import api.statements.params._
-import api.toplevel.typedef.ScMember
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.psi._
+import com.intellij.psi.scope.PsiScopeProcessor
+import org.jetbrains.plugins.scala.lang.lexer._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 
 /**
  * @author ilyas

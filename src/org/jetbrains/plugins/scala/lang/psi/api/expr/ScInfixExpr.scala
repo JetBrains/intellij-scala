@@ -4,9 +4,9 @@ package psi
 package api
 package expr
 
-import types.ScType
-import parser.util.ParserUtils
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
 * @author Alexander Podkhalyuzin
