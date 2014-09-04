@@ -17,8 +17,6 @@ class ScFileStubImpl(file: ScalaFile) extends PsiFileStubWrapperImpl[ScalaFile](
 
   override def getType = ScalaElementTypes.FILE.asInstanceOf[IStubFileElementType[Nothing]]
 
-  implicit def refToStr(ref: StringRef) = StringRef.toString(ref)
-
   var packName: StringRef = _
   var sourceFileName: StringRef = _
   var compiled: Boolean = false
@@ -37,9 +35,9 @@ class ScFileStubImpl(file: ScalaFile) extends PsiFileStubWrapperImpl[ScalaFile](
     getChildrenByType(TokenSet.create(CLASS_DEF, OBJECT_DEF, TRAIT_DEF), PsiClass.ARRAY_FACTORY)
   }
 
-  def getFileName = sourceFileName
+  def getFileName = StringRef.toString(sourceFileName)
 
-  def packageName = packName
+  def packageName = StringRef.toString(packName)
 
   def isCompiled: Boolean = compiled
 

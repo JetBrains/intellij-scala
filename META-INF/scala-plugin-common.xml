@@ -116,7 +116,6 @@
         <usageTypeProvider implementation="org.jetbrains.plugins.scala.lang.findUsages.ScalaUsageTypeProvider"/>
         <importFilteringRule implementation="org.jetbrains.plugins.scala.lang.findUsages.ScalaImportFilteringRule"/>
         <codeStyleSettingsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettingsProvider"/>
-        <compilerSettingsFactory implementation="org.jetbrains.plugins.scala.compiler.ScalaCompilerSettingsFactory"/>
         <internalFileTemplate name="Scala Class"/>
         <internalFileTemplate name="Scala Trait"/>
         <internalFileTemplate name="Scala Object"/>
@@ -932,10 +931,6 @@
 
 
     <application-components>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.error.ErrorReportConfigurable</implementation-class>
-            <interface-class>org.jetbrains.plugins.scala.error.ErrorReportConfigurable</interface-class>
-        </component>
         <component>
             <interface-class>org.jetbrains.plugins.scala.util.ScalaToolsFactory</interface-class>
             <implementation-class>org.jetbrains.plugins.scala.util.ScalaToolsFactoryImpl</implementation-class>

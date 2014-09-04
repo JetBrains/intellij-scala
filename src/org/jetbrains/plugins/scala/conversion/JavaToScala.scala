@@ -5,6 +5,7 @@ package conversion
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.codeInsight.editorActions.ReferenceData
 import com.intellij.lang.StdLanguages
+import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -32,7 +33,7 @@ object JavaToScala {
                       (implicit associations: ListBuffer[Association] = new ListBuffer(),
                        refs: Seq[ReferenceData] = Seq.empty, offset: Offset = new Offset(0)): String = {
     if (element == null) return ""
-    if (element.getLanguage != StdLanguages.JAVA) return ""
+    if (element.getLanguage != JavaLanguage.INSTANCE) return ""
 
     val res = new StringBuilder("")
 

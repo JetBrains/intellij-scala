@@ -15,7 +15,12 @@ class ScalaDefaultTemplatePropertiesProvider extends TemplatePackagePropertyProv
   override def fillProperties(directory: PsiDirectory, props: Properties) {
     super.fillProperties(directory, props)
 
-    val (packageQualifier, packageSimpleName) = props.get(FileTemplate.ATTRIBUTE_PACKAGE_NAME) match {
+    val attributePackageName = props.get(FileTemplate.ATTRIBUTE_PACKAGE_NAME) match {
+      case name: String => name
+      case _ => return
+    }
+
+    val (packageQualifier, packageSimpleName) = attributePackageName match {
       case QualifiedPackagePattern(prefix, suffix) => (prefix, suffix)
       case name =>("", name)
     }

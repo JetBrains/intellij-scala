@@ -9,7 +9,6 @@ import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
 import com.intellij.openapi.components._
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util._
 import com.intellij.openapi.wm.StatusBarWidget.PlatformType
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
 import com.intellij.util.{Consumer, FileContentUtil}
@@ -150,9 +149,9 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
 
   private def reparseActiveFile() {
     val context = DataManager.getInstance.getDataContextFromFocus
-    context.doWhenDone(new AsyncResult.Handler[DataContext]() {
-      def run(v: DataContext) {
-        CommonDataKeys.EDITOR_EVEN_IF_INACTIVE.getData(v) match {
+    context.doWhenDone(new Consumer[DataContext] {
+      override def consume(dataContext: DataContext): Unit = {
+        CommonDataKeys.EDITOR_EVEN_IF_INACTIVE.getData(dataContext) match {
           case editor: EditorEx =>
             FileContentUtil.reparseFiles(project, Seq(editor.getVirtualFile), true)
           case _ => // do nothing

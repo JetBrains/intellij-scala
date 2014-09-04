@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 class PatternDefinitionAnnotatorTest extends SimpleTestCase {
   final val Header = "class A; class B; object A extends A; object B extends B\n"
 
-  def testFine {
+  def testFine() {
     assertMatches(messages("val v = A")) {
       case Nil =>
     }
@@ -28,19 +28,19 @@ class PatternDefinitionAnnotatorTest extends SimpleTestCase {
     }
   }
 
-  def testTypeMismatch {
+  def testTypeMismatch() {
     assertMatches(messages("val v: A = B")) {
       case Error("B", TypeMismatch()) :: Nil =>
     }
   }
 
-  def testTypeMismatchMessage {
+  def testTypeMismatchMessage() {
     assertMatches(messages("val v: A = B")) {
       case Error(_, "Type mismatch, found: B.type, required: A") :: Nil =>
     }
   }
 
-  def testTypeMismatchWithMultiplePatterns {
+  def testTypeMismatchWithMultiplePatterns() {
     assertMatches(messages("val foo, bar: A = B")) {
       case Error("B", TypeMismatch()) :: Nil =>
     }
@@ -53,7 +53,7 @@ class PatternDefinitionAnnotatorTest extends SimpleTestCase {
     }
   }*/
 
-  def testWildchar {
+  def testWildchar() {
     assertMatches(messages("val v: A = _")) {
       case Nil =>
     }
@@ -65,13 +65,13 @@ class PatternDefinitionAnnotatorTest extends SimpleTestCase {
     val annotator = new PatternDefinitionAnnotator() {}
     val mock = new AnnotatorHolderMock
     
-    annotator.annotatePatternDefinition(definition, mock, true)
+    annotator.annotatePatternDefinition(definition, mock, highlightErrors = true)
     mock.annotations
   }
   
-  val TypeMismatch = containsPattern("Type mismatch")
+  val TypeMismatch = ContainsPattern("Type mismatch")
 
-  def containsPattern(fragment: String) = new {
+  case class ContainsPattern(fragment: String) {
     def unapply(s: String) = s.contains(fragment)
   }
 }

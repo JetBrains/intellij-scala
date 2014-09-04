@@ -45,7 +45,7 @@ class RunConsoleAction extends AnAction {
     val file = CommonDataKeys.PSI_FILE.getData(dataContext)
     val project = CommonDataKeys.PROJECT.getData(dataContext)
     file match {
-      case file: ScalaFile => {
+      case file: ScalaFile =>
         val runManagerEx = RunManagerEx.getInstanceEx(file.getProject)
         val configurationType = ConfigurationTypeUtil.findConfigurationType(classOf[ScalaConsoleConfigurationType])
         val settings = runManagerEx.getConfigurationSettings(configurationType)
@@ -85,7 +85,6 @@ class RunConsoleAction extends AnAction {
             execute(setting)
           }
         })
-      }
       case _ =>
     }
   }
