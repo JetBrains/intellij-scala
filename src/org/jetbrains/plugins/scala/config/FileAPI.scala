@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.config
 
-import java.io.{File, StringBufferInputStream}
+import java.io.{File, StringReader}
 import java.util.Properties
 import java.util.jar.JarFile
 
@@ -16,7 +16,7 @@ import scala.io.Source
 object FileAPI {
   def readProperty(archive: File, bundle: String, property: String) = {
     readEntry(archive, bundle).flatMap { content =>
-      val stream = new StringBufferInputStream(content)
+      val stream = new StringReader(content)
       try {
         val properties = new Properties()
         properties.load(stream)

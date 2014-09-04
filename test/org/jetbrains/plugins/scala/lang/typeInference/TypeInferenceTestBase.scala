@@ -61,31 +61,27 @@ abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCa
           case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
             val resText = text.substring(2, text.length - 2).trim
             if (resText.startsWith(fewVariantsMarker)) {
-              resText.substring(fewVariantsMarker.length).trim.split('\n')
+              val results = resText.substring(fewVariantsMarker.length).trim.split('\n')
+              if (!results.contains(res)) assertEquals(results(0), res)
+              return
             } else resText
-          case _ => assertTrue("Test result must be in last comment statement.", false)
+          case _ =>
+            throw new AssertionError("Test result must be in last comment statement.")
         }
         val Pattern = """expected: (.*)""".r
         output match {
-          case outputs: Array[String] =>
-            for (output <- outputs) {
-              if (output == res) {
-                return
-              }
-            }
-            assertEquals(outputs(0), res)
           case "expected: <none>" =>
             expr.expectedType() match {
               case Some(et) => fail("found unexpected expected type: %s".format(ScType.presentableText(et)))
               case None => // all good
             }
           case Pattern(expectedExpectedTypeText) =>
-            val actualExpectedType = expr.expectedType().getOrElse(Predef.error("no expected type"))
+            val actualExpectedType = expr.expectedType().getOrElse(sys.error("no expected type"))
             val actualExpectedTypeText = ScType.presentableText(actualExpectedType)
             assertEquals(expectedExpectedTypeText, actualExpectedTypeText)
           case _ => assertEquals(output, res)
         }
-      case Failure(msg, elem) => assert(false, msg + " :: " + (elem match {case Some(x) => x.getText case None => "empty element"}))
+      case Failure(msg, elem) => assert(assertion = false, msg + " :: " + (elem match {case Some(x) => x.getText case None => "empty element"}))
     }
   }
 }

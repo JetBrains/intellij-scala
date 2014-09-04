@@ -4,7 +4,7 @@ package template
 package macros
 
 import com.intellij.codeInsight.CodeInsightBundle
-import com.intellij.codeInsight.lookup.{LookupElement, LookupItem}
+import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.codeInsight.template._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiDocumentManager}
@@ -31,7 +31,7 @@ class ScalaVariableOfTypeMacro extends Macro {
   def getPresentableName: String = "Scala variable of type macro"
 
   override def calculateLookupItems(exprs: Array[Expression], context: ExpressionContext): Array[LookupElement] = {
-    calculateLookupItems(exprs.map(_.calculateResult(context).toString()), context, false)
+    calculateLookupItems(exprs.map(_.calculateResult(context).toString), context, showOne = false)
   }
   def calculateLookupItems(exprs: Array[String], context: ExpressionContext, showOne: Boolean): Array[LookupElement] = {
     if (exprs.length == 0) return null
@@ -41,7 +41,7 @@ class ScalaVariableOfTypeMacro extends Macro {
     val file = PsiDocumentManager.getInstance(editor.getProject).getPsiFile(editor.getDocument)
     PsiDocumentManager.getInstance(editor.getProject).commitDocument(editor.getDocument)
     file match {
-      case file: ScalaFile => {
+      case file: ScalaFile =>
         val element = file.findElementAt(offset)
         val variants = MacroUtil.getVariablesForScope(element).filter(r => {
           val clazz = PsiTreeUtil.getParentOfType(r.element, classOf[PsiClass])
@@ -56,36 +56,32 @@ class ScalaVariableOfTypeMacro extends Macro {
         })
         for (variant <- variants) {
           variant.getElement match {
-            case typed: ScTypedDefinition => {
+            case typed: ScTypedDefinition =>
               for (t <- typed.getType(TypingContext.empty))
               exprs.apply(0) match {
-                case "" => {
-                  val item = new LookupItem(variant.getElement, variant.getElement.name)
+                case "" =>
+                  val item = LookupElementBuilder.create(variant.getElement, variant.getElement.name)
                   item.setTypeText(ScType.presentableText(t))
                   array += item
-                }
-                case "foreach" => {
+                case "foreach" =>
                   ScType.extractClass(t) match {
-                    case Some(x: ScTypeDefinition) => {
-                      if (!x.functionsByName("foreach").isEmpty) array += new LookupItem(variant.getElement, variant.getElement.name)
-                    }
+                    case Some(x: ScTypeDefinition) =>
+                      if (x.functionsByName("foreach").nonEmpty) {
+                        array += LookupElementBuilder.create(variant.getElement, variant.getElement.name)
+                      }
                     case _ =>
                   }
-                }
-                case  _ => {
+                case  _ =>
                   for (expr <- exprs) {
                     if ((ScType.extractClass(t) match {
                       case Some(x) => x.qualifiedName
                       case None => ""
-                    }) == expr) array += new LookupItem(variant.getElement, variant.getElement.name)
+                    }) == expr) array += LookupElementBuilder.create(variant.getElement, variant.getElement.name)
                   }
-                }
               }
-            }
             case _ =>
           }
         }
-      }
       case _ =>
     }
     if (array.length < 2 && !showOne) return null
@@ -99,7 +95,7 @@ class ScalaVariableOfTypeMacro extends Macro {
     val file = PsiDocumentManager.getInstance(editor.getProject).getPsiFile(editor.getDocument)
     PsiDocumentManager.getInstance(editor.getProject).commitDocument(editor.getDocument)
     file match {
-      case file: ScalaFile => {
+      case file: ScalaFile =>
         val element = file.findElementAt(offset)
         val variants = MacroUtil.getVariablesForScope(element).filter(r => {
           val clazz = PsiTreeUtil.getParentOfType(r.element, classOf[PsiClass])
@@ -114,35 +110,29 @@ class ScalaVariableOfTypeMacro extends Macro {
         })
         for (variant <- variants) {
           variant.getElement match {
-            case typed: ScTypedDefinition => {
+            case typed: ScTypedDefinition =>
               for (t <- typed.getType(TypingContext.empty))
               exprs.apply(0).calculateResult(context).toString match {
-                case "" => {
+                case "" =>
                   return new TextResult(variant.getElement.name)
-                }
-                case "foreach" => {
+                case "foreach" =>
                   ScType.extractClassType(t, Some(file.getProject)) match {
-                    case Some((x: ScTypeDefinition, _)) => {
-                      if (!x.functionsByName("foreach").isEmpty) return new TextResult(variant.getElement.name)
-                    }
+                    case Some((x: ScTypeDefinition, _)) =>
+                      if (x.functionsByName("foreach").nonEmpty) return new TextResult(variant.getElement.name)
                     case _ =>
                   }
-                }
-                case _ => {
+                case _ =>
                   for (expr <- exprs) {
                     if ((ScType.extractClassType(t, Some(file.getProject)) match {
                       case Some((x, _)) => x.qualifiedName
                       case None => ""
                     }) == expr.calculateResult(context).toString) return new TextResult(variant.getElement.name)
                   }
-                }
               }
-            }
             case _ =>
           }
         }
-        return null
-      }
+        null
       case _ => null
     }
   }

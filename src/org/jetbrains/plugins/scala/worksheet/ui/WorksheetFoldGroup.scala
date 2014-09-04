@@ -24,9 +24,9 @@ class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalE
   private val unfolded = new util.TreeMap[Int, Int]()
 
   def left2rightOffset(left: Int) = {
-    val key = unfolded floorKey left
+    val key: Int = unfolded floorKey left
 
-    if (key == 0 || key == null) left else { //false compiler warning about comparison
+    if (key == 0) left else {
       unfolded.get(key) + left
     }
   }
@@ -36,15 +36,15 @@ class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalE
   }
 
   def removeRegion(region: WorksheetFoldRegionDelegate) {
-    regions -= FoldRegionInfo(region, true, 0, 0, 0)
+    regions -= FoldRegionInfo(region, expanded = true, 0, 0, 0)
   }
 
   def onExpand(expandedRegion: WorksheetFoldRegionDelegate): Boolean = {
-    traverseAndChange(expandedRegion, true)
+    traverseAndChange(expandedRegion, expand = true)
   }
 
   def onCollapse(collapsedRegion: WorksheetFoldRegionDelegate): Boolean = {
-    traverseAndChange(collapsedRegion, false)
+    traverseAndChange(collapsedRegion, expand = false)
   }
 
   private def traverseAndChange(target: WorksheetFoldRegionDelegate, expand: Boolean): Boolean = {
@@ -72,8 +72,6 @@ class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalE
   protected def deserialize(elem: String) {
     val folding = viewerEditor.getFoldingModel.asInstanceOf[FoldingModelImpl]
 
-    implicit def parseNumber(from: String) = Integer parseInt from
-
     folding runBatchFoldingOperation new Runnable {
       override def run() {
         elem split '|' foreach {
@@ -83,12 +81,12 @@ class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalE
                 try {
                   val region = new WorksheetFoldRegionDelegate (
                     viewerEditor,
-                    start,
-                    end,
-                    trueStart,
-                    spaces,
+                    start.toInt,
+                    end.toInt,
+                    trueStart.toInt,
+                    spaces.toInt,
                     WorksheetFoldGroup.this,
-                    lsLength
+                    lsLength.toInt
                   )
 
                   region.setExpanded(expanded.length == 4)
@@ -130,7 +128,7 @@ class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalE
     val key = unfolded floorKey line
 
     val spaces = target.spaces
-    if (key == null || unfolded.get(key) == 0 || unfolded.get(key) == null) { //false compiler warnings about comparison
+    if (unfolded.get(key) == 0) {
       if (expand) unfolded.put(line, spaces) else unfolded remove line
       return
     }
