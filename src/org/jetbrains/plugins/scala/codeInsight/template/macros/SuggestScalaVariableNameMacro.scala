@@ -28,7 +28,7 @@ class SuggestScalaVariableNameMacro extends Macro {
   def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {
     val a = SuggestNamesUtil.getNames(params, context)
     if (a.length == 0) return null
-    return new TextResult(a(0))
+    new TextResult(a(0))
   }
 
   def getDescription: String = "Macro for suggesting name"
@@ -52,12 +52,12 @@ object SuggestNamesUtil {
     val element = file.findElementAt(offset)
     val typez: ScType = p match {
       case x if x.length == 0 => return Array[String]("x") //todo:
-      case x if x(0) == "option" || x(0) == "foreach" => {
+      case x if x(0) == "option" || x(0) == "foreach" =>
         try {
           val items = (new ScalaVariableOfTypeMacro).calculateLookupItems(Array[String](x(0) match {
             case "option" => "scala.Option"
             case "foreach" => "foreach"
-          }), context, true).
+          }), context, showOne = true).
                   map(_.asInstanceOf[LookupItem[_]].getObject.asInstanceOf[PsiNamedElement]).
                   filter(_.name == x(1))
           if (items.length == 0) return Array[String]("x")
@@ -71,12 +71,10 @@ object SuggestNamesUtil {
           }
         }
         catch {
-          case e: Exception => {
-            e.printStackTrace
+          case e: Exception =>
+            e.printStackTrace()
             return Array[String]("x")
-          }
         }
-      }
       case _ => return Array[String]("x")
     }
     NameSuggester.suggestNamesByType(typez)
