@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatter.tests
 
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
-import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 
 /**
@@ -22,7 +21,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
    */
   def testInfixExpressionWrapAsNeeded() {
     getCommonSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
-    getSettings.setRightMargin(ScalaFileType.SCALA_LANGUAGE, 20)
+    getSettings.setRightMargin(null, 20)
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
     val before =
 """
@@ -48,7 +47,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
 
   def testInfixPatternWrapAsNeeded() {
     getCommonSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
-    getSettings.setRightMargin(ScalaFileType.SCALA_LANGUAGE, 20)
+    getSettings.setRightMargin(null, 20)
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
     val before =
 """
@@ -68,7 +67,7 @@ List(1, 2) match {
 
   def testInfixTypeWrapAsNeeded() {
     getCommonSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
-    getSettings.setRightMargin(ScalaFileType.SCALA_LANGUAGE, 20)
+    getSettings.setRightMargin(null, 20)
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
     val before =
 """
@@ -84,7 +83,7 @@ val x: T + T + T +
 
   def testInfixExprWrapAlways() {
     getCommonSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
-    getSettings.setRightMargin(ScalaFileType.SCALA_LANGUAGE, 20)
+    getSettings.setRightMargin(null, 20)
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
     val before =
 """
@@ -107,7 +106,7 @@ val x: T + T + T +
 
   def testInfixExprWrapAllIfLong() {
     getCommonSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_ON_EVERY_ITEM
-    getSettings.setRightMargin(ScalaFileType.SCALA_LANGUAGE, 20)
+    getSettings.setRightMargin(null, 20)
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
     val before =
 """
@@ -129,7 +128,7 @@ val x: T + T + T +
 
   def testInfixExprDoNotWrap() {
     getCommonSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
-    getSettings.setRightMargin(ScalaFileType.SCALA_LANGUAGE, 20)
+    getSettings.setRightMargin(null, 20)
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
     val before =
 """
@@ -167,7 +166,7 @@ val i = 2 + 2 +
     getCommonSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
     getCommonSettings.PARENTHESES_EXPRESSION_LPAREN_WRAP = true
     getCommonSettings.PARENTHESES_EXPRESSION_RPAREN_WRAP = true
-    getSettings.setRightMargin(ScalaFileType.SCALA_LANGUAGE, 20)
+    getSettings.setRightMargin(null, 20)
     val before =
 """
 (2333333333333333 + 2)
