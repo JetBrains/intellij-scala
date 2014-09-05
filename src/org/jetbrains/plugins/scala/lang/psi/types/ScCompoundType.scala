@@ -59,12 +59,13 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
             () => tp.upperType().removeAbstracts, tp.ptp)
         }
 
-        val pTypes: List[Stream[ScType]] = s.substitutedTypes.map(_.map(_.removeAbstracts))
+        val pTypes: List[Seq[() => ScType]] = s.substitutedTypes.map(_.map(f => () => f().removeAbstracts))
         val tParams: Array[TypeParameter] = s.typeParams.map(updateTypeParam)
         val rt: ScType = tp.removeAbstracts
         (new Signature(s.name, pTypes, s.paramLength, tParams,
           ScSubstitutor.empty, s.namedElement match {
-            case fun: ScFunction => ScFunction.getCompoundCopy(pTypes.map(_.toList), tParams.toList, rt, fun)
+            case fun: ScFunction =>
+              ScFunction.getCompoundCopy(pTypes.map(_.map(_()).toList), tParams.toList, rt, fun)
             case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
             case f: ScFieldId => ScFieldId.getCompoundCopy(rt, f)
             case named => named
@@ -97,12 +98,14 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
         new ScCompoundType(components.map(_.recursiveUpdate(update, visited + this)), signatureMap.map {
           case (s: Signature, tp) =>
 
-            val pTypes: List[Stream[ScType]] = s.substitutedTypes.map(_.map(_.recursiveUpdate(update, visited + this)))
+            val pTypes: List[Seq[() => ScType]] =
+              s.substitutedTypes.map(_.map(f => () => f().recursiveUpdate(update, visited + this)))
             val tParams: Array[TypeParameter] = s.typeParams.map(updateTypeParam)
             val rt: ScType = tp.recursiveUpdate(update, visited + this)
             (new Signature(
               s.name, pTypes, s.paramLength, tParams, ScSubstitutor.empty, s.namedElement match {
-                case fun: ScFunction => ScFunction.getCompoundCopy(pTypes.map(_.toList), tParams.toList, rt, fun)
+                case fun: ScFunction =>
+                  ScFunction.getCompoundCopy(pTypes.map(_.map(_()).toList), tParams.toList, rt, fun)
                 case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
                 case f: ScFieldId => ScFieldId.getCompoundCopy(rt, f)
                 case named => named
@@ -130,8 +133,8 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
         }
         new ScCompoundType(components.map(_.recursiveVarianceUpdateModifiable(newData, update, variance)), signatureMap.map {
           case (s: Signature, tp) => (new Signature(
-            s.name, s.substitutedTypes.map(_.map(_.recursiveVarianceUpdateModifiable(newData, update, 1))), s.paramLength,
-            s.typeParams.map(updateTypeParam), ScSubstitutor.empty, s.namedElement, s.hasRepeatedParam
+            s.name, s.substitutedTypes.map(_.map(f => () => f().recursiveVarianceUpdateModifiable(newData, update, 1))),
+            s.paramLength, s.typeParams.map(updateTypeParam), ScSubstitutor.empty, s.namedElement, s.hasRepeatedParam
           ), tp.recursiveVarianceUpdateModifiable(newData, update, 1))
         }, typesMap.map {
           case (s, sign) => (s, sign.updateTypes(_.recursiveVarianceUpdateModifiable(newData, update, 1)))
@@ -234,13 +237,13 @@ object ScCompoundType {
         case varDecl: ScVariable =>
           for (e <- varDecl.declaredElements) {
             val varType = e.getType(TypingContext.empty)
-            signatureMapVal += ((new Signature(e.name, Stream.empty, 0, subst, e), varType.getOrAny))
-            signatureMapVal += ((new Signature(e.name + "_=", Stream(varType.getOrAny), 1, subst, e), psi.types.Unit)) //setter
+            signatureMapVal += ((new Signature(e.name, Seq.empty, 0, subst, e), varType.getOrAny))
+            signatureMapVal += ((new Signature(e.name + "_=", Seq(() => varType.getOrAny), 1, subst, e), psi.types.Unit)) //setter
           }
         case valDecl: ScValue =>
           for (e <- valDecl.declaredElements) {
             val valType = e.getType(TypingContext.empty)
-            signatureMapVal += ((new Signature(e.name, Stream.empty, 0, subst, e), valType.getOrAny))
+            signatureMapVal += ((new Signature(e.name, Seq.empty, 0, subst, e), valType.getOrAny))
           }
       }
     }

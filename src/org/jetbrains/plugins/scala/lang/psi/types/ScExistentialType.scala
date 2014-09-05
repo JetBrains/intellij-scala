@@ -200,7 +200,7 @@ case class ScExistentialType(quantified : ScType,
           comps.foreach(checkRecursive(_, newSet))
           signatureMap.foreach {
             case (s, rt) =>
-              s.substitutedTypes.foreach(_.foreach(checkRecursive(_, newSet)))
+              s.substitutedTypes.foreach(_.foreach(f => checkRecursive(f(), newSet)))
               s.typeParams.foreach {
                 case tParam: TypeParameter => 
                   tParam.update {
@@ -288,12 +288,14 @@ case class ScExistentialType(quantified : ScType,
 
         new ScCompoundType(components, signatureMap.map {
           case (s, sctype) =>
-            val pTypes: List[Stream[ScType]] = s.substitutedTypes.map(_.map(updateRecursive(_, newSet, variance)))
+            val pTypes: List[Seq[() => ScType]] =
+              s.substitutedTypes.map(_.map(f => () => updateRecursive(f(), newSet, variance)))
             val tParams: Array[TypeParameter] = s.typeParams.map(updateTypeParam)
             val rt: ScType = updateRecursive(sctype, newSet, -variance)
             (new Signature(s.name, pTypes, s.paramLength, tParams,
               ScSubstitutor.empty, s.namedElement match {
-                case fun: ScFunction => ScFunction.getCompoundCopy(pTypes.map(_.toList), tParams.toList, rt, fun)
+                case fun: ScFunction =>
+                  ScFunction.getCompoundCopy(pTypes.map(_.map(_()).toList), tParams.toList, rt, fun)
                 case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
                 case f: ScFieldId => ScFieldId.getCompoundCopy(rt, f)
                 case named => named

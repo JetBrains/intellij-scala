@@ -259,10 +259,10 @@ trait ApplicationAnnotator {
     paramClauses.clauses.map(clause => formatParams(clause.parameters, clause.paramTypes)).mkString
   }
 
-  private def formatJavaParams(parameters: Seq[PsiParameter]) = {
-    val types = ScalaPsiUtil.getTypesStream(parameters)
+  private def formatJavaParams(parameters: Seq[PsiParameter]): String = {
+    val types = ScalaPsiUtil.mapToLazyTypesSeq(parameters)
     val parts = parameters.zip(types).map {
-      case (p, t) => t.presentableText + (if(p.isVarArgs) "*" else "")
+      case (p, t) => t().presentableText + (if(p.isVarArgs) "*" else "")
     }
     parenthesise(parts)
   }
