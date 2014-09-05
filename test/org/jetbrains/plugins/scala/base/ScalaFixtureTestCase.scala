@@ -16,7 +16,7 @@ abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase {
 
   var libLoader: ScalaLibraryLoader = null
 
-  override protected def setUp {
+  override protected def setUp(): Unit = {
     super.setUp()
 
     libLoader = ScalaLibraryLoader.withMockJdk(myFixture.getProject, myFixture.getModule, rootPath)
