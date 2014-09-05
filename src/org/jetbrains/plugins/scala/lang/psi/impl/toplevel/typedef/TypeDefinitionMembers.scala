@@ -110,7 +110,7 @@ object TypeDefinitionMembers {
       }
 
       for (field <- clazz.getFields if nonBridge(place, field) && !field.hasModifierProperty("static")) {
-        val sig = new Signature(field.getName, Stream.empty, 0, subst, field)
+        val sig = new Signature(field.getName, Seq.empty, 0, subst, field)
         map addToMap (sig, new Node(sig, subst))
       }
     }
@@ -125,30 +125,30 @@ object TypeDefinitionMembers {
         member match {
           case _var: ScVariable if nonBridge(place, _var) =>
             for (dcl <- _var.declaredElements) {
-              addSignature(new Signature(dcl.name, Stream.empty, 0, subst, dcl))
+              addSignature(new Signature(dcl.name, Seq.empty, 0, subst, dcl))
               dcl.nameContext match {
                 case s: ScAnnotationsHolder =>
                   val beanProperty = ScalaPsiUtil.isBeanProperty(s, noResolve = true)
                   val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s, noResolve = true)
                   if (beanProperty) {
-                    addSignature(new Signature("get" + dcl.name.capitalize, Stream.empty, 0, subst, dcl))
+                    addSignature(new Signature("get" + dcl.name.capitalize, Seq.empty, 0, subst, dcl))
                   } else if (booleanBeanProperty) {
-                    addSignature(new Signature("is" + dcl.name.capitalize, Stream.empty, 0, subst, dcl))
+                    addSignature(new Signature("is" + dcl.name.capitalize, Seq.empty, 0, subst, dcl))
                   }
                 case _ =>
               }
             }
           case _val: ScValue if nonBridge(place, _val) =>
             for (dcl <- _val.declaredElements) {
-              addSignature(new Signature(dcl.name, Stream.empty, 0, subst, dcl))
+              addSignature(new Signature(dcl.name, Seq.empty, 0, subst, dcl))
               dcl.nameContext match {
                 case s: ScAnnotationsHolder =>
                   val beanProperty = ScalaPsiUtil.isBeanProperty(s, noResolve = true)
                   val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s, noResolve = true)
                   if (beanProperty) {
-                    addSignature(new Signature("get" + dcl.name.capitalize, Stream.empty, 0, subst, dcl))
+                    addSignature(new Signature("get" + dcl.name.capitalize, Seq.empty, 0, subst, dcl))
                   } else if (booleanBeanProperty) {
-                    addSignature(new Signature("is" + dcl.name.capitalize, Stream.empty, 0, subst, dcl))
+                    addSignature(new Signature("is" + dcl.name.capitalize, Seq.empty, 0, subst, dcl))
                   }
                 case _ =>
               }
@@ -156,22 +156,22 @@ object TypeDefinitionMembers {
           case constr: ScPrimaryConstructor =>
             val parameters = constr.parameters
             for (param <- parameters if nonBridge(place, param)) {
-               addSignature(new Signature(param.name, Stream.empty, 0, subst, param))
+               addSignature(new Signature(param.name, Seq.empty, 0, subst, param))
               val beanProperty = ScalaPsiUtil.isBeanProperty(param, noResolve = true)
               val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(param, noResolve = true)
               if (beanProperty) {
-                addSignature(new Signature("get" + param.name.capitalize, Stream.empty, 0, subst, param))
+                addSignature(new Signature("get" + param.name.capitalize, Seq.empty, 0, subst, param))
               } else if (booleanBeanProperty) {
-                addSignature(new Signature("is" + param.name.capitalize, Stream.empty, 0, subst, param))
+                addSignature(new Signature("is" + param.name.capitalize, Seq.empty, 0, subst, param))
               }
             }
           case f: ScFunction if nonBridge(place, f) && !f.isConstructor && f.parameters.length == 0 =>
             addSignature(new PhysicalSignature(f, subst))
           case c: ScClass if c.isCase && c.fakeCompanionModule != None && nonBridge(place, c) =>
             val o = c.fakeCompanionModule.get
-            addSignature(new Signature(o.name, Stream.empty, 0, subst, o))
+            addSignature(new Signature(o.name, Seq.empty, 0, subst, o))
           case o: ScObject if nonBridge(place, o) =>
-            addSignature(new Signature(o.name, Stream.empty, 0, subst, o))
+            addSignature(new Signature(o.name, Seq.empty, 0, subst, o))
           case _ =>
         }
       }
@@ -325,7 +325,7 @@ object TypeDefinitionMembers {
       }
 
       for (field <- clazz.getFields if nonBridge(place, field) && !field.hasModifierProperty("static")) {
-        val sig = new Signature(field.getName, Stream.empty, 0, subst, field)
+        val sig = new Signature(field.getName, Seq.empty, 0, subst, field)
         map addToMap (sig, new Node(sig, subst))
       }
     }
@@ -341,19 +341,19 @@ object TypeDefinitionMembers {
           case _var: ScVariable if nonBridge(place, _var) =>
             for (dcl <- _var.declaredElements) {
               lazy val t = dcl.getType(TypingContext.empty).getOrAny
-              addSignature(new Signature(dcl.name, Stream.empty, 0, subst, dcl))
-              addSignature(new Signature(dcl.name + "_=", ScalaPsiUtil.getSingletonStream(t), 1, subst, dcl))
+              addSignature(new Signature(dcl.name, Seq.empty, 0, subst, dcl))
+              addSignature(new Signature(dcl.name + "_=", Seq(() => t), 1, subst, dcl))
               dcl.nameContext match {
                 case s: ScAnnotationsHolder =>
                   val beanProperty = ScalaPsiUtil.isBeanProperty(s, noResolve = true)
                   val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s, noResolve = true)
                   if (beanProperty) {
-                    addSignature(new Signature("get" + dcl.name.capitalize, Stream.empty, 0, subst, dcl))
+                    addSignature(new Signature("get" + dcl.name.capitalize, Seq.empty, 0, subst, dcl))
                   } else if (booleanBeanProperty) {
-                    addSignature(new Signature("is" + dcl.name.capitalize, Stream.empty, 0, subst, dcl))
+                    addSignature(new Signature("is" + dcl.name.capitalize, Seq.empty, 0, subst, dcl))
                   }
                   if (beanProperty || booleanBeanProperty) {
-                    addSignature(new Signature("set" + dcl.name.capitalize, ScalaPsiUtil.getSingletonStream(t), 1,
+                    addSignature(new Signature("set" + dcl.name.capitalize, Seq(() => t), 1,
                       subst, dcl))
                   }
                 case _ =>
@@ -361,15 +361,15 @@ object TypeDefinitionMembers {
             }
           case _val: ScValue if nonBridge(place, _val) =>
             for (dcl <- _val.declaredElements) {
-              addSignature(new Signature(dcl.name, Stream.empty, 0, subst, dcl))
+              addSignature(new Signature(dcl.name, Seq.empty, 0, subst, dcl))
               dcl.nameContext match {
                 case s: ScAnnotationsHolder =>
                   val beanProperty = ScalaPsiUtil.isBeanProperty(s, noResolve = true)
                   val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s, noResolve = true)
                   if (beanProperty) {
-                    addSignature(new Signature("get" + dcl.name.capitalize, Stream.empty, 0, subst, dcl))
+                    addSignature(new Signature("get" + dcl.name.capitalize, Seq.empty, 0, subst, dcl))
                   } else if (booleanBeanProperty) {
-                    addSignature(new Signature("is" + dcl.name.capitalize, Stream.empty, 0, subst, dcl))
+                    addSignature(new Signature("is" + dcl.name.capitalize, Seq.empty, 0, subst, dcl))
                   }
                 case _ =>
               }
@@ -378,21 +378,21 @@ object TypeDefinitionMembers {
             val parameters = constr.parameters
             for (param <- parameters if nonBridge(place, param)) {
               lazy val t = param.getType(TypingContext.empty).getOrAny
-              addSignature(new Signature(param.name, Stream.empty, 0, subst, param))
-              if (!param.isStable) addSignature(new Signature(param.name + "_=", ScalaPsiUtil.getSingletonStream(t), 1, subst,
+              addSignature(new Signature(param.name, Seq.empty, 0, subst, param))
+              if (!param.isStable) addSignature(new Signature(param.name + "_=", Seq(() => t), 1, subst,
                 param))
               val beanProperty = ScalaPsiUtil.isBeanProperty(param, noResolve = true)
               val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(param, noResolve = true)
               if (beanProperty) {
-                addSignature(new Signature("get" + param.name.capitalize, Stream.empty, 0, subst, param))
+                addSignature(new Signature("get" + param.name.capitalize, Seq.empty, 0, subst, param))
                 if (!param.isStable) {
-                  addSignature(new Signature("set" + param.name.capitalize, ScalaPsiUtil.getSingletonStream(t), 1,
+                  addSignature(new Signature("set" + param.name.capitalize, Seq(() => t), 1,
                     subst, param))
                 }
               } else if (booleanBeanProperty) {
-                addSignature(new Signature("is" + param.name.capitalize, Stream.empty, 0, subst, param))
+                addSignature(new Signature("is" + param.name.capitalize, Seq.empty, 0, subst, param))
                 if (!param.isStable) {
-                  addSignature(new Signature("set" + param.name.capitalize, ScalaPsiUtil.getSingletonStream(t), 1,
+                  addSignature(new Signature("set" + param.name.capitalize, Seq(() => t), 1,
                     subst, param))
                 }
               }
@@ -402,7 +402,7 @@ object TypeDefinitionMembers {
           case c: ScClass =>
             if (c.isCase && c.fakeCompanionModule != None && nonBridge(place, c)) {
               val o = c.fakeCompanionModule.get
-              addSignature(new Signature(o.name, Stream.empty, 0, subst, o))
+              addSignature(new Signature(o.name, Seq.empty, 0, subst, o))
             }
             if (c.hasModifierProperty("implicit")) {
               c.getSyntheticImplicitMethod match {
@@ -412,7 +412,7 @@ object TypeDefinitionMembers {
               }
             }
           case o: ScObject if nonBridge(place, o) =>
-            addSignature(new Signature(o.name, Stream.empty, 0, subst, o))
+            addSignature(new Signature(o.name, Seq.empty, 0, subst, o))
           case _ =>
         }
       }

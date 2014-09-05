@@ -67,17 +67,17 @@ case class TypeAliasSignature(name: String, typeParams: List[TypeParameter], low
   }
 }
 
-class Signature(val name: String, private val typesEval: List[Stream[ScType]], val paramLength: List[Int],
+class Signature(val name: String, private val typesEval: List[Seq[() => ScType]], val paramLength: List[Int],
                 private val tParams: Array[TypeParameter], val substitutor: ScSubstitutor,
                 val namedElement: PsiNamedElement, val hasRepeatedParam: Seq[Int] = Seq.empty) {
 
-  def this(name: String, stream: Stream[ScType], paramLength: Int, substitutor: ScSubstitutor,
+  def this(name: String, stream: Seq[() => ScType], paramLength: Int, substitutor: ScSubstitutor,
            namedElement: PsiNamedElement) =
     this(name, List(stream), List(paramLength), Array.empty, substitutor, namedElement)
 
-  private def types: List[Stream[ScType]] = typesEval
+  private def types: List[Seq[() => ScType]] = typesEval
 
-  def substitutedTypes: List[Stream[ScType]] = types.map(ScalaPsiUtil.getTypesStream(_, substitutor.subst))
+  def substitutedTypes: List[Seq[() => ScType]] = types.map(_.map(f => () => substitutor.subst(f())))
 
   def typeParams: Array[TypeParameter] = tParams.map(_.update(substitutor.subst))
 
@@ -129,8 +129,8 @@ class Signature(val name: String, private val typesEval: List[Stream[ScType]], v
       while (typesIterator.hasNext && otherTypesIterator.hasNext) {
         val t1 = typesIterator.next()
         val t2 = otherTypesIterator.next()
-        val tp2 = unified2.subst(t2)
-        val tp1 = unified1.subst(t1)
+        val tp2 = unified2.subst(t2())
+        val tp1 = unified1.subst(t1())
         var t = Equivalence.equivInner(tp2, tp1, undefSubst, falseUndef)
         if (!t._1 && tp1.equiv(AnyRef) && this.isJava) {
           t = Equivalence.equivInner(tp2, Any, undefSubst, falseUndef)
@@ -212,10 +212,10 @@ object Signature {
 
 import com.intellij.psi.PsiMethod
 object PhysicalSignature {
-  def typesEval(method: PsiMethod): List[Stream[ScType]] = method match {
+  def typesEval(method: PsiMethod): List[Seq[() => ScType]] = method match {
     case fun: ScFunction =>
-      fun.effectiveParameterClauses.map(clause => ScalaPsiUtil.getTypesStream(clause.parameters)).toList
-    case _ => List(ScalaPsiUtil.getTypesStream(method.getParameterList match {
+      fun.effectiveParameterClauses.map(clause => ScalaPsiUtil.mapToLazyTypesSeq(clause.parameters)).toList
+    case _ => List(ScalaPsiUtil.mapToLazyTypesSeq(method.getParameterList match {
       case p: ScParameters => p.params
       case p => p.getParameters.toSeq
     }))

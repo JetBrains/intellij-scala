@@ -700,19 +700,8 @@ object ScalaPsiUtil {
     res.values.flatten.toSeq
   }
 
-  def getSingletonStream[A](elem: => A): Stream[A] = {
-    new Stream[A] {
-      override def head: A = elem
-
-      override def tail: Stream[A] = Stream.empty
-
-      protected def tailDefined: Boolean = false
-
-      override def isEmpty: Boolean = false
-    }
-  }
-  def getTypesStream(elems: Seq[PsiParameter]): Stream[ScType] = {
-    getTypesStream(elems, (param: PsiParameter) => {
+  def mapToLazyTypesSeq(elems: Seq[PsiParameter]): Seq[() => ScType] = {
+    elems.map(param => () =>
       param match {
         case scp: ScParameter => scp.getType(TypingContext.empty).getOrNothing
         case p: PsiParameter =>
@@ -722,32 +711,7 @@ object ScalaPsiUtil {
           }
           p.exactParamType(treatJavaObjectAsAny)
       }
-    })
-  }
-
-  def getTypesStream[T](elems: Seq[T], fun: T => ScType): Stream[ScType] = {
-    // Do not consider elems.toStream.map { case x: ScType => ...; case y => }
-    // Reason is performance: first element will not be lazy in any case.
-    if (elems.isEmpty) return Stream.empty
-    new Stream[ScType] {
-      private var h: ScType = null
-
-      override def head: ScType = {
-        if (h == null)
-          h = fun(elems.head)
-        h
-      }
-
-      override def isEmpty: Boolean = false
-
-      private[this] var tlVal: Stream[ScType] = null
-      def tailDefined = tlVal ne null
-
-      override def tail: Stream[ScType] = {
-        if (!tailDefined) tlVal = getTypesStream(elems.tail, fun)
-        tlVal
-      }
-    }
+    )
   }
 
   /**
@@ -1169,7 +1133,7 @@ object ScalaPsiUtil {
   }
 
   def namedElementSig(x: PsiNamedElement): Signature =
-    new Signature(x.name, Stream.empty, 0, ScSubstitutor.empty, x)
+    new Signature(x.name, Seq.empty, 0, ScSubstitutor.empty, x)
 
   def superValsSignatures(x: PsiNamedElement, withSelfType: Boolean = false): Seq[Signature] = {
     val empty = Seq.empty 

@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.resolve.processor
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
@@ -135,8 +134,8 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
         })
         val dcl: ScTypedDefinition = element.asInstanceOf[ScTypedDefinition]
         val isVar = dcl.isVar
-        if (!checkSignature(new Signature(dcl.name, Stream.empty, 0, subst, dcl), Array.empty, rt)) return false
-        if (isVar && !checkSignature(new Signature(dcl.name + "_=", ScalaPsiUtil.getSingletonStream(rt), 1, subst, dcl),
+        if (!checkSignature(new Signature(dcl.name, Seq.empty, 0, subst, dcl), Array.empty, rt)) return false
+        if (isVar && !checkSignature(new Signature(dcl.name + "_=", Seq(() => rt), 1, subst, dcl),
           Array.empty, Unit)) return false
       case method: PsiMethod =>
         val sign1 = new PhysicalSignature(method, subst)

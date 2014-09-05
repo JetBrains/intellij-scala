@@ -105,12 +105,14 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
                       () => existize(tp.upperType(), visitedWithT), tp.ptp)
                   }
 
-                  val pTypes: List[Stream[ScType]] = s.substitutedTypes.map(_.map(existize(_, visitedWithT)))
+                  val pTypes: List[Seq[() => ScType]] =
+                    s.substitutedTypes.map(_.map(f => () => existize(f(), visitedWithT)))
                   val tParams: Array[TypeParameter] = s.typeParams.map(updateTypeParam)
                   val rt: ScType = existize(tp, visitedWithT)
                   (new Signature(s.name, pTypes, s.paramLength, tParams,
                     ScSubstitutor.empty, s.namedElement match {
-                      case fun: ScFunction => ScFunction.getCompoundCopy(pTypes.map(_.toList), tParams.toList, rt, fun)
+                      case fun: ScFunction =>
+                        ScFunction.getCompoundCopy(pTypes.map(_.map(_()).toList), tParams.toList, rt, fun)
                       case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
                       case f: ScFieldId => ScFieldId.getCompoundCopy(rt, f)
                       case named => named
