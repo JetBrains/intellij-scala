@@ -95,11 +95,11 @@ class OverridingAnnotatorTest extends SimpleTestCase {
         super.visitFunction(fun)
       }
 
-      override def visitTypeDefintion(typedef: ScTypeDefinition) {
+      override def visitTypeDefinition(typedef: ScTypeDefinition) {
         if (typedef.getParent.isInstanceOf[ScTemplateBody]) {
           annotator.checkOverrideTypes(typedef, mock)
         }
-        super.visitTypeDefintion(typedef)
+        super.visitTypeDefinition(typedef)
       }
 
       override def visitTypeAlias(alias: ScTypeAlias) {

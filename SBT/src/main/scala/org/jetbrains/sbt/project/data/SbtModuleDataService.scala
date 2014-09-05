@@ -24,7 +24,7 @@ class SbtModuleDataService(platformFacade: PlatformFacade, helper: ProjectStruct
 
       val module = {
         val moduleData: ModuleData = moduleNode.getData(ProjectKeys.MODULE)
-        helper.findIdeModule(moduleData.getName, project)
+        helper.findIdeModule(moduleData.getExternalName, project)
       }
 
       SbtModule.setImportsTo(module, moduleData.imports)

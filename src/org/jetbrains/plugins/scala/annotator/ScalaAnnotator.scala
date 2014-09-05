@@ -318,8 +318,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         super.visitParameters(parameters)
       }
 
-      override def visitTypeDefintion(typedef: ScTypeDefinition) {
-        super.visitTypeDefintion(typedef)
+      override def visitTypeDefinition(typedef: ScTypeDefinition) {
+        super.visitTypeDefinition(typedef)
       }
 
       override def visitExistentialTypeElement(exist: ScExistentialTypeElement): Unit = {

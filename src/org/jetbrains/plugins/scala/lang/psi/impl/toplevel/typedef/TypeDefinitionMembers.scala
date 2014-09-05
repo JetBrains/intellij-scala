@@ -801,9 +801,9 @@ object TypeDefinitionMembers {
           true
         }
 
-
-
         def addSignature(sig: T#T, n: T#Node): Boolean = {
+          import scala.language.existentials
+
           ProgressManager.checkCanceled()
           def addMethod(method: PsiNamedElement): Boolean = {
             if (checkName(method.name)) {

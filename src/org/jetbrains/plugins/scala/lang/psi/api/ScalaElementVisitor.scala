@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.lang.psi.api
+package org.jetbrains.plugins.scala
+package lang.psi.api
 
 import com.intellij.psi.{PsiElementVisitor, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -13,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
 
-import scala.collection.mutable.Stack
+import scala.collection.mutable
 
 /**
  * @author ilyas
@@ -21,10 +22,10 @@ import scala.collection.mutable.Stack
  */
 
 class ScalaRecursiveElementVisitor extends ScalaElementVisitor {
-  private val referencesStack = new Stack[ScReferenceElement]()
+  private val referencesStack = new mutable.Stack[ScReferenceElement]()
   
   override def visitElement(element: ScalaPsiElement) {
-    if (!referencesStack.isEmpty && referencesStack.top == element) {
+    if (referencesStack.nonEmpty && referencesStack.top == element) {
       referencesStack.pop()
       referencesStack.push(null)
     } else {
@@ -99,7 +100,7 @@ class ScalaElementVisitor extends PsiElementVisitor {
   def visitGenerator(gen: ScGenerator) { visitElement(gen) }
   def visitGuard(guard: ScGuard) { visitElement(guard) }
   def visitFunction(fun: ScFunction) { visitElement(fun) }
-  def visitTypeDefintion(typedef: ScTypeDefinition) { visitElement(typedef) }
+  def visitTypeDefinition(typedef: ScTypeDefinition) { visitElement(typedef) }
   def visitImportExpr(expr: ScImportExpr) {visitElement(expr)}
   def visitSelfInvocation(self: ScSelfInvocation) {visitElement(self)}
   def visitAnnotation(annotation: ScAnnotation) {visitElement(annotation)}

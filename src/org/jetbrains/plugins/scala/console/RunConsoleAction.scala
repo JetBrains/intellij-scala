@@ -48,7 +48,7 @@ class RunConsoleAction extends AnAction {
       case file: ScalaFile =>
         val runManagerEx = RunManagerEx.getInstanceEx(file.getProject)
         val configurationType = ConfigurationTypeUtil.findConfigurationType(classOf[ScalaConsoleConfigurationType])
-        val settings = runManagerEx.getConfigurationSettings(configurationType)
+        val settings = runManagerEx.getConfigurationSettingsList(configurationType)
 
         def execute(setting: RunnerAndConfigurationSettings) {
           val configuration = setting.getConfiguration.asInstanceOf[ScalaConsoleRunConfiguration]
@@ -58,7 +58,7 @@ class RunConsoleAction extends AnAction {
           if (runner != null) {
             try {
               val builder: ExecutionEnvironmentBuilder = new ExecutionEnvironmentBuilder(project, runExecutor)
-              builder.setRunnerAndSettings(runner, setting)
+              builder.runnerAndSettings(runner, setting)
               runner.execute(builder.build())
             }
             catch {
@@ -67,6 +67,8 @@ class RunConsoleAction extends AnAction {
             }
           }
         }
+
+        import scala.collection.JavaConversions._
         for (setting <- settings) {
           ActionRunner.runInsideReadAction(new ActionRunner.InterruptibleRunnable {
             def run() {
@@ -79,7 +81,7 @@ class RunConsoleAction extends AnAction {
           def run() {
             val factory: ScalaConsoleRunConfigurationFactory =
               configurationType.getConfigurationFactories.apply(0).asInstanceOf[ScalaConsoleRunConfigurationFactory]
-            val setting = RunManagerEx.getInstanceEx(file.getProject).createConfiguration("Scala Console", factory)
+            val setting = RunManager.getInstance(project).createRunConfiguration("Scala Console", factory)
 
             runManagerEx.setTemporaryConfiguration(setting)
             execute(setting)

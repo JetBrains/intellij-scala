@@ -7,7 +7,6 @@ import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.util.ui.EmptyIcon
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 
 /**
  * @author Alefas
@@ -43,7 +42,7 @@ class ScalaKeywordLookupItem(val keyword: String, position: PsiElement) extends 
     val offset = context.getStartOffset + keyword.length
     keyword match {
       case THIS | FALSE | TRUE | NULL | SUPER => // do nothing
-      case _ => {
+      case _ =>
         def addSpace(addCompletionChar: Boolean = false) {
           context.setAddCompletionChar(addCompletionChar)
           if (document.getTextLength <= offset || document.getText.charAt(offset) != ' ')
@@ -88,7 +87,6 @@ class ScalaKeywordLookupItem(val keyword: String, position: PsiElement) extends 
           CodeStyleManager.getInstance(context.getProject).
             adjustLineIndent(file, new TextRange(context.getStartOffset, offset))
         }
-      }
     }
   }
 }

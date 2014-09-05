@@ -1537,7 +1537,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       throw EvaluateExceptionUtil.createEvaluateException("Evaluation of values is not supported")
     }
 
-    override def visitTypeDefintion(typedef: ScTypeDefinition) {
+    override def visitTypeDefinition(typedef: ScTypeDefinition) {
       throw EvaluateExceptionUtil.createEvaluateException("Evaluation of local classes is not supported")
     }
 

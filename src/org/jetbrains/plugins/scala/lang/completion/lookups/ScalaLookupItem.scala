@@ -77,25 +77,22 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
 
   override def renderElement(presentation: LookupElementPresentation) {
     val tailText: String = element match {
-      case t: ScFun => {
+      case t: ScFun =>
         if (t.typeParameters.length > 0) t.typeParameters.map(param => presentationString(param, substitutor)).
           mkString("[", ", ", "]")
         else ""
-      }
-      case t: ScTypeParametersOwner => {
+      case t: ScTypeParametersOwner =>
         t.typeParametersClause match {
           case Some(tp) => presentationString(tp, substitutor)
           case None => ""
         }
-      }
-      case p: PsiTypeParameterListOwner if p.getTypeParameters.length > 0 => {
+      case p: PsiTypeParameterListOwner if p.getTypeParameters.length > 0 =>
         p.getTypeParameters.map(ptp => presentationString(ptp)).mkString("[", ", ", "]")
-      }
       case _ => ""
     }
     element match {
       //scala
-      case fun: ScFunction => {
+      case fun: ScFunction =>
         val scType = if (!etaExpanded) fun.returnType.getOrAny else fun.getType(TypingContext.empty).getOrAny
         presentation.setTypeText(presentationString(scType, substitutor))
         val tailText1 = if (isAssignment) {
@@ -115,20 +112,16 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
         if (!etaExpanded)
           presentation.setTailText(tailText1)
         else presentation.setTailText(" _")
-      }
-      case fun: ScFun => {
+      case fun: ScFun =>
         presentation.setTypeText(presentationString(fun.retType, substitutor))
         val paramClausesText = fun.paramClauses.map(_.map(presentationString(_, substitutor)).
           mkString("(", ", ", ")")).mkString
         presentation.setTailText(tailText + paramClausesText)
-      }
-      case bind: ScBindingPattern => {
+      case bind: ScBindingPattern =>
         presentation.setTypeText(presentationString(bind.getType(TypingContext.empty).getOrAny, substitutor))
-      }
-      case f: ScFieldId => {
+      case f: ScFieldId =>
         presentation.setTypeText(presentationString(f.getType(TypingContext.empty).getOrAny, substitutor))
-      }
-      case param: ScParameter => {
+      case param: ScParameter =>
         val str: String =
           presentationString(param.getRealParameterType(TypingContext.empty).getOrAny, substitutor)
         if (isNamedParameter) {
@@ -136,8 +129,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
         } else {
           presentation.setTypeText(str)
         }
-      }
-      case clazz: PsiClass => {
+      case clazz: PsiClass =>
         val location: String = clazz.getPresentation.getLocationString
         presentation.setTailText(tailText + " " + location, true)
         if (name == "this" || name.endsWith(".this")) {
@@ -151,11 +143,9 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
             case _ =>
           }
         }
-      }
-      case alias: ScTypeAliasDefinition => {
+      case alias: ScTypeAliasDefinition =>
         presentation.setTypeText(presentationString(alias.aliasedType.getOrAny, substitutor))
-      }
-      case method: PsiMethod => {
+      case method: PsiMethod =>
         val str: String = presentationString(method.getReturnType, substitutor)
         if (isNamedParameter) {
           presentation.setTailText(" = " + str)
@@ -173,10 +163,8 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
             )
           presentation.setTailText(tailText1)
         }
-      }
-      case f: PsiField => {
+      case f: PsiField =>
         presentation.setTypeText(presentationString(f.getType, substitutor))
-      }
       case _ =>
     }
     if (presentation.isReal)

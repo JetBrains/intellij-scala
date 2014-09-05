@@ -28,7 +28,7 @@ class SbtAndroidFacetDataService(platformFacade: PlatformFacade, helper: Project
     toImport.asScala.foreach { facetNode =>
       val module = {
         val moduleData: ModuleData = facetNode.getData(ProjectKeys.MODULE)
-        helper.findIdeModule(moduleData.getName, project)
+        helper.findIdeModule(moduleData.getExternalName, project)
       }
 
       val facet = Option(FacetManager.getInstance(module)).flatMap { manager =>

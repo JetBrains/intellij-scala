@@ -3,7 +3,6 @@ package lang
 package findUsages
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.usages.impl.rules.{UsageType, UsageTypeProviderEx}
 import com.intellij.usages.{PsiElementUsageTarget, UsageTarget}
 import org.jetbrains.plugins.scala.extensions._
@@ -16,12 +15,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
+import scala.reflect.{classTag, ClassTag}
+
 final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
   def getUsageType(element: PsiElement): UsageType = getUsageType(element, null)
 
   def getUsageType(element: PsiElement, targets: Array[UsageTarget]): UsageType = {
     import com.intellij.psi.util.PsiTreeUtil._
-    def parentOfType[T <: PsiElement : Manifest]: Option[T] = Option(getParentOfType[T](element, classManifest[T].erasure.asInstanceOf[Class[T]]))
+    def parentOfType[T <: PsiElement : ClassTag]: Option[T] = {
+      Option(getParentOfType[T](element, classTag[T].runtimeClass.asInstanceOf[Class[T]]))
+    }
 
     if (element.containingScalaFile.isDefined) {
 
@@ -100,7 +103,7 @@ final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
       // TODO more of these, including Scala specific: case class/object, pattern match, type ascription, ...
     }
 
-    return null
+    null
   }
 }
 

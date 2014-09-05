@@ -109,7 +109,7 @@ class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Do
     processEntry(createNewEntry(varr.getParent, expandTextRangeToComment(varr), VAR, varr.declaredElements(0).getName, canArrange = true),
       varr, null)
 
-  override def visitTypeDefintion(typedef: ScTypeDefinition) {
+  override def visitTypeDefinition(typedef: ScTypeDefinition) {
     val entry = createNewEntry(typedef.getParent, expandTextRangeToComment(typedef), typedef match {
       case _: ScClass => CLASS
       case _: ScTrait => TRAIT

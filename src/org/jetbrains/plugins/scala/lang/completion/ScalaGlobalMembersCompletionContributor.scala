@@ -195,7 +195,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
         val shortcut: String =
           KeymapUtil.getFirstKeyboardShortcutText(ActionManager.getInstance.getAction(actionId))
         if (shortcut != null) {
-          CompletionService.getCompletionService.setAdvertisementText("To import a method statically, press " + shortcut)
+          result.addLookupAdvertisement(s"To import a method statically, press $shortcut")
         }
         hintShown = true
       }

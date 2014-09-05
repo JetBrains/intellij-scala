@@ -391,7 +391,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     var typeDefMessage: Option[String] = None
     for (element <- elements) {
       val visitor = new ScalaRecursiveElementVisitor {
-        override def visitTypeDefintion(typedef: ScTypeDefinition) {
+        override def visitTypeDefinition(typedef: ScTypeDefinition) {
           typeDefMessage = checkTypeDefUsages(typedef)
         }
       }

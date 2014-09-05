@@ -24,7 +24,7 @@ class SbtFacetDataService(platformFacade: PlatformFacade, helper: ProjectStructu
 
       val module = {
         val moduleData: ModuleData = facetNode.getData(ProjectKeys.MODULE)
-        helper.findIdeModule(moduleData.getName, project)
+        helper.findIdeModule(moduleData.getExternalName, project)
       }
 
       ScalaFacet.findIn(module).map(configure(_, facetData))
