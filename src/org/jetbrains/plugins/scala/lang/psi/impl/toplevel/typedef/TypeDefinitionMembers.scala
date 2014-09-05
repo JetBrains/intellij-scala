@@ -828,7 +828,7 @@ object TypeDefinitionMembers {
           def checkList(s: String): Boolean = {
             val l = if (!isSupers) signatures.forName(s)._1 else signatures.forName(s)._2
             if (l != null) {
-              val iterator = l.iterator
+              val iterator: Iterator[(T#T, T#Node)] = l.iterator
               while (iterator.hasNext) {
                 val (_, n) = iterator.next()
                 def addMethod(method: PsiNamedElement): Boolean = {
@@ -852,8 +852,8 @@ object TypeDefinitionMembers {
           }
           if (!checkList(decodedName)) return false
         } else if (BaseProcessor.isImplicitProcessor(processor)) {
-          val implicits = signatures.forImplicits()
-          val iterator = implicits.iterator
+          val implicits: List[(T#T, T#Node)] = signatures.forImplicits()
+          val iterator: Iterator[(T#T, T#Node)] = implicits.iterator
           while (iterator.hasNext) {
             val (sig, n) = iterator.next()
             if (!addSignature(sig, n)) return false
@@ -862,7 +862,7 @@ object TypeDefinitionMembers {
           val map = if (!isSupers) signatures.allFirstSeq() else signatures.allSecondSeq()
           val valuesIterator = map.iterator
           while (valuesIterator.hasNext) {
-            val iterator = valuesIterator.next().iterator
+            val iterator: Iterator[(T#T, T#Node)] = valuesIterator.next().iterator
             while (iterator.hasNext) {
               val (sig, n) = iterator.next()
               if (!addSignature(sig, n)) return false

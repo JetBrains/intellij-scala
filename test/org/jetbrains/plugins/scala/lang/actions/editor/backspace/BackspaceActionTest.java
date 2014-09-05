@@ -29,7 +29,6 @@ public class BackspaceActionTest extends ActionTestBase {
 
   protected Editor myEditor;
   protected FileEditorManager fileEditorManager;
-  protected String newDocumentText;
   protected PsiFile myFile;
 
   public BackspaceActionTest() {
@@ -53,6 +52,7 @@ public class BackspaceActionTest extends ActionTestBase {
     myFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
     fileEditorManager = FileEditorManager.getInstance(LightPlatformTestCase.getProject());
     myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(getProject(), myFile.getVirtualFile(), 0), false);
+    assert myEditor != null;
     myEditor.getCaretModel().moveToOffset(offset);
 
     final myDataContext dataContext = getDataContext(myFile);
@@ -61,7 +61,7 @@ public class BackspaceActionTest extends ActionTestBase {
     try {
       performAction(getProject(), new Runnable() {
         public void run() {
-          handler.execute(myEditor, dataContext);
+          handler.execute(myEditor, myEditor.getCaretModel().getCurrentCaret(), dataContext);
         }
       });
       offset = myEditor.getCaretModel().getOffset();
@@ -79,8 +79,7 @@ public class BackspaceActionTest extends ActionTestBase {
     setSettings();
     String fileText = data[0];
     final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
-    String result = processFile(psiFile);
-    return result;
+    return processFile(psiFile);
   }
 
 

@@ -77,7 +77,7 @@ abstract public class AbstractEnterActionTestBase extends ActionTestBase {
     try {
       performAction(getProject(), new Runnable() {
         public void run() {
-          handler.execute(myEditor, dataContext);
+          handler.execute(myEditor, myEditor.getCaretModel().getCurrentCaret(), dataContext);
         }
       });
 

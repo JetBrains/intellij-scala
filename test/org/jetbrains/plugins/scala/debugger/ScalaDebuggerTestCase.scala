@@ -127,7 +127,7 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestBase {
     configuration.setMainClassName(className)
     val executor: Executor = Executor.EXECUTOR_EXTENSION_NAME.findExtension(executorClass)
     val executionEnvironmentBuilder: ExecutionEnvironmentBuilder = new ExecutionEnvironmentBuilder(module.getProject, executor)
-    executionEnvironmentBuilder.setRunProfile(configuration)
+    executionEnvironmentBuilder.runProfile(configuration)
     val semaphore: Semaphore = new Semaphore
     semaphore.down()
     val processHandler: AtomicReference[ProcessHandler] = new AtomicReference[ProcessHandler]
@@ -325,7 +325,7 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestBase {
     try {
       val obj = ois.readObject()
       obj match {
-        case map: mutable.HashMap[String, Array[Byte]] => checksums = map
+        case map: mutable.HashMap[String, Array[Byte]] @unchecked => checksums = map
         case _ => needMake = true
       }
     }
