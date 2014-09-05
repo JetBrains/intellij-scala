@@ -42,8 +42,8 @@ class ScaladocAction extends BaseAnalysisAction("Generate Scaladoc", "Scaladoc")
           RunnerRegistry.getInstance.getRunner(DefaultRunExecutor.EXECUTOR_ID, config)
         val builder: ExecutionEnvironmentBuilder =
           new ExecutionEnvironmentBuilder(project, DefaultRunExecutor.getRunExecutorInstance)
-        builder.setRunProfile(config)
-        builder.setRunnerAndSettings(runner,
+        builder.runProfile(config)
+        builder.runnerAndSettings(runner,
           new RunnerAndConfigurationSettingsImpl(new RunManagerImpl(project, PropertiesComponent.getInstance()), runConfig, false))
         runner.execute(builder.build())
       } catch {

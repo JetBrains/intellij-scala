@@ -8,7 +8,6 @@
         <option name="compilerOptions" value="-target:jvm-1.6 -feature" />
         <option name="deprecationWarnings" value="true" />
         <option name="maximumHeapSize" value="1024" />
-        <option name="uncheckedWarnings" value="true" />
         <option name="vmOptions" value="" />
       </configuration>
     </facet>

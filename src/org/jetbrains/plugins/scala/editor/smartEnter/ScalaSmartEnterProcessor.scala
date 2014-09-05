@@ -113,9 +113,8 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
       doEnter(atCaret, editor)
     }
     catch {
-      case e: IncorrectOperationException => {
+      case e: IncorrectOperationException =>
         ScalaSmartEnterProcessor.LOG.error(e.getMessage)
-      }
     }
   }
 
@@ -126,11 +125,10 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
     var atCaret = caret
     val parent: PsiElement = atCaret.getParent
     parent match {
-      case block: ScBlockExpr => {
+      case block: ScBlockExpr =>
         if (block.exprs.length > 0 && block.exprs.apply(0) == atCaret) {
           atCaret = block
         }
-      }
       case forStmt: ScForStatement => atCaret = forStmt
       case _ =>
     }
@@ -241,7 +239,7 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
   }
 
   protected def plainEnter(editor: Editor) {
-    getEnterHandler.execute(editor, editor.asInstanceOf[EditorEx].getDataContext)
+    getEnterHandler.execute(editor, editor.getCaretModel.getCurrentCaret, editor.asInstanceOf[EditorEx].getDataContext)
   }
 
   protected def getEnterHandler: EditorActionHandler = {

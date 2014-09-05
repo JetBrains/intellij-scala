@@ -109,7 +109,7 @@ object ScalaClassNameCompletionContributor {
         case _: ScObject if !isInImport && onlyClasses => return
         case _ =>
       }
-      val renamed = renamesMap.get(typeToImport.name).filter(_._2 == typeToImport).map(_._1)
+      val renamed = renamesMap.get(typeToImport.name).filter(_._2 == typeToImport.element).map(_._1)
       for {
         el <- LookupElementManager.getLookupElement(new ScalaResolveResult(typeToImport.element, nameShadow = renamed),
           isClassName = true, isInImport = isInImport, isInStableCodeReference = stableRefElement != null)

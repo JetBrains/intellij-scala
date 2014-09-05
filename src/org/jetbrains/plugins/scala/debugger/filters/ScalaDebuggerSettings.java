@@ -4,8 +4,12 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.intellij.xdebugger.settings.DebuggerSettingsCategory;
 import com.intellij.xdebugger.settings.XDebuggerSettings;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * @author ilyas
@@ -32,8 +36,13 @@ public class ScalaDebuggerSettings extends XDebuggerSettings<ScalaDebuggerSettin
   }
 
   @NotNull
-  public Configurable createConfigurable() {
-    return new ScalaDebuggerSettingsConfigurable(this);
+  @Override
+  public Collection<? extends Configurable> createConfigurables(@NotNull DebuggerSettingsCategory category) {
+    //todo: split settings configurables somehow
+    if (category == DebuggerSettingsCategory.GENERAL) {
+      return Collections.singletonList(new ScalaDebuggerSettingsConfigurable(this));
+    }
+    return Collections.emptyList();
   }
 
   public ScalaDebuggerSettings getState() {

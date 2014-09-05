@@ -14,7 +14,7 @@ import com.intellij.openapi.startup.StartupManager
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.util.{IncorrectOperationException, ReflectionCache}
+import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFun
@@ -175,7 +175,7 @@ extends SyntheticNamedElement(manager, name) with ScFun {
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = {
     var cur: PsiElement = getFirstChild
     while (cur != null) {
-      if (ReflectionCache.isInstance(cur, clazz)) return cur.asInstanceOf[T]
+      if (clazz.isInstance(cur)) return cur.asInstanceOf[T]
       cur = cur.getNextSibling
     }
     null

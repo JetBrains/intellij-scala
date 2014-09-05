@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInsight.template.macros
 
-import com.intellij.codeInsight.lookup.{LookupElement, LookupItem}
+import com.intellij.codeInsight.lookup.{LookupElementBuilder, LookupElement, LookupItem}
 import com.intellij.codeInsight.template._
 import com.intellij.psi.{PsiDocumentManager, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions._
@@ -22,7 +22,7 @@ class SuggestScalaVariableNameMacro extends Macro {
   override def calculateLookupItems(params: Array[Expression], context: ExpressionContext): Array[LookupElement] = {
     val a = SuggestNamesUtil.getNames(params, context)
     if (a.length < 2) return null
-    a.map((s: String) => new LookupItem(s, s))
+    a.map((s: String) => LookupElementBuilder.create(s, s))
   }
 
   def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {

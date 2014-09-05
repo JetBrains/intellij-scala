@@ -16,7 +16,7 @@ class CaseClassParamInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
-      override def visitTypeDefintion(typedef: ScTypeDefinition) = {
+      override def visitTypeDefinition(typedef: ScTypeDefinition) = {
         typedef match {
           case c: ScClass if c.isCase =>
             for{
@@ -25,12 +25,12 @@ class CaseClassParamInspection extends LocalInspectionTool {
               if classParam.isVal && classParam.isCaseClassVal
             } {
               holder.registerProblem(holder.getManager.createProblemDescriptor(classParam,
-                ScalaBundle.message("val.on.case.class.param.redundant"),
+                ScalaBundle.message("val.on.case.class.param.redundant"), isOnTheFly,
                 Array[LocalQuickFix](new RemoveValQuickFix(classParam)), ProblemHighlightType.GENERIC_ERROR_OR_WARNING))
             }
           case _ =>
         }
-        super.visitTypeDefintion(typedef)
+        super.visitTypeDefinition(typedef)
       }
     }
   }

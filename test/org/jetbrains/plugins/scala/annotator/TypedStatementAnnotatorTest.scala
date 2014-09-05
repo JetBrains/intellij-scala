@@ -9,19 +9,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTypedStmt
 class TypedStatementAnnotatorTest extends SimpleTestCase {
   final val Header = "class A; class B; object A extends A; object B extends B\n"
 
-  def testFine {
+  def testFine() {
     assertMatches(messages("A: A")) {
       case Nil =>
     }
   }
 
-  def testTypeMismatch {
+  def testTypeMismatch() {
     assertMatches(messages("B: A")) {
       case Error("B", TypeMismatch()) :: Nil =>
     }
   }
 
-  def testTypeMismatchMessage {
+  def testTypeMismatchMessage() {
     assertMatches(messages("B: A")) {
       case Error(_, "Type mismatch, found: B.type, required: A") :: Nil =>
     }
@@ -41,13 +41,13 @@ class TypedStatementAnnotatorTest extends SimpleTestCase {
     val annotator = new TypedStatementAnnotator() {}
     val mock = new AnnotatorHolderMock
     
-    annotator.annotateTypedStatement(definition, mock, true)
+    annotator.annotateTypedStatement(definition, mock, highlightErrors = true)
     mock.annotations
   }
   
-  val TypeMismatch = containsPattern("Type mismatch")
+  val TypeMismatch = ContainsPattern("Type mismatch")
 
-  def containsPattern(fragment: String) = new {
+  case class ContainsPattern(fragment: String) {
     def unapply(s: String) = s.contains(fragment)
   }
 }

@@ -3,7 +3,7 @@ package annotator.quickfix
 
 import com.intellij.codeInsight.intention.AbstractIntentionAction
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
+import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
@@ -20,6 +20,6 @@ class SbtRefreshProjectQuickFix extends AbstractIntentionAction {
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
     FileDocumentManager.getInstance.saveAllDocuments()
-    ExternalSystemUtil.refreshProjects(project, SbtProjectSystem.Id, false, ProgressExecutionMode.IN_BACKGROUND_ASYNC)
+    ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, SbtProjectSystem.Id))
   }
 }

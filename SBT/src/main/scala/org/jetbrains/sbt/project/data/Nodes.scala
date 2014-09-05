@@ -134,5 +134,7 @@ abstract class Node[T] {
 }
 
 object Node {
+  import scala.language.implicitConversions
+
   implicit def node2data[T](node: Node[T]): T = node.data
 }

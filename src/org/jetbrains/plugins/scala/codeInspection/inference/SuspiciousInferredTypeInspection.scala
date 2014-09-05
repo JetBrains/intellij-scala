@@ -32,7 +32,7 @@ class SuspiciousInferredTypeInspection extends LocalInspectionTool {
               val presentable = ScType.presentableText(inferredType)
               holder.registerProblem(holder.getManager.
                       createProblemDescriptor(expr, ScalaBundle.message("suspicicious.inference", presentable),
-                Array[LocalQuickFix](), ProblemHighlightType.WEAK_WARNING))
+                  isOnTheFly, Array[LocalQuickFix](), ProblemHighlightType.WEAK_WARNING))
               // We don't call super.visitExpresion() to recurse further, as we couldn't annotate a sub-expression in an visually appealling manner.
               return
             case _ =>

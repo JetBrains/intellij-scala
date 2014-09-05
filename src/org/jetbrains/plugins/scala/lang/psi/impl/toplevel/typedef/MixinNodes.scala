@@ -209,6 +209,10 @@ abstract class MixinNodes {
       publics.filter(p).toSeq ++ privates.map.values.flatten.filter(p)
     }
 
+    def withFilter(p: ((T, Node)) => Boolean) = {
+      (publics.toSeq ++ privates.map.values.flatten).withFilter(p)
+    }
+
     def flatMap[R](p: ((T, Node)) => Traversable[R]): Seq[R] = {
       publics.flatMap(p).toSeq ++ privates.map.values.flatten.flatMap(p)
     }

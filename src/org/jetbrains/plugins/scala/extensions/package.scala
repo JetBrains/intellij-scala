@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 import scala.collection.generic.CanBuildFrom
 import scala.language.higherKinds
+import scala.reflect.{ClassTag, classTag}
 import scala.runtime.NonLocalReturnControl
 import scala.util.matching.Regex
 
@@ -136,7 +137,10 @@ package object extensions {
   implicit class ObjectExt[T](val v: T) extends AnyVal{
     def toOption: Option[T] = if (v == null) None else Some(v)
 
-    def asOptionOf[E: ClassManifest]: Option[E] = if(classManifest[E].erasure.isInstance(v)) Some(v.asInstanceOf[E]) else None
+    def asOptionOf[E: ClassTag]: Option[E] = {
+      if (classTag[E].runtimeClass.isInstance(v)) Some(v.asInstanceOf[E])
+      else None
+    }
 
     def getOrElse[H >: T](default: H): H = if (v == null) default else v
 

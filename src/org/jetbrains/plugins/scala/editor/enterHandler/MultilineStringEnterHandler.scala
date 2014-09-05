@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.util.{MultilineStringSettings, MultilineStringUtil}
+import org.jetbrains.plugins.scala.util.MultilineStringSettings
 import org.jetbrains.plugins.scala.util.MultilineStringUtil._
 
 /**
@@ -48,7 +48,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
     if ((ch1 != '(' || ch2 != ')')&&(ch1 != '{' || ch2 != '}') || !CodeInsightSettings.getInstance.SMART_INDENT_ON_ENTER)
     return Result.Continue
 
-    originalHandler.execute(editor, dataContext)
+    originalHandler.execute(editor, editor.getCaretModel.getCurrentCaret, dataContext)
     Result.DefaultForceIndent
   }
 

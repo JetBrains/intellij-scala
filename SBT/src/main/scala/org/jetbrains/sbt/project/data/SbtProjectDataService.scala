@@ -8,7 +8,7 @@ import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, ProjectStructureHelper}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
-import com.intellij.openapi.roots.impl.{DirectoryIndex, JavaLanguageLevelPusher, LanguageLevelProjectExtensionImpl}
+import com.intellij.openapi.roots.impl.{JavaLanguageLevelPusher, LanguageLevelProjectExtensionImpl}
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
 import com.intellij.pom.java.LanguageLevel
 import org.jdom.Element
@@ -97,7 +97,7 @@ object SbtProjectDataService {
 
   def javaLanguageLevelFrom(options: Seq[String]): Option[LanguageLevel] = {
     def valueOf(name: String): Option[String] =
-      Option(options.indexOf(name)).filterNot(-1 ==).flatMap(options.lift)
+      Option(options.indexOf(name)).filterNot(-1 == _).flatMap(options.lift)
     
     valueOf("-source").orElse(valueOf("-target"))
             .flatMap(s => Option(LanguageLevel.parse(s)))
@@ -116,10 +116,7 @@ object SbtProjectDataService {
 
     if (!extension.getLanguageLevel.isAtLeast(level)) {
       setLanguageLevelIn(project, level)
-
-      if (DirectoryIndex.getInstance(project).isInitialized) {
-        JavaLanguageLevelPusher.pushLanguageLevel(project)
-      }
+      JavaLanguageLevelPusher.pushLanguageLevel(project)
     }
   }
 

@@ -1,27 +1,20 @@
 package org.jetbrains.plugins.scala.lift.runner;
 
 import com.intellij.execution.Location;
-import com.intellij.execution.RunManagerEx;
-import com.intellij.execution.RunnerAndConfigurationSettings;
 import com.intellij.execution.actions.ConfigurationContext;
+import com.intellij.execution.actions.RunConfigurationProducer;
 import com.intellij.execution.configurations.ConfigurationTypeUtil;
-import com.intellij.execution.junit.RuntimeConfigurationProducer;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ContentEntry;
-import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.roots.SourceFolder;
+import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.idea.maven.execution.MavenRunConfiguration;
 import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
-import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
-import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
@@ -32,20 +25,33 @@ import java.util.List;
 /**
  * @author ilyas
  */
-public class LiftRunConfigurationProducer extends RuntimeConfigurationProducer implements Cloneable {
+public class LiftRunConfigurationProducer extends RunConfigurationProducer<MavenRunConfiguration> implements Cloneable {
 
-  private PsiElement mySourceElement;
   private static final String GROUP_ID_LIFT = "net.liftweb";
   private static final String ARTIFACT_ID_LIFT = "lift-webkit";
 
   private static final String JETTY_RUN = "jetty:run";
 
-  public LiftRunConfigurationProducer() {
-    super(ConfigurationTypeUtil.findConfigurationType(MavenRunConfigurationType.class));
+  @Override
+  protected boolean setupConfigurationFromContext(MavenRunConfiguration configuration, ConfigurationContext context,
+                                                  Ref sourceElement) {
+    if (sourceElement.isNull()) return false;
+    final Module module = context.getModule();
+    if (module == null || !ScalaUtils.isSuitableModule(module)) return false;
+
+    final MavenRunnerParameters params = createBuildParameters(context.getLocation());
+    if (params == null) return false;
+    configuration.setRunnerParameters(params);
+    return true;
   }
 
-  public PsiElement getSourceElement() {
-    return mySourceElement;
+  @Override
+  public boolean isConfigurationFromContext(MavenRunConfiguration configuration, ConfigurationContext context) {
+    return false;
+  }
+
+  public LiftRunConfigurationProducer() {
+    super(ConfigurationTypeUtil.findConfigurationType(MavenRunConfigurationType.class));
   }
 
   private MavenRunnerParameters createBuildParameters(Location l) {
@@ -72,11 +78,8 @@ public class LiftRunConfigurationProducer extends RuntimeConfigurationProducer i
         break;
       }
     }
-    //final MavenArtifact artifact = mavenProjectModel.findDependency(GROUP_ID_LIFT, ARTIFACT_ID_LIFT);
 
     if (artifact == null) return null;
-
-    mySourceElement = element;
 
     MavenExplicitProfiles profiles = MavenProjectsManager.getInstance(project).getExplicitProfiles();
     List<String> goals = new ArrayList<String>();
@@ -91,50 +94,4 @@ public class LiftRunConfigurationProducer extends RuntimeConfigurationProducer i
     
     return new MavenRunnerParameters(true, parent.getPath(), goals, profiles);
   }
-
-  private static RunnerAndConfigurationSettings createRunnerAndConfigurationSettings(MavenGeneralSettings generalSettings,
-                                                                                         MavenRunnerSettings runnerSettings,
-                                                                                         MavenRunnerParameters params,
-                                                                                         Project project) {
-    MavenRunConfigurationType type = ConfigurationTypeUtil.findConfigurationType(MavenRunConfigurationType.class);
-    final RunnerAndConfigurationSettings settings = RunManagerEx.getInstanceEx(project)
-        .createConfiguration(MavenRunConfigurationType.generateName(project, params), type.getConfigurationFactories()[0]);
-    MavenRunConfiguration runConfiguration = (MavenRunConfiguration) settings.getConfiguration();
-    runConfiguration.setRunnerParameters(params);
-    if (generalSettings != null) runConfiguration.setGeneralSettings(generalSettings);
-    if (runnerSettings != null) runConfiguration.setRunnerSettings(runnerSettings);
-    return settings;
-  }
-
-
-  protected RunnerAndConfigurationSettings createConfigurationByElement(final Location location, final ConfigurationContext context) {
-    final Module module = context.getModule();
-    if (module == null || !ScalaUtils.isSuitableModule(module)) return null;
-
-    final MavenRunnerParameters params = createBuildParameters(location);
-    if (params == null) return null;
-    return createRunnerAndConfigurationSettings(null, null, params, location.getProject());
-
-  }
-
-  private static boolean isTestDirectory(final Module module, final PsiElement element) {
-    final PsiDirectory dir = (PsiDirectory) element;
-    final ModuleRootManager manager = ModuleRootManager.getInstance(module);
-    final ContentEntry[] entries = manager.getContentEntries();
-    for (ContentEntry entry : entries) {
-      for (SourceFolder folder : entry.getSourceFolders()) {
-        if (folder.isTestSource() && folder.getFile() == dir.getVirtualFile()) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-
-  public int compareTo(final Object o) {
-    return PREFERED;
-  }
-
-
 }
