@@ -35,7 +35,7 @@ class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends ScImpl
     val secondPart = tuple.getSecondPart
     val comp = getSuperListCellRendererComponent(list, item, index, isSelected, cellHasFocus)
     comp match {
-      case container: Container => {
+      case container: Container =>
         val colored = container.getComponents.apply(2).asInstanceOf[SimpleColoredComponent]
         if (item == actual) {
           colored.clear()
@@ -57,8 +57,8 @@ class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends ScImpl
             DefaultListCellRendererAdapter.getListCellRendererComponent(rightRenderer, list, item, index, isSelected, cellHasFocus)
           val color: Color = isSelected match {
             case true => UIUtil.getListSelectionBackground
-            case false if (firstPart.contains(item)) => implicitFirstPart
-            case false if (secondPart.contains(item)) => implicitSecondPart
+            case false if firstPart.contains(item) => implicitFirstPart
+            case false if secondPart.contains(item) => implicitSecondPart
             case _ => throw new RuntimeException("Implicit conversions list contains unknown value: " + item)
           }
           rightCellRendererComponent.setBackground(color)
@@ -68,7 +68,6 @@ class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends ScImpl
           spacer.setBackground(color)
           add(spacer, BorderLayout.CENTER)
         }
-      }
       case _ =>
     }
     comp
@@ -76,11 +75,10 @@ class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends ScImpl
 
   override def getElementText(element: PsiNamedElement) = {
     element match {
-      case method: ScFunction => {
+      case method: ScFunction =>
         method.name + PresentationUtil.presentationString(method.paramClauses) + ": " +
                 PresentationUtil.presentationString(method.returnType.
                         getOrAny)
-      }
       case b: ScBindingPattern => b.name + ": " +
               PresentationUtil.presentationString(b.getType(TypingContext.empty).getOrAny)
       case _ => element.name
