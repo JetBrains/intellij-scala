@@ -63,11 +63,11 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   def empty = getNode.getFirstChildNode == null
 
   def selfType = {
-    val res = (wrap(selfTypeElement) flatMap {
+    val res = wrap(selfTypeElement) flatMap {
       ste => wrap(ste.typeElement) flatMap {
         te => te.getType(TypingContext.empty)
       }
-    }) match {
+    } match {
       case Success(t, _) => Some(t)
       case _ => None
     }
@@ -92,12 +92,12 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     val buffer = new ListBuffer[ScType]
     def addType(t: ScType) {
       t match {
-        case ScCompoundType(comps, _, _) => comps.foreach {addType _}
+        case ScCompoundType(comps, _, _) => comps.foreach(addType)
         case _ => buffer += t
       }
     }
     templateParents match {
-      case Some(parents: ScTemplateParents) => parents.superTypes foreach {t => addType(t)}
+      case Some(parents: ScTemplateParents) => parents.superTypes.foreach(addType)
       case _ =>
     }
 
@@ -264,15 +264,14 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
         res ++ Seq[String]("Product", "Serializable")
       else res
 
-    def search = productSerializable _ compose default _
+    def search = productSerializable _ compose default
 
     templateParents match {
       case None => Seq.empty
-      case Some(parents) => {
+      case Some(parents) =>
         val parentElements:Seq[ScTypeElement] = parents.typeElements.toIndexedSeq
         val results:Seq[String] = parentElements flatMap( process(_, Vector[String]()) )
         search(results)(isUnderCaseClass).toBuffer
-      }
     }
   }
 
