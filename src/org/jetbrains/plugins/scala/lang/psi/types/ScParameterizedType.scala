@@ -275,7 +275,9 @@ class ScParameterizedType private (val designator : ScType, val typeArgs : Seq[S
   }
 
   override def typeDepth: Int = {
-    designator.typeDepth.max(typeArgs.map(_.typeDepth).max + 1)
+    val depths = typeArgs.map(_.typeDepth)
+    if (depths.length == 0) designator.typeDepth //todo: shouldn't be possible
+    else designator.typeDepth.max(depths.max + 1)
   }
 
   override def isFinalType: Boolean = designator.isFinalType && !typeArgs.exists {
