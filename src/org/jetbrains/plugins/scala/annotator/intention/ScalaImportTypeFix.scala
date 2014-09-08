@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScPostfixExpr, ScPrefixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
@@ -144,11 +145,8 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
             def run() {
               PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
               if (!ref.isValid) return
-              if (!ref.isInstanceOf[ScDocResolvableCodeReference]) {
-                ref.bindToElement(clazz.element)
-              } else {
-                ref.replace(ScalaPsiElementFactory.createDocLinkValue(clazz.qualifiedName, ref.getManager))
-              }
+              if (!ref.isInstanceOf[ScDocResolvableCodeReference]) ref.bindToElement(clazz.element)
+              else ref.replace(ScalaPsiElementFactory.createDocLinkValue(clazz.qualifiedName, ref.getManager))
             }
           }, clazz.getProject, "Add import action")
         }
@@ -300,6 +298,7 @@ object ScalaImportTypeFix {
 
   def getTypesToImport(ref: ScReferenceElement, myProject: Project): Array[TypeToImport] = {
     if (!ref.isValid) return Array.empty
+    if (ref.isInstanceOf[ScTypeProjection]) return Array.empty
     val kinds = ref.getKinds(incomplete = false)
     val cache = ScalaPsiManager.instance(myProject)
     val classes = cache.getClassesByName(ref.refName, ref.getResolveScope)
