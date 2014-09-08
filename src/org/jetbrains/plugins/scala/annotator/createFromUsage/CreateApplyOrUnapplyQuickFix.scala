@@ -33,7 +33,8 @@ abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
     s"$getFamilyName in $classKind ${td.name}"
   }
 
-  def isAvailable(project: Project, editor: Editor, file: PsiFile) = {
+  def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
+    if (!td.isValid) return false
     td.getContainingFile match {
       case _: ScalaCodeFragment => false
       case f: ScalaFile if f.isWritable => true
