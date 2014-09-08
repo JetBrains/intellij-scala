@@ -20,10 +20,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 class ScImportSelectorStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
                                                   elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
-extends StubBaseWrapper[ScImportSelector](parent, elemType) with ScImportSelectorStub {
+  extends StubBaseWrapper[ScImportSelector](parent, elemType) with ScImportSelectorStub {
   var referenceText: StringRef = _
   var name: StringRef = _
-  private var myReference: SoftReference[ScStableCodeReferenceElement] = null
+  private var myReference: SoftReference[ScStableCodeReferenceElement] = new SoftReference[ScStableCodeReferenceElement](null)
   var aliasImport: Boolean = false
 
   def this(parent : StubElement[ParentPsi],
@@ -38,12 +38,11 @@ extends StubBaseWrapper[ScImportSelector](parent, elemType) with ScImportSelecto
   def isAliasedImport: Boolean = aliasImport
 
   def reference: ScStableCodeReferenceElement = {
-    if (myReference != null && myReference.get != null) return myReference.get
-    val res = if (referenceText == StringRef.fromString("")) {
-      null
-    } else {
-      ScalaPsiElementFactory.createReferenceFromText(StringRef.toString(referenceText), getPsi, null)
-    }
+    val referenceElement = myReference.get
+    if (referenceElement != null && (referenceElement.getContext eq getPsi)) return myReference.get
+    val res =
+      if (referenceText == StringRef.fromString("")) null
+      else ScalaPsiElementFactory.createReferenceFromText(StringRef.toString(referenceText), getPsi, null)
     myReference = new SoftReference[ScStableCodeReferenceElement](res)
     res
   }

@@ -28,8 +28,8 @@ extends StubBaseWrapper[ScExtendsBlock](parent, elemType) with ScExtendsBlockStu
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           base: Array[String]) {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
-    baseClasses = base.map(StringRef.fromString(_))
+    baseClasses = base.map(StringRef.fromString)
   }
 
-  def getBaseClasses: Array[String] = baseClasses.map(StringRef.toString(_))
+  def getBaseClasses: Array[String] = baseClasses.map(StringRef.toString)
 }
