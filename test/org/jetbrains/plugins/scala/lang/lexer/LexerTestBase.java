@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
  * Date: 11/21/11
  */
 abstract public class LexerTestBase extends BaseScalaFileSetTestCase {
-  protected final Lexer lexer;
+  protected Lexer lexer;
   
   public LexerTestBase(String dataPath, Lexer lexer) {
     super(System.getProperty("path") != null ? System.getProperty("path") : dataPath);
