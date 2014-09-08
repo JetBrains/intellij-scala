@@ -15,11 +15,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
  */
 
 trait ScTemplateParentsStub extends StubElement[ScTemplateParents] {
-  def getTemplateParentsTypeElements: Array[ScTypeElement]
+  def getTemplateParentsTypeElements: Seq[ScTypeElement]
 
-  def getTemplateParentsTypesTexts: Array[String]
+  def getTemplateParentsTypesTexts: Seq[String]
 
-  def getTemplateParentsTypes: Array[ScType]
+  def getTemplateParentsTypes: Seq[ScType]
 
   def getConstructor: Option[String]
 }

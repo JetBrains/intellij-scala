@@ -11,6 +11,8 @@ import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateParentsStubImpl
 
+import scala.collection.mutable.ArrayBuffer
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 17.06.2009
@@ -19,17 +21,14 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateParentsStubImpl
 abstract class ScTemplateParentsElementType[Func <: ScTemplateParents](debugName: String)
         extends ScStubElementType[ScTemplateParentsStub, ScTemplateParents](debugName) {
   def serialize(stub: ScTemplateParentsStub, dataStream: StubOutputStream) {
-    val array = stub.getTemplateParentsTypesTexts
-    dataStream.writeInt(array.length)
-    for (s <- array) {
-      dataStream.writeName(s)
-    }
+    val seq = stub.getTemplateParentsTypesTexts
+    dataStream.writeInt(seq.length)
+    for (s <- seq) dataStream.writeName(s)
     stub.getConstructor match {
       case Some(str) =>
         dataStream.writeBoolean(true)
         dataStream.writeName(str)
-      case _ =>
-        dataStream.writeBoolean(false)
+      case _ => dataStream.writeBoolean(false)
     }
   }
 
@@ -38,16 +37,15 @@ abstract class ScTemplateParentsElementType[Func <: ScTemplateParents](debugName
       case p: ScClassParents => p.constructor.map(_.getText)
       case _ => None
     }
-    new ScTemplateParentsStubImpl(parentStub, this, constr, psi.typeElementsWithoutConstructor.map(_.getText).toArray)
+    new ScTemplateParentsStubImpl(parentStub, this, constr.map(StringRef.fromString),
+      psi.typeElementsWithoutConstructor.map(te => StringRef.fromString(te.getText)))
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTemplateParentsStub = {
     val length = dataStream.readInt
     if (length >= 0) {
-      val res = new Array[StringRef](length)
-      for (i <- 0 until length) {
-        res(i) = dataStream.readName
-      }
+      val res = new ArrayBuffer[StringRef]
+      for (i <- 0 until length) res += dataStream.readName
       val constr = dataStream.readBoolean() match {
         case true => Some(dataStream.readName())
         case false => None
@@ -55,7 +53,7 @@ abstract class ScTemplateParentsElementType[Func <: ScTemplateParents](debugName
       new ScTemplateParentsStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, constr, res)
     } else {
       ScTemplateParentsElementType.LOG.error("Negative byte deserialized for array")
-      new ScTemplateParentsStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, None, Array.empty[StringRef])
+      new ScTemplateParentsStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, None, Seq.empty)
     }
   }
 

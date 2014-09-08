@@ -27,7 +27,7 @@ class ScClassParentsImpl extends ScalaStubBasedElementImpl[ScTemplateParents] wi
   def superTypes: Seq[ScType] = {
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScTemplateParentsStub].getTemplateParentsTypes.toSeq
+      return stub.asInstanceOf[ScTemplateParentsStub].getTemplateParentsTypes
     }
     typeElements.map(_.getType(TypingContext.empty).getOrAny)
   }

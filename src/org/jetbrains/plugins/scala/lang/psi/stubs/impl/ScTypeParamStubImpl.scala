@@ -24,12 +24,12 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
   private var name: StringRef = _
   private var upperText: StringRef = _
   private var lowerText: StringRef = _
-  private var viewText: Array[StringRef] = _
-  private var contextBoundText: Array[StringRef] = _
-  private var upperElement: SoftReference[Option[ScTypeElement]] = null
-  private var lowerElement: SoftReference[Option[ScTypeElement]] = null
-  private var viewElement: Array[SoftReference[ScTypeElement]] = null
-  private var contextBoundElement: Array[SoftReference[ScTypeElement]] = null
+  private var viewText: Seq[StringRef] = _
+  private var contextBoundText: Seq[StringRef] = _
+  private var upperElement: SoftReference[Option[ScTypeElement]] = new SoftReference(null)
+  private var lowerElement: SoftReference[Option[ScTypeElement]] = new SoftReference(null)
+  private var viewElement: SoftReference[Seq[ScTypeElement]] = new SoftReference(null)
+  private var contextBoundElement: SoftReference[Seq[ScTypeElement]] = new SoftReference(null)
   private var covariant: Boolean = _
   private var contravariant: Boolean = _
   private var positionInFile: Int = _
@@ -40,24 +40,7 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-          name: String, upperText: String, lowerText: String, viewText: Array[String], contextBoundText: Array[String],
-          covariant: Boolean, contravariant: Boolean, position: Int, fileName: String, typeParameterText: String) {
-    this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
-    this.name = StringRef.fromString(name)
-    this.upperText = StringRef.fromString(upperText)
-    this.lowerText = StringRef.fromString(lowerText)
-    this.viewText = viewText.map(StringRef.fromString)
-    this.contextBoundText = contextBoundText.map(StringRef.fromString)
-    this.covariant = covariant
-    this.contravariant = contravariant
-    this.positionInFile = position
-    this.containingFileName = fileName
-    this._typeParameterText = typeParameterText
-  }
-
-  def this(parent: StubElement[ParentPsi],
-          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-          name: StringRef, upperText: StringRef, lowerText: StringRef, viewText: Array[StringRef], contextBoundText: Array[StringRef],
+          name: StringRef, upperText: StringRef, lowerText: StringRef, viewText: Seq[StringRef], contextBoundText: Seq[StringRef],
           covariant: Boolean, contravariant: Boolean, position: Int, fileName: StringRef, typeParameterText: StringRef) {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = name
@@ -83,44 +66,48 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
   def typeParameterText: String = _typeParameterText
 
   def getLowerTypeElement: Option[ScTypeElement] = {
-    if (lowerElement != null && lowerElement.get != null) return lowerElement.get
-    val res: Option[ScTypeElement] = {
-      if (getLowerText != "")
-        Some(ScalaPsiElementFactory.createTypeElementFromText(getLowerText, getPsi, null))
-      else None
+    val lowerTypeElement = lowerElement.get
+    if (lowerTypeElement != null && (lowerTypeElement.isEmpty || (lowerTypeElement.get.getContext eq getPsi))) {
+      return lowerTypeElement
     }
+    val res: Option[ScTypeElement] =
+      if (getLowerText != "") Some(ScalaPsiElementFactory.createTypeElementFromText(getLowerText, getPsi, null))
+      else None
     lowerElement = new SoftReference[Option[ScTypeElement]](res)
     res
   }
 
   def getUpperTypeElement: Option[ScTypeElement] = {
-    if (upperElement != null && upperElement.get != null) return upperElement.get
-    val res: Option[ScTypeElement] = {
-      if (getUpperText != "")
-        Some(ScalaPsiElementFactory.createTypeElementFromText(getUpperText, getPsi, null))
-      else None
+    val upperTypeElement = upperElement.get
+    if (upperTypeElement != null && (upperTypeElement.isEmpty || (upperTypeElement.get.getContext eq getPsi))) {
+      return upperTypeElement
     }
+    val res: Option[ScTypeElement] =
+      if (getUpperText != "") Some(ScalaPsiElementFactory.createTypeElementFromText(getUpperText, getPsi, null))
+      else None
     upperElement = new SoftReference[Option[ScTypeElement]](res)
     res
   }
 
   def getLowerText: String = lowerText.toString
 
-  def getViewText: Array[String] = viewText.map(_.toString)
+  def getViewText: Seq[String] = viewText.map(_.toString)
 
-  def getContextBoundText: Array[String] = contextBoundText.map(_.toString)
+  def getContextBoundText: Seq[String] = contextBoundText.map(_.toString)
 
-  def getViewTypeElement: Array[ScTypeElement] = {
-    if (viewElement != null && viewElement.forall(_.get ne null)) return viewElement.map(_.get)
-    val res: Array[ScTypeElement] = getViewText.map(ScalaPsiElementFactory.createTypeElementFromText(_, getPsi, null))
-    viewElement = res.map(new SoftReference[ScTypeElement](_))
+  def getViewTypeElement: Seq[ScTypeElement] = {
+    val viewTypeElements = viewElement.get
+    if (viewTypeElements != null && viewTypeElements.forall(_.getContext.eq(getPsi))) return viewTypeElements
+    val res: Seq[ScTypeElement] = getViewText.map(ScalaPsiElementFactory.createTypeElementFromText(_, getPsi, null))
+    viewElement = new SoftReference(res)
     res
   }
 
-  def getContextBoundTypeElement: Array[ScTypeElement] = {
-    if (contextBoundElement != null && contextBoundElement.forall(_.get ne null)) return contextBoundElement.map(_.get)
-    val res: Array[ScTypeElement] = getContextBoundText.map(ScalaPsiElementFactory.createTypeElementFromText(_, getPsi, null))
-    contextBoundElement = res.map(new SoftReference[ScTypeElement](_))
+  def getContextBoundTypeElement: Seq[ScTypeElement] = {
+    val contextTypeElements = contextBoundElement.get
+    if (contextTypeElements != null && contextTypeElements.forall(_.getContext.eq(getPsi))) return contextTypeElements
+    val res: Seq[ScTypeElement] = getContextBoundText.map(ScalaPsiElementFactory.createTypeElementFromText(_, getPsi, null))
+    contextBoundElement = new SoftReference(res)
     res
   }
 

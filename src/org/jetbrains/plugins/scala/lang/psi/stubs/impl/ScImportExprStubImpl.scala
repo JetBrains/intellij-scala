@@ -24,25 +24,30 @@ class ScImportExprStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPs
 
   var referenceText: StringRef = StringRef.fromString("")
   var singleWildcard: Boolean = _
-  private var myReference: SoftReference[Option[ScStableCodeReferenceElement]] = null
+  private var myReference: SoftReference[Option[ScStableCodeReferenceElement]] =
+    new SoftReference[Option[ScStableCodeReferenceElement]](null)
 
   def this(parent : StubElement[ParentPsi],
-          elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement], refText: String, singleWildcard: Boolean) {
-    this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
+          elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement], refText: String,
+          singleWildcard: Boolean) {
+    this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     referenceText = StringRef.fromString(refText)
     this.singleWildcard = singleWildcard
   }
 
   def reference: Option[ScStableCodeReferenceElement] = {
-    if (myReference != null && myReference.get != null) return myReference.get
-    val res = if (referenceText == StringRef.fromString("")) {
-      None
-    } else {
-      val psi = ScalaPsiElementFactory.createReferenceFromText(StringRef.toString(referenceText), getPsi, null)
-      if (psi != null) {
-        Some(psi)
-      } else None
+    val referenceElement = myReference.get
+    if (referenceElement != null && (referenceElement.isEmpty || (referenceElement.get.getContext eq getPsi))) {
+      return referenceElement
     }
+    val res =
+      if (referenceText == StringRef.fromString("")) None
+      else {
+        val psi = ScalaPsiElementFactory.createReferenceFromText(StringRef.toString(referenceText), getPsi, null)
+        if (psi != null) {
+          Some(psi)
+        } else None
+      }
     myReference = new SoftReference[Option[ScStableCodeReferenceElement]](res)
     res
   }

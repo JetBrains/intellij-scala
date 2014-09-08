@@ -1818,7 +1818,7 @@ object ScalaPsiUtil {
       "evidence$" + i
     }
     def synthParams(typeParam: ScTypeParam): Seq[(String, ScTypeElement => Unit)] = {
-      val views = typeParam.viewTypeElement.toSeq.map {
+      val views = typeParam.viewTypeElement.map {
         vte =>
           val code = "%s: _root_.scala.Function1[%s, %s]".format(nextName(), typeParam.name, vte.getText)
           def updateAnalog(typeElement: ScTypeElement) {

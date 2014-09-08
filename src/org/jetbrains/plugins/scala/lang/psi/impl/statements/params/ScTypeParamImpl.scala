@@ -97,17 +97,17 @@ class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScType
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
-  override def viewTypeElement: List[ScTypeElement] = {
+  override def viewTypeElement: Seq[ScTypeElement] = {
     val stub = getStub
     if (stub != null) {
-      stub.asInstanceOf[ScTypeParamStub].getViewTypeElement.toList
+      stub.asInstanceOf[ScTypeParamStub].getViewTypeElement
     } else super.viewTypeElement
   }
 
-  override def contextBoundTypeElement: List[ScTypeElement] = {
+  override def contextBoundTypeElement: Seq[ScTypeElement] = {
     val stub = getStub
     if (stub != null) {
-      stub.asInstanceOf[ScTypeParamStub].getContextBoundTypeElement.toList
+      stub.asInstanceOf[ScTypeParamStub].getContextBoundTypeElement
     } else super.contextBoundTypeElement
   }
 

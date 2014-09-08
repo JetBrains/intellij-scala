@@ -729,7 +729,7 @@ object ScalaPsiElementFactory {
             val contextBoundText = typeParam.contextBound collect {
               case tp: ScType => " : " + ScType.canonicalText(ScTypeUtil.stripTypeArgs(substitutor.subst(tp)))
             }
-            val boundsText = (lowerBoundText ++ upperBoundText ++ viewBoundText ++ contextBoundText).mkString
+            val boundsText = (lowerBoundText.toSeq ++ upperBoundText.toSeq ++ viewBoundText ++ contextBoundText).mkString
             s"$variance${typeParam.name}$clauseText$boundsText"
           }
 
