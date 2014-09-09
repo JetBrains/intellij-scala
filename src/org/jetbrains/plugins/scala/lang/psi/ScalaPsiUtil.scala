@@ -59,7 +59,6 @@ import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
-import scala.collection.immutable.Stream
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, Set, mutable}
 import scala.reflect.NameTransformer
@@ -1222,7 +1221,7 @@ object ScalaPsiUtil {
     new LightModifierList(manager, ScalaFileType.SCALA_LANGUAGE)
 
   def adjustTypes(element: PsiElement, addImports: Boolean = true) {
-    def replaceStablePath(ref: ScReferenceElement, name: String, toBind: PsiElement): PsiElement = {
+    def replaceStablePath(ref: ScReferenceElement, name: String, qualName: Option[String], toBind: PsiElement): PsiElement = {
       if (!addImports) {
         val checkRef = ScalaPsiElementFactory.createReferenceFromText(name, ref.getContext, ref)
         val resolved = checkRef.resolve()
@@ -1230,7 +1229,12 @@ object ScalaPsiUtil {
           return ref
         }
       }
-      val replaced = ref.replace(ScalaPsiElementFactory.createReferenceFromText(name, toBind.getManager))
+      val replacedText = qualName match {
+        case Some(qName) if ScalaCodeStyleSettings.getInstance(ref.getProject).hasImportWithPrefix(qName) =>
+          qName.split('.').takeRight(2).mkString(".")
+        case _ => name
+      }
+      val replaced = ref.replace(ScalaPsiElementFactory.createReferenceFromText(replacedText, toBind.getManager))
       replaced.asInstanceOf[ScStableCodeReferenceElement].bindToElement(toBind)
     }
     if (element == null) return
@@ -1245,17 +1249,17 @@ object ScalaPsiUtil {
               stableRef.replace(aliasedRef.get)
             case fun: ScFunction if fun.isConstructor =>
               val clazz = fun.containingClass
-              if (hasStablePath(clazz)) replaceStablePath(stableRef, clazz.name, fun)
+              if (hasStablePath(clazz)) replaceStablePath(stableRef, clazz.name, Option(clazz.qualifiedName), fun)
               else adjustTypes(child)
             case m: PsiMethod if m.isConstructor =>
               val clazz = m.getContainingClass
-              if (hasStablePath(clazz)) replaceStablePath(stableRef, clazz.name, m)
+              if (hasStablePath(clazz)) replaceStablePath(stableRef, clazz.name, Option(clazz.qualifiedName), m)
               else adjustTypes(child)
             case named: PsiNamedElement if hasStablePath(named) =>
               named match {
-                case clazz: PsiClass => replaceStablePath(stableRef, clazz.name, clazz)
-                case typeAlias: ScTypeAlias => replaceStablePath(stableRef, typeAlias.name, typeAlias)
-                case binding: ScBindingPattern => replaceStablePath(stableRef, binding.name, binding)
+                case clazz: PsiClass => replaceStablePath(stableRef, clazz.name, Option(clazz.qualifiedName), clazz)
+                case typeAlias: ScTypeAlias => replaceStablePath(stableRef, typeAlias.name, None, typeAlias)
+                case binding: ScBindingPattern => replaceStablePath(stableRef, binding.name, None, binding)
                 case _ => adjustTypes(child)
               }
             case _ => adjustTypes(child)

@@ -101,9 +101,9 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
               if (elements.length == 1) {
                 val element: ScTypeElement = elements(0)
                 val ref: ScStableCodeReferenceElement = element match {
-                  case simple: ScSimpleTypeElement => simple.reference.getOrElse(null)
+                  case simple: ScSimpleTypeElement => simple.reference.orNull
                   case par: ScParameterizedTypeElement => par.typeElement match {
-                    case simple: ScSimpleTypeElement => simple.reference.getOrElse(null)
+                    case simple: ScSimpleTypeElement => simple.reference.orNull
                     case _ => null
                   }
                   case _ => null
