@@ -44,7 +44,10 @@ class ScTemplateParentsStubImpl[ParentPsi <: PsiElement](parent: StubElement[Par
 
   def getTemplateParentsTypeElements: Seq[ScTypeElement] = {
     val typeElements = types.get
-    if (typeElements != null && typeElements.forall(_.getContext.eq(getPsi))) return typeElements
+    if (typeElements != null && typeElements.forall { elem =>
+      val context = elem.getContext
+      context.eq(getPsi) || (context.getContext != null && context.getContext.eq(getPsi))
+    }) return typeElements
     val res: Seq[ScTypeElement] =
       constructor.map(s =>
         ScalaPsiElementFactory.createConstructorTypeElementFromText(StringRef.toString(s), getPsi, null)).toSeq ++
