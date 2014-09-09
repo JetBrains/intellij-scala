@@ -1229,7 +1229,7 @@ object ScalaPsiUtil {
           return ref
         }
       }
-      val replacedText = qualName match {
+      val replacedText: String = qualName match {
         case Some(qName) if ScalaCodeStyleSettings.getInstance(ref.getProject).hasImportWithPrefix(qName) =>
           qName.split('.').takeRight(2).mkString(".")
         case _ => name
@@ -1244,17 +1244,11 @@ object ScalaPsiUtil {
       child match {
         case stableRef: ScStableCodeReferenceElement =>
           var aliasedRef: Option[ScReferenceElement] = None
-          stableRef.resolve() match {
+          def update(element: PsiElement): Unit = element match {
             case resolved if {aliasedRef = ScalaPsiUtil.importAliasFor(resolved, stableRef); aliasedRef.isDefined} =>
               stableRef.replace(aliasedRef.get)
-            case fun: ScFunction if fun.isConstructor =>
-              val clazz = fun.containingClass
-              if (hasStablePath(clazz)) replaceStablePath(stableRef, clazz.name, Option(clazz.qualifiedName), fun)
-              else adjustTypes(child)
-            case m: PsiMethod if m.isConstructor =>
-              val clazz = m.getContainingClass
-              if (hasStablePath(clazz)) replaceStablePath(stableRef, clazz.name, Option(clazz.qualifiedName), m)
-              else adjustTypes(child)
+            case fun: ScFunction if fun.isConstructor => update(fun.containingClass)
+            case m: PsiMethod if m.isConstructor => update(m.getContainingClass)
             case named: PsiNamedElement if hasStablePath(named) =>
               named match {
                 case clazz: PsiClass => replaceStablePath(stableRef, clazz.name, Option(clazz.qualifiedName), clazz)
@@ -1264,6 +1258,7 @@ object ScalaPsiUtil {
               }
             case _ => adjustTypes(child)
           }
+          update(stableRef.resolve())
         case tp: ScTypeProjection =>
           tp.resolve() match {
             case m: ScMember =>
@@ -1875,13 +1870,13 @@ object ScalaPsiUtil {
   }
 
   def availableImportAliases(position: PsiElement): Set[(ScReferenceElement, String)] = {
-
     def getSelectors(holder: ScImportsHolder): Set[(ScReferenceElement, String)] = {
       val result = collection.mutable.Set[(ScReferenceElement, String)]()
       if (holder != null) {
         val importExprs: Seq[ScImportExpr] = holder.getImportStatements.flatMap(_.importExprs)
-        importExprs.flatMap(_.selectors).filter(_.importedName != "_").foreach(s => result += ((s.reference, s.importedName)))
-        importExprs.filter(_.selectors.isEmpty).flatMap(_.reference).foreach(ref => result += ((ref, ref.refName)))
+        importExprs.flatMap(_.selectors).filter(_.importedName != "_").foreach { s =>
+          if (s.reference.refName != s.importedName) result += ((s.reference, s.importedName))
+        }
         result.toSet
       }
       else Set.empty
@@ -1897,15 +1892,16 @@ object ScalaPsiUtil {
         case holder: ScImportsHolder => aliases ++= getSelectors(holder)
         case _ =>
       }
-      parent = if (parent.isInstanceOf[PsiFile]) null else parent.getParent
+      parent = parent.getParent
     }
 
     def correctResolve(alias: (ScReferenceElement, String)): Boolean = {
       val (aliasRef, text) = alias
       val ref = ScalaPsiElementFactory.createReferenceFromText(text, position.getContext, position)
       val resolves = aliasRef.multiResolve(false)
-      resolves.exists { rr =>
-          ScEquivalenceUtil.smartEquivalence(ref.resolve(), rr.getElement)
+      resolves.exists {
+        case rr: ScalaResolveResult => ref.isReferenceTo(rr.element)
+        case _ => false
       }
     }
     aliases.filter(_._1.getTextRange.getEndOffset < position.getTextOffset).filter(correctResolve).toSet
@@ -1959,7 +1955,7 @@ object ScalaPsiUtil {
       case td: ScPatternDefinition => (td.bindings, td.expr)
       case _ => (Seq.empty[ScBindingPattern], None)
     }
-    if (bindings.size == 1 && expr.exists(_ == instance)) Option(bindings(0))
+    if (bindings.size == 1 && expr.contains(instance)) Option(bindings(0))
     else {
       for (bind <- bindings) {
         if (bind.getType(TypingContext.empty).toOption == instance.getType(TypingContext.empty).toOption) return Option(bind)
