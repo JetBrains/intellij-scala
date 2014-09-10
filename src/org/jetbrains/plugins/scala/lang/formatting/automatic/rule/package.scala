@@ -338,7 +338,7 @@ package object rule {
     ScalaFormattingCompositeRule("CASE CLAUSE", caseWord,
       maybe(
         seq(pattern, maybeGuard, `=>`.&(caseClauseArrowAnchor), maybe(block.c))
-      )).n
+      ))//.n TODO: find out whether it's ok
     , ScalaFormattingRule.RULE_PRIORITY_DEFAULT, "CASE CLAUSE COMPOSITE")
 
   val caseClauses = ScalaSomeRule(1, caseClause.&("CASE CLAUSE ANCHOR"), "CASE CLAUSES")

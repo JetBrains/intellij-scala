@@ -18,6 +18,10 @@ import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.statistics
 import junit.framework.Test
 import scala.Some
 import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.matching.{ScalaBlockFormatterEntry, ScalaFormattingRuleInstance, ScalaFormattingRuleMatcher}
+import org.jdom.Element
+import org.jetbrains.plugins.scala.lang.formatting.automatic.settings.serialization.ScalaFormattingSettingsSerializer
+import com.intellij.openapi.components.StoragePathMacros
+import org.jetbrains.jps.model.serialization.PathMacroUtil
 
 /**
  * This is just a dirty hack used to get to Project object.
@@ -29,9 +33,6 @@ class ScalaFormattingStatisticsCollector private (path: String) extends BaseScal
 
   private var rootNameCount = 0
 
-  def buildFileStatName(path: Path) = {
-    path.toFile.getAbsolutePath.replace("C:\\", "").replace("\\", "|")
-  }
 
   def printStatistics(directory: Path) = {
 
@@ -57,7 +58,6 @@ class ScalaFormattingStatisticsCollector private (path: String) extends BaseScal
         //now write data on all rules present in the statistics
         val settings = statistics.getInitialSettings
         for ((ruleInstance, entries) <- settings) {
-          try {
             val instanceMap = projectRuleStatisticsMap.getOrElse(ruleInstance, mutable.Map())
             entries.map(entry => instanceMap.put(entry, entry.instances.size + instanceMap.getOrElse(entry, 0)))
             projectRuleStatisticsMap.put(ruleInstance, instanceMap)
@@ -65,18 +65,6 @@ class ScalaFormattingStatisticsCollector private (path: String) extends BaseScal
             val globalInstanceMap = totalRuleStatisticsMap.getOrElse(ruleInstance, mutable.Map())
             entries.map(entry => globalInstanceMap.put(entry, entry.instances.size + globalInstanceMap.getOrElse(entry, 0)))
             totalRuleStatisticsMap.put(ruleInstance, globalInstanceMap)
-
-            val instanceString = ruleInstance.getTreeString
-//            writer.write("\n========== RULE ==========:\n" + instanceString)
-//            writer.write("\n++++++++++ ENTRIES ++++++++++:\n")
-//            for (entry <- entries) {
-//              writer.write(entry.toString + " occured in " + entry.instances.length + " blocks\n")
-//            }
-          } catch {
-            case e: IOException => System.err.format("IOException: %s%n", e)
-            case e: Exception => e.printStackTrace()
-              System.exit(69)
-          }
         }
       }
 
@@ -122,26 +110,6 @@ class ScalaFormattingStatisticsCollector private (path: String) extends BaseScal
     writer.close()
   }
 
-  def collectStatistics(path: Path, matcher: ScalaFormattingRuleMatcher, root: ScalaBlock) = {
-    val statistic = new FormattingStatistics
-    //first, we match all rules for current file
-    matcher.matchBlockTree(root)
-    //now, generate possible initial settings
-    val initialSettings = matcher.deriveInitialSettings(Some(statistic))
-
-    statistic.addInitialSettings(initialSettings)
-
-//    val relationsSettings = matcher.processRelations(initialSettings, Some(statistic))
-//
-//    statistic.addRelationSettings(relationsSettings)
-
-//    val indentTypeSettings = relationsSettings.map(matcher.deduceIndentSettings).flatten
-
-//    matcher.
-
-    statistic
-  }
-
   def getRoot(code: String): ScalaBlock = {
     val project: Project = getProject
     val containingFile: PsiFile = TestUtils.createPseudoPhysicalScalaFile(project, code)
@@ -172,24 +140,14 @@ class ScalaFormattingStatisticsCollector private (path: String) extends BaseScal
       Files.walkFileTree(statProject,
         new SimpleFileVisitor[Path]() {
           override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
-//            println(file.getFileName)
             if (file.toFile.getName.endsWith(".scala")) {
               val code = new String(FileUtil.loadFileText(file.toFile, "UTF-8"))
               val codeRoot = getRoot(code)
-              val matcher = ScalaFormattingRuleMatcher.getDefaultMatcher(project)
-              localStatistics.put(file, collectStatistics(file, matcher, codeRoot))
+              val matcher = ScalaFormattingRuleMatcher.createDefaultMatcher(project)
+//              localStatistics.put(file, collectStatistics(file, matcher, codeRoot))
             }
             FileVisitResult.CONTINUE
           }
-
-//          override def preVisitDirectory(directory: Path, attrs: BasicFileAttributes): FileVisitResult = {
-//            val parent = directory.getParent
-//            if (directory != statProject && parent == path && !projectDirectories.contains(directory.toFile.getName)) {
-//              FileVisitResult.SKIP_SUBTREE
-//            } else {
-//              FileVisitResult.CONTINUE
-//            }
-//          }
         }
       )
       statistics.put(statProject, localStatistics)

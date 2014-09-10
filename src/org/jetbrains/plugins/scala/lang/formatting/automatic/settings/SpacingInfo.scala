@@ -14,7 +14,7 @@ class SpacingInfo(val spacesCount: Int, val minLineBreaksCount: Option[Int], val
    * @param other
    * @return
    */
-  def devour(other: SpacingInfo):SpacingInfo = {
+  def devour(other: SpacingInfo): SpacingInfo = {
     new SpacingInfo(spacesCount,
       minLineBreaksCount.map(Math.max(_, other.minLineBreaksCount.getOrElse(0))),
       maxLineBreaksCount.map(Math.min(_, other.maxLineBreaksCount.getOrElse(Integer.MAX_VALUE))), lineBreaksCount)

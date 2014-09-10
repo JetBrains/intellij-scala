@@ -57,9 +57,11 @@ public class ExtractAndFormatTest extends BaseScalaFileSetTestCase {
 
     String formatCode = data[1];
 
-    ScalaBlock.initFormatter(getRoot(learnCode));
+    ScalaBlock.toggleAutoFormatter();
 
-    ScalaBlock.feedFormatter(getRoot(formatCode));
+    ScalaBlock.prepareFormatter(getRoot(learnCode), getProject());
+
+    ScalaBlock.matchBlock(getRoot(formatCode));
 
     final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), formatCode);
     CommandProcessor.getInstance().executeCommand(getProject(), new Runnable() {
@@ -75,6 +77,8 @@ public class ExtractAndFormatTest extends BaseScalaFileSetTestCase {
         });
       }
     }, null, null);
+    ScalaBlock.resetMatcher();
+    ScalaBlock.toggleAutoFormatter();
     return psiFile.getText();
   }
 

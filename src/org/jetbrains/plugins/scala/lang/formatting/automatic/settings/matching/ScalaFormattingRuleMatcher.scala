@@ -372,7 +372,9 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
             checkedEntries = newCheckedSettings.toSet
           }
           val ruleInstanceBlocks = List(rulesToSpacingDefiningBlocks.get(ruleInstance).getOrElse(List()))
-          if (needWrapInReadAction) {
+          if (processIndentsOnly) {
+            res.put(ruleInstance, checkedEntries.toList)
+          } else if (needWrapInReadAction) {
             wrapInReadAction {
               res.put(ruleInstance, ScalaFormattingRuleMatcher.deduceWraps(checkedEntries.toList, ruleInstanceBlocks))
             }
@@ -623,16 +625,23 @@ class ScalaFormattingRuleMatcher(val rulesByNames: Map[String, ScalaFormattingRu
     }
 
     processIndentRelations(indentsStartLayer)
-
   }
 
 
   def processIndentRelations(startingLayer: FormattingSettingsTree#LayeredTraversal,
                              failLogger: Option[SettingDeductionFailLogger] = None): FormattingSettingsTree#LayeredTraversal = {
 
+    println("processing continuation indents...")
+    val indentProcessingStart = System.currentTimeMillis()
     val currentLayer = IndentTypeRelation.continuationIndentRelation.filter(startingLayer)
-
-    IndentTypeRelation.normalIndentRelation.filter(currentLayer)
+    val continuationFinished = System.currentTimeMillis() - indentProcessingStart
+    println("processing continuation indents took " + continuationFinished + "ms")
+    println("processing normal indents...")
+    val normalStart = System.currentTimeMillis()
+    val resLayer = IndentTypeRelation.normalIndentRelation.filter(currentLayer)
+    val normalFinished = System.currentTimeMillis() - normalStart
+    println("processing normal indents took " + normalFinished + "ms")
+    resLayer
   }
 
   def processNonIndentRelations(startingLayer: FormattingSettingsTree#LayeredTraversal,
@@ -861,16 +870,16 @@ object ScalaFormattingRuleMatcher {
   def topRulesByIds: Map[String, ScalaFormattingRule] =
   //first, construct default rules
     Map[String, ScalaFormattingRule](
-//      rule.whileDefault.id -> rule.whileDefault,
-//      rule.doDefault.id -> rule.doDefault,
+      rule.whileDefault.id -> rule.whileDefault,
+      rule.doDefault.id -> rule.doDefault,
       rule.ifDefault.id -> rule.ifDefault,
-//      rule.caseClausesComposite.id -> rule.caseClausesComposite,
-//      rule.tryDefault.id -> rule.tryDefault,
-//      rule.matchRule.id -> rule.matchRule,
-      rule.idChainDefault.id -> rule.idChainDefault
-//      rule.parametersDefault.id -> rule.parametersDefault,
-//      rule.typeParametersList.id -> rule.typeParametersList,
-//      rule.forDefault.id -> rule.forDefault
+      rule.caseClausesComposite.id -> rule.caseClausesComposite,
+      rule.tryDefault.id -> rule.tryDefault,
+      rule.matchRule.id -> rule.matchRule,
+      rule.idChainDefault.id -> rule.idChainDefault,
+      rule.parametersDefault.id -> rule.parametersDefault,
+      rule.typeParametersList.id -> rule.typeParametersList,
+      rule.forDefault.id -> rule.forDefault
 //      rule.importChainDefault.id -> rule.importChainDefault
     )
   //Map[String, ScalaFormattingRule](rule.caseClausesComposite.id -> rule.caseClausesComposite)

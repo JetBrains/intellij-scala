@@ -38,14 +38,16 @@ class SameSettingsRelation(val id: String) extends RuleRelation {
     }
   }
 
-  protected def processSameWrapRules(res: mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]],
+  protected def processSameWrapRules(res: Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]],
                                      ruleInstance: ScalaFormattingRuleInstance,
                                      entry: ScalaBlockFormatterEntry,
                                      entries: mutable.ListBuffer[ScalaBlockFormatterEntry],
-                                     entriesAdded: mutable.Set[ScalaBlockFormatterEntry]) {
+                                     entriesAdded: mutable.Set[ScalaBlockFormatterEntry]):
+    Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]] = {
+    var result = res
     //since wraps are set only when they are needed, also process cases when wraps are not needed, but could still be set
     if (sameWrapRules.contains(ruleInstance.rule)) {
-      val sameWrapMap = res.filter(mapEntry => sameWrapRules.contains(mapEntry._1.rule))
+      val sameWrapMap = result.filter(mapEntry => sameWrapRules.contains(mapEntry._1.rule))
       for ((otherInstance, otherEntries) <- sameWrapMap if otherInstance!=ruleInstance) {
         val otherSet = otherEntries.map(_.reduceWrapTo(entry)).filter(_.isDefined).map(_.get).toSet
         for (altEntry <- otherEntries.map(entry.reduceWrapTo).filter(_.isDefined).map(_.get)) {
@@ -54,34 +56,40 @@ class SameSettingsRelation(val id: String) extends RuleRelation {
             entries += altEntry
           }
         }
-        res.put(otherInstance, otherSet.filter(otherEntry => entry.wrap == otherEntry.wrap).toList)
+        result = result.updated(otherInstance, otherSet.filter(otherEntry => entry.wrap == otherEntry.wrap).toList)
       }
     }
+    result
   }
 
-  protected def processSameSpacingRules(res: mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]],
+  protected def processSameSpacingRules(res: Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]],
                                         ruleInstance: ScalaFormattingRuleInstance,
                                         entry: ScalaBlockFormatterEntry,
                                         entries: mutable.ListBuffer[ScalaBlockFormatterEntry],
-                                        entriesAdded: mutable.Set[ScalaBlockFormatterEntry]) {
+                                        entriesAdded: mutable.Set[ScalaBlockFormatterEntry]):
+  Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]] = {
+    var  result = res
     //spacing filtering is only concerned with removing formatter entries that are not consistent with requirements
     if (sameSpacingRules.contains(ruleInstance.rule)) {
-      val sameSpacingMap = res.filter(mapEntry => sameSpacingRules.contains(mapEntry._1.rule))
+      val sameSpacingMap = result.filter(mapEntry => sameSpacingRules.contains(mapEntry._1.rule))
       for ((otherInstance, otherEntries) <- sameSpacingMap if otherInstance != ruleInstance) {
         //TODO: for now, different counts of newlines are not supported
-        res.put(otherInstance, otherEntries.filter(otherEntry => entry.spacing == otherEntry.spacing))
+        result = result.updated(otherInstance, otherEntries.filter(otherEntry => entry.spacing == otherEntry.spacing))
       }
     }
+    result
   }
 
-  protected def processSameIndentRules(res: mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]],
+  protected def processSameIndentRules(res: Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]],
                                        ruleInstance: ScalaFormattingRuleInstance,
                                        entry: ScalaBlockFormatterEntry,
                                        entries: mutable.ListBuffer[ScalaBlockFormatterEntry],
                                        entriesAdded: mutable.Set[ScalaBlockFormatterEntry],
-                                       indentType: Option[IndentType.IndentType]) {
+                                       indentType: Option[IndentType.IndentType]):
+  Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]] = {
+    var result = res
     if (sameIndentRules.contains(ruleInstance.rule)) {
-      val sameIndentMap = res.filter(mapEntry => sameIndentRules.contains(mapEntry._1.rule))
+      val sameIndentMap = result.filter(mapEntry => sameIndentRules.contains(mapEntry._1.rule))
       for ((otherInstance, otherEntries) <- sameIndentMap if otherInstance != ruleInstance) {
         val otherSet = otherEntries.map(_.reduceIndentTo(entry)).filter(_.isDefined).map(_.get).toSet
         for (altEntry <- otherEntries.map(entry.reduceIndentTo).filter(_.isDefined).map(_.get)) {
@@ -90,30 +98,35 @@ class SameSettingsRelation(val id: String) extends RuleRelation {
             entries += altEntry
           }
         }
-        res.put(otherInstance, otherSet.filter(otherEntry => entry.indentInfo == otherEntry.indentInfo).
+        result = result.updated(otherInstance, otherSet.filter(otherEntry => entry.indentInfo == otherEntry.indentInfo).
                 map(entry => indentType match {
           case Some(iType) => entry.setIndentType(iType)
           case None => entry
         }).toList)
       }
       indentType match {
-        case Some(iType) => res.put(ruleInstance, res.getOrElse(ruleInstance, List()).map(_.setIndentType(iType)))
+        case Some(iType) =>
+          result = result.updated(ruleInstance, res.getOrElse(ruleInstance, List()).map(_.setIndentType(iType)))
         case _ =>
       }
     }
+    result
   }
 
-  protected def processSameAlignmentRules(res: mutable.Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]],
+  protected def processSameAlignmentRules(res: Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]],
                                           ruleInstance: ScalaFormattingRuleInstance,
                                           entry: ScalaBlockFormatterEntry,
                                           entries: mutable.ListBuffer[ScalaBlockFormatterEntry],
-                                          entriesAdded: mutable.Set[ScalaBlockFormatterEntry]) {
+                                          entriesAdded: mutable.Set[ScalaBlockFormatterEntry]):
+  Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]] = {
+    var result = res
     if (sameAlignmentRules.contains(ruleInstance.rule)) {
-      val sameAlignmentMap = res.filter(mapEntry => sameAlignmentRules.contains(mapEntry._1.rule))
+      val sameAlignmentMap = result.filter(mapEntry => sameAlignmentRules.contains(mapEntry._1.rule))
       for ((otherInstance, otherEntries) <- sameAlignmentMap if otherInstance != ruleInstance) {
-        res.put(otherInstance, otherEntries.filter(otherEntry => entry.alignment == otherEntry.alignment))
+        result = result.updated(otherInstance, otherEntries.filter(otherEntry => entry.alignment == otherEntry.alignment))
       }
     }
+    result
   }
 
   /**
@@ -131,23 +144,25 @@ class SameSettingsRelation(val id: String) extends RuleRelation {
                 entriesAdded: mutable.Set[ScalaBlockFormatterEntry],
                 indentType: Option[IndentType.IndentType] = indentType):
   Map[ScalaFormattingRuleInstance, List[ScalaBlockFormatterEntry]] = {
-    val res = mutable.Map(map.toSeq:_*)
+    //val res = mutable.Map(map.toSeq:_*)
 
 //    if (res.exists(value => value._2.isEmpty)) {
 //      return mutable.Map()
 //    }
 
-    res.put(ruleInstance, List(entry))
+//    res.put(ruleInstance, List(entry))
 
-    processSameWrapRules(res, ruleInstance, entry, entries, entriesAdded)
+    var res = map.updated(ruleInstance, List(entry))
 
-    processSameSpacingRules(res, ruleInstance, entry, entries, entriesAdded)
+    res = processSameWrapRules(res, ruleInstance, entry, entries, entriesAdded)
 
-    processSameIndentRules(res, ruleInstance, entry, entries, entriesAdded, indentType)
+    res = processSameSpacingRules(res, ruleInstance, entry, entries, entriesAdded)
 
-    processSameAlignmentRules(res, ruleInstance, entry, entries, entriesAdded)
+    res = processSameIndentRules(res, ruleInstance, entry, entries, entriesAdded, indentType)
 
-    Map(res.toSeq:_*)
+    res = processSameAlignmentRules(res, ruleInstance, entry, entries, entriesAdded)
+
+    res
   }
 
 //  /**

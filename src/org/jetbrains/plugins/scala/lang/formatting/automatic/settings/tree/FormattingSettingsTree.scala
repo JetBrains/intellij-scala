@@ -32,8 +32,8 @@ class FormattingSettingsTree private (private var childrenAgg: Option[(SplitType
       var nextLayer = List[(FormattingSettingsTree, Option[ScalaBlockFormatterEntry])]()
       for ((node, entry) <- currentLayer) {
         node.childrenWithEntries match {
-          case Some(children) => nextLayer = nextLayer ::: children.map(arg => (arg._1, Some(arg._2)))
-          case _ => nextLayer = nextLayer ::: List((node, None))
+          case Some(children) => nextLayer = children.map(arg => (arg._1, Some(arg._2))) ::: nextLayer
+          case _ => nextLayer = (node, None) :: nextLayer
         }
       }
       new LayeredTraversal(nextLayer)
