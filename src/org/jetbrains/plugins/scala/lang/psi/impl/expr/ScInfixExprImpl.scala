@@ -44,7 +44,7 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
     val invocationCount = 1
     for (variant <- variants) {
       variant match {
-        case ScalaResolveResult(method: PsiMethod, s: ScSubstitutor) => {
+        case ScalaResolveResult(method: PsiMethod, s: ScSubstitutor) =>
           val subst = if (method.getTypeParameters.length != 0) {
             val subst = method.getTypeParameters.foldLeft(ScSubstitutor.empty) {
               (subst, tp) => subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)), ScUndefinedType(tp match {
@@ -56,22 +56,19 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
           }
           else s
           method match {
-            case fun: ScFunction => {
+            case fun: ScFunction =>
               if (fun.paramClauses.clauses.length >= invocationCount) {
                 buffer += fun.paramClauses.clauses.apply(invocationCount - 1).parameters.map({
                   p => (p.name,
                           subst.subst(p.getType(TypingContext.empty).getOrAny))
                 }).toArray
               } else if (invocationCount == 1) buffer += Array.empty
-            }
-            case method: PsiMethod if invocationCount == 1 => {
+            case method: PsiMethod if invocationCount == 1 =>
               buffer += method.getParameterList.getParameters.map({
                 p: PsiParameter => ("", subst.subst(p.exactParamType()))
               })
-            }
             case _ =>
           }
-        }
         case _ => //todo: other options
       }
     }
@@ -79,6 +76,17 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
   }
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
+    def cacheBaseParts(inf: ScInfixExpr): Unit = {
+      inf.getBaseExpr match {
+        case inf: ScInfixExpr =>
+          cacheBaseParts(inf)
+        case _ =>
+      }
+      inf.getBaseExpr.getType(TypingContext.empty)
+    }
+
+    cacheBaseParts(this)
+
     operation.bind() match {
       //this is assignment statement: x += 1 equals to x = x + 1
       case Some(r) if r.element.name + "=" == operation.refName =>
