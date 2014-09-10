@@ -897,8 +897,42 @@ object Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
 
+      def processEquivalentDesignators(args2: Seq[ScType]): Unit = {
+        val args1 = p.typeArgs
+        val des1 = p.designator
+        if (args1.length != args2.length) {
+          result = (false, undefinedSubst)
+          return
+        }
+        ScType.extractDesignated(des1, withoutAliases = false) match {
+          case Some((ownerDesignator, _)) =>
+            val parametersIterator = ownerDesignator match {
+              case td: ScTypeParametersOwner => td.typeParameters.iterator
+              case ownerDesignator: PsiTypeParameterListOwner => ownerDesignator.getTypeParameters.iterator
+              case _ =>
+                result = (false, undefinedSubst)
+                return
+            }
+            result = checkParameterizedType(parametersIterator, args1, args2,
+              undefinedSubst, visited, checkWeak)
+            return
+          case _ =>
+            result = (false, undefinedSubst)
+            return
+        }
+      }
+
+      //todo: looks like this code can be simplified and unified.
+      //todo: what if left is type alias declaration, right is type alias definition, which is alias to that declaration?
       p.designator match {
         case proj: ScProjectionType if proj.actualElement.isInstanceOf[ScTypeAlias] =>
+          r match {
+            case ScParameterizedType(proj2: ScProjectionType, args2)
+              if proj.actualElement.isInstanceOf[ScTypeAliasDeclaration] && (proj equiv proj2) =>
+              processEquivalentDesignators(args2)
+              return
+            case _ =>
+          }
           val args = p.typeArgs
           val a = proj.actualElement.asInstanceOf[ScTypeAlias]
           val subst = proj.actualSubst
@@ -915,6 +949,13 @@ object Conformance {
           result = conformsInner(s.subst(lBound), r, visited, undefinedSubst)
           return
         case ScDesignatorType(a: ScTypeAlias) =>
+          r match {
+            case ScParameterizedType(des2@ScDesignatorType(a2: ScTypeAlias), args2)
+              if a.isInstanceOf[ScTypeAliasDeclaration] && (p.designator equiv des2) =>
+              processEquivalentDesignators(args2)
+              return
+            case _ =>
+          }
           val args = p.typeArgs
           val lower: ScType = a.lowerBound.toOption match {
             case Some(low) => low
@@ -933,48 +974,6 @@ object Conformance {
       rightVisitor = new ParameterizedAliasVisitor with TypeParameterTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
-
-      p.designator match {
-        case des: ScDesignatorType if des.element.isInstanceOf[ScTypeAlias] =>
-          val a = des.element.asInstanceOf[ScTypeAlias]
-          if (!a.isExistentialTypeAlias) {
-            val lBound = a.lowerBound.toOption match {
-              case Some(tp) => tp
-              case _ =>
-                result = (false, undefinedSubst)
-                return
-            }
-            val genericSubst = ScalaPsiUtil.
-              typesCallSubstitutor(a.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), p.typeArgs)
-            result = conformsInner(genericSubst.subst(lBound), r, visited, undefinedSubst)
-            return
-          }
-          else {
-            val lBound = a.lowerBound.toOption match {
-              case Some(tp) => tp
-              case _ =>
-                result = (false, undefinedSubst)
-                return
-            }
-            val uBound = a.upperBound.toOption match {
-              case Some(tp) => tp
-              case _ =>
-                result = (false, undefinedSubst)
-                return
-            }
-            val genericSubst = ScalaPsiUtil.
-              typesCallSubstitutor(a.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), p.typeArgs)
-            val t = conformsInner(genericSubst.subst(uBound), r, visited, undefinedSubst)
-            if (!t._1) {
-              result = (false, undefinedSubst)
-              return
-            }
-            undefinedSubst = t._2
-            result = conformsInner(r, genericSubst.subst(lBound), visited, undefinedSubst)
-            return
-          }
-        case _ =>
-      }
 
       r match {
         case _: JavaArrayType =>
@@ -1732,6 +1731,10 @@ object Conformance {
     val uSubst = new ScUndefinedSubstitutor()
 
     def comp(): (Boolean, ScUndefinedSubstitutor) = {
+      if (l.toString == "Implicits.this.type#r1#ZeroOne[NotInferedT]" &&
+          r.toString == "Implicits.this.type#r1#ZeroOne[Int]") {
+        "stop here"
+      }
       val leftVisitor = new LeftConformanceVisitor(l, r, visited, uSubst, checkWeak)
       l.visitType(leftVisitor)
       if (leftVisitor.getResult != null) return leftVisitor.getResult
