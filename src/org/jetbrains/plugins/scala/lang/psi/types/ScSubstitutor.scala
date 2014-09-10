@@ -363,7 +363,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
           new TypeParameter(tp.name, tp.typeParams.map(substTypeParam), () => substInternal(tp.lowerType()),
             () => substInternal(tp.upperType()), tp.ptp)
         }
-        ScCompoundType(comps.map(substInternal), signatureMap.map {
+        val middleRes = ScCompoundType(comps.map(substInternal), signatureMap.map {
           case (s: Signature, tp: ScType) =>
             val pTypes: List[Seq[() => ScType]] = s.substitutedTypes.map(_.map(f => () => substInternal(f())))
             val tParams: Array[TypeParameter] = s.typeParams.map(substTypeParam)
@@ -379,6 +379,14 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
         }, typeMap.map {
           case (s, sign) => (s, sign.updateTypes(substInternal))
         })
+        //todo: this is ugly workaround for
+        updateThisType match {
+          case Some(thisType@ScDesignatorType(param: ScParameter)) =>
+            val paramType = param.getRealParameterType(TypingContext.empty).getOrAny
+            if (paramType.conforms(middleRes)) thisType
+            else middleRes
+          case _ => middleRes
+        }
       case ScDesignatorType(param: ScParameter) if getDependentMethodTypes.nonEmpty =>
         getDependentMethodTypes.find {
           case (parameter: Parameter, tp: ScType) =>
