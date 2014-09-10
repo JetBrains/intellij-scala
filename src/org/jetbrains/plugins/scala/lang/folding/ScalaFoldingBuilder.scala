@@ -143,9 +143,14 @@ class ScalaFoldingBuilder extends FoldingBuilder {
           (sc.getPrevSiblingNotWhitespace, sc.getNextSiblingNotWhitespace) match {
             case (a1: PsiElement, a2: PsiElement)
               if a1.getNode.getElementType == ScalaTokenTypes.tCOLON && a2.getNode.getElementType == ScalaTokenTypes.tASSIGN =>
-
+              val startElement =
+                if (a1.getPrevSibling.isInstanceOf[PsiWhiteSpace]) a1.getPrevSibling
+                else a1
+              val endElement =
+                if (a2.getNextSibling.isInstanceOf[PsiWhiteSpace]) a2.getNextSibling
+                else a2
               descriptors += new FoldingDescriptor(node,
-                new TextRange(a1.getTextRange.getStartOffset, a2.getTextRange.getEndOffset))
+                new TextRange(startElement.getTextRange.getStartOffset, endElement.getTextRange.getEndOffset))
               return
             case _ =>
           }
@@ -216,7 +221,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
             }
           }
         }
-      case ScalaElementTypes.SIMPLE_TYPE => return "  "
+      case ScalaElementTypes.SIMPLE_TYPE => return " "
       case _ => return null
     }
 
