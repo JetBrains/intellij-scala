@@ -343,7 +343,9 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     }
   }
 
-  def visitType(visitor: ScalaTypeVisitor) {}
+  def visitType(visitor: ScalaTypeVisitor): Unit = {
+    visitor.visitTypePolymorphicType(this)
+  }
 
   override def typeDepth: Int = {
     if (typeParameters.nonEmpty) internalType.typeDepth.max(ScType.typeParamsDepth(typeParameters.toArray) + 1)
