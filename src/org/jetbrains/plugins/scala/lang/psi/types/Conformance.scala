@@ -1731,10 +1731,6 @@ object Conformance {
     val uSubst = new ScUndefinedSubstitutor()
 
     def comp(): (Boolean, ScUndefinedSubstitutor) = {
-      if (l.toString == "Implicits.this.type#r1#ZeroOne[NotInferedT]" &&
-          r.toString == "Implicits.this.type#r1#ZeroOne[Int]") {
-        "stop here"
-      }
       val leftVisitor = new LeftConformanceVisitor(l, r, visited, uSubst, checkWeak)
       l.visitType(leftVisitor)
       if (leftVisitor.getResult != null) return leftVisitor.getResult

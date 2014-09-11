@@ -326,9 +326,22 @@ case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
 
   override def hashCode: Int = {
     if (hash == -1) {
-      hash = (((param.hashCode() * 31 + upper.hashCode) * 31 + lower.hashCode()) * 31 + args.hashCode()) * 31 + name.hashCode
+      hash = (param.hashCode() * 31 + args.hashCode()) * 31 + name.hashCode
     }
     hash
+  }
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[ScTypeParameterType]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: ScTypeParameterType =>
+      (that canEqual this) &&
+        name == that.name &&
+        args == that.args &&
+        lower.v == that.lower.v &&
+        upper.v == that.upper.v &&
+        param == that.param
+    case _ => false
   }
 
   def this(ptp: PsiTypeParameter, s: ScSubstitutor) = {

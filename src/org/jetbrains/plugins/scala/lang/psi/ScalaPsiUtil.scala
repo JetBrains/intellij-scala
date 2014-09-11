@@ -20,6 +20,7 @@ import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util._
+import com.intellij.util.containers.ConcurrentWeakHashMap
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.config.ScalaFacet
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
@@ -548,9 +549,15 @@ object ScalaPsiUtil {
     index.getModuleForFile(element.getContainingFile.getVirtualFile)
   }
 
-  def collectImplicitObjects(_tp: ScType, place: PsiElement): Seq[ScType] = {
+  val collectImplicitObjectsCache: ConcurrentWeakHashMap[(ScType, Project, GlobalSearchScope), Seq[ScType]] =
+    new ConcurrentWeakHashMap()
+
+  def collectImplicitObjects(_tp: ScType, project: Project, scope: GlobalSearchScope): Seq[ScType] = {
     val tp = ScType.removeAliasDefinitions(_tp)
-    val projectOpt = Option(place).map(_.getProject)
+    val cacheKey = (tp, project, scope)
+    var cachedResult = collectImplicitObjectsCache.get(cacheKey)
+    if (cachedResult != null) return cachedResult
+
     val visited: mutable.HashSet[ScType] = new mutable.HashSet[ScType]()
     val parts: mutable.Queue[ScType] = new mutable.Queue[ScType]
 
@@ -571,7 +578,7 @@ object ScalaPsiUtil {
           case clazz: PsiClass          =>
             clazz.getSuperTypes.foreach {
               tp =>
-                val stp = ScType.create(tp, place.getProject, place.getResolveScope)
+                val stp = ScType.create(tp, project, scope)
                 collectParts(subst.subst(stp))
             }
         }
@@ -586,7 +593,7 @@ object ScalaPsiUtil {
           collectParts(a)
           args.foreach(collectParts)
         case p@ScParameterizedType(des, args) =>
-          ScType.extractClassType(p, projectOpt) match {
+          ScType.extractClassType(p, Some(project)) match {
             case Some((clazz, subst)) =>
               parts += des
               collectParts(des)
@@ -597,7 +604,7 @@ object ScalaPsiUtil {
               args.foreach(collectParts)
           }
         case j: JavaArrayType =>
-          val parameterizedType = j.getParameterizedType(place.getProject, place.getResolveScope)
+          val parameterizedType = j.getParameterizedType(project, scope)
           collectParts(parameterizedType.getOrElse(return))
         case proj@ScProjectionType(projected, _, _) =>
           collectParts(projected)
@@ -607,7 +614,7 @@ object ScalaPsiUtil {
             case v: ScParameter      => v.getType(TypingContext.empty).map(proj.actualSubst.subst).foreach(collectParts)
             case _                   =>
           }
-          ScType.extractClassType(tp, projectOpt) match {
+          ScType.extractClassType(tp, Some(project)) match {
             case Some((clazz, subst)) =>
               parts += tp
               collectSupers(clazz, subst)
@@ -618,10 +625,10 @@ object ScalaPsiUtil {
           collectParts(upper)
         case ScExistentialType(quant, _) => collectParts(quant)
         case _                           =>
-          ScType.extractClassType(tp, projectOpt) match {
+          ScType.extractClassType(tp, Some(project)) match {
             case Some((clazz, subst)) =>
               val packObjects = clazz.contexts.flatMap {
-                case x: ScPackageLike => x.findPackageObject(place.getResolveScope).toIterator
+                case x: ScPackageLike => x.findPackageObject(scope).toIterator
                 case _                => Iterator()
               }
               parts += tp
@@ -652,8 +659,8 @@ object ScalaPsiUtil {
         tp match {
           case types.Any =>
           case tp: StdType if Seq("Int", "Float", "Double", "Boolean", "Byte", "Short", "Long", "Char").contains(tp.name) =>
-            val obj = ScalaPsiManager.instance(place.getProject).
-              getCachedClass("scala." + tp.name, place.getResolveScope, ClassCategory.OBJECT)
+            val obj = ScalaPsiManager.instance(project).
+              getCachedClass("scala." + tp.name, scope, ClassCategory.OBJECT)
             obj match {
               case o: ScObject => addResult(o.qualifiedName, ScDesignatorType(o))
               case _           =>
@@ -675,7 +682,7 @@ object ScalaPsiUtil {
               aliasedType.getOrAny))
           case _ =>
             for {
-              (clazz: PsiClass, subst: ScSubstitutor) <- ScType.extractClassType(tp, projectOpt)
+              (clazz: PsiClass, subst: ScSubstitutor) <- ScType.extractClassType(tp, Some(project))
               if !visited.contains(clazz)
             } {
               clazz match {
@@ -684,9 +691,11 @@ object ScalaPsiUtil {
                   getCompanionModule(clazz) match {
                     case Some(obj: ScObject) =>
                       tp match {
-                        case ScProjectionType(proj, _, s)                         => addResult(obj.qualifiedName, ScProjectionType(proj, obj, s))
-                        case ScParameterizedType(ScProjectionType(proj, _, s), _) => addResult(obj.qualifiedName, ScProjectionType(proj, obj, s))
-                        case _                                                    => addResult(obj.qualifiedName, ScDesignatorType(obj))
+                        case ScProjectionType(proj, _, s) =>
+                          addResult(obj.qualifiedName, ScProjectionType(proj, obj, s))
+                        case ScParameterizedType(ScProjectionType(proj, _, s), _) =>
+                          addResult(obj.qualifiedName, ScProjectionType(proj, obj, s))
+                        case _ => addResult(obj.qualifiedName, ScDesignatorType(obj))
                       }
                     case _ =>
                   }
@@ -696,7 +705,9 @@ object ScalaPsiUtil {
       }
       collectObjects(part)
     }
-    res.values.flatten.toSeq
+    cachedResult = res.values.flatten.toSeq
+    collectImplicitObjectsCache.put(cacheKey, cachedResult)
+    cachedResult
   }
 
   def mapToLazyTypesSeq(elems: Seq[PsiParameter]): Seq[() => ScType] = {

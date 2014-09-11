@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers._
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitParametersCollector
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -157,8 +158,8 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     if (reference == null || reference.get() == null) {
       val res: Option[PsiPackage] = calc()
       packageMap.put(fqn, new SofterReference(res))
-      res.getOrElse(null)
-    } else reference.get().getOrElse(null)
+      res.orNull
+    } else reference.get().orNull
   }
 
 
@@ -181,7 +182,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       result = calc()
       map.put(scope, result)
     }
-    result.getOrElse(null)
+    result.orNull
   }
 
   def getCachedFacadeClass(scope: GlobalSearchScope, fqn: String): PsiClass = {
@@ -203,7 +204,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       result = calc()
       map.put(scope, result)
     }
-    result.getOrElse(null)
+    result.orNull
   }
 
   def getStableAliasesByName(name: String, scope: GlobalSearchScope): Seq[ScTypeAlias] = {
@@ -397,6 +398,8 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         compoundTypesTypeNodes.clear()
         Conformance.cache.clear()
         ScParameterizedType.substitutorCache.clear()
+        ScalaPsiUtil.collectImplicitObjectsCache.clear()
+        ImplicitParametersCollector.cache.clear()
       }
     })
 
@@ -420,6 +423,8 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         compoundTypesTypeNodes.clear()
         Conformance.cache.clear()
         ScParameterizedType.substitutorCache.clear()
+        ScalaPsiUtil.collectImplicitObjectsCache.clear()
+        ImplicitParametersCollector.cache.clear()
       }
     })
 
@@ -440,6 +445,8 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         compoundTypesTypeNodes.clear()
         Conformance.cache.clear()
         ScParameterizedType.substitutorCache.clear()
+        ScalaPsiUtil.collectImplicitObjectsCache.clear()
+        ImplicitParametersCollector.cache.clear()
       }
     })
   }

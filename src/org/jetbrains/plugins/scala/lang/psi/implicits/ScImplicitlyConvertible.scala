@@ -121,7 +121,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
         case None if args.nonEmpty => ScTupleType(Seq(typez) ++ args)(place.getProject, place.getResolveScope)
         case None => typez
       }
-      for (obj <- ScalaPsiUtil.collectImplicitObjects(expandedType, place)) {
+      for (obj <- ScalaPsiUtil.collectImplicitObjects(expandedType, place.getProject, place.getResolveScope)) {
         processor.processType(obj, place, ResolveState.initial())
       }
       for (res <- processor.candidatesS.map(forMap(_, typez)) if res.condition) {
@@ -460,7 +460,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
 
   private def isConformsMethod(f: ScFunction): Boolean = {
     (f.name == "conforms" || f.name == "$conforms") &&
-            Option(f.containingClass).flatMap(cls => Option(cls.qualifiedName)).exists(_ == "scala.Predef")
+            Option(f.containingClass).flatMap(cls => Option(cls.qualifiedName)).contains("scala.Predef")
   }
 }
 
