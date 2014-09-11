@@ -2027,11 +2027,12 @@ object ScalaPsiUtil {
     modifierList.accessModifier match {
       case Some(mod) => mod.replace(newElem)
       case None =>
-        if (modifierList.getChildren.isEmpty) {
+        if (modifierList.children.isEmpty) {
           modifierList.add(newElem)
         } else {
-          modifierList.addBefore(ScalaPsiElementFactory.createWhitespace(manager), modifierList.getFirstChild)
-          modifierList.addBefore(newElem, modifierList.getFirstChild)
+          val mod = modifierList.getFirstChild
+          modifierList.addBefore(newElem, mod)
+          modifierList.addBefore(ScalaPsiElementFactory.createWhitespace(manager), mod)
         }
     }
   }
