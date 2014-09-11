@@ -193,7 +193,7 @@ object MethodResolveProcessor {
           fun match {
             case fun: ScFunction if fun.paramClauses.clauses.length == 0 ||
                     fun.paramClauses.clauses.apply(0).parameters.length == 0 ||
-                    isUnderscore || fun.parameters.forall(_.isDefaultParam) => ConformanceExtResult(Seq.empty)
+                    isUnderscore => ConformanceExtResult(Seq.empty)
             case fun: ScFun if fun.paramClauses == Seq() || fun.paramClauses == Seq(Seq()) || isUnderscore => ConformanceExtResult(Seq.empty)
             case method: PsiMethod if method.getParameterList.getParameters.length == 0 ||
                     isUnderscore => ConformanceExtResult(Seq.empty)
