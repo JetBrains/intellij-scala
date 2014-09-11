@@ -10,6 +10,6 @@ class VarargsTest extends Varargs {
   foo(1, true, "2", "3")
 
   foo(i = 1, true, "2", "3")
-  foo(i = 1, true, strs = "2")
+  foo(i = 1, true, "2")
   this foo (i = 1, true, "2", "3")
 }
