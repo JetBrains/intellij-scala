@@ -3,7 +3,6 @@ package lang.refactoring.changeSignature
 
 import java.util
 
-import com.incors.plaf.alloy.{r, bp}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Ref
 import com.intellij.psi._
@@ -15,14 +14,17 @@ import com.intellij.refactoring.rename.ResolveSnapshotProvider.ResolveSnapshot
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.containers.MultiMap
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.light.{PsiTypedDefinitionWrapper, ScFunctionWrapper, StaticPsiMethodWrapper, StaticPsiTypedDefinitionWrapper}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
+import org.jetbrains.plugins.scala.lang.psi.light._
+import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 
-import scala.collection.mutable.ArrayBuffer
+import _root_.scala.collection.JavaConverters._
+import _root_.scala.collection.mutable.ArrayBuffer
 
 /**
 * Nikolay.Tropin
@@ -35,19 +37,26 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
     info match {
       case jInfo: JavaChangeInfo =>
         val method = jInfo.getMethod
-        val methods = ArrayBuffer(method)
-        val functions = ArrayBuffer[ScFunction]()
-        OverridingMethodsSearch.search(method).forEach { m: PsiMethod =>
-          methods += m
-          m match {
-            case f: ScFunction => functions += f
-            case fw: ScFunctionWrapper => functions += fw.function
-            case _ =>
-          }
-          true
+        findMethodRefUsages(method, results)
+
+        val overriders = OverridingMethodsSearch.search(method).findAll.asScala.toSeq ++
+                ScalaOverridingMemberSearcher.search(method).toSeq
+        val methods = (method +: overriders).map {
+          case isWrapper(m) => m
+          case other => other
+        }.distinct
+        overriders.foreach {
+          case named: PsiNamedElement =>
+            val usageInfo = ScalaNamedElementUsageInfo(named)
+            if (usageInfo != null) results += usageInfo
+
+            findMethodRefUsages(named, results)
+          case _ =>
         }
-        methods.foreach(findMethodRefUsages(_, results))
-        findParameterUsages(jInfo, functions, results)
+        methods.foreach {
+          case m: PsiMethod => findParameterUsages(info, m, results)
+          case _ =>
+        }
       case _ =>
     }
     results.toArray
@@ -55,19 +64,55 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
 
   override def shouldPreviewUsages(changeInfo: ChangeInfo, usages: Array[UsageInfo]): Boolean = false
 
-  override def processPrimaryMethod(changeInfo: ChangeInfo): Boolean = false
+  override def processPrimaryMethod(changeInfo: ChangeInfo): Boolean = changeInfo match {
+    case scalaChange: ScalaChangeInfo =>
+      val fun = scalaChange.function
+      processNamedElementUsage(changeInfo, FunUsageInfo(fun))
+      true
+    case _ => false
+  }
 
   override def processUsage(changeInfo: ChangeInfo,
                             usageInfo: UsageInfo,
                             beforeMethodChange: Boolean,
                             usages: Array[UsageInfo]): Boolean = {
-    if (!UsageUtil.scalaUsage(usageInfo)) return false
+
+    def updateNamedElementsIfLastUsage(): Unit = {
+      if (!beforeMethodChange && usageInfo == usages.last) {
+        usages.foreach {
+          case namedInfo: ScalaNamedElementUsageInfo =>
+            val element = ScalaPsiUtil.nameContext(namedInfo.namedElement)
+            val text = element.getText
+            val newElement = element match {
+              case _: ScVariableDefinition | _: ScPatternDefinition =>
+                ScalaPsiElementFactory.createDefinitionWithContext(text, element.getContext, element)
+              case _: ScVariableDeclaration | _: ScValueDeclaration =>
+                ScalaPsiElementFactory.createDeclarationFromText(text, element.getContext, element)
+              case _ => return
+            }
+            element.replace(newElement)
+          case _ =>
+        }
+      }
+    }
+
+    if (!UsageUtil.scalaUsage(usageInfo)) {
+      updateNamedElementsIfLastUsage()
+      return false
+    }
 
     if (beforeMethodChange) {
-      processOverriderUsages(changeInfo, usageInfo, beforeMethodChange)
-    } else {
-      processSimpleUsages(changeInfo, usageInfo, beforeMethodChange)
+      usageInfo match {
+        case namedInfo: ScalaNamedElementUsageInfo =>
+          processNamedElementUsage(changeInfo, namedInfo)
+        case paramInfo: ParameterUsageInfo =>
+          handleParametersUsage(changeInfo, paramInfo)
+        case _ =>
+          processSimpleUsage(changeInfo, usageInfo)
+      }
     }
+
+    updateNamedElementsIfLastUsage()
 
     true
   }
@@ -78,8 +123,9 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
     val result = new MultiMap[PsiElement, String]()
 
     usages.foreach {
-      case ScalaOverriderUsageInfo(u: OverriderClassParamUsageInfo) => ConflictsUtil.addClassParameterConflicts(u.overrider, info, result)
-      case ScalaOverriderUsageInfo(u: OverriderValUsageInfo) => ConflictsUtil.addBindingPatternConflicts(u.overrider, info, result)
+      case ScalaNamedElementUsageInfo(u: OverriderClassParamUsageInfo) => ConflictsUtil.addClassParameterConflicts(u.namedElement, info, result)
+      case ScalaNamedElementUsageInfo(u: OverriderValUsageInfo) => ConflictsUtil.addBindingPatternConflicts(u.namedElement, info, result)
+      case javaOverriderUsage: OverriderUsageInfo => ConflictsUtil.addJavaOverriderConflicts(javaOverriderUsage, info, result)
       case _ =>
     }
     result
@@ -95,37 +141,20 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
                                   refUsages: Ref[Array[UsageInfo]],
                                   project: Project): Boolean = true
 
-
-  private def processOverriderUsages(change: ChangeInfo, usage: UsageInfo, beforeMethodChange: Boolean): Unit = {
-    usage match {
-      case ScalaOverriderUsageInfo(scUsage) =>
-        handleChangedName(change, usage)
-        handleReturnTypeChange(change, scUsage)
-        handleChangedParameters(change, scUsage)
-      case _ =>
-    }
+  private def processSimpleUsage(change: ChangeInfo, usage: UsageInfo): Unit = {
+    handleChangedName(change, usage)
+    handleUsageArguments(change, usage)
   }
 
-  private def processSimpleUsages(change: ChangeInfo, usage: UsageInfo, beforeMethodChange: Boolean): Unit = {
-    usage match {
-      case ScalaOverriderUsageInfo(_) =>
-      case _ if !change.isGenerateDelegate =>
-        handleChangedName(change, usage)
-        handleParametersUsages(change, usage)
-        handleUsageArguments(change, usage)
-      case _ =>
-    }
+  private def processNamedElementUsage(change: ChangeInfo, usage: ScalaNamedElementUsageInfo): Unit = {
+    handleVisibility(change, usage)
+    handleChangedName(change, usage.asInstanceOf[UsageInfo])
+    handleReturnTypeChange(change, usage)
+    handleChangedParameters(change, usage)
   }
 
-  private def findMethodRefUsages(method: PsiMethod, results: ArrayBuffer[UsageInfo]): Unit = {
-    val unwrapped = method match {
-      case fw: ScFunctionWrapper => fw.function
-      case tdw: PsiTypedDefinitionWrapper => tdw.typedDefinition
-      case st: StaticPsiTypedDefinitionWrapper => st.typedDefinition
-      case st: StaticPsiMethodWrapper => st.method
-      case m => m
-    }
-    ReferencesSearch.search(unwrapped).forEach { ref: PsiReference =>
+  private def findMethodRefUsages(named: PsiNamedElement, results: ArrayBuffer[UsageInfo]): Unit = {
+    ReferencesSearch.search(named).forEach { ref: PsiReference =>
       val refElem = ref.getElement
       refElem match {
         case (refExpr: ScReferenceExpression) childOf (mc: ScMethodCall) => results += MethodCallUsageInfo(refExpr, mc)
@@ -140,26 +169,30 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
   }
 
   private def findParameterUsages(changeInfo: ChangeInfo,
-                                  functions: Seq[ScFunction],
+                                  method: PsiMethod,
                                   results: ArrayBuffer[UsageInfo]): Unit = {
     for {
       paramInfo <- changeInfo.getNewParameters
       oldIdx = paramInfo.getOldIndex
       if oldIdx >= 0
-      fun <- functions
-      if fun.parameters.size > oldIdx
-      param = fun.parameters(oldIdx)
-      if param.name != paramInfo.getName
+      parameters = method.getParameterList.getParameters
+      if parameters.length > oldIdx
+      param = parameters(oldIdx)
+      newName = paramInfo.getName
+      if newName != param.name
     } {
-      addParameterUsages(param, results)
+      addParameterUsages(param, oldIdx, newName, results)
     }
   }
 
-  private def addParameterUsages(scParam: ScParameter, results: ArrayBuffer[UsageInfo]) {
-    val scope: SearchScope = scParam.owner.getUseScope
-    ReferencesSearch.search(scParam, scope, false).forEach { ref: PsiReference =>
-      val element = ref.getElement match {
-        case refElem: ScReferenceElement => results += new ParameterUsageInfo(scParam, refElem)
+  private def addParameterUsages(param: PsiParameter, oldIndex: Int, newName: String, results: ArrayBuffer[UsageInfo]) {
+    val scope: SearchScope = param.getUseScope
+    ReferencesSearch.search(param, scope, false).forEach { ref: PsiReference =>
+      ref.getElement match {
+        case refElem: ScReferenceElement =>
+          results += ParameterUsageInfo(oldIndex, newName, refElem)
+        case refElem: PsiReferenceExpression =>
+          results += new ChangeSignatureParameterUsageInfo(refElem, param.name, newName)
         case _ =>
       }
       true

@@ -39,4 +39,6 @@ class ScalaRefactoringSupportProvider extends RefactoringSupportProvider {
   }
 
   override def getExtractMethodHandler: RefactoringActionHandler = new ScalaExtractMethodHandler
+
+  override def getChangeSignatureHandler: ChangeSignatureHandler = new ScalaChangeSignatureHandler
 }

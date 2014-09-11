@@ -323,6 +323,14 @@ package object extensions {
   implicit def toProcessor[T](action: T => Boolean): Processor[T] = new Processor[T] {
     override def process(t: T): Boolean = action(t)
   }
+
+  implicit def toRunnable(action: => Unit): Runnable = new Runnable {
+    override def run(): Unit = action
+  }
+
+  implicit def toComputable[T](action: => T): Computable[T] = new Computable[T] {
+    override def compute(): T = action
+  }
   
   def startCommand(project: Project, commandName: String)(body: => Unit): Unit = {
     CommandProcessor.getInstance.executeCommand(project, new Runnable {
