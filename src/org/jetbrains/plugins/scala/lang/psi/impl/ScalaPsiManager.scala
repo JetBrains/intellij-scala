@@ -16,7 +16,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.{JavaPsiFacadeImpl, PsiManagerEx}
 import com.intellij.psi.search.{GlobalSearchScope, PsiShortNamesCache}
 import com.intellij.psi.stubs.StubIndex
-import com.intellij.util.SofterReference
+import com.intellij.util.{ArrayUtil, SofterReference}
 import com.intellij.util.containers.WeakValueHashMap
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
@@ -33,6 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitParametersCollecto
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.{Seq, mutable}
@@ -265,16 +266,8 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     def calc(): Array[PsiClass] = {
       val classes = getCachedFacadeClasses(scope, fqn)
       val fromScala = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(fqn, scope)
-      if (classes.length == 0) {
-        fromScala.toArray
-      } else if (fromScala.length == 0) {
-        classes
-      } else {
-        val res = new Array[PsiClass](classes.length + fromScala.length)
-        System.arraycopy(classes, 0, res, 0, classes.length)
-        System.arraycopy(fromScala.toArray, 0, res, classes.length, fromScala.length)
-        res
-      }
+
+      ArrayUtil.mergeArrays(classes, ArrayUtil.mergeArrays(fromScala.toArray, SyntheticClassProducer.getAllClasses(fqn, scope)))
     }
 
     val reference = classesMap.get(fqn)
@@ -297,7 +290,8 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       val classes = JavaPsiFacade.getInstance(project).findClasses(fqn, scope).filterNot(p =>
         p.isInstanceOf[ScTemplateDefinition] || p.isInstanceOf[PsiClassWrapper]
       )
-      classes
+
+      ArrayUtil.mergeArrays(classes, SyntheticClassProducer.getAllClasses(fqn, scope))
     }
 
     val reference = classesFacadeMap.get(fqn)
