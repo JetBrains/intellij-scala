@@ -20,42 +20,6 @@ import scala.collection.immutable.HashMap
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-/*
-Current types for pattern matching, this approach is bad for many reasons (one of them is bad performance).
-Better to use OOP approach instead.
-match {
- case Any =>
- case Null =>
- case AnyRef =>
- case Nothing =>
- case Singleton =>
- case AnyVal =>
- case Unit =>
- case Boolean =>
- case Char =>
- case Int =>
- case Long =>
- case Float =>
- case Double =>
- case Byte =>
- case Short =>
- case ScCompoundType(components, decls, typeDecls) =>
- case ScProjectionType(projected, element, subst) =>
- case JavaArrayType(arg) =>
- case ScParameterizedType(designator, typeArgs) =>
- case ScExistentialType(quantified, wildcards) =>
- case ScThisType(clazz) =>
- case ScDesignatorType(element) =>
- case ScTypeParameterType(name, args, lower, upper, param) =>
- case ScExistentialArgument(name, args, lowerBound, upperBound) =>
- case ScSkolemizedType(name, args, lower, upper) =>
- case ScTypeVariable(name) =>
- case ScUndefinedType(tpt) =>
- case ScMethodType(returnType, params, isImplicit) =>
- case ScAbstractType(tpt, lower, upper) =>
- case ScTypePolymorphicType(internalType, typeParameters) =>
-}
-*/
 trait ScType {
   private var aliasType: Option[AliasType] = null
 
