@@ -1,63 +1,60 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature
 
-import com.incors.plaf.alloy.a.i
-import com.intellij.lang.Language
-import com.intellij.psi.{PsiNamedElement, PsiMethod, PsiElement, PsiReference}
-import com.intellij.refactoring.changeSignature.{JavaChangeInfo, ChangeInfo}
+import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference}
+import com.intellij.refactoring.changeSignature.{ChangeInfo, JavaChangeInfo}
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScClassParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.light.{PsiTypedDefinitionWrapper, ScFunctionWrapper, StaticPsiTypedDefinitionWrapper}
+import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
+import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 
 /**
  * Nikolay.Tropin
  * 2014-08-12
  */
 
-private[changeSignature] trait ScalaOverriderUsageInfo {
+private[changeSignature] trait ScalaNamedElementUsageInfo {
   this: UsageInfo =>
 
-  def overrider: ScNamedElement
+  def namedElement: ScNamedElement
   def parameters: Seq[Parameter] = Seq.empty
   def defaultValues: Seq[Option[String]] = Seq.empty
 }
 
-private[changeSignature] object ScalaOverriderUsageInfo {
-  def unapply(ou: UsageInfo): Option[ScalaOverriderUsageInfo] = {
+private[changeSignature] object ScalaNamedElementUsageInfo {
+  def unapply(ou: UsageInfo): Option[ScalaNamedElementUsageInfo] = {
     ou match {
-      case scUsage: ScalaOverriderUsageInfo => return Some(scUsage)
-      case _ =>
-    }
-    ou.getElement match {
-      case f: ScFunction => Some(ScalaOverriderUsageInfo(f))
-      case fw: ScFunctionWrapper => Some(ScalaOverriderUsageInfo(fw.function))
-      case tw: PsiTypedDefinitionWrapper => Some(ScalaOverriderUsageInfo(tw.typedDefinition))
-      case stw: StaticPsiTypedDefinitionWrapper => Some(ScalaOverriderUsageInfo(stw.typedDefinition))
+      case scUsage: ScalaNamedElementUsageInfo => Some(scUsage)
       case _ => None
     }
   }
 
-  def apply(named: ScNamedElement): ScalaOverriderUsageInfo = {
-    named match {
-      case fun: ScFunction => OverriderFunUsageInfo(fun)
+  def apply(named: PsiNamedElement): UsageInfo with ScalaNamedElementUsageInfo = {
+    val unwrapped = named match {
+      case isWrapper(elem) => elem
+      case _ => named
+    }
+    unwrapped match {
+      case fun: ScFunction => FunUsageInfo(fun)
       case bp: ScBindingPattern => OverriderValUsageInfo(bp)
       case cp: ScClassParameter => OverriderClassParamUsageInfo(cp)
-      case _ => throw new IllegalArgumentException(s"Cannot create overrider usage info for element: ${named.getText}")
+      case _ => null
     }
   }
 }
 
-private[changeSignature] case class OverriderFunUsageInfo(overrider: ScFunction)
-        extends UsageInfo(overrider) with ScalaOverriderUsageInfo {
-  val parameterClauses = overrider.paramClauses.clauses
+private[changeSignature] case class FunUsageInfo(namedElement: ScFunction)
+        extends UsageInfo(namedElement) with ScalaNamedElementUsageInfo {
+  
+  val parameterClauses = namedElement.paramClauses.clauses
 
   override val (parameters, defaultValues) = {
     val all = for {
@@ -70,11 +67,11 @@ private[changeSignature] case class OverriderFunUsageInfo(overrider: ScFunction)
   }
 }
 
-private[changeSignature] case class OverriderValUsageInfo(overrider: ScBindingPattern)
-        extends UsageInfo(overrider) with ScalaOverriderUsageInfo
+private[changeSignature] case class OverriderValUsageInfo(namedElement: ScBindingPattern)
+        extends UsageInfo(namedElement) with ScalaNamedElementUsageInfo
 
-private[changeSignature] case class OverriderClassParamUsageInfo(overrider: ScClassParameter)
-        extends UsageInfo(overrider) with ScalaOverriderUsageInfo
+private[changeSignature] case class OverriderClassParamUsageInfo(namedElement: ScClassParameter)
+        extends UsageInfo(namedElement) with ScalaNamedElementUsageInfo
 
 private[changeSignature] trait MethodUsageInfo {
   def expr: ScExpression
@@ -119,28 +116,10 @@ private[changeSignature] case class PostfixExprUsageInfo(postfix: ScPostfixExpr)
 private[changeSignature] case class MethodValueUsageInfo(und: ScUnderscoreSection)
         extends UsageInfo(und)
 
-private[changeSignature] case class ApplyUsageInfo(ref: ScReferenceExpression)
-        extends UsageInfo(ref: PsiReference)
-
-private[changeSignature] case class UnapplyUsageInfo(ref: ScReferenceElement)
-        extends UsageInfo(ref: PsiReference)
-
-private[changeSignature] case class ParameterUsageInfo(scParam: ScParameter, ref: ScReferenceElement)
-        extends UsageInfo(ref: PsiReference)
+private[changeSignature] case class ParameterUsageInfo(oldIndex: Int, newName: String, ref: ScReferenceElement)
+        extends UsageInfo(ref: PsiElement)
 
 private[changeSignature] object UsageUtil {
-  def nameId(usage: UsageInfo): PsiElement = usage match {
-    case ScalaOverriderUsageInfo(scUsage) => scUsage.overrider.nameId
-    case MethodCallUsageInfo(ref, _) => ref.nameId
-    case RefExpressionUsage(r) => r.nameId
-    case InfixExprUsageInfo(i) => i.operation.nameId
-    case PostfixExprUsageInfo(p) => p.operation.nameId
-    case MethodValueUsageInfo(und) => und.bindingExpr match {
-      case Some(r: ScReferenceExpression) => r.nameId
-      case _ => null
-    }
-    case _ => null
-  }
 
   def invocation(usage: UsageInfo): MethodInvocation = usage match {
     case MethodCallUsageInfo(_, call) => call
@@ -150,22 +129,22 @@ private[changeSignature] object UsageUtil {
   }
 
   def scalaUsage(usage: UsageInfo): Boolean = usage match {
-    case ScalaOverriderUsageInfo(_) => true
-    case _ =>
-      usage.getElement.getLanguage.isKindOf(Language.findInstance(classOf[ScalaLanguage]))
+    case ScalaNamedElementUsageInfo(_) | _: ParameterUsageInfo | _: MethodUsageInfo | _: MethodValueUsageInfo => true
+    case _ => false
   }
 
-  def substitutor(usage: ScalaOverriderUsageInfo): ScSubstitutor = usage match {
-    case ScalaOverriderUsageInfo(funUsage: OverriderFunUsageInfo) =>
-      funUsage.overrider.superMethodAndSubstitutor match {
+  def substitutor(usage: ScalaNamedElementUsageInfo): ScSubstitutor = usage match {
+    case ScalaNamedElementUsageInfo(funUsage: FunUsageInfo) =>
+      funUsage.namedElement.superMethodAndSubstitutor match {
         case Some((_, subst)) => subst
         case _ => ScSubstitutor.empty
       }
     case _ => ScSubstitutor.empty
   }
 
-  def returnType(change: ChangeInfo, usage: ScalaOverriderUsageInfo): Option[ScType] = {
+  def returnType(change: ChangeInfo, usage: ScalaNamedElementUsageInfo): Option[ScType] = {
     val newType = change match {
+      case sc: ScalaChangeInfo => sc.newType
       case jc: JavaChangeInfo =>
         val method = jc.getMethod
         val javaType = jc.getNewReturnType.getType(method.getParameterList, method.getManager)
