@@ -4,7 +4,7 @@ import com.intellij.openapi.editor.SelectionModel
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import junit.framework.Assert
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs._
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -34,8 +34,8 @@ class ReachingDefsCollectTest extends LightScalaTestCase {
     val start: PsiElement = file.findElementAt(if (model.hasSelection) model.getSelectionStart else 0)
     val end: PsiElement = file.findElementAt(if (model.hasSelection) model.getSelectionEnd - 1 else file.getTextLength - 1)
     val range = ScalaPsiUtil.getElementsRange(start, end)
-    val scope: ScControlFlowOwner = PsiTreeUtil.getParentOfType(PsiTreeUtil.findCommonParent(start, end), 
-      classOf[ScControlFlowOwner], false)
+    val scope = PsiTreeUtil.getParentOfType(PsiTreeUtil.findCommonParent(start, end),
+      classOf[ScControlFlowOwner], false).getParent.asInstanceOf[ScalaPsiElement]
 
     import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector._
     val infos = collectVariableInfo(range, scope)
