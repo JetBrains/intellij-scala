@@ -21,19 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
  */
 class ScalaChangeSignatureHandler extends ChangeSignatureHandler {
 
-  def invoke(method: PsiMethod, project: Project): Unit = {
-    if (!CommonRefactoringUtil.checkReadOnlyStatus(project, method)) return
-    val newMethod = SuperMethodWarningUtil.checkSuperMethod(method, RefactoringBundle.message("to.refactor"))
-
-    newMethod match {
-      case null =>
-      case isWrapper(fun: ScFunction) => invokeWithDialog(project, fun)
-      case fun: ScFunction => invokeWithDialog(project, fun)
-      case m: PsiMethod if m != method => ChangeSignatureUtil.invokeChangeSignatureOn(newMethod, project)
-      case _ =>
-    }
-  }
-
   def invokeWithDialog(project: Project, fun: ScFunction) {
     val dialog = new ScalaChangeSignatureDialog(project, new ScalaMethodDescriptor(fun))
     dialog.show()
@@ -44,23 +31,43 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler {
       val name = ChangeSignatureHandler.REFACTORING_NAME
       CommonRefactoringUtil.showErrorHint(project, editor, message, name, HelpID.CHANGE_SIGNATURE)
     }
-    def isSupportedFor(m: PsiMethod): Boolean = {
-      m match {
+    def isSupportedFor(fun: ScFunction): Boolean = {
+      fun match {
         case fun: ScFunction if fun.paramClauses.clauses.length > 1 =>
           val message = ScalaBundle.message("change.signature.not.supported.multiple.parameter.clauses")
+          showErrorHint(message)
+          false
+        case fun: ScFunction if fun.isConstructor =>
+          val message = ScalaBundle.message("change.signature.not.supported.constructors")
           showErrorHint(message)
           false
         case _ => true
       }
     }
-    element match {
-      case method: PsiMethod =>
-        if (isSupportedFor(method)) invoke(method, project)
-      case _ =>
+
+    def unwrapMethod(element: PsiElement) = element match {
+      case null => None
+      case isWrapper(fun: ScFunction) => Some(fun)
+      case m: PsiMethod => Some(m)
+      case _ => None
+    }
+
+    unwrapMethod(element) match {
+      case Some(method) =>
+        if (!CommonRefactoringUtil.checkReadOnlyStatus(project, method)) return
+        val newMethod = SuperMethodWarningUtil.checkSuperMethod(method, RefactoringBundle.message("to.refactor"))
+        unwrapMethod(newMethod) match {
+          case Some(fun: ScFunction) =>
+            if (isSupportedFor(fun)) invokeWithDialog(project, fun)
+          case Some(m) => ChangeSignatureUtil.invokeChangeSignatureOn(m, project)
+          case None =>
+        }
+      case None =>
         val message = RefactoringBundle.getCannotRefactorMessage(getTargetNotFoundMessage)
         showErrorHint(message)
     }
   }
+
   override def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext): Unit = {
     editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
     val element = Option(findTargetMember(file, editor))
@@ -99,7 +106,7 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler {
     val element = file.findElementAt(offset)
     Option(findTargetMember(element)) getOrElse {
       file.findReferenceAt(offset) match {
-        case Resolved(m: PsiMethod) => m
+        case Resolved(m: PsiMethod, _) => m
         case _ => null
       }
     }
