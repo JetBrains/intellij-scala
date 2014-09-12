@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
  * Pavel.Fatin, 15.06.2010
  */
 trait ParametersAnnotator {
-  def annotateParameters(parameters: ScParameters, holder: AnnotationHolder) {
+  def annotateParameters(parameters: ScParameters, holder: AnnotationHolder): Unit = {
     def checkRepeatedParams() {
       parameters.clauses.foreach { cl =>
         cl.parameters.dropRight(1).foreach {
@@ -22,13 +22,12 @@ trait ParametersAnnotator {
           case _ =>
         }
       }
-      ""
     }
 
     checkRepeatedParams()
   }
   
-  def annotateParameter(parameter: ScParameter, holder: AnnotationHolder) {
+  def annotateParameter(parameter: ScParameter, holder: AnnotationHolder): Unit = {
     parameter.owner match {
       case null =>
         holder.createErrorAnnotation(parameter, "Parameter hasn't owner: " + parameter.name)
