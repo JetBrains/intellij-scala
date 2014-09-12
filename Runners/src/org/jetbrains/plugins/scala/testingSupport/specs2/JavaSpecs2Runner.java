@@ -37,7 +37,7 @@ public class JavaSpecs2Runner {
       } else if (newArgs[i].equals("-testName")) {
         ++i;
         testName = newArgs[i];
-        specialArgs.add("-Dspecs2.ex="+ "\"" + testName + "\"");
+//        specialArgs.add("-Dspecs2.ex="+ "\"" + testName + "\"");
         ++i;
       } else if (newArgs[i].equals("-showProgressMessages")) {
         ++i;
@@ -81,7 +81,8 @@ public class JavaSpecs2Runner {
       throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
     List<String> runnerArgs = new ArrayList<String>();
     runnerArgs.add(className);
-    if (!testName.equals("")) runnerArgs.add(testName);
+//    if (!testName.equals("")) runnerArgs.add(testName);
+    if (!testName.equals("")) runnerArgs.add("-Dspecs2.ex="+ "\"" + testName + "\"");
     runnerArgs.addAll(argsArray);
     Object runnerArgsArray = runnerArgs.toArray(new String[runnerArgs.size()]);
     boolean hasNoStartMethod = false;
@@ -104,16 +105,18 @@ public class JavaSpecs2Runner {
         Method method = myNotifierRunner.getClass().getMethod("start", String[].class);
         method.invoke(myNotifierRunner, runnerArgsArray);
       } catch (NoClassDefFoundError e) {
-        System.out.println("\n'Start' method is not found in MyNotifierRunner " + e.getMessage() + "\n");
+        System.out.println("\nNoClassDefFoundError for 'Start' in MyNotifierRunner " + e.getMessage() + "\n");
         startNotFound = true;
       } catch (NoSuchMethodException e) {
-        System.out.println("\n'Start' method is not found in MyNotifierRunner " + e.getMessage() + "\n");
+        System.out.println("\nNoSuchMethodException for 'Start' in MyNotifierRunner " + e.getMessage() + "\n");
         startNotFound = true;
       } catch (InvocationTargetException e) {
-        System.out.println("\n'Start' method is not found in MyNotifierRunner " + e.getMessage() + "\n");
+        Throwable cause = e.getCause();
+        cause.printStackTrace();
+        System.out.println("\nInvocationTargetException for 'Start' in MyNotifierRunner; cause: " + cause.getMessage() + "\n");
         startNotFound = true;
       } catch (IllegalAccessException e) {
-        System.out.println("\n'Start' method is not found in MyNotifierRunner " + e.getMessage() + "\n");
+        System.out.println("\nIllegalAccessException for 'Start' in MyNotifierRunner " + e.getMessage() + "\n");
         startNotFound = true;
       }
     }
