@@ -55,6 +55,11 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler {
     unwrapMethod(element) match {
       case Some(method) =>
         if (!CommonRefactoringUtil.checkReadOnlyStatus(project, method)) return
+        method match {
+          case f: ScFunction if f.isSynthetic => return
+          case _ =>
+        }
+
         val newMethod = SuperMethodWarningUtil.checkSuperMethod(method, RefactoringBundle.message("to.refactor"))
         unwrapMethod(newMethod) match {
           case Some(fun: ScFunction) =>
