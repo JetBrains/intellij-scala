@@ -81,6 +81,11 @@ class ScalaFindUsagesHandler(element: PsiElement) extends FindUsagesHandler(elem
           case _ => Array.empty
         }
       case t: ScTrait => Array(t.fakeCompanionClass)
+      case f: ScFunction if Seq("apply", "unapply", "unapplySeq").contains(f.name) =>
+        f.containingClass match {
+          case obj: ScObject if obj.isSyntheticObject => Array(obj)
+          case _ => Array.empty
+        }
       case t: ScTypedDefinition =>
         t.getBeanMethods.toArray ++ {
           val a: Array[DefinitionRole] = t.nameContext match {
