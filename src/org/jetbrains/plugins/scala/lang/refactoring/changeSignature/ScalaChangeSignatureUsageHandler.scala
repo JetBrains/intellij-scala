@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature
 
-import com.intellij.openapi.editor.Document
 import com.intellij.psi._
 import com.intellij.refactoring.changeSignature._
 import com.intellij.usageView.UsageInfo
@@ -267,7 +266,10 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       if (oldIdx >= 0) usage.defaultValues(oldIdx)
       else change match {
         case sc: ScalaChangeInfo if sc.isAddDefaultArgs =>
-          Option(paramInfo.getDefaultValue).orElse(Some("???"))
+          paramInfo.getDefaultValue match {
+            case "" | null => Some("???")
+            case s => Some(s)
+          }
         case _ => None
       }
     }
@@ -353,10 +355,4 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       case _ => Seq.empty
     }
   }
-
-  private def getDocument(elem: PsiElement): Option[Document] = {
-    val manager = PsiDocumentManager.getInstance(elem.getProject)
-    Option(manager.getDocument(elem.getContainingFile))
-  }
-
 }
