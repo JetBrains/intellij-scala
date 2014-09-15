@@ -55,6 +55,15 @@ class ScalaChangeSignatureDialog(val project: Project, method: ScalaMethodDescri
     new ScalaChangeSignatureProcessor(project, changeInfo)
   }
 
+  override def createNorthPanel(): JComponent = {
+    val panel = super.createNorthPanel()
+    getMethodName match {
+      case "apply" | "unapply" | "unapplySeq" | "update" => myNameField.setEnabled(false)
+      case _ =>
+    }
+    panel
+  }
+
   override def validateAndCommitData(): String = {
     val paramItems = parametersTableModel.getItems.asScala
     val problems = ListBuffer[String]()
