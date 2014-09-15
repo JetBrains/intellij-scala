@@ -24,6 +24,8 @@ class AdjustSettingsApplicationComponent extends ApplicationComponent {
   override def initComponent(): Unit = {
     if (ApplicationManager.getApplication.isUnitTestMode) return
     if (ScalaApplicationSettings.getInstance().IGNORE_SETTINGS_CHECK) return
+    if (ScalaApplicationSettings.getInstance().ADJUSTED_SETTINGS_LEVEL >=
+      AdjustSettingsApplicationComponent.ADJUST_LEVEL) return
 
     val xmx = VMOptions.readXmx()
 
@@ -92,6 +94,7 @@ class AdjustSettingsApplicationComponent extends ApplicationComponent {
 
     override def doOKAction(): Unit = {
       try {
+        ScalaApplicationSettings.getInstance().ADJUSTED_SETTINGS_LEVEL = AdjustSettingsApplicationComponent.ADJUST_LEVEL
         val xmsValue = xmxField.getText.toInt
         val xmxValue = xmxField.getText.toInt
         val xssValue = xssField.getText.toInt
@@ -115,4 +118,8 @@ class AdjustSettingsApplicationComponent extends ApplicationComponent {
       super.doCancelAction()
     }
   }
+}
+
+object AdjustSettingsApplicationComponent {
+  val ADJUST_LEVEL = 1
 }
