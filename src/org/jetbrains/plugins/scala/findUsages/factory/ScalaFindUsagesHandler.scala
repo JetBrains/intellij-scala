@@ -6,8 +6,9 @@ import java.util
 import com.intellij.find.findUsages.{AbstractFindUsagesDialog, FindUsagesHandler, FindUsagesOptions}
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi._
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
-import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.extensions._
@@ -110,6 +111,16 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
         toShowInNewTab, mustOpenInNewTab, isSingleFile, this)
       case _ => super.getFindUsagesDialog(isSingleFile, toShowInNewTab, mustOpenInNewTab)
     }
+  }
+
+  override def processUsagesInText(element: PsiElement, processor: Processor[UsageInfo], searchScope: GlobalSearchScope): Boolean = {
+    val nonScalaTextProcessor = new Processor[UsageInfo] {
+      override def process(t: UsageInfo): Boolean = {
+        if (t.getFile.getFileType == ScalaFileType.SCALA_FILE_TYPE) true
+        else processor.process(t)
+      }
+    }
+    super.processUsagesInText(element, nonScalaTextProcessor, searchScope)
   }
 
   override def processElementUsages(element: PsiElement, processor: Processor[UsageInfo], options: FindUsagesOptions): Boolean = {
