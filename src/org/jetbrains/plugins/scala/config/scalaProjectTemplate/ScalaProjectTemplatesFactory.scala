@@ -16,5 +16,5 @@ class ScalaProjectTemplatesFactory extends ProjectTemplatesFactory {
   def createTemplates(group: String, context: WizardContext): Array[ProjectTemplate] =
     if (group == "Scala") Array[ProjectTemplate](new ScalaProjectTemplate) else Array.empty
 
-  override def getGroupIcon(group: String): Icon = org.jetbrains.plugins.scala.icons.Icons.SCALA_24
+  override def getGroupIcon(group: String): Icon = org.jetbrains.plugins.scala.icons.Icons.SCALA_SMALL_LOGO
 }
