@@ -1,32 +1,35 @@
 package org.jetbrains.plugins.scala
 package findUsages.factory
 
-import com.intellij.find.findUsages.{AbstractFindUsagesDialog, FindUsagesOptions, FindUsagesHandler}
-import com.intellij.psi.{PsiClass, PsiNamedElement, PsiElement}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScClass, ScTrait, ScObject}
-import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScFunction, ScVariable, ScValue}
-import org.jetbrains.plugins.scala.lang.psi.light._
-import com.intellij.openapi.actionSystem.DataContext
 import java.util
-import com.intellij.util.Processor
-import com.intellij.usageView.UsageInfo
+
+import com.intellij.find.findUsages.{AbstractFindUsagesDialog, FindUsagesHandler, FindUsagesOptions}
+import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.search.searches.ClassInheritorsSearch
-import collection.mutable
-import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
+import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
+import com.intellij.usageView.UsageInfo
+import com.intellij.util.Processor
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import extensions.inReadAction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
+import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
+import org.jetbrains.plugins.scala.lang.psi.light._
+
+import _root_.scala.collection.mutable
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 17.08.2009
  */
 
-class ScalaFindUsagesHandler(element: PsiElement) extends FindUsagesHandler(element) {
+class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandlerFactory)
+        extends FindUsagesHandler(element) {
+
   override def getPrimaryElements: Array[PsiElement] = Array(element)
   override def getStringsToSearch(element: PsiElement): util.Collection[String] = {
     val result: util.Set[String] = new util.HashSet[String]()
@@ -67,7 +70,8 @@ class ScalaFindUsagesHandler(element: PsiElement) extends FindUsagesHandler(elem
 
   override def getFindUsagesOptions(dataContext: DataContext): FindUsagesOptions = {
     element match {
-      case t: ScTypeDefinition => new ScalaTypeDefinitionFindUsagesOptions(t, getProject, dataContext)
+      case t: ScTypeDefinition => factory.typeDefinitionOptions
+      case m: ScMember => factory.memberOptions
       case _ => super.getFindUsagesOptions(dataContext)
     }
   }
@@ -80,6 +84,11 @@ class ScalaFindUsagesHandler(element: PsiElement) extends FindUsagesHandler(elem
           case _ => Array.empty
         }
       case t: ScTrait => Array(t.fakeCompanionClass)
+      case f: ScFunction if Seq("apply", "unapply", "unapplySeq").contains(f.name) =>
+        f.containingClass match {
+          case obj: ScObject if obj.isSyntheticObject => Array(obj)
+          case _ => Array.empty
+        }
       case t: ScTypedDefinition =>
         t.getBeanMethods.toArray ++ {
           val a: Array[DefinitionRole] = t.nameContext match {
