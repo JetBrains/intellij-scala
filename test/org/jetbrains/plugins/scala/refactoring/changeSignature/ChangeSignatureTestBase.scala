@@ -23,6 +23,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.S
  */
 abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   var targetMethod: PsiMethod = null
+  protected var isAddDefaultValue = false
+
   override def getTestDataPath = folderPath
 
   def folderPath: String
