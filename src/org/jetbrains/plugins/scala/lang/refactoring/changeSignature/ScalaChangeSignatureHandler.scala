@@ -37,8 +37,16 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler {
           val message = ScalaBundle.message("change.signature.not.supported.multiple.parameter.clauses")
           showErrorHint(message)
           false
+        case fun: ScFunction if fun.paramClauses.clauses.exists(_.isImplicit) =>
+          val message = ScalaBundle.message("change.signature.not.supported.implicit.parameters")
+          showErrorHint(message)
+          false
         case fun: ScFunction if fun.isConstructor =>
           val message = ScalaBundle.message("change.signature.not.supported.constructors")
+          showErrorHint(message)
+          false
+        case fun: ScFunction if fun.hasModifierProperty("implicit") =>
+          val message = ScalaBundle.message("change.signature.not.supported.implicit.functions")
           showErrorHint(message)
           false
         case _ => true
