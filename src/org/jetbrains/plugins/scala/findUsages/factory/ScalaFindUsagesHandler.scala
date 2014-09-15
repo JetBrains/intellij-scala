@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 import org.jetbrains.plugins.scala.lang.psi.light._
@@ -27,7 +27,9 @@ import _root_.scala.collection.mutable
  * Date: 17.08.2009
  */
 
-class ScalaFindUsagesHandler(element: PsiElement) extends FindUsagesHandler(element) {
+class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandlerFactory)
+        extends FindUsagesHandler(element) {
+
   override def getPrimaryElements: Array[PsiElement] = Array(element)
   override def getStringsToSearch(element: PsiElement): util.Collection[String] = {
     val result: util.Set[String] = new util.HashSet[String]()
@@ -68,7 +70,8 @@ class ScalaFindUsagesHandler(element: PsiElement) extends FindUsagesHandler(elem
 
   override def getFindUsagesOptions(dataContext: DataContext): FindUsagesOptions = {
     element match {
-      case t: ScTypeDefinition => new ScalaTypeDefinitionFindUsagesOptions(t, getProject, dataContext)
+      case t: ScTypeDefinition => factory.typeDefinitionOptions
+      case m: ScMember => factory.memberOptions
       case _ => super.getFindUsagesOptions(dataContext)
     }
   }
