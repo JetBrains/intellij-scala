@@ -73,16 +73,26 @@ class ScalaChangeSignatureDialog(val project: Project, method: ScalaMethodDescri
     else if (returnTypeText.isEmpty)
       problems += RefactoringBundle.message("changeSignature.wrong.return.type", myReturnTypeCodeFragment.getText)
 
-    val names = getMethodName +: paramItems.map(_.parameter.name)
+    val paramNames = paramItems.map(_.parameter.name)
+    val names = getMethodName +: paramNames
     problems ++= names.collect {
       case name if !ScalaNamesUtil.isIdentifier(name) => s"$name is not a valid scala identifier"
     }
 
+    val namesWithIndices = paramNames.zipWithIndex
+    for {
+      (name, idx) <- namesWithIndices
+      (name2, idx2) <- namesWithIndices
+      if name == name2 && idx < idx2
+    } {
+      problems += ScalaBundle.message("change.signature.parameters.same.name.{0}", name)
+    }
     paramItems.foreach(_.updateType(problems))
 
-    paramItems.collect {
+    paramItems.foreach {
       case item if item.parameter.isRepeatedParameter && Some(item) == paramItems.lastOption =>
-        RefactoringBundle.message("changeSignature.vararg.not.last")
+        problems += RefactoringBundle.message("changeSignature.vararg.not.last")
+      case _ =>
     }
 
     if (problems.isEmpty) null

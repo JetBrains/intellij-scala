@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature
 
+import com.intellij.refactoring.RefactoringBundle
 import com.intellij.refactoring.changeSignature.ParameterTableModelItemBase
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -29,6 +30,11 @@ class ScalaParameterTableModelItem(parameter: ScalaParameterInfo,
       trimmed = trimmed.dropRight(1).trim
     } else {
       parameter.isRepeatedParameter = false
+    }
+
+    if (typeText.isEmpty) {
+      problems += RefactoringBundle.message("changeSignature.no.type.for.parameter", parameter.getName)
+      return
     }
 
     val funArrow = ScalaPsiUtil.functionArrow(typeCodeFragment.getProject)
