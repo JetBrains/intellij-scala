@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScPostfixExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
@@ -65,28 +66,37 @@ object ImportMembersUtil {
 
   @tailrec
   def replaceAndBind(oldRef: ScReferenceElement, name: String, toBind: PsiNamedElement) {
-    oldRef match {
-      case _ childOf (inf @ ScInfixExpr(qual: ScReferenceExpression, `oldRef`, _)) =>
-        val call = ScalaPsiElementFactory.createEquivMethodCall(inf)
-        val replacedCall = inf.replaceExpression(call, removeParenthesis = true).asInstanceOf[ScMethodCall]
-        val ref = replacedCall.getInvokedExpr.asInstanceOf[ScReferenceExpression]
-        replaceAndBind(ref, name, toBind)
-      case _ childOf (postfix @ ScPostfixExpr(qual: ScReferenceExpression, `oldRef`)) =>
-        val refExpr = ScalaPsiElementFactory.createEquivQualifiedReference(postfix)
-        val withDot = postfix.replaceExpression(refExpr, removeParenthesis = true).asInstanceOf[ScReferenceExpression]
-        replaceAndBind(withDot, name, toBind)
-      case expr: ScReferenceExpression =>
-        val clazz = toBind match {
-          case m: PsiMember => Option(m.getContainingClass)
-          case _ => None
+    toBind match {
+      case fun: ScFunction if fun.isSynthetic =>
+        fun.getSyntheticNavigationElement match {
+          case Some(named: PsiNamedElement) =>
+            replaceAndBind(oldRef, named.name, named)
+          case _ => return
         }
-        val refExpr = ScalaPsiElementFactory.createExpressionFromText(name, oldRef.getManager)
-        val replaced = expr.replaceExpression(refExpr, removeParenthesis = true)
-        replaced.asInstanceOf[ScReferenceExpression].bindToElement(toBind, clazz)
-      case stCodeRef: ScStableCodeReferenceElement =>
-        val replaced = oldRef.replace(ScalaPsiElementFactory.createReferenceFromText(name, oldRef.getManager))
-        replaced.asInstanceOf[ScStableCodeReferenceElement].bindToElement(toBind)
       case _ =>
+        oldRef match {
+          case _ childOf (inf @ ScInfixExpr(qual: ScReferenceExpression, `oldRef`, _)) =>
+            val call = ScalaPsiElementFactory.createEquivMethodCall(inf)
+            val replacedCall = inf.replaceExpression(call, removeParenthesis = true).asInstanceOf[ScMethodCall]
+            val ref = replacedCall.getInvokedExpr.asInstanceOf[ScReferenceExpression]
+            replaceAndBind(ref, name, toBind)
+          case _ childOf (postfix @ ScPostfixExpr(qual: ScReferenceExpression, `oldRef`)) =>
+            val refExpr = ScalaPsiElementFactory.createEquivQualifiedReference(postfix)
+            val withDot = postfix.replaceExpression(refExpr, removeParenthesis = true).asInstanceOf[ScReferenceExpression]
+            replaceAndBind(withDot, name, toBind)
+          case expr: ScReferenceExpression =>
+            val clazz = toBind match {
+              case m: PsiMember => Option(m.getContainingClass)
+              case _ => None
+            }
+            val refExpr = ScalaPsiElementFactory.createExpressionFromText(name, oldRef.getManager)
+            val replaced = expr.replaceExpression(refExpr, removeParenthesis = true)
+            replaced.asInstanceOf[ScReferenceExpression].bindToElement(toBind, clazz)
+          case stCodeRef: ScStableCodeReferenceElement =>
+            val replaced = oldRef.replace(ScalaPsiElementFactory.createReferenceFromText(name, oldRef.getManager))
+            replaced.asInstanceOf[ScStableCodeReferenceElement].bindToElement(toBind)
+          case _ =>
+        }
     }
   }
 
