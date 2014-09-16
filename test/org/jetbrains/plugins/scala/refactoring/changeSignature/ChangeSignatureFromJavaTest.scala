@@ -133,4 +133,9 @@ class ChangeSignatureFromJavaTest extends ChangeSignatureTestBase {
     )
     doTest(null, "foo", null, Seq(params))
   }
+
+  def testAnonymousFunction(): Unit = {
+    val params = Seq(new ParameterInfoImpl(0, "i", PsiType.INT), new ParameterInfoImpl(-1, "j", PsiType.INT, "0"))
+    doTest(null, "foo", null, Seq(params))
+  }
 }

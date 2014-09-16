@@ -72,4 +72,23 @@ class ChangeSignatureInScalaTest extends ChangeSignatureTestBase {
     doTest(null, "foo", null, Seq(params))
   }
 
+  def testAnonFunWithDefaultArg(): Unit = {
+    isAddDefaultValue = true
+    val params = Seq(parameterInfo("i", 0, types.Int), parameterInfo("j", -1, types.Int, "0"))
+    doTest(null, "foo", null, Seq(params))
+  }
+
+  def testAnonFunModifyCall(): Unit = {
+    isAddDefaultValue = false
+    val params = Seq(parameterInfo("i", 0, types.Int), parameterInfo("j", -1, types.Int, "0"))
+    doTest(null, "foo", null, Seq(params))
+  }
+
+  def testAnonFunManyParams(): Unit = {
+    isAddDefaultValue = true
+    val params = Seq(parameterInfo("j", 1, types.Int),
+      parameterInfo("b", 2, types.Boolean),
+      parameterInfo("s", -1, types.AnyRef, "\"\""))
+    doTest(null,"foo", null, Seq(params))
+  }
 }
