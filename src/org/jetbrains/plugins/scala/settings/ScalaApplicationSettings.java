@@ -28,7 +28,6 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public boolean INTRODUCE_FIELD_REPLACE_ALL = false;
 
   public boolean IGNORE_SETTINGS_CHECK = false;
-  public int ADJUSTED_SETTINGS_LEVEL = 0;
 
   public boolean SPECIFY_RETURN_TYPE_EXPLICITLY = true;
   public boolean INTRODUCE_PARAMETER_CREATE_DEFAULT = true;

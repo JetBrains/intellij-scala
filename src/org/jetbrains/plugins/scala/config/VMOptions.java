@@ -116,9 +116,9 @@ class VMOptions {
     return 1;
   }
 
-  public static void writeOption(String option, int value, Pattern pattern) {
+  public static boolean writeOption(String option, int value, Pattern pattern) {
     File file = getWriteFile();
-    if (file == null) return;
+    if (file == null) return false;
 
     try {
       String optionValue = option + value + "m";
@@ -137,9 +137,11 @@ class VMOptions {
 
       @SuppressWarnings("SSBasedInspection") byte[] bytes = content.getBytes();
       FileUtil.writeToFile(file, bytes);
+      return true;
     }
     catch (IOException e) {
       LOG.info(e);
+      return false;
     }
   }
 
