@@ -96,7 +96,8 @@ object ResolveUtils {
         case _ =>
           m.getParameterList.getParameters.toSeq.mapWithIndex {
             case (param, index) =>
-              new Parameter("", None, s.subst(param.exactParamType()), false, param.isVarArgs, false, index)
+              val scType = s.subst(param.exactParamType())
+              new Parameter("", None, scType, scType, false, param.isVarArgs, false, index, Some(param))
           }
       }, false)(m.getProject, scope)
   }
