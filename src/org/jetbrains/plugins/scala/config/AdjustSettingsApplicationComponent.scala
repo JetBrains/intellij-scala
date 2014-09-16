@@ -95,7 +95,7 @@ class AdjustSettingsApplicationComponent extends ApplicationComponent {
     override def doOKAction(): Unit = {
       try {
         ScalaApplicationSettings.getInstance().ADJUSTED_SETTINGS_LEVEL = AdjustSettingsApplicationComponent.ADJUST_LEVEL
-        val xmsValue = xmxField.getText.toInt
+        val xmsValue = xmsField.getText.toInt
         val xmxValue = xmxField.getText.toInt
         val xssValue = xssField.getText.toInt
         VMOptions.writeOption("-Xms", xmsValue, XMS_PATTERN)
