@@ -13,9 +13,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.{JavaArrayType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, JavaArrayType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils
+import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
 import scala.collection.mutable.ListBuffer
 
@@ -34,10 +36,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       case RefExpressionUsage(r) => r.nameId
       case InfixExprUsageInfo(i) => i.operation.nameId
       case PostfixExprUsageInfo(p) => p.operation.nameId
-      case MethodValueUsageInfo(und) => und.bindingExpr match {
-        case Some(r: ScReferenceExpression) => r.nameId
-        case _ => null
-      }
+      case AnonFunUsageInfo(_, ref) => ref.nameId
       case _ => null
     }
     if (nameId == null) return
@@ -95,6 +94,62 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
   protected def handleParametersUsage(change: ChangeInfo, usage: ParameterUsageInfo): Unit = {
     if (change.isParameterNamesChanged || change.isParameterSetOrOrderChanged) {
       replaceNameId(usage.ref.getElement, usage.newName)
+    }
+  }
+
+  def handleAnonFunUsage(change: ChangeInfo, usage: AnonFunUsageInfo): Unit = {
+    if (!change.isParameterSetOrOrderChanged) return
+    val jChange = change match {
+      case j: JavaChangeInfo => j
+      case _ => return
+    }
+    val paramTypes = usage.expr.getType() match {
+      case Success(ScFunctionType(_, pTypes), _) => pTypes
+      case _ => Seq.empty
+    }
+    val (names, exprText) = usage.expr match {
+      case inv: MethodInvocation =>
+        var paramsBuf = Seq[String]()
+        for {
+          (arg, param) <- inv.matchedParameters.sortBy(_._2.index)
+          if ScUnderScoreSectionUtil.isUnderscore(arg)
+        } {
+          val paramName =
+            if (!param.name.isEmpty) param.name
+            else param.nameInCode match {
+              case Some(n) => n
+              case None => NameSuggester.suggestNamesByType(param.paramType)(0)
+            }
+          paramsBuf = paramsBuf :+ paramName
+          val text = ScalaPsiElementFactory.createExpressionFromText(paramName, arg.getManager)
+          arg.replaceExpression(text, removeParenthesis = true)
+        }
+        (paramsBuf, inv.getText)
+      case _ =>
+        val paramNames = jChange.getOldParameterNames.toSeq
+        val refText = usage.ref.getText
+        val argText = paramNames.mkString("(", ", ", ")")
+        (paramNames, s"$refText$argText")
+    }
+
+    val params =
+      if (paramTypes.size == names.size)
+        names.zip(paramTypes).map {
+          case (name, tpe) =>
+            ScalaExtractMethodUtils.typedName(name, tpe.canonicalText, usage.expr.getProject)
+        }
+      else names
+    val clause = params.mkString("(", ", ", ")")
+    val newFunExprText = s"$clause => $exprText"
+    val funExpr = ScalaPsiElementFactory.createExpressionFromText(newFunExprText, usage.expr.getManager)
+    val replaced = usage.expr.replaceExpression(funExpr, removeParenthesis = true).asInstanceOf[ScFunctionExpr]
+    ScalaPsiUtil.adjustTypes(replaced)
+    replaced.result match {
+      case Some(infix: ScInfixExpr) =>
+        handleInfixUsage(change, InfixExprUsageInfo(infix))
+      case Some(mc @ ScMethodCall(ref: ScReferenceExpression, _)) =>
+        handleMethodCallUsagesArguments(change, MethodCallUsageInfo(ref, mc))
+      case _ =>
     }
   }
 

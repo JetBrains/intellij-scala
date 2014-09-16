@@ -31,7 +31,7 @@ class ScalaChangeSignatureProcessor(project: Project, changeInfo: ScalaChangeInf
     val sortedUsages = usages.sortBy {
       case _: ParameterUsageInfo => 0
       case _: MethodUsageInfo => 1
-      case _: MethodValueUsageInfo => 1
+      case _: AnonFunUsageInfo => 1
       case _: ScalaNamedElementUsageInfo => 2
       case _ => 3
     }
