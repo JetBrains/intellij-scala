@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature
 
-import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference}
+import com.intellij.psi.{PsiMethod, PsiElement, PsiNamedElement, PsiReference}
 import com.intellij.refactoring.changeSignature.{ChangeInfo, JavaChangeInfo}
 import com.intellij.usageView.UsageInfo
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -113,8 +114,21 @@ private[changeSignature] case class PostfixExprUsageInfo(postfix: ScPostfixExpr)
   val argsInfo = OldArgsInfo(postfix.argumentExpressions, method)
 }
 
-private[changeSignature] case class MethodValueUsageInfo(und: ScUnderscoreSection)
-        extends UsageInfo(und)
+private[changeSignature] case class AnonFunUsageInfo(expr: ScExpression, ref: ScReferenceExpression)
+        extends UsageInfo(expr)
+
+private[changeSignature] object isAnonFunUsage {
+  def unapply(ref: ScReferenceExpression): Option[AnonFunUsageInfo] = {
+    ref match {
+      case ChildOf(mc: MethodInvocation) if mc.argumentExpressions.exists(ScUnderScoreSectionUtil.isUnderscore) => Some(AnonFunUsageInfo(mc, ref))
+      case ChildOf(und: ScUnderscoreSection) => Some(AnonFunUsageInfo(und, ref))
+      case Both(Resolved(m: PsiMethod, _), ChildOf(elem))
+        if m.getParameterList.getParametersCount > 0 && !elem.isInstanceOf[MethodInvocation] =>
+        Some(AnonFunUsageInfo(ref, ref))
+      case _ => None
+    }
+  }
+}
 
 private[changeSignature] case class ParameterUsageInfo(oldIndex: Int, newName: String, ref: ScReferenceElement)
         extends UsageInfo(ref: PsiElement)
@@ -129,7 +143,7 @@ private[changeSignature] object UsageUtil {
   }
 
   def scalaUsage(usage: UsageInfo): Boolean = usage match {
-    case ScalaNamedElementUsageInfo(_) | _: ParameterUsageInfo | _: MethodUsageInfo | _: MethodValueUsageInfo => true
+    case ScalaNamedElementUsageInfo(_) | _: ParameterUsageInfo | _: MethodUsageInfo | _: AnonFunUsageInfo => true
     case _ => false
   }
 
