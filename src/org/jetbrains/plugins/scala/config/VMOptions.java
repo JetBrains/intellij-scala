@@ -125,7 +125,11 @@ class VMOptions {
       String content = read();
 
       if (content == null) content = "";
-      content = replace(pattern, content, optionValue, "", "", content + " " + optionValue);
+      String defaultResult = content.trim();
+      if (defaultResult.isEmpty()) defaultResult = optionValue;
+      else if (defaultResult.endsWith("\n")) defaultResult += optionValue;
+      else defaultResult += " " + optionValue;
+      content = replace(pattern, content, optionValue, "", "", defaultResult);
 
       if (file.exists()) {
         FileUtil.setReadOnlyAttribute(file.getPath(), false);
