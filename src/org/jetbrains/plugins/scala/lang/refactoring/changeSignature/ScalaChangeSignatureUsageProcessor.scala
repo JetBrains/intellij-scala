@@ -107,13 +107,14 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
           processNamedElementUsage(changeInfo, namedInfo)
         case paramInfo: ParameterUsageInfo =>
           handleParametersUsage(changeInfo, paramInfo)
+        case anonFunUsage: AnonFunUsageInfo =>
+          handleAnonFunUsage(changeInfo, anonFunUsage)
         case _ =>
           processSimpleUsage(changeInfo, usageInfo)
       }
     }
 
     updateNamedElementsIfLastUsage()
-
     true
   }
 
@@ -157,10 +158,10 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
     ReferencesSearch.search(named).forEach { ref: PsiReference =>
       val refElem = ref.getElement
       refElem match {
+        case isAnonFunUsage(anonFunUsageInfo) => results += anonFunUsageInfo
         case (refExpr: ScReferenceExpression) childOf (mc: ScMethodCall) => results += MethodCallUsageInfo(refExpr, mc)
         case ChildOf(infix @ ScInfixExpr(_, `refElem`, _)) => results += InfixExprUsageInfo(infix)
         case ChildOf(postfix @ ScPostfixExpr(_, `refElem`)) => results += PostfixExprUsageInfo(postfix)
-        case (refExpr: ScReferenceExpression) childOf (und: ScUnderscoreSection) => results += MethodValueUsageInfo(und)
         case refExpr: ScReferenceExpression => results += RefExpressionUsage(refExpr)
         case _ =>
       }
