@@ -112,6 +112,14 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
 
   def getType: PsiType = ScType.toPsi(getRealParameterType(TypingContext.empty).getOrNothing, getProject, getResolveScope)
 
+  def isAnonymousParameter: Boolean = getContext match {
+    case clause: ScParameterClause => clause.getContext.getContext match {
+      case f: ScFunctionExpr => true
+      case _ => false
+    }
+    case _ => false
+  }
+
   def expectedParamType: Option[ScType] = getContext match {
     case clause: ScParameterClause => clause.getContext.getContext match {
       // For parameter of anonymous functions to infer parameter's type from an appropriate
