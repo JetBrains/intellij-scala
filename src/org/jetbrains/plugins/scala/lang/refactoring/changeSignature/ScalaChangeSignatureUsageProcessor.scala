@@ -15,7 +15,7 @@ import com.intellij.usageView.UsageInfo
 import com.intellij.util.containers.MultiMap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -83,14 +83,17 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
           case namedInfo: ScalaNamedElementUsageInfo =>
             val element = ScalaPsiUtil.nameContext(namedInfo.namedElement)
             val text = element.getText
-            val newElement = element match {
+            element match {
               case _: ScVariableDefinition | _: ScPatternDefinition =>
-                ScalaPsiElementFactory.createDefinitionWithContext(text, element.getContext, element)
+                val newElement = ScalaPsiElementFactory.createDefinitionWithContext(text, element.getContext, element)
+                element.getParent.addAfter(newElement, element)
+                element.delete()
               case _: ScVariableDeclaration | _: ScValueDeclaration =>
-                ScalaPsiElementFactory.createDeclarationFromText(text, element.getContext, element)
-              case _ => return
+                val newElement = ScalaPsiElementFactory.createDeclarationFromText(text, element.getContext, element)
+                element.getParent.addAfter(newElement, element)
+                element.delete()
+              case _ =>
             }
-            element.replace(newElement)
           case _ =>
         }
       }
@@ -148,10 +151,16 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
   }
 
   private def processNamedElementUsage(change: ChangeInfo, usage: ScalaNamedElementUsageInfo): Unit = {
-    handleVisibility(change, usage)
-    handleChangedName(change, usage.asInstanceOf[UsageInfo])
-    handleReturnTypeChange(change, usage)
-    handleChangedParameters(change, usage)
+    usage.namedElement match {
+      case fun: ScFunction if fun.isConstructor =>
+        handleVisibility(change, usage)
+        handleChangedParameters(change, usage)
+      case _ =>
+        handleVisibility(change, usage)
+        handleChangedName(change, usage.asInstanceOf[UsageInfo])
+        handleReturnTypeChange(change, usage)
+        handleChangedParameters(change, usage)
+    }
   }
 
   private def findMethodRefUsages(named: PsiNamedElement, results: ArrayBuffer[UsageInfo]): Unit = {
@@ -162,6 +171,8 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
         case (refExpr: ScReferenceExpression) childOf (mc: ScMethodCall) => results += MethodCallUsageInfo(refExpr, mc)
         case ChildOf(infix @ ScInfixExpr(_, `refElem`, _)) => results += InfixExprUsageInfo(infix)
         case ChildOf(postfix @ ScPostfixExpr(_, `refElem`)) => results += PostfixExprUsageInfo(postfix)
+        case (ref: ScReferenceElement) childOf (ChildOf(constr: ScConstructor)) =>
+          results += ConstructorUsageInfo(ref, constr)
         case refExpr: ScReferenceExpression => results += RefExpressionUsage(refExpr)
         case _ =>
       }

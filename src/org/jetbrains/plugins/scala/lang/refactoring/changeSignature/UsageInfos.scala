@@ -6,12 +6,13 @@ import com.intellij.refactoring.changeSignature.{ChangeInfo, JavaChangeInfo}
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
@@ -77,7 +78,7 @@ private[changeSignature] case class OverriderClassParamUsageInfo(namedElement: S
 private[changeSignature] trait MethodUsageInfo {
   def expr: ScExpression
   def argsInfo: OldArgsInfo
-  def ref: ScReferenceExpression
+  def ref: ScReferenceElement
   def method: PsiNamedElement = ref.resolve() match {
     case e: PsiNamedElement => e
     case _ => throw new IllegalArgumentException("Found reference does not resolve")
@@ -112,6 +113,18 @@ private[changeSignature] case class PostfixExprUsageInfo(postfix: ScPostfixExpr)
   val expr = postfix
   val ref = postfix.operation
   val argsInfo = OldArgsInfo(postfix.argumentExpressions, method)
+}
+
+private[changeSignature] case class ConstructorUsageInfo(ref: ScReferenceElement, constr: ScConstructor)
+        extends UsageInfo(constr) with MethodUsageInfo {
+
+  private val resolveResult = Option(ref).flatMap(_.bind())
+  val substitutor = resolveResult.map(_.substitutor)
+  val expr = {
+    val newText = s"new ${constr.getText}"
+    ScalaPsiElementFactory.createExpressionFromText(newText, constr.getManager)
+  }
+  val argsInfo = OldArgsInfo(constr.args.toSeq.flatMap(_.exprs), method)
 }
 
 private[changeSignature] case class AnonFunUsageInfo(expr: ScExpression, ref: ScReferenceExpression)
