@@ -490,7 +490,8 @@ object ScImplicitlyConvertible {
     if (!function.hasExplicitType) {
       if (PsiTreeUtil.isContextAncestor(function.getContainingFile, place, false)) {
         val commonContext = PsiTreeUtil.findCommonContext(function, place)
-        if (function == commonContext || place == commonContext) return false
+        if (place == commonContext) return true //weird case, it covers situation, when function comes from object, not treeWalkUp
+        if (function == commonContext) return false
         else {
           var functionContext: PsiElement = function
           while (functionContext.getContext != commonContext) functionContext = functionContext.getContext
