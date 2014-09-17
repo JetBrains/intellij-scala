@@ -295,8 +295,12 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                 f.replace(repl)
               }
               val additionalReplacement = f.getDesugarizedExprImpl
-              updateAnalog(f)
-              Some(additionalReplacement)
+              additionalReplacement match {
+                case Some(repl) =>
+                  updateAnalog(f)
+                  additionalReplacement
+                case _ => res
+              }
             case _ => res
           }
         case gen: ScGenerator =>
@@ -321,7 +325,6 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           }
           res
       }
-      res
     }
   }
 
