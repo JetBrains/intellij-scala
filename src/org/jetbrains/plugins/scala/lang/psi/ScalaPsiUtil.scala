@@ -1718,11 +1718,15 @@ object ScalaPsiUtil {
   def parameterOf(exp: ScExpression): Option[Parameter] = {
     def forArgumentList(expr: ScExpression, args: ScArgumentExprList): Option[Parameter] = {
       args.getParent match {
-        case constructor: ScConstructor =>
-          constructor.reference
-                  .flatMap(_.resolve().asOptionOf[ScPrimaryConstructor]) // TODO secondary constructors
-                  .flatMap(_.parameters.lift(args.exprs.indexOf(expr))) // TODO secondary parameter lists
-                  .map(p => new Parameter(p))
+        case constructor: ScConstructor => // TODO secondary parameter lists
+          val params = constructor.reference.flatMap(r => Option(r.resolve())) match {
+            case Some(pc: ScPrimaryConstructor) => pc.parameters
+            case Some(fun: ScFunction) if fun.isConstructor => fun.parameters
+            case Some(m: PsiMethod) if m.isConstructor => m.getParameterList.getParameters.toSeq
+            case None => Seq.empty
+          }
+          val maybeParameter = params.lift(args.exprs.indexOf(expr))
+          maybeParameter.map(new Parameter(_))
         case _ => args.matchedParameters.getOrElse(Seq.empty).find(_._1 == expr).map(_._2)
       }
     }
