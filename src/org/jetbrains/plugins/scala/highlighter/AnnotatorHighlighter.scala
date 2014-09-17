@@ -194,8 +194,8 @@ object AnnotatorHighlighter {
       case x: PsiField =>
         if (!x.hasModifierProperty("final")) annotation.setTextAttributes(DefaultHighlighter.VARIABLES)
         else annotation.setTextAttributes(DefaultHighlighter.VALUES)
-      case x: ScParameter =>
-        annotation.setTextAttributes(DefaultHighlighter.PARAMETER)
+      case x: ScParameter if x.isAnonymousParameter => annotation.setTextAttributes(DefaultHighlighter.ANONYMOUS_PARAMETER)
+      case x: ScParameter => annotation.setTextAttributes(DefaultHighlighter.PARAMETER)
       case x@(_: ScFunctionDefinition | _: ScFunctionDeclaration | _: ScMacroDefinition) =>
         if (SCALA_FACTORY_METHODS_NAMES.contains(x.asInstanceOf[PsiMethod].getName) || x.asInstanceOf[PsiMethod].isConstructor) {
           val clazz = PsiTreeUtil.getParentOfType(x, classOf[PsiClass])
@@ -328,7 +328,10 @@ object AnnotatorHighlighter {
 
   private def visitParameter(param: ScParameter, holder: AnnotationHolder): Unit = {
     val annotation = holder.createInfoAnnotation(param.nameId, null)
-    annotation.setTextAttributes(DefaultHighlighter.PARAMETER)
+    val attributesKey =
+      if (param.isAnonymousParameter) DefaultHighlighter.ANONYMOUS_PARAMETER
+      else DefaultHighlighter.PARAMETER
+    annotation.setTextAttributes(attributesKey)
   }
 
   private def visitPattern(pattern: ScPattern, holder: AnnotationHolder): Unit = {
