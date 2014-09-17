@@ -2,7 +2,9 @@ package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature.changeInfo
 
 import com.intellij.psi.JavaPsiFacade
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaParameterInfo
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * Nikolay.Tropin
@@ -48,4 +50,19 @@ private[changeInfo] trait ParametersChangeInfo {
   def getOldParameterNames: Array[String] = oldParameterNames
 
   def getOldParameterTypes: Array[String] = oldParameterTypes
+
+  def defaultParameterForJava(p: ScalaParameterInfo, idx: Int): String = {
+    if (this.isAddDefaultArgs) {
+      if (this.function.isConstructor) {
+        this.function.containingClass match {
+          case c: ScClass =>
+            val className = ScalaNamesUtil.toJavaName(c.name)
+            s"$className.$$lessinit$$greater$$default$$${idx + 1}()"
+          case _ => p.defaultValue
+        }
+      } 
+      else s"${this.getNewName}$$default$$${idx + 1}()"
+    }
+    else p.defaultValue
+  }
 }

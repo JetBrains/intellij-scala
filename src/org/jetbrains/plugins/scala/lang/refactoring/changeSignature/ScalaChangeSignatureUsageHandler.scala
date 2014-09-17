@@ -178,9 +178,10 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
 
     inner(usage.namedElement)
   }
-
+  
   protected def handleUsageArguments(change: ChangeInfo, usage: UsageInfo): Unit = {
     usage match {
+      case c: ConstructorUsageInfo => handleConstructorUsageArguments(change, c)
       case m: MethodCallUsageInfo => handleMethodCallUsagesArguments(change, m)
       case r: RefExpressionUsage => handleRefUsageArguments(change, r)
       case i: InfixExprUsageInfo => handleInfixUsage(change, i)
@@ -213,21 +214,33 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     }
   }
 
+  def handleConstructorUsageArguments(change: ChangeInfo, usage: ConstructorUsageInfo): Unit = {
+    val constr = usage.constr
+    val argList = createArgList(change, usage)
+    constr.args match {
+      case Some(a) => a.replace(argList)
+      case None => constr.addAfter(argList, constr.typeElement)
+    }
+  }
+
   protected def handleRefUsageArguments(change: ChangeInfo, usage: RefExpressionUsage): Unit = {
     if (change.getNewParameters.isEmpty) return
 
     val ref = usage.refExpr
-    val argList = createArgList(change, usage)
-    ref.addAfter(argList, ref.nameId)
+    val text = ref.getText + arguments(change, usage).map(_.getText).mkString("(", ", ", ")")
+    val call = ScalaPsiElementFactory.createExpressionWithContextFromText(text, ref.getContext, ref)
+    ref.replaceExpression(call, removeParenthesis = true)
   }
 
   protected def handlePostfixUsage(change: ChangeInfo, usage: PostfixExprUsageInfo): Unit = {
     if (change.getNewParameters.isEmpty) return
 
-    val qualRef = ScalaPsiElementFactory.createEquivQualifiedReference(usage.postfix)
+    val postfix = usage.postfix
+    val qualRef = ScalaPsiElementFactory.createEquivQualifiedReference(postfix)
     val argList = createArgList(change, usage)
-    qualRef.addAfter(argList, qualRef.nameId)
-    usage.postfix.replaceExpression(qualRef, removeParenthesis = true)
+    val text = qualRef.getText + argList.getText
+    val call = ScalaPsiElementFactory.createExpressionWithContextFromText(text, postfix.getContext, postfix)
+    postfix.replaceExpression(call, removeParenthesis = true)
   }
 
   protected def handleMethodCallUsagesArguments(change: ChangeInfo, usage: MethodCallUsageInfo): Unit = {

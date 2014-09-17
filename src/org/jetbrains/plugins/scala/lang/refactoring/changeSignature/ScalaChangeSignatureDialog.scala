@@ -68,13 +68,15 @@ class ScalaChangeSignatureDialog(val project: Project, method: ScalaMethodDescri
     val paramItems = parametersTableModel.getItems.asScala
     val problems = ListBuffer[String]()
 
-    if (myReturnTypeCodeFragment.getText.isEmpty)
-      problems += RefactoringBundle.message("changeSignature.no.return.type")
-    else if (returnTypeText.isEmpty)
-      problems += RefactoringBundle.message("changeSignature.wrong.return.type", myReturnTypeCodeFragment.getText)
+    if (myReturnTypeCodeFragment != null) {
+      if (myReturnTypeCodeFragment.getText.isEmpty)
+        problems += RefactoringBundle.message("changeSignature.no.return.type")
+      else if (returnTypeText.isEmpty)
+        problems += RefactoringBundle.message("changeSignature.wrong.return.type", myReturnTypeCodeFragment.getText)
+    }
 
     val paramNames = paramItems.map(_.parameter.name)
-    val names = getMethodName +: paramNames
+    val names = if (myNameField.isEnabled) getMethodName +: paramNames else paramNames
     problems ++= names.collect {
       case name if !ScalaNamesUtil.isIdentifier(name) => s"$name is not a valid scala identifier"
     }
@@ -114,8 +116,9 @@ class ScalaChangeSignatureDialog(val project: Project, method: ScalaMethodDescri
   }
 
   private def returnTypeAndText: (ScType, String) = {
-    val text = myReturnTypeCodeFragment.getText
+    if (myReturnTypeCodeFragment == null) return (Any, "")
     try {
+      val text = myReturnTypeCodeFragment.getText
       val typeElem = ScalaPsiElementFactory.createTypeElementFromText(text, myReturnTypeCodeFragment.getContext, myReturnTypeCodeFragment)
       (typeElem.getType().getOrAny, typeElem.getText)
     }
