@@ -49,14 +49,14 @@ object JavaConversionUtil {
                     case l: ScLiteral => "\"" + StringUtil.escapeStringCharacters(l.getValue.toString) + "\""
                     case call: ScMethodCall =>
                       if (call.getInvokedExpr.getText.endsWith("Array")) {
-                        call.args.exprs.map(convertExpression(_)).mkString("{", ", ", "}")
+                        call.args.exprs.map(convertExpression).mkString("{", ", ", "}")
                       } else problem
                     case call: ScGenericCall =>
                       if (call.referencedExpr.getText.endsWith("classOf")) {
                         val arguments = call.arguments
                         if (arguments.length == 1) {
-                          val tp = arguments.apply(0).getType(TypingContext.empty)
-                          tp match {
+                          val typeResult = arguments.apply(0).getType(TypingContext.empty)
+                          typeResult match {
                             case Success(tp, _) =>
                               ScType.extractClass(tp, Some(s.getProject)) match {
                                 case Some(clazz) => clazz.getQualifiedName + ".class"
@@ -77,7 +77,7 @@ object JavaConversionUtil {
                                     case c: PsiClass =>
                                       var res = "@" + c.getQualifiedName
                                       constr.args match {
-                                        case Some(args) => res += convertArgs(args.exprs)
+                                        case Some(constrArgs) => res += convertArgs(constrArgs.exprs)
                                         case _ =>
                                       }
                                       res
@@ -92,7 +92,7 @@ object JavaConversionUtil {
                     case _ => problem
                   }
                 }
-                args.map(convertExpression(_)).mkString("(", ", ", ")")
+                args.map(convertExpression).mkString("(", ", ", ")")
               }
               builder.append(convertArgs(args.exprs))
             case _ =>
