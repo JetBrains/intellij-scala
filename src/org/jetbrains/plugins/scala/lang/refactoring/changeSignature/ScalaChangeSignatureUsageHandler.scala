@@ -7,10 +7,11 @@ import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.codeInsight.intention.types.Update
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
@@ -51,6 +52,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       case _ => return
     }
     val member = ScalaPsiUtil.nameContext(usage.namedElement) match {
+      case cl: ScClass => cl.constructor.getOrElse(return)
       case m: ScModifierListOwner => m
       case _ => return
     }
@@ -157,19 +159,27 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     if (!change.isParameterNamesChanged && !change.isParameterSetOrOrderChanged && !change.isParameterTypesChanged) return
 
     def inner(named: ScNamedElement): Unit = {
-      val (keywordToChange, paramClauses) = named match {
-        case f: ScFunction => (None, Some(f.paramClauses))
-        case ScalaPsiUtil.inNameContext(pd: ScPatternDefinition) if pd.isSimple => (Some(pd.valKeyword), None)
-        case ScalaPsiUtil.inNameContext(vd: ScVariableDefinition) if vd.isSimple => (Some(vd.varKeyword), None)
+
+      val keywordToChange = named match {
+        case _: ScFunction | _: ScClass => None
+        case ScalaPsiUtil.inNameContext(pd: ScPatternDefinition) if pd.isSimple => Some(pd.valKeyword)
+        case ScalaPsiUtil.inNameContext(vd: ScVariableDefinition) if vd.isSimple => Some(vd.varKeyword)
         case _ => return
       }
-      val defKeyword = ScalaPsiElementFactory.createMethodFromText("def foo {}", named.getManager).children.find(_.getText == "def").get
-      if (change.getNewParameters.length > 0) keywordToChange.foreach(_.replace(defKeyword))
+      keywordToChange.foreach { kw =>
+        val defKeyword = ScalaPsiElementFactory.createMethodFromText("def foo {}", named.getManager).children.find(_.getText == "def").get
+        if (change.getNewParameters.length > 0) kw.replace(defKeyword)
+      }
 
       val paramsText = parameterListText(change, usage)
       val nameId = named.nameId
-      val newClauses = ScalaPsiElementFactory.createParamClausesWithContext(paramsText, named, nameId)
-      val result = paramClauses match {
+      val newClauses = named match {
+        case cl: ScClass =>
+          ScalaPsiElementFactory.createClassParamClausesWithContext(paramsText, cl)
+        case _ =>
+          ScalaPsiElementFactory.createParamClausesWithContext(paramsText, named, nameId)
+      }
+      val result = usage.paramClauses match {
         case Some(p) => p.replace(newClauses)
         case None => nameId.getParent.addAfter(newClauses, nameId)
       }
@@ -221,6 +231,10 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       case Some(a) => a.replace(argList)
       case None => constr.addAfter(argList, constr.typeElement)
     }
+  }
+
+  def processPrimaryConstructor(change: ChangeInfo, constructor: ScPrimaryConstructor) = {
+
   }
 
   protected def handleRefUsageArguments(change: ChangeInfo, usage: RefExpressionUsage): Unit = {

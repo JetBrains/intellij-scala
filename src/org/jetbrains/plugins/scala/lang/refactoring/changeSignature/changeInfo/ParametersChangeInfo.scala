@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 private[changeInfo] trait ParametersChangeInfo {
   this: ScalaChangeInfo =>
 
-  private val oldParameters = function.getParameterList.params.toArray
+  private val oldParameters = function.parameterList.params.toArray
   private val oldParameterNames: Array[String] = oldParameters.map(_.getName)
   private val oldParameterTypes: Array[String] = {
     val factory = JavaPsiFacade.getElementFactory(function.getProject)

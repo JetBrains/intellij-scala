@@ -11,8 +11,9 @@ import com.intellij.refactoring.changeSignature.{ChangeSignatureHandler, ChangeS
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import com.intellij.refactoring.{HelpID, RefactoringBundle}
 import org.jetbrains.plugins.scala.extensions.Resolved
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
 
 /**
@@ -21,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
  */
 class ScalaChangeSignatureHandler extends ChangeSignatureHandler {
 
-  def invokeWithDialog(project: Project, fun: ScFunction) {
+  def invokeWithDialog(project: Project, fun: ScMethodLike) {
     val dialog = new ScalaChangeSignatureDialog(project, new ScalaMethodDescriptor(fun))
     dialog.show()
   }
@@ -31,7 +32,7 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler {
       val name = ChangeSignatureHandler.REFACTORING_NAME
       CommonRefactoringUtil.showErrorHint(project, editor, message, name, HelpID.CHANGE_SIGNATURE)
     }
-    def isSupportedFor(fun: ScFunction): Boolean = {
+    def isSupportedFor(fun: ScMethodLike): Boolean = {
       fun match {
         case fun: ScFunction if fun.paramClauses.clauses.length > 1 =>
           val message = ScalaBundle.message("change.signature.not.supported.multiple.parameter.clauses")
@@ -70,10 +71,10 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler {
 
         val newMethod = SuperMethodWarningUtil.checkSuperMethod(method, RefactoringBundle.message("to.refactor"))
         unwrapMethod(newMethod) match {
-          case Some(fun: ScFunction) =>
+          case Some(fun: ScMethodLike) =>
             if (isSupportedFor(fun)) invokeWithDialog(project, fun)
-          case Some(m) => ChangeSignatureUtil.invokeChangeSignatureOn(m, project)
-          case None =>
+          case Some(m) if m != method => ChangeSignatureUtil.invokeChangeSignatureOn(m, project)
+          case _ =>
         }
       case None =>
         val message = RefactoringBundle.getCannotRefactorMessage(getTargetNotFoundMessage)
@@ -111,7 +112,16 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler {
       case decl: ScFunctionDeclaration => decl
       case _ => null
     }
-    Option(resolvedMethod) getOrElse currentFunction
+    def primaryConstr = PsiTreeUtil.getParentOfType(element, classOf[ScClass]) match {
+      case null => null
+      case c: ScClass =>
+        c.constructor match {
+          case Some(constr)
+            if PsiTreeUtil.isAncestor(c.nameId, element, false) || PsiTreeUtil.isAncestor(constr, element, false) => constr
+          case _ => null
+        }
+    }
+    Option(resolvedMethod) orElse Option(currentFunction) getOrElse primaryConstr
   }
 
   override def findTargetMember(file: PsiFile, editor: Editor): PsiElement = {

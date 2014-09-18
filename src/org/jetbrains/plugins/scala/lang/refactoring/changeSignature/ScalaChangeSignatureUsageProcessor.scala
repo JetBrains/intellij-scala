@@ -15,9 +15,10 @@ import com.intellij.usageView.UsageInfo
 import com.intellij.util.containers.MultiMap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.psi.light._
@@ -66,8 +67,11 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
 
   override def processPrimaryMethod(changeInfo: ChangeInfo): Boolean = changeInfo match {
     case scalaChange: ScalaChangeInfo =>
-      val fun = scalaChange.function
-      processNamedElementUsage(changeInfo, FunUsageInfo(fun))
+      scalaChange.function match {
+        case f: ScFunction => processNamedElementUsage(changeInfo, FunUsageInfo(f))
+        case pc: ScPrimaryConstructor => processNamedElementUsage(changeInfo, PrimaryConstructorUsageInfo(pc))
+        case _ =>
+      }
       true
     case _ => false
   }
@@ -153,6 +157,9 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
   private def processNamedElementUsage(change: ChangeInfo, usage: ScalaNamedElementUsageInfo): Unit = {
     usage.namedElement match {
       case fun: ScFunction if fun.isConstructor =>
+        handleVisibility(change, usage)
+        handleChangedParameters(change, usage)
+      case c: ScClass =>
         handleVisibility(change, usage)
         handleChangedParameters(change, usage)
       case _ =>
