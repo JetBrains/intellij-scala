@@ -432,8 +432,6 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
           }
           else argExprs
         }
-      case jChangeInfo: JavaChangeInfo if jChangeInfo.isRetainsVarargs =>
-        argsInfo.byOldParameterIndex.getOrElse(oldIndex, Seq.empty)
       case _ => Seq.empty
     }
   }
