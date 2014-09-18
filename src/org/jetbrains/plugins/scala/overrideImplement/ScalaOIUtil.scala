@@ -99,7 +99,7 @@ object ScalaOIUtil {
         val sortedMembers = ScalaMemberChooser.sorted(selectedMembers, clazz)
         val genInfos = sortedMembers.map(new ScalaGenerationInfo(_))
         val anchor = getAnchor(editor.getCaretModel.getOffset, clazz)
-        val inserted = GenerateMembersUtil.insertMembersBeforeAnchor(clazz, anchor.getOrElse(null), genInfos.reverse)
+        val inserted = GenerateMembersUtil.insertMembersBeforeAnchor(clazz, anchor.orNull, genInfos.reverse)
         inserted.headOption.foreach(_.positionCaret(editor, toEditMethodBody = true))
       }
     }, clazz.getProject, if (isImplement) "Implement method" else "Override method")
@@ -190,7 +190,7 @@ object ScalaOIUtil {
       case x if name == "$tag" || name == "$init$" => false
       case x if !withOwn && x.containingClass == clazz => false
       case x if x.containingClass != null && x.containingClass.isInterface &&
-              !x.containingClass.isInstanceOf[ScTrait] => true
+              !x.containingClass.isInstanceOf[ScTrait] && x.hasModifierProperty("abstract") => true
       case x if x.hasModifierPropertyScala("abstract") && !x.isInstanceOf[ScFunctionDefinition] &&
               !x.isInstanceOf[ScPatternDefinition] && !x.isInstanceOf[ScVariableDefinition] => true
       case x: ScFunctionDeclaration if x.hasAnnotation("scala.native") == None => true
