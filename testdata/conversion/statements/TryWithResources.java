@@ -31,6 +31,7 @@ try {
     oss.write(0)
   } finally {
     System.out.println("In finally")
+    if (oss != null) oss.close()
   }
 }
 */

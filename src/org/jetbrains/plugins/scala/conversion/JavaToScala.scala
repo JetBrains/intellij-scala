@@ -183,10 +183,10 @@ object JavaToScala {
           res.append("}")
         }
         if (t.getFinallyBlock != null) {
-          if (resourceList != null) {
+          if (resourceList == null) {
             res.append(" finally ").append(convertPsiToText(t.getFinallyBlock))
           } else {
-            res.append("{\n")
+            res.append(" finally {\n")
             for (st <- t.getFinallyBlock.getStatements) res.append(convertPsiToText(st)).append("\n")
             resourceList.getResourceVariables.foreach { r =>
               val name = escapeKeyword(r.getName)
