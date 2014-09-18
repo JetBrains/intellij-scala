@@ -16,6 +16,7 @@ import com.intellij.refactoring.{BaseRefactoringProcessor, RefactoringBundle}
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.{Any, ScType}
@@ -143,7 +144,13 @@ class ScalaChangeSignatureDialog(val project: Project, method: ScalaMethodDescri
       else ScalaExtractMethodUtils.typedName(item.parameter.name, item.typeText, project, byName = false)
     }
 
-    val prefix = s"$getVisibility def $getMethodName"
+    val prefix = method.fun match {
+      case fun: ScFunction =>
+        val name = if (!fun.isConstructor) getMethodName else "this"
+        s"$getVisibility def $name"
+      case pc: ScPrimaryConstructor => s"class ${pc.getClassNameText} $getVisibility"
+      case _ => ""
+    }
     val params = parametersTableModel.getItems.asScala.map(p => nameAndType(p))
     val paramsText = params.mkString("(", ", ", ")")
 
