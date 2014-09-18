@@ -27,6 +27,7 @@ trait OverridingAnnotator {
       case f: ScFunctionDeclaration if f.isNative => true
       case _: ScFunctionDeclaration => false
       case _: ScFun => true
+      case method: PsiMethod if method.getContainingClass != null && method.getContainingClass.isInterface => false
       case method: PsiMethod if !method.hasAbstractModifier && !method.isConstructor => true
       case method: PsiMethod if method.hasModifierProperty(PsiModifier.NATIVE) => true
       case _: ScPatternDefinition => true
