@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala
 package refactoring.changeSignature
 
-import com.intellij.psi.{PsiEllipsisType, PsiType}
+import com.intellij.psi.{PsiEllipsisType, PsiMember, PsiMethod, PsiType}
 import com.intellij.refactoring.changeSignature._
+import junit.framework.Assert._
 
 /**
  * Nikolay.Tropin
@@ -25,6 +26,12 @@ class ChangeSignatureFromJavaTest extends ChangeSignatureTestBase {
                 newReturnType: String,
                 newParams: => Seq[Seq[ParameterInfo]]): ChangeSignatureProcessorBase = {
     javaProcessor(newVisibility, newName, newReturnType, newParams)
+  }
+
+  override def findTargetElement: PsiMember = {
+    val element = new JavaChangeSignatureHandler().findTargetMember(getFileAdapter, getEditorAdapter)
+    assertTrue("<caret> is not on method name", element.isInstanceOf[PsiMethod])
+    element.asInstanceOf[PsiMethod]
   }
 
   def testStaticMethod() = {

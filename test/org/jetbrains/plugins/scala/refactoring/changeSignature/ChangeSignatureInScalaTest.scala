@@ -1,16 +1,26 @@
 package org.jetbrains.plugins.scala
 package refactoring.changeSignature
 
+import com.intellij.psi.PsiMember
 import com.intellij.refactoring.changeSignature.{ChangeSignatureProcessorBase, ParameterInfo}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import junit.framework.Assert._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.types
-import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaParameterInfo
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureHandler, ScalaParameterInfo}
 
 /**
  * Nikolay.Tropin
  * 2014-09-11
  */
 class ChangeSignatureInScalaTest extends ChangeSignatureTestBase {
+
+  override def findTargetElement: PsiMember = {
+    val element = new ScalaChangeSignatureHandler().findTargetMember(getFileAdapter, getEditorAdapter)
+    assertTrue("<caret> is not on method name", element.isInstanceOf[ScMethodLike])
+    element.asInstanceOf[ScMethodLike]
+  }
+
   override def folderPath: String = baseRootPath() + "changeSignature/inScala/"
 
   override def processor(newVisibility: String,
