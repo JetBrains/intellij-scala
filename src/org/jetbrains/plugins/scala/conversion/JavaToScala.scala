@@ -494,6 +494,9 @@ object JavaToScala {
           for (memb <- forObject) {
             res.append(convertPsiToText(memb)).append("\n")
           }
+          for (init <- c.getInitializers) {
+            res.append("try ").append(convertPsiToText(init.getBody)).append("\n")
+          }
           res.append("}")
         }
         if (!c.isInstanceOf[PsiAnonymousClass]) res.append("\n")
