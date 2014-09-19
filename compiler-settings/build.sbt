@@ -11,7 +11,7 @@ def readIdeaPropery(key: String): String = {
   prop.getProperty(key)
 }
 
-lazy val ideaBasePath = "SDK/ideaSDK/idea-" + readIdeaPropery("ideaVersion")
+lazy val  ideaBasePath = "SDK/ideaSDK/idea-"   + readIdeaPropery("ideaVersion"  )
 
 unmanagedJars in Compile ++= (baseDirectory.value.getParentFile / ideaBasePath / "lib" * "*.jar").classpath
 
