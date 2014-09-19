@@ -629,9 +629,7 @@ object JavaToScala {
           }
         }*/
       case m: PsiModifierList =>
-        //todo: synchronized
         for {
-          // todo: test
           a <- m.getAnnotations
           if Option(a.getQualifiedName) != Some("java.lang.Override")
         } {
@@ -683,7 +681,13 @@ object JavaToScala {
           case _ => res.append("@")
         }
         val nameReferenceElement: PsiJavaCodeReferenceElement = annot.getNameReferenceElement
-        if (nameReferenceElement != null) res.append(escapeKeyword(nameReferenceElement.getText))
+        if (nameReferenceElement != null) {
+          val name = escapeKeyword(nameReferenceElement.getText)
+          name match {
+            case "Deprecated" => res.append("deprecated")
+            case _ => res.append(name)
+          }
+        }
         val attributes = annot.getParameterList.getAttributes
         if (attributes.nonEmpty) {
           res.append("(")
