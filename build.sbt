@@ -1,35 +1,35 @@
-name := "ScalaCommunity"
+name :=  "ScalaCommunity"
 
-organization := "JetBrains"
+organization :=  "JetBrains"
 
-scalaVersion := "2.11.2"
+scalaVersion :=  "2.11.2"
 
-libraryDependencies += "org.scalatest" % "scalatest-finders" % "0.9.6"
+libraryDependencies +=  "org.scalatest" % "scalatest-finders" % "0.9.6"
 
-libraryDependencies += "org.atteo" % "evo-inflector" % "1.2"
+libraryDependencies +=  "org.atteo" % "evo-inflector" % "1.2"
 
-libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.0.2"
+libraryDependencies +=  "org.scala-lang.modules" %% "scala-xml" % "1.0.2"
 
-libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.2"
+libraryDependencies +=  "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.2"
 
-libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value
+libraryDependencies +=  "org.scala-lang" % "scala-reflect" % scalaVersion.value
 
-unmanagedJars in Compile += file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar"
+unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar"
 
-unmanagedSourceDirectories in Compile += baseDirectory.value / "src"
+unmanagedSourceDirectories in Compile += baseDirectory.value /  "src"
 
-unmanagedSourceDirectories in Test += baseDirectory.value / "test"
+unmanagedSourceDirectories in Test += baseDirectory.value /  "test"
 
-unmanagedResourceDirectories in Compile += baseDirectory.value / "resources"
+unmanagedResourceDirectories in Compile += baseDirectory.value /  "resources"
 
-def readIdeaPropery(key: String): String = {
+def readIdeaPropery(key: String): String =  {
   import java.util.Properties
   val prop = new Properties()
   IO.load(prop, file("idea.properties"))
   prop.getProperty(key)
 }
 
-def getBuildId(buildTypes: List[String], branch: String): String = {
+def getBuildId(buildTypes: List[String], branch: String): String =  {
   import scala.xml._
   import java.io._
   for (bt <- buildTypes) {
@@ -44,58 +44,58 @@ def getBuildId(buildTypes: List[String], branch: String): String = {
   ""
 }
 
-lazy val ideaVersion = taskKey[String]("gets idea sdk version from file")
+lazy val ideaVersion = taskKey[String]( "gets idea sdk version from file")
 
-ideaVersion := { readIdeaPropery("ideaVersion") }
+ideaVersion := { readIdeaPropery( "ideaVersion") }
 
-lazy val ideaBasePath = "SDK/ideaSDK/idea-" + readIdeaPropery("ideaVersion")
+lazy val ideaBasePath = "SDK/ideaSDK/idea-" + readIdeaPropery( "ideaVersion")
 
-unmanagedJars in Compile ++= (baseDirectory.value / ideaBasePath / "lib" * "*.jar").classpath
+unmanagedJars in Compile ++= (baseDirectory.value / ideaBasePath / "lib" *  "*.jar").classpath
 
-unmanagedJars in Compile ++= {
-  val basePluginsDir = baseDirectory.value / ideaBasePath / "plugins"
+unmanagedJars in Compile ++=  {
+  val basePluginsDir = baseDirectory.value / ideaBasePath /  "plugins"
   val baseDirectories =
-    basePluginsDir / "copyright" / "lib" +++
-      basePluginsDir / "gradle" / "lib" +++
-      basePluginsDir / "android" / "lib" +++
-      basePluginsDir / "Groovy" / "lib" +++
-      basePluginsDir / "IntelliLang" / "lib" +++
-      basePluginsDir / "java-i18n" / "lib" +++
-      basePluginsDir / "maven" / "lib" +++
-      basePluginsDir / "junit" / "lib" +++
-      basePluginsDir / "properties" / "lib"
-  val customJars = baseDirectories * "*.jar"
+    basePluginsDir / "copyright" /  "lib" +++
+      basePluginsDir / "gradle" /  "lib" +++
+      basePluginsDir / "android" /  "lib" +++
+      basePluginsDir / "Groovy" /  "lib" +++
+      basePluginsDir / "IntelliLang" /  "lib" +++
+      basePluginsDir / "java-i18n" /  "lib" +++
+      basePluginsDir / "maven" /  "lib" +++
+      basePluginsDir / "junit" /  "lib" +++
+      basePluginsDir / "properties" /  "lib"
+  val customJars = baseDirectories *  "*.jar"
   customJars.classpath
 }
 
-unmanagedJars in Compile ++= (baseDirectory.value / "SDK/scalap" * "*.jar").classpath
+unmanagedJars in Compile ++= (baseDirectory.value /  "SDK/scalap" * "*.jar").classpath
 
-unmanagedJars in Compile ++= (baseDirectory.value / "SDK/nailgun" * "*.jar").classpath
+unmanagedJars in Compile ++= (baseDirectory.value /  "SDK/nailgun" * "*.jar").classpath
 
-lazy val compiler_settings = Project("compiler-settings", file("compiler-settings"))
+lazy val compiler_settings = project.in(file( "compiler-settings")).settings(update <<= update dependsOn (downloadIdea in Compile))
 
-lazy val ScalaRunner = project.in(file("ScalaRunner"))
+lazy val ScalaRunner = project.in(file( "ScalaRunner"))
 
-lazy val Runners = project.in(file("Runners")).dependsOn(ScalaRunner)
+lazy val Runners = project.in(file( "Runners")).dependsOn(ScalaRunner)
 
-lazy val ScalaCommunity = project.in(file("")).dependsOn(compiler_settings, Runners).aggregate(jps_plugin)
+lazy val ScalaCommunity = project.in(file("")).dependsOn(compiler_settings, Runners).aggregate(jps_plugin).settings(update <<= update dependsOn (downloadIdea in Compile))
 
-lazy val intellij_hocon = Project("intellij-hocon", file("intellij-hocon")).dependsOn(ScalaCommunity)
+lazy val intellij_hocon = Project( "intellij-hocon", file("intellij-hocon")).dependsOn(ScalaCommunity)
 
-lazy val intellij_scalastyle =
-  Project("intellij-scalastyle", file("intellij-scalastyle")).dependsOn(ScalaCommunity)
+lazy val intellij_scalastyle  =
+  Project("intellij-scalastyle", file( "intellij-scalastyle")).dependsOn(ScalaCommunity)
 
-lazy val jps_plugin = Project("scala-jps-plugin", file("jps-plugin")).dependsOn(compiler_settings)
+lazy val jps_plugin = Project( "scala-jps-plugin", file("jps-plugin")).dependsOn(compiler_settings)
 
-lazy val idea_runner = Project("idea-runner", file("idea-runner"))
+lazy val idea_runner = Project( "idea-runner", file("idea-runner"))
 
-lazy val NailgunRunners = project.in(file("NailgunRunners")).dependsOn(ScalaRunner)
+lazy val NailgunRunners = project.in(file( "NailgunRunners")).dependsOn(ScalaRunner)
 
-lazy val SBT = project.in(file("SBT")).dependsOn(intellij_hocon, ScalaCommunity)
+lazy val SBT = project.in(file( "SBT")).dependsOn(intellij_hocon, ScalaCommunity)
 
-lazy val downloadIdea = taskKey[Unit]("downloads idea runtime")
+lazy val downloadIdea = taskKey[Unit]( "downloads idea runtime")
 
-downloadIdea := {
+downloadIdea in Compile := {
     import sys.process._
     import scala.xml._
     val log = streams.value.log
