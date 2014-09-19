@@ -48,17 +48,16 @@ lazy val ideaVersion = taskKey[String]("gets idea sdk version from file")
 
 ideaVersion := { readIdeaPropery("ideaVersion") }
 
-lazy val ideaBasePath = taskKey[String]("idea SDK base path(version aware)")
+lazy val ideaBasePath = "SDK/ideaSDK/idea-" + readIdeaPropery("ideaVersion")
 
-ideaBasePath := { "SDK/ideaSDK/idea-" + ideaVersion.value}
-
-unmanagedJars in Compile ++= (baseDirectory.value / ideaBasePath.value / "lib" * "*.jar").classpath
+unmanagedJars in Compile ++= (baseDirectory.value / ideaBasePath / "lib" * "*.jar").classpath
 
 unmanagedJars in Compile ++= {
-  val basePluginsDir = baseDirectory.value / ideaBasePath.value / "plugins"
+  val basePluginsDir = baseDirectory.value / ideaBasePath / "plugins"
   val baseDirectories =
     basePluginsDir / "copyright" / "lib" +++
       basePluginsDir / "gradle" / "lib" +++
+      basePluginsDir / "android" / "lib" +++
       basePluginsDir / "Groovy" / "lib" +++
       basePluginsDir / "IntelliLang" / "lib" +++
       basePluginsDir / "java-i18n" / "lib" +++
@@ -100,11 +99,11 @@ downloadIdea := {
     import sys.process._
     import scala.xml._
     val log = streams.value.log
-    val ideaSDKPath = (baseDirectory.value / ideaBasePath.value).getParentFile
+    val ideaSDKPath = (baseDirectory.value / ideaBasePath).getParentFile
     val ideaArchiveName = ideaSDKPath.getAbsolutePath + s"/ideaSDK${ideaVersion.value}.arc"
     log.info("COMM: "  + baseDirectory.value.getAbsolutePath)
     log.info("COMM: "  + ideaSDKPath.getAbsolutePath)
-    if (!(baseDirectory.value / ideaBasePath.value).exists) {
+    if (!(baseDirectory.value / ideaBasePath).exists) {
       implicit class Regex(sc: StringContext) {
         def r = new util.matching.Regex(sc.parts.mkString, sc.parts.tail.map(_ => "x"): _*)
       }
@@ -118,11 +117,11 @@ downloadIdea := {
         extractPath match {
           case Some(func) => {
             log.info(s"extracting from archive ${fileTo.getName()}")
-            if (!file(ideaBasePath.value).exists) func(fileTo)
+            if (!file(ideaBasePath).exists) func(fileTo)
             val dirTo = (ideaSDKPath.listFiles sortWith {
               _.lastModified > _.lastModified
             }).head
-            log.info("renaming dir: " + dirTo.renameTo(file(ideaBasePath.value)))
+            log.info("renaming dir: " + dirTo.renameTo(file(ideaBasePath)))
             log.success("extract finished")
           }
           case None =>
@@ -142,7 +141,7 @@ downloadIdea := {
       val ideaUrl = (reply \ "file" find { it: NodeSeq => (it \ "@name").text.endsWith(extension)}).get \ "content" \ "@href"
       val sourcesUrl = (reply \ "file" find { it: NodeSeq => (it \ "@name").text == "sources.zip"}).get \ "content" \ "@href"
       downloadDep(baseUrl + ideaUrl, ideaArchiveName, Some(extractFun))
-      downloadDep(baseUrl + sourcesUrl, ideaBasePath.value + "/sources.zip")
+      downloadDep(baseUrl + sourcesUrl, ideaBasePath + "/sources.zip")
     }
 }
 

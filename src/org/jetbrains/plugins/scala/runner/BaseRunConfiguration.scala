@@ -8,7 +8,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.JDOMExternalizer
-import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jdom.Element
 import org.jetbrains.plugins.scala.project._
 
