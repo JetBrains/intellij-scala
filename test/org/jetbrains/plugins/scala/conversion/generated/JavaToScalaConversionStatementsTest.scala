@@ -23,6 +23,8 @@ class JavaToScalaConversionStatementsTest extends JavaToScalaConversionTestBase 
 
   def testOnlyIf() = doTest()
 
+  def testParseInt() = doTest()
+
   def testPolyadic() = doTest()
 
   def testTryWithResources(): Unit = doTest()

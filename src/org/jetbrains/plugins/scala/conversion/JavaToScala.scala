@@ -263,7 +263,19 @@ object JavaToScala {
           append(convertPsiToText(m.getArgumentList.getExpressions.apply(0)))
         if (parentIsExpr) res.append(")")
       case m: PsiMethodCallExpression =>
-        res.append(convertPsiToText(m.getMethodExpression)).append(convertPsiToText(m.getArgumentList))
+        m.getMethodExpression.resolve() match {
+          case method: PsiMethod if method.getName == "parseInt" && m.getArgumentList.getExpressions.length == 1 &&
+            method.getContainingClass != null && method.getContainingClass.getQualifiedName == "java.lang.Integer" =>
+            res.append(convertPsiToText(m.getArgumentList.getExpressions.apply(0))).append(".toInt")
+          case method: PsiMethod if method.getName == "parseDouble" && m.getArgumentList.getExpressions.length == 1 &&
+            method.getContainingClass != null && method.getContainingClass.getQualifiedName == "java.lang.Double" =>
+            res.append(convertPsiToText(m.getArgumentList.getExpressions.apply(0))).append(".toDouble")
+          case method: PsiMethod if method.getName == "round" && m.getArgumentList.getExpressions.length == 1 &&
+            method.getContainingClass != null && method.getContainingClass.getQualifiedName == "java.lang.Math" =>
+            res.append(convertPsiToText(m.getArgumentList.getExpressions.apply(0))).append(".round")
+          case _ =>
+            res.append(convertPsiToText(m.getMethodExpression)).append(convertPsiToText(m.getArgumentList))
+        }
       case e: PsiExpressionList =>
         if (e.getExpressions.length != 0) {
           res.append("(")
