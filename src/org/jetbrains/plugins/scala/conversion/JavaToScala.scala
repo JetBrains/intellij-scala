@@ -9,6 +9,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.conversion.copy.Association
+import org.jetbrains.plugins.scala.extensions.PsiMemberExt
 import org.jetbrains.plugins.scala.lang.dependency.{DependencyKind, Path}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -23,6 +24,10 @@ import scala.collection.mutable.{ArrayBuffer, ListBuffer}
  */
 
 object JavaToScala {
+  private val context: ThreadLocal[mutable.Stack[(Boolean, String)]] = new ThreadLocal[mutable.Stack[(Boolean, String)]] {
+    override def initialValue(): mutable.Stack[(Boolean, String)] = new mutable.Stack[(Boolean, String)]()
+  }
+
   def escapeKeyword(name : String): String = if (ScalaNamesUtil.isKeyword(name)) "`" + name + "`" else name
 
   class Offset(val value: Int) {
@@ -305,6 +310,15 @@ object JavaToScala {
       case p: PsiReferenceExpression =>
         if (p.getQualifierExpression != null) {
           res.append(convertPsiToText(p.getQualifierExpression)).append(".")
+        } else {
+          p.resolve() match {
+            case f: PsiMember if f.hasModifierProperty("static") =>
+              val clazz = f.containingClass
+              if (clazz != null && context.get().contains((false, clazz.getQualifiedName))) {
+                res.append(escapeKeyword(clazz.getName)).append(".")
+              }
+            case _ =>
+          }
         }
         res.append(escapeKeyword(p.getReferenceName))
         res.append(convertPsiToText(p.getParameterList))
@@ -486,43 +500,54 @@ object JavaToScala {
           } else forClass += clazz
         }
         if (forObject.nonEmpty && !c.isInstanceOf[PsiAnonymousClass]) {
-          val modifiers: String = convertPsiToText(c.getModifierList).replace("abstract", "")
-          res.append(modifiers).append(" ")
-          res.append("object ")
-          res.append(escapeKeyword(c.getName))
-          res.append(" {\n")
-          for (memb <- forObject) {
-            res.append(convertPsiToText(memb)).append("\n")
+          context.get().push((true, c.getQualifiedName))
+          try {
+            val modifiers: String = convertPsiToText(c.getModifierList).replace("abstract", "")
+            res.append(modifiers).append(" ")
+            res.append("object ")
+            res.append(escapeKeyword(c.getName))
+            res.append(" {\n")
+            for (memb <- forObject) {
+              res.append(convertPsiToText(memb)).append("\n")
+            }
+            for (init <- c.getInitializers) {
+              res.append("try ").append(convertPsiToText(init.getBody)).append("\n")
+            }
+            res.append("}")
           }
-          for (init <- c.getInitializers) {
-            res.append("try ").append(convertPsiToText(init.getBody)).append("\n")
+          finally {
+            context.get().pop()
           }
-          res.append("}")
         }
         if (!c.isInstanceOf[PsiAnonymousClass]) res.append("\n")
         if (forClass.nonEmpty || forObject.isEmpty) {
-          if (!c.isInstanceOf[PsiAnonymousClass]) res.append(convertPsiToText(c.getModifierList)).append(" ")
-          if (!c.isInstanceOf[PsiAnonymousClass]) if (c.isInterface) res.append("trait ") else res.append("class ")
-          if (!c.isInstanceOf[PsiAnonymousClass]) res.append(escapeKeyword(c.getName))
-          else res.append(ScType.presentableText(ScType.create(c.asInstanceOf[PsiAnonymousClass].getBaseClassType, c.getProject)))
-          c match {
-            case clazz: PsiAnonymousClass if clazz.getArgumentList.getExpressions.length > 0 =>
-              res.append("(").append(convertPsiToText(clazz.getArgumentList)).append(")")
-            case _ =>
+          context.get().push((false, c.getQualifiedName))
+          try {
+            if (!c.isInstanceOf[PsiAnonymousClass]) res.append(convertPsiToText(c.getModifierList)).append(" ")
+            if (!c.isInstanceOf[PsiAnonymousClass]) if (c.isInterface) res.append("trait ") else res.append("class ")
+            if (!c.isInstanceOf[PsiAnonymousClass]) res.append(escapeKeyword(c.getName))
+            else res.append(ScType.presentableText(ScType.create(c.asInstanceOf[PsiAnonymousClass].getBaseClassType, c.getProject)))
+            c match {
+              case clazz: PsiAnonymousClass if clazz.getArgumentList.getExpressions.length > 0 =>
+                res.append("(").append(convertPsiToText(clazz.getArgumentList)).append(")")
+              case _ =>
+            }
+            val typez = new ArrayBuffer[PsiJavaCodeReferenceElement]
+            if (c.getExtendsList != null) typez ++= c.getExtendsList.getReferenceElements
+            if (c.getImplementsList != null) typez ++= c.getImplementsList.getReferenceElements
+            if (typez.length > 0) res.append(if (c.isInstanceOf[PsiAnonymousClass]) " with " else " extends ")
+            for (tp <- typez) {
+              res.append(convertPsiToText(tp)).append(" with ")
+            }
+            if (typez.length > 0) res.delete(res.length - 5, res.length)
+            res.append(" {\n")
+            for (memb <- forClass) {
+              res.append(convertPsiToText(memb)).append("\n")
+            }
+            res.append("}")
+          } finally {
+            context.get().pop()
           }
-          val typez = new ArrayBuffer[PsiJavaCodeReferenceElement]
-          if (c.getExtendsList != null) typez ++= c.getExtendsList.getReferenceElements
-          if (c.getImplementsList != null) typez ++= c.getImplementsList.getReferenceElements
-          if (typez.length > 0) res.append(if (c.isInstanceOf[PsiAnonymousClass]) " with " else " extends ")
-          for (tp <- typez) {
-            res.append(convertPsiToText(tp)).append(" with ")
-          }
-          if (typez.length > 0) res.delete(res.length - 5, res.length)
-          res.append(" {\n")
-          for (memb <- forClass) {
-            res.append(convertPsiToText(memb)).append("\n")
-          }
-          res.append("}")
         }
       case p: PsiJavaCodeReferenceElement =>
         if (p.getQualifier != null) {

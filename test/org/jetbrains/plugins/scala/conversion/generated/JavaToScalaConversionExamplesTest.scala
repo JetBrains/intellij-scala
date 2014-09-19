@@ -11,5 +11,7 @@ class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
 
   def testStaticInitializer() = doTest()
 
+  def testStaticPrefix() = doTest()
+
   def testVarArgs() = doTest()
 }
