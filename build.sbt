@@ -144,5 +144,3 @@ downloadIdea := {
       downloadDep(baseUrl + sourcesUrl, ideaBasePath + "/sources.zip")
     }
 }
-
-update <<= (update) dependsOn downloadIdea
