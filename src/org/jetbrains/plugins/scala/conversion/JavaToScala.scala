@@ -482,8 +482,8 @@ object JavaToScala {
         a.get
       }*/
       case c: PsiClass =>
-        var forClass = new mutable.LinkedHashSet[PsiMember]()
-        var forObject = new mutable.LinkedHashSet[PsiMember]()
+        var forClass = new ArrayBuffer[PsiMember]()
+        var forObject = new ArrayBuffer[PsiMember]()
         for (method <- c.getMethods) {
           if (method.hasModifierProperty("static")) {
             forObject += method
@@ -499,6 +499,8 @@ object JavaToScala {
             forObject += clazz
           } else forClass += clazz
         }
+        forClass = forClass.sortBy(_.getTextOffset)
+        forObject = forObject.sortBy(_.getTextOffset)
         if (forObject.nonEmpty && !c.isInstanceOf[PsiAnonymousClass]) {
           context.get().push((true, c.getQualifiedName))
           try {
