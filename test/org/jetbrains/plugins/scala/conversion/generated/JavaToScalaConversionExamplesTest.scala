@@ -7,6 +7,8 @@ class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
 
   def testAnnotated() = doTest()
 
+  def testFinalInObjects() = doTest()
+
   def testHelloWorld() = doTest()
 
   def testRightOrder() = doTest()

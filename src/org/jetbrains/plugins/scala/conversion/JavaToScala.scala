@@ -648,7 +648,7 @@ object JavaToScala {
           m.getParent match {
             case _: PsiLocalVariable =>
             case _: PsiParameter =>
-            case _ => res.append("final ")
+            case _ => if (!context.get().top._1) res.append("final ") //only to classes, not objects
           }
         }
         m.getParent match {
