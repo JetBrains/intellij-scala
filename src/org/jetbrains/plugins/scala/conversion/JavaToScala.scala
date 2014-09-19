@@ -645,7 +645,8 @@ object JavaToScala {
         }
         if (m.hasModifierProperty("abstract")) {
           m.getParent match {
-            case _: PsiClass => res.append("abstract ")
+            case c: PsiClass =>
+              if (!c.isInterface) res.append("abstract ") //abstract is redundnat in other places
             case _ =>
           }
         }
