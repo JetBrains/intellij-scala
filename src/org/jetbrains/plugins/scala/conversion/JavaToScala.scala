@@ -645,6 +645,14 @@ object JavaToScala {
         if (m.hasModifierProperty("native")) {
           res.append("@native\n")
         }
+        m.getParent match {
+          case method: PsiMethod =>
+            val references = method.getThrowsList.getReferenceElements
+            for (ref <- references) {
+              res.append("@throws(classOf[").append(convertPsiToText(ref)).append("])\n")
+            }
+          case _ =>
+        }
         if (m.hasModifierProperty("protected")) {
           res.append("protected ")
         } else if (m.hasModifierProperty("private")) {
