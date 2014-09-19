@@ -9,6 +9,8 @@ class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
 
   def testHelloWorld() = doTest()
 
+  def testRightOrder() = doTest()
+
   def testStaticInitializer() = doTest()
 
   def testStaticPrefix() = doTest()
