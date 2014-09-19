@@ -335,8 +335,13 @@ object JavaToScala {
         res.append(escapeKeyword(p.getReferenceName))
         res.append(convertPsiToText(p.getParameterList))
       case t: PsiTypeCastExpression =>
-        res.append(convertPsiToText(t.getOperand)).append(".asInstanceOf[").
-                append(convertPsiToText(t.getCastType)).append("]")
+        if (t.getCastType.getType.isInstanceOf[PsiPrimitiveType] && t.getOperand.getType.isInstanceOf[PsiPrimitiveType] &&
+          List("Int", "Long", "Double", "Float", "Byte", "Char", "Short").contains(convertPsiToText(t.getCastType))) {
+          res.append(convertPsiToText(t.getOperand)).append(".to").append(convertPsiToText(t.getCastType))
+        } else {
+          res.append(convertPsiToText(t.getOperand)).append(".asInstanceOf[").
+            append(convertPsiToText(t.getCastType)).append("]")
+        }
       case t: PsiThisExpression =>
         if (t.getQualifier != null) {
           res.append(convertPsiToText(t.getQualifier)).append(".")
