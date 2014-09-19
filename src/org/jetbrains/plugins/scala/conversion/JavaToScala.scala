@@ -81,6 +81,15 @@ object JavaToScala {
         for (child <- f.getChildren) {
           res.append(convertPsiToText(child)).append("\n")
         }
+      case p: PsiTypeParameter =>
+        res.append(escapeKeyword(p.getName))
+        val typez = new ArrayBuffer[PsiJavaCodeReferenceElement]
+        if (p.getExtendsList != null) typez ++= p.getExtendsList.getReferenceElements
+        if (typez.length > 0) res.append(" <: ")
+        for (tp <- typez) {
+          res.append(convertPsiToText(tp)).append(" with ")
+        }
+        if (typez.length > 0) res.delete(res.length - 5, res.length)
       //statements
       case f: PsiIfStatement =>
         res.append("if (").append(convertPsiToText(f.getCondition)).append(") ").
@@ -387,6 +396,10 @@ object JavaToScala {
         res.append(" def ")
         if (!m.isConstructor) res.append(escapeKeyword(m.getName))
         else res.append("this")
+        val typeParameters = m.getTypeParameters
+        if (typeParameters.nonEmpty) {
+          res.append(typeParameters.map(convertPsiToText).mkString("[", ", ", "]"))
+        }
         var params = convertPsiToText(m.getParameterList)
         if (params == "" && m.isConstructor) params = "()"
         res.append(params)
@@ -555,14 +568,19 @@ object JavaToScala {
         if (forClass.nonEmpty || forObject.isEmpty) {
           context.get().push((false, c.getQualifiedName))
           try {
-            if (!c.isInstanceOf[PsiAnonymousClass]) res.append(convertPsiToText(c.getModifierList)).append(" ")
-            if (!c.isInstanceOf[PsiAnonymousClass]) if (c.isInterface) res.append("trait ") else res.append("class ")
-            if (!c.isInstanceOf[PsiAnonymousClass]) res.append(escapeKeyword(c.getName))
-            else res.append(ScType.presentableText(ScType.create(c.asInstanceOf[PsiAnonymousClass].getBaseClassType, c.getProject)))
             c match {
               case clazz: PsiAnonymousClass if clazz.getArgumentList.getExpressions.length > 0 =>
+                val tp = ScType.create(c.asInstanceOf[PsiAnonymousClass].getBaseClassType, c.getProject)
+                res.append(ScType.presentableText(tp))
                 res.append("(").append(convertPsiToText(clazz.getArgumentList)).append(")")
               case _ =>
+                res.append(convertPsiToText(c.getModifierList)).append(" ")
+                if (c.isInterface) res.append("trait ") else res.append("class ")
+                res.append(escapeKeyword(c.getName))
+                val typeParameters = c.getTypeParameters
+                if (typeParameters.nonEmpty) {
+                  res.append(typeParameters.map(convertPsiToText).mkString("[", ", ", "]"))
+                }
             }
             val typez = new ArrayBuffer[PsiJavaCodeReferenceElement]
             if (c.getExtendsList != null) typez ++= c.getExtendsList.getReferenceElements
