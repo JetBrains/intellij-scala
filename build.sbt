@@ -29,9 +29,28 @@ def readIdeaPropery(key: String): String = {
   prop.getProperty(key)
 }
 
+def getBuildId(buildTypes: List[String], branch: String): String = {
+  import scala.xml._
+  import java.io._
+  for (bt <- buildTypes) {
+    val tcUrl = s"http://teamcity.jetbrains.com/guestAuth/app/rest/builds/?locator=buildType:(id:$bt),branch:(name:${branch})"
+    try {
+      val buildId = XML.loadString(IO.readLinesURL(url(tcUrl)).mkString) \ "build" \ "@id"
+      return buildId.text
+    } catch {
+      case e: IOException =>""
+    }
+  }
+  ""
+}
+
+lazy val ideaVersion = taskKey[String]("gets idea sdk version from file")
+
+ideaVersion := { readIdeaPropery("ideaVersion") }
+
 lazy val ideaBasePath = taskKey[String]("idea SDK base path(version aware)")
 
-ideaBasePath := { readIdeaPropery("ideaBasePath") + "ideaIC-" + ideaVersion.value} 
+ideaBasePath := { "SDK/ideaSDK/idea-" + ideaVersion.value}
 
 unmanagedJars in Compile ++= (baseDirectory.value / ideaBasePath.value / "lib" * "*.jar").classpath
 
@@ -75,53 +94,56 @@ lazy val NailgunRunners = project.in(file("NailgunRunners")).dependsOn(ScalaRunn
 
 lazy val SBT = project.in(file("SBT")).dependsOn(intellij_hocon, ScalaCommunity)
 
-lazy val ideaVersion = taskKey[String]("gets idea sdk version from file")
-
-ideaVersion := { readIdeaPropery("ideaVersion") }
-
 lazy val downloadIdea = taskKey[Unit]("downloads idea runtime")
 
 downloadIdea := {
     import sys.process._
     import scala.xml._
     val log = streams.value.log
-    val ideaSDKPath = file(ideaBasePath.value).getParentFile
-    val ideaArchiveName = ideaSDKPath.getAbsolutePath + "/ideaSDK.arc"
-    log.info(ideaSDKPath.getAbsolutePath)
-    implicit class Regex(sc: StringContext) {
-          def r = new util.matching.Regex(sc.parts.mkString, sc.parts.tail.map(_ => "x"): _*)
-    }
-    def downloadDep(from: String, to: String, extractPath: Option[File => Any] = None): Unit = {
-      val fileTo = file(to)
-      if (!fileTo.exists()) {
-        log.info(s"downloading: $from")
-        IO.download(url(from), fileTo)
-        log.success(s"download of ${fileTo.getName()} finished")
+    val ideaSDKPath = (baseDirectory.value / ideaBasePath.value).getParentFile
+    val ideaArchiveName = ideaSDKPath.getAbsolutePath + s"/ideaSDK${ideaVersion.value}.arc"
+    log.info("COMM: "  + baseDirectory.value.getAbsolutePath)
+    log.info("COMM: "  + ideaSDKPath.getAbsolutePath)
+    if (!(baseDirectory.value / ideaBasePath.value).exists) {
+      implicit class Regex(sc: StringContext) {
+        def r = new util.matching.Regex(sc.parts.mkString, sc.parts.tail.map(_ => "x"): _*)
       }
-      extractPath match { case Some(func) => {
-          log.info(s"extracting from archive ${fileTo.getName()}")
-          if (!file(ideaBasePath.value).exists) func(fileTo)
-          val dirTo = (ideaSDKPath.listFiles sortWith {_.lastModified > _.lastModified}).head
-          log.info("renaming dir: " + dirTo.renameTo(file(ideaBasePath.value))) 
-          log.success("extract finished")
-        } case None =>
+      def downloadDep(from: String, to: String, extractPath: Option[File => Any] = None): Unit = {
+        val fileTo = file(to)
+        if (!fileTo.exists()) {
+          log.info(s"downloading: $from")
+          IO.download(url(from), fileTo)
+          log.success(s"download of ${fileTo.getName()} finished")
+        }
+        extractPath match {
+          case Some(func) => {
+            log.info(s"extracting from archive ${fileTo.getName()}")
+            if (!file(ideaBasePath.value).exists) func(fileTo)
+            val dirTo = (ideaSDKPath.listFiles sortWith {
+              _.lastModified > _.lastModified
+            }).head
+            log.info("renaming dir: " + dirTo.renameTo(file(ideaBasePath.value)))
+            log.success("extract finished")
+          }
+          case None =>
+        }
       }
+      if (!ideaSDKPath.exists) ideaSDKPath.mkdirs
+      val (extension, extractFun) = System.getProperty("os.name") match {
+        case r"^Linux" => (".tar.gz", { _: File => s"tar xvfz $ideaArchiveName -C ${ideaSDKPath.getAbsolutePath}" !})
+        case r"^Mac OS.*" => (".mac.zip", IO.unzip(_: File, ideaSDKPath))
+        case r"^Windows.*" => (".win.zip", IO.unzip(_: File, ideaSDKPath))
+        case other => throw new RuntimeException(s"OS $other is not supported")
+      }
+      val buildId = getBuildId(List("bt410"), s"idea/${ideaVersion.value}")
+      log.info(s"got build Id = $buildId")
+      val reply = XML.loadString(IO.readLinesURL(url(s"http://teamcity.jetbrains.com/guestAuth/app/rest/builds/id:$buildId/artifacts")).mkString)
+      val baseUrl = "http://teamcity.jetbrains.com"
+      val ideaUrl = (reply \ "file" find { it: NodeSeq => (it \ "@name").text.endsWith(extension)}).get \ "content" \ "@href"
+      val sourcesUrl = (reply \ "file" find { it: NodeSeq => (it \ "@name").text == "sources.zip"}).get \ "content" \ "@href"
+      downloadDep(baseUrl + ideaUrl, ideaArchiveName, Some(extractFun))
+      downloadDep(baseUrl + sourcesUrl, ideaBasePath.value + "/sources.zip")
     }
-    if (!ideaSDKPath.exists) ideaSDKPath.mkdirs
-    val (extension, extractFun) = System.getProperty("os.name") match {
-        case r"^Linux"    => (".tar.gz",  {_:File => s"tar xvfz $ideaArchiveName -C ${ideaSDKPath.getAbsolutePath}"!})
-        case r"^Mac OS.*" => (".mac.zip", IO.unzip(_:File, ideaSDKPath))
-        case r"^Windows.*"=> (".win.zip", IO.unzip(_:File, ideaSDKPath))
-        case other        => throw new RuntimeException(s"OS $other is not supported")
-    }
-    val buildId = XML.loadString(IO.readLinesURL(url(s"http://teamcity.jetbrains.com/guestAuth/app/rest/builds/?locator=buildType:(id:bt410),branch:(name:idea%2F${ideaVersion.value})")).mkString) \ "build" \ "@id"
-    log.info(s"got build Id = $buildId")
-    val reply = XML.loadString(IO.readLinesURL(url(s"http://teamcity.jetbrains.com/guestAuth/app/rest/builds/id:$buildId/artifacts")).mkString)
-    val baseUrl = "http://teamcity.jetbrains.com"
-    val ideaUrl = (reply \ "file" find {it:NodeSeq =>(it \ "@name").text.endsWith(extension)}).get \ "content" \ "@href"
-    val sourcesUrl = (reply \ "file" find {it:NodeSeq =>(it \ "@name").text == "sources.zip"}).get \ "content" \ "@href"
-    downloadDep(baseUrl + ideaUrl, ideaArchiveName, Some(extractFun))
-    downloadDep(baseUrl + sourcesUrl, ideaBasePath.value + "/sources.zip")
 }
 
 update <<= (update) dependsOn downloadIdea
