@@ -72,13 +72,13 @@ unmanagedJars in Compile ++= (baseDirectory.value /  "SDK/scalap" * "*.jar").cla
 
 unmanagedJars in Compile ++= (baseDirectory.value /  "SDK/nailgun" * "*.jar").classpath
 
-lazy val compiler_settings = project.in(file( "compiler-settings")).settings(update <<= update dependsOn (downloadIdea in Compile))
+lazy val compiler_settings = project.in(file( "compiler-settings")).settings(compile <<= (compile in Compile)  dependsOn (downloadIdea in Compile))
 
 lazy val ScalaRunner = project.in(file( "ScalaRunner"))
 
 lazy val Runners = project.in(file( "Runners")).dependsOn(ScalaRunner)
 
-lazy val ScalaCommunity = project.in(file("")).dependsOn(compiler_settings, Runners).aggregate(jps_plugin).settings(update <<= update dependsOn (downloadIdea in Compile))
+lazy val ScalaCommunity = project.in(file("")).dependsOn(compiler_settings, Runners).aggregate(jps_plugin).settings(compile <<= (compile in Compile)  dependsOn (downloadIdea in Global))
 
 lazy val intellij_hocon = Project( "intellij-hocon", file("intellij-hocon")).dependsOn(ScalaCommunity)
 
@@ -95,13 +95,12 @@ lazy val SBT = project.in(file( "SBT")).dependsOn(intellij_hocon, ScalaCommunity
 
 lazy val downloadIdea = taskKey[Unit]( "downloads idea runtime")
 
-downloadIdea in Compile := {
+downloadIdea in Global := {
     import sys.process._
     import scala.xml._
     val log = streams.value.log
     val ideaSDKPath = (baseDirectory.value / ideaBasePath).getParentFile
     val ideaArchiveName = ideaSDKPath.getAbsolutePath + s"/ideaSDK${ideaVersion.value}.arc"
-    log.info("COMM: "  + baseDirectory.value.getAbsolutePath)
     log.info("COMM: "  + ideaSDKPath.getAbsolutePath)
     if (!(baseDirectory.value / ideaBasePath).exists) {
       implicit class Regex(sc: StringContext) {
@@ -135,12 +134,14 @@ downloadIdea in Compile := {
         case other => throw new RuntimeException(s"OS $other is not supported")
       }
       val buildId = getBuildId(List("bt410"), s"idea/${ideaVersion.value}")
-      log.info(s"got build Id = $buildId")
-      val reply = XML.loadString(IO.readLinesURL(url(s"http://teamcity.jetbrains.com/guestAuth/app/rest/builds/id:$buildId/artifacts")).mkString)
-      val baseUrl = "http://teamcity.jetbrains.com"
-      val ideaUrl = (reply \ "file" find { it: NodeSeq => (it \ "@name").text.endsWith(extension)}).get \ "content" \ "@href"
-      val sourcesUrl = (reply \ "file" find { it: NodeSeq => (it \ "@name").text == "sources.zip"}).get \ "content" \ "@href"
-      downloadDep(baseUrl + ideaUrl, ideaArchiveName, Some(extractFun))
-      downloadDep(baseUrl + sourcesUrl, ideaBasePath + "/sources.zip")
+      if (buildId != "") {
+        log.info(s"got build Id = $buildId")
+        val reply = XML.loadString(IO.readLinesURL(url(s"http://teamcity.jetbrains.com/guestAuth/app/rest/builds/id:$buildId/artifacts")).mkString)
+        val baseUrl = "http://teamcity.jetbrains.com"
+        val ideaUrl = (reply \ "file" find { it: NodeSeq => (it \ "@name").text.endsWith(extension)}).get \ "content" \ "@href"
+        val sourcesUrl = (reply \ "file" find { it: NodeSeq => (it \ "@name").text == "sources.zip"}).get \ "content" \ "@href"
+        downloadDep(baseUrl + ideaUrl, ideaArchiveName, Some(extractFun))
+        downloadDep(baseUrl + sourcesUrl, ideaBasePath + "/sources.zip")
+      } else log.warn("COMM: failed to get ideaSDK build id, not downloading sdk")
     }
 }
