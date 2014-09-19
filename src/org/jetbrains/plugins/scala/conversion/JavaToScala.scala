@@ -525,8 +525,21 @@ object JavaToScala {
             res.append(modifiers).append(" ")
             res.append("object ")
             res.append(escapeKeyword(c.getName))
+            if (c.isEnum) res.append(" extends Enumeration")
             res.append(" {\n")
-            for (memb <- forObject) {
+            if (c.isEnum) {
+              res.append("type ").append(escapeKeyword(c.getName)).append(" = Value\n")
+              val enumConstants = forObject.filter(_.isInstanceOf[PsiEnumConstant])
+              if (enumConstants.nonEmpty) {
+                res.append("val ")
+                for (memb <- enumConstants) {
+                  res.append(escapeKeyword(memb.getName)).append(", ")
+                }
+                res.delete(res.length - 2, res.length)
+                res.append(" = Value\n")
+              }
+            }
+            for (memb <- forObject.filter(!_.isInstanceOf[PsiEnumConstant])) {
               res.append(convertPsiToText(memb)).append("\n")
             }
             for (init <- c.getInitializers) {
@@ -646,7 +659,7 @@ object JavaToScala {
         if (m.hasModifierProperty("abstract")) {
           m.getParent match {
             case c: PsiClass =>
-              if (!c.isInterface) res.append("abstract ") //abstract is redundnat in other places
+              if (!c.isInterface) res.append("abstract ") //abstract is redundant in other places
             case _ =>
           }
         }
