@@ -25,7 +25,7 @@ object GenerationUtil {
   def classAtCaret(editor: Editor, file: PsiFile): Option[ScClass] =
     elementOfTypeAtCaret(editor, file, classOf[ScClass])
 
-  protected def findAnchor(aClass: PsiClass): Option[PsiElement] = aClass match {
+  def findAnchor(aClass: PsiClass): Option[PsiElement] = aClass match {
     case cl: ScTemplateDefinition =>
       cl.extendsBlock match {
         case ScExtendsBlock.TemplateBody(body) => body.lastChild
@@ -88,8 +88,8 @@ object GenerationUtil {
     }
   }
 
-  private def elementOfTypeAtCaret[T <: PsiElement](editor: Editor, file: PsiFile, types: Class[_ <: T]*): Option[T] = {
-    val elem = file.findElementAt(editor.getCaretModel.getOffset - 1)
+  def elementOfTypeAtCaret[T <: PsiElement](editor: Editor, file: PsiFile, types: Class[_ <: T]*): Option[T] = {
+    val elem = file.findElementAt(editor.getCaretModel.getOffset)
     Option(PsiTreeUtil.getParentOfType(elem, types: _*))
   }
 }
