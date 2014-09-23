@@ -476,7 +476,7 @@ object Unit
         case Some(c) => return c
         case _ =>
       }
-    } else null
+    }
     for (obj <- syntheticObjects) {
       if (obj.qualifiedName == qName) return obj
     }

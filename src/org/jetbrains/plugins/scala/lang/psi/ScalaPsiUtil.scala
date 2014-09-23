@@ -156,8 +156,7 @@ object ScalaPsiUtil {
     td.getParent match {
       case tb: ScTemplateBody =>
         val parent = PsiTreeUtil.getParentOfType(td, classOf[PsiClass], true)
-        if (parent == null) true
-        if (parent.isInstanceOf[ScNewTemplateDefinition]) return true
+        if (parent == null || parent.isInstanceOf[ScNewTemplateDefinition]) return true
         isLocalClass(parent)
       case _: ScPackaging | _: ScalaFile => false
       case _ => true
