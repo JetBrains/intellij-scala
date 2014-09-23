@@ -9,7 +9,7 @@ package expr
 * Date: 06.03.2008
 */
 
-trait ScPostfixExpr extends ScExpression with MethodInvocation with ScSugarCallExpr {
+trait ScPostfixExpr extends ScExpression with ScSugarCallExpr {
   def operand = findChildrenByClassScala(classOf[ScExpression]).apply(0)
   def operation : ScReferenceExpression = findChildrenByClassScala(classOf[ScExpression]).apply(1) match {
     case re : ScReferenceExpression => re
