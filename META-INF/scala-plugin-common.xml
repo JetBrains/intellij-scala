@@ -899,6 +899,10 @@
                        displayName="Useless expression" groupName="Scala: General"
                        shortName="ScalaUselessExpression" level="WEAK WARNING"
                        enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.implicits.NoReturnTypeForImplicitDefInspection"
+                       displayName="No return type for implicit function" groupName="Scala: General"
+                       shortName="NoReturnTypeForImplicitDef" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
 
 
 
