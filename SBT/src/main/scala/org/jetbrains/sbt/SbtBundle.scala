@@ -14,12 +14,16 @@ object SbtBundle {
 
   def apply(key: String, params: AnyRef*) = CommonBundle.message(get(), key, params : _*)
 
-  private var instance: Reference[ResourceBundle] = null
+  private var ourBundle: Reference[ResourceBundle] = null
   private val BUNDLE = "org.jetbrains.sbt.SbtBundle"
 
-  private def get() = {
-    if (instance == null)
-      instance = new SoftReference(ResourceBundle.getBundle(BUNDLE))
-    instance.get
+  private def get(): ResourceBundle = {
+    var bundle: ResourceBundle = null
+    if (ourBundle != null) bundle = ourBundle.get
+    if (bundle == null) {
+      bundle = ResourceBundle.getBundle(BUNDLE)
+      ourBundle = new SoftReference[ResourceBundle](bundle)
+    }
+    bundle
   }
 }
