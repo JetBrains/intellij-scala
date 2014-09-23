@@ -316,8 +316,8 @@ package object extensions {
 
   import scala.language.implicitConversions
 
-  implicit def toIdeaFunction[A, B](f: Function[A, B]) = new com.intellij.util.Function[A, B] {
-    def fun(param: A) = f(param)
+  implicit def toIdeaFunction[A, B](f: Function[A, B]): com.intellij.util.Function[A, B] = new com.intellij.util.Function[A, B] {
+    override def fun(param: A): B = f(param)
   }
 
   implicit def toProcessor[T](action: T => Boolean): Processor[T] = new Processor[T] {

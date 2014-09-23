@@ -86,10 +86,10 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File) {
                     worksheetClassName: String, runType: WorksheetMakeType): ExitCode = {
     import _root_.scala.language.implicitConversions
 
-    implicit def file2path(file: File) = FileUtil.toCanonicalPath(file.getAbsolutePath)
-    implicit def option2string(opt: Option[String]) = opt getOrElse ""
-    implicit def files2paths(files: Iterable[File]) = files map file2path mkString "\n"
-    implicit def array2string(arr: Array[String]) = arr mkString "\n"
+    implicit def file2path(file: File): String = FileUtil.toCanonicalPath(file.getAbsolutePath)
+    implicit def option2string(opt: Option[String]): String = opt getOrElse ""
+    implicit def files2paths(files: Iterable[File]): String = files map file2path mkString "\n"
+    implicit def array2string(arr: Array[String]): String = arr mkString "\n"
 
     val project = module.getProject
     val worksheetHook = WorksheetFileHook.instance(project)

@@ -43,7 +43,7 @@ object JavaToScala {
     val res = new StringBuilder("")
 
     class SpecificOffset(override val value: Int) extends Offset(value)
-    implicit def startOffset = new SpecificOffset(offset.value + res.length)
+    implicit def startOffset: SpecificOffset = new SpecificOffset(offset.value + res.length)
 
     def associationFor(element: PsiElement) = {
       refs.find(ref => new TextRange(ref.startOffset, ref.endOffset) == element.getTextRange).map { ref =>
