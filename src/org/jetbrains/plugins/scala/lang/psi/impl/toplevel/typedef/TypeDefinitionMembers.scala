@@ -121,6 +121,20 @@ object TypeDefinitionMembers {
         map addToMap (s, new Node(s, subst))
       }
 
+      if (template.qualifiedName == "scala.AnyVal") {
+        //we need to add Object members
+        val obj = ScalaPsiManager.instance(template.getProject).getCachedClass(template.getResolveScope, "java.lang.Object")
+        if (obj != null) {
+          for (method <- obj.getMethods) {
+            method.getName match {
+              case "hashCode" | "toString" =>
+                addSignature(new PhysicalSignature(method, ScSubstitutor.empty))
+              case _ =>
+            }
+          }
+        }
+      }
+
       for (member <- template.members) {
         member match {
           case _var: ScVariable if nonBridge(place, _var) =>
@@ -334,6 +348,20 @@ object TypeDefinitionMembers {
                      place: Option[PsiElement], base: Boolean) {
       def addSignature(s: Signature) {
         map addToMap (s, new Node(s, subst))
+      }
+
+      if (template.qualifiedName == "scala.AnyVal") {
+        //we need to add Object members
+        val obj = ScalaPsiManager.instance(template.getProject).getCachedClass(template.getResolveScope, "java.lang.Object")
+        if (obj != null) {
+          for (method <- obj.getMethods) {
+            method.getName match {
+              case "equals" | "hashCode" | "toString" =>
+                addSignature(new PhysicalSignature(method, ScSubstitutor.empty))
+              case _ =>
+            }
+          }
+        }
       }
 
       for (member <- template.members) {
