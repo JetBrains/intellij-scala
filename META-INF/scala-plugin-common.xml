@@ -301,8 +301,6 @@
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaCodeBlockSelectioner"/>
 
         <psi.classFileDecompiler implementation="org.jetbrains.plugins.scala.decompiler.ScClassFileDecompiler"/>
-        <contentBasedClassFileProcessor
-                implementation="org.jetbrains.plugins.scala.decompiler.ScalaContentBasedClassFileProcessor"/>
 
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
         <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>
