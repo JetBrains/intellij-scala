@@ -144,7 +144,10 @@ trait ScTypePresentation {
       val ScCompoundType(comps, signatureMap, typeMap) = compType
       def typeText0(tp: ScType) = innerTypeText(tp)
 
-      val componentsText = if (comps.isEmpty) Nil else Seq(comps.map(innerTypeText(_)).mkString(" with "))
+      val componentsText = if (comps.isEmpty) Nil else Seq(comps.map {
+        case tp@ScFunctionType(_, _) => "(" + innerTypeText(tp) + ")"
+        case tp => innerTypeText(tp)
+      }.mkString(" with "))
 
       val declsTexts = (signatureMap ++ typeMap).flatMap {
         case (s: Signature, rt: ScType) if s.namedElement.isInstanceOf[ScFunction] =>
