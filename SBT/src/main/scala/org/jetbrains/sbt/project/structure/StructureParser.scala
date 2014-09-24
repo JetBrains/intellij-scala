@@ -126,7 +126,7 @@ object StructureParser {
   }
 
   private def parseJarDependency(node: Node)(implicit fs: FS): JarDependency = {
-    val jar = file(node.text)
+    val jar = file(node.text.trim)
     val configurations = (node \ "@configurations").headOption
             .map(it => parseConfigurations(it.text)).getOrElse(Seq.empty)
 
