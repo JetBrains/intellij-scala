@@ -1062,7 +1062,7 @@
             <keyboard-shortcut keymap="$default" first-keystroke="alt ENTER"/>
         </action>
         <action id="Scala.RenameJavaToScala" class="org.jetbrains.plugins.scala.conversion.RenameJavaToScalaAction"
-                text="Convert Java File To Scala" description="Rename Java File To Scala">
+                text="Convert to Scala" description="Convert Java to Scala">
             <add-to-group group-id="RefactoringMenu" anchor="last"/>
             <add-to-group group-id="EditorTabPopupMenu" anchor="last"/>
             <keyboard-shortcut first-keystroke="control shift G" keymap="$default"/>
