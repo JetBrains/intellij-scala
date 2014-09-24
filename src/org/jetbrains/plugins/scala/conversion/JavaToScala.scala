@@ -519,7 +519,8 @@ object JavaToScala {
             forObject += method
           } else forClass += method
         }
-        for (field <- c.getFields) {
+        val serialVersionUID = serialVersion(c)
+        for (field <- c.getFields if Some(field) != serialVersionUID) {
           if (field.hasModifierProperty("static")) {
             forObject += field
           } else forClass += field
@@ -669,6 +670,12 @@ object JavaToScala {
             for (ref <- references) {
               res.append("@throws(classOf[").append(convertPsiToText(ref)).append("])\n")
             }
+          case c: PsiClass =>
+            serialVersion(c) match {
+              case Some(f) =>
+                res.append("@SerialVersionUID(").append(convertPsiToText(f.getInitializer)).append(")\n")
+              case _ =>
+            }
           case _ =>
         }
         if (m.hasModifierProperty("protected")) {
@@ -780,6 +787,15 @@ object JavaToScala {
         returnType != null && returnType.isInstanceOf[PsiArrayType]
       case _ => false
     }
+  }
+
+  private def serialVersion(c: PsiClass): Option[PsiField] = {
+    val serialField = c.findFieldByName("serialVersionUID", false)
+    if (serialField != null && serialField.getType.isAssignableFrom(PsiType.LONG) &&
+      serialField.hasModifierProperty("static") && serialField.hasModifierProperty("final") &&
+      serialField.hasInitializer) {
+      Some(serialField)
+    } else None
   }
 
   /**
