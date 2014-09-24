@@ -14,7 +14,6 @@ public class Annotated {
 /*
 package java
 
-
 import java.lang.SuppressWarnings
 
 

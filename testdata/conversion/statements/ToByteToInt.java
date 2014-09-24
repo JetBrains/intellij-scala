@@ -8,7 +8,5 @@ public class ToByteToInt {
 }
 /*
 val b: Byte = 12345.toByte
-
-
 val l: Long = 12345.toLong
  */

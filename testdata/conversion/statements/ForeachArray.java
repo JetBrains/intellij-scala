@@ -10,8 +10,6 @@ class A {
 }
 /*
 val a: Array[Int] = new Array[Int](3)
-
-
 for (i <- a) {
   System.out.println(i)
 }

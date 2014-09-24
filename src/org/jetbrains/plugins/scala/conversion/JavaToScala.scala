@@ -768,9 +768,8 @@ object JavaToScala {
                        refs: Seq[ReferenceData] = Seq.empty): String = {
     val res = new StringBuilder("")
     for (element <- elements) {
-      res.append(convertPsiToText(element)(associations, refs, new Offset(res.length))).append("\n")
+      res.append(convertPsiToText(element)(associations, refs, new Offset(res.length)))
     }
-    res.delete(res.length - 1, res.length)
     res.toString()
   }
 
