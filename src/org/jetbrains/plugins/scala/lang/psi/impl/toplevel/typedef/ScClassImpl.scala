@@ -249,7 +249,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
     res
   }
 
-  override def getTypeParameterList: PsiTypeParameterList = typeParametersClause.getOrElse(null)
+  override def getTypeParameterList: PsiTypeParameterList = typeParametersClause.orNull
 
   override def getInterfaces: Array[PsiClass] = {
     getSupers.filter(_.isInterface)
