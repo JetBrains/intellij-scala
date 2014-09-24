@@ -30,6 +30,7 @@
         <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveClassesOrPackagesHandler" order="first"/>
         <refactoring.moveAllClassesInFileHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaClassesInFileHandler" order="last"/>
         <statementUpDownMover implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaStatementMover"/>
+        <editorTabTitleProvider implementation="org.jetbrains.plugins.scala.editor.PackageObjectEditorTabTitleProvider"/>
         <debugger.javaDebugAware implementation="org.jetbrains.plugins.scala.debugger.ScalaJavaDebugAware"/>
         <debugger.codeFragmentFactory implementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory"/>
         <debugger.positionManagerFactory implementation="org.jetbrains.plugins.scala.debugger.ScalaPositionManagerFactory"/>
