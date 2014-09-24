@@ -23,8 +23,6 @@ try {
     if (os != null) os.close()
   }
 }
-
-
 try {
   val oss: FileOutputStream = new FileOutputStream("test")
   try {

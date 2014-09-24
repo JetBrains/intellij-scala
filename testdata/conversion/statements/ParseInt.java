@@ -9,10 +9,6 @@ class C {
 }
 /*
 System.out.println("1".toInt)
-
-
 System.out.println("2.0".toDouble)
-
-
 System.out.println(2.0.round)
  */
