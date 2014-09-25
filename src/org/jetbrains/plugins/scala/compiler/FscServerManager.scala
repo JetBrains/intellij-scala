@@ -8,7 +8,7 @@ import javax.swing.Timer
 import com.intellij.facet.{ProjectWideFacetAdapter, ProjectWideFacetListenersRegistry}
 import com.intellij.icons.AllIcons
 import com.intellij.ide.DataManager
-import com.intellij.notification.{Notification, NotificationDisplayType, NotificationType, Notifications}
+import com.intellij.notification._
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, DefaultActionGroup, Separator}
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.options.ShowSettingsUtil
@@ -53,15 +53,13 @@ class FscServerManager(project: Project) extends ProjectComponent {
   def getComponentName = getClass.getSimpleName
 
   def configureWidget() {
-    (applicable, installed) match {
+    (running, installed) match {
       case (true, true) => // do nothing
-      case (true, false) => {
+      case (true, false) =>
         bar.addWidget(Widget, "before Position", project)
         installed = true
-      }
-      case (false, true) => {
+      case (false, true) =>
         removeWidget()
-      }
       case (false, false) => // do nothing
     }
   }
@@ -76,11 +74,6 @@ class FscServerManager(project: Project) extends ProjectComponent {
   private def updateWidget() {
     bar.updateWidget(Widget.ID)
   }
-
-  private def applicable = running ||
-          false && // TODO In-process build is now deprecated
-                  ScalacSettings.getInstance(project).INTERNAL_SERVER &&
-                  ScalaFacet.findIn(project).exists(_.fsc)
 
   private def running = launcher.running
 
@@ -148,9 +141,8 @@ class FscServerManager(project: Project) extends ProjectComponent {
     def actionPerformed(e: AnActionEvent) {
       launcher.reset()
 
-      val notification = new Notification("scala", title, "Reset", NotificationType.INFORMATION)
-      Notifications.Bus.register("scala", NotificationDisplayType.BALLOON)
-      Notifications.Bus.notify(notification, project)
+      FscServerManager.NOTIFICATION_GROUP.createNotification(title, "Reset", NotificationType.INFORMATION, null).
+        notify(project)
     }
   }
 
@@ -209,10 +201,13 @@ class FscServerManager(project: Project) extends ProjectComponent {
       val errors = launcher.errors()
 
       if (errors.nonEmpty) {
-        val notification = new Notification("scala", title, errors.mkString, NotificationType.ERROR)
-        Notifications.Bus.register("scala", NotificationDisplayType.BALLOON)
-        Notifications.Bus.notify(notification, project)
+        FscServerManager.NOTIFICATION_GROUP.createNotification(title, errors.mkString, NotificationType.ERROR, null).
+          notify(project)
       }
     }
   }
+}
+
+object FscServerManager {
+  private val NOTIFICATION_GROUP = NotificationGroup.balloonGroup("scala")
 }
