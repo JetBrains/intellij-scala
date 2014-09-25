@@ -29,6 +29,9 @@ class AnnotatorHolderMock extends AnnotationHolder {
     FakeAnnotation
   }
 
+  override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String,
+                                htmlTooltip: String): Annotation = null
+
   def createInformationAnnotation(range: TextRange, message: String) = null
 
   def createInformationAnnotation(node: ASTNode, message: String) = null

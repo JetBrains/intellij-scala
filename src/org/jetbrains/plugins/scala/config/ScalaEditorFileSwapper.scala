@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.config
+package org.jetbrains.plugins.scala
+package config
 
 import com.intellij.openapi.fileEditor.impl.{EditorFileSwapper, EditorWithProviderComposite}
 import com.intellij.openapi.project.Project
@@ -24,7 +25,7 @@ object ScalaEditorFileSwapper {
       if (cl.getContainingFile == psiFile) clazz = cl
     }
     if (!clazz.isInstanceOf[ScTypeDefinition]) return null
-    val sourceClass: PsiClass = (clazz.asInstanceOf[ScTypeDefinition]).getSourceMirrorClass
+    val sourceClass: PsiClass = clazz.asInstanceOf[ScTypeDefinition].getSourceMirrorClass
     if (sourceClass == null || (sourceClass eq clazz)) return null
     val result: VirtualFile = sourceClass.getContainingFile.getVirtualFile
     assert(result != null)
@@ -32,8 +33,8 @@ object ScalaEditorFileSwapper {
   }
 
   def getFQN(psiFile: PsiFile): String = {
-    if (!(psiFile.isInstanceOf[ScalaFile])) return null
-    val classes = (psiFile.asInstanceOf[ScalaFile]).typeDefinitions
+    if (!psiFile.isInstanceOf[ScalaFile]) return null
+    val classes = psiFile.asInstanceOf[ScalaFile].typeDefinitions
     if (classes.length == 0) return null
     val fqn: String = classes(0).qualifiedName
     if (fqn == null) return null
