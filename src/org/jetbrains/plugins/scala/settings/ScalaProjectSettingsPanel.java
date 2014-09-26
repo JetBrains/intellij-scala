@@ -28,7 +28,6 @@ public class ScalaProjectSettingsPanel {
   private JCheckBox includeLiteralsCheckBox;
   private JCheckBox treatDocCommentAsBlockComment;
   private JCheckBox myDisableLanguageInjection;
-  private JCheckBox myDisablei18n;
   private JCheckBox useScalaClassesPriorityCheckBox;
   private JComboBox collectionHighlightingChooser;
   private JPanel injectionJPanel;
@@ -82,7 +81,6 @@ public class ScalaProjectSettingsPanel {
 
     scalaProjectSettings.setIgnorePerformance(myResolveToAllClassesCheckBox.isSelected());
     scalaProjectSettings.setDisableLangInjection(myDisableLanguageInjection.isSelected());
-    scalaProjectSettings.setDisableI18N(myDisablei18n.isSelected());
     scalaProjectSettings.setDontCacheCompoundTypes(myDontCacheCompound.isSelected());
     scalaProjectSettings.setScalaPriority(useScalaClassesPriorityCheckBox.isSelected());
     scalaProjectSettings.setCollectionTypeHighlightingLevel(collectionHighlightingChooser.getSelectedIndex());
@@ -126,8 +124,6 @@ public class ScalaProjectSettingsPanel {
     if (scalaProjectSettings.isDisableLangInjection() != myDisableLanguageInjection.isSelected())
       return true;
 
-    if (scalaProjectSettings.isDisableI18N() != myDisablei18n.isSelected())
-      return true;
 
     if (scalaProjectSettings.isDontCacheCompoundTypes() != myDontCacheCompound.isSelected()) return true;
 
@@ -170,7 +166,6 @@ public class ScalaProjectSettingsPanel {
     setValue(myResolveToAllClassesCheckBox, scalaProjectSettings.isIgnorePerformance());
 
     setValue(myDisableLanguageInjection, scalaProjectSettings.isDisableLangInjection());
-    setValue(myDisablei18n, scalaProjectSettings.isDisableI18N());
     setValue(myDontCacheCompound, scalaProjectSettings.isDontCacheCompoundTypes());
     setValue(useScalaClassesPriorityCheckBox, scalaProjectSettings.isScalaPriority());
     collectionHighlightingChooser.setSelectedIndex(scalaProjectSettings.getCollectionTypeHighlightingLevel());

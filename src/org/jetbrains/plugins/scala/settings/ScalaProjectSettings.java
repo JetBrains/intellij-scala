@@ -172,14 +172,6 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = value;
   }
 
-  public boolean isDisableI18N() {
-    return DISABLE_I18N;
-  }
-
-  public void setDisableI18N(boolean value) {
-    DISABLE_I18N = value;
-  }
-
   public boolean isDontCacheCompoundTypes() {
       return DONT_CACHE_COMPOUND_TYPES;
   }
