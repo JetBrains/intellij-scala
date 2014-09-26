@@ -46,10 +46,6 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler {
           val message = ScalaBundle.message("change.signature.not.supported.implicit.functions")
           showErrorHint(message)
           false
-        case fun: ScFunction if fun.isLocal =>
-          val message = "Change signature is not supported for local functions yet"
-          showErrorHint(message)
-          false
         case _ => true
       }
     }
