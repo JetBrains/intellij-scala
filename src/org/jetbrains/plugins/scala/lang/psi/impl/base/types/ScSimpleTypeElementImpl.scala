@@ -304,6 +304,8 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         ref.resolveNoConstructor match {
           case Array(ScalaResolveResult(tp: PsiTypeParameter, _)) =>
             lift(ScalaPsiManager.typeVariable(tp))
+          case Array(ScalaResolveResult(tvar: ScTypeVariableTypeElement, _)) =>
+            lift(tvar.getType(TypingContext.empty).getOrAny)
           case Array(ScalaResolveResult(synth: ScSyntheticClass, _)) =>
             lift(synth.t)
           case Array(ScalaResolveResult(to: ScTypeParametersOwner, subst: ScSubstitutor))

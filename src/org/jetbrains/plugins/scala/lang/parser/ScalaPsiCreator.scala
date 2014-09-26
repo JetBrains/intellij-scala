@@ -166,6 +166,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.WILDCARD_TYPE => new ScWildcardTypeElementImpl(node)
     case ScalaElementTypes.TYPE_PROJECTION => new ScTypeProjectionImpl(node)
     case ScalaElementTypes.TYPE_GENERIC_CALL => new ScParameterizedTypeElementImpl(node)
+    case ScalaElementTypes.TYPE_VARIABLE => new ScTypeVariableTypeElementImpl(node)
     case _ => inner1(node)
   }
 

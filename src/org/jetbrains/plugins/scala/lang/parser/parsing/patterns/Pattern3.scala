@@ -28,7 +28,7 @@ object Pattern3 {
     var count = 0
     if (!SimplePattern.parse(builder)) {
       //infixMarker.drop
-      backupMarker.drop
+      backupMarker.drop()
       return false
     }
     while (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && builder.getTokenText != "|") {
@@ -44,10 +44,10 @@ object Pattern3 {
           exit = true
         }
         else if (!compar(s, opStack.top,builder)) {
-          opStack.pop
-          backupMarker.drop
+          opStack.pop()
+          backupMarker.drop()
           backupMarker = markerStack.top.precede
-          markerStack.pop.done(ScalaElementTypes.INFIX_PATTERN)
+          markerStack.pop().done(ScalaElementTypes.INFIX_PATTERN)
         }
         else {
           opStack push s
@@ -57,53 +57,53 @@ object Pattern3 {
         }
       }
       val idMarker = builder.mark
-      builder.advanceLexer //Ate id
+      builder.advanceLexer() //Ate id
       idMarker.done(ScalaElementTypes.REFERENCE)
       if (builder.twoNewlinesBeforeCurrentToken) {
         builder.error(ScalaBundle.message("simple.pattern.expected"))
       }
-      backupMarker.drop
+      backupMarker.drop()
       backupMarker = builder.mark
       if (!SimplePattern.parse(builder)) {
         builder error ScalaBundle.message("simple.pattern.expected")
       }
     }
-    backupMarker.drop
+    backupMarker.drop()
     if (count>0) {
-      while (!markerStack.isEmpty) {
-        markerStack.pop.done(ScalaElementTypes.INFIX_PATTERN)
+      while (markerStack.nonEmpty) {
+        markerStack.pop().done(ScalaElementTypes.INFIX_PATTERN)
       }
       //infixMarker.done(ScalaElementTypes.INFIX_PATTERN)
     }
     else {
-      while (!markerStack.isEmpty) {
-        markerStack.pop.drop
+      while (markerStack.nonEmpty) {
+        markerStack.pop().drop()
       }
       //infixMarker.drop
     }
-    return true
+    true
   }
 
   import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.priority
 
   //compares two operators a id2 b id1 c
   private def compar(id1: String, id2: String, builder: PsiBuilder): Boolean = {
-    if (priority(id1) < priority(id2)) return true        //  a * b + c  =((a * b) + c)
-    else if (priority(id1) > priority(id2)) return false  //  a + b * c = (a + (b * c))
+    if (priority(id1) < priority(id2)) true        //  a * b + c  =((a * b) + c)
+    else if (priority(id1) > priority(id2)) false  //  a + b * c = (a + (b * c))
     else if (associate(id1) == associate(id2))
-      if (associate(id1) == -1) return true
-      else return false
+      if (associate(id1) == -1) true
+      else false
     else {
       builder error ErrMsg("wrong.type.associativity")
-      return false
+      false
     }
   }
   private def opeq(id1: String, id2: String): Boolean = priority(id1) == priority(id2)
   //Associations of operator
   private def associate(id: String): Int = {
     id.charAt(id.length-1) match {
-      case ':' => return -1   // right
-      case _   => return +1  // left
+      case ':' => -1   // right
+      case _   => +1  // left
     }
   }
 }

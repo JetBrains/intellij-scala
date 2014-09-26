@@ -17,31 +17,26 @@ object Ascription {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val ascriptionMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.tCOLON => {
+      case ScalaTokenTypes.tCOLON =>
         builder.advanceLexer() //Ate :
-      }
-      case _ => {
+      case _ =>
         ascriptionMarker.drop()
         return false
-      }
     }
     builder.getTokenType match {
-      case ScalaTokenTypes.tUNDER => {
+      case ScalaTokenTypes.tUNDER =>
         val seqArgMarker = builder.mark
         ascriptionMarker.drop()
         builder.advanceLexer() //Ate _
         builder.getTokenText match {
-          case "*" => {
+          case "*" =>
             builder.advanceLexer() //Ate *
-          }
-          case _ => {
+          case _ =>
             builder error ScalaBundle.message("star.expected")
-          }
         }
         seqArgMarker.done(ScalaElementTypes.SEQUENCE_ARG)
         return true
-      }
-      case _ => {}
+      case _ =>
     }
     if (!Type.parse(builder)) {
       var x = 0
