@@ -118,6 +118,7 @@
         <lang.findUsagesProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider"/>
         <usageTypeProvider implementation="org.jetbrains.plugins.scala.lang.findUsages.ScalaUsageTypeProvider"/>
         <importFilteringRule implementation="org.jetbrains.plugins.scala.lang.findUsages.ScalaImportFilteringRule"/>
+        <idIndexer filetype="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaIdIndexer"/>
         <codeStyleSettingsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettingsProvider"/>
         <internalFileTemplate name="Scala Class"/>
         <internalFileTemplate name="Scala Trait"/>
