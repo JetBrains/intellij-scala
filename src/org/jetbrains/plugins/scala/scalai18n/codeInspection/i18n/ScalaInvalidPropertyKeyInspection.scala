@@ -6,7 +6,6 @@ import com.intellij.codeHighlighting.HighlightDisplayLevel
 import com.intellij.codeInsight.daemon.GroupNames
 import com.intellij.codeInsight.{AnnotationUtil, CodeInsightBundle}
 import com.intellij.codeInspection._
-import com.intellij.codeInspection.i18n.JavaCreatePropertyFix
 import com.intellij.lang.properties.PropertiesReferenceManager
 import com.intellij.lang.properties.psi.PropertiesFile
 import com.intellij.openapi.module.{Module, ModuleUtilCore}
@@ -59,10 +58,7 @@ class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
                                          @NotNull expression: ScLiteral, @NotNull manager: InspectionManager,
                                          @NotNull problems: util.List[ProblemDescriptor], onTheFly: Boolean) {
       val description: String = CodeInsightBundle.message("inspection.unresolved.property.key.reference.message", key)
-      val propertiesFiles: util.List[PropertiesFile] = filterNotInLibrary(expression.getProject,
-        ScalaI18nUtil.propertiesFilesByBundleName(bundleName, expression))
-      problems.add(manager.createProblemDescriptor(expression, description,
-        if (propertiesFiles.isEmpty) null else new JavaCreatePropertyFix(expression, key, propertiesFiles),
+      problems.add(manager.createProblemDescriptor(expression, description, null: LocalQuickFix,
         ProblemHighlightType.LIKE_UNKNOWN_SYMBOL, onTheFly))
     }
 
