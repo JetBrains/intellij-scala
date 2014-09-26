@@ -8,9 +8,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 28.02.2008
-*/
+ * @author Alexander Podkhalyuzin
+ *         Date: 28.02.2008
+ */
 
 /*
  * Type ::= InfixType '=>' Type
@@ -20,11 +20,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  */
 
 object Type {
-  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder,star = false)
-  def parse(builder: ScalaPsiBuilder,star: Boolean): Boolean = parse(builder,star,isPattern = false)
-  def parse(builder: ScalaPsiBuilder,star: Boolean,isPattern: Boolean): Boolean = {
+  def parse(builder: ScalaPsiBuilder, star: Boolean = false, isPattern: Boolean = false): Boolean = {
     val typeMarker = builder.mark
-    if (!InfixType.parse(builder,star,isPattern)) {
+    if (!InfixType.parse(builder, star, isPattern)) {
       builder.getTokenType match {
         case ScalaTokenTypes.tUNDER =>
           builder.advanceLexer()
@@ -49,7 +47,7 @@ object Type {
             case ScalaTokenTypes.tFUNTYPE =>
               val funMarker = typeMarker.precede()
               builder.advanceLexer() //Ate =>
-              if (!Type.parse(builder,star = false,isPattern = isPattern)) {
+              if (!Type.parse(builder, star = false, isPattern = isPattern)) {
                 builder error ScalaBundle.message("wrong.type")
               }
               funMarker.done(ScalaElementTypes.TYPE)
@@ -66,7 +64,7 @@ object Type {
     builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE =>
         builder.advanceLexer() //Ate =>
-        if (!Type.parse(builder,star = false,isPattern = isPattern)) {
+        if (!Type.parse(builder, star = false, isPattern = isPattern)) {
           builder error ScalaBundle.message("wrong.type")
         }
         typeMarker.done(ScalaElementTypes.TYPE)
