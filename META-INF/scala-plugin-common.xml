@@ -905,7 +905,10 @@
                        displayName="No return type for implicit function" groupName="Scala: General"
                        shortName="NoReturnTypeForImplicitDef" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
-
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parameters.AutoTuplingInspection"
+                       displayName="Auto-tupling" groupName="Scala: General"
+                       shortName="AutoTupling" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
 
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
