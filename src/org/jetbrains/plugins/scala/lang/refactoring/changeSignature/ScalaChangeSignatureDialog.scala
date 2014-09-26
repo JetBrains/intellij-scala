@@ -93,7 +93,7 @@ class ScalaChangeSignatureDialog(val project: Project, method: ScalaMethodDescri
     paramItems.foreach(_.updateType(problems))
 
     paramItems.foreach {
-      case item if item.parameter.isRepeatedParameter && Some(item) == paramItems.lastOption =>
+      case item if item.parameter.isRepeatedParameter && Some(item) != paramItems.lastOption =>
         problems += RefactoringBundle.message("changeSignature.vararg.not.last")
       case _ =>
     }
