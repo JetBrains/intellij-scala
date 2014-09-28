@@ -3,8 +3,8 @@ package debugger.evaluation
 
 import com.intellij.debugger.codeinsight.RuntimeTypeEvaluator
 import com.intellij.debugger.engine.ContextUtil
+import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.ExpressionEvaluator
-import com.intellij.debugger.engine.evaluation.{EvaluateExceptionUtil, EvaluationContextImpl}
 import com.intellij.debugger.impl.DebuggerContextImpl
 import com.intellij.debugger.{DebuggerBundle, DebuggerInvocationUtil, EvaluatingComputable}
 import com.intellij.openapi.application.{AccessToken, ReadAction}
@@ -43,7 +43,7 @@ abstract class ScalaRuntimeTypeEvaluator(@Nullable editor: Editor, expression: P
     val value: Value = evaluator.evaluate(evaluationContext)
     if (value != null) {
       getCastableRuntimeType(project, value)
-    } else throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.surrounded.expression.null"))
+    } else throw EvaluationException(DebuggerBundle.message("evaluation.error.surrounded.expression.null"))
   }
 }
 
