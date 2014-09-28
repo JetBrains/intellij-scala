@@ -8,6 +8,7 @@ import com.intellij.debugger.ui.impl.watch.{LocalVariableDescriptorImpl, NodeDes
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.sun.jdi.{InternalException, Type, Value}
+import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
 /**
@@ -38,7 +39,7 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
     var frameProxy: StackFrameProxyImpl = context.getFrameProxy
     lazy val threadProxy = frameProxy.threadProxy()
     if (frameProxy == null) {
-      throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.no.stackframe"))
+      throw EvaluationException(DebuggerBundle.message("evaluation.error.no.stackframe"))
     }
     def evaluate: Option[AnyRef] = {
       def saveContextAndGetValue(framePr: StackFrameProxyImpl, local: LocalVariableProxyImpl) = {
@@ -103,7 +104,7 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
 
     try {
       evaluate.getOrElse(
-        throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.local.variable.missing", myName)))
+        throw EvaluationException(DebuggerBundle.message("evaluation.error.local.variable.missing", myName)))
     }
     catch {
       case e: EvaluateException =>

@@ -3,11 +3,12 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 import java.util.LinkedList
 
 import com.intellij.debugger.DebuggerBundle
+import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier, TypeEvaluator}
-import com.intellij.debugger.engine.evaluation.{EvaluateExceptionUtil, EvaluationContextImpl}
 import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.psi.PsiType
 import com.sun.jdi._
+import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 
 /**
  * User: Alexander Podkhalyuzin
@@ -22,7 +23,7 @@ class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, typeEvaluator: TypeE
       return DebuggerUtilsEx.createValue(context.getDebugProcess.getVirtualMachineProxy, PsiType.BOOLEAN.getPresentableText, false)
     }
     if (!(value.isInstanceOf[ObjectReference])) {
-      throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.object.reference.expected"))
+      throw EvaluationException(DebuggerBundle.message("evaluation.error.object.reference.expected"))
     }
     try {
       val refType: ReferenceType = typeEvaluator.evaluate(context).asInstanceOf[ReferenceType]
@@ -35,7 +36,7 @@ class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, typeEvaluator: TypeE
     }
     catch {
       case e: Exception => {
-        throw EvaluateExceptionUtil.createEvaluateException(e)
+        throw EvaluationException(e)
       }
     }
   }

@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.util
 
-import com.intellij.debugger.engine.evaluation.EvaluateExceptionUtil
 import com.intellij.debugger.engine.{DebugProcessImpl, JVMName, JVMNameUtil}
 import com.intellij.debugger.jdi.VirtualMachineProxyImpl
 import com.intellij.debugger.{DebuggerBundle, SourcePosition}
@@ -10,6 +9,7 @@ import com.intellij.openapi.util.Computable
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiLocalVariable, PsiParameter}
 import com.sun.jdi.{ObjectReference, Value}
+import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
@@ -252,7 +252,7 @@ object DebuggerUtil {
       if (!allClasses.isEmpty) {
         return allClasses.get(0).name
       }
-      throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("error.class.not.loaded", getDisplayName(process)))
+      throw EvaluationException(DebuggerBundle.message("error.class.not.loaded", getDisplayName(process)))
     }
 
     def getDisplayName(debugProcess: DebugProcessImpl): String = {
