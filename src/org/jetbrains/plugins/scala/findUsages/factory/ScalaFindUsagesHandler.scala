@@ -72,7 +72,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
   override def getFindUsagesOptions(dataContext: DataContext): FindUsagesOptions = {
     element match {
       case t: ScTypeDefinition => factory.typeDefinitionOptions
-      case m: ScMember => factory.memberOptions
+      case ScalaPsiUtil.inNameContext(m: ScMember) => factory.memberOptions
       case _ => super.getFindUsagesOptions(dataContext)
     }
   }
