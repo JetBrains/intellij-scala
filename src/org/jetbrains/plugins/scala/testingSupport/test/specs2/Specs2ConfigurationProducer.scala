@@ -86,7 +86,7 @@ class Specs2ConfigurationProducer extends {
       if (!configuration.isInstanceOf[Specs2RunConfiguration]) return false
       return TestConfigurationUtil.isPackageConfiguration(element, configuration)
     }
-    val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition])
+    val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
     if (parent == null) return false
     val suiteClazz: PsiClass = ScalaPsiManager.instance(parent.getProject).
       getCachedClass("org.specs2.specification.SpecificationStructure",

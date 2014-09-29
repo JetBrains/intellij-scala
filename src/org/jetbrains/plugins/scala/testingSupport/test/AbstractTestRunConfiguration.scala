@@ -21,7 +21,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JdkUtil, Sdk}
 import com.intellij.openapi.util.{Computable, Getter, JDOMExternalizer}
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiModifierList, PsiPackage}
+import com.intellij.psi._
 import com.intellij.util.PathUtil
 import org.jdom.Element
 import org.jetbrains.idea.maven.project.MavenProjectsManager
@@ -506,7 +506,16 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   }
 }
 
-object AbstractTestRunConfiguration {
+trait SuiteValidityChecker {
+  protected[test] def isInvalidSuite(clazz: PsiClass): Boolean = {
+    val list: PsiModifierList = clazz.getModifierList
+    list != null && list.hasModifierProperty(PsiModifier.ABSTRACT) || lackSuitableConstructor(clazz)
+  }
+
+  protected[test] def lackSuitableConstructor(clazz: PsiClass): Boolean
+}
+
+object AbstractTestRunConfiguration extends SuiteValidityChecker {
 
   private[test] trait TestCommandLinePatcher {
     private var failedTests: Seq[(String, String)] = null
@@ -527,35 +536,19 @@ object AbstractTestRunConfiguration {
     def getRunConfigurationBase: RunConfigurationBase
   }
 
-  protected[test] def isInvalidSuite(clazz: PsiClass): Boolean = {
-    val list: PsiModifierList = clazz.getModifierList
-    list != null && list.hasModifierProperty("abstract") || lackNoArgConstructor(clazz)
-  }
-
-  private def lackNoArgConstructor(clazz: PsiClass): Boolean = {
-    clazz match {
-      case c: ScClass =>
-        val constructors = c.secondaryConstructors.filter(_.isConstructor).toList ::: c.constructor.toList
-        for (con <- constructors) {
-          if (con.isConstructor && con.parameterList.getParametersCount == 0) {
-            con match {
-              case owner: ScModifierListOwner =>
-                if (owner.hasModifierProperty("public")) return false
-              case _ =>
-            }
-          }
+  protected[test] def lackSuitableConstructor(clazz: PsiClass): Boolean = {
+    val constructors = clazz match {
+      case c: ScClass => c.secondaryConstructors.filter(_.isConstructor).toList ::: c.constructor.toList
+      case _ => clazz.getConstructors.toList
+    }
+    for (con <- constructors) {
+      if (con.isConstructor && con.getParameterList.getParametersCount == 0) {
+        con match {
+          case owner: ScModifierListOwner =>
+            if (owner.hasModifierProperty(PsiModifier.PUBLIC)) return false
+          case _ =>
         }
-
-      case _ =>
-        for (constructor <- clazz.getConstructors) {
-          if (constructor.isConstructor && constructor.getParameterList.getParametersCount == 0) {
-            constructor match {
-              case owner: ScModifierListOwner =>
-                if (owner.hasModifierProperty("public")) return false
-              case _ =>
-            }
-          }
-        }
+      }
     }
     true
   }
