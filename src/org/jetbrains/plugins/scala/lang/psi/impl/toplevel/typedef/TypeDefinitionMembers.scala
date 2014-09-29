@@ -8,7 +8,6 @@ package typedef
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import com.intellij.psi.impl.compiled.ClsClassImpl
 import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.scope.{ElementClassHint, NameHint, PsiScopeProcessor}
 import com.intellij.psi.util._
@@ -659,20 +658,7 @@ object TypeDefinitionMembers {
     if (!(types.AnyRef.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
             types.Any.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place))) return false
 
-    //fake enum methods
-    val isJavaSourceEnum = !clazz.isInstanceOf[ClsClassImpl] && clazz.isEnum
-    if (isJavaSourceEnum && shouldProcessMethods(processor)) {
-      val elementFactory: PsiElementFactory = JavaPsiFacade.getInstance(clazz.getProject).getElementFactory
-      //todo: cache like in PsiClassImpl
-      val valuesMethod: PsiMethod = elementFactory.createMethodFromText("public static " + clazz.name +
-              "[] values() {}", clazz)
-      val valueOfMethod: PsiMethod = elementFactory.createMethodFromText("public static " + clazz.name +
-              " valueOf(String name) throws IllegalArgumentException {}", clazz)
-      val values = new LightMethod(clazz.getManager, valuesMethod, clazz)
-      val valueOf = new LightMethod(clazz.getManager, valueOfMethod, clazz)
-      if (!processor.execute(values, state)) return false
-      if (!processor.execute(valueOf, state)) return false
-    }
+    if (shouldProcessMethods(processor) && !processEnum(clazz, processor.execute(_, state))) return false
     true
   }
 
@@ -1026,5 +1012,30 @@ object TypeDefinitionMembers {
         !kinds.contains(METHOD) && !kinds.contains(VAR)
       case _ => false
     }
+  }
+
+  def processEnum(clazz: PsiClass, process: PsiMethod => Boolean): Boolean = {
+    var containsValues = false
+    if (clazz.isEnum && !clazz.isInstanceOf[ScTemplateDefinition]) {
+      containsValues = clazz.getMethods.exists {
+        case method =>
+          method.getName == "values" && method.getParameterList.getParametersCount == 0 &&
+            method.hasModifierProperty("static")
+      }
+    }
+
+    if (!containsValues && clazz.isEnum) {
+      val elementFactory: PsiElementFactory = JavaPsiFacade.getInstance(clazz.getProject).getElementFactory
+      //todo: cache like in PsiClassImpl
+      val valuesMethod: PsiMethod = elementFactory.createMethodFromText("public static " + clazz.name +
+        "[] values() {}", clazz)
+      val valueOfMethod: PsiMethod = elementFactory.createMethodFromText("public static " + clazz.name +
+        " valueOf(java.lang.String name) throws java.lang.IllegalArgumentException {}", clazz)
+      val values = new LightMethod(clazz.getManager, valuesMethod, clazz)
+      val valueOf = new LightMethod(clazz.getManager, valueOfMethod, clazz)
+      if (!process(values)) return false
+      if (!process(valueOf)) return false
+    }
+    true
   }
 }
