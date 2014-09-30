@@ -7,7 +7,7 @@ import com.intellij.util.ui.{ColumnInfo, ListTableModel}
  * @author Pavel Fatin
  */
 class SdkTableModel extends ListTableModel[SdkChoice](
-  new ColumnInfo[SdkChoice, String]("Source") {
+  new ColumnInfo[SdkChoice, String]("Place") {
     override def valueOf(item: SdkChoice) = item.source
 
     override def getPreferredStringValue = "Maven"
