@@ -161,7 +161,8 @@ class ScalaTestConfigurationProducer extends {
                   }
               }
             }
-            if (containingClass != null && fqns.exists(_ == containingClass.qualifiedName)) {
+            if (containingClass != null &&
+                fqns.exists(fqn => fqn == containingClass.qualifiedName || isInheritor(containingClass, fqn))) {
               if (!failedToCheck) {
                 val res = inv(call)
                 if (res.isDefined) return SuccessResult(call, res.get, middleName)
