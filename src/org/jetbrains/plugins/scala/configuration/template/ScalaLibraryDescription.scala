@@ -6,10 +6,11 @@ import java.io.File
 import java.util.Collections
 import javax.swing.JComponent
 
-import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.roots.ui.configuration.libraries.CustomLibraryDescription
 import com.intellij.openapi.util.SystemInfo
-import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore, VirtualFile}
+import com.intellij.openapi.vfs.VirtualFile
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -18,22 +19,14 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
   def getSuitableLibraryKinds = Collections.singleton(ScalaLibraryKind)
 
   def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile) = {
-    val initialDirectory = guessScalaHome.flatMap(path => Option(VfsUtil.findFileByIoFile(new File(path), false)))
+    val sdks = guessScalaHome.toSeq.flatMap(it => sdksIn(new File(it))).map(SdkChoice(_, "System")) ++
+            ivySdks.map(SdkChoice(_, "Ivy")) ++ mavenSdks.map(SdkChoice(_, "Maven"))
 
-    val virtualFiles = FileChooser.chooseFiles(new ScalaFilesChooserDescriptor(), null, initialDirectory.orNull).toSeq
+    val dialog = new SdkSelectionDialog(parentComponent, sdks.asJava)
 
-    val files = virtualFiles.map(VfsUtilCore.virtualToIoFile)
+    val sdk = Option(dialog.open())
 
-    val allFiles = files.filter(_.isFile) ++ files.flatMap(_.allFiles)
-
-    val components = Component.discoverIn(allFiles)
-
-    if (files.length > 0) ScalaSdkDescriptor.from(components) match {
-      case Left(message) => throw new ValidationException(message)
-      case Right(sdk) => sdk.createNewLibraryConfiguration()
-    } else {
-      null
-    }
+    sdk.map(_.createNewLibraryConfiguration()).orNull
   }
 
 //  override def getDefaultLevel = LibrariesContainer.LibraryLevel.GLOBAL // TODO
@@ -92,3 +85,5 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
     }
   }
 }
+
+case class SdkChoice(sdk: ScalaSdkDescriptor, source: String)
