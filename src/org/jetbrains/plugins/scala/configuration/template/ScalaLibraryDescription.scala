@@ -19,8 +19,9 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
   def getSuitableLibraryKinds = Collections.singleton(ScalaLibraryKind)
 
   def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile) = {
-    val sdks = guessScalaHome.toSeq.flatMap(it => sdksIn(new File(it))).map(SdkChoice(_, "System")) ++
-            ivySdks.map(SdkChoice(_, "Ivy")) ++ mavenSdks.map(SdkChoice(_, "Maven"))
+    val sdks = systemSdks.map(SdkChoice(_, "System")) ++
+            ivySdks.map(SdkChoice(_, "Ivy")) ++
+            mavenSdks.map(SdkChoice(_, "Maven"))
 
     val dialog = new SdkSelectionDialog(parentComponent, sdks.asJava)
 
@@ -31,39 +32,51 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
 
 //  override def getDefaultLevel = LibrariesContainer.LibraryLevel.GLOBAL // TODO
 
-  // TODO improve, support multiple variants
-  def guessScalaHome: Option[String] = {
-    val fromHome = env("SCALA_HOME").flatMap(existing)
+  // TODO local
+  // TODO sorting
 
-    val osDefault = if (SystemInfo.isWindows) {
-      env("ProgramFiles").flatMap(existing).flatMap(findScalaInDirectory).orElse(
-        env("ProgramFiles(x86)").flatMap(existing).flatMap(findScalaInDirectory))
-    } else if (SystemInfo.isMac) {
-      existing("/opt/").flatMap(findScalaInDirectory)
-    } else if (SystemInfo.isLinux) {
-      existing("/usr/share/java/")
-    } else {
-      None
-    }
+  def systemSdks: Seq[ScalaSdkDescriptor] =
+    systemScalaRoots.flatMap(path => sdkIn(new File(path)).toSeq)
 
-    val fromCommandPath = env("PATH").flatMap(findScalaInCommandPath).flatMap(existing)
+  private def systemScalaRoots: Seq[String] = {
+    val fromApps = systemAppRoots.filter(exists).flatMap(findScalaDirectoriesIn)
 
-    fromHome.orElse(osDefault).orElse(fromCommandPath)
+    val fromHome = env("SCALA_HOME")
+
+    val fromCommandPath = env("PATH").flatMap(findScalaInCommandPath)
+
+    (fromApps ++ fromHome ++ fromCommandPath).distinct.filter(exists)
+  }
+
+  private def systemAppRoots: Seq[String] = if (SystemInfo.isWindows) {
+    env("ProgramFiles").toSeq ++ env("ProgramFiles(x86)").toSeq
+  } else if (SystemInfo.isMac) {
+    Seq("/opt/")
+  } else if (SystemInfo.isLinux) {
+    Seq("/usr/share/java/")
+  } else {
+    Seq.empty
   }
 
   private def env(name: String): Option[String] = Option(System.getenv(name))
 
-  private def existing(path: String): Option[String] = if (new File(path).exists) Some(path) else None
+  private def exists(path: String): Boolean = new File(path).exists
 
-  private def findScalaInDirectory(directory: String): Option[String] = {
+  private def findScalaDirectoriesIn(directory: String): Seq[String] = {
     val subdirectories = new File(directory).listFiles.toSeq
-    subdirectories.find(_.getName.toLowerCase.startsWith("scala")).map(_.getPath)
+    subdirectories.filter(_.getName.toLowerCase.startsWith("scala")).map(_.getPath)
   }
 
   private def findScalaInCommandPath(path: String): Option[String] =
     path.split(File.pathSeparator)
             .find(_.toLowerCase.contains("scala"))
             .map(_.replaceFirst("""[/\\]?bin[/\\]?$""", ""))
+
+  private def sdkIn(root: File): Option[ScalaSdkDescriptor] = {
+    val components = Component.discoverIn(root.allFiles)
+
+    ScalaSdkDescriptor.from(components).right.toOption
+  }
 
   def mavenSdks: Seq[ScalaSdkDescriptor] = {
     val root = new File(System.getProperty("user.home")) / ".m2"
