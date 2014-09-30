@@ -8,6 +8,7 @@ import javax.swing.JComponent
 
 import com.intellij.openapi.roots.ui.configuration.libraries.CustomLibraryDescription
 import com.intellij.openapi.util.SystemInfo
+import com.intellij.openapi.vfs.VfsUtilCore.virtualToIoFile
 import com.intellij.openapi.vfs.VirtualFile
 
 import scala.collection.JavaConverters._
@@ -19,7 +20,8 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
   def getSuitableLibraryKinds = Collections.singleton(ScalaLibraryKind)
 
   def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile) = {
-    val sdks = systemSdks.map(SdkChoice(_, "System")) ++
+    val sdks = localSkdsIn(virtualToIoFile(contextDirectory)).map(SdkChoice(_, "Project")) ++
+            systemSdks.map(SdkChoice(_, "System")) ++
             ivySdks.map(SdkChoice(_, "Ivy")) ++
             mavenSdks.map(SdkChoice(_, "Maven"))
 
@@ -32,8 +34,10 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
 
 //  override def getDefaultLevel = LibrariesContainer.LibraryLevel.GLOBAL // TODO
 
-  // TODO local
   // TODO sorting
+
+  private def localSkdsIn(directory: File): Seq[ScalaSdkDescriptor] =
+    Seq(directory / "lib").flatMap(sdkIn)
 
   def systemSdks: Seq[ScalaSdkDescriptor] =
     systemScalaRoots.flatMap(path => sdkIn(new File(path)).toSeq)
