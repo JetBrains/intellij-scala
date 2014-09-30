@@ -17,7 +17,7 @@ sealed class Artifact(val prefix: String, resource: Option[String] = None) {
   def versionOf(file: File): Option[String] = externalVersionOf(file).orElse(internalVersionOf(file))
 
   private def externalVersionOf(file: File): Option[String] = {
-    val FileName = (prefix + "-(.*?)(?:-src|-javadoc).jar").r
+    val FileName = (prefix + "-(.*?)(?:-src|-sources|-javadoc).jar").r
 
     file.getName match {
       case FileName(version) => Some(version)
@@ -70,9 +70,9 @@ sealed class Kind(regex: String) {
 object Kind {
   def values: Set[Kind] = Set(Binaries, Sources, Docs)
 
-  case object Binaries extends Kind(".*(?<!-src|-javadoc)\\.jar")
+  case object Binaries extends Kind(".*(?<!-src|-sources|-javadoc)\\.jar")
 
-  case object Sources extends Kind(".*-src\\.jar")
+  case object Sources extends Kind(".*-(src|sources)\\.jar")
 
   case object Docs extends Kind(".*-javadoc\\.jar")
 }
