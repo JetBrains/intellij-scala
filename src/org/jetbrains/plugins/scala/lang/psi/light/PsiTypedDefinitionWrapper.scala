@@ -142,10 +142,10 @@ object PsiTypedDefinitionWrapper {
   def processWrappersFor(t: ScTypedDefinition, cClass: Option[PsiClass], nodeName: String, isStatic: Boolean, isInterface: Boolean,
                  processMethod: PsiMethod => Unit, processName: String => Unit = _ => ()): Unit  = {
     if (nodeName == t.name) {
-      processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = SIMPLE_ROLE))
+      processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = SIMPLE_ROLE, cClass))
       processName(t.name)
       if (t.isVar) {
-        processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = EQ))
+        processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = EQ, cClass))
         processName(t.name + "_eq")
       }
     }

@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures.{ScClassPa
  */
 object ScalaElementTypes {
 
-  val DUMMY_ELEMENT = new ScalaElementType("Dummy Elemnet");
+  val DUMMY_ELEMENT = new ScalaElementType("Dummy Elemnet")
 
 
   //Stub element types
@@ -96,6 +96,7 @@ object ScalaElementTypes {
   val TYPE_PROJECTION = new ScalaElementType("type projection")
   val TYPE_GENERIC_CALL = new ScalaElementType("type generic call")
   val SEQUENCE_ARG = new ScalaElementType("sequence argument type")
+  val TYPE_VARIABLE = new ScalaElementType("type variable")
 
   /** ***********************************************************************************/
   /*********************************** IDENTIFIER **************************************/

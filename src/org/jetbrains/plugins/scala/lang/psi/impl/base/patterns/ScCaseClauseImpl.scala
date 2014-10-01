@@ -34,22 +34,29 @@ class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
       place: PsiElement): Boolean = {
 
     pattern match {
-      case Some(p) => {
+      case Some(p) =>
         def process: Boolean = {
           val iterator = p.bindings.iterator
           while (iterator.hasNext) {
             val b = iterator.next()
             if (!processor.execute(b, state)) return false
           }
+          val typeVariablesIterator = p.typeVariables.iterator
+          while (typeVariablesIterator.hasNext) {
+            val tvar = typeVariablesIterator.next()
+            if (!processor.execute(tvar, state)) return false
+          }
           true
         }
         expr match {
-          case Some(e) if e.getStartOffsetInParent == lastParent.getStartOffsetInParent => if (!process) return false
+          case Some(e) if lastParent != null &&
+            e.getStartOffsetInParent == lastParent.getStartOffsetInParent => if (!process) return false
           case Some(e: ScInterpolationPattern) => if (!process) return false
           case _ =>
             guard match {
-              case Some(g) if g.getStartOffsetInParent == lastParent.getStartOffsetInParent => if (!process) return false
-              case _ => {
+              case Some(g) if lastParent != null &&
+                g.getStartOffsetInParent == lastParent.getStartOffsetInParent => if (!process) return false
+              case _ =>
                 //todo: is this good? Maybe parser => always expression.
                 val last = findLastChildByType(TokenSet.create(ScalaElementTypes.FUNCTION_DECLARATION,
                   ScalaElementTypes.FUNCTION_DEFINITION, ScalaElementTypes.PATTERN_DEFINITION,
@@ -57,13 +64,11 @@ class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
                   ScalaElementTypes.VARIABLE_DEFINITION, ScalaElementTypes.TYPE_DECLARATION,
                   ScalaElementTypes.TYPE_DECLARATION, ScalaElementTypes.CLASS_DEF,
                   ScalaElementTypes.TRAIT_DEF, ScalaElementTypes.OBJECT_DEF))
-                if (last != null && last.getStartOffsetInParent == lastParent.getStartOffsetInParent) {
+                if (last != null && lastParent != null && last.getStartOffsetInParent == lastParent.getStartOffsetInParent) {
                   if (!process) return false
                 }
-              }
             }
         }
-      }
       case _ =>
     }
     true

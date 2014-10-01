@@ -15,7 +15,7 @@ class ScalaIconProvider extends IconProvider {
   override def getIcon(element: PsiElement, flags: Int): Icon = {
     ProgressManager.checkCanceled()
     element match {
-      case null => null
+      case null =>
       case file: ScalaFile =>
         if (file.isWorksheetFile) return Icons.WORKSHEET_LOGO
         if (file.isScriptFile()) return Icons.SCRIPT_FILE_LOGO

@@ -138,6 +138,7 @@ class ScalaElementVisitor extends PsiElementVisitor {
 
   //type elements
   //Override also visitTypeProjection!
+  //If you use it for typed pattern, override visitTypeParam too.
   def visitTypeElement(te: ScTypeElement) {visitElement(te)}
   def visitSimpleTypeElement(simple: ScSimpleTypeElement) {visitTypeElement(simple)}
   def visitWildcardTypeElement(wildcard: ScWildcardTypeElement) {visitTypeElement(wildcard)}
@@ -150,6 +151,7 @@ class ScalaElementVisitor extends PsiElementVisitor {
   def visitExistentialTypeElement(exist: ScExistentialTypeElement) {visitTypeElement(exist)}
   def visitCompoundTypeElement(compound: ScCompoundTypeElement) {visitTypeElement(compound)}
   def visitAnnotTypeElement(annot: ScAnnotTypeElement) {visitTypeElement(annot)}
+  def visitTypeVariableTypeElement(tvar: ScTypeVariableTypeElement): Unit = { visitTypeElement(tvar) }
 
   //scaladoc
   def visitDocComment(s: ScDocComment) {visitComment(s)}

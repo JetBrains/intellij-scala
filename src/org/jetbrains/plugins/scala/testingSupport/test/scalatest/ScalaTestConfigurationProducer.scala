@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMem
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, AbstractTestRunConfiguration, TestConfigurationProducer, TestConfigurationUtil}
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, TestConfigurationProducer, TestConfigurationUtil}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -103,7 +103,7 @@ class ScalaTestConfigurationProducer extends {
       clazz = PsiTreeUtil.getParentOfType(clazz, classOf[ScTypeDefinition], true)
     }
     if (!clazz.isInstanceOf[ScClass]) return (null, null)
-    if (AbstractTestRunConfiguration.isInvalidSuite(clazz)) return (null, null)
+    if (ScalaTestRunConfiguration.isInvalidSuite(clazz)) return (null, null)
     if (!isInheritor(clazz, suitePath)) return (null, null)
     val testClassPath = clazz.qualifiedName
 
@@ -161,7 +161,8 @@ class ScalaTestConfigurationProducer extends {
                   }
               }
             }
-            if (containingClass != null && fqns.exists(_ == containingClass.qualifiedName)) {
+            if (containingClass != null &&
+                fqns.exists(fqn => fqn == containingClass.qualifiedName || isInheritor(containingClass, fqn))) {
               if (!failedToCheck) {
                 val res = inv(call)
                 if (res.isDefined) return SuccessResult(call, res.get, middleName)

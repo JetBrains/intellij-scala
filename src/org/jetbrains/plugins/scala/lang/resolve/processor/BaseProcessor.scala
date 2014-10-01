@@ -6,7 +6,6 @@ package processor
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.{Key, RecursionManager}
 import com.intellij.psi._
-import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.scope._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api._
@@ -190,10 +189,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
       case d@ScDesignatorType(e: PsiClass) if d.isStatic && !e.isInstanceOf[ScTemplateDefinition] =>
         //not scala from scala
         var break = true
-        var containsValues = false
         for (method <- e.getMethods if break && method.hasModifierProperty("static")) {
           if (!execute(method, state)) break = false
-          if (method.getName == "values" && method.getParameterList.getParametersCount == 0) containsValues = true
         }
         for (cl <- e.getInnerClasses if break && cl.hasModifierProperty("static")) {
           if (!execute(cl, state)) break = false
@@ -201,23 +198,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         for (field <- e.getFields if break && field.hasModifierProperty("static")) {
           if (!execute(field, state)) break = false
         }
-
-        //todo: duplicate TypeDefinitionMembers
-        //fake enum static methods
-        val isJavaSourceEnum = !containsValues && e.isEnum
-        if (isJavaSourceEnum) {
-          val elementFactory: PsiElementFactory = JavaPsiFacade.getInstance(e.getProject).getElementFactory
-          //todo: cache like in PsiClassImpl
-          val valuesMethod: PsiMethod = elementFactory.createMethodFromText("public static " + e.name +
-                  "[] values() {}", e)
-          val valueOfMethod: PsiMethod = elementFactory.createMethodFromText("public static " + e.name +
-                  " valueOf(String name) throws IllegalArgumentException {}", e)
-          val values = new LightMethod(e.getManager, valuesMethod, e)
-          val valueOf = new LightMethod(e.getManager, valueOfMethod, e)
-          if (!execute(values, state)) return false
-          if (!execute(valueOf, state)) return false
-        }
-        break
+        if (!break) return false
+        TypeDefinitionMembers.processEnum(e, execute(_, state))
       case ScDesignatorType(o: ScObject) => processElement(o, ScSubstitutor.empty, place, state)
       case ScDesignatorType(e: ScTypedDefinition) if place.isInstanceOf[ScTypeProjection] =>
         val result: TypeResult[ScType] =

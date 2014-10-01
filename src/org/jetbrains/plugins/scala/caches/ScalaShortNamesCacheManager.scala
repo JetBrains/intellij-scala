@@ -123,7 +123,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
     while (variablesIterator.hasNext) {
       val variable = variablesIterator.next()
       if (variable.declaredNames.contains(name)) {
-        list += member
+        list += variable
         member = variable
         count += 1
       }

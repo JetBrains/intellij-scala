@@ -39,7 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.{ScPackageContainer, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypeParametersOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScEarlyDefinitions, ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockExprImpl
@@ -156,8 +156,7 @@ object ScalaPsiUtil {
     td.getParent match {
       case tb: ScTemplateBody =>
         val parent = PsiTreeUtil.getParentOfType(td, classOf[PsiClass], true)
-        if (parent == null) true
-        if (parent.isInstanceOf[ScNewTemplateDefinition]) return true
+        if (parent == null || parent.isInstanceOf[ScNewTemplateDefinition]) return true
         isLocalClass(parent)
       case _: ScPackaging | _: ScalaFile => false
       case _ => true
@@ -1718,11 +1717,15 @@ object ScalaPsiUtil {
   def parameterOf(exp: ScExpression): Option[Parameter] = {
     def forArgumentList(expr: ScExpression, args: ScArgumentExprList): Option[Parameter] = {
       args.getParent match {
-        case constructor: ScConstructor =>
-          constructor.reference
-                  .flatMap(_.resolve().asOptionOf[ScPrimaryConstructor]) // TODO secondary constructors
-                  .flatMap(_.parameters.lift(args.exprs.indexOf(expr))) // TODO secondary parameter lists
-                  .map(p => new Parameter(p))
+        case constructor: ScConstructor => // TODO secondary parameter lists
+          val params = constructor.reference.flatMap(r => Option(r.resolve())) match {
+            case Some(pc: ScPrimaryConstructor) => pc.parameters
+            case Some(fun: ScFunction) if fun.isConstructor => fun.parameters
+            case Some(m: PsiMethod) if m.isConstructor => m.getParameterList.getParameters.toSeq
+            case None => Seq.empty
+          }
+          val maybeParameter = params.lift(args.exprs.indexOf(expr))
+          maybeParameter.map(new Parameter(_))
         case _ => args.matchedParameters.getOrElse(Seq.empty).find(_._1 == expr).map(_._2)
       }
     }
@@ -2014,6 +2017,27 @@ object ScalaPsiUtil {
     else anchor.replace(ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi)
 
     addedStmt
+  }
+
+  def changeVisibility(member: ScModifierListOwner, newVisibility: String): Unit = {
+    val manager = member.getManager
+    val modifierList = member.getModifierList
+    if (newVisibility == "" || newVisibility == "public") {
+      modifierList.accessModifier.foreach(_.delete())
+      return
+    }
+    val newElem = ScalaPsiElementFactory.createModifierFromText(newVisibility, manager).getPsi
+    modifierList.accessModifier match {
+      case Some(mod) => mod.replace(newElem)
+      case None =>
+        if (modifierList.children.isEmpty) {
+          modifierList.add(newElem)
+        } else {
+          val mod = modifierList.getFirstChild
+          modifierList.addBefore(newElem, mod)
+          modifierList.addBefore(ScalaPsiElementFactory.createWhitespace(manager), mod)
+        }
+    }
   }
 
 }

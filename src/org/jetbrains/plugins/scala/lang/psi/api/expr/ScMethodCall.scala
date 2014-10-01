@@ -14,9 +14,8 @@ import com.intellij.psi.PsiElement
 trait ScMethodCall extends ScExpression with MethodInvocation {
   def deepestInvokedExpr: ScExpression = {
     getEffectiveInvokedExpr match {
-      case call: ScMethodCall => {
+      case call: ScMethodCall =>
         call.deepestInvokedExpr
-      }
       case expr => expr
     }
   }

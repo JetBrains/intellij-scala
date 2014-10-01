@@ -49,7 +49,8 @@ public class ScalaWordsScanner extends DefaultWordsScanner{
         if (!stripWords(processor, fileText,myLexer.getTokenStart(),myLexer.getTokenEnd(), WordOccurrence.Kind.COMMENTS,occurrence, false)) return;
       }
       else if (myLiteralTokenSet.contains(type)) {
-        if (!stripWords(processor, fileText, myLexer.getTokenStart(),myLexer.getTokenEnd(),WordOccurrence.Kind.LITERALS,occurrence, false)) return;
+        boolean mayHaveFileRefs = true; // for indexing string literals as references to property keys and files
+        if (!stripWords(processor, fileText, myLexer.getTokenStart(),myLexer.getTokenEnd(),WordOccurrence.Kind.LITERALS,occurrence, mayHaveFileRefs)) return;
       }
       else if (!mySkipCodeContextTokenSet.contains(type)) {
         if (!stripWords(processor, fileText, myLexer.getTokenStart(), myLexer.getTokenEnd(), WordOccurrence.Kind.CODE, occurrence, false)) return;

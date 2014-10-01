@@ -12,5 +12,5 @@ class Suspension[T](fun: () => T) {
 }
 
 object Suspension {
-  implicit def any2Susp[T](t: T) = new Suspension(t)
+  implicit def any2Susp[T](t: T): Suspension[T] = new Suspension(t)
 }

@@ -342,10 +342,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     if (ids.contains("compile"))
       DependencyScope.COMPILE
-    else if (ids.contains("test"))
-      DependencyScope.TEST
     else if (ids.contains("runtime"))
       DependencyScope.RUNTIME
+    else if (ids.contains("test"))
+      DependencyScope.TEST
     else if (ids.contains("provided"))
       DependencyScope.PROVIDED
     else

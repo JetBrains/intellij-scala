@@ -13,7 +13,7 @@ import javax.swing.*;
 
 //for consistency with java reflection-based system of persistent storage of settings
 public class NameBooleanParametersInspection extends NameBooleanParametersInspectionBase {
-  public boolean ignoreSetters = false;
+  public boolean ignoreSetters = true;
 
   @Override
   public boolean getIgnoreSetters() {

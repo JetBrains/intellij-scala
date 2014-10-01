@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
@@ -62,6 +62,11 @@ class ImplicitParametersCollector(private var place: PsiElement, tp: ScType, cor
       if (!stop) {
         if (!placeCalculated) {
           place = placeForTreeWalkUp
+          place match {
+            case m: ScModifierListOwner if m.hasModifierProperty("implicit") =>
+              placeCalculated = true //we need to check that, otherwise we will be outside
+            case _ =>
+          }
           result = ImplicitParametersCollector.cache.get((place, tp))
           if (result != null) return result
         }

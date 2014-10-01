@@ -1,3 +1,3 @@
 public interface ParameterlessOverriders2 {
-  public String bar(boolean b);
+  public int bar(boolean b);
 }
