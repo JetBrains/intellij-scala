@@ -15,8 +15,6 @@ import scala.collection.mutable.ArrayBuffer
 
 class ScalaClassFinder(project: Project) extends PsiElementFinder {
   def findClasses(qualifiedName: String, scope: GlobalSearchScope): Array[PsiClass] = {
-    if (project.isDefault) return Array.empty
-
     val res = new ArrayBuffer[PsiClass]
 
     def iterateClasses(suffix: String)(fun: PsiClass => Unit) {
