@@ -16,6 +16,7 @@ class ScalaPackageFinder(project: Project) extends PsiElementFinder {
 
   override def findPackage(qName: String): PsiPackage = {
     if (DumbService.isDumb(project)) return null
+    if (project.isDefault) return null
     ScalaPsiManager.instance(project).syntheticPackage(qName)
   }
 }
