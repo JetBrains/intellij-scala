@@ -81,11 +81,11 @@ class ScalaCompletionContributor extends CompletionContributor {
       }
 
       parameters.getPosition.getParent match {
-        case ref: ScReferenceElement => {
+        case ref: ScReferenceElement =>
           val isInImport = ScalaPsiUtil.getParentOfType(ref, classOf[ScImportStmt]) != null
           def applyVariant(variant: Object, addElement: LookupElement => Unit = addElement) {
             variant match {
-              case el: ScalaLookupItem => {
+              case el: ScalaLookupItem =>
                 val elem = el.element
                 elem match {
                   case clazz: PsiClass =>
@@ -110,24 +110,20 @@ class ScalaCompletionContributor extends CompletionContributor {
                   case fun: ScFun => addElement(el)
                   case param: ScClassParameter =>
                     addElement(el)
-                  case patt: ScBindingPattern => {
+                  case patt: ScBindingPattern =>
                     val context = ScalaPsiUtil.nameContext(patt)
                     context match {
-                      case memb: PsiMember => {
+                      case memb: PsiMember =>
                         if (parameters.getInvocationCount > 1 ||
                           ResolveUtils.isAccessible(memb, parameters.getPosition, forCompletion = true)) addElement(el)
-                      }
                       case _ => addElement(el)
                     }
-                  }
-                  case memb: PsiMember => {
+                  case memb: PsiMember =>
                     if (parameters.getInvocationCount > 1 || ResolveUtils.isAccessible(memb, parameters.getPosition,
                       forCompletion = true))
                       addElement(el)
-                  }
                   case _ => addElement(el)
                 }
-              }
               case _ =>
             }
           }
@@ -204,8 +200,6 @@ class ScalaCompletionContributor extends CompletionContributor {
               case _ =>
             }
           }
-
-        }
         case _ =>
       }
       if (elementType == ScalaDocTokenType.DOC_TAG_VALUE_TOKEN) result.stopHere()
@@ -273,7 +267,7 @@ class ScalaCompletionContributor extends CompletionContributor {
         (for (qualifier <- refExpr.qualifier) yield {
           val evaluator = refExpr.getContainingFile.getCopyableUserData(ScalaRuntimeTypeEvaluator.KEY)
           if (evaluator != null) evaluator(qualifier) else null
-        }).getOrElse(null)
+        }).orNull
       case _ => null
     }
   }
