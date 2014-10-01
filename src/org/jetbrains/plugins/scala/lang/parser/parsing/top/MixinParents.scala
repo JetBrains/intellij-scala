@@ -21,21 +21,21 @@ object MixinParents {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val mixinMarker = builder.mark
     //Look for parent
-    if (!AnnotType.parse(builder)) {
+    if (!AnnotType.parse(builder, isPattern = false)) {
       builder error ScalaBundle.message("wrong.simple.type")
       mixinMarker.done(ScalaElementTypes.TRAIT_PARENTS)
       return false
     }
     //Look for mixin
     while (builder.getTokenType == ScalaTokenTypes.kWITH) {
-      builder.advanceLexer //Ate with
-      if (!AnnotType.parse(builder)) {
+      builder.advanceLexer() //Ate with
+      if (!AnnotType.parse(builder, isPattern = false)) {
         builder error ScalaBundle.message("wrong.simple.type")
         mixinMarker.done(ScalaElementTypes.TRAIT_PARENTS)
         return false
       }
     }
     mixinMarker.done(ScalaElementTypes.TRAIT_PARENTS)
-    return true
+    true
   }
 }

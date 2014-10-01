@@ -15,7 +15,7 @@ import com.intellij.psi.{HierarchicalMethodSignature, PsiClass, PsiManager, PsiM
 trait LightScalaMethod
 
 class LightMethodAdapter(manager: PsiManager, method: PsiMethod, containingClass: PsiClass) extends
-  LightMethod(manager, method, containingClass) {
+  LightMethod(manager, method, containingClass, containingClass.getLanguage) {
 
   override def findDeepestSuperMethods(): Array[PsiMethod] = PsiSuperMethodImplUtil.findDeepestSuperMethods(this)
 

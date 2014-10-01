@@ -120,7 +120,7 @@ object CreateEntityQuickFix {
 
     Some(exp).collect {
       case InstanceOfClass(td: ScTemplateDefinition) => td.extendsBlock
-      case th: ScThisReference =>
+      case th: ScThisReference if PsiTreeUtil.getParentOfType(th, classOf[ScExtendsBlock], true) != null =>
         th.refTemplate match {
           case Some(ScTemplateDefinition.ExtendsBlock(block)) => block
           case None => PsiTreeUtil.getParentOfType(th, classOf[ScExtendsBlock], /*strict = */true, /*stopAt = */classOf[ScTemplateDefinition])

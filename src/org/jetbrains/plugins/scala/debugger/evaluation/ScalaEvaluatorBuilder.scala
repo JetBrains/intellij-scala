@@ -134,7 +134,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     override def visitFunctionExpression(stmt: ScFunctionExpr) {
-      throw EvaluateExceptionUtil.createEvaluateException("Anonymous functions are not supported")
+      throw EvaluationException("Anonymous functions are not supported")
     }
 
     override def visitExprInParent(expr: ScParenthesisedExpr) {
@@ -180,14 +180,14 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           cond.accept(this)
           myResult
         case None =>
-          throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate if statement without condition")
+          throw EvaluationException("Cannot evaluate if statement without condition")
       }
       val ifBranch = stmt.thenBranch match {
         case Some(th) =>
           th.accept(this)
           myResult
         case None =>
-          throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate if statment withou if branch")
+          throw EvaluationException("Cannot evaluate if statment withou if branch")
       }
       val elseBranch = stmt.elseBranch.map(e => {
         e.accept(this)
@@ -200,7 +200,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     override def visitLiteral(l: ScLiteral) {
       myResult = l match {
         case interpolated: ScInterpolatedStringLiteral if interpolated.getType == InterpolatedStringType.FORMAT =>
-          throw EvaluateExceptionUtil.createEvaluateException("Formatted string interpolator f\"...\" is not supported in scala 2.11")
+          throw EvaluationException("Formatted string interpolator f\"...\" is not supported in scala 2.11")
         case interpolated: ScInterpolatedStringLiteral =>
           val evaluatorOpt = for (expr <- interpolated.getStringContextExpression) yield {
             expr.accept(this)
@@ -223,14 +223,14 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           cond.accept(this)
           myResult
         case None =>
-          throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate while statement without condition")
+          throw EvaluationException("Cannot evaluate while statement without condition")
       }
       val iterationEvaluator = ws.body match {
         case Some(body) =>
           body.accept(this)
           myResult
         case None =>
-          throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate while statement without body")
+          throw EvaluationException("Cannot evaluate while statement without body")
       }
 
       myResult = new WhileStatementEvaluator(condEvaluator, iterationEvaluator, null)
@@ -243,14 +243,14 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           cond.accept(this)
           myResult
         case None =>
-          throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate do statement without condition")
+          throw EvaluationException("Cannot evaluate do statement without condition")
       }
       val iterationEvaluator = stmt.getExprBody match {
         case Some(body) =>
           body.accept(this)
           myResult
         case None =>
-          throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate do statement without body")
+          throw EvaluationException("Cannot evaluate do statement without body")
       }
       myResult = new ScalaDoStmtEvaluator(condEvaluator, iterationEvaluator)
       super.visitDoStatement(stmt)
@@ -309,7 +309,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     override def visitForExpression(forStmt: ScForStatement) {
       forStmt.getDesugarizedExpr match {
         case Some(expr) => expr.accept(this)
-        case None => throw EvaluateExceptionUtil.createEvaluateException("Cannot desugarize for statement")
+        case None => throw EvaluationException("Cannot desugarize for statement")
       }
       super.visitForExpression(forStmt)
     }
@@ -325,15 +325,15 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     override def visitTryExpression(tryStmt: ScTryStmt) {
-      throw EvaluateExceptionUtil.createEvaluateException("Try expression is not supported")
+      throw EvaluationException("Try expression is not supported")
     }
 
     override def visitReturnStatement(ret: ScReturnStmt) {
-      throw EvaluateExceptionUtil.createEvaluateException("Return statement is not supported")
+      throw EvaluationException("Return statement is not supported")
     }
 
     override def visitFunction(fun: ScFunction) {
-      throw EvaluateExceptionUtil.createEvaluateException("Function definition is not supported")
+      throw EvaluationException("Function definition is not supported")
     }
 
     override def visitThisReference(t: ScThisReference) {
@@ -356,7 +356,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       val name = NameTransformer.encode(fun.name)
       val containingClass = if (fun.isSynthetic) fun.containingClass else getContainingClass(fun)
       if (getContextClass == null) {
-        throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate local method")
+        throw EvaluationException("Cannot evaluate local method")
       }
       val thisEvaluator: Evaluator = containingClass match {
         case obj: ScObject if isStable(obj) =>
@@ -394,7 +394,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           DebuggerUtil.getSourcePositions(fun.getNavigationElement), localFunctionIndex(fun))
         return
       }
-      throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate local method")
+      throw EvaluationException("Cannot evaluate local method")
     }
 
     private val BOXES_RUN_TIME = new TypeEvaluator(JVMNameUtil.getJVMRawText("scala.runtime.BoxesRunTime"))
@@ -440,7 +440,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               myResult
           }
           myResult = function(eval)
-        } else throw EvaluateExceptionUtil.createEvaluateException("Wrong number of arguments for method '" +
+        } else throw EvaluationException("Wrong number of arguments for method '" +
           operatorName + "'")
       }
       def unaryEvalForBoxes(operatorName: String, boxesName: String) {
@@ -455,7 +455,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               myResult
           }
           myResult = function(eval, argEvaluators(0))
-        } else throw EvaluateExceptionUtil.createEvaluateException("Wrong number of arguments for method '" +
+        } else throw EvaluationException("Wrong number of arguments for method '" +
           operatorName + "'")
       }
       def binaryEvalForBoxes(operatorName: String, boxesName: String) {
@@ -527,9 +527,9 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         case "toLong" => unaryEvalForBoxes(name, "toLong")
         case "toFloat" => unaryEvalForBoxes(name, "toFloat")
         case "synchronized" =>
-          throw EvaluateExceptionUtil.createEvaluateException("synchronized statement is not supported")
+          throw EvaluationException("synchronized statement is not supported")
         case _ =>
-          throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate synthetic method: " + name)
+          throw EvaluationException("Cannot evaluate synthetic method: " + name)
       }
     }
 
@@ -539,30 +539,30 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           if (argEvaluators.length == 1 && qual != None) {
             qual.get.accept(this)
             myResult = new ScalaArrayAccessEvaluator(myResult, argEvaluators(0))
-          } else throw EvaluateExceptionUtil.createEvaluateException("Wrong number of parameters for Array.apply method")
+          } else throw EvaluationException("Wrong number of parameters for Array.apply method")
         case "length" =>
           if (argEvaluators.length == 0 && qual != None) {
             qual.get.accept(this)
             myResult = new ScalaFieldEvaluator(myResult, _ => true, "length")
-          } else throw EvaluateExceptionUtil.createEvaluateException("Wrong number of parameters for Array.length method")
+          } else throw EvaluationException("Wrong number of parameters for Array.length method")
         case "clone" =>
           if (argEvaluators.length == 0 && qual != None) {
             qual.get.accept(this)
             myResult = new ScalaMethodEvaluator(myResult, "clone", null/*todo*/, Nil)
-          } else throw EvaluateExceptionUtil.createEvaluateException("Wrong number of parameters for Array.clone method")
+          } else throw EvaluationException("Wrong number of parameters for Array.clone method")
         case "update" =>
           if (argEvaluators.length == 2 && qual != None) {
             qual.get.accept(this)
             val leftEval = new ScalaArrayAccessEvaluator(myResult, argEvaluators(0))
             myResult = new AssignmentEvaluator(leftEval, argEvaluators(1))
-          } else throw EvaluateExceptionUtil.createEvaluateException("Wrong number of parameters for Array.update method")
+          } else throw EvaluationException("Wrong number of parameters for Array.update method")
         case "toString" =>
           if (argEvaluators.length == 0 && qual != None) {
             qual.get.accept(this)
             myResult = new ScalaMethodEvaluator(myResult, "toString", null/*todo*/, Nil)
-          } else throw EvaluateExceptionUtil.createEvaluateException("Wrong number of parameters for Array.toString method")
+          } else throw EvaluationException("Wrong number of parameters for Array.toString method")
         case _ =>
-          throw EvaluateExceptionUtil.createEvaluateException("Array method not supported")
+          throw EvaluationException("Array method not supported")
       }
     }
 
@@ -661,7 +661,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                                   argEvaluators: Seq[Evaluator], resolve: PsiElement) {
       ref.bind().foreach(r =>
         if (r.tuplingUsed) {
-          throw EvaluateExceptionUtil.createEvaluateException("Tupling is unsupported. Use tuple expression.")
+          throw EvaluationException("Tupling is unsupported. Use tuple expression.")
         }
       )
       qualOption match {
@@ -696,7 +696,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               }
             case _ =>
               //resolve not null => shouldn't be
-              throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
+              throw EvaluationException("Cannot evaluate method")
           }
         case None =>
           ref.bind() match {
@@ -723,7 +723,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               return
             case _ =>
               //resolve not null => shouldn't be
-              throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
+              throw EvaluationException("Cannot evaluate method")
           }
       }
     }
@@ -743,7 +743,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           case param =>
             val p = new Parameter(param)
             val e = matchedParameters.find(_._1.name == p.name).map(_._2).getOrElse(Seq.empty).filter(_ != null)
-            if (p.isByName) throw EvaluateExceptionUtil.createEvaluateException("cannot evaluate methods with by-name parameters")
+            if (p.isByName) throw EvaluationException("cannot evaluate methods with by-name parameters")
             if (p.isRepeated) {
               val argTypes = e.map(_.getType().getOrAny)
               val argTypeText =
@@ -769,14 +769,14 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                 e(0).accept(this)
                 myResult
               } else {
-                throw EvaluateExceptionUtil.createEvaluateException("Wrong number of matched expressions")
+                throw EvaluationException("Wrong number of matched expressions")
               }
             } else if (implicitParameters.contains(param)) {
               val i = implicitParameters.indexOf(param)
               expr.findImplicitParameters match {
                 case Some(s) if s.length == implicitParameters.length =>
                   if (s(i) == null)
-                    throw EvaluateExceptionUtil.createEvaluateException("cannot find implicit parameters to pass")
+                    throw EvaluationException("cannot find implicit parameters to pass")
                   s(i) match {
                     case ScalaResolveResult(clazz: ScTrait, substitutor)
                       if clazz.qualifiedName == "scala.reflect.ClassManifest" =>
@@ -823,7 +823,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                           e.accept(this)
                           myResult
                         case _ =>
-                          throw EvaluateExceptionUtil.createEvaluateException("cannot find implicit parameters to pass")
+                          throw EvaluationException("cannot find implicit parameters to pass")
                       }
                     case ScalaResolveResult(clazz: ScTrait, substitutor)
                       if clazz.qualifiedName == "scala.reflect.ClassTag" =>
@@ -854,7 +854,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                           e.accept(this)
                           myResult
                         case _ =>
-                          throw EvaluateExceptionUtil.createEvaluateException("cannot find implicit parameters to pass")
+                          throw EvaluationException("cannot find implicit parameters to pass")
                       }
                     case ScalaResolveResult(elem, _) =>
                       val context = ScalaPsiUtil.nameContext(elem)
@@ -884,7 +884,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                       }
                   }
                 case None =>
-                  throw EvaluateExceptionUtil.createEvaluateException("cannot find implicit parameters to pass")
+                  throw EvaluationException("cannot find implicit parameters to pass")
               }
             } else if (p.isDefault) {
               val methodName = defaultParameterMethodName(fun, p, parameters)
@@ -980,7 +980,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                 boxArguments(argEvaluators, method),
                 traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
             case _ =>  //resolve not null => shouldn't be
-              throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
+              throw EvaluationException("Cannot evaluate method")
           }
         case _ =>
           val argEvaluators: Seq[Evaluator] = arguments.map(arg => {
@@ -1001,11 +1001,11 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     override def visitMatchStatement(ms: ScMatchStmt) {
-      throw EvaluateExceptionUtil.createEvaluateException("Match statement is not supported")
+      throw EvaluationException("Match statement is not supported")
     }
 
     override def visitThrowExpression(throwStmt: ScThrowStmt) {
-      throw EvaluateExceptionUtil.createEvaluateException("Throw statement is not supported")
+      throw EvaluationException("Throw statement is not supported")
     }
 
     override def visitAssignmentStatement(stmt: ScAssignStmt) {
@@ -1013,7 +1013,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         stmt.getRExpression match {
           case Some(expr) =>
             expr.accept(this)
-          case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate assign statement without expression")
+          case _ => throw EvaluationException("Cannot evaluate assign statement without expression")
         }
       } else {
         stmt.getLExpression match {
@@ -1029,7 +1029,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             val leftEvaluator = myResult
             stmt.getRExpression match {
               case Some(expr) => expr.accept(this)
-              case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate assign statement without expression")
+              case _ => throw EvaluationException("Cannot evaluate assign statement without expression")
             }
             val rightEvaluator = myResult
             def createAssignEvaluator(leftEvaluator: Evaluator): Boolean = {
@@ -1063,7 +1063,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             expr.accept(this)
           } else {
             //should be handled on assignment
-            throw EvaluateExceptionUtil.createEvaluateException("Update method is not supported")
+            throw EvaluationException("Update method is not supported")
           }
           return
         }
@@ -1093,13 +1093,13 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     val newExprText = s"(${ref.getText}).apply$typeArgsText${call.args.getText}$tailString"
                     val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(newExprText, call.getContext, call)
                     expr.accept(this)
-                  case _ => throw EvaluateExceptionUtil.createEvaluateException("Method call is invalid")
+                  case _ => throw EvaluationException("Method call is invalid")
                 }
               case _ =>
-                throw EvaluateExceptionUtil.createEvaluateException("Method call is invalid")
+                throw EvaluationException("Method call is invalid")
 
             }
-          case _ => throw EvaluateExceptionUtil.createEvaluateException("Method call is invalid")
+          case _ => throw EvaluationException("Method call is invalid")
         }
       }
       collectArguments(parentCall)
@@ -1141,7 +1141,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     override def visitExpression(expr: ScExpression) {
       //check underscores
       if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr)) {
-        throw EvaluateExceptionUtil.createEvaluateException("Anonymous functions are not supported")
+        throw EvaluationException("Anonymous functions are not supported")
       }
 
       //unwrap implicit conversions
@@ -1277,7 +1277,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           case funExpr: ScFunctionExpr =>
             evaluator.setParameterIndex(funExpr.parameters.indexOf(resolve))
             evaluator.setMethodName("apply")
-          case _ => throw EvaluateExceptionUtil.createEvaluateException("Evaluation from parameter not from function definition or function expression")
+          case _ => throw EvaluationException("Evaluation from parameter not from function definition or function expression")
         }
         myResult = evaluator
         myResult
@@ -1301,16 +1301,16 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             case param: ScParameter =>
               param.owner match {
                 case fun @ (_: ScFunction | _: ScFunctionExpr) => evaluateFromParameter(fun, param)
-                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate parameter")
+                case _ => throw EvaluationException("Cannot evaluate parameter")
               }
             case caseCl: ScCaseClause =>
               if (caseCl.getParent != null) {
                 val pattern = caseCl.pattern
-                if (pattern.isEmpty) throw EvaluateExceptionUtil.createEvaluateException("Cannot find pattern of case clause")
+                if (pattern.isEmpty) throw EvaluationException("Cannot find pattern of case clause")
                 caseCl.getParent.getParent match {
                   case matchStmt: ScMatchStmt if namedElement.isInstanceOf[ScPattern] =>
                     val expr = matchStmt.expr
-                    if (expr.isEmpty) throw EvaluateExceptionUtil.createEvaluateException("Cannot find expression of match statement")
+                    if (expr.isEmpty) throw EvaluationException("Cannot find expression of match statement")
                     expr.get.accept(this)
                     evaluateSubpatternFromPattern(myResult, pattern.get, namedElement.asInstanceOf[ScPattern])
                     myResult = new ScalaDuplexEvaluator(new ScalaLocalVariableEvaluator(name, fileName), myResult)
@@ -1322,7 +1322,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     myResult = new ScalaDuplexEvaluator(new ScalaLocalVariableEvaluator(name, fileName), fromPatternEvaluator)
                   case _ =>  myResult = new ScalaLocalVariableEvaluator(name, fileName)
                 }
-              } else throw EvaluateExceptionUtil.createEvaluateException("Invalid case clause")
+              } else throw EvaluationException("Invalid case clause")
             case _ => myResult = new ScalaLocalVariableEvaluator(name, fileName)
           }
           if (isObject) {
@@ -1354,7 +1354,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               }
               myResult = new ScalaDuplexEvaluator(myResult, evaluateLocalVariable())
               true
-            } else throw EvaluateExceptionUtil.createEvaluateException("Cannot load local variable from anonymous class")
+            } else throw EvaluationException("Cannot load local variable from anonymous class")
         }
       }
 
@@ -1388,7 +1388,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                       myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */, Seq.empty,
                         traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   }
-                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
+                case _ => throw EvaluationException("Cannot resolve evaluated reference")
               }
             case None =>
               ref.bind() match {
@@ -1397,7 +1397,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   val name = NameTransformer.encode(obj.name)
                   myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, Seq.empty,
                     traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
+                case _ => throw EvaluationException("Cannot resolve evaluated reference")
               }
           }
         case _: PsiMethod | _: ScSyntheticFunction =>
@@ -1419,7 +1419,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                       val name = NameTransformer.encode(named.name)
                       myResult = new ScalaFieldEvaluator(myResult, _ => true, name, true)
                   }
-                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
+                case _ => throw EvaluationException("Cannot resolve evaluated reference")
               }
             case None =>
               ref.bind() match {
@@ -1427,7 +1427,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   val evaluator = thisOrImportedQualifierEvaluator(ref, r)
                   val name = NameTransformer.encode(named.name)
                   myResult = new ScalaFieldEvaluator(evaluator, _ => true, name, true)
-                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
+                case _ => throw EvaluationException("Cannot resolve evaluated reference")
               }
           }
         case _: ScClassParameter | _: ScBindingPattern =>
@@ -1446,7 +1446,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                       myResult = new ScalaMethodEvaluator(myResult, name, null /* todo */, Seq.empty,
                         traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   }
-                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
+                case _ => throw EvaluationException("Cannot resolve evaluated reference")
               }
             case None =>
               ref.bind() match {
@@ -1466,7 +1466,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                       myResult = new ScalaDuplexEvaluator(myResult, reserveEval)
                     case _ =>
                   }
-                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
+                case _ => throw EvaluationException("Cannot resolve evaluated reference")
               }
           }
         case field: PsiField =>
@@ -1489,7 +1489,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                         myResult = new ScalaFieldEvaluator(myResult,
                           ScalaFieldEvaluator.getFilter(getContainingClass(field)), name)
                     }
-                  case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
+                  case _ => throw EvaluationException("Cannot resolve evaluated reference")
                 }
               }
             case None =>
@@ -1499,7 +1499,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   val name = field.name
                   myResult = new ScalaFieldEvaluator(evaluator,
                     ScalaFieldEvaluator.getFilter(getContainingClass(field)), name)
-                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
+                case _ => throw EvaluationException("Cannot resolve evaluated reference")
               }
           }
         case pack: ScPackage =>
@@ -1513,7 +1513,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             case Some(qual) =>
               qual.accept(this)
               if (myResult == null) {
-                throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate unresolved reference expression")
+                throw EvaluationException("Cannot evaluate unresolved reference expression")
               }
               myResult = new ScalaFieldEvaluator(myResult, ref => true, name)
             case None =>
@@ -1523,7 +1523,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     override def visitVariableDefinition(varr: ScVariableDefinition) {
-      throw EvaluateExceptionUtil.createEvaluateException("Evaluation of variables is not supported")
+      throw EvaluationException("Evaluation of variables is not supported")
     }
 
     override def visitTupleExpr(tuple: ScTuple) {
@@ -1534,22 +1534,22 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     override def visitPatternDefinition(pat: ScPatternDefinition) {
-      throw EvaluateExceptionUtil.createEvaluateException("Evaluation of values is not supported")
+      throw EvaluationException("Evaluation of values is not supported")
     }
 
     override def visitTypeDefinition(typedef: ScTypeDefinition) {
-      throw EvaluateExceptionUtil.createEvaluateException("Evaluation of local classes is not supported")
+      throw EvaluationException("Evaluation of local classes is not supported")
     }
 
     override def visitNewTemplateDefinition(templ: ScNewTemplateDefinition) {
       templ.extendsBlock.templateBody match {
-        case Some(tb) => throw EvaluateExceptionUtil.createEvaluateException("Anonymous classes are not supported")
+        case Some(tb) => throw EvaluationException("Anonymous classes are not supported")
         case _ =>
       }
       templ.extendsBlock.templateParents match {
         case Some(parents: ScClassParents) =>
           if (parents.typeElements.length != 1) {
-            throw EvaluateExceptionUtil.createEvaluateException("Anonymous classes are not supported")
+            throw EvaluationException("Anonymous classes are not supported")
           }
           parents.constructor match {
             case Some(constr) =>
@@ -1591,12 +1591,12 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     case _ =>
                       myResult = new ScalaMethodEvaluator(typeEvaluator, "<init>", null, argumentEvaluators)
                   }
-                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate new expression without class reference")
+                case _ => throw EvaluationException("Cannot evaluate new expression without class reference")
               }
 
-            case None => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate expression without constructor call")
+            case None => throw EvaluationException("Cannot evaluate expression without constructor call")
           }
-        case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate expression without template parents")
+        case _ => throw EvaluationException("Cannot evaluate expression without template parents")
       }
       
       super.visitNewTemplateDefinition(templ)
@@ -1628,7 +1628,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   myResult = _nEval
                   myResult
                 }
-                else throw EvaluateExceptionUtil.createEvaluateException("Cannot extract value from unapply without arguments")
+                else throw EvaluationException("Cannot extract value from unapply without arguments")
               } else if (funName == "unapplySeq") {
                 val extractEval = new ScalaMethodEvaluator(refEvaluator, funName, DebuggerUtil.getFunctionJVMSignature(fun), Seq(exprEval))
                 val getEval = new ScalaMethodEvaluator(extractEval, "get", null, Seq.empty)
@@ -1637,10 +1637,10 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                 val applyEval = new ScalaMethodEvaluator(getEval, "apply", null, Seq(numberEval))
                 myResult = applyEval
                 myResult
-              } else throw EvaluateExceptionUtil.createEvaluateException("Pattern reference does not resolve to unapply or unapplySeq")
+              } else throw EvaluationException("Pattern reference does not resolve to unapply or unapplySeq")
             val nextPattern = pattern.subpatterns(nextPatternIndex)
             evaluateSubpatternFromPattern(newEval, nextPattern, subPattern)
-          case _ => throw EvaluateExceptionUtil.createEvaluateException("Pattern reference does not resolve to unapply or unapplySeq")
+          case _ => throw EvaluationException("Pattern reference does not resolve to unapply or unapplySeq")
         }
       }
 
@@ -1673,10 +1673,10 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             evaluateConstructorOrInfix(exprEval, ref, infixPattern, nextPatternIndex)
             //todo: handle infix with tuple right pattern
           case composite: ScCompositePattern =>
-            throw EvaluateExceptionUtil.createEvaluateException("Pattern alternatives cannot bind variables")
+            throw EvaluationException("Pattern alternatives cannot bind variables")
           case xmlPattern: ScXmlPattern =>
-            throw EvaluateExceptionUtil.createEvaluateException("Xml patterns are not supported") //todo: xml patterns
-          case _ => throw EvaluateExceptionUtil.createEvaluateException("This kind of patterns is not supported") //todo: xml patterns
+            throw EvaluationException("Xml patterns are not supported") //todo: xml patterns
+          case _ => throw EvaluationException("This kind of patterns is not supported") //todo: xml patterns
         }
       }
     }
@@ -1698,12 +1698,12 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             case ScDesignatorType(element) => element.name + "." + p.actualElement.name
             case projected: ScProjectionType => exprToEvaluate(projected) + "." + projected.actualElement.name
             case ScThisType(_) => "this." + p.actualElement.name
-            case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate imported reference")
+            case _ => throw EvaluationException("Cannot evaluate imported reference")
           }
           val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprToEvaluate(p), ref.getContext, ref)
           expr.accept(this)
           myResult
-        case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate imported reference")
+        case _ => throw EvaluationException("Cannot evaluate imported reference")
       }
     }
 
@@ -1721,7 +1721,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         case e: EvaluateRuntimeException => throw e.getCause
       }
       if (myResult == null) {
-        throw EvaluateExceptionUtil.createEvaluateException("Invalid evaluation expression")
+        throw EvaluationException("Invalid evaluation expression")
       }
       new ExpressionEvaluatorImpl(myResult)
     }

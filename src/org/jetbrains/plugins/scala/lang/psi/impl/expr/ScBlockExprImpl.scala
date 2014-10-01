@@ -21,6 +21,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue,
 
 class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaElementTypes.BLOCK_EXPR, text)
   with ScBlockExpr with PsiModifiableCodeBlock {
+  //todo: bad architecture to have it duplicated here, as ScBlockExprImpl is not instance of ScalaPsiElementImpl
+  override def getContext: PsiElement = {
+    context match {
+      case null => super.getContext
+      case _ => context
+    }
+  }
+
   override def toString: String = "BlockExpression"
 
   override def isAnonymousFunction: Boolean = caseClauses != None

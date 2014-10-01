@@ -16,8 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters
-import scala.reflect.runtime.universe._
 
 /**
  * @author Eugene Platonov
@@ -63,9 +61,8 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
     def addImport() {
       val importsHolder: ScImportsHolder = Option(PsiTreeUtil.getParentOfType(element, classOf[ScPackaging])).
               getOrElse(element.getContainingFile.asInstanceOf[ScImportsHolder])
-      val fullName = typeOf[JavaConverters.type].termSymbol.fullName
-
-      importsHolder.addImportForPath(s"$fullName._")
+      val path = "scala.collection.JavaConverters._"
+      importsHolder.addImportForPath(path)
     }
     def appendAsMethod() {
       val expression: ScExpression = getTargetExpression(element)

@@ -40,7 +40,7 @@ class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScType
     }
     getTextRange.getStartOffset
   }
-  
+
   def getContainingFileName: String = {
     val stub = getStub
     if (stub != null) {

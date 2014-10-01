@@ -11,7 +11,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeVariableTypeElement, ScSelfTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScFieldId, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -41,6 +41,7 @@ object ResolveUtils {
             case _: PsiPackage | _: ScPackaging => kinds contains PACKAGE
             case obj: ScObject if obj.isPackageObject => kinds contains PACKAGE
             case obj: ScObject => (kinds contains OBJECT) || (kinds contains METHOD)
+            case _: ScTypeVariableTypeElement => kinds contains CLASS
             case _: ScTypeParam => kinds contains CLASS
             case _: ScTypeAlias => kinds contains CLASS
             case _: ScTypeDefinition => kinds contains CLASS
@@ -96,7 +97,8 @@ object ResolveUtils {
         case _ =>
           m.getParameterList.getParameters.toSeq.mapWithIndex {
             case (param, index) =>
-              new Parameter("", None, s.subst(param.exactParamType()), false, param.isVarArgs, false, index)
+              val scType = s.subst(param.exactParamType())
+              new Parameter("", None, scType, scType, false, param.isVarArgs, false, index, Some(param))
           }
       }, false)(m.getProject, scope)
   }

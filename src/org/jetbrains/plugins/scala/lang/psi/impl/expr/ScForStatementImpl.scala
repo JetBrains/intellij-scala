@@ -7,8 +7,6 @@ package expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope._
-import com.intellij.psi.util.PsiModificationTracker
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -201,10 +199,24 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     Some(exprText.toString())
   }
 
+  @volatile
+  private var desugarizedExpr: Option[ScExpression] = null
+
+  @volatile
+  private var desugarizedExprModCount: Long = 0L
+
   def getDesugarizedExpr: Option[ScExpression] = {
-    CachesUtil.get(this, CachesUtil.DESUGARIZED_EXPR_KEY,
-      new CachesUtil.MyProvider[ScForStatementImpl, Option[ScExpression]](this, f => f.getDesugarizedExprImpl)
-    (PsiModificationTracker.MODIFICATION_COUNT))
+    val count = getManager.getModificationTracker.getModificationCount
+    var res = desugarizedExpr
+    if (res != null && count == desugarizedExprModCount) return desugarizedExpr
+    synchronized {
+      res = desugarizedExpr
+      if (res != null && count == desugarizedExprModCount) return desugarizedExpr
+      res = getDesugarizedExprImpl
+      desugarizedExprModCount = count
+      desugarizedExpr = res
+      res
+    }
   }
 
   private def getDesugarizedExprImpl: Option[ScExpression] = {
@@ -272,7 +284,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           //In this case we just need to replace for statement one more time
           expr match {
             case f: ScForStatementImpl =>
-              val additionalReplacement = f.getDesugarizedExprImpl
+              val additionalReplacement = f.getDesugarizedExpr
               additionalReplacement match {
                 case Some(repl) =>
                   updateAnalog(f)
@@ -288,15 +300,19 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                 enums <- f.enumerators
                 gen <- enums.generators.headOption
                 ScParenthesisedExpr(f: ScForStatementImpl) = gen.rvalue
-                additionalReplacement = f.getDesugarizedExprImpl
+                additionalReplacement = f.getDesugarizedExpr
                 repl <- additionalReplacement
               } {
                 updateAnalog(f)
                 f.replace(repl)
               }
-              val additionalReplacement = f.getDesugarizedExprImpl
-              updateAnalog(f)
-              Some(additionalReplacement)
+              val additionalReplacement = f.getDesugarizedExpr
+              additionalReplacement match {
+                case Some(repl) =>
+                  updateAnalog(f)
+                  additionalReplacement
+                case _ => res
+              }
             case _ => res
           }
         case gen: ScGenerator =>
@@ -311,7 +327,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                 expr <- clause.expr
                 if expr.isInstanceOf[ScForStatementImpl]
                 f = expr.asInstanceOf[ScForStatementImpl]
-                additionalReplacement = f.getDesugarizedExprImpl
+                additionalReplacement = f.getDesugarizedExpr
                 repl <- additionalReplacement
               } {
                 updateAnalog(f)
@@ -321,7 +337,6 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           }
           res
       }
-      res
     }
   }
 

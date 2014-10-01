@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.config
+package org.jetbrains.plugins.scala
+package config
 
 import java.util
 import java.util._
@@ -16,7 +17,7 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{ActionCallback, Comparing}
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiFile, PsiManager}
+import com.intellij.psi.{PsiClass, PsiJavaFile, PsiFile, PsiManager}
 import com.intellij.ui.{EditorNotificationPanel, EditorNotifications, GuiUtils}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
@@ -39,7 +40,7 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
     val isScala = psiFile.isInstanceOf[ScalaFile]
     val fqn: String =
       if (isScala) ScalaEditorFileSwapper.getFQN(psiFile)
-      else JavaEditorFileSwapper.getFQN(psiFile)
+      else getFQN(psiFile)
     if (fqn == null) return null
     if (isScala && ScalaEditorFileSwapper.findSourceFile(myProject, file) != null) return null
     if (!isScala && JavaEditorFileSwapper.findSourceFile(myProject, file) != null) return null
@@ -132,5 +133,12 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
     i = name.indexOf('.')
     if (i != -1) name = name.substring(0, i)
     parent.findChild(name + JavaFileType.DOT_DEFAULT_EXTENSION)
+  }
+
+  private def getFQN(psiFile: PsiFile): String = {
+    if (!psiFile.isInstanceOf[PsiJavaFile]) return null
+    val classes: Array[PsiClass] = psiFile.asInstanceOf[PsiJavaFile].getClasses
+    if (classes.length == 0) return null
+    classes(0).getQualifiedName
   }
 }

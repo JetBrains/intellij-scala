@@ -9,7 +9,6 @@ public class VarArgs {
 /*
 package java
 
-
 object VarArgs {
   def x(args: String*) {
     x("one", "two", "three")

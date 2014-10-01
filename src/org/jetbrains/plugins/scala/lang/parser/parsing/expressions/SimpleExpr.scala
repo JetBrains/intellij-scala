@@ -149,7 +149,7 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
           }
         case ScalaTokenTypes.tLSQBRACKET =>
           state = true
-          TypeArgs parse builder
+          TypeArgs.parse(builder, isPattern = false)
           val tMarker = marker.precede
           marker.done(ScalaElementTypes.GENERIC_CALL)
           subparse(tMarker)

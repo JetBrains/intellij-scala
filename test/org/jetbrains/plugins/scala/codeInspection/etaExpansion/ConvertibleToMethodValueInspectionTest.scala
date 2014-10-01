@@ -189,4 +189,12 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
       """
     checkTextHasNoErrors(text)
   }
+
+  def test_SCL7428() {
+    val text =
+      """class InspectionTest1[T](translator: T => T = identity[T] _) {
+        |  def translate(t: T): T = translator(t)
+        |}"""
+    checkTextHasNoErrors(text)
+  }
 }

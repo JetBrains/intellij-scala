@@ -29,6 +29,30 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
     ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY = oldSpecifyRetType
   }
 
+  def testDefaultImplementations(): Unit = {
+    val javaText =
+      """
+        |public interface JavaDummy {
+        |    default int foo() {
+        |      return 1;
+        |    }
+        |}
+      """
+    val scalaText =
+      """
+        |class Child extends JavaDummy {
+        |  <caret>
+        |}
+      """
+    val expectedText =
+      """
+        |class Child extends JavaDummy {
+        |  override def foo(): Int = super.foo()
+        |}
+      """
+    runTest("foo", javaText, scalaText, expectedText, isImplement = false, needsInferType = true)
+  }
+
   def testVarargImplement() {
     val javaText =
       """

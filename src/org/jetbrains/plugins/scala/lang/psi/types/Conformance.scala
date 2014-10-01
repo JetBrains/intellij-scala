@@ -1757,21 +1757,21 @@ object Conformance {
                 }
               }
               val t = conformsInner(l, tp, visited + rClass, uSubst, checkWeak = false)
-              if (t._1) (true, t._2)
-              else (false, uSubst)
-            case _ => (false, uSubst)
+              if (t._1) return (true, t._2)
+              else return (false, uSubst)
+            case _ =>
           }
         case _ =>
-          val bases: Seq[ScType] = BaseTypes.get(r)
-          val iterator = bases.iterator
-          while (iterator.hasNext) {
-            ProgressManager.checkCanceled()
-            val tp = iterator.next()
-            val t = conformsInner(l, tp, visited, uSubst, checkWeak = true)
-            if (t._1) return (true, t._2)
-          }
-          (false, uSubst)
       }
+      val bases: Seq[ScType] = BaseTypes.get(r)
+      val iterator = bases.iterator
+      while (iterator.hasNext) {
+        ProgressManager.checkCanceled()
+        val tp = iterator.next()
+        val t = conformsInner(l, tp, visited, uSubst, checkWeak = true)
+        if (t._1) return (true, t._2)
+      }
+      (false, uSubst)
     }
     val res = guard.doPreventingRecursion(key, false, new Computable[(Boolean, ScUndefinedSubstitutor)] {
       def compute(): (Boolean, ScUndefinedSubstitutor) = comp()

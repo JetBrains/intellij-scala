@@ -56,7 +56,6 @@ class ScalaGenerateEqualsHandler extends LanguageCodeInsightActionHandler {
         else {
           needEquals = true
           needHashCode = true
-          true
         }
       }
       else return false

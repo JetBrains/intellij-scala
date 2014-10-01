@@ -3,14 +3,17 @@ package lang
 package psi
 package types
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi._
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScClassParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScTemplateBodyImpl
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
@@ -61,6 +64,23 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
           val subst: ScSubstitutor = actualSubst
           Some(AliasType(ta, ta.lowerBound.map(subst.subst), ta.upperBound.map(subst.subst)))
         case ta: ScTypeAlias => //higher kind case
+          ta match {
+            case ta: ScTypeAliasDefinition => //hack for simple cases, it doesn't cover more complicated examples
+              ta.aliasedType match {
+                case Success(tp, _) =>
+                  actualSubst.subst(tp) match {
+                    case ScParameterizedType(des, typeArgs) =>
+                      val taArgs = ta.typeParameters
+                      if (taArgs.length == typeArgs.length && taArgs.zip(typeArgs).forall {
+                        case (tParam: ScTypeParam, ScTypeParameterType(_, _, _, _, param)) if tParam == param => true
+                        case _ => false
+                      }) return Some(AliasType(ta, Success(des, Some(element)), Success(des, Some(element))))
+                    case _ =>
+                  }
+                case _ =>
+              }
+            case _ =>
+          }
           val args: ArrayBuffer[ScExistentialArgument] = new ArrayBuffer[ScExistentialArgument]()
           val genericSubst = ScalaPsiUtil.
             typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))),
@@ -69,8 +89,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
               args += new ScExistentialArgument(name, Nil, types.Nothing, types.Any)
               ScTypeVariable(name)
             }))
-          val subst: ScSubstitutor = actualSubst
-          val s = subst.followed(genericSubst)
+          val s = actualSubst.followed(genericSubst)
           Some(AliasType(ta, ta.lowerBound.map(scType => ScExistentialType(s.subst(scType), args.toList)),
             ta.upperBound.map(scType => ScExistentialType(s.subst(scType), args.toList))))
         case _ => None
@@ -383,6 +402,23 @@ case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
       case ta: ScTypeAlias if ta.typeParameters.length == 0 =>
         Some(AliasType(ta, ta.lowerBound, ta.upperBound))
       case ta: ScTypeAlias => //higher kind case
+        ta match {
+          case ta: ScTypeAliasDefinition => //hack for simple cases, it doesn't cover more complicated examples
+            ta.aliasedType match {
+              case Success(tp, _) =>
+                tp match {
+                  case ScParameterizedType(des, typeArgs) =>
+                    val taArgs = ta.typeParameters
+                    if (taArgs.length == typeArgs.length && taArgs.zip(typeArgs).forall {
+                      case (tParam: ScTypeParam, ScTypeParameterType(_, _, _, _, param)) if tParam == param => true
+                      case _ => false
+                    }) return Some(AliasType(ta, Success(des, Some(element)), Success(des, Some(element))))
+                  case _ =>
+                }
+              case _ =>
+            }
+          case _ =>
+        }
         val args: ArrayBuffer[ScExistentialArgument] = new ArrayBuffer[ScExistentialArgument]()
         val genericSubst = ScalaPsiUtil.
           typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))),
@@ -460,5 +496,14 @@ case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
   override def isFinalType = element match {
     case cl: PsiClass if cl.isEffectivelyFinal => true
     case _ => false
+  }
+}
+
+object ScDesignatorType {
+  def fromClassFqn(fqn: String, project: Project, scope: GlobalSearchScope): ScType = {
+    Option(ScalaPsiManager.instance(project).getCachedClass(scope, fqn)) match {
+      case Some(c) => ScType.designator(c)
+      case _ => types.Nothing
+    }
   }
 }

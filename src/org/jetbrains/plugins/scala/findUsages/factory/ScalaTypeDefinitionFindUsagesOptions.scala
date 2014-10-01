@@ -5,16 +5,13 @@ import java.util.LinkedHashSet
 
 import com.intellij.find.FindBundle
 import com.intellij.find.findUsages.JavaFindUsagesOptions
-import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
  * @author Alefas
  * @since 15.12.12
  */
-class ScalaTypeDefinitionFindUsagesOptions(td: ScTypeDefinition, project: Project, dataContext: DataContext)
-  extends JavaFindUsagesOptions(project) {
+class ScalaTypeDefinitionFindUsagesOptions(project: Project) extends JavaFindUsagesOptions(project) {
   var isImplementingTypeDefinitions = false
   var isMembersUsages = false
   var isSearchCompanionModule = false

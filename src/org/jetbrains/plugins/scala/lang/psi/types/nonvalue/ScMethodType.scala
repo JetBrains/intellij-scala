@@ -30,7 +30,7 @@ trait NonValueType extends ScType {
  */
 case class Parameter(name: String, deprecatedName: Option[String], paramType: ScType, expectedType: ScType,
                      isDefault: Boolean, isRepeated: Boolean,
-                     isByName: Boolean, index: Int = -1, paramInCode: Option[ScParameter] = None) {
+                     isByName: Boolean, index: Int = -1, psiParam: Option[PsiParameter] = None) {
   def this(name: String, deprecatedName: Option[String], paramType: ScType, isDefault: Boolean, isRepeated: Boolean,
            isByName: Boolean, index: Int) {
     this(name, deprecatedName, paramType, paramType, isDefault, isRepeated, isByName, index)
@@ -42,8 +42,15 @@ case class Parameter(name: String, deprecatedName: Option[String], paramType: Sc
   }
 
   def this(param: PsiParameter) {
-    this(param.getName, None, param.paramType, false, param.isVarArgs, false, param.index)
+    this(param.getName, None, param.paramType, param.paramType, false, param.isVarArgs, false, param.index, Some(param))
   }
+
+  def paramInCode: Option[ScParameter] = psiParam match {
+    case Some(scParam: ScParameter) => Some(scParam)
+    case _ => None
+  }
+
+  def nameInCode = psiParam.map(_.getName)
 }
 
 /**
