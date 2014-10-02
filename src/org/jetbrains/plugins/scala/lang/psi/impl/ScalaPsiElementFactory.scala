@@ -1154,12 +1154,12 @@ object ScalaPsiElementFactory {
   def createEquivMethodCall(infixExpr: ScInfixExpr): ScMethodCall = {
     val baseText = infixExpr.getBaseExpr.getText
     val opText = infixExpr.operation.getText
-    val argText = infixExpr.getArgExpr match {
-      case x: ScTuple =>  x.getText
-      case x: ScParenthesisedExpr =>  x.getText
-      case _ =>  s"(${infixExpr.getArgExpr.getText})"
+    val argText = infixExpr.getArgExpr.getText
+    val clauseText = infixExpr.getArgExpr match {
+      case _: ScTuple | _: ScParenthesisedExpr | _: ScUnitExpr => argText
+      case _ =>  s"($argText)"
     }
-    val exprText = s"($baseText).$opText$argText"
+    val exprText = s"($baseText).$opText$clauseText"
 
     val exprA : ScExpression = createExpressionWithContextFromText(baseText, infixExpr, infixExpr.getBaseExpr)
 
