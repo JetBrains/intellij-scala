@@ -2,13 +2,10 @@ package org.jetbrains.sbt.project.data
 
 import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
 import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys, ProjectSystemId}
+import org.jetbrains.sbt.project.structure.RunConfigurationI
 
 class RunConfigurationData(val owner: ProjectSystemId,
-                           val mainClass: String,
-                           val homePath: String,
-                           val vmOpts: Seq[String],
-                           val moduleName: String,
-                           val artifacts: Seq[String])
+                           val configuration: RunConfigurationI)
   extends AbstractExternalEntityData(owner)
 
 object RunConfigurationData {

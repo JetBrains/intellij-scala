@@ -120,7 +120,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val localCachePath = data.localCachePath
     projectNode.addAll(projects.map(createBuildModule(_, moduleFilesDirectory, localCachePath)))
 
-    val runConfigurations = project.runConfigurations map { it => new RunConfigurationNode(it.mainClass, it.homePath, it.vmOpts, it.moduleName, it.artifacts)}
+    val runConfigurations = project.runConfigurations map { new RunConfigurationNode(_) }
     projectNode.addAll(runConfigurations)
 
     projectNode
@@ -138,10 +138,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     new AndroidFacetNode(android.version, android.manifestFile, android.apkPath,
                          android.resPath, android.assetsPath, android.genPath, android.libsPath,
                          android.isLibrary, android.proguardConfig)
-  }
-
-  private def createRunConfiguration(mainClass: String, homePath: String, vmOpts: Seq[String], moduleName: String, artifacts: Seq[String])  = {
-    new RunConfigurationNode(mainClass, homePath, vmOpts, moduleName, artifacts)
   }
 
   private def createUnresolvedLibrary(moduleId: ModuleId): LibraryNode = {
