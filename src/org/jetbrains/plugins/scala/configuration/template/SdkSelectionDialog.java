@@ -1,9 +1,7 @@
 package org.jetbrains.plugins.scala.configuration.template;
 
-import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.table.TableView;
 import scala.Option;
-import scala.util.Either;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -71,17 +69,11 @@ public class SdkSelectionDialog extends JDialog {
   }
 
   private void onBrowse() {
-    Option<Either<String, ScalaSdkDescriptor>> result = SdkSelection.browse(myTable);
+    Option<ScalaSdkDescriptor> result = SdkSelection.chooseScalaSdkFiles(myTable);
 
     if (result.isDefined()) {
-      Either<String, ScalaSdkDescriptor> either = result.get();
-      if (either.isLeft()) {
-        String message = either.left().get();
-        Messages.showErrorDialog(this, message);
-      } else {
-        mySelectedSdk = either.right().get();
-        dispose();
-      }
+      mySelectedSdk = result.get();
+      dispose();
     }
   }
 
