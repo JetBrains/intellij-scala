@@ -107,10 +107,15 @@ trait ScTypePresentation {
       val ScProjectionType(p, _, _) = projType
       val e = projType.actualElement
       val refName = e.name
-      val typeTailForProjection = e match {
-        case _: ScObject | _: ScBindingPattern => typeTail(needDotType)
-        case _ => ""
+      def checkIfStable(e: PsiElement): Boolean = {
+        e match {
+          case _: ScObject | _: ScBindingPattern | _: ScParameter => true
+          case _ => false
+        }
       }
+      val typeTailForProjection =
+        if (checkIfStable(e)) typeTail(needDotType)
+        else ""
       def isInnerStaticJavaClassForParent(clazz: PsiClass): Boolean = {
         clazz.getLanguage != ScalaFileType.SCALA_LANGUAGE &&
           e.isInstanceOf[PsiModifierListOwner] &&
@@ -119,15 +124,13 @@ trait ScTypePresentation {
       p match {
         case ScDesignatorType(pack: PsiPackage) =>
           nameWithPointFun(pack) + refName
-        case ScDesignatorType(obj: ScObject) =>
-          nameWithPointFun(obj) + refName + typeTailForProjection
-        case ScDesignatorType(v: ScBindingPattern) =>
-          nameWithPointFun(v) + refName + typeTailForProjection
+        case ScDesignatorType(named) if checkIfStable(named) =>
+          nameWithPointFun(named) + refName + typeTailForProjection
         case ScThisType(obj: ScObject) =>
           nameWithPointFun(obj) + refName + typeTailForProjection
-        case ScThisType(td: ScTypeDefinition) if e.isInstanceOf[ScObject] || e.isInstanceOf[ScBindingPattern] =>
+        case ScThisType(td: ScTypeDefinition) if checkIfStable(e) =>
           s"${innerTypeText(p, needDotType = false)}.$refName$typeTailForProjection"
-        case p: ScProjectionType if p.actualElement.isInstanceOf[ScObject] || p.actualElement.isInstanceOf[ScBindingPattern] =>
+        case p: ScProjectionType if checkIfStable(p.actualElement) =>
           s"${projectionTypeText(p, needDotType = false)}.$refName$typeTailForProjection"
         case ScDesignatorType(clazz: PsiClass) if isInnerStaticJavaClassForParent(clazz) =>
           nameWithPointFun(clazz) + refName

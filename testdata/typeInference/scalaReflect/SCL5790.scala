@@ -10,4 +10,4 @@ object SCL5790 {
     def anotherMethod: u.Type = test.someMethod
   }
 }
-//AnotherTest.this.type#u
+//AnotherTest.this.u.type

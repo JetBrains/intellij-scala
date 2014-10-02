@@ -15,4 +15,4 @@ object SCL5048B {
   val s: String = bar(AFoo) /* Expression of type foo.type#Bar doesn't conform to expected type String */
 
 }
-//foo.type#Bar
+//foo.Bar
