@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.collection.Seq
@@ -91,7 +91,11 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
       //this is assignment statement: x += 1 equals to x = x + 1
       case Some(r) if r.element.name + "=" == operation.refName =>
         super.innerType(ctx)
-        Success(Unit, Some(this))
+        val lText = lOp.getText
+        val rText = rOp.getText
+        val exprText = s"$lText = $lText ${r.element.name} $rText"
+        val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, getContext, this)
+        newExpr.getType(TypingContext.empty)
       case _ => super.innerType(ctx)
     }
   }
