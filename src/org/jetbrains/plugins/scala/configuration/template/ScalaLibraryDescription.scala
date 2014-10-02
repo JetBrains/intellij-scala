@@ -25,9 +25,12 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
             ivySdks.map(SdkChoice(_, "Ivy")) ++
             mavenSdks.map(SdkChoice(_, "Maven"))
 
-    val dialog = new SdkSelectionDialog(parentComponent, sdks.asJava)
-
-    val sdk = Option(dialog.open())
+    val sdk = if (sdks.nonEmpty) {
+      val dialog = new SdkSelectionDialog(parentComponent, sdks.asJava)
+      Option(dialog.open())
+    } else {
+      SdkSelection.chooseScalaSdkFiles(parentComponent)
+    } 
 
     sdk.map(_.createNewLibraryConfiguration()).orNull
   }

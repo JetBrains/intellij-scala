@@ -4,12 +4,22 @@ package configuration.template
 import javax.swing.JComponent
 
 import com.intellij.openapi.fileChooser.FileChooser
+import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.VfsUtilCore
 
 /**
  * @author Pavel Fatin
  */
 object SdkSelection {
+  def chooseScalaSdkFiles(parentComponent: JComponent): Option[ScalaSdkDescriptor] = {
+    SdkSelection.browse(parentComponent).flatMap {
+      case Left(message) =>
+        Messages.showErrorDialog(parentComponent, message)
+        None
+      case Right(sdk) => Some(sdk)
+    }
+  }
+
   def browse(parent: JComponent): Option[Either[String, ScalaSdkDescriptor]] = {
     val virtualFiles = FileChooser.chooseFiles(new ScalaFilesChooserDescriptor(), parent, null, null).toSeq
 

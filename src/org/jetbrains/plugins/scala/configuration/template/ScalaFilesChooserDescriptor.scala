@@ -8,7 +8,7 @@ import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
  * @author Pavel Fatin
  */
 class ScalaFilesChooserDescriptor extends FileChooserDescriptor(true, true, true, true, false, true) {
-  setTitle("Scala SDK")
+  setTitle("Scala SDK files")
   setDescription("Choose either a Scala SDK directory or Scala jar files (allowed: binaries, sources, docs)")
 
   override def isFileSelectable(file: VirtualFile) = {
