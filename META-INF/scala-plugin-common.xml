@@ -156,6 +156,7 @@
         <elementDescriptionProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScalaClassElementDescriptionProvider"/>
 
         <editorNotificationProvider implementation="org.jetbrains.plugins.scala.configuration.notification.SetupJdkNotificationProvider"/>
+        <editorNotificationProvider implementation="org.jetbrains.plugins.scala.configuration.notification.SetupScalaSdkNotificationProvider"/>
 
         <!--Enter Handler for ScalaDoc -->
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.lang.completion.handlers.ScalaDocParamEnterHandlerDelegate"/>
