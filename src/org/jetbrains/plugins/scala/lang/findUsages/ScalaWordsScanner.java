@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
  * Nikolay.Tropin
  * 12/24/13
  */
-public class ScalaWordsScanner extends DefaultWordsScanner{
+public class ScalaWordsScanner extends DefaultWordsScanner {
   private final Lexer myLexer;
   private final TokenSet myIdentifierTokenSet;
   private final TokenSet myCommentTokenSet;
@@ -57,5 +57,10 @@ public class ScalaWordsScanner extends DefaultWordsScanner{
       }
       myLexer.advance();
     }
+  }
+
+  @Override
+  public int getVersion() {
+    return 3;
   }
 }
