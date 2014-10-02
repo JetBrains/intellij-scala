@@ -35,13 +35,12 @@ import javax.swing.*;
 public class ScalaFileType extends LanguageFileType {
 
   public static final ScalaFileType SCALA_FILE_TYPE = new ScalaFileType();
-  public static final Language SCALA_LANGUAGE = SCALA_FILE_TYPE.getLanguage();
+  public static final Language SCALA_LANGUAGE = ScalaLanguage.Instance;
   @NonNls public static final String DEFAULT_EXTENSION = "scala";
   @NonNls public static final String WORKSHEET_EXTENSION = "sc";
-  @NonNls public static final String SBT_FILE_EXTENSION = "sbt";
 
   private ScalaFileType() {
-    super(new ScalaLanguage());
+    super(ScalaLanguage.Instance);
   }
 
   @NotNull
