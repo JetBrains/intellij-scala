@@ -286,6 +286,9 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestBase {
   
   private def computeChecksums(): mutable.HashMap[String, Array[Byte]] = {
     val result = new mutable.HashMap[String, Array[Byte]]
+    for (version <- compilerVersion) {
+      result += ("compiler.version" -> version.getBytes(StandardCharsets.UTF_8))
+    }
     def computeForDir(dir: File) {
       if (dir.exists) dir.listFiles().foreach { f =>
         if (f.isDirectory) computeForDir(f)
