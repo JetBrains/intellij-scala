@@ -5,9 +5,9 @@ import com.intellij.psi._
 import com.intellij.refactoring.changeSignature._
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.codeInsight.intention.types.Update
-import org.jetbrains.plugins.scala.extensions.{ElementText, ChildOf}
+import org.jetbrains.plugins.scala.extensions.{ChildOf, ElementText}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -239,10 +239,6 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       case Some(a) => a.replace(argList)
       case None => constr.addAfter(argList, constr.typeElement)
     }
-  }
-
-  def processPrimaryConstructor(change: ChangeInfo, constructor: ScPrimaryConstructor) = {
-
   }
 
   protected def handleRefUsageArguments(change: ChangeInfo, usage: RefExpressionUsage): Unit = {
