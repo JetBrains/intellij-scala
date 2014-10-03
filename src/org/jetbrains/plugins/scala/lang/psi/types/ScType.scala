@@ -371,7 +371,8 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
   }
 
   @tailrec
-  def removeAliasDefinitions(tp: ScType): ScType = {
+  def removeAliasDefinitions(tp: ScType, visited: HashSet[ScType] = HashSet.empty): ScType = {
+    if (visited.contains(tp)) return tp
     var updated = false
     val res = tp.recursiveUpdate { t =>
       t.isAliasType match {
@@ -382,7 +383,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
       }
     }
     if (!updated) tp
-    else removeAliasDefinitions(res)
+    else removeAliasDefinitions(res, visited + tp)
   }
 
   /**
