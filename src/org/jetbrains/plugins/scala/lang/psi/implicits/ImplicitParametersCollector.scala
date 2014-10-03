@@ -401,8 +401,6 @@ class ImplicitParametersCollector(private var place: PsiElement, tp: ScType, cor
   }
 
   private def dominates(t: ScType, u: ScType): Boolean = {
-//    println(t, u, "T complexity: ", complexity(t), "U complexity: ", complexity(u), "t set: ", topLevelTypeConstructors(t),
-//      "u set", topLevelTypeConstructors(u), "intersection: ", topLevelTypeConstructors(t).intersect(topLevelTypeConstructors(u)))
     complexity(t) > complexity(u) && topLevelTypeConstructors(t).intersect(topLevelTypeConstructors(u)).nonEmpty
   }
 
