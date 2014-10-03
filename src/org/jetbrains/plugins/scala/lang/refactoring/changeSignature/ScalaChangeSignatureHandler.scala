@@ -10,7 +10,7 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiMethod}
 import com.intellij.refactoring.changeSignature.{ChangeSignatureHandler, ChangeSignatureUtil}
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import com.intellij.refactoring.{HelpID, RefactoringBundle}
-import org.jetbrains.plugins.scala.extensions.Resolved
+import org.jetbrains.plugins.scala.extensions.ResolvesTo
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
@@ -99,7 +99,7 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler {
 
     def resolvedMethod = PsiTreeUtil.getParentOfType(element, classOf[ScReferenceElement]) match {
       case null => null
-      case Resolved(m: PsiMethod, _) => m
+      case ResolvesTo(m: PsiMethod) => m
       case _ => null
     }
     def currentFunction = PsiTreeUtil.getParentOfType(element, classOf[ScFunction]) match {
@@ -125,7 +125,7 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler {
     val element = file.findElementAt(offset)
     Option(findTargetMember(element)) getOrElse {
       file.findReferenceAt(offset) match {
-        case Resolved(m: PsiMethod, _) => m
+        case ResolvesTo(m: PsiMethod) => m
         case _ => null
       }
     }
