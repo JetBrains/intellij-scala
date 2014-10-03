@@ -41,6 +41,7 @@ import scala.beans.BeanProperty
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import com.intellij.openapi.util.text.StringUtil
 
 /**
  * @author Ksenia.Sautina
@@ -49,7 +50,9 @@ import scala.collection.mutable.ArrayBuffer
 
 abstract class AbstractTestRunConfiguration(val project: Project,
                                             val configurationFactory: ConfigurationFactory,
-                                            val name: String)
+                                            val name: String,
+                                            private var envs: java.util.Map[String, String] =
+                                            new mutable.HashMap[String, String]())
   extends ModuleBasedConfiguration[RunConfigurationModule](name,
     new RunConfigurationModule(project),
     configurationFactory)
@@ -147,6 +150,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     setModule(configuration.getModule)
     setWorkingDirectory(configuration.getWorkingDirectory)
     setTestName(configuration.getTestName)
+    setEnvVariables(configuration.getEnvironmentVariables)
     setShowProgressMessages(configuration.getShowProgressMessages)
   }
 
@@ -197,6 +201,12 @@ abstract class AbstractTestRunConfiguration(val project: Project,
       path = PathMacroManager.getInstance(getModule).expandPath(path)
     }
     path
+  }
+
+  def getEnvVariables = envs
+
+  def setEnvVariables(variables: java.util.Map[String, String]) = {
+    envs = variables
   }
 
   def getModule: Module = {
@@ -340,7 +350,23 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         val params = new JavaParameters()
 
         params.setCharset(null)
-        params.getVMParametersList.addParametersString(getJavaOptions)
+        var vmParams = getJavaOptions
+
+        //expand macros
+        vmParams = PathMacroManager.getInstance(project).expandPath(vmParams)
+
+        if (module != null) {
+          vmParams = PathMacroManager.getInstance(module).expandPath(vmParams)
+        }
+
+        params.setEnv(getEnvVariables)
+
+        //expand environment variables in vmParams
+        for (entry <- params.getEnv.entrySet) {
+          vmParams = StringUtil.replace(vmParams, "$" + entry.getKey + "$", entry.getValue, false)
+        }
+
+        params.getVMParametersList.addParametersString(vmParams)
         val wDir = getWorkingDirectory
         params.setWorkingDirectory(expandPath(wDir))
 
@@ -483,6 +509,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     JDOMExternalizer.write(element, "testName", testName)
     JDOMExternalizer.write(element, "testKind", if (testKind != null) testKind.toString else TestKind.CLASS.toString)
     JDOMExternalizer.write(element, "showProgressMessages", showProgressMessages.toString)
+    JDOMExternalizer.writeMap(element, envs, "envs", "envVar")
     PathMacroManager.getInstance(getProject).collapsePathsRecursively(element)
   }
 
@@ -496,6 +523,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     javaOptions = JDOMExternalizer.readString(element, "vmparams")
     testArgs = JDOMExternalizer.readString(element, "params")
     workingDirectory = JDOMExternalizer.readString(element, "workingDirectory")
+    JDOMExternalizer.readMap(element, envs, "envs", "envVar")
     val s = JDOMExternalizer.readString(element, "searchForTest")
     for (search <- SearchForTest.values()) {
       if (search.toString == s) searchTest = search
