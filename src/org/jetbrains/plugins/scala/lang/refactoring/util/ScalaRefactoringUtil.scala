@@ -262,7 +262,7 @@ object ScalaRefactoringUtil {
         val filter: ScLiteral => Boolean = {
           case toCheck: ScInterpolatedStringLiteral =>
             toCheck.reference.fold("")(_.refName) == prefix && toCheck.depthFirst.forall {
-              case ref: ScReferenceExpression => refNameToResolved(ref.refName) == ref.resolve()
+              case ref: ScReferenceExpression => refNameToResolved.get(ref.refName) == Some(ref.resolve())
               case _ => true
             }
           case _ => false
