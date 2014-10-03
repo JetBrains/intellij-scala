@@ -107,4 +107,10 @@ class ChangeSignatureInScalaTest extends ChangeSignatureTestBase {
     val params = Seq(parameterInfo("i", 0, types.Int), parameterInfo("s", -1, types.Boolean, "true"))
     doTest(null, "local", null, Seq(params))
   }
+
+  def testImported(): Unit = {
+    isAddDefaultValue = false
+    val params = Seq(parameterInfo("i", -1, types.Int, "0"))
+    doTest(null, "foo", null, Seq(params))
+  }
 }

@@ -5,7 +5,7 @@ import com.intellij.psi._
 import com.intellij.refactoring.changeSignature._
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.codeInsight.intention.types.Update
-import org.jetbrains.plugins.scala.extensions.ElementText
+import org.jetbrains.plugins.scala.extensions.{ElementText, ChildOf}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -15,10 +15,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, JavaArrayType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{JavaArrayType, ScFunctionType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
+import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 
 import scala.collection.mutable.ListBuffer
 
@@ -30,7 +31,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
 
   protected def handleChangedName(change: ChangeInfo, usage: UsageInfo): Unit = {
     if (!change.isNameChanged) return
-
+    
     val nameId = usage match {
       case ScalaNamedElementUsageInfo(scUsage) => scUsage.namedElement.nameId
       case MethodCallUsageInfo(ref, _) => ref.nameId
@@ -38,12 +39,17 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       case InfixExprUsageInfo(i) => i.operation.nameId
       case PostfixExprUsageInfo(p) => p.operation.nameId
       case AnonFunUsageInfo(_, ref) => ref.nameId
+      case ImportUsageInfo(ref) => ref.nameId
       case _ => null
     }
-    if (nameId == null) return
 
-    val newName = change.getNewName
-    replaceNameId(nameId, newName)
+    nameId match {
+      case null =>
+      case ChildOf(ref: ScReferenceElement) if ScalaRenameUtil.isAliased(ref) =>
+      case _ =>
+        val newName = change.getNewName
+        replaceNameId(nameId, newName)
+    }
   }
 
   protected def handleVisibility(change: ChangeInfo, usage: ScalaNamedElementUsageInfo): Unit = {
