@@ -6,13 +6,14 @@ import com.intellij.find.findUsages.{FindUsagesHandler, FindUsagesHandlerFactory
 import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiNamedElement, PsiElement}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light._
+import org.jetbrains.plugins.scala.lang.refactoring.rename.RenameSuperMembersUtil
 import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
 
 /**
@@ -50,30 +51,27 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
       case s: StaticPsiMethodWrapper => s.method
       case _ => element
     }
+    def chooseSuper(name: String, supers: Seq[PsiNamedElement]) {
+      def showDialog() {
+        val message = ScalaBundle.message("find.usages.member.has.supers", name)
+        val result = Messages.showYesNoCancelDialog(element.getProject, message, "Warning", Messages.getQuestionIcon)
+        result match {
+          case 0 =>
+            val elem = supers.last
+            replacedElement = elem
+          case 1 => //do nothing, it's ok
+          case _ => replacedElement = null
+        }
+      }
+      if (SwingUtilities.isEventDispatchThread) showDialog()
+      else extensions.invokeAndWait(showDialog())
+    }
+
     replacedElement match {
       case function: ScFunction if function.isLocal => Array(function)
-      case function: ScFunction if !forHighlightUsages =>
-        val signs = function.superSignatures
-        if (signs.length == 0) Array(function)
-        else {
-          def showDialog() {
-            val result = Messages.showYesNoCancelDialog(element.getProject,
-              ScalaBundle.message("find.usages.method.has.supers", function.name), "Warning", Messages.getQuestionIcon)
-            result match {
-              case 0 =>
-                val elem = signs.last.namedElement
-                replacedElement = elem
-              case 1 => //do nothing, it's ok
-              case _ => replacedElement = null
-            }
-          }
-
-
-          if (SwingUtilities.isEventDispatchThread) showDialog()
-          else extensions.invokeAndWait{
-            showDialog()
-          }
-        }
+      case named: ScNamedElement if !forHighlightUsages =>
+        val supers = RenameSuperMembersUtil.allSuperMembers(named, withSelfType = true)
+        if (supers.length != 0) chooseSuper(named.name, supers)
       case _ =>
     }
     if (replacedElement == null) return FindUsagesHandler.NULL_HANDLER
