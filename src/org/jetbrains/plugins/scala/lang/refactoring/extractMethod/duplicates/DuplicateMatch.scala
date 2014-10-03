@@ -68,10 +68,10 @@ class DuplicateMatch(pattern: DuplicatePattern, val candidates: Seq[PsiElement])
         PsiEquivalenceUtil.areElementsEquivalent(paramValue, expr) && typesEquiv(ref, expr)
       case Both(
       (ref1: ScReferenceExpression, ref2: ScReferenceExpression),
-      (Resolved(td1: ScTypedDefinition, _), Resolved(td2: ScTypedDefinition, _)))
+      (ResolvesTo(td1: ScTypedDefinition), ResolvesTo(td2: ScTypedDefinition)))
         if pattern.definitions.contains(td1) =>
         definitionCorrespondence.get(td1) == Some(td2) && typesEquiv(ref1, ref2)
-      case Both((ref1: ScReferenceElement, ref2: ScReferenceElement), (Resolved(res1, _), Resolved(res2, _)))
+      case Both((ref1: ScReferenceElement, ref2: ScReferenceElement), (ResolvesTo(res1), ResolvesTo(res2)))
         if res1 != res2 =>
         (res1, res2) match {
           case (sf1: ScSyntheticFunction, sf2: ScSyntheticFunction) => sf1.isStringPlusMethod && sf2.isStringPlusMethod

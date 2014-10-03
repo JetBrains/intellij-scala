@@ -213,7 +213,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
 
     refOpt match {
-      case Some(Resolved(clazz: PsiClass)) =>
+      case Some(ResolvesTo(clazz: PsiClass)) =>
         clazz match {
           case o: ScObject if isStable(o) => stableEvaluator(stableObjectEvaluator(o))
           case _ =>

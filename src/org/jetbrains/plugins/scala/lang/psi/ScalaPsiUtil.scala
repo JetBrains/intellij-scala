@@ -1741,8 +1741,8 @@ object ScalaPsiUtil {
           case parenth: ScParenthesisedExpr => parameterOf(parenth)
           case ie: ScInfixExpr if exp == (if (ie.isLeftAssoc) ie.lOp else ie.rOp) =>
             ie.operation match {
-              case Resolved(f: ScFunction, _) => f.parameters.headOption.map(p => new Parameter(p))
-              case Resolved(method: PsiMethod, _) =>
+              case ResolvesTo(f: ScFunction) => f.parameters.headOption.map(p => new Parameter(p))
+              case ResolvesTo(method: PsiMethod) =>
                 method.getParameterList.getParameters match {
                   case Array(p) => Some(new Parameter(p))
                   case _ => None
