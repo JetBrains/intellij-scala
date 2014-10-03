@@ -7,10 +7,10 @@ import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScConstructor, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameters, ScParameter, ScClassParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -146,6 +146,8 @@ private[changeSignature] object isAnonFunUsage {
 private[changeSignature] case class ParameterUsageInfo(oldIndex: Int, newName: String, ref: ScReferenceElement)
         extends UsageInfo(ref: PsiElement)
 
+private[changeSignature] case class ImportUsageInfo(imp: ScReferenceElement) extends UsageInfo(imp: PsiElement)
+
 private[changeSignature] object UsageUtil {
 
   def invocation(usage: UsageInfo): MethodInvocation = usage match {
@@ -156,7 +158,7 @@ private[changeSignature] object UsageUtil {
   }
 
   def scalaUsage(usage: UsageInfo): Boolean = usage match {
-    case ScalaNamedElementUsageInfo(_) | _: ParameterUsageInfo | _: MethodUsageInfo | _: AnonFunUsageInfo => true
+    case ScalaNamedElementUsageInfo(_) | _: ParameterUsageInfo | _: MethodUsageInfo | _: AnonFunUsageInfo | _: ImportUsageInfo => true
     case _ => false
   }
 
