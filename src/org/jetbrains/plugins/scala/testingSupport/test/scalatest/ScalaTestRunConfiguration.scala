@@ -32,6 +32,8 @@ class ScalaTestRunConfiguration(override val project: Project,
   override def errorMessage: String = "ScalaTest is not specified"
 
   override def currentConfiguration = ScalaTestRunConfiguration.this
+
+  protected[test] override def isInvalidSuite(clazz: PsiClass): Boolean = ScalaTestRunConfiguration.isInvalidSuite(clazz)
 }
 
 object ScalaTestRunConfiguration extends SuiteValidityChecker {
