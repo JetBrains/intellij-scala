@@ -180,8 +180,7 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
         case (refExpr: ScReferenceExpression) childOf (mc: ScMethodCall) => results += MethodCallUsageInfo(refExpr, mc)
         case ChildOf(infix @ ScInfixExpr(_, `refElem`, _)) => results += InfixExprUsageInfo(infix)
         case ChildOf(postfix @ ScPostfixExpr(_, `refElem`)) => results += PostfixExprUsageInfo(postfix)
-        case (ref: ScReferenceElement) childOf (ChildOf(constr: ScConstructor)) =>
-          results += ConstructorUsageInfo(ref, constr)
+        case ref @ ScConstructor.byReference(constr) => results += ConstructorUsageInfo(ref, constr)
         case refExpr: ScReferenceExpression => results += RefExpressionUsage(refExpr)
         case _ =>
       }
