@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature
 
 import com.intellij.ide.util.SuperMethodWarningUtil
+import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
 import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.project.Project
@@ -23,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
 class ScalaChangeSignatureHandler extends ChangeSignatureHandler {
 
   def invokeWithDialog(project: Project, fun: ScMethodLike) {
+    UsageTrigger.trigger(ScalaChangeSignatureHandler.id)
     val dialog = new ScalaChangeSignatureDialog(project, new ScalaMethodDescriptor(fun))
     dialog.show()
   }
@@ -130,4 +132,8 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler {
       }
     }
   }
+}
+
+object ScalaChangeSignatureHandler {
+  val id = "scala.change.signature"
 }
