@@ -145,3 +145,24 @@ downloadIdea in Global := {
       } else log.warn("COMM: failed to get ideaSDK build id, not downloading sdk")
     }
 }
+
+// packaging
+
+packageBin in Compile <<= (packageBin in Compile) dependsOn (
+    packageBin in (intellij_hocon, Compile),
+    packageBin in (intellij_scalastyle, Compile),
+    packageBin in (SBT, Compile)
+  )
+
+mappings in (Compile, packageBin) ++=
+    mappings.in(intellij_hocon, Compile, packageBin).value ++
+    mappings.in(intellij_scalastyle, Compile, packageBin).value ++
+    mappings.in(SBT, Compile, packageBin).value
+
+mappings in (Compile, packageBin) ++= {
+  val base = baseDirectory.value
+  for {
+    (file, rp) <- (base / "META-INF" * "*.xml") x relativeTo(base)
+  } yield file -> rp
+}
+
