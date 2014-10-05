@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
 
 /**
@@ -37,13 +38,10 @@ class SbtDocumentationProvider extends AbstractDocumentationProvider {
         }
 
         def extractDocString(expr: ScExpression): Option[String] = expr match {
-          case lit: ScLiteral => lit.getValue match {
-            case value: String => Some(value)
-            case _ => None
-          }
-          case infExpr: ScInfixExpr =>
-            val str = extractDocString(infExpr.lOp).getOrElse("") ++
-                      extractDocString(infExpr.rOp).getOrElse("")
+          case ScLiteralImpl.string(str) => Some(str)
+          case ScInfixExpr(lOp, _, rOp) =>
+            val str = extractDocString(lOp).getOrElse("") ++
+                      extractDocString(rOp).getOrElse("")
             if (str.nonEmpty) Some(str) else None
           case refExpr: ScReferenceExpression => Some(refExpr.getText)
           case _ => None
