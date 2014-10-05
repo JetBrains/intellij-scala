@@ -19,13 +19,16 @@ import org.jetbrains.sbt.resolvers.SbtResolver
  * @author Pavel Fatin
  */
 class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSettings] {
+
+  private var runner: SbtRunner = null
+
   def resolveProjectInfo(id: ExternalSystemTaskId, projectPath: String, isPreview: Boolean, settings: SbtExecutionSettings, listener: ExternalSystemTaskNotificationListener): DataNode[ProjectData] = {
     val root = {
       val file = new File(projectPath)
       if (file.isDirectory) file.getPath else file.getParent
     }
 
-    val runner = new SbtRunner(settings.vmOptions, settings.customLauncher, settings.vmExecutable)
+    runner = new SbtRunner(settings.vmOptions, settings.customLauncher, settings.vmExecutable)
 
     var warnings = new StringBuilder()
 
@@ -36,7 +39,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
       listener.onStatusChange(new ExternalSystemTaskNotificationEvent(id, message.trim))
     } match {
-      case Left(errors) => throw new ExternalSystemException(errors)
+      case Left(errors) => errors match {
+        case _ : SbtRunner.ImportCancelledException => return null
+        case _ => throw new ExternalSystemException(errors)
+      }
       case Right(node) => node
     }
 
@@ -358,5 +364,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       DependencyScope.COMPILE
   }
 
-  def cancelTask(taskId: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener) = false
+  def cancelTask(taskId: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener) = {
+    if (runner != null)
+      runner.cancel()
+    false
+  }
 }

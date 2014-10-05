@@ -3,6 +3,7 @@ package project.structure
 
 import java.io._
 import java.util.Properties
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.jar.{JarEntry, JarFile}
 
 import com.intellij.execution.process.OSProcessHandler
@@ -20,6 +21,11 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], vmExecutab
   private val SbtLauncher = customLauncher.getOrElse(LauncherDir / "sbt-launch.jar")
   private val DefaultSbtVersion = "0.13"
   private val SinceSbtVersion = "0.12.4"
+
+  private val cancellationFlag: AtomicBoolean = new AtomicBoolean(false)
+
+  def cancel(): Unit =
+    cancellationFlag.set(true)
 
   def read(directory: File, download: Boolean, resolveClassifiers: Boolean, resolveSbtClassifiers: Boolean)
           (listener: (String) => Unit): Either[Exception, Elem] = {
@@ -85,16 +91,18 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], vmExecutab
 
         try {
           val process = Runtime.getRuntime.exec(processCommands.toArray, null, directory)
-          val output = handle(process, listener)
-          (structureFile.length > 0).either(
-            XML.load(structureFile.toURI.toURL))(new SbtException(output))
+          val result = handle(process, listener)
+          result.map { output =>
+            (structureFile.length > 0).either(
+              XML.load(structureFile.toURI.toURL))(new SbtException(output))
+          }.getOrElse(Left(new ImportCancelledException))
         } catch {
           case e: Exception => Left(e)
         }
       }}
   }
 
-  private def handle(process: Process, listener: (String) => Unit): String = {
+  private def handle(process: Process, listener: (String) => Unit): Option[String] = {
     val output = new StringBuilder()
 
     val processListener: (OutputType, String) => Unit = {
@@ -116,15 +124,33 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], vmExecutab
     handler.addProcessListener(new ListenerAdapter(processListener))
     handler.startNotify()
 
-    handler.waitFor()
+    var processEnded = false
+    while (!processEnded && !cancellationFlag.get())
+      processEnded = handler.waitFor(SBT_PROCESS_CHECK_TIMEOUT_MSEC)
 
-    output.toString()
+    if (!processEnded) {
+      try {
+        // TODO: This line kills sbt-launcher process, but in the same time
+        //       it throws NPE which I can't properly trace (the stack trace in 'e' is empty and handler != null)
+        //       Try/catch is a workaround, this thing needs further investigation
+        handler.destroyProcess()
+      } catch {
+        case e : NullPointerException => // do nothing
+      }
+      None
+    } else {
+      Some(output.toString())
+    }
   }
 
   private def path(file: File): String = file.getAbsolutePath.replace('\\', '/')
 }
 
 object SbtRunner {
+  class ImportCancelledException extends Exception
+
+  val SBT_PROCESS_CHECK_TIMEOUT_MSEC = 100
+
   def getSbtLauncherDir = {
     val file: File = jarWith[this.type]
     val deep = if (file.getName == "classes") 1 else 2
