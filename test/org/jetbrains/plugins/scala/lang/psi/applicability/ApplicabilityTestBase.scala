@@ -90,7 +90,7 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
     val typified = typify(definition, application)
 
     assertProblemsAre(auxiliary, formatFunction(definition, application))(pattern)
-    assertProblemsAre(auxiliary, formatFunction(typified._1, typified._2))((pattern))
+    assertProblemsAre(auxiliary, formatFunction(typified._1, typified._2))(pattern)
   }
 
   def assertProblemsConstructor(auxiliary: String, definition: String, application: String)
@@ -119,7 +119,7 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
   private def problemsIn(file: ScalaFile): List[ApplicabilityProblem] = {
     for (ref <- file.depthFirst.filterByType(classOf[ScReferenceElement]).toList;
          result <- ref.advancedResolve.toList;
-         problem <- result.problems)
+         problem <- result.problems.filter(_ != ExpectedTypeMismatch))
     yield problem
   }
   
@@ -136,8 +136,8 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
     val ids = (1 to types.size).map("T" + _)
 
     val id = ids.toIterator
-    val typedDefinition = Parameter.replaceAllIn(definition, _ match { 
-      case Parameter(n, t) => n + ": " + id.next    
+    val typedDefinition = Parameter.replaceAllIn(definition, _ match {
+      case Parameter(n, t) => n + ": " + id.next
     })
     
     val typeParameters = "[" + ids.mkString(", ") + "]"

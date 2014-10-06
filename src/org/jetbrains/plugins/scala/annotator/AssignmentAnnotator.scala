@@ -71,6 +71,7 @@ trait AssignmentAnnotator {
                       case MissedValueParameter(_) => // simultaneously handled above
                       case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
                       case WrongTypeParameterInferred => //todo: ?
+                      case ExpectedTypeMismatch => // will be reported later
                       case _ => holder.createErrorAnnotation(assignment, "Wrong right assignment side")
                     }
                   case _ => holder.createErrorAnnotation(assignment, "Reassignment to val")

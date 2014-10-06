@@ -315,7 +315,7 @@ object ScalaPsiUtil {
                 mrp.expectedOption, mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve, noImplicitsForArgs = withoutImplicitsForArgs)
               val tp = implRes.tp
               newProc.processType(tp, e, ResolveState.initial)
-              val candidates = newProc.candidatesS.filter(_.isApplicable)
+              val candidates = newProc.candidatesS.filter(_.isApplicable())
               if (candidates.isEmpty) Seq.empty
               else {
                 implRes.element match {
@@ -430,7 +430,7 @@ object ScalaPsiUtil {
       candidates = processor.candidatesS
     }
 
-    if (!noImplicits && candidates.forall(!_.isApplicable)) {
+    if (!noImplicits && candidates.forall(!_.isApplicable())) {
       //should think about implicit conversions
       findImplicitConversion(expr, methodName, call, processor, noImplicitsForArgs = false) match {
         case Some(res) =>
