@@ -199,7 +199,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
               def updateRes(exp: Option[ScType]) {
                 exp match {
                   case Some(expected) =>
-                    expected match {
+                    expected.removeAbstracts match {
                       case ScFunctionType(_, params) =>
                       case _ =>
                         expected.isAliasType match {
