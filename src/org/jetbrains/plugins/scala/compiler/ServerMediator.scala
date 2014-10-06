@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package compiler
 
-import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManager}
 import com.intellij.openapi.components.ProjectComponent
@@ -9,7 +8,6 @@ import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{CompilerModuleExtension, ModuleRootManager}
 import com.intellij.openapi.ui.Messages
-import org.jetbrains.plugin.scala.compiler.IncrementalType
 import org.jetbrains.plugins.scala.config.ScalaFacet
 import org.jetbrains.plugins.scala.extensions._
 
@@ -20,31 +18,16 @@ import org.jetbrains.plugins.scala.extensions._
 
 class ServerMediator(project: Project) extends ProjectComponent {
 
+  private val isScalaProject = ScalaFacet.isPresentIn(project)
+  private val settings = ScalaApplicationSettings.getInstance
+
   CompilerManager.getInstance(project).addBeforeTask(new CompileTask {
-    var firstCompilation = true
 
     def execute(context: CompileContext): Boolean = {
-      val scalaProject = ScalaFacet.isPresentIn(project)
 
       val externalCompiler = true // TODO In-process build is now deprecated
 
-      def collectStats() {
-        val withCompileServerId = "scala.compilation.with.server"
-        val withoutCompileServerId = "scala.compilation.without.server"
-        val incrementalByIdeaId = "scala.compilation.incremental.by.idea"
-        val incrementalBySbtId = "scala.compilation.incremental.by.sbt"
-
-        if (externalCompiler) UsageTrigger.trigger(withCompileServerId)
-        else UsageTrigger.trigger(withoutCompileServerId)
-
-        ScalaApplicationSettings.getInstance().INCREMENTAL_TYPE match {
-          case IncrementalType.SBT => UsageTrigger.trigger(incrementalBySbtId)
-          case IncrementalType.IDEA => UsageTrigger.trigger(incrementalByIdeaId)
-        }
-      }
-
-      if (scalaProject) {
-        collectStats()
+      if (isScalaProject) {
 
         if (externalCompiler) {
           invokeAndWait {
@@ -54,8 +37,6 @@ class ServerMediator(project: Project) extends ProjectComponent {
             project.getComponent(classOf[FscServerLauncher]).stop()
             project.getComponent(classOf[FscServerManager]).removeWidget()
           }
-
-          val settings = ScalaApplicationSettings.getInstance
 
           if (settings.COMPILE_SERVER_ENABLED && !ApplicationManager.getApplication.isUnitTestMode) {
             invokeAndWait {
