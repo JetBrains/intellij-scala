@@ -2,6 +2,7 @@ package org.jetbrains.jps.incremental.scala
 
 import java.util
 
+import com.intellij.internal.statistic.UsageTrigger
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.DirtyFilesHolder
@@ -34,6 +35,7 @@ class ScalaBuilder(category: BuilderCategory, @NotNull delegate: ScalaBuilderDel
   override def buildStarted(context: CompileContext) {
     if (isScalaProject(context.getProjectDescriptor.getProject)) {
       new IncrementalTypeChecker(context).checkAndUpdate()
+      collectStats(context)
     }
 
     if (isDisabled(context)) {}
@@ -74,4 +76,22 @@ object ScalaBuilder {
     modules.exists(SettingsManager.getFacetSettings(_) != null)
   }
 
+  private def collectStats(context: CompileContext) {
+    val withCompileServerId = "scala.compilation.with.server"
+    val withoutCompileServerId = "scala.compilation.without.server"
+    val incrementalByIdeaId = "scala.compilation.incremental.by.idea"
+    val incrementalBySbtId = "scala.compilation.incremental.by.sbt"
+
+    val serverEnabled = SettingsManager.getGlobalSettings(context.getProjectDescriptor.getModel.getGlobal)
+            .isCompileServerEnabled
+    val incrementalType = SettingsManager.getProjectSettings(context.getProjectDescriptor).incrementalType
+
+    if (serverEnabled) UsageTrigger.trigger(withCompileServerId)
+    else UsageTrigger.trigger(withoutCompileServerId)
+
+    incrementalType match {
+      case IncrementalType.SBT => UsageTrigger.trigger(incrementalBySbtId)
+      case IncrementalType.IDEA => UsageTrigger.trigger(incrementalByIdeaId)
+    }
+  }
 }
