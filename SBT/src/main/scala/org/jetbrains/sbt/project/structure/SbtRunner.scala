@@ -129,14 +129,8 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], vmExecutab
       processEnded = handler.waitFor(SBT_PROCESS_CHECK_TIMEOUT_MSEC)
 
     if (!processEnded) {
-      try {
-        // TODO: This line kills sbt-launcher process, but in the same time
-        //       it throws NPE which I can't properly trace (the stack trace in 'e' is empty and handler != null)
-        //       Try/catch is a workaround, this thing needs further investigation
-        handler.destroyProcess()
-      } catch {
-        case e : NullPointerException => // do nothing
-      }
+      handler.setShouldDestroyProcessRecursively(false)
+      handler.destroyProcess()
       None
     } else {
       Some(output.toString())
