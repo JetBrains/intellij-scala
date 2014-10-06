@@ -58,6 +58,7 @@ trait ConstructorAnnotator {
           case ParameterSpecifiedMultipleTimes(assignment) =>
             holder.createErrorAnnotation(assignment.getLExpression, "Parameter specified multiple times")
           case WrongTypeParameterInferred => //todo: ?
+          case ExpectedTypeMismatch => //will be reported later
           case _ => holder.createErrorAnnotation(argsElement, "Not applicable." /* TODO + signatureOf(f)*/)
         }
       case results =>

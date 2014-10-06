@@ -78,7 +78,7 @@ class ImplicitParametersCollector(private var place: PsiElement, tp: ScType, cor
     InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search first part for type: " + tp.toString)
 
     val candidates = processor.candidatesS.toSeq
-    if (candidates.nonEmpty && !candidates.forall(r => r.problems.nonEmpty)) return candidates
+    if (candidates.nonEmpty && !candidates.forall(!_.isApplicable())) return candidates
 
     processor = new ImplicitParametersProcessor(true)
 
@@ -319,7 +319,7 @@ class ImplicitParametersCollector(private var place: PsiElement, tp: ScType, cor
             case Some(c) =>
               candidatesSeq = rest
               forMap(c, withLocalTypeInference, checkFast = false) match {
-                case Some(res) if res._1.problems.isEmpty =>
+                case Some(res) if res._1.isApplicable() =>
                   lastResult = Some(c)
                   results += res
                 case _ => lastResult = None
