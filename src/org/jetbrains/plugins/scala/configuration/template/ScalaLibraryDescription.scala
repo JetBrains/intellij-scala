@@ -7,6 +7,7 @@ import java.util.Collections
 import javax.swing.JComponent
 
 import com.intellij.openapi.roots.ui.configuration.libraries.CustomLibraryDescription
+import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesContainer
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.VfsUtilCore.virtualToIoFile
 import com.intellij.openapi.vfs.VirtualFile
@@ -37,9 +38,7 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
     sdk.map(_.createNewLibraryConfiguration()).orNull
   }
 
-//  override def getDefaultLevel = LibrariesContainer.LibraryLevel.GLOBAL // TODO
-
-  // TODO sorting
+  override def getDefaultLevel = LibrariesContainer.LibraryLevel.GLOBAL
 
   private def localSkdsIn(directory: File): Seq[ScalaSdkDescriptor] =
     Seq(directory / "lib").flatMap(sdkIn)
