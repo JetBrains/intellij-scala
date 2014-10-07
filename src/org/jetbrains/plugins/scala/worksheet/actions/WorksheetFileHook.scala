@@ -14,7 +14,8 @@ import com.intellij.openapi.fileEditor._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiManager}
-import org.jetbrains.plugins.scala.components.{StopWorksheetAction, WorksheetProcess}
+import org.jetbrains.plugins.scala.compiler.CompilationProcess
+import org.jetbrains.plugins.scala.components.StopWorksheetAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
@@ -45,7 +46,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
 
   override def getComponentName: String = "Clean worksheet on editor close"
 
-  def initTopComponent(file: VirtualFile, run: Boolean, exec: Option[WorksheetProcess] = None) {
+  def initTopComponent(file: VirtualFile, run: Boolean, exec: Option[CompilationProcess] = None) {
     if (project.isDisposed) return
 
     val myFileEditorManager = FileEditorManager.getInstance(project)
@@ -80,7 +81,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
     }
   }
 
-  def disableRun(file: VirtualFile, exec: Option[WorksheetProcess]) {
+  def disableRun(file: VirtualFile, exec: Option[CompilationProcess]) {
     cleanAndAdd(file, exec map (new StopWorksheetAction(_)))
   }
 

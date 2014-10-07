@@ -5,13 +5,14 @@ import javax.swing.Icon
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import org.jetbrains.plugins.scala.compiler.CompilationProcess
 import org.jetbrains.plugins.scala.worksheet.actions.TopComponentAction
 
 /**
  * User: Dmitry Naydanov
  * Date: 2/17/14
  */
-class StopWorksheetAction(exec: WorksheetProcess) extends AnAction with TopComponentAction {
+class StopWorksheetAction(exec: CompilationProcess) extends AnAction with TopComponentAction {
   override def actionPerformed(e: AnActionEvent) {
     exec.stop()
   }
@@ -21,12 +22,4 @@ class StopWorksheetAction(exec: WorksheetProcess) extends AnAction with TopCompo
   override def actionIcon: Icon = AllIcons.Actions.Suspend
 
   override def bundleKey = "worksheet.stop.button"
-}
-
-trait WorksheetProcess {
-  def run()
-  
-  def stop()
-  
-  def addTerminationCallback(callback: => Unit)
 }

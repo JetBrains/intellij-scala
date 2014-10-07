@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala
-package worksheet.server
+package compiler
 
 import java.net.{ConnectException, InetAddress, UnknownHostException}
 
@@ -7,15 +7,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.Base64Converter
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.RemoteResourceOwner
-import org.jetbrains.plugins.scala.compiler.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.components.WorksheetProcess
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 
 /**
  * User: Dmitry Naydanov
  * Date: 2/24/14
  */
-class WorksheetRemoteServerRunner(project: Project) extends RemoteResourceOwner {
+class RemoteServerRunner(project: Project) extends RemoteResourceOwner {
   protected val address = InetAddress.getByName(null)
 
   protected val port =
@@ -26,7 +23,7 @@ class WorksheetRemoteServerRunner(project: Project) extends RemoteResourceOwner 
         throw new IllegalArgumentException("Bad port: " + ScalaApplicationSettings.getInstance().COMPILE_SERVER_PORT , e)
     }
   
-  def run(arguments: Seq[String], client: Client) = new WorksheetProcess {
+  def run(arguments: Seq[String], client: Client) = new CompilationProcess {
     val COUNT = 10
 
     var callbacks: Seq[() => Unit] = Seq.empty
@@ -63,7 +60,7 @@ class WorksheetRemoteServerRunner(project: Project) extends RemoteResourceOwner 
     }
 
     override def stop() {
-      WorksheetCompiler.ensureNotRunning(project)
+      CompileServerLauncher.ensureNotRunning(project)
     }
   }
 }

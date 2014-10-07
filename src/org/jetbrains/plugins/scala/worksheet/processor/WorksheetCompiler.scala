@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaApplica
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
-import org.jetbrains.plugins.scala.worksheet.server.{InProcessServer, NonServer, OutOfProcessServer, RemoteServerConnector}
+import org.jetbrains.plugins.scala.worksheet.server._
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 
 /**
@@ -38,15 +38,12 @@ class WorksheetCompiler {
     val (iteration, tempFile, outputDir) = WorksheetBoundCompilationInfo.updateOrCreate(worksheetVirtual.getCanonicalPath, worksheetFile.getName)
 
     val project = worksheetFile.getProject
-    val runType = (ScalaApplicationSettings.getInstance().COMPILE_SERVER_ENABLED,
-      ScalaProjectSettings.getInstance(project).isInProcessMode) match {
-      case (true, true) => InProcessServer
-      case (true, false) => OutOfProcessServer
-      case (false, _) => NonServer
-    }
 
-    if (runType != NonServer) ensureServerRunning(project) else ensureNotRunning(project)
+    val runType = getRunType(project)
 
+    if (runType != NonServer)
+      CompileServerLauncher.ensureServerRunning(project)
+    else CompileServerLauncher.ensureNotRunning(project)
 
     val contentManager = MessageView.SERVICE.getInstance(project).getContentManager
     val oldContent = contentManager findContent ERROR_CONTENT_NAME
@@ -68,12 +65,12 @@ class WorksheetCompiler {
           override def run() {
             //todo smth with exit code
             new RemoteServerConnector(
-              RunWorksheetAction getModuleFor worksheetFile, tempFile, outputDir
+              RunWorksheetAction getModuleFor worksheetFile, tempFile, outputDir, name
             ).compileAndRun(new Runnable {
               override def run() {
                 if (runType == OutOfProcessServer) callback(name, outputDir.getAbsolutePath)
               }
-            }, worksheetVirtual, consumer, name, runType)
+            }, worksheetVirtual, consumer)
           }
         }, new Runnable {override def run() {}})
       case Right(errorMessage: PsiErrorElement) =>
@@ -125,20 +122,18 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
   def getCompileKey = Key.create[String]("scala.worksheet.compilation")
   def getOriginalFileKey = Key.create[String]("scala.worksheet.original.file")
 
-
-  def ensureServerRunning(project: Project) {
-    val launcher = CompileServerLauncher.instance
-    if (!launcher.running) CompileServerLauncher.instance tryToStart project
-  }
-
-  def ensureNotRunning(project: Project) {
-    val launcher = CompileServerLauncher.instance
-    if (launcher.running) launcher.stop(project)
-  }
-
   def isMakeBeforeRun(file: PsiFile) = isEnabled(file, MAKE_BEFORE_RUN)
 
   def setMakeBeforeRun(file: PsiFile, isMake: Boolean) = {
     setEnabled(file, MAKE_BEFORE_RUN, isMake)
+  }
+
+  def getRunType(project: Project): WorksheetMakeType = {
+    if (ScalaProjectSettings.getInstance(project).isInProcessMode) {
+      if (ScalaApplicationSettings.getInstance().COMPILE_SERVER_ENABLED)
+        InProcessServer
+      else OutOfProcessServer
+    }
+    else NonServer
   }
 }
