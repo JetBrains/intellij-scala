@@ -20,10 +20,12 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
   def getSuitableLibraryKinds = Collections.singleton(ScalaLibraryKind)
 
   def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile) = {
+    implicit val ordering = Version.VersionOrdering.reverse
+
     val sdks = localSkdsIn(virtualToIoFile(contextDirectory)).map(SdkChoice(_, "Project")) ++
-            systemSdks.map(SdkChoice(_, "System")) ++
-            ivySdks.map(SdkChoice(_, "Ivy")) ++
-            mavenSdks.map(SdkChoice(_, "Maven"))
+            systemSdks.sortBy(_.version).map(SdkChoice(_, "System")) ++
+            ivySdks.sortBy(_.version).map(SdkChoice(_, "Ivy")) ++
+            mavenSdks.sortBy(_.version).map(SdkChoice(_, "Maven"))
 
     val sdk = if (sdks.nonEmpty) {
       val dialog = new SdkSelectionDialog(parentComponent, sdks.asJava)
