@@ -14,6 +14,8 @@ libraryDependencies +=  "org.scala-lang.modules" %% "scala-parser-combinators" %
 
 libraryDependencies +=  "org.scala-lang" % "scala-reflect" % scalaVersion.value
 
+libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test"
+
 unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar"
 
 unmanagedSourceDirectories in Compile += baseDirectory.value /  "src"
@@ -145,6 +147,20 @@ downloadIdea in Global := {
       } else log.warn("COMM: failed to get ideaSDK build id, not downloading sdk")
     }
 }
+
+// tests
+
+fork  := true
+
+javaOptions in Test := Seq(
+  "-Xms128m",
+  "-Xmx1024m",
+  "-XX:MaxPermSize=350m",
+  "-ea",
+  s"-Didea.system.path=${Path.userHome}/.IdeaData/IDEA-14/scala/test-system",
+  s"-Didea.config.path=${Path.userHome}/.IdeaData/IDEA-14/scala/test-config",
+  s"-Dplugin.path=${baseDirectory.value}/out/IDEA-14/artifacts/ScalaDistributed"
+)
 
 // packaging
 
