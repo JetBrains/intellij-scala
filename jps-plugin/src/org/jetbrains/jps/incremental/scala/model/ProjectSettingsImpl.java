@@ -32,6 +32,34 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
   public String[] getCompilerOptions() {
     List<String> list = new ArrayList<String>();
 
+    if (myState.macros) {
+      list.add("-language:macros");
+    }
+
+    if (myState.dynamics) {
+      list.add("-language:dynamics");
+    }
+
+    if (myState.postfixOps) {
+      list.add("-language:postfixOps");
+    }
+
+    if (myState.reflectiveCalls) {
+      list.add("-language:reflectiveCalls");
+    }
+
+    if (myState.implicitConversions) {
+      list.add("-language:implicitConversions");
+    }
+
+    if (myState.higherKinds) {
+      list.add("-language:higherKinds");
+    }
+
+    if (myState.existentials) {
+      list.add("-language:existentials");
+    }
+
     if (!myState.warnings) {
       list.add("-nowarn");
     }
@@ -42,6 +70,10 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
 
     if (myState.uncheckedWarnings) {
       list.add("-unchecked");
+    }
+
+    if (myState.featureWarnings) {
+      list.add("-feature");
     }
 
     if (myState.optimiseBytecode) {
@@ -102,11 +134,27 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
 
     public CompileOrder compileOrder = CompileOrder.Mixed;
 
-    public boolean warnings = true;
+    public boolean macros;
+
+    public boolean dynamics;
+
+    public boolean postfixOps;
+
+    public boolean reflectiveCalls;
+
+    public boolean implicitConversions;
+
+    public boolean higherKinds;
+
+    public boolean existentials;
+
+    public boolean warnings;
 
     public boolean deprecationWarnings;
 
     public boolean uncheckedWarnings;
+
+    public boolean featureWarnings;
 
     public boolean optimiseBytecode;
 
