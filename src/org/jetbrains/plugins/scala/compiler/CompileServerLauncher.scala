@@ -155,6 +155,17 @@ object CompileServerLauncher {
 
     xmx ++ settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").toSeq
   }
+
+  def ensureServerRunning(project: Project) {
+    val launcher = CompileServerLauncher.instance
+    if (!launcher.running) CompileServerLauncher.instance tryToStart project
+  }
+
+  def ensureNotRunning(project: Project) {
+    val launcher = CompileServerLauncher.instance
+    if (launcher.running) launcher.stop(project)
+  }
+
 }
 
 private case class ServerInstance(watcher: ProcessWatcher, port: Int) {

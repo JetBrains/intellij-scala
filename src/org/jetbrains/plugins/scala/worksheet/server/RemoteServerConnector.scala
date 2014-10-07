@@ -7,27 +7,22 @@ import java.net._
 
 import com.intellij.compiler.CompilerMessageImpl
 import com.intellij.compiler.progress.CompilerTask
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.compiler.{CompilerMessageCategory, CompilerPaths}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{ModuleRootManager, OrderEnumerator}
-import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.util.{Base64Converter, PathUtil}
+import com.intellij.util.Base64Converter
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.messages.BuildMessage
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.jps.incremental.scala.data.SbtData
 import org.jetbrains.jps.incremental.scala.remote._
-import org.jetbrains.plugin.scala.compiler.{IncrementalType, NameHashing}
-import org.jetbrains.plugins.scala
-import org.jetbrains.plugins.scala.compiler.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.config.ScalaFacet
+import org.jetbrains.plugins.scala.compiler.{ErrorHandler, NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
+import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetSourceProcessor}
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.{DummyClient, OuterCompilerInterface}
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 
@@ -35,108 +30,27 @@ import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
   * User: Dmitry Naydanov
  * Date: 1/28/14
  */
-class RemoteServerConnector(module: Module, worksheet: File, output: File) {
-  private val libRoot = {
-    if (ApplicationManager.getApplication.isUnitTestMode)
-      new File("../out/cardea/artifacts/Scala/lib") else new File(PathUtil.getJarPathForClass(getClass)).getParentFile
-  }
-  
-  private val libCanonicalPath = PathUtil.getCanonicalPath(libRoot.getPath)
-  
-  private val sbtData = SbtData.from(
-    new URLClassLoader(Array(new URL("jar:file:" + (if (libCanonicalPath startsWith "/") "" else "/" ) + libCanonicalPath + "/jps/sbt-interface.jar!/")), getClass.getClassLoader),
-    new File(libRoot, "jps"),
-    new File(System.getProperty("user.home"), ".idea-build"),
-    System.getProperty("java.class.version") 
-  ) match {
-    case Left(msg) => throw new IllegalArgumentException(msg)
-    case Right(data) => data
-  }
-  
-  private val scalaParameters = facet.compilerParameters
-  
-  private val javaParameters = Array.empty[String]
+class RemoteServerConnector(module: Module, worksheet: File, output: File, worksheetClassName: String)
+        extends RemoteServerConnectorBase(module: Module, worksheet: File, output: File) {
 
+  val runType = WorksheetCompiler.getRunType(module.getProject)
 
-  /**
-   *     Seq(
-      fileToPath(sbtData.interfaceJar),
-      fileToPath(sbtData.sourceJar),
-      fileToPath(sbtData.interfacesHome),
-      sbtData.javaClassVersion,
-      optionToString(compilerJarPaths),
-      optionToString(javaHomePath),
-      filesToPaths(compilationData.sources),
-      filesToPaths(compilationData.classpath),
-      fileToPath(compilationData.output),
-      sequenceToString(compilationData.scalaOptions),
-      sequenceToString(compilationData.javaOptions),
-      compilationData.order.toString,
-      fileToPath(compilationData.cacheFile),
-      filesToPaths(outputs),
-      filesToPaths(caches),
-      incrementalType.name,
-      <s>worksheetFilePath,</s> - deleted    
-      filesToPaths(sourceRoots),
-      filesToPaths(outputDirs),
-      worksheetClassName
-    )
-   */
-  def compileAndRun(callback: Runnable, originalFile: VirtualFile, consumer: OuterCompilerInterface, 
-                    worksheetClassName: String, runType: WorksheetMakeType): ExitCode = {
-    import _root_.scala.language.implicitConversions
+  override val worksheetArgs: Array[String] =
+    if (runType != OutOfProcessServer)
+      Array(worksheetClassName, runnersJar.getAbsolutePath, output.getAbsolutePath) ++ outputDirs
+    else Array.empty[String]
 
-    implicit def file2path(file: File): String = FileUtil.toCanonicalPath(file.getAbsolutePath)
-    implicit def option2string(opt: Option[String]): String = opt getOrElse ""
-    implicit def files2paths(files: Iterable[File]): String = files map file2path mkString "\n"
-    implicit def array2string(arr: Array[String]): String = arr mkString "\n"
+  def compileAndRun(callback: Runnable, originalFile: VirtualFile, consumer: OuterCompilerInterface): ExitCode = {
 
     val project = module.getProject
     val worksheetHook = WorksheetFileHook.instance(project)
 
     val client = new DummyClient(callback, project, originalFile, consumer)
-    val compilerJar = facetCompiler
-    val libraryJar = facetLibrary
-
-    val extraJar = facetFiles filter {
-      case a => a != compilerJar && a != libraryJar 
-    }
-    val runnersJar = new File(libCanonicalPath, "scala-plugin-runners.jar")
-    val compilerSettingsJar = new File(libCanonicalPath, "compiler-settings.jar")
-    
-    val additionalCp = facetFiles :+ runnersJar :+ compilerSettingsJar :+ output 
-    
-    val worksheetArgs = 
-      if (runType != OutOfProcessServer) Array(worksheetClassName, runnersJar.getAbsolutePath, output.getAbsolutePath) ++ outputDirs
-      else Array.empty[String]
-
-    val arguments = Seq[String](
-      sbtData.interfaceJar,
-      sbtData.sourceJar,
-      sbtData.interfacesHome, 
-      sbtData.javaClassVersion, 
-      Seq(libraryJar, compilerJar) ++ extraJar, 
-      findJdk, 
-      worksheet,
-      (assemblyClasspath().toSeq map (f => new File(f.getCanonicalPath stripSuffix "!" stripSuffix "!/"))) ++ additionalCp, 
-      output, 
-      scalaParameters,
-      javaParameters, 
-      settings.COMPILE_ORDER.toString, 
-      "", //cache file
-      "", 
-      "", 
-      IncrementalType.IDEA.name(),
-      worksheet.getParentFile, 
-      output, 
-      worksheetArgs,
-      NameHashing.DEFAULT.name()
-    )
 
     try {
       val worksheetProcess = runType match {
         case InProcessServer | OutOfProcessServer =>
-           new WorksheetRemoteServerRunner(project).run(arguments, client)
+           new RemoteServerRunner(project).run(arguments, client)
         case NonServer =>
           val eventClient = new ClientEventProcessor(client)
           
@@ -145,7 +59,18 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File) {
             case s => Base64Converter.encode(s getBytes "UTF-8")
           }
 
-          new WorksheetNonServerRunner(project).run(encodedArgs, (text: String) => {
+          val errorHandler = new ErrorHandler {
+            override def error(message: String): Unit = Notifications.Bus notify {
+              new Notification(
+                "scala",
+                "Cannot run worksheet",
+                s"<html><body>${message.replace("\n", "<br>")}</body></html>",
+                NotificationType.ERROR
+              )
+            }
+          }
+
+          new NonServerRunner(project, Some(errorHandler)).run(encodedArgs, (text: String) => {
             val event = Event.fromBytes(Base64Converter.decode(text.getBytes("UTF-8")))
             eventClient.process(event)
           })
@@ -167,41 +92,8 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File) {
     } 
   }
 
-  
-  private def configurationError(message: String) = throw new IllegalArgumentException(message)
-
-  private def assemblyClasspath() = OrderEnumerator.orderEntries(module).compileOnly().getClassesRoots
-  
   private def outputDirs = (ModuleRootManager.getInstance(module).getDependencies :+ module).map {
     case m => CompilerPaths.getModuleOutputPath(m, false)
-  } 
-
-  private def settings = ScalaApplicationSettings.getInstance()
-
-  private def facet =
-    ScalaFacet.findIn(module) getOrElse configurationError("No Scala facet configured for module: " + module.getName)
-  
-  private def facetCompiler = 
-    facet.compiler flatMap (_.jar) getOrElse configurationError("No compiler jar for Scala Facet in module: " + module.getName)
-  
-  private def facetLibrary = 
-    facet.compiler.flatMap {
-      case c => c.files find {
-        case file if file.getName contains "library" => true
-        case _ => false
-      }
-    } getOrElse configurationError("No library jar for Scala Facet in module: " + module.getName)
-  
-  private def facetFiles = facet.compiler flatMap {
-    case compiler => compiler.jar map {
-      case j => compiler.files
-    }
-  } getOrElse Seq.empty
-  
-  private def findJdk = scala.compiler.findJdkByName(settings.COMPILE_SERVER_SDK) match {
-    case Right(jdk) => jdk.executable
-    case Left(msg) => 
-      configurationError(s"Cannot find jdk ${settings.COMPILE_SERVER_SDK} for compile server, underlying message: $msg" )
   }
 }
 

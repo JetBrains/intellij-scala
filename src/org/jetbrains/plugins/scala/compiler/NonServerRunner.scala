@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala
-package worksheet.server
+package compiler
 
 import java.io.{BufferedReader, File, InputStreamReader, Reader}
 import java.util.concurrent.Future
 
 import com.intellij.execution.TaskExecutor
 import com.intellij.execution.process._
-import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
 import com.intellij.openapi.roots.ProjectRootManager
@@ -14,8 +13,6 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.Consumer
 import com.intellij.util.io.BaseDataReader
 import org.jetbrains.plugins.scala
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, JDK}
-import org.jetbrains.plugins.scala.components.WorksheetProcess
 
 import _root_.scala.collection.JavaConverters._
 
@@ -23,7 +20,7 @@ import _root_.scala.collection.JavaConverters._
  * User: Dmitry Naydanov
  * Date: 2/11/14
  */
-class WorksheetNonServerRunner(project: Project) {
+class NonServerRunner(project: Project, errorHandler: Option[ErrorHandler] = None) {
   private val SERVER_CLASS_NAME = "org.jetbrains.jps.incremental.scala.remote.Main"
 
   private def classPath(jdk: JDK) = (jdk.tools +: CompileServerLauncher.compilerJars).map(
@@ -31,7 +28,7 @@ class WorksheetNonServerRunner(project: Project) {
 
   private val jvmParameters = CompileServerLauncher.jvmParameters
   
-  def run(args: Seq[String], listener: String => Unit): WorksheetProcess = {
+  def run(args: Seq[String], listener: String => Unit): CompilationProcess = {
     val sdk = Option(ProjectRootManager.getInstance(project).getProjectSdk) getOrElse {
       val all = ProjectJdkTable.getInstance.getSdksOfType(JavaSdk.getInstance())
       
@@ -57,7 +54,7 @@ class WorksheetNonServerRunner(project: Project) {
 
         val builder = new ProcessBuilder(commands.asJava)
         
-        new WorksheetProcess {
+        new CompilationProcess {
           var myProcess: Option[Process] = None
           var myCallbacks: Seq[() => Unit] = Seq.empty
 
@@ -91,14 +88,7 @@ class WorksheetNonServerRunner(project: Project) {
   }
   
   private def error(message: String) {
-    Notifications.Bus notify {
-      new Notification(
-        "scala", 
-        "Cannot run worksheet", 
-        s"<html><body>${message.replace("\n", "<br>")}</body></html>", 
-        NotificationType.ERROR
-      )
-    }
+    errorHandler.foreach(_.error(message))
   }
   
   private class MyBase64StreamReader(private val reader: Reader, listener: String => Unit) extends BaseDataReader(null) {
@@ -150,4 +140,8 @@ class WorksheetNonServerRunner(project: Project) {
       read
     }
   }
+}
+
+trait ErrorHandler {
+  def error(message: String): Unit
 }
