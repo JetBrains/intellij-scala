@@ -30,12 +30,8 @@ class ServerMediator(project: Project) extends ProjectComponent {
       if (isScalaProject) {
 
         if (externalCompiler) {
-          invokeAndWait {
-            if (!checkCompilationSettings()) {
-              return false
-            }
-            project.getComponent(classOf[FscServerLauncher]).stop()
-            project.getComponent(classOf[FscServerManager]).removeWidget()
+          if (!checkCompilationSettings()) {
+            return false
           }
 
           if (settings.COMPILE_SERVER_ENABLED && !ApplicationManager.getApplication.isUnitTestMode) {
