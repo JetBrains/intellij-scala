@@ -7,12 +7,12 @@ import com.intellij.openapi.roots.libraries.NewLibraryConfiguration
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.LibraryEditor
 import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
 import org.jetbrains.plugins.scala.configuration.template.Artifact.ScalaLibrary
-import org.jetbrains.plugins.scala.configuration.{ScalaLanguageLevel, ScalaLibraryProperties, ScalaLibraryType}
+import org.jetbrains.plugins.scala.configuration.{Version, ScalaLanguageLevel, ScalaLibraryProperties, ScalaLibraryType}
 
 /**
  * @author Pavel Fatin
  */
-case class ScalaSdkDescriptor(version: String,
+case class ScalaSdkDescriptor(version: Version,
                               compilerFiles: Seq[File],
                               libraryFiles: Seq[File],
                               sourceFiles: Seq[File],
@@ -21,7 +21,7 @@ case class ScalaSdkDescriptor(version: String,
   def createNewLibraryConfiguration() = {
     val properties = new ScalaLibraryProperties()
 
-    properties.languageLevel = ScalaLanguageLevel.from(version, true)
+    properties.languageLevel = ScalaLanguageLevel.from(version.value, true)
     properties.compilerClasspath = compilerFiles
 
     val name = "scala-sdk-" + version
@@ -71,7 +71,8 @@ object ScalaSdkDescriptor {
 
       val libraryVersion = binaryComponents.find(_.artifact == ScalaLibrary).flatMap(_.version).getOrElse("Unknown")
 
-      val descriptor = ScalaSdkDescriptor(libraryVersion,
+      val descriptor = ScalaSdkDescriptor(
+        new Version(libraryVersion),
         compilerBinaries.map(_.file),
         libraryBinaries.map(_.file),
         librarySources.map(_.file),
