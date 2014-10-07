@@ -1726,7 +1726,9 @@ object ScalaPsiUtil {
           }
           val maybeParameter = params.lift(args.exprs.indexOf(expr))
           maybeParameter.map(new Parameter(_))
-        case _ => args.matchedParameters.getOrElse(Seq.empty).find(_._1 == expr).map(_._2)
+        case _ => args.matchedParameters.getOrElse(Seq.empty).collectFirst {
+          case (e, p) if PsiEquivalenceUtil.areElementsEquivalent(e, expr) => p
+        }
       }
     }
     exp match {
