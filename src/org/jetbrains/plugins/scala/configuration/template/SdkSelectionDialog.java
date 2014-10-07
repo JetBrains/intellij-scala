@@ -21,7 +21,7 @@ public class SdkSelectionDialog extends JDialog {
   private final SdkTableModel myTableModel = new SdkTableModel();
   private ScalaSdkDescriptor mySelectedSdk;
 
-  public SdkSelectionDialog(JComponent parent, List<SdkChoice> skds) {
+  public SdkSelectionDialog(JComponent parent, List<SdkChoice> sdks) {
     super((Window) parent.getTopLevelAncestor());
 
     myParent = parent;
@@ -63,9 +63,13 @@ public class SdkSelectionDialog extends JDialog {
       }
     }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
-    myTableModel.setItems(skds);
+    myTableModel.setItems(sdks);
 
     myTable.setModelAndUpdateColumns(myTableModel);
+
+    if (!sdks.isEmpty()) {
+      myTable.getSelectionModel().setSelectionInterval(0, 0);
+    }
   }
 
   private void onBrowse() {
