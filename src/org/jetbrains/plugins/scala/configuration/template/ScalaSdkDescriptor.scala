@@ -24,7 +24,7 @@ case class ScalaSdkDescriptor(version: Version,
     properties.languageLevel = ScalaLanguageLevel.from(version.value, true)
     properties.compilerClasspath = compilerFiles
 
-    val name = "scala-sdk-" + version
+    val name = "scala-sdk-" + version.value
 
     new NewLibraryConfiguration(name, ScalaLibraryType.instance, properties) {
       override def addRoots(editor: LibraryEditor): Unit = {
