@@ -37,7 +37,7 @@ object InfixType {
           case _ =>
         }
       case _ =>
-        if (!CompoundType.parse(builder)) {
+        if (!CompoundType.parse(builder, isPattern)) {
           infixTypeMarker.rollbackTo()
           return false
         }
@@ -78,7 +78,7 @@ object InfixType {
           builder.advanceLexer()
           typeMarker.done(ScalaElementTypes.WILDCARD_TYPE)
         case _ =>
-          if (!CompoundType.parse(builder)) builder error ScalaBundle.message("compound.type.expected")
+          if (!CompoundType.parse(builder, isPattern)) builder error ScalaBundle.message("compound.type.expected")
       }
       if (assoc == 1) {
         val newMarker = infixTypeMarker.precede

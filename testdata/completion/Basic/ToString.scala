@@ -1,3 +1,3 @@
 val file = new java.io.File
-file.toS/*caret*/
+file.toSt/*caret*/
 //toString

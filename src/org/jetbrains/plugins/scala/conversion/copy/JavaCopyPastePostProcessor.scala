@@ -16,10 +16,12 @@ import com.intellij.openapi.util.{Ref, TextRange}
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiJavaFile}
 import com.intellij.util.ExceptionUtil
+import org.jetbrains.plugins.scala.conversion.JavaToScala.Offset
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings._
 
+import scala.annotation.tailrec
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 /**
@@ -39,21 +41,43 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
   protected def collectTransferableData0(file: PsiFile, editor: Editor, startOffsets: Array[Int], endOffsets: Array[Int]): TextBlockTransferableData = {
     if (DumbService.getInstance(file.getProject).isDumb) return null
     if (!ScalaProjectSettings.getInstance(file.getProject).isEnableJavaToScalaConversion ||
-        !file.isInstanceOf[PsiJavaFile]) return null;
+        !file.isInstanceOf[PsiJavaFile]) return null
 
-    val buffer = new ArrayBuffer[PsiElement]
+    sealed trait Part
+    case class ElementPart(elem: PsiElement) extends Part
+    case class TextPart(text: String) extends Part
+
+    val buffer = new ArrayBuffer[Part]
 
     try {
       for ((startOffset, endOffset) <- startOffsets.zip(endOffsets)) {
-        var elem: PsiElement = file.findElementAt(startOffset)
-        while (elem != null && elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] &&
-                elem.getParent.getTextRange.getEndOffset <= endOffset) {
-          elem = elem.getParent
+        @tailrec
+        def findElem(offset: Int): PsiElement = {
+          if (offset > endOffset) return null
+          val elem = file.findElementAt(offset)
+          if (elem == null) return null
+          if (elem.getParent.getTextRange.getEndOffset > endOffset ||
+            elem.getParent.getTextRange.getStartOffset < startOffset) findElem(elem.getTextRange.getEndOffset + 1)
+          else elem
         }
-        buffer += elem
-        while (elem.getTextRange.getEndOffset < endOffset) {
-          elem = elem.getNextSibling
-          buffer += elem
+        var elem: PsiElement = findElem(startOffset)
+        if (elem != null) {
+          while (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] &&
+            elem.getParent.getTextRange.getEndOffset <= endOffset &&
+            elem.getParent.getTextRange.getStartOffset >= startOffset) {
+            elem = elem.getParent
+          }
+          if (startOffset < elem.getTextRange.getStartOffset) {
+            buffer += TextPart(new TextRange(startOffset, elem.getTextRange.getStartOffset).substring(file.getText))
+          }
+          buffer += ElementPart(elem)
+          while (elem.getNextSibling != null && elem.getNextSibling.getTextRange.getEndOffset <= endOffset) {
+            elem = elem.getNextSibling
+            buffer += ElementPart(elem)
+          }
+          if (elem.getTextRange.getEndOffset < endOffset) {
+            buffer += TextPart(new TextRange(elem.getTextRange.getEndOffset, endOffset).substring(file.getText))
+          }
         }
       }
 
@@ -71,9 +95,15 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
           new ReferenceData(it.startOffset + shift, it.endOffset + shift, it.qClassName, it.staticMemberName)
         } else Seq.empty
 
-      val newText = JavaToScala.convertPsisToText(buffer.toArray, associations, data)
-
-      new ConvertedCode(newText, associations.toArray)
+      val res = new StringBuilder("")
+      for (part <- buffer) {
+        part match {
+          case TextPart(text) => res.append(text)
+          case ElementPart(element) =>
+            res.append(JavaToScala.convertPsiToText(element)(associations, data, new Offset(res.length)))
+        }
+      }
+      new ConvertedCode(res.toString(), associations.toArray)
     } catch {
       case e: Exception =>
         val selections = (startOffsets, endOffsets).zipped.map((a, b) => file.getText.substring(a, b))

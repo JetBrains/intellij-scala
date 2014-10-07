@@ -53,7 +53,7 @@ object InterpolatedStringFormatter extends StringFormatter {
         case Text(s) =>
           return s.isEmpty || !ScalaNamesUtil.isIdentifier(it.text + s.charAt(0)) ||
                 s.startsWith("`") || s.exists(_ == '$')
-        case _ =>  true
+        case _ =>
       }
     }
     true

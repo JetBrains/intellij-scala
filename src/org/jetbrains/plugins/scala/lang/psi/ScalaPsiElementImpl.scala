@@ -8,6 +8,7 @@ import com.intellij.psi.impl.CheckUtil
 import com.intellij.psi.impl.source.tree.{LazyParseablePsiElement, SharedImplUtil}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 
 /**
@@ -133,7 +134,9 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement]
     if (stub != null) {
       return stub.getParentStub.getPsi
     }
-    SharedImplUtil.getParent(getNode)
+    inReadAction {
+      SharedImplUtil.getParent(getNode)
+    }
   }
 
   def getLastChildStub: PsiElement = {

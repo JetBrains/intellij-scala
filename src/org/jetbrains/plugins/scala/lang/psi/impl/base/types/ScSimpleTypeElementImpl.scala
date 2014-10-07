@@ -106,7 +106,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             f.parameterList.clauses.lastOption.exists(_.isImplicit))
         case m: PsiMethod =>
           (Seq(m.getParameterList.getParameters.toSeq.mapWithIndex {
-            case (p, index) => new Parameter("", None, p.paramType, false, p.isVarArgs, false, index)
+            case (p, index) => new Parameter("", None, p.exactParamType(), false, p.isVarArgs, false, index)
           }), false)
       }
     }
@@ -304,6 +304,8 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         ref.resolveNoConstructor match {
           case Array(ScalaResolveResult(tp: PsiTypeParameter, _)) =>
             lift(ScalaPsiManager.typeVariable(tp))
+          case Array(ScalaResolveResult(tvar: ScTypeVariableTypeElement, _)) =>
+            lift(tvar.getType(TypingContext.empty).getOrAny)
           case Array(ScalaResolveResult(synth: ScSyntheticClass, _)) =>
             lift(synth.t)
           case Array(ScalaResolveResult(to: ScTypeParametersOwner, subst: ScSubstitutor))

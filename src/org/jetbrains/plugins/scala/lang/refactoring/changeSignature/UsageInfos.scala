@@ -1,17 +1,19 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature
 
-import com.intellij.psi.{PsiMethod, PsiElement, PsiNamedElement, PsiReference}
+import com.intellij.psi.{PsiElement, PsiMethod, PsiNamedElement, PsiReference}
 import com.intellij.refactoring.changeSignature.{ChangeInfo, JavaChangeInfo}
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
@@ -26,8 +28,15 @@ private[changeSignature] trait ScalaNamedElementUsageInfo {
   this: UsageInfo =>
 
   def namedElement: ScNamedElement
-  def parameters: Seq[Parameter] = Seq.empty
-  def defaultValues: Seq[Option[String]] = Seq.empty
+
+  val paramClauses: Option[ScParameters] = namedElement match {
+    case fun: ScFunction => Some(fun.paramClauses)
+    case cl: ScClass => cl.clauses
+    case _ => None
+  }
+  val scParams: Seq[ScParameter] = paramClauses.toSeq.flatMap(_.params)
+  val parameters: Seq[Parameter] = scParams.map(new Parameter(_))
+  val defaultValues: Seq[Option[String]] = scParams.map(_.getActualDefaultExpression.map(_.getText))
 }
 
 private[changeSignature] object ScalaNamedElementUsageInfo {
@@ -53,20 +62,12 @@ private[changeSignature] object ScalaNamedElementUsageInfo {
 }
 
 private[changeSignature] case class FunUsageInfo(namedElement: ScFunction)
-        extends UsageInfo(namedElement) with ScalaNamedElementUsageInfo {
-  
-  val parameterClauses = namedElement.paramClauses.clauses
+        extends UsageInfo(namedElement) with ScalaNamedElementUsageInfo
 
-  override val (parameters, defaultValues) = {
-    val all = for {
-      clause <- parameterClauses
-      param <- clause.parameters
-    } yield {
-      (new Parameter(param), param.getActualDefaultExpression.map(_.getText))
-    }
-    all.unzip
-  }
-}
+private[changeSignature] case class PrimaryConstructorUsageInfo(pc: ScPrimaryConstructor)
+        extends {
+          override val namedElement = pc.containingClass.asInstanceOf[ScClass]
+        } with UsageInfo(pc) with ScalaNamedElementUsageInfo
 
 private[changeSignature] case class OverriderValUsageInfo(namedElement: ScBindingPattern)
         extends UsageInfo(namedElement) with ScalaNamedElementUsageInfo
@@ -77,7 +78,7 @@ private[changeSignature] case class OverriderClassParamUsageInfo(namedElement: S
 private[changeSignature] trait MethodUsageInfo {
   def expr: ScExpression
   def argsInfo: OldArgsInfo
-  def ref: ScReferenceExpression
+  def ref: ScReferenceElement
   def method: PsiNamedElement = ref.resolve() match {
     case e: PsiNamedElement => e
     case _ => throw new IllegalArgumentException("Found reference does not resolve")
@@ -114,6 +115,18 @@ private[changeSignature] case class PostfixExprUsageInfo(postfix: ScPostfixExpr)
   val argsInfo = OldArgsInfo(postfix.argumentExpressions, method)
 }
 
+private[changeSignature] case class ConstructorUsageInfo(ref: ScReferenceElement, constr: ScConstructor)
+        extends UsageInfo(constr) with MethodUsageInfo {
+
+  private val resolveResult = Option(ref).flatMap(_.bind())
+  val substitutor = resolveResult.map(_.substitutor)
+  val expr = {
+    val newText = s"new ${constr.getText}"
+    ScalaPsiElementFactory.createExpressionFromText(newText, constr.getManager)
+  }
+  val argsInfo = OldArgsInfo(constr.args.toSeq.flatMap(_.exprs), method)
+}
+
 private[changeSignature] case class AnonFunUsageInfo(expr: ScExpression, ref: ScReferenceExpression)
         extends UsageInfo(expr)
 
@@ -122,7 +135,7 @@ private[changeSignature] object isAnonFunUsage {
     ref match {
       case ChildOf(mc: MethodInvocation) if mc.argumentExpressions.exists(ScUnderScoreSectionUtil.isUnderscore) => Some(AnonFunUsageInfo(mc, ref))
       case ChildOf(und: ScUnderscoreSection) => Some(AnonFunUsageInfo(und, ref))
-      case Both(Resolved(m: PsiMethod, _), ChildOf(elem))
+      case Both(ResolvesTo(m: PsiMethod), ChildOf(elem))
         if m.getParameterList.getParametersCount > 0 && !elem.isInstanceOf[MethodInvocation] =>
         Some(AnonFunUsageInfo(ref, ref))
       case _ => None
@@ -132,6 +145,8 @@ private[changeSignature] object isAnonFunUsage {
 
 private[changeSignature] case class ParameterUsageInfo(oldIndex: Int, newName: String, ref: ScReferenceElement)
         extends UsageInfo(ref: PsiElement)
+
+private[changeSignature] case class ImportUsageInfo(imp: ScReferenceElement) extends UsageInfo(imp: PsiElement)
 
 private[changeSignature] object UsageUtil {
 
@@ -143,14 +158,18 @@ private[changeSignature] object UsageUtil {
   }
 
   def scalaUsage(usage: UsageInfo): Boolean = usage match {
-    case ScalaNamedElementUsageInfo(_) | _: ParameterUsageInfo | _: MethodUsageInfo | _: AnonFunUsageInfo => true
+    case ScalaNamedElementUsageInfo(_) | _: ParameterUsageInfo | _: MethodUsageInfo | _: AnonFunUsageInfo | _: ImportUsageInfo => true
     case _ => false
   }
 
   def substitutor(usage: ScalaNamedElementUsageInfo): ScSubstitutor = usage match {
     case ScalaNamedElementUsageInfo(funUsage: FunUsageInfo) =>
-      funUsage.namedElement.superMethodAndSubstitutor match {
-        case Some((_, subst)) => subst
+      funUsage.namedElement match {
+        case fun: ScFunction =>
+          fun.superMethodAndSubstitutor match {
+            case Some((_, subst)) => subst
+            case _ => ScSubstitutor.empty
+          }
         case _ => ScSubstitutor.empty
       }
     case _ => ScSubstitutor.empty

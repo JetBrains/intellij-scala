@@ -3,7 +3,6 @@ package refactoring.changeSignature
 
 import java.io.File
 
-import com.intellij.codeInsight.TargetElementUtilBase
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.{CharsetToolkit, VfsUtil}
 import com.intellij.psi._
@@ -12,17 +11,19 @@ import com.intellij.refactoring.changeSignature._
 import com.intellij.testFramework.LightPlatformTestCase
 import junit.framework.Assert._
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureProcessor, ScalaParameterInfo}
+import org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
+import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureProcessor, ScalaParameterInfo}
 
 /**
  * Nikolay.Tropin
  * 2014-08-14
  */
 abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
-  var targetMethod: PsiMethod = null
+  var targetMethod: PsiMember = null
   protected var isAddDefaultValue = false
 
   override def getTestDataPath = folderPath
@@ -38,6 +39,8 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
                 newName: String,
                 newReturnType: String,
                 newParams: => Seq[Seq[ParameterInfo]]): ChangeSignatureProcessorBase
+
+  def findTargetElement: PsiMember
 
   protected def doTest(newVisibility: String,
                        newName: String,
@@ -55,12 +58,7 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
 
     val fileName = mainFileName(testName)
     configureByFile(fileName)
-
-    val targetElement = TargetElementUtilBase.findTargetElement(getEditorAdapter, TargetElementUtilBase.ELEMENT_NAME_ACCEPTED)
-    assertTrue("<caret> is not on method name", targetElement.isInstanceOf[PsiMethod])
-    targetMethod = targetElement.asInstanceOf[PsiMethod]
-
-    val retType = if (newReturnType != null) getPsiTypeFromText(newReturnType, targetMethod) else targetMethod.getReturnType
+    targetMethod = findTargetElement
 
     processor(newVisibility, newName, newReturnType, newParams).run()
 
@@ -100,11 +98,14 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
                               newName: String,
                               newReturnType: String,
                               newParams: => Seq[Seq[ParameterInfo]]): ChangeSignatureProcessorBase = {
-    val retType = if (newReturnType != null) getPsiTypeFromText(newReturnType, targetMethod) else targetMethod.getReturnType
+
+    val psiMethod = targetMethod.asInstanceOf[PsiMethod]
+    val retType =
+      if (newReturnType != null) getPsiTypeFromText(newReturnType, psiMethod) else psiMethod.getReturnType
 
     val params = newParams.flatten.map(_.asInstanceOf[ParameterInfoImpl]).toArray
 
-    new ChangeSignatureProcessor(getProjectAdapter, targetMethod, /*generateDelegate = */ false,
+    new ChangeSignatureProcessor(getProjectAdapter, psiMethod, /*generateDelegate = */ false,
       newVisibility, newName, retType, params, Array.empty)
   }
 
@@ -113,17 +114,17 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
                                newReturnType: String,
                                newParams: => Seq[Seq[ParameterInfo]],
                                isAddDefaultValue: Boolean): ChangeSignatureProcessorBase = {
-    val fun = targetMethod.asInstanceOf[ScFunction]
-
-    val retType =
-      if (newReturnType != null)
-        ScalaPsiElementFactory.createTypeFromText(newReturnType, fun, fun)
-      else fun.returnType.getOrAny
+    val retType = targetMethod match {
+      case fun: ScFunction =>
+        if (newReturnType != null) ScalaPsiElementFactory.createTypeFromText(newReturnType, fun, fun)
+        else fun.returnType.getOrAny
+      case _ => types.Any
+    }
 
     val params = newParams.map(_.map(_.asInstanceOf[ScalaParameterInfo]))
 
     val changeInfo =
-      new ScalaChangeInfo(newVisibility, targetMethod.asInstanceOf[ScFunction], newName, retType, params, isAddDefaultValue)
+      new ScalaChangeInfo(newVisibility, targetMethod.asInstanceOf[ScMethodLike], newName, retType, params, isAddDefaultValue)
 
     new ScalaChangeSignatureProcessor(getProjectAdapter, changeInfo)
   }

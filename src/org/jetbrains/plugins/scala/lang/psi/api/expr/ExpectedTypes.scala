@@ -153,7 +153,11 @@ private[expr] object ExpectedTypes {
               case _ => Array.empty
             }
           case ref: ScReferenceExpression => expectedExprTypes(a)
-          case call: ScMethodCall => Array.empty//todo: as argumets call expected type
+          case call: ScMethodCall =>
+            a.mirrorMethodCall match {
+              case Some(mirrorCall) => mirrorCall.args.exprs.last.expectedTypesEx(fromUnderscore = fromUnderscore)
+              case _ => Array.empty
+            }
           case _ => Array.empty
         }
       //method application

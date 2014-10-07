@@ -38,7 +38,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   private boolean TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = false;
   private boolean DISABLE_LANGUAGE_INJECTION = true;
-  private boolean DISABLE_I18N = true;
+  private boolean DISABLE_I18N = false;
   private boolean DONT_CACHE_COMPOUND_TYPES = false;
   private boolean SCALA_CLASSES_PRIORITY = true;
 
@@ -170,14 +170,6 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setTreatDocCommentAsBlockComment(boolean value) {
     TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = value;
-  }
-
-  public boolean isDisableI18N() {
-    return DISABLE_I18N;
-  }
-
-  public void setDisableI18N(boolean value) {
-    DISABLE_I18N = value;
   }
 
   public boolean isDontCacheCompoundTypes() {

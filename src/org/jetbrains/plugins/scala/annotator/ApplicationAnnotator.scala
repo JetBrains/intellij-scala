@@ -33,7 +33,7 @@ trait ApplicationAnnotator {
       if (r.isAssignment) {
         annotateAssignmentReference(reference, holder)
       }
-      if (!r.isApplicable) {
+      if (!r.isApplicable()) {
         r.element match {
           case f@(_: ScFunction | _: PsiMethod | _: ScSyntheticFunction) =>
             reference.getContext match {
@@ -111,6 +111,7 @@ trait ApplicationAnnotator {
                       //TODO investigate case when assignment is null. It's possible when new Expression(ScType)
                     }
                   case WrongTypeParameterInferred => //todo: ?
+                  case ExpectedTypeMismatch => //will be reported later
                   case ElementApplicabilityProblem(element, actual, expected) =>
                     holder.createErrorAnnotation(element, ScalaBundle.message("return.expression.does.not.conform",
                       actual.presentableText, expected.presentableText))
@@ -206,7 +207,7 @@ trait ApplicationAnnotator {
         holder.createErrorAnnotation(argument, "Positional after named argument")
       case ParameterSpecifiedMultipleTimes(assignment) =>
         holder.createErrorAnnotation(assignment.getLExpression, "Parameter specified multiple times")
-
+      case ExpectedTypeMismatch => // it will be reported later
       case _ => holder.createErrorAnnotation(call.argsElement, "Not applicable")
     }
   }

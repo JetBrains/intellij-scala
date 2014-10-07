@@ -76,7 +76,7 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
 object ShowTypeInfoAction {
   def getTypeInfoHint(editor: Editor, file: PsiFile, offset: Int): Option[String] = {
     file.findReferenceAt(offset) match {
-      case Resolved(e, subst) => typeOf(e, subst)
+      case ResolvedWithSubst(e, subst) => typeOf(e, subst)
       case _ =>
         val element = file.findElementAt(offset)
         if (element == null) return None

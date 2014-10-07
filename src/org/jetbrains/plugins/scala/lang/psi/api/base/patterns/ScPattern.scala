@@ -10,6 +10,7 @@ import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeVariableTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
@@ -38,23 +39,47 @@ trait ScPattern extends ScalaPsiElement {
 
   def bindings: Seq[ScBindingPattern] = {
     val b = new ArrayBuffer[ScBindingPattern]
-    _bindings(this, b)
+
+    def inner(p: ScPattern) {
+      p match {
+        case binding: ScBindingPattern => b += binding
+        case _ =>
+      }
+
+      for (sub <- p.subpatterns) {
+        inner(sub)
+      }
+    }
+
+    inner(this)
+    b
+  }
+
+  def typeVariables: Seq[ScTypeVariableTypeElement] = {
+    val b = new ArrayBuffer[ScTypeVariableTypeElement]
+
+    def inner(p: ScPattern) {
+      p match {
+        case ScTypedPattern(te) =>
+          te.accept(new ScalaRecursiveElementVisitor {
+            override def visitTypeVariableTypeElement(tvar: ScTypeVariableTypeElement): Unit = {
+              b += tvar
+            }
+          })
+        case _ =>
+      }
+
+      for (sub <- p.subpatterns) {
+        inner(sub)
+      }
+    }
+
+    inner(this)
     b
   }
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitPattern(this)
-  }
-
-  private def _bindings(p: ScPattern, b: ArrayBuffer[ScBindingPattern]) {
-    p match {
-      case binding: ScBindingPattern => b += binding
-      case _ =>
-    }
-
-    for (sub <- p.subpatterns) {
-      _bindings(sub, b)
-    }
   }
 
   def subpatterns: Seq[ScPattern] = this match {

@@ -17,6 +17,6 @@ public class FunctionsTypeParam2ResolveTest extends ScalaResolveTestCase {
     PsiReference ref = findReferenceAtCaret();
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScFunctionDefinition);
-    assertEquals(resolved.getText(), "def gul(i:Int) : Int = i");
+    assertEquals("def gul(i:Int) : Int = i", resolved.getText());
   }
 }

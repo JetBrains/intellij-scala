@@ -14,7 +14,6 @@ class A {
 /*
 val l: List[Integer] = new ArrayList[Integer]
 
-
 import scala.collection.JavaConversions._
 
 for (integer <- l) {

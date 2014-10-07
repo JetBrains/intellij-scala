@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
 import com.intellij.debugger.DebuggerBundle
+import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
-import com.intellij.debugger.engine.evaluation.{EvaluateExceptionUtil, EvaluationContextImpl}
 import com.intellij.debugger.jdi.{LocalVariableProxyImpl, StackFrameProxyImpl}
 import com.sun.jdi.{AbsentInformationException, ObjectReference, Value}
+import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 
 /**
  * User: Alefas
@@ -59,7 +60,7 @@ class ScalaThisEvaluator(iterations: Int = 0) extends Evaluator {
       objRef = thisRef
     }
     if (objRef == null) {
-      throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.this.not.avalilable"))
+      throw EvaluationException(DebuggerBundle.message("evaluation.error.this.not.avalilable"))
     }
     objRef
   }

@@ -397,7 +397,7 @@ private[types] object CyclicHelper {
   }
 }
 
-case class ScTypeVariable(name: String) extends ValueType{
+case class ScTypeVariable(name: String) extends ValueType {
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitTypeVariable(this)
   }

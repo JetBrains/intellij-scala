@@ -37,7 +37,6 @@ public class JavaSpecs2Runner {
       } else if (newArgs[i].equals("-testName")) {
         ++i;
         testName = newArgs[i];
-//        specialArgs.add("-Dspecs2.ex="+ "\"" + testName + "\"");
         ++i;
       } else if (newArgs[i].equals("-showProgressMessages")) {
         ++i;
@@ -79,9 +78,9 @@ public class JavaSpecs2Runner {
 
   private static void runSingleTest(String className, String testName, NotifierRunner runner, ArrayList<String> argsArray)
       throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    String specInstantiationMessage = "can not create specification";
     List<String> runnerArgs = new ArrayList<String>();
     runnerArgs.add(className);
-//    if (!testName.equals("")) runnerArgs.add(testName);
     if (!testName.equals("")) runnerArgs.add("-Dspecs2.ex="+ "\"" + testName + "\"");
     runnerArgs.addAll(argsArray);
     Object runnerArgsArray = runnerArgs.toArray(new String[runnerArgs.size()]);
@@ -94,37 +93,55 @@ public class JavaSpecs2Runner {
     } catch (NoSuchMethodException e) {
       hasNoStartMethod = true;
     } catch (InvocationTargetException e) {
+      Throwable cause = e.getCause();
+      String message = cause.getMessage();
+      if (message != null && message.startsWith(specInstantiationMessage)) {
+        System.out.println(message);
+        return;
+      }
       hasNoStartMethod = true;
     } catch (IllegalAccessException e) {
       hasNoStartMethod = true;
     }
 
-    if (hasNoStartMethod) {
-      try {
-        MyNotifierRunner myNotifierRunner = new MyNotifierRunner(new JavaSpecs2Notifier());
-        Method method = myNotifierRunner.getClass().getMethod("start", String[].class);
-        method.invoke(myNotifierRunner, runnerArgsArray);
-      } catch (NoClassDefFoundError e) {
-        System.out.println("\nNoClassDefFoundError for 'Start' in MyNotifierRunner " + e.getMessage() + "\n");
-        startNotFound = true;
-      } catch (NoSuchMethodException e) {
-        System.out.println("\nNoSuchMethodException for 'Start' in MyNotifierRunner " + e.getMessage() + "\n");
-        startNotFound = true;
-      } catch (InvocationTargetException e) {
-        Throwable cause = e.getCause();
-        cause.printStackTrace();
-        System.out.println("\nInvocationTargetException for 'Start' in MyNotifierRunner; cause: " + cause.getMessage() + "\n");
-        startNotFound = true;
-      } catch (IllegalAccessException e) {
-        System.out.println("\nIllegalAccessException for 'Start' in MyNotifierRunner " + e.getMessage() + "\n");
-        startNotFound = true;
+      if (hasNoStartMethod) {
+        try {
+          MyNotifierRunner myNotifierRunner = new MyNotifierRunner(new JavaSpecs2Notifier());
+          Method method = myNotifierRunner.getClass().getMethod("start", String[].class);
+          method.invoke(myNotifierRunner, runnerArgsArray);
+        } catch (NoClassDefFoundError e) {
+          System.out.println("\nNoClassDefFoundError for 'Start' in MyNotifierRunner " + e.getMessage() + "\n");
+          startNotFound = true;
+        } catch (NoSuchMethodException e) {
+          System.out.println("\nNoSuchMethodException for 'Start' in MyNotifierRunner " + e.getMessage() + "\n");
+          startNotFound = true;
+        } catch (InvocationTargetException e) {
+          Throwable cause = e.getCause();
+          String message = cause.getMessage();
+          if (message != null && message.startsWith(specInstantiationMessage)) {
+            System.out.println(message);
+            return;
+          }
+          System.out.println("\nInvocationTargetException for 'Start' in MyNotifierRunner; cause: " + message + "\n");
+          startNotFound = true;
+        } catch (IllegalAccessException e) {
+          System.out.println("\nIllegalAccessException for 'Start' in MyNotifierRunner " + e.getMessage() + "\n");
+          startNotFound = true;
+        }
       }
-    }
 
-    if (startNotFound) {
-      Method method = runner.getClass().getMethod("main", String[].class);
-      method.invoke(runner, runnerArgsArray);
-    }
+      if (startNotFound) {
+        try {
+          Method method = runner.getClass().getMethod("main", String[].class);
+          method.invoke(runner, runnerArgsArray);
+        } catch (InvocationTargetException e) {
+          Throwable cause = e.getCause();
+          String message = cause.getMessage();
+          if (message != null && message.startsWith(specInstantiationMessage)) {
+            System.out.println(message);
+          }
+        }
+      }
   }
 
 }

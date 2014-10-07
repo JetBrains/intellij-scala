@@ -30,6 +30,7 @@
         <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveClassesOrPackagesHandler" order="first"/>
         <refactoring.moveAllClassesInFileHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaClassesInFileHandler" order="last"/>
         <statementUpDownMover implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaStatementMover"/>
+        <editorTabTitleProvider implementation="org.jetbrains.plugins.scala.editor.PackageObjectEditorTabTitleProvider"/>
         <debugger.javaDebugAware implementation="org.jetbrains.plugins.scala.debugger.ScalaJavaDebugAware"/>
         <debugger.codeFragmentFactory implementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory"/>
         <debugger.positionManagerFactory implementation="org.jetbrains.plugins.scala.debugger.ScalaPositionManagerFactory"/>
@@ -895,7 +896,18 @@
                        displayName="Unreachable code" groupName="Scala: General"
                        shortName="ScalaUnreachableCode" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
-
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUselessExpressionInspection"
+                       displayName="Useless expression" groupName="Scala: General"
+                       shortName="ScalaUselessExpression" level="WEAK WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.implicits.NoReturnTypeForImplicitDefInspection"
+                       displayName="No return type for implicit function" groupName="Scala: General"
+                       shortName="NoReturnTypeForImplicitDef" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parameters.AutoTuplingInspection"
+                       displayName="Auto-tupling" groupName="Scala: General"
+                       shortName="AutoTupling" level="WARNING"
+                       enabledByDefault="false" language="Scala"/>
 
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
@@ -945,9 +957,6 @@
         <component>
           <implementation-class>org.jetbrains.plugins.scala.compiler.CompileServerLauncher</implementation-class>
         </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.config.AdjustSettingsApplicationComponent</implementation-class>
-        </component>
     </application-components>
 
     <project-components>
@@ -959,6 +968,7 @@
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager</implementation-class>
+            <loadForDefaultProject/>
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedImportsPassFactory</implementation-class>
@@ -968,18 +978,13 @@
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager</implementation-class>
+            <loadForDefaultProject/>
         </component>
         <component>
           <implementation-class>org.jetbrains.plugins.scala.compiler.CompilerConfigurationMonitor</implementation-class>
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.components.HighlightingAdvisor</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.compiler.FscServerLauncher</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.compiler.FscServerManager</implementation-class>
         </component>
         <component>
           <implementation-class>org.jetbrains.plugins.scala.compiler.CompileServerManager</implementation-class>
@@ -1054,7 +1059,7 @@
             <keyboard-shortcut keymap="$default" first-keystroke="alt ENTER"/>
         </action>
         <action id="Scala.RenameJavaToScala" class="org.jetbrains.plugins.scala.conversion.RenameJavaToScalaAction"
-                text="Convert Java File To Scala" description="Rename Java File To Scala">
+                text="Convert to Scala" description="Convert Java to Scala">
             <add-to-group group-id="RefactoringMenu" anchor="last"/>
             <add-to-group group-id="EditorTabPopupMenu" anchor="last"/>
             <keyboard-shortcut first-keystroke="control shift G" keymap="$default"/>
@@ -1099,6 +1104,11 @@
         <action id="Scala.GenerateCompanionObject"
                 class="org.jetbrains.plugins.scala.codeInsight.generation.ScalaGenerateCompanionObjectAction" text="Companion object"
                 description="Generate companion object">
+          <add-to-group group-id="GenerateGroup"/>
+        </action>
+        <action id="Scala.GenerateProperty"
+                class="org.jetbrains.plugins.scala.codeInsight.generation.ScalaGeneratePropertyAction" text="Property (getter and setter)"
+                description="Generate property">
           <add-to-group group-id="GenerateGroup"/>
         </action>
         <action id="Scala.ExtractTrait"

@@ -1,11 +1,14 @@
 package org.jetbrains.plugins.scala
 package refactoring.changeSignature
 
+import com.intellij.psi.PsiMember
 import com.intellij.refactoring.changeSignature.{ChangeSignatureProcessorBase, ParameterInfo}
+import junit.framework.Assert._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaParameterInfo
+import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureHandler, ScalaParameterInfo}
 
 /**
  * Nikolay.Tropin
@@ -18,6 +21,12 @@ class ChangeSignatureFromScalaTest extends ChangeSignatureTestBase {
   override def secondFileName(testName: String) = testName + ".java"
   override def mainFileAfterName(testName: String) = testName + "_after.scala"
   override def secondFileAfterName(testName: String) = testName + "_after.java"
+
+  override def findTargetElement: PsiMember = {
+    val element = new ScalaChangeSignatureHandler().findTargetMember(getFileAdapter, getEditorAdapter)
+    assertTrue("<caret> is not on method name", element.isInstanceOf[ScMethodLike])
+    element.asInstanceOf[ScMethodLike]
+  }
 
   override def processor(newVisibility: String,
                          newName: String,
@@ -67,5 +76,17 @@ class ChangeSignatureFromScalaTest extends ChangeSignatureTestBase {
   def testGenerics() = {
     def tpe = ScalaPsiElementFactory.createTypeFromText("T", targetMethod, targetMethod)
     doTest(null, "foo", "T", Seq(Seq(parameterInfo("t", 0, tpe))))
+  }
+
+  def testSecConstructor() = {
+    isAddDefaultValue = false
+    val params = Seq(parameterInfo("i", 0, types.Int), parameterInfo("j", -1, types.Int, "0"))
+    doTest(null, "Constructor", null, Seq(params))
+  }
+
+  def testPrimConstructor() = {
+    isAddDefaultValue = false
+    val params = Seq(parameterInfo("i", 0, types.Int), parameterInfo("b", -1, types.Boolean, "true"))
+    doTest("protected", "Constructor", null, Seq(params))
   }
 }

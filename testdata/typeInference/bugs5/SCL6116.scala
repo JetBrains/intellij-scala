@@ -7,4 +7,4 @@ class SCL6116 {
 
   def useFoo(f: Foo): f.T = /*start*/f.apply("hello")/*end*/
 }
-//f.type#T
+//f.T

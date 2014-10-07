@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 * @author Alexander Podkhalyuzin
 */
 
-trait ScInfixExpr extends ScExpression with MethodInvocation with ScSugarCallExpr {
+trait ScInfixExpr extends ScExpression with ScSugarCallExpr {
   def lOp: ScExpression = findChildrenByClassScala(classOf[ScExpression]).apply(0)
 
   def operation : ScReferenceExpression = {

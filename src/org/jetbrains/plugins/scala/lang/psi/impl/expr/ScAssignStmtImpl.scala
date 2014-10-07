@@ -97,6 +97,16 @@ class ScAssignStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScA
               Some(call)
             case _ => None
           }
+        case methodCall: ScMethodCall =>
+          val invokedExpr = methodCall.getInvokedExpr
+          val text = s"${invokedExpr.getText}.update(${methodCall.args.exprs.map(_.getText).mkString(",")}," +
+            s" ${getRExpression.map(_.getText).getOrElse("")}"
+          val mirrorExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, getContext, this)
+          //todo: improve performance: do not re-evaluate resolve to "update" method
+          mirrorExpr match {
+            case call: ScMethodCall => Some(call)
+            case _ => None
+          }
         case _ => None
       }
     }

@@ -143,7 +143,7 @@ object InferUtil {
       val collector = new ImplicitParametersCollector(place, paramType, coreElement, searchImplicitsRecursively)
       val results = collector.collect
       if (results.length == 1) {
-        if (check && !results(0).isApplicable) throw new SafeCheckException
+        if (check && !results(0).isApplicable()) throw new SafeCheckException
         resolveResults += results(0)
         def updateExpr() {
           results(0) match {

@@ -107,10 +107,15 @@ trait ScTypePresentation {
       val ScProjectionType(p, _, _) = projType
       val e = projType.actualElement
       val refName = e.name
-      val typeTailForProjection = e match {
-        case _: ScObject | _: ScBindingPattern => typeTail(needDotType)
-        case _ => ""
+      def checkIfStable(e: PsiElement): Boolean = {
+        e match {
+          case _: ScObject | _: ScBindingPattern | _: ScParameter => true
+          case _ => false
+        }
       }
+      val typeTailForProjection =
+        if (checkIfStable(e)) typeTail(needDotType)
+        else ""
       def isInnerStaticJavaClassForParent(clazz: PsiClass): Boolean = {
         clazz.getLanguage != ScalaFileType.SCALA_LANGUAGE &&
           e.isInstanceOf[PsiModifierListOwner] &&
@@ -119,15 +124,13 @@ trait ScTypePresentation {
       p match {
         case ScDesignatorType(pack: PsiPackage) =>
           nameWithPointFun(pack) + refName
-        case ScDesignatorType(obj: ScObject) =>
-          nameWithPointFun(obj) + refName + typeTailForProjection
-        case ScDesignatorType(v: ScBindingPattern) =>
-          nameWithPointFun(v) + refName + typeTailForProjection
+        case ScDesignatorType(named) if checkIfStable(named) =>
+          nameWithPointFun(named) + refName + typeTailForProjection
         case ScThisType(obj: ScObject) =>
           nameWithPointFun(obj) + refName + typeTailForProjection
-        case ScThisType(td: ScTypeDefinition) if e.isInstanceOf[ScObject] || e.isInstanceOf[ScBindingPattern] =>
+        case ScThisType(td: ScTypeDefinition) if checkIfStable(e) =>
           s"${innerTypeText(p, needDotType = false)}.$refName$typeTailForProjection"
-        case p: ScProjectionType if p.actualElement.isInstanceOf[ScObject] || p.actualElement.isInstanceOf[ScBindingPattern] =>
+        case p: ScProjectionType if checkIfStable(p.actualElement) =>
           s"${projectionTypeText(p, needDotType = false)}.$refName$typeTailForProjection"
         case ScDesignatorType(clazz: PsiClass) if isInnerStaticJavaClassForParent(clazz) =>
           nameWithPointFun(clazz) + refName
@@ -144,7 +147,10 @@ trait ScTypePresentation {
       val ScCompoundType(comps, signatureMap, typeMap) = compType
       def typeText0(tp: ScType) = innerTypeText(tp)
 
-      val componentsText = if (comps.isEmpty) Nil else Seq(comps.map(innerTypeText(_)).mkString(" with "))
+      val componentsText = if (comps.isEmpty) Nil else Seq(comps.map {
+        case tp@ScFunctionType(_, _) => "(" + innerTypeText(tp) + ")"
+        case tp => innerTypeText(tp)
+      }.mkString(" with "))
 
       val declsTexts = (signatureMap ++ typeMap).flatMap {
         case (s: Signature, rt: ScType) if s.namedElement.isInstanceOf[ScFunction] =>

@@ -7,7 +7,6 @@ package typedef
 
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.psi.{PsiElement, PsiMethod}
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
@@ -44,56 +43,68 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
     }
   }
 
+  @volatile
+  private var fakeModule: Option[ScObject] = null
+  @volatile
+  private var fakeModuleModCount: Long = -1L
+
   def fakeCompanionModule: Option[ScObject] = {
     ScalaPsiUtil.getBaseCompanionModule(this) match {
       case Some(td: ScObject) => None
       case _ if !isCase => None
       case _ =>
-        CachesUtil.get(this, CachesUtil.FAKE_CLASS_COMPANION,
-          new CachesUtil.MyProvider[ScClass, Option[ScObject]](this, (clazz: ScClass) => {
-            val texts = clazz.getSyntheticMethodsText
+        def calc(clazz: ScClass) = {
+          val texts = clazz.getSyntheticMethodsText
 
-            val extendsText = {
-              try {
-                if (typeParameters.isEmpty && constructor.get.effectiveParameterClauses.length == 1) {
-                  val typeElementText =
-                    constructor.get.effectiveParameterClauses.map {
-                      clause =>
-                        clause.parameters.map(parameter => {
-                          val parameterText = parameter.typeElement.fold("_root_.scala.Nothing")(_.getText)
-                          if (parameter.isRepeatedParameter) s"_root_.scala.Seq[$parameterText]"
-                          else parameterText
-                        }).mkString("(", ", ", ")")
-                    }.mkString("(", " => ", s" => $name)")
-                  val typeElement = ScalaPsiElementFactory.createTypeElementFromText(typeElementText, getManager)
-                  s" extends ${typeElement.getText}"
-                } else {
-                  ""
-                }
-              } catch {
-                case e: Exception => ""
+          val extendsText = {
+            try {
+              if (typeParameters.isEmpty && constructor.get.effectiveParameterClauses.length == 1) {
+                val typeElementText =
+                  constructor.get.effectiveParameterClauses.map {
+                    clause =>
+                      clause.parameters.map(parameter => {
+                        val parameterText = parameter.typeElement.fold("_root_.scala.Nothing")(_.getText)
+                        if (parameter.isRepeatedParameter) s"_root_.scala.Seq[$parameterText]"
+                        else parameterText
+                      }).mkString("(", ", ", ")")
+                  }.mkString("(", " => ", s" => $name)")
+                val typeElement = ScalaPsiElementFactory.createTypeElementFromText(typeElementText, getManager)
+                s" extends ${typeElement.getText}"
+              } else {
+                ""
               }
+            } catch {
+              case e: Exception => ""
             }
-            val accessModifier = clazz.getModifierList.accessModifier.fold("")(_.modifierFormattedText + " ")
-            val objText = accessModifier + "object " + clazz.name + extendsText + "{\n  " + texts._1 + "\n  " + texts._2 + "\n" + "}"
-            val next = ScalaPsiUtil.getNextStubOrPsiElement(clazz)
-            val obj: ScObject =
-              ScalaPsiElementFactory.createObjectWithContext(objText, clazz.getParent, if (next != null) next else clazz)
-            import org.jetbrains.plugins.scala.extensions._
-            val objOption: Option[ScObject] = obj.toOption
-            objOption.foreach { (obj: ScObject) =>
-              obj.setSyntheticObject()
-              obj.members.foreach {
-                case s: ScFunctionDefinition => 
-                  s.setSynthetic(clazz) // So we find the `apply` method in ScalaPsiUti.syntheticParamForParam
-                  s.syntheticCaseClass = Some(clazz)
-                case _ =>
-              }
+          }
+          val accessModifier = clazz.getModifierList.accessModifier.fold("")(_.modifierFormattedText + " ")
+          val objText = accessModifier + "object " + clazz.name + extendsText + "{\n  " + texts._1 + "\n  " + texts._2 + "\n" + "}"
+          val next = ScalaPsiUtil.getNextStubOrPsiElement(clazz)
+          val obj: ScObject =
+            ScalaPsiElementFactory.createObjectWithContext(objText, clazz.getParent, if (next != null) next else clazz)
+          import org.jetbrains.plugins.scala.extensions._
+          val objOption: Option[ScObject] = obj.toOption
+          objOption.foreach { (obj: ScObject) =>
+            obj.setSyntheticObject()
+            obj.members.foreach {
+              case s: ScFunctionDefinition =>
+                s.setSynthetic(clazz) // So we find the `apply` method in ScalaPsiUti.syntheticParamForParam
+                s.syntheticCaseClass = Some(clazz)
+              case _ =>
             }
-            objOption
-          })
-          (PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
+          }
+          objOption
+        }
 
+        val modCount = PsiModificationTracker.SERVICE.getInstance(getProject).getOutOfCodeBlockModificationCount
+        if (fakeModule != null && modCount == fakeModuleModCount) return fakeModule
+        val res = calc(this)
+        synchronized {
+          if (fakeModule != null && modCount == fakeModuleModCount) return fakeModule
+          fakeModule = res
+          fakeModuleModCount = modCount
+        }
+        res
     }
   }
 

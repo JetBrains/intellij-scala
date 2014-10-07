@@ -10,31 +10,16 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 trait ScTypeParametersOwner extends ScalaPsiElement {
-  @volatile
-  private var res: Seq[ScTypeParam] = null
-  @volatile
-  private var modCount: Long = 0L
-  
   def typeParameters: Seq[ScTypeParam] = {
-    def inner(): Seq[ScTypeParam] = {
-      typeParametersClause match {
-        case Some(clause) => clause.typeParameters
-        case _ => Seq.empty
-      }
+    typeParametersClause match {
+      case Some(clause) => clause.typeParameters
+      case _ => Seq.empty
     }
-    
-    val curModCount = getManager.getModificationTracker.getModificationCount
-    if (res != null && curModCount == modCount) return res
-    
-    res = inner()
-    modCount = curModCount
-
-    res
   }
 
   def typeParametersClause: Option[ScTypeParamClause] = {
     this match {
-      case st: ScalaStubBasedElementImpl[_] => {
+      case st: ScalaStubBasedElementImpl[_] =>
         val stub = st.getStub
         if (stub != null) {
           val array = stub.getChildrenByType(ScalaElementTypes.TYPE_PARAM_CLAUSE,
@@ -45,7 +30,6 @@ trait ScTypeParametersOwner extends ScalaPsiElement {
             return Some(array.apply(0))
           }
         }
-      }
       case _ =>
     }
     findChild(classOf[ScTypeParamClause])

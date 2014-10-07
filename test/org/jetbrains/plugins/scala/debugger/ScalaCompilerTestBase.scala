@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package debugger
 
 import java.io.File
+import java.nio.file.Paths
 import javax.swing.SwingUtilities
 
 import com.intellij.ProjectTopics
@@ -17,6 +18,7 @@ import com.intellij.testFramework.{ModuleTestCase, PsiTestUtil, VfsTestUtil}
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
 import junit.framework.Assert
+import org.jetbrains.plugins.scala.config.FileAPI
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -28,6 +30,8 @@ import scala.collection.mutable.ListBuffer
  * 2/26/14
  */
 abstract class ScalaCompilerTestBase extends ModuleTestCase {
+
+  protected var compilerVersion: Option[String] = null
 
   protected def useExternalCompiler: Boolean = true
 
@@ -65,7 +69,9 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase {
     if (!cl.isClassesRegistered) cl.registerClasses()
     val libsPath = TestUtils.getTestDataPath.replace("\\", "/") + "/scala-compiler/"
     VfsRootAccess.allowRootAccess(libsPath)
-    PsiTestUtil.addLibrary(myModule, "scala-compiler", libsPath, "scala-compiler.jar", "scala-library.jar")
+    val compilerJar = Paths.get(libsPath, "scala-compiler.jar").toFile
+    compilerVersion = FileAPI.readProperty(compilerJar, "compiler.properties", "version.number")
+    PsiTestUtil.addLibrary(myModule, "scala-compiler", libsPath, "scala-compiler.jar", "scala-library.jar", "scala-reflect.jar")
   }
 
   override protected def getTestProjectJdk: Sdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk

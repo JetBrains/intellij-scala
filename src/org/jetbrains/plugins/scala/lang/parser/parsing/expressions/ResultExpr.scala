@@ -43,7 +43,7 @@ object ResultExpr {
       if (ScalaTokenTypes.tCOLON == builder.getTokenType) {
         builder.advanceLexer() // ate ':'
         val pt = builder.mark
-        CompoundType.parse(builder)
+        CompoundType.parse(builder, isPattern = false)
         pt.done(ScalaElementTypes.PARAM_TYPE)
       }
       builder.getTokenType match {

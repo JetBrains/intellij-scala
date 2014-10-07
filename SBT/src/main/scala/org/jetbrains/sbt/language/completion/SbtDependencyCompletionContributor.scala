@@ -22,7 +22,7 @@ class SbtDependencyCompletionContributor extends CompletionContributor {
     override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, results: CompletionResultSet) {
       if (parameters.getOriginalFile.getFileType.getName != Sbt.Name) return
 
-      val place  = parameters.getPosition
+      val place = parameters.getPosition
       val infixExpr = place.getParent.getParent.asInstanceOf[ScInfixExpr]
 
       val resolversToUse = SbtResolverUtils.getProjectResolvers(Option(ScalaPsiUtil.fileContext(place)))
@@ -32,47 +32,47 @@ class SbtDependencyCompletionContributor extends CompletionContributor {
 
       def addResult(result: String) = results.addElement(LookupElementBuilder.create(result))
 
-      def completeGroup(artifact: Option[String] = None) = {
+      def completeGroup(artifact: String) = {
         indexes foreach { index =>
-          artifact match {
-            case Some(artifactId) if artifactId.nonEmpty => index.groups(artifactId) foreach addResult
-            case _ => index.groups foreach addResult
-          }
+          if (artifact.nonEmpty)
+            index.groups(artifact) foreach addResult
+          else
+            index.groups foreach addResult
         }
         results.stopHere()
       }
 
-      def completeArtifact(group: Option[String] = None) = {
+      def completeArtifact(group: String) = {
         indexes foreach { index =>
-          group match {
-            case Some(groupId) if groupId.nonEmpty => index.artifacts(groupId) foreach addResult
-            case _ => index.groups flatMap index.artifacts foreach addResult
-          }
+          if (group.nonEmpty)
+            index.artifacts(group) foreach addResult
+          else
+            index.groups flatMap index.artifacts foreach addResult
         }
         results.stopHere()
       }
 
-      def completeVersion(group: Option[String], artifact: Option[String]) = (group, artifact) match {
-        case (Some(groupId), Some(artifactId)) =>
-          indexes foreach { index =>
-            index.versions(groupId, artifactId) foreach addResult
-          }
-          results.stopHere()
-        case _ => // do nothing
+      def completeVersion(group: String, artifact: String): Unit = {
+        if (group.isEmpty || artifact.isEmpty) return
+        indexes foreach (_.versions(group, artifact) foreach addResult)
+        results.stopHere()
       }
 
-      def isValidOp(operation: String) = operation == "%" || operation == "%%"
+      def isValidOperation(operation: String) = operation == "%" || operation == "%%"
 
       (infixExpr.lOp, infixExpr.operation, infixExpr.rOp) match {
-        case (lop, oper, rop: ScLiteralImpl) if lop == place.getParent && isValidOp(oper.getText) =>
-          completeGroup(rop.stringValue)
-        case (lop: ScLiteralImpl, oper, rop) if rop == place.getParent && isValidOp(oper.getText) =>
-          completeArtifact(lop.stringValue)
-        case (lop: ScInfixExpr, oper, rop) if rop == place.getParent && oper.getText == "%" && isValidOp(lop.operation.getText) =>
-          (lop.lOp, lop.rOp) match {
-            case (llop: ScLiteralImpl, lrop: ScLiteralImpl) => completeVersion(llop.stringValue, lrop.stringValue)
-            case _ => // do nothing
-          }
+        case (lop, oper, ScLiteralImpl.string(artifact))
+          if lop == place.getParent && isValidOperation(oper.getText) =>
+            completeGroup(artifact)
+        case (ScLiteralImpl.string(group), oper, rop)
+          if rop == place.getParent && isValidOperation(oper.getText) =>
+            completeArtifact(group)
+        case (ScInfixExpr(llop, loper, lrop), oper, rop)
+          if rop == place.getParent && oper.getText == "%" && isValidOperation(loper.getText) =>
+            for {
+              ScLiteralImpl.string(group) <- Option(llop)
+              ScLiteralImpl.string(artifact) <- Option(lrop)
+            } yield completeVersion(group, artifact)
         case _ => // do nothing
       }
     }

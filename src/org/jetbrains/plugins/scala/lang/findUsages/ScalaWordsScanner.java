@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
  * Nikolay.Tropin
  * 12/24/13
  */
-public class ScalaWordsScanner extends DefaultWordsScanner{
+public class ScalaWordsScanner extends DefaultWordsScanner {
   private final Lexer myLexer;
   private final TokenSet myIdentifierTokenSet;
   private final TokenSet myCommentTokenSet;
@@ -49,12 +49,18 @@ public class ScalaWordsScanner extends DefaultWordsScanner{
         if (!stripWords(processor, fileText,myLexer.getTokenStart(),myLexer.getTokenEnd(), WordOccurrence.Kind.COMMENTS,occurrence, false)) return;
       }
       else if (myLiteralTokenSet.contains(type)) {
-        if (!stripWords(processor, fileText, myLexer.getTokenStart(),myLexer.getTokenEnd(),WordOccurrence.Kind.LITERALS,occurrence, false)) return;
+        boolean mayHaveFileRefs = true; // for indexing string literals as references to property keys and files
+        if (!stripWords(processor, fileText, myLexer.getTokenStart(),myLexer.getTokenEnd(),WordOccurrence.Kind.LITERALS,occurrence, mayHaveFileRefs)) return;
       }
       else if (!mySkipCodeContextTokenSet.contains(type)) {
         if (!stripWords(processor, fileText, myLexer.getTokenStart(), myLexer.getTokenEnd(), WordOccurrence.Kind.CODE, occurrence, false)) return;
       }
       myLexer.advance();
     }
+  }
+
+  @Override
+  public int getVersion() {
+    return 3;
   }
 }

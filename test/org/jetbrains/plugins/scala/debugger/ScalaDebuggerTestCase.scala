@@ -5,7 +5,6 @@ import java.io._
 import java.nio.charset.StandardCharsets
 import java.nio.file._
 import java.security.MessageDigest
-import java.util
 import java.util.concurrent.atomic.AtomicReference
 
 import com.intellij.debugger.DebuggerManagerEx
@@ -51,10 +50,9 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestBase {
   private val checksumsFileName = "checksums.dat"
   private var checksums: mutable.HashMap[String, Array[Byte]] = null
   private val breakpoints: mutable.Set[(String, Int)] = mutable.Set.empty
+  private val compilerVersionKey = "compiler.version"
 
   override def setUp() {
-    needMake = !testDataProjectIsValid()
-
     UsefulTestCase.edt(new Runnable {
       def run() {
         ScalaDebuggerTestCase.super.setUp()
@@ -63,6 +61,7 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestBase {
           ScalaFacet.createIn(myModule) { facet =>
             facet.compilerLibraryId = LibraryId("scala-compiler", LibraryLevel.Project)
           }
+          needMake = !testDataProjectIsValid()
         }
       }
     })
@@ -286,6 +285,9 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestBase {
   
   private def computeChecksums(): mutable.HashMap[String, Array[Byte]] = {
     val result = new mutable.HashMap[String, Array[Byte]]
+    for (version <- compilerVersion) {
+      result += (compilerVersionKey -> version.getBytes(StandardCharsets.UTF_8))
+    }
     def computeForDir(dir: File) {
       if (dir.exists) dir.listFiles().foreach { f =>
         if (f.isDirectory) computeForDir(f)
@@ -334,7 +336,7 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestBase {
 
   private def testDataProjectIsValid(): Boolean = {
     loadChecksums()
-    !needMake && checksums.keys.forall(checkFile) && getImlFile != null
+    !needMake && checksums.keys.forall(checkKey) && getImlFile != null
   }
 
   private def checkSourceFile(relPath: Path, fileText: String): Boolean = {
@@ -343,8 +345,15 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestBase {
     oldText.replace("\r", "") == fileText.replace("\r", "")
   }
   
-  private def checkFile(relPath: String): Boolean = {
-    val file = testDataBasePath.resolve(relPath).toFile
-    file.exists && util.Arrays.equals(checksums(relPath), md5(file))
+  private def checkKey(key: String): Boolean = {
+    import java.util.Arrays.{equals => equalArrays}
+
+    if (key == compilerVersionKey) {
+      compilerVersion.exists(v => equalArrays(v.getBytes(StandardCharsets.UTF_8), checksums(key)))
+    }
+    else {
+      val file = testDataBasePath.resolve(key).toFile
+      file.exists && equalArrays(checksums(key), md5(file))
+    }
   }
 }
