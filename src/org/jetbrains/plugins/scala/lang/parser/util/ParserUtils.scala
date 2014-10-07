@@ -47,7 +47,7 @@ object ParserUtils extends ParserUtilsBase {
     if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
       builder.advanceLexer()
       if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER &&
-              builder.getTokenText == "*") {
+        builder.getTokenText == "*") {
         builder.advanceLexer()
         marker.done(ScalaElementTypes.SEQ_WILDCARD)
         true
@@ -62,7 +62,7 @@ object ParserUtils extends ParserUtilsBase {
   }
 
 
-  def build(t : IElementType, builder : PsiBuilder)  (inner : => Boolean) : Boolean = {
+  def build(t: IElementType, builder: PsiBuilder)(inner: => Boolean): Boolean = {
     val marker = builder.mark
     val parsed = inner
     if (parsed) marker.done(t) else marker.rollbackTo()

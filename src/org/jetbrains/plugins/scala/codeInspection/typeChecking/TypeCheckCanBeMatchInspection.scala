@@ -26,8 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
-import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.GroupInplaceRenamer
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
+import org.jetbrains.plugins.scala.lang.refactoring.util.{InplaceRenameHelper, ScalaVariableValidator}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -73,9 +72,9 @@ class TypeCheckCanBeMatchQuickFix(isInstOfUnderFix: ScGenericCall, ifStmt: ScIfS
         ifStmt.replaceExpression(matchStmt, removeParenthesis = true).asInstanceOf[ScMatchStmt]
       }
       if (!ApplicationManager.getApplication.isUnitTestMode) {
-        val renamer = new GroupInplaceRenamer(newMatch)
-        setElementsForRename(newMatch, renamer, renameData)
-        renamer.startRenaming()
+        val renameHelper = new InplaceRenameHelper(newMatch)
+        setElementsForRename(newMatch, renameHelper, renameData)
+        renameHelper.startRenaming()
       }
     }
   }
@@ -305,7 +304,7 @@ object TypeCheckToMatchUtil {
     result
   }
 
-  def setElementsForRename(matchStmt: ScMatchStmt, renamer: GroupInplaceRenamer, renameData: RenameData) {
+  def setElementsForRename(matchStmt: ScMatchStmt, renameHelper: InplaceRenameHelper, renameData: RenameData) {
     val caseClauses = matchStmt.caseClauses.toList
 
     for {
@@ -339,7 +338,7 @@ object TypeCheckToMatchUtil {
 
       caseClause.accept(patternVisitor)
       caseClause.accept(referenceVisitor)
-      for (prim <- primary) renamer.addGroup(prim, dependents.toList, suggestedNames)
+      for (prim <- primary) renameHelper.addGroup(prim, dependents.toSeq, suggestedNames)
     }
   }
 

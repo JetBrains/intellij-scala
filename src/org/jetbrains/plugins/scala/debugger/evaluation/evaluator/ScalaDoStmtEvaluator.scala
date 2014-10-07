@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
+import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
-import com.intellij.debugger.engine.evaluation.{EvaluateExceptionUtil, EvaluationContextImpl}
 import com.sun.jdi.BooleanValue
+import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 
 /**
  * User: Alefas
@@ -14,13 +15,13 @@ class ScalaDoStmtEvaluator(cond: Evaluator, expr: Evaluator) extends Evaluator {
     expr.evaluate(context)
     var condition: Boolean = cond.evaluate(context) match {
       case b: BooleanValue => b.value()
-      case _ => throw EvaluateExceptionUtil.createEvaluateException("condition has wrong type")
+      case _ => throw EvaluationException("condition has wrong type")
     }
     while (condition) {
       expr.evaluate(context)
       condition = cond.evaluate(context) match {
         case b: BooleanValue => b.value()
-        case _ => throw EvaluateExceptionUtil.createEvaluateException("condition has wrong type")
+        case _ => throw EvaluationException("condition has wrong type")
       }
     }
     context.getDebugProcess.getVirtualMachineProxy.mirrorOf()

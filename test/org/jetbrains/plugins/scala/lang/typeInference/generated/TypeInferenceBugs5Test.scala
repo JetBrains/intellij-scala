@@ -61,6 +61,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL1971() {doTest()}
 
+  def testSCL2055() {doTest()}
+
   def testSCL2292() {doTest()}
 
   def testSCL2929() {doTest()}
@@ -68,6 +70,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL2936() {doTest()}
 
   def testSCL3052() {doTest()}
+
+  def testSCL3074() {doTest()}
 
   def testSCL2381A() {doTest()}
 
@@ -81,7 +85,11 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL2480() {doTest()}
 
+  def testSCL2487() {doTest()}
+
   def testSCL2493() {doTest()}
+
+  def testSCL2618() {doTest()}
 
   def testSCL2656() {doTest()}
 
@@ -317,6 +325,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL4353C() {doTest()}
 
+  def testSCL4354() {doTest()}
+
   def testSCL4357() {doTest()}
 
   def testSCL4357B() {doTest()}
@@ -415,11 +425,19 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL5247() {doTest()}
 
+  def testSCL5250() {doTest()}
+
+  def testSCL5269() {doTest()}
+
   def testSCL5303() {doTest()}
 
   def testSCL5337() {doTest()}
 
   def testSCL5361() {doTest()}
+
+  def testSCL5429() {doTest()}
+
+  def testSCL5454() {doTest()}
 
   def testSCL5472() {doTest()}
 
@@ -428,6 +446,12 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL5472B() {doTest()}
 
   def testSCL5472C() {doTest()}
+
+  def testSCL5475() {doTest()}
+
+  def testSCL5489() {doTest()}
+
+  def testSCL5538() {doTest()}
 
   def testSCL5594() {doTest()}
 
@@ -446,6 +470,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL5669B() {doTest()}
 
   def testSCL5681() {doTest()}
+
+  def testSCL5725() {doTest()}
 
   def testSCL5729() {doTest()}
 
@@ -500,6 +526,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL6235() {doTest()}
 
   def testSCL6259() {doTest()}
+
+  def testSCL6270() {doTest()}
 
   def testSCL6304() {doTest()}
 
@@ -575,6 +603,12 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL7322() {doTest()}
 
+  def testSCL7388() {doTest()}
+
+  def testSCL7388B() {doTest()}
+
+  def testSCL7388C() {doTest()}
+
   def testSCL7404() {doTest()}
 
   def testSCL7413() {doTest()}
@@ -587,7 +621,13 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL7544B() {doTest()}
 
+  def testSCL7604() {doTest()}
+
+  def testSCL7618() {doTest()}
+
   def testSOE() {doTest()}
+
+  def testSOE2() {doTest()}
 
   def testSOEFix() {doTest()}
 }

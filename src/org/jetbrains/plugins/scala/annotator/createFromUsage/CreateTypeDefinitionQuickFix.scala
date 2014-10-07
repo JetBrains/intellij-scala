@@ -36,7 +36,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description
   override def isAvailable(project: Project, editor: Editor, file: PsiFile) = {
     def goodQualifier = ref.qualifier match {
       case Some(InstanceOfClass(typeDef: ScTypeDefinition)) => true
-      case Some(Resolved(pack: PsiPackage, _)) => true
+      case Some(ResolvesTo(pack: PsiPackage)) => true
       case None => true
       case _ => false
     }
@@ -47,7 +47,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description
     inWriteAction {
       ref.qualifier match {
         case Some(InstanceOfClass(typeDef: ScTypeDefinition)) => createInnerClassIn(typeDef)
-        case Some(Resolved(pack: PsiPackage, _)) => createClassInPackage(pack)
+        case Some(ResolvesTo(pack: PsiPackage)) => createClassInPackage(pack)
         case None =>
           val inThisFile = (Iterator(ref) ++ ref.parentsInFile).collect {
             case inner childOf (_: ScTemplateBody) => inner

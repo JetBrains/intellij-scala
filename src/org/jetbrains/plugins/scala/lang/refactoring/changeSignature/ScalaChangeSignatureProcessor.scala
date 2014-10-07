@@ -1,12 +1,9 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature
 
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiDocumentManager
 import com.intellij.refactoring.changeSignature.{ChangeSignatureProcessorBase, ChangeSignatureViewDescriptor}
 import com.intellij.usageView.{UsageInfo, UsageViewDescriptor}
-import com.intellij.util.FileContentUtil
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 
 /**
@@ -20,13 +17,10 @@ class ScalaChangeSignatureProcessor(project: Project, changeInfo: ScalaChangeInf
     new ChangeSignatureViewDescriptor(changeInfo.getMethod)
 
   override def performRefactoring(usages: Array[UsageInfo]): Unit = {
-      changeInfo.newParams.flatten.zipWithIndex.foreach {
-        case (p, idx) =>
-        p.defaultForJava = {
-          if (changeInfo.isAddDefaultArgs) s"${changeInfo.getNewName}$$default$$${idx + 1}()"
-          else p.defaultValue
-        }
-      }
+    changeInfo.newParams.flatten.zipWithIndex.foreach {
+      case (p, idx) =>
+        p.defaultForJava = changeInfo.defaultParameterForJava(p, idx)
+    }
 
     val sortedUsages = usages.sortBy {
       case _: ParameterUsageInfo => 0
@@ -37,13 +31,5 @@ class ScalaChangeSignatureProcessor(project: Project, changeInfo: ScalaChangeInf
     }
 
     super.performRefactoring(sortedUsages)
-  }
-
-  override def performPsiSpoilingRefactoring(): Unit = {
-    super.performPsiSpoilingRefactoring()
-    if (!ApplicationManager.getApplication.isUnitTestMode) {
-      FileContentUtil.reparseOpenedFiles()
-      PsiDocumentManager.getInstance(project).commitAllDocuments()
-    }
   }
 }

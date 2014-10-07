@@ -31,11 +31,9 @@ class CollectMethodsProcessor(place: PsiElement, name: String)
       if (accessibility && !accessible) return true
       val s = getSubst(state)
       element match {
-        case m: PsiMethod => {
+        case m: PsiMethod =>
           addResult(new ScalaResolveResult(m, s, getImports(state), None, implicitConversionClass,
             implicitFunction = implFunction, implicitType = implType, isAccessible = accessible))
-          true
-        }
         case _ =>
       }
     }

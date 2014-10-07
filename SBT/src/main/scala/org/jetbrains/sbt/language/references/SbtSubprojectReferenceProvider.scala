@@ -83,29 +83,20 @@ class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
 
   private def extractPathFromFileCtor(ctor: ScConstructor): Option[String] = {
     ctor.args.map(_.exprs).flatMap {
-      case Seq(pathLit : ScLiteralImpl) =>
-        pathLit.stringValue
-      case Seq(parentLit : ScLiteralImpl, childLit : ScLiteralImpl) =>
-        for {
-          parent <- parentLit.stringValue
-          child  <- childLit.stringValue
-        } yield parent + File.separator + child
-      case Seq(parentElt, childLit : ScLiteralImpl) if childLit.isString =>
-        for {
-          parent <- extractPathFromFileParam(parentElt)
-          child  <- childLit.stringValue
-        } yield parent + File.separator + child
+      case Seq(ScLiteralImpl.string(path)) =>
+        Some(path)
+      case Seq(ScLiteralImpl.string(parent), ScLiteralImpl.string(child)) =>
+        Some(parent + File.separator + child)
+      case Seq(parentElt, ScLiteralImpl.string(child)) =>
+        extractPathFromFileParam(parentElt).map(_ + File.separator + child)
       case _ => None
     }
   }
 
   private def extractPathFromConcatenation(concatExpr: ScInfixExpr): Option[String] =
     concatExpr.rOp match {
-      case partLit : ScLiteralImpl =>
-        for {
-          parent <- extractPathFromFileParam(concatExpr.lOp)
-          child  <- partLit.stringValue
-        } yield parent + File.separator + child
+      case ScLiteralImpl.string(child) =>
+        extractPathFromFileParam(concatExpr.lOp).map(_ + File.separator + child)
       case partRef : ScReferenceExpression =>
         for {
           parent <- extractPathFromFileParam(concatExpr.lOp)

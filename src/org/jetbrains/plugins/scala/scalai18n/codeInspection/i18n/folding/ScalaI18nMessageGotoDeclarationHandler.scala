@@ -63,10 +63,9 @@ class ScalaI18nMessageGotoDeclarationHandler extends GotoDeclarationHandlerBase 
   @Nullable private def resolve(element: PsiElement): PsiElement = {
     if (element == null) return null
     val references: Array[PsiReference] = element.getReferences
-    if (references.length == 0) null else {
+    if (references.length != 0) {
       for (reference <- references) {
-        if (reference.isInstanceOf[PropertyReference])
-          return reference.resolve()
+        if (reference.isInstanceOf[PropertyReference]) return reference.resolve()
       }
     }
     null

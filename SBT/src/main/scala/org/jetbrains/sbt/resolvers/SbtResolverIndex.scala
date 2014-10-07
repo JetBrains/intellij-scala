@@ -25,7 +25,7 @@ class SbtResolverIndex private (val kind: SbtResolver.Kind.Value, val root: Stri
 
 
   def update(progressIndicator: Option[ProgressIndicator] = None) {
-    val agMap = mutable.HashMap.empty[String, mutable.Set[String]]
+    val agMap  = mutable.HashMap.empty[String, mutable.Set[String]]
     val gaMap  = mutable.HashMap.empty[String, mutable.Set[String]]
     val gavMap = mutable.HashMap.empty[String, mutable.Set[String]]
     def processArtifact(artifact: ArtifactInfo) {

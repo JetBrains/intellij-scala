@@ -6,6 +6,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.refactoring.util.CanonicalTypes
 import com.intellij.refactoring.util.CanonicalTypes.Type
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaParameterInfo
@@ -17,7 +18,7 @@ import scala.beans.BeanProperty
  * 2014-08-28
  */
 class ScalaChangeInfo(val newVisibility: String,
-                      val function: ScFunction,
+                      val function: ScMethodLike,
                       @BeanProperty val newName: String,
                       val newType: ScType,
                       val newParams: Seq[Seq[ScalaParameterInfo]],
@@ -37,7 +38,13 @@ class ScalaChangeInfo(val newVisibility: String,
 
   override def getNewReturnType: Type = if (newType != null) CanonicalTypes.createTypeWrapper(psiType) else null
 
-  override val getOldName: String = function.name
+  override val getOldName: String = function match {
+    case fun: ScFunction =>
+      if (fun.isConstructor) fun.containingClass.name
+      else fun.name
+    case pc: ScPrimaryConstructor => pc.containingClass.name
+    case _ => newName
+  }
 
   override def getNewNameIdentifier = JavaPsiFacade.getElementFactory(project).createIdentifier(newName)
 
@@ -53,6 +60,8 @@ class ScalaChangeInfo(val newVisibility: String,
 
   override val getLanguage: Language = ScalaFileType.SCALA_LANGUAGE
 
-  override def isReturnTypeChanged: Boolean =
-    function.returnType.toOption.map(_.canonicalText) != Option(newType).map(_.canonicalText)
+  override def isReturnTypeChanged: Boolean = function match {
+    case f: ScFunction => f.returnType.toOption.map(_.canonicalText) != Option(newType).map(_.canonicalText)
+    case _ => false
+  }
 }

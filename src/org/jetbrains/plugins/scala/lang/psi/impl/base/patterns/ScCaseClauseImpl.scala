@@ -41,6 +41,11 @@ class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
             val b = iterator.next()
             if (!processor.execute(b, state)) return false
           }
+          val typeVariablesIterator = p.typeVariables.iterator
+          while (typeVariablesIterator.hasNext) {
+            val tvar = typeVariablesIterator.next()
+            if (!processor.execute(tvar, state)) return false
+          }
           true
         }
         expr match {

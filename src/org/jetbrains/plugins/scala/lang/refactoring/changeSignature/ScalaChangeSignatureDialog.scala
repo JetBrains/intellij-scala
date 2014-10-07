@@ -16,6 +16,7 @@ import com.intellij.refactoring.{BaseRefactoringProcessor, RefactoringBundle}
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.{Any, ScType}
@@ -68,13 +69,15 @@ class ScalaChangeSignatureDialog(val project: Project, method: ScalaMethodDescri
     val paramItems = parametersTableModel.getItems.asScala
     val problems = ListBuffer[String]()
 
-    if (myReturnTypeCodeFragment.getText.isEmpty)
-      problems += RefactoringBundle.message("changeSignature.no.return.type")
-    else if (returnTypeText.isEmpty)
-      problems += RefactoringBundle.message("changeSignature.wrong.return.type", myReturnTypeCodeFragment.getText)
+    if (myReturnTypeCodeFragment != null) {
+      if (myReturnTypeCodeFragment.getText.isEmpty)
+        problems += RefactoringBundle.message("changeSignature.no.return.type")
+      else if (returnTypeText.isEmpty)
+        problems += RefactoringBundle.message("changeSignature.wrong.return.type", myReturnTypeCodeFragment.getText)
+    }
 
     val paramNames = paramItems.map(_.parameter.name)
-    val names = getMethodName +: paramNames
+    val names = if (myNameField.isEnabled) getMethodName +: paramNames else paramNames
     problems ++= names.collect {
       case name if !ScalaNamesUtil.isIdentifier(name) => s"$name is not a valid scala identifier"
     }
@@ -90,7 +93,7 @@ class ScalaChangeSignatureDialog(val project: Project, method: ScalaMethodDescri
     paramItems.foreach(_.updateType(problems))
 
     paramItems.foreach {
-      case item if item.parameter.isRepeatedParameter && Some(item) == paramItems.lastOption =>
+      case item if item.parameter.isRepeatedParameter && Some(item) != paramItems.lastOption =>
         problems += RefactoringBundle.message("changeSignature.vararg.not.last")
       case _ =>
     }
@@ -114,8 +117,9 @@ class ScalaChangeSignatureDialog(val project: Project, method: ScalaMethodDescri
   }
 
   private def returnTypeAndText: (ScType, String) = {
-    val text = myReturnTypeCodeFragment.getText
+    if (myReturnTypeCodeFragment == null) return (Any, "")
     try {
+      val text = myReturnTypeCodeFragment.getText
       val typeElem = ScalaPsiElementFactory.createTypeElementFromText(text, myReturnTypeCodeFragment.getContext, myReturnTypeCodeFragment)
       (typeElem.getType().getOrAny, typeElem.getText)
     }
@@ -140,7 +144,13 @@ class ScalaChangeSignatureDialog(val project: Project, method: ScalaMethodDescri
       else ScalaExtractMethodUtils.typedName(item.parameter.name, item.typeText, project, byName = false)
     }
 
-    val prefix = s"$getVisibility def $getMethodName"
+    val prefix = method.fun match {
+      case fun: ScFunction =>
+        val name = if (!fun.isConstructor) getMethodName else "this"
+        s"$getVisibility def $name"
+      case pc: ScPrimaryConstructor => s"class ${pc.getClassNameText} $getVisibility"
+      case _ => ""
+    }
     val params = parametersTableModel.getItems.asScala.map(p => nameAndType(p))
     val paramsText = params.mkString("(", ", ", ")")
 
@@ -159,12 +169,15 @@ class ScalaChangeSignatureDialog(val project: Project, method: ScalaMethodDescri
         item <- myParametersTableModel.getItems.asScala
         if item.parameter.oldIndex < 0 && StringUtil.isEmpty(item.defaultValueCodeFragment.getText)
       } {
-        val message = "Default value is missing. Method calls will contain ??? instead of the new parameter value."
+        val stuff = if (isAddDefaultArgs) "Default arguments" else "Method calls"
+        val message = s"Default value is missing. $stuff will contain blanks instead of the new parameter value."
         return new ValidationInfo(message)
       }
     }
     super.doValidate()
   }
+
+  override protected def postponeValidation: Boolean = false
   
   def isAddDefaultArgs = defaultValuesUsagePanel.isAddDefaultArgs
 

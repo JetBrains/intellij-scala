@@ -4,7 +4,7 @@ package resolve
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import com.intellij.psi.util.PsiModificationTracker
+import com.intellij.psi.util.{PsiTreeUtil, PsiModificationTracker}
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -208,106 +208,127 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
 
   private def processConstructorReference(args: ScArgumentExprList, ref: ResolvableReferenceExpression,
                                           assign: PsiElement, baseProcessor: BaseProcessor) {
-    args.getContext match {
-      case constr: ScConstructor =>
-        val te: ScTypeElement = constr.typeElement
-        val tp: ScType = te.getType(TypingContext.empty).getOrElse(return)
-        val typeArgs: Seq[ScTypeElement] = constr.typeArgList.map(_.typeArgs).getOrElse(Seq())
-        ScType.extractClassType(tp) match {
-          case Some((clazz, subst)) if !clazz.isInstanceOf[ScTemplateDefinition] && clazz.isAnnotationType =>
-            if (!baseProcessor.isInstanceOf[CompletionProcessor]) {
-              for (method <- clazz.getMethods) {
-                method match {
-                  case p: PsiAnnotationMethod =>
-                    if (ScalaPsiUtil.memberNamesEquals(p.name, ref.refName)) {
-                      baseProcessor.execute(p, ResolveState.initial)
-                    }
-                  case _ =>
-                }
-              }
-            } else {
-              if (args.invocationCount == 1) {
-                val methods: ArrayBuffer[PsiAnnotationMethod] = new ArrayBuffer[PsiAnnotationMethod] ++
-                  clazz.getMethods.toSeq.flatMap {
-                    case f: PsiAnnotationMethod => Seq(f)
-                    case _ => Seq.empty
-                  }
-                val exprs = args.exprs
-                var i = 0
-                def tail() {
-                  if (!methods.isEmpty) methods.remove(0)
-                }
-                while (exprs(i) != assign) {
-                  exprs(i) match {
-                    case assignStmt: ScAssignStmt =>
-                      assignStmt.getLExpression match {
-                        case ref: ScReferenceExpression =>
-                          val ind = methods.indexWhere(p => ScalaPsiUtil.memberNamesEquals(p.name, ref.refName))
-                          if (ind != -1) methods.remove(ind)
-                          else tail()
-                        case _ => tail()
-                      }
-                    case _ => tail()
-                  }
-                  i = i + 1
-                }
-                for (method <- methods) {
-                  baseProcessor.execute(method, ResolveState.initial.put(ScSubstitutor.key, subst).
-                          put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
-                }
-              }
-            }
-          case Some((clazz, subst)) =>
-            val processor: MethodResolveProcessor = new MethodResolveProcessor(constr, "this",
-              constr.arguments.toList.map(_.exprs.map(Expression(_))), typeArgs, Seq.empty /* todo: ? */,
-              constructorResolve = true, enableTupling = true)
-            val state = ResolveState.initial.put(ScSubstitutor.key, subst)
-            clazz match {
-              case clazz: ScClass =>
-                for (constr <- clazz.secondaryConstructors) {
-                  processor.execute(constr, state)
-                }
-                clazz.constructor.foreach(processor.execute(_, state))
-              case _ =>
-                for (constr <- clazz.getConstructors) {
-                  processor.execute(constr, state)
-                }
-            }
-            for (candidate <- processor.candidatesS) {
-              candidate match {
-                case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) =>
-                  if (!baseProcessor.isInstanceOf[CompletionProcessor]) {
-                    fun.getParamByName(ref.refName, constr.arguments.indexOf(args)) match {
-                      case Some(param) =>
-                        var state = ResolveState.initial.put(ScSubstitutor.key, subst).
-                          put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
-                        if (!ScalaPsiUtil.memberNamesEquals(param.name, ref.refName)) {
-                          state = state.put(ResolverEnv.nameKey, param.deprecatedName.get)
-                        }
-                        baseProcessor.execute(param, state)
-                      case None =>
-                    }
-                  } else {
-                    //for completion only!
-                    funCollectNamedCompletions(fun.paramClauses, assign, baseProcessor, subst, args.exprs, args.invocationCount)
-                  }
-                case ScalaResolveResult(constructor: ScPrimaryConstructor, _) =>
-                  if (!baseProcessor.isInstanceOf[CompletionProcessor])
-                    constructor.getParamByName(ref.refName, constr.arguments.indexOf(args)) match {
-                      case Some(param) =>
-                        baseProcessor.execute(param, ResolveState.initial.put(ScSubstitutor.key, subst).
-                          put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
-                      case None =>
-                    }
-                  else {
-                    //for completion only!
-                    funCollectNamedCompletions(constructor.parameterList, assign, baseProcessor, subst, args.exprs, args.invocationCount)
+    def processConstructor(elem: PsiElement, tp: ScType, typeArgs: Seq[ScTypeElement], arguments: Seq[ScArgumentExprList],
+                           secondaryConstructors: (ScClass) => Seq[ScFunction]) {
+      ScType.extractClassType(tp) match {
+        case Some((clazz, subst)) if !clazz.isInstanceOf[ScTemplateDefinition] && clazz.isAnnotationType =>
+          if (!baseProcessor.isInstanceOf[CompletionProcessor]) {
+            for (method <- clazz.getMethods) {
+              method match {
+                case p: PsiAnnotationMethod =>
+                  if (ScalaPsiUtil.memberNamesEquals(p.name, ref.refName)) {
+                    baseProcessor.execute(p, ResolveState.initial)
                   }
                 case _ =>
               }
             }
-          case _ =>
+          } else {
+            if (args.invocationCount == 1) {
+              val methods: ArrayBuffer[PsiAnnotationMethod] = new ArrayBuffer[PsiAnnotationMethod] ++
+                clazz.getMethods.toSeq.flatMap {
+                  case f: PsiAnnotationMethod => Seq(f)
+                  case _ => Seq.empty
+                }
+              val exprs = args.exprs
+              var i = 0
+              def tail() {
+                if (methods.nonEmpty) methods.remove(0)
+              }
+              while (exprs(i) != assign) {
+                exprs(i) match {
+                  case assignStmt: ScAssignStmt =>
+                    assignStmt.getLExpression match {
+                      case ref: ScReferenceExpression =>
+                        val ind = methods.indexWhere(p => ScalaPsiUtil.memberNamesEquals(p.name, ref.refName))
+                        if (ind != -1) methods.remove(ind)
+                        else tail()
+                      case _ => tail()
+                    }
+                  case _ => tail()
+                }
+                i = i + 1
+              }
+              for (method <- methods) {
+                baseProcessor.execute(method, ResolveState.initial.put(ScSubstitutor.key, subst).
+                  put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
+              }
+            }
+          }
+        case Some((clazz, subst)) =>
+          val processor: MethodResolveProcessor = new MethodResolveProcessor(elem, "this",
+            arguments.toList.map(_.exprs.map(Expression(_))), typeArgs, Seq.empty /* todo: ? */ ,
+            constructorResolve = true, enableTupling = true)
+          val state = ResolveState.initial.put(ScSubstitutor.key, subst)
+          clazz match {
+            case clazz: ScClass =>
+              for (constr <- secondaryConstructors(clazz)) {
+                processor.execute(constr, state)
+              }
+              clazz.constructor.foreach(processor.execute(_, state))
+            case _ =>
+              for (constr <- clazz.getConstructors) {
+                processor.execute(constr, state)
+              }
+          }
+          for (candidate <- processor.candidatesS) {
+            candidate match {
+              case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) =>
+                if (!baseProcessor.isInstanceOf[CompletionProcessor]) {
+                  fun.getParamByName(ref.refName, arguments.indexOf(args)) match {
+                    case Some(param) =>
+                      var state = ResolveState.initial.put(ScSubstitutor.key, subst).
+                        put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
+                      if (!ScalaPsiUtil.memberNamesEquals(param.name, ref.refName)) {
+                        state = state.put(ResolverEnv.nameKey, param.deprecatedName.get)
+                      }
+                      baseProcessor.execute(param, state)
+                    case None =>
+                  }
+                } else {
+                  //for completion only!
+                  funCollectNamedCompletions(fun.paramClauses, assign, baseProcessor, subst, args.exprs, args.invocationCount)
+                }
+              case ScalaResolveResult(constructor: ScPrimaryConstructor, _) =>
+                if (!baseProcessor.isInstanceOf[CompletionProcessor])
+                  constructor.getParamByName(ref.refName, arguments.indexOf(args)) match {
+                    case Some(param) =>
+                      baseProcessor.execute(param, ResolveState.initial.put(ScSubstitutor.key, subst).
+                        put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
+                    case None =>
+                  }
+                else {
+                  //for completion only!
+                  funCollectNamedCompletions(constructor.parameterList, assign, baseProcessor, subst, args.exprs, args.invocationCount)
+                }
+              case _ =>
+            }
+          }
+        case _ =>
+      }
+    }
+    args.getContext match {
+      case s: ScSelfInvocation =>
+        val clazz = ScalaPsiUtil.getContextOfType(s, true, classOf[ScClass])
+        if (clazz == null) return
+        val tp: ScType = clazz.asInstanceOf[ScClass].getType(TypingContext.empty).getOrElse(return)
+        val typeArgs: Seq[ScTypeElement] = Seq.empty
+        val arguments = s.arguments
+        val secondaryConstructors = (c: ScClass) => {
+          if (c != clazz) Seq.empty
+          else {
+            c.secondaryConstructors.filter(f =>
+              !PsiTreeUtil.isContextAncestor(f, s, true) &&
+                f.getTextRange.getStartOffset < s.getTextRange.getStartOffset
+            )
+          }
         }
+        processConstructor(s, tp, typeArgs, arguments, secondaryConstructors)
+      case constr: ScConstructor =>
+        val tp: ScType = constr.typeElement.getType(TypingContext.empty).getOrElse(return)
+        val typeArgs: Seq[ScTypeElement] = constr.typeArgList.map(_.typeArgs).getOrElse(Seq())
+        val arguments = constr.arguments
+        val secondaryConstructors = (clazz: ScClass) => clazz.secondaryConstructors
+        processConstructor(constr, tp, typeArgs, arguments, secondaryConstructors)
       case _ =>
     }
   }
@@ -319,7 +340,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       val params = new ArrayBuffer[ScParameter] ++ actualClause.parameters
       var i = 0
       def tail() {
-        if (!params.isEmpty) params.remove(0)
+        if (params.nonEmpty) params.remove(0)
       }
       while (exprs(i) != assign) {
         exprs(i) match {
@@ -347,10 +368,10 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     //first of all, try nonValueType.internalType
     val nonValueType = e.getNonValueType(TypingContext.empty)
     nonValueType match {
-      case Success(ScTypePolymorphicType(internal, tp), _) if !tp.isEmpty &&
+      case Success(ScTypePolymorphicType(internal, tp), _) if tp.nonEmpty &&
         !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[ScUndefinedType] /* optimization */ =>
         processType(internal, reference, e, processor)
-        if (!processor.candidates.isEmpty) return processor
+        if (processor.candidates.nonEmpty) return processor
       case _ =>
     }
     //if it's ordinar case
@@ -395,7 +416,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       case _ =>
     }
 
-    if (candidates.size == 0 || (!shape && candidates.forall(!_.isApplicable)) ||
+    if (candidates.size == 0 || (!shape && candidates.forall(!_.isApplicable())) ||
             (processor.isInstanceOf[CompletionProcessor] &&
             processor.asInstanceOf[CompletionProcessor].collectImplicits)) {
       processor match {

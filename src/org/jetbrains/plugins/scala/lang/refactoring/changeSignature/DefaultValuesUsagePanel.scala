@@ -21,6 +21,9 @@ class DefaultValuesUsagePanel extends JPanel {
     add(new JLabel("Default values: "))
     myRbAddDefaultArg.setText("Add default arguments in definition")
     myRbModifyCalls.setText("Modify method calls")
+    myRbAddDefaultArg.setMnemonic('d')
+    myRbModifyCalls.setMnemonic('m')
+
     add(myRbAddDefaultArg)
     add(myRbModifyCalls)
     add(Box.createHorizontalGlue)

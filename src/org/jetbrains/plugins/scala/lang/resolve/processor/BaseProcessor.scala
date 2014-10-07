@@ -6,7 +6,6 @@ package processor
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.{Key, RecursionManager}
 import com.intellij.psi._
-import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.scope._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api._
@@ -23,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes
 
+import scala.collection.immutable.HashSet
 import scala.collection.{Set, mutable}
 
 object BaseProcessor {
@@ -148,15 +148,9 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
   protected def kindMatches(element: PsiElement): Boolean = ResolveUtils.kindMatches(element, kinds)
 
-  def processType(t: ScType, place: PsiElement): Boolean = processType(t, place, ResolveState.initial)
-
-  def processType(t: ScType, place: PsiElement, state: ResolveState): Boolean =
-    processType(t, place, state, updateWithProjectionSubst = true)
-
-
-
-  def processType(t: ScType, place: PsiElement, state: ResolveState,
-                  updateWithProjectionSubst: Boolean): Boolean = {
+  def processType(t: ScType, place: PsiElement, state: ResolveState = ResolveState.initial(),
+                  updateWithProjectionSubst: Boolean = true,
+                  visitedAliases: HashSet[ScTypeAlias] = HashSet.empty): Boolean = {
     ProgressManager.checkCanceled()
 
     t match {
@@ -170,30 +164,28 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
       case ScThisType(clazz) =>
         val thisSubst = new ScSubstitutor(ScThisType(clazz))
         if (clazz.selfType.isEmpty) {
-          processElement(clazz, thisSubst, place, state)
+          processElement(clazz, thisSubst, place, state, visitedAliases = visitedAliases)
         } else {
           val selfType = clazz.selfType.get
           val clazzType: ScType = clazz.getTypeWithProjections(TypingContext.empty).getOrElse(return true)
           if (selfType == ScThisType(clazz)) {
             //to prevent SOE, let's process Element
-            processElement(clazz, thisSubst, place, state)
+            processElement(clazz, thisSubst, place, state, visitedAliases = visitedAliases)
           } else if (selfType.conforms(clazzType)) {
             processType(selfType, place, state.put(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY, Some(t)).
-              put(ScSubstitutor.key, thisSubst))
+              put(ScSubstitutor.key, thisSubst), visitedAliases = visitedAliases)
           } else if (clazzType.conforms(selfType)) {
-            processElement(clazz, thisSubst, place, state)
+            processElement(clazz, thisSubst, place, state, visitedAliases = visitedAliases)
           } else {
             processType(clazz.selfType.map(Bounds.glb(_, clazzType)).get, place,
-              state.put(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY, Some(t)))
+              state.put(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY, Some(t)), visitedAliases = visitedAliases)
           }
         }
       case d@ScDesignatorType(e: PsiClass) if d.isStatic && !e.isInstanceOf[ScTemplateDefinition] =>
         //not scala from scala
         var break = true
-        var containsValues = false
         for (method <- e.getMethods if break && method.hasModifierProperty("static")) {
           if (!execute(method, state)) break = false
-          if (method.getName == "values" && method.getParameterList.getParametersCount == 0) containsValues = true
         }
         for (cl <- e.getInnerClasses if break && cl.hasModifierProperty("static")) {
           if (!execute(cl, state)) break = false
@@ -201,24 +193,10 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         for (field <- e.getFields if break && field.hasModifierProperty("static")) {
           if (!execute(field, state)) break = false
         }
-
-        //todo: duplicate TypeDefinitionMembers
-        //fake enum static methods
-        val isJavaSourceEnum = !containsValues && e.isEnum
-        if (isJavaSourceEnum) {
-          val elementFactory: PsiElementFactory = JavaPsiFacade.getInstance(e.getProject).getElementFactory
-          //todo: cache like in PsiClassImpl
-          val valuesMethod: PsiMethod = elementFactory.createMethodFromText("public static " + e.name +
-                  "[] values() {}", e)
-          val valueOfMethod: PsiMethod = elementFactory.createMethodFromText("public static " + e.name +
-                  " valueOf(String name) throws IllegalArgumentException {}", e)
-          val values = new LightMethod(e.getManager, valuesMethod, e)
-          val valueOf = new LightMethod(e.getManager, valueOfMethod, e)
-          if (!execute(values, state)) return false
-          if (!execute(valueOf, state)) return false
-        }
-        break
-      case ScDesignatorType(o: ScObject) => processElement(o, ScSubstitutor.empty, place, state)
+        if (!break) return false
+        TypeDefinitionMembers.processEnum(e, execute(_, state))
+      case ScDesignatorType(o: ScObject) =>
+        processElement(o, ScSubstitutor.empty, place, state, visitedAliases = visitedAliases)
       case ScDesignatorType(e: ScTypedDefinition) if place.isInstanceOf[ScTypeProjection] =>
         val result: TypeResult[ScType] =
           e match {
@@ -226,21 +204,23 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
             case _ => e.getType(TypingContext.empty)
           }
         result match {
-          case Success(tp, _) => processType(tp, place, state)
+          case Success(tp, _) => processType(tp, place, state, visitedAliases = visitedAliases)
           case _ => true
         }
-      case ScDesignatorType(e) => processElement(e, ScSubstitutor.empty, place, state)
+      case ScDesignatorType(e) =>
+        processElement(e, ScSubstitutor.empty, place, state, visitedAliases = visitedAliases)
       case ScTypeParameterType(_, Nil, _, upper, _) =>
-        processType(upper.v, place, state, updateWithProjectionSubst = false)
+        processType(upper.v, place, state, updateWithProjectionSubst = false, visitedAliases = visitedAliases)
       case j: JavaArrayType =>
         processType(j.getParameterizedType(place.getProject, place.getResolveScope).
-                getOrElse(return true), place, state)
+                getOrElse(return true), place, state, visitedAliases = visitedAliases)
       case p@ScParameterizedType(des, typeArgs) =>
         p.designator match {
           case ScTypeParameterType(_, _, _, upper, _) => processType(p.substitutor.subst(upper.v), place,
-            state.put(ScSubstitutor.key, new ScSubstitutor(p)))
+            state.put(ScSubstitutor.key, new ScSubstitutor(p)), visitedAliases = visitedAliases)
           case _ => ScType.extractDesignated(p, withoutAliases = false) match {
-            case Some((designator, subst)) => processElement(designator, subst, place, state)
+            case Some((designator, subst)) =>
+              processElement(designator, subst, place, state, visitedAliases = visitedAliases)
             case None => true
           }
         }
@@ -248,18 +228,19 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         val ta = proj.actualElement.asInstanceOf[ScTypeAlias]
         val subst = proj.actualSubst
         val upper = ta.upperBound.getOrElse(return true)
-        processType(subst.subst(upper), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))
+        processType(subst.subst(upper), place, state.put(ScSubstitutor.key, ScSubstitutor.empty),
+          visitedAliases = visitedAliases + ta)
       case proj@ScProjectionType(des, elem, _) =>
         val s: ScSubstitutor = if (updateWithProjectionSubst)
           new ScSubstitutor(Map.empty, Map.empty, Some(proj)) followed proj.actualSubst
         else proj.actualSubst
-        processElement(proj.actualElement, s, place, state)
+        processElement(proj.actualElement, s, place, state, visitedAliases = visitedAliases)
       case StdType(name, tSuper) =>
         SyntheticClasses.get(place.getProject).byName(name) match {
           case Some(c) =>
             if (!c.processDeclarations(this, state, null, place) ||
                     !(tSuper match {
-                      case Some(ts) => processType(ts, place)
+                      case Some(ts) => processType(ts, place, visitedAliases = visitedAliases)
                       case _ => true
                     })) return false
           case None => //nothing to do
@@ -280,13 +261,17 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         true
       case comp@ScCompoundType(components, signaturesMap, typesMap) =>
         TypeDefinitionMembers.processDeclarations(comp, this, state, null, place)
-      case ex: ScExistentialType => processType(ex.skolem, place, state.put(ScSubstitutor.key, ScSubstitutor.empty))
-      case ScSkolemizedType(_, _, lower, upper) => processType(upper, place, state, updateWithProjectionSubst)
+      case ex: ScExistentialType =>
+        processType(ex.skolem, place, state.put(ScSubstitutor.key, ScSubstitutor.empty),
+          visitedAliases = visitedAliases)
+      case ScSkolemizedType(_, _, lower, upper) =>
+        processType(upper, place, state, updateWithProjectionSubst, visitedAliases = visitedAliases)
       case _ => true
     }
   }
 
-  private def processElement(e: PsiNamedElement, s: ScSubstitutor, place: PsiElement, state: ResolveState): Boolean = {
+  private def processElement(e: PsiNamedElement, s: ScSubstitutor, place: PsiElement, state: ResolveState,
+                             visitedAliases: HashSet[ScTypeAlias]): Boolean = {
     val subst = state.get(ScSubstitutor.key)
     val compound = state.get(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY) //todo: looks like ugly workaround
     val newSubst =
@@ -296,7 +281,9 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
       }
     e match {
       case ta: ScTypeAlias =>
-        processType(s.subst(ta.upperBound.getOrAny), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))
+        if (visitedAliases.contains(ta)) return true
+        processType(s.subst(ta.upperBound.getOrAny), place, state.put(ScSubstitutor.key, ScSubstitutor.empty),
+          visitedAliases = visitedAliases + ta)
       //need to process scala way
       case clazz: PsiClass =>
         TypeDefinitionMembers.processDeclarations(clazz, BaseProcessor.this, state.put(ScSubstitutor.key, newSubst), null, place)
@@ -309,7 +296,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         typeResult match {
           case Success(tp, _) =>
             processType(newSubst subst tp, place, state.put(ScSubstitutor.key, ScSubstitutor.empty),
-              updateWithProjectionSubst = false)
+              updateWithProjectionSubst = false, visitedAliases = visitedAliases)
           case _ => true
         }
       case pack: ScPackage =>

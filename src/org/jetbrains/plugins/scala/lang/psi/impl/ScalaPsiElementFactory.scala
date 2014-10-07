@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Block, Expr}
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ImplicitParamClause, ParamClauses, TypeParamClause}
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{Dcl, Def}
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.{ClassParamClause, ImplicitClassParamClause}
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.{ClassParamClauses, ClassParamClause, ImplicitClassParamClause}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -203,6 +203,13 @@ object ScalaPsiElementFactory {
   def createEmptyClassParamClauseWithContext(manager: PsiManager, context: PsiElement): ScParameterClause = {
     createElementWithContext("()", context, contextLastChild(context), ClassParamClause.parse(_)) match {
       case clause: ScParameterClause => clause
+      case _ => null
+    }
+  }
+
+  def createClassParamClausesWithContext(text: String, context: PsiElement): ScParameters = {
+    createElementWithContext(text, context, contextLastChild(context), ClassParamClauses.parse(_)) match {
+      case parameters: ScParameters => parameters
       case _ => null
     }
   }
@@ -1147,12 +1154,12 @@ object ScalaPsiElementFactory {
   def createEquivMethodCall(infixExpr: ScInfixExpr): ScMethodCall = {
     val baseText = infixExpr.getBaseExpr.getText
     val opText = infixExpr.operation.getText
-    val argText = infixExpr.getArgExpr match {
-      case x: ScTuple =>  x.getText
-      case x: ScParenthesisedExpr =>  x.getText
-      case _ =>  s"(${infixExpr.getArgExpr.getText})"
+    val argText = infixExpr.getArgExpr.getText
+    val clauseText = infixExpr.getArgExpr match {
+      case _: ScTuple | _: ScParenthesisedExpr | _: ScUnitExpr => argText
+      case _ =>  s"($argText)"
     }
-    val exprText = s"($baseText).$opText$argText"
+    val exprText = s"($baseText).$opText$clauseText"
 
     val exprA : ScExpression = createExpressionWithContextFromText(baseText, infixExpr, infixExpr.getBaseExpr)
 

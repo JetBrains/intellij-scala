@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, T
 import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
 
 import scala.collection.Seq
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author ven
@@ -161,8 +162,16 @@ object Compatibility {
     }
     
     val minParams = parameters.count(p => !p.isDefault && !p.isRepeated)
-    if (exprs.length < minParams) 
-      return ConformanceExtResult(Seq(new ApplicabilityProblem("4")), undefSubst)
+    if (exprs.length < minParams) {
+      val count = minParams - exprs.length
+      val problems = new ArrayBuffer[ApplicabilityProblem]()
+      parameters.reverseIterator.foreach { param =>
+        if (!param.isRepeated && !param.isDefault && problems.length < count) {
+          problems += new MissedValueParameter(param)
+        }
+      }
+      return ConformanceExtResult(problems.toSeq, undefSubst)
+    }
 
     if (parameters.length == 0) 
       return ConformanceExtResult(if(exprs.length == 0) Seq.empty else Seq(new ApplicabilityProblem("5")), undefSubst)

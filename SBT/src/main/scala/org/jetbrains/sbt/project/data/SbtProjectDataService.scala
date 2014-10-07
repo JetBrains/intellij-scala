@@ -4,6 +4,7 @@ package project.data
 import java.util
 
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
+import com.intellij.compiler.{CompilerConfiguration, CompilerConfigurationImpl}
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, ProjectStructureHelper}
 import com.intellij.openapi.project.Project
@@ -12,8 +13,8 @@ import com.intellij.openapi.roots.impl.{JavaLanguageLevelPusher, LanguageLevelPr
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
 import com.intellij.pom.java.LanguageLevel
 import org.jdom.Element
-import org.jetbrains.android.sdk.{AndroidPlatform, AndroidSdkType}
 import org.jetbrains.sbt.project.data.SbtProjectDataService._
+import org.jetbrains.android.sdk.{AndroidPlatform, AndroidSdkType}
 
 import scala.collection.JavaConverters._
 
@@ -40,7 +41,7 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
       val javaLanguageLevel = javaLanguageLevelFrom(javacOptions)
               .orElse(projectJdk.flatMap(defaultJavaLanguageLevelIn))
 
-      javaLanguageLevel.foreach(upgradeJavaLanguageLevelIn(project, _))
+      javaLanguageLevel.foreach(updateJavaLanguageLevelIn(project, _))
     }
   }
 
@@ -54,7 +55,8 @@ object SbtProjectDataService {
     "1.5" -> LanguageLevel.JDK_1_5,
     "1.6" -> LanguageLevel.JDK_1_6,
     "1.7" -> LanguageLevel.JDK_1_7,
-    "1.8" -> LanguageLevel.JDK_1_8)
+    "1.8" -> LanguageLevel.JDK_1_8,
+    "1.9" -> LanguageLevel.JDK_1_9)
   
   def findJdkBy(sdk: ScalaProjectData.Sdk): Option[Sdk] = sdk match {
     case ScalaProjectData.Android(version) => findAndroidJdkByVersion(version)
@@ -90,17 +92,36 @@ object SbtProjectDataService {
       settings.DEPRECATION = true
     }
 
-    val handledOptions = Set("-g:none", "-nowarn", "-Xlint:none", "-deprecation", "-Xlint:deprecation")
-    val customOptions = options.filterNot(handledOptions.contains)
+    valueOf("-target", options).foreach { target =>
+      val compilerSettings = CompilerConfiguration.getInstance(project).asInstanceOf[CompilerConfigurationImpl]
+      compilerSettings.setProjectBytecodeTarget(target)
+    }
+
+    val customOptions = additionalOptionsFrom(options)
+
     settings.ADDITIONAL_OPTIONS_STRING = customOptions.mkString(" ")
   }
 
   def javaLanguageLevelFrom(options: Seq[String]): Option[LanguageLevel] = {
-    def valueOf(name: String): Option[String] =
-      Option(options.indexOf(name)).filterNot(-1 == _).flatMap(options.lift)
-    
-    valueOf("-source").orElse(valueOf("-target"))
-            .flatMap(s => Option(LanguageLevel.parse(s)))
+    valueOf("-source", options).flatMap(s => Option(LanguageLevel.parse(s)))
+  }
+
+  def valueOf(name: String, options: Seq[String]): Option[String] =
+    Option(options.indexOf(name)).filterNot(-1 == _).flatMap(i => options.lift(i + 1))
+
+  def additionalOptionsFrom(options: Seq[String]): Seq[String] = {
+    val handledOptions = Set("-g:none", "-nowarn", "-Xlint:none", "-deprecation", "-Xlint:deprecation")
+
+    removePair("-source", removePair("-target", options.filterNot(handledOptions.contains)))
+  }
+
+  def removePair(name: String, options: Seq[String]): Seq[String] = {
+    val index = options.indexOf(name)
+
+    if (index == -1) options else {
+      val (prefix, suffix) = options.splitAt(index)
+      prefix ++ suffix.drop(2)
+    }
   }
 
   def defaultJavaLanguageLevelIn(jdk: Sdk): Option[LanguageLevel] = {
@@ -111,10 +132,10 @@ object SbtProjectDataService {
     }
   }
 
-  def upgradeJavaLanguageLevelIn(project: Project, level: LanguageLevel) {
+  def updateJavaLanguageLevelIn(project: Project, level: LanguageLevel) {
     val extension = LanguageLevelProjectExtension.getInstance(project)
 
-    if (!extension.getLanguageLevel.isAtLeast(level)) {
+    if (extension.getLanguageLevel != level) {
       setLanguageLevelIn(project, level)
       JavaLanguageLevelPusher.pushLanguageLevel(project)
     }

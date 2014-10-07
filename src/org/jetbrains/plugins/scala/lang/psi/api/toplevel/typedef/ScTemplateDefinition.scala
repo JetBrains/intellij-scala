@@ -313,7 +313,7 @@ import com.intellij.openapi.util.{Pair => IPair}
                     this match {
                       case t: ScTypeDefinition if selfTypeElement != None &&
                         !PsiTreeUtil.isContextAncestor(selfTypeElement.get, place, true) &&
-                        PsiTreeUtil.isContextAncestor(e.templateBody.getOrElse(null), place, true) &&
+                        PsiTreeUtil.isContextAncestor(e.templateBody.orNull, place, true) &&
                         processor.isInstanceOf[BaseProcessor] && !t.isInstanceOf[ScObject] =>
                           selfTypeElement match {
                             case Some(_) => processor.asInstanceOf[BaseProcessor].processType(ScThisType(t), place, state)
@@ -326,7 +326,7 @@ import com.intellij.openapi.util.{Pair => IPair}
                         if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
                     }
                   }
-                case _ => true
+                case _ =>
               }
           }
           true

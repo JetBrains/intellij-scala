@@ -185,6 +185,14 @@ class ScalaImportedEvaluationTest extends ScalaDebuggerTestCase{
         |package object implicits {
         |  implicit def intToString(x: Int) = x.toString + x.toString
         |  implicit val implicitInt: Int = 0
+        |
+        |  implicit class IntWrapper(i: Int) {
+        |    def triple() = 3 * i
+        |  }
+        |
+        |  implicit class BooleanWrapper(val b: Boolean) extends AnyVal {
+        |    def naoborot() = !b
+        |  }
         |}
       """.stripMargin.trim)
     addFileToProject("Sample.scala",
@@ -205,6 +213,8 @@ class ScalaImportedEvaluationTest extends ScalaDebuggerTestCase{
       evalEquals("\"a\".concat(i1)", "a123123")
       evalEquals("bar(\"abc\")", "a")
       evalEquals("bar(i1)", "1")
+      evalEquals("2.triple()", "6")
+      evalEquals("true.naoborot()", "false")
     }
   }
 }

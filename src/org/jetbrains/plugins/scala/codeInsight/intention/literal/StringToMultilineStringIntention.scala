@@ -65,7 +65,7 @@ class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
             val newString = ScalaPsiElementFactory.createExpressionFromText("\"\"\"" + s.replace("\r", "") + "\"\"\"", literal.getManager)
             val replaced = literal.replace(newString)
             addMarginsAndFormatMLString(replaced, document)
-          case _ => Nil
+          case _ =>
         }
     }
   }

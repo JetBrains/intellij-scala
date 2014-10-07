@@ -46,7 +46,8 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
           (ScType.typeParamsDepth(sign.typeParams.toArray) + 1).max(boundsDepth)
         } else boundsDepth
     }
-    val componentsDepth = components.map(_.typeDepth).max
+    val ints = components.map(_.typeDepth)
+    val componentsDepth = if (ints.length == 0) 0 else ints.max
     if (depths.nonEmpty) componentsDepth.max(depths.max + 1)
     else componentsDepth
   }
