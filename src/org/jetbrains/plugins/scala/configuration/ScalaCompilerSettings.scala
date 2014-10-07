@@ -14,12 +14,23 @@ import com.intellij.openapi.project.Project
 class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettingsState]{
   var incrementalityType: IncrementalityType = _
   var compileOrder: CompileOrder = _
+
+  var macros: Boolean = _
+  var dynamics: Boolean = _
+  var postfixOps: Boolean = _
+  var reflectiveCalls: Boolean = _
+  var implicitConversions: Boolean = _
+  var higherKinds: Boolean = _
+  var existentials: Boolean = _
+
   var warnings: Boolean = _
   var deprecationWarnings: Boolean = _
   var uncheckedWarnings: Boolean = _
+  var featureWarnings: Boolean = _
   var optimiseBytecode: Boolean = _
   var explainTypeErrors: Boolean = _
   var continuations: Boolean = _
+
   var debuggingInfoLevel: DebuggingInfoLevel = _
   var additionalCompilerOptions: String = _
   var plugins: Seq[String] = _
@@ -31,12 +42,23 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
   def loadState(state: ScalaCompilerSettingsState) {
     incrementalityType = state.incrementalityType
     compileOrder = state.compileOrder
+
+    macros = state.macros
+    dynamics = state.dynamics
+    postfixOps = state.postfixOps
+    reflectiveCalls = state.reflectiveCalls
+    implicitConversions = state.implicitConversions
+    higherKinds = state.higherKinds
+    existentials = state.existentials
+
     warnings = state.warnings
     deprecationWarnings = state.deprecationWarnings
     uncheckedWarnings = state.uncheckedWarnings
+    featureWarnings = state.featureWarnings
     optimiseBytecode = state.optimiseBytecode
     explainTypeErrors = state.explainTypeErrors
     continuations = state.continuations
+
     debuggingInfoLevel = state.debuggingInfoLevel
     additionalCompilerOptions = state.additionalCompilerOptions
     plugins = state.plugins.toSeq
@@ -46,12 +68,23 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
     val state = new ScalaCompilerSettingsState()
     state.incrementalityType = incrementalityType
     state.compileOrder = compileOrder
+
+    state.macros = macros
+    state.dynamics = dynamics
+    state.postfixOps = postfixOps
+    state.reflectiveCalls = reflectiveCalls
+    state.implicitConversions = implicitConversions
+    state.higherKinds = higherKinds
+    state.existentials = existentials
+
     state.warnings = warnings
     state.deprecationWarnings = deprecationWarnings
     state.uncheckedWarnings = uncheckedWarnings
+    state.featureWarnings = featureWarnings
     state.optimiseBytecode = optimiseBytecode
     state.explainTypeErrors = explainTypeErrors
     state.continuations = continuations
+
     state.debuggingInfoLevel = debuggingInfoLevel
     state.additionalCompilerOptions = additionalCompilerOptions
     state.plugins = plugins.toArray
