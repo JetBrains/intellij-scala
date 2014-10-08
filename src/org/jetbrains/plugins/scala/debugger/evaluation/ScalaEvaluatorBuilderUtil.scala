@@ -316,11 +316,11 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     stableObjectEvaluator(qual)
   }
 
-  def objectEvaluator(obj: ScObject, qualEvaluator: Evaluator): Evaluator = {
+  def objectEvaluator(obj: ScObject, qualEvaluator: () => Evaluator): Evaluator = {
     if (isStable(obj)) stableObjectEvaluator(obj)
     else {
       val objName = NameTransformer.encode(obj.name)
-      new ScalaMethodEvaluator(qualEvaluator, objName, null /* todo? */, Seq.empty,
+      new ScalaMethodEvaluator(qualEvaluator(), objName, null /* todo? */, Seq.empty,
         traitImplementation(obj), DebuggerUtil.getSourcePositions(obj.getNavigationElement))
     }
   }
@@ -823,9 +823,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case None => throw EvaluationException("Cannot evaluate method")
       case Some(r) =>
         val resolve = r.element
-        val defaultQualEvaluator = qualifierEvaluator(qualOption, ref)
+        def defaultQualEvaluator = qualifierEvaluator(qualOption, ref)
         val qualEval = r.getActualElement match {
-          case o: ScObject if funName == "apply" => objectEvaluator(o, defaultQualEvaluator)
+          case o: ScObject if funName == "apply" => objectEvaluator(o, defaultQualEvaluator _)
           case _ => defaultQualEvaluator
         }
         val name = NameTransformer.encode(funName)
@@ -929,8 +929,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case _ if isLocalValue =>
         calcLocal()
       case obj: ScObject =>
-        val qualEval = qualifierEvaluator(qualifier, ref)
-        objectEvaluator(obj, qualEval)
+        objectEvaluator(obj, () => qualifierEvaluator(qualifier, ref))
       case _: PsiMethod | _: ScSyntheticFunction =>
         methodCallEvaluator(ref, Nil, Map.empty)
       case c: ScClassParameter if c.isPrivateThis =>
