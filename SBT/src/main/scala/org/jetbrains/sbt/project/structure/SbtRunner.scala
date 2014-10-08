@@ -6,9 +6,10 @@ import java.util.Properties
 import java.util.jar.{JarEntry, JarFile}
 
 import com.intellij.execution.process.OSProcessHandler
+import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.sbt.project.structure.SbtRunner._
 
-import scala.collection.mutable
+import scala.collection.JavaConverters._
 import scala.xml.{Elem, XML}
 
 /**
@@ -57,19 +58,10 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], vmExecutab
 
     val sbtOpts: Seq[String] = {
       val sbtOptsFile = directory / ".sbtopts"
-      if (sbtOptsFile.exists && sbtOptsFile.isFile && sbtOptsFile.canRead) {
-        val opts = mutable.Buffer.empty[String]
-        using(new BufferedReader(new FileReader(sbtOptsFile))) { stream =>
-          while (stream.ready()) {
-            val opt = stream.readLine()
-            if (!opt.startsWith("#"))
-              opts += opt
-          }
-        }
-        opts.toSeq
-      } else {
+      if (sbtOptsFile.exists && sbtOptsFile.isFile && sbtOptsFile.canRead)
+        FileUtil.loadLines(sbtOptsFile).asScala.filterNot(_.startsWith("#"))
+      else
         Seq.empty
-      }
     }
 
     usingTempFile("sbt-structure", Some(".xml")) { structureFile =>

@@ -73,5 +73,4 @@ object ScalaBuilder {
     import scala.collection.JavaConversions._
     modules.exists(SettingsManager.getFacetSettings(_) != null)
   }
-
 }

@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScUnderScoreSectionUtil}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScClass}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
@@ -167,6 +167,43 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
     if (res == None) {
       getSuperParameter.flatMap(_.getDefaultExpression)
     } else res
+  }
+
+  def getDefaultExpressionInSource: Option[ScExpression] = {
+    val res = getActualDefaultExpression
+    if (res == None) {
+      getSuperParameter.flatMap(_.getDefaultExpressionInSource)
+    } else {
+      getContainingFile match {
+        case file: ScalaFile =>
+          if (file.isCompiled) {
+            val containingMember = PsiTreeUtil.getContextOfType(this, true, classOf[ScMember])
+            if (containingMember == null) res
+            else {
+              def extractFromParameterOwner(owner: ScParameterOwner): Option[ScExpression] = {
+                owner.parameters.find(_.name == name) match {
+                  case Some(param) => param.getDefaultExpression
+                  case _ => res
+                }
+              }
+              containingMember match {
+                case c: ScClass =>
+                  c.getSourceMirrorClass match {
+                    case c: ScClass => extractFromParameterOwner(c)
+                    case _ => res
+                  }
+                case f: ScFunction =>
+                  f.getNavigationElement match {
+                    case f: ScFunction => extractFromParameterOwner(f)
+                    case _ => res
+                  }
+                case _ => res
+              }
+            }
+          } else res
+        case _ => res
+      }
+    }
   }
 
   def getSuperParameter: Option[ScParameter] = {

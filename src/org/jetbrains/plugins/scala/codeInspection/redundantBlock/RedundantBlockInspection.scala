@@ -41,6 +41,7 @@ class RedundantBlockInspection extends AbstractInspection {
             val nextLetter = next.getText.headOption.getOrElse(' ')
             val checkId = ScalaNamesUtil.isIdentifier(text) && (nextLetter == '$' || !ScalaNamesUtil.isIdentifier(text + nextLetter))
             checkId && !text.startsWith("_") && !text.exists(_ == '$') && !text.startsWith("`")
+          case _ => false
         }
         if (isRedundant) {
           holder.registerProblem(block, "The enclosing block is redundant", new QuickFix(block))

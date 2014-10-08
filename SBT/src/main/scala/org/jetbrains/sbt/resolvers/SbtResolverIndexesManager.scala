@@ -8,7 +8,6 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
-import com.intellij.openapi.util.io.FileUtil
 
 import scala.collection.mutable
 
@@ -44,22 +43,10 @@ class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Dispos
     indexes foreach { _.close() }
 
   def update(resolvers: Seq[SbtResolver]) {
-    def ensureIndexes(resolvers: Seq[SbtResolver]) = {
-      resolvers.map { r =>
-        try {
-          Some(add(r))
-        } catch {
-          case e: Throwable =>
-            notifyError(SbtBundle("sbt.resolverIndexer.creatingError", r.root, e.getMessage))
-            None
-        }
-      }.flatten
-    }
 
     var indexesToUpdate = Seq.empty[SbtResolverIndex]
     updatingIndexes synchronized {
-      val notUpdating = resolvers filter { r => updatingIndexes.find { r.root == _.root }.isEmpty }
-      indexesToUpdate = ensureIndexes(notUpdating)
+      indexesToUpdate = resolvers filter { r => updatingIndexes.find { r.root == _.root }.isEmpty } map add
       updatingIndexes ++= indexesToUpdate
     }
 
@@ -72,9 +59,6 @@ class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Dispos
           progressIndicator.setText(index.root)
           try {
             index.update(Some(progressIndicator))
-          } catch {
-            case e: Throwable =>
-              notifyError(SbtBundle("sbt.resolverIndexer.updatingError", index.root, e.getMessage))
           } finally {
             updatingIndexes synchronized { updatingIndexes -= index }
           }
@@ -94,14 +78,8 @@ class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Dispos
     val indices = indexesDir.listFiles()
     if (indices == null) return
     indices foreach { indexDir => if (indexDir.isDirectory) {
-        try {
-          val index = SbtResolverIndex.load(indexDir)
-          indexes.add(index)
-        } catch {
-          case e: Throwable =>
-            FileUtil.delete(indexDir)
-            notifyWarn(SbtBundle("sbt.resolverIndexer.loadingError", indexDir, e.getMessage))
-        }
+        val index = SbtResolverIndex.load(indexDir)
+        indexes.add(index)
       }
     }
   }

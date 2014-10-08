@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, T
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 import scala.annotation.tailrec
-import scala.collection.immutable.HashMap
+import scala.collection.immutable.{HashSet, HashMap}
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -214,32 +214,37 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
     }
   }
 
-  def extractClassType(t: ScType, project: Option[Project] = None): Option[(PsiClass, ScSubstitutor)] = t match {
-    case n: NonValueType => extractClassType(n.inferValueType)
-    case ScThisType(clazz) => Some(clazz, new ScSubstitutor(t))
-    case ScDesignatorType(clazz: PsiClass) => Some(clazz, ScSubstitutor.empty)
-    case ScDesignatorType(ta: ScTypeAliasDefinition) =>
-      val result = ta.aliasedType(TypingContext.empty)
-      if (result.isEmpty) return None
-      extractClassType(result.get)
-    case proj@ScProjectionType(p, elem, _) => proj.actualElement match {
-      case c: PsiClass => Some((c, proj.actualSubst))
-      case t: ScTypeAliasDefinition =>
-        val result = t.aliasedType(TypingContext.empty)
+  def extractClassType(t: ScType, project: Option[Project] = None,
+                       visitedAlias: HashSet[ScTypeAlias] = HashSet.empty): Option[(PsiClass, ScSubstitutor)] = {
+    t match {
+      case n: NonValueType => extractClassType(n.inferValueType, project, visitedAlias)
+      case ScThisType(clazz) => Some(clazz, new ScSubstitutor(t))
+      case ScDesignatorType(clazz: PsiClass) => Some(clazz, ScSubstitutor.empty)
+      case ScDesignatorType(ta: ScTypeAliasDefinition) =>
+        if (visitedAlias.contains(ta)) return None
+        val result = ta.aliasedType(TypingContext.empty)
         if (result.isEmpty) return None
-        extractClassType(proj.actualSubst.subst(result.get))
+        extractClassType(result.get, project, visitedAlias + ta)
+      case proj@ScProjectionType(p, elem, _) => proj.actualElement match {
+        case c: PsiClass => Some((c, proj.actualSubst))
+        case t: ScTypeAliasDefinition =>
+          if (visitedAlias.contains(t)) return None
+          val result = t.aliasedType(TypingContext.empty)
+          if (result.isEmpty) return None
+          extractClassType(proj.actualSubst.subst(result.get), project, visitedAlias + t)
+        case _ => None
+      }
+      case p@ScParameterizedType(t1, _) =>
+        extractClassType(t1, project, visitedAlias) match {
+          case Some((c, s)) => Some((c, s.followed(p.substitutor)))
+          case None => None
+        }
+      case std@StdType(_, _) =>
+        val asClass = std.asClass(project.getOrElse(DecompilerUtil.obtainProject))
+        if (asClass.isEmpty) return None
+        Some((asClass.get, ScSubstitutor.empty))
       case _ => None
     }
-    case p@ScParameterizedType(t1, _) =>
-      extractClassType(t1) match {
-        case Some((c, s)) => Some((c, s.followed(p.substitutor)))
-        case None => None
-      }
-    case std@StdType(_, _) =>
-      val asClass = std.asClass(project.getOrElse(DecompilerUtil.obtainProject))
-      if (asClass.isEmpty) return None
-      Some((asClass.get, ScSubstitutor.empty))
-    case _ => None
   }
 
   /**
@@ -366,7 +371,8 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
   }
 
   @tailrec
-  def removeAliasDefinitions(tp: ScType): ScType = {
+  def removeAliasDefinitions(tp: ScType, visited: HashSet[ScType] = HashSet.empty): ScType = {
+    if (visited.contains(tp)) return tp
     var updated = false
     val res = tp.recursiveUpdate { t =>
       t.isAliasType match {
@@ -377,7 +383,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
       }
     }
     if (!updated) tp
-    else removeAliasDefinitions(res)
+    else removeAliasDefinitions(res, visited + tp)
   }
 
   /**

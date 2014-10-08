@@ -315,7 +315,7 @@ object ScalaPsiUtil {
                 mrp.expectedOption, mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve, noImplicitsForArgs = withoutImplicitsForArgs)
               val tp = implRes.tp
               newProc.processType(tp, e, ResolveState.initial)
-              val candidates = newProc.candidatesS.filter(_.isApplicable)
+              val candidates = newProc.candidatesS.filter(_.isApplicable())
               if (candidates.isEmpty) Seq.empty
               else {
                 implRes.element match {
@@ -430,7 +430,7 @@ object ScalaPsiUtil {
       candidates = processor.candidatesS
     }
 
-    if (!noImplicits && candidates.forall(!_.isApplicable)) {
+    if (!noImplicits && candidates.forall(!_.isApplicable())) {
       //should think about implicit conversions
       findImplicitConversion(expr, methodName, call, processor, noImplicitsForArgs = false) match {
         case Some(res) =>
@@ -1726,7 +1726,9 @@ object ScalaPsiUtil {
           }
           val maybeParameter = params.lift(args.exprs.indexOf(expr))
           maybeParameter.map(new Parameter(_))
-        case _ => args.matchedParameters.getOrElse(Seq.empty).find(_._1 == expr).map(_._2)
+        case _ => args.matchedParameters.getOrElse(Seq.empty).collectFirst {
+          case (e, p) if PsiEquivalenceUtil.areElementsEquivalent(e, expr) => p
+        }
       }
     }
     exp match {
@@ -1741,8 +1743,8 @@ object ScalaPsiUtil {
           case parenth: ScParenthesisedExpr => parameterOf(parenth)
           case ie: ScInfixExpr if exp == (if (ie.isLeftAssoc) ie.lOp else ie.rOp) =>
             ie.operation match {
-              case Resolved(f: ScFunction, _) => f.parameters.headOption.map(p => new Parameter(p))
-              case Resolved(method: PsiMethod, _) =>
+              case ResolvesTo(f: ScFunction) => f.parameters.headOption.map(p => new Parameter(p))
+              case ResolvesTo(method: PsiMethod) =>
                 method.getParameterList.getParameters match {
                   case Array(p) => Some(new Parameter(p))
                   case _ => None

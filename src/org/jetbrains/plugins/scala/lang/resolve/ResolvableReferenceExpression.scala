@@ -416,7 +416,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       case _ =>
     }
 
-    if (candidates.size == 0 || (!shape && candidates.forall(!_.isApplicable)) ||
+    if (candidates.size == 0 || (!shape && candidates.forall(!_.isApplicable())) ||
             (processor.isInstanceOf[CompletionProcessor] &&
             processor.asInstanceOf[CompletionProcessor].collectImplicits)) {
       processor match {

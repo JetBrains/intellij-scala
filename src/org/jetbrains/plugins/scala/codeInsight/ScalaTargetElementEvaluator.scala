@@ -5,7 +5,7 @@ import java.util
 
 import com.intellij.codeInsight.TargetElementEvaluatorEx
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions.Resolved
+import org.jetbrains.plugins.scala.extensions.ResolvesTo
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
@@ -31,7 +31,7 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx {
     case isCaseClassParameter(cp) => cp
     case isVarSetterFakeMethod(refPattern) => refPattern
     case isVarSetterWrapper(refPattern) => refPattern
-    case Resolved(isLightScNamedElement(named), _) => named
+    case ResolvesTo(isLightScNamedElement(named)) => named
     case _ => null
   }
 

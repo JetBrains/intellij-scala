@@ -120,7 +120,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
     val (target, accessible, applicable) = if(result.isDefined) (
             result.get.element,
             result.get.isAccessible,
-            result.get.isApplicable) else (null, true, true)
+            result.get.isApplicable()) else (null, true, true)
 
     def message = format(getFileAdapter.getText, _: String, lineOf(reference))
 

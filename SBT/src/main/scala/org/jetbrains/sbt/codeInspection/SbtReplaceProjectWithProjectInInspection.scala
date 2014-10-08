@@ -6,11 +6,11 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 
 /**
  * @author Nikolay Obedin
@@ -19,30 +19,36 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 class SbtReplaceProjectWithProjectInInspection extends AbstractInspection {
 
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case defn: ScPatternDefinition =>
-      if (defn.getContainingFile.getFileType.getName != Sbt.Name) return null
-
+    case defn: ScPatternDefinition if defn.getContainingFile.getFileType.getName == Sbt.Name =>
       (defn.expr, defn.bindings) match {
-        case (Some(call: ScMethodCall), Seq(varPat: ScReferencePattern)) =>
-          val visitor = new ScalaRecursiveElementVisitor {
-            override def visitMethodCallExpression(call: ScMethodCall) = call match {
-              case ScMethodCall(expr, Seq(nameLit: ScLiteral, pathElt))
-                  if expr.getText == "Project" && nameLit.isString && nameLit.getValue == varPat.getText =>
-                // TODO: put message into bundle
-                holder.registerProblem(call, "Replace Project() with project.in()",
-                  ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new SbtReplaceProjectWithProjectInQuickFix(call))
-              case _ =>
-                super.visitMethodCallExpression(call)
-            }
+        case (Some(call: ScMethodCall), Seq(projectNamePattern: ScReferencePattern)) =>
+          findPlaceToFix(call, projectNamePattern.getText).foreach { place =>
+            holder.registerProblem(place, SbtBundle("sbt.inspection.projectIn.name"),
+                                          ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
+                                          new SbtReplaceProjectWithProjectInQuickFix(place))
           }
-          call.accept(visitor)
         case _ => // do nothing
       }
+  }
+
+  private def findPlaceToFix(call: ScMethodCall, projectName: String): Option[ScMethodCall] = {
+    var placeToFix: Option[ScMethodCall] = None
+    val visitor = new ScalaRecursiveElementVisitor {
+      override def visitMethodCallExpression(call: ScMethodCall) = call match {
+        case ScMethodCall(expr, Seq(ScLiteralImpl.string(name), _))
+          if expr.getText == "Project" && name == projectName =>
+            placeToFix = Some(call)
+        case _ =>
+          super.visitMethodCallExpression(call)
+      }
+    }
+    call.accept(visitor)
+    placeToFix
   }
 }
 
 class SbtReplaceProjectWithProjectInQuickFix(val place: ScMethodCall) extends LocalQuickFix {
-  def getName = "Replace Project() with project.in()" // TODO: put in bundle
+  def getName = SbtBundle("sbt.inspection.projectIn.name")
 
   def getFamilyName = getName
 
