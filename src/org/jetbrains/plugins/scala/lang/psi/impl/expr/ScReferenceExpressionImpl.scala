@@ -166,7 +166,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   def shapeType = {
     convertBindToType(shapeResolve match {
-      case Array(bind: ScalaResolveResult) if bind.isApplicable => Some(bind)
+      case Array(bind: ScalaResolveResult) if bind.isApplicable() => Some(bind)
       case _ => None
     })
   }

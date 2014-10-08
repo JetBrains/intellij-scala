@@ -70,8 +70,8 @@ class ScalaUselessExpressionInspection extends AbstractInspection("ScalaUselessE
     case ScSugarCallExpr(baseExpr, operation, args) =>
       val checkOperation = operation match {
         case ref if hasImplicitConversion(ref) => false
-        case Resolved(_: ScSyntheticFunction, _) => true
-        case Resolved(m: PsiMethod, _) => methodHasNoSideEffects(m, baseExpr.getType().toOption)
+        case ResolvesTo(_: ScSyntheticFunction) => true
+        case ResolvesTo(m: PsiMethod) => methodHasNoSideEffects(m, baseExpr.getType().toOption)
         case _ => false
       }
       checkOperation && exprHasNoSideEffects(baseExpr) && args.forall(exprHasNoSideEffects)
@@ -82,13 +82,13 @@ class ScalaUselessExpressionInspection extends AbstractInspection("ScalaUselessE
       }
       val checkBaseExpr = baseExpr match {
         case _ if hasImplicitConversion(baseExpr) => false
-        case Resolved(m: PsiMethod, _) => methodHasNoSideEffects(m, typeOfQual)
-        case Resolved(_: ScSyntheticFunction, _) => true
-        case Resolved(td: ScTypedDefinition, _) =>
+        case ResolvesTo(m: PsiMethod) => methodHasNoSideEffects(m, typeOfQual)
+        case ResolvesTo(_: ScSyntheticFunction) => true
+        case ResolvesTo(td: ScTypedDefinition) =>
           val withApplyText = baseExpr.getText + ".apply" + args.map(_.getText).mkString("(", ", ", ")")
           val withApply = ScalaPsiElementFactory.createExpressionWithContextFromText(withApplyText, expr.getContext, expr)
           withApply match {
-            case ScMethodCall(Resolved(m: PsiMethod, _), _) =>
+            case ScMethodCall(ResolvesTo(m: PsiMethod), _) =>
               methodHasNoSideEffects(m, typeOfQual)
             case _ => false
           }

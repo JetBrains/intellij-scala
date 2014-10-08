@@ -63,16 +63,18 @@ class ScalaResolveResult(val element: PsiNamedElement,
     }
   }
 
-  def isApplicable: Boolean = problems.isEmpty
+  def isApplicable(withExpectedType: Boolean = false): Boolean =
+    if (withExpectedType) problems.isEmpty
+    else problems.forall(_ == ExpectedTypeMismatch)
 
-  def isApplicableInternal: Boolean = {
+  def isApplicableInternal(withExpectedType: Boolean): Boolean = {
     innerResolveResult match {
-      case Some(r) => r.isApplicable
-      case None => isApplicable
+      case Some(r) => r.isApplicable(withExpectedType)
+      case None => isApplicable(withExpectedType)
     }
   }
 
-  def isValidResult = isAccessible && isApplicable
+  def isValidResult = isAccessible && isApplicable()
 
   def isCyclicReference = false
 

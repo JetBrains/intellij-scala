@@ -224,6 +224,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
       waitForBreakpoint()
       evalEquals("\"test\".dropRight(2)", "te")
       evalEquals("\"3\" -> \"3\"", "(3,3)")
+      evalEquals("(1 - 3).abs", "2")
     }
   }
 

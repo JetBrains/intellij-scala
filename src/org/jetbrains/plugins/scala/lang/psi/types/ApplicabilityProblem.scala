@@ -41,3 +41,4 @@ case object WrongTypeParameterInferred extends ApplicabilityProblem
 case object DoesNotTakeTypeParameters extends ApplicabilityProblem
 case class ExcessTypeArgument(argument: ScTypeElement) extends ApplicabilityProblem
 case class MissedTypeParameter(param: TypeParameter) extends ApplicabilityProblem
+case object ExpectedTypeMismatch extends ApplicabilityProblem

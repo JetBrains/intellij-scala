@@ -10,4 +10,4 @@ class SCL6386[L] {
 
   def test(l: L)(tupler : Tupler[L]): Wrapper[tupler.Out] = new Wrapper(/*start*/tupler(l)/*end*/)
 }
-//tupler.type#Out
+//tupler.Out

@@ -1,13 +1,20 @@
 package org.jetbrains.sbt
 package annotator
 
+import com.intellij.facet.FacetManager
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
+import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.config.ScalaFacet
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 import org.jetbrains.sbt.annotator.quickfix.{SbtRefreshProjectQuickFix, SbtUpdateResolverIndexesQuickFix}
 import org.jetbrains.sbt.resolvers.{SbtResolverIndexesManager, SbtResolverUtils}
+
+import scala.util.Try
+
 
 /**
  * @author Nikolay Obedin
@@ -21,21 +28,32 @@ class SbtDependencyAnnotator extends Annotator {
 
     if (ScalaPsiUtil.fileContext(element).getFileType.getName != Sbt.Name) return
 
-    def isValidOp(op: ScReferenceExpression) = op.getText == "%" || op.getText == "%%"
-
-    def extractInfo(from: PsiElement): Option[ArtifactInfo] = from match {
-      case expr: ScInfixExpr => (expr.lOp, expr.rOp) match {
-        case (lexpr: ScInfixExpr, versionLit: ScLiteral) if versionLit.isString => (lexpr.lOp, lexpr.rOp) match {
-          case (groupLit: ScLiteral, artifactLit: ScLiteral) if groupLit.isString && artifactLit.isString =>
-            Some(ArtifactInfo(groupLit.getValue.asInstanceOf[String],
-                              artifactLit.getValue.asInstanceOf[String],
-                              versionLit.getValue.asInstanceOf[String]))
-          case _ => None
-        }
+    val scalaFacet = Try(FacetManager.getInstance(ModuleUtilCore.findModuleForPsiElement(element))
+                                     .getFacetByType(ScalaFacet.Id)).toOption
+    val scalaVersion = scalaFacet.flatMap { facet =>
+      facet.version.split('.').toSeq.map(Integer.parseInt) match {
+        case Seq(major, minor, rest@_*) =>
+          if (major == 2 && minor < 10) Some(facet.version) else Some(s"$major.$minor")
         case _ => None
       }
-      case _ => None
     }
+
+    def isValidOperation(op: ScReferenceExpression) = op.getText == "%" || op.getText == "%%"
+
+    def extractInfo(from: PsiElement): Option[ArtifactInfo] =
+      for {
+        ScInfixExpr(lexpr, _, rOp)     <- Option(from)
+        ScInfixExpr(llOp, oper, lrOp)  <- Option(lexpr)
+        ScLiteralImpl.string(version)  <- Option(rOp)
+        ScLiteralImpl.string(group)    <- Option(llOp)
+        ScLiteralImpl.string(artifact) <- Option(lrOp)
+        appendScalaVersion = oper.getText == "%%"
+      } yield {
+        if (appendScalaVersion && scalaVersion.isDefined)
+          ArtifactInfo(group, artifact + "_" + scalaVersion.get, version)
+        else
+          ArtifactInfo(group, artifact, version)
+      }
 
     def doAnnotate(info: Option[ArtifactInfo]): Unit = info match {
       case Some(ArtifactInfo(group, artifact, version)) =>
@@ -55,18 +73,17 @@ class SbtDependencyAnnotator extends Annotator {
       case _ => // do nothing
     }
 
-    element match {
-      case lit: ScLiteral => lit.getParent match {
-        case parentExpr: ScInfixExpr if isValidOp(parentExpr.operation) => parentExpr.lOp match {
-          case _: ScLiteral =>
-            doAnnotate(extractInfo(parentExpr.getParent))
-          case leftExp: ScInfixExpr if isValidOp(leftExp.operation) =>
-            doAnnotate(extractInfo(parentExpr))
-          case _ => // do nothing
-        }
-        case _ => // do nothing
-      }
+    for {
+      lit@ScLiteral(_) <- Option(element)
+      parentExpr@ScInfixExpr(lOp, operation, _) <- Option(lit.getParent)
+      if isValidOperation(operation)
+    } yield lOp match {
+      case _: ScLiteral =>
+        doAnnotate(extractInfo(parentExpr.getParent))
+      case leftExp: ScInfixExpr if isValidOperation(leftExp.operation) =>
+        doAnnotate(extractInfo(parentExpr))
       case _ => // do nothing
     }
   }
 }
+

@@ -13,4 +13,4 @@ object SCL7544B {
     }
   }
 }
-//dt.type#ZeroMany[Int]
+//dt.ZeroMany[Int]

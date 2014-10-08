@@ -324,7 +324,7 @@ package object extensions {
     override def process(t: T): Boolean = action(t)
   }
 
-  implicit def toRunnable(action: => Unit): Runnable = new Runnable {
+  implicit def toRunnable(action: => Any): Runnable = new Runnable {
     override def run(): Unit = action
   }
 

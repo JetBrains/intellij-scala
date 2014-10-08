@@ -117,7 +117,7 @@ object CreateFromUsageUtil {
 object InstanceOfClass {
   def unapply(elem: PsiElement): Option[PsiClass] = elem match {
     case ScExpression.Type(TypeAsClass(psiClass)) => Some(psiClass)
-    case Resolved(typed: ScTypedDefinition, _) =>
+    case ResolvesTo(typed: ScTypedDefinition) =>
       typed.getType().toOption match {
         case Some(TypeAsClass(psiClass)) => Some(psiClass)
         case _ => None
