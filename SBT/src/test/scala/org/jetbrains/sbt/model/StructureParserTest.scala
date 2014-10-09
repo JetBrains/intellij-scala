@@ -77,6 +77,6 @@ object StructureParserTest {
 
     val repository = Repository(new File("."), Seq(module))
 
-    Structure(Seq(project), Some(repository), None)
+    Structure(Seq(project), Some(repository), None, "")
   }
 }

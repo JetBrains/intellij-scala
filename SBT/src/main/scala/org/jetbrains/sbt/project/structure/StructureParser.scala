@@ -18,8 +18,9 @@ object StructureParser {
     val project = (node \ "project").map(parseProject)
     val repository = (node \ "repository").headOption.map(parseRepository)
     val localCachePath = (node \ "localCachePath").headOption.map(_.text)
+    val sbtVersion = (node \ "@sbt").text
 
-    Structure(project, repository, localCachePath)
+    Structure(project, repository, localCachePath, sbtVersion)
   }
 
   private def parseProject(node: Node)(implicit fs: FS): Project = {

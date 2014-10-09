@@ -3,7 +3,7 @@ package project.structure
 
 import java.io.File
 
-case class Structure(projects: Seq[Project], repository: Option[Repository], localCachePath: Option[String])
+case class Structure(projects: Seq[Project], repository: Option[Repository], localCachePath: Option[String], sbtVersion: String)
 
 case class Project(id: String, name: String, organization: String, version: String, base: File, target: File, build: Build, configurations: Seq[Configuration], java: Option[Java], scala: Option[Scala], android: Option[Android], dependencies: Dependencies, resolvers: Set[Resolver])
 

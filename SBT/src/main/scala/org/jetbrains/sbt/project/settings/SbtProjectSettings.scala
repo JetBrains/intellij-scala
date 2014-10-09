@@ -24,12 +24,17 @@ class SbtProjectSettings extends ExternalProjectSettings {
   @BeanProperty
   var resolveSbtClassifiers: Boolean = false
 
+  @Nullable
+  @BeanProperty
+  var sbtVersion: String = null
+
   override def clone() = {
     val result = new SbtProjectSettings()
     copyTo(result)
     result.jdk = jdk
     result.resolveClassifiers = resolveClassifiers
     result.resolveSbtClassifiers = resolveSbtClassifiers
+    result.sbtVersion = sbtVersion
     result
   }
 }

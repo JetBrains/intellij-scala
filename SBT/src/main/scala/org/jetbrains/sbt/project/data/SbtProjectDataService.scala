@@ -15,6 +15,7 @@ import com.intellij.pom.java.LanguageLevel
 import org.jdom.Element
 import org.jetbrains.sbt.project.data.SbtProjectDataService._
 import org.jetbrains.android.sdk.{AndroidPlatform, AndroidSdkType}
+import org.jetbrains.sbt.project.settings.SbtSettings
 
 import scala.collection.JavaConverters._
 
@@ -42,6 +43,8 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
               .orElse(projectJdk.flatMap(defaultJavaLanguageLevelIn))
 
       javaLanguageLevel.foreach(updateJavaLanguageLevelIn(project, _))
+
+      SbtSettings.getInstance(project).sbtVersion = data.sbtVersion
     }
   }
 
