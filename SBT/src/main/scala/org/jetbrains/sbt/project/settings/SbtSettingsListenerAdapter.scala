@@ -14,4 +14,6 @@ class SbtSettingsListenerAdapter(listener: ExternalSystemSettingsListener[SbtPro
   def onResolveClassifiersChanged(oldValue: Boolean, newValue: Boolean) {}
 
   def onResolveSbtClassifiersChanged(oldValue: Boolean, newValue: Boolean) {}
+
+  def onSbtVersionChanged(oldValue: String, newValue: String) {}
 }
