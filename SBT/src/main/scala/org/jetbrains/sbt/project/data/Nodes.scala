@@ -6,6 +6,7 @@ import java.io.File
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
 import org.jetbrains.sbt.project.SbtProjectSystem
+import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.ParsedValue
 import org.jetbrains.sbt.resolvers.SbtResolver
 
 /**
@@ -98,6 +99,14 @@ class AndroidFacetNode(val data: AndroidFacetData)
   }
 
   protected def key = AndroidFacetData.Key
+}
+
+class Play2ProjectNode(val data: Play2ProjectData) extends Node[Play2ProjectData] {
+  def this(projectKeys: Map[String, Map[String, ParsedValue[_]]]) {
+    this(new Play2ProjectData(SbtProjectSystem.Id, projectKeys))
+  }
+
+  def key = Play2ProjectData.Key
 }
 
 class SbtModuleNode(val data: SbtModuleData)

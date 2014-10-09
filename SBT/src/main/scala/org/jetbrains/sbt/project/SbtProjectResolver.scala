@@ -77,6 +77,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     projectNode.add(new ScalaProjectNode(projectJdk, javacOptions, sbtVersion))
 
+    project.play2 map {
+      case play2Data => projectNode.add(new Play2ProjectNode(play2Data.keys))
+    }
+
     val libraries = {
       val repositoryModules = data.repository.map(_.modules).getOrElse(Seq.empty)
 

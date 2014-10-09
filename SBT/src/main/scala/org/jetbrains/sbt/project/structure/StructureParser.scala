@@ -4,6 +4,7 @@ package project.structure
 import java.io.File
 
 import org.jetbrains.sbt.project.structure.FS._
+import org.jetbrains.sbt.project.structure.Play2Keys.{KeyTransformer, KeyExtractor}
 
 import scala.xml.Node
 
@@ -37,8 +38,10 @@ object StructureParser {
     val android = (node \ "android").headOption.map(parseAndroid(_)(fs.withBase(base)))
     val dependencies = parseDependencies(node)(fs.withBase(base))
     val resolvers = parseResolvers(node)
+    val play2 = (node \ "playimps").headOption.map(parsePlay2(_)(fs.withBase(base)))
 
-    Project(id, name, organization, version, base, target, build, configurations, java, scala, android, dependencies, resolvers)
+    Project(id, name, organization, version, base, target, build, configurations, java, scala,
+      android, dependencies, resolvers, play2)
   }
 
   private def parseBuild(node: Node)(implicit fs: FS): Build = {
@@ -66,6 +69,8 @@ object StructureParser {
 
     Scala(version, library, compiler, extra, options)
   }
+
+  def parsePlay2(node: Node)(implicit fs: FS): Play2 = Play2(KeyTransformer.transform(node.child flatMap KeyExtractor.extract))
 
   private def parseAndroid(node: Node)(implicit fs: FS): Android = {
     val version = (node \ "version").text
