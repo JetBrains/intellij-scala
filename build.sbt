@@ -1,3 +1,5 @@
+import Keys.{`package` => pack}
+
 name :=  "ScalaCommunity"
 
 organization :=  "JetBrains"
@@ -23,13 +25,6 @@ unmanagedSourceDirectories in Compile += baseDirectory.value /  "src"
 unmanagedSourceDirectories in Test += baseDirectory.value /  "test"
 
 unmanagedResourceDirectories in Compile += baseDirectory.value /  "resources"
-
-def readIdeaPropery(key: String): String =  {
-  import java.util.Properties
-  val prop = new Properties()
-  IO.load(prop, file("idea.properties"))
-  prop.getProperty(key)
-}
 
 def getBuildId(buildTypes: List[String], branch: String): String =  {
   import scala.xml._
@@ -93,7 +88,7 @@ lazy val idea_runner = Project( "idea-runner", file("idea-runner"))
 
 lazy val NailgunRunners = project.in(file( "NailgunRunners")).dependsOn(ScalaRunner)
 
-lazy val SBT = project.in(file( "SBT")).dependsOn(intellij_hocon, ScalaCommunity)
+lazy val SBT = project.in(file( "SBT")).dependsOn(intellij_hocon, ScalaCommunity % "compile->compile;test->test")
 
 lazy val downloadIdea = taskKey[Unit]( "downloads idea runtime")
 
@@ -152,22 +147,36 @@ downloadIdea in Global := {
 
 fork  := true
 
+parallelExecution := false
+
 javaOptions in Test := Seq(
+//  "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005",
   "-Xms128m",
   "-Xmx1024m",
   "-XX:MaxPermSize=350m",
   "-ea",
   s"-Didea.system.path=${Path.userHome}/.IdeaData/IDEA-14/scala/test-system",
   s"-Didea.config.path=${Path.userHome}/.IdeaData/IDEA-14/scala/test-config",
-  s"-Dplugin.path=${baseDirectory.value}/out/IDEA-14/artifacts/ScalaDistributed"
+  s"-Dplugin.path=${baseDirectory.value}/out/plugin/"
 )
+
+fullClasspath in Test := (fullClasspath in (SBT, Test)).value
+
+//fullClasspath in (Test, run) := Seq()
+
+baseDirectory in Test := baseDirectory.value.getParentFile
 
 // packaging
 
-packageBin in Compile <<= (packageBin in Compile) dependsOn (
-    packageBin in (intellij_hocon, Compile),
-    packageBin in (intellij_scalastyle, Compile),
-    packageBin in (SBT, Compile)
+pack in Compile <<= (pack in Compile) dependsOn (
+  pack in (SBT, Compile),
+  pack in (compiler_settings, Compile),
+  pack in (intellij_hocon, Compile),
+  pack in (intellij_scalastyle, Compile),
+  pack in (jps_plugin, Compile),
+  pack in (Runners, Compile),
+  pack in (NailgunRunners, Compile),
+  pack in (ScalaRunner, Compile)
   )
 
 mappings in (Compile, packageBin) ++=
@@ -182,3 +191,45 @@ mappings in (Compile, packageBin) ++= {
   } yield file -> rp
 }
 
+packageStructure in Compile := {
+  Map(
+    (artifactPath in (ScalaCommunity, Compile, packageBin)).value     -> "lib/scala-plugin.jar",
+    (artifactPath in (compiler_settings, Compile, packageBin)).value -> "lib/compiler-settings.jar",
+    (artifactPath in (NailgunRunners, Compile, packageBin)).value    -> "lib/scala-nailgun-runner.jar",
+    merge(
+      (artifactPath in (Runners, Compile, packageBin)).value,
+      (artifactPath in (ScalaRunner, Compile, packageBin)).value
+    ) -> "lib/scala-plugin-runners.jar",
+    file("SBT/jars") -> "launcher/",
+    file("SDK/nailgun") -> "lib/jps/",
+    file("SDK/sbt") -> "lib/jps/",
+    file("SDK/scalap") -> "lib/",
+    file("intellij-scalastyle/jars") -> "lib/",
+    (artifactPath in (jps_plugin, Compile, packageBin)).value -> "lib/jps/scala-jps-plugin.jar"
+  ) ++ {
+    val libs = Set(
+      "evo-inflector", "hamcrest-core", "junit",  "mockito-core",
+      "objenesis",  "scala-library", "scala-parser-combinators", "scala-reflect", "scala-xml",
+      "scalacheck", "scalatest-finders", "scalatest", "test-interface", "utest", "utest-runner"
+    )
+    val classpath =
+      (managedClasspath in(ScalaCommunity, Compile)).value ++
+        (managedClasspath in(Runners, Compile)).value ++
+        (managedClasspath in(intellij_hocon, Compile)).value
+    (classpath map { f =>
+      if (libs.exists(f.data.name.contains(_)))
+        Some(f.data -> s"lib/${f.data.name}")
+      else None
+    }).flatten
+  }
+}
+
+packagePlugin in Compile := {
+  val (dirs, files) = (packageStructure in Compile).value.partition(_._1.isDirectory)
+  val base = baseDirectory.value / "out" / "plugin"
+  IO.delete(base)
+  dirs  foreach { case (from, to) => IO.copyDirectory(from, base / to, overwrite = true) }
+  files foreach { case (from, to) => IO.copyFile(from, base / to)}
+}
+
+packagePlugin in Compile <<= (packagePlugin in Compile) dependsOn (pack in Compile)
