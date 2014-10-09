@@ -75,8 +75,8 @@ class LibraryDependencyNode(val data: LibraryDependencyData)
 
 class ScalaProjectNode(val data: ScalaProjectData)
   extends Node[ScalaProjectData] {
-  def this(jdk: Option[ScalaProjectData.Sdk], javacOptions: Seq[String]) {
-    this(new ScalaProjectData(SbtProjectSystem.Id, jdk, javacOptions))
+  def this(jdk: Option[ScalaProjectData.Sdk], javacOptions: Seq[String], sbtVersion: String) {
+    this(new ScalaProjectData(SbtProjectSystem.Id, jdk, javacOptions, sbtVersion))
   }
 
   protected def key = ScalaProjectData.Key
