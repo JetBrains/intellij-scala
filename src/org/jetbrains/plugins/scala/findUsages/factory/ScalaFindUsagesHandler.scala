@@ -151,7 +151,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
             case c: ScClass =>
               c.constructor match {
                 case Some(constr) => constr.effectiveParameterClauses.foreach {clause =>
-                  clause.parameters.foreach {param =>
+                  clause.effectiveParameters.foreach {param =>
                     if (!super.processElementUsages(c, processor, options)) return false
                   }
                 }

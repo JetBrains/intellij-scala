@@ -7,7 +7,11 @@ package params
 
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClauseStub
 
 
@@ -28,8 +32,54 @@ class ScParameterClauseImpl extends ScalaStubBasedElementImpl[ScParameterClause]
 
   override def toString: String = "ParametersClause"
 
-  def parameters: Seq[ScParameter] =
+  def parameters: Seq[ScParameter] = {
     getStubOrPsiChildren[ScParameter](TokenSets.PARAMETERS, JavaArrayFactoryUtil.ScParameterFactory)
+  }
+
+  @volatile
+  private var synthClause: Option[ScParameterClause] = None
+  @volatile
+  private var synthClauseModCount: Long = -1
+  private val SYNTH_LOCK = new Object()
+
+  override def effectiveParameters: Seq[ScParameter] = {
+    if (!isImplicit) return parameters
+    //getParent is sufficient (not getContext), for synthetic clause, getParent will return other PSI,
+    //which is ok, it will not add anything more
+    getParent match {
+      case clauses: ScParameters =>
+        val typeParametersOwner: ScTypeParametersOwner =
+          clauses.getParent match {
+            case f: ScFunction => f
+            case p: ScPrimaryConstructor =>
+              p.containingClass match {
+                case c: ScClass => c
+                case _ => return parameters
+              }
+            case _ => return parameters
+          }
+        def syntheticClause(): Option[ScParameterClause] = {
+          val modCount = getManager.getModificationTracker.getModificationCount
+          if (synthClauseModCount == modCount) return synthClause
+          SYNTH_LOCK synchronized { //it's important for all calculations to have the same psi here
+            if (synthClauseModCount == modCount) return synthClause
+            synthClause = ScalaPsiUtil.syntheticParamClause(typeParametersOwner, clauses,
+              typeParametersOwner.isInstanceOf[ScClass])
+            synthClauseModCount = modCount
+            synthClause
+          }
+        }
+        syntheticClause() match {
+          case Some(sClause) =>
+            val synthParameters = sClause.parameters
+            synthParameters.foreach(_.setContext(this, null))
+            synthParameters ++ parameters
+          case _ => parameters
+        }
+
+      case _ => parameters
+    }
+  }
 
   def isImplicit: Boolean = {
     val stub = getStub
@@ -58,6 +108,6 @@ class ScParameterClauseImpl extends ScalaStubBasedElementImpl[ScParameterClause]
       node.addChild(comma, rParen)
       node.addChild(space, rParen)
     }
-    return this
+    this
   }
 }
