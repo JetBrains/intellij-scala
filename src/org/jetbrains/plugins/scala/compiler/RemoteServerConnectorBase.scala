@@ -91,7 +91,7 @@ abstract class RemoteServerConnectorBase(module: Module, fileToCompile: File, ou
       nameHashing.name
     )
    */
-  val arguments = Seq[String](
+  def arguments = Seq[String](
     sbtData.interfaceJar,
     sbtData.sourceJar,
     sbtData.interfacesHome,
