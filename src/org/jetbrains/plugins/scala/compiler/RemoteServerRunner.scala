@@ -4,7 +4,6 @@ package compiler
 import java.net.{ConnectException, InetAddress, UnknownHostException}
 
 import com.intellij.openapi.project.Project
-import com.intellij.util.Base64Converter
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.RemoteResourceOwner
 
@@ -15,14 +14,8 @@ import org.jetbrains.jps.incremental.scala.remote.RemoteResourceOwner
 class RemoteServerRunner(project: Project) extends RemoteResourceOwner {
   protected val address = InetAddress.getByName(null)
 
-  protected val port =
-    try
-      Integer parseInt ScalaApplicationSettings.getInstance().COMPILE_SERVER_PORT
-    catch {
-      case e: NumberFormatException =>
-        throw new IllegalArgumentException("Bad port: " + ScalaApplicationSettings.getInstance().COMPILE_SERVER_PORT , e)
-    }
-  
+  protected val port = ScalaApplicationSettings.getInstance().COMPILE_SERVER_PORT
+
   def run(arguments: Seq[String], client: Client) = new CompilationProcess {
     val COUNT = 10
 
@@ -33,20 +26,18 @@ class RemoteServerRunner(project: Project) extends RemoteResourceOwner {
     }
 
     override def run() {
-      val encodedArgs = arguments map (s => Base64Converter.encode(s getBytes "UTF-8"))
-
       try {
         for (i <- 0 until (COUNT - 1)) {
           try {
             Thread.sleep(i*20)
-            send(serverAlias, encodedArgs, client)
+            send(serverAlias, arguments, client)
             return
           } catch {
             case _: ConnectException => Thread.sleep(100)
           }
         }
 
-        send(serverAlias, encodedArgs, client)
+        send(serverAlias, arguments, client)
       } catch {
         case e: ConnectException =>
           val message = "Cannot connect to compile server at %s:%s".format(address.toString, port)
