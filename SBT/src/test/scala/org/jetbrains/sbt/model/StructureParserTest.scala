@@ -67,7 +67,7 @@ object StructureParserTest {
       scala = Some(scala),
       android = None,
       dependencies = dependencies,
-      resolvers = Set.empty)
+      resolvers = Set.empty, None)
 
     val module = Module(
       id = moduleId,
