@@ -32,7 +32,7 @@ case class ModuleDependency(id: ModuleId, configurations: Seq[String])
 
 case class JarDependency(file: File, configurations: Seq[String])
 
-case class ModuleId(organization: String, name: String, revision: String)
+case class ModuleId(organization: String, name: String, revision: String, artifactType: String, classifier: Option[String])
 
 case class Module(id: ModuleId, binaries: Seq[File], docs: Seq[File], sources: Seq[File])
 

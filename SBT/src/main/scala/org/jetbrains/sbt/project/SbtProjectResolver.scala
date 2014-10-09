@@ -163,7 +163,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  private def nameFor(id: ModuleId) = s"${id.organization}:${id.name}:${id.revision}"
+  private def nameFor(id: ModuleId) =
+    s"${id.organization}:${id.name}:${id.revision}:${id.artifactType}" + id.classifier.map(":"+_).getOrElse("")
 
   private def createCompilerLibrary(scala: Scala): LibraryNode = {
     val result = new LibraryNode(nameFor(scala), resolved = true)

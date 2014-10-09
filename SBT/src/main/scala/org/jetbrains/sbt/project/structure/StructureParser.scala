@@ -138,8 +138,10 @@ object StructureParser {
     val organization = (node \ "@organization").text
     val name = (node \ "@name").text
     val revision = (node \ "@revision").text
+    val artifactType = (node \ "@artifactType").text
+    val classifier = (node \ "@classifier").text
 
-    ModuleId(organization, name, revision)
+    ModuleId(organization, name, revision, artifactType, if (classifier.isEmpty) None else Some(classifier))
   }
 
   private def parseRepository(node: Node)(implicit fs: FS): Repository = {
