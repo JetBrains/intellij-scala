@@ -24,7 +24,7 @@ class StructureParserTest {
 
 object StructureParserTest {
   def createExpectedStructure: Structure = {
-    val moduleId = ModuleId("org.scala-lang", "scala-library", "2.10.1")
+    val moduleId = ModuleId("org.scala-lang", "scala-library", "2.10.1", "jar", None)
 
     val configuration = Configuration(
       id = "compile",
