@@ -55,3 +55,15 @@ class RemoteServerRunner(project: Project) extends RemoteResourceOwner {
     }
   }
 }
+
+class RemoteServerStopper(val port: Int) extends RemoteResourceOwner {
+  override protected val address: InetAddress = InetAddress.getByName(null)
+
+  def sendStop(): Unit =
+    try {
+      val stopCommand = "stop_" + ScalaApplicationSettings.getInstance().COMPILE_SERVER_ID
+      send(stopCommand, Seq(s"--nailgun-port $port"), null)
+    } catch {
+      case e: Exception =>
+    }
+}

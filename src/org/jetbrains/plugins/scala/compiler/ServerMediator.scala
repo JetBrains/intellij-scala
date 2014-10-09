@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.extensions._
 
 class ServerMediator(project: Project) extends ProjectComponent {
 
-  private val isScalaProject = ScalaFacet.isPresentIn(project)
+  private def isScalaProject = ScalaFacet.isPresentIn(project)
   private val settings = ScalaApplicationSettings.getInstance
 
   CompilerManager.getInstance(project).addBeforeTask(new CompileTask {
