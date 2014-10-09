@@ -162,7 +162,7 @@ object DebuggerUtil {
         localParams(fun, PsiTreeUtil.getParentOfType(fun, classOf[ScTemplateDefinition]))
       case _ => Seq.empty
     }
-    val parameters = function.effectiveParameterClauses.flatMap(_.parameters) ++ localParameters
+    val parameters = function.effectiveParameterClauses.flatMap(_.effectiveParameters) ++ localParameters
     val paramTypes = parameters.map(parameterForJVMSignature(_, subst)).mkString("(", "", ")")
     val resultType = function match {
       case fun: ScFunction if !fun.isConstructor =>

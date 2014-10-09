@@ -37,7 +37,7 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
 
     //do not process parameters for default parameters, only for function body
     //processing parameters for default parameters in ScParameters
-    val parameterIncludingSynthetic: Seq[ScParameter] = effectiveParameterClauses.flatMap(_.parameters)
+    val parameterIncludingSynthetic: Seq[ScParameter] = effectiveParameterClauses.flatMap(_.effectiveParameters)
     if (getStub == null) {
       body match {
         case Some(x) 

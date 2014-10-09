@@ -542,7 +542,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case _ => false
     }
     val params = method match {
-      case fun: ScMethodLike => fun.effectiveParameterClauses.flatMap(_.parameters)
+      case fun: ScMethodLike => fun.effectiveParameterClauses.flatMap(_.effectiveParameters)
       case m: PsiMethod => m.getParameterList.getParameters.toSeq
       case _ => return arguments
     }
@@ -663,7 +663,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   def implicitArgEvaluator(fun: ScMethodLike, param: ScParameter, expr: ScExpression): Evaluator = {
     assert(param.owner == fun)
     val implicitParameters = fun.effectiveParameterClauses.lastOption match {
-      case Some(clause) if clause.isImplicit => clause.parameters
+      case Some(clause) if clause.isImplicit => clause.effectiveParameters
       case _ => Seq.empty
     }
     val i = implicitParameters.indexOf(param)
@@ -717,7 +717,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case funDef: ScFunctionDefinition =>
         def paramIndex(fun: ScFunctionDefinition, context: PsiElement, elem: PsiElement): Int = {
           val locIndex = DebuggerUtil.localParams(fun, context).indexOf(elem)
-          val funParams = fun.effectiveParameterClauses.flatMap(_.parameters)
+          val funParams = fun.effectiveParameterClauses.flatMap(_.effectiveParameters)
           if (locIndex < 0) funParams.indexOf(elem)
           else locIndex + funParams.size
         }
@@ -786,7 +786,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val clauses = fun.effectiveParameterClauses
 
     def addForNextClause(previousClausesEvaluators: Seq[Evaluator], clause: ScParameterClause): Seq[Evaluator] = {
-      previousClausesEvaluators ++ clause.parameters.map {
+      previousClausesEvaluators ++ clause.effectiveParameters.map {
         case param =>
           val p = new Parameter(param)
           val exprsForP = matchedParameters.find(_._1.name == p.name).map(_._2).getOrElse(Seq.empty).filter(_ != null)
@@ -801,7 +801,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           }
           else if (param.isImplicitParameter) implicitArgEvaluator(fun, param, call)
           else if (p.isDefault) {
-            val parameters = clauses.flatMap(_.parameters).map(new Parameter(_))
+            val parameters = clauses.flatMap(_.effectiveParameters).map(new Parameter(_))
             val methodName = defaultParameterMethodName(fun, p, parameters)
             functionEvaluator(ref.qualifier, ref, methodName, previousClausesEvaluators)
           }

@@ -337,7 +337,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
                       val level = ScalaLanguageLevel.getLanguageLevel(place)
                       if (level.isThoughScala2_10) {
                         if (probablyHasDepententMethodTypes) {
-                          val params: Seq[Parameter] = f.paramClauses.clauses.last.parameters.map(
+                          val params: Seq[Parameter] = f.paramClauses.clauses.last.effectiveParameters.map(
                             param => new Parameter(param))
                           val (inferredParams, expr, _) = InferUtil.findImplicits(params, None,
                             place, check = false, abstractSubstitutor = subst followed dependentSubst followed unSubst)
