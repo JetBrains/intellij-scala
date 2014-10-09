@@ -58,8 +58,6 @@ trait FunctionAnnotator {
       }
     }
 
-    checkImplicitParametersAndBounds(function, function.clauses, holder)
-
     for {
       functionType <- function.returnType
       usage <- function.returnUsages()

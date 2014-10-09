@@ -46,8 +46,6 @@ class ConvertImplicitBoundsToImplicitParameter extends PsiElementBaseIntentionAc
         function.effectiveParameterClauses.lastOption match {
           case Some(implicitParamClause) if implicitParamClause.isImplicit =>
             val newClause = ScalaPsiElementFactory.createClauseFromText(implicitParamClause.getText, element.getManager)
-            // TODO SCL-3487 effectiveParameterClauses will be updated to include the merged implicit
-            //               parameters lists, just discard the declared one
             for (p <- paramClause.parameters) {
               val newParam = ScalaPsiElementFactory.createParameterFromText(p.getText, element.getManager)
               newClause.addParameter(newParam)

@@ -43,7 +43,7 @@ with ScFunction with ScTypeParametersOwner {
     // process function's process type parameters
     if (!super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)) return false
 
-    lazy val parameterIncludingSynthetic: Seq[ScParameter] = effectiveParameterClauses.flatMap(_.parameters)
+    lazy val parameterIncludingSynthetic: Seq[ScParameter] = effectiveParameterClauses.flatMap(_.effectiveParameters)
     if (getStub == null) {
       returnTypeElement match {
         case Some(x) if lastParent != null && x.getStartOffsetInParent == lastParent.getStartOffsetInParent =>
