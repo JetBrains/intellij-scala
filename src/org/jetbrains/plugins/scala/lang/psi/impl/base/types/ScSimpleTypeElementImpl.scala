@@ -87,7 +87,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     def getConstructorParams(constr: PsiMethod, subst: ScSubstitutor): (Seq[Seq[Parameter]], Boolean) = {
       constr match {
         case fun: ScFunction =>
-          (fun.effectiveParameterClauses.map(_.parameters.mapWithIndex {
+          (fun.effectiveParameterClauses.map(_.effectiveParameters.mapWithIndex {
             case (p, index) =>
               val paramType: ScType = subst.subst(p.getType(TypingContext.empty).getOrAny)
               new Parameter(p.name, p.deprecatedName,
@@ -96,7 +96,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           }),
             fun.parameterList.clauses.lastOption.exists(_.isImplicit))
         case f: ScPrimaryConstructor =>
-          (f.effectiveParameterClauses.map(_.parameters.mapWithIndex {
+          (f.effectiveParameterClauses.map(_.effectiveParameters.mapWithIndex {
             case (p, index) =>
               val paramType: ScType = subst.subst(p.getType(TypingContext.empty).getOrAny)
               new Parameter(p.name, p.deprecatedName,

@@ -386,7 +386,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         tdParts.foreach(_.annotate(templateDefinition, holder, typeAware))
         templateDefinition match {
           case cls: ScClass =>
-            val clsParts = Seq(CaseClassWithoutParamList, HasImplicitParamAndBound)
+            val clsParts = Seq(CaseClassWithoutParamList)
             clsParts.foreach(_.annotate(cls, holder, typeAware))
           case trt: ScTrait =>
             val traitParts = Seq(TraitHasImplicitBound)
