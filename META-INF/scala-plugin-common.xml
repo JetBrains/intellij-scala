@@ -702,6 +702,10 @@
                          displayName="Use of postfix method call" groupName="Scala: General"
                          shortName="PostfixMethodCall" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.feature.LanguageFeatureInspection"
+                         displayName="Advanced language features" groupName="Scala: General"
+                         shortName="LanguageFeature" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.ReferenceMustBePrefixedInspection"
                          displayName="Reference must be prefixed" groupName="Scala: General"
                          shortName="ReferenceMustBePrefixed" level="WARNING"
