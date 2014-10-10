@@ -23,7 +23,6 @@ public class ScalaCompilerSettingsForm {
   private JCheckBox myContinuations;
   private JComboBox<CompileOrder> myCompileOrder;
   private JComboBox<IncrementalityType> myIncrementalityType;
-  private JCheckBox myMacros;
   private JCheckBox myDynamics;
   private JCheckBox myPostfixOps;
   private JCheckBox myReflectiveCalls;
@@ -31,6 +30,7 @@ public class ScalaCompilerSettingsForm {
   private JCheckBox myHigherKinds;
   private JCheckBox myExistentials;
   private JCheckBox myFeatureWarnings;
+  private JCheckBox myMacros;
 
   private MyPathEditor myPluginsEditor = new MyPathEditor(new FileChooserDescriptor(true, false, true, true, false, true));
 
@@ -51,13 +51,13 @@ public class ScalaCompilerSettingsForm {
   public ScalaCompilerSettingsState getState() {
     ScalaCompilerSettingsState state = new ScalaCompilerSettingsState();
 
-    state.macros = myMacros.isSelected();
     state.dynamics = myDynamics.isSelected();
     state.postfixOps = myPostfixOps.isSelected();
     state.reflectiveCalls = myReflectiveCalls.isSelected();
     state.implicitConversions = myImplicitConversions.isSelected();
     state.higherKinds = myHigherKinds.isSelected();
     state.existentials = myExistentials.isSelected();
+    state.macros = myMacros.isSelected();
 
     state.incrementalityType = (IncrementalityType) myIncrementalityType.getSelectedItem();
     state.compileOrder = (CompileOrder) myCompileOrder.getSelectedItem();
@@ -76,13 +76,13 @@ public class ScalaCompilerSettingsForm {
   }
 
   public void setState(ScalaCompilerSettingsState state) {
-    myMacros.setSelected(state.macros);
     myDynamics.setSelected(state.dynamics);
     myPostfixOps.setSelected(state.postfixOps);
     myReflectiveCalls.setSelected(state.reflectiveCalls);
     myImplicitConversions.setSelected(state.implicitConversions);
     myHigherKinds.setSelected(state.higherKinds);
     myExistentials.setSelected(state.existentials);
+    myMacros.setSelected(state.macros);
 
     myIncrementalityType.setSelectedItem(state.incrementalityType);
     myCompileOrder.setSelectedItem(state.compileOrder);

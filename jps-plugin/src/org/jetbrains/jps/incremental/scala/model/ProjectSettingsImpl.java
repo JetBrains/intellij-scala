@@ -32,10 +32,6 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
   public String[] getCompilerOptions() {
     List<String> list = new ArrayList<String>();
 
-    if (myState.macros) {
-      list.add("-language:macros");
-    }
-
     if (myState.dynamics) {
       list.add("-language:dynamics");
     }
@@ -58,6 +54,10 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
 
     if (myState.existentials) {
       list.add("-language:existentials");
+    }
+
+    if (myState.macros) {
+      list.add("-language:experimental.macros");
     }
 
     if (!myState.warnings) {
@@ -134,8 +134,6 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
 
     public CompileOrder compileOrder = CompileOrder.Mixed;
 
-    public boolean macros;
-
     public boolean dynamics;
 
     public boolean postfixOps;
@@ -147,6 +145,8 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
     public boolean higherKinds;
 
     public boolean existentials;
+
+    public boolean macros;
 
     public boolean warnings;
 
