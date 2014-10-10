@@ -701,7 +701,7 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.postfix.PostfixMethodCallInspection"
                          displayName="Use of postfix method call" groupName="Scala: General"
                          shortName="PostfixMethodCall" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
+                         enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.feature.LanguageFeatureInspection"
                          displayName="Advanced language features" groupName="Scala: General"
                          shortName="LanguageFeature" level="WARNING"
