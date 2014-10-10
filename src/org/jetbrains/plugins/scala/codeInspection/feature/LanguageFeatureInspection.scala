@@ -2,11 +2,12 @@ package org.jetbrains.plugins.scala
 package codeInspection.feature
 
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
+import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
-import org.jetbrains.plugins.scala.configuration.{ProjectExt, ScalaCompilerSettings}
+import org.jetbrains.plugins.scala.configuration.{ModuleExt, ProjectExt, ScalaCompilerSettings}
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ReferenceTarget, _}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
@@ -50,7 +51,11 @@ class LanguageFeatureInspection extends AbstractInspection("LanguageFeature", "A
     })
 
   override def actionFor(holder: ProblemsHolder) = PartialFunction.apply { e: PsiElement =>
-    Features.foreach(_.process(e, holder))
+    val module = ModuleUtilCore.findModuleForPsiElement(e)
+
+    if (module != null && module.scalaSdk.exists(_.languageLevel.isSinceScala2_10)) {
+      Features.foreach(_.process(e, holder))
+    }
   }
 }
 
