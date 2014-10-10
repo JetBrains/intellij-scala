@@ -169,7 +169,7 @@
           </component>
           <component id="f37ca" class="javax.swing.JCheckBox" binding="myDynamics">
             <constraints>
-              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value="&amp;Dynamics"/>
@@ -177,23 +177,15 @@
           </component>
           <component id="e3735" class="javax.swing.JCheckBox" binding="myPostfixOps">
             <constraints>
-              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value="&amp;Postfix operator notation"/>
             </properties>
           </component>
-          <component id="a0ff7" class="javax.swing.JCheckBox" binding="myReflectiveCalls">
-            <constraints>
-              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text value="&amp;Reflective calls"/>
-            </properties>
-          </component>
           <component id="77105" class="javax.swing.JCheckBox" binding="myHigherKinds">
             <constraints>
-              <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value="&amp;Hhigher-kinded types"/>
@@ -201,7 +193,7 @@
           </component>
           <component id="5881a" class="javax.swing.JCheckBox" binding="myExistentials">
             <constraints>
-              <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value="&amp;Existential types"/>
@@ -215,22 +207,6 @@
               <text value="Features"/>
             </properties>
           </component>
-          <component id="edb7c" class="javax.swing.JCheckBox" binding="myMacros">
-            <constraints>
-              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text value="&amp;Macros"/>
-            </properties>
-          </component>
-          <component id="787ba" class="javax.swing.JCheckBox" binding="myImplicitConversions">
-            <constraints>
-              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text value="&amp;Implicit conversions"/>
-            </properties>
-          </component>
           <component id="6a997" class="javax.swing.JCheckBox" binding="myFeatureWarnings">
             <constraints>
               <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
@@ -238,6 +214,30 @@
             <properties>
               <text value="&amp;Feature warnings"/>
               <toolTipText value="Emit language feature warnings. "/>
+            </properties>
+          </component>
+          <component id="787ba" class="javax.swing.JCheckBox" binding="myImplicitConversions">
+            <constraints>
+              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&amp;Implicit conversions"/>
+            </properties>
+          </component>
+          <component id="edb7c" class="javax.swing.JCheckBox" binding="myMacros">
+            <constraints>
+              <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&amp;Macros"/>
+            </properties>
+          </component>
+          <component id="a0ff7" class="javax.swing.JCheckBox" binding="myReflectiveCalls">
+            <constraints>
+              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&amp;Reflective calls"/>
             </properties>
           </component>
         </children>

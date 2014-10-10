@@ -15,13 +15,13 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
   var incrementalityType: IncrementalityType = _
   var compileOrder: CompileOrder = _
 
-  var macros: Boolean = _
   var dynamics: Boolean = _
   var postfixOps: Boolean = _
   var reflectiveCalls: Boolean = _
   var implicitConversions: Boolean = _
   var higherKinds: Boolean = _
   var existentials: Boolean = _
+  var macros: Boolean = _
 
   var warnings: Boolean = _
   var deprecationWarnings: Boolean = _
@@ -43,13 +43,13 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
     incrementalityType = state.incrementalityType
     compileOrder = state.compileOrder
 
-    macros = state.macros
     dynamics = state.dynamics
     postfixOps = state.postfixOps
     reflectiveCalls = state.reflectiveCalls
     implicitConversions = state.implicitConversions
     higherKinds = state.higherKinds
     existentials = state.existentials
+    macros = state.macros
 
     warnings = state.warnings
     deprecationWarnings = state.deprecationWarnings
@@ -69,13 +69,13 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
     state.incrementalityType = incrementalityType
     state.compileOrder = compileOrder
 
-    state.macros = macros
     state.dynamics = dynamics
     state.postfixOps = postfixOps
     state.reflectiveCalls = reflectiveCalls
     state.implicitConversions = implicitConversions
     state.higherKinds = higherKinds
     state.existentials = existentials
+    state.macros = macros
 
     state.warnings = warnings
     state.deprecationWarnings = deprecationWarnings
