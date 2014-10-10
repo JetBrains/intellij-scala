@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala
 package configuration
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.openapi.project.Project
 
 /**
  * @author Pavel Fatin
  */
-class ScalaCompilerConfigurable(settings: ScalaCompilerSettings) extends AbstractConfigurable("Scala Compiler")  {
+class ScalaCompilerConfigurable(project: Project, settings: ScalaCompilerSettings) extends AbstractConfigurable("Scala Compiler")  {
   protected lazy val form = new ScalaCompilerSettingsForm()
 
   def createComponent() = form.getComponent
@@ -18,5 +20,6 @@ class ScalaCompilerConfigurable(settings: ScalaCompilerSettings) extends Abstrac
 
   def apply() {
     settings.loadState(form.getState)
+    DaemonCodeAnalyzer.getInstance(project).restart()
   }
 }
