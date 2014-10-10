@@ -16,7 +16,7 @@ class RemoteServerRunner(project: Project) extends RemoteResourceOwner {
 
   protected val port = ScalaApplicationSettings.getInstance().COMPILE_SERVER_PORT
 
-  def run(arguments: Seq[String], client: Client) = new CompilationProcess {
+  def buildProcess(arguments: Seq[String], client: Client) = new CompilationProcess {
     val COUNT = 10
 
     var callbacks: Seq[() => Unit] = Seq.empty

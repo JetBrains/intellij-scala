@@ -50,7 +50,7 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File, works
     try {
       val worksheetProcess = runType match {
         case InProcessServer | OutOfProcessServer =>
-           new RemoteServerRunner(project).run(arguments, client)
+           new RemoteServerRunner(project).buildProcess(arguments, client)
         case NonServer =>
           val eventClient = new ClientEventProcessor(client)
           
@@ -70,7 +70,7 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File, works
             }
           }
 
-          new NonServerRunner(project, Some(errorHandler)).run(encodedArgs, (text: String) => {
+          new NonServerRunner(project, Some(errorHandler)).buildProcess(encodedArgs, (text: String) => {
             val event = Event.fromBytes(Base64Converter.decode(text.getBytes("UTF-8")))
             eventClient.process(event)
           })
