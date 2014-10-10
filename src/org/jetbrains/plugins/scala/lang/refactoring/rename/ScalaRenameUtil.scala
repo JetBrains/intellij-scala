@@ -3,7 +3,6 @@ package lang.refactoring.rename
 
 import java.util
 
-import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
@@ -129,8 +128,7 @@ object ScalaRenameUtil {
         if (usagez.isEmpty) Nil
         else {
           val needDollarSign: UsageInfo => Boolean = { u =>
-            val ref = u.getReference.getElement
-            ref.getLanguage.isInstanceOf[JavaLanguage]
+            !u.getReference.isInstanceOf[ResolvableReferenceElement]
           }
           val (usagesWithDS, usagesPlain) = usagez.partition(needDollarSign)
           Seq(UsagesWithName(name + "$", usagesWithDS), UsagesWithName(name, usagesPlain))
