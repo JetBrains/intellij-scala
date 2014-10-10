@@ -26,19 +26,19 @@ unmanagedSourceDirectories in Test += baseDirectory.value /  "test"
 
 unmanagedResourceDirectories in Compile += baseDirectory.value /  "resources"
 
-def getBuildId(buildTypes: List[String], branch: String): String =  {
+def getBuildId(buildTypes: Seq[String], branch: String): Option[String] =  {
   import scala.xml._
-  import java.io._
-  for (bt <- buildTypes) {
-    val tcUrl = s"http://teamcity.jetbrains.com/guestAuth/app/rest/builds/?locator=buildType:(id:$bt),branch:(name:${branch})"
+  val a = buildTypes map { bt:String =>
+    val tcUrl = s"https://teamcity.jetbrains.com/guestAuth/app/rest/builds/?locator=buildType:(id:$bt),branch:(default:any,name:$branch)"
+    println(s"trying: $tcUrl")
     try {
       val buildId = XML.loadString(IO.readLinesURL(url(tcUrl)).mkString) \ "build" \ "@id"
-      return buildId.text
+      if (buildId.nonEmpty) Some(buildId.text) else None
     } catch {
-      case e: IOException =>""
+      case e: Throwable => None
     }
   }
-  ""
+  a.flatten.headOption
 }
 
 lazy val ideaVersion = taskKey[String]( "gets idea sdk version from file")
@@ -69,13 +69,13 @@ unmanagedJars in Compile ++= (baseDirectory.value /  "SDK/scalap" * "*.jar").cla
 
 unmanagedJars in Compile ++= (baseDirectory.value /  "SDK/nailgun" * "*.jar").classpath
 
-lazy val compiler_settings = project.in(file( "compiler-settings")).settings(compile <<= (compile in Compile)  dependsOn (downloadIdea in Compile))
+lazy val compiler_settings = project.in(file( "compiler-settings"))
 
 lazy val ScalaRunner = project.in(file( "ScalaRunner"))
 
 lazy val Runners = project.in(file( "Runners")).dependsOn(ScalaRunner)
 
-lazy val ScalaCommunity = project.in(file("")).dependsOn(compiler_settings, Runners).aggregate(jps_plugin).settings(compile <<= (compile in Compile)  dependsOn (downloadIdea in Global))
+lazy val ScalaCommunity = project.in(file("")).dependsOn(compiler_settings, Runners).aggregate(jps_plugin)
 
 lazy val intellij_hocon = Project( "intellij-hocon", file("intellij-hocon")).dependsOn(ScalaCommunity)
 
@@ -92,10 +92,11 @@ lazy val SBT = project.in(file( "SBT")).dependsOn(intellij_hocon, ScalaCommunity
 
 lazy val downloadIdea = taskKey[Unit]( "downloads idea runtime")
 
-downloadIdea in Global := {
+downloadIdea := {
     import sys.process._
     import scala.xml._
     val log = streams.value.log
+    val ideaVer = ideaVersion.value
     val ideaSDKPath = (baseDirectory.value / ideaBasePath).getParentFile
     val ideaArchiveName = ideaSDKPath.getAbsolutePath + s"/ideaSDK${ideaVersion.value}.arc"
     log.info("COMM: "  + ideaSDKPath.getAbsolutePath)
@@ -130,16 +131,19 @@ downloadIdea in Global := {
         case r"^Windows.*" => (".win.zip", IO.unzip(_: File, ideaSDKPath))
         case other => throw new RuntimeException(s"OS $other is not supported")
       }
-      val buildId = getBuildId(List("bt410"), s"idea/${ideaVersion.value}")
-      if (buildId != "") {
-        log.info(s"got build Id = $buildId")
-        val reply = XML.loadString(IO.readLinesURL(url(s"http://teamcity.jetbrains.com/guestAuth/app/rest/builds/id:$buildId/artifacts")).mkString)
-        val baseUrl = "http://teamcity.jetbrains.com"
-        val ideaUrl = (reply \ "file" find { it: NodeSeq => (it \ "@name").text.endsWith(extension)}).get \ "content" \ "@href"
-        val sourcesUrl = (reply \ "file" find { it: NodeSeq => (it \ "@name").text == "sources.zip"}).get \ "content" \ "@href"
-        downloadDep(baseUrl + ideaUrl, ideaArchiveName, Some(extractFun))
-        downloadDep(baseUrl + sourcesUrl, ideaBasePath + "/sources.zip")
-      } else log.warn("COMM: failed to get ideaSDK build id, not downloading sdk")
+      val buildIdOption = getBuildId(List("bt410"), s"idea/$ideaVer")
+      buildIdOption match {
+        case Some(buildId) =>
+          log.info(s"got build Id = $buildId")
+          val reply = XML.loadString(IO.readLinesURL(url(s"https://teamcity.jetbrains.com/guestAuth/app/rest/builds/id:$buildId/artifacts")).mkString)
+          val baseUrl = "https://teamcity.jetbrains.com"
+          val ideaUrl = (reply \ "file" find { it: NodeSeq => (it \ "@name").text.endsWith(extension)}).get \ "content" \ "@href"
+          val sourcesUrl = (reply \ "file" find { it: NodeSeq => (it \ "@name").text == "sources.zip"}).get \ "content" \ "@href"
+          downloadDep(baseUrl + ideaUrl, ideaArchiveName, Some(extractFun))
+          downloadDep(baseUrl + sourcesUrl, ideaBasePath + "/sources.zip")
+        case None =>
+          log.warn(s"failed to get build id for branch: $ideaVer")
+      }
     }
 }
 
@@ -161,8 +165,6 @@ javaOptions in Test := Seq(
 )
 
 fullClasspath in Test := (fullClasspath in (SBT, Test)).value
-
-//fullClasspath in (Test, run) := Seq()
 
 baseDirectory in Test := baseDirectory.value.getParentFile
 
