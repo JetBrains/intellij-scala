@@ -28,7 +28,7 @@ class NonServerRunner(project: Project, errorHandler: Option[ErrorHandler] = Non
 
   private val jvmParameters = CompileServerLauncher.jvmParameters
   
-  def run(args: Seq[String], listener: String => Unit): CompilationProcess = {
+  def buildProcess(args: Seq[String], listener: String => Unit): CompilationProcess = {
     val sdk = Option(ProjectRootManager.getInstance(project).getProjectSdk) getOrElse {
       val all = ProjectJdkTable.getInstance.getSdksOfType(JavaSdk.getInstance())
       
