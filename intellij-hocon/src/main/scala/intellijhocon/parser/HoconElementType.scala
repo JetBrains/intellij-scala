@@ -30,7 +30,7 @@ object HoconElementType {
 
   val Array = new HoconElementType("ARRAY")
 
-  val Value = new HoconElementType("VALUE")
+  val Concatenation = new HoconElementType("CONCATENATION")
 
   val UnquotedString = new HoconElementType("UNQUOTED_STRING")
 
