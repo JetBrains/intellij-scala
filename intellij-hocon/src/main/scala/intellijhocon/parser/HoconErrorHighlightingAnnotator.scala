@@ -13,7 +13,6 @@ class HoconErrorHighlightingAnnotator extends Annotator {
 
   import intellijhocon.Util._
   import intellijhocon.lexer.HoconTokenType._
-  import intellijhocon.parser.HoconElementSets._
   import intellijhocon.parser.HoconElementType._
 
   def annotate(element: PsiElement, holder: AnnotationHolder) {
@@ -46,8 +45,10 @@ class HoconErrorHighlightingAnnotator extends Annotator {
 
               validateConcatenation(constrainingToken, child.getTreeNext)
 
-            case (StringValue.extractor(), StringValue.extractor()) |
-                 (Object, Object) | (Array, Array) | (null, _) =>
+            case (String, String) |
+                 (Object, Object) |
+                 (Array, Array) |
+                 (null, _) =>
 
               validateConcatenation(child.getElementType, child.getTreeNext)
 
