@@ -4,6 +4,7 @@ package lexer
 import com.intellij.lexer.LexerBase
 import com.intellij.psi.tree.IElementType
 
+import annotation.tailrec
 import scala.util.matching.Regex
 
 object HoconLexer {
@@ -35,7 +36,7 @@ class HoconLexer extends LexerBase {
                             token: HoconTokenType,
                             condition: State => Boolean = _ => true,
                             transitionFun: State => State = identity)
-    extends TokenMatcher {
+          extends TokenMatcher {
 
     def matchToken(seq: CharSequence, state: State) =
       if (condition(state) && seq.startsWith(str))
@@ -47,7 +48,7 @@ class HoconLexer extends LexerBase {
                           token: HoconTokenType,
                           condition: State => Boolean = _ => true,
                           transitionFun: State => State = identity)
-    extends TokenMatcher {
+          extends TokenMatcher {
 
     def matchToken(seq: CharSequence, state: State) =
       if (condition(state))
@@ -113,6 +114,7 @@ class HoconLexer extends LexerBase {
 
   object QuotedStringMatcher extends TokenMatcher {
     def matchToken(seq: CharSequence, state: State) = if (seq.charAt(0) == '\"') {
+      @tailrec
       def drain(offset: Int, escaping: Boolean): Int =
         if (offset < seq.length) {
           seq.charAt(offset) match {

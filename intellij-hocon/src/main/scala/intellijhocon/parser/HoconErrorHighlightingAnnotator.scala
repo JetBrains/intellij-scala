@@ -6,7 +6,6 @@ import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.lexer.StringLiteralLexer
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, StringEscapesTokenTypes, TokenType}
-import intellijhocon.lexer.HoconTokenType
 
 import annotation.tailrec
 
@@ -25,7 +24,7 @@ class HoconErrorHighlightingAnnotator extends Annotator {
 
         Iterator.continually {
           val range = TextRange(lexer.getTokenStart, lexer.getTokenEnd)
-            .shiftRight(element.getTextRange.getStartOffset)
+                  .shiftRight(element.getTextRange.getStartOffset)
           val result = (lexer.getTokenType, range)
           lexer.advance()
           result

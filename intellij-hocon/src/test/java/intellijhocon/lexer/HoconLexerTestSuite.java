@@ -10,7 +10,7 @@ import org.junit.runners.AllTests;
  */
 @RunWith(AllTests.class)
 public class HoconLexerTestSuite {
-  public static Test suite() {
-    return new HoconLexerTest();
-  }
+    public static Test suite() {
+        return new HoconLexerTest();
+    }
 }

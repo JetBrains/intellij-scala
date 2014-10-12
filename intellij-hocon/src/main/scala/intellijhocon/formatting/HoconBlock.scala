@@ -12,7 +12,7 @@ import scala.collection.JavaConverters._
 
 
 class HoconBlock(formatter: HoconFormatter, node: ASTNode, indent: Indent, wrap: Wrap, alignment: Alignment)
-  extends AbstractBlock(node, wrap, alignment) {
+        extends AbstractBlock(node, wrap, alignment) {
 
   import intellijhocon.Util._
 
@@ -45,8 +45,8 @@ class HoconBlock(formatter: HoconFormatter, node: ASTNode, indent: Indent, wrap:
 
   lazy val children: Seq[Block] =
     formatter.getChildren(node)
-      .filterNot(n => n.getTextLength == 0 || n.getElementType == TokenType.WHITE_SPACE)
-      .map(createChildBlock).toVector
+            .filterNot(n => n.getTextLength == 0 || n.getElementType == TokenType.WHITE_SPACE)
+            .map(createChildBlock).toVector
 
   private def createChildBlock(child: ASTNode) =
     new HoconBlock(formatter, child,
