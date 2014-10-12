@@ -118,6 +118,9 @@ class HoconFormatter(settings: CodeStyleSettings) {
         else
           normalSpacing(commonSettings.SPACE_WITHIN_BRACKETS)
 
+      case (UnquotedChars, Included) =>
+        normalSpacing(shouldBeSpace = true)
+
       case (FieldPath, Object) =>
         normalSpacing(customSettings.SPACE_BEFORE_LBRACE_AFTER_PATH)
 
