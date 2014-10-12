@@ -1,16 +1,18 @@
 a = "unclosed quoted
 -----
 HOCON_FILE
-  HoconPsiElement(OBJECT_ENTRIES)
-    HoconPsiElement(OBJECT_FIELD)
-      HoconPsiElement(BARE_OBJECT_FIELD)
-        HoconPsiElement(FIELD_PATH)
-          HoconPsiElement(KEY)
-            HoconPsiElement(UNQUOTED_STRING)
-              PsiElement(UNQUOTED_CHARS)('a')
+  HObjectEntries(OBJECT_ENTRIES)
+    HObjectField(OBJECT_FIELD)
+      HBareObjectField(BARE_OBJECT_FIELD)
+        HPath(FIELD_PATH)
+          HKey(KEY)
+            HString(STRING)
+              HUnquotedString(UNQUOTED_STRING)
+                PsiElement(UNQUOTED_CHARS)('a')
         PsiWhiteSpace(' ')
         PsiElement(EQUALS)('=')
         PsiWhiteSpace(' ')
-        PsiElement(QUOTED_STRING)('"unclosed quoted')
-        PsiErrorElement:unclosed quoted string
-          <empty list>
+        HString(STRING)
+          PsiElement(QUOTED_STRING)('"unclosed quoted')
+          PsiErrorElement:unclosed quoted string
+            <empty list>

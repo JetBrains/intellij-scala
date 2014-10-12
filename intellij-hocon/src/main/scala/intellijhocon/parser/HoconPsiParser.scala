@@ -68,15 +68,7 @@ class HoconPsiParser extends PsiParser {
     }
 
     def advanceLexer() {
-      val unclosedQuotedString = builder.getTokenType == QuotedString &&
-              !ProperlyClosedQuotedString.pattern.matcher(builder.getTokenText).matches
-      val unclosedMultilineString = builder.getTokenType == MultilineString && !builder.getTokenText.endsWith("\"\"\"")
       builder.advanceLexer()
-      if (unclosedQuotedString) {
-        builder.error("unclosed quoted string")
-      } else if (unclosedMultilineString) {
-        builder.error("unclosed multiline string")
-      }
     }
 
     def matches(matcher: Matcher) =
@@ -128,6 +120,24 @@ class HoconPsiParser extends PsiParser {
       errorUntil(Empty.orEof, "expected end of file", onlyNonEmpty = true)
     }
 
+    def parseStringLiteral(): Unit = {
+      val marker = builder.mark()
+
+      val unclosedQuotedString = builder.getTokenType == QuotedString &&
+              !ProperlyClosedQuotedString.pattern.matcher(builder.getTokenText).matches
+      val unclosedMultilineString = builder.getTokenType == MultilineString && !builder.getTokenText.endsWith("\"\"\"")
+
+      advanceLexer()
+
+      if (unclosedQuotedString) {
+        builder.error("unclosed quoted string")
+      } else if (unclosedMultilineString) {
+        builder.error("unclosed multiline string")
+      }
+
+      marker.done(String)
+    }
+
     def parseObject() = {
       val marker = builder.mark()
 
@@ -176,21 +186,22 @@ class HoconPsiParser extends PsiParser {
     def parseIncluded() {
       val marker = builder.mark()
 
-      if (pass(QuotedString)) ()
-      else if (IncludeQualifiers.exists(matchesUnquoted)) {
+      if (matches(QuotedString)) {
+        parseStringLiteral()
+      } else if (IncludeQualifiers.exists(matchesUnquoted)) {
         val qualifier = builder.getTokenText
         advanceLexer()
         if (matches(QuotedString)) {
           if (qualifier == "url(") {
             try {
               new URL(unquote(builder.getTokenText))
-              advanceLexer()
+              parseStringLiteral()
             } catch {
               case e: MalformedURLException =>
                 tokenError(if (e.getMessage != null) e.getMessage else "malformed URL")
             }
           } else {
-            advanceLexer()
+            parseStringLiteral()
           }
           if (matchesUnquoted(")")) {
             advanceLexer()
@@ -252,9 +263,9 @@ class HoconPsiParser extends PsiParser {
       def parseKeyParts(first: Boolean) {
         if (!matches(KeyEnding.orNewLineOrEof)) {
           if (matches(UnquotedChars)) {
-            parseAsUnquotedString(UnquotedChars.noNewLine, first, PathEnding.orNewLineOrEof)
+            parseUnquotedString(UnquotedChars.noNewLine, first, PathEnding.orNewLineOrEof)
           } else if (matches(StringLiteral)) {
-            advanceLexer()
+            parseStringLiteral()
           } else {
             tokenError("key must be a concatenation of unquoted, quoted or multiline strings " +
                     "(characters $ \" { } [ ] : = , + # ` ^ ? ! @ * & \\ are forbidden unquoted)")
@@ -271,15 +282,17 @@ class HoconPsiParser extends PsiParser {
       setEdgeTokenBinders(marker, first, matches(PathEnding.orNewLineOrEof))
     }
 
-    def parseAsUnquotedString(matcher: Matcher, nonGreedyLeft: Boolean, nonGreedyRightMatcher: Matcher): Unit = {
+    def parseUnquotedString(matcher: Matcher, nonGreedyLeft: Boolean, nonGreedyRightMatcher: Matcher): Unit = {
+      val stringMarker = builder.mark()
       val marker = builder.mark()
       suppressNewLine()
       while (matches(matcher)) {
         advanceLexer()
       }
       marker.done(UnquotedString)
-
       setEdgeTokenBinders(marker, nonGreedyLeft, matches(nonGreedyRightMatcher))
+      stringMarker.done(String)
+      setEdgeTokenBinders(stringMarker, nonGreedyLeft, matches(nonGreedyRightMatcher))
     }
 
     def parseValue(): Unit = {
@@ -317,9 +330,9 @@ class HoconPsiParser extends PsiParser {
           } else if (matches(Dollar)) {
             parseSubstitution()
           } else if (matches(ValueUnquotedChars)) {
-            parseAsUnquotedString(ValueUnquotedChars.noNewLine, partCount == 0, ValueEnding.orNewLineOrEof)
+            parseUnquotedString(ValueUnquotedChars.noNewLine, partCount == 0, ValueEnding.orNewLineOrEof)
           } else if (matches(StringLiteral)) {
-            advanceLexer()
+            parseStringLiteral()
           } else {
             tokenError("characters $ \" { } [ ] : = , + # ` ^ ? ! @ * & \\ are forbidden unquoted")
           }
