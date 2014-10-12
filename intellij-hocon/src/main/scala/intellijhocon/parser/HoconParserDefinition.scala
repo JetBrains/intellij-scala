@@ -7,7 +7,7 @@ import com.intellij.lexer.Lexer
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.{IFileElementType, TokenSet}
 import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile}
-import intellijhocon.lexer.{HoconLexer, HoconTokenSets, HoconTokenType}
+import intellijhocon.lexer.{HoconLexer, HoconTokenSets}
 import intellijhocon.psi.{HoconPsiElement, HoconPsiFile}
 
 class HoconParserDefinition extends ParserDefinition {

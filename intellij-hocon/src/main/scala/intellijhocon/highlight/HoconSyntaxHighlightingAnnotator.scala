@@ -3,8 +3,7 @@ package highlight
 
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.psi.PsiElement
-import intellijhocon.lexer.HoconTokenType
-import intellijhocon.parser.{HoconElementSets, HoconElementType, HoconPsiParser}
+import intellijhocon.parser.HoconPsiParser
 
 class HoconSyntaxHighlightingAnnotator extends Annotator {
 
