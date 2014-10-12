@@ -4,7 +4,6 @@ package misc
 import com.intellij.lang.{BracePair, PairedBraceMatcher}
 import com.intellij.psi.PsiFile
 import com.intellij.psi.tree.IElementType
-import intellijhocon.lexer.{HoconTokenSets, HoconTokenType}
 
 class HoconBraceMatcher extends PairedBraceMatcher {
 

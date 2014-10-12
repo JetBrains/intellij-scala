@@ -9,7 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.StringEscapesTokenTypes
 import com.intellij.psi.tree.IElementType
 import intellijhocon.highlight.{HoconHighlighterColors => HHC}
-import intellijhocon.lexer.{HoconLexer, HoconTokenType}
+import intellijhocon.lexer.HoconLexer
 
 class HoconSyntaxHighlighterFactory extends SyntaxHighlighterFactory {
   def getSyntaxHighlighter(project: Project, virtualFile: VirtualFile) =
