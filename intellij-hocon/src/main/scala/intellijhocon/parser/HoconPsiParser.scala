@@ -8,8 +8,8 @@ import com.intellij.lang.PsiBuilder.Marker
 import com.intellij.lang.WhitespacesAndCommentsBinder.TokenTextGetter
 import com.intellij.lang.{PsiBuilder, PsiParser, WhitespacesAndCommentsBinder, WhitespacesBinders}
 import com.intellij.psi.tree.IElementType
-import intellijhocon.lexer.{HoconTokenSets, HoconTokenType}
 
+import annotation.tailrec
 import scala.util.matching.Regex
 
 object HoconPsiParser {
@@ -39,13 +39,14 @@ class HoconPsiParser extends PsiParser {
     object DocumentationCommentsBinder extends WhitespacesAndCommentsBinder {
       override def getEdgePosition(tokens: ju.List[IElementType], atStreamEdge: Boolean, getter: TokenTextGetter) = {
 
+        @tailrec
         def docCommentsStart(acc: Int, i: Int): Int = {
           lazy val token = tokens.get(i)
           lazy val hashCommentStartingLine =
             token == HashComment && (atStreamEdge || (i > 0 && tokens.get(i - 1) == LineBreakingWhitespace))
           lazy val whitespaceAfterHashComment =
             i > 0 && tokens.get(i - 1) == HashComment && token == LineBreakingWhitespace &&
-              getter.get(i).charIterator.count(_ == '\n') <= 1
+                    getter.get(i).charIterator.count(_ == '\n') <= 1
 
           if (i >= tokens.size || !WhitespaceOrComment.contains(token)) acc
           else if (hashCommentStartingLine || whitespaceAfterHashComment) docCommentsStart(acc, i + 1)
@@ -68,7 +69,7 @@ class HoconPsiParser extends PsiParser {
 
     def advanceLexer() {
       val unclosedQuotedString = builder.getTokenType == QuotedString &&
-        !ProperlyClosedQuotedString.pattern.matcher(builder.getTokenText).matches
+              !ProperlyClosedQuotedString.pattern.matcher(builder.getTokenText).matches
       val unclosedMultilineString = builder.getTokenType == MultilineString && !builder.getTokenText.endsWith("\"\"\"")
       builder.advanceLexer()
       if (unclosedQuotedString) {
@@ -80,7 +81,7 @@ class HoconPsiParser extends PsiParser {
 
     def matches(matcher: Matcher) =
       (matcher.tokenSet.contains(builder.getTokenType) && (!matcher.requireNoNewLine || !newLinesBeforeCurrentToken)) ||
-        (matcher.matchNewLine && newLinesBeforeCurrentToken) || (matcher.matchEof && builder.eof)
+              (matcher.matchNewLine && newLinesBeforeCurrentToken) || (matcher.matchEof && builder.eof)
 
     def matchesUnquoted(str: String) =
       matches(UnquotedChars) && builder.getTokenText == str
@@ -247,6 +248,7 @@ class HoconPsiParser extends PsiParser {
     def parseKey(first: Boolean): Unit = {
       val marker = builder.mark()
 
+      @tailrec
       def parseKeyParts(first: Boolean) {
         if (!matches(KeyEnding.orNewLineOrEof)) {
           if (matches(UnquotedChars)) {
@@ -255,7 +257,7 @@ class HoconPsiParser extends PsiParser {
             advanceLexer()
           } else {
             tokenError("key must be a concatenation of unquoted, quoted or multiline strings " +
-              "(characters $ \" { } [ ] : = , + # ` ^ ? ! @ * & \\ are forbidden unquoted)")
+                    "(characters $ \" { } [ ] : = , + # ` ^ ? ! @ * & \\ are forbidden unquoted)")
           }
           parseKeyParts(first = false)
         }
@@ -281,8 +283,6 @@ class HoconPsiParser extends PsiParser {
     }
 
     def parseValue(): Unit = {
-      val marker = builder.mark()
-
       def tryParse(parsingCode: => Boolean, element: HoconElementType): Boolean = {
         val marker = builder.mark()
         if (parsingCode) {
@@ -307,7 +307,8 @@ class HoconPsiParser extends PsiParser {
       def tryParseBoolean = tryParse((passKeyword("true") || passKeyword("false")) && matches(endingMatcher), Boolean)
       def tryParseNumber = tryParse(passNumber() && matches(endingMatcher), Number)
 
-      def parseValueParts(first: Boolean) {
+      @tailrec
+      def parseValueParts(partCount: Int): Int = {
         if (!matches(endingMatcher)) {
           if (matches(LBrace)) {
             parseObject()
@@ -316,22 +317,28 @@ class HoconPsiParser extends PsiParser {
           } else if (matches(Dollar)) {
             parseSubstitution()
           } else if (matches(ValueUnquotedChars)) {
-            parseAsUnquotedString(ValueUnquotedChars.noNewLine, first, ValueEnding.orNewLineOrEof)
+            parseAsUnquotedString(ValueUnquotedChars.noNewLine, partCount == 0, ValueEnding.orNewLineOrEof)
           } else if (matches(StringLiteral)) {
             advanceLexer()
           } else {
             tokenError("characters $ \" { } [ ] : = , + # ` ^ ? ! @ * & \\ are forbidden unquoted")
           }
-          parseValueParts(first = false)
-        }
+          parseValueParts(partCount + 1)
+        } else partCount
       }
 
       suppressNewLine()
       if (!tryParseNull && !tryParseBoolean && !tryParseNumber) {
-        parseValueParts(first = true)
+        val marker = builder.mark()
+        val parts = parseValueParts(0)
+        if (parts > 1) {
+          marker.done(Concatenation)
+        } else {
+          marker.drop()
+        }
+
       }
 
-      marker.done(Value)
     }
 
     def passNumber(): Boolean = matchesUnquoted(IntegerPattern) && {

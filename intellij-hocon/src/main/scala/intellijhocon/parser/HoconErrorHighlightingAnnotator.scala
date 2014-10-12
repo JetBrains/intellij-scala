@@ -8,6 +8,8 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, StringEscapesTokenTypes, TokenType}
 import intellijhocon.lexer.HoconTokenType
 
+import annotation.tailrec
+
 class HoconErrorHighlightingAnnotator extends Annotator {
 
   import intellijhocon.Util._
@@ -37,7 +39,8 @@ class HoconErrorHighlightingAnnotator extends Annotator {
           case _ =>
         }
 
-      case Value =>
+      case Concatenation =>
+        @tailrec
         def validateConcatenation(constrainingToken: IElementType, child: ASTNode): Unit = if (child != null) {
           (constrainingToken, child.getElementType) match {
             case (_, Substitution | BadCharacter | TokenType.ERROR_ELEMENT | TokenType.WHITE_SPACE) =>
