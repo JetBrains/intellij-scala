@@ -6,7 +6,7 @@ import org.junit.runners.AllTests;
 
 @RunWith(AllTests.class)
 public class HoconParserTestSuite {
-  public static Test suite() {
-    return new HoconParserTest();
-  }
+    public static Test suite() {
+        return new HoconParserTest();
+    }
 }
