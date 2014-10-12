@@ -1,30 +1,4 @@
 <idea-plugin>
-  <!--<id>intellijhocon</id>-->
-  <!--<version>0.3</version>-->
-  <!--<idea-version since-build="135.0"/>-->
-  <!--<name>HOCON</name>-->
-  <!--<vendor>rjghik</vendor>-->
-  <!--<description>-->
-    <!--Enables support for HOCON (Human-Optimized Config Object Notation)-->
-  <!--</description>-->
-  <!--<change-notes>-->
-    <!--<![CDATA[-->
-      <!--<p>0.1 (first release):</p>-->
-      <!--<ul>-->
-        <!--<li>Syntax highlighting along with dedicated 'Colors & fonts' settings</li>-->
-        <!--<li>Syntax error highlighting</li>-->
-        <!--<li>Code formatter along with basic code style settings</li>-->
-        <!--<li>Brace matching</li>-->
-        <!--<li>Code folding</li>-->
-      <!--</ul>-->
-      <!--<p>0.2:</p>-->
-      <!--<ul>-->
-        <!--<li>Java 1.6 support</li>-->
-      <!--</ul>-->
-      <!--<p>0.3 (bugfixes)</p>-->
-        <!--]]>-->
-  <!--</change-notes>-->
-
   <extensions defaultExtensionNs="com.intellij">
     <fileTypeFactory implementation="intellijhocon.lang.HoconFileTypeFactory"/>
     <lang.syntaxHighlighterFactory key="HOCON"

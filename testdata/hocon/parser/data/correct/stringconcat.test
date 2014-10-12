@@ -12,7 +12,7 @@ HOCON_FILE
         PsiWhiteSpace(' ')
         PsiElement(EQUALS)('=')
         PsiWhiteSpace(' ')
-        HoconPsiElement(VALUE)
+        HoconPsiElement(CONCATENATION)
           HoconPsiElement(UNQUOTED_STRING)
             PsiElement(UNQUOTED_CHARS)('stuff')
           PsiElement(QUOTED_STRING)('"more stuff"')

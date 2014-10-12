@@ -12,7 +12,6 @@ HOCON_FILE
         PsiWhiteSpace(' ')
         PsiElement(EQUALS)('=')
         PsiWhiteSpace(' ')
-        HoconPsiElement(VALUE)
-          PsiElement(MULTILINE_STRING)('"""unclosed\nmultiline')
-          PsiErrorElement:unclosed multiline string
-            <empty list>
+        PsiElement(MULTILINE_STRING)('"""unclosed\nmultiline')
+        PsiErrorElement:unclosed multiline string
+          <empty list>

@@ -15,6 +15,5 @@ HOCON_FILE
         PsiWhiteSpace(' ')
         PsiElement(EQUALS)('=')
         PsiWhiteSpace(' ')
-        HoconPsiElement(VALUE)
-          HoconPsiElement(UNQUOTED_STRING)
-            PsiElement(UNQUOTED_CHARS)('value')
+        HoconPsiElement(UNQUOTED_STRING)
+          PsiElement(UNQUOTED_CHARS)('value')
