@@ -145,7 +145,7 @@ class HoconFormatter(settings: CodeStyleSettings) {
       case (SubstitutionPath, SubRBrace) =>
         normalSpacing(customSettings.SPACE_WITHIN_SUBSTITUTION_BRACES)
 
-      case (UnquotedChars, QuotedString) | (QuotedString, UnquotedChars) if parent.getElementType == Included =>
+      case (UnquotedChars, String) | (String, UnquotedChars) if parent.getElementType == Included =>
         normalSpacing(commonSettings.SPACE_WITHIN_METHOD_CALL_PARENTHESES)
 
       case _ =>
