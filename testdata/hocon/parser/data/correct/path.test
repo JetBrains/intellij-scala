@@ -28,6 +28,5 @@ HOCON_FILE
             HoconPsiElement(UNQUOTED_STRING)
               PsiElement(UNQUOTED_CHARS)('moar')
         PsiElement(EQUALS)('=')
-        HoconPsiElement(VALUE)
-          HoconPsiElement(NUMBER)
-            PsiElement(UNQUOTED_CHARS)('42')
+        HoconPsiElement(NUMBER)
+          PsiElement(UNQUOTED_CHARS)('42')
