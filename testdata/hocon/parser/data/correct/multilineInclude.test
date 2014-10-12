@@ -1,18 +1,18 @@
 include
 
-url(
+file(
 "stuff"
 )
 -----
 HOCON_FILE
-  HoconPsiElement(OBJECT_ENTRIES)
-    HoconPsiElement(INCLUDE)
+  HObjectEntries(OBJECT_ENTRIES)
+    HInclude(INCLUDE)
       PsiElement(UNQUOTED_CHARS)('include')
       PsiWhiteSpace('\n\n')
-      HoconPsiElement(INCLUDED)
-        PsiElement(UNQUOTED_CHARS)('url(')
+      HIncluded(INCLUDED)
+        PsiElement(UNQUOTED_CHARS)('file(')
         PsiWhiteSpace('\n')
-        PsiErrorElement:no protocol: stuff
+        HString(STRING)
           PsiElement(QUOTED_STRING)('"stuff"')
         PsiWhiteSpace('\n')
         PsiElement(UNQUOTED_CHARS)(')')
