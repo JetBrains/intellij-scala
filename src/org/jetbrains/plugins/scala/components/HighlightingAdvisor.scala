@@ -16,7 +16,7 @@ import com.intellij.openapi.util._
 import com.intellij.openapi.components._
 import com.intellij.notification._
 import org.jetbrains.plugins.scala.util.NotificationUtil
-import configuration._
+import project._
 
 @State(name = "HighlightingAdvisor", storages = Array(
   new Storage(id = "default", file = "$PROJECT_FILE$"),

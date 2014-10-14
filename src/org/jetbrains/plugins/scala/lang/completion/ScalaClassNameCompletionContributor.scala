@@ -9,7 +9,6 @@ import com.intellij.util.Consumer
 import com.intellij.psi.PsiClass
 import com.intellij.codeInsight.completion._
 import lookups.{ScalaLookupItem, LookupElementManager}
-import org.jetbrains.plugins.scala.configuration.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScObject, ScTrait, ScClass}
@@ -32,7 +31,7 @@ import scala.collection.mutable
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{TypeAliasToImport, ClassTypeToImport, TypeToImport}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.configuration._
+import org.jetbrains.plugins.scala.project._
 
 class ScalaClassNameCompletionContributor extends CompletionContributor {
   import ScalaClassNameCompletionContributor._

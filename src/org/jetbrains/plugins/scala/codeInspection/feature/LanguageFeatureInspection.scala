@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
-import org.jetbrains.plugins.scala.configuration.{ModuleExt, ProjectExt, ScalaCompilerSettings}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ScalaCompilerSettings}
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ReferenceTarget, _}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern

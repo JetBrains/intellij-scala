@@ -16,7 +16,7 @@ import com.intellij.vcsUtil.VcsUtil
 import org.jdom.Element
 import collection.JavaConversions._
 import com.intellij.refactoring.listeners.{RefactoringElementAdapter, RefactoringElementListener}
-import configuration._
+import project._
 
 /**
  * User: Alexander Podkhalyuzin

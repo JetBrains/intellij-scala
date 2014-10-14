@@ -28,7 +28,7 @@ import extensions.toObjectExt
 import api.InferUtil
 import types.Compatibility.Expression
 import com.intellij.openapi.diagnostic.Logger
-import configuration._
+import project._
 
 /**
  * Utility class for implicit conversions.

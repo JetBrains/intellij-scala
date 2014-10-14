@@ -3,7 +3,7 @@ package project.template
 
 import com.intellij.platform.ProjectTemplatesFactory
 import com.intellij.ide.util.projectWizard.WizardContext
-import org.jetbrains.plugins.scala.configuration.template.ScalaProjectTemplatesFactory
+import org.jetbrains.plugins.scala.project.template.ScalaProjectTemplatesFactory
 
 /**
  * User: Dmitry.Naydanov, Pavel Fatin

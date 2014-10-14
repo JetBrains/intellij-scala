@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import extensions._
-import configuration._
+import project._
 
 /**
  * Nikolay.Tropin

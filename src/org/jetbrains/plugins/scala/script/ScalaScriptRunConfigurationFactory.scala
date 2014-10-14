@@ -4,8 +4,7 @@ package script
 
 import com.intellij.execution.configurations.{RunConfiguration, ConfigurationType, ConfigurationFactory}
 import com.intellij.openapi.project.Project
-import java.lang.String
-import configuration._
+import project._
 
 /**
  * User: Alexander Podkhalyuzin

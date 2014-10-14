@@ -8,14 +8,10 @@ import com.intellij.openapi.roots.ui.configuration.JdkComboBox;
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel;
 import com.intellij.openapi.ui.ex.MultiLineLabel;
 import com.intellij.ui.JBColor;
-import com.intellij.ui.ListCellRendererWrapper;
 import com.intellij.ui.RawCommandLineEditor;
 import com.intellij.util.containers.ComparatorUtil;
-import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.configuration.CompileOrder;
-import org.jetbrains.plugins.scala.configuration.IncrementalityType;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -23,8 +19,6 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.*;
-import java.util.List;
 
 /**
  * @author Pavel Fatin

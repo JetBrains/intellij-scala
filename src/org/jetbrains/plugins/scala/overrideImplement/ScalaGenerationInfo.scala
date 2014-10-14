@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package overrideImplement
 
 import com.intellij.codeInsight.generation.GenerationInfoBase
-import org.jetbrains.plugins.scala.configuration.ScalaLanguageLevel
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScSubstitutor}
@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Failure
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import com.intellij.openapi.application.ApplicationManager
-import org.jetbrains.plugins.scala.configuration._
+import org.jetbrains.plugins.scala.project._
 
 
 /**

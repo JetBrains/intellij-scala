@@ -25,7 +25,7 @@ import com.intellij.execution.process.{ProcessEvent, ProcessAdapter, OSProcessHa
 import com.intellij.ide.util.EditorHelper
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 import com.intellij.openapi.util.Key
-import org.jetbrains.plugins.scala.configuration._
+import org.jetbrains.plugins.scala.project._
 
 /**
  * @author Ksenia.Sautina

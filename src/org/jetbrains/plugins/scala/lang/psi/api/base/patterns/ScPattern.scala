@@ -25,7 +25,7 @@ import extensions.toPsiClassExt
 import scala.annotation.tailrec
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{TypeParameter, Parameter}
 import scala.collection.immutable.Set
-import configuration._
+import project._
 
 /**
  * @author Alexander Podkhalyuzin

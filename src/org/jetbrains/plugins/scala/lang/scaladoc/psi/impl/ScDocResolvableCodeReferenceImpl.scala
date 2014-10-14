@@ -9,20 +9,11 @@ import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
 import lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import lang.psi.api.base.ScStableCodeReferenceElement
 import resolve.processor.BaseProcessor
-import com.intellij.openapi.progress.ProgressManager
-import lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
-import lang.psi.api.toplevel.imports.ScImportExpr
-import lang.psi.types.result.TypingContext
-import lang.psi.api.expr.{ScSuperReference, ScThisReference}
-import resolve.ResolveUtils
-import api.{ScDocComment, ScDocResolvableCodeReference}
-import com.intellij.psi.scope.PsiScopeProcessor
-import lang.psi.impl.ScPackageImpl._
-import com.intellij.psi.{JavaPsiFacade, ResolveState, PsiElement, PsiClass}
+import api.ScDocResolvableCodeReference
+import com.intellij.psi.{JavaPsiFacade, ResolveState}
 import lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory}
-import extensions.toPsiClassExt
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
-import configuration._
+import project._
 
 /**
  * User: Dmitry Naydanov

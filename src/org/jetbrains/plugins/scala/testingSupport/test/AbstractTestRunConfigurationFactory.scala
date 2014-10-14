@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package testingSupport.test
 
 import com.intellij.execution.configurations.{RunConfiguration, ConfigurationFactory, ConfigurationType}
-import configuration._
+import project._
 
 /**
  * User: Alexander Podkhalyuzin
