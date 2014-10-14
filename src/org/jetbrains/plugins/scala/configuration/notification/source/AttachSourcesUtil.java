@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.config;
+package org.jetbrains.plugins.scala.configuration.notification.source;
 
 import com.intellij.codeInsight.AttachSourcesProvider;
 import com.intellij.openapi.application.ApplicationManager;

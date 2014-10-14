@@ -1,10 +1,12 @@
-package org.jetbrains.plugins.scala.config
+package org.jetbrains.plugins.scala
+package configuration.notification.source
+
+import java.lang.StringBuilder
 
 import com.intellij.lexer.Lexer
-import com.intellij.util.StringBuilderSpinAllocator
 import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaLexer}
-import java.lang.StringBuilder
+import com.intellij.util.StringBuilderSpinAllocator
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 
 /**
  * @author Alexander Podkhalyuzin

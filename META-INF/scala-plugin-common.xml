@@ -225,9 +225,9 @@
         <gotoSymbolContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToSymbolContributor"/>
         <lang.importOptimizer language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer"/>
         <lang.namesValidator language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesValidator"/>
-        <editorNotificationProvider implementation="org.jetbrains.plugins.scala.config.ScalaAttachSourcesNotificationProvider"/>
-        <editorFileSwapper implementation="org.jetbrains.plugins.scala.config.ScalaEditorFileSwapper"/>
-        <projectStructureDetector implementation="org.jetbrains.plugins.scala.config.ScalaSourceRootFinder"/>
+        <editorNotificationProvider implementation="org.jetbrains.plugins.scala.configuration.notification.source.ScalaAttachSourcesNotificationProvider"/>
+        <editorFileSwapper implementation="org.jetbrains.plugins.scala.configuration.notification.source.ScalaEditorFileSwapper"/>
+        <projectStructureDetector implementation="org.jetbrains.plugins.scala.configuration.notification.source.ScalaSourceRootFinder"/>
 
         <configurationType implementation="org.jetbrains.plugins.scala.script.ScalaScriptConfigurationType"/>
         <configurationType implementation="org.jetbrains.plugins.scala.console.ScalaConsoleConfigurationType"/>
