@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceExpression
 import scala.collection
-import configuration._
+import project._
 
 /**
  * Pavel Fatin, Alexander Podkhalyuzin.

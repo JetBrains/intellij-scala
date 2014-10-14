@@ -27,7 +27,7 @@ import com.intellij.compiler.progress.CompilerTask
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import com.intellij.openapi.application.ApplicationManager
-import configuration._
+import project._
 
 /**
   * User: Dmitry Naydanov

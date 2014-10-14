@@ -23,7 +23,7 @@ import com.intellij.openapi.fileTypes.ex.FileTypeManagerEx
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.ui.InputValidatorEx
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
-import configuration._
+import project._
 
 /**
  * User: Alexander Podkhalyuzin

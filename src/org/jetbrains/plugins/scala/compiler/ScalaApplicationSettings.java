@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala.compiler;
 
 import com.intellij.openapi.components.*;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import org.jetbrains.plugins.scala.configuration.CompileOrder;
-import org.jetbrains.plugins.scala.configuration.IncrementalityType;
 
 /**
  * @author Pavel Fatin

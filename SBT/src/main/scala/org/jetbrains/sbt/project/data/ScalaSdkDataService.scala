@@ -6,7 +6,7 @@ import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.externalSystem.service.project.{ProjectStructureHelper, PlatformFacade}
-import org.jetbrains.plugins.scala.configuration._
+import org.jetbrains.plugins.scala.project._
 import collection.JavaConverters._
 
 /**

@@ -8,7 +8,7 @@ import com.intellij.ide.fileTemplates.FileTemplateManager
 import com.intellij.openapi.actionSystem._
 import com.intellij.psi.JavaDirectoryService
 import com.intellij.openapi.module.Module
-import configuration._
+import project._
 
 /**
  * Pavel Fatin

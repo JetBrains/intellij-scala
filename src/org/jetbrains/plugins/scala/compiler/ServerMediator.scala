@@ -13,7 +13,7 @@ import org.intellij.lang.annotations.Language
 import javax.swing.event.HyperlinkEvent
 import extensions._
 import com.intellij.openapi.application.ApplicationManager
-import configuration._
+import project._
 
 /**
  * Pavel Fatin

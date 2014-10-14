@@ -19,7 +19,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.Sdk
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
-import configuration._
+import project._
 
 /**
  * Nikolay.Tropin

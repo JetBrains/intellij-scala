@@ -14,7 +14,7 @@ import com.intellij.openapi.module.ModuleUtilCore
 import scala.annotation.tailrec
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import scala.collection.mutable
-import configuration._
+import project._
 
 /**
  * User: Dmitry Naydanov

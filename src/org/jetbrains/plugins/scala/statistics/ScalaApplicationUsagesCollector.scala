@@ -6,15 +6,13 @@ import com.intellij.internal.statistic.beans.{UsageDescriptor, GroupDescriptor}
 import com.intellij.openapi.project.Project
 import java.util
 import scala.collection.mutable
-import com.intellij.openapi.module.{ModuleManager, ModuleUtil, ModuleUtilCore}
-import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import com.intellij.openapi.module.ModuleManager
 import com.intellij.psi.JavaPsiFacade
 import com.intellij.ide.plugins.PluginManager
 import com.intellij.openapi.extensions.PluginId
-import com.intellij.openapi.projectRoots.{JavaSdk, JdkUtil}
+import com.intellij.openapi.projectRoots.JavaSdk
 import com.intellij.openapi.roots.ModuleRootManager
-import configuration._
+import project._
 
 /**
  * @author Alefas

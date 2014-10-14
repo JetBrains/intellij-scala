@@ -18,7 +18,7 @@
         <project.converterProvider implementation="org.jetbrains.plugins.scala.converter.ScalaProjectConverterProvider"/>
         <lang.rearranger language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger"/>
         <compileServer.plugin classpath="scala-library.jar;compiler-settings.jar;jps/nailgun.jar;jps/scala-jps-plugin.jar;jps/sbt-interface.jar;jps/incremental-compiler.jar;jps/jline.jar"/>
-        <projectTemplatesFactory implementation="org.jetbrains.plugins.scala.configuration.template.ScalaProjectTemplatesFactory"/>
+        <projectTemplatesFactory implementation="org.jetbrains.plugins.scala.project.template.ScalaProjectTemplatesFactory"/>
         <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveClassesOrPackagesHandler" order="first"/>
         <refactoring.moveAllClassesInFileHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaClassesInFileHandler" order="last"/>
         <statementUpDownMover implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaStatementMover"/>
@@ -65,7 +65,7 @@
         <joinLinesHandler implementation="org.jetbrains.plugins.scala.editor.joinlines.PackageJoinLinesHandler"/>
         <lang.smartEnterProcessor language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor"/>
         <lang.smartEnterProcessor language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.smartEnter.PackageSplitLinesProcessor"/>
-        <framework.type implementation="org.jetbrains.plugins.scala.configuration.template.ScalaFrameworkType"/>
+        <framework.type implementation="org.jetbrains.plugins.scala.project.template.ScalaFrameworkType"/>
         <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaKeywordCompletionContributor"/>
         <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContributor"/>
         <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaMemberNameCompletionContributor"/>
@@ -155,8 +155,8 @@
         <commentCompleteHandler implementation="org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete"/>
         <elementDescriptionProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScalaClassElementDescriptionProvider"/>
 
-        <editorNotificationProvider implementation="org.jetbrains.plugins.scala.configuration.notification.SetupJdkNotificationProvider"/>
-        <editorNotificationProvider implementation="org.jetbrains.plugins.scala.configuration.notification.SetupScalaSdkNotificationProvider"/>
+        <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.SetupJdkNotificationProvider"/>
+        <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.SetupScalaSdkNotificationProvider"/>
 
         <!--Enter Handler for ScalaDoc -->
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.lang.completion.handlers.ScalaDocParamEnterHandlerDelegate"/>
@@ -225,9 +225,9 @@
         <gotoSymbolContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToSymbolContributor"/>
         <lang.importOptimizer language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer"/>
         <lang.namesValidator language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesValidator"/>
-        <editorNotificationProvider implementation="org.jetbrains.plugins.scala.configuration.notification.source.ScalaAttachSourcesNotificationProvider"/>
-        <editorFileSwapper implementation="org.jetbrains.plugins.scala.configuration.notification.source.ScalaEditorFileSwapper"/>
-        <projectStructureDetector implementation="org.jetbrains.plugins.scala.configuration.notification.source.ScalaSourceRootFinder"/>
+        <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.source.ScalaAttachSourcesNotificationProvider"/>
+        <editorFileSwapper implementation="org.jetbrains.plugins.scala.project.notification.source.ScalaEditorFileSwapper"/>
+        <projectStructureDetector implementation="org.jetbrains.plugins.scala.project.notification.source.ScalaSourceRootFinder"/>
 
         <configurationType implementation="org.jetbrains.plugins.scala.script.ScalaScriptConfigurationType"/>
         <configurationType implementation="org.jetbrains.plugins.scala.console.ScalaConsoleConfigurationType"/>
@@ -278,9 +278,9 @@
         <projectService serviceInterface="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
 
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.configuration.ScalaCompilerSettings"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.project.ScalaCompilerSettings"/>
         <projectConfigurable id="Scala Compiler" displayName="Scala Compiler" parentId="project.propCompiler"
-                             instance="org.jetbrains.plugins.scala.configuration.ScalaCompilerConfigurable" />
+                             instance="org.jetbrains.plugins.scala.project.ScalaCompilerConfigurable" />
 
         <quoteHandler fileType="Scala" className="org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler"/>
 
@@ -863,7 +863,7 @@
         <!-- end of scaladoc inspections -->
         <!-- end of inspections -->
 
-      <library.type implementation="org.jetbrains.plugins.scala.configuration.ScalaLibraryType" />
+      <library.type implementation="org.jetbrains.plugins.scala.project.ScalaLibraryType" />
     </extensions>
 
 
@@ -925,7 +925,7 @@
             <implementation-class>org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook</implementation-class>
         </component>
         <component>
-          <implementation-class>org.jetbrains.plugins.scala.configuration.ScalaProjectEvents</implementation-class>
+          <implementation-class>org.jetbrains.plugins.scala.project.ScalaProjectEvents</implementation-class>
         </component>
     </project-components>
 

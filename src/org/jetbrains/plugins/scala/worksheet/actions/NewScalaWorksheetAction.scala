@@ -7,7 +7,7 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.actionSystem.{LangDataKeys, AnActionEvent}
 import org.jetbrains.plugins.scala.icons.Icons
 import com.intellij.openapi.module.Module
-import configuration._
+import project._
 
 /**
  * @author Ksenia.Sautina

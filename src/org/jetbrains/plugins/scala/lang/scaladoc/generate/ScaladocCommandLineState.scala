@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.openapi.module.{Module, ModuleManager}
 import java.util.regex.Pattern
 import collection.JavaConverters._
-import configuration._
+import project._
 
 /**
  * User: Dmitry Naidanov

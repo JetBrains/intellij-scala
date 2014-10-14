@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import com.intellij.openapi.diagnostic.Logger
-import configuration._
+import project._
 
 /**
  * @author Alexander Podkhalyuzin

@@ -20,7 +20,7 @@ import com.intellij.openapi.actionSystem.{Separator, AnActionEvent, AnAction, De
 import com.intellij.compiler.CompilerWorkspaceConfiguration
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.icons.AllIcons
-import configuration._
+import project._
 
 /**
  * @author Pavel Fatin

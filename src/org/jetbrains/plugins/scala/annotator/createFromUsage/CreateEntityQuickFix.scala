@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.configuration._
+import org.jetbrains.plugins.scala.project._
 
 /**
  * Pavel Fatin

@@ -11,7 +11,7 @@ import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.execution.configurations.RunConfiguration
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 import java.util
-import configuration._
+import project._
 
 /**
  * @author Alefas

@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.compiler.CompilerWorkspaceConfiguration
 import com.intellij.openapi.compiler.{CompilerMessageCategory, CompileContext, CompileTask, CompilerManager}
-import configuration._
+import project._
 
 /**
  * @author Pavel Fatin

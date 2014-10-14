@@ -11,7 +11,7 @@ import com.intellij.execution.{CantRunException, ExecutionException}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.projectRoots.{JdkUtil, JavaSdkType}
 import com.intellij.util.PathUtil
-import configuration._
+import project._
 
 /**
   */
