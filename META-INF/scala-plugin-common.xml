@@ -5,7 +5,7 @@
         <extensionPoint name="scalaParserPatcher" interface="org.jetbrains.plugins.scala.lang.parser.util.ParserPatcher"/>
         <extensionPoint name="scalaFileFactory" interface="org.jetbrains.plugins.scala.lang.parser.ScalaFileFactory"/>
         <extensionPoint name="scalaIntentionAvailabilityChecker" interface="org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker"/>
-        <extensionPoint name="scalaPluginVersionVerifier" interface="org.jetbrains.plugins.scala.config.ScalaPluginVersionVerifier"/>
+        <extensionPoint name="scalaPluginVersionVerifier" interface="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier"/>
         <extensionPoint name="scalaUiWithDependency" interface="org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency"/>
         <extensionPoint name="scalaLanguageDerivative" interface="org.jetbrains.plugins.scala.util.ScalaLanguageDerivative"/>
         <extensionPoint name="memberElementTypesExtension" interface="org.jetbrains.plugins.scala.util.MemberElementTypesExtension"/>
@@ -880,7 +880,7 @@
             <implementation-class>org.jetbrains.plugins.scala.ScalaLoader</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.plugins.scala.config.ScalaPluginVersionVerifierApplicationComponent</implementation-class>
+            <implementation-class>org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierApplicationComponent</implementation-class>
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.components.TypeAwareHighlightingApplicationState</implementation-class>

@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.scala
-package config
+package components
 
-import com.intellij.openapi.components.ApplicationComponent
-import com.intellij.openapi.extensions.ExtensionPointName
-import com.intellij.ide.plugins.{PluginManagerCore, PluginManagerConfigurable, PluginManager}
-import com.intellij.ide.plugins.cl.PluginClassLoader
-import com.intellij.openapi.application.{Application, ApplicationManager}
-import com.intellij.openapi.diagnostic.Logger
 import javax.swing.SwingUtilities
-import com.intellij.notification._
 import javax.swing.event.HyperlinkEvent
-import scala.Some
+
+import com.intellij.ide.plugins.cl.PluginClassLoader
+import com.intellij.ide.plugins.{PluginManager, PluginManagerConfigurable, PluginManagerCore}
+import com.intellij.notification._
+import com.intellij.openapi.application.{Application, ApplicationManager}
+import com.intellij.openapi.components.ApplicationComponent
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.extensions.ExtensionPointName
 
 /**
  * @author Alefas
@@ -35,7 +35,7 @@ object ScalaPluginVersionVerifier {
 }
 
 object ScalaPluginVersionVerifierApplicationComponent {
-  private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.config.ScalaPluginVersionVerifierApplicationComponent")
+  private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierApplicationComponent")
 }
 
 class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponent {
