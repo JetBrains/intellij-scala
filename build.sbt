@@ -149,9 +149,9 @@ downloadIdea := {
 
 // tests
 
-fork  := true
+fork in Test := true
 
-parallelExecution := false
+parallelExecution := true
 
 javaOptions in Test := Seq(
 //  "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005",
@@ -186,13 +186,6 @@ mappings in (Compile, packageBin) ++=
     mappings.in(intellij_scalastyle, Compile, packageBin).value ++
     mappings.in(SBT, Compile, packageBin).value
 
-mappings in (Compile, packageBin) ++= {
-  val base = baseDirectory.value
-  for {
-    (file, rp) <- (base / "META-INF" * "*.xml") x relativeTo(base)
-  } yield file -> rp
-}
-
 packageStructure in Compile := {
   lazy val resolved = (
     (dependencyClasspath in Compile).value ++
@@ -203,7 +196,7 @@ packageStructure in Compile := {
     .map { f => f.metadata.get(moduleID.key) -> f.data}.toMap
     .collect { case (Some(x), y) => (x.organization % x.name % x.revision) -> y}
   def libOf(lib: ModuleID, prefix: String = "lib/") = resolved(lib) -> (prefix + resolved(lib).name)
-  Map(
+  Seq(
     (artifactPath in (ScalaCommunity, Compile, packageBin)).value     -> "lib/scala-plugin.jar",
     (artifactPath in (compiler_settings, Compile, packageBin)).value -> "lib/compiler-settings.jar",
     (artifactPath in (NailgunRunners, Compile, packageBin)).value    -> "lib/scala-nailgun-runner.jar",
@@ -218,6 +211,7 @@ packageStructure in Compile := {
     file("intellij-scalastyle/jars") -> "lib/",
     (artifactPath in (jps_plugin, Compile, packageBin)).value -> "lib/jps/scala-jps-plugin.jar",
     libOf("org.atteo" % "evo-inflector" % "1.2"),
+    libOf("org.scala-lang" % "scala-library" % "2.11.2")._1 -> "lib/scala-library.jar",
     libOf("org.scala-lang" % "scala-library" % "2.11.2"),
     libOf("org.scala-lang" % "scala-reflect" % "2.11.2"),
     libOf("org.scalatest" % "scalatest-finders" % "0.9.6"),
