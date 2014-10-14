@@ -150,7 +150,7 @@ package object configuration {
   implicit class ProjectPsiElementExt(element: PsiElement) {
     def isInScalaModule: Boolean = Option(ModuleUtilCore.findModuleForPsiElement(element)).exists(_.hasScala)
 
-    // TODO clean this legacy code
+    @deprecated("legacy code")
     def languageLevel: ScalaLanguageLevel = {
       @tailrec
       def getContainingFileByContext(element: PsiElement): PsiFile = {
@@ -165,6 +165,10 @@ package object configuration {
       val module: Module = ProjectFileIndex.SERVICE.getInstance(element.getProject).getModuleForFile(file.getVirtualFile)
       if (module == null) return ScalaLanguageLevel.getDefault
       module.scalaSdk.map(_.languageLevel).getOrElse(ScalaLanguageLevel.getDefault)
+    }
+
+    def scalaLanguageLevel: Option[ScalaLanguageLevel] = {
+      Option(ModuleUtilCore.findModuleForPsiElement(element)).flatMap(_.scalaSdk.map(_.languageLevel))
     }
   }
 

@@ -29,12 +29,30 @@ public enum ScalaLanguageLevel implements Named {
     return myVirtualized;
   }
 
-  public boolean isSinceScala2_10() {
-    return this.compareTo(SCALA_2_10) >= 0;
+  public boolean isBefore(ScalaLanguageLevel level) {
+    return compareTo(level) < 0;
   }
 
+  public boolean isAfter(ScalaLanguageLevel level) {
+    return compareTo(level) > 0;
+  }
+
+  public boolean isUpTo(ScalaLanguageLevel level) {
+    return compareTo(level) <= 0;
+  }
+
+  public boolean isSince(ScalaLanguageLevel level) {
+    return compareTo(level) >= 0;
+  }
+
+  @Deprecated
+  public boolean isSinceScala2_10() {
+    return isSince(SCALA_2_10);
+  }
+
+  @Deprecated
   public boolean isSinceScala2_11() {
-    return this.compareTo(SCALA_2_11) >= 0;
+    return isSince(SCALA_2_11);
   }
 
   public static ScalaLanguageLevel getDefault() {
