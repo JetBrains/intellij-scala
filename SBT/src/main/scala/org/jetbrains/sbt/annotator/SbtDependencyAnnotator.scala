@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 import org.jetbrains.sbt.annotator.quickfix.{SbtRefreshProjectQuickFix, SbtUpdateResolverIndexesQuickFix}
 import org.jetbrains.sbt.resolvers.{SbtResolverIndexesManager, SbtResolverUtils}
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 
 /**
@@ -29,7 +29,10 @@ class SbtDependencyAnnotator extends Annotator {
     if (ScalaPsiUtil.fileContext(element).getFileType.getName != Sbt.Name) return
 
     val scalaFacet = Try(FacetManager.getInstance(ModuleUtilCore.findModuleForPsiElement(element))
-                                     .getFacetByType(ScalaFacet.Id)).toOption
+                                     .getFacetByType(ScalaFacet.Id)) match {//####.toOption can return Some(null)
+      case Success(result) => Option(result)
+      case Failure(_) => None
+    }
     val scalaVersion = scalaFacet.flatMap { facet =>
       facet.version.split('.').toSeq.map(Integer.parseInt) match {
         case Seq(major, minor, rest@_*) =>
