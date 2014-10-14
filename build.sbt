@@ -194,6 +194,15 @@ mappings in (Compile, packageBin) ++= {
 }
 
 packageStructure in Compile := {
+  lazy val resolved = (
+    (dependencyClasspath in Compile).value ++
+      (dependencyClasspath in(Runners, Compile)).value ++
+      (dependencyClasspath in(ScalaCommunity, Compile)).value ++
+      (dependencyClasspath in(intellij_hocon, Compile)).value
+    )
+    .map { f => f.metadata.get(moduleID.key) -> f.data}.toMap
+    .collect { case (Some(x), y) => (x.organization % x.name % x.revision) -> y}
+  def libOf(lib: ModuleID, prefix: String = "lib/") = resolved(lib) -> (prefix + resolved(lib).name)
   Map(
     (artifactPath in (ScalaCommunity, Compile, packageBin)).value     -> "lib/scala-plugin.jar",
     (artifactPath in (compiler_settings, Compile, packageBin)).value -> "lib/compiler-settings.jar",
@@ -207,23 +216,14 @@ packageStructure in Compile := {
     file("SDK/sbt") -> "lib/jps/",
     file("SDK/scalap") -> "lib/",
     file("intellij-scalastyle/jars") -> "lib/",
-    (artifactPath in (jps_plugin, Compile, packageBin)).value -> "lib/jps/scala-jps-plugin.jar"
-  ) ++ {
-    val libs = Set(
-      "evo-inflector", "hamcrest-core", "junit",  "mockito-core",
-      "objenesis",  "scala-library", "scala-parser-combinators", "scala-reflect", "scala-xml",
-      "scalacheck", "scalatest-finders", "scalatest", "test-interface", "utest", "utest-runner"
-    )
-    val classpath =
-      (managedClasspath in(ScalaCommunity, Compile)).value ++
-        (managedClasspath in(Runners, Compile)).value ++
-        (managedClasspath in(intellij_hocon, Compile)).value
-    (classpath map { f =>
-      if (libs.exists(f.data.name.contains(_)))
-        Some(f.data -> s"lib/${f.data.name}")
-      else None
-    }).flatten
-  }
+    (artifactPath in (jps_plugin, Compile, packageBin)).value -> "lib/jps/scala-jps-plugin.jar",
+    libOf("org.atteo" % "evo-inflector" % "1.2"),
+    libOf("org.scala-lang" % "scala-library" % "2.11.2"),
+    libOf("org.scala-lang" % "scala-reflect" % "2.11.2"),
+    libOf("org.scalatest" % "scalatest-finders" % "0.9.6"),
+    libOf("org.scala-lang.modules" % "scala-xml_2.11" % "1.0.2"),
+    libOf("org.scala-lang.modules" % "scala-parser-combinators_2.11" % "1.0.2")
+  )
 }
 
 packagePlugin in Compile := {
@@ -235,3 +235,11 @@ packagePlugin in Compile := {
 }
 
 packagePlugin in Compile <<= (packagePlugin in Compile) dependsOn (pack in Compile)
+
+packagePluginZip in Compile := {
+  val base = baseDirectory.value / "out" / "plugin"
+  val zipFile = baseDirectory.value / "out" / "scala-plugin.zip"
+  IO.zip((base ***) pair (relativeTo(base), false), zipFile)
+}
+
+packagePluginZip in Compile <<= (packagePluginZip in Compile) dependsOn (packagePlugin in Compile)
