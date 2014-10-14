@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package overrideImplement
 
 import com.intellij.codeInsight.generation.GenerationInfoBase
+import org.jetbrains.plugins.scala.configuration.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScSubstitutor}
@@ -19,11 +20,11 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.pom.Navigatable
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.config.ScalaVersionUtil._
 import org.jetbrains.plugins.scala.lang.psi.types.result.Failure
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import com.intellij.openapi.application.ApplicationManager
+import org.jetbrains.plugins.scala.configuration._
 
 
 /**
@@ -197,7 +198,7 @@ object ScalaGenerationInfo {
   def defaultValue(returnType: ScType, file: PsiFile) = {
     val standardValue = ScalaPsiElementFactory.getStandardValue(returnType)
 
-    if (isGeneric(file, false, SCALA_2_7, SCALA_2_8, SCALA_2_9)) standardValue
-    else "???"
+    if (file.scalaLanguageLevel.exists(_.isSince(ScalaLanguageLevel.SCALA_2_10))) "???"
+    else standardValue
   }
 }

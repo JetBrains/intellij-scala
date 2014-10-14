@@ -9,6 +9,7 @@ import com.intellij.util.Consumer
 import com.intellij.psi.PsiClass
 import com.intellij.codeInsight.completion._
 import lookups.{ScalaLookupItem, LookupElementManager}
+import org.jetbrains.plugins.scala.configuration.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScObject, ScTrait, ScClass}
@@ -27,11 +28,11 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
-import org.jetbrains.plugins.scala.config.ScalaVersionUtil
 import scala.collection.mutable
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{TypeAliasToImport, ClassTypeToImport, TypeToImport}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.configuration._
 
 class ScalaClassNameCompletionContributor extends CompletionContributor {
   import ScalaClassNameCompletionContributor._
@@ -128,8 +129,9 @@ object ScalaClassNameCompletionContributor {
 
     val project = insertedElement.getProject
 
-    import org.jetbrains.plugins.scala.config.ScalaVersionUtil._
-    val checkSynthetic = ScalaVersionUtil.isGeneric(parameters.getOriginalFile, true, SCALA_2_7, SCALA_2_8)
+    val checkSynthetic = parameters.getOriginalFile.scalaLanguageLevel
+            .map(_.isBefore(ScalaLanguageLevel.SCALA_2_9)).getOrElse(true)
+
     for {
       clazz <- SyntheticClasses.get(project).all.valuesIterator
       if checkSynthetic || !ScType.baseTypesQualMap.contains(clazz.qualifiedName)

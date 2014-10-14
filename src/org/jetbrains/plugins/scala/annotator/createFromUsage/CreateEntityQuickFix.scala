@@ -23,8 +23,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
-import org.jetbrains.plugins.scala.config.ScalaVersionUtil
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.configuration._
 
 /**
  * Pavel Fatin
@@ -73,9 +73,8 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
     val Q_MARKS = "???"
 
     val placeholder = if (entityType.isDefined) "%s %s%s: Int" else "%s %s%s"
-    import ScalaVersionUtil._
     val text = placeholder.format(keyword, ref.nameId.getText, parameters.mkString) +
-            (if(isGeneric(file, false, SCALA_2_10, SCALA_2_11)) " = ???" else "")
+            (if (file.scalaLanguageLevel.exists(_.isSince(ScalaLanguageLevel.SCALA_2_10))) " = ???" else "")
 
     val block = ref match {
       case it if it.isQualified => ref.qualifier.flatMap(blockFor)
