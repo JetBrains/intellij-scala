@@ -1,23 +1,25 @@
-package org.jetbrains.plugins.scala.config
+package org.jetbrains.plugins.scala
+package configuration.notification.source
 
-import com.intellij.codeInsight.daemon.impl.AttachSourcesNotificationProvider
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiManager, PsiFile}
+import java.util
+import java.util._
+import javax.swing.SwingUtilities
+
 import com.intellij.codeEditor.JavaEditorFileSwapper
+import com.intellij.codeInsight.AttachSourcesProvider
+import com.intellij.codeInsight.daemon.impl.AttachSourcesNotificationProvider
+import com.intellij.ide.highlighter.{JavaClassFileType, JavaFileType}
+import com.intellij.openapi.extensions.{ExtensionPointName, Extensions}
+import com.intellij.openapi.fileEditor.FileEditor
+import com.intellij.openapi.project.{Project, ProjectBundle}
+import com.intellij.openapi.roots.{LibraryOrderEntry, OrderEntry, ProjectRootManager}
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.text.StringUtil
-import javax.swing.SwingUtilities
 import com.intellij.openapi.util.{ActionCallback, Comparing}
-import com.intellij.openapi.roots.{OrderEntry, ProjectRootManager, LibraryOrderEntry}
-import com.intellij.openapi.project.{Project, ProjectBundle}
-import com.intellij.ui.{EditorNotifications, GuiUtils, EditorNotificationPanel}
-import com.intellij.codeInsight.AttachSourcesProvider
-import com.intellij.ide.highlighter.{JavaFileType, JavaClassFileType}
-import java.util._
-import com.intellij.openapi.extensions.{ExtensionPointName, Extensions}
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.{PsiFile, PsiManager}
+import com.intellij.ui.{EditorNotificationPanel, EditorNotifications, GuiUtils}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.openapi.fileEditor.FileEditor
-import java.util
 
 /**
  * @author Alexander Podkhalyuzin
