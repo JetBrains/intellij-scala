@@ -8,6 +8,7 @@ object common extends Build {
   lazy val allIdeaJars = SettingKey[Classpath]("")
 
   lazy val packagePlugin = taskKey[Unit]("package scala plugin locally")
+  lazy val packagePluginZip = taskKey[Unit]("package and compress scala plugin locally")
   lazy val packageStructure = taskKey[Map[File, String]]("plugin artifact structure")
 
   // merge multiple jars in one and return it
