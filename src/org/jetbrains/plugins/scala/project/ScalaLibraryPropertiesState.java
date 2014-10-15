@@ -9,7 +9,7 @@ import java.util.Arrays;
  * @author Pavel Fatin
  */
 public class ScalaLibraryPropertiesState {
-  public ScalaLanguageLevel languageLevel = ScalaLanguageLevel.SCALA_2_10;
+  public ScalaLanguageLevel languageLevel = ScalaLanguageLevel.Default();
 
   @Tag("compiler-classpath")
   @AbstractCollection(surroundWithTag = false, elementTag = "root", elementValueAttribute = "url")

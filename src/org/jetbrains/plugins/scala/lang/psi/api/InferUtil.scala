@@ -4,6 +4,7 @@ package lang.psi.api
 import base.patterns.ScBindingPattern
 import base.ScLiteral
 import expr.ScExpression
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -90,7 +91,7 @@ object InferUtil {
         implicitParameters = Some(resolveResultsBuffer.toSeq)
         val dependentSubst = new ScSubstitutor(() => {
           val level = element.languageLevel
-          if (level.isSinceScala2_10) {
+          if (level >= Scala_2_10) {
             paramsForInferBuffer.zip(exprsBuffer).map {
               case (param: Parameter, expr: Expression) =>
                 val paramType: ScType = expr.getTypeAfterImplicitConversion(checkImplicits = true,
@@ -113,7 +114,7 @@ object InferUtil {
         resInner = retType
         val dependentSubst = new ScSubstitutor(() => {
           val level = element.languageLevel
-          if (level.isSinceScala2_10) {
+          if (level >= Scala_2_10) {
             paramsForInfer.zip(exprs).map {
               case (param: Parameter, expr: Expression) =>
                 val paramType: ScType = expr.getTypeAfterImplicitConversion(checkImplicits = true,

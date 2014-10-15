@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceExpression
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import scala.collection
 import project._
 
@@ -176,7 +177,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
         setMatchedParametersVar(c._3)
         val dependentSubst = new ScSubstitutor(() => {
           val level = this.languageLevel
-          if (level.isSinceScala2_10) {
+          if (level >= Scala_2_10) {
             c._4.toMap
           } else Map.empty
         })
@@ -191,7 +192,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
             setMatchedParametersVar(cd._3)
             val dependentSubst = new ScSubstitutor(() => {
               val level = this.languageLevel
-              if (level.isSinceScala2_10) {
+              if (level >= Scala_2_10) {
                 cd._4.toMap
               } else Map.empty
             })

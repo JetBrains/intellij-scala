@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.format.{InterpolatedStringFormatter, StringCo
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import project._
 
 /**
@@ -16,6 +17,6 @@ class ConvertStringConcatenationToInterpolatedString extends AbstractFormatConve
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     if (!super.isAvailable(project: Project, editor: Editor, element: PsiElement)) return false
-    element.languageLevel.isSinceScala2_10
+    element.languageLevel >= Scala_2_10
   }
 }

@@ -161,10 +161,10 @@ package object project {
         }
       }
       val file: PsiFile = getContainingFileByContext(element)
-      if (file == null || file.getVirtualFile == null) return ScalaLanguageLevel.getDefault
+      if (file == null || file.getVirtualFile == null) return ScalaLanguageLevel.Default
       val module: Module = ProjectFileIndex.SERVICE.getInstance(element.getProject).getModuleForFile(file.getVirtualFile)
-      if (module == null) return ScalaLanguageLevel.getDefault
-      module.scalaSdk.map(_.languageLevel).getOrElse(ScalaLanguageLevel.getDefault)
+      if (module == null) return ScalaLanguageLevel.Default
+      module.scalaSdk.map(_.languageLevel).getOrElse(ScalaLanguageLevel.Default)
     }
 
     def scalaLanguageLevel: Option[ScalaLanguageLevel] = {

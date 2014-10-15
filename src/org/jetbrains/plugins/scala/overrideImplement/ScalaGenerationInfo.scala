@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.psi.types.result.Failure
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.plugins.scala.project._
@@ -198,7 +199,7 @@ object ScalaGenerationInfo {
   def defaultValue(returnType: ScType, file: PsiFile) = {
     val standardValue = ScalaPsiElementFactory.getStandardValue(returnType)
 
-    if (file.scalaLanguageLevel.exists(_.isSince(ScalaLanguageLevel.SCALA_2_10))) "???"
+    if (file.scalaLanguageLevel.exists(_ >= Scala_2_10)) "???"
     else standardValue
   }
 }

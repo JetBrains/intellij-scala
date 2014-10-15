@@ -5,6 +5,8 @@ package api
 package base
 package patterns
 
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
+
 import collection.mutable.ArrayBuffer
 import psi.types._
 import psi.{types, ScalaPsiElement}
@@ -363,7 +365,7 @@ object ScPattern {
     }
 
     val level = place.languageLevel
-    if (level.isSinceScala2_11) collectFor2_11
+    if (level >= Scala_2_11) collectFor2_11
     else {
       returnType match {
         case ScParameterizedType(des, args) =>

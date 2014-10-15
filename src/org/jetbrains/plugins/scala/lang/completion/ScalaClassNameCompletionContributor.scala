@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel._
 import scala.collection.mutable
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{TypeAliasToImport, ClassTypeToImport, TypeToImport}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -128,8 +129,7 @@ object ScalaClassNameCompletionContributor {
 
     val project = insertedElement.getProject
 
-    val checkSynthetic = parameters.getOriginalFile.scalaLanguageLevel
-            .map(_.isBefore(ScalaLanguageLevel.SCALA_2_9)).getOrElse(true)
+    val checkSynthetic = parameters.getOriginalFile.scalaLanguageLevel.map(_ < Scala_2_9).getOrElse(true)
 
     for {
       clazz <- SyntheticClasses.get(project).all.valuesIterator

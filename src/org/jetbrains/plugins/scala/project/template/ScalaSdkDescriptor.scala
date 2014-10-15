@@ -6,6 +6,7 @@ import java.io.File
 import com.intellij.openapi.roots.libraries.NewLibraryConfiguration
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.LibraryEditor
 import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project.template.Artifact.ScalaLibrary
 import org.jetbrains.plugins.scala.project.{Version, ScalaLanguageLevel, ScalaLibraryProperties, ScalaLibraryType}
 
@@ -21,7 +22,7 @@ case class ScalaSdkDescriptor(version: Version,
   def createNewLibraryConfiguration() = {
     val properties = new ScalaLibraryProperties()
 
-    properties.languageLevel = ScalaLanguageLevel.from(version.value, true)
+    properties.languageLevel = ScalaLanguageLevel.from(version.value).getOrElse(ScalaLanguageLevel.Default)
     properties.compilerClasspath = compilerFiles
 
     val name = "scala-sdk-" + version.value
@@ -48,7 +49,7 @@ object ScalaSdkDescriptor {
 
     val reflectRequired = binaryComponents.exists { component =>
       component.version.exists { version =>
-        Option(ScalaLanguageLevel.from(version, false)).exists(_.isSinceScala2_10)
+        ScalaLanguageLevel.from(version).exists(_ >= Scala_2_10)
       }
     }
 

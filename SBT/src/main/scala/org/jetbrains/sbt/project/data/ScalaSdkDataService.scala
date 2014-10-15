@@ -29,7 +29,7 @@ class ScalaSdkDataService(platformFacade: PlatformFacade, helper: ProjectStructu
     val matchedLibrary = project.libraries.find(_.scalaVersion == Some(compilerVersion))
 
     for (library <- matchedLibrary if !library.isScalaSdk) {
-      val languageLevel = ScalaLanguageLevel.from(compilerVersion, true)
+      val languageLevel = ScalaLanguageLevel.from(compilerVersion).getOrElse(ScalaLanguageLevel.Default)
       val compilerClasspath = sdkData.compilerClasspath
       library.convertToScalaSdkWith(languageLevel, compilerClasspath)
     }

@@ -8,6 +8,7 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
 import lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import resolve.processor.BaseProcessor
 import api.ScDocResolvableCodeReference
 import com.intellij.psi.{JavaPsiFacade, ResolveState}
@@ -21,7 +22,7 @@ import project._
  */
 
 class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeReferenceElementImpl(node) with ScDocResolvableCodeReference {
-  private def is2_10plus = this.languageLevel.isSinceScala2_10
+  private def is2_10plus = this.languageLevel >= Scala_2_10
   
   override def getKinds(incomplete: Boolean, completion: Boolean) = stableImportSelector
 
