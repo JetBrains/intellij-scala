@@ -9,7 +9,8 @@ import java.util.Arrays;
  * @author Pavel Fatin
  */
 public class ScalaLibraryPropertiesState {
-  public ScalaLanguageLevel languageLevel = ScalaLanguageLevel.Default();
+  // We have to rely on the Java's enumeration for serialization
+  public ScalaLanguageLevelProxy languageLevel = ScalaLanguageLevel.Default().proxy();
 
   @Tag("compiler-classpath")
   @AbstractCollection(surroundWithTag = false, elementTag = "root", elementValueAttribute = "url")

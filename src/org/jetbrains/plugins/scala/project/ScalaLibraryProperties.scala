@@ -16,13 +16,13 @@ class ScalaLibraryProperties extends LibraryProperties[ScalaLibraryPropertiesSta
   loadState(new ScalaLibraryPropertiesState())
 
   def loadState(state: ScalaLibraryPropertiesState) {
-    languageLevel = state.languageLevel
+    languageLevel = ScalaLanguageLevel.from(state.languageLevel)
     compilerClasspath = state.compilerClasspath.map(path => new File(urlToPath(path)))
   }
 
   def getState = {
     val state = new ScalaLibraryPropertiesState()
-    state.languageLevel = languageLevel
+    state.languageLevel = languageLevel.proxy
     state.compilerClasspath = compilerClasspath.map(file => pathToUrl(toCanonicalPath(file.getAbsolutePath))).toArray
     state
   }
