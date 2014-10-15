@@ -1088,6 +1088,7 @@ object ScalaEvaluatorBuilderUtil {
       case f: ScForStatement if f.body == Some(child) => true
       case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).length > 0 => true
       case b: ScBlockExpr if b.isAnonymousFunction => true
+      case (expr: ScExpression) childOf (argLisg: ScArgumentExprList) if ScalaPsiUtil.parameterOf(expr).exists(_.isByName) => true
       case _ => false
     }
   }
