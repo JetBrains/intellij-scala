@@ -248,7 +248,7 @@ object DebuggerUtil {
 
   class JVMClassAt(sourcePosition: SourcePosition) extends JVMName {
     def getName(process: DebugProcessImpl): String = {
-      val allClasses = process.getPositionManager.getAllClasses(mySourcePosition)
+      val allClasses = process.getPositionManager.getAllClasses(sourcePosition)
       if (!allClasses.isEmpty) {
         return allClasses.get(0).name
       }
@@ -258,12 +258,10 @@ object DebuggerUtil {
     def getDisplayName(debugProcess: DebugProcessImpl): String = {
       ApplicationManager.getApplication.runReadAction(new Computable[String] {
         def compute: String = {
-          JVMNameUtil.getSourcePositionClassDisplayName(debugProcess, mySourcePosition)
+          JVMNameUtil.getSourcePositionClassDisplayName(debugProcess, sourcePosition)
         }
       })
     }
-
-    private final val mySourcePosition: SourcePosition = null
   }
 
   def withoutBackticks(name: String): String = {
