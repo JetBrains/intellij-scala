@@ -36,7 +36,7 @@ class ScalaGradleDataService(platformFacade: PlatformFacade, helper: ProjectStru
       val matchedLibrary = project.libraries.find(_.scalaVersion == Some(version))
 
       for (library <- matchedLibrary if !library.isScalaSdk) {
-        val languageLevel = ScalaLanguageLevel.from(version, true)
+        val languageLevel = ScalaLanguageLevel.from(version).getOrElse(ScalaLanguageLevel.Default)
         library.convertToScalaSdkWith(languageLevel, compilerClasspath)
       }
     }

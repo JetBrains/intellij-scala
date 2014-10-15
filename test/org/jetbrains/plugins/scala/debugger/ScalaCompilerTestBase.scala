@@ -68,7 +68,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase {
     PsiTestUtil.addLibrary(myModule, "scala-compiler", root, "scala-compiler.jar", "scala-library.jar")
     myModule.libraries.find(_.getName == "scala-compiler").foreach { library =>
       val compilerClasspath = Seq(new File(root, "scala-compiler.jar"), new File(root, "scala-library.jar"))
-      library.convertToScalaSdkWith(ScalaLanguageLevel.getDefault, compilerClasspath)
+      library.convertToScalaSdkWith(ScalaLanguageLevel.Default, compilerClasspath)
     }
   }
 

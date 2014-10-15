@@ -11,6 +11,8 @@ import org.jetbrains.plugins.scala.extensions._
 import com.intellij.openapi.project.Project
 import java.io.File
 import java.util
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
+
 import collection.JavaConversions._
 import project._
 import ScalaMavenImporter._
@@ -57,7 +59,7 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
       val matchedLibrary = modelsProvider.getAllLibraries.find(_.scalaVersion == Some(compilerVersion))
 
       for (library <- matchedLibrary if !library.isScalaSdk) {
-        val languageLevel = ScalaLanguageLevel.from(compilerVersion, true)
+        val languageLevel = ScalaLanguageLevel.from(compilerVersion).getOrElse(ScalaLanguageLevel.Default)
         val compilerClasspath = configuration.compilerClasspath.map(mavenProject.localPathTo)
 
         val libraryModel = modelsProvider.getLibraryModel(library).asInstanceOf[LibraryEx.ModifiableModelEx]
@@ -133,7 +135,7 @@ private class ScalaConfiguration(project: MavenProject) {
   def compilerVersion: Option[String] =
     element("scalaVersion").map(_.getTextTrim).orElse(standardLibrary.map(_.getVersion))
 
-  private def usesReflect: Boolean = compilerVersion.exists(it => ScalaLanguageLevel.from(it, true).isSinceScala2_10)
+  private def usesReflect: Boolean = compilerVersion.exists(it => ScalaLanguageLevel.from(it).exists(_ >= Scala_2_10))
 
   def vmOptions: Seq[String] = elements("jvmArgs", "jvmArg").map(_.getTextTrim)
 

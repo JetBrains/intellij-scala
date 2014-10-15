@@ -50,7 +50,7 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
     
     if (libVersion == ScalaSdkVersion._2_11) inWriteAction {
       val scalaSdk = project.createScalaSdk("scala_sdk",
-        Seq.empty, Seq.empty, Seq.empty, Seq.empty, ScalaLanguageLevel.SCALA_2_11)
+        Seq.empty, Seq.empty, Seq.empty, Seq.empty, ScalaLanguageLevel.Scala_2_11)
 
       module.attach(scalaSdk)
     }

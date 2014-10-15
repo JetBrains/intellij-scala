@@ -8,6 +8,7 @@ import caches.CachesUtil
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi.util.{PsiTreeUtil, CachedValue, PsiModificationTracker}
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import types._
 import collection.{mutable, Set}
 import com.intellij.psi._
@@ -308,7 +309,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
                     //todo: rewritten in more clean and clear way.
                     val dependentSubst = new ScSubstitutor(() => {
                       val level = place.languageLevel
-                      if (level.isSinceScala2_10) {
+                      if (level >= Scala_2_10) {
                         f.paramClauses.clauses.headOption.map(_.parameters).toSeq.flatten.map {
                           case (param: ScParameter) => (new Parameter(param), typez)
                         }.toMap
@@ -331,7 +332,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
 
                     val implicitDependentSubst = new ScSubstitutor(() => {
                       val level = place.languageLevel
-                      if (level.isSinceScala2_10) {
+                      if (level >= Scala_2_10) {
                         if (probablyHasDepententMethodTypes) {
                           val params: Seq[Parameter] = f.paramClauses.clauses.last.parameters.map(
                             param => new Parameter(param))
