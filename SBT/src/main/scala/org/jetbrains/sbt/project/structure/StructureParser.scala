@@ -1,6 +1,8 @@
 package org.jetbrains.sbt
 package project.structure
 
+import org.jetbrains.plugins.scala.project.Version
+
 import scala.xml.Node
 import java.io.File
 import FS._
@@ -58,7 +60,7 @@ object StructureParser {
     val extra = (node \ "extra").map(e => file(e.text))
     val options = (node \ "option").map(_.text)
 
-    Scala(version, library, compiler, extra, options)
+    Scala(Version(version), library, compiler, extra, options)
   }
 
   private def parseConfiguration(node: Node)(implicit fs: FS): Configuration = {

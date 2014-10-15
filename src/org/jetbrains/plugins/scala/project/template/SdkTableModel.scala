@@ -13,7 +13,7 @@ class SdkTableModel extends ListTableModel[SdkChoice](
     override def getPreferredStringValue = "Maven"
   },
   new ColumnInfo[SdkChoice, String]("Version") {
-    override def valueOf(item: SdkChoice) = item.sdk.version.value
+    override def valueOf(item: SdkChoice) = item.sdk.version.map(_.number).getOrElse("Unknown")
 
     override def getPreferredStringValue = "2.11.0"
   },
