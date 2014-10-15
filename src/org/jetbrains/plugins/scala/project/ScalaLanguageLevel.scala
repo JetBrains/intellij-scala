@@ -12,6 +12,8 @@ sealed case class ScalaLanguageLevel(ordinal: Int, version: String, virtualized:
 
   override def getName = name
 
+  private[project] def proxy: ScalaLanguageLevelProxy = ScalaLanguageLevel.LevelToProxy(this)
+
   def >(level: ScalaLanguageLevel): Boolean = ordinal > level.ordinal
 
   def >=(level: ScalaLanguageLevel): Boolean = ordinal >= level.ordinal
@@ -25,6 +27,21 @@ object ScalaLanguageLevel {
   val Values = Array(Scala_2_7, Scala_2_8, Scala_2_9, Scala_2_10, Scala_2_10_V, Scala_2_11, Scala_2_11_V)
 
   val Default = Scala_2_11
+
+  // We have to rely on the Java's enumeration for library property serialization
+  private val LevelToProxy = Map(
+    (null, null),
+    Scala_2_7 -> ScalaLanguageLevelProxy.Scala_2_7,
+    Scala_2_8 -> ScalaLanguageLevelProxy.Scala_2_8,
+    Scala_2_9 -> ScalaLanguageLevelProxy.Scala_2_9,
+    Scala_2_10 -> ScalaLanguageLevelProxy.Scala_2_10,
+    Scala_2_10_V -> ScalaLanguageLevelProxy.Scala_2_10_V,
+    Scala_2_11 -> ScalaLanguageLevelProxy.Scala_2_11,
+    Scala_2_11_V -> ScalaLanguageLevelProxy.Scala_2_11_V)
+
+  private val ProxyToLevel = LevelToProxy.map(_.swap)
+
+  def from(proxy: ScalaLanguageLevelProxy): ScalaLanguageLevel = ProxyToLevel(proxy)
 
   def from(version: Version): Option[ScalaLanguageLevel] =
     ScalaLanguageLevel.Values.find(it => version.number.startsWith(it.version))

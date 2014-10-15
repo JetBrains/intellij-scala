@@ -26,13 +26,13 @@ public class ScalaLibraryEditorForm {
 
   public ScalaLibraryPropertiesState getState() {
     ScalaLibraryPropertiesState state = new ScalaLibraryPropertiesState();
-    state.languageLevel = (ScalaLanguageLevel) myLanguageLevel.getSelectedItem();
+    state.languageLevel = ((ScalaLanguageLevel) myLanguageLevel.getSelectedItem()).proxy();
     state.compilerClasspath = myClasspathEditor.getPaths();
     return state;
   }
 
   public void setState(ScalaLibraryPropertiesState state) {
-    myLanguageLevel.setSelectedItem(state.languageLevel);
+    myLanguageLevel.setSelectedItem(ScalaLanguageLevel.from(state.languageLevel));
     myClasspathEditor.setPaths(state.compilerClasspath);
   }
 
