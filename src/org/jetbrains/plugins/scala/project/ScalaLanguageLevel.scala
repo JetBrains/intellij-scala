@@ -4,12 +4,14 @@ package project
 /**
  * @author Pavel Fatin
  */
-sealed case class ScalaLanguageLevel(ordinal: Int, version: String, virtualized: Boolean = false) {
+sealed case class ScalaLanguageLevel(ordinal: Int, version: String, virtualized: Boolean = false) extends Named {
   def name: String = {
     val prefix: String = "Scala " + version
     if (virtualized) prefix + " virtualized" else prefix
   }
-  
+
+  override def getName = name
+
   def >(level: ScalaLanguageLevel): Boolean = ordinal > level.ordinal
 
   def >=(level: ScalaLanguageLevel): Boolean = ordinal >= level.ordinal
