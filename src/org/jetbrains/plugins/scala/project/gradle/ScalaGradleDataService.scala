@@ -30,7 +30,9 @@ class ScalaGradleDataService(platformFacade: PlatformFacade, helper: ProjectStru
     val compilerClasspath = scalaData.getScalaClasspath.asScala.toSeq
 
     val compilerVersion = compilerClasspath.map(_.getName)
-            .find(_.startsWith("scala-library")).flatMap(JarVersion.findFirstIn)
+            .find(_.startsWith("scala-library"))
+            .flatMap(JarVersion.findFirstIn)
+            .map(Version(_))
 
     compilerVersion.foreach { version =>
       val matchedLibrary = project.libraries.find(_.scalaVersion == Some(version))

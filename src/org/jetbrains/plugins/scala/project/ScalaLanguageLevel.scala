@@ -24,8 +24,8 @@ object ScalaLanguageLevel {
 
   val Default = Scala_2_11
 
-  def from(version: String): Option[ScalaLanguageLevel] =
-    ScalaLanguageLevel.Values.find(it => version.startsWith(it.version))
+  def from(version: Version): Option[ScalaLanguageLevel] =
+    ScalaLanguageLevel.Values.find(it => version.number.startsWith(it.version))
 
   object Scala_2_7 extends ScalaLanguageLevel(0, "2.7")
 

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package project
 
-import java.io.File
+import java.io.{Closeable, File}
 
 import com.intellij.openapi.vfs.VfsUtil
 
@@ -9,6 +9,14 @@ import com.intellij.openapi.vfs.VfsUtil
  * @author Pavel Fatin
  */
 package object template {
+  def using[A <: Closeable, B](resource: A)(block: A => B): B = {
+    try {
+      block(resource)
+    } finally {
+      resource.close()
+    }
+  }
+
   implicit class FileExt(val delegate: File) extends AnyVal {
     def /(path: String): File = new File(delegate, path)
 

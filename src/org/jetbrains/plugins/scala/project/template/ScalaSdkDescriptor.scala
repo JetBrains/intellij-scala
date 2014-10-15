@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.project.{Version, ScalaLanguageLevel, ScalaLi
 /**
  * @author Pavel Fatin
  */
-case class ScalaSdkDescriptor(version: Version,
+case class ScalaSdkDescriptor(version: Option[Version],
                               compilerFiles: Seq[File],
                               libraryFiles: Seq[File],
                               sourceFiles: Seq[File],
@@ -22,10 +22,10 @@ case class ScalaSdkDescriptor(version: Version,
   def createNewLibraryConfiguration() = {
     val properties = new ScalaLibraryProperties()
 
-    properties.languageLevel = ScalaLanguageLevel.from(version.value).getOrElse(ScalaLanguageLevel.Default)
+    properties.languageLevel = version.flatMap(ScalaLanguageLevel.from).getOrElse(ScalaLanguageLevel.Default)
     properties.compilerClasspath = compilerFiles
 
-    val name = "scala-sdk-" + version.value
+    val name = "scala-sdk-" + version.map(_.number).getOrElse("Unknown")
 
     new NewLibraryConfiguration(name, ScalaLibraryType.instance, properties) {
       override def addRoots(editor: LibraryEditor): Unit = {
@@ -70,10 +70,10 @@ object ScalaSdkDescriptor {
       val librarySources = sourceComponents.filter(it => libraryArtifacts.contains(it.artifact))
       val libraryDocs = docComponents.filter(it => libraryArtifacts.contains(it.artifact))
 
-      val libraryVersion = binaryComponents.find(_.artifact == ScalaLibrary).flatMap(_.version).getOrElse("Unknown")
+      val libraryVersion = binaryComponents.find(_.artifact == ScalaLibrary).flatMap(_.version)
 
       val descriptor = ScalaSdkDescriptor(
-        new Version(libraryVersion),
+        libraryVersion,
         compilerBinaries.map(_.file),
         libraryBinaries.map(_.file),
         librarySources.map(_.file),

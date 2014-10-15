@@ -3,6 +3,7 @@ package project.data
 
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys, Key}
 import com.intellij.openapi.externalSystem.model.project._
+import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.SbtProjectSystem
 import java.io.File
 
@@ -82,7 +83,7 @@ class ScalaProjectNode(val data: ScalaProjectData)
 
 class ScalaSdkNode(val data: ScalaSdkData)
   extends Node[ScalaSdkData] {
-  def this(scalaVersion: String, basePackage: String, compilerClasspath: Seq[File], compilerOptions: Seq[String]) {
+  def this(scalaVersion: Version, basePackage: String, compilerClasspath: Seq[File], compilerOptions: Seq[String]) {
     this(new ScalaSdkData(SbtProjectSystem.Id, scalaVersion, basePackage, compilerClasspath, compilerOptions))
   }
 

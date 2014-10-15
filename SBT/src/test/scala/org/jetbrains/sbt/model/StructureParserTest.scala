@@ -4,6 +4,7 @@ package model
 import org.junit.{Test, Assert}
 import scala.xml.XML
 import org.jetbrains.sbt.project.structure._
+import org.jetbrains.plugins.scala.project.Version
 import java.io.File
 
 /**
@@ -41,7 +42,7 @@ object StructureParserTest {
       options = Seq("-j1", "-j2"))
 
     val scala = Scala(
-      version = "2.10.1",
+      version = Version("2.10.1"),
       libraryJar = new File("$HOME/.sbt/boot/scala-2.10.1/lib/scala-library.jar"),
       compilerJar = new File("$HOME/.sbt/boot/scala-2.10.1/lib/scala-compiler.jar"),
       extraJars = Seq(new File("$HOME/.sbt/boot/scala-2.10.1/lib/scala-reflect.jar")),

@@ -6,7 +6,7 @@ import java.net.URL
 import java.util.Properties
 import java.util.regex.Pattern
 
-import org.jetbrains.jps.incremental.scala._
+import org.jetbrains.plugins.scala.project.Version
 
 /**
  * @author Pavel Fatin
@@ -14,19 +14,19 @@ import org.jetbrains.jps.incremental.scala._
 sealed class Artifact(val prefix: String, resource: Option[String] = None) {
   def title: String = prefix + "*.jar"
 
-  def versionOf(file: File): Option[String] = externalVersionOf(file).orElse(internalVersionOf(file))
+  def versionOf(file: File): Option[Version] = externalVersionOf(file).orElse(internalVersionOf(file))
 
-  private def externalVersionOf(file: File): Option[String] = {
+  private def externalVersionOf(file: File): Option[Version] = {
     val FileName = (prefix + "-(.*?)(?:-src|-sources|-javadoc).jar").r
 
     file.getName match {
-      case FileName(version) => Some(version)
+      case FileName(number) => Some(Version(number))
       case _ => None
     }
   }
 
-  private def internalVersionOf(file: File): Option[String] =
-    resource.flatMap(it => Artifact.readProperty(file, it, "version.number"))
+  private def internalVersionOf(file: File): Option[Version] =
+    resource.flatMap(it => Artifact.readProperty(file, it, "version.number")).map(Version(_))
 }
 
 object Artifact {
@@ -77,7 +77,7 @@ object Kind {
   case object Docs extends Kind(".*-javadoc\\.jar")
 }
 
-case class Component(artifact: Artifact, kind: Kind, version: Option[String], file: File)
+case class Component(artifact: Artifact, kind: Kind, version: Option[Version], file: File)
 
 object Component {
   def discoverIn(files: Seq[File]): Seq[Component] = {

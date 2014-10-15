@@ -3,6 +3,8 @@ package project.structure
 
 import java.io.File
 
+import org.jetbrains.plugins.scala.project.Version
+
 case class Structure(projects: Seq[Project], repository: Option[Repository])
 
 case class Project(id: String, name: String, organization: String, version: String, base: File, target: File, build: Build, configurations: Seq[Configuration], java: Option[Java], scala: Option[Scala], dependencies: Dependencies)
@@ -13,7 +15,7 @@ case class Configuration(id: String, sources: Seq[Directory], resources: Seq[Dir
 
 case class Java(home: Option[File], options: Seq[String])
 
-case class Scala(version: String, libraryJar: File, compilerJar: File, extraJars: Seq[File], options: Seq[String])
+case class Scala(version: Version, libraryJar: File, compilerJar: File, extraJars: Seq[File], options: Seq[String])
 
 case class Dependencies(projects: Seq[ProjectDependency], modules: Seq[ModuleDependency], jars: Seq[JarDependency])
 

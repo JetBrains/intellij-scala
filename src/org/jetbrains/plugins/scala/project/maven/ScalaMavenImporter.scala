@@ -132,8 +132,8 @@ private class ScalaConfiguration(project: MavenProject) {
     if (usesReflect) basicIds :+ scalaReflectId else basicIds
   }
   
-  def compilerVersion: Option[String] =
-    element("scalaVersion").map(_.getTextTrim).orElse(standardLibrary.map(_.getVersion))
+  def compilerVersion: Option[Version] = element("scalaVersion").map(_.getTextTrim)
+          .orElse(standardLibrary.map(_.getVersion)).map(Version(_))
 
   private def usesReflect: Boolean = compilerVersion.exists(it => ScalaLanguageLevel.from(it).exists(_ >= Scala_2_10))
 
