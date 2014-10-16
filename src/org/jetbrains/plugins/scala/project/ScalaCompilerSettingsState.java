@@ -43,10 +43,13 @@ public class ScalaCompilerSettingsState {
 
   public DebuggingInfoLevel debuggingInfoLevel = DebuggingInfoLevel.Vars;
 
-  public String additionalCompilerOptions = "";
+  // Why serialization doesn't work when elementTag is "option"?
+  @Tag("parameters")
+  @AbstractCollection(surroundWithTag = false, elementTag = "parameter")
+  public String[] additionalCompilerOptions = new String[] {};
 
   @Tag("plugins")
-  @AbstractCollection(surroundWithTag = false, elementTag = "plugin", elementValueAttribute = "url")
+  @AbstractCollection(surroundWithTag = false, elementTag = "plugin", elementValueAttribute = "path")
   public String[] plugins = new String[] {};
 
   @Override
