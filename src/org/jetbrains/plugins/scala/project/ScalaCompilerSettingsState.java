@@ -13,8 +13,6 @@ public class ScalaCompilerSettingsState {
 
   public CompileOrder compileOrder = CompileOrder.Mixed;
 
-  public boolean macros = false;
-
   public boolean dynamics = false;
 
   public boolean postfixOps = false;
@@ -26,6 +24,8 @@ public class ScalaCompilerSettingsState {
   public boolean higherKinds = false;
 
   public boolean existentials = false;
+
+  public boolean macros = false;
 
   public boolean warnings = true;
 
@@ -57,23 +57,24 @@ public class ScalaCompilerSettingsState {
     ScalaCompilerSettingsState that = (ScalaCompilerSettingsState) o;
 
     return
-        macros == that.macros &&
+        incrementalityType == that.incrementalityType &&
+        compileOrder == that.compileOrder &&
         dynamics == that.dynamics &&
         postfixOps == that.postfixOps &&
         reflectiveCalls == that.reflectiveCalls &&
         implicitConversions == that.implicitConversions &&
         higherKinds == that.higherKinds &&
         existentials == that.existentials &&
-        continuations == that.continuations &&
+        macros == that.macros &&
+        warnings == that.warnings &&
         deprecationWarnings == that.deprecationWarnings &&
-        explainTypeErrors == that.explainTypeErrors &&
-        optimiseBytecode == that.optimiseBytecode &&
         uncheckedWarnings == that.uncheckedWarnings &&
         featureWarnings == that.featureWarnings &&
-        warnings == that.warnings &&
-        additionalCompilerOptions.equals(that.additionalCompilerOptions) &&
-        compileOrder == that.compileOrder &&
-        debuggingInfoLevel == that.debuggingInfoLevel &&
-        Arrays.equals(plugins, that.plugins);
+        optimiseBytecode == that.optimiseBytecode &&
+        explainTypeErrors == that.explainTypeErrors &&
+        continuations == that.continuations &&
+        Arrays.equals(additionalCompilerOptions, that.additionalCompilerOptions) &&
+        Arrays.equals(plugins, that.plugins) &&
+        debuggingInfoLevel == that.debuggingInfoLevel;
   }
 }

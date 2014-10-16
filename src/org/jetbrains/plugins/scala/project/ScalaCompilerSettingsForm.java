@@ -107,7 +107,7 @@ public class ScalaCompilerSettingsForm {
     myExplainTypeErrors.setSelected(state.explainTypeErrors);
     myContinuations.setSelected(state.continuations);
     myDebuggingInfoLevel.setSelectedItem(state.debuggingInfoLevel);
-    myAdditionalCompilerOptions.setText(StringUtil.join(state.additionalCompilerOptions));
+    myAdditionalCompilerOptions.setText(StringUtil.join(state.additionalCompilerOptions, " "));
     myPluginsEditor.setPaths(pathsToUrls(state.plugins));
   }
 

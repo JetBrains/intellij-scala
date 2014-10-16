@@ -58,7 +58,7 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
     "-g:vars" -> DebuggingInfoLevel.Vars,
     "-g:notc" -> DebuggingInfoLevel.Notc)
 
-  private val PluginOptionPattern = "-P:(\\.+)".r
+  private val PluginOptionPattern = "-P:(.+)".r
 
   def parameters: Seq[String] = Seq.empty // TODO Worksheet compiler options
 
