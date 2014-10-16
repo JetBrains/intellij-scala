@@ -51,7 +51,7 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File) {
     case Right(data) => data
   }
   
-  private val scalaParameters = compilerSettings.parameters.mkString(" ")
+  private val scalaParameters = compilerSettings.toOptions.mkString(" ")
 
   private val javaParameters = Array.empty[String]
 
