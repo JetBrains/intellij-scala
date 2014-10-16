@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.project;
 
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.RawCommandLineEditor;
 
@@ -69,10 +71,21 @@ public class ScalaCompilerSettingsForm {
     state.explainTypeErrors = myExplainTypeErrors.isSelected();
     state.continuations = myContinuations.isSelected();
     state.debuggingInfoLevel = (DebuggingInfoLevel) myDebuggingInfoLevel.getSelectedItem();
-    state.additionalCompilerOptions = myAdditionalCompilerOptions.getText();
-    state.plugins = myPluginsEditor.getPaths();
+    String options = myAdditionalCompilerOptions.getText().trim();
+    state.additionalCompilerOptions = options.isEmpty() ? new String[0] : options.split("\\s+");
+    state.plugins = urlsToPaths(myPluginsEditor.getPaths());
 
     return state;
+  }
+
+  private static String[] urlsToPaths(String[] urls) {
+    String[] result = new String[urls.length];
+    int i = 0;
+    for (String url : urls) {
+      result[i] = VfsUtil.urlToPath(url);
+      i++;
+    }
+    return result;
   }
 
   public void setState(ScalaCompilerSettingsState state) {
@@ -94,8 +107,18 @@ public class ScalaCompilerSettingsForm {
     myExplainTypeErrors.setSelected(state.explainTypeErrors);
     myContinuations.setSelected(state.continuations);
     myDebuggingInfoLevel.setSelectedItem(state.debuggingInfoLevel);
-    myAdditionalCompilerOptions.setText(state.additionalCompilerOptions);
-    myPluginsEditor.setPaths(state.plugins);
+    myAdditionalCompilerOptions.setText(StringUtil.join(state.additionalCompilerOptions));
+    myPluginsEditor.setPaths(pathsToUrls(state.plugins));
+  }
+
+  private static String[] pathsToUrls(String[] paths) {
+    String[] result = new String[paths.length];
+    int i = 0;
+    for (String path : paths) {
+      result[i] = VfsUtil.pathToUrl(path);
+      i++;
+    }
+    return result;
   }
 
   public JPanel getComponent() {

@@ -32,10 +32,10 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
   var continuations: Boolean = _
 
   var debuggingInfoLevel: DebuggingInfoLevel = _
-  var additionalCompilerOptions: String = _
+  var additionalCompilerOptions: Seq[String] = _
   var plugins: Seq[String] = _
 
-  def parameters: Seq[String] = Seq.empty // TODO
+  def parameters: Seq[String] = Seq.empty // TODO Worksheet compiler options
 
   loadState(new ScalaCompilerSettingsState())
 
@@ -60,7 +60,7 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
     continuations = state.continuations
 
     debuggingInfoLevel = state.debuggingInfoLevel
-    additionalCompilerOptions = state.additionalCompilerOptions
+    additionalCompilerOptions = state.additionalCompilerOptions.toSeq
     plugins = state.plugins.toSeq
   }
   
@@ -86,7 +86,7 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
     state.continuations = continuations
 
     state.debuggingInfoLevel = debuggingInfoLevel
-    state.additionalCompilerOptions = additionalCompilerOptions
+    state.additionalCompilerOptions = additionalCompilerOptions.toArray
     state.plugins = plugins.toArray
     state
   }
