@@ -22,7 +22,8 @@ class ScalaSdkDataService(platformFacade: PlatformFacade, helper: ProjectStructu
   private def doImport(sdkNode: DataNode[ScalaSdkData], project: Project) {
     val sdkData = sdkNode.getData
 
-    val compilerOptions = sdkData.compilerOptions // TODO
+    val compilerOptions = sdkData.compilerOptions
+    project.scalaCompilerSettigns.configureFrom(compilerOptions)
 
     val compilerVersion = sdkData.scalaVersion
 
