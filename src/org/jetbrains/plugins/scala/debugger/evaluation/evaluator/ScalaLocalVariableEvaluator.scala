@@ -45,10 +45,7 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
       def saveContextAndGetValue(framePr: StackFrameProxyImpl, local: LocalVariableProxyImpl) = {
         myEvaluatedVariable = local
         myContext = context
-        val value = DebuggerUtil.unwrapScalaRuntimeObjectRef {
-          frameProxy.getValue(local)
-        }
-        Some(value)
+        Some(frameProxy.getValue(local))
       }
       var local: LocalVariableProxyImpl = frameProxy.visibleVariableByName(myName)
       if (local != null) return saveContextAndGetValue(frameProxy, local)

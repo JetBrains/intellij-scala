@@ -27,7 +27,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       return EvaluatorBuilderImpl.getInstance().build(codeFragment, position) //java builder (e.g. SCL-6117)
 
     val project = position.getFile.getProject
-    
+
     val cache = ScalaEvaluatorCache.getInstance(project)
     val cached: Option[Evaluator] = {
       try cache.get(position, codeFragment)
@@ -39,7 +39,9 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     val evaluator = cached.getOrElse {
-      cache.add(position, codeFragment, ScalaEvaluator(codeFragment)(position))
+      val newEvaluator = ScalaEvaluator(codeFragment)(position)
+      val unwrapped = new UnwrapRefEvaluator(newEvaluator)
+      cache.add(position, codeFragment, unwrapped)
     }
 
     new ExpressionEvaluatorImpl(evaluator)
@@ -49,6 +51,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextClass: Option[PsiClass] = null)
                                                  (implicit val position: SourcePosition)
         extends ScalaElementVisitor with ScalaEvaluatorBuilderUtil {
+
+  import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil._
 
   val contextClass = _contextClass.getOrElse(getContextClass(element))
 
