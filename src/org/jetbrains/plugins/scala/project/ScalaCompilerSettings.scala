@@ -35,9 +35,52 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
   var additionalCompilerOptions: Seq[String] = _
   var plugins: Seq[String] = _
 
+  private val ToggleOptions: Map[String, Boolean => Unit] = Map(
+    ("-language:dynamics", dynamics = _),
+    ("-language:postfixOps", postfixOps = _),
+    ("-language:reflectiveCalls", reflectiveCalls = _),
+    ("-language:implicitConversions", implicitConversions = _),
+    ("-language:higherKinds", higherKinds = _),
+    ("-language:existentials", existentials = _),
+    ("-language:macros", macros = _),
+    ("-nowarn", (b: Boolean) => warnings = !b),
+    ("-deprecation", deprecationWarnings = _),
+    ("-unchecked", uncheckedWarnings = _),
+    ("-feature", featureWarnings = _),
+    ("-optimise", optimiseBytecode = _),
+    ("-explaintypes", explainTypeErrors = _),
+    ("-P:continuations:enable", continuations = _))
+
+  private val DebuggingOptions: Map[String, DebuggingInfoLevel] = Map(
+    "-g:none" -> DebuggingInfoLevel.None,
+    "-g:source" -> DebuggingInfoLevel.Source,
+    "-g:line" -> DebuggingInfoLevel.Line,
+    "-g:vars" -> DebuggingInfoLevel.Vars,
+    "-g:notc" -> DebuggingInfoLevel.Notc)
+
+  private val PluginOptionPattern = "-P:(\\.+)".r
+
   def parameters: Seq[String] = Seq.empty // TODO Worksheet compiler options
 
   loadState(new ScalaCompilerSettingsState())
+
+  def configureFrom(options: Seq[String]) {
+    ToggleOptions.foreach {
+      case (option, setter) => setter(options.contains(option))
+    }
+
+    debuggingInfoLevel = DebuggingOptions.find(p => options.contains(p._1)).map(_._2).getOrElse(DebuggingInfoLevel.Vars)
+
+    plugins = options collect {
+      case PluginOptionPattern(path) => path
+    }
+
+    additionalCompilerOptions = options.filterNot { option =>
+      ToggleOptions.keySet.contains(option) ||
+              DebuggingOptions.keySet.contains(option) ||
+              PluginOptionPattern.findFirstIn(option).isDefined
+    }
+  }
 
   def loadState(state: ScalaCompilerSettingsState) {
     incrementalityType = state.incrementalityType
