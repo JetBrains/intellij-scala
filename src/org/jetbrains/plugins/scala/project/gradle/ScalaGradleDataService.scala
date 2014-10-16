@@ -61,7 +61,7 @@ private object ScalaGradleDataService {
       !isEmpty(options.getEncoding) -> s"-encoding ${options.getEncoding}",
       !isEmpty(data.getTargetCompatibility) -> s"-target:jvm-${data.getTargetCompatibility}")
 
-    presentations.flatMap((include _).tupled)
+    presentations.flatMap((include _).tupled) ++ options.getAdditionalParameters.asScala
   }
 
   private def isEmpty(s: String) = s == null || s.isEmpty
