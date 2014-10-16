@@ -35,21 +35,23 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
   var additionalCompilerOptions: Seq[String] = _
   var plugins: Seq[String] = _
 
-  private val ToggleOptions: Map[String, Boolean => Unit] = Map(
-    ("-language:dynamics", dynamics = _),
-    ("-language:postfixOps", postfixOps = _),
-    ("-language:reflectiveCalls", reflectiveCalls = _),
-    ("-language:implicitConversions", implicitConversions = _),
-    ("-language:higherKinds", higherKinds = _),
-    ("-language:existentials", existentials = _),
-    ("-language:macros", macros = _),
-    ("-nowarn", (b: Boolean) => warnings = !b),
-    ("-deprecation", deprecationWarnings = _),
-    ("-unchecked", uncheckedWarnings = _),
-    ("-feature", featureWarnings = _),
-    ("-optimise", optimiseBytecode = _),
-    ("-explaintypes", explainTypeErrors = _),
-    ("-P:continuations:enable", continuations = _))
+  loadState(new ScalaCompilerSettingsState())
+
+  private val ToggleOptions: Seq[(String, () => Boolean, Boolean => Unit)] = Seq(
+    ("-language:dynamics", () => dynamics, dynamics = _),
+    ("-language:postfixOps", () => postfixOps, postfixOps = _),
+    ("-language:reflectiveCalls", () => reflectiveCalls, reflectiveCalls = _),
+    ("-language:implicitConversions", () => implicitConversions, implicitConversions = _),
+    ("-language:higherKinds", () => higherKinds, higherKinds = _),
+    ("-language:existentials", () => existentials, existentials = _),
+    ("-language:macros", () => macros, macros = _),
+    ("-nowarn", () => warnings, (b: Boolean) => warnings = !b),
+    ("-deprecation", () => deprecationWarnings, deprecationWarnings = _),
+    ("-unchecked", () => uncheckedWarnings, uncheckedWarnings = _),
+    ("-feature", () => featureWarnings, featureWarnings = _),
+    ("-optimise", () => optimiseBytecode, optimiseBytecode = _),
+    ("-explaintypes", () => explainTypeErrors, explainTypeErrors = _),
+    ("-P:continuations:enable", () => continuations, continuations = _))
 
   private val DebuggingOptions: Map[String, DebuggingInfoLevel] = Map(
     "-g:none" -> DebuggingInfoLevel.None,
@@ -60,12 +62,24 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
 
   private val PluginOptionPattern = "-P:(.+)".r
 
-  def parameters: Seq[String] = Seq.empty // TODO Worksheet compiler options
+  def toOptions: Seq[String] = {
+    val debuggingLevelToOption = DebuggingOptions.map(_.swap)
 
-  loadState(new ScalaCompilerSettingsState())
+    val toggledOptions = ToggleOptions.collect {
+      case (option, getter, _) if getter() => option
+    }
+
+    val debuggingLevelOption = debuggingLevelToOption(debuggingInfoLevel)
+    
+    val pluginOptions = plugins.map(path => "-P:" + path)
+
+    (toggledOptions :+ debuggingLevelOption) ++ pluginOptions
+  }
 
   def configureFrom(options: Seq[String]) {
-    ToggleOptions.foreach {
+    val optionToSetter = ToggleOptions.map(it => (it._1, it._3)).toMap
+
+    optionToSetter.foreach {
       case (option, setter) => setter(options.contains(option))
     }
 
@@ -76,7 +90,7 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
     }
 
     additionalCompilerOptions = options.filterNot { option =>
-      ToggleOptions.keySet.contains(option) ||
+      optionToSetter.keySet.contains(option) ||
               DebuggingOptions.keySet.contains(option) ||
               PluginOptionPattern.findFirstIn(option).isDefined
     }
