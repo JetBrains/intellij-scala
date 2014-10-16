@@ -4,17 +4,13 @@ organization := "JetBrains"
 
 scalaVersion := "2.11.2"
 
-lazy val ideaBasePath = "SDK/ideaSDK/idea-"      + readIdeaPropery("ideaVersion")
-
-unmanagedJars in Compile ++= (baseDirectory.value.getParentFile / ideaBasePath / "lib" * "*.jar").classpath
-
 unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar"
 
 // run configuration
 
 fork in run := true
 
-baseDirectory in run := baseDirectory.value.getParentFile / ideaBasePath / "bin"
+baseDirectory in run := ideaBasePath.value / "bin"
 
 mainClass in (Compile, run) := Some("com.intellij.idea.Main")
 
