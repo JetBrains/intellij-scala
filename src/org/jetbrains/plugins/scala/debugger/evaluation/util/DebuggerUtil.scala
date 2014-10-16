@@ -10,6 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiLocalVariable, PsiParameter}
 import com.sun.jdi.{ObjectReference, Value}
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
+import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
@@ -19,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
@@ -307,17 +308,29 @@ object DebuggerUtil {
     lines.toSet
   }
 
-  def unwrapScalaRuntimeObjectRef(evaluated: AnyRef): AnyRef = evaluated match {
-    case objRef: ObjectReference => {
+  def unwrapScalaRuntimeObjectRef(evaluated: AnyRef): AnyRef = {
+    unwrapRuntimeRef(evaluated, _ == "scala.runtime.ObjectRef")
+  }
+
+  def unwrapScalaRuntimeRef(value: AnyRef) = {
+    unwrapRuntimeRef(value, isScalaRuntimeRef)
+  }
+
+  def isScalaRuntimeRef(typeFqn: String) = {
+    typeFqn.startsWith("scala.runtime.") && typeFqn.endsWith("Ref")
+  }
+
+  private def unwrapRuntimeRef(value: AnyRef, typeNameCondition: String => Boolean) = value match {
+    case _ if !ScalaDebuggerSettings.getInstance().DONT_SHOW_RUNTIME_REFS => value
+    case objRef: ObjectReference =>
       val refType = objRef.referenceType()
-      if (refType.name == "scala.runtime.ObjectRef") {
+      if (typeNameCondition(refType.name)) {
         val elemField = refType.fieldByName("elem")
         if (elemField != null) objRef.getValue(elemField)
         else objRef
       }
       else objRef
-    }
-    case _ => evaluated
+    case _ => value
   }
 
   def localParams(fun: ScFunctionDefinition, context: PsiElement): Seq[ScTypedDefinition] = {
