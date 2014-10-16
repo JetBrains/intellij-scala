@@ -49,10 +49,14 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
               postTasks: util.List[MavenProjectsProcessorTask]) {
 
     validConfigurationIn(mavenProject).foreach { configuration =>
-      // TODO
-      // configuration.vmOptions
-      // configuration.compilerOptions
-      // configuration.plugins.map(id => mavenProject.localPathTo(id).getPath)
+      // TODO configuration.vmOptions
+
+      val compilerOptions = {
+        val plugins = configuration.plugins.map(id => mavenProject.localPathTo(id).getPath)
+        configuration.compilerOptions ++ plugins.map(path => "-P:" + path)
+      }
+
+      module.getProject.scalaCompilerSettigns.configureFrom(compilerOptions)
 
       val compilerVersion = configuration.compilerVersion.get
 

@@ -25,7 +25,8 @@ class ScalaGradleDataService(platformFacade: PlatformFacade, helper: ProjectStru
   private def doImport(scalaNode: DataNode[ScalaModelData], project: Project) {
     val scalaData = scalaNode.getData
 
-    val compilerOptions = ScalaGradleDataService.compilerOptionsFrom(scalaData) // TODO
+    val compilerOptions = ScalaGradleDataService.compilerOptionsFrom(scalaData)
+    project.scalaCompilerSettigns.configureFrom(compilerOptions)
 
     val compilerClasspath = scalaData.getScalaClasspath.asScala.toSeq
 
