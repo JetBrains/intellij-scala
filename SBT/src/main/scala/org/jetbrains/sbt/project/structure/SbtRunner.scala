@@ -72,7 +72,7 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], vmExecutab
           s"""set artifactClassifier := Some("$options")""",
           s"""apply -cp "${path(pluginFile)}" org.jetbrains.sbt.ReadProject""")
 
-        val processCommands =
+        val processCommandsRaw =
           path(vmExecutable) +:
 //                    "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005" +:
                   "-Djline.terminal=jline.UnsupportedTerminal" +:
@@ -81,6 +81,7 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], vmExecutab
                   "-jar" :+
                   path(SbtLauncher) :+
                   s"< ${path(commandsFile)}"
+        val processCommands = processCommandsRaw.filterNot(_.isEmpty)
 
         try {
           val process = Runtime.getRuntime.exec(processCommands.toArray, null, directory)
