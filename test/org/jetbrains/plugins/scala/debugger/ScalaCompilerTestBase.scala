@@ -63,15 +63,20 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase {
     }
   }
 
-  protected def addScalaLibrary() {
+  protected val compilerDirectorySuffix = ""
+
+  protected def addScalaLibrary(loadReflect: Boolean = true) {
     ScalaLoader.loadScala()
     val cl = SyntheticClasses.get(getProject)
     if (!cl.isClassesRegistered) cl.registerClasses()
-    val libsPath = TestUtils.getTestDataPath.replace("\\", "/") + "/scala-compiler/"
+    val libsPath = TestUtils.getTestDataPath.replace("\\", "/") + "/scala-compiler/" +
+        (if (compilerDirectorySuffix != "")compilerDirectorySuffix + "/" else "")
     VfsRootAccess.allowRootAccess(libsPath)
     val compilerJar = Paths.get(libsPath, "scala-compiler.jar").toFile
     compilerVersion = FileAPI.readProperty(compilerJar, "compiler.properties", "version.number")
-    PsiTestUtil.addLibrary(myModule, "scala-compiler", libsPath, "scala-compiler.jar", "scala-library.jar", "scala-reflect.jar")
+    val jars = List("scala-compiler.jar", "scala-library.jar")
+    PsiTestUtil.addLibrary(myModule, "scala-compiler", libsPath,
+      (if (loadReflect) "scala-reflect.jar" :: jars else jars):_*)
   }
 
   override protected def getTestProjectJdk: Sdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
