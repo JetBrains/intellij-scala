@@ -18,58 +18,46 @@ libraryDependencies +=  "org.scala-lang" % "scala-reflect" % scalaVersion.value
 
 libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test"
 
-unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar"
-
 unmanagedSourceDirectories in Compile += baseDirectory.value /  "src"
 
 unmanagedSourceDirectories in Test += baseDirectory.value /  "test"
 
 unmanagedResourceDirectories in Compile += baseDirectory.value /  "resources"
 
-def getBuildId(buildTypes: Seq[String], branch: String): Option[String] =  {
-  import scala.xml._
-  val a = buildTypes map { bt:String =>
-    val tcUrl = s"https://teamcity.jetbrains.com/guestAuth/app/rest/builds/?locator=buildType:(id:$bt),branch:(default:any,name:$branch)"
-    println(s"trying: $tcUrl")
-    try {
-      val buildId = XML.loadString(IO.readLinesURL(url(tcUrl)).mkString) \ "build" \ "@id"
-      if (buildId.nonEmpty) Some(buildId.text) else None
-    } catch {
-      case e: Throwable => None
-    }
-  }
-  a.flatten.headOption
-}
+ideaVersion := "138.2458.8"
 
-lazy val ideaVersion = taskKey[String]( "gets idea sdk version from file")
+ideaBasePath in Global := baseDirectory.value / "SDK" / "ideaSDK" / s"idea-${ideaVersion.value}"
 
-ideaVersion := { readIdeaPropery( "ideaVersion") }
+ideaBaseJars in Global := (ideaBasePath.value  / "lib" * "*.jar").classpath
 
-lazy val ideaBasePath = "SDK/ideaSDK/idea-" + readIdeaPropery( "ideaVersion")
-
-unmanagedJars in Compile ++= (baseDirectory.value / ideaBasePath / "lib" *  "*.jar").classpath
-
-unmanagedJars in Compile ++=  {
-  val basePluginsDir = baseDirectory.value / ideaBasePath /  "plugins"
+ideaICPluginJars in Global := {
+  val basePluginsDir = ideaBasePath.value  / "plugins"
   val baseDirectories =
-    basePluginsDir / "copyright" /  "lib" +++
-      basePluginsDir / "gradle" /  "lib" +++
-      basePluginsDir / "android" /  "lib" +++
-      basePluginsDir / "Groovy" /  "lib" +++
-      basePluginsDir / "IntelliLang" /  "lib" +++
-      basePluginsDir / "java-i18n" /  "lib" +++
-      basePluginsDir / "maven" /  "lib" +++
-      basePluginsDir / "junit" /  "lib" +++
-      basePluginsDir / "properties" /  "lib"
-  val customJars = baseDirectories *  "*.jar"
+    basePluginsDir / "copyright" / "lib" +++
+      basePluginsDir / "gradle" / "lib" +++
+      basePluginsDir / "Groovy" / "lib" +++
+      basePluginsDir / "IntelliLang" / "lib" +++
+      basePluginsDir / "java-i18n" / "lib" +++
+      basePluginsDir / "android" / "lib" +++
+      basePluginsDir / "maven" / "lib" +++
+      basePluginsDir / "junit" / "lib" +++
+      basePluginsDir / "properties" / "lib"
+  val customJars = baseDirectories * "*.jar"
   customJars.classpath
 }
+
+allIdeaJars in Global := (ideaBaseJars in Global).value ++ (ideaICPluginJars in Global).value
+
+unmanagedJars in Compile := allIdeaJars.value
 
 unmanagedJars in Compile ++= (baseDirectory.value /  "SDK/scalap" * "*.jar").classpath
 
 unmanagedJars in Compile ++= (baseDirectory.value /  "SDK/nailgun" * "*.jar").classpath
 
+unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar"
+
 lazy val compiler_settings = project.in(file( "compiler-settings"))
+  .settings(unmanagedJars in Compile := allIdeaJars.value)
 
 lazy val ScalaRunner = project.in(file( "ScalaRunner"))
 
@@ -78,73 +66,66 @@ lazy val Runners = project.in(file( "Runners")).dependsOn(ScalaRunner)
 lazy val ScalaCommunity = project.in(file("")).dependsOn(compiler_settings, Runners).aggregate(jps_plugin)
 
 lazy val intellij_hocon = Project( "intellij-hocon", file("intellij-hocon")).dependsOn(ScalaCommunity)
+  .settings(unmanagedJars in Compile := allIdeaJars.value)
 
 lazy val intellij_scalastyle  =
   Project("intellij-scalastyle", file( "intellij-scalastyle")).dependsOn(ScalaCommunity)
+    .settings(unmanagedJars in Compile := allIdeaJars.value)
 
 lazy val jps_plugin = Project( "scala-jps-plugin", file("jps-plugin")).dependsOn(compiler_settings)
+  .settings(unmanagedJars in Compile := allIdeaJars.value)
 
 lazy val idea_runner = Project( "idea-runner", file("idea-runner"))
+  .settings(unmanagedJars in Compile := (ideaBasePath.value  / "lib" * "*.jar").classpath)
 
 lazy val NailgunRunners = project.in(file( "NailgunRunners")).dependsOn(ScalaRunner)
 
 lazy val SBT = project.in(file( "SBT")).dependsOn(intellij_hocon, ScalaCommunity % "compile->compile;test->test")
+  .settings(unmanagedJars in Compile := allIdeaJars.value)
 
-lazy val downloadIdea = taskKey[Unit]( "downloads idea runtime")
+ideaResolver := {
+  val ideaVer = ideaVersion.value
+  val ideaSDKPath = ideaBasePath.value.getParentFile
+  val ideaArchiveName = ideaSDKPath.getAbsolutePath + s"/ideaSDK${ideaVersion.value}.arc"
+  def renameFun = (ideaSDKPath.listFiles sortWith { _.lastModified > _.lastModified }).head.renameTo(ideaBasePath.value)
+  val s = ideaVer.substring(0, ideaVer.indexOf('.'))
+  IdeaResolver(
+    teamcityURL = "https://teamcity.jetbrains.com",
+    buildTypes = Seq("bt410"),
+    branch = s"idea/${ideaVersion.value}",
+    artifacts = Seq(
+      System.getProperty("os.name") match {
+        case r"^Linux"     => (s"/ideaIC-$s.SNAPSHOT.tar.gz", ideaArchiveName, Some({ _: File => s"tar xvfz $ideaArchiveName -C ${ideaSDKPath.getAbsolutePath}".!; renameFun}))
+        case r"^Mac OS.*"  => (s"/ideaIC-$s.SNAPSHOT.mac.zip", ideaArchiveName, Some({ _: File => IO.unzip(_: File, ideaSDKPath); renameFun}))
+        case r"^Windows.*" => (s"/ideaIC-$s.SNAPSHOT.win.zip", ideaArchiveName, Some({ _: File => IO.unzip(_: File, ideaSDKPath); renameFun}))
+        case other => throw new IllegalStateException(s"OS $other is not supported")
+      },
+      ("/sources.zip",  ideaBasePath.value.getAbsolutePath + "/sources.zip")
+    )
+  )
+}
 
 downloadIdea := {
-    import sys.process._
-    import scala.xml._
-    val log = streams.value.log
-    val ideaVer = ideaVersion.value
-    val ideaSDKPath = (baseDirectory.value / ideaBasePath).getParentFile
-    val ideaArchiveName = ideaSDKPath.getAbsolutePath + s"/ideaSDK${ideaVersion.value}.arc"
-    log.info("COMM: "  + ideaSDKPath.getAbsolutePath)
-    if (!(baseDirectory.value / ideaBasePath).exists) {
-      implicit class Regex(sc: StringContext) {
-        def r = new util.matching.Regex(sc.parts.mkString, sc.parts.tail.map(_ => "x"): _*)
+  val log = streams.value.log
+  val ideaSDKPath = ideaBasePath.value.getParentFile
+  val resolver = (ideaResolver in Compile).value
+  val buildId = getBuildId(resolver).getOrElse("")
+  val artifactBaseUrl = resolver.teamcityURL + s"/guestAuth/app/rest/builds/id:$buildId/artifacts/content"
+  if (!ideaSDKPath.exists) ideaSDKPath.mkdirs
+  def downloadDep(art: TCArtifact): Unit = {
+    val fileTo = file(art.to)
+    if (!fileTo.exists() || art.overwrite) {
+      log.info(s"downloading${if (art.overwrite) "(overwriting)" else ""}: ${art.from}")
+      IO.download(url(artifactBaseUrl + art.from), fileTo)
+      log.success(s"download of ${fileTo.getName} finished")
+      art.extractFun foreach { func =>
+        log.info(s"extracting from archive ${fileTo.getName}")
+        if (!ideaBasePath.value.exists) func(fileTo)
+        log.success("extract finished")
       }
-      def downloadDep(from: String, to: String, extractPath: Option[File => Any] = None): Unit = {
-        val fileTo = file(to)
-        if (!fileTo.exists()) {
-          log.info(s"downloading: $from")
-          IO.download(url(from), fileTo)
-          log.success(s"download of ${fileTo.getName()} finished")
-        }
-        extractPath match {
-          case Some(func) => {
-            log.info(s"extracting from archive ${fileTo.getName()}")
-            if (!file(ideaBasePath).exists) func(fileTo)
-            val dirTo = (ideaSDKPath.listFiles sortWith {
-              _.lastModified > _.lastModified
-            }).head
-            log.info("renaming dir: " + dirTo.renameTo(file(ideaBasePath)))
-            log.success("extract finished")
-          }
-          case None =>
-        }
-      }
-      if (!ideaSDKPath.exists) ideaSDKPath.mkdirs
-      val (extension, extractFun) = System.getProperty("os.name") match {
-        case r"^Linux" => (".tar.gz", { _: File => s"tar xvfz $ideaArchiveName -C ${ideaSDKPath.getAbsolutePath}" !})
-        case r"^Mac OS.*" => (".mac.zip", IO.unzip(_: File, ideaSDKPath))
-        case r"^Windows.*" => (".win.zip", IO.unzip(_: File, ideaSDKPath))
-        case other => throw new RuntimeException(s"OS $other is not supported")
-      }
-      val buildIdOption = getBuildId(List("bt410"), s"idea/$ideaVer")
-      buildIdOption match {
-        case Some(buildId) =>
-          log.info(s"got build Id = $buildId")
-          val reply = XML.loadString(IO.readLinesURL(url(s"https://teamcity.jetbrains.com/guestAuth/app/rest/builds/id:$buildId/artifacts")).mkString)
-          val baseUrl = "https://teamcity.jetbrains.com"
-          val ideaUrl = (reply \ "file" find { it: NodeSeq => (it \ "@name").text.endsWith(extension)}).get \ "content" \ "@href"
-          val sourcesUrl = (reply \ "file" find { it: NodeSeq => (it \ "@name").text == "sources.zip"}).get \ "content" \ "@href"
-          downloadDep(baseUrl + ideaUrl, ideaArchiveName, Some(extractFun))
-          downloadDep(baseUrl + sourcesUrl, ideaBasePath + "/sources.zip")
-        case None =>
-          log.warn(s"failed to get build id for branch: $ideaVer")
-      }
-    }
+    } else log.info(s"$fileTo already exists, skipping")
+  }
+  resolver.artifacts foreach downloadDep
 }
 
 // tests
