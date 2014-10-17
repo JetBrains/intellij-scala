@@ -13,4 +13,14 @@ class HoconPsiFile(provider: FileViewProvider) extends PsiFileImpl(HoconFileElem
 
   def getFileType: FileType =
     HoconLanguageFileType
+
+  def toplevelEntries = getFirstChild match {
+    case obj: HObject => obj.entries
+    case ets: HObjectEntries => ets
+  }
+
+  def toplevelObject = getFirstChild match {
+    case obj: HObject => Some(obj)
+    case _ => None
+  }
 }
