@@ -172,29 +172,21 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       }
     }
 
-    typeElement match {
-      case s: ScSimpleTypeElement => processSimple(s)
-      case p: ScParameterizedTypeElement =>
-        p.typeElement match {
-          case s: ScSimpleTypeElement => processSimple(s)
-          case _ => Seq.empty
-        }
-      case _ => Seq.empty
-    }
+    simpleTypeElement.toSeq.flatMap(processSimple)
   }
 
   def reference: Option[ScStableCodeReferenceElement] = {
-    typeElement match {
-      case s: ScSimpleTypeElement =>
-        s.reference
-      case p: ScParameterizedTypeElement =>
-        p.typeElement match {
-          case s: ScSimpleTypeElement =>
-            s.reference
-          case _ => None
-        }
-      case _ => None
-    }
+    simpleTypeElement.flatMap(_.reference)
+  }
+
+  def simpleTypeElement: Option[ScSimpleTypeElement] = typeElement match {
+    case s: ScSimpleTypeElement => Some(s)
+    case p: ScParameterizedTypeElement =>
+      p.typeElement match {
+        case s: ScSimpleTypeElement => Some(s)
+        case _ => None
+      }
+    case _ => None
   }
 
   override def accept(visitor: ScalaElementVisitor) {
