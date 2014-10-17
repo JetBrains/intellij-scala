@@ -94,6 +94,6 @@ private object ScalaCompilerOptions {
       explainTypeErrors = exists(_.explainTypeErrors),
       continuations = exists(_.continuations),
       debuggingInfoLevel = others.map(_.debuggingInfoLevel).maxBy(DebugginInfoLevels.indexOf(_)),
-      additionalCompilerOptions = Seq.empty)
+      additionalCompilerOptions = others.flatMap(_.additionalCompilerOptions).distinct)
   }
 }
