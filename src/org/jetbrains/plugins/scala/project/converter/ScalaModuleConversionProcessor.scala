@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala
-package converter
+package project.converter
 
 import java.io.File
 import com.intellij.conversion.{ConversionContext, ModuleSettings, ConversionProcessor}

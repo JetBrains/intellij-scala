@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala
-package converter
+package project.converter
 
 import org.jdom.{Attribute, Element}
 import org.jdom.xpath.XPath
