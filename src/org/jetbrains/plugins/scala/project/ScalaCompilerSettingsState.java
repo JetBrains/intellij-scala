@@ -39,6 +39,8 @@ public class ScalaCompilerSettingsState {
 
   public boolean explainTypeErrors = false;
 
+  public boolean specialization = true;
+
   public boolean continuations = false;
 
   public DebuggingInfoLevel debuggingInfoLevel = DebuggingInfoLevel.Vars;
@@ -72,6 +74,7 @@ public class ScalaCompilerSettingsState {
         featureWarnings == that.featureWarnings &&
         optimiseBytecode == that.optimiseBytecode &&
         explainTypeErrors == that.explainTypeErrors &&
+        specialization == that.specialization &&
         continuations == that.continuations &&
         Arrays.equals(additionalCompilerOptions, that.additionalCompilerOptions) &&
         Arrays.equals(plugins, that.plugins) &&

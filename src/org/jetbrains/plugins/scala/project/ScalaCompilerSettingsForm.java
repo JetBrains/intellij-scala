@@ -33,6 +33,7 @@ public class ScalaCompilerSettingsForm {
   private JCheckBox myExistentials;
   private JCheckBox myFeatureWarnings;
   private JCheckBox myMacros;
+  private JCheckBox mySpecialization;
 
   private MyPathEditor myPluginsEditor = new MyPathEditor(new FileChooserDescriptor(true, false, true, true, false, true));
 
@@ -69,6 +70,7 @@ public class ScalaCompilerSettingsForm {
     state.featureWarnings = myFeatureWarnings.isSelected();
     state.optimiseBytecode = myOptimiseBytecode.isSelected();
     state.explainTypeErrors = myExplainTypeErrors.isSelected();
+    state.specialization = mySpecialization.isSelected();
     state.continuations = myContinuations.isSelected();
     state.debuggingInfoLevel = (DebuggingInfoLevel) myDebuggingInfoLevel.getSelectedItem();
     String options = myAdditionalCompilerOptions.getText().trim();
@@ -105,6 +107,7 @@ public class ScalaCompilerSettingsForm {
     myFeatureWarnings.setSelected(state.featureWarnings);
     myOptimiseBytecode.setSelected(state.optimiseBytecode);
     myExplainTypeErrors.setSelected(state.explainTypeErrors);
+    mySpecialization.setSelected(state.specialization);
     myContinuations.setSelected(state.continuations);
     myDebuggingInfoLevel.setSelectedItem(state.debuggingInfoLevel);
     myAdditionalCompilerOptions.setText(StringUtil.join(state.additionalCompilerOptions, " "));
