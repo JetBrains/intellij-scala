@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
+import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitParametersOwner, ScPackage}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -20,8 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypedDefinition, ScEarlyDefinitions, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -152,20 +152,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     (current, iterations)
   }
 
-  def constructorSignature(named: PsiNamedElement): JVMName = {
-    named match {
-      case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
-      case constr: ScPrimaryConstructor => DebuggerUtil.getFunctionJVMSignature(constr)
-      case method: PsiMethod => JVMNameUtil.getJVMSignature(method)
-      case clazz: ScClass => clazz.constructor match {
-        case Some(cnstr) => DebuggerUtil.getFunctionJVMSignature(cnstr)
-        case _ => JVMNameUtil.getJVMRawText("()V")
-      }
-      case clazz: PsiClass => JVMNameUtil.getJVMRawText("()V")
-      case _ => JVMNameUtil.getJVMRawText("()V")
-    }
-  }
-
   def localMethodEvaluator(fun: ScFunctionDefinition, argEvaluators: Seq[Evaluator]): Evaluator = {
     val name = NameTransformer.encode(fun.name)
     val containingClass = if (fun.isSynthetic) fun.containingClass else getContainingClass(fun)
@@ -182,21 +168,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         else null
     }
     if (thisEvaluator != null) {
-      val args = DebuggerUtil.localParams(fun, getContextClass(fun))
-      val evaluators = argEvaluators ++ args.map(arg => {
-        val name = arg.asInstanceOf[PsiNamedElement].name
-        val elemAt = position.getElementAt
-        val ref = ScalaPsiElementFactory.createExpressionWithContextFromText(name, elemAt, elemAt)
-        val refEval = ScalaEvaluator(ref)
-
-        if (arg.isInstanceOf[ScObject]) {
-          val qual = "scala.runtime.VolatileObjectRef"
-          val typeEvaluator = new TypeEvaluator(JVMNameUtil.getJVMRawText(qual))
-          val signature = JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)V")
-          new ScalaNewClassInstanceEvaluator(typeEvaluator, signature, Array(refEval))
-        }
-        else refEval
-      })
+      val locals = DebuggerUtil.localParams(fun, getContextClass(fun))
+      val evaluators = argEvaluators ++ locals.map(fromLocalArgEvaluator)
       val signature = DebuggerUtil.getFunctionJVMSignature(fun)
       val positions = DebuggerUtil.getSourcePositions(fun.getNavigationElement)
       val idx = localFunctionIndex(fun)
@@ -428,14 +401,14 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     } else seqEvaluator
   }
 
-  def implicitArgEvaluator(fun: ScMethodLike, param: ScParameter, expr: ScExpression): Evaluator = {
+  def implicitArgEvaluator(fun: ScMethodLike, param: ScParameter, owner: ImplicitParametersOwner): Evaluator = {
     assert(param.owner == fun)
     val implicitParameters = fun.effectiveParameterClauses.lastOption match {
       case Some(clause) if clause.isImplicit => clause.parameters
       case _ => Seq.empty
     }
     val i = implicitParameters.indexOf(param)
-    expr.findImplicitParameters match {
+    owner.findImplicitParameters match {
       case Some(resolveResults) if resolveResults.length == implicitParameters.length =>
         if (resolveResults(i) == null) throw EvaluationException("cannot find implicit parameters to pass")
 
@@ -470,7 +443,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
               case _ => elem.name //from scope
             }
         }
-        val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, expr.getContext, expr)
+        val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, owner.getContext, owner)
         ScalaEvaluator(newExpr)
       case None =>
         throw EvaluationException("cannot find implicit parameters to pass")
@@ -888,17 +861,11 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
               case Some(clazz) =>
                 val jvmName = DebuggerUtil.getClassJVMName(clazz)
                 val typeEvaluator = new TypeEvaluator(jvmName)
-                val arguments = constr.arguments.flatMap(_.exprs)
-                val argumentEvaluators = arguments.map(ScalaEvaluator(_)) //todo: make arguments better, like for method call
-                constr.reference match {
-                  case Some(ref) =>
-                    ref.resolveAllConstructors match {
-                      case Array(ScalaResolveResult(named, _)) =>
-                        val signature = constructorSignature(named)
-                        new ScalaMethodEvaluator(typeEvaluator, "<init>", signature, boxArguments(argumentEvaluators, named))
-                      case _ =>
-                        new ScalaMethodEvaluator(typeEvaluator, "<init>", null, argumentEvaluators)
-                    }
+                val argumentEvaluators = constructorArgumentsEvaluators(templ, constr, clazz)
+                constr.reference.map(_.resolve()) match {
+                  case Some(named: PsiNamedElement) =>
+                    val signature = DebuggerUtil.constructorSignature(named)
+                    new ScalaMethodEvaluator(typeEvaluator, "<init>", signature, boxArguments(argumentEvaluators, named))
                   case _ =>
                     new ScalaMethodEvaluator(typeEvaluator, "<init>", null, argumentEvaluators)
                 }
@@ -909,6 +876,50 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         }
       case _ => throw EvaluationException("Cannot evaluate expression without template parents")
     }
+  }
+
+  def constructorArgumentsEvaluators(newTd: ScNewTemplateDefinition,
+                                     constr: ScConstructor,
+                                     clazz: PsiClass): Seq[Evaluator] = {
+    val constrDef = constr.reference.map(_.resolve())
+    val explicitArgs = constr.arguments.flatMap(_.exprs)
+    constrDef match {
+      case Some(scMethod: ScMethodLike) =>
+        val scClass = scMethod.containingClass.asInstanceOf[ScClass]
+        val contextClass = getContextClass(scClass)
+        val implicitParams = scMethod.parameterList.params.filter(_.isImplicitParameter)
+
+        val implicitsEvals =
+          for {
+            typeElem <- constr.simpleTypeElement.toSeq
+            p <- implicitParams
+          } yield {
+            implicitArgEvaluator(scMethod, p, typeElem)
+          }
+        val outerThis = contextClass match {
+          case obj: ScObject if isStable(obj) => None
+          case null => None
+          case _ => Some(new ScalaThisEvaluator())
+        }
+        val locals = DebuggerUtil.localParamsForConstructor(scClass, contextClass)
+        outerThis ++: explicitArgs.map(ScalaEvaluator(_)) ++: implicitsEvals ++: locals.map(fromLocalArgEvaluator)
+      case _: PsiNamedElement => explicitArgs.map(ScalaEvaluator(_))
+    }
+  }
+  
+  def fromLocalArgEvaluator(local: ScTypedDefinition): Evaluator = {
+    val name = local.asInstanceOf[PsiNamedElement].name
+    val elemAt = position.getElementAt
+    val ref = ScalaPsiElementFactory.createExpressionWithContextFromText(name, elemAt, elemAt)
+    val refEval = ScalaEvaluator(ref)
+
+    if (local.isInstanceOf[ScObject]) {
+      val qual = "scala.runtime.VolatileObjectRef"
+      val typeEvaluator = new TypeEvaluator(JVMNameUtil.getJVMRawText(qual))
+      val signature = JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)V")
+      new ScalaNewClassInstanceEvaluator(typeEvaluator, signature, Array(refEval))
+    }
+    else refEval
   }
 }
 
