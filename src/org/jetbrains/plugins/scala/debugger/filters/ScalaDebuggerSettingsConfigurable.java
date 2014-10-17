@@ -21,6 +21,7 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
   private JSpinner myEndIndexSpinner;
   private JLabel endIndexLabel;
   private JCheckBox friendlyDisplayOfScalaCheckBox;
+  private JCheckBox friendlyDisplayOfObjectRefCheckBox;
   private JCheckBox doNotExpandStreamsCheckBox;
   private JCheckBox dontShowRuntimeRefs;
   private boolean isModified = false;
