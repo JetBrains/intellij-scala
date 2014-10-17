@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala
 package project.converter
 
+import java.io.File
+
 import com.intellij.conversion._
 import collection.JavaConverters._
 import ScalaProjectConverter._
@@ -14,6 +16,8 @@ class ScalaProjectConverter(context: ConversionContext) extends ProjectConverter
   private val scalaFacets: Seq[ScalaFacetData] = scalaFacetsIn(context)
   private val scalaProjectLibraries: Seq[LibraryReference] = scalaProjectLibrariesIn(context)
 
+  private var createdSettingsFiles: Seq[File] = Seq.empty
+
   override def getAdditionalAffectedFiles =
     scalaProjectLibraries.flatMap(_.libraryStorageFileIn(context)).asJava
 
@@ -26,14 +30,14 @@ class ScalaProjectConverter(context: ConversionContext) extends ProjectConverter
 
   private def updateScalaCompilerSettings() {
     val compilerOptions = ScalaCompilerOptions.generalize(scalaFacets.map(_.compilerOptions))
-    // TODO update settings
+    createdSettingsFiles = compilerOptions.createIn(context).toSeq
   }
 
   private def deleteScalaProjectLibraries() {
     scalaProjectLibraries.foreach(_.deleteIn(context))
   }
 
-  override def getCreatedFiles = scalaModuleConverter.createdFiles.asJava
+  override def getCreatedFiles = (scalaModuleConverter.createdFiles ++ createdSettingsFiles).asJava
 }
 
 private object ScalaProjectConverter {
