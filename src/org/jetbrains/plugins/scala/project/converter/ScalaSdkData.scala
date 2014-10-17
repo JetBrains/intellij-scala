@@ -1,21 +1,23 @@
 package org.jetbrains.plugins.scala
 package project.converter
 
-import com.intellij.conversion.{CannotConvertException, ConversionContext, ModuleSettings}
-import scala.xml.{Elem, PrettyPrinter}
+import java.io.{File, StringReader}
+
 import com.google.common.io.Files
-import java.io.{StringReader, File}
-import org.jdom.{Attribute, Element}
-import org.jdom.xpath.XPath
-import collection.JavaConverters._
+import com.intellij.conversion.{CannotConvertException, ConversionContext, ModuleSettings}
 import com.intellij.openapi.components.StorageScheme
 import org.jdom.input.SAXBuilder
-import ScalaSdkData._
+import org.jdom.xpath.XPath
+import org.jdom.{Attribute, Element}
+import org.jetbrains.plugins.scala.project.converter.ScalaSdkData._
+
+import scala.collection.JavaConverters._
+import scala.xml.{Elem, PrettyPrinter}
 
 /**
  * @author Pavel Fatin
  */
-private case class ScalaSdkData(name: String, standardLibrary: LibraryData, compilerClasspath: Seq[String]) {
+private case class ScalaSdkData(name: String, standardLibrary: LibraryData, languageLevel: String, compilerClasspath: Seq[String]) {
   def isEquivalentTo(compilerLibrary: LibraryData): Boolean =
     compilerClasspath.toSet == compilerLibrary.classesAsFileUrls.toSet
 
@@ -58,6 +60,7 @@ private case class ScalaSdkData(name: String, standardLibrary: LibraryData, comp
   private def createLibraryElement(): Elem = {
     <library name={name} type="Scala">
       <properties>
+        <option name="languageLevel" value={languageLevel} />
         <compiler-classpath>
           {compilerClasspath.map(url => <root url={url}/>)}
         </compiler-classpath>
@@ -76,6 +79,13 @@ private case class ScalaSdkData(name: String, standardLibrary: LibraryData, comp
 }
 
 private object ScalaSdkData {
+  private val VersionToLanguageLevel = Seq(
+    ("2.7", "Scala_2_7"),
+    ("2.8", "Scala_2_8"),
+    ("2.9", "Scala_2_9"),
+    ("2.10", "Scala_2_10"),
+    ("2.11", "Scala_2_11"))
+
   def findAllIn(context: ConversionContext): Seq[ScalaSdkData] = {
     val elements = context.getProjectLibrariesSettings.getProjectLibraries.asScala
     elements.filter(_.getAttributeValue("type") == "Scala").map(ScalaSdkData(_)).toSeq
@@ -87,9 +97,29 @@ private object ScalaSdkData {
     val compilerClasspath = XPath.selectNodes(element, "properties/compiler-classpath/root/@url").asScala
             .map(_.asInstanceOf[Attribute].getValue)
 
-    ScalaSdkData(standardLibrary.name, standardLibrary, compilerClasspath)
+    val languageLevel = languageLevelFrom(compilerClasspath)
+    
+    ScalaSdkData(standardLibrary.name, standardLibrary, languageLevel, compilerClasspath)
+  }
+
+  def languageLevelFrom(compilerClasspath: Seq[String]): String = {
+    val compilerJarVersions = compilerClasspath.flatMap(path => versionOf(new File(path)).toSeq)
+
+    compilerJarVersions.headOption.flatMap(languageLevelFrom).getOrElse("Scala_2_11")
   }
   
+  private def versionOf(file: File): Option[String] = {
+    val FileName = "(?:scala-compiler|scala-library|scala-reflect)-(.*?)(?:-src|-sources|-javadoc).jar".r
+
+    file.getName match {
+      case FileName(number) => Some(number)
+      case _ => None
+    }
+  }
+
+  private def languageLevelFrom(version: String): Option[String] =
+    VersionToLanguageLevel.find(p => version.startsWith(p._1)).map(_._2)
+
   private def formatXml(element: Elem): String = {
     val printer = new PrettyPrinter(180, 2)
     printer.format(element)
