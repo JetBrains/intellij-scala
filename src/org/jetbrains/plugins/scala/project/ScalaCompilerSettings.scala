@@ -29,6 +29,7 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
   var featureWarnings: Boolean = _
   var optimiseBytecode: Boolean = _
   var explainTypeErrors: Boolean = _
+  var specialization: Boolean = _
   var continuations: Boolean = _
 
   var debuggingInfoLevel: DebuggingInfoLevel = _
@@ -51,6 +52,7 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
     ("-feature", () => featureWarnings, featureWarnings = _),
     ("-optimise", () => optimiseBytecode, optimiseBytecode = _),
     ("-explaintypes", () => explainTypeErrors, explainTypeErrors = _),
+    ("-no-specialization", () => specialization, (b: Boolean) => specialization = !b),
     ("-P:continuations:enable", () => continuations, continuations = _))
 
   private val DebuggingOptions: Map[String, DebuggingInfoLevel] = Map(
@@ -114,6 +116,7 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
     featureWarnings = state.featureWarnings
     optimiseBytecode = state.optimiseBytecode
     explainTypeErrors = state.explainTypeErrors
+    specialization = state.specialization
     continuations = state.continuations
 
     debuggingInfoLevel = state.debuggingInfoLevel
@@ -140,6 +143,7 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
     state.featureWarnings = featureWarnings
     state.optimiseBytecode = optimiseBytecode
     state.explainTypeErrors = explainTypeErrors
+    state.specialization = specialization
     state.continuations = continuations
 
     state.debuggingInfoLevel = debuggingInfoLevel
