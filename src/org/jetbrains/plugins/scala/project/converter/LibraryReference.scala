@@ -85,7 +85,7 @@ private case class LibraryReference(level: Level, name: String) {
     val libraryElement = {
       val rootElement = context.getProjectSettings.getRootElement
       XPath.selectSingleNode(rootElement,
-        s"component[@name='libraryTable']/library[@name=$name]").asInstanceOf[Element]
+        s"component[@name='libraryTable']/library[@name='$name']").asInstanceOf[Element]
     }
     if (libraryElement == null) {
       throw new IllegalArgumentException(s"Cannot delete project library: $name")
