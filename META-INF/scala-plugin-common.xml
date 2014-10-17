@@ -15,7 +15,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <statistics.usagesCollector
                 implementation="org.jetbrains.plugins.scala.statistics.ScalaApplicationUsagesCollector" />
-        <project.converterProvider implementation="org.jetbrains.plugins.scala.converter.ScalaProjectConverterProvider"/>
+        <project.converterProvider implementation="org.jetbrains.plugins.scala.project.converter.ScalaProjectConverterProvider"/>
         <lang.rearranger language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger"/>
         <compileServer.plugin classpath="scala-library.jar;compiler-settings.jar;jps/nailgun.jar;jps/scala-jps-plugin.jar;jps/sbt-interface.jar;jps/incremental-compiler.jar;jps/jline.jar"/>
         <projectTemplatesFactory implementation="org.jetbrains.plugins.scala.project.template.ScalaProjectTemplatesFactory"/>

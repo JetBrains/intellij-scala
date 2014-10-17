@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala
-package converter
+package project.converter
 
 import com.intellij.conversion.{CannotConvertException, ConversionContext, ModuleSettings}
 import scala.xml.{Elem, PrettyPrinter}
