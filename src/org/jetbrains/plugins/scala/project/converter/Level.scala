@@ -18,11 +18,11 @@ private object Level {
   private val TitleToLevel = Values.map(level => (level.title, level)).toMap
   private val FacetTitleToLevel = Values.map(level => (level.facetTitle, level)).toMap
 
-  def fromTitle(title: String): Level = TitleToLevel.get(title)
-          .getOrElse(throw new IllegalArgumentException("Unknown level title: " + title))
+  def fromTitle(title: String): Level = TitleToLevel.getOrElse(title,
+    throw new IllegalArgumentException("Unknown level title: " + title))
 
-  def fromFacetTitle(title: String): Level = FacetTitleToLevel.get(title)
-          .getOrElse(throw new IllegalArgumentException("Unknown level title: " + title))
+  def fromFacetTitle(title: String): Level = FacetTitleToLevel.getOrElse(title,
+    throw new IllegalArgumentException("Unknown level title: " + title))
 }
 
 private object ProjectLevel extends Level("project", "Project") {
