@@ -8,7 +8,7 @@ import com.intellij.platform.ProjectTemplate
  * Date: 11.03.14.
  */
 class SbtProjectTemplate extends ProjectTemplate {
-  override def getName = "SBT project"
+  override def getName = "SBT"
 
   override def getDescription = "SBT-based Scala project"
 

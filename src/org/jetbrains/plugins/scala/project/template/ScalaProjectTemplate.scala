@@ -8,9 +8,9 @@ import org.jetbrains.plugins.scala.icons.Icons
  * @author Pavel Fatin
  */
 class ScalaProjectTemplate extends ProjectTemplate {
-  def getName = "IDEA project"
+  def getName = "Scala"
 
-  def getDescription = "IDEA-based Scala project"
+  def getDescription = "Simple module with attached Scala SDK"
 
   def getIcon = Icons.SCALA_SMALL_LOGO
 
