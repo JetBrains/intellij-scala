@@ -86,6 +86,8 @@ private object ScalaCompilerOptions {
   def generalize(others: Seq[ScalaCompilerOptions]): ScalaCompilerOptions = {
     def exists(predicate: ScalaCompilerOptions => Boolean) = others.exists(predicate)
 
+    val debuggingLevel = others.map(_.debuggingInfoLevel).maxBy(DebugginInfoLevels.indexOf(_))
+
     ScalaCompilerOptions(
       warnings = exists(_.warnings),
       deprecationWarnings = exists(_.deprecationWarnings),
@@ -93,7 +95,7 @@ private object ScalaCompilerOptions {
       optimiseBytecode = exists(_.optimiseBytecode),
       explainTypeErrors = exists(_.explainTypeErrors),
       continuations = exists(_.continuations),
-      debuggingInfoLevel = others.map(_.debuggingInfoLevel).maxBy(DebugginInfoLevels.indexOf(_)),
+      debuggingInfoLevel = if (DebugginInfoLevels.contains(debuggingLevel)) debuggingLevel else "Vars",
       additionalCompilerOptions = others.flatMap(_.additionalCompilerOptions).distinct)
   }
 }
