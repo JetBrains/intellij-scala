@@ -1,14 +1,18 @@
 package org.jetbrains.plugins.scala
 package project.converter
 
-import com.intellij.conversion.{ModuleSettings, ConversionContext}
+import java.io.File
+import java.nio.charset.Charset
+
+import com.google.common.io.Files
+import com.intellij.conversion.{ConversionContext, ModuleSettings}
+import com.intellij.openapi.components.StorageScheme
+import com.intellij.openapi.vfs.VfsUtil
 import org.jdom.Element
 import org.jdom.xpath.XPath
-import collection.JavaConverters._
-import com.intellij.openapi.components.StorageScheme
-import java.io.File
-import com.google.common.io.Files
-import java.nio.charset.Charset
+import org.jetbrains.plugins.scala.extensions._
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -73,10 +77,15 @@ private case class LibraryReference(level: Level, name: String) {
   }
 
   private def deleteDirectoryBasedLibrary(context: ConversionContext): File = {
-    val libraryFile = directoryBasedLibraryFileIn(context).getOrElse(
+      val libraryFile = directoryBasedLibraryFileIn(context).getOrElse(
       throw new IllegalArgumentException(s"Cannot delete project library: $name"))
-    
-    libraryFile.delete()
+
+    // We have to resort to this workaround because IDEA's converter "restores" the file otherwise
+    invokeLater {
+      inWriteAction {
+        VfsUtil.findFileByIoFile(libraryFile, true).delete(this)
+      }
+    }
 
     libraryFile
   }
