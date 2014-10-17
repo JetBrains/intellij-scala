@@ -15,6 +15,8 @@ private case class ScalaCompilerOptions(warnings: Boolean,
                                         additionalCompilerOptions: Seq[String])
 
 private object ScalaCompilerOptions {
+  private val DebugginInfoLevels = Seq("None", "Source", "Line", "Vars", "Notc")
+
   def generalize(others: Seq[ScalaCompilerOptions]): ScalaCompilerOptions = {
     def exists(predicate: ScalaCompilerOptions => Boolean) = others.exists(predicate)
 
@@ -25,7 +27,7 @@ private object ScalaCompilerOptions {
       optimiseBytecode = exists(_.optimiseBytecode),
       explainTypeErrors = exists(_.explainTypeErrors),
       continuations = exists(_.continuations),
-      debuggingInfoLevel = "", // TODO
+      debuggingInfoLevel = others.map(_.debuggingInfoLevel).maxBy(DebugginInfoLevels.indexOf(_)),
       additionalCompilerOptions = Seq.empty)
   }
 }
