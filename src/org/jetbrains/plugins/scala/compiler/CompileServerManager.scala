@@ -8,10 +8,11 @@ import javax.swing.Timer
 import com.intellij.facet.{ProjectWideFacetAdapter, ProjectWideFacetListenersRegistry}
 import com.intellij.icons.AllIcons
 import com.intellij.ide.DataManager
+import com.intellij.ide.actions.ShowSettingsUtilImpl
+import com.intellij.ide.ui.search.SearchUtil
 import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, DefaultActionGroup, Separator}
 import com.intellij.openapi.components.ProjectComponent
-import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.util.IconLoader
@@ -21,6 +22,8 @@ import com.intellij.ui.awt.RelativePoint
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.config.ScalaFacet
 import org.jetbrains.plugins.scala.icons.Icons
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -150,7 +153,12 @@ class CompileServerManager(project: Project) extends ProjectComponent {
 
   private object Configure extends AnAction("&Configure...", "Configure compile server", AllIcons.General.Settings) with DumbAware {
     def actionPerformed(e: AnActionEvent) {
-      ShowSettingsUtil.getInstance().showSettingsDialog(null, "Scala")
+      val groups = ShowSettingsUtilImpl.getConfigurableGroups(project, true)
+      val all = SearchUtil.expand(groups)
+      val configurable = all.asScala.find(_.isInstanceOf[ScalaApplicationSettingsForm]).getOrElse {
+        throw new Exception("Could not find settings dialog for compile server")
+      }
+      ShowSettingsUtilImpl.getDialog(project, groups, configurable).show()
     }
   }
 
