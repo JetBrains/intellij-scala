@@ -27,7 +27,9 @@ private class ScalaModuleConversionProcessor(context: ConversionContext) extends
       val scalaSdk = existingScalaSdk.getOrElse {
         val name = scalaStandardLibrary.map(_.name.replaceFirst("library", "sdk")).getOrElse("scala-sdk")
         val standardLibrary = scalaStandardLibrary.getOrElse(LibraryData.empty)
-        val sdk = ScalaSdkData(name, standardLibrary, compilerLibrary.classesAsFileUrls)
+        val compilerClasspath = compilerLibrary.classesAsFileUrls
+        val languageLevel = ScalaSdkData.languageLevelFrom(compilerClasspath)
+        val sdk = ScalaSdkData(name, standardLibrary, languageLevel, compilerClasspath)
         newSdkFiles ++= sdk.createIn(context)
         sdk
       }
