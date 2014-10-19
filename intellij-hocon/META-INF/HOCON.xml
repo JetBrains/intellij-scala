@@ -19,6 +19,9 @@
     <lang.elementManipulator forClass="intellijhocon.psi.HString"
                              implementationClass="intellijhocon.manipulators.HStringManipulator"/>
     <psi.referenceContributor implementation="intellijhocon.ref.HoconReferenceContributor"/>
+    <projectService serviceInterface="intellijhocon.settings.HoconProjectSettings"
+                    serviceImplementation="intellijhocon.settings.HoconProjectSettings"/>
+    <projectConfigurable instance="intellijhocon.settings.HoconProjectSettingsConfigurable"/>
   </extensions>
 
 </idea-plugin>
