@@ -11,6 +11,8 @@ class HStringJavaClassReferenceProvider extends JavaClassReferenceProvider {
   import intellijhocon.lexer.HoconTokenType._
   import intellijhocon.parser.HoconElementType._
 
+  setSoft(true)
+
   private def isEligible(element: HString) = {
     val settings = HoconProjectSettings.getInstance(element.getProject)
     lazy val parentElementType = element.getParent.getNode.getElementType
