@@ -7,8 +7,6 @@ import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.tree.IElementType
 import intellijhocon.codestyle.HoconCustomCodeStyleSettings
 import intellijhocon.lang.HoconLanguage
-import intellijhocon.lexer.{HoconTokenSets, HoconTokenType}
-import intellijhocon.parser.{HoconElementSets, HoconElementType}
 
 class HoconFormatter(settings: CodeStyleSettings) {
 
@@ -69,7 +67,7 @@ class HoconFormatter(settings: CodeStyleSettings) {
     val isLineBreakBetween = parent.getText.subSequence(
       leftChild.getTextRange.getEndOffset - parent.getTextRange.getStartOffset,
       rightChild.getTextRange.getStartOffset - parent.getTextRange.getStartOffset)
-      .charIterator.contains('\n')
+            .charIterator.contains('\n')
 
     def standardSpacing = (leftChild.getElementType, rightChild.getElementType) match {
       case (LBrace, RBrace) =>
@@ -99,26 +97,29 @@ class HoconFormatter(settings: CodeStyleSettings) {
       case (LBracket, RBracket) =>
         normalSpacing(commonSettings.SPACE_WITHIN_BRACKETS)
 
-      case (LBracket, Value) =>
+      case (LBracket, Value.extractor()) =>
         if (customSettings.LISTS_NEW_LINE_AFTER_LBRACKET)
           dependentLFSpacing(commonSettings.SPACE_WITHIN_BRACKETS)
         else
           normalSpacing(commonSettings.SPACE_WITHIN_BRACKETS)
 
-      case (Value, Value) =>
+      case (Value.extractor(), Value.extractor()) =>
         lineBreakEnsuringSpacing
 
-      case (Value, Comma) =>
+      case (Value.extractor(), Comma) =>
         normalSpacing(commonSettings.SPACE_BEFORE_COMMA)
 
-      case (Comma, Value) =>
+      case (Comma, Value.extractor()) =>
         normalSpacing(commonSettings.SPACE_AFTER_COMMA)
 
-      case (Value | Comma, RBracket) =>
+      case (Value.extractor() | Comma, RBracket) =>
         if (customSettings.LISTS_RBRACKET_ON_NEXT_LINE)
           dependentLFSpacing(commonSettings.SPACE_WITHIN_BRACKETS)
         else
           normalSpacing(commonSettings.SPACE_WITHIN_BRACKETS)
+
+      case (UnquotedChars, Included) =>
+        normalSpacing(shouldBeSpace = true)
 
       case (FieldPath, Object) =>
         normalSpacing(customSettings.SPACE_BEFORE_LBRACE_AFTER_PATH)
@@ -129,10 +130,10 @@ class HoconFormatter(settings: CodeStyleSettings) {
       case (FieldPath, Equals | PlusEquals) =>
         normalSpacing(customSettings.SPACE_BEFORE_ASSIGNMENT)
 
-      case (Colon, Value) =>
+      case (Colon, Value.extractor()) =>
         normalSpacing(customSettings.SPACE_AFTER_COLON)
 
-      case (Equals | PlusEquals, Value) =>
+      case (Equals | PlusEquals, Value.extractor()) =>
         normalSpacing(customSettings.SPACE_AFTER_ASSIGNMENT)
 
       case (Dollar, SubLBrace) | (SubLBrace, QMark) =>
@@ -147,7 +148,7 @@ class HoconFormatter(settings: CodeStyleSettings) {
       case (SubstitutionPath, SubRBrace) =>
         normalSpacing(customSettings.SPACE_WITHIN_SUBSTITUTION_BRACES)
 
-      case (UnquotedChars, QuotedString) | (QuotedString, UnquotedChars) if parent.getElementType == Included =>
+      case (UnquotedChars, String) | (String, UnquotedChars) if parent.getElementType == Included =>
         normalSpacing(commonSettings.SPACE_WITHIN_METHOD_CALL_PARENTHESES)
 
       case _ =>
@@ -162,7 +163,7 @@ class HoconFormatter(settings: CodeStyleSettings) {
         null
     } else if (Comment.contains(leftChild.getElementType))
       Spacing.createSafeSpacing(true, maxBlankLines)
-    else if (parent.getElementType == Value)
+    else if (parent.getElementType == Concatenation)
       Spacing.getReadOnlySpacing
     else
       standardSpacing
@@ -216,7 +217,7 @@ class HoconFormatter(settings: CodeStyleSettings) {
       case (Object, Include | BareObjectField) =>
         wrapCache.objectEntryWrap
 
-      case (Array, Value) =>
+      case (Array, Value.extractor()) =>
         wrapCache.arrayValueWrap
 
       case (BareObjectField, FieldPath) =>
@@ -225,7 +226,7 @@ class HoconFormatter(settings: CodeStyleSettings) {
       case (BareObjectField, PathValueSeparator.extractor()) =>
         wrapCache.pathValueSeparatorWrap
 
-      case (BareObjectField, Value) =>
+      case (BareObjectField, Value.extractor()) =>
         wrapCache.fieldValueWrap
 
       case (Include, _) =>
@@ -239,7 +240,7 @@ class HoconFormatter(settings: CodeStyleSettings) {
       case (Object, Include | BareObjectField | Comment.extractor()) =>
         alignmentCache.objectEntryAlignment
 
-      case (Array, Value | Comment.extractor()) =>
+      case (Array, Value.extractor() | Comment.extractor()) =>
         alignmentCache.arrayValueAlignment
 
       case _ => null
@@ -248,10 +249,10 @@ class HoconFormatter(settings: CodeStyleSettings) {
   def getIndent(parent: ASTNode, child: ASTNode) =
     (parent.getElementType, child.getElementType) match {
       case (Object, Include | BareObjectField | Comma | Comment.extractor()) |
-           (Array, Value | Comma | Comment.extractor()) =>
+           (Array, Value.extractor() | Comma | Comment.extractor()) =>
         Indent.getNormalIndent
       case (Include, Included) |
-           (BareObjectField, PathValueSeparator.extractor() | Value) =>
+           (BareObjectField, PathValueSeparator.extractor() | Value.extractor()) =>
         Indent.getContinuationIndent
       case _ =>
         Indent.getNoneIndent

@@ -4,6 +4,7 @@ package lexer
 import com.intellij.lexer.LexerBase
 import com.intellij.psi.tree.IElementType
 
+import annotation.tailrec
 import scala.util.matching.Regex
 
 object HoconLexer {
@@ -17,6 +18,9 @@ object HoconLexer {
   val Substitution = State(4)
 
   val States = Array(Initial, Value, SubStarting, SubStarted, Substitution)
+
+  val ForbiddenChars = """$"{}[]:=,+#`^?!@*&\""".toSet
+  val SpecialWhitespace = "\u00A0\u2007\u202F\uFEFF"
 }
 
 class HoconLexer extends LexerBase {
@@ -35,7 +39,7 @@ class HoconLexer extends LexerBase {
                             token: HoconTokenType,
                             condition: State => Boolean = _ => true,
                             transitionFun: State => State = identity)
-    extends TokenMatcher {
+          extends TokenMatcher {
 
     def matchToken(seq: CharSequence, state: State) =
       if (condition(state) && seq.startsWith(str))
@@ -47,7 +51,7 @@ class HoconLexer extends LexerBase {
                           token: HoconTokenType,
                           condition: State => Boolean = _ => true,
                           transitionFun: State => State = identity)
-    extends TokenMatcher {
+          extends TokenMatcher {
 
     def matchToken(seq: CharSequence, state: State) =
       if (condition(state))
@@ -98,21 +102,21 @@ class HoconLexer extends LexerBase {
     new RegexTokenMatcher(".".r, BadCharacter, always, identity)
   )
 
-  val forbidden = """$"{}[]:=,+#`^?!@*&\"""
-  val specialWhitespace = "\u00A0\u2007\u202F\uFEFF"
+  
 
-  def isHoconWhitespace(char: Char) = char.isWhitespace || specialWhitespace.contains(char)
+  def isHoconWhitespace(char: Char) = char.isWhitespace || SpecialWhitespace.contains(char)
 
   def isCStyleComment(seq: CharSequence, index: Int) =
     seq.subSequence(index, seq.length).startsWith("//")
 
   def continuesUnquotedChars(seq: CharSequence, index: Int) = index < seq.length && {
     val char = seq.charAt(index)
-    char != '.' && !forbidden.contains(char) && !isHoconWhitespace(char) && !isCStyleComment(seq, index)
+    char != '.' && !ForbiddenChars.contains(char) && !isHoconWhitespace(char) && !isCStyleComment(seq, index)
   }
 
   object QuotedStringMatcher extends TokenMatcher {
     def matchToken(seq: CharSequence, state: State) = if (seq.charAt(0) == '\"') {
+      @tailrec
       def drain(offset: Int, escaping: Boolean): Int =
         if (offset < seq.length) {
           seq.charAt(offset) match {

@@ -3,8 +3,7 @@ package highlight
 
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.psi.PsiElement
-import intellijhocon.lexer.HoconTokenType
-import intellijhocon.parser.{HoconElementSets, HoconElementType, HoconPsiParser}
+import intellijhocon.parser.HoconPsiParser
 
 class HoconSyntaxHighlightingAnnotator extends Annotator {
 
@@ -15,6 +14,7 @@ class HoconSyntaxHighlightingAnnotator extends Annotator {
 
   def annotate(element: PsiElement, holder: AnnotationHolder) {
     lazy val parentType = element.getParent.getNode.getElementType
+    lazy val firstChildType = element.getFirstChild.getNode.getElementType
     element.getNode.getElementType match {
       case Null =>
         holder.createInfoAnnotation(element, null).setTextAttributes(HoconHighlighterColors.Null)
@@ -37,7 +37,7 @@ class HoconSyntaxHighlightingAnnotator extends Annotator {
           holder.createInfoAnnotation(element, null).setTextAttributes(HoconHighlighterColors.IncludeModifierParens)
         }
 
-      case UnquotedString if parentType == Key =>
+      case String if parentType == Key && firstChildType == UnquotedString =>
         val textAttributesKey = element.getParent.getParent.getNode.getElementType match {
           case FieldPath => HoconHighlighterColors.FieldKey
           case SubstitutionPath => HoconHighlighterColors.SubstitutionKey

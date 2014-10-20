@@ -7,8 +7,8 @@ import com.intellij.lexer.Lexer
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.{IFileElementType, TokenSet}
 import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile}
-import intellijhocon.lexer.{HoconLexer, HoconTokenSets, HoconTokenType}
-import intellijhocon.psi.{HoconPsiElement, HoconPsiFile}
+import intellijhocon.lexer.{HoconLexer, HoconTokenSets}
+import psi.{HoconPsiCreator, HoconPsiFile}
 
 class HoconParserDefinition extends ParserDefinition {
 
@@ -24,7 +24,7 @@ class HoconParserDefinition extends ParserDefinition {
     new HoconPsiFile(viewProvider)
 
   def createElement(node: ASTNode): PsiElement =
-    new HoconPsiElement(node)
+    HoconPsiCreator.createElement(node)
 
   def getStringLiteralElements: TokenSet =
     HoconTokenSets.StringLiteral

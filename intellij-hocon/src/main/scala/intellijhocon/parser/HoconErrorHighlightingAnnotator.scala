@@ -6,13 +6,13 @@ import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.lexer.StringLiteralLexer
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, StringEscapesTokenTypes, TokenType}
-import intellijhocon.lexer.HoconTokenType
+
+import annotation.tailrec
 
 class HoconErrorHighlightingAnnotator extends Annotator {
 
   import intellijhocon.Util._
   import intellijhocon.lexer.HoconTokenType._
-  import intellijhocon.parser.HoconElementSets._
   import intellijhocon.parser.HoconElementType._
 
   def annotate(element: PsiElement, holder: AnnotationHolder) {
@@ -23,7 +23,7 @@ class HoconErrorHighlightingAnnotator extends Annotator {
 
         Iterator.continually {
           val range = TextRange(lexer.getTokenStart, lexer.getTokenEnd)
-            .shiftRight(element.getTextRange.getStartOffset)
+                  .shiftRight(element.getTextRange.getStartOffset)
           val result = (lexer.getTokenType, range)
           lexer.advance()
           result
@@ -37,15 +37,18 @@ class HoconErrorHighlightingAnnotator extends Annotator {
           case _ =>
         }
 
-      case Value =>
+      case Concatenation =>
+        @tailrec
         def validateConcatenation(constrainingToken: IElementType, child: ASTNode): Unit = if (child != null) {
           (constrainingToken, child.getElementType) match {
             case (_, Substitution | BadCharacter | TokenType.ERROR_ELEMENT | TokenType.WHITE_SPACE) =>
 
               validateConcatenation(constrainingToken, child.getTreeNext)
 
-            case (StringValue.extractor(), StringValue.extractor()) |
-                 (Object, Object) | (Array, Array) | (null, _) =>
+            case (String, String) |
+                 (Object, Object) |
+                 (Array, Array) |
+                 (null, _) =>
 
               validateConcatenation(child.getElementType, child.getTreeNext)
 
