@@ -267,9 +267,11 @@ object WorksheetSourceProcessor {
           objectRes append withPrint(s"defined type alias ${tpe.name}")
         } )
       case fun: ScFunction =>
+        val hadMods = fun.getModifierList.accessModifier map (_.modifierFormattedText) getOrElse ""
+
         withPrecomputeLines(fun, {
           objectRes append (printMethodName + "(\"" + fun.getName + ": \" + " + macroPrinterName +
-            s".printGeneric({import $instanceName._ ;" + fun.getText + " })" + eraseClassName + ")\n")
+            s".printGeneric({import $instanceName._ ;" + fun.getText.stripPrefix(hadMods) + " })" + eraseClassName + ")\n")
         })
       case tpeDef: ScTypeDefinition =>
         withPrecomputeLines(tpeDef, {
