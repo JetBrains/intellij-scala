@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, ScTupleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
@@ -295,14 +297,32 @@ object WorksheetSourceProcessor {
           }
         })
       case varDef: ScVariableDefinition =>
+        def writeTypedPatter(p: ScTypedPattern) = {
+          p.typePattern map {
+            case typed => p.name + ":" + typed.typeElement.getText
+          } getOrElse p.name
+        }
+
+        def typeElement2Types(te: ScTypeElement) = te match {
+          case tpl: ScTupleTypeElement => tpl.components
+          case other => Seq(other)
+        }
+
         val lineNum = psiToLineNumbers(varDef)
 
-        val txt = varDef.expr.map {
-          case expr =>
-            "var " + varDef.declaredElements.map(_.name).mkString("(", ",", ")") + s" = { " + expr.getText + ";}"
-        } getOrElse varDef.getText
+        val txt = (varDef.typeElement, varDef.expr) match {
+          case (Some(tpl: ScTypeElement), Some(expr)) => "var " + (typeElement2Types(tpl) zip varDef.declaredElements map {
+              case (tpe, el) => el.name + ": " + tpe.getText
+            }).mkString("(", ",", ")")  + " = { " + expr.getText + ";}"
+          case (_, Some(expr)) =>
+            "var " + varDef.declaredElements.map {
+              case tpePattern: ScTypedPattern => writeTypedPatter(tpePattern)
+              case a => a.name
+            }.mkString("(", ",", ")") + " = { " + expr.getText + ";}"
+          case _ => varDef.getText
+        }
 
-        classRes.append(txt).append(";")
+        classRes append txt append ";"
         varDef.declaredNames foreach {
           case pName =>
             objectRes append (
