@@ -32,6 +32,18 @@ object WorksheetSourceProcessor {
 
   val WORKSHEET_PRE_CLASS_KEY = new Key[String]("WorksheetPreClassKey")
 
+  private val PRINT_ARRAY_NAME = "print$$$Worksheet$$$Array$$$"
+
+  private val PRINT_ARRAY_TEXT =
+    s"""
+      |def $PRINT_ARRAY_NAME(an: Any): String = {
+      |  an match {
+      |    case arr: Array[_] => scala.collection.mutable.WrappedArray.make(arr).toString().stripPrefix("Wrapped")
+      |    case null => "null"
+      |    case other => other.toString
+      |  }}
+    """.stripMargin
+
   
   def extractLineInfoFrom(encoded: String): Option[(Int, Int)] = {
     if (encoded startsWith END_TOKEN_MARKER) { 
@@ -226,7 +238,7 @@ object WorksheetSourceProcessor {
 
     def withTempVar(callee: String, withInstance: Boolean = true) =
       "{val $$temp$$ = " + (if (withInstance) instanceName + "." else "") + callee + s"; $macroPrinterName.printDefInfo(" + "$$temp$$" + ")" +
-        eraseClassName + " + \" = \" + (Option($$temp$$).map(_.toString).getOrElse(\"null\"))" + erasePrefixName + "}"
+        eraseClassName + " + \" = \" + ( " + PRINT_ARRAY_NAME + "($$temp$$) )" + erasePrefixName + "}"
 
     def insertUntouched(exprs: mutable.Iterable[PsiElement]) {
       exprs foreach {
@@ -363,7 +375,7 @@ object WorksheetSourceProcessor {
     insertUntouched(postDeclarations)
 
     classRes append "}"
-    objectRes append (printMethodName + "(\"" + END_OUTPUT_MARKER + "\")\n") append "} \n }"
+    objectRes append (printMethodName + "(\"" + END_OUTPUT_MARKER + "\")\n") append s"} \n $PRINT_ARRAY_TEXT \n }"
 
     val codeResult = objectPrologue + importStmts.mkString(";") + classRes.toString() + "\n\n\n" + objectRes.toString()
     Left(
