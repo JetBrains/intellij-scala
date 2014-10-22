@@ -36,7 +36,7 @@
         <debugger.positionManagerFactory implementation="org.jetbrains.plugins.scala.debugger.ScalaPositionManagerFactory"/>
         <debuggerEditorTextProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEditorTextProvider"/>
         <debugger.nodeRenderer implementation="org.jetbrains.plugins.scala.debugger.ui.ListLikeCollectionNodeRenderer"/>
-        <debugger.nodeRenderer implementation="org.jetbrains.plugins.scala.debugger.ui.ObjectRefElementRenderer"/>
+        <debugger.nodeRenderer implementation="org.jetbrains.plugins.scala.debugger.ui.RuntimeRefRenderer"/>
         <generation.topLevelFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.impl.ScalaFactoryProvider"/>
         <treeCopyHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeUtilSupport"/>
         <iconProvider implementation="org.jetbrains.plugins.scala.components.ScalaIconProvider"/>
