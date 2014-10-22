@@ -375,8 +375,8 @@ object WorksheetSourceProcessor {
     @tailrec
     def isObjectOk(psi: PsiElement): Boolean = psi match {
       case _: ScImportStmt | _: PsiWhiteSpace | _: PsiComment  => isObjectOk(psi.getNextSibling)
-      case obj: ScObject => obj.extendsBlock.templateParents.isEmpty //isOk(psi.getNextSibling) - for compatibility with Eclipse. Its worksheet proceeds with expressions inside first object found
-      case _: PsiClass => isObjectOk(psi.getNextSibling)
+      case obj: ScObject => obj.extendsBlock.templateParents.isEmpty && isObjectOk(obj.getNextSibling)//isOk(psi.getNextSibling) - for compatibility with Eclipse. Its worksheet proceeds with expressions inside first object found
+//      case _: PsiClass => isObjectOk(psi.getNextSibling)
       case _ => false
     }
     
