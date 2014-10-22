@@ -29,7 +29,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     val project = position.getFile.getProject
 
     val cache = ScalaEvaluatorCache.getInstance(project)
-    val cached: Option[Evaluator] = {
+    val cached: Option[ExpressionEvaluator] = {
       try cache.get(position, codeFragment)
       catch {
         case e: Exception =>
@@ -38,13 +38,11 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       }
     }
 
-    val evaluator = cached.getOrElse {
+    cached.getOrElse {
       val newEvaluator = ScalaEvaluator(codeFragment)(position)
       val unwrapped = new UnwrapRefEvaluator(newEvaluator)
-      cache.add(position, codeFragment, unwrapped)
+      cache.add(position, codeFragment, new ExpressionEvaluatorImpl(unwrapped))
     }
-
-    new ExpressionEvaluatorImpl(evaluator)
   }
 }
 
