@@ -6,8 +6,8 @@ package impl
 
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.navigation.ItemPresentation
-import itemsPresentations.impl._
-import psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -17,7 +17,7 @@ import psi.api.statements.ScFunction
 class ScalaFunctionStructureViewElement(private val func: ScFunction, val isInherited: Boolean) extends ScalaStructureViewElement(func, isInherited) {
 
   def getPresentation: ItemPresentation = {
-    new ScalaFunctionItemPresentation(func, isInherited);
+    new ScalaFunctionItemPresentation(func, isInherited)
   }
 
   def getChildren: Array[TreeElement] = Array()

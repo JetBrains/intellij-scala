@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala
 package editor.smartEnter.fixers
 
+import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.openapi.editor.{Editor, Document}
-import java.lang.String
-import editor.smartEnter.ScalaSmartEnterProcessor
-import lang.psi.api.expr.{ScBlockExpr, ScForStatement}
+import org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement
 
 /**
  * @author Ksenia.Sautina
@@ -17,20 +16,16 @@ class ScalaMissingForBodyFixer  extends ScalaFixer {
     val forStatement = PsiTreeUtil.getParentOfType(psiElement, classOf[ScForStatement], false)
     if (forStatement == null) return
     val doc: Document = editor.getDocument
-    val body: PsiElement = forStatement.body.getOrElse(null)
-    if (body.isInstanceOf[ScBlockExpr]) return
-    if (body != null && startLine(doc, body) == startLine(doc, forStatement)) return
-    var eltToInsertAfter: PsiElement = forStatement.getRightParenthesis.getOrElse(null)
-    var text: String = "{\n\n}"
-    if (eltToInsertAfter == null) {
-      eltToInsertAfter = forStatement
-      text = "){\n\n}"
-    }
-    doc.insertString(eltToInsertAfter.getTextRange.getEndOffset, text)
-  }
 
-  private def startLine(doc: Document, psiElement: PsiElement): Int = {
-    doc.getLineNumber(psiElement.getTextRange.getStartOffset)
+    forStatement.body match {
+      case None =>
+        val (eltToInsertAfter, text) = forStatement.getRightParenthesis match {
+          case None => (forStatement, "){\n\n}")
+          case Some(parenth) =>  (parenth, "{\n\n}")
+        }
+        doc.insertString(eltToInsertAfter.getTextRange.getEndOffset, text)
+      case Some(_) =>
+    }
   }
 }
 

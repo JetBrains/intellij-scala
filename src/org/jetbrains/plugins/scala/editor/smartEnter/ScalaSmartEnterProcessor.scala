@@ -1,28 +1,28 @@
 package org.jetbrains.plugins.scala
 package editor.smartEnter
 
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.{Document, RangeMarker, Editor}
-import com.intellij.psi._
-import fixers._
-import java.util
-import com.intellij.codeInsight.lookup.LookupManager
-import com.intellij.util.IncorrectOperationException
-import com.intellij.codeInsight.CodeInsightUtil
-import com.intellij.openapi.util.Key
-import com.intellij.featureStatistics.FeatureUsageTracker
-import java.lang.String
 import java.lang.Long
-import com.intellij.util.text.CharArrayUtil
-import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, CodeStyleSettings}
-import com.intellij.psi.util.PsiTreeUtil
-import lang.psi.api.expr._
-import com.intellij.openapi.editor.ex.EditorEx
-import com.intellij.openapi.editor.actionSystem.{EditorActionManager, EditorActionHandler}
+import java.util
+
+import com.intellij.codeInsight.CodeInsightUtil
+import com.intellij.codeInsight.editorActions.smartEnter._
+import com.intellij.codeInsight.lookup.LookupManager
+import com.intellij.featureStatistics.FeatureUsageTracker
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.codeInsight.editorActions.smartEnter._
-import lang.psi.api.statements.ScPatternDefinition
+import com.intellij.openapi.editor.actionSystem.{EditorActionHandler, EditorActionManager}
+import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.editor.{Document, Editor, RangeMarker}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Key
+import com.intellij.psi._
+import com.intellij.psi.codeStyle.{CodeStyleSettings, CodeStyleSettingsManager}
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.IncorrectOperationException
+import com.intellij.util.text.CharArrayUtil
+import org.jetbrains.plugins.scala.editor.smartEnter.fixers._
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 
 /**
  * @author Ksenia.Sautina
@@ -113,11 +113,9 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
       doEnter(atCaret, editor)
     }
     catch {
-      case e: IncorrectOperationException => {
+      case e: IncorrectOperationException =>
         ScalaSmartEnterProcessor.LOG.error(e.getMessage)
-      }
     }
-    true
   }
 
   protected override def reformat(caret: PsiElement) {
@@ -127,11 +125,10 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
     var atCaret = caret
     val parent: PsiElement = atCaret.getParent
     parent match {
-      case block: ScBlockExpr => {
+      case block: ScBlockExpr =>
         if (block.exprs.length > 0 && block.exprs.apply(0) == atCaret) {
           atCaret = block
         }
-      }
       case forStmt: ScForStatement => atCaret = forStmt
       case _ =>
     }
@@ -242,7 +239,7 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
   }
 
   protected def plainEnter(editor: Editor) {
-    getEnterHandler.execute(editor, editor.asInstanceOf[EditorEx].getDataContext)
+    getEnterHandler.execute(editor, editor.getCaretModel.getCurrentCaret, editor.asInstanceOf[EditorEx].getDataContext)
   }
 
   protected def getEnterHandler: EditorActionHandler = {

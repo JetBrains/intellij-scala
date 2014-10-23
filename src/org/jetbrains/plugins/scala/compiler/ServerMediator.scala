@@ -1,42 +1,37 @@
 package org.jetbrains.plugins.scala
 package compiler
 
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.components.ProjectComponent
-import com.intellij.compiler.CompilerWorkspaceConfiguration
-import com.intellij.notification.{NotificationListener, NotificationType, Notification, Notifications}
-import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManager}
-import com.intellij.openapi.module.{Module, ModuleManager}
-import com.intellij.openapi.roots.{ModuleRootManager, CompilerModuleExtension}
-import com.intellij.openapi.ui.Messages
-import org.intellij.lang.annotations.Language
-import javax.swing.event.HyperlinkEvent
-import extensions._
 import com.intellij.openapi.application.ApplicationManager
-import project._
+import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManager}
+import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.module.{Module, ModuleManager}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.{CompilerModuleExtension, ModuleRootManager}
+import com.intellij.openapi.ui.Messages
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.project._
 
 /**
  * Pavel Fatin
  */
 
 class ServerMediator(project: Project) extends ProjectComponent {
+
+  private def isScalaProject = project.hasScala
+  private val settings = ScalaApplicationSettings.getInstance
+
   CompilerManager.getInstance(project).addBeforeTask(new CompileTask {
-    var firstCompilation = true
 
     def execute(context: CompileContext): Boolean = {
-      val scalaProject = project.hasScala
 
-      val externalCompiler = CompilerWorkspaceConfiguration.getInstance(project).USE_OUT_OF_PROCESS_BUILD
+      val externalCompiler = true // TODO In-process build is now deprecated
 
-      if (scalaProject) {
+      if (isScalaProject) {
+
         if (externalCompiler) {
-          invokeAndWait {
-            if (!checkCompilationSettings()) {
-              return false
-            }
+          if (!checkCompilationSettings()) {
+            return false
           }
-
-          val settings = ScalaApplicationSettings.getInstance
 
           if (settings.COMPILE_SERVER_ENABLED && !ApplicationManager.getApplication.isUnitTestMode) {
             invokeAndWait {

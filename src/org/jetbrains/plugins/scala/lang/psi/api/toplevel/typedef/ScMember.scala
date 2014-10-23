@@ -5,20 +5,20 @@ package api
 package toplevel
 package typedef
 
-import impl.ScalaFileImpl
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import com.intellij.psi.util._
-import com.intellij.psi.stubs.StubElement
-import templates.{ScExtendsBlock, ScTemplateBody}
 import com.intellij.psi.impl.source.PsiFileImpl
-import collection.mutable.ArrayBuffer
-import base.ScPrimaryConstructor
-import statements.params.ScClassParameter
-import statements.ScFunction
-import psi.stubs.ScMemberOrLocal
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.util._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScMemberOrLocal
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
   * @author Alexander Podkhalyuzin
@@ -158,9 +158,9 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 
   abstract override def getUseScope: SearchScope = {
     ScalaPsiUtil.intersectScopes(super.getUseScope, this match {
-      case m if m.getModifierList.accessModifier.exists(mod => mod.isPrivate && mod.isThis) =>
+      case m if m.getModifierList != null && m.getModifierList.accessModifier.exists(mod => mod.isPrivate && mod.isThis) =>
         Option(m.containingClass).map(new LocalSearchScope(_))
-      case m if m.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis) =>
+      case m if m.getModifierList != null && m.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis) =>
         Option(m.containingClass).map(ScalaPsiUtil.withCompanionSearchScope)
       case _ =>
         val blockOrMember = PsiTreeUtil.getContextOfType(this, true, classOf[ScBlock], classOf[ScMember])

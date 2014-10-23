@@ -1,19 +1,19 @@
 package org.jetbrains.plugins.scala.lang.formatting
 
-import settings.ScalaCodeStyleSettings
+import com.intellij.formatting.{Wrap, WrapType}
 import com.intellij.lang.ASTNode
-import com.intellij.formatting.{WrapType, Wrap}
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScCompositePattern, ScPatternArgumentList, ScInfixPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBody, ScExtendsBlock}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScInfixTypeElement}
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCompositePattern, ScInfixPattern, ScPattern, ScPatternArgumentList}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScSequenceArg}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScValue, ScVariable, ScFunction}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 
 /**
  * @author Alexander Podkhalyuzin

@@ -1,13 +1,8 @@
 package org.jetbrains.plugins.scala
 package lang.xml
 
-import com.intellij.codeInspection.LocalInspectionTool
-import codeInspection.xml.ScalaXmlUnmatchedTagInspection
-import collection.mutable.ListBuffer
-import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.openapi.command.CommandProcessor
-import org.jetbrains.plugins.scala.extensions
-import base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.codeInspection.xml.ScalaXmlUnmatchedTagInspection
 
 /**
  * User: Dmitry Naydanov

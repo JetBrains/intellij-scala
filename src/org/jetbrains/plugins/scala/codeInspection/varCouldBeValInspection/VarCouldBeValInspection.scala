@@ -3,8 +3,8 @@ package codeInspection
 package varCouldBeValInspection
 
 import com.intellij.codeInspection._
+import com.intellij.codeInspection.ex.UnfairLocalInspectionTool
 import com.intellij.psi.PsiElementVisitor
-import ex.UnfairLocalInspectionTool
 
 // This is checked in ScalaUnusedSymbolPass, the inspection is to allow this to be
 // turned on/off in the Inspections settings.

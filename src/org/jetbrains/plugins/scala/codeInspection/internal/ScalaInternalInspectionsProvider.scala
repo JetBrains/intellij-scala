@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.internal
 
 import com.intellij.codeInspection.InspectionToolProvider
-import java.lang.Class
 import com.intellij.openapi.application.ApplicationManager
-import collection.mutable.ArrayBuffer
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alefas

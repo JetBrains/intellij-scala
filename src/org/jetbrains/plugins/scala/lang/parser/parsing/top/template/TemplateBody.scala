@@ -5,11 +5,10 @@ package parsing
 package top.template
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SelfType
-import org.jetbrains.plugins.scala.ScalaBundle
-import builder.ScalaPsiBuilder
-import annotation.tailrec
+
+import scala.annotation.tailrec
 
 /** 
 * @author Alexander Podkhalyuzin

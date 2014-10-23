@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package script
 
-import com.intellij.execution.configurations.{ConfigurationType, ConfigurationFactory}
-import icons.Icons
 import javax.swing.Icon
-import java.lang.String
+
+import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType}
+import org.jetbrains.plugins.scala.icons.Icons
 
 /**
  * User: Alexander Podkhalyuzin
@@ -13,7 +13,7 @@ import java.lang.String
 
 class ScalaScriptConfigurationType extends ConfigurationType {
   val confFactory = new ScalaScriptRunConfigurationFactory(this)
-
+  
   def getIcon: Icon = Icons.SCRIPT_FILE_LOGO
 
   def getDisplayName: String = "Scala Script"

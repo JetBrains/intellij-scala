@@ -4,12 +4,11 @@ package parser
 package parsing
 package top.template
 
-import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements._
-import builder.ScalaPsiBuilder
 
 /** 
 * @author Alexander Podkhalyuzin

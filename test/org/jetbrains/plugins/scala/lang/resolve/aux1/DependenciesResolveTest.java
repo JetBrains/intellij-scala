@@ -1,18 +1,12 @@
 package org.jetbrains.plugins.scala.lang.resolve.aux1;
 
-import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiNamedElement;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.psi.PsiReference;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveTestCase;
-import org.jetbrains.plugins.scala.util.TestUtils;
-
-import java.io.File;
 
 /**
  * @author ilyas

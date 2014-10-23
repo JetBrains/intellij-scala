@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScFunction}
+import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.AddEmptyParentheses
 import org.jetbrains.plugins.scala.extensions._
-import quickfix.AddEmptyParentheses
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderScoreSectionUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 
 /**
  * Pavel Fatin

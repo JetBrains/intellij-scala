@@ -1,30 +1,32 @@
 package org.jetbrains.plugins.scala.testingSupport.test
 
-import javax.swing.JComponent
-import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.execution.Executor
-import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.openapi.module.Module
-import collection.mutable.ArrayBuffer
-import com.intellij.openapi.project.Project
-import com.intellij.execution.testframework.{TestConsoleProperties, AbstractTestProxy}
 import java.util.{ArrayList, List}
-import com.intellij.execution.configurations.{RunConfigurationBase, RuntimeConfiguration, RunProfileState}
+
+import com.intellij.execution.Executor
+import com.intellij.execution.configurations.RunProfileState
+import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.testframework.sm.runner.SMTestProxy
 import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
-import org.jetbrains.plugins.scala.testingSupport.locationProvider.PsiLocationWithName
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{TestCommandLinePatcher, PropertiesExtension}
+import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
+import com.intellij.execution.testframework.{AbstractTestProxy, TestConsoleProperties}
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.testingSupport.locationProvider.PsiLocationWithName
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{PropertiesExtension, TestCommandLinePatcher}
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 09.12.11
  */
 
-class AbstractTestRerunFailedTestsAction(parent: JComponent)
-  extends AbstractRerunFailedTestsActionAdapter {
+class AbstractTestRerunFailedTestsAction(consoleView: BaseTestsOutputConsoleView)
+  extends AbstractRerunFailedTestsActionAdapter(consoleView) {
   copyFrom(ActionManager.getInstance.getAction("RerunFailedTests"))
-  registerCustomShortcutSet(getShortcutSet, parent)
+  registerCustomShortcutSet(getShortcutSet, consoleView.getComponent)
 
   override def getRunProfile: MyRunProfileAdapter = {
     val properties: TestConsoleProperties = getModel.getProperties

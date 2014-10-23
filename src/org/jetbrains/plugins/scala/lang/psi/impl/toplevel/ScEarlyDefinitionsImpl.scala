@@ -4,27 +4,13 @@ package psi
 package impl
 package toplevel
 
-import com.intellij.psi.PsiElement
-import stubs.ScEarlyDefinitionsStub
-import api.statements.{ScVariableDefinition, ScPatternDefinition}
-
-import stubs.ScEarlyDefinitionsStub
-import com.intellij.psi.{ResolveState, PsiElement}
-import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.tree.IElementType;
 import com.intellij.lang.ASTNode
-
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.lexer._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.annotations._
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-
-import org.jetbrains.plugins.scala.icons.Icons
-
+import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.{PsiElement, ResolveState}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScEarlyDefinitionsStub
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -41,25 +27,23 @@ class ScEarlyDefinitionsImpl private () extends ScalaStubBasedElementImpl[ScEarl
     var element: PsiElement = lastParent
     while (element != null) {
       element match {
-        case p: ScPatternDefinition => {
+        case p: ScPatternDefinition =>
           val iterator = p.bindings.iterator
           while (iterator.hasNext) {
-            val elem = iterator.next
+            val elem = iterator.next()
             if (!processor.execute(elem, state)) return false
           }
-        }
-        case p: ScVariableDefinition => {
+        case p: ScVariableDefinition =>
           val iterator = p.bindings.iterator
           while (iterator.hasNext) {
-            val elem = iterator.next
+            val elem = iterator.next()
             if (!processor.execute(elem, state)) return false
           }
-        }
         case _ =>
       }
-      element = element.getPrevSibling
+      element = ScalaPsiUtil.getPrevStubOrPsiElement(element)
     }
-    return true
+    true
   }
 
   def members: Seq[ScMember] = {

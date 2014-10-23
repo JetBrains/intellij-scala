@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.annotator.importsTracker
 
 import java.util.concurrent.atomic.AtomicReference
-import com.intellij.openapi.util.{TextRange, Key, UserDataHolderEx}
+
+import com.intellij.openapi.util.{Key, TextRange, UserDataHolderEx}
 import com.intellij.psi._
-import java.lang.Integer
 import com.intellij.util.containers.ConcurrentHashSet
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ReadValueUsed, WriteValueUsed, ValueUsed, ImportUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportUsed, ReadValueUsed, ValueUsed, WriteValueUsed}
 import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
 
 /**

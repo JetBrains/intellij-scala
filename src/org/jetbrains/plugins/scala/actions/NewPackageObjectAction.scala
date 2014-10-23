@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala
 package actions
 
-import com.intellij.openapi.project.DumbAware
-import icons.Icons
-import com.intellij.ide.fileTemplates.actions.{AttributesDefaults, CreateFromTemplateAction}
 import com.intellij.ide.fileTemplates.FileTemplateManager
+import com.intellij.ide.fileTemplates.actions.{AttributesDefaults, CreateFromTemplateAction}
 import com.intellij.openapi.actionSystem._
-import com.intellij.psi.JavaDirectoryService
 import com.intellij.openapi.module.Module
-import project._
+import com.intellij.openapi.project.DumbAware
+import com.intellij.psi.JavaDirectoryService
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.project._
 
 /**
  * Pavel Fatin

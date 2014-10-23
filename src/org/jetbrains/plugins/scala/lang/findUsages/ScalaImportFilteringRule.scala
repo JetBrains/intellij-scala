@@ -2,12 +2,11 @@ package org.jetbrains.plugins.scala
 package lang
 package findUsages
 
-import psi.api.toplevel.imports.ScImportExpr
+import com.intellij.psi.PsiElement
 import com.intellij.usages.Usage
-import com.intellij.psi.{PsiFile, PsiJavaFile, PsiImportList, PsiElement}
-import com.intellij.usages.rules.{PsiElementUsage, ImportFilteringRule}
-import psi.api.ScalaFile
+import com.intellij.usages.rules.{ImportFilteringRule, PsiElementUsage}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 
 final class ScalaImportFilteringRule extends ImportFilteringRule {
 

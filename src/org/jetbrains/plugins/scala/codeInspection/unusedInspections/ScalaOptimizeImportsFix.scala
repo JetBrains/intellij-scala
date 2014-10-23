@@ -3,15 +3,15 @@ package codeInspection
 package unusedInspections
 
 
-import com.intellij.codeInsight.{FileModificationService, CodeInsightUtilBase}
+import com.intellij.codeInsight.FileModificationService
 import com.intellij.codeInsight.daemon.QuickFixBundle
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.psi.PsiFile
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import editor.importOptimizer.ScalaImportOptimizer
-import java.lang.String
-import lang.psi.api.ScalaFile
+import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
 
 /**
@@ -30,8 +30,36 @@ class ScalaOptimizeImportsFix extends IntentionAction {
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
     if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
-    new ScalaImportOptimizer().processFile(file).run()
+
+    file match {
+      case scalaPsi: ScalaFile => ScalaImportOptimizer.runOptimizerUnsafe(scalaPsi)
+      case _ =>
+    }
   }
 
   def getFamilyName: String = QuickFixBundle.message("optimize.imports.fix")
+}
+
+class ScalaEnableOptimizeImportsOnTheFlyFix extends IntentionAction {
+  def getText: String = QuickFixBundle.message("enable.optimize.imports.on.the.fly")
+
+  def startInWriteAction: Boolean = true
+
+  def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
+    !ScalaApplicationSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY
+  }
+
+  def invoke(project: Project, editor: Editor, file: PsiFile) {
+    ScalaApplicationSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY = true
+    if (file.getManager.isInProject(file) && (file.isInstanceOf[ScalaFile] || ScalaLanguageDerivative.hasDerivativeOnFile(file))) {
+      if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
+
+      file match {
+        case scalaFile: ScalaFile => ScalaImportOptimizer.runOptimizerUnsafe(scalaFile)
+        case _ =>
+      }
+    }
+  }
+
+  def getFamilyName: String = QuickFixBundle.message("enable.optimize.imports.on.the.fly")
 }

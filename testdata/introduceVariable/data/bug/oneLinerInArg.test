@@ -1,0 +1,16 @@
+object O {
+  def foo {
+    println(
+      <begin>"Hi"<end>
+    )
+  }
+}
+------
+object O {
+  def foo {
+    val value: String = "Hi"
+    println(
+      value
+    )
+  }
+}

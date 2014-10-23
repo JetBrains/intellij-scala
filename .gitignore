@@ -9,3 +9,11 @@
 /out
 /SDK/*SDK
 /*.bat
+.idea/workspace.xml
+.idea/highlighting.xml
+*.class
+out
+target
+build
+.DS_Store
+*~

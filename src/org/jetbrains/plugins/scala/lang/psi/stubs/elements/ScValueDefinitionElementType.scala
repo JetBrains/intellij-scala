@@ -5,9 +5,9 @@ package stubs
 package elements
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.ScPatternDefinitionImpl
-import api.statements.ScValue
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 
 /**
  * User: Alexander Podkhalyuzin

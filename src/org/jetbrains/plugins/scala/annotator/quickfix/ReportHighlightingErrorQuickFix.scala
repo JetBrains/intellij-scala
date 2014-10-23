@@ -6,7 +6,7 @@ import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import debugger.evaluation.ScalaCodeFragment
+import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 
 /**
  * Pavel Fatin

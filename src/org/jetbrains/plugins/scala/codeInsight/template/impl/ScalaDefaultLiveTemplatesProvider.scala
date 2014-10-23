@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInsight.template.impl
 
 import com.intellij.codeInsight.template.impl.DefaultLiveTemplatesProvider
-import java.lang.String
 
 /**
  * User: Alexander Podkhalyuzin

@@ -1,8 +1,8 @@
 package testingSupport.specs2
 
-import org.specs2.reporter.{NotifierReporter, Reporter, Notifier}
-import org.specs2.runner.ClassRunner
 import org.specs2.main.Arguments
+import org.specs2.reporter.{Notifier, NotifierReporter, Reporter}
+import org.specs2.runner.ClassRunner
 import org.specs2.specification.{ExecutedSpecification, ExecutingSpecification}
 
 /**
@@ -17,7 +17,8 @@ class MyNotifierRunner(notifier: Notifier) { outer =>
       val notifier = outer.notifier
       override def export(implicit arguments: Arguments): ExecutingSpecification => ExecutedSpecification = (spec: ExecutingSpecification) => {
         super.export(arguments)(spec)
-        exportToOthers(arguments)(spec)
+        //TODO !!!  Worked in Specs2 2.9.2 - 1.12.2
+//        exportToOthers(arguments)(spec)
         spec.executed
       }
     }

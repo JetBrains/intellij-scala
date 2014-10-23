@@ -4,15 +4,15 @@ package caches
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.search.PsiShortNamesCache
+import com.intellij.psi.search.{GlobalSearchScope, PsiShortNamesCache}
+import com.intellij.psi.stubs.StubIndex
 import com.intellij.util.containers.HashSet
-import collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScClass, ScObject}
-import stubs.StubIndex
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
-import com.intellij.util.{Processor, ArrayUtil}
+import com.intellij.util.{ArrayUtil, Processor}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author ilyas

@@ -4,7 +4,7 @@ package parser
 package parsing
 package xml
 
-import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin

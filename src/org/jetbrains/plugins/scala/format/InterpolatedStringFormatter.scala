@@ -50,8 +50,10 @@ object InterpolatedStringFormatter extends StringFormatter {
     val ind = parts.indexOf(it)
     if (ind + 1 < parts.size) {
       parts(ind + 1) match {
-        case Text(s) => return s.isEmpty || !ScalaNamesUtil.isIdentifier(it.text + s.charAt(0))
-        case _ =>  true
+        case Text(s) =>
+          return s.isEmpty || !ScalaNamesUtil.isIdentifier(it.text + s.charAt(0)) ||
+                s.startsWith("`") || s.exists(_ == '$')
+        case _ =>
       }
     }
     true

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatter.tests
 
-import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 
 /**
  * @author Alexander Podkhalyuzin
@@ -146,6 +146,7 @@ Map(1 -> "aa", 2 -> "bb", 3 -> "cc").filter { case (1, "aa") => true; case _ => 
 
   def testSCL2775sFalse() {
     getScalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST = false
+    getScalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE = true
 
     val before =
 """

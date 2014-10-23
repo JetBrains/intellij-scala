@@ -6,28 +6,28 @@ package toplevel
 package synthetic
 
 import _root_.javax.swing.Icon
-import api.statements.params.ScTypeParam
-import com.intellij.openapi.startup.StartupManager
-import com.intellij.psi.search.GlobalSearchScope
-import api.statements.ScFun
-import types._
-import nonvalue.Parameter
-import resolve._
-import com.intellij.psi._
-import com.intellij.psi.impl.light.LightElement
-import collection.mutable.ArrayBuffer
+
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
-import java.lang.String
 import com.intellij.openapi.progress.ProcessCanceledException
-import org.jetbrains.plugins.scala.lang.resolve.processor.{ImplicitProcessor, BaseProcessor, ResolveProcessor, ResolverEnv}
-import result.Success
+import com.intellij.openapi.startup.StartupManager
+import com.intellij.psi._
+import com.intellij.psi.impl.light.LightElement
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFun
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor, ResolveProcessor, ResolverEnv}
 import org.jetbrains.plugins.scala.util.ScalaUtils
-import api.toplevel.typedef.ScObject
-import api.ScalaFile
-import collection.{mutable, Seq}
-import com.intellij.util.{ReflectionCache, IncorrectOperationException}
-import extensions.{toSeqExt, toPsiClassExt}
+
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.{Seq, mutable}
 
 abstract class SyntheticNamedElement(val manager: PsiManager, name: String)
 extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNameIdentifierOwner {
@@ -175,7 +175,7 @@ extends SyntheticNamedElement(manager, name) with ScFun {
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = {
     var cur: PsiElement = getFirstChild
     while (cur != null) {
-      if (ReflectionCache.isInstance(cur, clazz)) return cur.asInstanceOf[T]
+      if (clazz.isInstance(cur)) return cur.asInstanceOf[T]
       cur = cur.getNextSibling
     }
     null
@@ -225,9 +225,10 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
 
     val anyRef = registerClass(AnyRef, "AnyRef")
     anyRef.addMethod(new ScSyntheticFunction(manager, "eq", Boolean, Seq(Seq(AnyRef))))
-    anyRef.addMethod(new ScSyntheticFunction(manager, "ne", Boolean, Seq(Seq((AnyRef)))))
+    anyRef.addMethod(new ScSyntheticFunction(manager, "ne", Boolean, Seq(Seq(AnyRef))))
     anyRef.addMethod(new ScSyntheticFunction(manager, "synchronized", Any, Seq.empty, Seq(ScalaUtils.typeParameter)) {
-      override val paramClauses: Seq[Seq[Parameter]] = Seq(Seq(new Parameter("", None, ScalaPsiManager.typeVariable(typeParams(0)), false, false, false, 0)))
+      override val paramClauses: Seq[Seq[Parameter]] = Seq(Seq(new Parameter("", None,
+        ScalaPsiManager.typeVariable(typeParams(0)), false, false, false, 0)))
       override val retType: ScType = ScalaPsiManager.typeVariable(typeParams(0))
     })
 
@@ -475,7 +476,7 @@ object Unit
         case Some(c) => return c
         case _ =>
       }
-    } else null
+    }
     for (obj <- syntheticObjects) {
       if (obj.qualifiedName == qName) return obj
     }

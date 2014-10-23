@@ -1,29 +1,30 @@
 package org.jetbrains.plugins.scala.debugger.ui
 
+import java.util
+
+import com.intellij.debugger.DebuggerContext
+import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContext, EvaluationContextImpl}
+import com.intellij.debugger.impl.PositionUtil
+import com.intellij.debugger.ui.impl.watch.{ValueDescriptorImpl, WatchItemDescriptor}
 import com.intellij.debugger.ui.tree.render._
 import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptor, ValueDescriptor}
-import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContextImpl, EvaluationContext}
-import com.intellij.debugger.DebuggerContext
+import com.intellij.openapi.project.Project
 import com.intellij.psi.{JavaPsiFacade, PsiExpression}
 import com.intellij.util.{IncorrectOperationException, StringBuilderSpinAllocator}
+import com.sun.jdi._
 import com.sun.tools.jdi.ObjectReferenceImpl
-import com.sun.jdi
-import jdi._
-import java.util
-import com.intellij.debugger.ui.impl.watch.{ValueDescriptorImpl, WatchItemDescriptor}
-import com.intellij.openapi.project.Project
-import com.intellij.debugger.impl.PositionUtil
-import org.jetbrains.plugins.scala.debugger.ui.ListLikeCollectionNodeRenderer.{SimpleMethodInvocationResult, CollectionElementNodeDescriptor}
-import reflect.NameTransformer
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
+import org.jetbrains.plugins.scala.debugger.ui.ListLikeCollectionNodeRenderer.{CollectionElementNodeDescriptor, SimpleMethodInvocationResult}
+
+import scala.reflect.NameTransformer
 
 /**
  * User: Dmitry Naydanov
  * Date: 9/3/12
  */
 class ListLikeCollectionNodeRenderer extends NodeRendererImpl {
+  import org.jetbrains.plugins.scala.debugger.ui.ListLikeCollectionNodeRenderer.{MethodNotFound, Success}
   import org.jetbrains.plugins.scala.debugger.ui.{ListLikeCollectionNodeRenderer => companionObject}
-  import companionObject.{Success, MethodNotFound}
   
   def getStartIndex = ScalaDebuggerSettings.getInstance().COLLECTION_START_INDEX.intValue()
   def getEndIndex = ScalaDebuggerSettings.getInstance().COLLECTION_END_INDEX.intValue()
@@ -234,5 +235,7 @@ object ListLikeCollectionNodeRenderer {
         case e: IncorrectOperationException => null 
       }
     }
+
+    override def getName: String = name
   }
 }

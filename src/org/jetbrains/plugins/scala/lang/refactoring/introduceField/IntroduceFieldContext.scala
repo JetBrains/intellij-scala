@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.introduceField
 
-import com.intellij.psi.{PsiFile, PsiElement}
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.refactoring.util.{ConflictsReporter, ScalaVariableValidator, ScalaRefactoringUtil}
+import com.intellij.openapi.project.Project
+import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.IntroduceException
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.refactoring.introduceField.ScalaIntroduceFieldHandlerBase._
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
-import ScalaIntroduceFieldHandlerBase._
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.IntroduceException
+import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaRefactoringUtil, ScalaVariableValidator}
 
 
 /**
@@ -30,9 +30,7 @@ class IntroduceFieldContext[T <: PsiElement](val project: Project,
     case _ => null
   }
 
-  val validator = ScalaVariableValidator(new ConflictsReporter {
-    def reportConflicts(conflicts: Array[String], project: Project): Boolean = false
-  }, project, editor, file, element, occurrences)
+  val validator = ScalaVariableValidator(new DialogConflictsReporter {}, project, editor, file, element, occurrences)
 
   val canBeInitInDecl = element match {
     case expr: ScExpression => canBeInitializedInDeclaration(expr, aClass)

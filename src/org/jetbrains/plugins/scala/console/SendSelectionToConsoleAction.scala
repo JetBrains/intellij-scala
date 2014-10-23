@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.console
 
-import com.intellij.openapi.actionSystem._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.extensions
-import com.intellij.openapi.util.TextRange
 import java.io.{IOException, OutputStream}
+
+import com.intellij.openapi.actionSystem._
+import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
  * @author Ksenia.Sautina
@@ -17,13 +18,17 @@ class SendSelectionToConsoleAction extends AnAction {
   override def update(e: AnActionEvent) {
     val presentation = e.getPresentation
     presentation.setIcon(Icons.SCALA_CONSOLE)
-    presentation.setVisible(true)
+
     def enable() {
       presentation.setEnabled(true)
+      presentation.setVisible(true)
     }
+
     def disable() {
       presentation.setEnabled(false)
+      presentation.setVisible(false)
     }
+
     try {
       val context = e.getDataContext
       val file = CommonDataKeys.PSI_FILE.getData(context)

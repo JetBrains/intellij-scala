@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.resolve2
 
-import junit.framework.Assert
-
 
 /**
  * Pavel.Fatin, 02.02.2010

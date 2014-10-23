@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.base.SimpleTestCase
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable, ScTypeAlias, ScFunction}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 
 /**
  * User: Alexander Podkhalyuzin
@@ -90,16 +90,16 @@ class OverridingAnnotatorTest extends SimpleTestCase {
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitFunction(fun: ScFunction) {
         if (fun.getParent.isInstanceOf[ScTemplateBody]) {
-          annotator.checkOverrideMethods(fun, mock)
+          annotator.checkOverrideMethods(fun, mock, isInSources = false)
         }
         super.visitFunction(fun)
       }
 
-      override def visitTypeDefintion(typedef: ScTypeDefinition) {
+      override def visitTypeDefinition(typedef: ScTypeDefinition) {
         if (typedef.getParent.isInstanceOf[ScTemplateBody]) {
           annotator.checkOverrideTypes(typedef, mock)
         }
-        super.visitTypeDefintion(typedef)
+        super.visitTypeDefinition(typedef)
       }
 
       override def visitTypeAlias(alias: ScTypeAlias) {
@@ -112,7 +112,7 @@ class OverridingAnnotatorTest extends SimpleTestCase {
       override def visitVariable(varr: ScVariable) {
         if (varr.getParent.isInstanceOf[ScTemplateBody] ||
           varr.getParent.isInstanceOf[ScEarlyDefinitions]) {
-          annotator.checkOverrideVars(varr, mock)
+          annotator.checkOverrideVars(varr, mock, isInSources = false)
         }
         super.visitVariable(varr)
       }
@@ -120,7 +120,7 @@ class OverridingAnnotatorTest extends SimpleTestCase {
       override def visitValue(v: ScValue) {
         if (v.getParent.isInstanceOf[ScTemplateBody] ||
           v.getParent.isInstanceOf[ScEarlyDefinitions]) {
-          annotator.checkOverrideVals(v, mock)
+          annotator.checkOverrideVals(v, mock, isInSources = false)
         }
         super.visitValue(v)
       }

@@ -1,26 +1,24 @@
 package org.jetbrains.plugins.scala
 package lang.rearranger
 
-import com.intellij.psi.codeStyle.arrangement._
-import com.intellij.psi.PsiElement
+import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.util.{Pair, TextRange}
+import com.intellij.psi.PsiElement
 import com.intellij.psi.codeStyle.CodeStyleSettings
-import collection.JavaConversions._
-import scala.collection.immutable
-import scala.collection.mutable
+import com.intellij.psi.codeStyle.arrangement.{ArrangementSettings, _}
+import com.intellij.psi.codeStyle.arrangement.`match`.{ArrangementSectionRule, StdArrangementEntryMatcher, StdArrangementMatchRule}
 import com.intellij.psi.codeStyle.arrangement.group.ArrangementGroupingRule
-import com.intellij.psi.codeStyle.arrangement.std._
-import com.intellij.psi.codeStyle.arrangement.model.{ArrangementCompositeMatchCondition, ArrangementAtomMatchCondition, ArrangementMatchCondition}
-import com.intellij.psi.codeStyle.arrangement.`match`.{StdArrangementEntryMatcher, StdArrangementMatchRule}
-import com.intellij.psi.codeStyle.arrangement.ArrangementSettings
-
-import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens._
-import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Grouping._
-import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Order._
+import com.intellij.psi.codeStyle.arrangement.model.{ArrangementAtomMatchCondition, ArrangementCompositeMatchCondition, ArrangementMatchCondition}
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.EntryType._
+import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Grouping._
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Modifier._
-import com.intellij.internal.statistic.UsageTrigger
+import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Order._
+import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens._
+import com.intellij.psi.codeStyle.arrangement.std._
+
+import scala.collection.JavaConversions._
+import scala.collection.{immutable, mutable}
 
 /**
  * @author Roman.Shein
@@ -183,22 +181,26 @@ object ScalaRearranger {
 
   private val featureId = "scala.rearrange"
 
-  private def addCondition(matchRules: immutable.List[StdArrangementMatchRule], conditions: ArrangementSettingsToken*) = {
+  private def addCondition(matchRules: immutable.List[ArrangementSectionRule], conditions: ArrangementSettingsToken*) = {
     if (conditions.length == 1) {
-      new StdArrangementMatchRule(new StdArrangementEntryMatcher(new ArrangementAtomMatchCondition(conditions(0), conditions(0)))) :: matchRules
+      ArrangementSectionRule.create(
+        new StdArrangementMatchRule(
+          new StdArrangementEntryMatcher(new ArrangementAtomMatchCondition(conditions(0), conditions(0)))
+        )
+      ) :: matchRules
     } else {
       val composite = new ArrangementCompositeMatchCondition
       for (condition <- conditions) {
         composite.addOperand(new ArrangementAtomMatchCondition(condition, condition))
       }
-      new StdArrangementMatchRule(new StdArrangementEntryMatcher(composite)) :: matchRules
+      ArrangementSectionRule.create(new StdArrangementMatchRule(new StdArrangementEntryMatcher(composite))) :: matchRules
     }
   }
 
   private def getDefaultSettings = {
     val groupingRules = immutable.List[ArrangementGroupingRule](new ArrangementGroupingRule(DEPENDENT_METHODS, DEPTH_FIRST), new ArrangementGroupingRule(JAVA_GETTERS_AND_SETTERS),
       new ArrangementGroupingRule(SCALA_GETTERS_AND_SETTERS))
-    var matchRules = immutable.List[StdArrangementMatchRule]()
+    var matchRules = immutable.List[ArrangementSectionRule]()
     for (access <- scalaAccessModifiersValues) {
       matchRules = addCondition(matchRules, TYPE, access, FINAL)
     }
@@ -276,7 +278,8 @@ object ScalaRearranger {
     }
 //    matchRules = addCondition(matchRules, CLASS)
     //TODO: Is 'override' ok for macros?
-    new StdRulePriorityAwareSettings(groupingRules, matchRules.reverse)
+
+    new StdArrangementSettings(groupingRules, matchRules.reverse)
   }
 
   private val defaultSettings = getDefaultSettings

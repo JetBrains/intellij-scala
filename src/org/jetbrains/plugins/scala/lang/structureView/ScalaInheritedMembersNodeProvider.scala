@@ -1,22 +1,22 @@
 package org.jetbrains.plugins.scala.lang.structureView
 
-import com.intellij.ide.util.FileStructureNodeProvider
-import com.intellij.openapi.actionSystem.Shortcut
-import elements.impl._
+import java.util
+
 import com.intellij.ide.IdeBundle
-import com.intellij.openapi.keymap.KeymapManager
-import com.intellij.ide.util.treeView.smartTree.{ActionPresentationData, TreeElement, ActionPresentation}
-import com.intellij.openapi.util.IconLoader
-import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
-import com.intellij.psi.PsiMethod
 import com.intellij.ide.structureView.impl.java.PsiMethodTreeElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScVariable, ScValue, ScFunction}
+import com.intellij.ide.util.FileStructureNodeProvider
+import com.intellij.ide.util.treeView.smartTree.{ActionPresentation, ActionPresentationData, TreeElement}
+import com.intellij.openapi.actionSystem.Shortcut
+import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.IndexNotReadyException
-import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiMemberExt, toPsiNamedElementExt}
-import java.util.{ArrayList, Collection}
+import com.intellij.openapi.util.IconLoader
+import com.intellij.psi.PsiMethod
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
+import org.jetbrains.plugins.scala.lang.structureView.elements.impl._
 
 /**
  * @author Alefas
@@ -24,17 +24,17 @@ import java.util.{ArrayList, Collection}
  */
 
 class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeElement] {
-  def provideNodes(node: TreeElement): Collection[TreeElement] = {
+  def provideNodes(node: TreeElement): util.Collection[TreeElement] = {
     node match {
       case td: ScalaTypeDefinitionStructureViewElement =>
-        val children = new ArrayList[TreeElement]()
+        val children = new util.ArrayList[TreeElement]()
         val clazz = td.element
         try {
           if (!clazz.isValid) return children
           val signs = clazz.allSignatures
           for (sign <- signs) {
             sign match {
-              case sign: PhysicalSignature => {
+              case sign: PhysicalSignature =>
                 sign.method match {
                   case x if x.name == "$tag" || x.name == "$init$" =>
                   case x if x.containingClass.qualifiedName == "java.lang.Object" =>
@@ -42,21 +42,18 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
                   case x: ScFunction => children.add(new ScalaFunctionStructureViewElement(x, true))
                   case x: PsiMethod => children.add(new PsiMethodTreeElement(x, true))
                 }
-              }
-              case _ => {
+              case _ =>
                 sign.namedElement match {
-                  case Some(named: ScNamedElement) => ScalaPsiUtil.nameContext(named) match {
+                  case named: ScNamedElement => ScalaPsiUtil.nameContext(named) match {
                     case x: ScValue if x.containingClass != clazz => children.add(new ScalaValueStructureViewElement(named.nameId, true))
                     case x: ScVariable if x.containingClass != clazz => children.add(new ScalaVariableStructureViewElement(named.nameId, true))
                     case _ =>
                   }
                   case _ =>
                 }
-              }
             }
           }
           val types = clazz.allTypeAliases
-          val t: TypeDefinitionMembers.TypeNodes.T = null
           for {
             typex <- types
             t = typex._1
@@ -68,9 +65,9 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
           children
         }
         catch {
-          case e: IndexNotReadyException => new ArrayList[TreeElement]()
+          case e: IndexNotReadyException => new util.ArrayList[TreeElement]()
         }
-      case _ => new ArrayList[TreeElement]()
+      case _ => new util.ArrayList[TreeElement]()
     }
   }
 

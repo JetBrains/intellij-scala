@@ -15,7 +15,6 @@
 
 package org.jetbrains.plugins.scala.lang.lexer;
 
-import org.jetbrains.plugins.scala.Console;
 import com.intellij.lexer.Lexer;
 import com.intellij.psi.tree.IElementType;
 import junit.framework.Test;

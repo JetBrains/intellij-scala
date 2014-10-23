@@ -1,18 +1,18 @@
 package org.jetbrains.plugins.scala
 package util
 
-import com.intellij.openapi.project.Project
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.{PsiDocumentManager, PsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScReferenceElement, ScLiteral}
-import org.jetbrains.plugins.scala.extensions.toPsiElementExt
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import scala.collection.mutable.ArrayBuffer
-import scala.Some
 import com.intellij.openapi.editor.Document
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.codeStyle.CodeStyleSettingsManager
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+
+import scala.collection.mutable.ArrayBuffer
 
 
 /**

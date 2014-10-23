@@ -1,22 +1,27 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.lang.psi.types._
-import nonvalue.Parameter
-import quickfix.ReportHighlightingErrorQuickFix
-import result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
+import com.intellij.codeInspection.ProblemHighlightType
+import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
+import com.intellij.psi.{PsiElement, PsiMethod, PsiNamedElement, PsiParameter}
+import org.jetbrains.plugins.scala.annotator.createFromUsage._
+import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
+import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameters, ScParameter}
-import com.intellij.psi.{PsiElement, PsiParameter, PsiNamedElement, PsiMethod}
-import lang.psi.api.statements.{ScValue, ScFunction}
-import codeInspection.varCouldBeValInspection.ValToVarQuickFix
-import extensions._
-import lang.psi.api.expr._
-import lang.psi.impl.expr.ScInterpolatedStringPrefixReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern, ScPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * Pavel.Fatin, 31.05.2010
@@ -28,9 +33,9 @@ trait ApplicationAnnotator {
       if (r.isAssignment) {
         annotateAssignmentReference(reference, holder)
       }
-      if (!r.isApplicable) {
+      if (!r.isApplicable()) {
         r.element match {
-          case f@(_: ScFunction | _: PsiMethod | _: ScSyntheticFunction) => {
+          case f@(_: ScFunction | _: PsiMethod | _: ScSyntheticFunction) =>
             reference.getContext match {
               case genCall: ScGenericCall =>
                 val missing = for (MissedTypeParameter(p) <- r.problems) yield p.name
@@ -50,20 +55,24 @@ trait ApplicationAnnotator {
                   case _ =>
                     //holder.createErrorAnnotation(call.argsElement, "Not applicable to " + signatureOf(f))
                 }
-              case call: MethodInvocation => {
+              case call: MethodInvocation =>
                 val missed =
                   for (MissedValueParameter(p) <- r.problems) yield p.name + ": " + p.paramType.presentableText
 
-                if (!missed.isEmpty)
+                if (missed.nonEmpty) {
                   holder.createErrorAnnotation(call.argsElement,
                     "Unspecified value parameters: " + missed.mkString(", "))
+                  addCreateFromUsagesQuickFixes(reference, holder)
+                }
 
                 r.problems.foreach {
                   case DoesNotTakeParameters() =>
                     holder.createErrorAnnotation(call.argsElement, f.name + " does not take parameters")
+                    addCreateFromUsagesQuickFixes(reference, holder)
                   case ExcessArgument(argument) =>
                     if (argument != null) {
                       holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(f))
+                      addCreateFromUsagesQuickFixes(reference, holder)
                     } else {
                       //TODO investigate case when argument is null. It's possible when new Expression(ScType)
                     }
@@ -74,6 +83,7 @@ trait ApplicationAnnotator {
                         val annotation = holder.createErrorAnnotation(expression,
                           "Type mismatch, expected: " + expectedType.presentableText + ", actual: " + t.presentableText)
                         annotation.registerFix(ReportHighlightingErrorQuickFix)
+                        addCreateFromUsagesQuickFixes(reference, holder)
                       }
                     else {
                       //TODO investigate case when expression is null. It's possible when new Expression(ScType)
@@ -101,22 +111,21 @@ trait ApplicationAnnotator {
                       //TODO investigate case when assignment is null. It's possible when new Expression(ScType)
                     }
                   case WrongTypeParameterInferred => //todo: ?
-                  case ElementApplicabilityProblem(element, actual, expected) => 
-                    holder.createErrorAnnotation(element, ScalaBundle.message("return.expression.does.not.conform", 
-                      actual.presentableText, expected.presentableText)) 
-                  case a => 
+                  case ExpectedTypeMismatch => //will be reported later
+                  case ElementApplicabilityProblem(element, actual, expected) =>
+                    holder.createErrorAnnotation(element, ScalaBundle.message("return.expression.does.not.conform",
+                      actual.presentableText, expected.presentableText))
+                  case a =>
                     holder.createErrorAnnotation(call.argsElement, "Not applicable to " + signatureOf(f))
                 }
-              }
-              case _ => {
+              case _ =>
                 r.problems.foreach {
-                  case MissedParametersClause(clause) if !reference.isInstanceOf[ScInterpolatedStringPrefixReference] =>
+                  case MissedParametersClause(clause) if !reference.isInstanceOf[ScInterpolatedPrefixReference] =>
                     holder.createErrorAnnotation(reference, "Missing arguments for method " + nameOf(f))
+                    addCreateFromUsagesQuickFixes(reference, holder)
                   case _ =>
                 }
-              }
             }
-          }
           case _ =>
         }
       }
@@ -148,13 +157,17 @@ trait ApplicationAnnotator {
     }
   }
 
-  def annotateMethodCall(call: ScMethodCall, holder: AnnotationHolder) {
+  def annotateMethodInvocation(call: MethodInvocation, holder: AnnotationHolder) {
     //do we need to check it:
     call.getEffectiveInvokedExpr match {
       case ref: ScReferenceElement =>
         ref.bind() match {
           case Some(r) if r.notCheckedResolveResult || r.isDynamic => //it's unhandled case
-          case _ => return //it's definetely handled case
+          case _ =>
+            call.applyOrUpdateElement match {
+              case Some(r) if r.isDynamic => //it's still unhandled
+              case _ => return //it's definetely handled case
+            }
         }
       case _ => //unhandled case (only ref expressions was checked)
     }
@@ -162,14 +175,19 @@ trait ApplicationAnnotator {
     val problems = call.applicationProblems
     val missed = for (MissedValueParameter(p) <- problems) yield p.name + ": " + p.paramType.presentableText
 
-    if(!missed.isEmpty)
+    if(missed.nonEmpty)
       holder.createErrorAnnotation(call.argsElement, "Unspecified value parameters: " + missed.mkString(", "))
 
     //todo: better error explanation?
     //todo: duplicate
     problems.foreach {
       case DoesNotTakeParameters() =>
-        holder.createErrorAnnotation(call.argsElement, "Application does not take parameters")
+        val annotation = holder.createErrorAnnotation(call.argsElement, "Application does not take parameters")
+        (call, call.getInvokedExpr) match {
+          case (c: ScMethodCall, InstanceOfClass(td: ScTypeDefinition)) =>
+            annotation.registerFix(new CreateApplyQuickFix(td, c))
+          case _ =>
+        }
       case ExcessArgument(argument) =>
         holder.createErrorAnnotation(argument, "Too many arguments")
       case TypeMismatch(expression, expectedType) =>
@@ -189,11 +207,37 @@ trait ApplicationAnnotator {
         holder.createErrorAnnotation(argument, "Positional after named argument")
       case ParameterSpecifiedMultipleTimes(assignment) =>
         holder.createErrorAnnotation(assignment.getLExpression, "Parameter specified multiple times")
-
+      case ExpectedTypeMismatch => // it will be reported later
       case _ => holder.createErrorAnnotation(call.argsElement, "Not applicable")
     }
   }
-  
+
+  protected def registerCreateFromUsageFixesFor(ref: ScReferenceElement, annotation: Annotation) {
+    ref match {
+      case (exp: ScReferenceExpression) childOf (_: ScMethodCall) =>
+        annotation.registerFix(new CreateMethodQuickFix(exp))
+      case (exp: ScReferenceExpression) childOf (infix: ScInfixExpr) if infix.operation == exp =>
+        annotation.registerFix(new CreateMethodQuickFix(exp))
+      case (exp: ScReferenceExpression) childOf ((_: ScGenericCall) childOf (_: ScMethodCall)) =>
+        annotation.registerFix(new CreateMethodQuickFix(exp))
+      case (exp: ScReferenceExpression) childOf (_: ScGenericCall) =>
+        annotation.registerFix(new CreateParameterlessMethodQuickFix(exp))
+      case exp: ScReferenceExpression =>
+        annotation.registerFix(new CreateParameterlessMethodQuickFix(exp))
+        annotation.registerFix(new CreateValueQuickFix(exp))
+        annotation.registerFix(new CreateVariableQuickFix(exp))
+        annotation.registerFix(new CreateObjectQuickFix(exp))
+      case (stRef: ScStableCodeReferenceElement) childOf (st: ScSimpleTypeElement) if st.singleton =>
+      case (stRef: ScStableCodeReferenceElement) childOf (Both(p: ScPattern, (_: ScConstructorPattern | _: ScInfixPattern))) =>
+        annotation.registerFix(new CreateCaseClassQuickFix(stRef))
+        annotation.registerFix(new CreateExtractorObjectQuickFix(stRef, p))
+      case stRef: ScStableCodeReferenceElement =>
+        annotation.registerFix(new CreateTraitQuickFix(stRef))
+        annotation.registerFix(new CreateClassQuickFix(stRef))
+      case _ =>
+    }
+  }
+
   private def nameOf(f: PsiNamedElement) = f.name + signatureOf(f)
 
   private def signatureOf(f: PsiNamedElement): String = f match {
@@ -216,10 +260,10 @@ trait ApplicationAnnotator {
     paramClauses.clauses.map(clause => formatParams(clause.parameters, clause.paramTypes)).mkString
   }
 
-  private def formatJavaParams(parameters: Seq[PsiParameter]) = {
-    val types = ScalaPsiUtil.getTypesStream(parameters)
+  private def formatJavaParams(parameters: Seq[PsiParameter]): String = {
+    val types = ScalaPsiUtil.mapToLazyTypesSeq(parameters)
     val parts = parameters.zip(types).map {
-      case (p, t) => t.presentableText + (if(p.isVarArgs) "*" else "")
+      case (p, t) => t().presentableText + (if(p.isVarArgs) "*" else "")
     }
     parenthesise(parts)
   }
@@ -232,4 +276,10 @@ trait ApplicationAnnotator {
   }
 
   private def parenthesise(items: Seq[_]) = items.mkString("(", ", ", ")")
+
+  private def addCreateFromUsagesQuickFixes(ref: ScReferenceElement, holder: AnnotationHolder) = {
+    val annotation = holder.createErrorAnnotation(ref, ScalaBundle.message("cannot.resolve.such.signature", ref.refName))
+    annotation.setHighlightType(ProblemHighlightType.INFORMATION)
+    registerCreateFromUsageFixesFor(ref, annotation)
+  }
 }

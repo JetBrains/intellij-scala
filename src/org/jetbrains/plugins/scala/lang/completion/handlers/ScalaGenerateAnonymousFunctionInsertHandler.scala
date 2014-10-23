@@ -1,20 +1,21 @@
 package org.jetbrains.plugins.scala.lang.completion.handlers
 
+import com.intellij.codeInsight.CodeInsightUtilCore
+import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.LookupElement
-import com.intellij.codeInsight.completion.{InsertionContext, InsertHandler}
+import com.intellij.codeInsight.template._
+import com.intellij.codeInsight.template.impl.ConstantNode
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.codeInsight.{CodeInsightUtilCore, CodeInsightUtilBase}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScTypedPattern, ScCaseClause}
-import com.intellij.codeInsight.template._
-import impl.ConstantNode
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
-import collection.mutable.HashSet
-import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.types.{ScTypePresentation, ScAbstractType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScTypedPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
+import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType, ScTypePresentation}
+
+import scala.collection.mutable.HashSet
 
 /**
  * @author Alexander Podkhalyuzin
@@ -28,7 +29,8 @@ class ScalaGenerateAnonymousFunctionInsertHandler(params: Seq[ScType], braceArgs
     val editor = context.getEditor
     val document = editor.getDocument
     context.setAddCompletionChar(false)
-    val text = ScalaCompletionUtil.generateAnonymousFunctionText(braceArgs, params, true)
+    val text = ScalaCompletionUtil.generateAnonymousFunctionText(braceArgs, params, canonical = true,
+      arrowText = ScalaPsiUtil.functionArrow(editor.getProject))
     document.insertString(editor.getCaretModel.getOffset, text)
     val documentManager = PsiDocumentManager.getInstance(context.getProject)
     documentManager.commitDocument(document)

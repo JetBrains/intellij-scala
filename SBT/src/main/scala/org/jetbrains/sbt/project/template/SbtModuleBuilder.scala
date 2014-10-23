@@ -1,17 +1,21 @@
 package org.jetbrains.sbt
 package project.template
 
-import org.jetbrains.sbt.project.settings.SbtProjectSettings
-import org.jetbrains.sbt.project.SbtProjectSystem
-import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel}
-import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.openapi.util.io.FileUtil._
-import com.intellij.openapi.roots.ModifiableRootModel
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
-import com.intellij.openapi.externalSystem.settings.{ExternalSystemSettingsListener, AbstractExternalSystemSettings}
 import java.io.File
+
+import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SdkSettingsStep, SettingsStep}
+import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
+import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSettings, ExternalSystemSettingsListener}
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
+import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel}
+import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
+import com.intellij.openapi.roots.ModifiableRootModel
+import com.intellij.openapi.util.Condition
+import com.intellij.openapi.util.io.FileUtil._
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.LocalFileSystem
+import org.jetbrains.sbt.project.SbtProjectSystem
+import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
 /**
  * User: Dmitry Naydanov, Pavel Fatin
@@ -37,7 +41,17 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     val path = file.getParent + "/" + Sbt.ModulesDirectory + "/" + file.getName.toLowerCase
     setModuleFilePath(path)
   }
-  
+
+  override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
+    new SdkSettingsStep(settingsStep, this, new Condition[SdkTypeId] {
+      def value(t: SdkTypeId): Boolean = t != null && t.isInstanceOf[JavaSdk]
+    }) {
+      override def updateDataModel() {
+        settingsStep.getContext setProjectJdk myJdkComboBox.getSelectedJdk
+      }
+    }
+  }
+
   private def createProjectTemplateIn(root: File, name: String) {
     val buildFile = root / Sbt.BuildFile
     val projectDir = root / Sbt.ProjectDirectory

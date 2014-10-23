@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import org.jetbrains.plugins.scala.base.SimpleTestCase
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import com.intellij.psi.{PsiErrorElement, PsiReference}
 import junit.framework.Assert._
-import com.intellij.psi.{PsiReference, PsiErrorElement}
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
-import lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
  * Pavel Fatin

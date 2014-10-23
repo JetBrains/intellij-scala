@@ -5,26 +5,27 @@ package api
 package base
 
 import _root_.org.jetbrains.plugins.scala.lang.resolve._
-import scala.collection.{mutable, Set}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import com.intellij.psi._
 import com.intellij.openapi.util.TextRange
-import refactoring.util.ScalaNamesUtil
-import statements.{ScTypeAliasDefinition, ScFunction}
-import toplevel.typedef._
-import psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
-import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
-import settings.ScalaProjectSettings
-import annotator.intention.ScalaImportTypeFix
-import toplevel.imports.ScImportSelector
+import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferenceElementPattern
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportExprUsed
-import com.intellij.codeInsight.PsiEquivalenceUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportExprUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
+import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+
+import scala.collection.{Set, mutable}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -104,12 +105,18 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
 
   def isReferenceTo(element: PsiElement, resolved: PsiElement): Boolean = {
     if (ScEquivalenceUtil.smartEquivalence(resolved, element)) return true
+    resolved match {
+      case isLightScNamedElement(named) => return isReferenceTo(element, named)
+      case isWrapper(named) => return isReferenceTo(element, named)
+      case _ =>
+    }
     element match {
+      case isWrapper(named) => return isReferenceTo(named, resolved)
       case td: ScTypeDefinition =>
         resolved match {
           case method: PsiMethod if method.isConstructor =>
             if (ScEquivalenceUtil.smartEquivalence(td, method.containingClass)) return true
-          case method: ScFunction if td.name == refName && Set("apply", "unapply", "unapplySeq").contains(method.name) =>
+          case method: ScFunction if Set("apply", "unapply", "unapplySeq").contains(method.name) =>
             var break = false
             val methods = td.allMethods
             for (n <- methods if !break) {
@@ -129,14 +136,14 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
               }
             }
             if (break) return true
-          case obj: ScObject if td.name == refName && obj.isSyntheticObject =>
+          case obj: ScObject if obj.isSyntheticObject =>
             ScalaPsiUtil.getCompanionModule(td) match {
               case Some(typeDef) if typeDef == obj => return true
               case _ =>
             }
           case _ =>
         }
-      case c: PsiClass if c.name == refName =>
+      case c: PsiClass =>
         resolved match {
           case method: PsiMethod if method.isConstructor =>
             if (c == method.containingClass) return true
@@ -176,7 +183,8 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
             r.parentElement match {
               case Some(ta: ScTypeAliasDefinition) => ta.isExactAliasFor(cls)
               case _ => false
-          }
+            }
+          case None => false
         }
       case _ =>
         // TODO indirect references via vals, e.g. `package object scala { val List = scala.collection.immutable.List }` ?
@@ -203,7 +211,9 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
   protected def safeBindToElement[T <: ScReferenceElement](qualName: String, referenceCreator: (String, Boolean) => T)
                                                         (simpleImport: => PsiElement): PsiElement = {
     val parts: Array[String] = qualName.split('.')
-    val anotherRef: T = referenceCreator(parts.last, true)
+    val last = parts.last
+    assert(!last.trim.isEmpty, s"Empty last part with safe bind to element with qualName: '$qualName'")
+    val anotherRef: T = referenceCreator(last, true)
     val resolve: Array[ResolveResult] = anotherRef.multiResolve(false)
     def checkForPredefinedTypes(): Boolean = {
       if (resolve.isEmpty) return true
@@ -230,13 +240,13 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
       })
       !reject
     }
-    val prefixImport = ScalaProjectSettings.getInstance(getProject).hasImportWithPrefix(qualName)
+    val prefixImport = ScalaCodeStyleSettings.getInstance(getProject).hasImportWithPrefix(qualName)
     if (!prefixImport && checkForPredefinedTypes()) {
       simpleImport
     } else {
       if (qualName.contains(".")) {
         var index =
-          if (ScalaProjectSettings.getInstance(getProject).isImportShortestPathForAmbiguousReferences) parts.length - 2
+          if (ScalaCodeStyleSettings.getInstance(getProject).isImportShortestPathForAmbiguousReferences) parts.length - 2
           else 0
         while (index >= 0) {
           val packagePart = parts.take(index + 1).mkString(".")

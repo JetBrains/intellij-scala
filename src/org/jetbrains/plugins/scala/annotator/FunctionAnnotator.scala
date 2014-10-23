@@ -1,17 +1,15 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.psi.types.{Unit => UnitType, Any => AnyType}
-import quickfix.modifiers.AddModifierQuickFix
-import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
-import lang.psi.types.result.{TypingContext, Success, TypeResult}
-import lang.psi.api.statements.ScFunctionDefinition
-import lang.psi.api.expr._
 import com.intellij.psi.PsiElement
-import quickfix.{ReportHighlightingErrorQuickFix, RemoveElementQuickFix}
+import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
+import org.jetbrains.plugins.scala.annotator.quickfix.modifiers.AddModifierQuickFix
+import org.jetbrains.plugins.scala.annotator.quickfix.{AddReturnTypeFix, RemoveElementQuickFix, ReportHighlightingErrorQuickFix}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Any => AnyType, Unit => UnitType, Bounds, ScType}
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -62,9 +60,11 @@ trait FunctionAnnotator {
 
     checkImplicitParametersAndBounds(function, function.clauses, holder)
 
-    for (functionType <- function.returnType;
-         usage <- function.getReturnUsages;
-         usageType <- typeOf(usage)) {
+    for {
+      functionType <- function.returnType
+      usage <- function.returnUsages()
+      usageType <- typeOf(usage)
+    } {
 
       val explicitType = function.hasExplicitType
       val unitType = functionType == UnitType
@@ -87,12 +87,18 @@ trait FunctionAnnotator {
 
       def needsTypeAnnotation() = {
         val message = ScalaBundle.message("function.must.define.type.explicitly", function.name)
-        holder.createErrorAnnotation(usage.asInstanceOf[ScReturnStmt].returnKeyword, message)
+        val returnTypes = function.returnUsages(withBooleanInfix = false).toSeq.collect {
+          case retStmt: ScReturnStmt => retStmt.expr.flatMap(_.getType().toOption).getOrElse(AnyType)
+          case expr: ScExpression => expr.getType().getOrAny
+        }
+        val lub = Bounds.lub(returnTypes)
+        val annotation = holder.createErrorAnnotation(usage.asInstanceOf[ScReturnStmt].returnKeyword, message)
+        annotation.registerFix(new AddReturnTypeFix(function, lub))
       }
 
       def redundantReturnExpression() = {
         val message = ScalaBundle.message("return.expression.is.redundant", usageType.presentableText)
-        holder.createWarningAnnotation(usage.asInstanceOf[ScReturnStmt].expr.get, message);
+        holder.createWarningAnnotation(usage.asInstanceOf[ScReturnStmt].expr.get, message)
       }
 
       def typeMismatch() {
@@ -102,7 +108,7 @@ trait FunctionAnnotator {
           val returnExpression = if (explicitReturn) usage.asInstanceOf[ScReturnStmt].expr else None
           val expr = returnExpression.getOrElse(usage) match {
             case b: ScBlockExpr => b.getRBrace.map(_.getPsi).getOrElse(b)
-            case expr => expr
+            case e => e
           }
           val annotation = holder.createErrorAnnotation(expr, message)
           annotation.registerFix(ReportHighlightingErrorQuickFix)

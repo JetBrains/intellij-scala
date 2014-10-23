@@ -2,13 +2,11 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package caseClassParamInspection
 
-import collection.mutable.ArrayBuffer
 import com.intellij.codeInspection._
-import java.lang.String
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import com.intellij.psi.{PsiElementVisitor, PsiFile}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 
 
 class CaseClassParamInspection extends LocalInspectionTool {
@@ -18,7 +16,7 @@ class CaseClassParamInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
-      override def visitTypeDefintion(typedef: ScTypeDefinition) = {
+      override def visitTypeDefinition(typedef: ScTypeDefinition) = {
         typedef match {
           case c: ScClass if c.isCase =>
             for{
@@ -27,12 +25,12 @@ class CaseClassParamInspection extends LocalInspectionTool {
               if classParam.isVal && classParam.isCaseClassVal
             } {
               holder.registerProblem(holder.getManager.createProblemDescriptor(classParam,
-                ScalaBundle.message("val.on.case.class.param.redundant"),
+                ScalaBundle.message("val.on.case.class.param.redundant"), isOnTheFly,
                 Array[LocalQuickFix](new RemoveValQuickFix(classParam)), ProblemHighlightType.GENERIC_ERROR_OR_WARNING))
             }
           case _ =>
         }
-        super.visitTypeDefintion(typedef)
+        super.visitTypeDefinition(typedef)
       }
     }
   }

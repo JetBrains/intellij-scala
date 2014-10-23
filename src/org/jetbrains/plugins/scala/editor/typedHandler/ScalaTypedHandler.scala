@@ -2,25 +2,26 @@ package org.jetbrains.plugins.scala.editor.typedHandler
 
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate.Result
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import com.intellij.psi.codeStyle.CodeStyleManager
-import com.intellij.openapi.editor.{Document, Editor}
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
-import com.intellij.psi.{PsiElement, PsiDocumentManager, PsiWhiteSpace, PsiFile}
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
-import com.intellij.openapi.fileTypes.FileType
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
-import org.jetbrains.plugins.scala.extensions
-import com.intellij.psi.xml.XmlTokenType
 import com.intellij.lexer.XmlLexer
+import com.intellij.openapi.editor.{Document, Editor}
+import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.project.Project
+import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.psi.xml.XmlTokenType
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 
@@ -42,9 +43,9 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
 
     def chooseXmlTask(withAttr: Boolean) {
       c match {
-        case '>' => myTask = completeXmlTag(tag => "</" + Option(tag.getTagName).getOrElse("") + ">") _
-        case '/' => myTask = completeEmptyXmlTag(editor) _
-        case '=' if withAttr => myTask = completeXmlAttributeQuote(editor) _
+        case '>' => myTask = completeXmlTag(tag => "</" + Option(tag.getTagName).getOrElse("") + ">")
+        case '/' => myTask = completeEmptyXmlTag(editor)
+        case '=' if withAttr => myTask = completeXmlAttributeQuote(editor)
         case _ =>
       }
     }
@@ -56,7 +57,8 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     } else if (isInPlace(element, classOf[ScXmlExpr], classOf[ScXmlPattern])) {
       chooseXmlTask(withAttr = true)
     } else if (file.findElementAt(offset - 2) 
-        match {case i: PsiElement if !ScalaNamesUtil.isOperatorName(i.getText) => c == '>' || c == '/' case _ => false}) {
+        match {case i: PsiElement if !ScalaNamesUtil.isOperatorName(i.getText) && i.getText != "=" =>
+        c == '>' || c == '/' ; case _ => false}) {
       chooseXmlTask(withAttr = false)
     } else if (element.getPrevSibling != null && element.getPrevSibling.getNode.getElementType == ScalaElementTypes.CASE_CLAUSES) {
       val ltIndex = element.getPrevSibling.getText.indexOf("<")
@@ -65,7 +67,9 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       }
     } else if (c == '{' && (element.getParent match {
             case l: ScInterpolatedStringLiteral => !l.isMultiLineString; case _ => false} )) {
-      myTask = completeInterpolatedStringBraces 
+      myTask = completeInterpolatedStringBraces
+    } else if (c == '>' || c == '-') {
+      myTask = replaceArrowTask(file, editor)
     }
 
     if (myTask == null) return Result.CONTINUE
@@ -87,6 +91,8 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     if (element == null) return Result.CONTINUE
     val elementType = element.getNode.getElementType
 
+    val settings = ScalaCodeStyleSettings.getInstance(project)
+
     def moveCaret() {
       editor.getCaretModel.moveCaretRelatively(1, 0, false, false, false)
     }
@@ -101,16 +107,19 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
                             && element.getPrevSibling.getNode.getElementType == ScalaDocTokenType.DOC_ITALIC_TAG)) {
       moveCaret()
       return Result.STOP
-    } else if (c == '"' && element.getNode.getElementType == XmlTokenType.XML_ATTRIBUTE_VALUE_END_DELIMITER) {
+    } else if (c == '"' && elementType == XmlTokenType.XML_ATTRIBUTE_VALUE_END_DELIMITER) {
       moveCaret()
       return Result.STOP
-    } else if ((c == '>' || c == '/') && element.getNode.getElementType == XmlTokenType.XML_EMPTY_ELEMENT_END) {
+    } else if ((c == '>' || c == '/') && elementType == XmlTokenType.XML_EMPTY_ELEMENT_END) {
       moveCaret()
       return Result.STOP
-    } else if (c == '>' && element.getNode.getElementType == XmlTokenType.XML_TAG_END) {
+    } else if (c == '>' && elementType == XmlTokenType.XML_TAG_END) {
       moveCaret()
       return Result.STOP
     } else if (c == '>' && prevElement != null && prevElement.getNode.getElementType == XmlTokenType.XML_EMPTY_ELEMENT_END) {
+      return Result.STOP
+    } else if (c == '>' && settings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR && prevElement != null &&
+      prevElement.getNode.getElementType == ScalaTokenTypes.tFUNTYPE) {
       return Result.STOP
     } else if (c == '"' && prevElement != null && ScalaApplicationSettings.getInstance().INSERT_MULTILINE_QUOTES) {
       val prevType = prevElement.getNode.getElementType
@@ -180,7 +189,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
   
   private def completeInterpolatedStringBraces(document: Document, project: Project, element: PsiElement, offset: Int) {
     if (element == null) return
-    import ScalaTokenTypes._
+    import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
     
     if (element.getNode.getElementType == tLBRACE && 
       Option(element.getParent.getPrevSibling).exists(_.getNode.getElementType == tINTERPOLATED_STRING_INJECTION)) {
@@ -212,7 +221,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
   }
 
   private def getScaladocTask(text: String, offset: Int): (Document, Project, PsiElement, Int) => Unit = {
-    import ScalaTypedHandler._
+    import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler._
     if (offset < 3 || text.length < offset) {
       return null
     }
@@ -243,6 +252,27 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     }
   }
 
+  private def replaceArrowTask(file: PsiFile, editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int) {
+    @inline def replaceElement(replaceWith: String) {
+      extensions.inWriteAction {
+        document.replaceString(element.getTextRange.getStartOffset, element.getTextRange.getEndOffset, replaceWith)
+        PsiDocumentManager.getInstance(project).commitDocument(document)
+      }
+    }
+
+    val settings = ScalaCodeStyleSettings.getInstance(project)
+
+    element.getNode.getElementType match {
+      case ScalaTokenTypes.tFUNTYPE if settings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR =>
+        replaceElement(ScalaTypedHandler.unicodeCaseArrow)
+      case ScalaTokenTypes.tIDENTIFIER if settings.REPLACE_MAP_ARROW_WITH_UNICODE_CHAR && element.getText == "->" =>
+        replaceElement(ScalaTypedHandler.unicodeMapArrow)
+      case ScalaTokenTypes.tCHOOSE if settings.REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR =>
+        replaceElement(ScalaTypedHandler.unicodeForGeneratorArrow)
+      case _ =>
+    }
+  }
+
   private def completeEmptyXmlTag(editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int) {
     if (element != null && element.getNode.getElementType == XmlTokenType.XML_DATA_CHARACTERS && element.getText == "/" &&
             element.getPrevSibling != null && element.getPrevSibling.isInstanceOf[ScXmlStartTag]) {
@@ -270,4 +300,8 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
 object ScalaTypedHandler {
   val wiki1LTagMatch = Set("^", "`")
   val wiki2LTagMatch = Map("__" -> "__", "''" -> "''", ",," -> ",,", "[[" -> "]]")
+
+  val unicodeCaseArrow = "⇒"
+  val unicodeMapArrow = "→"
+  val unicodeForGeneratorArrow = "←"
 }

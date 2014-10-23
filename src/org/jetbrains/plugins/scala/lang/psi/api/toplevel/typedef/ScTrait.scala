@@ -5,8 +5,8 @@ package api
 package toplevel
 package typedef
 
-import lexer.ScalaTokenTypes
 import com.intellij.psi.{PsiClass, PsiElement}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 /** 
 * @author Alexander Podkhalyuzin

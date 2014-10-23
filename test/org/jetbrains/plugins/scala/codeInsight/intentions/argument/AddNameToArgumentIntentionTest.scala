@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intentions.argument
 
-import codeInsight.intentions.ScalaIntentionTestBase
-import codeInsight.intention.argument.AddNameToArgumentIntention
+import org.jetbrains.plugins.scala.codeInsight.intention.argument.AddNameToArgumentIntention
+import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 /**
  * @author Ksenia.Sautina

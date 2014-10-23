@@ -6,10 +6,10 @@ package lang
  */
 
 import com.intellij.psi.tree.TokenSet
-import lexer.{ScalaElementType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
-import parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.util.MemberElementTypesExtension
 
 object TokenSets {
@@ -137,6 +137,6 @@ object TokenSets {
 
   val TYPE_ELEMENTS_TOKEN_SET = TokenSet.create(
     SIMPLE_TYPE, TYPE, TYPE_IN_PARENTHESIS, TYPE_GENERIC_CALL, INFIX_TYPE, TUPLE_TYPE,
-    EXISTENTIAL_TYPE, COMPOUND_TYPE, ANNOT_TYPE, WILDCARD_TYPE, TYPE_PROJECTION
+    EXISTENTIAL_TYPE, COMPOUND_TYPE, ANNOT_TYPE, WILDCARD_TYPE, TYPE_PROJECTION, TYPE_VARIABLE
   )
 }

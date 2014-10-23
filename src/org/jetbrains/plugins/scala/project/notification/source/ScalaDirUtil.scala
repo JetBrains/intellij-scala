@@ -3,6 +3,8 @@ package project.notification.source
 
 import java.lang.StringBuilder
 
+import java.lang.StringBuilder
+
 import com.intellij.lexer.Lexer
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.StringBuilderSpinAllocator

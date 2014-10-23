@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.scala.highlighter.usages
 
+import com.intellij.codeInsight.TargetElementUtilBase
 import com.intellij.codeInsight.highlighting.{HighlightUsagesHandlerBase, HighlightUsagesHandlerFactory}
 import com.intellij.openapi.editor.Editor
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition, ScPatternDefinition, ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import com.intellij.codeInsight.TargetElementUtilBase
 
 /**
  * User: Alexander Podkhalyuzin
@@ -24,91 +24,74 @@ class ScalaHighlightUsagesHandlerFactory extends  HighlightUsagesHandlerFactory 
     val element: PsiElement = file.findElementAt(offset)
     if (element == null || element.getNode == null) return null
     element.getNode.getElementType match {
-      case ScalaTokenTypes.kRETURN => {
+      case ScalaTokenTypes.kRETURN =>
         val fun = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionDefinition])
         if (fun != null) return new ScalaHighlightExitPointsHandler(fun, editor, file, element)
-      }
-      case ScalaTokenTypes.kDEF => {
+      case ScalaTokenTypes.kDEF =>
         val fun = PsiTreeUtil.getParentOfType(element, classOf[ScFunction])
         fun match {
           case d: ScFunctionDefinition => return new ScalaHighlightExitPointsHandler(d, editor, file, element)
           case _ =>
         }
-      }
-      case ScalaTokenTypes.kVAL => {
+      case ScalaTokenTypes.kVAL =>
         PsiTreeUtil.getParentOfType(element, classOf[ScPatternDefinition]) match {
-          case pattern @ ScPatternDefinition.expr(expr) if pattern.pList.allPatternsSimple && pattern.pList.patterns.length == 1 =>
+          case pattern@ScPatternDefinition.expr(expr) if pattern.pList.allPatternsSimple && pattern.pList.patterns.length == 1 =>
             return new ScalaHighlightExprResultHandler(expr, editor, file, element)
           case _ =>
         }
-      }
-      case ScalaTokenTypes.kVAR => {
+      case ScalaTokenTypes.kVAR =>
         PsiTreeUtil.getParentOfType(element, classOf[ScVariableDefinition]) match {
-          case pattern @ ScPatternDefinition.expr(expr) if pattern.pList.allPatternsSimple && pattern.pList.patterns.length == 1 =>
+          case pattern@ScPatternDefinition.expr(expr) if pattern.pList.allPatternsSimple && pattern.pList.patterns.length == 1 =>
             return new ScalaHighlightExprResultHandler(expr, editor, file, element)
           case _ =>
         }
-      }
-      case ScalaTokenTypes.kCASE => {
-        val caseClauseNullable = PsiTreeUtil.getParentOfType(element, classOf[ScCaseClause])
-        for {
-          cc <- Option(caseClauseNullable)
-          expr <- cc.expr
-        } {
-          return new ScalaHighlightExprResultHandler(expr, editor, file, element)
+      case ScalaTokenTypes.kCASE =>
+        val cc = PsiTreeUtil.getParentOfType(element, classOf[ScCaseClause])
+        if (cc != null) {
+          cc.expr match {
+            case Some(expr) =>
+              return new ScalaHighlightExprResultHandler(expr, editor, file, element)
+            case _ =>
+          }
         }
-      }
-      case ScalaTokenTypes.kMATCH => {
-        val matchStmtNullable = PsiTreeUtil.getParentOfType(element, classOf[ScMatchStmt])
-        Option(matchStmtNullable) match {
-          case Some(matchStmt) =>
-            return new ScalaHighlightExprResultHandler(matchStmt, editor, file, element)
-          case _ =>
+      case ScalaTokenTypes.kMATCH =>
+        val matchStmt = PsiTreeUtil.getParentOfType(element, classOf[ScMatchStmt])
+        if (matchStmt != null) {
+          return new ScalaHighlightExprResultHandler(matchStmt, editor, file, element)
         }
-      }
-      case ScalaTokenTypes.kTRY => {
-        val tryStmtNullable = PsiTreeUtil.getParentOfType(element, classOf[ScTryStmt])
-        Option(tryStmtNullable) match {
-          case Some(tryStmt) =>
-            return new ScalaHighlightExprResultHandler(tryStmt, editor, file, element)
-          case _ =>
+      case ScalaTokenTypes.kTRY =>
+        val tryStmt = PsiTreeUtil.getParentOfType(element, classOf[ScTryStmt])
+        if (tryStmt != null) {
+          return new ScalaHighlightExprResultHandler(tryStmt, editor, file, element)
         }
-      }
-      case ScalaTokenTypes.kFOR => {
-        val forStmtNullable = PsiTreeUtil.getParentOfType(element, classOf[ScForStatement])
-        for {
-          forStmt <- Option(forStmtNullable)
-          if forStmt.isYield
-          body <- forStmt.body
-        } {
-          return new ScalaHighlightExprResultHandler(body, editor, file, element)
+      case ScalaTokenTypes.kFOR =>
+        val forStmt = PsiTreeUtil.getParentOfType(element, classOf[ScForStatement])
+        if (forStmt != null && forStmt.isYield) {
+          forStmt.body match {
+            case Some(body) =>
+              return new ScalaHighlightExprResultHandler(body, editor, file, element)
+            case _ =>
+          }
         }
-      }
-      case ScalaTokenTypes.kIF => {
-        val ifStmtNullable = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt])
-        for {
-          ifStmt <- Option(ifStmtNullable)
-        } {
+      case ScalaTokenTypes.kIF =>
+        val ifStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt])
+        if (ifStmt != null) {
           return new ScalaHighlightExprResultHandler(ifStmt, editor, file, element)
         }
-      }
-      case ScalaTokenTypes.tFUNTYPE => {
-        val funcExprNullable = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionExpr])
-        for {
-          funcExpr <- Option(funcExprNullable)
-          resultExpr <- funcExpr.result
-        } {
-          return new ScalaHighlightExprResultHandler(resultExpr, editor, file, element)
+      case ScalaTokenTypes.tFUNTYPE =>
+        val funcExpr = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionExpr])
+        if (funcExpr != null) {
+          funcExpr.result match {
+            case Some(resultExpr) =>
+              return new ScalaHighlightExprResultHandler(resultExpr, editor, file, element)
+            case _ =>
+          }
         }
-      }
-      case ScalaTokenTypes.kCLASS | ScalaTokenTypes.kTRAIT | ScalaTokenTypes.kOBJECT => {
-        val templateDefOpt = PsiTreeUtil.getParentOfType(element, classOf[ScTemplateDefinition])
-        for {
-          templateDef <- Option(templateDefOpt)
-        } {
-          return new ScalaHighlightPrimaryConstructorExpressionsHandler(templateDef, editor, file, element)
+      case ScalaTokenTypes.kCLASS | ScalaTokenTypes.kTRAIT | ScalaTokenTypes.kOBJECT =>
+        val templateDef = PsiTreeUtil.getParentOfType(element, classOf[ScTemplateDefinition])
+        if (templateDef != null) {
+          new ScalaHighlightPrimaryConstructorExpressionsHandler(templateDef, editor, file, element)
         }
-      }
       case _ =>
     }
     null

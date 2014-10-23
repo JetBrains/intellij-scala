@@ -3,26 +3,18 @@ package lang
 package checkers
 package checkPrivateAccess
 
-import _root_.scala.collection.mutable.ArrayBuffer
-import _root_.scala.util.Sorting
-import base.{ScalaLightPlatformCodeInsightTestCaseAdapter, ScalaPsiTestCase}
-import com.intellij.codeInsight.hint.{HintUtil, ShowParameterInfoContext}
-import com.intellij.lang.parameterInfo.ParameterInfoUIContext
-import com.intellij.openapi.fileEditor.{OpenFileDescriptor, FileEditorManager}
-import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem, VirtualFile}
-import com.intellij.psi.util.PsiTreeUtil
-import java.awt.Color
 import java.io.File
-import java.lang.String
-import com.intellij.vcsUtil.VcsUtil
-import lexer.ScalaTokenTypes
-import psi.api.ScalaFile
-import parameterInfo.ScalaFunctionParameterInfoHandler
-import psi.api.base.ScReferenceElement
-import resolve.ResolveUtils
-import com.intellij.psi.{PsiMember, PsiComment, PsiManager, PsiElement}
-import com.intellij.openapi.util.text.StringUtil
+
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
+import com.intellij.psi.PsiMember
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 
 /**
  * User: Alexander Podkhalyuzin

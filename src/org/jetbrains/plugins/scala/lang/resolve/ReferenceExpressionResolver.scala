@@ -3,15 +3,16 @@ package lang
 package resolve
 
 import _root_.com.intellij.psi.impl.source.resolve.ResolveCache
+import com.intellij.psi.{PsiElement, ResolveResult}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import processor.MethodResolveProcessor
-import psi.types.Compatibility.Expression
-import psi.types.Compatibility.Expression._
-import com.intellij.psi.{ResolveResult, PsiElement}
-import psi.types.{ScParameterizedType, ScFunctionType, ScType}
-import collection.Set
-import psi.implicits.ScImplicitlyConvertible
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression._
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
+
+import scala.collection.Set
 
 class ReferenceExpressionResolver(shapesOnly: Boolean)
         extends ResolveCache.PolyVariantResolver[ResolvableReferenceExpression] {
@@ -19,13 +20,12 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
   
   private def argumentsOf(ref: PsiElement): Seq[Expression] = {
     ref.getContext match {
-      case infixExpr: ScInfixExpr => {
+      case infixExpr: ScInfixExpr =>
         //TODO should rOp really be parsed as Tuple (not as argument list)?
         infixExpr.rOp match {
           case t: ScTuple => t.exprs
           case op => Seq(op)
         }
-      }
       case methodCall: ScMethodCall => methodCall.argumentExpressions
     }
   }
@@ -34,12 +34,12 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
     e.getContext match {
       case generic : ScGenericCall => getContextInfo(ref, generic)
       case call: ScMethodCall if !call.isUpdateCall =>
-        ContextInfo(Some(call.argumentExpressions), () => None, isUnderscore = false)
+        ContextInfo(Some(call.argumentExpressions), () => call.expectedType(), isUnderscore = false)
       case call: ScMethodCall =>
         val args = call.argumentExpressions ++ call.getContext.asInstanceOf[ScAssignStmt].getRExpression.toList
         ContextInfo(Some(args), () => None, isUnderscore = false)
       case section: ScUnderscoreSection => ContextInfo(None, () => section.expectedType(), isUnderscore = true)
-      case inf: ScInfixExpr if ref == inf.operation => {
+      case inf: ScInfixExpr if ref == inf.operation =>
         ContextInfo(if (ref.rightAssoc) Some(Seq(inf.lOp)) else inf.rOp match {
           case tuple: ScTuple => Some(tuple.exprs) // See SCL-2001
           case unit: ScUnitExpr => Some(Nil) // See SCL-3485
@@ -49,7 +49,6 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
           }
           case rOp => Some(Seq(rOp))
         }, () => None, isUnderscore = false)
-      }
       case parents: ScParenthesisedExpr => getContextInfo(ref, parents)
       case postf: ScPostfixExpr if ref == postf.operation => getContextInfo(ref, postf)
       case pref: ScPrefixExpr if ref == pref.operation => getContextInfo(ref, pref)
@@ -117,7 +116,7 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
         result = reference.doResolve(reference, processor(smartProcessor = false))
       } else {
         val candidatesS = processor(smartProcessor = true).candidatesS //let's try to avoid treeWalkUp
-        if (candidatesS.isEmpty || candidatesS.forall(!_.isApplicable)) {
+        if (candidatesS.isEmpty || candidatesS.forall(!_.isApplicable())) {
           // it has another resolve only in one case:
           // clazz.ref(expr)
           // clazz has method ref with one argument, but it's not ok

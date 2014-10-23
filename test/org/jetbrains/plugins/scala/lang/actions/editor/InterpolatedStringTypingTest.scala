@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.actions.editor
 
-import base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 /**
  * User: Dmitry Naydanov
@@ -9,7 +9,6 @@ import base.ScalaLightCodeInsightFixtureTestAdapter
  */
 
 class InterpolatedStringTypingTest extends ScalaLightCodeInsightFixtureTestAdapter {
-  import ScalaLightCodeInsightFixtureTestAdapter.CARET_MARKER
 
   def testSimpleStringTypingOpeningQuote() {
     val text = "class A { val a = s" + CARET_MARKER + " }"

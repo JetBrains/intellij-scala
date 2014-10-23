@@ -3,9 +3,13 @@ package org.jetbrains.plugins.scala.debugger.filters;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.options.Configurable;
-import com.intellij.xdebugger.settings.XDebuggerSettings;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.intellij.xdebugger.settings.DebuggerSettingsCategory;
+import com.intellij.xdebugger.settings.XDebuggerSettings;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * @author ilyas
@@ -23,6 +27,7 @@ public class ScalaDebuggerSettings extends XDebuggerSettings<ScalaDebuggerSettin
   public Boolean DEBUG_DISABLE_SPECIFIC_SCALA_METHODS = true;
   public Boolean FRIENDLY_COLLECTION_DISPLAY_ENABLED = true;
   public Boolean FRIENDLY_OBJECT_REF_DISPLAY_ENABLED = true;
+  public Boolean DONT_SHOW_RUNTIME_REFS = false;
   public Boolean DO_NOT_DISPLAY_STREAMS = true;
   public Integer COLLECTION_START_INDEX = 0;
   public Integer COLLECTION_END_INDEX = 49;
@@ -32,8 +37,13 @@ public class ScalaDebuggerSettings extends XDebuggerSettings<ScalaDebuggerSettin
   }
 
   @NotNull
-  public Configurable createConfigurable() {
-    return new ScalaDebuggerSettingsConfigurable(this);
+  @Override
+  public Collection<? extends Configurable> createConfigurables(@NotNull DebuggerSettingsCategory category) {
+    //todo: split settings configurables somehow
+    if (category == DebuggerSettingsCategory.GENERAL) {
+      return Collections.singletonList(new ScalaDebuggerSettingsConfigurable(this));
+    }
+    return Collections.emptyList();
   }
 
   public ScalaDebuggerSettings getState() {

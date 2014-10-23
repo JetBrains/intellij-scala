@@ -3,13 +3,11 @@ package lang
 package structureView
 package elements
 
-import com.intellij.ide.structureView.impl.common.PsiTreeElementBase
 import com.intellij.ide.structureView.StructureViewTreeElement
+import com.intellij.pom.Navigatable
+import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import psi.api.statements.{ScVariable, ScValue}
-
-import com.intellij.pom.Navigatable;
-import com.intellij.psi.PsiElement;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable};
 
 /**
 * @author Alexander Podkhalyuzin

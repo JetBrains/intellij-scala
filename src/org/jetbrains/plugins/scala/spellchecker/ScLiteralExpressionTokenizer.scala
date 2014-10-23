@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.scala
 package spellchecker
 
-import java.lang.{String, StringBuilder}
-import com.intellij.psi.impl.source.tree.java.PsiLiteralExpressionImpl
-import com.intellij.spellchecker.tokenizer.{TokenConsumer, Tokenizer, EscapeSequenceTokenizer}
-import com.intellij.psi.PsiModifierListOwner
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.codeInsight.AnnotationUtil
+import java.lang.StringBuilder
 import java.util.Collections
+
+import com.intellij.codeInsight.AnnotationUtil
+import com.intellij.psi.PsiModifierListOwner
+import com.intellij.psi.impl.source.tree.java.PsiLiteralExpressionImpl
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.spellchecker.inspections.PlainTextSplitter
-import lang.psi.api.base.ScLiteral
-import lang.psi.impl.base.ScLiteralImpl
+import com.intellij.spellchecker.tokenizer.{EscapeSequenceTokenizer, TokenConsumer, Tokenizer}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 
 /**
  * @author Ksenia.Sautina
@@ -26,12 +26,11 @@ class ScLiteralExpressionTokenizer extends Tokenizer[ScLiteral] {
   }
 
   def tokenize(element: ScLiteral, consumer: TokenConsumer) {
-    val literalExpression: ScLiteral = element.asInstanceOf[ScLiteralImpl]
     val listOwner: PsiModifierListOwner = PsiTreeUtil.getParentOfType(element, classOf[PsiModifierListOwner])
     if (listOwner != null && AnnotationUtil.isAnnotated(listOwner, Collections.singleton(AnnotationUtil.NON_NLS), false, false)) {
       return
     }
-    val text: String = literalExpression.getText
+    val text: String = element.getText
     if (text == null) {
       return
     }

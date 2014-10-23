@@ -6,7 +6,7 @@ import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ListWithSelection;
-import com.intellij.util.ui.ComboBoxTableCellEditor;
+import com.intellij.util.ui.table.ComboBoxTableCellEditor;
 import org.intellij.plugins.intelliLang.inject.InjectedLanguage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings;

@@ -1,17 +1,20 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala
+package annotator
 
+import com.intellij.codeHighlighting.Pass
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.codeInsight.daemon.impl._
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightInfoHolder
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.Document
+import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.openapi.project.{DumbService, Project}
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
-import com.intellij.openapi.editor.Document
-import com.intellij.psi._
-import com.intellij.openapi.util.TextRange
-import com.intellij.codeHighlighting.Pass
-import collection.JavaConversions
-import com.intellij.codeInsight.daemon.impl._
 import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
+
+import scala.collection.JavaConversions
 
 /**
  * User: Alexander Podkhalyuzin
@@ -35,6 +38,7 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
   }
 
   def analyze(file: PsiFile, updateWholeFile: Boolean, holder: HighlightInfoHolder, action: Runnable): Boolean = {
+    val time = System.currentTimeMillis()
     var success = true
     try {
       myHolder = holder
@@ -42,23 +46,23 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
       if (updateWholeFile) {
         val project: Project = file.getProject
         val daemonCodeAnalyzer: DaemonCodeAnalyzer = DaemonCodeAnalyzer.getInstance(project)
-        val fileStatusMap: FileStatusMap = (daemonCodeAnalyzer.asInstanceOf[DaemonCodeAnalyzerImpl]).getFileStatusMap
+        val fileStatusMap: FileStatusMap = daemonCodeAnalyzer.asInstanceOf[DaemonCodeAnalyzerImpl].getFileStatusMap
         val refCountHolder: ScalaRefCountHolder = ScalaRefCountHolder.getInstance(file)
         myRefCountHolder = refCountHolder
         val document: Document = PsiDocumentManager.getInstance(project).getDocument(file)
         val dirtyScope: TextRange = if (document == null) file.getTextRange else fileStatusMap.getFileDirtyScope(document, Pass.UPDATE_ALL)
         success = refCountHolder.analyze(action, dirtyScope, file)
-      }
-      else {
+      } else {
         myRefCountHolder = null
         action.run()
       }
-    }
-    finally {
+    } finally {
       myHolder = null
       myAnnotationHolder = null
       myRefCountHolder = null
     }
+    val method: Long = System.currentTimeMillis() - time
+    if (method > 100 && ApplicationManager.getApplication.isInternal) println(s"File: ${file.getName}, Time: $method")
     success
   }
 
@@ -72,7 +76,7 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
     }
     (new ScalaAnnotator).annotate(element, myAnnotationHolder)
     if (myAnnotationHolder.hasAnnotations) {
-      import JavaConversions._
+      import scala.collection.JavaConversions._
       for (annotation <- myAnnotationHolder) {
         myHolder.add(HighlightInfo.fromAnnotation(annotation))
       }

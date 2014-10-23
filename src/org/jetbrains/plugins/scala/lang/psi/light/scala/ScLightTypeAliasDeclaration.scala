@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala
 package lang.psi.light.scala
 
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypeAliasSignature}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaration
 import com.intellij.psi.impl.light.LightElement
+import com.intellij.psi.{PsiAnnotation, PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
-import com.intellij.psi.{PsiClass, PsiAnnotation, PsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaration
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypeAliasSignature}
 
 /**
  * @author Alefas

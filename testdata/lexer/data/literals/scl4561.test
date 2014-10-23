@@ -1,0 +1,9 @@
+val c = '''
+-----
+val {val}
+white space in line { }
+identifier {c}
+white space in line { }
+= {=}
+white space in line { }
+Character {'''}

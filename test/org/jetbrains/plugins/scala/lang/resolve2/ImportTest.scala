@@ -13,6 +13,7 @@ class ImportTest extends ResolveTestBase {
   def testBrokenChain() {doTest()}
   def testLocal1() {doTest()}
   def testLocal2() {doTest()}
+  def testRedundantImport() {doTest()}
   def testRenamed() {doTest()}
   def testSelection() {doTest()}
   def testSingle() {doTest()}

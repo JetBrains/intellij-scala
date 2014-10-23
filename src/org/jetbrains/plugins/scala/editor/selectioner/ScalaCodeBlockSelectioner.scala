@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.editor.selectioner
 
+import java.util
+
 import com.intellij.codeInsight.editorActions.ExtendWordSelectionHandlerBase
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.{PsiElement, TokenType}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import java.util
-import com.intellij.psi.{TokenType, PsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 
 /**
  * @author yole

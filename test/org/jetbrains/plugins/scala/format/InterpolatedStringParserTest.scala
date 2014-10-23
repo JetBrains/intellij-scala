@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
 package format
 
-import base.SimpleTestCase
-import lang.psi.api.base.ScInterpolatedStringLiteral
-import extensions.ElementText
+import org.jetbrains.plugins.scala.base.SimpleTestCase
+import org.jetbrains.plugins.scala.extensions.ElementText
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 
 /**
  * Pavel Fatin

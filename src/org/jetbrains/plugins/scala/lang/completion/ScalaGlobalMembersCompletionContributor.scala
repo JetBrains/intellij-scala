@@ -1,34 +1,34 @@
 package org.jetbrains.plugins.scala.lang.completion
 
-import com.intellij.codeInsight.lookup.LookupElement
-import com.intellij.codeInsight.completion._
-import com.intellij.psi._
-import lookups.{ScalaLookupItem, LookupElementManager}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScPrefixExpr, ScPostfixExpr, ScInfixExpr, ScReferenceExpression}
-import com.intellij.featureStatistics.FeatureUsageTracker
-import search.GlobalSearchScope
-import gnu.trove.THashSet
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.codeInsight.CodeInsightSettings
-import com.intellij.patterns.PlatformPatterns.psiElement
-import com.intellij.util.ProcessingContext
-import collection.mutable.HashSet
-import com.intellij.openapi.keymap.KeymapUtil
+import com.intellij.codeInsight.completion._
+import com.intellij.codeInsight.lookup.LookupElement
+import com.intellij.featureStatistics.FeatureUsageTracker
 import com.intellij.openapi.actionSystem.{ActionManager, IdeActions}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import stubs.StubIndex
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
-import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
-import org.jetbrains.plugins.scala.lang.resolve.{StdKinds, ScalaResolveResult, ResolveUtils}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable, ScValue}
-import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScClass, ScTypeDefinition, ScObject}
-import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
+import com.intellij.openapi.keymap.KeymapUtil
+import com.intellij.patterns.PlatformPatterns.psiElement
+import com.intellij.psi._
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
-import collection.mutable
+import com.intellij.psi.stubs.StubIndex
+import com.intellij.util.ProcessingContext
+import gnu.trove.THashSet
+import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.lookups.{LookupElementManager, ScalaLookupItem}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScPostfixExpr, ScPrefixExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
+
+import scala.collection.mutable
 
 /**
  * @author Alexander Podkhalyuzin
@@ -132,7 +132,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
       } else elemsSet.contains(elem)
     }
 
-    val collection = StubIndex.getInstance.safeGet(ScalaIndexKeys.IMPLICITS_KEY, "implicit", file.getProject, scope, classOf[ScMember])
+    val collection = StubIndex.getElements(ScalaIndexKeys.IMPLICITS_KEY, "implicit", file.getProject, scope, classOf[ScMember])
     
     import scala.collection.JavaConversions._
 
@@ -195,7 +195,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
         val shortcut: String =
           KeymapUtil.getFirstKeyboardShortcutText(ActionManager.getInstance.getAction(actionId))
         if (shortcut != null) {
-          CompletionService.getCompletionService.setAdvertisementText("To import a method statically, press " + shortcut)
+          result.addLookupAdvertisement(s"To import a method statically, press $shortcut")
         }
         hintShown = true
       }

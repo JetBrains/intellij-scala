@@ -1,19 +1,20 @@
 package org.jetbrains.plugins.scala.lang.refactoring.util
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import _root_.scala.collection.mutable.ArrayBuffer
-import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiFile, PsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScClass}
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameters, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.editor.Editor
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.util.containers.MultiMap
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+
+import scala.collection.mutable.ArrayBuffer
 
 
 /**
@@ -68,13 +69,19 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
   def isOK(newName: String, isReplaceAllOcc: Boolean): Boolean = {
     if (noOccurrences) return true
     val conflicts = isOKImpl(newName, isReplaceAllOcc)
-    conflicts.length == 0 || conflictsReporter.reportConflicts(conflicts, myProject)
+    conflicts.isEmpty || conflictsReporter.reportConflicts(myProject, conflicts)
   }
 
-  def isOKImpl(name: String, allOcc: Boolean): Array[String] =
-    findConflicts(name, allOcc).
-            toSet.filter(_._1 != selectedElement).
-            map(_._2).toArray
+  def isOKImpl(name: String, allOcc: Boolean): MultiMap[PsiElement, String] = {
+    val result = MultiMap.createSet[PsiElement, String]()
+    for {
+      (namedElem, message) <- findConflicts(name, allOcc)
+      if namedElem != selectedElement
+    } {
+      result.putValue(namedElem, message)
+    }
+    result
+  }
 
   def findConflicts(name: String, allOcc: Boolean): Array[(ScNamedElement, String)] = { //returns declaration and message
     val container = enclosingContainer(allOcc)
@@ -214,11 +221,11 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
   def validateName(name: String, increaseNumber: Boolean): String = {
     if (noOccurrences) return name
     var res = name
-    if (isOKImpl(res, allOcc = false).length == 0) return res
+    if (isOKImpl(res, allOcc = false).isEmpty) return res
     if (!increaseNumber) return ""
     var i = 1
     res = name + i
-    while (!(isOKImpl(res, allOcc = true).length == 0)) {
+    while (!isOKImpl(res, allOcc = true).isEmpty) {
       i = i + 1
       res = name + i
     }

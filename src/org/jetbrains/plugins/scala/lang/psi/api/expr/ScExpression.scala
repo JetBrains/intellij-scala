@@ -4,43 +4,39 @@ package psi
 package api
 package expr
 
-import psi.impl.ScalaPsiElementFactory
-import types.result.{TypingContext, TypeResult}
-import toplevel.imports.usages.ImportUsed
-import lang.resolve.{StdKinds, ScalaResolveResult}
-import implicits.ScImplicitlyConvertible
-import collection.mutable.ArrayBuffer
-import types._
-import collection.{Set, Seq}
-import lang.resolve.processor.MethodResolveProcessor
 import com.intellij.openapi.progress.ProgressManager
-import nonvalue.Parameter
-import nonvalue.ScMethodType
-import nonvalue.ScTypePolymorphicType
-import psi.ScalaPsiUtil
-import base.ScLiteral
-import lexer.ScalaTokenTypes
-import result.Failure
-import result.Success
-import statements.ScTypeAliasDefinition
 import com.intellij.psi._
-import java.lang.Integer
-import base.types.ScTypeElement
 import com.intellij.psi.util.PsiModificationTracker
-import caches.CachesUtil
-import psi.ScalaPsiUtil.SafeCheckException
-import types.ScFunctionType
-import lang.resolve.processor.MostSpecificUtil
-import types.Conformance.AliasType
-import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.extensions.ElementText
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitParametersCollector, ScImplicitlyConvertible}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
+
 import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.{Seq, Set}
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
  */
 
-trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
-  import ScExpression._
+trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with ImplicitParametersOwner {
+  import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression._
   /**
    * This method returns real type, after using implicit conversions.
    * Second parameter to return is used imports for this conversion.
@@ -64,7 +60,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
 
         if (isShape) ExpressionTypeResult(Success(getShape()._1, Some(this)), Set.empty, None)
         else {
-          val expected: ScType = expectedOption.getOrElse(expectedType(fromUnderscore).getOrElse(null))
+          val expected: ScType = expectedOption.getOrElse(expectedType(fromUnderscore).orNull)
           if (expected == null) {
             ExpressionTypeResult(getTypeWithoutImplicits(TypingContext.empty, ignoreBaseTypes, fromUnderscore), Set.empty, None)
           } else {
@@ -76,24 +72,58 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
                 //if this result is ok, we do not need to think about implicits
                 case Success(tp, _) if tp.conforms(expected) => defaultResult
                 case Success(tp, _) =>
-                  //this functionality for checking if this expression can be implicitly changed and then
-                  //it will conform to expected type
-                  val convertible: ScImplicitlyConvertible = new ScImplicitlyConvertible(this)
-                  val firstPart = convertible.implicitMapFirstPart(Some(expected), fromUnderscore)
-                  var f: Seq[ImplicitResolveResult] =
-                    firstPart.filter(_.tp.conforms(expected))
-                  if (f.length == 0) {
-                    f = convertible.implicitMapSecondPart(Some(expected), fromUnderscore).filter(_.tp.conforms(expected))
-                  }
-                  if (f.length == 1) ExpressionTypeResult(Success(f(0).getTypeWithDependentSubstitutor, Some(this)), f(0).importUsed, Some(f(0).element))
-                  else if (f.length == 0) defaultResult
-                  else {
-                    MostSpecificUtil(this, 1).mostSpecificForImplicit(f.toSet) match {
-                      case Some(res) =>
-                        ExpressionTypeResult(Success(res.getTypeWithDependentSubstitutor, Some(this)), res.importUsed, Some(res.element))
-                      case None => defaultResult
+                  val functionType = ScFunctionType(expected, Seq(tp))(getProject, getResolveScope)
+                  val results = new ImplicitParametersCollector(this, functionType, None).collect
+                  if (results.length == 1) {
+                    val res = results(0)
+                    val paramType = res match {
+                      case r: ScalaResolveResult if r.implicitParameterType.isDefined =>
+                        r.implicitParameterType.get
+                      case ScalaResolveResult(o: ScObject, subst) =>
+                        subst.subst(o.getType(TypingContext.empty).get)
+                      case ScalaResolveResult(param: ScParameter, subst) =>
+                        subst.subst(param.getType(TypingContext.empty).get)
+                      case ScalaResolveResult(patt: ScBindingPattern, subst) =>
+                        subst.subst(patt.getType(TypingContext.empty).get)
+                      case ScalaResolveResult(fun: ScFunction, subst) =>
+                        val funType = {
+                          if (fun.parameters.length == 0 || fun.paramClauses.clauses.apply(0).isImplicit) {
+                            subst.subst(fun.getType(TypingContext.empty).get) match {
+                              case ScFunctionType(ret, _) => ret
+                              case other => other
+                            }
+                          }
+                          else subst.subst(fun.getType(TypingContext.empty).get)
+                        }
+                        funType
                     }
-                  }
+                    paramType match {
+                      case ScFunctionType(rt, Seq(param)) =>
+                        ExpressionTypeResult(Success(rt, Some(this)), res.importsUsed, Some(res.getElement))
+                      case _ =>
+                        ScalaPsiManager.instance(getProject).getCachedClass(
+                          "scala.Function1", getResolveScope, ScalaPsiManager.ClassCategory.TYPE
+                        ) match {
+                          case function1: ScTrait =>
+                            ScParameterizedType(ScType.designator(function1), function1.typeParameters.map(tp =>
+                              new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1))) match {
+                              case funTp: ScParameterizedType =>
+                                val secondArg = funTp.typeArgs(1)
+                                Conformance.undefinedSubst(funTp, paramType).getSubstitutor match {
+                                  case Some(subst) =>
+                                    val rt = subst.subst(secondArg)
+                                    if (rt.isInstanceOf[ScUndefinedType]) defaultResult
+                                    else {
+                                      ExpressionTypeResult(Success(rt, Some(this)), res.importsUsed, Some(res.getElement))
+                                    }
+                                  case None => defaultResult
+                                }
+                              case _ => defaultResult
+                            }
+                          case _ => defaultResult
+                        }
+                    }
+                  } else defaultResult
                 case _ => defaultResult
               }
             }
@@ -124,7 +154,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
             def tryUpdateRes(checkExpectedType: Boolean) {
               if (checkExpectedType) {
                 InferUtil.updateAccordingToExpectedType(Success(res, Some(this)), fromImplicitParameters = true,
-                  expectedType = expectedType(fromUnderscore), expr = this, check = checkExpectedType) match {
+                  filterTypeParams = false, expectedType = expectedType(fromUnderscore), expr = this,
+                  check = checkExpectedType) match {
                   case Success(newRes, _) => res = newRes
                   case _ =>
                 }
@@ -134,7 +165,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
               if (checkImplicitParameters) {
                 val tuple = InferUtil.updateTypeWithImplicitParameters(res, this, None, checkExpectedType)
                 res = tuple._1
-                implicitParameters = tuple._2
+                if (fromUnderscore) implicitParametersFromUnder = tuple._2
+                else implicitParameters = tuple._2
               }
             }
 
@@ -167,7 +199,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
               def updateRes(exp: Option[ScType]) {
                 exp match {
                   case Some(expected) =>
-                    expected match {
+                    expected.removeAbstracts match {
                       case ScFunctionType(_, params) =>
                       case _ =>
                         expected.isAliasType match {
@@ -315,6 +347,9 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
   @volatile
   protected var implicitParameters: Option[Seq[ScalaResolveResult]] = None
 
+  @volatile
+  protected var implicitParametersFromUnder: Option[Seq[ScalaResolveResult]] = None
+
   /**
    * Warning! There is a hack in scala compiler for ClassManifest and ClassTag.
    * In case of implicit parameter with type ClassManifest[T]
@@ -323,8 +358,14 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
    */
   def findImplicitParameters: Option[Seq[ScalaResolveResult]] = {
     ProgressManager.checkCanceled()
-    getType(TypingContext.empty) //to update implicitParameters field
-    implicitParameters
+
+    if (ScUnderScoreSectionUtil.underscores(this).nonEmpty) {
+      getTypeWithoutImplicits(TypingContext.empty, fromUnderscore = true) //to update implicitParametersFromUnder
+      implicitParametersFromUnder
+    } else {
+      getType(TypingContext.empty) //to update implicitParameters field
+      implicitParameters
+    }
   }
 
   def getNonValueType(ctx: TypingContext = TypingContext.empty, //todo: remove?
@@ -455,7 +496,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
     (implicits, implicitFunction, map.filter(!_.isFromCompanion).map(_.element), map.filter(_.isFromCompanion).map(_.element))
   }
 
-  final def calculateReturns: Seq[PsiElement] = {
+  final def calculateReturns(withBooleanInfix: Boolean = false): Seq[PsiElement] = {
     val res = new ArrayBuffer[PsiElement]
     def calculateReturns0(el: PsiElement) {
       el match {
@@ -480,11 +521,13 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
             case Some(e) =>
               calculateReturns0(e)
               i.thenBranch match {
-                case Some(then) => calculateReturns0(then)
+                case Some(thenBranch) => calculateReturns0(thenBranch)
                 case _ =>
               }
             case _ => res += i
           }
+        case infix @ ScInfixExpr(ScExpression.Type(types.Boolean), ElementText(op), right @ ScExpression.Type(types.Boolean))
+          if withBooleanInfix && (op == "&&" || op == "||") => calculateReturns0(right)
         //TODO "!contains" is a quick fix, function needs unit testing to validate its behavior
         case _ => if (!res.contains(el)) res += el
       }
@@ -493,16 +536,14 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
     res
   }
 
-  def applyShapeResolveForExpectedType(tp: ScType, exprs: Seq[ScExpression], call: Option[MethodInvocation],
-                                       tr: TypeResult[ScType]): Array[ScalaResolveResult] = {
-    def inner(expr: ScExpression, tp: ScType, exprs: Seq[ScExpression], call: Option[MethodInvocation],
-              tr: TypeResult[ScType]): Array[ScalaResolveResult] = {
+  def applyShapeResolveForExpectedType(tp: ScType, exprs: Seq[ScExpression], call: Option[MethodInvocation]): Array[ScalaResolveResult] = {
+    def inner(expr: ScExpression, tp: ScType, exprs: Seq[ScExpression], call: Option[MethodInvocation]): Array[ScalaResolveResult] = {
       val applyProc =
         new MethodResolveProcessor(expr, "apply", List(exprs), Seq.empty, Seq.empty /* todo: ? */,
           StdKinds.methodsOnly, isShapeResolve = true)
       applyProc.processType(tp, expr)
       var cand = applyProc.candidates
-      if (cand.length == 0 && call != None && !tr.isEmpty) {
+      if (cand.length == 0 && call != None) {
         val expr = call.get.getEffectiveInvokedExpr
         ScalaPsiUtil.findImplicitConversion(expr, "apply", expr, applyProc, noImplicitsForArgs = false) match {
           case Some(res) =>
@@ -516,13 +557,16 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
           case _ =>
         }
       }
+      if (cand.length == 0 && ScalaPsiUtil.approveDynamic(tp, getProject, getResolveScope) && call.isDefined) {
+        cand = ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(call.get, tp, isShape = true, noImplicits = true, isDynamic = true)
+      }
       cand
     }
-    type Data = (ScType, Seq[ScExpression], Option[MethodInvocation], TypeResult[ScType])
+    type Data = (ScType, Seq[ScExpression], Option[MethodInvocation])
     CachesUtil.getMappedWithRecursionPreventingWithRollback[ScExpression, Data,
-      Array[ScalaResolveResult]](this, (tp, exprs, call, tr),
+      Array[ScalaResolveResult]](this, (tp, exprs, call),
       CachesUtil.EXPRESSION_APPLY_SHAPE_RESOLVE_KEY,
-      (expr: ScExpression, tuple: Data) => inner(expr, tuple._1, tuple._2, tuple._3, tuple._4),
+      (expr: ScExpression, tuple: Data) => inner(expr, tuple._1, tuple._2, tuple._3),
       Array.empty[ScalaResolveResult], PsiModificationTracker.MODIFICATION_COUNT)
   }
 }

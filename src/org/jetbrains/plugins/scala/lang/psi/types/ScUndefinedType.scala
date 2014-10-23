@@ -3,8 +3,9 @@ package lang
 package psi
 package types
 
-import nonvalue.NonValueType
-import collection.immutable.HashSet
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
+
+import scala.collection.immutable.HashSet
 
 /**
  * Use this type if you want to resolve generics.
@@ -35,11 +36,10 @@ case class ScUndefinedType(tpt: ScTypeParameterType) extends NonValueType {
         (true, undefinedSubst.addUpper((tpt.name, tpt.getId), u2))
       case u2: ScUndefinedType if u2.level == level =>
         (true, undefinedSubst)
-      case rt => {
+      case rt =>
         undefinedSubst = undefinedSubst.addLower((tpt.name, tpt.getId), rt)
         undefinedSubst = undefinedSubst.addUpper((tpt.name, tpt.getId), rt)
         (true, undefinedSubst)
-      }
     }
   }
 }
@@ -71,22 +71,29 @@ case class ScAbstractType(tpt: ScTypeParameterType, lower: ScType, upper: ScType
 
   override def hashCode: Int = {
     if (hash == -1) {
-      hash = (upper.hashCode() * 31 + lower.hashCode()) * 31 + tpt.hashCode
+      hash = (upper.hashCode() * 31 + lower.hashCode()) * 31 + tpt.args.hashCode()
     }
     hash
+  }
+
+  override def equals(obj: scala.Any): Boolean = {
+    obj match {
+      case ScAbstractType(oTpt, oLower, oUpper) =>
+        lower.equals(oLower) && upper.equals(oUpper) && tpt.args.equals(oTpt.args)
+      case _ => false
+    }
   }
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor,
                           falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     r match {
       case _ if falseUndef => (false, uSubst)
-      case rt => {
+      case rt =>
         var t: (Boolean, ScUndefinedSubstitutor) = Conformance.conformsInner(upper, r, Set.empty, uSubst)
         if (!t._1) return (false, uSubst)
         t = Conformance.conformsInner(r, lower, Set.empty, t._2)
         if (!t._1) return (false, uSubst)
         (true, t._2)
-      }
     }
   }
 

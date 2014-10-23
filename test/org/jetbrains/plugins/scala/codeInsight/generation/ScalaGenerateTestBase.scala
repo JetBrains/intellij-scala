@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
 package codeInsight.generation
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import com.intellij.psi.PsiFile
 import com.intellij.lang.LanguageCodeInsightActionHandler
+import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 /**
  * Nikolay.Tropin
@@ -31,12 +31,13 @@ abstract class ScalaGenerateTestBase extends ScalaLightCodeInsightFixtureTestAda
   }
 
   def checkIsAvailable(text: String, assumedResult: Boolean = true): Unit = {
-    val caretIndex = text.indexOf(CARET_MARKER)
-    myFixture.configureByText("dummy.scala", text.replace(CARET_MARKER, ""))
+    val nText = text.stripMargin.replace("\r", "").trim
+    val caretIndex = nText.indexOf(CARET_MARKER)
+    myFixture.configureByText("dummy.scala", nText.replace(CARET_MARKER, ""))
     myFixture.getEditor.getCaretModel.moveToOffset(caretIndex)
 
     val file: PsiFile = myFixture.getFile
-    val message = s"Generate companion object is${if (assumedResult) " not" else ""} available"
+    val message = s"Generate action is${if (assumedResult) " not" else ""} available"
     assert(handler.isValidFor(myFixture.getEditor, file) == assumedResult, message)
   }
 

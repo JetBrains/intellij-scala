@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.finder
 
-import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import com.intellij.psi.{PsiPackage, PsiClass, PsiElementFinder}
 import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{PsiClass, PsiElementFinder, PsiPackage}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 /**
  * User: Alefas

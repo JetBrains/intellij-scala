@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.console
 
 import com.intellij.execution.process.{ConsoleHistoryModel, ProcessHandler}
-import com.intellij.util.containers.WeakHashMap
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import com.intellij.util.containers.WeakHashMap
 
 /**
  * @author Ksenia.Sautina

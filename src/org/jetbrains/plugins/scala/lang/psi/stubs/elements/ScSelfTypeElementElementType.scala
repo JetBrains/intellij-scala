@@ -5,13 +5,12 @@ package stubs
 package elements
 
 
-import api.base.types.ScSelfTypeElement
-import impl.ScSelfTypeElementStubImpl
-import psi.impl.base.types.ScSelfTypeElementImpl
-import com.intellij.psi.stubs.{IndexSink, StubInputStream, StubElement, StubOutputStream}
-
 import com.intellij.psi.PsiElement
-import index.ScSelfTypeInheritorsIndex
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
+import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSelfTypeElementImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScSelfTypeElementStubImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScSelfTypeInheritorsIndex
 
 /**
  * User: Alexander Podkhalyuzin

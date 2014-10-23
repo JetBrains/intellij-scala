@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package lang.psi.light.scala
 
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScParameters}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.psi.impl.light.LightElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScParameters}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
  * @author Alefas

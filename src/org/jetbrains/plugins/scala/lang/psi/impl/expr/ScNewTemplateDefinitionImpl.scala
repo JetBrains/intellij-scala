@@ -4,23 +4,26 @@ package psi
 package impl
 package expr
 
+import com.intellij.lang.ASTNode
+import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
-import toplevel.PsiClassFake
-import com.intellij.lang.ASTNode
-import com.intellij.psi._
-import api.expr._
-import api.toplevel.templates.ScTemplateBody
-import api.statements.{ScTypeAlias, ScDeclaredElementsHolder}
-import collection.mutable.ArrayBuffer
-import types.result.{Success, TypingContext}
-import api.toplevel.typedef.ScTemplateDefinition
-import psi.stubs.ScTemplateDefinitionStub
-import icons.Icons
-import types._
-import api.ScalaElementVisitor
-import extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
 * @author Alexander Podkhalyuzin
@@ -36,15 +39,30 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
   override def getIcon(flags: Int) = Icons.CLASS
 
   protected override def innerType(ctx: TypingContext) = {
+    if (getText == """new {
+                     |    val global: Global.this.type = Global.this
+                     |  } with Analyzer""".stripMargin) {
+      "stop here"
+    }
+    val earlyHolders: Seq[ScDeclaredElementsHolder] = extendsBlock.earlyDefinitions match {
+      case Some(e: ScEarlyDefinitions) => e.members.flatMap {
+        case holder: ScDeclaredElementsHolder => Seq(holder)
+        case _ => Seq.empty
+      }
+      case None => Seq.empty
+    }
+
     val (holders, aliases) : (Seq[ScDeclaredElementsHolder], Seq[ScTypeAlias]) = extendsBlock.templateBody match {
-      case Some(b: ScTemplateBody) => (b.holders.toSeq, b.aliases.toSeq)
-      case None => (Seq.empty, Seq.empty)
+      case Some(b: ScTemplateBody) => (b.holders.toSeq ++ earlyHolders, b.aliases.toSeq)
+      case None => (earlyHolders, Seq.empty)
     }
 
     val superTypes = extendsBlock.superTypes.filter {
       case ScDesignatorType(clazz: PsiClass) => clazz.qualifiedName != "scala.ScalaObject"
       case _                                 => true
     }
+
+
     if (superTypes.length > 1 || !holders.isEmpty || !aliases.isEmpty) {
       new Success(ScCompoundType.fromPsi(superTypes, holders.toList, aliases.toList, ScSubstitutor.empty), Some(this))
     } else {
@@ -119,9 +137,9 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
     super[ScNewTemplateDefinition].findMethodsBySignature(patternMethod, checkBases)
   }
 
-  import com.intellij.openapi.util.{Pair => IPair}
-  import java.util.{List => JList}
-  import java.util.{Collection => JCollection}
+  import java.util.{Collection => JCollection, List => JList}
+
+import com.intellij.openapi.util.{Pair => IPair}
 
   override def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = {
     super[ScNewTemplateDefinition].findMethodsByName(name, checkBases)
@@ -151,4 +169,14 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
   override def getVisibleSignatures: JCollection[HierarchicalMethodSignature] = {
     super[ScNewTemplateDefinition].getVisibleSignatures
   }
+
+  override def getAllMethods: Array[PsiMethod] = {
+    val res = new ArrayBuffer[PsiMethod]()
+    TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(this) { node =>
+      this.processPsiMethodsForNode(node, isStatic = false, isInterface = false)(res += _)
+    }
+    res.toArray
+  }
+
+  override def getMethods: Array[PsiMethod] = getAllMethods.filter(_.containingClass == this)
 }

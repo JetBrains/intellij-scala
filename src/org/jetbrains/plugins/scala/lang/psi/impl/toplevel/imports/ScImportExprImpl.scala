@@ -5,25 +5,15 @@ package impl
 package toplevel
 package imports
 
-import com.intellij.util.IncorrectOperationException
-import api.base.ScStableCodeReferenceElement
-import stubs.ScImportExprStub
-import com.intellij.psi.{PsiElementVisitor, PsiElement}
-import api.ScalaElementVisitor
-;
-import com.intellij.psi.tree.IElementType;
 import com.intellij.lang.ASTNode
-
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.lexer._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-
-import org.jetbrains.plugins.scala.icons.Icons
-
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportExprStub
 
 /**
  * @author AlexanderPodkhalyuzin

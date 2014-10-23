@@ -2,21 +2,20 @@ package org.jetbrains.plugins.scala
 package actions
 
 import _root_.com.intellij.codeInsight.TargetElementUtilBase
-import com.intellij.openapi.actionSystem.{CommonDataKeys, AnAction, AnActionEvent}
 import _root_.com.intellij.psi._
 import _root_.com.intellij.psi.util.PsiUtilBase
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import _root_.org.jetbrains.plugins.scala.ScalaBundle
-import lang.psi.api.statements.ScFunction
-import lang.psi.api.statements.params.ScParameter
-import lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScFieldId}
-import lang.psi.types.{ScType, ScSubstitutor}
-import org.jetbrains.plugins.scala.extensions._
-import lang.refactoring.util.ScalaRefactoringUtil
-import lang.psi.api.expr.ScExpression
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.editor.Editor
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 
 /**
  * Pavel.Fatin, 16.04.2010
@@ -77,9 +76,10 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
 object ShowTypeInfoAction {
   def getTypeInfoHint(editor: Editor, file: PsiFile, offset: Int): Option[String] = {
     file.findReferenceAt(offset) match {
-      case Resolved(e, subst) => typeOf(e, subst)
+      case ResolvedWithSubst(e, subst) => typeOf(e, subst)
       case _ =>
         val element = file.findElementAt(offset)
+        if (element == null) return None
         if (element.getNode.getElementType != ScalaTokenTypes.tIDENTIFIER) return None
         element match {
           case Parent(p) => typeOf(p, ScSubstitutor.empty)

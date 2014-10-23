@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.extensions
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 
 /**
  * Pavel Fatin

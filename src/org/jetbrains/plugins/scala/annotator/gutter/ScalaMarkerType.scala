@@ -2,31 +2,32 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
-import _root_.scala.collection.mutable.ArrayBuffer
-import com.intellij.codeInsight.daemon.impl.PsiElementListNavigator
-import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
-import com.intellij.ide.util.{PsiClassListCellRenderer, PsiElementListCellRenderer}
-import com.intellij.codeInsight.navigation.NavigationUtil
-import com.intellij.openapi.util.Iconable
-import com.intellij.psi._
-import com.intellij.psi.search.searches.ClassInheritorsSearch
-import com.intellij.ui.awt.RelativePoint
-import javax.swing.Icon
-import com.intellij.util.NullableFunction
 import java.awt.event.MouseEvent
-import lang.psi.api.statements.params.ScClassParameter
-import lang.psi.impl.search.ScalaOverridingMemberSearcher
-import lang.psi.ScalaPsiUtil
-import lang.lexer.ScalaTokenTypes
-import presentation.java.ClassPresentationUtil
-import util.PsiTreeUtil
-import lang.psi.api.toplevel.ScNamedElement
-import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait, ScMember, ScObject}
-import lang.psi.api.statements._
-import lang.psi.types.Signature
-import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 import java.util
-import collection.mutable
+import javax.swing.Icon
+
+import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
+import com.intellij.codeInsight.daemon.impl.PsiElementListNavigator
+import com.intellij.codeInsight.navigation.NavigationUtil
+import com.intellij.ide.util.{PsiClassListCellRenderer, PsiElementListCellRenderer}
+import com.intellij.psi._
+import com.intellij.psi.presentation.java.ClassPresentationUtil
+import com.intellij.psi.search.searches.ClassInheritorsSearch
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.ui.awt.RelativePoint
+import com.intellij.util.NullableFunction
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
+import org.jetbrains.plugins.scala.lang.psi.types.Signature
+
+import _root_.scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 
 /**
  * User: Alexander Podkhalyuzin
@@ -48,11 +49,11 @@ object ScalaMarkerType {
     def fun(element: PsiElement): String = {
       val elem = elemFor(element)
       elem match {
-        case method: ScFunction => {
+        case method: ScFunction =>
           val signatures: Seq[Signature] = method.superSignaturesIncludingSelfType
           //removed assertion, because can be change before adding gutter, so just need to return ""
           if (signatures.length == 0) return ""
-          val optionClazz = signatures(0).namedElement.map(ScalaPsiUtil.nameContext(_)).flatMap {
+          val optionClazz = ScalaPsiUtil.nameContext(signatures(0).namedElement) match {
             case member: PsiMember => Option(member.containingClass)
             case _ => None
           }
@@ -61,13 +62,12 @@ object ScalaMarkerType {
           if (!GutterUtil.isOverrides(element, signatures))
             ScalaBundle.message("implements.method.from.super", clazz.qualifiedName)
           else ScalaBundle.message("overrides.method.from.super", clazz.qualifiedName)
-        }
-        case _: ScValue | _: ScVariable => {
+        case _: ScValue | _: ScVariable =>
           val signatures = new ArrayBuffer[Signature]
           val bindings = elem match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return null}
           for (z <- bindings) signatures ++= ScalaPsiUtil.superValsSignatures(z, withSelfType = true)
           assert(signatures.length != 0)
-          val optionClazz = signatures(0).namedElement.map(ScalaPsiUtil.nameContext(_)).flatMap {
+          val optionClazz = ScalaPsiUtil.nameContext(signatures(0).namedElement) match {
             case member: PsiMember => Option(member.containingClass)
             case _ => None
           }
@@ -76,13 +76,11 @@ object ScalaMarkerType {
           if (!GutterUtil.isOverrides(element, signatures))
             ScalaBundle.message("implements.val.from.super", clazz.qualifiedName)
           else ScalaBundle.message("overrides.val.from.super", clazz.qualifiedName)
-        }
-        case x@(_: ScTypeDefinition | _: ScTypeAlias) => {
+        case x@(_: ScTypeDefinition | _: ScTypeAlias) =>
           val superMembers = ScalaPsiUtil.superTypeMembers(x.asInstanceOf[PsiNamedElement], withSelfType = true)
           assert(superMembers.length != 0)
           val optionClazz = superMembers(0)
           ScalaBundle.message("overrides.type.from.super", optionClazz.name)
-        }
         case _ => null
       }
     }
@@ -90,30 +88,27 @@ object ScalaMarkerType {
     def navigate(e: MouseEvent, element: PsiElement) {
       val elem = elemFor(element)
       elem match {
-        case method: ScFunction => {
+        case method: ScFunction =>
           val signatures = method.superSignaturesIncludingSelfType
           val elems = new mutable.HashSet[NavigatablePsiElement]
           signatures.foreach {
             case sig =>
               sig.namedElement match {
-                case Some(nav: NavigatablePsiElement) => elems += nav
+                case nav: NavigatablePsiElement => elems += nav
                 case _ =>
               }
           }
           elems.size match {
             case 0 =>
-            case 1 => {
+            case 1 =>
               val elem = elems.iterator.next()
               if (elem.canNavigate) elem.navigate(true)
-            }
-            case _ => {
+            case _ =>
               val gotoDeclarationPopup = NavigationUtil.getPsiElementPopup(elems.toArray, new ScCellRenderer,
               ScalaBundle.message("goto.override.method.declaration"))
               gotoDeclarationPopup.show(new RelativePoint(e))
-            }
           }
-        }
-        case _: ScValue | _: ScVariable => {
+        case _: ScValue | _: ScVariable =>
           val signatures = new ArrayBuffer[Signature]
           val bindings = elem match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return}
           for (z <- bindings) signatures ++= ScalaPsiUtil.superValsSignatures(z, withSelfType = true)
@@ -121,38 +116,32 @@ object ScalaMarkerType {
           signatures.foreach {
             case sig =>
               sig.namedElement match {
-                case Some(n: NavigatablePsiElement) => elems += n
+                case n: NavigatablePsiElement => elems += n
                 case _ =>
               }
           }
           elems.size match {
             case 0 =>
-            case 1 => {
+            case 1 =>
               val elem = elems.iterator.next()
               if (elem.canNavigate) elem.navigate(true)
-            }
-            case _ => {
+            case _ =>
               val gotoDeclarationPopup = NavigationUtil.getPsiElementPopup(elems.toArray, new ScCellRenderer,
               ScalaBundle.message("goto.override.val.declaration"))
               gotoDeclarationPopup.show(new RelativePoint(e))
-            }
           }
-        }
-        case x @(_: ScTypeDefinition | _: ScTypeAlias) => {
+        case x @(_: ScTypeDefinition | _: ScTypeAlias) =>
           val elems = ScalaPsiUtil.superTypeMembers(x.asInstanceOf[PsiNamedElement], withSelfType = true)
 
           elems.toSeq match {
             case Seq() =>
-            case Seq(x: NavigatablePsiElement) => {
+            case Seq(x: NavigatablePsiElement) =>
               if (x.canNavigate) x.navigate(true)
-            }
-            case _ => {
+            case _ =>
               val gotoDeclarationPopup = NavigationUtil.getPsiElementPopup(elems.toArray, new ScCellRenderer,
               ScalaBundle.message("goto.override.type.declaration"))
               gotoDeclarationPopup.show(new RelativePoint(e))
-            }
           }
-        }
         case _ =>
       }
     }
@@ -162,9 +151,8 @@ object ScalaMarkerType {
     def fun(element: PsiElement): String = {
       var elem = element
       element.getNode.getElementType match {
-        case  ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR => {
+        case  ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR =>
           elem = PsiTreeUtil.getParentOfType(element, classOf[PsiMember])
-        }
         case _ =>
       }
       elem match {
@@ -178,9 +166,8 @@ object ScalaMarkerType {
     def navigate(mouseEvent: MouseEvent, element: PsiElement) {
       var elem = element
       element.getNode.getElementType match {
-        case  ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR => {
+        case  ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR =>
           elem = PsiTreeUtil.getParentOfType(element, classOf[PsiMember])
-        }
         case _ =>
       }
       val members = elem match {
@@ -244,30 +231,26 @@ object ScalaMarkerType {
       }
 
       element match {
-        case method: PsiMethod if method.containingClass != null => {
+        case method: PsiMethod if method.containingClass != null =>
           val presentation = method.containingClass.getPresentation
           if (presentation != null)
             presentation.getPresentableText + " " + presentation.getLocationString
           else {
             ClassPresentationUtil.getNameForClass(method.containingClass, false)
           }
-        }
-        case xlass: PsiClass => {
+        case xlass: PsiClass =>
           val presentation = xlass.getPresentation
           presentation.getPresentableText + " " + presentation.getLocationString
-        }
-        case x: PsiNamedElement if ScalaPsiUtil.nameContext(x).isInstanceOf[ScMember] => {
+        case x: PsiNamedElement if ScalaPsiUtil.nameContext(x).isInstanceOf[ScMember] =>
           val containing = ScalaPsiUtil.nameContext(x).asInstanceOf[ScMember].containingClass
           if (containing == null) defaultPresentation
           else  {
             val presentation = containing.getPresentation
             presentation.getPresentableText + " " + presentation.getLocationString
           }
-        }
-        case x: ScClassParameter => {
+        case x: ScClassParameter =>
           val presentation = x.getPresentation
           presentation.getPresentableText + " " + presentation.getLocationString
-        }
         case x: PsiNamedElement => x.name
         case _ => defaultPresentation
       }
@@ -275,7 +258,7 @@ object ScalaMarkerType {
 
     def getContainerText(psiElement: PsiElement, s: String) = null
 
-    def getIconFlags: Int = Iconable.ICON_FLAG_CLOSED
+    def getIconFlags: Int = 0
 
 
     override def getIcon(element: PsiElement): Icon = {

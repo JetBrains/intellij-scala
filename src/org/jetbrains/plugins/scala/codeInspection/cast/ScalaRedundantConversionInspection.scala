@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.scala
 package codeInspection.cast
 
-import lang.psi.types.result.TypingContext
-import com.intellij.openapi.util.TextRange
 import com.intellij.codeInspection.ex.ProblemDescriptorImpl
-import codeInspection.{AbstractFix, AbstractInspection}
-import com.intellij.openapi.project.Project
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
-import lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import lang.psi.api.expr.{ScPostfixExpr, ScReferenceExpression, ScExpression}
-import extensions._
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiMethod}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPostfixExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
  * Pavel Fatin

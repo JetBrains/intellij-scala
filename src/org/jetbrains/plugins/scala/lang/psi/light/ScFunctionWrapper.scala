@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+
+import _root_.scala.collection.mutable.ArrayBuffer
 
 class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor, isJavaVarargs: Boolean = false) extends {
   val elementFactory = JavaPsiFacade.getInstance(constr.getProject).getElementFactory
@@ -28,11 +28,16 @@ class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor, isJavaVararg
     }
   }
 } with LightMethodAdapter(constr.getManager, method, containingClass) with LightScalaMethod {
-  override def getNavigationElement: PsiElement = constr.getNavigationElement
+
+  override def getNavigationElement: PsiElement = this
 
   override def canNavigate: Boolean = constr.canNavigate
 
   override def canNavigateToSource: Boolean = constr.canNavigateToSource
+
+  override def navigate(requestFocus: Boolean): Unit = constr.navigate(requestFocus)
+
+  override def getTextRange: TextRange = constr.getTextRange
 
   override def getParent: PsiElement = containingClass
 
@@ -47,6 +52,8 @@ class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor, isJavaVararg
   override def getPrevSibling: PsiElement = constr.getPrevSibling
 
   override def getNextSibling: PsiElement = constr.getNextSibling
+
+  override def isWritable: Boolean = getContainingFile.isWritable
 }
 
 object ScPrimaryConstructorWrapper {
@@ -54,11 +61,15 @@ object ScPrimaryConstructorWrapper {
 }
 
 /**
+ * Represnts Scala functions for Java. It can do it in many ways including
+ * default parameters. For example (forDefault = Some(1)):
+ * def foo(x: Int = 1) generates method foo$default$1.
  * @author Alefas
  * @since 27.02.12
  */
 class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface: Boolean,
-                        cClass: Option[PsiClass], isJavaVarargs: Boolean = false) extends {
+                        cClass: Option[PsiClass], isJavaVarargs: Boolean = false,
+                        forDefault: Option[Int] = None) extends {
   val elementFactory = JavaPsiFacade.getInstance(function.getProject).getElementFactory
   val containingClass = {
     if (cClass != None) cClass.get
@@ -75,7 +86,7 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
       res
     }
   }
-  val methodText = ScFunctionWrapper.methodText(function, isStatic, isInterface, cClass, isJavaVarargs)
+  val methodText = ScFunctionWrapper.methodText(function, isStatic, isInterface, cClass, isJavaVarargs, forDefault)
   val method: PsiMethod = {
     try {
       elementFactory.createMethodFromText(methodText, containingClass)
@@ -84,15 +95,20 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
     }
   }
 } with LightMethodAdapter(function.getManager, method, containingClass) with LightScalaMethod {
-  override def getNavigationElement: PsiElement = function.getNavigationElement
+
+  override def getNavigationElement: PsiElement = this
 
   override def canNavigate: Boolean = function.canNavigate
 
   override def canNavigateToSource: Boolean = function.canNavigateToSource
 
+  override def navigate(requestFocus: Boolean): Unit = function.navigate(requestFocus)
+
   override def getParent: PsiElement = containingClass
 
   override def getTextOffset: Int = function.getTextOffset
+
+  override def getTextRange: TextRange = function.getTextRange
 
   override def hasModifierProperty(name: String): Boolean = {
     name match {
@@ -123,13 +139,29 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
             new ScSubstitutor(tvs.toMap, Map.empty, None)
           } else ScSubstitutor.empty
         } else ScSubstitutor.empty
-      val scalaType = generifySubst subst ScFunctionWrapper.getSubstitutor(cClass, function).subst(function.returnType.getOrAny)
-      returnType = ScType.toPsi(scalaType, function.getProject, function.getResolveScope)
+      forDefault match {
+        case Some(i) =>
+          val param = function.parameters(i - 1)
+          val scalaType = generifySubst subst ScFunctionWrapper.getSubstitutor(cClass, function).
+            subst(param.getType(TypingContext.empty).getOrAny)
+          returnType = ScType.toPsi(scalaType, function.getProject, function.getResolveScope)
+        case None =>
+          val scalaType = generifySubst subst ScFunctionWrapper.getSubstitutor(cClass, function).
+            subst(function.returnType.getOrAny)
+          returnType = ScType.toPsi(scalaType, function.getProject, function.getResolveScope)
+      }
     }
     returnType
   }
 
   override def getNameIdentifier = function.getNameIdentifier
+
+  override def isWritable: Boolean = getContainingFile.isWritable
+
+  override def setName(name: String) = {
+    if (forDefault.isEmpty && !function.isConstructor) function.setName(name)
+    else this
+  }
 }
 
 object ScFunctionWrapper {
@@ -137,7 +169,7 @@ object ScFunctionWrapper {
    * This is for Java only.
    */
   def methodText(function: ScMethodLike, isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass], 
-                 isJavaVarargs: Boolean): String = {
+                 isJavaVarargs: Boolean, forDefault: Option[Int] = None): String = {
     val builder = new StringBuilder
 
     builder.append(JavaConversionUtil.modifiers(function, isStatic))
@@ -179,24 +211,47 @@ object ScFunctionWrapper {
       case _ =>
     }
 
+    val params = function.effectiveParameterClauses.flatMap(_.parameters)
+
+    val defaultParam = forDefault match {
+      case Some(i) => Some(params(i - 1))
+      case None => None
+    }
+
     function match {
       case function: ScFunction if !function.isConstructor =>
-        if (function.hasExplicitType) {
-          function.returnType match {
-            case Success(tp, _) => builder.append(JavaConversionUtil.typeText(subst.subst(tp), function.getProject, function.getResolveScope))
-            case _              => builder.append("java.lang.Object")
+        def evalType(typeResult: TypeResult[ScType]) {
+          typeResult match {
+            case Success(tp, _) =>
+              val typeText = JavaConversionUtil.typeText(subst.subst(tp), function.getProject, function.getResolveScope)
+              builder.append(typeText)
+            case _ => builder.append("java.lang.Object")
           }
-        } else {
-          builder.append("FromTypeInference")
+        }
+        defaultParam match {
+          case Some(param) => evalType(param.getType(TypingContext.empty))
+          case None =>
+            if (function.hasExplicitType) evalType(function.returnType)
+            else builder.append("FromTypeInference")
         }
       case _ =>
     }
 
     builder.append(" ")
-    val name = if (!function.isConstructor) function.getName else function.containingClass.getName
+    val name = if (!function.isConstructor) {
+      forDefault match {
+        case Some(i) => function.getName + "$default$" + i
+        case _ => function.getName
+      }
+    } else function.containingClass.getName
     builder.append(name)
 
-    builder.append(function.effectiveParameterClauses.flatMap(_.parameters).map { case param =>
+    builder.append(function.effectiveParameterClauses.takeWhile { clause =>
+      defaultParam match {
+        case Some(param) => !clause.parameters.contains(param)
+        case None => true
+      }
+    }.flatMap(_.parameters).map { case param =>
       val builder = new StringBuilder
       val varargs: Boolean = param.isRepeatedParameter && isJavaVarargs
       val tt =

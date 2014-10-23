@@ -5,13 +5,11 @@ package stubs
 package elements
 
 
-import api.expr.ScAnnotations
-import impl.{ScAnnotationsStubImpl, ScEarlyDefinitionsStubImpl}
-import psi.impl.expr.ScAnnotationsImpl
-import api.toplevel.ScEarlyDefinitions
-import com.intellij.psi.stubs.{IndexSink, StubInputStream, StubElement, StubOutputStream}
 import com.intellij.psi.PsiElement
-import psi.impl.toplevel.ScEarlyDefinitionsImpl
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotations
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScAnnotationsImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScAnnotationsStubImpl
 /**
  * User: Alexander Podkhalyuzin
  * Date: 22.06.2009

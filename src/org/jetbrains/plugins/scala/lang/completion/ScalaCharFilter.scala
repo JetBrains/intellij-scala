@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package lang.completion
 
-import com.intellij.codeInsight.lookup.{Lookup, CharFilter}
 import com.intellij.codeInsight.lookup.CharFilter.Result
-import lang.psi.api.ScalaFile
-import extensions.Parent
-import lang.psi.api.toplevel.imports.ScImportExpr
+import com.intellij.codeInsight.lookup.{CharFilter, Lookup}
+import org.jetbrains.plugins.scala.extensions.Parent
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 
 class ScalaCharFilter extends CharFilter {
   def acceptChar(c: Char, prefixLength: Int, lookup: Lookup): Result = {

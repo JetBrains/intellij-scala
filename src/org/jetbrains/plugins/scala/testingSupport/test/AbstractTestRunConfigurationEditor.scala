@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test
 
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.options.SettingsEditor
 import javax.swing.JComponent
+
+import com.intellij.openapi.options.SettingsEditor
+import com.intellij.openapi.project.Project
 
 /**
  * User: Alexander Podkhalyuzin

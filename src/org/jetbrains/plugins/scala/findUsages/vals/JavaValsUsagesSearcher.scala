@@ -2,15 +2,15 @@ package org.jetbrains.plugins.scala
 package findUsages.vals
 
 import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.psi.search.{PsiSearchHelper, TextOccurenceProcessor, UsageSearchContext}
+import com.intellij.psi.{PsiElement, PsiReference, PsiReferenceExpression}
 import com.intellij.util.{Processor, QueryExecutor}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScValue}
-import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
-import com.intellij.psi.search.{PsiSearchHelper, UsageSearchContext, TextOccurenceProcessor}
-import com.intellij.psi.{PsiReferenceExpression, PsiElement, PsiReference}
-import org.jetbrains.plugins.scala.lang.psi.light.{StaticPsiTypedDefinitionWrapper, PsiTypedDefinitionWrapper}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
+import org.jetbrains.plugins.scala.lang.psi.light.{PsiTypedDefinitionWrapper, StaticPsiTypedDefinitionWrapper}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -36,8 +36,9 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
                       refElement.resolve match {
                         case f: FakePsiMethod if f.navElement == vals =>
                           if (!consumer.process(refElement)) return false
-                        case t @ (_: StaticPsiTypedDefinitionWrapper | _: PsiTypedDefinitionWrapper)
-                          if t.getNavigationElement == vals =>
+                        case t: StaticPsiTypedDefinitionWrapper if t.typedDefinition == vals =>
+                          if (!consumer.process(refElement)) return false
+                        case t: PsiTypedDefinitionWrapper if t.typedDefinition == vals =>
                           if (!consumer.process(refElement)) return false
                         case _ =>
                       }
@@ -60,10 +61,10 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
                 ref match {
                   case refElement: PsiReferenceExpression =>
                     refElement.resolve match {
-                      case t: PsiTypedDefinitionWrapper if t.getNavigationElement == wrapper.getNavigationElement &&
+                      case t: PsiTypedDefinitionWrapper if t.typedDefinition == wrapper.typedDefinition &&
                               t.getName == wrapper.getName =>
                         if (!consumer.process(refElement)) return false
-                      case t: StaticPsiTypedDefinitionWrapper if t.getNavigationElement == wrapper.getNavigationElement &&
+                      case t: StaticPsiTypedDefinitionWrapper if t.typedDefinition == wrapper.typedDefinition &&
                               t.getName == wrapper.getName =>
                         if (!consumer.process(refElement)) return false
                       case _ =>

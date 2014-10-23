@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.scala.testingSupport.locationProvider
 
+import java.util.{ArrayList, List}
+
 import com.intellij.execution.{Location, PsiLocation}
+import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
+import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testIntegration.TestLocationProvider
-import java.lang.String
-import java.util.{ArrayList, List}
-import com.intellij.openapi.editor.Document
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 
 /**

@@ -5,10 +5,10 @@ package api
 package toplevel
 package typedef
 
-import lexer.ScalaTokenTypes
-import statements.ScDeclaredElementsHolder
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
-import impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 
 /**
 * @author Alexander Podkhalyuzin

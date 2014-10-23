@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala.editor.selectioner
 
-import com.intellij.codeInsight.editorActions.ExtendWordSelectionHandlerBase
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
-import com.intellij.openapi.editor.Editor
-import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import java.util.ArrayList
+
+import com.intellij.codeInsight.editorActions.ExtendWordSelectionHandlerBase
+import com.intellij.lang.ASTNode
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 
 /**
  * Selects a statement together with its trailing semicolon.

@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala
 package annotator.template
 
-import annotator.AnnotatorPart
-import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait, ScTemplateDefinition}
 import com.intellij.lang.annotation.AnnotationHolder
-import lang.psi.types.PhysicalSignature
-import lang.psi.api.statements.{ScPatternDefinition, ScVariableDefinition, ScFunctionDefinition}
-import lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import lang.psi.api.base.patterns.ScBindingPattern
-import com.intellij.psi.{PsiMethod, PsiElement}
-import lang.psi.api.expr.ScNewTemplateDefinition
+import com.intellij.psi.{PsiElement, PsiMethod}
+import org.jetbrains.plugins.scala.annotator.AnnotatorPart
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 
 /**
  * @author Alefas
@@ -33,9 +33,9 @@ object NeedsToBeMixin extends AnnotatorPart[ScTemplateDefinition] {
               if (f.hasModifierPropertyScala("abstract") && f.hasModifierPropertyScala("override")) {
                 signature.supers.find {
                   case node => node.info.namedElement match {
-                    case Some(f: ScFunctionDefinition) => !f.hasModifierPropertyScala("abstract") ||
+                    case f: ScFunctionDefinition => !f.hasModifierPropertyScala("abstract") ||
                             !f.hasModifierProperty("override")
-                    case Some(v: ScBindingPattern) =>
+                    case v: ScBindingPattern =>
                       v.nameContext match {
                         case v: ScVariableDefinition if !f.hasModifierPropertyScala("abstract") ||
                           !f.hasModifierPropertyScala("override") => true
@@ -43,7 +43,7 @@ object NeedsToBeMixin extends AnnotatorPart[ScTemplateDefinition] {
                           !f.hasModifierPropertyScala("override") => true
                         case _ => false
                       }
-                    case Some(m: PsiMethod) => !m.hasModifierProperty("abstract")
+                    case m: PsiMethod => !m.hasModifierProperty("abstract")
                     case _ => false
                   }
                 } match {

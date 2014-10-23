@@ -5,12 +5,14 @@ import com.intellij.ide.DataManager;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.highlighter.EditorHighlighter;
 import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.options.Configurable;
+import com.intellij.openapi.options.UnnamedConfigurable;
+import com.intellij.openapi.options.ex.ConfigurableWrapper;
 import com.intellij.openapi.options.newEditor.OptionsEditor;
 import com.intellij.profile.codeInspection.ui.ErrorsConfigurable;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.ui.EnumComboBoxModel;
 import com.intellij.ui.HyperlinkLabel;
-import com.intellij.ui.components.labels.LinkLabel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaFileType;
@@ -25,6 +27,8 @@ import java.awt.*;
  * Pavel Fatin
  */
 public class TypeAnnotationsPanel extends CodeStyleAbstractPanel {
+  public static final String CONFIGURABLE_ID = "com.intellij.profile.codeInspection.ui.ProjectInspectionToolsConfigurableProvider";
+
   private JPanel contentPanel;
   private JComboBox myPublicPropertyComboBox;
   private JComboBox myProtectedPropertyComboBox;
@@ -61,11 +65,17 @@ public class TypeAnnotationsPanel extends CodeStyleAbstractPanel {
     link.addHyperlinkListener(new HyperlinkListener() {
       public void hyperlinkUpdate(final HyperlinkEvent e) {
         if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-          final OptionsEditor optionsEditor = OptionsEditor.KEY.getData(DataManager.getInstance().getDataContext());
+          final OptionsEditor optionsEditor =
+              OptionsEditor.KEY.getData(DataManager.getInstance().getDataContextFromFocus().getResultSync());
           if (optionsEditor != null) {
-            final ErrorsConfigurable errorsConfigurable = optionsEditor.findConfigurable(ErrorsConfigurable.class);
-            if (errorsConfigurable != null) {
-              optionsEditor.clearSearchAndSelect(errorsConfigurable).doWhenDone(new Runnable() {
+            UnnamedConfigurable configurable =
+                optionsEditor.findConfigurableById(CONFIGURABLE_ID);
+            if (configurable instanceof ConfigurableWrapper) {
+              configurable = ((ConfigurableWrapper) configurable).getConfigurable();
+            }
+            if (configurable != null && configurable instanceof ErrorsConfigurable) {
+              final ErrorsConfigurable errorsConfigurable = (ErrorsConfigurable) configurable;
+              optionsEditor.clearSearchAndSelect((Configurable) configurable).doWhenDone(new Runnable() {
                 public void run() {
                   errorsConfigurable.selectInspectionTool("TypeAnnotation");
                 }

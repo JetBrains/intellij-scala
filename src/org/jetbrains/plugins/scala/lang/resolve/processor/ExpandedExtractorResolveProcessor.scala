@@ -3,16 +3,15 @@ package lang
 package resolve
 package processor
 
-import psi.api.base.ScReferenceElement
-import psi.api.statements._
 import com.intellij.psi._
-import psi.types._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
-import result.TypingContext
-import scala._
-import collection.mutable.ArrayBuffer
-import collection.Set
-import psi.api.toplevel.ScTypedDefinition
+import scala.collection.Set
+import scala.collection.mutable.ArrayBuffer
 /**
  * This class is useful for finding actual methods for unapply or unapplySeq, in case for values:
  * <code>
@@ -72,3 +71,4 @@ class ExpandedExtractorResolveProcessor(ref: ScReferenceElement,
     true
   }
 }
+

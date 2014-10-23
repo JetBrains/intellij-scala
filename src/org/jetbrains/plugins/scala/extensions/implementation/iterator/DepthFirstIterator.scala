@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.extensions.implementation.iterator
 
 import com.intellij.psi.PsiElement
-import collection.mutable
+
+import scala.collection.mutable
 
 /**
  * Pavel.Fatin, 09.05.2010

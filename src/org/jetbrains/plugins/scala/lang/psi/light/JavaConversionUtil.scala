@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScClassParents
-import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 
 /**
  * User: Alefas
@@ -49,14 +49,14 @@ object JavaConversionUtil {
                     case l: ScLiteral => "\"" + StringUtil.escapeStringCharacters(l.getValue.toString) + "\""
                     case call: ScMethodCall =>
                       if (call.getInvokedExpr.getText.endsWith("Array")) {
-                        call.args.exprs.map(convertExpression(_)).mkString("{", ", ", "}")
+                        call.args.exprs.map(convertExpression).mkString("{", ", ", "}")
                       } else problem
                     case call: ScGenericCall =>
                       if (call.referencedExpr.getText.endsWith("classOf")) {
                         val arguments = call.arguments
                         if (arguments.length == 1) {
-                          val tp = arguments.apply(0).getType(TypingContext.empty)
-                          tp match {
+                          val typeResult = arguments.apply(0).getType(TypingContext.empty)
+                          typeResult match {
                             case Success(tp, _) =>
                               ScType.extractClass(tp, Some(s.getProject)) match {
                                 case Some(clazz) => clazz.getQualifiedName + ".class"
@@ -77,7 +77,7 @@ object JavaConversionUtil {
                                     case c: PsiClass =>
                                       var res = "@" + c.getQualifiedName
                                       constr.args match {
-                                        case Some(args) => res += convertArgs(args.exprs)
+                                        case Some(constrArgs) => res += convertArgs(constrArgs.exprs)
                                         case _ =>
                                       }
                                       res
@@ -92,7 +92,7 @@ object JavaConversionUtil {
                     case _ => problem
                   }
                 }
-                args.map(convertExpression(_)).mkString("(", ", ", ")")
+                args.map(convertExpression).mkString("(", ", ", ")")
               }
               builder.append(convertArgs(args.exprs))
             case _ =>

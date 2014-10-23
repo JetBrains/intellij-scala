@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.scala
 package lang.psi.api.toplevel.typedef
 
-import lang.scaladoc.psi.api.ScDocComment
-import extensions._
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 /**
  * @author ilyas
  */
 
-import org.jetbrains.annotations.Nullable
-import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.PsiDocCommentOwner
+import com.intellij.psi.javadoc.PsiDocComment
+import org.jetbrains.annotations.Nullable
 
 trait ScDocCommentOwner extends PsiDocCommentOwner {
   def docComment: Option[ScDocComment] = getFirstChild.asOptionOf[ScDocComment]

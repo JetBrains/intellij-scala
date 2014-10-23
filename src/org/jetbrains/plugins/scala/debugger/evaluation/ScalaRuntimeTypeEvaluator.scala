@@ -2,28 +2,28 @@ package org.jetbrains.plugins.scala
 package debugger.evaluation
 
 import com.intellij.debugger.codeinsight.RuntimeTypeEvaluator
-import org.jetbrains.annotations.Nullable
-import com.intellij.openapi.editor.Editor
-import com.intellij.psi._
-import com.intellij.debugger.impl.DebuggerContextImpl
-import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.debugger.engine.evaluation.{EvaluateExceptionUtil, EvaluationContextImpl}
-import com.intellij.openapi.project.Project
-import com.intellij.debugger.engine.evaluation.expression.ExpressionEvaluator
-import com.intellij.debugger.{EvaluatingComputable, DebuggerBundle, DebuggerInvocationUtil}
 import com.intellij.debugger.engine.ContextUtil
-import com.sun.jdi.{ClassType, Type, Value}
-import ScalaRuntimeTypeEvaluator._
-import com.intellij.openapi.application.{ReadAction, AccessToken}
-import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
+import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
+import com.intellij.debugger.engine.evaluation.expression.ExpressionEvaluator
+import com.intellij.debugger.impl.DebuggerContextImpl
+import com.intellij.debugger.{DebuggerBundle, DebuggerInvocationUtil, EvaluatingComputable}
+import com.intellij.openapi.application.{AccessToken, ReadAction}
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
+import com.intellij.psi._
+import com.intellij.psi.search.GlobalSearchScope
+import com.sun.jdi.{ClassType, Type, Value}
+import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.debugger.evaluation.ScalaRuntimeTypeEvaluator._
+import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.ScType.ExtractClass
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 /**
  * Nikolay.Tropin
@@ -43,7 +43,7 @@ abstract class ScalaRuntimeTypeEvaluator(@Nullable editor: Editor, expression: P
     val value: Value = evaluator.evaluate(evaluationContext)
     if (value != null) {
       getCastableRuntimeType(project, value)
-    } else throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.surrounded.expression.null"))
+    } else throw EvaluationException(DebuggerBundle.message("evaluation.error.surrounded.expression.null"))
   }
 }
 
@@ -52,7 +52,8 @@ object ScalaRuntimeTypeEvaluator {
   val KEY: Key[ScExpression => ScType] = Key.create("SCALA_RUNTIME_TYPE_EVALUATOR")
 
   def getCastableRuntimeType(project: Project, value: Value): PsiClass = {
-    val jdiType: Type = DebuggerUtil.unwrapScalaRuntimeObjectRef(value).asInstanceOf[Value].`type`
+    val unwrapped = DebuggerUtil.unwrapScalaRuntimeObjectRef(value)
+    val jdiType: Type = unwrapped.asInstanceOf[Value].`type`
     var psiClass: PsiClass = findPsiClass(project, jdiType)
     if (psiClass != null) {
       return psiClass

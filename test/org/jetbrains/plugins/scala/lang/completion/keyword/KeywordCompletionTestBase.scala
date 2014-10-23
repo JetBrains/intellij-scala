@@ -1,18 +1,18 @@
 package org.jetbrains.plugins.scala.lang.completion.keyword
 
-import org.jetbrains.plugins.scala.base.{ScalaLightPlatformCodeInsightTestCaseAdapter, ScalaPsiTestCase}
-import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import java.io.File
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.psi.PsiManager
-import com.intellij.openapi.fileEditor.{OpenFileDescriptor, FileEditorManager}
+
 import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionType}
 import com.intellij.codeInsight.lookup.impl.LookupImpl
 import com.intellij.codeInsight.lookup.{LookupElement, LookupManager}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * @author Alexander Podkhalyuzin

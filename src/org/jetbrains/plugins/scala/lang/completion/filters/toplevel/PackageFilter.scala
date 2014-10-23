@@ -3,13 +3,13 @@ package lang
 package completion
 package filters.toplevel
 
-import psi.api.ScalaFile
+import com.intellij.psi._
 import com.intellij.psi.filters.ElementFilter
 import org.jetbrains.annotations.NonNls
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.parser._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 
 /**
 * @author Alexander Podkhalyuzin

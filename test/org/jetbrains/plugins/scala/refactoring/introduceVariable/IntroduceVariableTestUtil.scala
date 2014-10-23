@@ -4,15 +4,14 @@ package refactoring.introduceVariable
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import lang.psi.api.expr._
-import lang.psi.ScalaPsiUtil
 import com.intellij.psi.PsiElement
-import lang.psi.api.toplevel.templates.ScTemplateBody
 import com.intellij.psi.util.PsiTreeUtil
-import lang.psi.api.ScalaFile
-import lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler
-import lang.psi.types.ScType
-import lang.refactoring.util.{ScalaVariableValidator, ScalaRefactoringUtil}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler
+import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator}
 
 /**
  * @author Alexander Podkhalyuzin

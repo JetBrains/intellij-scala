@@ -3,31 +3,29 @@ package lang
 package refactoring
 package delete
 
+import java.util
+import java.util._
+
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.util.Condition
-import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.{Condition, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.javadoc.PsiDocMethodOrFieldRef
 import com.intellij.psi.javadoc.PsiDocTag
 import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.util.MethodSignatureUtil
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.{MethodSignatureUtil, PsiTreeUtil}
 import com.intellij.refactoring.safeDelete._
 import com.intellij.refactoring.safeDelete.usageInfo._
 import com.intellij.usageView.UsageInfo
 import com.intellij.util._
-import org.jetbrains.annotations.NonNls
-import org.jetbrains.annotations.Nullable
+import org.jetbrains.annotations.{NonNls, Nullable}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import java.util._
-import psi.api.base.ScStableCodeReferenceElement
-import psi.api.toplevel.typedef.ScObject
-import collection.JavaConversions._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 
-import extensions._
-import java.util
+import scala.collection.JavaConversions._
 
 /**
  * This is a port of the static, private mtehods in JavaSafeDeleteProcessor.

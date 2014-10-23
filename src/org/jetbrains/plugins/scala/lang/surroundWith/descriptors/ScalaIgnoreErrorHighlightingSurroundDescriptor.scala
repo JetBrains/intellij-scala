@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.surroundWith.descriptors
 
-import com.intellij.lang.surroundWith.{Surrounder, SurroundDescriptor}
+import com.intellij.lang.surroundWith.{SurroundDescriptor, Surrounder}
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.errorHighlighting.IgnoreErrorHighlightingSurrounder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.errorHighlighting.IgnoreErrorHighlightingSurrounder
 
 
 /**

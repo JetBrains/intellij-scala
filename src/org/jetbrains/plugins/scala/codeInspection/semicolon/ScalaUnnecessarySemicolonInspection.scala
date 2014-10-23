@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.codeInspection.semicolon
 
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import com.intellij.psi.{PsiWhiteSpace, PsiElement, PsiElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.codeInspection.AbstractFix
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder, LocalInspectionTool}
+import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.codeInspection.AbstractFix
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 
 /**

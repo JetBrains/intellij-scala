@@ -2,11 +2,10 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package unusedInspections
 
+import com.intellij.codeHighlighting.{Pass, TextEditorHighlightingPass, TextEditorHighlightingPassFactory, TextEditorHighlightingPassRegistrar}
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.PsiFile
-import com.intellij.codeHighlighting.{Pass, TextEditorHighlightingPassRegistrar, TextEditorHighlightingPass, TextEditorHighlightingPassFactory}
-import com.intellij.codeInsight.daemon.impl.FileStatusMap
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiFile
 
 class ScalaUnusedSymbolPassFactory(project: Project)
         extends TextEditorHighlightingPassFactory {

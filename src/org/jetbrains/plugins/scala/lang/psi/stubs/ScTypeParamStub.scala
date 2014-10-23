@@ -4,10 +4,9 @@ package psi
 package stubs
 
 
-import api.base.types.ScTypeElement
-import api.statements.params.ScTypeParam
 import com.intellij.psi.stubs.NamedStub
-import types.ScType
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 
 /**
  * User: Alexander Podkhalyuzin
@@ -17,12 +16,12 @@ import types.ScType
 trait ScTypeParamStub extends NamedStub[ScTypeParam]{
   def getUpperText: String
   def getLowerText: String
-  def getViewText: Array[String]
-  def getContextBoundText: Array[String]
+  def getViewText: Seq[String]
+  def getContextBoundText: Seq[String]
   def getUpperTypeElement: Option[ScTypeElement]
   def getLowerTypeElement: Option[ScTypeElement]
-  def getViewTypeElement: Array[ScTypeElement]
-  def getContextBoundTypeElement: Array[ScTypeElement]
+  def getViewTypeElement: Seq[ScTypeElement]
+  def getContextBoundTypeElement: Seq[ScTypeElement]
   def isCovariant: Boolean
   def isContravariant: Boolean
   def getPositionInFile: Int

@@ -2,12 +2,10 @@ package org.jetbrains.plugins.scala
 package lang
 package structureView
 
-import com.intellij.ide.structureView.StructureViewModel
-import psi.api.ScalaFile
-import com.intellij.ide.structureView.TreeBasedStructureViewBuilder
-
+import com.intellij.ide.structureView.{StructureViewModel, TreeBasedStructureViewBuilder}
 import org.jetbrains.annotations.NotNull
-import console.ScalaLanguageConsole
+import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
 * @author Alexander.Podkhalyuz

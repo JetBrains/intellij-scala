@@ -1,0 +1,8 @@
+class a {
+  val x = <begin>1<end>
+}
+------
+class a {
+  private val value: Int = 1
+  val x = value
+}

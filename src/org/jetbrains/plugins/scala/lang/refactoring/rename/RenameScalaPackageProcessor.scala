@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.rename
 
-import com.intellij.refactoring.rename.RenamePsiPackageProcessor
-import com.intellij.psi.{PsiPackage, PsiElement}
 import java.util
-import caches.ScalaShortNamesCacheManager
+
+import com.intellij.psi.{PsiElement, PsiPackage}
+import com.intellij.refactoring.rename.RenamePsiPackageProcessor
+import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 
 /**
  * @author Alefas

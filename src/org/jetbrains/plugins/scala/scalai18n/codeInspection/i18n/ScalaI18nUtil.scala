@@ -1,27 +1,28 @@
 package org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n
 
-import org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings
-import com.intellij.lang.properties.{PropertiesReferenceManager, PropertiesUtil, IProperty}
+import java.text.MessageFormat
+
 import com.intellij.codeInsight.AnnotationUtil
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import com.intellij.openapi.util.{TextRange, Key, Ref}
-import com.intellij.lang.properties.psi.impl.{PropertyStubImpl, PropertyImpl}
 import com.intellij.lang.properties.parsing.PropertiesElementTypes
-import com.intellij.psi._
-import util._
-import collection.mutable
-import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScMethodCall, ScExpression, ScArgumentExprList}
-import com.intellij.lang.properties.psi.{Property, PropertiesFile}
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.lang.properties.psi.impl.{PropertyImpl, PropertyStubImpl}
+import com.intellij.lang.properties.psi.{PropertiesFile, Property}
+import com.intellij.lang.properties.{IProperty, PropertiesImplUtil, PropertiesReferenceManager}
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.text.StringUtil
-import java.text.MessageFormat
-import org.jetbrains.annotations.NotNull
-import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.util.{Key, Ref, TextRange}
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi._
+import com.intellij.psi.util._
+import org.jetbrains.annotations.{NotNull, Nullable}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.util.ScalaConstantExpressionEvaluator
+import org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings
+
+import scala.collection.mutable
 
 /**
  * @author Ksenia.Sautina
@@ -39,7 +40,7 @@ object ScalaI18nUtil {
         val param: ScExpression = pair._2
         val project: Project = pair._1
         val topLevel: ScExpression = getTopLevel(project, param)
-        val cachedValue: ParameterizedCachedValue[ScExpression, Pair[Project, ScExpression]] = param.getUserData(TOP_LEVEL_EXPRESSION)
+        val cachedValue: ParameterizedCachedValue[ScExpression, (Project, ScExpression)] = param.getUserData(TOP_LEVEL_EXPRESSION)
         assert(cachedValue != null)
         var i: Int = 0
         var element: PsiElement = param
@@ -89,9 +90,9 @@ object ScalaI18nUtil {
                                @Nullable nonNlsTargets: mutable.HashSet[PsiModifierListOwner]): Boolean = {
     val expression = getToplevelExpression(project, myExpression)
     val parent: PsiElement = expression.getParent
-    if (!(parent.isInstanceOf[ScArgumentExprList])) return false
+    if (!parent.isInstanceOf[ScArgumentExprList]) return false
     var idx: Int = -1
-    val args: Array[ScExpression] = (parent.asInstanceOf[ScArgumentExprList]).exprsArray
+    val args: Array[ScExpression] = parent.asInstanceOf[ScArgumentExprList].exprsArray
     var i: Int = 0
     var flag = true
     while (i < args.length && flag) {
@@ -145,7 +146,7 @@ object ScalaI18nUtil {
       expression = parent
       if (expression.isInstanceOf[PsiAssignmentExpression]) flag = false
       if (i > 10 && expression.isInstanceOf[PsiBinaryExpression]) {
-        val value: ParameterizedCachedValue[ScExpression, Pair[Project, ScExpression]] = expression.getUserData(TOP_LEVEL_EXPRESSION)
+        val value: ParameterizedCachedValue[ScExpression, (Project, ScExpression)] = expression.getUserData(TOP_LEVEL_EXPRESSION)
         if (value != null && value.hasUpToDateValue) {
           return getToplevelExpression(project, expression)
         }
@@ -208,7 +209,7 @@ object ScalaI18nUtil {
 
   def isPropertyRef(expression: ScLiteral, key: String, resourceBundleName: String): Boolean = {
     if (resourceBundleName == null) {
-      !PropertiesUtil.findPropertiesByKey(expression.getProject, key).isEmpty
+      !PropertiesImplUtil.findPropertiesByKey(expression.getProject, key).isEmpty
     }
     else {
       val propertiesFiles = propertiesFilesByBundleName(resourceBundleName, expression)
@@ -368,23 +369,20 @@ object ScalaI18nUtil {
   }
 
   def isValidPropertyReference(@NotNull project: Project, @NotNull expression: ScLiteral, @NotNull key: String, @NotNull outResourceBundle: Ref[String]): Boolean = {
-    val annotationAttributeValues: mutable.HashMap[String, AnyRef] = new mutable.HashMap[String, AnyRef]
+    val annotationAttributeValues = new mutable.HashMap[String, AnyRef]
     annotationAttributeValues.put(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER, null)
     if (mustBePropertyKey(project, expression, annotationAttributeValues)) {
-      val resourceBundleName: AnyRef = annotationAttributeValues.get(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER).getOrElse(null)
-      if (resourceBundleName== null || !resourceBundleName.isInstanceOf[PsiReferenceExpression]) {
-        return false
+      annotationAttributeValues get AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER exists {
+        case bundleName: PsiElement =>
+          val result = JavaPsiFacade.getInstance(bundleName.getProject).getConstantEvaluationHelper.computeConstantExpression(bundleName)
+          if (result == null) false else {
+            val bundleName = result.toString
+            outResourceBundle.set(bundleName)
+            isPropertyRef(expression, key, bundleName)
+          }
+        case _ => false
       }
-      val expr: PsiReferenceExpression = resourceBundleName.asInstanceOf[PsiReferenceExpression]
-      val value: AnyRef = JavaPsiFacade.getInstance(expr.getProject).getConstantEvaluationHelper.computeConstantExpression(expr)
-      if (value == null) {
-        return false
-      }
-      val bundleName: String = value.toString
-      outResourceBundle.set(bundleName)
-      return isPropertyRef(expression, key, bundleName)
-    }
-    true
+    } else true
   }
 
   def createProperty(project: Project, propertiesFiles: java.util.Collection[PropertiesFile], key: String, value: String) {

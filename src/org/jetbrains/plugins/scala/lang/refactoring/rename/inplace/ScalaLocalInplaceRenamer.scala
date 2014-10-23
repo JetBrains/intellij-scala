@@ -1,17 +1,18 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.rename.inplace
 
-import com.intellij.refactoring.rename.inplace.VariableInplaceRenamer
-import com.intellij.psi.{PsiDocumentManager, PsiFile, PsiElement, PsiNamedElement}
+import java.util
+
+import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import java.util
-import com.intellij.openapi.util.{TextRange, Pair}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import com.intellij.openapi.util.{Pair, TextRange}
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiNamedElement}
+import com.intellij.refactoring.rename.inplace.VariableInplaceRenamer
 import com.intellij.refactoring.util.TextOccurrencesUtil
 import com.intellij.util.PairProcessor
-import com.intellij.lang.Language
 import org.jetbrains.annotations.NotNull
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * Nikolay.Tropin

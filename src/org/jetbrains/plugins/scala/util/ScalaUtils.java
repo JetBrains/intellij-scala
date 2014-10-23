@@ -15,10 +15,6 @@
 
 package org.jetbrains.plugins.scala.util;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataConstants;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.command.UndoConfirmationPolicy;
@@ -29,15 +25,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.JavaPsiFacade;
-import com.intellij.psi.PsiPackage;
-import com.intellij.psi.PsiClass;
-import com.intellij.facet.FacetManager;
-import com.intellij.util.PathUtil;
+import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaFileType;
 
-import java.io.*;
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.regex.Pattern;
 
 /**
@@ -168,10 +161,9 @@ public abstract class ScalaUtils {
     return moduleType instanceof JavaModuleType || moduleType.getId().equals(PLUGIN_MODULE_ID);
   }
 
-  public static boolean isUnderTestSources(PsiClass c) {
-    ProjectRootManager rm = ProjectRootManager.getInstance(c.getProject());
-    VirtualFile f = c.getContainingFile().getVirtualFile();
-    if (f == null) return false;
-    return rm.getFileIndex().isInTestSourceContent(f);
+  public static boolean isUnderSources(PsiFile file) {
+    ProjectRootManager rm = ProjectRootManager.getInstance(file.getProject());
+    VirtualFile f = file.getVirtualFile();
+    return f != null && rm.getFileIndex().isInSourceContent(f);
   }
 }

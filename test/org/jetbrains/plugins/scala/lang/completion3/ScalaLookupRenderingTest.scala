@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.lookup.LookupElementPresentation
-import org.junit.Assert
 import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
+import org.junit.Assert
 
 /**
  * @author Alefas

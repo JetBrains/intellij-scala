@@ -4,11 +4,9 @@ package parser
 package parsing
 package expressions
 
-import _root_.scala.collection.mutable.Stack
 import com.intellij.lang.PsiBuilder
-import lexer.ScalaTokenTypes
-import nl.LineTerminator
-import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 
 /**
@@ -22,7 +20,7 @@ import builder.ScalaPsiBuilder
  */
 
 object InfixExpr {
-  import util.ParserUtils._
+  import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils._
   def parse(builder: ScalaPsiBuilder): Boolean = {
 
     type MStack[X] = _root_.scala.collection.mutable.Stack[X]
@@ -33,8 +31,8 @@ object InfixExpr {
     var backupMarker = builder.mark
     var count = 0
     if (!PrefixExpr.parse(builder)) {
-      backupMarker.drop
-      infixMarker.drop
+      backupMarker.drop()
+      infixMarker.drop()
       return false
     }
     var exitOf = true
@@ -51,10 +49,10 @@ object InfixExpr {
           exit = true
         }
         else if (!compar(s, opStack.top, builder)) {
-          opStack.pop
-          backupMarker.drop
+          opStack.pop()
+          backupMarker.drop()
           backupMarker = markerStack.top.precede
-          markerStack.pop.done(ScalaElementTypes.INFIX_EXPR)
+          markerStack.pop().done(ScalaElementTypes.INFIX_EXPR)
         }
         else {
           opStack push s
@@ -65,38 +63,38 @@ object InfixExpr {
       }
       val setMarker = builder.mark
       val opMarker = builder.mark
-      builder.advanceLexer //Ate id
+      builder.advanceLexer() //Ate id
       opMarker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
       if (builder.twoNewlinesBeforeCurrentToken) {
-        setMarker.rollbackTo
+        setMarker.rollbackTo()
         count = 0
-        backupMarker.drop
+        backupMarker.drop()
         exitOf = false
       } else {
-        backupMarker.drop
+        backupMarker.drop()
         backupMarker = builder.mark
         if (!PrefixExpr.parse(builder)) {
-          setMarker.rollbackTo
+          setMarker.rollbackTo()
           count = 0
           exitOf = false
         }
         else {
-          setMarker.drop
+          setMarker.drop()
           count = count + 1
         }
       }
     }
-    if (exitOf) backupMarker.drop
+    if (exitOf) backupMarker.drop()
     if (count > 0) {
       while (count > 0 && !markerStack.isEmpty) {
-        markerStack.pop.done(ScalaElementTypes.INFIX_EXPR)
+        markerStack.pop().done(ScalaElementTypes.INFIX_EXPR)
         count -= 1
       }
 
     }
-    infixMarker.drop
+    infixMarker.drop()
     while (!markerStack.isEmpty) {
-      markerStack.pop.drop
+      markerStack.pop().drop()
     }
     true
   }

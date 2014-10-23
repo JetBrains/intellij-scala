@@ -4,12 +4,12 @@ package psi
 package stubs
 package elements
 
-import api.statements.{ScFunctionDefinition, ScFunction, ScFunctionDeclaration}
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io.StringRef
-import impl.ScFunctionStubImpl
-import index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFunctionStubImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 
 /**
  * User: Alexander Podkhalyuzin

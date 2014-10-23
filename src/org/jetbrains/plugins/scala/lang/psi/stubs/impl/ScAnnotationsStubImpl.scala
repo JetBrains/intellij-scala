@@ -5,10 +5,9 @@ package stubs
 package impl
 
 
-import api.expr.ScAnnotations
-import api.toplevel.ScEarlyDefinitions
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotations
 /**
  * User: Alexander Podkhalyuzin
  * Date: 22.06.2009

@@ -4,9 +4,9 @@ package psi
 package stubs
 package impl
 
-import api.base.ScModifierList
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubElement, IStubElementType}
+import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 /**
  * User: Alexander Podkhalyuzin
  * Date: 21.01.2009

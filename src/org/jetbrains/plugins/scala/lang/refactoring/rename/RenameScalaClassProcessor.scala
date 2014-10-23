@@ -1,24 +1,26 @@
 package org.jetbrains.plugins.scala.lang.refactoring.rename
 
+import java.awt.BorderLayout
+import java.util
+import javax.swing.{JCheckBox, JComponent, JPanel}
+
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
+import com.intellij.refactoring.listeners.RefactoringElementListener
 import com.intellij.refactoring.rename.{RenameDialog, RenameJavaClassProcessor}
+import com.intellij.usageView.UsageInfo
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
-import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
-import com.intellij.openapi.editor.Editor
-import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import com.intellij.psi.PsiElement
-import annotation.tailrec
-import java.util
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import com.intellij.openapi.project.Project
-import javax.swing.{JPanel, JComponent, JCheckBox}
-import org.jetbrains.plugins.scala.ScalaBundle
-import java.awt.BorderLayout
-import com.intellij.usageView.UsageInfo
-import com.intellij.refactoring.listeners.RefactoringElementListener
+
+import scala.annotation.tailrec
 
 /**
  * User: Alexander Podkhalyuzin

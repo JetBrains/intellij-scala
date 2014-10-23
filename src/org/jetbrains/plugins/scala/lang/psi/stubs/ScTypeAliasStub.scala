@@ -3,9 +3,9 @@ package lang
 package psi
 package stubs
 
-import api.base.types.ScTypeElement
-import api.statements.ScTypeAlias
 import com.intellij.psi.stubs.NamedStub
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 
 /**
  * User: Alexander Podkhalyuzin

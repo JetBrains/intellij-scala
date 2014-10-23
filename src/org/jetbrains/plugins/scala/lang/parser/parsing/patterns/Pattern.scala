@@ -4,8 +4,7 @@ package parser
 package parsing
 package patterns
 
-import com.intellij.lang.PsiBuilder
-import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -20,19 +19,19 @@ object Pattern {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val patternMarker = builder.mark
     if (!Pattern1.parse(builder)) {
-      patternMarker.drop
+      patternMarker.drop()
       return false
     }
     var isComposite = false
     while (builder.getTokenText == "|") {
       isComposite = true
-      builder.advanceLexer //Ate |
+      builder.advanceLexer() //Ate |
       if (!Pattern1.parse(builder)) {
         builder error ScalaBundle.message("wrong.pattern")
       }
     }
     if (isComposite) patternMarker.done(ScalaElementTypes.PATTERN)
-    else patternMarker.drop
-    return true
+    else patternMarker.drop()
+    true
   }
 }

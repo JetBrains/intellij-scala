@@ -1,8 +1,8 @@
 package org.jetbrains.sbt
 package project.module
 
-import com.intellij.openapi.module.ModuleType
 import com.intellij.ide.util.projectWizard.EmptyModuleBuilder
+import com.intellij.openapi.module.ModuleType
 
 /**
  * @author Pavel Fatin

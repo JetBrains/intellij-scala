@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package codeInspection.imports
 
+import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor}
 import com.intellij.openapi.project.Project
-import com.intellij.codeInspection.{ProblemDescriptor, LocalQuickFix}
-import lang.psi.api.toplevel.imports.ScImportExpr
-import lang.psi.impl.ScalaPsiElementFactory
-import extensions._
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * @author Ksenia.Sautina

@@ -1,23 +1,25 @@
 package org.jetbrains.plugins.scala
 package refactoring.rename3
 
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import org.jetbrains.plugins.scala.util.TestUtils
-import com.intellij.testFramework.{LightPlatformTestCase, LightPlatformCodeInsightTestCase, PlatformTestUtil, PsiTestUtil}
-import java.util
 import java.io.File
-import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
-import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
-import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.vfs.{VirtualFileFilter, LocalFileSystem, VirtualFile}
+import java.util
+
 import com.intellij.codeInsight.TargetElementUtilBase
-import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
-import com.intellij.refactoring.rename.{RenameProcessor, RenamePsiElementProcessor}
-import com.intellij.openapi.util.text.StringUtil
-import scala.collection.mutable.ListBuffer
-import com.intellij.psi.{PsiFile, PsiDocumentManager}
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
+import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
+import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
+import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
+import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import com.intellij.refactoring.rename.{RenameProcessor, RenamePsiElementProcessor}
+import com.intellij.testFramework.{LightPlatformCodeInsightTestCase, LightPlatformTestCase, PlatformTestUtil, PsiTestUtil}
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.util.TestUtils
+
+import scala.collection.mutable.ListBuffer
 
 /**
  * Nikolay.Tropin

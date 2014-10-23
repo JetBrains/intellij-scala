@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
 package worksheet.runconfiguration
 
-import com.intellij.util.containers.WeakHashMap
-import com.intellij.openapi.editor.{EditorFactory, Editor}
 import com.intellij.openapi.editor.impl.EditorImpl
+import com.intellij.openapi.editor.{Editor, EditorFactory}
+import com.intellij.util.containers.WeakHashMap
 
 /**
  * @author Ksenia.Sautina

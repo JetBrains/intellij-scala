@@ -16,3 +16,8 @@ trait ScTryStmt extends ScExpression {
 
   override def accept(visitor: ScalaElementVisitor) = visitor.visitTryExpression(this)
 }
+
+object ScTryStmt {
+  def unapply(tryStmt: ScTryStmt): Option[(ScTryBlock, Option[ScCatchBlock], Option[ScFinallyBlock])] =
+    Some((tryStmt.tryBlock, tryStmt.catchBlock, tryStmt.finallyBlock))
+}

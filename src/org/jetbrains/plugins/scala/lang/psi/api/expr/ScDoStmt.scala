@@ -4,9 +4,6 @@ package psi
 package api
 package expr
 
-import psi.ScalaPsiElement
-import com.intellij.psi._
-
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
@@ -29,4 +26,9 @@ trait ScDoStmt extends ScExpression {
 
 
   override def accept(visitor: ScalaElementVisitor) = visitor.visitDoStatement(this)
+}
+
+object ScDoStmt {
+  def unapply(doStmt: ScDoStmt): Option[(Option[ScExpression], Option[ScExpression])] =
+    Some(doStmt.getExprBody, doStmt.condition)
 }

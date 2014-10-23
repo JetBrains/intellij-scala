@@ -4,10 +4,10 @@ package parser
 package parsing
 package expressions
 
-import lexer.ScalaTokenTypes
-import patterns.CaseClauses
-import builder.ScalaPsiBuilder
-import parser.util.{ParserPatcher, ParserUtils}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClauses
+import org.jetbrains.plugins.scala.lang.parser.util.{ParserPatcher, ParserUtils}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -23,38 +23,32 @@ object BlockExpr {
     if (ParserPatcher.getSuitablePatcher(builder).parse(builder)) return true
     val blockExprMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.tLBRACE => {
+      case ScalaTokenTypes.tLBRACE =>
         builder.advanceLexer()
         builder.enableNewlines
-      }
-      case _ => {
+      case _ =>
         blockExprMarker.drop()
         return false
-      }
     }
-    def foo() {
+    def loopFunction() {
       builder.getTokenType match {
-        case ScalaTokenTypes.kCASE => {
+        case ScalaTokenTypes.kCASE =>
           val backMarker = builder.mark
           builder.advanceLexer()
           builder.getTokenType match {
             case ScalaTokenTypes.kCLASS |
-                 ScalaTokenTypes.kOBJECT => {
-               backMarker.rollbackTo()
-              Block parse builder
-            }
-            case _ => {
+                 ScalaTokenTypes.kOBJECT =>
+              backMarker.rollbackTo()
+              Block.parse(builder)
+            case _ =>
               backMarker.rollbackTo()
               CaseClauses parse builder
-            }
           }
-        }
-        case _ => {
-          Block parse builder
-        }
+        case _ =>
+          Block.parse(builder)
       }
     }
-    ParserUtils.parseLoopUntilRBrace(builder, foo _)
+    ParserUtils.parseLoopUntilRBrace(builder, loopFunction)
     builder.restoreNewlinesState
     blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
     true

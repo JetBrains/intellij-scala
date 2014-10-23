@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
-import lang.psi.api.base.types.ScSimpleTypeElement
-import lang.psi.api.statements.ScPatternDefinition
-import AnnotatorUtils._
+import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 
 /**
  * Pavel.Fatin, 18.05.2010

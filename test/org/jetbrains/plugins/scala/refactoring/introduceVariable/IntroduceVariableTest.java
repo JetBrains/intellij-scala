@@ -3,12 +3,10 @@ package org.jetbrains.plugins.scala.refactoring.introduceVariable;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.Sdk;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.base.ScalaLibraryLoader;
 import org.jetbrains.plugins.scala.util.TestUtils;
-import scala.Option$;
 
 /**
  * @author Alexander Podkhalyuzin
@@ -29,8 +27,7 @@ public class IntroduceVariableTest extends AbstractIntroduceVariableTestBase {
   protected void setUp(Project project) {
     super.setUp(project);
     Module[] modules = ModuleManager.getInstance(project).getModules();
-    Sdk nll = null;
-    ScalaLibraryLoader loader = new ScalaLibraryLoader(project, modules[0], null, false, false, Option$.MODULE$.apply(nll));
-    loader.loadLibrary(TestUtils.ScalaSdkVersion._2_10);
+    ScalaLibraryLoader loader = ScalaLibraryLoader.withMockJdk(project, modules[0], null, false, false);
+    loader.loadLibrary(TestUtils.DEFAULT_SCALA_SDK_VERSION);
   }
 }

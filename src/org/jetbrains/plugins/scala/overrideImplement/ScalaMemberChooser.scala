@@ -1,17 +1,15 @@
 package org.jetbrains.plugins.scala
 package overrideImplement
 
-import javax.swing.{JComponent, JCheckBox}
-import com.intellij.ui.NonFocusableCheckBox
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import javax.swing.{JCheckBox, JComponent}
+
 import com.intellij.ide.util.MemberChooser
-import com.intellij.openapi.project.Project
-import java.util.Comparator
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import scala.collection.mutable
 import com.intellij.psi.PsiClass
+import com.intellij.ui.NonFocusableCheckBox
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+
+import scala.collection.mutable
 
 /**
  * Nikolay.Tropin

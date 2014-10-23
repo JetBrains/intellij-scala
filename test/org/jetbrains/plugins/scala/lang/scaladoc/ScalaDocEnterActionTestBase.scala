@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
 package lang.scaladoc
 
-import com.intellij.openapi.editor.actionSystem.EditorActionManager
 import com.intellij.openapi.actionSystem.{DataContext, IdeActions}
-import base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import com.intellij.openapi.editor.actionSystem.EditorActionManager
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 
 /**
  * User: Dmitry Naydanov
@@ -21,7 +21,7 @@ abstract class ScalaDocEnterActionTestBase extends ScalaLightPlatformCodeInsight
     getEditorAdapter.getCaretModel.moveToOffset(header.length - 1)
     val enterHandler = EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_ENTER)
 
-    enterHandler.execute(getEditorAdapter, new DataContext {
+    enterHandler.execute(getEditorAdapter, getEditorAdapter.getCaretModel.getCurrentCaret, new DataContext {
       def getData(dataId: String): AnyRef = {
         dataId match {
           case "Language" | "language" => getFileAdapter.getLanguage

@@ -5,7 +5,7 @@ package api
 package expr
 
 import com.intellij.psi.PsiElement
-import statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 /** 
 * @author Alexander Podkhalyuzin

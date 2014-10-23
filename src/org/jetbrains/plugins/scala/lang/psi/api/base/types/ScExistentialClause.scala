@@ -5,8 +5,7 @@ package api
 package base
 package types
 
-import psi.ScalaPsiElement
-import statements.ScDeclaration
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaration
 
 /** 
 * @author Alexander Podkhalyuzin

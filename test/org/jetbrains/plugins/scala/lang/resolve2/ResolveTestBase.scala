@@ -1,16 +1,14 @@
 package org.jetbrains.plugins.scala.lang.resolve2
 
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveTestCase
-import org.jetbrains.plugins.scala.util.TestUtils
-import com.intellij.openapi.vfs.VirtualFile
-import junit.framework._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import java.lang.String
-import com.intellij.psi.{PsiNamedElement, PsiReference, PsiElement}
-import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
-import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 import com.intellij.psi.impl.source.resolve.reference.impl.PsiMultiReference
+import com.intellij.psi.{PsiElement, PsiReference}
+import junit.framework._
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
 /**
  * Pavel.Fatin, 02.02.2010
@@ -122,7 +120,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
     val (target, accessible, applicable) = if(result.isDefined) (
             result.get.element,
             result.get.isAccessible,
-            result.get.isApplicable) else (null, true, true)
+            result.get.isApplicable()) else (null, true, true)
 
     def message = format(getFileAdapter.getText, _: String, lineOf(reference))
 

@@ -1,20 +1,20 @@
 package org.jetbrains.plugins.scala
 package base
 
-import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.actionSystem.IdeActions
-import com.intellij.codeInsight.folding.CodeFoldingManager
-import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, LightCodeInsightFixtureTestCase}
-import com.intellij.codeInsight.generation.surroundWith.SurroundWithHandler
-import com.intellij.lang.surroundWith.Surrounder
-import org.jetbrains.plugins.scala.util.{TestUtils, ScalaToolsFactory}
-import com.intellij.codeInspection.LocalInspectionTool
-import collection.mutable.ListBuffer
-import com.intellij.codeInsight.intention.IntentionAction
-import scala.collection.mutable
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
+import com.intellij.codeInsight.folding.CodeFoldingManager
+import com.intellij.codeInsight.generation.surroundWith.SurroundWithHandler
+import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.lang.surroundWith.Surrounder
+import com.intellij.openapi.actionSystem.IdeActions
+import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.projectRoots.JavaSdk
+import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, LightCodeInsightFixtureTestCase}
+import org.jetbrains.plugins.scala.util.{ScalaToolsFactory, TestUtils}
+
+import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
 /**
  * User: Dmitry Naydanov
@@ -29,9 +29,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
   override protected def setUp() {
     super.setUp()
 
-    libLoader = new ScalaLibraryLoader(myFixture.getProject, myFixture.getModule, rootPath = null,
-      javaSdk = Some(JavaSdk.getInstance.createJdk("java sdk", TestUtils.getMockJdk, false)))
-
+    libLoader = ScalaLibraryLoader.withMockJdk(myFixture.getProject, myFixture.getModule, rootPath = null)
     libLoader.loadLibrary(TestUtils.DEFAULT_SCALA_SDK_VERSION)
   }
 
@@ -46,7 +44,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
     if (!canSurround) {
       assert(elementsToSurround == null || elementsToSurround.isEmpty, elementsToSurround.mkString("![", ",", "]!"))
     } else {
-      assert(!elementsToSurround.isEmpty, "No elements to surround!")
+      assert(elementsToSurround.nonEmpty, "No elements to surround!")
       extensions.startCommand(getProject, "Surround With Test") {
         SurroundWithHandler.invoke(myFixture.getProject, myFixture.getEditor, myFixture.getFile, surrounder)
       }
@@ -139,7 +137,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
     val selectionEnd = selectionModel.getSelectionEnd
 
     val withRightDescription = myFixture.doHighlighting().filter(info => info.getDescription == annotation)
-    assert(!withRightDescription.isEmpty, "No highlightings with such description: " + annotation)
+    assert(withRightDescription.nonEmpty, "No highlightings with such description: " + annotation)
 
     val ranges = withRightDescription.map(info => (info.getStartOffset, info.getEndOffset))
     val message = "Highlights with this description are at " + ranges.mkString(" ") + ", but has to be at " + (selectionStart, selectionEnd)
@@ -171,7 +169,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
       if (info != null && info.quickFixActionRanges != null && checkCaret(info.getStartOffset, info.getEndOffset))
         actions ++= (for (pair <- info.quickFixActionRanges if pair != null) yield pair.getFirst.getAction))
 
-    assert(!actions.isEmpty, "There is no available fixes.")
+    assert(actions.nonEmpty, "There is no available fixes.")
 
     actions.find(_.getText == quickFixHint) match {
       case Some(action) =>

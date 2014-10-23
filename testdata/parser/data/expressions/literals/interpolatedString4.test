@@ -27,7 +27,7 @@ ScalaFile
       PsiElement({)('{')
       PsiWhiteSpace('\n  ')
       Literal
-        ReferenceExpression: s
+        InterpolatedStringPartReference: s
           PsiElement(interpolated string id)('s')
         PsiElement(interpolatedmultiline string)('"""blah blah ')
         PsiElement(interpolated string injection)('$')

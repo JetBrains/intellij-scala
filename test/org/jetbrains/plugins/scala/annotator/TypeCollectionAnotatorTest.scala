@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import lang.psi.api.ScalaFile
-import lang.psi.api.base.ScReferenceElement
-import highlighter.AnnotatorHighlighter
-import settings.ScalaProjectSettings
-import base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.highlighter.AnnotatorHighlighter
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /**
  * User: Dmitry Naydanov
@@ -27,11 +27,9 @@ class TypeCollectionAnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAd
   private def annotate(text: String, holder: AnnotatorHolderMock) {
     configureFromFileTextAdapter("dummy.scala", text.replace("\r", ""))
 
-    getFileAdapter.asInstanceOf[ScalaFile].breadthFirst.foreach { a =>
-      a match {
-        case refElement: ScReferenceElement => AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
-        case _ =>
-      }
+    getFileAdapter.asInstanceOf[ScalaFile].breadthFirst.foreach {
+      case refElement: ScReferenceElement => AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
+      case _ =>
     }
   }
 
@@ -39,20 +37,20 @@ class TypeCollectionAnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAd
     val holder = new AnnotatorHolderMock
     annotate(text, holder)
 
-    assert(holder.annotations.exists(message => message match {
+    assert(holder.annotations.exists {
       case Info(`highlightedText`, `highlightingMessage`) => true
       case _ => false
-    }))
+    })
   }
 
   private def testCannotAnnotate(text: String,  textCantHighlight: (String, String)) {
     val holder = new AnnotatorHolderMock
     annotate(text, holder)
 
-    assert(!holder.annotations.exists(message => message match {
+    assert(!holder.annotations.exists {
       case Info(`textCantHighlight`._1, `textCantHighlight`._2) => true
       case _ => false
-    }))
+    })
   }
 
   def testAnnotateImmutableSimpple() {

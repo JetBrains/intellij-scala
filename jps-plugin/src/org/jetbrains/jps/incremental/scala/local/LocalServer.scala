@@ -1,10 +1,11 @@
 package org.jetbrains.jps.incremental.scala
 package local
 
-import data._
 import java.io.File
-import sbt.inc.{AnalysisFormats, FileBasedStore, AnalysisStore}
+
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
+import org.jetbrains.jps.incremental.scala.data._
+import sbt.inc.{AnalysisStore, FileBasedStore}
 
 /**
  * @author Pavel Fatin
@@ -38,9 +39,7 @@ class LocalServer extends Server {
 
 object LocalServer {
   private def createAnalysisStore(cacheFile: File): AnalysisStore = {
-    import sbinary.DefaultProtocol.{immutableMapFormat, immutableSetFormat, StringFormat, tuple2Format} //need for implicits
-    import sbt.inc.AnalysisFormats._
-    val store = FileBasedStore(cacheFile)(AnalysisFormats.analysisFormat, AnalysisFormats.setupFormat)
+    val store = FileBasedStore(cacheFile)
     AnalysisStore.sync(AnalysisStore.cached(store))
   }
 }

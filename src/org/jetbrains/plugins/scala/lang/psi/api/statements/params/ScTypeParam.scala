@@ -5,16 +5,15 @@ package api
 package statements
 package params
 
-import toplevel.{ScTypeParametersOwner, ScPolymorphicElement}
-import psi.ScalaPsiElement
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPolymorphicElement, ScTypeParametersOwner}
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
 trait ScTypeParam extends ScalaPsiElement with ScPolymorphicElement with PsiTypeParameter {
-  import ScTypeParam._
+  import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam._
 
   def isCovariant: Boolean
 

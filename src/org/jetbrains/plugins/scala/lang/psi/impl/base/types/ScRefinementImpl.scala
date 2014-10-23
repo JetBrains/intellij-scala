@@ -5,12 +5,10 @@ package impl
 package base
 package types
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import api.base.types._
-import com.intellij.psi.{PsiElement, ResolveState}
 import com.intellij.psi.scope.PsiScopeProcessor
-import api.statements.ScDeclaredElementsHolder
+import com.intellij.psi.{PsiElement, ResolveState}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
 /** 
 * @author Alexander Podkhalyuzin

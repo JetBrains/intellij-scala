@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
-import com.intellij.debugger.engine.evaluation.expression.{Modifier, Evaluator}
-import com.intellij.debugger.impl.DebuggerUtilsEx
-import com.intellij.debugger.engine.evaluation.{EvaluateExceptionUtil, EvaluationContextImpl}
 import com.intellij.debugger.DebuggerBundle
 import com.intellij.debugger.engine.DebuggerUtils
+import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
+import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
+import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.sun.jdi._
+import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 
 
 /**
@@ -32,7 +33,7 @@ class ScalaEqEvaluator(left: Evaluator, right: Evaluator) extends Evaluator {
       case (v1: CharValue, v2: CharValue) => DebuggerUtilsEx.createValue(vm, "boolean", v1 == v2)
       case (v1: ObjectReference, v2: ObjectReference) => DebuggerUtilsEx.createValue(vm, "boolean", v1.uniqueID == v2.uniqueID)
       case _ =>
-        throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.incompatible.types", "=="))
+        throw EvaluationException(DebuggerBundle.message("evaluation.error.incompatible.types", "=="))
     }
   }
 

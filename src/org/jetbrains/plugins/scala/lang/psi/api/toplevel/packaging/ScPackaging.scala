@@ -5,9 +5,8 @@ package api
 package toplevel
 package packaging
 
-import statements.ScDeclaredElementsHolder
-import base.ScStableCodeReferenceElement
-import api.toplevel._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
 
 
 trait ScPackaging extends ScToplevelElement with ScImportsHolder with ScPackageContainer with ScDeclaredElementsHolder with ScPackageLike {

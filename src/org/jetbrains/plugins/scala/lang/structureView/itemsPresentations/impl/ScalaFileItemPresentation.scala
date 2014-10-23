@@ -4,7 +4,7 @@ package structureView
 package itemsPresentations
 package impl
 
-import psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
 * @author Alexander Podkhalyuzin

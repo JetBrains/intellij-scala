@@ -4,17 +4,17 @@ package intention
 package types
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.command.undo.UndoUtil
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import lang.psi.impl.ScalaPsiElementFactory
-import com.intellij.openapi.command.undo.UndoUtil
-import lang.psi.api.statements.params.ScParameterClause
-import lang.psi.api.statements.{ScParameterOwner, ScFunction}
-import lang.psi.api.base.ScMethodLike
-import lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypeBoundsOwner}
-import lang.psi.api.toplevel.typedef.{ScTrait, ScClass}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParameterOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeBoundsOwner, ScTypeParametersOwner}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 class ConvertImplicitBoundsToImplicitParameter extends PsiElementBaseIntentionAction {
   def getFamilyName: String = "Convert Implicit Bounds"

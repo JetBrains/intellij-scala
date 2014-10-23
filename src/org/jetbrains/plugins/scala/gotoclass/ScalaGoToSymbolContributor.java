@@ -16,10 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings;
@@ -48,22 +45,22 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
     final boolean searchAll = ScalaProjectSettings.getInstance(project).isSearchAllSymbols();
     final GlobalSearchScope scope = includeNonProjectItems ? GlobalSearchScope.allScope(project) : GlobalSearchScope.projectScope(project);
     final Collection<ScFunction> methods =
-        StubIndex.getInstance().safeGet(ScalaIndexKeys.METHOD_NAME_KEY(), name, project,
+        StubIndex.getElements(ScalaIndexKeys.METHOD_NAME_KEY(), name, project,
             new ScalaSourceFilterScope(scope, project), ScFunction.class);
     final Collection<ScTypeAlias> types =
-        StubIndex.getInstance().safeGet(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY(), name, project,
+        StubIndex.getElements(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY(), name, project,
             new ScalaSourceFilterScope(scope, project), ScTypeAlias.class);
     final Collection<ScValue> values =
-        StubIndex.getInstance().safeGet(ScalaIndexKeys.VALUE_NAME_KEY(), name, project,
+        StubIndex.getElements(ScalaIndexKeys.VALUE_NAME_KEY(), name, project,
             new ScalaSourceFilterScope(scope, project), ScValue.class);
     final Collection<ScVariable> vars =
-        StubIndex.getInstance().safeGet(ScalaIndexKeys.VARIABLE_NAME_KEY(), name, project,
+        StubIndex.getElements(ScalaIndexKeys.VARIABLE_NAME_KEY(), name, project,
             new ScalaSourceFilterScope(scope, project), ScVariable.class);
     final Collection<ScClassParameter> params =
-        StubIndex.getInstance().safeGet(ScalaIndexKeys.CLASS_PARAMETER_NAME_KEY(), name, project,
+        StubIndex.getElements(ScalaIndexKeys.CLASS_PARAMETER_NAME_KEY(), name, project,
             new ScalaSourceFilterScope(scope, project), ScClassParameter.class);
     final Collection<PsiClass> notVisibleInJava =
-        StubIndex.getInstance().safeGet(ScalaIndexKeys.NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY(), name, project,
+        StubIndex.getElements(ScalaIndexKeys.NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY(), name, project,
             new ScalaSourceFilterScope(scope, project), PsiClass.class);
 
     final ArrayList<NavigationItem> items = new ArrayList<NavigationItem>();

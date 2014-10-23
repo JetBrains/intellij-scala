@@ -5,25 +5,25 @@ package impl
 package toplevel
 package packaging
 
-import api.base.ScStableCodeReferenceElement
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
-import lexer.ScalaTokenTypes
-import parser.ScalaElementTypes
-import api.toplevel.packaging._
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.tree.TokenSet
+import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackageContainerStub
-import com.intellij.openapi.progress.ProgressManager
-import java.lang.String
-import api.toplevel.typedef.ScTypeDefinition
-import search.GlobalSearchScope
-import tree.TokenSet
-import collection.mutable.ArrayBuffer
-import com.intellij.openapi.project.DumbService
-import caches.ScalaShortNamesCacheManager
-import types.result.TypingContext
-import types.ScType
-import lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin, Pavel Fatin
@@ -126,21 +126,24 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
                                   place: PsiElement): Boolean = {
     if (DumbService.getInstance(getProject).isDumb) return true
 
-    val pName = (if (prefix.length == 0) "" else prefix + ".") + getPackageName
-    ProgressManager.checkCanceled()
-    val p = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(pName))
-    if (p != null && !p.processDeclarations(processor, state, lastParent, place)) {
-      return false
-    }
+    //If stub is not null, then we are not trying to resolve packaging reference.
+    if (getStub != null || reference != Some(lastParent)) {
+      val pName = (if (prefix.length == 0) "" else prefix + ".") + getPackageName
+      ProgressManager.checkCanceled()
+      val p = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(pName))
+      if (p != null && !p.processDeclarations(processor, state, lastParent, place)) {
+        return false
+      }
 
-    findPackageObject(place.getResolveScope) match {
-      case Some(po) =>
-        var newState = state
-        po.getType(TypingContext.empty).foreach {
-          case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
-        }
-        if (!po.processDeclarations(processor, newState, lastParent, place)) return false
-      case _        =>
+      findPackageObject(place.getResolveScope) match {
+        case Some(po) =>
+          var newState = state
+          po.getType(TypingContext.empty).foreach {
+            case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
+          }
+          if (!po.processDeclarations(processor, newState, lastParent, place)) return false
+        case _ =>
+      }
     }
 
     if (lastParent != null && lastParent.getContext == this) {
@@ -173,7 +176,7 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
       if (ref == null) return getText
       val startOffset = ref.getTextRange.getEndOffset + 1 -
               getTextRange.getStartOffset
-      text.substring(startOffset, endOffset)
+      if (startOffset >= endOffset) "" else text.substring(startOffset, endOffset)
     }
   }
 }

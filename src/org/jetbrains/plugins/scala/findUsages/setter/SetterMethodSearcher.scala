@@ -2,16 +2,16 @@ package org.jetbrains.plugins.scala
 package findUsages
 package setter
 
-import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.util.{Processor, QueryExecutor}
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScFunction}
-import com.intellij.psi.search.{SearchScope, TextOccurenceProcessor, PsiSearchHelper, UsageSearchContext}
-import extensions.{inReadAction, Parent}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignStmt
+import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.psi.search.{PsiSearchHelper, SearchScope, TextOccurenceProcessor, UsageSearchContext}
+import com.intellij.util.{Processor, QueryExecutor}
+import org.jetbrains.plugins.scala.extensions.{Parent, inReadAction}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignStmt
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
 

@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.scala.hierarchy
 
-import com.intellij.psi.{PsiElement, PsiMethod}
-import com.intellij.openapi.project.Project
-import com.intellij.ui.PopupHandler
-import com.intellij.ide.util.treeView.NodeDescriptor
 import java.util.{Comparator, Map}
-import com.intellij.ide.hierarchy.call.{CalleeMethodsTreeStructure, CallerMethodsTreeStructure, CallHierarchyNodeDescriptor}
-import com.intellij.ide.hierarchy.{JavaHierarchyUtil, HierarchyTreeStructure, HierarchyNodeDescriptor, CallHierarchyBrowserBase}
-import com.intellij.ide.hierarchy.CallHierarchyBrowserBase._
-import java.lang.Class
-import com.intellij.openapi.actionSystem._
 import javax.swing.{JComponent, JTree}
+
+import com.intellij.ide.hierarchy.CallHierarchyBrowserBase._
+import com.intellij.ide.hierarchy.call.CallHierarchyNodeDescriptor
+import com.intellij.ide.hierarchy.{CallHierarchyBrowserBase, HierarchyNodeDescriptor, HierarchyTreeStructure, JavaHierarchyUtil}
+import com.intellij.ide.util.treeView.NodeDescriptor
+import com.intellij.openapi.actionSystem._
+import com.intellij.openapi.project.Project
+import com.intellij.psi.{PsiElement, PsiMethod}
+import com.intellij.ui.PopupHandler
 
 /**
  * @author Alexander Podkhalyuzin

@@ -1,18 +1,20 @@
-package org.jetbrains.plugins.scala.lang.psi.api
+package org.jetbrains.plugins.scala
+package lang.psi.api
 
-import base.types._
-import base.{ScModifierList, ScConstructor, ScLiteral, ScReferenceElement}
-import expr.xml.{ScXmlEndTag, ScXmlStartTag}
+import com.intellij.psi.{PsiElementVisitor, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import com.intellij.psi.{PsiFile, PsiElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScLiteral, ScModifierList, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.{ScXmlEndTag, ScXmlStartTag}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import statements._
-import params.{ScClassParameter, ScParameters, ScParameter}
-import toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
-import collection.mutable.Stack
+
+import scala.collection.mutable
 
 /**
  * @author ilyas
@@ -20,10 +22,10 @@ import collection.mutable.Stack
  */
 
 class ScalaRecursiveElementVisitor extends ScalaElementVisitor {
-  private val referencesStack = new Stack[ScReferenceElement]()
+  private val referencesStack = new mutable.Stack[ScReferenceElement]()
   
   override def visitElement(element: ScalaPsiElement) {
-    if (!referencesStack.isEmpty && referencesStack.top == element) {
+    if (referencesStack.nonEmpty && referencesStack.top == element) {
       referencesStack.pop()
       referencesStack.push(null)
     } else {
@@ -67,6 +69,8 @@ class ScalaElementVisitor extends PsiElementVisitor {
 
   def visitFunctionDefinition(fun: ScFunctionDefinition) {visitFunction(fun)}
 
+  def visitFunctionDeclaration(fun: ScFunctionDeclaration) {visitFunction(fun)}
+
   def visitMacroDefinition(fun: ScMacroDefinition) {visitFunction(fun)}
 
   def visitCatchBlock(c: ScCatchBlock) {visitElement(c)}
@@ -96,7 +100,7 @@ class ScalaElementVisitor extends PsiElementVisitor {
   def visitGenerator(gen: ScGenerator) { visitElement(gen) }
   def visitGuard(guard: ScGuard) { visitElement(guard) }
   def visitFunction(fun: ScFunction) { visitElement(fun) }
-  def visitTypeDefintion(typedef: ScTypeDefinition) { visitElement(typedef) }
+  def visitTypeDefinition(typedef: ScTypeDefinition) { visitElement(typedef) }
   def visitImportExpr(expr: ScImportExpr) {visitElement(expr)}
   def visitSelfInvocation(self: ScSelfInvocation) {visitElement(self)}
   def visitAnnotation(annotation: ScAnnotation) {visitElement(annotation)}
@@ -134,6 +138,7 @@ class ScalaElementVisitor extends PsiElementVisitor {
 
   //type elements
   //Override also visitTypeProjection!
+  //If you use it for typed pattern, override visitTypeParam too.
   def visitTypeElement(te: ScTypeElement) {visitElement(te)}
   def visitSimpleTypeElement(simple: ScSimpleTypeElement) {visitTypeElement(simple)}
   def visitWildcardTypeElement(wildcard: ScWildcardTypeElement) {visitTypeElement(wildcard)}
@@ -146,6 +151,7 @@ class ScalaElementVisitor extends PsiElementVisitor {
   def visitExistentialTypeElement(exist: ScExistentialTypeElement) {visitTypeElement(exist)}
   def visitCompoundTypeElement(compound: ScCompoundTypeElement) {visitTypeElement(compound)}
   def visitAnnotTypeElement(annot: ScAnnotTypeElement) {visitTypeElement(annot)}
+  def visitTypeVariableTypeElement(tvar: ScTypeVariableTypeElement): Unit = { visitTypeElement(tvar) }
 
   //scaladoc
   def visitDocComment(s: ScDocComment) {visitComment(s)}

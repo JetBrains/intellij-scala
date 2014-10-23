@@ -7,11 +7,10 @@ package impl
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import lang.psi.api.ScalaElementVisitor
-import java.lang.String
-import com.intellij.psi.{PsiElement, PsiElementVisitor}
-import api.{ScDocReferenceElement, ScDocInlinedTag}
+import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.javadoc.PsiDocTagValue
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocInlinedTag
 
 /**
  * User: Alexander Podkhalyuzin

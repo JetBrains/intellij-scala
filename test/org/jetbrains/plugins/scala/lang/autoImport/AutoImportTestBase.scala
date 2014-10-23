@@ -2,18 +2,20 @@ package org.jetbrains.plugins.scala
 package lang
 package autoImport
 
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
-import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import java.io.File
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.psi.util.PsiTreeUtil
-import base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import lexer.ScalaTokenTypes
-import util.ScalaUtils
+
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.testFramework.UsefulTestCase
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.ClassTypeToImport
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.util.ScalaUtils
 
 /**
  * User: Alexander Podkhalyuzin
@@ -61,6 +63,7 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
               org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.
                 getImportHolder(ref, getProjectAdapter).addImportForPath(ta.qualifiedName, ref)
           }
+          UsefulTestCase.doPostponedFormatting(getProjectAdapter)
         }
       }, getProjectAdapter, "Test")
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")

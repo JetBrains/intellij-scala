@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.completion.lookups
 
 import java.util.Set
-import gnu.trove.THashSet
-import com.intellij.codeInsight.lookup.{LookupElementPresentation, LookupElementDecorator}
+
 import com.intellij.codeInsight.completion.InsertionContext
-import com.intellij.psi.PsiDocumentManager
+import com.intellij.codeInsight.lookup.{LookupElementDecorator, LookupElementPresentation}
+import gnu.trove.THashSet
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler
 
 /**
