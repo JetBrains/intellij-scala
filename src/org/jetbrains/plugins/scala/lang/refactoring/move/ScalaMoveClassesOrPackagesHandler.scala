@@ -1,21 +1,22 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.move
 
-import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiDirectory, PsiClass, PsiElement}
-import lang.psi.api.toplevel.typedef.ScTypeDefinition
-import com.intellij.refactoring.move.MoveCallback
-import lang.psi.impl.ScalaFileImpl
-import com.intellij.openapi.ui.{DialogWrapper, Messages}
-import com.intellij.refactoring.util.{TextOccurrencesUtil, CommonRefactoringUtil}
-import com.intellij.refactoring.move.moveClassesOrPackages._
-import javax.swing._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import java.awt.event.{ActionEvent, ActionListener}
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.annotations.{NotNull, Nullable}
-import com.intellij.refactoring.{MoveDestination, HelpID, JavaRefactoringSettings}
 import java.awt.BorderLayout
+import java.awt.event.{ActionEvent, ActionListener}
+import javax.swing._
+
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.{DialogWrapper, Messages}
+import com.intellij.psi.{PsiClass, PsiDirectory, PsiElement}
+import com.intellij.refactoring.move.MoveCallback
+import com.intellij.refactoring.move.moveClassesOrPackages._
+import com.intellij.refactoring.util.{CommonRefactoringUtil, TextOccurrencesUtil}
+import com.intellij.refactoring.{HelpID, JavaRefactoringSettings, MoveDestination}
+import org.jetbrains.annotations.{NotNull, Nullable}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /**
  * @author Alefas

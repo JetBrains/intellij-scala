@@ -6,8 +6,8 @@ package impl
 
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import api.ScDocMethodParams
 import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocMethodParams
 
 /**
  * User: Alexander Podkhalyuzin

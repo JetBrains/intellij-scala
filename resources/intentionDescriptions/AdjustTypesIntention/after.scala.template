@@ -1,0 +1,16 @@
+import scala.collection.mutable
+import scala.util
+import scala.util.Random
+
+object Example {
+
+  def stringToMutableSeq(s: String): mutable.Seq[Char] = {
+    s.toBuffer
+  }
+
+  def headsOrTails: Boolean = {
+    val random = new Random()
+    random.nextBoolean()
+  }
+
+}

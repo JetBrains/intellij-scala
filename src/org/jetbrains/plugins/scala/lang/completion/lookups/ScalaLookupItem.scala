@@ -1,33 +1,33 @@
 package org.jetbrains.plugins.scala
 package lang.completion.lookups
 
-import com.intellij.codeInsight.completion.InsertionContext
-import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler
-import com.intellij.codeInsight.lookup.{LookupElementPresentation, LookupItem}
-import org.jetbrains.plugins.scala.lang.psi.PresentationUtil._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDefinition, ScFunction, ScFun}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import com.intellij.psi._
-import util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelectors, ScImportStmt}
 import com.intellij.codeInsight.AutoPopupController
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScSubstitutor}
+import com.intellij.codeInsight.completion.InsertionContext
+import com.intellij.codeInsight.lookup.{LookupElementPresentation, LookupItem}
 import com.intellij.openapi.util.Condition
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScObject}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiClassExt, toPsiNamedElementExt}
-import org.jetbrains.plugins.scala.settings._
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement, ScFieldId}
+import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IconUtil
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler
+import org.jetbrains.plugins.scala.lang.psi.PresentationUtil._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelectors, ScImportStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.settings._
 
 /**
  * @author Alefas
@@ -56,6 +56,8 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
   var bold: Boolean = false
   var etaExpanded: Boolean = false
   var prefixCompletion: Boolean = false
+  var isLocalVariable: Boolean = false
+  var isSbtLookupItem: Boolean = false
 
   def isNamedParameterOrAssignment = isNamedParameter || isAssignment
 
@@ -75,25 +77,22 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
 
   override def renderElement(presentation: LookupElementPresentation) {
     val tailText: String = element match {
-      case t: ScFun => {
+      case t: ScFun =>
         if (t.typeParameters.length > 0) t.typeParameters.map(param => presentationString(param, substitutor)).
           mkString("[", ", ", "]")
         else ""
-      }
-      case t: ScTypeParametersOwner => {
+      case t: ScTypeParametersOwner =>
         t.typeParametersClause match {
           case Some(tp) => presentationString(tp, substitutor)
           case None => ""
         }
-      }
-      case p: PsiTypeParameterListOwner if p.getTypeParameters.length > 0 => {
+      case p: PsiTypeParameterListOwner if p.getTypeParameters.length > 0 =>
         p.getTypeParameters.map(ptp => presentationString(ptp)).mkString("[", ", ", "]")
-      }
       case _ => ""
     }
     element match {
       //scala
-      case fun: ScFunction => {
+      case fun: ScFunction =>
         val scType = if (!etaExpanded) fun.returnType.getOrAny else fun.getType(TypingContext.empty).getOrAny
         presentation.setTypeText(presentationString(scType, substitutor))
         val tailText1 = if (isAssignment) {
@@ -113,20 +112,16 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
         if (!etaExpanded)
           presentation.setTailText(tailText1)
         else presentation.setTailText(" _")
-      }
-      case fun: ScFun => {
+      case fun: ScFun =>
         presentation.setTypeText(presentationString(fun.retType, substitutor))
         val paramClausesText = fun.paramClauses.map(_.map(presentationString(_, substitutor)).
           mkString("(", ", ", ")")).mkString
         presentation.setTailText(tailText + paramClausesText)
-      }
-      case bind: ScBindingPattern => {
+      case bind: ScBindingPattern =>
         presentation.setTypeText(presentationString(bind.getType(TypingContext.empty).getOrAny, substitutor))
-      }
-      case f: ScFieldId => {
+      case f: ScFieldId =>
         presentation.setTypeText(presentationString(f.getType(TypingContext.empty).getOrAny, substitutor))
-      }
-      case param: ScParameter => {
+      case param: ScParameter =>
         val str: String =
           presentationString(param.getRealParameterType(TypingContext.empty).getOrAny, substitutor)
         if (isNamedParameter) {
@@ -134,8 +129,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
         } else {
           presentation.setTypeText(str)
         }
-      }
-      case clazz: PsiClass => {
+      case clazz: PsiClass =>
         val location: String = clazz.getPresentation.getLocationString
         presentation.setTailText(tailText + " " + location, true)
         if (name == "this" || name.endsWith(".this")) {
@@ -149,11 +143,9 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
             case _ =>
           }
         }
-      }
-      case alias: ScTypeAliasDefinition => {
+      case alias: ScTypeAliasDefinition =>
         presentation.setTypeText(presentationString(alias.aliasedType.getOrAny, substitutor))
-      }
-      case method: PsiMethod => {
+      case method: PsiMethod =>
         val str: String = presentationString(method.getReturnType, substitutor)
         if (isNamedParameter) {
           presentation.setTailText(" = " + str)
@@ -171,10 +163,8 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
             )
           presentation.setTailText(tailText1)
         }
-      }
-      case f: PsiField => {
+      case f: PsiField =>
         presentation.setTypeText(presentationString(f.getType, substitutor))
-      }
       case _ =>
     }
     if (presentation.isReal)

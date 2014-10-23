@@ -4,7 +4,6 @@ package psi
 package api
 package expr
 
-import java.lang.UnsupportedOperationException
 import com.intellij.psi.PsiElement
 
 /** 
@@ -12,7 +11,7 @@ import com.intellij.psi.PsiElement
 * Date: 06.03.2008
 */
 
-trait ScPrefixExpr extends ScExpression with MethodInvocation with ScSugarCallExpr {
+trait ScPrefixExpr extends ScExpression with ScSugarCallExpr {
   def operand = findChildrenByClassScala(classOf[ScExpression]).apply(1)
 
   def operation : ScReferenceExpression = findChildrenByClassScala(classOf[ScExpression]).apply(0) match {

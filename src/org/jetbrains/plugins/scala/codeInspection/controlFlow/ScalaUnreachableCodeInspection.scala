@@ -1,16 +1,17 @@
 package org.jetbrains.plugins.scala
 package codeInspection.controlFlow
 
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.{Instruction, ControlFlowUtil}
 import com.intellij.codeInspection.ex.ProblemDescriptorImpl
-import com.intellij.psi.util.PsiTreeUtil
-import extensions.toPsiElementExt
+import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.{ControlFlowUtil, Instruction}
+
 import scala.annotation.tailrec
 
 /**

@@ -6,19 +6,13 @@ package toplevel
 package synthetic
 
 
-import api.expr.ScNewTemplateDefinition
-import com.intellij.openapi.editor.colors.TextAttributesKey
-import api.toplevel.typedef.{ScTypeDefinition, ScMember}
-import com.intellij.navigation.ItemPresentation
-import com.intellij.openapi.util.Key
-import icons.Icons
-import com.intellij.psi.javadoc.PsiDocComment
 import java.util.{ArrayList, List}
 import javax.swing.Icon
-import com.intellij.openapi.vcs.FileStatus
+
 import com.intellij.psi._
-import util.{MethodSignature, MethodSignatureBackedByPsiMethod}
-import java.lang.String
+import com.intellij.psi.javadoc.PsiDocComment
+import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
+import org.jetbrains.plugins.scala.icons.Icons
 /**
  * @author ilyas
  */

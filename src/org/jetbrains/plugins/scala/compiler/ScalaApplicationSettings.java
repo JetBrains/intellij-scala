@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.compiler;
 import com.intellij.openapi.components.*;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 
+import java.util.UUID;
+
 /**
  * @author Pavel Fatin
  */
@@ -13,7 +15,10 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
 
   public boolean COMPILE_SERVER_ENABLED = true;
 
-  public String COMPILE_SERVER_PORT = "3200";
+  //is not accessible from UI, but is serialized and used in jps-plugin
+  public int COMPILE_SERVER_PORT = 3200;
+  public String COMPILE_SERVER_ID = UUID.randomUUID().toString();
+
   public String COMPILE_SERVER_SDK;
   public String COMPILE_SERVER_MAXIMUM_HEAP_SIZE = "1024";
   public String COMPILE_SERVER_JVM_PARAMETERS = "-server -Xss1m -XX:MaxPermSize=256m";

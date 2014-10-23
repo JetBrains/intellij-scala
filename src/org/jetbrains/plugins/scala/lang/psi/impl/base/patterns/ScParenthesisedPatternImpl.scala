@@ -5,13 +5,12 @@ package impl
 package base
 package patterns
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import psi.types.result.{TypeResult, TypingContext}
-import psi.types.ScType
 import com.intellij.psi.PsiElementVisitor
-import api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
 
 /**
 * @author ilyas, Alexander Podkhalyuzin

@@ -3,8 +3,8 @@ package lang
 package formatting
 
 import com.intellij.lang.ASTNode
-import psi.api.expr.ScIfStmt
-import psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScIfStmt
 
 /**
  * User: Alexander Podkhalyuzin

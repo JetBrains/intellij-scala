@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package compiler
 
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.compiler.CompilerWorkspaceConfiguration
-import com.intellij.openapi.compiler.{CompilerMessageCategory, CompileContext, CompileTask, CompilerManager}
-import project._
+import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManager, CompilerMessageCategory}
+import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.project._
 
 /**
  * @author Pavel Fatin

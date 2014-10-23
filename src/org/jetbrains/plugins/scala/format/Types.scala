@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala
 package format
 
+import java.util.{Calendar, Date}
+
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types
-import java.util.{Date, Calendar}
-import types.{ScType, ScDesignatorType}
-import extensions._
+import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScType}
 
 /**
  * Pavel Fatin

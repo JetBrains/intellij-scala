@@ -4,8 +4,8 @@ package structureView
 package itemsPresentations
 package impl
 
-import com.intellij.openapi.editor.colors.{TextAttributesKey, CodeInsightColors}
-import psi.api.statements.ScTypeAlias
+import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 
 /**
  * User: Alexander Podkhalyuzin
@@ -13,9 +13,9 @@ import psi.api.statements.ScTypeAlias
  */
  
 class ScalaTypeAliasItemPresentation(private val element: ScTypeAlias, isInherited: Boolean) extends ScalaItemPresentation(element) {
-  def getPresentableText() = ScalaElementPresentation.getTypeAliasPresentableText(myElement.asInstanceOf[ScTypeAlias])
+  def getPresentableText = ScalaElementPresentation.getTypeAliasPresentableText(myElement.asInstanceOf[ScTypeAlias])
 
-  override def getTextAttributesKey(): TextAttributesKey = {
-    return if(isInherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
+  override def getTextAttributesKey: TextAttributesKey = {
+    if (isInherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
   }
 }

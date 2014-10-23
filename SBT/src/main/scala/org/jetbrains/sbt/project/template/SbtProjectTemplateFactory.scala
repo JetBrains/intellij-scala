@@ -1,8 +1,8 @@
 package org.jetbrains.sbt
 package project.template
 
-import com.intellij.platform.ProjectTemplatesFactory
 import com.intellij.ide.util.projectWizard.WizardContext
+import com.intellij.platform.ProjectTemplatesFactory
 import org.jetbrains.plugins.scala.project.template.ScalaProjectTemplatesFactory
 
 /**

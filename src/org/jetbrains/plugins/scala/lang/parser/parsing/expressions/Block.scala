@@ -4,12 +4,10 @@ package parser
 package parsing
 package expressions
 
-import com.intellij.lang.PsiBuilder
-import lexer.ScalaTokenTypes
-import builder.ScalaPsiBuilder
-import annotation.tailrec
-import util.ParserUtils
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -87,14 +85,12 @@ object Block {
     if (hasBrace) {
       val blockMarker = builder.mark
       builder.getTokenType match {
-        case ScalaTokenTypes.tLBRACE => {
+        case ScalaTokenTypes.tLBRACE =>
           builder.advanceLexer()
           builder.enableNewlines
-        }
-        case _ => {
+        case _ =>
           blockMarker.drop()
           return false
-        }
       }
       ParserUtils.parseLoopUntilRBrace(builder, () => parse(builder))
       builder.restoreNewlinesState

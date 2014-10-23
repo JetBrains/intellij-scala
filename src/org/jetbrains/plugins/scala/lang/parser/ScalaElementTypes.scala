@@ -2,19 +2,18 @@ package org.jetbrains.plugins.scala
 package lang
 package parser
 
-import psi.stubs.elements._
-import psi.stubs.elements.signatures.{ScClassParameterElementType, ScParameterElementType, ScParamClauseElementType, ScParamClausesElementType}
-import com.intellij.psi.stubs.PsiFileStub
-import psi.api.statements.{ScFunction, ScVariable, ScValue}
-import com.intellij.psi.tree.{ICompositeElementType, IErrorCounterReparseableElementType, IElementType, IStubFileElementType}
-import com.intellij.psi.PsiFile
-import com.intellij.pom.java.LanguageLevel
-import psi.impl.expr.ScBlockExprImpl
-import com.intellij.openapi.project.Project
+import com.intellij.lang.{ASTNode, Language}
 import com.intellij.lexer.Lexer
-import lexer.{ScalaTokenTypes, ScalaLexer, ScalaElementType}
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiFile
+import com.intellij.psi.stubs.PsiFileStub
+import com.intellij.psi.tree.{ICompositeElementType, IElementType, IErrorCounterReparseableElementType, IStubFileElementType}
 import org.jetbrains.annotations.NotNull
-import com.intellij.lang.{Language, ASTNode}
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaElementType, ScalaLexer, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockExprImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements._
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures.{ScClassParameterElementType, ScParamClauseElementType, ScParamClausesElementType, ScParameterElementType}
 
 /**
  * User: Dmitry.Krasilschikov
@@ -23,7 +22,7 @@ import com.intellij.lang.{Language, ASTNode}
  */
 object ScalaElementTypes {
 
-  val DUMMY_ELEMENT = new ScalaElementType("Dummy Elemnet");
+  val DUMMY_ELEMENT = new ScalaElementType("Dummy Elemnet")
 
 
   //Stub element types
@@ -97,6 +96,7 @@ object ScalaElementTypes {
   val TYPE_PROJECTION = new ScalaElementType("type projection")
   val TYPE_GENERIC_CALL = new ScalaElementType("type generic call")
   val SEQUENCE_ARG = new ScalaElementType("sequence argument type")
+  val TYPE_VARIABLE = new ScalaElementType("type variable")
 
   /** ***********************************************************************************/
   /*********************************** IDENTIFIER **************************************/
@@ -173,7 +173,9 @@ object ScalaElementTypes {
   //  String literals
   val STRING_LITERAL = new ScalaElementType("String Literal")
   val INTERPOLATED_STRING_LITERAL = new ScalaElementType("Interpolated String Literal")
-  val INTERPOLATED_STRING_PREFIX_REFERENCE = new ScalaElementType("Interpolated String Prefix Reference")
+  //Not only String, but quasiquote too
+  val INTERPOLATED_PREFIX_PATTERN_REFERENCE = new ScalaElementType("Interpolated Prefix Pattern Reference")
+  val INTERPOLATED_PREFIX_LITERAL_REFERENCE = new ScalaElementType("Interpolated Prefix Literal Reference")
   // Boolean literals
   val BOOLEAN_LITERAL = new ScalaElementType("Boolean Literal")
 
@@ -242,6 +244,7 @@ object ScalaElementTypes {
   val CASE_CLAUSE = new ScalaElementType("case clause")
   val CASE_CLAUSES = new ScalaElementType("case clauses")
   val LITERAL_PATTERN = new ScalaElementType("literal pattern")
+  val INTERPOLATION_PATTERN = new ScalaElementType("interpolation pattern")
   val REFERENCE_PATTERN = new ScReferencePatternElementType
   val STABLE_REFERENCE_PATTERN = new ScalaElementType("stable reference pattern")
   val PATTERN_IN_PARENTHESIS = new ScalaElementType("pattern in parenthesis")
@@ -286,7 +289,7 @@ object ScalaElementTypes {
     }
 
     def getErrorsCount(seq: CharSequence, fileLanguage: Language, project: Project): Int = {
-      import IErrorCounterReparseableElementType._
+      import com.intellij.psi.tree.IErrorCounterReparseableElementType._
       val lexer: Lexer = new ScalaLexer
       lexer.start(seq)
       if (lexer.getTokenType != ScalaTokenTypes.tLBRACE) return FATAL_ERROR

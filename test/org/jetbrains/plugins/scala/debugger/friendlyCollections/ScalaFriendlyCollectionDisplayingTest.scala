@@ -1,13 +1,15 @@
 package org.jetbrains.plugins.scala.debugger.friendlyCollections
 
-import org.jetbrains.plugins.scala.debugger.ui.ListLikeCollectionNodeRenderer
-import com.intellij.debugger.ui.tree.render.{ChildrenBuilder, DescriptorLabelListener}
-import com.intellij.debugger.ui.impl.FrameVariablesTree
-import com.intellij.debugger.ui.impl.watch.{NodeDescriptorImpl, DebuggerTree, LocalVariableDescriptorImpl}
-import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContextImpl}
-import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptorFactory, NodeManager, ValueDescriptor}
 import java.util
+
+import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContextImpl}
+import com.intellij.debugger.settings.NodeRendererSettings
+import com.intellij.debugger.ui.impl.FrameVariablesTree
+import com.intellij.debugger.ui.impl.watch.{DebuggerTree, LocalVariableDescriptorImpl, NodeDescriptorImpl}
+import com.intellij.debugger.ui.tree.render.{ClassRenderer, ArrayRenderer, ChildrenBuilder, DescriptorLabelListener}
+import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptorFactory, NodeManager, ValueDescriptor}
 import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+import org.jetbrains.plugins.scala.debugger.ui.ListLikeCollectionNodeRenderer
 
 /**
  * User: Dmitry Naydanov
@@ -16,11 +18,10 @@ import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
 class ScalaFriendlyCollectionDisplayingTest extends ScalaDebuggerTestCase {
   private val COMMON_FILE_NAME = "dummy.scala"
   private val UNIQUE_ID = "uniqueID"
-  private val INT_TYPE = "{java.lang.Integer@" + UNIQUE_ID + "}"
 
   private def getStringRep(variableName: String): (String, List[String]) = {
     import scala.collection.JavaConversions._
-    
+
     val frameTree = new FrameVariablesTree(getProject)
     var testVariableChildren: util.List[DebuggerTreeNode] = null
 
@@ -38,18 +39,22 @@ class ScalaFriendlyCollectionDisplayingTest extends ScalaDebuggerTestCase {
 
         def getNodeManager: NodeManager = frameTree.getNodeFactory
 
+        def setRemaining(remaining: Int) {}
+
+        def initChildrenArrayRenderer(renderer: ArrayRenderer) {}
+
         def getParentDescriptor: ValueDescriptor = testVariable
       }, context)
 
       testVariable
     }
-    
+
     managed{testVariableChildren map (_.getDescriptor) foreach {
-      case impl: NodeDescriptorImpl => 
+      case impl: NodeDescriptorImpl =>
         impl.updateRepresentation(evaluationContext(), DescriptorLabelListener.DUMMY_LISTENER)
       case a => println(a)
     }}
-    
+
     //<magic>
     evalResult(variableName)
     //</magic> 
@@ -67,8 +72,8 @@ class ScalaFriendlyCollectionDisplayingTest extends ScalaDebuggerTestCase {
       case e: EvaluateException => null
     }
   }
-  
-  protected def genericWatchTest(fileText: String, breakpointPos: Int, collectionName: String, 
+
+  protected def genericWatchTest(fileText: String, breakpointPos: Int, collectionName: String,
                                  collectionLength: Int, collectionClass: String) {
     import junit.framework.Assert._
     addFileToProject(COMMON_FILE_NAME, fileText)
@@ -76,24 +81,26 @@ class ScalaFriendlyCollectionDisplayingTest extends ScalaDebuggerTestCase {
     runDebugger("Main"){
       waitForBreakpoint()
       val (label, children) = getStringRep(collectionName)
-      val expectedLabel = s"$collectionName = {$collectionClass@$UNIQUE_ID}${
+      val classRenderer: ClassRenderer = NodeRendererSettings.getInstance().getClassRenderer
+      val typeName = classRenderer.renderTypeName(collectionClass)
+      val expectedLabel = s"$collectionName = {$typeName@$UNIQUE_ID}${
         ListLikeCollectionNodeRenderer.transformName(collectionClass)} size = $collectionLength"
-      
-      assertEquals(label, expectedLabel)
+
+      assertEquals(expectedLabel, label)
       assertEquals(children.size, collectionLength)
-      
+      val intType = classRenderer.renderTypeName("java.lang.Integer")
+      val intLabel = s"{$intType@$UNIQUE_ID}"
+
       var testIndex = 0
-      children foreach { childLabel => 
-        val expectedChildLabel = "(" + testIndex + ")  = " + INT_TYPE + "\"" + (testIndex + 1) + "\"" //compiler bug? 
-        
+      children foreach { childLabel =>
+        val expectedChildLabel = s"($testIndex)  = $intLabel${testIndex + 1}"//compiler bug?
+
         assertEquals(childLabel, expectedChildLabel)
         testIndex += 1
       }
     }
   }
-  
-  
-  
+
   def testList() {
     genericWatchTest(
       """
@@ -118,7 +125,7 @@ class ScalaFriendlyCollectionDisplayingTest extends ScalaDebuggerTestCase {
         |}
       """.stripMargin.replace("\r","").trim, 4, "stack", 8, "scala.collection.mutable.Stack")
   }
-  
+
   def testMutableList() {
     genericWatchTest(
     """
@@ -130,7 +137,7 @@ class ScalaFriendlyCollectionDisplayingTest extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.replace("\r", "").trim, 3, "mutableList", 5, "scala.collection.mutable.MutableList")
   }
-  
+
   def testQueue() {
     genericWatchTest(
       """
@@ -142,7 +149,7 @@ class ScalaFriendlyCollectionDisplayingTest extends ScalaDebuggerTestCase {
         |}
       """.stripMargin.replace("\r", "").trim, 3, "queue", 4, "scala.collection.immutable.Queue")
   }
-  
+
   def testLongList() {
     genericWatchTest(
       """

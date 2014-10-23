@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala
 package lang.navigation
 
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.codeInsight.navigation.GotoImplementationHandler
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 
 /**
  * @author Alefas

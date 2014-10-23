@@ -4,9 +4,9 @@ package psi
 package stubs
 
 
-import api.base.ScStableCodeReferenceElement
-import api.toplevel.imports.ScImportSelector
 import com.intellij.psi.stubs.StubElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
 
 /**
  * User: Alexander Podkhalyuzin

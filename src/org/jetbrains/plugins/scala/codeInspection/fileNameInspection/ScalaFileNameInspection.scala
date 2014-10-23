@@ -3,17 +3,17 @@ package codeInspection
 package fileNameInspection
 
 
-import collection.mutable.ArrayBuffer
-import lang.psi.api.ScalaFile
 import com.intellij.codeInspection._
-import com.intellij.psi.PsiFile
-import java.lang.String
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import com.intellij.lang.injection.InjectedLanguageManager
-import extensions.toPsiNamedElementExt
-import console.ScalaLanguageConsoleView
+import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -37,7 +37,7 @@ class ScalaFileNameInspection extends LocalInspectionTool {
 
     val name = virtualFile.getNameWithoutExtension
     val scalaFile = file.asInstanceOf[ScalaFile]
-    if (scalaFile.isScriptFile()) return Array.empty
+    if (scalaFile.isScriptFile() || scalaFile.isWorksheetFile) return Array.empty
     val definitions = scalaFile.typeDefinitions
 
     if (definitions.length > 1) return Array.empty
@@ -55,7 +55,7 @@ class ScalaFileNameInspection extends LocalInspectionTool {
     if (hasProblems) {
       for (clazz <- definitions;
            scalaClass: ScTypeDefinition = clazz) {
-        res += manager.createProblemDescriptor(scalaClass.nameId, "Class doesn't correspond to file name",
+        res += manager.createProblemDescriptor(scalaClass.nameId, "Class doesn't correspond to file name", isOnTheFly,
           Array[LocalQuickFix](new ScalaRenameClassQuickFix(scalaClass, name),
             new ScalaRenameFileQuickFix(scalaFile, clazz.name + ".scala")), ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }

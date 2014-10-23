@@ -5,16 +5,16 @@ package psi
 package impl
 
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
-import lang.psi.impl.base.ScStableCodeReferenceElementImpl
-import lang.psi.api.base.ScStableCodeReferenceElement
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
-import resolve.processor.BaseProcessor
-import api.ScDocResolvableCodeReference
 import com.intellij.psi.{JavaPsiFacade, ResolveState}
-import lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory}
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
-import project._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory}
+import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
+import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 
 /**
  * User: Dmitry Naydanov

@@ -1,15 +1,14 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.controlflow
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.{PsiDocumentManager, PsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScExpression, ScBlockExpr, ScIfStmt}
+import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScIfStmt, ScInfixExpr}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.IntentionUtils
-import com.intellij.psi.codeStyle.CodeStyleManager
 
 /**
  * @author Ksenia.Sautina

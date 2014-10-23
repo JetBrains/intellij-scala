@@ -1,17 +1,18 @@
 package org.jetbrains.plugins.scala
 package runner
 
-import com.intellij.openapi.project.Project
-import com.intellij.execution.configurations.{JavaParameters, RunConfigurationModule, ModuleBasedConfiguration, ConfigurationFactory}
-import com.intellij.openapi.module.Module
-import scala.collection.JavaConverters._
-import org.jdom.Element
-import com.intellij.openapi.util.JDOMExternalizer
+import com.intellij.execution.configurations.{ConfigurationFactory, JavaParameters, ModuleBasedConfiguration, RunConfigurationModule}
 import com.intellij.execution.{CantRunException, ExecutionException}
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil}
 import com.intellij.openapi.roots.ModuleRootManager
-import com.intellij.openapi.projectRoots.{JdkUtil, JavaSdkType}
+import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.util.PathUtil
-import project._
+import org.jdom.Element
+import org.jetbrains.plugins.scala.project._
+
+import scala.collection.JavaConverters._
 
 /**
   */

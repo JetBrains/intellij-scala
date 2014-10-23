@@ -1,37 +1,39 @@
 package org.jetbrains.plugins.scala
 package debugger
 
-import com.intellij.openapi.diagnostic.Logger
 import java.util
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait, ScObject}
-import com.intellij.psi._
+
+import com.intellij.debugger.engine.{CompoundPositionManager, DebugProcess, DebugProcessImpl}
 import com.intellij.debugger.requests.ClassPrepareRequestor
-import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl, CompoundPositionManager}
 import com.intellij.debugger.{NoDataException, PositionManager, SourcePosition}
-import com.sun.jdi.{ClassNotPreparedException, AbsentInformationException, Location, ReferenceType}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
-import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
-import com.intellij.psi.util.PsiTreeUtil
-import com.sun.jdi.request.ClassPrepareRequest
 import com.intellij.openapi.application.ApplicationManager
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import com.intellij.openapi.util.{Computable, Ref}
-import ScalaPositionManager._
-import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
-import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
-import org.jetbrains.plugins.scala.util.macroDebug.ScalaMacroDebuggingUtil
-import com.intellij.openapi.roots.impl.DirectoryIndex
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.project.Project
-import com.intellij.util.{Processor, Query}
-import org.jetbrains.annotations.{NotNull, Nullable}
-import scala.annotation.tailrec
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.impl.DirectoryIndex
+import com.intellij.openapi.util.{Computable, Ref}
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi._
+import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.{Processor, Query}
+import com.sun.jdi.request.ClassPrepareRequest
+import com.sun.jdi.{AbsentInformationException, ClassNotPreparedException, Location, ReferenceType}
+import org.jetbrains.annotations.{NotNull, Nullable}
+import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
+import org.jetbrains.plugins.scala.debugger.ScalaPositionManager._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
+import org.jetbrains.plugins.scala.util.macroDebug.ScalaMacroDebuggingUtil
+
+import scala.annotation.tailrec
 
 /**
  * @author ilyas
@@ -57,6 +59,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
   }
 
   private def findReferenceTypeSourceImage(position: SourcePosition): ScalaPsiElement = {
+    if (position == null) return null
     @tailrec
     def findSuitableParent(element: PsiElement): PsiElement = {
       element match {
@@ -74,6 +77,8 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
   }
 
   def nonWhitespaceElement(position: SourcePosition): PsiElement = {
+    if (position == null) return null
+
     val file = position.getFile
     @tailrec
     def nonWhitespaceInner(element: PsiElement, document: Document): PsiElement = {
@@ -113,6 +118,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
   }
 
   private def findEnclosingTypeDefinition(position: SourcePosition): Option[ScTypeDefinition] = {
+    if (position == null) return None
     @tailrec
     def notLocalEnclosingTypeDefinition(element: PsiElement): Option[ScTypeDefinition] = {
       PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition]) match {
@@ -156,7 +162,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
 
         sourceImage match {
           case typeDef: ScTypeDefinition if !isLocalOrUnderDelayedInit(typeDef) =>
-            val specificName = getSpecificName(typeDef.getQualifiedNameForDebugger, typeDef.getClass)
+            val specificName = getSpecificNameForDebugger(typeDef)
             qName.set(if (insideMacro) specificName + "*" else specificName)
           case _ if sourceImage != null =>
           /*condition in previous version of this file just listed
@@ -165,7 +171,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
                     .foreach(typeDef => qName.set(typeDef.getQualifiedNameForDebugger + (if (insideMacro) "*" else "$*")))
           case null =>
             findEnclosingTypeDefinition(position)
-                    .foreach(typeDef => qName.set(getSpecificName(typeDef.getQualifiedNameForDebugger, typeDef.getClass)))
+                    .foreach(typeDef => qName.set(getSpecificNameForDebugger(typeDef)))
         }
         // Enclosing type definition is not found
         if (qName.get == null) {
@@ -197,7 +203,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
       location.lineNumber - 1
     }
     catch {
-      case e: InternalError => return -1
+      case e: InternalError => -1
     }
   }
 
@@ -263,42 +269,59 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
       def compute(): util.List[ReferenceType] = {
         val sourceImage = findReferenceTypeSourceImage(position)
         sourceImage match {
-          case definition: ScTypeDefinition =>
-            val qName = getSpecificName(definition.getQualifiedNameForDebugger, definition.getClass)
+          case td: ScTypeDefinition if ScalaPsiUtil.isLocalClass(td) =>
+            val qName = findEnclosingTypeDefinition(position).map(typeDef => typeDef.getQualifiedNameForDebugger)
+            qName match {
+              case Some(name) =>
+                filterAllClasses { clazz =>
+                  clazz.name().startsWith(name) && clazz.name().contains(s"$$${td.name}$$")
+                }
+              case _ => util.Collections.emptyList[ReferenceType]
+            }
+          case td: ScTypeDefinition =>
+            val qName = getSpecificNameForDebugger(td)
             if (qName != null) getDebugProcess.getVirtualMachineProxy.classesByName(qName)
             else util.Collections.emptyList[ReferenceType]
           case _ =>
             val qName = findEnclosingTypeDefinition(position).map(typeDef => typeDef.getQualifiedNameForDebugger)
-            def hasLocations(refType: ReferenceType): Boolean = {
-              var hasLocations = false
-              try {
-                hasLocations = refType.locationsOfLine(position.getLine + 1).size > 0
-              } catch {
-                case ignore @ (_: AbsentInformationException | _: ClassNotPreparedException) =>
-              }
-              hasLocations
+            qName match {
+              case Some(name) => filterAllClasses(c => c.name().startsWith(name) && hasLocations(c, position))
+              case _ => util.Collections.emptyList[ReferenceType]
             }
-            import scala.collection.JavaConverters._
-            qName.map { name =>
-              val outers = getDebugProcess.getVirtualMachineProxy.allClasses.asScala
-              val sameStart = outers.filter(_.name.startsWith(name))
-              sameStart.filter(hasLocations).asJava
-            }.getOrElse(util.Collections.emptyList[ReferenceType])
         }
       }
     })
     if (result == null || result.isEmpty) throw new NoDataException
     result
   }
+
+  private def hasLocations(refType: ReferenceType, position: SourcePosition): Boolean = {
+    var hasLocations = false
+    try {
+      hasLocations = refType.locationsOfLine(position.getLine + 1).size > 0
+    } catch {
+      case ignore @ (_: AbsentInformationException | _: ClassNotPreparedException) =>
+    }
+    hasLocations
+  }
+  private def filterAllClasses(condition: ReferenceType => Boolean): util.List[ReferenceType] = {
+    import scala.collection.JavaConverters._
+    val allClasses = getDebugProcess.getVirtualMachineProxy.allClasses.asScala
+    allClasses.filter(condition).asJava
+  }
+
 }
 
 object ScalaPositionManager {
   private val LOG: Logger = Logger.getInstance("#com.intellij.debugger.engine.PositionManagerImpl")
   private val SCRIPT_HOLDER_CLASS_NAME: String = "Main$$anon$1"
 
-  private def getSpecificName(name: String, clazzClass: Class[_ <: PsiClass]): String = {
-    if (classOf[ScObject].isAssignableFrom(clazzClass)) name + "$"
-    else if (classOf[ScTrait].isAssignableFrom(clazzClass)) name + "$class"
+  private def getSpecificNameForDebugger(td: ScTypeDefinition): String = {
+    val tdClass = td.getClass
+    val name = td.getQualifiedNameForDebugger
+
+    if (classOf[ScObject].isAssignableFrom(tdClass)) name + "$"
+    else if (classOf[ScTrait].isAssignableFrom(tdClass)) name + "$class"
     else name
   }
 

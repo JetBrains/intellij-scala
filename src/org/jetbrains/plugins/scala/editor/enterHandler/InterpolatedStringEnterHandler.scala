@@ -1,17 +1,17 @@
 package org.jetbrains.plugins.scala
 package editor.enterHandler
 
-import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegateAdapter
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegate.Result
-import lang.lexer.ScalaTokenTypes
-import com.intellij.openapi.editor.actionSystem.EditorActionHandler
+import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegateAdapter
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.util.Ref
 import com.intellij.lexer.StringLiteralLexer
-import com.intellij.psi.{PsiElement, StringEscapesTokenTypes, PsiFile}
-import lang.parser.ScalaElementTypes
+import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.actionSystem.EditorActionHandler
+import com.intellij.openapi.util.Ref
+import com.intellij.psi.{PsiElement, PsiFile, StringEscapesTokenTypes}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 
 /**
@@ -25,7 +25,7 @@ class InterpolatedStringEnterHandler extends EnterHandlerDelegateAdapter {
     var offset = editor.getCaretModel.getOffset
     val element = file.findElementAt(offset)
 
-    import ScalaTokenTypes._
+    import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 
     def modifyOffset(moveOn: Int) {
       offset += moveOn
@@ -41,8 +41,8 @@ class InterpolatedStringEnterHandler extends EnterHandlerDelegateAdapter {
       if (Set(tINTERPOLATED_STRING, tINTERPOLATED_STRING_ESCAPE, tINTERPOLATED_STRING_END).contains(a.getNode.getElementType)) {
         a.getParent.getFirstChild.getNode match {
           case b: ASTNode if b.getElementType == tINTERPOLATED_STRING_ID || 
-            b.getElementType == ScalaElementTypes.INTERPOLATED_STRING_PREFIX_REFERENCE =>
-
+              b.getElementType == ScalaElementTypes.INTERPOLATED_PREFIX_PATTERN_REFERENCE ||
+              b.getElementType == ScalaElementTypes.INTERPOLATED_PREFIX_LITERAL_REFERENCE =>
             if (a.getNode.getElementType == tINTERPOLATED_STRING_ESCAPE) {
               if (caretOffset.get - a.getTextOffset == 1) modifyOffset(1)
             } else {

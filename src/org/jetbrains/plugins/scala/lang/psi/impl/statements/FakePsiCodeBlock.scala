@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package lang.psi.impl.statements
 
-import com.intellij.psi._
-import impl.light.LightElement
 import com.intellij.openapi.util.TextRange
-import lang.psi.api.expr.{ScBlockExpr, ScExpression}
+import com.intellij.psi._
+import com.intellij.psi.impl.light.LightElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 
 final class FakePsiCodeBlock(body: ScExpression) extends LightElement(body.getManager, body.getLanguage) with PsiCodeBlock {
   def shouldChangeModificationCount(place: PsiElement): Boolean = false
@@ -26,6 +26,8 @@ final class FakePsiCodeBlock(body: ScExpression) extends LightElement(body.getMa
 
   override def getTextOffset: Int = body.getTextOffset
 
+  override def getContainingFile = body.getContainingFile
+
   override def toString = s"FakePsiCodeBlock(${body.toString}})"
 }
 
@@ -33,6 +35,8 @@ final class FakePsiStatement(elem: PsiElement) extends LightElement(elem.getMana
   override def getTextRange: TextRange = elem.getTextRange
 
   override def getTextOffset: Int = elem.getTextOffset
+
+  override def getContainingFile = elem.getContainingFile
 
   override def toString = s"FakePsiStatement(${elem.toString})"
 }

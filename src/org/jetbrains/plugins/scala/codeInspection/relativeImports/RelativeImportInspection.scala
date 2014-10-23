@@ -1,25 +1,26 @@
 package org.jetbrains.plugins.scala
 package codeInspection.relativeImports
 
-import codeInspection.AbstractInspection
-import com.intellij.codeInspection.{ProblemDescriptor, LocalQuickFix, ProblemsHolder}
-import com.intellij.psi.{PsiPackage, PsiElement}
-import lang.psi.api.toplevel.imports.ScImportExpr
-import lang.psi.api.base.ScStableCodeReferenceElement
-import annotation.tailrec
-import lang.resolve.ScalaResolveResult
+import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import settings.ScalaProjectSettings
-import collection.mutable.ArrayBuffer
-import lang.psi.impl.ScalaPsiElementFactory
-import lang.psi.api.toplevel.typedef.ScObject
+import com.intellij.psi.{PsiElement, PsiPackage}
+import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+
+import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alefas
  * @since 14.09.12
  */
 class RelativeImportInspection extends AbstractInspection("RelativeImport", "Relative Import") {
-  import RelativeImportInspection.qual
+  import org.jetbrains.plugins.scala.codeInspection.relativeImports.RelativeImportInspection.qual
 
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case expr: ScImportExpr if expr.qualifier != null =>
@@ -28,7 +29,7 @@ class RelativeImportInspection extends AbstractInspection("RelativeImport", "Rel
       for (elem <- resolve) {
         def applyProblem(qualifiedName: String) {
           val fixes = new ArrayBuffer[LocalQuickFix]()
-          if (!ScalaProjectSettings.getInstance(q.getProject).isAddFullQualifiedImports) {
+          if (!ScalaCodeStyleSettings.getInstance(q.getProject).isAddFullQualifiedImports) {
             fixes += new EnableFullQualifiedImports(q.getProject)
           }
           fixes += new MakeFullQualifiedImportFix(q, qualifiedName)
@@ -59,7 +60,7 @@ private class EnableFullQualifiedImports(project: Project) extends LocalQuickFix
   def getFamilyName: String = "Enable full qualified imports"
 
   def applyFix(project: Project, descriptor: ProblemDescriptor) {
-    ScalaProjectSettings.getInstance(project).setAddFullQualifiedImports(true)
+    ScalaCodeStyleSettings.getInstance(project).setAddFullQualifiedImports(true)
   }
 }
 
@@ -71,7 +72,7 @@ private class MakeFullQualifiedImportFix(q: ScStableCodeReferenceElement, fqn: S
   def applyFix(project: Project, descriptor: ProblemDescriptor) {
     if (q == null || !q.isValid) return
     val newRef = ScalaPsiElementFactory.createReferenceFromText(fqn, q.getContext, q)
-    import RelativeImportInspection.qual
+    import org.jetbrains.plugins.scala.codeInspection.relativeImports.RelativeImportInspection.qual
     val newFqn = qual(newRef).resolve() match {
       case p: PsiPackage if p.getQualifiedName.contains(".") => "_root_." + fqn
       case p: PsiPackage => fqn

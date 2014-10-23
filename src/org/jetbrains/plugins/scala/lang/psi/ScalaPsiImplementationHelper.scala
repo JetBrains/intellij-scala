@@ -1,15 +1,16 @@
 package org.jetbrains.plugins.scala.lang.psi
 
-import api.toplevel.typedef.{ScObject, ScClass, ScTrait}
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{OrderEntry, ProjectRootManager, ProjectFileIndex}
-import com.intellij.psi.{PsiClass, JavaPsiFacade, PsiFile}
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.openapi.module.Module
-import impl.ScalaPsiManager
 import java.util.List
-import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.{OrderEntry, ProjectFileIndex, ProjectRootManager}
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{PsiClass, PsiFile}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 object ScalaPsiImplementationHelper {
   def getOriginalClass(psiClass: PsiClass): PsiClass = {

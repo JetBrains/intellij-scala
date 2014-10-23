@@ -1,23 +1,21 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.rename.inplace
 
-import com.intellij.refactoring.rename.inplace.{VariableInplaceRenamer, MemberInplaceRenamer}
-import com.intellij.psi._
-import com.intellij.openapi.editor.{ScrollType, Editor}
-import com.intellij.refactoring.RefactoringBundle
-import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaNamesUtil}
-import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import java.util
-import com.intellij.openapi.util.{Key, TextRange, Pair}
-import com.intellij.refactoring.util.TextOccurrencesUtil
-import com.intellij.util.PairProcessor
-import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
+
 import com.intellij.codeInsight.TargetElementUtilBase
 import com.intellij.lang.Language
-import com.intellij.refactoring.rename.RenamePsiElementProcessor
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.command.impl.StartMarkAction
+import com.intellij.openapi.editor.{Editor, ScrollType}
+import com.intellij.openapi.util.Key
+import com.intellij.psi._
+import com.intellij.psi.search.SearchScope
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.refactoring.RefactoringBundle
+import com.intellij.refactoring.rename.RenamePsiElementProcessor
+import com.intellij.refactoring.rename.inplace.{MemberInplaceRenamer, VariableInplaceRenamer}
+import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaNamesUtil, ScalaRefactoringUtil}
 
 /**
  * Nikolay.Tropin

@@ -1,22 +1,23 @@
 package org.jetbrains.plugins.scala
 package components
 
-import org.intellij.lang.annotations.Language
-import com.intellij.openapi.wm.{StatusBarWidget, WindowManager, StatusBar}
-import com.intellij.openapi.wm.StatusBarWidget.PlatformType
-import org.jetbrains.plugins.scala.icons.Icons
 import java.awt.event.MouseEvent
+
 import com.intellij.ide.DataManager
-import com.intellij.util.{FileContentUtil, Consumer}
-import collection.JavaConversions._
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
-import com.intellij.openapi.editor.ex.EditorEx
-import com.intellij.openapi.util._
-import com.intellij.openapi.components._
 import com.intellij.notification._
+import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
+import com.intellij.openapi.components._
+import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.wm.StatusBarWidget.PlatformType
+import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
+import com.intellij.util.{Consumer, FileContentUtil}
+import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.util.NotificationUtil
-import project._
+import org.jetbrains.plugins.scala.project._
+
+import scala.collection.JavaConversions._
 
 @State(name = "HighlightingAdvisor", storages = Array(
   new Storage(id = "default", file = "$PROJECT_FILE$"),
@@ -145,9 +146,9 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
 
   private def reparseActiveFile() {
     val context = DataManager.getInstance.getDataContextFromFocus
-    context.doWhenDone(new AsyncResult.Handler[DataContext]() {
-      def run(v: DataContext) {
-        CommonDataKeys.EDITOR_EVEN_IF_INACTIVE.getData(v) match {
+    context.doWhenDone(new Consumer[DataContext] {
+      override def consume(dataContext: DataContext): Unit = {
+        CommonDataKeys.EDITOR_EVEN_IF_INACTIVE.getData(dataContext) match {
           case editor: EditorEx =>
             FileContentUtil.reparseFiles(project, Seq(editor.getVirtualFile), true)
           case _ => // do nothing

@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.actions
 
-import com.intellij.psi.util.PsiUtilBase
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import com.intellij.openapi.actionSystem._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.util.IntentionUtils
 import java.awt.Rectangle
+
+import com.intellij.openapi.actionSystem._
+import com.intellij.psi.util.PsiUtilBase
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.util.IntentionUtils
 
 /**
  * @author Ksenia.Sautina

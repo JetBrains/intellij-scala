@@ -5,25 +5,25 @@ package stubs
 package util
 
 
-import index.{ScSelfTypeInheritorsIndex, ScDirectInheritorsIndex}
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.stubs.{StubInputStream, StubOutputStream, StubIndex}
-import com.intellij.psi.{PsiElement, PsiClass}
-import elements.ScTemplateDefinitionElementType
-import psi.impl.toplevel.templates.ScExtendsBlockImpl
 import com.intellij.openapi.diagnostic.Logger
-import api.toplevel.typedef.ScTemplateDefinition
-import collection.mutable.ArrayBuffer
-import com.intellij.psi.util.PsiTreeUtil
-import extensions.toPsiNamedElementExt
-import psi.types.result.{Success, TypingContext}
-import psi.types.{ScCompoundType, ScType}
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
+import com.intellij.psi.stubs.{StubIndex, StubInputStream, StubOutputStream}
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.util.Processor
-import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFileStubImpl
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
-import extensions.inReadAction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFileStubImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.{ScDirectInheritorsIndex, ScSelfTypeInheritorsIndex}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType}
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -36,7 +36,7 @@ object ScalaStubsUtil {
     if (name == null) return Seq.empty
     val inheritors = new ArrayBuffer[ScTemplateDefinition]
     val iterator: java.util.Iterator[ScExtendsBlock] =
-      StubIndex.getInstance().safeGet(ScDirectInheritorsIndex.KEY, name, clazz.getProject, scope, classOf[ScExtendsBlock]).iterator
+      StubIndex.getElements(ScDirectInheritorsIndex.KEY, name, clazz.getProject, scope, classOf[ScExtendsBlock]).iterator
     while (iterator.hasNext) {
       val extendsBlock: PsiElement = iterator.next
       val stub = extendsBlock.asInstanceOf[ScExtendsBlockImpl].getStub
@@ -62,7 +62,7 @@ object ScalaStubsUtil {
     def processClass(inheritedClazz: PsiClass) {
       inReadAction {
         val iterator: java.util.Iterator[ScSelfTypeElement] =
-          StubIndex.getInstance().safeGet(ScSelfTypeInheritorsIndex.KEY, name, inheritedClazz.getProject, scope, classOf[ScSelfTypeElement]).iterator
+          StubIndex.getElements(ScSelfTypeInheritorsIndex.KEY, name, inheritedClazz.getProject, scope, classOf[ScSelfTypeElement]).iterator
         while (iterator.hasNext) {
           val selfTypeElement = iterator.next
           selfTypeElement.typeElement match {

@@ -4,9 +4,8 @@ package parser
 package parsing
 package patterns
 
-import com.intellij.lang.PsiBuilder
-import lexer.ScalaTokenTypes
-import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -18,7 +17,6 @@ import builder.ScalaPsiBuilder
  *            | '_' ':' TypePat
  *            | Pattern2
  */
-
 object Pattern1 {
   def parse(builder: ScalaPsiBuilder): Boolean = {
 
@@ -32,51 +30,43 @@ object Pattern1 {
     val pattern1Marker = builder.mark
     val backupMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => {
+      case ScalaTokenTypes.tIDENTIFIER =>
         if (isVarId) {
-          backupMarker.rollbackTo
-        }
-        else {
-          builder.advanceLexer //Ate id
+          backupMarker.rollbackTo()
+        } else {
+          builder.advanceLexer() //Ate id
           builder.getTokenType match {
-            case ScalaTokenTypes.tCOLON => {
-              builder.advanceLexer //Ate :
-              backupMarker.drop
+            case ScalaTokenTypes.tCOLON =>
+              builder.advanceLexer() //Ate :
+              backupMarker.drop()
               if (!TypePattern.parse(builder)) {
                 builder error ScalaBundle.message("wrong.type")
               }
               pattern1Marker.done(ScalaElementTypes.TYPED_PATTERN)
               return true
-            }
 
-            case _ => {
-              backupMarker.rollbackTo
-            }
+            case _ =>
+              backupMarker.rollbackTo()
           }
         }
-      }
-      case ScalaTokenTypes.tUNDER => {
-        builder.advanceLexer //Ate _
+      case ScalaTokenTypes.tUNDER =>
+        builder.advanceLexer() //Ate _
         builder.getTokenType match {
-          case ScalaTokenTypes.tCOLON => {
-            builder.advanceLexer //Ate :
-            backupMarker.drop
+          case ScalaTokenTypes.tCOLON =>
+            builder.advanceLexer() //Ate :
+            backupMarker.drop()
             if (!TypePattern.parse(builder)) {
               builder error ScalaBundle.message("wrong.type")
             }
             pattern1Marker.done(ScalaElementTypes.TYPED_PATTERN)
             return true
-          }
-          case _ => {
-            backupMarker.rollbackTo
-          }
+          case _ =>
+            backupMarker.rollbackTo()
         }
-      }
-      case _ => {
-        backupMarker.drop
-      }
+      case _ =>
+        backupMarker.drop()
     }
-    pattern1Marker.drop
-    Pattern2.parse(builder, false)
+    pattern1Marker.drop()
+    Pattern2.parse(builder, forDef = false)
   }
 }

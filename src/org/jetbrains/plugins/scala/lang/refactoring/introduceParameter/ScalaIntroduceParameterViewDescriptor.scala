@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceParameter
 
-import com.intellij.refactoring.ui.UsageViewDescriptorAdapter
 import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.refactoring.RefactoringBundle
+import com.intellij.refactoring.ui.UsageViewDescriptorAdapter
 
 /**
  * @author Alexander Podkhalyuzin

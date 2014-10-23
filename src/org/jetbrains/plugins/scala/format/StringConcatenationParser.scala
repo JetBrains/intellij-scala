@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala
 package format
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
-import lang.psi.api.expr.{ScExpression, ScInfixExpr}
-import lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScProjectionType, ScDesignatorType}
-import extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScProjectionType}
 
 /**
  * Pavel Fatin

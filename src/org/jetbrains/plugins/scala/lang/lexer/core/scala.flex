@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
+import com.intellij.openapi.util.text.StringUtil;
 
 %%
 
@@ -184,7 +185,7 @@ SH_COMMENT="#!" [^]* "!#" | "::#!" [^]* "::!#"
 ESCAPE_SEQUENCE=\\[^\r\n]
 UNICODE_ESCAPE=!(!(\\u{hexDigit}{hexDigit}{hexDigit}{hexDigit}) | \\u000A)
 SOME_ESCAPE=\\{octalDigit} {octalDigit}? {octalDigit}?
-CHARACTER_LITERAL="'"([^\\\'\r\n]|{ESCAPE_SEQUENCE}|{UNICODE_ESCAPE}|{SOME_ESCAPE})("'"|\\) | \'\\u000A\'
+CHARACTER_LITERAL="'"([^\\\'\r\n]|{ESCAPE_SEQUENCE}|{UNICODE_ESCAPE}|{SOME_ESCAPE})("'"|\\) | \'\\u000A\' | "'''"
 
 STRING_BEGIN = \"([^\\\"\r\n]|{ESCAPE_SEQUENCE})*
 STRING_LITERAL={STRING_BEGIN} \"
@@ -194,10 +195,10 @@ MULTI_LINE_STRING = \"\"\" ( (\"(\")?)? [^\"] )* \"\"\" (\")* // Multi-line stri
 INTERPOLATED_STRING_ID = {varid}
 
 INTERPOLATED_STRING_BEGIN = \"([^\\\"\r\n\$]|{ESCAPE_SEQUENCE})*
-INTERPOLATED_STRING_PART = ([^\\\"\r\n\$]|{ESCAPE_SEQUENCE})*
+INTERPOLATED_STRING_PART = ([^\\\"\r\n\$]|{ESCAPE_SEQUENCE})+
 
 INTERPOLATED_MULTI_LINE_STRING_BEGIN = \"\"\" ( (\"(\")?)? [^\"\$] )*
-INTERPOLATED_MULTI_LINE_STRING_PART = ( (\"(\")?)? [^\"\$] )*
+INTERPOLATED_MULTI_LINE_STRING_PART = ( (\"(\")?)? [^\"\$] )+
 
 INTERPOLATED_STRING_ESCAPE = "$$"
 INTERPOLATED_STRING_VARIABLE = "$"({identifier})
@@ -259,6 +260,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 
 {INTERPOLATED_STRING_ID} / ({INTERPOLATED_STRING_BEGIN} | {INTERPOLATED_MULTI_LINE_STRING_BEGIN}) {
   yybegin(WAIT_FOR_INTERPOLATED_STRING);
+  if (StringUtil.endsWith(yytext(), "\"\"")) yypushback(2);
   return haveIdInString || haveIdInMultilineString ? process(tIDENTIFIER) : process(tINTERPOLATED_STRING_ID) ;
 }
 
@@ -330,6 +332,10 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 <INSIDE_MULTI_LINE_INTERPOLATED_STRING> {
   {INTERPOLATED_STRING_ESCAPE} {
     return process(tINTERPOLATED_STRING_ESCAPE);
+  }
+
+  (\"\") / "$" {
+    return process(tINTERPOLATED_MULTILINE_STRING);
   }
 
   {INTERPOLATED_MULTI_LINE_STRING_PART} {

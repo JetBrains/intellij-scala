@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import com.intellij.psi.impl.light.LightMethod
-import com.intellij.psi.{PsiElement, PsiMethod, JavaPsiFacade}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContext, Success}
+import com.intellij.psi.{JavaPsiFacade, PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 
 /**
  * @author Alefas

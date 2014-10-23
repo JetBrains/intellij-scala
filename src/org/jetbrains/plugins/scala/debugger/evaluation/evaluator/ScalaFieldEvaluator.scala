@@ -1,18 +1,19 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
 import com.intellij.debugger.DebuggerBundle
-import com.sun.jdi._
+import com.intellij.debugger.engine.JVMNameUtil
+import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
+import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
 import com.intellij.debugger.impl.DebuggerUtilsEx
-import com.intellij.debugger.engine.evaluation.expression.{Modifier, Evaluator}
 import com.intellij.debugger.ui.impl.watch.{FieldDescriptorImpl, NodeDescriptorImpl}
-import com.intellij.debugger.engine.evaluation.{EvaluationContextImpl, EvaluateExceptionUtil}
 import com.intellij.openapi.project.Project
+import com.intellij.psi.{PsiAnonymousClass, PsiClass, PsiElement}
+import com.sun.jdi._
+import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
+import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import com.intellij.psi.{PsiClass, PsiAnonymousClass, PsiElement}
-import com.intellij.debugger.engine.JVMNameUtil
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
 /**
  * User: Alefas
@@ -125,7 +126,7 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, filter: ReferenceType
           field = fieldByName(refType, fieldName)
         }
         if (field == null || !field.isStatic) {
-          throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.no.static.field", fieldName))
+          throw EvaluationException(DebuggerBundle.message("evaluation.error.no.static.field", fieldName))
         }
         myEvaluatedField = field
         myEvaluatedQualifier = refType
@@ -133,7 +134,7 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, filter: ReferenceType
       case objRef: ObjectReference =>
         val refType: ReferenceType = objRef.referenceType
         if (!(refType.isInstanceOf[ClassType] || refType.isInstanceOf[ArrayType])) {
-          throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.class.or.array.expected", fieldName))
+          throw EvaluationException(DebuggerBundle.message("evaluation.error.class.or.array.expected", fieldName))
         }
         objRef match {
           case arrayRef: ArrayReference if "length" == fieldName =>
@@ -145,14 +146,14 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, filter: ReferenceType
           field = refType.fieldByName(fieldName)
         }
         if (field == null) {
-          throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.no.instance.field", fieldName))
+          throw EvaluationException(DebuggerBundle.message("evaluation.error.no.instance.field", fieldName))
         }
         myEvaluatedQualifier = if (field.isStatic) refType else objRef
         myEvaluatedField = field
         if (field.isStatic) refType.getValue(field) else objRef.getValue(field)
-      case null => throw EvaluateExceptionUtil.createEvaluateException(new NullPointerException)
+      case null => throw EvaluationException(new NullPointerException)
       case _ =>
-        throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.evaluating.field", fieldName))
+        throw EvaluationException(DebuggerBundle.message("evaluation.error.evaluating.field", fieldName))
     }
   }
 

@@ -1,23 +1,22 @@
 package org.jetbrains.plugins.scala
 package lang.psi.api.expr
 
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContext, Success, TypeResult}
-import org.jetbrains.plugins.scala.lang.psi.types._
-import nonvalue.{TypeParameter, Parameter, ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.{types, ScalaPsiElement, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
-import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import com.intellij.psi.{PsiNamedElement, PsiElement}
-import org.jetbrains.plugins.scala.extensions.toSeqExt
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import com.intellij.openapi.util.Key
-import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceExpression
+import com.intellij.psi.{PsiElement, PsiNamedElement}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil, types}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
+import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
-import scala.collection
-import project._
 
 /**
  * Pavel Fatin, Alexander Podkhalyuzin.
@@ -106,7 +105,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
    */
   def isApplyOrUpdateCall: Boolean = applyOrUpdateElement.isDefined
 
-  def applyOrUpdateElement: Option[PsiElement] = {
+  def applyOrUpdateElement: Option[ScalaResolveResult] = {
     getUpdatableUserData(MethodInvocation.APPLY_OR_UPDATE_KEY)(None)
   }
 
@@ -123,8 +122,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
    */
   def updateAccordingToExpectedType(nonValueType: TypeResult[ScType],
                                     check: Boolean = false): TypeResult[ScType] = {
-    InferUtil.updateAccordingToExpectedType(nonValueType, fromImplicitParameters = false, expectedType = expectedType(),
-      expr = this, check = check)
+    InferUtil.updateAccordingToExpectedType(nonValueType, fromImplicitParameters = false, filterTypeParams = false,
+      expectedType = expectedType(), expr = this, check = check)
   }
 
   /**
@@ -227,49 +226,61 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
     val invokedType: ScType = nonValueType.getOrElse(return nonValueType)
 
-    def args(includeUpdateCall: Boolean = false): Seq[Expression] = {
+    def args(includeUpdateCall: Boolean = false, isNamedDynamic: Boolean = false): Seq[Expression] = {
       def default: Seq[ScExpression] =
         if (includeUpdateCall) argumentExpressionsIncludeUpdateCall
         else  argumentExpressions
-      getEffectiveInvokedExpr match {
-        case ref: ScReferenceExpression =>
-          ref.bind() match {
-            case Some(r) if r.isDynamic && r.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED =>
-              default.map {expr =>
-                val actualExpr = expr match {
-                  case a: ScAssignStmt =>
-                    a.getLExpression match {
-                      case ref: ScReferenceExpression if ref.qualifier.isEmpty => a.getRExpression.getOrElse(expr)
-                      case _ => expr
-                    }
+      if (isNamedDynamic) {
+        default.map {
+          expr =>
+            val actualExpr = expr match {
+              case a: ScAssignStmt =>
+                a.getLExpression match {
+                  case ref: ScReferenceExpression if ref.qualifier.isEmpty => a.getRExpression.getOrElse(expr)
                   case _ => expr
                 }
-                new Expression(actualExpr) {
-                  override def getTypeAfterImplicitConversion(checkImplicits: Boolean, isShape: Boolean,
-                                                              expectedOption: Option[ScType]): (TypeResult[ScType], collection.Set[ImportUsed]) = {
-                    val (res, imports) = super.getTypeAfterImplicitConversion(checkImplicits, isShape, expectedOption)
-                    val str = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.String")
-                    val stringType = if (str != null) ScType.designator(str) else types.Any
-                    (res.map(tp => ScTupleType(Seq(stringType, tp))(getProject, getResolveScope)), imports)
-                  }
-                }}
-            case _ => default
-          }
-        case _ => default
+              case _ => expr
+            }
+            new Expression(actualExpr) {
+              override def getTypeAfterImplicitConversion(checkImplicits: Boolean, isShape: Boolean,
+                                                          _expectedOption: Option[ScType]): (TypeResult[ScType], collection.Set[ImportUsed]) = {
+                val expectedOption = _expectedOption.map {
+                  case ScTupleType(comps) if comps.length == 2 => comps(1)
+                  case t => t
+                }
+                val (res, imports) = super.getTypeAfterImplicitConversion(checkImplicits, isShape, expectedOption)
+                val str = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.String")
+                val stringType = if (str != null) ScType.designator(str) else types.Any
+                (res.map(tp => ScTupleType(Seq(stringType, tp))(getProject, getResolveScope)), imports)
+              }
+            }
+        }
+      } else default
+    }
+
+    def isApplyDynamicNamed: Boolean = {
+      getEffectiveInvokedExpr match {
+        case ref: ScReferenceExpression =>
+          ref.bind().exists(result => result.isDynamic && result.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED)
+        case _ => false
       }
     }
-    var res: ScType = checkApplication(invokedType, args()).getOrElse {
-      var (processedType, importsUsed, implicitFunction, applyOrUpdateElement) =
+
+    var res: ScType = checkApplication(invokedType, args(isNamedDynamic = isApplyDynamicNamed)).getOrElse {
+      var (processedType, importsUsed, implicitFunction, applyOrUpdateResult) =
         ScalaPsiUtil.processTypeForUpdateOrApply(invokedType, this, isShape = false).getOrElse {
           (types.Nothing, Set.empty[ImportUsed], None, this.applyOrUpdateElement)
         }
       if (useExpectedType) {
         updateAccordingToExpectedType(Success(processedType, None)).foreach(x => processedType = x)
       }
-      setApplyOrUpdate(applyOrUpdateElement)
+      setApplyOrUpdate(applyOrUpdateResult)
       setImportsUsed(importsUsed)
       setImplicitFunction(implicitFunction)
-      checkApplication(processedType, args(includeUpdateCall = true)).getOrElse {
+      val isNamedDynamic: Boolean =
+        applyOrUpdateResult.exists(result => result.isDynamic &&
+          result.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED)
+      checkApplication(processedType, args(includeUpdateCall = true, isNamedDynamic)).getOrElse {
         setApplyOrUpdate(None)
         setApplicabilityProblemsVar(Seq(new DoesNotTakeParameters))
         setMatchedParametersVar(Seq())
@@ -309,7 +320,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     putUserData(MethodInvocation.IMPLICIT_FUNCTION_KEY, (modCount, opt))
   }
 
-  def setApplyOrUpdate(opt: Option[PsiElement]) {
+  def setApplyOrUpdate(opt: Option[ScalaResolveResult]) {
     val modCount: Long = getManager.getModificationTracker.getModificationCount
     putUserData(MethodInvocation.APPLY_OR_UPDATE_KEY, (modCount, opt))
   }
@@ -337,5 +348,5 @@ object MethodInvocation {
   private val MATCHED_PARAMETERS_VAR_KEY: Key[(Long, Seq[(Parameter, ScExpression)])] = Key.create("matched.parameter.var.key")
   private val IMPORTS_USED_KEY: Key[(Long, collection.Set[ImportUsed])] = Key.create("imports.used.method.invocation.key")
   private val IMPLICIT_FUNCTION_KEY: Key[(Long, Option[PsiNamedElement])] = Key.create("implicit.function.method.invocation.key")
-  private val APPLY_OR_UPDATE_KEY: Key[(Long, Option[PsiElement])] = Key.create("apply.or.update.key")
+  private val APPLY_OR_UPDATE_KEY: Key[(Long, Option[ScalaResolveResult])] = Key.create("apply.or.update.key")
 }

@@ -1,12 +1,14 @@
 package org.jetbrains.jps.incremental.scala
 package local
 
-import data.CompilationData
-import sbt.compiler._
 import java.io.File
-import sbt.{CompileSetup, CompileOptions}
-import sbt.inc.{IncOptions, Analysis, AnalysisStore, Locate}
+
+import org.jetbrains.jps.incremental.scala.data.CompilationData
 import org.jetbrains.jps.incremental.scala.model.CompileOrder
+import org.jetbrains.plugin.scala.compiler.NameHashing
+import sbt.compiler._
+import sbt.inc.{Analysis, AnalysisStore, IncOptions, Locate}
+import sbt.{CompileOptions, CompileSetup}
 
 /**
  * @author Pavel Fatin
@@ -25,7 +27,12 @@ class SbtCompiler(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileTo
         case CompileOrder.JavaThenScala => xsbti.compile.CompileOrder.JavaThenScala
         case CompileOrder.ScalaThenJava => xsbti.compile.CompileOrder.ScalaThenJava
       }
-      new CompileSetup(output, options, compilerVersion, order)
+      val nameHashingValue = compilationData.nameHashing match {
+        case NameHashing.DEFAULT => IncOptions.Default.nameHashing
+        case NameHashing.ENABLED => true
+        case NameHashing.DISABLED => false
+      }
+      new CompileSetup(output, options, compilerVersion, order, nameHashingValue)
     }
 
     val compile = new AggressiveCompile(compilationData.cacheFile)
@@ -55,7 +62,7 @@ class SbtCompiler(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileTo
         reporter,
         skip = false,
         CompilerCache.fresh,
-        IncOptions.Default
+        IncOptions.Default.withNameHashing(compileSetup.nameHashing)
       )(logger)
     } catch {
       case _: xsbti.CompileFailed => // the error should be already handled via the `reporter`

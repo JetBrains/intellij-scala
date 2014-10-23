@@ -40,6 +40,7 @@
       <CLASSES>
         <root url="jar://$PROJECT_DIR$/../../../scala-compiler/scala-compiler.jar!/" />
         <root url="jar://$PROJECT_DIR$/../../../scala-compiler/scala-library.jar!/" />
+        <root url="jar://$PROJECT_DIR$/../../../scala-compiler/scala-reflect.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />

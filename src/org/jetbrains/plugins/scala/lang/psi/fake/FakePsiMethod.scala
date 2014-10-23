@@ -1,25 +1,25 @@
 package org.jetbrains.plugins.scala.lang.psi.fake
 
-import com.intellij.psi._
-import impl.light.LightElement
-import impl.source.HierarchicalMethodSignatureImpl
-import java.lang.String
-import javadoc.PsiDocComment
-import search.GlobalSearchScope
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import com.intellij.lang.Language
-import util.{PsiTreeUtil, MethodSignatureBackedByPsiMethod}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types._
-import nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import java.util.List
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
 import javax.swing.Icon
+
+import com.intellij.lang.Language
+import com.intellij.openapi.project.Project
+import com.intellij.psi._
+import com.intellij.psi.impl.light.LightElement
+import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
+import com.intellij.psi.javadoc.PsiDocComment
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.util.{MethodSignatureBackedByPsiMethod, PsiTreeUtil}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
  * User: Alexander Podkhalyuzin

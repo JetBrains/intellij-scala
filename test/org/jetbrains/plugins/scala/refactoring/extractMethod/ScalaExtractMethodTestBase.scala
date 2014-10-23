@@ -1,16 +1,18 @@
 package org.jetbrains.plugins.scala
 package refactoring.extractMethod
 
+import java.io.File
+
 import _root_.com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import _root_.org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import _root_.org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodHandler
-import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
-import java.io.File
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import junit.framework.Assert._
-import com.intellij.openapi.util.text.StringUtil
+import _root_.org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodHandler
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
+import com.intellij.testFramework.UsefulTestCase
+import junit.framework.Assert._
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 
 /**
  * User: Alexander Podkhalyuzin
@@ -49,6 +51,7 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightPlatformCodeInsightT
     try {
       val handler = new ScalaExtractMethodHandler
       handler.invoke(getProjectAdapter, editor, scalaFile, null)
+      UsefulTestCase.doPostponedFormatting(getProjectAdapter)
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim
     }
     catch {

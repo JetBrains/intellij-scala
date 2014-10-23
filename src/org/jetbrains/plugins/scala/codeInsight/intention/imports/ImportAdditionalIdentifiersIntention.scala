@@ -2,13 +2,13 @@ package org.jetbrains.plugins.scala
 package codeInsight.intention.imports
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import lang.psi.api.base.ScStableCodeReferenceElement
-import lang.psi.api.toplevel.imports.ScImportExpr
-import com.intellij.psi.{PsiWhiteSpace, PsiDocumentManager, PsiElement}
 
 /**
  * Jason Zaugg

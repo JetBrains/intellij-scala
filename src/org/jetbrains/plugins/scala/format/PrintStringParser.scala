@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.format
 
-import com.intellij.psi.{PsiClass, PsiMethod, PsiElement}
+import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
+import org.jetbrains.plugins.scala.extensions.{&&, ContainingClass, PsiReferenceEx}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
-import org.jetbrains.plugins.scala.extensions.{ContainingClass, &&, PsiReferenceEx}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 

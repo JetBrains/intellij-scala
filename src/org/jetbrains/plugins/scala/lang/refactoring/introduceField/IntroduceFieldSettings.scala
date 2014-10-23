@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.introduceField
 
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /**
  * Nikolay.Tropin

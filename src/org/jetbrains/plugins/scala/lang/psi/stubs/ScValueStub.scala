@@ -3,12 +3,11 @@ package lang
 package psi
 package stubs
 
-import api.base.types.ScTypeElement
-import api.base.{ScIdList, ScPatternList}
-import api.expr.ScExpression
-import api.statements.ScValue
-import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubElement, NamedStub}
+import com.intellij.psi.stubs.StubElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScIdList, ScPatternList}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 
 /**
  * User: Alexander Podkhalyuzin

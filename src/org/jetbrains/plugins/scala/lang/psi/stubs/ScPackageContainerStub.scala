@@ -3,8 +3,8 @@ package lang
 package psi
 package stubs
 
-import api.toplevel.packaging.ScPackageContainer
 import com.intellij.psi.stubs.StubElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackageContainer
 
 /**
  * @author ilyas

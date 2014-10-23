@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala
 package codeInspection.booleans
 
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScPrefixExpr, ScParenthesisedExpr, ScExpression}
-import scala.annotation.tailrec
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScParenthesisedExpr, ScPrefixExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 

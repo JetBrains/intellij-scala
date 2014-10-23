@@ -5,46 +5,44 @@ package api
 package statements
 
 
-import collection.Seq
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.types.{Unit => UnitType}
-import com.intellij.psi._
-
-import psi.stubs.ScFunctionStub
-import types._
-import nonvalue._
-import result.{Failure, Success, TypingContext, TypeResult}
-import psi.impl.ScalaPsiElementFactory
-import lexer.ScalaTokenTypes
-import base.ScMethodLike
-import collection.immutable.Set
-import caches.CachesUtil
-import com.intellij.psi.util.{MethodSignatureBackedByPsiMethod, PsiModificationTracker}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{JavaIdentifier, SyntheticClasses, ScSyntheticTypeParameter, ScSyntheticFunction}
-import java.lang.{ThreadLocal, String}
-import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
-import com.intellij.util.containers.ConcurrentHashMap
-import light.ScFunctionWrapper
-import com.intellij.openapi.util.Key
-import com.intellij.openapi.progress.ProgressManager
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
-import scala.collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.fake.{FakePsiReferenceList, FakePsiTypeParameterList}
-import org.jetbrains.plugins.scala.icons.Icons
-import com.intellij.openapi.project.DumbServiceImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import com.intellij.psi.PsiReferenceList.Role
-import com.intellij.psi.tree.TokenSet
-import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
-import com.intellij.lang.java.lexer.JavaLexer
-import com.intellij.pom.java.LanguageLevel
 import java.util
-import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightFunctionDefinition, ScLightFunctionDeclaration}
+
+import com.intellij.lang.java.lexer.JavaLexer
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.project.DumbServiceImpl
+import com.intellij.openapi.util.Key
+import com.intellij.pom.java.LanguageLevel
+import com.intellij.psi.PsiReferenceList.Role
+import com.intellij.psi._
+import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
+import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.util.{MethodSignatureBackedByPsiMethod, PsiModificationTracker}
+import com.intellij.util.containers.ConcurrentHashMap
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.fake.{FakePsiReferenceList, FakePsiTypeParameterList}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{JavaIdentifier, ScSyntheticFunction, ScSyntheticTypeParameter, SyntheticClasses}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
+import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightFunctionDeclaration, ScLightFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Unit => UnitType, _}
+
 import scala.annotation.tailrec
+import scala.collection.Seq
+import scala.collection.immutable.Set
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin
@@ -77,6 +75,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
         with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition
         with ScDeclaredElementsHolder with ScAnnotationsHolder with ScMethodLike with ScBlockStatement {
   private var synthNavElement: Option[PsiElement] = None
+  var syntheticCaseClass: Option[ScClass] = None
   def setSynthetic(navElement: PsiElement) {
     synthNavElement = Some(navElement)
   }
@@ -203,7 +202,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def definedReturnType: TypeResult[ScType] = {
     returnTypeElement match {
       case Some(ret) => ret.getType(TypingContext.empty)
-      case _ if !hasAssign => Success(Unit, Some(this))
+      case _ if !hasAssign => Success(types.Unit, Some(this))
       case _ =>
         superMethod match {
           case Some(f: ScFunction) => f.definedReturnType
@@ -416,13 +415,16 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     if (hasAnnotation("scala.annotation.varargs").isDefined) true
     else {
       superMethod match {
-        case f: ScFunction => f.isJavaVarargs
-        case m: PsiMethod => m.isVarArgs
+        case Some(f: ScFunction) => f.isJavaVarargs
+        case Some(m: PsiMethod) => m.isVarArgs
         case _ => false
       }
     }
   }
 
+  /**
+   * @return Empty array, if containing class is null.
+   */
   def getFunctionWrappers(isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper] = {
     val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
     val r = functionWrapper.get(isStatic, isInterface, cClass)
@@ -430,14 +432,21 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       return r._1
     }
     val buffer = new ArrayBuffer[ScFunctionWrapper]
-    buffer += new ScFunctionWrapper(this, isStatic, isInterface, cClass)
-    for {
-      clause <- clauses
-      first <- clause.clauses.headOption
-      if first.hasRepeatedParam
-      if isJavaVarargs
-    } {
-      buffer += new ScFunctionWrapper(this, isStatic, isInterface, cClass, isJavaVarargs = true)
+    if (cClass != None || containingClass != null) {
+      buffer += new ScFunctionWrapper(this, isStatic, isInterface, cClass)
+      for {
+        clause <- clauses
+        first <- clause.clauses.headOption
+        if first.hasRepeatedParam
+        if isJavaVarargs
+      } {
+        buffer += new ScFunctionWrapper(this, isStatic, isInterface, cClass, isJavaVarargs = true)
+      }
+      if (!isConstructor) {
+        for (i <- 0 until this.parameters.length if parameters(i).baseDefaultParam) {
+          buffer += new ScFunctionWrapper(this, isStatic, isInterface, cClass, forDefault = Some(i + 1))
+        }
+      }
     }
     val result: Seq[ScFunctionWrapper] = buffer.toSeq
     functionWrapper.put((isStatic, isInterface, cClass), (result, curModCount))
@@ -506,12 +515,25 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     val clazz = containingClass
     val s = new PhysicalSignature(this, ScSubstitutor.empty)
     if (clazz == null) return Seq(s)
-    val t = TypeDefinitionMembers.getSelfTypeSignatures(clazz).forName(ScalaPsiUtil.convertMemberName(name))._1.
-      fastPhysicalSignatureGet(s) match {
-      case Some(x) => x.supers.map {_.info}
-      case None => Seq[Signature]()
+    val withSelf = clazz.selfType != None
+    if (withSelf) {
+      val signs = TypeDefinitionMembers.getSelfTypeSignatures(clazz).forName(ScalaPsiUtil.convertMemberName(name))._1
+      signs.fastPhysicalSignatureGet(s) match {
+        case Some(x) if x.info.namedElement == this => x.supers.map { _.info }
+        case Some(x) => x.supers.filter {_.info.namedElement != this }.map { _.info } :+ x.info
+        case None => signs.get(s) match {
+          case Some(x) if x.info.namedElement == this => x.supers.map { _.info }
+          case Some(x) => x.supers.filter {_.info.namedElement != this }.map { _.info } :+ x.info
+          case None => Seq.empty
+        }
+      }
+    } else {
+      TypeDefinitionMembers.getSignatures(clazz).forName(ScalaPsiUtil.convertMemberName(name))._1.
+        fastPhysicalSignatureGet(s) match {
+        case Some(x) => x.supers.map { _.info }
+        case None => Seq.empty
+      }
     }
-    t
   }
 
 

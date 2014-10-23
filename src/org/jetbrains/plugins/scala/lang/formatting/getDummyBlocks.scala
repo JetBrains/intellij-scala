@@ -5,33 +5,35 @@ package formatting
 * @author ilyas
 */
 
-import _root_.java.util.{List, ArrayList}
-import settings.ScalaCodeStyleSettings
-import psi.ScalaPsiUtil
-import psi.api.statements._
+import _root_.java.util.{ArrayList, List}
+
 import com.intellij.formatting._
-import com.intellij.psi.tree._
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.util.{Key, TextRange}
+import com.intellij.psi.codeStyle.CodeStyleSettings
+import com.intellij.psi.tree._
+import com.intellij.psi.{PsiComment, PsiElement, PsiErrorElement, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.lang.formatting.ScalaWrapManager._
+import org.jetbrains.plugins.scala.lang.formatting.processors._
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.formatting.processors._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import com.intellij.psi.codeStyle.CodeStyleSettings
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
-import ScalaWrapManager._
-import psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
-import scaladoc.lexer.ScalaDocTokenType
-import scaladoc.parser.ScalaDocElementTypes
-import scaladoc.psi.api.ScDocTag
-import collection.mutable.ArrayBuffer
-import com.intellij.psi.{PsiErrorElement, PsiComment, PsiWhiteSpace, PsiElement}
-import com.intellij.openapi.util.{TextRange, Key}
-import psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTag
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
+
+import scala.collection.mutable.ArrayBuffer
 
 
 object getDummyBlocks {

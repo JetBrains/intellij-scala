@@ -2,30 +2,24 @@ package org.jetbrains.plugins.scala
 package testingSupport.test.scalatest
 
 import com.intellij.execution._
-import com.intellij.psi.util.PsiTreeUtil
-import configurations.RunConfiguration
-import com.intellij.psi._
-import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.MethodInvocation
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScClass, ScTypeDefinition}
-import org.jetbrains.plugins.scala.extensions.toPsiClassExt
-import lang.psi.impl.ScalaPsiManager
-import lang.psi.ScalaPsiUtil
-import lang.psi.api.expr.ScReferenceExpression
-import lang.psi.api.base.patterns.ScBindingPattern
-import lang.psi.api.statements.ScFunction
-import lang.psi.types.result.TypingContext
-import lang.psi.types.result.Success
-import lang.psi.types.ScType
-import lang.psi.api.base.ScLiteral
-import lang.psi.api.expr.ScExpression
-import lang.psi.api.expr.ScInfixExpr
-import lang.psi.api.toplevel.templates.ScTemplateBody
-import lang.psi.api.ScalaRecursiveElementVisitor
-import testingSupport.test.TestRunConfigurationForm.TestKind
 import com.intellij.execution.actions.ConfigurationContext
-import org.jetbrains.plugins.scala.testingSupport.test.{TestConfigurationProducer, AbstractTestRunConfiguration, TestConfigurationUtil, AbstractTestConfigurationProducer}
+import com.intellij.execution.configurations.RunConfiguration
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScInfixExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, TestConfigurationProducer, TestConfigurationUtil}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -100,12 +94,6 @@ class ScalaTestConfigurationProducer extends {
     }
   }
 
-  private def isInheritor(clazz: ScTypeDefinition, fqn: String): Boolean = {
-    val suiteClazz = ScalaPsiManager.instance(clazz.getProject).getCachedClass(clazz.getResolveScope, fqn)
-    if (suiteClazz == null) return false
-    ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClazz)
-  }
-
   def getLocationClassAndTest(location: Location[_ <: PsiElement]): (String, String) = {
     val element = location.getPsiElement
     var clazz: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
@@ -115,7 +103,7 @@ class ScalaTestConfigurationProducer extends {
       clazz = PsiTreeUtil.getParentOfType(clazz, classOf[ScTypeDefinition], true)
     }
     if (!clazz.isInstanceOf[ScClass]) return (null, null)
-    if (AbstractTestRunConfiguration.isInvalidSuite(clazz)) return (null, null)
+    if (ScalaTestRunConfiguration.isInvalidSuite(clazz)) return (null, null)
     if (!isInheritor(clazz, suitePath)) return (null, null)
     val testClassPath = clazz.qualifiedName
 
@@ -173,7 +161,8 @@ class ScalaTestConfigurationProducer extends {
                   }
               }
             }
-            if (containingClass != null && fqns.exists(_ == containingClass.qualifiedName)) {
+            if (containingClass != null &&
+                fqns.exists(fqn => fqn == containingClass.qualifiedName || isInheritor(containingClass, fqn))) {
               if (!failedToCheck) {
                 val res = inv(call)
                 if (res.isDefined) return SuccessResult(call, res.get, middleName)
@@ -276,6 +265,8 @@ class ScalaTestConfigurationProducer extends {
       }
       checkCallGeneral(call, namesSet, if (testNameIsAlwaysEmpty) _ => Some("") else inv, recursive = true, checkFirstArgIsUnitOrString)
     }
+
+    import scala.language.implicitConversions
 
     implicit def s2set(s: String): Set[String] = Set(s) //todo: inline?
 

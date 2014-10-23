@@ -16,15 +16,9 @@
 package org.jetbrains.plugins.scala;
 
 import com.intellij.lang.Language;
-import com.intellij.openapi.editor.colors.EditorColorsScheme;
-import com.intellij.openapi.editor.highlighter.EditorHighlighter;
 import com.intellij.openapi.fileTypes.LanguageFileType;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter;
 import org.jetbrains.plugins.scala.icons.Icons;
 
 import javax.swing.*;
@@ -60,21 +54,7 @@ public class ScalaFileType extends LanguageFileType {
     return DEFAULT_EXTENSION;
   }
 
-  @NotNull
-  @NonNls
-  public String getWorksheetExtension() {
-    return WORKSHEET_EXTENSION;
-  }
-
   public Icon getIcon() {
      return Icons.FILE_TYPE_LOGO;
-  }
-
-  public boolean isJVMDebuggingSupported() {
-    return true;
-  }
-
-  public EditorHighlighter getEditorHighlighter(@Nullable Project project, @Nullable VirtualFile virtualFile, @NotNull EditorColorsScheme colors) {
-    return new ScalaEditorHighlighter(project, virtualFile, colors);
   }
 }

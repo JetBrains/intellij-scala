@@ -1,15 +1,16 @@
 package org.jetbrains.plugins.scala
 package base
 
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.ScalaFileType
-import com.intellij.psi.{PsiElement, PsiWhiteSpace, PsiComment, PsiFileFactory}
-import junit.framework.Assert
+import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.{PsiComment, PsiElement, PsiFileFactory, PsiWhiteSpace}
+import com.intellij.testFramework.UsefulTestCase
+import com.intellij.testFramework.fixtures._
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.extensions._
-import com.intellij.testFramework.fixtures._
-import com.intellij.testFramework.UsefulTestCase
-import com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.junit.Assert
+
+import scala.reflect.{classTag, ClassTag}
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -21,7 +22,7 @@ abstract class SimpleTestCase extends UsefulTestCase {
   override def setUp() {
     super.setUp()
     val fixtureBuilder: TestFixtureBuilder[IdeaProjectTestFixture] =
-      IdeaTestFixtureFactory.getFixtureFactory.createFixtureBuilder
+      IdeaTestFixtureFactory.getFixtureFactory.createFixtureBuilder("SimpleTestCase")
 
     fixture = IdeaTestFixtureFactory.getFixtureFactory.createCodeInsightFixture(fixtureBuilder.getFixture)
     fixture.setUp()
@@ -39,9 +40,7 @@ abstract class SimpleTestCase extends UsefulTestCase {
             .asInstanceOf[ScalaFile]
   }
 
-  implicit def toCode(@Language("Scala") s: String) = new ScalaCode(s)
-
-  implicit def toFindable(element: ScalaFile) = new {
+  implicit class Findable(val element: ScalaFile) {
     def target: PsiElement = element.depthFirst
       .dropWhile(!_.isInstanceOf[PsiComment])
       .drop(1)
@@ -69,15 +68,15 @@ abstract class SimpleTestCase extends UsefulTestCase {
     title + root.children.map(toString(_, level + 1)).mkString
   }
   
-  class ScalaCode(@Language("Scala") s: String) {
+  implicit class ScalaCode(@Language("Scala") val s: String) {
     def stripComments: String =
       s.replaceAll("""(?s)/\*.*?\*/""", "")
               .replaceAll("""(?m)//.*$""", "")
 
     def parse: ScalaFile = parseText(s)
 
-    def parse[T <: PsiElement: ClassManifest]: T =
-      parse(classManifest[T].erasure.asInstanceOf[Class[T]])
+    def parse[T <: PsiElement: ClassTag]: T =
+      parse(classTag[T].runtimeClass.asInstanceOf[Class[T]])
 
     def parse[T <: PsiElement](aClass: Class[T]): T =
       parse.depthFirst.findByType(aClass).getOrElse {

@@ -1,19 +1,21 @@
 package org.jetbrains.jps.incremental.scala
 
 import java.io.File
+
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.Processor
 import org.jetbrains.jps.ModuleChunk
-import org.jetbrains.jps.builders.{FileProcessor, BuildRootDescriptor, BuildTarget, DirtyFilesHolder}
-import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor
 import org.jetbrains.jps.builders.impl.TargetOutputIndexImpl
+import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor
+import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget, DirtyFilesHolder, FileProcessor}
+import org.jetbrains.jps.incremental.ModuleLevelBuilder.{ExitCode, OutputConsumer}
 import org.jetbrains.jps.incremental._
-import messages.ProgressMessage
-import collection.JavaConverters._
-import org.jetbrains.jps.incremental.ModuleLevelBuilder.{OutputConsumer, ExitCode}
+import org.jetbrains.jps.incremental.java.JavaBuilder
+import org.jetbrains.jps.incremental.messages.ProgressMessage
 import org.jetbrains.jps.incremental.scala.local.IdeClientSbt
 import org.jetbrains.jps.model.JpsProject
-import org.jetbrains.jps.incremental.java.JavaBuilder
+
+import _root_.scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -70,7 +72,7 @@ object SbtBuilder extends ScalaBuilderDelegate {
                       dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
                       outputConsumer: OutputConsumer): ModuleLevelBuilder.ExitCode = {
 
-    if (ChunkExclusionService.isExcluded(chunk)) {
+    if (ChunkExclusionService.isExcluded(chunk, context.getProjectDescriptor.getModel.getGlobal)) {
       return ExitCode.NOTHING_DONE
     }
 

@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test
 
-import com.intellij.psi._
-import com.intellij.execution.{RunnerAndConfigurationSettings, Location, JavaRunConfigurationExtensionManager, RunManager}
 import com.intellij.execution.configurations.RunConfiguration
-import lang.psi.api.toplevel.typedef.ScClass
-import lang.psi.api.toplevel.ScModifierListOwner
+import com.intellij.execution.{JavaRunConfigurationExtensionManager, Location, RunManager, RunnerAndConfigurationSettings}
+import com.intellij.psi._
 
 /**
  * @author Ksenia.Sautina
@@ -27,6 +25,7 @@ object TestConfigurationUtil {
       configuration.setTestPackagePath(pack.getQualifiedName)
       configuration.setTestKind(TestRunConfigurationForm.TestKind.ALL_IN_PACKAGE)
       configuration.setGeneratedName(displayName)
+      configuration.setModule(location.getModule)
       JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(configuration, location)
       settings
   }
@@ -38,10 +37,9 @@ object TestConfigurationUtil {
     }
     if (pack == null) return false
     configuration match {
-      case configuration: AbstractTestRunConfiguration => {
-        configuration.getTestKind() == TestRunConfigurationForm.TestKind.ALL_IN_PACKAGE &&
+      case configuration: AbstractTestRunConfiguration =>
+        configuration.getTestKind == TestRunConfigurationForm.TestKind.ALL_IN_PACKAGE &&
                 configuration.getTestPackagePath == pack.getQualifiedName
-      }
       case _ => false
     }
   }

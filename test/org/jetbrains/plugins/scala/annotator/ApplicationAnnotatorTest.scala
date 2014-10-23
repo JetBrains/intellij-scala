@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import org.jetbrains.plugins.scala.base.SimpleTestCase
-import lang.psi.api.base.ScReferenceElement
-import lang.psi.types.Compatibility
-import lang.psi.api.toplevel.typedef.ScClass
-import lang.psi.api.expr.ScMethodCall
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -41,20 +41,24 @@ class ApplicationAnnotatorTest extends SimpleTestCase {
   
   def testMissedParametersClause {
     assertMatches(messages("def f(a: Any, b: Any) {}; f")) {
-      case Error("f", "Missing arguments for method f(Any, Any)") :: Nil =>
+      case Error("f", "Missing arguments for method f(Any, Any)") ::
+              Error("f", "Cannot resolve reference f with such signature") :: Nil =>
     }
   }
   
   def testExcessArguments {
     assertMatches(messages("def f() {}; f(null, Unit)")) {
       case Error("null", "Too many arguments for method f") ::
-              Error("Unit", "Too many arguments for method f") :: Nil =>
+              Error("f", "Cannot resolve reference f with such signature") ::
+              Error("Unit", "Too many arguments for method f") ::
+              Error("f", "Cannot resolve reference f with such signature") :: Nil =>
     }
   }
 
   def testMissedParameters {
     assertMatches(messages("def f(a: Any, b: Any) {}; f()")) {
-      case Error("()", "Unspecified value parameters: a: Any, b: Any") :: Nil =>
+      case Error("()", "Unspecified value parameters: a: Any, b: Any") ::
+              Error("f", "Cannot resolve reference f with such signature") ::Nil =>
     }
   }
   
@@ -81,7 +85,9 @@ class ApplicationAnnotatorTest extends SimpleTestCase {
   def testTypeMismatch {
     assertMatches(messages("def f(a: A, b: B) {}; f(B, A)")) {
       case Error("B", "Type mismatch, expected: A, actual: B.type") ::
-              Error("A", "Type mismatch, expected: B, actual: A.type") :: Nil =>
+              Error("f", "Cannot resolve reference f with such signature") ::
+              Error("A", "Type mismatch, expected: B, actual: A.type") ::
+              Error("f", "Cannot resolve reference f with such signature") ::Nil =>
     }
   }
   
@@ -130,7 +136,7 @@ class ApplicationAnnotatorTest extends SimpleTestCase {
       }
 
       file.depthFirst.filterByType(classOf[ScMethodCall]).foreach {
-        annotator.annotateMethodCall(_, mock)
+        annotator.annotateMethodInvocation(_, mock)
       }
 
       mock.annotations

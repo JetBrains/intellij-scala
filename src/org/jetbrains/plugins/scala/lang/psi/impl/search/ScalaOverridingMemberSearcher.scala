@@ -4,22 +4,23 @@ package psi
 package impl
 package search
 
-import scala.collection.mutable.ArrayBuffer
-import api.statements.{ScFunction, ScTypeAlias}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import api.toplevel.typedef.{ScTypeDefinition, ScTemplateDefinition}
 import com.intellij.psi._
-import com.intellij.psi.search.searches.{OverridingMethodsSearch, ClassInheritorsSearch}
-import search.SearchScope
-import com.intellij.psi.util.PsiTreeUtil
-import toplevel.typedef.TypeDefinitionMembers
-import types._
-import org.jetbrains.plugins.scala.extensions.{inReadAction, toPsiMemberExt, toPsiNamedElementExt}
-import psi.stubs.util.ScalaStubsUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScEarlyDefinitions}
-import com.intellij.util.{Processor, QueryExecutor}
+import com.intellij.psi.search.SearchScope
 import com.intellij.psi.search.searches.OverridingMethodsSearch.SearchParameters
+import com.intellij.psi.search.searches.{ClassInheritorsSearch, OverridingMethodsSearch}
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.{Processor, QueryExecutor}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
+import org.jetbrains.plugins.scala.lang.psi.types._
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -133,13 +134,13 @@ object ScalaOverridingMemberSearcher {
             val signsIterator = signatures.forName(member.name)._1.iterator
             while (signsIterator.hasNext) {
               val (t: Signature, node: TypeDefinitionMembers.SignatureNodes.Node) = signsIterator.next()
-              if (t.namedElement != None && PsiTreeUtil.getParentOfType(t.namedElement.get,
+              if (PsiTreeUtil.getParentOfType(t.namedElement,
                 classOf[PsiClass]) == inheritor) {
                 val supersIterator = node.supers.iterator
                 while (supersIterator.hasNext) {
                   val s = supersIterator.next()
-                  if (s.info.namedElement.get eq member) {
-                    buffer += t.namedElement.get
+                  if (s.info.namedElement eq member) {
+                    buffer += t.namedElement
                     return deep
                   }
                 }

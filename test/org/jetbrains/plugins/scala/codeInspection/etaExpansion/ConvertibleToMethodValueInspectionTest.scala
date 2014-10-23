@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package codeInspection.etaExpansion
 
-import org.jetbrains.plugins.scala.codeInspection.{ScalaLightInspectionFixtureTestAdapter, InspectionBundle}
 import com.intellij.codeInspection.LocalInspectionTool
+import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaLightInspectionFixtureTestAdapter}
 
 /**
  * Nikolay.Tropin
@@ -187,6 +187,14 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
         |  }
         |}
       """
+    checkTextHasNoErrors(text)
+  }
+
+  def test_SCL7428() {
+    val text =
+      """class InspectionTest1[T](translator: T => T = identity[T] _) {
+        |  def translate(t: T): T = translator(t)
+        |}"""
     checkTextHasNoErrors(text)
   }
 }

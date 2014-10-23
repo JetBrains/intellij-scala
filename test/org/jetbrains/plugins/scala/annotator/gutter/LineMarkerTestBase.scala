@@ -1,18 +1,20 @@
 package org.jetbrains.plugins.scala.annotator.gutter
 
-import org.jetbrains.plugins.scala.util.TestUtils
-import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
-import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerImpl
-import com.intellij.testFramework.fixtures.impl.JavaCodeInsightTestFixtureImpl
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.ScalaFileType
-import com.intellij.openapi.editor.markup.SeparatorPlacement
-import com.intellij.openapi.editor.Editor
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzerSettings
-import scala.collection.JavaConversions._
-import junit.framework.Assert._
-import scala.io.Source
 import java.io.File
+
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzerSettings
+import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerImpl
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.markup.SeparatorPlacement
+import com.intellij.openapi.project.Project
+import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
+import com.intellij.testFramework.fixtures.impl.JavaCodeInsightTestFixtureImpl
+import junit.framework.Assert._
+import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.util.TestUtils
+
+import scala.collection.JavaConversions._
+import scala.io.Source
 
 /**
  * Pavel.Fatin, 14.01.2010

@@ -6,17 +6,18 @@ package types
 import com.intellij.psi._
 import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition, ScObject}
-import api.statements._
-import api.base.patterns.{ScReferencePattern, ScBindingPattern}
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
-import params.{ScParameter, ScTypeParam}
-import refactoring.util.{ScalaNamesUtil, ScTypeUtil}
-import collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
-import scala.annotation.tailrec
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
+
+import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 
 trait ScTypePresentation {
   def presentableText(t: ScType) = typeText(t, _.name, {
@@ -106,26 +107,34 @@ trait ScTypePresentation {
       val ScProjectionType(p, _, _) = projType
       val e = projType.actualElement
       val refName = e.name
-      val typeTailForProjection = e match {
-        case _: ScObject | _: ScBindingPattern => typeTail(needDotType)
-        case _ => ""
+      def checkIfStable(e: PsiElement): Boolean = {
+        e match {
+          case _: ScObject | _: ScBindingPattern | _: ScParameter => true
+          case _ => false
+        }
+      }
+      val typeTailForProjection =
+        if (checkIfStable(e)) typeTail(needDotType)
+        else ""
+      def isInnerStaticJavaClassForParent(clazz: PsiClass): Boolean = {
+        clazz.getLanguage != ScalaFileType.SCALA_LANGUAGE &&
+          e.isInstanceOf[PsiModifierListOwner] &&
+          e.asInstanceOf[PsiModifierListOwner].getModifierList.hasModifierProperty("static")
       }
       p match {
         case ScDesignatorType(pack: PsiPackage) =>
           nameWithPointFun(pack) + refName
-        case ScDesignatorType(obj: ScObject) =>
-          nameWithPointFun(obj) + refName + typeTailForProjection
-        case ScDesignatorType(v: ScBindingPattern) =>
-          nameWithPointFun(v) + refName + typeTailForProjection
+        case ScDesignatorType(named) if checkIfStable(named) =>
+          nameWithPointFun(named) + refName + typeTailForProjection
         case ScThisType(obj: ScObject) =>
           nameWithPointFun(obj) + refName + typeTailForProjection
-        case ScThisType(td: ScTypeDefinition) if e.isInstanceOf[ScObject] || e.isInstanceOf[ScBindingPattern] =>
+        case ScThisType(td: ScTypeDefinition) if checkIfStable(e) =>
           s"${innerTypeText(p, needDotType = false)}.$refName$typeTailForProjection"
-        case p: ScProjectionType if p.actualElement.isInstanceOf[ScObject] || p.actualElement.isInstanceOf[ScBindingPattern] =>
+        case p: ScProjectionType if checkIfStable(p.actualElement) =>
           s"${projectionTypeText(p, needDotType = false)}.$refName$typeTailForProjection"
-        case ScDesignatorType(clazz: PsiClass) if clazz.getLanguage != ScalaFileType.SCALA_LANGUAGE &&
-                e.isInstanceOf[PsiModifierListOwner] &&
-                e.asInstanceOf[PsiModifierListOwner].getModifierList.hasModifierProperty("static") =>
+        case ScDesignatorType(clazz: PsiClass) if isInnerStaticJavaClassForParent(clazz) =>
+          nameWithPointFun(clazz) + refName
+        case ScParameterizedType(ScDesignatorType(clazz: PsiClass), _) if isInnerStaticJavaClassForParent(clazz) =>
           nameWithPointFun(clazz) + refName
         case _: ScCompoundType | _: ScExistentialType =>
           s"(${innerTypeText(p)})#$refName"
@@ -138,27 +147,31 @@ trait ScTypePresentation {
       val ScCompoundType(comps, signatureMap, typeMap) = compType
       def typeText0(tp: ScType) = innerTypeText(tp)
 
-      val componentsText = if (comps.isEmpty) Nil else Seq(comps.map(innerTypeText(_)).mkString(" with "))
+      val componentsText = if (comps.isEmpty) Nil else Seq(comps.map {
+        case tp@ScFunctionType(_, _) => "(" + innerTypeText(tp) + ")"
+        case tp => innerTypeText(tp)
+      }.mkString(" with "))
 
       val declsTexts = (signatureMap ++ typeMap).flatMap {
-        case (s: Signature, rt: ScType) if s.namedElement.nonEmpty && s.namedElement.get.isInstanceOf[ScFunction] =>
-          val fun = s.namedElement.get.asInstanceOf[ScFunction]
-          val funCopy = ScFunction.getCompoundCopy(s.substitutedTypes.map(_.toList), s.typeParams.toList, rt, fun)
+        case (s: Signature, rt: ScType) if s.namedElement.isInstanceOf[ScFunction] =>
+          val fun = s.namedElement.asInstanceOf[ScFunction]
+          val funCopy =
+            ScFunction.getCompoundCopy(s.substitutedTypes.map(_.map(_()).toList), s.typeParams.toList, rt, fun)
           val paramClauses = funCopy.paramClauses.clauses.map(_.parameters.map(param =>
             ScalaDocumentationProvider.parseParameter(param, typeText0)).mkString("(", ", ", ")")).mkString("")
           val retType = if (!compType.equiv(rt)) typeText0(rt) else "this.type"
           val typeParams = if (funCopy.typeParameters.length > 0)
             funCopy.typeParameters.map(typeParamText(_, ScSubstitutor.empty)).mkString("[", ", ", "]")
           else ""
-          Seq(s"def ${s.name}$typeParams$paramClauses$retType")
-        case (s: Signature, rt: ScType) if s.namedElement.nonEmpty && s.namedElement.get.isInstanceOf[ScTypedDefinition] =>
+          Seq(s"def ${s.name}$typeParams$paramClauses: $retType")
+        case (s: Signature, rt: ScType) if s.namedElement.isInstanceOf[ScTypedDefinition] =>
           if (s.paramLength.sum > 0) Seq.empty
           else {
             s.namedElement match {
-              case Some(bp: ScBindingPattern) =>
+              case bp: ScBindingPattern =>
                 val b = ScBindingPattern.getCompoundCopy(rt, bp)
                 Seq((if (b.isVar) "var " else "val ") + b.name + " : " + typeText0(rt))
-              case Some(fi: ScFieldId) =>
+              case fi: ScFieldId =>
                 val f = ScFieldId.getCompoundCopy(rt, fi)
                 Seq((if (f.isVar) "var " else "val ") + f.name + " : " + typeText0(rt))
               case _ => Seq.empty
@@ -237,8 +250,10 @@ trait ScTypePresentation {
           ScTypePresentation.ABSTRACT_TYPE_PREFIX + tpt.name.capitalize
         case StdType(name, _) =>
           name
-        case ScFunctionType(ret, params) if !t.isAliasType.isDefined =>
-          typeSeqText(params, "(", ", ", ") => ") + innerTypeText(ret)
+        case f@ScFunctionType(ret, params) if !t.isAliasType.isDefined =>
+          val projectOption = ScType.extractClass(f).map(_.getProject)
+          val arrow = projectOption.map(ScalaPsiUtil.functionArrow).getOrElse("=>")
+          typeSeqText(params, "(", ", ", s") $arrow ") + innerTypeText(ret)
         case ScThisType(clazz: ScTypeDefinition) =>
           clazz.name + ".this" + typeTail(needDotType)
         case ScThisType(clazz) =>
@@ -265,8 +280,8 @@ trait ScTypePresentation {
           existentialTypeText(ex, checkWildcard, needDotType)
         case ScTypePolymorphicType(internalType, typeParameters) =>
           typeParameters.map(tp => {
-            val lowerBound = if (tp.lowerType.equiv(types.Nothing)) "" else " >: " + tp.lowerType.toString
-            val upperBound = if (tp.upperType.equiv(types.Any)) "" else " <: " + tp.upperType.toString
+            val lowerBound = if (tp.lowerType().equiv(types.Nothing)) "" else " >: " + tp.lowerType().toString
+            val upperBound = if (tp.upperType().equiv(types.Any)) "" else " <: " + tp.upperType().toString
             tp.name + lowerBound + upperBound
           }).mkString("[", ", ", "] ") + internalType.toString
         case mt@ScMethodType(retType, params, isImplicit) =>

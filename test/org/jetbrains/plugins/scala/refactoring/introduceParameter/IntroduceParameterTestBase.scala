@@ -1,24 +1,25 @@
 package org.jetbrains.plugins.scala.refactoring.introduceParameter
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import java.io.File
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.openapi.fileEditor.{OpenFileDescriptor, FileEditorManager}
-import org.jetbrains.plugins.scala.util.ScalaUtils
+
+import com.intellij.ide.util.SuperMethodWarningUtil
+import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
+import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterProcessor
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import com.intellij.psi.{PsiDocumentManager, PsiMethod}
+import com.intellij.refactoring.RefactoringBundle
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import com.intellij.refactoring.RefactoringBundle
-import com.intellij.ide.util.SuperMethodWarningUtil
-import com.intellij.psi.{PsiMethod, PsiDocumentManager}
-import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterProcessor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.plugins.scala.util.ScalaUtils
 
 /**
  * @author Alexander Podkhalyuzin

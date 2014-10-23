@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiManager, JVMElementFactory, JVMElementFactoryProvider}
+import com.intellij.psi.{JVMElementFactory, JVMElementFactoryProvider, PsiManager}
 
 /**
  * @author Alefas

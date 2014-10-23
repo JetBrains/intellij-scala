@@ -39,7 +39,9 @@ import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.event.*;
 import com.intellij.openapi.editor.ex.util.EditorUtil;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.util.ProgressIndicatorUtils;
+import com.intellij.openapi.progress.util.ReadTask;
 import com.intellij.openapi.project.DumbAwareRunnable;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.IndexNotReadyException;
@@ -123,8 +125,13 @@ public class MouseHoverHandler extends AbstractProjectComponent {
       Point point = new Point(mouseEvent.getPoint());
       if (PsiDocumentManager.getInstance(myProject).isCommitted(editor.getDocument())) {
         // when document is committed, try to check injected stuff - it's fast
-        editor = InjectedLanguageUtil
-          .getEditorForInjectedLanguageNoCommit(editor, psiFile, editor.logicalPositionToOffset(editor.xyToLogicalPosition(point)));
+        try {
+          LogicalPosition pos = editor.xyToLogicalPosition(point);
+          editor = InjectedLanguageUtil
+              .getEditorForInjectedLanguageNoCommit(editor, psiFile, editor.logicalPositionToOffset(pos));
+        } catch (Exception ignore) { //see EA-55701
+          return;
+        }
       }
 
       final LogicalPosition pos = editor.xyToLogicalPosition(point);
@@ -501,11 +508,14 @@ public class MouseHoverHandler extends AbstractProjectComponent {
       ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {
         @Override
         public void run() {
-          ProgressIndicatorUtils.runWithWriteActionPriority(new Runnable() {
+          ProgressIndicatorUtils.scheduleWithWriteActionPriority(new ReadTask() {
             @Override
-            public void run() {
+            public void computeInReadAction(@NotNull ProgressIndicator indicator) {
               doExecute(file, offset);
             }
+
+            @Override
+            public void onCanceled(@NotNull ProgressIndicator indicator) {}
           });
         }
       });
@@ -787,7 +797,7 @@ public class MouseHoverHandler extends AbstractProjectComponent {
         if (hint != null) {
           hint.hide(true);
         }
-        myDocumentationManager.showJavaDocInfo(targetElement, myContext, true, null);
+        myDocumentationManager.showJavaDocInfo(targetElement, myContext, null);
       }
     }
   }

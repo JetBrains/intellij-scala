@@ -4,14 +4,14 @@ package psi
 package api
 package toplevel
 
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.base._
-import parser.ScalaElementTypes
-import stubs.StubElement
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.VirtualFile
-import util.PsiUtilCore
+import com.intellij.psi._
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.util.PsiUtilCore
 import com.intellij.util.indexing.FileBasedIndex
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 
 /**
 * @author ilyas

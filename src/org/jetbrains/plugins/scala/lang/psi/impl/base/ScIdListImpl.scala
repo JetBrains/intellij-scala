@@ -4,11 +4,10 @@ package psi
 package impl
 package base
 
-import api.base.{ScFieldId, ScIdList}
 import com.intellij.lang.ASTNode
-import com.intellij.util.ArrayFactory
-import parser.ScalaElementTypes
-import psi.stubs.{ScIdListStub}
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScIdList}
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScIdListStub
 
 /**
 * @author Alexander Podkhalyuzin

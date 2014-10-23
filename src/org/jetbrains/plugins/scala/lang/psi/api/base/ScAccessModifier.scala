@@ -5,7 +5,6 @@ package api
 package base
 
 import com.intellij.psi.PsiNamedElement
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -15,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 trait ScAccessModifier extends ScalaPsiElement {
   def scope : PsiNamedElement /* either ScTypeDefinition or PsiPackage */
 
-  type AccessType = Access.Value
+  type AccessType = ScAccessModifier.Type.Value
 
   def access : AccessType
 
@@ -41,8 +40,10 @@ trait ScAccessModifier extends ScalaPsiElement {
     }
     builder.toString()
   }
+}
 
-  object Access extends Enumeration {
+object ScAccessModifier {
+  object Type extends Enumeration {
     val PRIVATE, PROTECTED, THIS_PRIVATE, THIS_PROTECTED = Value
   }
 }

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package conversion.copy
 
 import java.awt.datatransfer.DataFlavor
+
 import com.intellij.codeInsight.editorActions.TextBlockTransferableData
 import com.intellij.openapi.util.TextRange
 

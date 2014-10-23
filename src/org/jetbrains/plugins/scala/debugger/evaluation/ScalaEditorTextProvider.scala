@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.debugger.evaluation
 
+import com.intellij.debugger.engine.evaluation.{CodeFragmentKind, TextWithImports, TextWithImportsImpl}
 import com.intellij.debugger.impl.EditorTextProvider
+import com.intellij.openapi.util.{Pair, TextRange}
 import com.intellij.psi.PsiElement
-import com.intellij.openapi.util.{TextRange, Pair}
-import com.intellij.debugger.engine.evaluation.{CodeFragmentKind, TextWithImportsImpl, TextWithImports}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * @author Alefas

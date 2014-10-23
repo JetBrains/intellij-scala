@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intentions.imports
 
-import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 import org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportAllMembersIntention
+import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 /**
  * Nikolay.Tropin
@@ -206,8 +206,8 @@ class ImportAllMembersIntentionTest extends ScalaIntentionTestBase {
         |  abs(sine(math.Pi + E))
         |}""".stripMargin
     val result =
-      """import java.lang.Math._
-        |import java.lang.Math.E
+      """import java.lang.Math.E
+        |import java.lang.Math._
         |import scala.math.abs
         |import scala.math.{sin => sine, _}
         |

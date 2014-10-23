@@ -9,19 +9,18 @@ package expression
 * Date: 28.04.2008
  */
 
-import com.intellij.psi.PsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
-import lang.psi.api.expr._
-import psi.ScalaPsiUtil
-import com.intellij.psi.PsiWhiteSpace;
+import com.intellij.psi.{PsiElement, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr._;
 
 class ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
   override def isApplicable(elements: Array[PsiElement]): Boolean = {
     if (elements.length > 1) return false
     for (element <- elements)
       if (!isApplicable(element)) return false
-    return true
+    true
   }
   override def isApplicable(element: PsiElement): Boolean = {
     element match {
@@ -41,8 +40,9 @@ class ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
   }
 
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
-    return (if (elements.length == 1 && !needBraces(elements(0))) super.getTemplateAsString(elements)
-            else "(" + super.getTemplateAsString(elements) + ")")+ " match {\ncase a  =>\n}"
+    val arrow = if (elements.length == 0) "=>" else ScalaPsiUtil.functionArrow(elements(0).getProject)
+    (if (elements.length == 1 && !needBraces(elements(0))) super.getTemplateAsString(elements)
+    else "(" + super.getTemplateAsString(elements) + ")")+ s" match {\ncase a  $arrow\n}"
   }
 
   override def getTemplateDescription = "match"
@@ -62,6 +62,6 @@ class ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
     val offset = patternNode.getTextRange.getStartOffset
     patternNode.getTreeParent.removeChild(patternNode)
 
-    return new TextRange(offset, offset);
+    new TextRange(offset, offset)
   }
 }

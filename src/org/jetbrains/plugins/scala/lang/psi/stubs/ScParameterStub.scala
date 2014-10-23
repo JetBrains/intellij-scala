@@ -3,10 +3,10 @@ package lang
 package psi
 package stubs
 
-import api.statements.params.ScParameter
 import com.intellij.psi.stubs.NamedStub
-import api.base.types.ScTypeElement
-import api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 
 /**
  * User: Alexander Podkhalyuzin

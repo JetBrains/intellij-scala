@@ -2,9 +2,10 @@ package org.jetbrains.jps.incremental.scala
 package local
 
 import java.io.File
-import xsbti.{F0, Logger}
+
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import JavacOutputParsing._
+import org.jetbrains.jps.incremental.scala.local.JavacOutputParsing._
+import xsbti.{F0, Logger}
 
 /**
  * @author Pavel Fatin

@@ -3,15 +3,14 @@ package annotator
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.psi.PsiElement
+import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.openapi.util.TextRange
-import com.intellij.lang.annotation.AnnotationHolder
-import com.intellij.lang.annotation.Annotation
-import lang.psi.api.base.types.ScTypeElement
-import quickfix.ReportHighlightingErrorQuickFix
-import lang.psi.api.toplevel.ScTypeParametersOwner
-import lang.psi.api.statements.params.ScParameters
-import lang.psi.api.expr.{ScBlockExpr, ScExpression}
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
 /**
  * @author Aleksander Podkhalyuzin

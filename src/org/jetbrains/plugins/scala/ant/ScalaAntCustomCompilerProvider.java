@@ -2,17 +2,13 @@ package org.jetbrains.plugins.scala.ant;
 
 import com.intellij.compiler.ant.*;
 import com.intellij.compiler.ant.taskdefs.PatternSetRef;
-import com.intellij.compiler.ant.taskdefs.Property;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.util.Pair;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**

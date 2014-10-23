@@ -2,19 +2,18 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import scala.collection.mutable.ArrayBuffer
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.ScAbstractType
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeParameterType
-import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScCompoundTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
+import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScDesignatorType, ScTypeParameterType, _}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+
+import scala.collection.immutable.HashSet
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * Jason Zaugg
@@ -122,9 +121,13 @@ object PatternAnnotator {
     }
   }
 
-  private def abstraction(scType: ScType): ScType = {
+  private def abstraction(scType: ScType, visited: HashSet[ScType] = HashSet.empty): ScType = {
+    if (visited.contains(scType)) {
+      return scType
+    }
+    val newVisited = visited + scType
     scType.recursiveUpdate {
-      case tp: ScTypeParameterType => (true, ScAbstractType(tp, abstraction(tp.lower.v), abstraction(tp.upper.v)))
+      case tp: ScTypeParameterType => (true, ScAbstractType(tp, abstraction(tp.lower.v, newVisited), abstraction(tp.upper.v, newVisited)))
       case tpe => (false, tpe)
     }
   }
@@ -133,6 +136,7 @@ object PatternAnnotator {
     case _ if ScType.isSingletonType(scType) => ScType.extractDesignatorSingletonType(scType).getOrElse(scType)
     case _ =>
       scType.recursiveUpdate {
+        case ScAbstractType(_, _, upper) => (true, upper)
         case ScTypeParameterType(_, _, _, upper, _) => (true, upper.v)
         case tp => (false, tp)
       }

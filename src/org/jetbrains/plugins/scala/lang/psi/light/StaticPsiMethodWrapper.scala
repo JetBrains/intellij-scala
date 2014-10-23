@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import com.intellij.psi.{PsiModifierList, PsiClass, PsiMethod}
 import com.intellij.openapi.util.Key
-import collection.immutable.HashMap
-import com.intellij.psi.impl.light.{LightModifierList, LightMethod}
+import com.intellij.psi.impl.light.LightModifierList
+import com.intellij.psi.{PsiClass, PsiMethod, PsiModifierList}
 import org.jetbrains.plugins.scala.ScalaFileType
+
+import _root_.scala.collection.immutable.HashMap
 
 /**
  * @author Alefas
@@ -36,6 +37,8 @@ class StaticPsiMethodWrapper private (val method: PsiMethod, containingClass: Ps
       }
     }
   }
+
+  override def isWritable: Boolean = getContainingFile.isWritable
 }
 
 object StaticPsiMethodWrapper {
@@ -48,7 +51,7 @@ object StaticPsiMethodWrapper {
       method.putUserData(KEY, data)
     }
     val count = method.getManager.getModificationTracker.getOutOfCodeBlockModificationCount
-    var res = data.get(containingClass).getOrElse(null)
+    var res = data.getOrElse(containingClass, null)
     if (res != null && res._2 == count) return res._1
     res = (new StaticPsiMethodWrapper(method, containingClass), count)
     data += ((containingClass, res))

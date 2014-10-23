@@ -20,3 +20,7 @@ trait ScIfStmt extends ScExpression {
   def getRightParenthesis : Option[PsiElement]
   override def accept(visitor: ScalaElementVisitor) = visitor.visitIfStatement(this)
 }
+
+object ScIfStmt {
+  def unapply(ifStmt: ScIfStmt) = Some(ifStmt.condition, ifStmt.thenBranch, ifStmt.elseBranch)
+}

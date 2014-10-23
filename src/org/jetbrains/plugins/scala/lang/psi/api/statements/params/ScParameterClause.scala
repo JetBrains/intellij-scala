@@ -5,12 +5,11 @@ package api
 package statements
 package params
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import types._
-import nonvalue.Parameter
-import types.result.TypingContext
-import lexer.ScalaTokenTypes
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
   * @author Alexander Podkhalyuzin

@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.shadow
 
-import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 

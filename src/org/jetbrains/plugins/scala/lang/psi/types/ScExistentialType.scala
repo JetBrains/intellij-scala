@@ -3,17 +3,18 @@ package lang
 package psi
 package types
 
-import scala.collection.immutable.{Set, HashSet}
-import collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
-import api.base.types.ScExistentialClause
-import nonvalue._
-import api.toplevel.typedef.ScTypeDefinition
-import api.statements.params.ScTypeParam
-import collection.mutable
-import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
+
+import scala.collection.immutable.{HashSet, Set}
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /**
 * @author ilyas
@@ -199,7 +200,7 @@ case class ScExistentialType(quantified : ScType,
           comps.foreach(checkRecursive(_, newSet))
           signatureMap.foreach {
             case (s, rt) =>
-              s.substitutedTypes.foreach(_.foreach(checkRecursive(_, newSet)))
+              s.substitutedTypes.foreach(_.foreach(f => checkRecursive(f(), newSet)))
               s.typeParams.foreach {
                 case tParam: TypeParameter => 
                   tParam.update {
@@ -251,8 +252,8 @@ case class ScExistentialType(quantified : ScType,
         case ScTypePolymorphicType(internalType, typeParameters) =>
           checkRecursive(internalType, rejected)
           typeParameters.foreach(tp => {
-            checkRecursive(tp.lowerType, rejected)
-            checkRecursive(tp.upperType, rejected)
+            checkRecursive(tp.lowerType(), rejected)
+            checkRecursive(tp.upperType(), rejected)
           })
         case _ =>
       }
@@ -276,18 +277,25 @@ case class ScExistentialType(quantified : ScType,
         val newSet = rejected ++ typeMap.map(_._1)
 
         def updateTypeParam(tp: TypeParameter): TypeParameter = {
-          new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), updateRecursive(tp.lowerType, newSet, variance),
-            updateRecursive(tp.upperType, newSet, -variance), tp.ptp)
+          new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), {
+            val res = updateRecursive(tp.lowerType(), newSet, variance)
+            () => res
+          }, {
+            val res = updateRecursive(tp.upperType(), newSet, -variance)
+            () => res
+          }, tp.ptp)
         }
 
         new ScCompoundType(components, signatureMap.map {
           case (s, sctype) =>
-            val pTypes: List[Stream[ScType]] = s.substitutedTypes.map(_.map(updateRecursive(_, newSet, variance)))
+            val pTypes: List[Seq[() => ScType]] =
+              s.substitutedTypes.map(_.map(f => () => updateRecursive(f(), newSet, variance)))
             val tParams: Array[TypeParameter] = s.typeParams.map(updateTypeParam)
             val rt: ScType = updateRecursive(sctype, newSet, -variance)
             (new Signature(s.name, pTypes, s.paramLength, tParams,
-              ScSubstitutor.empty, s.namedElement.map {
-                case fun: ScFunction => ScFunction.getCompoundCopy(pTypes.map(_.toList), tParams.toList, rt, fun)
+              ScSubstitutor.empty, s.namedElement match {
+                case fun: ScFunction =>
+                  ScFunction.getCompoundCopy(pTypes.map(_.map(_()).toList), tParams.toList, rt, fun)
                 case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
                 case f: ScFieldId => ScFieldId.getCompoundCopy(rt, f)
                 case named => named
@@ -380,8 +388,8 @@ case class ScExistentialType(quantified : ScType,
         ScTypePolymorphicType(
           updateRecursive(internalType, rejected, variance),
           typeParameters.map(tp => TypeParameter(tp.name, tp.typeParams /* todo: is it important here to update? */,
-            updateRecursive(tp.lowerType, rejected, variance),
-            updateRecursive(tp.upperType, rejected, variance),
+            () => updateRecursive(tp.lowerType(), rejected, variance),
+            () => updateRecursive(tp.upperType(), rejected, variance),
             tp.ptp
           ))
         )
@@ -461,6 +469,29 @@ case class ScExistentialType(quantified : ScType,
 
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitExistentialType(this)
+  }
+
+  override def typeDepth: Int = {
+    def typeParamsDepth(typeParams: List[ScTypeParameterType]): Int = {
+      typeParams.map {
+        case typeParam =>
+          val boundsDepth = typeParam.lower.v.typeDepth.max(typeParam.upper.v.typeDepth)
+          if (typeParam.args.nonEmpty) {
+            (typeParamsDepth(typeParam.args) + 1).max(boundsDepth)
+          } else boundsDepth
+      }.max
+    }
+
+    val quantDepth = quantified.typeDepth
+    if (wildcards.nonEmpty) {
+      (wildcards.map {
+        wildcard =>
+          val boundsDepth = wildcard.lowerBound.typeDepth.max(wildcard.upperBound.typeDepth)
+          if (wildcard.args.nonEmpty) {
+            (typeParamsDepth(wildcard.args) + 1).max(boundsDepth)
+          } else boundsDepth
+      }.max + 1).max(quantDepth)
+    } else quantDepth
   }
 }
 

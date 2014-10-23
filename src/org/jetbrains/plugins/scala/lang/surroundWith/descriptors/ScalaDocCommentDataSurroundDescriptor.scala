@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala
 package lang.surroundWith.descriptors
 
-import com.intellij.lang.surroundWith.{Surrounder, SurroundDescriptor}
+import com.intellij.lang.surroundWith.{SurroundDescriptor, Surrounder}
 import com.intellij.psi.{PsiElement, PsiFile}
-import collection.mutable.ArrayBuffer
-import lang.scaladoc.lexer.ScalaDocTokenType._
-import lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
-import lang.surroundWith.surrounders.scaladoc._
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType._
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
+import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.scaladoc._
+
+import scala.collection.mutable.ArrayBuffer
 
 
 /**

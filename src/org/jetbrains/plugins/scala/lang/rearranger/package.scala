@@ -1,14 +1,11 @@
 package org.jetbrains.plugins.scala
 package lang
 
-import scala.collection.immutable
-import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokenType
-import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens
-import com.intellij.psi.codeStyle.arrangement.std.ArrangementSettingsToken
-
-import com.intellij.psi.codeStyle.arrangement.std.StdArrangementSettingsToken
+import com.intellij.psi.codeStyle.arrangement.std.{ArrangementSettingsToken, StdArrangementSettingsToken, StdArrangementTokenType, StdArrangementTokens}
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.EntryType._
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Modifier._
+
+import scala.collection.immutable
 
 /**
  * @author Roman Shein
@@ -97,7 +94,7 @@ package object rearranger {
 
   val scalaModifiers = scalaAccessModifiersValues ++ scalaOtherModifiersByName.toSet.map((x: tokensType) => x._2)
 
-  private type tokensType = Pair[String, ArrangementSettingsToken]
+  private type tokensType = (String, ArrangementSettingsToken)
 
   val supportedOrders = immutable.HashSet(StdArrangementTokens.Order.BY_NAME, StdArrangementTokens.Order.KEEP)
 

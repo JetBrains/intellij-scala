@@ -1,0 +1,25 @@
+class test {
+  val x = Seq(4)
+
+  def a() {
+    x.map {
+      _ =>
+      //comment
+        val w = 0
+        val z = 0
+    }
+  }
+}
+------
+class test {
+  val x = Seq(4)
+
+  def a() {
+    x.map {
+      _ =>
+        //comment
+        val w = 0
+        val z = 0
+    }
+  }
+}

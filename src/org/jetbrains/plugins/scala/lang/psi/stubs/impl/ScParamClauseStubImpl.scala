@@ -4,10 +4,9 @@ package psi
 package stubs
 package impl
 
-import api.statements.params.ScParameterClause
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubElement, IStubElementType}
-import com.intellij.util.io.StringRef
+import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 
 /**
  * User: Alexander Podkhalyuzin

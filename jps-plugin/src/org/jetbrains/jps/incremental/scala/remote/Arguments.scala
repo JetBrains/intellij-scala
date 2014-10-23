@@ -1,12 +1,13 @@
 package org.jetbrains.jps.incremental.scala
 package remote
 
-import data._
 import java.io.File
-import Arguments._
+
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.jps.incremental.scala.model.CompileOrder
-import org.jetbrains.jps.incremental.scala.model.IncrementalityType
+import org.jetbrains.jps.incremental.scala.data._
+import org.jetbrains.jps.incremental.scala.remote.Arguments._
+import org.jetbrains.plugin.scala.compiler.NameHashing
+import org.jetbrains.jps.incremental.scala.model.{CompileOrder, IncrementalityType}
 
 /**
  * @author Pavel Fatin
@@ -22,6 +23,8 @@ case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationDa
     val javaHomePath = compilerData.javaHome.map(fileToPath)
 
     val incrementalType = compilerData.incrementalType
+
+    val nameHashing = compilationData.nameHashing
 
     Seq(
       fileToPath(sbtData.interfaceJar),
@@ -42,7 +45,8 @@ case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationDa
       incrementalType.name,
       filesToPaths(sourceRoots),
       filesToPaths(outputDirs), 
-      sequenceToString(worksheetFiles)
+      sequenceToString(worksheetFiles),
+      nameHashing.name
     )
   }
 }
@@ -70,7 +74,8 @@ object Arguments {
     incrementalTypeName,
     PathsToFiles(sourceRoots),
     PathsToFiles(outputDirs), 
-    StringToSequence(worksheetClass)) =>
+    StringToSequence(worksheetClass),
+    nameHashingName) =>
 
       val sbtData = SbtData(interfaceJar, sourceJar, interfacesHome, javaClassVersion)
 
@@ -91,8 +96,9 @@ object Arguments {
 
       val outputGroups = sourceRoots zip outputDirs
 
-      val compilationData = CompilationData(sources, classpath, output, scalaOptions, javaOptions, CompileOrder.valueOf(order), cacheFile, outputToCacheMap, outputGroups)
+      val nameHashing = NameHashing.valueOf(nameHashingName)
 
+      val compilationData = CompilationData(sources, classpath, output, scalaOptions, javaOptions, CompileOrder.valueOf(order), cacheFile, outputToCacheMap, outputGroups, nameHashing)
 
       Arguments(sbtData, compilerData, compilationData, worksheetClass)
   }

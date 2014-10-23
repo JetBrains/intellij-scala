@@ -2,33 +2,32 @@ package org.jetbrains.plugins.scala
 package codeInsight.delegate
 
 import com.intellij.codeInsight.generation._
-import com.intellij.openapi.editor.{ScrollType, Editor}
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.overrideImplement._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds, ResolveUtils}
-import com.intellij.psi.util.PsiTreeUtil
-import scala.collection.mutable.ArrayBuffer
+import com.intellij.codeInsight.{CodeInsightBundle, CodeInsightUtilBase}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.codeInsight.{CodeInsightUtilBase, CodeInsightBundle}
-import com.intellij.openapi.ui.DialogWrapper
-import org.jetbrains.annotations.{Nullable, NotNull}
-import com.intellij.openapi.project.Project
-import scala.collection.JavaConversions._
-import org.jetbrains.plugins.scala.lang.psi.types
-import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
+import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import org.jetbrains.plugins.scala.extensions._
-import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScParameterClause}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
-import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.psi._
 import com.intellij.psi.search.LocalSearchScope
+import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.IncorrectOperationException
+import org.jetbrains.annotations.{NotNull, Nullable}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
+import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.overrideImplement._
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+
+import scala.collection.JavaConversions._
 
 /**
 * Nikolay.Tropin
@@ -61,7 +60,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
           val prototype: ScFunctionDefinition =
             ScalaPsiElementFactory.createMethodFromSignature(member.sign, aClass.getManager, specifyType, body = "???")
                   .asInstanceOf[ScFunctionDefinition]
-          prototype.setModifierProperty("override", value = member.needsOverride)
+          prototype.setModifierProperty("override", value = member.isOverride)
           val body = methodBody(target, prototype)
           prototype.body.foreach(_.replace(body))
           val genInfo = new ScalaGenerationInfo(member)
@@ -78,7 +77,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
           editor.getScrollingModel.scrollToCaret(ScrollType.RELATIVE)
           editor.getSelectionModel.removeSelection()
         }
-        generatedMethods.foreach(ScalaPsiUtil.adjustTypes)
+        generatedMethods.foreach(ScalaPsiUtil.adjustTypes(_))
       }
       catch {
         case e: IncorrectOperationException => throw new IncorrectOperationException(s"Could not delegate methods to ${target.getText}")
@@ -158,7 +157,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     }
 
     candidates.toSeq.collect {
-      case isSuitable(sign) => new ScMethodMember(sign, needsOverride = false)
+      case isSuitable(sign) => new ScMethodMember(sign, isOverride = false)
     }
   }
 

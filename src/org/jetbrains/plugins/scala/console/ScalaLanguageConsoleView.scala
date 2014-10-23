@@ -1,11 +1,8 @@
 package org.jetbrains.plugins.scala.console
 
-import java.lang.String
 import com.intellij.execution.console.{ConsoleHistoryController, LanguageConsoleViewImpl}
 import com.intellij.execution.process.{ConsoleHistoryModel, ProcessHandler}
 import com.intellij.openapi.project.Project
-import java.util.Comparator
-import com.intellij.openapi.actionSystem._
 
 /**
  * @author Alexander Podkhalyuzin

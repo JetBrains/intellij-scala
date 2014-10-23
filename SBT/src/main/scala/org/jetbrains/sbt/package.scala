@@ -1,13 +1,17 @@
 package org.jetbrains
 
-import com.intellij.util.{Function => IdeaFunction, PathUtil}
-import com.intellij.openapi.util.{Pair => IdeaPair}
-import reflect.ClassTag
 import _root_.java.io._
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import _root_.java.lang.{Boolean => JavaBoolean}
-import com.intellij.openapi.vfs.{VirtualFile, VfsUtil}
+import _root_.java.security.MessageDigest
+
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.{Pair => IdeaPair}
+import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
+import com.intellij.util.{PathUtil, Function => IdeaFunction}
+
+import scala.language.implicitConversions
+import scala.reflect.ClassTag
 
 /**
  * @author Pavel Fatin
@@ -25,7 +29,7 @@ package object sbt {
     def fun(pair: IdeaPair[A, B]) = f(pair.getFirst, pair.getSecond)
   }
 
-  implicit class RichFile(file: File) {
+  implicit class RichFile(val file: File) extends AnyVal {
     def /(path: String): File = new File(file, path)
 
     def `<<`: File = << (1)
@@ -47,6 +51,14 @@ package object sbt {
     def isUnder(root: File): Boolean = FileUtil.isAncestor(root, file, true)
 
     def isOutsideOf(root: File): Boolean = !FileUtil.isAncestor(root, file, false)
+
+    def write(lines: String*) {
+      writeLinesTo(file, lines: _*)
+    }
+
+    def copyTo(destination: File) {
+      copy(file, destination)
+    }
   }
 
   private object RichFile {
@@ -54,7 +66,7 @@ package object sbt {
       if (level > 0) parent(file.getParentFile, level - 1) else file
   }
 
-  implicit class RichVirtualFile(entry: VirtualFile) {
+  implicit class RichVirtualFile(val entry: VirtualFile) extends AnyVal {
     def containsDirectory(name: String): Boolean = find(name).exists(_.isDirectory)
 
     def containsFile(name: String): Boolean = find(name).exists(_.isFile)
@@ -64,11 +76,15 @@ package object sbt {
     def isFile: Boolean = !entry.isDirectory
   }
 
-  implicit class RichString(path: String) {
-    def toFile: File = new File(path)
+  implicit class RichString(val str: String) extends AnyVal {
+    def toFile: File = new File(str)
+    def shaDigest: String = {
+      val digest = MessageDigest.getInstance("SHA1").digest(str.getBytes)
+      digest.map("%02x".format(_)).mkString
+    }
   }
 
-  implicit class RichBoolean(val b: Boolean) {
+  implicit class RichBoolean(val b: Boolean) extends AnyVal {
     def option[A](a: => A): Option[A] = if(b) Some(a) else None
 
     def either[A, B](right: => B)(left: => A): Either[A, B] = if (b) Right(right) else Left(left)
@@ -76,7 +92,7 @@ package object sbt {
     def seq[A](a: A*): Seq[A] = if (b) Seq(a: _*) else Seq.empty
   }
 
-  implicit class RichSeq[T](xs: Seq[T]) {
+  implicit class RichSeq[T](val xs: Seq[T]) extends AnyVal {
     def distinctBy[A](f: T => A): Seq[T] = {
       val (_, ys) = xs.foldLeft((Set.empty[A], Vector.empty[T])) {
         case ((set, acc), x) =>
@@ -87,16 +103,17 @@ package object sbt {
     }
   }
 
+  implicit class RichOption[T](val opt: Option[T]) extends AnyVal {
+    // Use for safely checking for null in chained calls
+    @inline def safeMap[A](f: T => A): Option[A] = if (opt.isEmpty) None else Option(f(opt.get))
+  }
+
   def jarWith[T : ClassTag]: File = {
     val tClass = implicitly[ClassTag[T]].runtimeClass
 
     Option(PathUtil.getJarPathForClass(tClass)).map(new File(_)).getOrElse {
       throw new RuntimeException("Jar file not found for class " + tClass.getName)
     }
-  }
-
-  type Closeable = {
-    def close()
   }
 
   def using[A <: Closeable, B](resource: A)(block: A => B): B = {
@@ -109,7 +126,7 @@ package object sbt {
 
   def writeLinesTo(file: File, lines: String*) {
     using(new PrintWriter(new FileWriter(file))) { writer =>
-      lines.foreach(writer.println(_))
+      lines.foreach(writer.println)
       writer.flush()
     }
   }
@@ -133,27 +150,6 @@ package object sbt {
       block(file)
     } finally {
       file.delete()
-    }
-  }
-
-  def usingTempDirectory[T](prefix: String, suffix: Option[String] = None)(block: File => T): T = {
-    val dir = FileUtil.createTempDirectory(prefix, suffix.orNull, true)
-    try {
-      block(dir)
-    } finally {
-      dir.delete()
-    }
-  }
-
-  def usingSafeCopyOf[T](file: File)(block: File => T): T = {
-    if (file.getAbsolutePath.contains(" ")) {
-      val (prefix, suffix) = parse(file.getName)
-      usingTempFile(prefix, Some(suffix)) { tempFile =>
-        copy(file, tempFile)
-        block(tempFile)
-      }
-    } else {
-      block(file)
     }
   }
 

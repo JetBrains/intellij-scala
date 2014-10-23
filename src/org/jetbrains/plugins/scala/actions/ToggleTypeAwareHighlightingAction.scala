@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.actions
 
 import com.intellij.openapi.actionSystem._
-import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 
 /**
  * User: Alexander Podkhalyuzin

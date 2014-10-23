@@ -1,18 +1,20 @@
 package org.jetbrains.plugins.scala.lang.completion.lookups
 
 import com.intellij.psi.impl.light.LightElement
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, PsiManager}
+import com.intellij.util.containers.ConcurrentWeakHashMap
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 /**
  * @author Alefas
  * @since 27.03.12
  */
 
-class ScalaLightKeyword(manager: PsiManager, text: String) extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with ScalaPsiElement {
+class ScalaLightKeyword private (manager: PsiManager, text: String)
+  extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with ScalaPsiElement {
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
     findChildrenByClass[T](clazz)
 
@@ -21,7 +23,7 @@ class ScalaLightKeyword(manager: PsiManager, text: String) extends LightElement(
   override def getText: String = text
 
   def getTokenType: IElementType = {
-    var lexer = new ScalaLexer
+    val lexer = new ScalaLexer
     lexer.start(text)
     lexer.getTokenType
   }
@@ -29,4 +31,16 @@ class ScalaLightKeyword(manager: PsiManager, text: String) extends LightElement(
   override def copy: PsiElement = new ScalaLightKeyword(getManager, text)
 
   override def toString: String = "ScalaLightKeyword:" + text
+}
+
+object ScalaLightKeyword {
+  private val keywords = new ConcurrentWeakHashMap[(PsiManager, String), ScalaLightKeyword]()
+
+  def apply(manager: PsiManager, text: String): ScalaLightKeyword = {
+    var res = keywords.get((manager, text))
+    if (res != null && res.isValid) return res
+    res = new ScalaLightKeyword(manager, text)
+    keywords.put((manager, text), res)
+    res
+  }
 }

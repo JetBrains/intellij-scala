@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package codeInspection.typeChecking
 
-import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
 import com.intellij.codeInspection.LocalInspectionTool
+import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
 
 /**
  * Nikolay.Tropin
@@ -122,7 +122,9 @@ class ComparingUnrelatedTypesInspectionTest extends ScalaLightInspectionFixtureT
                   |i == 100"""
     val text2 = """val b = new java.lang.Boolean(false)
                   |b equals true"""
+    val text3 = "def test(i: Integer) = if (i == null) \"foo\" else \"bar\""
     checkTextHasNoErrors(text1)
     checkTextHasNoErrors(text2)
+    checkTextHasNoErrors(text3)
   }
 }

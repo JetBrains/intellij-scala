@@ -5,9 +5,8 @@ package psi
 package api
 
 import com.intellij.psi.javadoc.PsiDocTagValue
-import java.lang.String
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference}
-import lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * User: Dmitry Naydanov

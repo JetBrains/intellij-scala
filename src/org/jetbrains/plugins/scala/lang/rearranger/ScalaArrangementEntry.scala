@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala
 package lang.rearranger
 
-import com.intellij.psi.codeStyle.arrangement._
 import java.util
+
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.codeStyle.arrangement._
 import com.intellij.psi.codeStyle.arrangement.std.ArrangementSettingsToken
 
 /**

@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala
 package debugger.ui
 
-import com.intellij.debugger.ui.tree.render._
-import com.intellij.debugger.ui.tree.ValueDescriptor
+import java.util
+
 import com.intellij.debugger.engine.evaluation.EvaluationContext
+import com.intellij.debugger.ui.tree.ValueDescriptor
+import com.intellij.debugger.ui.tree.render._
+import com.intellij.util.StringBuilderSpinAllocator
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
-import com.intellij.util.StringBuilderSpinAllocator
-import java.util
 
 /**
  * User: Dmitry Naydanov

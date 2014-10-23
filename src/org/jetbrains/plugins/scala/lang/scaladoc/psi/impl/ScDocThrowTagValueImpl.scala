@@ -5,9 +5,9 @@ package psi
 package impl
 
 import com.intellij.lang.ASTNode
-import lang.psi.impl.base.ScStableCodeReferenceElementImpl
-import api.ScDocTagValue
-import resolve.StdKinds
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
+import org.jetbrains.plugins.scala.lang.resolve.StdKinds
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTagValue
 
 /**
  * User: Dmitry Naydanov
@@ -19,7 +19,7 @@ class ScDocThrowTagValueImpl(node: ASTNode) extends ScStableCodeReferenceElement
   
   override def getName = getText
 
-  override def isSoft: Boolean = true
+  override def isSoft: Boolean = false
 
   override def getKinds(incomplete: Boolean, completion: Boolean) = StdKinds.stableQualOrClass
 }

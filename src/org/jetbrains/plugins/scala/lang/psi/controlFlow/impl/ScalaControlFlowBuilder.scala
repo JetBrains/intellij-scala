@@ -2,19 +2,19 @@ package org.jetbrains.plugins.scala
 package lang.psi.controlFlow.impl
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.{ScControlFlowPolicy, Instruction}
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScPattern, ScCaseClause}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScParameterOwner, ScFunction, ScVariableDefinition, ScPatternDefinition}
-import collection.mutable.ArrayBuffer
-import scala.collection.mutable
 import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.types
-import extensions.childOf
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParameterOwner, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.{Instruction, ScControlFlowPolicy}
+import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author ilyas
@@ -112,7 +112,6 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
     if (!myPending.contains((instruction, scopeWhenAdded)))
       myPending.insert(math.max(index, 0), (instruction, scopeWhenAdded))
-    None.getOrElse()
   }
 
   private def advancePendingEdges(fromScope: ScalaPsiElement, toScope: ScalaPsiElement) {
@@ -165,11 +164,15 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitAssignmentStatement(stmt: ScAssignStmt) {
-    val lValue = stmt.getLExpression
     stmt.getRExpression match {
       case Some(rv) =>
         rv.accept(this)
-        lValue.accept(this)
+        stmt.getParent match {
+          case _: ScArgumentExprList =>
+          case _ =>
+            val lValue = stmt.getLExpression
+            lValue.accept(this)
+        }
       case _ =>
     }
   }
@@ -247,7 +250,10 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
 
   override def visitMethodCallExpression(call: ScMethodCall) {
     val matchedParams = call.matchedParameters
-    def isByName(arg: ScExpression) = matchedParams.toMap.get(arg).exists(_.isByName)
+    def isByNameOrFunction(arg: ScExpression) = {
+      val param = matchedParams.toMap.get(arg)
+      param.isEmpty || param.exists(_.isByName) || param.exists(p => ScFunctionType.isFunctionType(p.paramType))
+    }
     val receiver = call.getInvokedExpr
     if (receiver != null) {
       receiver.accept(this)
@@ -259,7 +265,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       arg <- call.argumentExpressions
     } {
       arg.accept(this)
-      if (myHead == null && isByName(arg)) {
+      if (myHead == null && isByNameOrFunction(arg)) {
         moveHead(head)
       }
     }
@@ -372,7 +378,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     if (policy == ExtractMethodControlFlowPolicy) addFreeVariables(stmt)
   }
 
-  override def visitTypeDefintion(typedef: ScTypeDefinition) { /* Do not visit inner classes either */ }
+  override def visitTypeDefinition(typedef: ScTypeDefinition) { /* Do not visit inner classes either */ }
 
   override def visitBlockExpression(block: ScBlockExpr) {
     if (block.isAnonymousFunction) {
@@ -466,7 +472,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       case Some(cb) => cb.expression match {
         case Some(b: ScBlockExpr) if b.isAnonymousFunction =>
           for (t <- b.caseClauses.toSeq.flatMap(_.caseClauses)) yield CatchInfo(t)
-        case None => Nil
+        case _ => Nil
       }
     }
     myCatchedExnStack pushAll handledExnTypes
@@ -489,10 +495,10 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
         tb.accept(this)
         val head = Option(myHead).getOrElse(tryStmtInstr)
         advancePendingEdges(tb, tryStmt)
-        getClosestFinallyInfo.fold {
+        tryStmt.finallyBlock.fold {
           addPendingEdge(tryStmt, head)
         } {
-          finfo => myTransitionInstructions += ((head, finfo))
+          fblock => myTransitionInstructions += ((head, FinallyInfo(fblock)))
         }
       }
 

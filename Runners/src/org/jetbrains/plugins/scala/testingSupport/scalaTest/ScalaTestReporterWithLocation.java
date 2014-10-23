@@ -11,7 +11,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Date;
 
-import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.*;
+import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeString;
+import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.formatTimestamp;
 
 /**
  * @author Alexander Podkhalyuzin
@@ -23,19 +24,19 @@ public class ScalaTestReporterWithLocation implements Reporter {
     return writer.getBuffer().toString();
   }
 
-  private String getLocationHint(Option<String> classNameOption, Option<org.scalatest.events.Location> locationOption, String testName) {
+  private String getLocationHint(Option<String> classNameOption, Option locationOption, String testName) {
     if(classNameOption instanceof Some && locationOption instanceof Some) {
       String className = classNameOption.get();
-      org.scalatest.events.Location location = locationOption.get();
-      if(location instanceof TopOfClass)
+      Object location = locationOption.get();
+      if (location instanceof TopOfClass)
         return " locationHint='scalatest://TopOfClass:" + ((TopOfClass) location).className() + "TestName:" + escapeString(testName) + "'";
-      else if(location instanceof TopOfMethod) {
+      else if (location instanceof TopOfMethod) {
         TopOfMethod topOfMethod = (TopOfMethod) location;
         String methodId = topOfMethod.methodId();
         String methodName = methodId.substring(methodId.lastIndexOf('.') + 1, methodId.lastIndexOf('('));
         return " locationHint='scalatest://TopOfMethod:" + topOfMethod.className() + ":" + methodName + "TestName:" + escapeString(testName) + "'";
       }
-      else if(location instanceof LineInFile) {
+      else if (location instanceof LineInFile) {
         LineInFile lineInFile = (LineInFile) location;
         return " locationHint='scalatest://LineInFile:" + className + ":" + escapeString(lineInFile.fileName()) +  ":" +
             lineInFile.lineNumber() + "TestName:" + escapeString(testName) + "'";

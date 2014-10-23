@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 class MapGetOrElseTest extends OperationsOnCollectionInspectionTest {
   val hint: String = InspectionBundle.message("map.getOrElse.hint")
 
+  override val inspectionClass = classOf[MapGetOrElseInspection]
+
   def test_1() {
     val selected = s"None.${START}map(x => 1).getOrElse(0)$END"
     check(selected)
@@ -49,7 +51,37 @@ class MapGetOrElseTest extends OperationsOnCollectionInspectionTest {
     val text = "None.map(x => Seq(0)).getOrElse(List(0))"
     val text2 = "None.map(x => 0).getOrElse(1.1)"
     Seq(text, text2).foreach { t =>
-      checkTextHasNoErrors(t, annotation, classOf[OperationOnCollectionInspection])
+      checkTextHasNoErrors(t, hint, inspectionClass)
     }
+  }
+
+  def test_5() {
+    val selected = s"None ${START}map {_ => 1} getOrElse {1}$END"
+    check(selected)
+    val text = "None map {_ => 1} getOrElse {1}"
+    val result = "None.fold(1)(_ => 1)"
+    testFix(text, result, hint)
+  }
+
+  def test_6() {
+    val selected = s"""Some(1) ${START}map (s => s + 1) getOrElse {
+                     |  val x = 1
+                     |  x
+                     |}$END""".stripMargin
+    check(selected)
+    val text = """Some(1) map (s => s + 1) getOrElse {
+                 |  val x = 1
+                 |  x
+                 |}""".stripMargin
+    val result = """Some(1).fold {
+                   |  val x = 1
+                   |  x
+                   |}(s => s + 1)""".stripMargin
+    testFix(text, result, hint)
+  }
+
+  def test_SCL7009() {
+    val text = "None.map(_ => Seq(1)).getOrElse(Seq.empty)"
+    checkTextHasNoErrors(text, hint, inspectionClass)
   }
 }

@@ -1,0 +1,21 @@
+object A {
+  class B {
+    def c() {
+      def g {
+        def z(i: Int) {<caret>}
+      }
+    }
+  }
+}
+-----
+object A {
+  class B {
+    def c() {
+      def g {
+        def z(i: Int): Unit = {
+          <caret>
+        }
+      }
+    }
+  }
+}

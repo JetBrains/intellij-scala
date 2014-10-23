@@ -26,7 +26,6 @@ import java.awt.event.ItemListener;
 public class ScalaApplicationSettingsForm implements Configurable {
   private JPanel myCompilationServerPanel;
   private RawCommandLineEditor myCompilationServerJvmParameters;
-  private JTextField myCompilationServerPort;
   private JTextField myCompilationServerMaximumHeapSize;
   private JCheckBox myEnableCompileServer;
   private JPanel myContentPanel;
@@ -106,7 +105,6 @@ public class ScalaApplicationSettingsForm implements Configurable {
     if (!delaySpinner.getValue().equals(mySettings.SHOW_TYPE_TOOLTIP_DELAY)) return true;
 
     return !(myEnableCompileServer.isSelected() == mySettings.COMPILE_SERVER_ENABLED &&
-        myCompilationServerPort.getText().equals(mySettings.COMPILE_SERVER_PORT) &&
         ComparatorUtil.equalsNullable(sdkName, mySettings.COMPILE_SERVER_SDK) &&
         myCompilationServerMaximumHeapSize.getText().equals(mySettings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE) &&
         myCompilationServerJvmParameters.getText().equals(mySettings.COMPILE_SERVER_JVM_PARAMETERS));
@@ -114,7 +112,6 @@ public class ScalaApplicationSettingsForm implements Configurable {
 
   public void apply() throws ConfigurationException {
     mySettings.COMPILE_SERVER_ENABLED = myEnableCompileServer.isSelected();
-    mySettings.COMPILE_SERVER_PORT = myCompilationServerPort.getText();
 
     Sdk sdk = myCompilationServerSdk.getSelectedJdk();
     mySettings.COMPILE_SERVER_SDK = sdk == null ? null : sdk.getName();
@@ -135,7 +132,6 @@ public class ScalaApplicationSettingsForm implements Configurable {
 
   public void reset() {
     myEnableCompileServer.setSelected(mySettings.COMPILE_SERVER_ENABLED);
-    myCompilationServerPort.setText(mySettings.COMPILE_SERVER_PORT);
 
     Sdk sdk = mySettings.COMPILE_SERVER_SDK == null
         ? null

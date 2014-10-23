@@ -2,24 +2,24 @@ package org.jetbrains.plugins.scala
 package lang
 package parser
 
-import scaladoc.psi.ScalaDocPsiCreator
-import scaladoc.lexer.ScalaDocElementType
+import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports._
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging._
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates._
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel._
-import org.jetbrains.plugins.scala.lang.psi.impl.statements._
+import com.intellij.psi.util.PsiUtilCore
+import org.jetbrains.plugins.scala.lang.psi.impl.base._
+import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.xml._
-import org.jetbrains.plugins.scala.lang.psi.impl.base._
+import org.jetbrains.plugins.scala.lang.psi.impl.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
-import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns._
-import com.intellij.psi.util.PsiUtilCore
-import com.intellij.extapi.psi.ASTWrapperPsiElement
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.ScalaDocPsiCreator
 
 object ScalaPsiCreator {
   def createElement(node: ASTNode): PsiElement =     
@@ -142,7 +142,8 @@ object ScalaPsiCreator {
   /********************* LITERALS *********************/
     case ScalaElementTypes.LITERAL => new ScLiteralImpl(node)
     case ScalaElementTypes.INTERPOLATED_STRING_LITERAL => new ScInterpolatedStringLiteralImpl(node)
-    case ScalaElementTypes.INTERPOLATED_STRING_PREFIX_REFERENCE => new ScInterpolatedStringPrefixReference(node)
+    case ScalaElementTypes.INTERPOLATED_PREFIX_PATTERN_REFERENCE => new ScInterpolatedPrefixReference(node)
+    case ScalaElementTypes.INTERPOLATED_PREFIX_LITERAL_REFERENCE => new ScInterpolatedStringPartReference(node)
 
     /********************** TYPES ************************/
 
@@ -165,6 +166,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.WILDCARD_TYPE => new ScWildcardTypeElementImpl(node)
     case ScalaElementTypes.TYPE_PROJECTION => new ScTypeProjectionImpl(node)
     case ScalaElementTypes.TYPE_GENERIC_CALL => new ScParameterizedTypeElementImpl(node)
+    case ScalaElementTypes.TYPE_VARIABLE => new ScTypeVariableTypeElementImpl(node)
     case _ => inner1(node)
   }
 
@@ -231,6 +233,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.CASE_CLAUSE => new ScCaseClauseImpl(node)
     case ScalaElementTypes.CASE_CLAUSES => new ScCaseClausesImpl(node)
     case ScalaElementTypes.LITERAL_PATTERN => new ScLiteralPatternImpl(node)
+    case ScalaElementTypes.INTERPOLATION_PATTERN => new ScInterpolationPatternImpl(node)
     case ScalaElementTypes.REFERENCE_PATTERN => new ScReferencePatternImpl(node)
     case ScalaElementTypes.STABLE_REFERENCE_PATTERN => new ScStableReferenceElementPatternImpl(node)
     case ScalaElementTypes.PATTERN_IN_PARENTHESIS => new ScParenthesisedPatternImpl(node)

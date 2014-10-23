@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package packageNameInspection
 
+import com.intellij.codeInspection._
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.codeInspection._
-import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 class ChainedPackageInspection extends LocalInspectionTool {

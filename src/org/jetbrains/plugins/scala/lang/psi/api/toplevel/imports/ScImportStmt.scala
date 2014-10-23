@@ -5,7 +5,7 @@ package api
 package toplevel
 package imports
 
-import expr.ScBlockStatement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 /**
 * @author Alexander Podkhalyuzin
 * Date: 20.02.2008

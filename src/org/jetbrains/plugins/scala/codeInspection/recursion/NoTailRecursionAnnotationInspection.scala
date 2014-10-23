@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package codeInspection.recursion
 
-import codeInspection.{AbstractFix, AbstractInspection}
-import com.intellij.openapi.project.Project
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
-import lang.psi.api.statements.{ScAnnotationsHolder, RecursionType, ScFunctionDefinition}
+import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{RecursionType, ScAnnotationsHolder, ScFunctionDefinition}
 
 /**
  * Pavel Fatin

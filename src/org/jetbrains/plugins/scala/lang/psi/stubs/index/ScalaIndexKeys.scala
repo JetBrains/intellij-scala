@@ -4,23 +4,21 @@ package psi
 package stubs
 package index
 
-import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
-import api.toplevel.packaging.ScPackageContainer
-
-import api.toplevel.templates.ScExtendsBlock
 import com.intellij.psi.PsiClass
 import com.intellij.psi.stubs.StubIndexKey
-import api.expr.ScAnnotation
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember, ScTypeDefinition}
-import api.statements.params.ScClassParameter
-import api.base.types.ScSelfTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackageContainer
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 
 /**
  * @author ilyas
  */
 
 object ScalaIndexKeys {
-
   val ALL_CLASS_NAMES: StubIndexKey[String, PsiClass] = StubIndexKey.createIndexKey("sc.all.class.names")
   val SHORT_NAME_KEY: StubIndexKey[String, PsiClass]  = StubIndexKey.createIndexKey("sc.class.shortName")
   val NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY: StubIndexKey[String, PsiClass]  = StubIndexKey.createIndexKey("sc.not.visible.in.java.class.shortName")
@@ -32,8 +30,6 @@ object ScalaIndexKeys {
   val CLASS_NAME_IN_PACKAGE_KEY: StubIndexKey[String, PsiClass] = StubIndexKey.createIndexKey("sc.class.name.in.package")
   val JAVA_CLASS_NAME_IN_PACKAGE_KEY: StubIndexKey[String, PsiClass] = StubIndexKey.createIndexKey("sc.java.class.name.in.package")
   val IMPLICIT_OBJECT_KEY: StubIndexKey[String, ScObject] = StubIndexKey.createIndexKey("sc.implcit.object")
-  @deprecated
-  val METHOD_NAME_TO_CLASS_KEY: StubIndexKey[String, ScTypeDefinition] = StubIndexKey.createIndexKey("sc.method.name.class")
   val ANNOTATED_MEMBER_KEY: StubIndexKey[String, ScAnnotation] = StubIndexKey.createIndexKey("sc.annotatde.member.name")
   val VALUE_NAME_KEY: StubIndexKey[String, ScValue] = StubIndexKey.createIndexKey("sc.value.name")
   val VARIABLE_NAME_KEY: StubIndexKey[String, ScVariable] = StubIndexKey.createIndexKey("sc.variable.name")

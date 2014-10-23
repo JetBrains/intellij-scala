@@ -3,17 +3,15 @@ package org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.folding
 import com.intellij.codeInsight.folding.impl.EditorFoldingInfo
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandlerBase
 import com.intellij.lang.ASTNode
-import com.intellij.lang.folding.CompositeFoldingBuilder
-import com.intellij.lang.folding.FoldingBuilder
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.FoldRegion
+import com.intellij.lang.folding.{CompositeFoldingBuilder, FoldingBuilder}
+import com.intellij.lang.properties.references.PropertyReference
+import com.intellij.openapi.editor.{Editor, FoldRegion}
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.ScalaI18nUtil
-import com.intellij.lang.properties.references.PropertyReference
 
 /**
  * @author Ksenia.Sautina
@@ -65,10 +63,9 @@ class ScalaI18nMessageGotoDeclarationHandler extends GotoDeclarationHandlerBase 
   @Nullable private def resolve(element: PsiElement): PsiElement = {
     if (element == null) return null
     val references: Array[PsiReference] = element.getReferences
-    if (references.length == 0) null else {
+    if (references.length != 0) {
       for (reference <- references) {
-        if (reference.isInstanceOf[PropertyReference])
-          return reference.resolve()
+        if (reference.isInstanceOf[PropertyReference]) return reference.resolve()
       }
     }
     null

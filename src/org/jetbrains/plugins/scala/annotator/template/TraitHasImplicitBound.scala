@@ -2,9 +2,8 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
-import org.jetbrains.plugins.scala.annotator.AnnotatorPart
 import com.intellij.lang.annotation.AnnotationHolder
-import lang.psi.api.toplevel.typedef.ScTrait
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 
 object TraitHasImplicitBound extends AnnotatorPart[ScTrait] {
   def kind = classOf[ScTrait]

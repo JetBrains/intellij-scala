@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intentions.implementAbstract
 
-import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 import com.intellij.codeInsight.intention.impl.ImplementAbstractMethodAction
-import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 /**
  * Nikolay.Tropin

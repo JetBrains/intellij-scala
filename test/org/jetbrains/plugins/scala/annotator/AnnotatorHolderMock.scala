@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.annotator
 
-import com.intellij.openapi.util.TextRange
 import com.intellij.lang.ASTNode
-import java.lang.String
+import com.intellij.lang.annotation.{Annotation, AnnotationHolder, AnnotationSession, HighlightSeverity}
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import com.intellij.lang.annotation.{Annotation, AnnotationSession, HighlightSeverity, AnnotationHolder}
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -12,7 +11,7 @@ import com.intellij.lang.annotation.{Annotation, AnnotationSession, HighlightSev
 
 class AnnotatorHolderMock extends AnnotationHolder {
   private val FakeAnnotation = new com.intellij.lang.annotation.Annotation(
-    0, 0, HighlightSeverity.INFO, "message", "tooltip")
+    0, 0, HighlightSeverity.WEAK_WARNING, "message", "tooltip")
   
   def annotations = myAnnotations.reverse
   
@@ -29,6 +28,9 @@ class AnnotatorHolderMock extends AnnotationHolder {
     myAnnotations ::= Info(elt.getText, message)
     FakeAnnotation
   }
+
+  override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String,
+                                htmlTooltip: String): Annotation = null
 
   def createInformationAnnotation(range: TextRange, message: String) = null
 

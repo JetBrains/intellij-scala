@@ -1,21 +1,17 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring
 
-import mock.EditorMock
-import org.jetbrains.plugins.scala.base.SimpleTestCase
 import com.intellij.codeInsight.editorActions.moveUpDown.StatementUpDownMover
 import junit.framework.Assert._
-import java.util.ArrayList
-import collection.JavaConversions._
+import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.refactoring.mock.EditorMock
 
 /**
  * Pavel Fatin
  */
 
 abstract class StatementMoverTestBase extends SimpleTestCase {
-  protected implicit def toMovable(code: String) = new Movable(code)
-
   private def move(code: String, direction: Direction): Option[String] = {
     val preparedCode = code.replaceAll("\r\n", "\n")
 
@@ -34,7 +30,7 @@ abstract class StatementMoverTestBase extends SimpleTestCase {
 
     val available = mover.checkAvailable(editor, file, info, direction == Down)
 
-    toBooleanExt(available).ifTrue {
+    available.ifTrue {
       val it = cleanCode.split('\n').toList.iterator // Workaround for SI-5972 (should be without "toList")
 
       val (i1, i2) = if(info.toMove.startLine < info.toMove2.startLine)
@@ -54,7 +50,7 @@ abstract class StatementMoverTestBase extends SimpleTestCase {
   private case object Up extends Direction
   private case object Down extends Direction
 
-  protected class Movable(code: String) {
+  protected implicit class Movable(val code: String) {
     def moveUpIsDisabled() {
       assertEquals(None, move(code, Up))
     }

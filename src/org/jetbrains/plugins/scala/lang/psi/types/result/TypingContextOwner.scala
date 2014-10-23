@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.types.result
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import collection.immutable.HashSet
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+
+import scala.collection.immutable.HashSet
 
 /**
  * An entity, which may return a type and pass a context of typing while looking for others' type.

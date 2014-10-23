@@ -5,21 +5,20 @@ package impl
 package base
 package types
 
+import com.intellij.lang.ASTNode
+import com.intellij.psi._
 import com.intellij.psi.impl.source.resolve.ResolveCache
 import com.intellij.util.IncorrectOperationException
-import lexer.ScalaTokenTypes
-import psi.ScalaPsiElementImpl
-import api.base.types._
-import psi.types._
-import com.intellij.lang.ASTNode
-import lang.resolve._
-import processor.{CompletionProcessor, ResolveProcessor, BaseProcessor}
-import result.{TypeResult, Failure, Success, TypingContext}
-import com.intellij.psi._
-import api.ScalaElementVisitor
-import api.toplevel.imports.ScImportStmt
-import completion.lookups.LookupElementManager
-import extensions.toPsiMemberExt
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.resolve._
+import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ResolveProcessor}
 
 /**
 * @author Alexander Podkhalyuzin

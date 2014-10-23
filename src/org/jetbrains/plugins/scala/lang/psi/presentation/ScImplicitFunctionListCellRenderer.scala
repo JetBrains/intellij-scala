@@ -1,20 +1,19 @@
 package org.jetbrains.plugins.scala.lang.psi.presentation
 
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.PresentationUtil
-import java.awt.{BorderLayout, Component, Color, Container}
-import com.intellij.ui.{SimpleTextAttributes, SimpleColoredComponent}
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import com.intellij.ide.util.PsiElementListCellRenderer
+import java.awt.{BorderLayout, Color, Component, Container}
 import javax.swing._
+
+import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.psi.PsiNamedElement
-import java.lang.String
-import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
+import com.intellij.ui.{SimpleColoredComponent, SimpleTextAttributes}
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.actions.Parameters
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
-import com.intellij.openapi.editor.colors.EditorColorsManager
+import org.jetbrains.plugins.scala.lang.psi.PresentationUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.DefaultListCellRendererAdapter
 
 /**
@@ -36,7 +35,7 @@ class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends ScImpl
     val secondPart = tuple.getSecondPart
     val comp = getSuperListCellRendererComponent(list, item, index, isSelected, cellHasFocus)
     comp match {
-      case container: Container => {
+      case container: Container =>
         val colored = container.getComponents.apply(2).asInstanceOf[SimpleColoredComponent]
         if (item == actual) {
           colored.clear()
@@ -58,8 +57,8 @@ class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends ScImpl
             DefaultListCellRendererAdapter.getListCellRendererComponent(rightRenderer, list, item, index, isSelected, cellHasFocus)
           val color: Color = isSelected match {
             case true => UIUtil.getListSelectionBackground
-            case false if (firstPart.contains(item)) => implicitFirstPart
-            case false if (secondPart.contains(item)) => implicitSecondPart
+            case false if firstPart.contains(item) => implicitFirstPart
+            case false if secondPart.contains(item) => implicitSecondPart
             case _ => throw new RuntimeException("Implicit conversions list contains unknown value: " + item)
           }
           rightCellRendererComponent.setBackground(color)
@@ -69,7 +68,6 @@ class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends ScImpl
           spacer.setBackground(color)
           add(spacer, BorderLayout.CENTER)
         }
-      }
       case _ =>
     }
     comp
@@ -77,11 +75,10 @@ class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends ScImpl
 
   override def getElementText(element: PsiNamedElement) = {
     element match {
-      case method: ScFunction => {
+      case method: ScFunction =>
         method.name + PresentationUtil.presentationString(method.paramClauses) + ": " +
                 PresentationUtil.presentationString(method.returnType.
                         getOrAny)
-      }
       case b: ScBindingPattern => b.name + ": " +
               PresentationUtil.presentationString(b.getType(TypingContext.empty).getOrAny)
       case _ => element.name

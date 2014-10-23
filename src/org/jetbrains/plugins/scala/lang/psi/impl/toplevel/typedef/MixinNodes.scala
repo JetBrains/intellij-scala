@@ -8,22 +8,23 @@ package impl
 package toplevel
 package typedef
 
-import collection.mutable.{ListBuffer, ArrayBuffer}
-import psi.types._
-import result.{Success, TypingContext}
-import synthetic.ScSyntheticClass
-import caches.CachesUtil
-import api.toplevel.typedef.{ScTrait, ScObject, ScTypeDefinition, ScTemplateDefinition}
-import com.intellij.psi.{PsiClassType, PsiElement, PsiClass}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
-import collection.mutable
-import psi.types.Conformance.AliasType
-import api.statements.ScTypeAliasDefinition
 import com.intellij.psi.search.GlobalSearchScope
-import scala.annotation.tailrec
+import com.intellij.psi.{PsiClass, PsiClassType, PsiElement}
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+
+import scala.annotation.tailrec
+import scala.collection.mutable
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 abstract class MixinNodes {
   type T
@@ -206,6 +207,10 @@ abstract class MixinNodes {
 
     def filter(p: ((T, Node)) => Boolean): Seq[(T, Node)] = {
       publics.filter(p).toSeq ++ privates.map.values.flatten.filter(p)
+    }
+
+    def withFilter(p: ((T, Node)) => Boolean) = {
+      (publics.toSeq ++ privates.map.values.flatten).withFilter(p)
     }
 
     def flatMap[R](p: ((T, Node)) => Traversable[R]): Seq[R] = {

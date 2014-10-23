@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.lang.refactoring.mock
 
-import com.intellij.openapi.editor._
-import com.intellij.openapi.editor.markup.TextAttributes
-import com.intellij.openapi.editor.event.CaretListener
 import java.util
+
+import com.intellij.openapi.editor._
+import com.intellij.openapi.editor.event.CaretListener
+import com.intellij.openapi.editor.markup.TextAttributes
 
 /**
  * Pavel Fatin
@@ -11,6 +12,8 @@ import java.util
 
 class CaretModelStub extends CaretModel {
   override def setCaretsAndSelections(caretStates: util.List[CaretState]): Unit = ???
+
+  override def setCaretsAndSelections(caretStates: util.List[CaretState], updateSystemSelection: Boolean): Unit = ???
 
   override def getCaretCount: Int = ???
 
@@ -63,4 +66,8 @@ class CaretModelStub extends CaretModel {
   override def runForEachCaret(action: CaretAction): Unit = ???
 
   override def getCaretsAndSelections: util.List[CaretState] = ???
+
+  override def runForEachCaret(action: CaretAction, reverseOrder: Boolean): Unit = ???
+
+
 }

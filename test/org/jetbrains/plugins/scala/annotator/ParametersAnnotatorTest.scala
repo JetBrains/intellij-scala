@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import org.jetbrains.plugins.scala.base.SimpleTestCase
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -50,13 +50,19 @@ class ParametersAnnotatorTest extends SimpleTestCase {
               Error("b: B*", "*-parameter must come last") :: Nil =>
     }
   }
+
+  def testRepeatedWithDefault: Unit = {
+    assertMatches(messages("def f(i: Int, js: Int* = 1) {}")) {
+      case Error("(i: Int, js: Int* = 1)", "Parameter section with *-parameter cannot have default arguments") :: Nil =>
+    }
+  }
    
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val annotator = new ParametersAnnotator() {}
     val mock = new AnnotatorHolderMock
 
     val function = (Header + code).parse.depthFirst.findByType(classOf[ScFunctionDefinition]).get
-    
+
     annotator.annotateParameters(function.paramClauses, mock)
     mock.annotations
   }

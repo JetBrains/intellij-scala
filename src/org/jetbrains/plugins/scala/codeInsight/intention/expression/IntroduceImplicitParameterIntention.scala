@@ -1,22 +1,23 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intention.expression
 
-import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.Editor
-import com.intellij.psi.util.PsiTreeUtil
-import extensions._
-import com.intellij.psi.{PsiDocumentManager, PsiElement}
-import com.intellij.openapi.util.TextRange
-import lang.psi.api.expr._
 import com.intellij.codeInsight.hint.HintManager
-import lang.psi.impl.ScalaPsiElementFactory
-import lang.psi.api.statements.params.ScParameter
-import lang.psi.api.ScalaRecursiveElementVisitor
+import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.application.ApplicationManager
-import codeInspection.InspectionBundle
-import lang.refactoring.util.ScalaRefactoringUtil
-import collection.mutable
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+
+import scala.collection.mutable
 
 /**
  * @author Ksenia.Sautina

@@ -5,14 +5,15 @@ package impl
 package statements
 package params
 
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import com.intellij.lang.ASTNode
-import psi.stubs.ScTypeParamClauseStub
 import com.intellij.psi._
+import com.intellij.psi.scope.PsiScopeProcessor
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import collection.mutable.ArrayBuffer
-import scope.PsiScopeProcessor
-import lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeParamClauseStub
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+
+import scala.collection.mutable.ArrayBuffer
 
 
 /**

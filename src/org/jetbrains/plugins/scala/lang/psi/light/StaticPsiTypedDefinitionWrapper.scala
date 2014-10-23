@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import com.intellij.psi.impl.light.LightMethod
-import com.intellij.psi.{PsiElement, PsiMethod, JavaPsiFacade}
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{JavaPsiFacade, PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 
 /**
  * @author Alefas
@@ -25,17 +25,26 @@ class StaticPsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition,
     }
   }
 } with LightMethodAdapter(typedDefinition.getManager, method, containingClass) with LightScalaMethod {
-  override def getNavigationElement: PsiElement = typedDefinition
+
+  override def getNavigationElement: PsiElement = this
+
+  override def navigate(requestFocus: Boolean): Unit = typedDefinition.navigate(requestFocus)
 
   override def canNavigate: Boolean = typedDefinition.canNavigate
 
   override def canNavigateToSource: Boolean = typedDefinition.canNavigateToSource
 
+  override def getTextRange: TextRange = typedDefinition.getTextRange
+
+  override def getTextOffset: Int = typedDefinition.getTextOffset
+
   override def getParent: PsiElement = containingClass
+
+  override def isWritable: Boolean = getContainingFile.isWritable
 }
 
 object StaticPsiTypedDefinitionWrapper {
-  import PsiTypedDefinitionWrapper.DefinitionRole._
+  import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 
   def methodText(b: ScTypedDefinition, role: DefinitionRole, containingClass: PsiClassWrapper): String = {
     val builder = new StringBuilder

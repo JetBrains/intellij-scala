@@ -1,27 +1,25 @@
 package org.jetbrains.plugins.scala
 package overrideImplement
 
-import com.intellij.codeInsight.generation.GenerateMembersUtil
-import com.intellij.openapi.editor.Editor
-
-import com.intellij.psi.util.PsiTreeUtil
-
-import com.intellij.util.IncorrectOperationException
-import com.intellij.psi._
-import lang.psi.api.toplevel.typedef.{ScTrait, ScTypeDefinition, ScMember, ScTemplateDefinition}
-import lang.psi.api.toplevel.ScTypedDefinition
-import lang.psi.api.statements._
-import lang.psi.types._
-import lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.util.ScalaUtils
-import scala.collection.mutable.ListBuffer
-import com.intellij.openapi.project.Project
-import collection.immutable.HashSet
-import extensions._
+import com.intellij.codeInsight.generation.{GenerateMembersUtil, ClassMember => JClassMember}
 import com.intellij.openapi.application.ApplicationManager
-import scala.collection.JavaConversions._
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
+import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
-import com.intellij.codeInsight.generation.{ClassMember => JClassMember}
+import org.jetbrains.plugins.scala.util.ScalaUtils
+
+import scala.collection.JavaConversions._
+import scala.collection.immutable.HashSet
+import scala.collection.mutable.ListBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -101,7 +99,7 @@ object ScalaOIUtil {
         val sortedMembers = ScalaMemberChooser.sorted(selectedMembers, clazz)
         val genInfos = sortedMembers.map(new ScalaGenerationInfo(_))
         val anchor = getAnchor(editor.getCaretModel.getOffset, clazz)
-        val inserted = GenerateMembersUtil.insertMembersBeforeAnchor(clazz, anchor.getOrElse(null), genInfos.reverse)
+        val inserted = GenerateMembersUtil.insertMembersBeforeAnchor(clazz, anchor.orNull, genInfos.reverse)
         inserted.headOption.foreach(_.positionCaret(editor, toEditMethodBody = true))
       }
     }, clazz.getProject, if (isImplement) "Implement method" else "Override method")
@@ -166,7 +164,7 @@ object ScalaOIUtil {
               !x.isInstanceOf[ScFunctionDefinition])
               || x.hasModifierPropertyScala("final") => false
       case x if x.isConstructor => false
-      case method if !ResolveUtils.isAccessible(method, clazz, forCompletion = false) => false
+      case method if !ResolveUtils.isAccessible(method, clazz.extendsBlock, forCompletion = false) => false
       case method =>
         var flag = false
         if (method match {case x: ScFunction => x.parameters.length == 0 case _ => method.getParameterList.getParametersCount == 0}) {
@@ -185,13 +183,14 @@ object ScalaOIUtil {
   private def needImplement(sign: PhysicalSignature, clazz: ScTemplateDefinition, withOwn: Boolean): Boolean = {
     val m = sign.method
     val name = if (m == null) "" else m.name
+    val place = clazz.extendsBlock
     m match {
       case _ if isProductAbstractMethod(m, clazz) => false
-      case method if !ResolveUtils.isAccessible(method, clazz, forCompletion = false) => false
+      case method if !ResolveUtils.isAccessible(method, place, forCompletion = false) => false
       case x if name == "$tag" || name == "$init$" => false
       case x if !withOwn && x.containingClass == clazz => false
       case x if x.containingClass != null && x.containingClass.isInterface &&
-              !x.containingClass.isInstanceOf[ScTrait] => true
+              !x.containingClass.isInstanceOf[ScTrait] && x.hasModifierProperty("abstract") => true
       case x if x.hasModifierPropertyScala("abstract") && !x.isInstanceOf[ScFunctionDefinition] &&
               !x.isInstanceOf[ScPatternDefinition] && !x.isInstanceOf[ScVariableDefinition] => true
       case x: ScFunctionDeclaration if x.hasAnnotation("scala.native") == None => true
@@ -202,7 +201,7 @@ object ScalaOIUtil {
   private def needOverride(named: PsiNamedElement, clazz: ScTemplateDefinition) = {
     ScalaPsiUtil.nameContext(named) match {
       case x: PsiModifierListOwner if x.hasModifierPropertyScala("final") => false
-      case m: PsiMember if !ResolveUtils.isAccessible(m, clazz, forCompletion = false) => false
+      case m: PsiMember if !ResolveUtils.isAccessible(m, clazz.extendsBlock, forCompletion = false) => false
       case x @ (_: ScPatternDefinition | _: ScVariableDefinition) if x.asInstanceOf[ScMember].containingClass != clazz =>
         val declaredElements = x match {case v: ScValue => v.declaredElements case v: ScVariable => v.declaredElements}
         var flag = false
@@ -228,7 +227,7 @@ object ScalaOIUtil {
 
   private def needImplement(named: PsiNamedElement, clazz: ScTemplateDefinition, withOwn: Boolean): Boolean = {
     ScalaPsiUtil.nameContext(named) match {
-      case m: PsiMember if !ResolveUtils.isAccessible(m, clazz, forCompletion = false) => false
+      case m: PsiMember if !ResolveUtils.isAccessible(m, clazz.extendsBlock, forCompletion = false) => false
       case x: ScValueDeclaration if withOwn || x.containingClass != clazz => true
       case x: ScVariableDeclaration if withOwn || x.containingClass != clazz => true
       case x: ScTypeAliasDeclaration if withOwn || x.containingClass != clazz => true

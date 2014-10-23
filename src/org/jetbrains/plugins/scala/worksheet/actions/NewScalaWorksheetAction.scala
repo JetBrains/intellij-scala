@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package worksheet.actions
 
-import com.intellij.ide.fileTemplates.actions.CreateFromTemplateAction
 import com.intellij.ide.fileTemplates.FileTemplateManager
-import com.intellij.openapi.project.DumbAware
-import com.intellij.openapi.actionSystem.{LangDataKeys, AnActionEvent}
-import org.jetbrains.plugins.scala.icons.Icons
+import com.intellij.ide.fileTemplates.actions.CreateFromTemplateAction
+import com.intellij.openapi.actionSystem.{AnActionEvent, LangDataKeys}
 import com.intellij.openapi.module.Module
-import project._
+import com.intellij.openapi.project.DumbAware
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.project._
 
 /**
  * @author Ksenia.Sautina

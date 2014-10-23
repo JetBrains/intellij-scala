@@ -1,11 +1,11 @@
 package org.jetbrains.jps.incremental.scala
 package local
 
+import java.io.File
+
+import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import xsbti._
 import xsbti.compile.ExtendedCompileProgress
-import java.io.File
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import scala.Some
 
 /**
  * Nikolay.Tropin

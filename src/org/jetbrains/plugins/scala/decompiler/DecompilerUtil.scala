@@ -1,28 +1,29 @@
 package org.jetbrains.plugins.scala
 package decompiler
 
+import java.io._
+
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.openapi.project.ex.ProjectManagerEx
-import com.intellij.openapi.util.Key
-import com.intellij.openapi.vfs.{VirtualFileWithId, CharsetToolkit, VirtualFile}
-import java.io._
-import _root_.scala.tools.scalap.scalax.rules.scalasig._
-import java.lang.String
-import _root_.scala.tools.scalap.scalax.rules.scalasig.ClassFileParser.{ConstValueIndex, Annotation}
-import scala.reflect.internal.pickling.ByteCodecs
-import CharsetToolkit.UTF8
 import com.intellij.openapi.project.{Project, ProjectManager}
+import com.intellij.openapi.util.Key
+import com.intellij.openapi.vfs.CharsetToolkit.UTF8
 import com.intellij.openapi.vfs.newvfs.FileAttribute
+import com.intellij.openapi.vfs.{CharsetToolkit, VirtualFile, VirtualFileWithId}
 import com.intellij.reference.SoftReference
+
+import scala.reflect.internal.pickling.ByteCodecs
+import scala.tools.scalap.scalax.rules.scalasig.ClassFileParser.{Annotation, ArrayValue, ConstValueIndex}
+import scala.tools.scalap.scalax.rules.scalasig._
 
 /**
  * @author ilyas
  */
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil")
-  val DECOMPILER_VERSION = 250
+  val DECOMPILER_VERSION = 257
   private val SCALA_DECOMPILER_FILE_ATTRIBUTE = new FileAttribute("_is_scala_compiled_", DECOMPILER_VERSION, true)
   private val SCALA_DECOMPILER_KEY = new Key[SoftReference[DecompilationResult]]("Is Scala File Key")
   
@@ -34,7 +35,7 @@ object DecompilerUtil {
   private def openedNotDisposedProjects: Array[Project] = {
     val manager = ProjectManager.getInstance
     if (ApplicationManager.getApplication.isUnitTestMode) {
-      val testProject = manager.asInstanceOf[ProjectManagerEx].getOpenProjects.find(!_.isDisposed).getOrElse(null)
+      val testProject = manager.asInstanceOf[ProjectManagerEx].getOpenProjects.find(!_.isDisposed).orNull
       if (testProject != null) Array(testProject)
       else Array.empty
     } else {
@@ -100,31 +101,39 @@ object DecompilerUtil {
   private val SOURCE_FILE = "SourceFile"
   private val SCALA_SIG = "ScalaSig"
   private val SCALA_SIG_ANNOTATION = "Lscala/reflect/ScalaSignature;"
+  private val SCALA_LONG_SIG_ANNOTATION = "Lscala/reflect/ScalaLongSignature;"
   private val BYTES_VALUE = "bytes"
   private def decompileInner(file: VirtualFile, bytes: Array[Byte]): DecompilationResult = {
     try {
       val byteCode = ByteCode(bytes)
       val isPackageObject = file.getName == "package.class"
       val classFile = ClassFileParser.parse(byteCode)
-      val scalaSig = classFile.attribute(SCALA_SIG).map(_.byteCode).map(ScalaSigAttributeParsers.parse).
-        getOrElse(null) match {
+      val scalaSig = classFile.attribute(SCALA_SIG).map(_.byteCode).map(ScalaSigAttributeParsers.parse) match {
         // No entries in ScalaSig attribute implies that the signature is stored in the annotation
-        case ScalaSig(_, _, entries) if entries.length == 0 =>
+        case Some(ScalaSig(_, _, entries)) if entries.length == 0 =>
           import classFile._
-          classFile.annotation(SCALA_SIG_ANNOTATION) match {
+          val annotation = classFile.annotation(SCALA_SIG_ANNOTATION)
+                  .orElse(classFile.annotation(SCALA_LONG_SIG_ANNOTATION))
+          annotation match {
             case None => null
             case Some(Annotation(_, elements)) =>
               val bytesElem = elements.find(elem => constant(elem.elementNameIndex) == BYTES_VALUE).get
-              val bytes = ((bytesElem.elementValue match {
-                case ConstValueIndex(index) => constantWrapped(index)
-              }).asInstanceOf[StringBytesPair].bytes)
+
+              val parts = (bytesElem.elementValue match {
+                case ConstValueIndex(index) => Seq(constantWrapped(index))
+                case ArrayValue(seq) => seq.collect {case ConstValueIndex(index) => constantWrapped(index)}
+              }).collect {case x: StringBytesPair => x.bytes}
+
+              val bytes = parts.reduceLeft(Array.concat(_, _))
+
               val length = ByteCodecs.decode(bytes)
               val scalaSig = ScalaSigAttributeParsers.parse(ByteCode(bytes.take(length)))
               scalaSig
           }
-        case other => other
+        case Some(other) => other
+        case None => null
       }
-      if (scalaSig == null) return DecompilationResult(false, "", "", file.getTimeStamp)
+      if (scalaSig == null) return DecompilationResult(isScala = false, "", "", file.getTimeStamp)
       val sourceText = {
         val baos = new ByteArrayOutputStream
         val stream = new PrintStream(baos, true, CharsetToolkit.UTF8)
@@ -135,7 +144,7 @@ object DecompilerUtil {
         // Print package with special treatment for package objects
         syms.head.parent match {
           //Partial match
-          case Some(p) if (p.name != "<empty>") => {
+          case Some(p) if p.name != "<empty>" =>
             val path = p.path
             if (!isPackageObject) {
               stream.print("package ")
@@ -149,7 +158,6 @@ object DecompilerUtil {
                 stream.print("\n")
               }
             }
-          }
           case _ =>
         }
 
@@ -178,11 +186,11 @@ object DecompilerUtil {
         }
       }
 
-      DecompilationResult(true, sourceFileName, sourceText, file.getTimeStamp)
+      DecompilationResult(isScala = true, sourceFileName, sourceText, file.getTimeStamp)
     } catch {
       case t: Throwable =>
 //        LOG.info(s"Error during decompiling ${file.getName}: ${t.getMessage}", t)
-        DecompilationResult(false, "", "", file.getTimeStamp)
+        DecompilationResult(isScala = false, "", "", file.getTimeStamp)
     }
   }
 }

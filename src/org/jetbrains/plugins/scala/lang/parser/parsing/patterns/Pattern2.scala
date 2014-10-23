@@ -4,9 +4,8 @@ package parser
 package parsing
 package patterns
 
-import com.intellij.lang.PsiBuilder
-import lexer.ScalaTokenTypes
-import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
  * @author Alexander Podkhalyuzin
@@ -30,83 +29,76 @@ object Pattern2 {
 
     def testForId = {
       val m = builder.mark
-      builder.advanceLexer
+      builder.advanceLexer()
       val s = Set(ScalaTokenTypes.tAT,
         ScalaTokenTypes.tIDENTIFIER,
         ScalaTokenTypes.tDOT,
         ScalaTokenTypes.tLPARENTHESIS)
       val b = !s.contains(builder.getTokenType)
-      m.rollbackTo
+      m.rollbackTo()
       b
     }
 
     val pattern2Marker = builder.mark
     val backupMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => {
+      case ScalaTokenTypes.tIDENTIFIER =>
         if (forDef && testForId) {
-          backupMarker.drop
-          builder.advanceLexer
+          backupMarker.drop()
+          builder.advanceLexer()
           pattern2Marker.done(ScalaElementTypes.REFERENCE_PATTERN)
           return true
         } else if (isVarId) {
-          backupMarker.rollbackTo
+          backupMarker.rollbackTo()
         } else {
-          builder.advanceLexer //Ate id
+          builder.advanceLexer() //Ate id
           val idMarker = builder.mark
           builder.getTokenType match {
-            case ScalaTokenTypes.tAT => {
-              builder.advanceLexer //Ate @
-              backupMarker.drop
+            case ScalaTokenTypes.tAT =>
+              builder.advanceLexer() //Ate @
+              backupMarker.drop()
               if (!Pattern3.parse(builder)) {
-                idMarker.rollbackTo
+                idMarker.rollbackTo()
                 pattern2Marker.done(ScalaElementTypes.REFERENCE_PATTERN)
                 val err = builder.mark
-                builder.advanceLexer
+                builder.advanceLexer()
                 err.error(ErrMsg("wrong.pattern"))
               } else {
-                idMarker.drop
+                idMarker.drop()
                 pattern2Marker.done(ScalaElementTypes.NAMING_PATTERN)
               }
               return true
-            }
-            case _ => {
-              idMarker.drop
-              backupMarker.rollbackTo
-            }
+            case _ =>
+              idMarker.drop()
+              backupMarker.rollbackTo()
           }
         }
-      }
-      case ScalaTokenTypes.tUNDER => {
-        builder.advanceLexer //Ate id
+      case ScalaTokenTypes.tUNDER =>
+        builder.advanceLexer() //Ate id
         val idMarker = builder.mark
         builder.getTokenType match {
-          case ScalaTokenTypes.tAT => {
-            builder.advanceLexer //Ate @
-            backupMarker.drop
+          case ScalaTokenTypes.tAT =>
+            builder.advanceLexer() //Ate @
+            backupMarker.drop()
             if (!Pattern3.parse(builder)) {
-              idMarker.rollbackTo
+              idMarker.rollbackTo()
               pattern2Marker.done(ScalaElementTypes.REFERENCE_PATTERN)
               val err = builder.mark
-              builder.advanceLexer
+              builder.advanceLexer()
               err.error(ErrMsg("wrong.pattern"))
             } else {
-              idMarker.drop
+              idMarker.drop()
               pattern2Marker.done(ScalaElementTypes.NAMING_PATTERN)
             }
             return true
-          }
-          case _ => {
-            idMarker.drop
-            backupMarker.rollbackTo
-          }
+          case _ =>
+            idMarker.drop()
+            backupMarker.rollbackTo()
         }
-      }
-      case _ => {
-        backupMarker.drop
-      }
+      case _ =>
+        backupMarker.drop()
     }
-    pattern2Marker.drop
+    pattern2Marker.drop()
     Pattern3.parse(builder)
   }
 }

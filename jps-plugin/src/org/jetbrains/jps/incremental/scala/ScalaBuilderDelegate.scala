@@ -2,17 +2,18 @@ package org.jetbrains.jps.incremental.scala
 
 import java.io.File
 import java.net.InetAddress
-import org.jetbrains.jps.incremental._
-import org.jetbrains.jps.ModuleChunk
-import org.jetbrains.jps.model.module.JpsModule
-import org.jetbrains.jps.incremental.scala.data.{SbtData, CompilationData, CompilerData}
+
+import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
-import org.jetbrains.jps.incremental.scala.local.LocalServer
-import com.intellij.util.PathUtil
-import org.jetbrains.jps.builders.java.{JavaSourceRootDescriptor, JavaBuilderUtil}
-import org.jetbrains.jps.incremental.scala.remote.RemoteServer
+import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.DirtyFilesHolder
+import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
+import org.jetbrains.jps.incremental._
+import org.jetbrains.jps.incremental.scala.data.{CompilationData, CompilerData, SbtData}
+import org.jetbrains.jps.incremental.scala.local.LocalServer
+import org.jetbrains.jps.incremental.scala.remote.RemoteServer
+import org.jetbrains.jps.model.module.JpsModule
 
 /**
  * Nikolay.Tropin
@@ -92,7 +93,7 @@ object ScalaBuilderDelegate {
 
   private lazy val sbtData = {
     val classLoader = getClass.getClassLoader
-    val pluginRoot = new File(PathUtil.getJarPathForClass(getClass)).getParentFile
+    val pluginRoot = new File(PathManager.getJarPathForClass(getClass)).getParentFile
     val systemRoot = Utils.getSystemRoot
     val javaClassVersion = System.getProperty("java.class.version")
 

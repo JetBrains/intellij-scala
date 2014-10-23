@@ -4,9 +4,7 @@ package psi
 package impl
 package expr
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /** 

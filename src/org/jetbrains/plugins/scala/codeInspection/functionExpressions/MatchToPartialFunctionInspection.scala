@@ -1,26 +1,26 @@
 package org.jetbrains.plugins.scala
 package codeInspection.functionExpressions
 
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
 import com.intellij.codeInspection._
-import com.intellij.psi.{PsiDocumentManager, PsiElement}
-import MatchToPartialFunctionInspection._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.extensions.childOf
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.impl.source.tree.TreeElement
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.LocalSearchScope
-import scala.collection.JavaConverters._
+import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.plugins.scala.codeInspection.functionExpressions.MatchToPartialFunctionInspection._
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.extensions.childOf
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import scala.Some
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+
+import scala.collection.JavaConverters._
 
 /**
  * Nikolay.Tropin
@@ -64,7 +64,7 @@ class MatchToPartialFunctionInspection extends AbstractInspection(inspectionId){
 
 object MatchToPartialFunctionInspection {
   val inspectionId = "MatchToPartialFunction"
-  val inspectionName = "Convert match statement to partial function"
+  val inspectionName = "Convert match statement to pattern matching anonymous function"
 }
 
 class MatchToPartialFunctionQuickFix(matchStmt: ScMatchStmt, fExprToReplace: ScExpression)
@@ -95,12 +95,12 @@ class MatchToPartialFunctionQuickFix(matchStmt: ScMatchStmt, fExprToReplace: ScE
 
   private def needNamingPattern(matchStmt: ScMatchStmt): Seq[Int] = {
     matchStmt match {
-      case ScMatchStmt(expr: ScReferenceExpression, caseCls) =>
+      case ScMatchStmt(expr: ScReferenceExpression, _) =>
         val arg = expr.resolve()
         if (arg == null) return Nil
         val refs = ReferencesSearch.search(arg, new LocalSearchScope(matchStmt)).findAll().asScala
         for {
-          (clause, index) <- caseCls.caseClauses.zipWithIndex
+          (clause, index) <- matchStmt.caseClauses.zipWithIndex
           if refs.exists(ref => PsiTreeUtil.isAncestor(clause, ref.getElement, false))
         } yield index
       case _ => Nil

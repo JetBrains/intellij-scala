@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test.scalatest
 
-import testingSupport.test.AbstractTestFramework
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestFramework
 
 /**
  * @author Ksenia.Sautina

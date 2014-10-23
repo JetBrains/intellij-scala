@@ -5,9 +5,9 @@ package api
 package base
 package patterns
 
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSequenceArg
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import lexer.ScalaTokenTypes
-import types.ScSequenceArg
 
 /**
 * @author Alexander Podkhalyuzin

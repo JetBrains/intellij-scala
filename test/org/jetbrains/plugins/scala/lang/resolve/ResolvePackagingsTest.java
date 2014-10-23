@@ -1,12 +1,8 @@
 package org.jetbrains.plugins.scala.lang.resolve;
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor;
-import org.jetbrains.plugins.scala.util.TestUtils;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition;
-import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiReference;
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor;
 
 /**
  * @author ilyas

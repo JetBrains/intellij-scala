@@ -1,30 +1,31 @@
 package org.jetbrains.plugins.scala
 package injection
 
-import com.intellij.lang.injection.{MultiHostRegistrar, MultiHostInjector}
-import collection.JavaConversions._
-import org.intellij.plugins.intelliLang.Configuration
-import com.intellij.openapi.util.{Trinity, TextRange}
-import org.intellij.plugins.intelliLang.inject.{TemporaryPlacesRegistry, InjectedLanguage, LanguageInjectionSupport, InjectorUtils}
-import com.intellij.openapi.extensions.Extensions
-import lang.psi.api.expr._
-import lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScVariableDefinition}
-import com.intellij.psi._
-import lang.psi.api.base.patterns.ScReferencePattern
-import lang.psi.api.base.{ScInterpolatedStringLiteral, ScReferenceElement, ScLiteral}
-import lang.psi.ScalaPsiUtil.readAttribute
-import org.jetbrains.plugins.scala.extensions._
-import settings._
-import collection.immutable.WrappedString
 import java.util
-import collection.mutable
 
-import ScalaLanguageInjector.extractMultiLineStringRanges
+import com.intellij.lang.injection.{MultiHostInjector, MultiHostRegistrar}
+import com.intellij.openapi.extensions.Extensions
+import com.intellij.openapi.util.{TextRange, Trinity}
+import com.intellij.psi._
+import org.intellij.plugins.intelliLang.Configuration
 import org.intellij.plugins.intelliLang.inject.config.BaseInjection
-import lang.psi.impl.expr.ScInterpolatedStringPrefixReference
-import lang.psi.api.statements.params.ScParameter
-import annotation.tailrec
+import org.intellij.plugins.intelliLang.inject.{InjectedLanguage, InjectorUtils, LanguageInjectionSupport, TemporaryPlacesRegistry}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.injection.ScalaLanguageInjector.extractMultiLineStringRanges
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.readAttribute
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
+import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
+
+import scala.annotation.tailrec
+import scala.collection.JavaConversions._
+import scala.collection.immutable.WrappedString
+import scala.collection.mutable
 
 /**
  * @author Pavel Fatin
@@ -58,7 +59,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
 
     val suitable = expressions forall {
       case l: ScLiteral if l.isString => true
-      case _: ScInterpolatedStringPrefixReference => true
+      case _: ScInterpolatedPrefixReference => true
       case r: ScReferenceExpression if r.getText == "+" => true
       case _: ScInfixExpr => true
       case injectedExpr: ScExpression if injectedExpr.getParent.isInstanceOf[ScInterpolatedStringLiteral] => true

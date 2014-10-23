@@ -4,8 +4,8 @@ package psi
 package stubs
 
 
-import api.base.ScPrimaryConstructor
 import com.intellij.psi.stubs.StubElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 
 /**
  * User: Alexander Podkhalyuzin

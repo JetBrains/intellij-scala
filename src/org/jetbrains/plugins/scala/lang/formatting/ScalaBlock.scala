@@ -2,26 +2,27 @@ package org.jetbrains.plugins.scala
 package lang
 package formatting
 
-import psi.api.ScalaFile
-import settings.ScalaCodeStyleSettings
-import com.intellij.lang.ASTNode
-import com.intellij.psi.codeStyle.{CommonCodeStyleSettings, CodeStyleSettings}
-import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.formatting.processors._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import java.util.List
-import scaladoc.psi.api.ScDocComment
-import psi.api.toplevel.ScEarlyDefinitions
+
 import com.intellij.formatting._
-import com.intellij.psi.{TokenType, PsiComment, PsiErrorElement, PsiWhiteSpace}
-import psi.api.base.ScLiteral
+import com.intellij.lang.ASTNode
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
+import com.intellij.psi.{PsiComment, PsiErrorElement, PsiWhiteSpace, TokenType}
+import org.jetbrains.plugins.scala.lang.formatting.processors._
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 class ScalaBlock (val myParentBlock: ScalaBlock,
         protected val myNode: ASTNode,
@@ -82,7 +83,7 @@ extends Object with ScalaTokenTypes with Block {
       case _: ScBlockExpr | _: ScEarlyDefinitions | _: ScTemplateBody | _: ScForStatement  | _: ScWhileStmt |
            _: ScTryBlock | _: ScCatchBlock =>
         new ChildAttributes(if (braceShifted) Indent.getNoneIndent else
-        if (mySubBlocks.size >= newChildIndex &&
+        if (mySubBlocks != null && mySubBlocks.size >= newChildIndex &&
                 mySubBlocks.get(newChildIndex - 1).isInstanceOf[ScalaBlock] &&
                 mySubBlocks.get(newChildIndex - 1).asInstanceOf[ScalaBlock].getNode.getElementType == ScalaElementTypes.CASE_CLAUSES)
           Indent.getSpaceIndent(2 * indentSize)
@@ -121,7 +122,7 @@ extends Object with ScalaTokenTypes with Block {
   }
 
   def getSubBlocks(): List[Block] = {
-    import collection.JavaConversions._
+    import scala.collection.JavaConversions._
     if (mySubBlocks == null) {
       mySubBlocks = getDummyBlocks(myNode, myLastNode, this).filterNot {
         _.asInstanceOf[ScalaBlock].getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE

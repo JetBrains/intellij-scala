@@ -4,11 +4,10 @@ package parser
 package parsing
 package statements
 
-import com.intellij.lang.PsiBuilder
-import lexer.ScalaTokenTypes
-import params.{ParamClauses, FunTypeParamClause}
-import util.ParserUtils
-import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.params.{FunTypeParamClause, ParamClauses}
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /** 
 * @author Alexander Podkhalyuzin

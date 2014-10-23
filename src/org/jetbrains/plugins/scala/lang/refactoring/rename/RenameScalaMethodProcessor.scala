@@ -3,32 +3,30 @@ package lang
 package refactoring
 package rename
 
+import java.awt.{BorderLayout, GridLayout}
+import java.util
+import javax.swing._
+
 import com.intellij.CommonBundle
 import com.intellij.ide.IdeBundle
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.{Messages, DialogWrapper}
-import com.intellij.refactoring.rename.{RenamePsiElementProcessor, RenameJavaMethodProcessor}
-import java.awt.{GridLayout, BorderLayout}
-
-import javax.swing._
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import psi.impl.search.ScalaOverridingMemberSearcher
-import psi.api.base.ScPrimaryConstructor
-import collection.mutable.ArrayBuffer
-import psi.fake.FakePsiMethod
-import com.intellij.psi.{PsiNamedElement, PsiElement}
-import java.util
+import com.intellij.openapi.ui.{DialogWrapper, Messages}
 import com.intellij.openapi.util.Pass
 import com.intellij.psi.search.PsiElementProcessor
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import scala.Some
-import com.intellij.usageView.UsageInfo
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.refactoring.listeners.RefactoringElementListener
+import com.intellij.refactoring.rename.{RenameJavaMethodProcessor, RenamePsiElementProcessor}
+import com.intellij.usageView.UsageInfo
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import com.intellij.openapi.application.ApplicationManager
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
+import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import com.intellij.psi.search.searches.ReferencesSearch
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin

@@ -1,17 +1,18 @@
 package org.jetbrains.plugins.scala
 package codeInspection.etaExpansion
 
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, InspectionBundle, AbstractInspection}
-import ConvertibleToMethodValueInspection._
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemDescriptor, ProblemsHolder}
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
+import org.jetbrains.plugins.scala.codeInspection.etaExpansion.ConvertibleToMethodValueInspection._
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import scala.Some
+import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
@@ -29,7 +30,12 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
       if (args.size > 0 && args.forall(arg => arg.isInstanceOf[ScUnderscoreSection] && ScUnderScoreSectionUtil.isUnderscore(arg)))
         registerProblem(holder, expr, InspectionBundle.message("convertible.to.method.value.anonymous.hint"))
     case und: ScUnderscoreSection if und.bindingExpr.isDefined =>
-      registerProblem(holder, und, InspectionBundle.message("convertible.to.method.value.eta.hint"))
+      val isInParameterOfParameterizedClass = PsiTreeUtil.getParentOfType(und, classOf[ScClassParameter]) match {
+        case null => false
+        case cp => cp.containingClass.hasTypeParameters
+      }
+      if (!isInParameterOfParameterizedClass)
+        registerProblem(holder, und, InspectionBundle.message("convertible.to.method.value.eta.hint"))
   }
 
   private def registerProblem(holder: ProblemsHolder, expr: ScExpression, hint: String) {

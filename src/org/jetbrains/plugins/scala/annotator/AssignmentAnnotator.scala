@@ -2,17 +2,17 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
+import com.intellij.psi.{PsiClass, PsiField, PsiMethod}
+import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
+import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import quickfix.ReportHighlightingErrorQuickFix
-import result.TypingContext
-import lang.psi.api.statements.{ScVariable, ScValue, ScFunction}
-import lang.psi.api.statements.params.ScClassParameter
-import lang.psi.api.expr._
-import codeInspection.varCouldBeValInspection.ValToVarQuickFix
-import lang.psi.ScalaPsiUtil
-import com.intellij.psi.{PsiClass, PsiMethod, PsiField}
-import extensions.toPsiMemberExt
-import lang.resolve.ResolvableReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceExpression
 
 /**
  * Pavel.Fatin, 31.05.2010
@@ -71,6 +71,7 @@ trait AssignmentAnnotator {
                       case MissedValueParameter(_) => // simultaneously handled above
                       case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
                       case WrongTypeParameterInferred => //todo: ?
+                      case ExpectedTypeMismatch => // will be reported later
                       case _ => holder.createErrorAnnotation(assignment, "Wrong right assignment side")
                     }
                   case _ => holder.createErrorAnnotation(assignment, "Reassignment to val")

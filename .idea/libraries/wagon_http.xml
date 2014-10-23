@@ -1,0 +1,20 @@
+<component name="libraryTable">
+  <library name="wagon-http" type="repository">
+    <properties maven-id="org.apache.maven.wagon:wagon-http:2.6" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/wagon-http-2.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/wagon-http-shared-2.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/jsoup-1.7.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/commons-lang-2.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/commons-io-2.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/wagon-provider-api-2.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/plexus-utils-3.0.8.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/httpclient-4.3.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/httpcore-4.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/commons-logging-1.1.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/maven-indexer/commons-codec-1.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

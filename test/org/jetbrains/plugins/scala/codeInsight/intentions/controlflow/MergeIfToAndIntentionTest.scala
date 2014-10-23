@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.intentions.controlflow
 
-import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 import org.jetbrains.plugins.scala.codeInsight.intention.controlflow.MergeIfToAndIntention
+import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 /**
  * @author Ksenia.Sautina

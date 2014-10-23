@@ -2,41 +2,44 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package unusedInspections
 
-import com.intellij.codeInspection._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.Editor
+import java.util.Collections
+
 import com.intellij.codeHighlighting.TextEditorHighlightingPass
-import com.intellij.openapi.progress.ProgressIndicator
-import collection.mutable.Buffer
-import com.intellij.lang.annotation.{Annotation, AnnotationSession}
-import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.codeInsight.{FileModificationService, CodeInsightUtilBase}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import com.intellij.profile.codeInspection.InspectionProjectProfileManager
-import varCouldBeValInspection.VarCouldBeValInspection
-import com.intellij.lang.findUsages.{LanguageFindUsages, FindUsagesProvider}
-import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
-import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariableDefinition, ScDeclaredElementsHolder}
-import com.intellij.psi._
+import com.intellij.codeInsight.FileModificationService
 import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInsight.daemon.impl._
-import com.intellij.codeInsight.daemon.impl.analysis.{HighlightingLevelManager, HighlightLevelUtil}
+import com.intellij.codeInsight.daemon.impl.analysis.HighlightingLevelManager
+import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInspection._
+import com.intellij.lang.annotation.{Annotation, AnnotationSession, HighlightSeverity}
+import com.intellij.lang.findUsages.{FindUsagesProvider, LanguageFindUsages}
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.project.Project
+import com.intellij.profile.codeInspection.InspectionProjectProfileManager
+import com.intellij.psi._
+import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
+import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.VarCouldBeValInspection
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import annotator.importsTracker.ScalaRefCountHolder
-import extensions.toPsiNamedElementExt
-import java.util.Collections
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+
+import scala.collection.mutable
 
 // TODO merge with UnusedImportPass (?)
 class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHighlightingPass(file.getProject, editor.getDocument) {
   val findUsageProvider: FindUsagesProvider = LanguageFindUsages.INSTANCE.forLanguage(ScalaFileType.SCALA_LANGUAGE)
-  val highlightInfos = Buffer[HighlightInfo]()
+  val highlightInfos = mutable.Buffer[HighlightInfo]()
 
-  case class UnusedConfig(checkLocalUnused: Boolean, checkLocalAssign: Boolean)
-  case class UnusedPassState(annotationHolder: AnnotationHolderImpl, annotations: Buffer[Annotation], config: UnusedConfig)
+  case class UnusedConfig(checkLocalUnused: Boolean, localUnusedSeverity: HighlightSeverity,
+                          checkLocalAssign: Boolean, localAssignSeverity: HighlightSeverity)
+  case class UnusedPassState(annotationHolder: AnnotationHolderImpl, annotations: mutable.Buffer[Annotation], config: UnusedConfig)
 
   def doCollectInformation(progress: ProgressIndicator) {}
 
@@ -57,7 +60,7 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
 
   private def processScalaFile(sFile: ScalaFile) {
     val annotationHolder = new AnnotationHolderImpl(new AnnotationSession(file))
-    val annotations = Buffer[Annotation]()
+    val annotations = mutable.Buffer[Annotation]()
     val state = UnusedPassState(annotationHolder, annotations, readConfig(sFile))
     val config = state.config
     if (!config.checkLocalAssign && !config.checkLocalUnused) return
@@ -73,8 +76,14 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
   def readConfig(sFile: ScalaFile): UnusedConfig = {
     val profile: InspectionProfile = InspectionProjectProfileManager.getInstance(myProject).getInspectionProfile
     def isEnabled(shortName: String) = profile.isToolEnabled(HighlightDisplayKey.find(shortName), sFile)
-    UnusedConfig(checkLocalUnused = isEnabled(ScalaUnusedSymbolInspection.ShortName),
-      checkLocalAssign = isEnabled(VarCouldBeValInspection.ShortName))
+    def severity(shortName: String) = {
+      val key = HighlightDisplayKey.find(shortName)
+      key.toOption.map(profile.getErrorLevel(_, sFile).getSeverity).orNull
+    }
+    val localUnusedShortName = ScalaUnusedSymbolInspection.ShortName
+    val localAssignShortName = VarCouldBeValInspection.ShortName
+    UnusedConfig(isEnabled(localUnusedShortName), severity(localUnusedShortName),
+      isEnabled(localAssignShortName), severity(localAssignShortName))
   }
 
   private def processDeclaredElementHolder(x: ScDeclaredElementsHolder, state: UnusedPassState) {
@@ -136,8 +145,9 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
           if (!used && state.config.checkLocalUnused) {
             hasAtLeastOneUnusedHighlight = true
             val elementTypeDesc = findUsageProvider.getType(declElementHolder)
-            val annotation = state.annotationHolder.createWarningAnnotation(decElem.nameId, "%s '%s' is never used".format(elementTypeDesc, decElem.name))
-            annotation.setHighlightType(ProblemHighlightType.LIKE_UNUSED_SYMBOL)
+            val severity = state.config.localUnusedSeverity
+            val message = "%s '%s' is never used".format(elementTypeDesc, decElem.name)
+            val annotation = state.annotationHolder.createAnnotation(severity, decElem.nameId.getTextRange, message)
             annotation.registerFix(new DeleteElementFix(elem))
             state.annotations += annotation
           }
@@ -146,21 +156,21 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
       }
     }
     if (isVar && !hasAtLeastOneAssign && !hasAtLeastOneUnusedHighlight) {
-      val (messgae, nameOpt) = declElementHolder.declaredElements match {
+      val (message, nameOpt) = declElementHolder.declaredElements match {
         case Seq(n: ScNamedElement) =>
           ("var '%s' could be a val".format(n.name), Some(n.name))
         case _ =>
           ("var could be a val", None)
       }
-      val annotation = state.annotationHolder.createWeakWarningAnnotation(declElementHolder, messgae)
+      val severity = state.config.localAssignSeverity
+      val annotation = state.annotationHolder.createAnnotation(severity, declElementHolder.getTextRange, message)
       annotation.registerFix(new VarToValFix(declElementHolder.asInstanceOf[ScVariableDefinition], nameOpt))
       state.annotations += annotation
     }
   }
-     //todo: was unused. should we delete it? 
-//  private def createUnusedSymbolInfo(element: PsiElement, message: String, highlightInfoType: HighlightInfoType): HighlightInfo = {
-//    return HighlightInfo.createHighlightInfo(highlightInfoType, element, message)
-//  }
+
+  import scala.collection.JavaConversions._
+  override def getInfos: java.util.List[HighlightInfo] = highlightInfos.toList
 }
 
 class DeleteElementFix(element: PsiElement) extends IntentionAction {
@@ -182,7 +192,7 @@ class DeleteElementFix(element: PsiElement) extends IntentionAction {
   def startInWriteAction: Boolean = true
 
   def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
-    return file.getManager.isInProject(file) && file.isInstanceOf[ScalaFile]
+    file.getManager.isInProject(file) && file.isInstanceOf[ScalaFile]
   }
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
@@ -206,7 +216,7 @@ class VarToValFix(varDef: ScVariableDefinition, name: Option[String]) extends In
   def startInWriteAction: Boolean = true
 
   def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
-    return file.getManager.isInProject(file) && file.isInstanceOf[ScalaFile]
+    file.getManager.isInProject(file) && file.isInstanceOf[ScalaFile]
   }
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {

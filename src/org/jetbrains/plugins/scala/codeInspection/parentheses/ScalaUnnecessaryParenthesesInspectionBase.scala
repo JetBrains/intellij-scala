@@ -1,16 +1,19 @@
 package org.jetbrains.plugins.scala
 package codeInspection.parentheses
 
-import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionBundle, AbstractFix}
+import javax.swing.JComponent
+
+import com.intellij.codeInspection.ui.SingleCheckboxOptionsPanel
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getShortText
-import javax.swing.JComponent
-import com.intellij.codeInspection.ui.SingleCheckboxOptionsPanel
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
+
 import scala.annotation.tailrec
 
 /**
@@ -21,7 +24,8 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase extends AbstractInspect
 
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case parenthesized: ScParenthesisedExpr
-      if !parenthesized.getParent.isInstanceOf[ScParenthesisedExpr] && UnnecessaryParenthesesUtil.canBeStripped(parenthesized, getIgnoreClarifying) =>
+      if !parenthesized.getParent.isInstanceOf[ScParenthesisedExpr] && IntentionAvailabilityChecker.checkInspection(this, parenthesized) &&
+        UnnecessaryParenthesesUtil.canBeStripped(parenthesized, getIgnoreClarifying) =>
       holder.registerProblem(parenthesized, "Unnecessary parentheses", ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
         new UnnecessaryParenthesesQuickFix(parenthesized, UnnecessaryParenthesesUtil.getTextOfStripped(parenthesized, getIgnoreClarifying)))
   }

@@ -1,26 +1,13 @@
 package org.jetbrains.plugins.scala.lang.superMember;
 
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.testFramework.PsiTestCase;
-import com.intellij.openapi.roots.ModifiableRootModel;
-import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.roots.ContentEntry;
-import com.intellij.openapi.roots.OrderRootType;
-import com.intellij.openapi.roots.libraries.LibraryTable;
-import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.projectRoots.JavaSdk;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter;
 import org.jetbrains.plugins.scala.util.TestUtils;
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
-import org.jetbrains.plugins.scala.ScalaLoader;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -59,25 +46,9 @@ public class SuperMemberTest extends ScalaLightPlatformCodeInsightTestCaseAdapte
     runTest(name);
   }
 
-  private void configureFile(final VirtualFile vFile, String exceptName, final VirtualFile newDir) {
-    if (vFile.isDirectory()) {
-      for (VirtualFile file : vFile.getChildren()) {
-        configureFile(file, exceptName, newDir);
-      }
-    } else {
-      if (vFile.getName().equals(exceptName)) {
-        return;
-      }
-      ApplicationManager.getApplication().runWriteAction(new Runnable() {
-        public void run() {
-          try {
-            vFile.copy(null, newDir, vFile.getName());
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-        }
-      });
-    }
+  public void testSelfType() throws Exception {
+    String name = "selfType/SelfType.scala";
+    runTest(name);
   }
 
   private void runTest(String name) throws Exception {
@@ -98,6 +69,6 @@ public class SuperMemberTest extends ScalaLightPlatformCodeInsightTestCaseAdapte
         replace(File.separatorChar, '/'));
     assertNotNull("file " + filePath + " not found", answerFile);
     String resText = StringUtil.convertLineSeparators(VfsUtil.loadText(answerFile), "\n");
-    assertEquals(SuperMethodTestUtil.transform(myFile, offset), resText);
+    assertEquals(resText, SuperMethodTestUtil.transform(myFile, offset));
   }
 }

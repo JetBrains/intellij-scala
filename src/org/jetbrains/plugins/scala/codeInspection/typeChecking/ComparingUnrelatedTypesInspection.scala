@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala
 package codeInspection.typeChecking
 
-import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, AbstractInspection}
-import ComparingUnrelatedTypesInspection._
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
-import org.jetbrains.plugins.scala.lang.psi.types._
-import result.Success
+import org.jetbrains.plugins.scala.codeInspection.typeChecking.ComparingUnrelatedTypesInspection._
+import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 
 /**
  * Nikolay.Tropin
@@ -31,10 +31,25 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
           holder.registerProblem(expr, inspectionName, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
         case _ =>
       }
+    case MethodRepr(_, Some(baseExpr), Some(ref), Seq(arg)) if ref.refName == "contains" =>
+      ref.resolve() match {
+        case fun: ScFunction if fun.containingClass.qualifiedName == "scala.collection.SeqLike" =>
+          for {
+            ScParameterizedType(_, Seq(elemType)) <- baseExpr.getType()
+            argType <- arg.getType()
+            if cannotBeCompared(elemType, argType)
+          } {
+            val message = s"$inspectionName: ${elemType.presentableText} and ${argType.presentableText}"
+            holder.registerProblem(arg, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+          }
+        case _ =>
+      }
   }
 
   def cannotBeCompared(type1: ScType, type2: ScType): Boolean = {
-    val Seq(unboxed1, unboxed2) = Seq(type1, type2).map(StdType.unboxedType)
+    val types = Seq(type1, type2)
+    val Seq(unboxed1, unboxed2) =
+      if (types.contains(Null)) types else types.map(StdType.unboxedType)
     ComparingUtil.isNeverSubType(unboxed1, unboxed2) && ComparingUtil.isNeverSubType(unboxed2, unboxed1)
   }
 }

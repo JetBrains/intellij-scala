@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package editor.smartEnter.fixers
 
+import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.psi._
-import com.intellij.openapi.editor.{Editor, Document}
-import editor.smartEnter.ScalaSmartEnterProcessor
-import lang.psi.api.expr.{ScExpression, ScIfStmt}
-import util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIfStmt}
 
 /**
  * @author Ksenia.Sautina
@@ -18,15 +18,15 @@ class ScalaIfConditionFixer extends ScalaFixer {
     val ifStatement = PsiTreeUtil.getParentOfType(psiElement, classOf[ScIfStmt], false)
     if (ifStatement == null) return
     val doc: Document = editor.getDocument
-    val leftParenthesis = ifStatement.getLeftParenthesis.getOrElse(null)
-    val rightParenthesis = ifStatement.getRightParenthesis.getOrElse(null)
-    val condition = ifStatement.condition.getOrElse(null)
+    val leftParenthesis = ifStatement.getLeftParenthesis.orNull
+    val rightParenthesis = ifStatement.getRightParenthesis.orNull
+    val condition = ifStatement.condition.orNull
     if (condition == null) {
       if (leftParenthesis == null && rightParenthesis == null) {
         var stopOffset: Int = doc.getLineEndOffset(doc.getLineNumber(ifStatement.getTextRange.getStartOffset))
-        val then: ScExpression = ifStatement.thenBranch.getOrElse(null)
-        if (then != null) {
-          stopOffset = Math.min(stopOffset, then.getTextRange.getStartOffset)
+        val thenBranch: ScExpression = ifStatement.thenBranch.orNull
+        if (thenBranch != null) {
+          stopOffset = Math.min(stopOffset, thenBranch.getTextRange.getStartOffset)
         }
         doc.replaceString(ifStatement.getTextRange.getStartOffset, stopOffset, "if () {\n}")
         processor.registerUnresolvedError(ifStatement.getTextRange.getStartOffset + "if (".length)

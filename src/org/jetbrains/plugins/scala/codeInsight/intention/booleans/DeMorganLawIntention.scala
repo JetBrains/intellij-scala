@@ -2,18 +2,14 @@ package org.jetbrains.plugins.scala
 package codeInsight.intention.booleans
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import lang.psi.impl.ScalaPsiElementFactory
-import lang.psi.api.base.ScLiteral
-import lang.psi.api.expr._
-import lang.refactoring.util.ScalaNamesUtil
-import lang.lexer.ScalaTokenTypes
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.util.IntentionUtils
-import extensions._
 
 /**
  * @author Ksenia.Sautina

@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import com.intellij.psi.impl.light.LightMethod
-import com.intellij.psi.{HierarchicalMethodSignature, PsiClass, PsiManager, PsiMethod}
-import com.intellij.psi.impl.PsiSuperMethodImplUtil
 import java.util
+
+import com.intellij.psi.impl.PsiSuperMethodImplUtil
+import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
+import com.intellij.psi.{HierarchicalMethodSignature, PsiClass, PsiManager, PsiMethod}
 
 /**
  * @author Alefas
@@ -14,7 +15,7 @@ import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
 trait LightScalaMethod
 
 class LightMethodAdapter(manager: PsiManager, method: PsiMethod, containingClass: PsiClass) extends
-  LightMethod(manager, method, containingClass) {
+  LightMethod(manager, method, containingClass, containingClass.getLanguage) {
 
   override def findDeepestSuperMethods(): Array[PsiMethod] = PsiSuperMethodImplUtil.findDeepestSuperMethods(this)
 

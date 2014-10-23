@@ -1,20 +1,22 @@
 package org.jetbrains.plugins.scala
 package decompiler
 
-
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{SingleRootFileViewProvider, PsiManager, PsiFile}
-import lang.psi.impl.ScalaFileImpl
-import com.intellij.psi.impl.compiled.ClassFileStubBuilder
+import com.intellij.psi.{PsiFile, PsiManager, SingleRootFileViewProvider}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 
 /**
  * @author ilyas
  */
-
 class ScClassFileViewProvider(manager: PsiManager, file: VirtualFile, physical: Boolean, isScalaFile: Boolean)
-extends SingleRootFileViewProvider(manager, file, physical) {
+extends SingleRootFileViewProvider(manager, file, physical, ScalaFileType.SCALA_FILE_TYPE.getLanguage) {
+
+  override def getContents: CharSequence =
+    if (!isScalaFile) ""
+    else DecompilerUtil.decompile(getVirtualFile, getVirtualFile.contentsToByteArray).sourceText.replace("\r", "")
+
   override def createFile(project: Project, vFile: VirtualFile, fileType: FileType): PsiFile = {
     if (!isScalaFile) null
     else {
@@ -26,8 +28,7 @@ extends SingleRootFileViewProvider(manager, file, physical) {
     }
   }
 
-  override def getBaseLanguage = ScalaFileType.SCALA_FILE_TYPE.getLanguage
-
   override def createCopy(copy: VirtualFile): SingleRootFileViewProvider =
     new ScClassFileViewProvider(getManager, copy, false, isScalaFile)
+
 }

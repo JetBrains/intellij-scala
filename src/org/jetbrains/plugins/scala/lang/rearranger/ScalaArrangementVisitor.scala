@@ -1,30 +1,27 @@
 package org.jetbrains.plugins.scala
 package lang.rearranger
 
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile, ScalaElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement, ScModifierList,
-ScConstructor}
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScClass, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import com.intellij.openapi.util.TextRange
-import com.intellij.psi.codeStyle.arrangement.std.ArrangementSettingsToken
 import com.intellij.openapi.editor.Document
+import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi._
 import com.intellij.psi.codeStyle.arrangement.ArrangementUtil
-import scala.collection.mutable
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
-import scala.Some
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
+import com.intellij.psi.codeStyle.arrangement.std.ArrangementSettingsToken
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.EntryType._
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Modifier._
-import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.Any
-import org.jetbrains.plugins.scala.lang.psi.types.Unit
-import org.jetbrains.plugins.scala.lang.psi.types.Boolean
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScModifierList, ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.types.{Any, Boolean, ScType, Unit}
+
+import scala.collection.mutable
 
 /**
  * @author Roman.Shein
@@ -94,6 +91,11 @@ class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Do
       pat.pList.patterns.toList.head.bindings(0).getName, canArrange = true), pat, pat.expr.getOrElse(null))
   }
 
+  override def visitElement(v: ScalaPsiElement) = v match {
+    case packaging: ScPackaging => packaging.acceptChildren(this)
+    case _ => super.visitElement(v)
+  } 
+  
   override def visitValueDeclaration(v: ScValueDeclaration) =
     processEntry(createNewEntry(v.getParent, expandTextRangeToComment(v), VAL, v.getName, canArrange = true), v, null)
 
@@ -107,7 +109,7 @@ class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Do
     processEntry(createNewEntry(varr.getParent, expandTextRangeToComment(varr), VAR, varr.declaredElements(0).getName, canArrange = true),
       varr, null)
 
-  override def visitTypeDefintion(typedef: ScTypeDefinition) {
+  override def visitTypeDefinition(typedef: ScTypeDefinition) {
     val entry = createNewEntry(typedef.getParent, expandTextRangeToComment(typedef), typedef match {
       case _: ScClass => CLASS
       case _: ScTrait => TRAIT

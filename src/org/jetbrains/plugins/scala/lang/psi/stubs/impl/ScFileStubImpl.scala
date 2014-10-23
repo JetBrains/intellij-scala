@@ -3,14 +3,12 @@ package lang
 package psi
 package stubs
 package impl
-import api.ScalaFile
 import com.intellij.psi.PsiClass
-import com.intellij.psi.stubs.{StubElement, PsiFileStubImpl}
-import com.intellij.psi.tree.{TokenSet, IStubFileElementType}
-import elements.{ScTypeAliasElementType, ScVariableElementType, ScValueElementType, ScPackageContainerElementType}
-import parser.ScalaElementTypes
-import elements.wrappers.PsiFileStubWrapperImpl
+import com.intellij.psi.tree.{IStubFileElementType, TokenSet}
 import com.intellij.util.io.StringRef
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.wrappers.PsiFileStubWrapperImpl
 /**
  * @author ilyas
  */
@@ -18,8 +16,6 @@ import com.intellij.util.io.StringRef
 class ScFileStubImpl(file: ScalaFile) extends PsiFileStubWrapperImpl[ScalaFile](file) with ScFileStub {
 
   override def getType = ScalaElementTypes.FILE.asInstanceOf[IStubFileElementType[Nothing]]
-
-  implicit  def refToStr(ref: StringRef) = StringRef.toString(ref)
 
   var packName: StringRef = _
   var sourceFileName: StringRef = _
@@ -35,13 +31,13 @@ class ScFileStubImpl(file: ScalaFile) extends PsiFileStubWrapperImpl[ScalaFile](
   }
 
   def getClasses = {
-    import ScalaElementTypes._
+    import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
     getChildrenByType(TokenSet.create(CLASS_DEF, OBJECT_DEF, TRAIT_DEF), PsiClass.ARRAY_FACTORY)
   }
 
-  def getFileName = sourceFileName
+  def getFileName = StringRef.toString(sourceFileName)
 
-  def packageName = packName
+  def packageName = StringRef.toString(packName)
 
   def isCompiled: Boolean = compiled
 

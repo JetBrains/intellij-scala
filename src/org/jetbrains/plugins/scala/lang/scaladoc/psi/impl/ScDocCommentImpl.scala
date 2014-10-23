@@ -5,20 +5,20 @@ package psi
 package impl
 
 
+import java.util
+
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.javadoc.PsiDocTag
 import com.intellij.psi.tree.IElementType
-import java.lang.String
-import lang.psi.ScalaPsiElement
-import parser.ScalaDocElementTypes
-import com.intellij.util.ReflectionCache
-import java.util.{List, ArrayList}
-import lang.psi.api.ScalaElementVisitor
-import com.intellij.psi.{PsiElementVisitor, PsiDocCommentOwner, PsiElement}
-import lexer.ScalaDocTokenType
-import api.{ScDocTag, ScDocComment}
-import extensions.toPsiNamedElementExt
-import collection.mutable
+import com.intellij.psi.{PsiDocCommentOwner, PsiElement, PsiElementVisitor}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocTag}
+
+import scala.collection.mutable
 
 /**
  * User: Alexander Podkhalyuzin
@@ -70,10 +70,10 @@ class ScDocCommentImpl(text: CharSequence) extends LazyParseablePsiElement(Scala
 
 
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](aClass: Class[T]): Array[T] = {
-    val result: List[T] = new ArrayList[T]
+    val result: util.List[T] = new util.ArrayList[T]
     var cur: PsiElement = getFirstChild
     while (cur != null) {
-      if (ReflectionCache.isInstance(cur, aClass)) result.add(cur.asInstanceOf[T])
+      if (aClass.isInstance(cur)) result.add(cur.asInstanceOf[T])
       cur = cur.getNextSibling
     }
     result.toArray[T](java.lang.reflect.Array.newInstance(aClass, result.size).asInstanceOf[Array[T]])
@@ -82,7 +82,7 @@ class ScDocCommentImpl(text: CharSequence) extends LazyParseablePsiElement(Scala
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](aClass: Class[T]): T = {
     var cur: PsiElement = getFirstChild
     while (cur != null) {
-      if (ReflectionCache.isInstance(cur, aClass)) return cur.asInstanceOf[T]
+      if (aClass.isInstance(cur)) return cur.asInstanceOf[T]
       cur = cur.getNextSibling
     }
     null

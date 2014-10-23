@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.finder
 
-import org.jetbrains.plugins.scala.ScalaFileType
-import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.project.Project
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.fileTypes.StdFileTypes
+import com.intellij.openapi.fileTypes.{FileTypeManager, StdFileTypes}
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
 
 /**
@@ -29,10 +29,9 @@ class ScalaSourceFilterScope(myDelegate: GlobalSearchScope, project: Project) ex
   }
 
   def contains(file: VirtualFile): Boolean = {
-    val extention = file.getExtension
     (null == myDelegate || myDelegate.contains(file)) && (
-      (ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension == extention || 
+      (FileTypeManager.getInstance().isFileOfType(file, ScalaFileType.SCALA_FILE_TYPE) ||
         ScalaLanguageDerivative.hasDerivativeForFileType(file.getFileType)) && myIndex.isInSourceContent(file) ||
-        StdFileTypes.CLASS.getDefaultExtension == extention && myIndex.isInLibraryClasses(file))
+        StdFileTypes.CLASS.getDefaultExtension == file.getExtension && myIndex.isInLibraryClasses(file))
   }
 }

@@ -4,10 +4,9 @@ package parser
 package parsing
 package xml
 
-import com.intellij.lang.PsiBuilder
 import com.intellij.psi.xml.XmlTokenType
-import builder.ScalaPsiBuilder
-import parser.util.ParserPatcher
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.ParserPatcher
 
 /**
 * @author Alexander Podkhalyuzin

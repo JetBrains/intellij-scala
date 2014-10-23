@@ -4,13 +4,12 @@ package psi
 package impl
 package base
 
-import api.toplevel.ScTypeBoundsOwner
-import lexer.ScalaTokenTypes
-import api.base.types.ScTypeElement
-import psi.types.{ScType, Nothing, Any}
-import psi.types.result.{TypingContext, Success, TypeResult}
-import com.intellij.psi.util.{PsiUtil, PsiTreeUtil}
 import com.intellij.psi.PsiWhiteSpace
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Any, Nothing, ScType}
 
 trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
   //todo[CYCLIC]
@@ -18,9 +17,9 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
 
   def upperBound: TypeResult[ScType] = wrapWith(upperTypeElement, Any) flatMap ( _.getType(TypingContext.empty) )
 
-  override def viewBound: List[ScType] = viewTypeElement flatMap (_.getType(TypingContext.empty).toOption.toList)
+  override def viewBound: Seq[ScType] = viewTypeElement.flatMap(_.getType(TypingContext.empty).toOption)
 
-  override def contextBound: List[ScType] = contextBoundTypeElement flatMap (_.getType(TypingContext.empty).toOption.toList)
+  override def contextBound: Seq[ScType] = contextBoundTypeElement.flatMap(_.getType(TypingContext.empty).toOption)
 
   override def upperTypeElement: Option[ScTypeElement] = {
     val tUpper = findLastChildByType(ScalaTokenTypes.tUPPER_BOUND)
@@ -43,17 +42,18 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
   }
 
 
-  override def viewTypeElement: List[ScTypeElement] = {
-    for {v <- findChildrenByType(ScalaTokenTypes.tVIEW)
-        t <- {
-          val e = ScalaPsiUtil.getNextSiblingOfType(v, classOf[ScTypeElement])
-          Option(e)}.toList
+  override def viewTypeElement: Seq[ScTypeElement] = {
+    for {
+      v <- findChildrenByType(ScalaTokenTypes.tVIEW)
+      e = ScalaPsiUtil.getNextSiblingOfType(v, classOf[ScTypeElement])
+      t <- Option(e)
     } yield t
   }
 
-  override def contextBoundTypeElement: List[ScTypeElement] = {
-    for {v <- findChildrenByType(ScalaTokenTypes.tCOLON)
-        t <- Option(ScalaPsiUtil.getNextSiblingOfType(v, classOf[ScTypeElement])).toList
+  override def contextBoundTypeElement: Seq[ScTypeElement] = {
+    for {
+      v <- findChildrenByType(ScalaTokenTypes.tCOLON)
+      t <- Option(ScalaPsiUtil.getNextSiblingOfType(v, classOf[ScTypeElement]))
     } yield t
   }
 

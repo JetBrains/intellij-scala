@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala.lang.refactoring.rename
 
-import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
-import com.intellij.refactoring.rename.RenamePsiElementProcessor
-import com.intellij.openapi.editor.Editor
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.light.{StaticPsiTypedDefinitionWrapper, StaticPsiMethodWrapper, PsiTypedDefinitionWrapper, ScFunctionWrapper}
-import com.intellij.usageView.UsageInfo
-import com.intellij.refactoring.listeners.RefactoringElementListener
-import com.intellij.openapi.util.Pass
 import java.util
+
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.util.Pass
+import com.intellij.psi.PsiElement
+import com.intellij.refactoring.listeners.RefactoringElementListener
+import com.intellij.refactoring.rename.RenamePsiElementProcessor
+import com.intellij.usageView.UsageInfo
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
+import org.jetbrains.plugins.scala.lang.psi.light.{PsiTypedDefinitionWrapper, ScFunctionWrapper, StaticPsiMethodWrapper, StaticPsiTypedDefinitionWrapper}
 
 /**
  * User: Alexander Podkhalyuzin

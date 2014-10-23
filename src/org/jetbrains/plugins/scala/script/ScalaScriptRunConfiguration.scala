@@ -3,20 +3,21 @@ package script
 
 import com.intellij.execution.configurations._
 import com.intellij.execution.filters._
-import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiElement, PsiManager}
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.{ExecutionException, Executor}
-import com.intellij.openapi.module.{ModuleUtilCore, Module}
+import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.options.SettingsEditor
-import lang.psi.api.ScalaFile
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.JDOMExternalizer
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.{PsiElement, PsiManager}
+import com.intellij.refactoring.listeners.{RefactoringElementAdapter, RefactoringElementListener}
 import com.intellij.vcsUtil.VcsUtil
 import org.jdom.Element
-import collection.JavaConversions._
-import com.intellij.refactoring.listeners.{RefactoringElementAdapter, RefactoringElementListener}
-import project._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.project._
+
+import scala.collection.JavaConversions._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -158,7 +159,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
   }
 
   private def getFilter(file: VirtualFile): Filter = {
-    import Filter._
+    import com.intellij.execution.filters.Filter._
     new Filter {
       def applyFilter(line: String, entireLength: Int): Result = {
         val start = entireLength - line.length

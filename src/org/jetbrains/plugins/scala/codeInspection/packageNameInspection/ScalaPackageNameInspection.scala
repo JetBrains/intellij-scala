@@ -3,12 +3,10 @@ package codeInspection
 package packageNameInspection
 
 
-import lang.psi.api.ScalaFile
 import com.intellij.codeInspection._
-
-import java.lang.String
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -67,7 +65,7 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
 
   private def cleanKeywords(packageName: String): String = {
     if (packageName == null) return null
-    import ScalaNamesUtil._
+    import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
     packageName.split('.').map {
       case isBacktickedName(name) if isKeyword(name) => name
       case name => name

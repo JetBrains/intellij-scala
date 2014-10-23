@@ -4,14 +4,12 @@ package psi
 package impl
 package expr
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import com.intellij.psi.scope._
-import lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
 /** 
 * @author Alexander Podkhalyuzin

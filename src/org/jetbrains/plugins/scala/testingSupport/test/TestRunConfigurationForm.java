@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.testingSupport.test;
 
 import com.intellij.execution.ExecutionBundle;
 import com.intellij.execution.configuration.BrowseModuleValueActionListener;
+import com.intellij.execution.configuration.EnvironmentVariablesComponent;
 import com.intellij.execution.ui.ClassBrowser;
 import com.intellij.execution.ui.ConfigurationModuleSelector;
 import com.intellij.ide.util.ClassFilter;
@@ -17,13 +18,11 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.RawCommandLineEditor;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager;
-import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationProducer;
-import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration;
-import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2RunConfiguration;
 
 import javax.swing.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.Map;
 
 /**
  * @author Ksenia.Sautina
@@ -41,7 +40,7 @@ public class TestRunConfigurationForm{
   private TextFieldWithBrowseButton workingDirectoryField;
   private JPanel searchForTestsPanel;
   private ConfigurationModuleSelector myModuleSelector;
-  private Boolean isScalaTest;
+  private String suitePath;
 
   private JComboBox searchForTestsComboBox;
   public static enum SearchForTest {
@@ -62,6 +61,7 @@ public class TestRunConfigurationForm{
   private JTextField testNameTextField;
   private JLabel testNameLabel;
   private JCheckBox myShowProgressMessagesCheckBox;
+  private EnvironmentVariablesComponent environmentVariables;
 
   public static enum TestKind {
     ALL_IN_PACKAGE, CLASS, TEST_NAME;
@@ -146,16 +146,8 @@ public class TestRunConfigurationForm{
       }
     });
 
-    if (configuration instanceof ScalaTestRunConfiguration) {
-      isScalaTest = true;
-
-    } else if (configuration instanceof Specs2RunConfiguration) {
-      isScalaTest = false;
-
-    } else {
-      throw new RuntimeException("Unknown run configuration: " + configuration);
-    }
-
+    suitePath = configuration.suitePath();
+    environmentVariables.setEnvs(configuration.getEnvVariables());
  }
 
   private void setupModuleComboBox() {
@@ -234,6 +226,7 @@ public class TestRunConfigurationForm{
     myModuleSelector.applyTo(configuration);
     searchForTestsComboBox.setSelectedItem(configuration.getSearchTest());
     setTestName(configuration.getTestName());
+    environmentVariables.setEnvs(configuration.getEnvVariables());
     setShowProgressMessages(configuration.getShowProgressMessages());
   }
 
@@ -263,6 +256,10 @@ public class TestRunConfigurationForm{
 
   public String getWorkingDirectory() {
     return workingDirectoryField.getText();
+  }
+
+  public Map<String, String> getEnvironmentVariables() {
+    return environmentVariables.getEnvs();
   }
 
   public void setTestClassPath(String s) {
@@ -318,7 +315,6 @@ public class TestRunConfigurationForm{
           }
 
           public boolean isAccepted(PsiClass aClass) {
-            String suitePath = isScalaTest ? "org.scalatest.Suite" : "org.specs2.specification.SpecificationStructure";
             if (!getScope().accept(aClass.getContainingFile().getVirtualFile())) return false;
             PsiClass[] classes = ScalaPsiManager.instance(project).getCachedClasses(getScope(), suitePath);
             for (PsiClass psiClass : classes) {

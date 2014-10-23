@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala
 package codeInspection
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import com.intellij.codeInsight.CodeInsightTestCase
 import com.intellij.codeInspection.LocalInspectionTool
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.codeInspection.booleans.DoubleNegationInspection
 
 /**

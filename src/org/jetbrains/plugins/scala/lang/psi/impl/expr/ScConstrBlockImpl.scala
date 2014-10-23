@@ -5,9 +5,9 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
-import api.expr._
-import api.ScalaElementVisitor
 import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
 * @author Alexander.Podkhalyuzin 

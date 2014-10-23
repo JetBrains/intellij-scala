@@ -2,11 +2,10 @@ package org.jetbrains.plugins.scala
 package codeInspection.methodSignature
 
 import com.intellij.codeInspection._
-import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.AddEmptyParentheses
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import quickfix.AddEmptyParentheses
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 /**
  * Pavel Fatin

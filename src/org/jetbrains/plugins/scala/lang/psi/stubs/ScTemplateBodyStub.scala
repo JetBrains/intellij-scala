@@ -4,8 +4,8 @@ package psi
 package stubs
 
 
-import api.toplevel.templates.ScTemplateBody
 import com.intellij.psi.stubs.StubElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 
 /**
  * User: Alexander Podkhalyuzin

@@ -5,8 +5,8 @@ import com.intellij.codeInsight.editorActions.ExtendWordSelectionHandlerBase
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import lang.lexer.ScalaTokenTypes
-import lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 
 /**
  * @author ilyas

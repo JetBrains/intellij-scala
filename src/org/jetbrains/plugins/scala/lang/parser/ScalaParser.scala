@@ -2,13 +2,11 @@ package org.jetbrains.plugins.scala
 package lang
 package parser
 
-import com.intellij.lang.PsiParser
-import com.intellij.lang.ASTNode
-import com.intellij.lang.PsiBuilder
+import com.intellij.lang.{ASTNode, PsiBuilder, PsiParser}
 import com.intellij.psi.tree.IElementType
-import parsing.builder.ScalaPsiBuilderImpl
-import parsing.expressions.{BlockExpr, Block}
-import parsing.Program
+import org.jetbrains.plugins.scala.lang.parser.parsing.Program
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockExpr
 
 class ScalaParser extends PsiParser {
 

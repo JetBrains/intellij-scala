@@ -19,13 +19,13 @@ import com.intellij.lexer.Lexer;
 import com.intellij.lexer.LexerPosition;
 import com.intellij.lexer.LexerState;
 import com.intellij.psi.tree.IElementType;
-import com.intellij.util.text.CharArrayCharSequence;
-import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.SCALA_PLAIN_CONTENT;
 import org.jetbrains.plugins.scala.lang.lexer.core.ScalaCoreLexer;
 import org.jetbrains.plugins.scala.lang.lexer.core.ScalaSplittingLexer;
 
 import java.util.LinkedList;
 import java.util.Queue;
+
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.SCALA_PLAIN_CONTENT;
 
 /**
  * @author ilyas

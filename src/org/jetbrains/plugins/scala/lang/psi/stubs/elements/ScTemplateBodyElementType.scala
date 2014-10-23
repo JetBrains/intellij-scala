@@ -4,11 +4,11 @@ package psi
 package stubs
 package elements
 
-import api.toplevel.templates.ScTemplateBody
-import psi.impl.toplevel.templates.ScTemplateBodyImpl
-import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
 import com.intellij.psi.PsiElement
-import impl.ScTemplateBodyStubImpl
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScTemplateBodyImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateBodyStubImpl
 
 /**
  * User: Alexander Podkhalyuzin

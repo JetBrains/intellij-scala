@@ -2,21 +2,22 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
-import collection.mutable.HashSet
 import com.intellij.codeInsight.navigation.NavigationUtil
 import com.intellij.ide.util.EditSourceUtil
+import com.intellij.lang.LanguageCodeInsightActionHandler
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
-import lang.psi.api.statements._
-import lang.psi.ScalaPsiUtil
-import ScalaMarkerType.ScCellRenderer
-import lang.psi.api.toplevel.ScTypedDefinition
-import lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
-import extensions.toPsiClassExt
-import com.intellij.lang.LanguageCodeInsightActionHandler
+import org.jetbrains.plugins.scala.annotator.gutter.ScalaMarkerType.ScCellRenderer
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+
+import scala.collection.mutable.HashSet
 
 /**
  * User: Alexander Podkhalyuzin
@@ -85,7 +86,7 @@ private object ScalaGoToSuperActionHandler {
       val supers = HashSet[NavigatablePsiElement]((if (el != null && elements.contains(el.asInstanceOf[ScTypedDefinition])) {
         ScalaPsiUtil.superValsSignatures(el.asInstanceOf[ScTypedDefinition])
       } else ScalaPsiUtil.superValsSignatures(elements(0))).flatMap(_.namedElement match {
-        case Some(n: NavigatablePsiElement) => Some(n)
+        case n: NavigatablePsiElement => Some(n)
         case _ => None
       }): _*)
       supers.toArray
@@ -94,23 +95,19 @@ private object ScalaGoToSuperActionHandler {
     element match {
       case x: ScTemplateDefinition with ScDeclaredElementsHolder =>
         (templateSupers(x), declaredElementHolderSupers(x) ++ ScalaPsiUtil.superTypeMembers(x))
-      case template: ScTemplateDefinition => {
+      case template: ScTemplateDefinition =>
         (templateSupers(template), ScalaPsiUtil.superTypeMembers(template))
-      }
-      case func: ScFunction => {
+      case func: ScFunction =>
         val supers = HashSet[NavigatablePsiElement](func.superSignatures.flatMap(_.namedElement match {
-          case Some(n: NavigatablePsiElement) => Some(n)
+          case n: NavigatablePsiElement => Some(n)
           case _ => None
         }): _*)
         (Seq(), supers.toSeq)
-      }
-      case d: ScDeclaredElementsHolder => {
+      case d: ScDeclaredElementsHolder =>
         (Seq(), declaredElementHolderSupers(d))
-      }
-      case d: ScTypeAlias => {
+      case d: ScTypeAlias =>
         val superTypeMembers = ScalaPsiUtil.superTypeMembers(d)
         (Seq(), superTypeMembers)
-      }
       case _ => (Seq.empty, Seq.empty) //Case class synthetic companion object could also implement a value member.
     }
   }

@@ -127,10 +127,10 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       """
       |class Check {
       |  def method(<caret>attrib: String) = {
-      |     CaseClass(attrib = attrib)
+      |     CaseClass2(attrib = attrib)
       |  }
       |}
-      |case class CaseClass(attrib: String) {}
+      |case class CaseClass2(attrib: String) {}
       """.stripMargin('|').replaceAll("\r", "").trim()
     myFixture.configureByText("dummy.scala", fileText)
     myFixture.renameElementAtCaret("y")
@@ -139,10 +139,10 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       """
       |class Check {
       |  def method(<caret>y: String) = {
-      |     CaseClass(attrib = y)
+      |     CaseClass2(attrib = y)
       |  }
       |}
-      |case class CaseClass(attrib: String) {}
+      |case class CaseClass2(attrib: String) {}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
     myFixture.checkResult(resultText)

@@ -1,30 +1,31 @@
 package org.jetbrains.sbt
 package project
 
-import com.intellij.openapi.components.{ServiceManager, ProjectComponent}
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.util.NotificationUtil
-import com.intellij.openapi.fileEditor._
-import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.sbt.language.SbtFileType
+import java.io.File
+import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
-import com.intellij.openapi.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil, ExternalSystemUtil}
-import com.intellij.openapi.externalSystem.service.project.ExternalProjectRefreshCallback
+
+import com.intellij.notification.{Notification, NotificationDisplayType, NotificationType, NotificationsConfiguration}
+import com.intellij.openapi.components.{ProjectComponent, ServiceManager}
+import com.intellij.openapi.editor.Document
+import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent}
+import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
-import org.jetbrains.sbt.project.settings.{SbtProjectSettings => Settings, SbtSettings}
-import java.lang.String
-import java.io.File
-import com.intellij.util.containers.ContainerUtilRt
-import com.intellij.openapi.roots.ex.ProjectRootManagerEx
+import com.intellij.openapi.externalSystem.service.project.ExternalProjectRefreshCallback
 import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataManager
-import java.util.Collections
-import com.intellij.openapi.editor.ex.EditorEx
-import com.intellij.openapi.editor.event.{DocumentEvent, DocumentAdapter}
-import com.intellij.notification.{NotificationType, NotificationDisplayType, NotificationsConfiguration, Notification}
-import com.intellij.openapi.editor.Document
+import com.intellij.openapi.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil, ExternalSystemUtil}
+import com.intellij.openapi.fileEditor._
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ex.ProjectRootManagerEx
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiManager}
+import com.intellij.util.containers.ContainerUtilRt
+import org.jetbrains.plugins.scala.util.NotificationUtil
+import org.jetbrains.sbt.language.SbtFileType
+import org.jetbrains.sbt.project.settings.{SbtSettings, SbtProjectSettings => Settings}
 
 /**
  * User: Dmitry Naydanov
@@ -68,6 +69,8 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
     expireNotification()
 
     val externalProjectPath = getExternalProject(forFile)
+    if (externalProjectPath == null) return
+
     val sbtSettings = getSbtSettings getOrElse { return }
     val projectSettings = sbtSettings.getLinkedProjectSettings(externalProjectPath)
     if (projectSettings == null || projectSettings.isUseAutoImport) return 
@@ -75,7 +78,7 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
     def refresh() {
       FileDocumentManager.getInstance.saveAllDocuments()
 
-      ExternalSystemUtil.refreshProjects(project, SbtProjectSystem.Id, false, ProgressExecutionMode.IN_BACKGROUND_ASYNC)
+      ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, SbtProjectSystem.Id))
     }
 
     if (externalProjectPath == null) return
@@ -157,7 +160,8 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
     build show notification
   }
   
-  private def getExternalProject(filePath: String) = myExternalProjectPathProvider.getAffectedExternalProjectPath(filePath, project)
+  private def getExternalProject(filePath: String) =
+    if (project.isDisposed) null else myExternalProjectPathProvider.getAffectedExternalProjectPath(filePath, project)
   
   private def builder(message: String) = NotificationUtil.builder(project, message).setGroup(SbtImportNotifier.groupName)
   
@@ -190,12 +194,11 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
         case _ => false
       }) expireNotification()
 
+      if (!file.isValid) return
       val psiFile = PsiManager.getInstance(project).findFile(file)
-
       if (psiFile == null) return
 
       val document = PsiDocumentManager.getInstance(project).getDocument(psiFile)
-
       if (document == null) return
 
       val listener = myMap.remove(document)
@@ -205,6 +208,7 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
     }
 
     def fileOpened(source: FileEditorManager, file: VirtualFile) {
+      if (!file.isValid) return
       if (!checkCanBeSbtFile(file)) return
       
       if (!myNoImportIgnored) checkNoImport(file.getCanonicalPath)
@@ -250,8 +254,8 @@ object SbtImportNotifier {
                             |<body>
                             | Build file '$fileName' in project '${getProjectName(fileName)}' was changed. Refresh project? <br>
                             |
-                            | <a href="ftp://reimport"> Refresh </a><br>    
-                            | <a href="ftp://autoimport">Enable auto-import</a><br>
+                            | <a href="ftp://reimport">Refresh</a> &nbsp;
+                            | <a href="ftp://autoimport">Enable auto-import</a> &nbsp;
                             | <a href="ftp://ignore">Ignore</a>
                             | </body>
                             | </html>
@@ -262,7 +266,7 @@ object SbtImportNotifier {
                             | File '$fileName' seems to be SBT build file, but there is no external project related to it.
                             | Import the corresponding project?<br>
                             |
-                            | <a href="ftp://import">Import project</a><br>
+                            | <a href="ftp://import">Import project</a> &nbsp;
                             | <a href="ftp://ignore">Ignore</a><br>
                           """.stripMargin
   

@@ -1,16 +1,17 @@
 package org.jetbrains.sbt
 package language
 
-import com.intellij.psi.{PsiClass, PsiElement, ResolveState, FileViewProvider}
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager, ScalaFileImpl}
-import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
-import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
-import com.intellij.psi.search.searches.ClassInheritorsSearch
-import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.search.searches.ClassInheritorsSearch
+import com.intellij.psi.{FileViewProvider, PsiClass, PsiElement, ResolveState}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.sbt.project.module.SbtModule
-import collection.JavaConverters._
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -23,15 +24,22 @@ class SbtFileImpl(provider: FileViewProvider) extends ScalaFileImpl(provider, Sb
   override def packagings = Seq.empty
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = 
-    super[ScalaFileImpl].processDeclarations(processor, state, lastParent, place) && 
+    super[ScalaFileImpl].processDeclarations(processor, state, lastParent, place) &&
     super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place) &&
     processImplicitImports(processor, state, lastParent,place)
 
   private def processImplicitImports(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
     val expressions = implicitImportExpressions ++ localObjectsWithDefinitions.map(_.qualifiedName + "._")
 
-    expressions.isEmpty || {
-      val code = s"import ${expressions.mkString(", ")};"
+    // TODO this is a workaround, we need to find out why references stopped resolving via the chained imports
+    val expressions0 = expressions.map {
+      case "Keys._" => "sbt.Keys._"
+      case "Build._" => "sbt.Build._"
+      case it => it
+    }
+
+    expressions0.isEmpty || {
+      val code = s"import ${expressions0.mkString(", ")};"
       val file = ScalaPsiElementFactory.parseFile(code, getManager)
       file.processDeclarations(processor, state, file.lastChild.get, place)
     }

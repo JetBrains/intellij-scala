@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala.debugger.filters;
 
-import com.intellij.ui.classFilter.DebuggerClassFilterProvider;
 import com.intellij.ui.classFilter.ClassFilter;
-import com.intellij.util.containers.ContainerUtil;
+import com.intellij.ui.classFilter.DebuggerClassFilterProvider;
 import com.intellij.util.Function;
+import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NonNls;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author ilyas

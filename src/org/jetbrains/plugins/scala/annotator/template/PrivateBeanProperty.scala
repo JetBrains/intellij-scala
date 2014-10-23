@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package annotator.template
 
-import org.jetbrains.plugins.scala.annotator.AnnotatorPart
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
+import org.jetbrains.plugins.scala.annotator.AnnotatorPart
 import org.jetbrains.plugins.scala.annotator.quickfix.modifiers.MakeNonPrivateQuickFix
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
 /**
  * Nikolay.Tropin

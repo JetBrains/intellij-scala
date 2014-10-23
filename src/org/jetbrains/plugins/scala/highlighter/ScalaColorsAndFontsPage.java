@@ -80,6 +80,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
         new AttributesDescriptor(DefaultHighlighter.VARIABLES_NAME, DefaultHighlighter.VARIABLES),
         new AttributesDescriptor(DefaultHighlighter.LAZY_NAME, DefaultHighlighter.LAZY),
         new AttributesDescriptor(DefaultHighlighter.PARAMETER_NAME, DefaultHighlighter.PARAMETER),
+        new AttributesDescriptor(DefaultHighlighter.ANONYMOUS_PARAMETER_NAME, DefaultHighlighter.ANONYMOUS_PARAMETER),
         new AttributesDescriptor(DefaultHighlighter.PATTERN_NAME, DefaultHighlighter.PATTERN),
         new AttributesDescriptor(DefaultHighlighter.METHOD_CALL_NAME, DefaultHighlighter.METHOD_CALL),
         new AttributesDescriptor(DefaultHighlighter.OBJECT_METHOD_CALL_NAME, DefaultHighlighter.OBJECT_METHOD_CALL),
@@ -120,7 +121,8 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
         "<keyword>class</keyword> <class>ScalaClass</class><par>(</par><param>x</param><colon>:</colon> <predef>Int</predef><par>)</par>" +
         " <keyword>extends</keyword>" +
         " <class>ScalaObject</class> <brace>{</brace>\n" +
-        "  1 <implicit>to</implicit> 5" +
+        "  <number>1</number> <implicit>to</implicit> <number>5</number>\n" +
+        "  <par>(</par><anon_param>x</anon_param><colon>:</colon> <predef>Int</predef><par>)</par> => <anon_param>x</anon_param>\n" +
         "  <keyword>val</keyword> <val>field</val> <assign>=</assign> <string>\"Some<validescape>\\n</validescape>Strin<invalidescape>\\g</invalidescape>\"</string>\n" +
         "  <keyword>def</keyword> <methoddecl>foo</methoddecl><par>(</par><param>x</param><colon>:</colon> <predef>Float</predef><comma>," +
         "</comma> <param>y</param><colon>:</colon> <predef>Float</predef><par>)</par> <assign>=</assign> <brace>{</brace>\n" +
@@ -193,6 +195,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
     map.put("local", DefaultHighlighter.LOCAL_VALUES);
     map.put("val", DefaultHighlighter.VALUES);
     map.put("param", DefaultHighlighter.PARAMETER);
+    map.put("anon_param", DefaultHighlighter.ANONYMOUS_PARAMETER);
     map.put("method", DefaultHighlighter.METHOD_CALL);
     map.put("objectmethod", DefaultHighlighter.OBJECT_METHOD_CALL);
     map.put("localmethod", DefaultHighlighter.LOCAL_METHOD_CALL);

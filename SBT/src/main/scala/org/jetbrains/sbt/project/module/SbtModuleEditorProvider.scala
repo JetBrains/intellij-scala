@@ -1,8 +1,8 @@
 package org.jetbrains.sbt
 package project.module
 
+import com.intellij.openapi.module.{ModuleConfigurationEditor, ModuleType}
 import com.intellij.openapi.roots.ui.configuration._
-import com.intellij.openapi.module.{ModuleType, ModuleConfigurationEditor}
 
 /**
  * @author Pavel Fatin
@@ -16,7 +16,9 @@ class SbtModuleEditorProvider extends ModuleConfigurationEditorProvider {
         new ContentEntriesEditor(module.getName, state),
         new DefaultModuleConfigurationEditorFactoryImpl().createOutputEditor(state),
         new ClasspathEditor(state),
-        new SbtModuleImportsEditor(state))
+        new SbtModuleImportsEditor(state),
+        new SbtModuleResolversEditor(state)
+      )
       case _ =>
         ModuleConfigurationEditor.EMPTY
     }

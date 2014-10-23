@@ -6,14 +6,14 @@ package statements
 
 import com.intellij.psi._
 import com.intellij.util.containers.ConcurrentHashMap
-import light.{PsiClassWrapper, StaticTraitScFunctionWrapper}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.extensions.{Parent, &&, toRichIterator, ElementText}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, StaticTraitScFunctionWrapper}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
 * @author Alexander Podkhalyuzin
@@ -29,10 +29,10 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
 
   def removeAssignment()
 
-  def getReturnUsages: Array[PsiElement] = body map (exp => {
-    (exp.depthFirst(!_.isInstanceOf[ScFunction]).filter(_.isInstanceOf[ScReturnStmt]) ++ exp.calculateReturns).
+  def returnUsages(withBooleanInfix: Boolean = false): Array[PsiElement] = body.fold(Array.empty[PsiElement])(exp => {
+    (exp.depthFirst(!_.isInstanceOf[ScFunction]).filter(_.isInstanceOf[ScReturnStmt]) ++ exp.calculateReturns(withBooleanInfix)).
       filter(_.getContainingFile == getContainingFile).toArray.distinct
-  }) getOrElse Array.empty[PsiElement]
+  })
 
   def canBeTailRecursive = getParent match {
     case (_: ScTemplateBody) && Parent(Parent(owner: ScTypeDefinition)) =>
@@ -50,15 +50,13 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
       .map(_.canonicalText).exists(_ == "_root_.scala.annotation.tailrec"))
 
   def recursiveReferences: Seq[RecursiveReference] = {
-    val resultExpressions = getReturnUsages
+    val resultExpressions = returnUsages(withBooleanInfix = true)
 
     @scala.annotation.tailrec
     def possiblyTailRecursiveCallFor(elem: PsiElement): PsiElement = elem.getParent match {
       case call: ScMethodCall => possiblyTailRecursiveCallFor(call)
       case call: ScGenericCall => possiblyTailRecursiveCallFor(call)
       case ret: ScReturnStmt => ret
-      case infix @ ScInfixExpr(ScExpression.Type(types.Boolean), ElementText(op), right @ ScExpression.Type(types.Boolean))
-        if right == elem && (op == "&&" || op == "||") => possiblyTailRecursiveCallFor(infix)
       case _ => elem
     }
 
@@ -66,18 +64,22 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
       elem match {
         case i: ScIfStmt if i.elseBranch.isEmpty =>
           i.thenBranch match {
-            case Some(then) =>
-              then.calculateReturns.flatMap(expandIf) :+ elem
+            case Some(thenBranch) =>
+              thenBranch.calculateReturns().flatMap(expandIf) :+ elem
             case _ => Seq(elem)
           }
         case _ => Seq(elem)
       }
     }
     val expressions = resultExpressions.flatMap(expandIf)
-    for {
-      ref <- depthFirst.filterByType(classOf[ScReferenceElement]).toSeq if ref.isReferenceTo(this)
-    } yield {
-      RecursiveReference(ref, expressions.contains(possiblyTailRecursiveCallFor(ref)))
+    body match {
+      case Some(body) =>
+        for {
+          ref <- body.depthFirst.filterByType(classOf[ScReferenceElement]).toSeq if ref.isReferenceTo(this)
+        } yield {
+          RecursiveReference(ref, expressions.contains(possiblyTailRecursiveCallFor(ref)))
+        }
+      case None => Seq.empty
     }
   }
 

@@ -5,15 +5,15 @@ package api
 package base
 package types
 
-import resolve.ScalaResolveResult
 import com.intellij.openapi.progress.ProgressManager
-import psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * Author: Alexander Podkhalyuzin
  * Date: 22.02.2008
  */
-trait ScSimpleTypeElement extends ScTypeElement {
+trait ScSimpleTypeElement extends ScTypeElement with ImplicitParametersOwner {
 
   def reference: Option[ScStableCodeReferenceElement] = findChild(classOf[ScStableCodeReferenceElement])
   def pathElement: ScPathElement = findChildByClassScala(classOf[ScPathElement])

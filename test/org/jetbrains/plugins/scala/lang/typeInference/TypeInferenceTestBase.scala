@@ -2,21 +2,19 @@ package org.jetbrains.plugins.scala
 package lang
 package typeInference
 
-import org.jetbrains.plugins.scala.lang.psi.types.{Unit, ScType}
-import base.{ScalaLightPlatformCodeInsightTestCaseAdapter, ScalaPsiTestCase}
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiComment, PsiManager}
 import java.io.File
-import java.lang.String
-import lexer.ScalaTokenTypes
-import parser.ScalaElementTypes
-import psi.api.expr.ScExpression
-import psi.api.ScalaFile
-import psi.types.result.{TypingContext, Failure, Success}
-import util.TestUtils
+
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem, VirtualFile}
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.CharsetToolkit
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Unit}
+import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
  * User: Alexander Podkhalyuzin
@@ -63,31 +61,27 @@ abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCa
           case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
             val resText = text.substring(2, text.length - 2).trim
             if (resText.startsWith(fewVariantsMarker)) {
-              resText.substring(fewVariantsMarker.length).trim.split('\n')
+              val results = resText.substring(fewVariantsMarker.length).trim.split('\n')
+              if (!results.contains(res)) assertEquals(results(0), res)
+              return
             } else resText
-          case _ => assertTrue("Test result must be in last comment statement.", false)
+          case _ =>
+            throw new AssertionError("Test result must be in last comment statement.")
         }
         val Pattern = """expected: (.*)""".r
         output match {
-          case outputs: Array[String] =>
-            for (output <- outputs) {
-              if (output == res) {
-                return
-              }
-            }
-            assertEquals(outputs(0), res)
           case "expected: <none>" =>
             expr.expectedType() match {
               case Some(et) => fail("found unexpected expected type: %s".format(ScType.presentableText(et)))
               case None => // all good
             }
           case Pattern(expectedExpectedTypeText) =>
-            val actualExpectedType = expr.expectedType().getOrElse(Predef.error("no expected type"))
+            val actualExpectedType = expr.expectedType().getOrElse(sys.error("no expected type"))
             val actualExpectedTypeText = ScType.presentableText(actualExpectedType)
             assertEquals(expectedExpectedTypeText, actualExpectedTypeText)
           case _ => assertEquals(output, res)
         }
-      case Failure(msg, elem) => assert(false, msg + " :: " + (elem match {case Some(x) => x.getText case None => "empty element"}))
+      case Failure(msg, elem) => assert(assertion = false, msg + " :: " + (elem match {case Some(x) => x.getText case None => "empty element"}))
     }
   }
 }

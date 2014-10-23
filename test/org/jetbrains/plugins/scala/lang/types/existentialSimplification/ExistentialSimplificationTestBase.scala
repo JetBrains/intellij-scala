@@ -1,17 +1,18 @@
 package org.jetbrains.plugins.scala
 package lang.types.existentialSimplification
 
-import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import java.io.File
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialType, ScType}
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.util.io.FileUtil
-import base.ScalaLightPlatformCodeInsightTestCaseAdapter
 
 /**
  * @author Alexander Podkhalyuzin

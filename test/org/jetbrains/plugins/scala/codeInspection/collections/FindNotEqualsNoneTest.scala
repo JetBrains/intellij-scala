@@ -24,4 +24,6 @@ class FindNotEqualsNoneTest extends OperationsOnCollectionInspectionTest {
     val result = "Nil.exists(_ => true)"
     testFix(text, result, hint)
   }
+
+  override val inspectionClass = classOf[FindNotEqualsNoneInspection]
 }

@@ -1,11 +1,13 @@
 package org.jetbrains.sbt
 package project.structure
 
+import java.io.File
+
 import org.jetbrains.plugins.scala.project.Version
+import org.jetbrains.sbt.project.structure.FS._
+import org.jetbrains.sbt.project.structure.Play2Keys.{KeyTransformer, KeyExtractor}
 
 import scala.xml.Node
-import java.io.File
-import FS._
 
 /**
  * @author Pavel Fatin
@@ -17,8 +19,10 @@ object StructureParser {
 
     val project = (node \ "project").map(parseProject)
     val repository = (node \ "repository").headOption.map(parseRepository)
+    val localCachePath = (node \ "localCachePath").headOption.map(_.text)
+    val sbtVersion = (node \ "@sbt").text
 
-    Structure(project, repository)
+    Structure(project, repository, localCachePath, sbtVersion)
   }
 
   private def parseProject(node: Node)(implicit fs: FS): Project = {
@@ -32,9 +36,13 @@ object StructureParser {
     val configurations = (node \ "configuration").map(parseConfiguration(_)(fs.withBase(base)))
     val java = (node \ "java").headOption.map(parseJava(_)(fs.withBase(base)))
     val scala = (node \ "scala").headOption.map(parseScala(_)(fs.withBase(base)))
+    val android = (node \ "android").headOption.map(parseAndroid(_)(fs.withBase(base)))
     val dependencies = parseDependencies(node)(fs.withBase(base))
+    val resolvers = parseResolvers(node)
+    val play2 = (node \ "playimps").headOption.map(parsePlay2(_)(fs.withBase(base)))
 
-    Project(id, name, organization, version, base, target, build, configurations, java, scala, dependencies)
+    Project(id, name, organization, version, base, target, build, configurations, java, scala,
+      android, dependencies, resolvers, play2)
   }
 
   private def parseBuild(node: Node)(implicit fs: FS): Build = {
@@ -61,6 +69,22 @@ object StructureParser {
     val options = (node \ "option").map(_.text)
 
     Scala(Version(version), library, compiler, extra, options)
+  }
+
+  def parsePlay2(node: Node)(implicit fs: FS): Play2 = Play2(KeyTransformer.transform(node.child flatMap KeyExtractor.extract))
+
+  private def parseAndroid(node: Node)(implicit fs: FS): Android = {
+    val version = (node \ "version").text
+    val manifestFile = file((node \ "manifest").text)
+    val apkPath = file((node \ "apk").text)
+    val resPath = file((node \ "resources").text)
+    val assetsPath = file((node \ "assets").text)
+    val genPath = file((node \ "generatedFiles").text)
+    val libsPath = file((node \ "nativeLibs").text)
+    val isLibrary = (node \ "isLibrary").text.toBoolean
+    val proguardConfig = (node \ "proguard" \ "option").map(_.text)
+
+    Android(version, manifestFile, apkPath, resPath, assetsPath, genPath, libsPath, isLibrary, proguardConfig)
   }
 
   private def parseConfiguration(node: Node)(implicit fs: FS): Configuration = {
@@ -132,6 +156,13 @@ object StructureParser {
 
     Repository(new File("."), modules)
   }
+
+  private def parseResolvers(node: Node) =
+    (node \ "resolver").map({ r =>
+      val name = (r \ "@name").text
+      val root = (r \ "@root").text
+      Resolver(name, if (root.endsWith("/")) root else root + "/")
+    }).toSet
 
   private implicit class NodeExt(node: Node) {
     def !(name: String): Node = (node \ name) match {

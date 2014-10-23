@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala
 
-import java.net.{URL, URI}
-import javax.swing.event.HyperlinkEvent
-import com.intellij.notification.{NotificationListener, NotificationType, Notification, Notifications}
-import java.awt.{Toolkit, Desktop}
 import java.awt.datatransfer.StringSelection
+import java.awt.{Desktop, Toolkit}
+import java.net.{URI, URL}
+import javax.swing.event.HyperlinkEvent
+
+import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import org.intellij.lang.annotations.Language
 
 /**

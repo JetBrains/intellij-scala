@@ -2,9 +2,6 @@ package org.jetbrains.plugins.scala.lang.parser.util;
 
 import com.intellij.lang.PsiBuilder;
 import com.intellij.openapi.extensions.ExtensionPointName;
-import com.intellij.openapi.extensions.Extensions;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
 
 /**

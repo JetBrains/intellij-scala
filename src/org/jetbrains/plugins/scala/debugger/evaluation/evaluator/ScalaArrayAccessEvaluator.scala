@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
 import com.intellij.debugger.DebuggerBundle
-import com.intellij.debugger.impl.DebuggerUtilsEx
-import com.intellij.debugger.engine.evaluation.expression.{Modifier, Evaluator}
-import com.sun.jdi._
-import com.intellij.debugger.ui.impl.watch.{ArrayElementDescriptorImpl, NodeDescriptorImpl}
-import com.intellij.debugger.engine.evaluation.{EvaluationContextImpl, EvaluateExceptionUtil}
 import com.intellij.debugger.engine.DebuggerUtils
+import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
+import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
+import com.intellij.debugger.ui.impl.watch.{ArrayElementDescriptorImpl, NodeDescriptorImpl}
 import com.intellij.openapi.project.Project
+import com.sun.jdi._
+import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 
 /**
  * User: Alexander Podkhalyuzin
@@ -20,11 +20,11 @@ class ScalaArrayAccessEvaluator(arrayReferenceEvaluator: Evaluator, indexEvaluat
     val indexValue: Value = indexEvaluator.evaluate(context).asInstanceOf[Value]
     val arrayValue: Value = arrayReferenceEvaluator.evaluate(context).asInstanceOf[Value]
     if (!(arrayValue.isInstanceOf[ArrayReference])) {
-      throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.array.reference.expected"))
+      throw EvaluationException(DebuggerBundle.message("evaluation.error.array.reference.expected"))
     }
     myEvaluatedArrayReference = arrayValue.asInstanceOf[ArrayReference]
     if (!DebuggerUtils.isInteger(indexValue)) {
-      throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.invalid.index.expression"))
+      throw EvaluationException(DebuggerBundle.message("evaluation.error.invalid.index.expression"))
     }
     myEvaluatedIndex = (indexValue.asInstanceOf[PrimitiveValue]).intValue
     try {
@@ -32,7 +32,7 @@ class ScalaArrayAccessEvaluator(arrayReferenceEvaluator: Evaluator, indexEvaluat
     }
     catch {
       case e: Exception => {
-        throw EvaluateExceptionUtil.createEvaluateException(e)
+        throw EvaluationException(e)
       }
     }
   }
@@ -53,7 +53,7 @@ class ScalaArrayAccessEvaluator(arrayReferenceEvaluator: Evaluator, indexEvaluat
           }
           catch {
             case e: ClassNotLoadedException => {
-              throw EvaluateExceptionUtil.createEvaluateException(e)
+              throw EvaluationException(e)
             }
           }
         }

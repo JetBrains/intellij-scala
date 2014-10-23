@@ -3,15 +3,16 @@ package codeInsight.generation
 
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTrait, ScClass, ScTemplateDefinition}
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import com.intellij.psi.codeStyle.CodeStyleManager
-import scala.collection.mutable.ListBuffer
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScValue}
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTemplateDefinition, ScTrait}
+
+import scala.collection.mutable.ListBuffer
 
 /**
  * Nikolay.Tropin
@@ -24,7 +25,7 @@ object GenerationUtil {
   def classAtCaret(editor: Editor, file: PsiFile): Option[ScClass] =
     elementOfTypeAtCaret(editor, file, classOf[ScClass])
 
-  protected def findAnchor(aClass: PsiClass): Option[PsiElement] = aClass match {
+  def findAnchor(aClass: PsiClass): Option[PsiElement] = aClass match {
     case cl: ScTemplateDefinition =>
       cl.extendsBlock match {
         case ScExtendsBlock.TemplateBody(body) => body.lastChild
@@ -87,8 +88,8 @@ object GenerationUtil {
     }
   }
 
-  private def elementOfTypeAtCaret[T <: PsiElement](editor: Editor, file: PsiFile, types: Class[_ <: T]*): Option[T] = {
-    val elem = file.findElementAt(editor.getCaretModel.getOffset - 1)
+  def elementOfTypeAtCaret[T <: PsiElement](editor: Editor, file: PsiFile, types: Class[_ <: T]*): Option[T] = {
+    val elem = file.findElementAt(editor.getCaretModel.getOffset)
     Option(PsiTreeUtil.getParentOfType(elem, types: _*))
   }
 }

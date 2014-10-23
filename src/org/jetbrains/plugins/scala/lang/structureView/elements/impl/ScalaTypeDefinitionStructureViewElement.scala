@@ -4,24 +4,14 @@ package structureView
 package elements
 package impl
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
-import com.intellij.ide.structureView.impl.java.PsiMethodTreeElement
 import com.intellij.ide.util.treeView.smartTree.TreeElement
-
-
 import com.intellij.navigation.ItemPresentation
-import psi.api.toplevel.ScNamedElement
-import psi.impl.toplevel.typedef.TypeDefinitionMembers
-import com.intellij.openapi.project.IndexNotReadyException;
-import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
+import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi._
+import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
 
 import _root_.scala.collection.mutable._
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.base._
-import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 
 /**
 * @author Alexander Podkhalyuzin

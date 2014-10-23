@@ -5,14 +5,14 @@ package impl
 package toplevel
 package imports
 
-import api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
-import lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
-import parser.ScalaElementTypes
-import stubs.ScImportSelectorStub
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportSelectorStub
 
 /** 
 * @author Alexander Podkhalyuzin

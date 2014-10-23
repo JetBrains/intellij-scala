@@ -1,17 +1,17 @@
 package org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections
 
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import com.intellij.psi.{PsiDocumentManager, JavaPsiFacade, PsiClass}
-import org.jetbrains.plugins.scala.extensions.toPsiClassExt
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
-import com.intellij.openapi.project.Project
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement}
+import com.intellij.openapi.project.Project
+import com.intellij.psi.{JavaPsiFacade, PsiClass}
+import org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.ReferenceMustBePrefixedInspection._
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
-import ReferenceMustBePrefixedInspection._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * @author Alefas
@@ -26,7 +26,7 @@ class ReferenceMustBePrefixedInspection extends AbstractInspection(id, displayNa
           r.getActualElement match {
             case clazz: PsiClass =>
               val qualName = clazz.qualifiedName
-              if (ScalaProjectSettings.getInstance(holder.getProject).hasImportWithPrefix(qualName)) {
+              if (ScalaCodeStyleSettings.getInstance(holder.getProject).hasImportWithPrefix(qualName)) {
                 holder.registerProblem(ref, getDisplayName, new AddPrefixFix(ref, clazz))
               }
             case _ =>

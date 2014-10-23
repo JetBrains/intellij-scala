@@ -27,10 +27,9 @@ import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement;
@@ -66,7 +65,9 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider {
     return (ScalaFile) type.getContainingFile();
   }
 
-  public Collection<AbstractTreeNode> modify(AbstractTreeNode parent, Collection<AbstractTreeNode> children, ViewSettings settings) {
+  @NotNull
+  public Collection<AbstractTreeNode> modify(@NotNull AbstractTreeNode parent,
+                                             @NotNull Collection<AbstractTreeNode> children, ViewSettings settings) {
     List<AbstractTreeNode> result = new ArrayList<AbstractTreeNode>();
     
     for (AbstractTreeNode child : children) {
@@ -205,8 +206,8 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider {
    
     protected void updateImpl(PresentationData data) {
       super.updateImpl(data);
-      data.setPresentableText(((ScalaFile) getValue()).getName());
-      data.setIcons(getValue().getIcon(Iconable.ICON_FLAG_READ_STATUS));
+      data.setPresentableText(getValue().getName());
+      data.setIcon(getValue().getIcon(Iconable.ICON_FLAG_READ_STATUS));
     }
   }
 }

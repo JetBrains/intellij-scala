@@ -1,15 +1,14 @@
 package org.jetbrains.plugins.scala.components
 
-import reflect.BeanProperty
+import scala.beans.BeanProperty
 
 /**
- * Pavel Fatin
+ * @author Pavel Fatin
  */
-
 class HighlightingSettings {
   @BeanProperty
-  var TYPE_AWARE_HIGHLIGHTING_ENABLED: Boolean = false
+  var TYPE_AWARE_HIGHLIGHTING_ENABLED: Boolean = true
 
   @BeanProperty
-  var SUGGEST_TYPE_AWARE_HIGHLIGHTING: Boolean = true
+  var SUGGEST_TYPE_AWARE_HIGHLIGHTING: Boolean = false
 }

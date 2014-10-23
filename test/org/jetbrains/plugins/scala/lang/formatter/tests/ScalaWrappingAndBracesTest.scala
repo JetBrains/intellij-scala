@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatter.tests
 
-import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 
 /**
  * @author Alexander Podkhalyuzin
@@ -19,9 +19,9 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
    */
-  def testInfixExpressionWrapAsNeeded {
+  def testInfixExpressionWrapAsNeeded() {
     getCommonSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
-    getSettings.RIGHT_MARGIN = 20
+    getSettings.setRightMargin(null, 20)
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
     val before =
 """
@@ -45,9 +45,9 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testInfixPatternWrapAsNeeded {
+  def testInfixPatternWrapAsNeeded() {
     getCommonSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
-    getSettings.RIGHT_MARGIN = 20
+    getSettings.setRightMargin(null, 20)
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
     val before =
 """
@@ -65,9 +65,9 @@ List(1, 2) match {
     doTextTest(before, after)
   }
 
-  def testInfixTypeWrapAsNeeded {
+  def testInfixTypeWrapAsNeeded() {
     getCommonSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
-    getSettings.RIGHT_MARGIN = 20
+    getSettings.setRightMargin(null, 20)
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
     val before =
 """
@@ -81,9 +81,9 @@ val x: T + T + T +
     doTextTest(before, after)
   }
 
-  def testInfixExprWrapAlways {
+  def testInfixExprWrapAlways() {
     getCommonSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
-    getSettings.RIGHT_MARGIN = 20
+    getSettings.setRightMargin(null, 20)
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
     val before =
 """
@@ -104,9 +104,9 @@ val x: T + T + T +
     doTextTest(before, after)
   }
 
-  def testInfixExprWrapAllIfLong {
+  def testInfixExprWrapAllIfLong() {
     getCommonSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_ON_EVERY_ITEM
-    getSettings.RIGHT_MARGIN = 20
+    getSettings.setRightMargin(null, 20)
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
     val before =
 """
@@ -126,9 +126,9 @@ val x: T + T + T +
     doTextTest(before, after)
   }
 
-  def testInfixExprDoNotWrap {
+  def testInfixExprDoNotWrap() {
     getCommonSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
-    getSettings.RIGHT_MARGIN = 20
+    getSettings.setRightMargin(null, 20)
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
     val before =
 """
@@ -143,7 +143,7 @@ val x: T + T + T +
     doTextTest(before, after)
   }
 
-  def testAlignBinary {
+  def testAlignBinary() {
     getCommonSettings.ALIGN_MULTILINE_BINARY_OPERATION = true
     val before =
 """
@@ -162,11 +162,11 @@ val i = 2 + 2 +
     doTextTest(before, after)
   }
 
-  def testBinaryParentExpressionWrap {
+  def testBinaryParentExpressionWrap() {
     getCommonSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
     getCommonSettings.PARENTHESES_EXPRESSION_LPAREN_WRAP = true
     getCommonSettings.PARENTHESES_EXPRESSION_RPAREN_WRAP = true
-    getSettings.RIGHT_MARGIN = 20
+    getSettings.setRightMargin(null, 20)
     val before =
 """
 (2333333333333333 + 2)
@@ -187,7 +187,7 @@ val i = 2 + 2 +
     doTextTest(before, after)
   }
 
-  def testCallParametersWrap {
+  def testCallParametersWrap() {
     getCommonSettings.CALL_PARAMETERS_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
     val before =
 """
@@ -202,7 +202,7 @@ foo(1,
     doTextTest(before, after)
   }
 
-  def testAlignMultilineParametersCalls {
+  def testAlignMultilineParametersCalls() {
     getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
     val before =
 """
@@ -219,7 +219,7 @@ foo(1,
     doTextTest(before, after)
   }
 
-  def testCallParametersParen {
+  def testCallParametersParen() {
     getCommonSettings.CALL_PARAMETERS_LPAREN_ON_NEXT_LINE = true
     getCommonSettings.CALL_PARAMETERS_RPAREN_ON_NEXT_LINE = true
     val before =
@@ -239,7 +239,7 @@ foo(
     doTextTest(before, after)
   }
 
-  def testMethodCallChainWrap {
+  def testMethodCallChainWrap() {
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
     val before =
 """
@@ -254,7 +254,7 @@ foo(1, 2)
     doTextTest(before, after)
   }
 
-  def testMethodCallChainAlign {
+  def testMethodCallChainAlign() {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     val before =
 """
@@ -277,7 +277,7 @@ val x = foo.
     doTextTest(before, after)
   }
 
-  def testBraceStyle {
+  def testBraceStyle() {
     getCommonSettings.CLASS_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE
     getCommonSettings.METHOD_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE_SHIFTED
     getCommonSettings.BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE_IF_WRAPPED

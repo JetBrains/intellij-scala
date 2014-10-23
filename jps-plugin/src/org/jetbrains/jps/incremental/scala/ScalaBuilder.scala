@@ -1,18 +1,20 @@
 package org.jetbrains.jps.incremental.scala
 
-import org.jetbrains.jps.incremental.{ModuleBuildTarget, CompileContext, BuilderCategory, ModuleLevelBuilder}
-import org.jetbrains.jps.model.JpsProject
-import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
+import java.util
+
+import org.jetbrains.annotations.NotNull
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.DirtyFilesHolder
 import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor
-import org.jetbrains.annotations.NotNull
-import scala.collection.JavaConverters._
-import java.util
-import ScalaBuilder._
+import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
+import org.jetbrains.jps.incremental.scala.ScalaBuilder._
+import org.jetbrains.jps.incremental.{BuilderCategory, CompileContext, ModuleBuildTarget, ModuleLevelBuilder}
+import org.jetbrains.jps.model.JpsProject
 import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.jps.incremental.scala.model.CompileOrder
 import org.jetbrains.jps.incremental.scala.model.IncrementalityType
+
+import scala.collection.JavaConverters._
 
 /**
  * Nikolay.Tropin
@@ -44,7 +46,7 @@ class ScalaBuilder(category: BuilderCategory, @NotNull delegate: ScalaBuilderDel
   private def isDisabled(context: CompileContext, chunk: Option[ModuleChunk] = None): Boolean = {
     val project: JpsProject = context.getProjectDescriptor.getProject
     if (!isScalaProject(project)) return true
-    if (chunk.isDefined && !hasScalaModules(chunk.get)) return true
+    if (chunk.isDefined && delegate == IdeaIncrementalBuilder && !hasScalaModules(chunk.get)) return true
 
     val projectSettings = SettingsManager.getProjectSettings(context.getProjectDescriptor.getProject)
 
@@ -72,5 +74,4 @@ object ScalaBuilder {
     import scala.collection.JavaConversions._
     modules.exists(SettingsManager.hasScalaSdk)
   }
-
 }
