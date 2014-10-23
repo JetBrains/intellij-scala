@@ -161,7 +161,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def nameFor(id: ModuleId) =
-    s"${id.organization}:${id.name}:${id.revision}:${id.artifactType}" + id.classifier.map(":"+_).getOrElse("")
+    s"${id.organization}:${id.name}:${id.revision}" + id.classifier.map(":"+_).getOrElse("") + s".${id.artifactType}"
 
   private def createModule(project: Project, moduleFilesDirectory: File): ModuleNode = {
     // TODO use both ID and Name when related flaws in the External System will be fixed
