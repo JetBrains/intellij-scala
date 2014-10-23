@@ -271,10 +271,17 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
         sourceImage match {
           case td: ScTypeDefinition if ScalaPsiUtil.isLocalClass(td) =>
             val qName = findEnclosingTypeDefinition(position).map(typeDef => typeDef.getQualifiedNameForDebugger)
+
             qName match {
-              case Some(name) =>
+              case Some(enclName) =>
+                def endsWithKindOf(full: String, short: String): Boolean = {
+                  val possibleEndings = Seq("", "$", "$1", "$class").map(postfix => s"$$$short$postfix")
+                  possibleEndings.exists(full.endsWith)
+                }
+
                 filterAllClasses { clazz =>
-                  clazz.name().startsWith(name) && clazz.name().contains(s"$$${td.name}$$")
+                  val cName = clazz.name()
+                  cName.startsWith(enclName) && (endsWithKindOf(cName, td.name) || cName.contains(s"$$${td.name}$$"))
                 }
               case _ => util.Collections.emptyList[ReferenceType]
             }
