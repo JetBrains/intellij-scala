@@ -1091,7 +1091,7 @@ object ScalaEvaluatorBuilderUtil {
 
   @tailrec
   final def isStable(o: ScObject): Boolean = {
-    val context = ScalaPsiUtil.getContextOfType(o, true, classOf[PsiClass])
+    val context = getContextClass(o)
     if (context == null) return true
     context match {
       case o: ScObject => isStable(o)
