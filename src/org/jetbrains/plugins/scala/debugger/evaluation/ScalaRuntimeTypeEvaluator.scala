@@ -3,7 +3,7 @@ package debugger.evaluation
 
 import com.intellij.debugger.codeinsight.RuntimeTypeEvaluator
 import com.intellij.debugger.engine.ContextUtil
-import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
+import com.intellij.debugger.engine.evaluation.{CodeFragmentKind, TextWithImportsImpl, EvaluationContextImpl}
 import com.intellij.debugger.engine.evaluation.expression.ExpressionEvaluator
 import com.intellij.debugger.impl.DebuggerContextImpl
 import com.intellij.debugger.{DebuggerBundle, DebuggerInvocationUtil, EvaluatingComputable}
@@ -37,7 +37,9 @@ abstract class ScalaRuntimeTypeEvaluator(@Nullable editor: Editor, expression: P
 
     val evaluator: ExpressionEvaluator = DebuggerInvocationUtil.commitAndRunReadAction(project, new EvaluatingComputable[ExpressionEvaluator] {
       def compute: ExpressionEvaluator = {
-        ScalaEvaluatorBuilder.build(myElement, ContextUtil.getSourcePosition(evaluationContext))
+        val textWithImports = new TextWithImportsImpl(CodeFragmentKind.CODE_BLOCK, expression.getText)
+        val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(textWithImports, expression, project)
+        ScalaEvaluatorBuilder.build(codeFragment, ContextUtil.getSourcePosition(evaluationContext))
       }
     })
     val value: Value = evaluator.evaluate(evaluationContext)
