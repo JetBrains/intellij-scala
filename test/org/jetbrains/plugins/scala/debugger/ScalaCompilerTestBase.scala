@@ -20,6 +20,7 @@ import junit.framework.Assert
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.template.Artifact
 import org.jetbrains.plugins.scala.util.TestUtils
 
 import scala.collection.mutable.ListBuffer
@@ -80,8 +81,11 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase {
       val compilerClasspath = Seq("scala-compiler.jar", "scala-library.jar") ++
               (if (loadReflect) Seq("scala-reflect.jar") else Seq.empty)
 
+      val languageLevel = Artifact.ScalaCompiler.versionOf(new File(root, "scala-compiler.jar"))
+              .flatMap(ScalaLanguageLevel.from).getOrElse(ScalaLanguageLevel.Default)
+
       inWriteAction {
-        library.convertToScalaSdkWith(ScalaLanguageLevel.Default, compilerClasspath.map(new File(root, _)))
+        library.convertToScalaSdkWith(languageLevel, compilerClasspath.map(new File(root, _)))
       }
     }
   }
