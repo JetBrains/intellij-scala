@@ -359,6 +359,14 @@ object DebuggerUtil {
     typeFqn.startsWith("scala.runtime.") && typeFqn.endsWith("Ref")
   }
 
+  object scalaRuntimeRefTo {
+    def unapply(objRef: ObjectReference) = {
+      val typeName = objRef.referenceType().name()
+      if (isScalaRuntimeRef(typeName)) Some(unwrapScalaRuntimeRef(objRef))
+      else None
+    }
+  }
+
   private def unwrapRuntimeRef(value: AnyRef, typeNameCondition: String => Boolean) = value match {
     case _ if !ScalaDebuggerSettings.getInstance().DONT_SHOW_RUNTIME_REFS => value
     case objRef: ObjectReference =>
