@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package conversion
 
-
 import com.intellij.notification.{NotificationDisplayType, NotificationType}
 import com.intellij.openapi.actionSystem.{CommonDataKeys, AnAction, AnActionEvent, LangDataKeys}
 import com.intellij.openapi.vfs.VirtualFile
@@ -9,6 +8,7 @@ import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
 import com.intellij.psi.{PsiDocumentManager, PsiJavaFile}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.util.{NotificationUtil, ScalaUtils}
+import org.jetbrains.plugins.scala.project._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -33,7 +33,7 @@ class RenameJavaToScalaAction extends AnAction {
       }
       for (element <- elements) {
         element.getContainingFile match {
-          case j: PsiJavaFile if ScalaPsiUtil.hasScalaFacet(j) =>
+          case j: PsiJavaFile if j.isInScalaModule =>
             val dir = j.getContainingDirectory
             if (!dir.isWritable) {
               disable()
@@ -61,7 +61,7 @@ class RenameJavaToScalaAction extends AnAction {
     }
     for (element <- elements) {
       element.getContainingFile match {
-        case jFile: PsiJavaFile if ScalaPsiUtil.hasScalaFacet(jFile) =>
+        case jFile: PsiJavaFile if jFile.isInScalaModule =>
           val dir = jFile.getContainingDirectory
           if (dir.isWritable) {
             ScalaUtils.runWriteAction(new Runnable {

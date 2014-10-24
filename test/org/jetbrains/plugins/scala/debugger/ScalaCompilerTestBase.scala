@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package debugger
 
 import java.io.File
-import java.nio.file.Paths
 import javax.swing.SwingUtilities
 
 import com.intellij.ProjectTopics
@@ -18,9 +17,9 @@ import com.intellij.testFramework.{ModuleTestCase, PsiTestUtil, VfsTestUtil}
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
 import junit.framework.Assert
-import org.jetbrains.plugins.scala.config.FileAPI
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
+import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.TestUtils
 
 import scala.collection.mutable.ListBuffer
@@ -64,19 +63,25 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase {
   }
 
   protected val compilerDirectorySuffix = ""
-
-  protected def addScalaLibrary(loadReflect: Boolean = true) {
+  
+  protected def addScalaSdk(loadReflect: Boolean = true) {
     ScalaLoader.loadScala()
     val cl = SyntheticClasses.get(getProject)
     if (!cl.isClassesRegistered) cl.registerClasses()
-    val libsPath = TestUtils.getTestDataPath.replace("\\", "/") + "/scala-compiler/" +
-        (if (compilerDirectorySuffix != "")compilerDirectorySuffix + "/" else "")
-    VfsRootAccess.allowRootAccess(libsPath)
-    val compilerJar = Paths.get(libsPath, "scala-compiler.jar").toFile
-    compilerVersion = FileAPI.readProperty(compilerJar, "compiler.properties", "version.number")
-    val jars = List("scala-compiler.jar", "scala-library.jar")
-    PsiTestUtil.addLibrary(myModule, "scala-compiler", libsPath,
-      (if (loadReflect) "scala-reflect.jar" :: jars else jars):_*)
+
+    val root = TestUtils.getTestDataPath.replace("\\", "/") + "/scala-compiler/" +
+            (if (compilerDirectorySuffix != "") compilerDirectorySuffix + "/" else "")
+    
+    VfsRootAccess.allowRootAccess(root)
+
+    PsiTestUtil.addLibrary(myModule, "scala-compiler", root, "scala-library.jar")
+
+    myModule.libraries.find(_.getName == "scala-compiler").foreach { library =>
+      val compilerClasspath = Seq("scala-compiler.jar", "scala-library.jar") ++
+              (if (loadReflect) Seq("scala-compiler.jar") else Seq.empty)
+      
+      library.convertToScalaSdkWith(ScalaLanguageLevel.Default, compilerClasspath.map(new File(root, _)))
+    }
   }
 
   override protected def getTestProjectJdk: Sdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk

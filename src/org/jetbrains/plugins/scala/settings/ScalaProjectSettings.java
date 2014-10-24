@@ -25,6 +25,8 @@ import java.util.Map;
 public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProjectSettings>, ExportableComponent {
   private int IMPLICIT_PARAMETERS_SEARCH_DEPTH = -1;
 
+  private String BASE_PACKAGE = "";
+  
   private boolean SEARCH_ALL_SYMBOLS = false;
 
   private boolean ENABLE_JAVA_TO_SCALA_CONVERSION = true;
@@ -207,7 +209,15 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   public Map<String, String> getIntInjectionMapping() {
     return INTERPOLATED_INJECTION_MAPPING;
   }
-  
+
+  public String getBasePackage() {
+    return BASE_PACKAGE;
+  }
+
+  public void setBasePackage(String name) {
+    BASE_PACKAGE = name;
+  }
+
   public void setIntInjectionMapping(Map<String, String> intInjectionMapping) {
     INTERPOLATED_INJECTION_MAPPING = intInjectionMapping;
   }

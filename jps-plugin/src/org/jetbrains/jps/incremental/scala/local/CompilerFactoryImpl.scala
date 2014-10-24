@@ -6,7 +6,7 @@ import java.net.URLClassLoader
 
 import org.jetbrains.jps.incremental.scala.data.{CompilerData, CompilerJars, SbtData}
 import org.jetbrains.jps.incremental.scala.local.CompilerFactoryImpl._
-import org.jetbrains.plugin.scala.compiler.IncrementalType
+import org.jetbrains.jps.incremental.scala.model.IncrementalityType
 import sbt.compiler.{AggressiveCompile, AnalyzingCompiler, IC}
 import sbt.inc.AnalysisStore
 import sbt.{ClasspathOptions, Path, ScalaInstance}
@@ -22,7 +22,7 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
     val scalac: Option[AnalyzingCompiler] = getScalac(sbtData, compilerData.compilerJars, client)
 
     compilerData.incrementalType match {
-      case IncrementalType.SBT =>
+      case IncrementalityType.SBT =>
         val javac = {
           val scala = getScalaInstance(compilerData.compilerJars)
                   .getOrElse(new ScalaInstance("stub", null, new File(""), new File(""), Seq.empty, None))
@@ -31,7 +31,7 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
         }
         new SbtCompiler(javac, scalac, fileToStore)
         
-      case IncrementalType.IDEA =>
+      case IncrementalityType.IDEA =>
         if (scalac.isDefined) new IdeaIncrementalCompiler(scalac.get)
         else throw new IllegalStateException("Could not create scalac instance")
 

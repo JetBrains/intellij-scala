@@ -10,7 +10,6 @@ import com.intellij.psi._
 import com.intellij.psi.util.{CachedValue, PsiModificationTracker, PsiTreeUtil}
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
@@ -27,6 +26,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
+
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Set, mutable}
@@ -311,8 +313,8 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
                     //todo: currently it looks like a hack in the right place, probably whole this class should be
                     //todo: rewritten in more clean and clear way.
                     val dependentSubst = new ScSubstitutor(() => {
-                      val level = ScalaLanguageLevel.getLanguageLevel(place)
-                      if (level.isThoughScala2_10) {
+                      val level = place.languageLevel
+                      if (level >= Scala_2_10) {
                         f.paramClauses.clauses.headOption.map(_.parameters).toSeq.flatten.map {
                           case (param: ScParameter) => (new Parameter(param), typez)
                         }.toMap
@@ -334,8 +336,8 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
                     }
 
                     val implicitDependentSubst = new ScSubstitutor(() => {
-                      val level = ScalaLanguageLevel.getLanguageLevel(place)
-                      if (level.isThoughScala2_10) {
+                      val level = place.languageLevel
+                      if (level >= Scala_2_10) {
                         if (probablyHasDepententMethodTypes) {
                           val params: Seq[Parameter] = f.paramClauses.clauses.last.parameters.map(
                             param => new Parameter(param))

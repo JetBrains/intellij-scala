@@ -1,40 +1,28 @@
 package org.jetbrains.plugins.scala
 package testingSupport
 
-import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestBase
-import com.intellij.testFramework.{PsiTestUtil, UsefulTestCase}
-import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
-import com.intellij.debugger.impl.GenericDebuggerRunner
-import com.intellij.execution.executors.{DefaultRunExecutor, DefaultDebugExecutor}
-import com.intellij.execution.process.{ProcessHandler, ProcessListener, ProcessEvent, ProcessAdapter}
-import com.intellij.openapi.util.Key
-import com.intellij.execution.impl.DefaultJavaProgramRunner
-import com.intellij.execution.{RunnerAndConfigurationSettings, Executor, PsiLocation}
-import com.intellij.debugger.DebuggerManagerEx
-import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.psi.{PsiManager, SingleRootFileViewProvider, PsiFileFactory, PsiElement}
-import com.intellij.openapi.fileTypes.FileTypeManager
-import com.intellij.util.LocalTimeCounter
-import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, AbstractTestConfigurationProducer}
-import com.intellij.openapi.module.Module
-import com.intellij.execution.application.{ApplicationConfigurationType, ApplicationConfiguration}
-import com.intellij.execution.configurations.{RunConfiguration, RunnerSettings, RunProfile}
-import com.intellij.util.concurrency.Semaphore
 import java.util.concurrent.atomic.AtomicReference
-import com.intellij.execution.ui.RunContentDescriptor
-import com.intellij.openapi.Disposable
-import com.intellij.execution.testframework.sm.runner.ui.{SMTestRunnerResultsForm, SMTRunnerConsoleView}
-import com.intellij.execution.testframework.{AbstractTestProxy, TestTreeView}
-import com.intellij.execution.junit2.ui.JUnitTreeConsoleView
-import scala.annotation.tailrec
-import scala.annotation.tailrec
 import javax.swing.SwingUtilities
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
-import org.jetbrains.plugins.scala.util.TestUtils
-import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
-import java.nio.file.Paths
-import org.jetbrains.plugins.scala.config.FileAPI
+
+import com.intellij.execution.configurations.RunnerSettings
+import com.intellij.execution.executors.DefaultRunExecutor
+import com.intellij.execution.impl.DefaultJavaProgramRunner
+import com.intellij.execution.process.{ProcessAdapter, ProcessEvent, ProcessHandler, ProcessListener}
+import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
+import com.intellij.execution.testframework.AbstractTestProxy
+import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
+import com.intellij.execution.ui.RunContentDescriptor
+import com.intellij.execution.{Executor, PsiLocation, RunnerAndConfigurationSettings}
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.util.Key
+import com.intellij.psi.PsiManager
+import com.intellij.testFramework.UsefulTestCase
+import com.intellij.util.concurrency.Semaphore
+import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestBase
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, AbstractTestRunConfiguration}
+
+import scala.annotation.tailrec
 
 /**
  * @author Roman.Shein

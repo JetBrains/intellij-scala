@@ -23,7 +23,6 @@ import com.intellij.util.Processor
 import com.intellij.util.indexing.FileBasedIndex
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.caches.CachesUtil
-import org.jetbrains.plugins.scala.config.ScalaFacet
 import org.jetbrains.plugins.scala.decompiler.{CompiledFileAdjuster, DecompilerUtil}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
@@ -37,6 +36,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScControlFlowOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -189,10 +189,10 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
 
 
   def setPackageName(name: String) {
-    val basePackageName = Option(ScalaPsiUtil.getModule(this))
-            .flatMap(ScalaFacet.findIn)
-            .flatMap(_.basePackage)
-            .mkString
+    val basePackageName = {
+      val scalaProjectSettings = ScalaProjectSettings.getInstance(getProject)
+      Option(scalaProjectSettings.getBasePackage).getOrElse("")
+    }
 
     this match {
       // Handle package object
