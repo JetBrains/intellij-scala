@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala
-package config
+package components
 
 import java.awt.{BorderLayout, GridLayout}
 import java.util.regex.Pattern
