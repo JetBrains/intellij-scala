@@ -7,6 +7,7 @@ import com.intellij.debugger.engine.evaluation.expression._
 import com.intellij.debugger.engine.{JVMName, JVMNameUtil}
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi._
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
@@ -491,6 +492,25 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   }
   
   def javaMethodEvaluator(method: PsiMethod, ref: ScReferenceExpression, arguments: Seq[ScExpression]): Evaluator = {
+
+    def boxArguments(arguments: Seq[Evaluator], method: PsiElement): Seq[Evaluator] = {
+      val params = method match {
+        case fun: ScMethodLike => fun.effectiveParameterClauses.flatMap(_.parameters)
+        case m: PsiMethod => m.getParameterList.getParameters.toSeq
+        case _ => return arguments
+      }
+      val subst = ref match {
+        case ResolvedWithSubst(_, s) => s
+        case _ => ScSubstitutor.empty
+      }
+
+      arguments.zipWithIndex.map {
+        case (arg, i) =>
+          if (params.length <= i || isOfPrimitiveType(params(i), subst)) arg
+          else boxEvaluator(arg)
+      }
+    }
+
     val argEvals = boxArguments(arguments.map(ScalaEvaluator(_)), method)
     val methodPosition = DebuggerUtil.getSourcePositions(method.getNavigationElement)
     val signature = JVMNameUtil.getJVMSignature(method)
@@ -549,7 +569,12 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             }
             else null
 
-          if (!isOfPrimitiveType(param)) boxEvaluator(evaluator)
+          val substitutor = ref match {
+            case ResolvedWithSubst(_, subst) => subst
+            case _ => ScSubstitutor.empty
+          }
+
+          if (!isOfPrimitiveType(param, substitutor)) boxEvaluator(evaluator)
           else evaluator
       }
     }
@@ -885,7 +910,10 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   def constructorArgumentsEvaluators(newTd: ScNewTemplateDefinition,
                                      constr: ScConstructor,
                                      clazz: PsiClass): Seq[Evaluator] = {
-    val constrDef = constr.reference.map(_.resolve())
+    val (constrDef, subst) = constr.reference match {
+      case Some(ResolvedWithSubst(elem, s)) => (elem, s)
+      case _ => throw EvaluationException("Could not resolve constructor")
+    }
     val explicitArgs = constr.arguments.flatMap(_.exprs)
     val explEvaluators =
       for {
@@ -893,11 +921,11 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       } yield {
         val eval = ScalaEvaluator(arg)
         val param = ScalaPsiUtil.parameterOf(arg).flatMap(_.psiParam)
-        if (param.exists(!isOfPrimitiveType(_))) boxEvaluator(eval)
+        if (param.exists(!isOfPrimitiveType(_, subst))) boxEvaluator(eval)
         else eval
       }
     constrDef match {
-      case Some(scMethod: ScMethodLike) =>
+      case scMethod: ScMethodLike =>
         val scClass = scMethod.containingClass.asInstanceOf[ScClass]
         val contextClass = getContextClass(scClass)
         val implicitParams = scMethod.parameterList.params.filter(_.isImplicitParameter)
@@ -908,7 +936,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             p <- implicitParams
           } yield {
             val eval = implicitArgEvaluator(scMethod, p, typeElem)
-            if (isOfPrimitiveType(p)) eval
+            if (isOfPrimitiveType(p, subst)) eval
             else boxEvaluator(eval)
           }
         val outerThis = contextClass match {
@@ -918,7 +946,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         }
         val locals = DebuggerUtil.localParamsForConstructor(scClass, contextClass)
         outerThis ++: explEvaluators ++: implicitsEvals ++: locals.map(fromLocalArgEvaluator)
-      case _: PsiNamedElement => explEvaluators
+      case _ => explEvaluators
     }
   }
   
@@ -1042,33 +1070,18 @@ object ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def isOfPrimitiveType(param: PsiParameter) = param match {
+  def isOfPrimitiveType(param: PsiParameter, subst: ScSubstitutor) = param match {
     case p: ScParameter =>
-      val tp: ScType = p.getType(TypingContext.empty).getOrAny
+      val tp: ScType = subst.subst(p.getType(TypingContext.empty).getOrAny)
       import org.jetbrains.plugins.scala.lang.psi.types._
       Set[ScType](Boolean, Int, Char, Double, Float, Long, Byte, Short).contains(tp)
     case p: PsiParameter =>
-      val tp = param.getType
+      val psiSubst = ScalaPsiUtil.getPsiSubstitutor(subst, p.getProject, GlobalSearchScope.allScope(p.getProject))
+      val tp = psiSubst.substitute(param.getType)
       import com.intellij.psi.PsiType._
       Set[PsiType](BOOLEAN, INT, CHAR, DOUBLE, FLOAT, LONG, BYTE, SHORT).contains(tp)
     case _ => false
   }
-
-  def boxArguments(arguments: Seq[Evaluator], method: PsiElement): Seq[Evaluator] = {
-
-    val params = method match {
-      case fun: ScMethodLike => fun.effectiveParameterClauses.flatMap(_.parameters)
-      case m: PsiMethod => m.getParameterList.getParameters.toSeq
-      case _ => return arguments
-    }
-
-    arguments.zipWithIndex.map {
-      case (arg, i) =>
-        if (params.length <= i || isOfPrimitiveType(params(i))) arg
-        else boxEvaluator(arg)
-    }
-  }
-
 
   object implicitlyConvertedTo {
     def unapply(expr: ScExpression): Option[ScExpression] = {
