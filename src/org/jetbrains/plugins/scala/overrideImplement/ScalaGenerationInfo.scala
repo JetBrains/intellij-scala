@@ -88,8 +88,7 @@ object ScalaGenerationInfo {
   def defaultValue(returnType: ScType, file: PsiFile) = {
     val standardValue = ScalaPsiElementFactory.getStandardValue(returnType)
 
-    if (file.scalaLanguageLevel.exists(_ >= Scala_2_10)) "???"
-    else standardValue
+    if (file.scalaLanguageLevel.exists(_ < Scala_2_10)) standardValue else "???"
   }
 
   def positionCaret(editor: Editor, element: PsiMember) {
