@@ -118,8 +118,8 @@ abstract class RemoteServerConnectorBase(module: Module, fileToCompile: File, ou
 
   private def compilerSettings = module.getProject.scalaCompilerSettigns
 
-  private def scalaSdk =
-    module.scalaSdk getOrElse configurationError("No Scala facet configured for module: " + module.getName)
+  private def scalaSdk = module.scalaSdk.getOrElse(
+          configurationError("No Scala SDK configured for module: " + module.getName))
 
   private def findJdk = scala.compiler.findJdkByName(settings.COMPILE_SERVER_SDK) match {
     case Right(jdk) => jdk.executable
