@@ -4,7 +4,9 @@ package project
 /**
  * @author Pavel Fatin
  */
-case class Version(number: String) extends AnyVal
+case class Version(number: String) extends AnyVal {
+  def toLanguageLevel: Option[ScalaLanguageLevel] = ScalaLanguageLevel.from(this)
+}
 
 object Version {
   implicit object VersionOrdering extends Ordering[Version] {
