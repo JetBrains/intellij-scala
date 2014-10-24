@@ -22,6 +22,8 @@ class ScLightFunctionDeclaration(pTypes: List[List[ScType]], tParams: List[TypeP
   extends LightElement(fun.getManager, fun.getLanguage) with ScFunctionDeclaration {
   setNavigationElement(fun)
 
+  override def getParent: PsiElement = fun.getParent
+
   override def typeParametersClause: Option[ScTypeParamClause] = fun.typeParametersClause.map(new ScLightTypeParamClause(tParams, _))
 
   override def paramClauses: ScParameters = new ScLightParameters(pTypes, fun)

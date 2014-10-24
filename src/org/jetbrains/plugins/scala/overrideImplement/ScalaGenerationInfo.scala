@@ -12,7 +12,6 @@ import com.intellij.pom.Navigatable
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
-import org.jetbrains.plugins.scala.config.ScalaVersionUtil._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
@@ -24,7 +23,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.overrideImplement.ScalaGenerationInfo._
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-
+import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 
 /**
  * Nikolay.Tropin
@@ -88,8 +88,8 @@ object ScalaGenerationInfo {
   def defaultValue(returnType: ScType, file: PsiFile) = {
     val standardValue = ScalaPsiElementFactory.getStandardValue(returnType)
 
-    if (isGeneric(file, false, SCALA_2_7, SCALA_2_8, SCALA_2_9)) standardValue
-    else "???"
+    if (file.scalaLanguageLevel.exists(_ >= Scala_2_10)) "???"
+    else standardValue
   }
 
   def positionCaret(editor: Editor, element: PsiMember) {
