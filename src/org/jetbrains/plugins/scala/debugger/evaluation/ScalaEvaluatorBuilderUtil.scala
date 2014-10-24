@@ -268,7 +268,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case "isInstanceOf" => isInstanceOfEval
       case "asInstanceOf" => unaryEval(name, identity) //todo: primitive type casting?
       case "##" => unaryEval(name, eval => new ScalaMethodEvaluator(BOXES_RUN_TIME, "hashFromObject",
-        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)I"), Seq(new BoxingEvaluator(eval))))
+        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)I"), Seq(boxEvaluator(eval))))
       case "==" => equalsEval("==")
       case "!=" => unaryEvaluator(equalsEval("!="), "takeNot")
       case "unary_!" => unaryEvalForBoxes("!", "takeNot")
@@ -969,7 +969,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 object ScalaEvaluatorBuilderUtil {
   private val BOXES_RUN_TIME = new TypeEvaluator(JVMNameUtil.getJVMRawText("scala.runtime.BoxesRunTime"))
   private val BOXED_UNIT = new TypeEvaluator(JVMNameUtil.getJVMRawText("scala.runtime.BoxedUnit"))
-  def boxEvaluator(eval: Evaluator): Evaluator = new BoxingEvaluator(eval)
+  def boxEvaluator(eval: Evaluator): Evaluator = new ScalaBoxingEvaluator(eval)
   def boxed(evaluators: Evaluator*): Seq[Evaluator] = evaluators.map(boxEvaluator)
   def unboxEvaluator(eval: Evaluator): Evaluator = new UnBoxingEvaluator(eval)
   def notEvaluator(eval: Evaluator): Evaluator = {
