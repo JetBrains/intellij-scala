@@ -78,9 +78,11 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase {
 
     myModule.libraries.find(_.getName == "scala-compiler").foreach { library =>
       val compilerClasspath = Seq("scala-compiler.jar", "scala-library.jar") ++
-              (if (loadReflect) Seq("scala-compiler.jar") else Seq.empty)
-      
-      library.convertToScalaSdkWith(ScalaLanguageLevel.Default, compilerClasspath.map(new File(root, _)))
+              (if (loadReflect) Seq("scala-reflect.jar") else Seq.empty)
+
+      inWriteAction {
+        library.convertToScalaSdkWith(ScalaLanguageLevel.Default, compilerClasspath.map(new File(root, _)))
+      }
     }
   }
 
