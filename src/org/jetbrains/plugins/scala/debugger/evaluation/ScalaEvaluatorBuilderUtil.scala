@@ -551,7 +551,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         case param =>
           val p = new Parameter(param)
           val exprsForP = matchedParameters.find(_._1.name == p.name).map(_._2).getOrElse(Seq.empty).filter(_ != null)
-          if (p.isByName) throw EvaluationException("cannot evaluate methods with by-name parameters")
+          if (p.isByName) throw new NeedCompilationException("cannot evaluate methods with by-name parameters")
 
           val evaluator =
             if (p.isRepeated) repeatedArgEvaluator(exprsForP, p.expectedType, call)
@@ -689,7 +689,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             }
             else new ScalaDuplexEvaluator(fieldEval, localVariableEvaluator())
           }
-          else throw EvaluationException("Cannot load local variable from anonymous class")
+          else throw new NeedCompilationException("Cannot load local variable from anonymous class")
       }
     }
 
@@ -875,7 +875,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     templ.extendsBlock.templateParents match {
       case Some(parents: ScClassParents) =>
         if (parents.typeElements.length != 1) {
-          throw EvaluationException("Anonymous classes are not supported")
+          throw new NeedCompilationException("Anonymous classes are not supported")
         }
         parents.constructor match {
           case Some(constr) =>
