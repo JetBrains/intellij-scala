@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 
 class ScalaScriptConfigurationType extends ConfigurationType {
   val confFactory = new ScalaScriptRunConfigurationFactory(this)
-
+  
   def getIcon: Icon = Icons.SCRIPT_FILE_LOGO
 
   def getDisplayName: String = "Scala Script"

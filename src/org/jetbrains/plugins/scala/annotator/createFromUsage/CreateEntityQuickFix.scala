@@ -20,6 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
+import org.jetbrains.plugins.scala.project._
 
 /**
  * Pavel Fatin
@@ -55,8 +57,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, entity: String, 
     val parameters = parametersFor(ref)
 
     val placeholder = if (entityType.isDefined) "%s %s%s: Int" else "%s %s%s"
-    import org.jetbrains.plugins.scala.config.ScalaVersionUtil._
-    val unimplementedBody = if (isGeneric(file, false, SCALA_2_10, SCALA_2_11)) " = ???" else ""
+    val unimplementedBody = if (file.scalaLanguageLevel.exists(_ >= Scala_2_10)) " = ???" else ""
     val params = (genericParams ++: parameters).mkString
     val text = placeholder.format(keyword, ref.nameId.getText, params) + unimplementedBody
 

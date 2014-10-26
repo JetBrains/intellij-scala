@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package testingSupport.test
 
 import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType, RunConfiguration}
-import org.jetbrains.plugins.scala.config.ScalaFacet
+import org.jetbrains.plugins.scala.project._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -13,9 +13,7 @@ abstract class AbstractTestRunConfigurationFactory(val typez: ConfigurationType)
   override def createConfiguration(name: String, template: RunConfiguration): RunConfiguration = {
 
     val configuration = (super.createConfiguration(name, template)).asInstanceOf[AbstractTestRunConfiguration]
-    ScalaFacet.findModulesIn(template.getProject).headOption.foreach {
-      configuration.setModule _
-    }
+    template.getProject.anyScalaModule.foreach(configuration.setModule(_))
     configuration
   }
 }

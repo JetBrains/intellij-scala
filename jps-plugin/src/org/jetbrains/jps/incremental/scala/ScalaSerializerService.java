@@ -3,15 +3,14 @@ package org.jetbrains.jps.incremental.scala;
 import com.intellij.util.xmlb.XmlSerializer;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.jps.incremental.scala.model.FacetSettings;
-import org.jetbrains.jps.incremental.scala.model.FacetSettingsImpl;
-import org.jetbrains.jps.incremental.scala.model.GlobalSettingsImpl;
-import org.jetbrains.jps.model.JpsElement;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.jps.incremental.scala.model.*;
 import org.jetbrains.jps.model.JpsGlobal;
-import org.jetbrains.jps.model.module.JpsModule;
+import org.jetbrains.jps.model.JpsProject;
 import org.jetbrains.jps.model.serialization.JpsGlobalExtensionSerializer;
 import org.jetbrains.jps.model.serialization.JpsModelSerializerExtension;
-import org.jetbrains.jps.model.serialization.facet.JpsFacetConfigurationSerializer;
+import org.jetbrains.jps.model.serialization.JpsProjectExtensionSerializer;
+import org.jetbrains.jps.model.serialization.library.JpsLibraryPropertiesSerializer;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,9 +25,16 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
     return Collections.singletonList(new GlobalSettingsSerializer());
   }
 
+  @NotNull
   @Override
-  public List<? extends JpsFacetConfigurationSerializer<?>> getFacetConfigurationSerializers() {
-    return Collections.singletonList(new FacetSettingsSerializer());
+  public List<? extends JpsProjectExtensionSerializer> getProjectExtensionSerializers() {
+    return Collections.singletonList(new ProjectSettingsSerializer());
+  }
+
+  @NotNull
+  @Override
+  public List<? extends JpsLibraryPropertiesSerializer<?>> getLibraryPropertiesSerializers() {
+    return Collections.singletonList(new LibraryPropertiesSerializer());
   }
 
   private static class GlobalSettingsSerializer extends JpsGlobalExtensionSerializer {
@@ -49,19 +55,37 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
     }
   }
 
-  private static class FacetSettingsSerializer extends JpsFacetConfigurationSerializer<FacetSettings> {
-    public FacetSettingsSerializer() {
-      super(SettingsManager.FACET_SETTINGS_ROLE, "scala", null);
+  private static class ProjectSettingsSerializer extends JpsProjectExtensionSerializer {
+    private ProjectSettingsSerializer() {
+      super("scala_compiler.xml", "ScalaCompilerConfiguration");
     }
 
     @Override
-    protected FacetSettings loadExtension(@NotNull Element facetConfigurationElement, String name, JpsElement parent, JpsModule module) {
-      FacetSettingsImpl.State state = XmlSerializer.deserialize(facetConfigurationElement, FacetSettingsImpl.State.class);
-      return new FacetSettingsImpl(state);
+    public void loadExtension(@NotNull JpsProject jpsProject, @NotNull Element componentTag) {
+      ProjectSettingsImpl.State state = XmlSerializer.deserialize(componentTag, ProjectSettingsImpl.State.class);
+      ProjectSettingsImpl settings = new ProjectSettingsImpl(state == null ? new ProjectSettingsImpl.State() : state);
+      SettingsManager.setProjectSettings(jpsProject, settings);
     }
 
     @Override
-    protected void saveExtension(FacetSettings extension, Element facetConfigurationTag, JpsModule module) {
+    public void saveExtension(@NotNull JpsProject jpsProject, @NotNull Element componentTag) {
+      // do nothing
+    }
+  }
+
+  private static class LibraryPropertiesSerializer extends JpsLibraryPropertiesSerializer<LibrarySettings> {
+    private LibraryPropertiesSerializer() {
+      super(ScalaLibraryType.getInstance(), "Scala");
+    }
+
+    @Override
+    public LibrarySettings loadProperties(@Nullable Element propertiesElement) {
+      LibrarySettingsImpl.State state = XmlSerializer.deserialize(propertiesElement, LibrarySettingsImpl.State.class);
+      return state == null ? null : new LibrarySettingsImpl(state);
+    }
+
+    @Override
+    public void saveProperties(LibrarySettings properties, Element element) {
       // do nothing
     }
   }

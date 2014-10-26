@@ -9,7 +9,6 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeVariableTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
@@ -23,6 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ExpandedExtractorResolveProcessor}
+import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 
 import scala.annotation.tailrec
 import scala.collection.immutable.Set
@@ -403,8 +404,8 @@ object ScPattern {
       extractPossibleProductParts(receiverType, place, isOneArgCaseClass)
     }
 
-    val level = ScalaLanguageLevel.getLanguageLevel(place)
-    if (level.isThoughScala2_11) collectFor2_11
+    val level = place.languageLevel
+    if (level >= Scala_2_11) collectFor2_11
     else {
       returnType match {
         case ScParameterizedType(des, args) =>
