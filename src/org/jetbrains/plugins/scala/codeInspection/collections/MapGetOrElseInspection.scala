@@ -4,11 +4,11 @@ package codeInspection.collections
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
-import org.jetbrains.plugins.scala.config.ScalaVersionUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, ProjectPsiElementExt}
 
 /**
  * Nikolay.Tropin
@@ -36,8 +36,7 @@ class MapGetOrElse(inspection: OperationOnCollectionInspection) extends Simplifi
   }
 
   def checkScalaVersion(elem: PsiElement) = { //there is no Option.fold in Scala 2.9
-    val isScala2_9 = ScalaVersionUtil.isGeneric(elem, false, ScalaVersionUtil.SCALA_2_9)
-    !isScala2_9
+    elem.scalaLanguageLevel.exists(_ > ScalaLanguageLevel.Scala_2_9)
   }
 
   def checkTypes(optionalBase: Option[ScExpression], mapArgs: Seq[ScExpression], getOrElseArgs: Seq[ScExpression]): Boolean = {

@@ -5,7 +5,6 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.config.ScalaFacet
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -17,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
+import org.jetbrains.plugins.scala.project._
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -80,14 +80,9 @@ object WorksheetSourceProcessor {
     //val macroPrinterName = "MacroPrinter210" // "worksheet$$macro$$printer"
     
     val macroPrinterName = Option(RunWorksheetAction getModuleFor srcFile) flatMap {
-      case module => ScalaFacet findIn module flatMap {
-        case facet => facet.compiler flatMap {
-          case c =>
-            c.version collect {
-              case v if v.startsWith("2.10") => "MacroPrinter210"
-              case v if v.startsWith("2.11") => "MacroPrinter211"
-            }
-        }
+      case module => module.scalaSdk.flatMap(_.compilerVersion).collect {
+        case v if v.startsWith("2.10") => "MacroPrinter210"
+        case v if v.startsWith("2.11") => "MacroPrinter211"
       }
     } getOrElse "MacroPrinter"
     

@@ -20,6 +20,6 @@
     <projectResolve implementation="org.jetbrains.plugins.gradle.integrations.scala.ScalaGradleProjectResolverExtension"/>
   </extensions>
   <extensions defaultExtensionNs="com.intellij">
-    <externalProjectDataService implementation="org.jetbrains.plugins.scala.config.ScalaGradleDataService"/>
+    <externalProjectDataService implementation="org.jetbrains.plugins.scala.project.gradle.ScalaGradleDataService"/>
   </extensions>
 </idea-plugin>

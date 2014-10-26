@@ -22,14 +22,13 @@ import com.intellij.openapi.vfs.VirtualFileWithId
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.util.PathUtil
 import org.jetbrains.plugins.scala
-import org.jetbrains.plugins.scala.compiler.ScalacSettings
-import org.jetbrains.plugins.scala.config.{CompilerLibraryData, Libraries, ScalaFacet}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.MacroPrinter
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
 import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
+import org.jetbrains.plugins.scala.project._
 
 /**
  * @author Ksenia.Sautina
@@ -130,7 +129,7 @@ object RunWorksheetAction {
 
     val project = module.getProject
 
-    val facet = ScalaFacet.findIn(module).getOrElse {
+    val scalaSdk = module.scalaSdk.getOrElse {
       throw new ExecutionException("No Scala facet configured for module " + module.getName)
     }
 
@@ -141,16 +140,8 @@ object RunWorksheetAction {
     }
 
     val params = new JavaParameters()
-    val files =
-      if (facet.fsc) {
-        val settings = ScalacSettings.getInstance(project)
-        val lib: Option[CompilerLibraryData] = Libraries.findBy(settings.COMPILER_LIBRARY_NAME,
-          settings.COMPILER_LIBRARY_LEVEL, project)
-        lib match {
-          case Some(compilerLib) => compilerLib.files
-          case _ => facet.files
-        }
-      } else facet.files
+    val files = scalaSdk.compilerClasspath
+
     params.getClassPath.addAllFiles(files.asJava)
     params.setUseDynamicClasspath(JdkUtil.useDynamicClasspath(project))
     params.setUseDynamicVMOptions(JdkUtil.useDynamicVMOptions())
@@ -194,8 +185,8 @@ object RunWorksheetAction {
     handler.startNotify()
   }
 
-  def getModuleFor(file: PsiFile) = file.getVirtualFile match {
+  def getModuleFor(file: PsiFile): Module = file.getVirtualFile match {
     case _: VirtualFileWithId => ProjectFileIndex.SERVICE getInstance file.getProject getModuleForFile file.getVirtualFile
-    case _ => ScalaFacet.findFirstIn(file.getProject).map(_.getModule).orNull
+    case _ => file.getProject.anyScalaModule.map(_.module).orNull
   }
 }

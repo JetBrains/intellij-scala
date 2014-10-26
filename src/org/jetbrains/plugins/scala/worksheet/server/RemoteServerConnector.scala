@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package worksheet.server
 
-
 import java.io._
 import java.net._
 

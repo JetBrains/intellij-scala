@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala.components
+package org.jetbrains.plugins.scala
+package components
 
 import java.awt.event.MouseEvent
 
-import com.intellij.facet.{ProjectWideFacetAdapter, ProjectWideFacetListenersRegistry}
 import com.intellij.ide.DataManager
 import com.intellij.notification._
 import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
@@ -13,9 +13,9 @@ import com.intellij.openapi.wm.StatusBarWidget.PlatformType
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
 import com.intellij.util.{Consumer, FileContentUtil}
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.config.ScalaFacet
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.util.NotificationUtil
+import org.jetbrains.plugins.scala.project._
 
 import scala.collection.JavaConversions._
 
@@ -67,13 +67,13 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
   def disposeComponent() {}
 
   def projectOpened() {
-    registry.registerListener(ScalaFacet.Id, FacetListener)
+    project.scalaEvents.addScalaProjectListener(ScalaListener)
     configureWidget()
     notifyIfNeeded()
   }
 
   def projectClosed() {
-    registry.unregisterListener(ScalaFacet.Id, FacetListener)
+    project.scalaEvents.removeScalaProjectListener(ScalaListener)
     configureWidget()
   }
 
@@ -110,9 +110,6 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
     }
   }
 
-  private def registry: ProjectWideFacetListenersRegistry =
-    ProjectWideFacetListenersRegistry.getInstance(project)
-
   def toggle() {
     if(applicable) {
       enabled = !enabled
@@ -120,7 +117,7 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
     }
   }
 
-  private def applicable = ScalaFacet.isPresentIn(project)
+  private def applicable = project.hasScala
 
   def enabled = settings.TYPE_AWARE_HIGHLIGHTING_ENABLED
 
@@ -187,13 +184,13 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
     }
   }
 
-  private object FacetListener extends ProjectWideFacetAdapter[ScalaFacet]() {
-    override def facetAdded(facet: ScalaFacet) {
+  private object ScalaListener extends ScalaProjectListener {
+    def onScalaAdded() {
       configureWidget()
       notifyIfNeeded()
     }
 
-    override def facetRemoved(facet: ScalaFacet) {
+    def onScalaRemoved() {
       configureWidget()
     }
   }

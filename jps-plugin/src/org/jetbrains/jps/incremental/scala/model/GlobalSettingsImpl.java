@@ -3,9 +3,6 @@ package org.jetbrains.jps.incremental.scala.model;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.model.ex.JpsElementBase;
-import org.jetbrains.plugin.scala.compiler.CompileOrder;
-import org.jetbrains.plugin.scala.compiler.IncrementalType;
-import org.jetbrains.plugin.scala.compiler.NameHashing;
 
 /**
  * @author Pavel Fatin
@@ -31,18 +28,6 @@ public class GlobalSettingsImpl extends JpsElementBase<GlobalSettingsImpl> imple
     return myState.COMPILE_SERVER_SDK;
   }
 
-  public IncrementalType getIncrementalType() {
-    return myState.INCREMENTAL_TYPE;
-  }
-
-  public NameHashing getNameHashing() {
-    return myState.NAME_HASHING;
-  }
-
-  public CompileOrder getCompileOrder() {
-    return myState.COMPILE_ORDER;
-  }
-
   @NotNull
   @Override
   public GlobalSettingsImpl createCopy() {
@@ -60,11 +45,5 @@ public class GlobalSettingsImpl extends JpsElementBase<GlobalSettingsImpl> imple
     public int COMPILE_SERVER_PORT = 3200;
 
     public String COMPILE_SERVER_SDK;
-
-    public IncrementalType INCREMENTAL_TYPE = IncrementalType.IDEA;
-
-    public NameHashing NAME_HASHING = NameHashing.DEFAULT;
-
-    public CompileOrder COMPILE_ORDER = CompileOrder.Mixed;
   }
 }

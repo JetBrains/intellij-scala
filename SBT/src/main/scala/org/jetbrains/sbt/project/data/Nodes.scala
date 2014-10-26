@@ -5,6 +5,7 @@ import java.io.File
 
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
+import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.ParsedValue
 import org.jetbrains.sbt.resolvers.SbtResolver
@@ -83,13 +84,13 @@ class ScalaProjectNode(val data: ScalaProjectData)
   protected def key = ScalaProjectData.Key
 }
 
-class ScalaFacetNode(val data: ScalaFacetData)
-  extends Node[ScalaFacetData] {
-  def this(scalaVersion: String, basePackage: String, compilerLibraryName: String, compilerOptions: Seq[String]) {
-    this(new ScalaFacetData(SbtProjectSystem.Id, scalaVersion, basePackage, compilerLibraryName, compilerOptions))
+class ScalaSdkNode(val data: ScalaSdkData)
+  extends Node[ScalaSdkData] {
+  def this(scalaVersion: Version, basePackage: String, compilerClasspath: Seq[File], compilerOptions: Seq[String]) {
+    this(new ScalaSdkData(SbtProjectSystem.Id, scalaVersion, basePackage, compilerClasspath, compilerOptions))
   }
 
-  protected def key = ScalaFacetData.Key
+  protected def key = ScalaSdkData.Key
 }
 
 class AndroidFacetNode(val data: AndroidFacetData)

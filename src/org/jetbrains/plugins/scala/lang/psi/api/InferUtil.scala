@@ -1,9 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.api
+package org.jetbrains.plugins.scala
+package lang.psi.api
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScLiteral}
@@ -20,6 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
+import org.jetbrains.plugins.scala.project._
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -89,8 +91,8 @@ object InferUtil {
         }
         implicitParameters = Some(resolveResultsBuffer.toSeq)
         val dependentSubst = new ScSubstitutor(() => {
-          val level = ScalaLanguageLevel.getLanguageLevel(element)
-          if (level.isThoughScala2_10) {
+          val level = element.languageLevel
+          if (level >= Scala_2_10) {
             paramsForInferBuffer.zip(exprsBuffer).map {
               case (param: Parameter, expr: Expression) =>
                 val paramType: ScType = expr.getTypeAfterImplicitConversion(checkImplicits = true,
@@ -112,8 +114,8 @@ object InferUtil {
         implicitParameters = Some(resolveResults.toSeq)
         resInner = retType
         val dependentSubst = new ScSubstitutor(() => {
-          val level = ScalaLanguageLevel.getLanguageLevel(element)
-          if (level.isThoughScala2_10) {
+          val level = element.languageLevel
+          if (level >= Scala_2_10) {
             paramsForInfer.zip(exprs).map {
               case (param: Parameter, expr: Expression) =>
                 val paramType: ScType = expr.getTypeAfterImplicitConversion(checkImplicits = true,
