@@ -4,11 +4,8 @@ package project
 /**
  * @author Pavel Fatin
  */
-sealed case class ScalaLanguageLevel(ordinal: Int, version: String, virtualized: Boolean = false) extends Named {
-  def name: String = {
-    val prefix: String = "Scala " + version
-    if (virtualized) prefix + " virtualized" else prefix
-  }
+sealed case class ScalaLanguageLevel(ordinal: Int, version: String) extends Named {
+  def name: String = "Scala " + version
 
   override def getName = name
 
@@ -24,7 +21,7 @@ sealed case class ScalaLanguageLevel(ordinal: Int, version: String, virtualized:
 }
 
 object ScalaLanguageLevel {
-  val Values = Array(Scala_2_7, Scala_2_8, Scala_2_9, Scala_2_10, Scala_2_10_V, Scala_2_11, Scala_2_11_V)
+  val Values = Array(Scala_2_7, Scala_2_8, Scala_2_9, Scala_2_10, Scala_2_11)
 
   val Default = Scala_2_11
 
@@ -35,9 +32,7 @@ object ScalaLanguageLevel {
     Scala_2_8 -> ScalaLanguageLevelProxy.Scala_2_8,
     Scala_2_9 -> ScalaLanguageLevelProxy.Scala_2_9,
     Scala_2_10 -> ScalaLanguageLevelProxy.Scala_2_10,
-    Scala_2_10_V -> ScalaLanguageLevelProxy.Scala_2_10_V,
-    Scala_2_11 -> ScalaLanguageLevelProxy.Scala_2_11,
-    Scala_2_11_V -> ScalaLanguageLevelProxy.Scala_2_11_V)
+    Scala_2_11 -> ScalaLanguageLevelProxy.Scala_2_11)
 
   private val ProxyToLevel = LevelToProxy.map(_.swap)
 
@@ -54,9 +49,5 @@ object ScalaLanguageLevel {
 
   object Scala_2_10 extends ScalaLanguageLevel(3, "2.10")
 
-  object Scala_2_10_V extends ScalaLanguageLevel(4, "2.10", true)
-
-  object Scala_2_11 extends ScalaLanguageLevel(5, "2.11")
-
-  object Scala_2_11_V extends ScalaLanguageLevel(6, "2.11", true)
+  object Scala_2_11 extends ScalaLanguageLevel(4, "2.11")
 }
