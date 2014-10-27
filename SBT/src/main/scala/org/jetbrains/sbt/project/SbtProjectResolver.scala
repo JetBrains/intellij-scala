@@ -89,15 +89,24 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val libraries = {
       val repositoryModules = data.repository.map(_.modules).getOrElse(Seq.empty)
-
+      val (modulesWithoutBinaries, modulesWithBinaries) = repositoryModules.partition(_.binaries.isEmpty)
       val otherModuleIds = projects.flatMap(_.dependencies.modules.map(_.id)).toSet --
               repositoryModules.map(_.id).toSet
 
-      repositoryModules.map(createResolvedLibrary) ++ otherModuleIds.map(createUnresolvedLibrary)
-    }
+      val libs = modulesWithBinaries.map(createResolvedLibrary) ++ otherModuleIds.map(createUnresolvedLibrary)
 
+      if (modulesWithoutBinaries.nonEmpty) {
+        val unmanagedSourceLibrary = new LibraryNode(Sbt.UnmanagedSourcesAndDocsName, true)
+        unmanagedSourceLibrary.addPaths(LibraryPathType.DOC, modulesWithoutBinaries.flatMap(_.docs).map(_.path))
+        unmanagedSourceLibrary.addPaths(LibraryPathType.SOURCE, modulesWithoutBinaries.flatMap(_.sources).map(_.path))
+        libs :+ unmanagedSourceLibrary
+      } else {
+        libs
+      }
+    }
     projectNode.addAll(libraries)
 
+    val unmanagedSourcesAndDocsLibrary = libraries.map(_.data).find(_.getExternalName == Sbt.UnmanagedSourcesAndDocsName)
     val moduleFilesDirectory = new File(root + "/" + Sbt.ModulesDirectory)
 
     val moduleNodes: Seq[ModuleNode] = projects.map { project =>
@@ -107,6 +116,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       moduleNode.addAll(project.scala.map(createScalaSdk(project, _)).toSeq)
       moduleNode.addAll(project.android.map(createFacet(project, _)).toSeq)
       moduleNode.addAll(createUnmanagedDependencies(project.dependencies.jars)(moduleNode))
+      unmanagedSourcesAndDocsLibrary foreach { lib =>
+        val dependency = new LibraryDependencyNode(moduleNode, lib, LibraryLevel.MODULE)
+        dependency.setScope(DependencyScope.COMPILE)
+        moduleNode.add(dependency)
+      }
       moduleNode
     }
 
