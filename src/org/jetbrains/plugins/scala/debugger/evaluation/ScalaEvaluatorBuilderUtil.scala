@@ -567,7 +567,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
               val methodName = defaultParameterMethodName(fun, p, parameters)
               functionEvaluator(ref.qualifier, ref, methodName, previousClausesEvaluators)
             }
-            else null
+            else throw EvaluationException(s"Cannot evaluate parameter ${p.name}")
 
           val substitutor = ref match {
             case ResolvedWithSubst(_, subst) => subst
