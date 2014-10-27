@@ -629,8 +629,17 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         val args = argumentEvaluators(fun, matchedParameters, call, ref, arguments)
         arrayMethodEvaluator(fun.name,  qualOption, args)
       case fun: ScFunction =>
-        val args: Seq[Evaluator] = argumentEvaluators(fun, matchedParameters, call, ref, arguments)
-        functionEvaluator(qualOption, ref, fun.name, args)
+        ref match {
+          case isInsideValueClass(c) if qualOption == None =>
+            val clName = c.name
+            val paramName = c.allClauses.flatMap(_.parameters).map(_.name).headOption.getOrElse("$this")
+            val text = s"new $clName($paramName).${call.getText}"
+            val expr = ScalaPsiElementFactory.createExpressionFromText(text, call.getContext)
+            ScalaEvaluator(expr)
+          case _ =>
+            val args: Seq[Evaluator] = argumentEvaluators(fun, matchedParameters, call, ref, arguments)
+            functionEvaluator(qualOption, ref, fun.name, args)
+        }
       case method: PsiMethod =>
         javaMethodEvaluator(method, ref, arguments)
       case _ =>
@@ -710,6 +719,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         val qualEval = qualifierEvaluator(qualifier, ref)
         val name = NameTransformer.encode(named.name)
         new ScalaFieldEvaluator(qualEval, _ => true, name, true)
+      case cp: ScClassParameter if qualifier == None && ValueClassType.isValueClass(cp.containingClass) =>
+        //methods of value classes have hidden argument with underlying value
+        new ScalaLocalVariableEvaluator("$this", fileName)
       case _: ScClassParameter | _: ScBindingPattern =>
         //this is scala "field"
         val named = resolve.asInstanceOf[ScNamedElement]
@@ -1181,6 +1193,15 @@ object ScalaEvaluatorBuilderUtil {
 
   def isLocalFunction(fun: ScFunction): Boolean = {
     !fun.getContext.isInstanceOf[ScTemplateBody]
+  }
+
+  object isInsideValueClass {
+    def unapply(elem: PsiElement): Option[ScClass] = {
+      getContextClass(elem) match {
+        case c: ScClass if ValueClassType.isValueClass(c) => Some(c)
+        case _ => None
+      }
+    }
   }
 
   object isInsideLocalFunction {

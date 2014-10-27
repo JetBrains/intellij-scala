@@ -27,8 +27,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
 import org.jetbrains.plugins.scala.util.macroDebug.ScalaMacroDebuggingUtil
@@ -161,6 +162,9 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
         }
 
         sourceImage match {
+          case cl: ScClass if ValueClassType.isValueClass(cl) =>
+            //there are no instances of value classes, methods from companion object are used
+            qName.set(getSpecificNameForDebugger(cl) + "$")
           case typeDef: ScTypeDefinition if !isLocalOrUnderDelayedInit(typeDef) =>
             val specificName = getSpecificNameForDebugger(typeDef)
             qName.set(if (insideMacro) specificName + "*" else specificName)
