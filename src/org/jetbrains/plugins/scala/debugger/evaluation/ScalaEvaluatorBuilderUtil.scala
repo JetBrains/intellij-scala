@@ -169,7 +169,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         else null
     }
     if (thisEvaluator != null) {
-      val locals = DebuggerUtil.localParams(fun, getContextClass(fun))
+      val locals = DebuggerUtil.localParamsForFunDef(fun)
       val evaluators = argEvaluators ++ locals.map(fromLocalArgEvaluator)
       val signature = DebuggerUtil.getFunctionJVMSignature(fun)
       val positions = DebuggerUtil.getSourcePositions(fun.getNavigationElement)
@@ -458,7 +458,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     fun match {
       case funDef: ScFunctionDefinition =>
         def paramIndex(fun: ScFunctionDefinition, context: PsiElement, elem: PsiElement): Int = {
-          val locIndex = DebuggerUtil.localParams(fun, context).indexOf(elem)
+          val locIndex = DebuggerUtil.localParamsForFunDef(fun).indexOf(elem)
           val funParams = fun.effectiveParameterClauses.flatMap(_.parameters)
           if (locIndex < 0) funParams.indexOf(elem)
           else locIndex + funParams.size
@@ -956,7 +956,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           case null => None
           case _ => Some(new ScalaThisEvaluator())
         }
-        val locals = DebuggerUtil.localParamsForConstructor(scClass, contextClass)
+        val locals = DebuggerUtil.localParamsForConstructor(scClass)
         outerThis ++: explEvaluators ++: implicitsEvals ++: locals.map(fromLocalArgEvaluator)
       case _ => explEvaluators
     }
