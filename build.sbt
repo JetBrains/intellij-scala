@@ -115,12 +115,12 @@ downloadIdea := {
   def downloadDep(art: TCArtifact): Unit = {
     val fileTo = file(art.to)
     if (!fileTo.exists() || art.overwrite) {
-      log.info(s"downloading${if (art.overwrite) "(overwriting)" else ""}: ${art.from}")
+      log.info(s"downloading${if (art.overwrite) "(overwriting)" else ""}: ${art.from} -> ${fileTo.getAbsolutePath}")
       IO.download(url(artifactBaseUrl + art.from), fileTo)
       log.success(s"download of ${fileTo.getName} finished")
       art.extractFun foreach { func =>
         log.info(s"extracting from archive ${fileTo.getName}")
-        if (!ideaBasePath.value.exists) func(fileTo)
+        func(fileTo)
         log.success("extract finished")
       }
     } else log.info(s"$fileTo already exists, skipping")
@@ -176,7 +176,8 @@ packageStructure in Compile := {
     )
     .map { f => f.metadata.get(moduleID.key) -> f.data}.toMap
     .collect { case (Some(x), y) => (x.organization % x.name % x.revision) -> y}
-  def libOf(lib: ModuleID, prefix: String = "lib/") = resolved(lib) -> (prefix + resolved(lib).name)
+  def simplify(lib: ModuleID) = lib.organization % lib.name % lib.revision
+  def libOf(lib: ModuleID, prefix: String = "lib/") = resolved(simplify(lib)) -> (prefix + resolved(simplify(lib)).name)
   Seq(
     (artifactPath in (ScalaCommunity, Compile, packageBin)).value     -> "lib/scala-plugin.jar",
     (artifactPath in (compiler_settings, Compile, packageBin)).value -> "lib/compiler-settings.jar",
@@ -198,7 +199,8 @@ packageStructure in Compile := {
     libOf("org.scalatest" % "scalatest-finders" % "0.9.6"),
     libOf("org.scala-lang.modules" % "scala-xml_2.11" % "1.0.2"),
     libOf("org.scala-lang.modules" % "scala-parser-combinators_2.11" % "1.0.2")
-  )
+  ) ++
+    (libraryDependencies in SBT).value.map(libOf(_))
 }
 
 packagePlugin in Compile := {
