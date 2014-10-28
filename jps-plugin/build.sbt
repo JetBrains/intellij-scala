@@ -10,9 +10,4 @@ unmanagedJars in Compile ++= (baseDirectory.value.getParentFile / "SDK/nailgun" 
 
 unmanagedSourceDirectories in Compile += baseDirectory.value / "src"
 
-mappings in (Compile, packageBin) ++= {
-  val base = baseDirectory.value
-  for {
-    (file, rp) <- (base / "src" / "META-INF" *** ) x relativeTo(base / "src")
-  } yield file -> rp
-}
+unmanagedResourceDirectories in Compile += baseDirectory.value /  "resources"
