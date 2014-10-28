@@ -78,6 +78,8 @@ class ScalaPsiElementFactoryImpl(manager: PsiManager) extends JVMElementFactory 
 
   def createMethod(name: String, returnType: PsiType): PsiMethod = throw new IncorrectOperationException
 
+  def createMethod(name: String, returnType: PsiType, context: PsiElement): PsiMethod = throw new IncorrectOperationException
+
   def createConstructor(): PsiMethod = {
     ScalaPsiElementFactory.createMethodFromText("def this() {\nthis()\n}", manager)
   }

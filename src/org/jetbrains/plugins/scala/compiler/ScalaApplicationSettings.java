@@ -2,9 +2,6 @@ package org.jetbrains.plugins.scala.compiler;
 
 import com.intellij.openapi.components.*;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import org.jetbrains.plugin.scala.compiler.CompileOrder;
-import org.jetbrains.plugin.scala.compiler.IncrementalType;
-import org.jetbrains.plugin.scala.compiler.NameHashing;
 
 import java.util.UUID;
 
@@ -17,10 +14,6 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public int SHOW_TYPE_TOOLTIP_DELAY = 500;
 
   public boolean COMPILE_SERVER_ENABLED = true;
-
-  public IncrementalType INCREMENTAL_TYPE = IncrementalType.IDEA;
-  public NameHashing NAME_HASHING = NameHashing.DEFAULT;
-  public CompileOrder COMPILE_ORDER = CompileOrder.Mixed;
 
   //is not accessible from UI, but is serialized and used in jps-plugin
   public int COMPILE_SERVER_PORT = 3200;

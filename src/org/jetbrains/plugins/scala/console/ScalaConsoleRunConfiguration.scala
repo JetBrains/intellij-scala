@@ -48,7 +48,7 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
     state.setConsoleBuilder(consoleBuilder)
     state
   }
-  
+
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaConsoleRunConfigurationEditor(project, this)
 
   override def writeExternal(element: Element) {

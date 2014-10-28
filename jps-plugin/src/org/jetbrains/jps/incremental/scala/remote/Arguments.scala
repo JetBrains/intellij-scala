@@ -6,7 +6,8 @@ import java.io.File
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.scala.data._
 import org.jetbrains.jps.incremental.scala.remote.Arguments._
-import org.jetbrains.plugin.scala.compiler.{CompileOrder, IncrementalType, NameHashing}
+import org.jetbrains.plugin.scala.compiler.NameHashing
+import org.jetbrains.jps.incremental.scala.model.{CompileOrder, IncrementalityType}
 
 /**
  * @author Pavel Fatin
@@ -87,7 +88,7 @@ object Arguments {
         case PathToFile(file) => file
       }
 
-      val incrementalType = IncrementalType.valueOf(incrementalTypeName)
+      val incrementalType = IncrementalityType.valueOf(incrementalTypeName)
 
       val compilerData = CompilerData(compilerJars, javaHome, incrementalType)
 

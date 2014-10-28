@@ -1,29 +1,21 @@
 package org.jetbrains.plugins.scala
 package debugger
 
-import scala.collection.mutable
-import com.intellij.testFramework.{PsiTestUtil, PlatformTestCase, UsefulTestCase}
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.config.{LibraryLevel, LibraryId, ScalaFacet}
 import java.io._
-import com.intellij.ide.highlighter.{ModuleFileType, ProjectFileType}
-import java.nio.file.{FileSystems, Path, Paths, Files}
-import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
-import com.intellij.execution.process.{ProcessHandler, ProcessListener}
-import com.intellij.openapi.module.Module
-import com.intellij.execution.Executor
-import com.intellij.execution.configurations.{RunProfile, RunnerSettings}
-import com.intellij.execution.application.{ApplicationConfigurationType, ApplicationConfiguration}
-import com.intellij.util.concurrency.Semaphore
-import java.util.concurrent.atomic.AtomicReference
-import com.intellij.execution.ui.RunContentDescriptor
-import com.intellij.openapi.Disposable
-import org.jetbrains.plugins.scala.util.TestUtils
-import com.intellij.openapi.vfs.LocalFileSystem
+import java.nio.charset.StandardCharsets
+import java.nio.file.{FileSystems, Files, Path, Paths}
 import java.security.MessageDigest
 import java.util
-import java.nio.charset.StandardCharsets
+
+import com.intellij.execution.application.{ApplicationConfiguration, ApplicationConfigurationType}
+import com.intellij.ide.highlighter.{ModuleFileType, ProjectFileType}
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
+import com.intellij.testFramework.{PlatformTestCase, PsiTestUtil, UsefulTestCase}
+import org.jetbrains.plugins.scala.util.TestUtils
+
+import scala.collection.mutable
 
 /**
  * @author Roman.Shein
@@ -42,13 +34,8 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
     UsefulTestCase.edt(new Runnable {
       def run() {
         ScalaDebuggerTestBase.super.setUp()
-        addScalaLibrary()
+        addScalaSdk()
         addOtherLibraries()
-        inWriteAction {
-          ScalaFacet.createIn(myModule) { facet =>
-            facet.compilerLibraryId = LibraryId("scala-compiler", LibraryLevel.Project)
-          }
-        }
       }
     })
   }
