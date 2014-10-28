@@ -3,7 +3,7 @@ package project.gradle
 
 import java.util
 
-import com.intellij.openapi.externalSystem.model.DataNode
+import com.intellij.openapi.externalSystem.model.{ProjectKeys, ExternalSystemException, DataNode}
 import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, ProjectStructureHelper}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
@@ -34,14 +34,18 @@ class ScalaGradleDataService(platformFacade: PlatformFacade, helper: ProjectStru
             .find(_.startsWith("scala-library"))
             .flatMap(JarVersion.findFirstIn)
             .map(Version(_))
+            .getOrElse(throw new ExternalSystemException("Cannot determine Scala compiler version for module " +
+                         scalaNode.getData(ProjectKeys.MODULE).getExternalName))
 
-    compilerVersion.foreach { version =>
-      val matchedLibrary = project.libraries.find(_.scalaVersion == Some(version))
+    val scalaLibrary = project.libraries
+            .filter(_.getName.contains("scala-library"))
+            .find(_.scalaVersion == Some(compilerVersion))
+            .getOrElse(throw new ExternalSystemException("Cannot find project Scala library " +
+            compilerVersion.number + " for module " + scalaNode.getData(ProjectKeys.MODULE).getExternalName))
 
-      for (library <- matchedLibrary if !library.isScalaSdk) {
-        val languageLevel = ScalaLanguageLevel.from(version).getOrElse(ScalaLanguageLevel.Default)
-        library.convertToScalaSdkWith(languageLevel, compilerClasspath)
-      }
+    if (!scalaLibrary.isScalaSdk) {
+      val languageLevel = compilerVersion.toLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
+      scalaLibrary.convertToScalaSdkWith(languageLevel, compilerClasspath)
     }
   }
 

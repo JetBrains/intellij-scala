@@ -20,7 +20,7 @@ package object project {
   implicit class LibraryExt(library: Library) {
     def isScalaSdk: Boolean = libraryEx.getKind == ScalaLibraryKind
 
-    def scalaVersion: Option[String] = LibraryVersion.findFirstIn(library.getName)
+    def scalaVersion: Option[Version] = LibraryVersion.findFirstIn(library.getName).map(Version(_))
 
     def scalaCompilerClasspath: Option[Seq[File]] = scalaProperties.map(_.compilerClasspath)
 

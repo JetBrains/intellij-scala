@@ -2,7 +2,7 @@ package org.jetbrains.sbt
 package project.data
 
 import java.util
-import com.intellij.openapi.externalSystem.model.DataNode
+import com.intellij.openapi.externalSystem.model.{ProjectKeys, ExternalSystemException, DataNode}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.externalSystem.service.project.{ProjectStructureHelper, PlatformFacade}
@@ -27,12 +27,16 @@ class ScalaSdkDataService(platformFacade: PlatformFacade, helper: ProjectStructu
 
     val compilerVersion = sdkData.scalaVersion
 
-    val matchedLibrary = project.libraries.find(_.scalaVersion == Some(compilerVersion))
+    val scalaLibrary = project.libraries
+            .filter(_.getName.contains("scala-library"))
+            .find(_.scalaVersion == Some(compilerVersion))
+            .getOrElse(throw new ExternalSystemException("Cannot find project Scala library " +
+                         compilerVersion.number + " for module " + sdkNode.getData(ProjectKeys.MODULE).getExternalName))
 
-    for (library <- matchedLibrary if !library.isScalaSdk) {
-      val languageLevel = ScalaLanguageLevel.from(compilerVersion).getOrElse(ScalaLanguageLevel.Default)
+    if (!scalaLibrary.isScalaSdk) {
+      val languageLevel = compilerVersion.toLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
       val compilerClasspath = sdkData.compilerClasspath
-      library.convertToScalaSdkWith(languageLevel, compilerClasspath)
+      scalaLibrary.convertToScalaSdkWith(languageLevel, compilerClasspath)
     }
   }
 
