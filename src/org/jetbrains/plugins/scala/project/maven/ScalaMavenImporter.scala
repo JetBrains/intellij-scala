@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package project.maven
 
+import com.intellij.openapi.externalSystem.model.{ProjectKeys, ExternalSystemException}
 import org.jetbrains.idea.maven.importing.{MavenImporter, MavenModifiableModelsProvider, MavenRootModelAdapter}
 import com.intellij.openapi.module.Module
 import org.jetbrains.idea.maven.project._
@@ -60,13 +61,17 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
 
       val compilerVersion = configuration.compilerVersion.get
 
-      val matchedLibrary = modelsProvider.getAllLibraries.find(_.scalaVersion == Some(compilerVersion))
+      val scalaLibrary =modelsProvider.getAllLibraries.toSeq
+              .filter(_.getName.contains("scala-library"))
+              .find(_.scalaVersion == Some(compilerVersion))
+              .getOrElse(throw new ExternalSystemException("Cannot find project Scala library " +
+                           compilerVersion.number + " for module " + module.getName))
 
-      for (library <- matchedLibrary if !library.isScalaSdk) {
-        val languageLevel = ScalaLanguageLevel.from(compilerVersion).getOrElse(ScalaLanguageLevel.Default)
+      if (!scalaLibrary.isScalaSdk) {
+        val languageLevel = compilerVersion.toLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
         val compilerClasspath = configuration.compilerClasspath.map(mavenProject.localPathTo)
 
-        val libraryModel = modelsProvider.getLibraryModel(library).asInstanceOf[LibraryEx.ModifiableModelEx]
+        val libraryModel = modelsProvider.getLibraryModel(scalaLibrary).asInstanceOf[LibraryEx.ModifiableModelEx]
         convertToScalaSdk(libraryModel, languageLevel, compilerClasspath)
       }
     }
