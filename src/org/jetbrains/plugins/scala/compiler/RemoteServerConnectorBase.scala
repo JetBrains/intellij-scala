@@ -10,9 +10,9 @@ import com.intellij.openapi.roots.OrderEnumerator
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.PathUtil
 import org.jetbrains.jps.incremental.scala.data.SbtData
-import org.jetbrains.plugin.scala.compiler.{IncrementalType, NameHashing}
+import org.jetbrains.plugin.scala.compiler.NameHashing
 import org.jetbrains.plugins.scala
-import org.jetbrains.plugins.scala.config.ScalaFacet
+import org.jetbrains.plugins.scala.project._
 
 /**
  * Nikolay.Tropin
@@ -37,21 +37,17 @@ abstract class RemoteServerConnectorBase(module: Module, fileToCompile: File, ou
     case Right(data) => data
   }
 
-  private val scalaParameters = facet.compilerParameters
+  private val scalaParameters = compilerSettings.toOptions.mkString(" ")
 
   private val javaParameters = Array.empty[String]
 
-  private val compilerJar = facetCompiler
-  private val libraryJar = facetLibrary
+  private val compilerClasspath = scalaSdk.compilerClasspath
 
-  private val extraJar = facetFiles filter {
-    case a => a != compilerJar && a != libraryJar
-  }
   private val compilerSettingsJar = new File(libCanonicalPath, "compiler-settings.jar")
   
   protected val runnersJar = new File(libCanonicalPath, "scala-plugin-runners.jar")
 
-  protected val additionalCp = facetFiles :+ runnersJar :+ compilerSettingsJar :+ outputDir
+  val additionalCp = compilerClasspath :+ runnersJar :+ compilerSettingsJar :+ outputDir
 
   protected def worksheetArgs: Array[String] = Array()
 
@@ -96,18 +92,18 @@ abstract class RemoteServerConnectorBase(module: Module, fileToCompile: File, ou
     sbtData.sourceJar,
     sbtData.interfacesHome,
     sbtData.javaClassVersion,
-    Seq(libraryJar, compilerJar) ++ extraJar,
+    compilerClasspath,
     findJdk,
     fileToCompile,
     classpath,
     outputDir,
     scalaParameters,
     javaParameters,
-    settings.COMPILE_ORDER.toString,
+    compilerSettings.compileOrder.toString,
     "", //cache file
     "",
     "",
-    IncrementalType.IDEA.name(),
+    IncrementalityType.IDEA.name(),
     fileToCompile.getParentFile,
     outputDir,
     worksheetArgs,
@@ -120,25 +116,10 @@ abstract class RemoteServerConnectorBase(module: Module, fileToCompile: File, ou
 
   private def assemblyClasspath() = OrderEnumerator.orderEntries(module).compileOnly().getClassesRoots
 
-  private def facet =
-    ScalaFacet.findIn(module) getOrElse configurationError("No Scala facet configured for module: " + module.getName)
+  private def compilerSettings = module.getProject.scalaCompilerSettigns
 
-  private def facetCompiler =
-    facet.compiler flatMap (_.jar) getOrElse configurationError("No compiler jar for Scala Facet in module: " + module.getName)
-
-  private def facetLibrary =
-    facet.compiler.flatMap {
-      case c => c.files find {
-        case file if file.getName contains "library" => true
-        case _ => false
-      }
-    } getOrElse configurationError("No library jar for Scala Facet in module: " + module.getName)
-
-  private def facetFiles = facet.compiler flatMap {
-    case compiler => compiler.jar map {
-      case j => compiler.files
-    }
-  } getOrElse Seq.empty
+  private def scalaSdk = module.scalaSdk.getOrElse(
+          configurationError("No Scala SDK configured for module: " + module.getName))
 
   private def findJdk = scala.compiler.findJdkByName(settings.COMPILE_SERVER_SDK) match {
     case Right(jdk) => jdk.executable

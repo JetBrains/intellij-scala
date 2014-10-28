@@ -3,6 +3,7 @@ package project.structure
 
 import java.io.File
 
+import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.structure.FS._
 import org.jetbrains.sbt.project.structure.Play2Keys.{KeyTransformer, KeyExtractor}
 
@@ -67,7 +68,7 @@ object StructureParser {
     val extra = (node \ "extra").map(e => file(e.text))
     val options = (node \ "option").map(_.text)
 
-    Scala(version, library, compiler, extra, options)
+    Scala(Version(version), library, compiler, extra, options)
   }
 
   def parsePlay2(node: Node)(implicit fs: FS): Play2 = Play2(KeyTransformer.transform(node.child flatMap KeyExtractor.extract))

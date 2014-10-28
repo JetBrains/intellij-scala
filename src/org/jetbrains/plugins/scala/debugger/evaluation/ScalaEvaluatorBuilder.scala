@@ -26,10 +26,15 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     if (codeFragment.getLanguage.isInstanceOf[JavaLanguage])
       return EvaluatorBuilderImpl.getInstance().build(codeFragment, position) //java builder (e.g. SCL-6117)
 
+    val scalaFragment = codeFragment match {
+      case sf: ScalaCodeFragment => sf
+      case _ => throw EvaluationException("Non-scala code fragment in scala evaluator builder")
+    }
+
     val project = position.getFile.getProject
 
     val cache = ScalaEvaluatorCache.getInstance(project)
-    val cached: Option[Evaluator] = {
+    val cached: Option[ExpressionEvaluator] = {
       try cache.get(position, codeFragment)
       catch {
         case e: Exception =>
@@ -38,15 +43,33 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       }
     }
 
-    val evaluator = cached.getOrElse {
-      val newEvaluator = ScalaEvaluator(codeFragment)(position)
-      val unwrapped = new UnwrapRefEvaluator(newEvaluator)
-      cache.add(position, codeFragment, unwrapped)
+    def buildSimpleEvaluator = {
+      cached.getOrElse {
+        val newEvaluator = ScalaEvaluator(scalaFragment)(position)
+        val unwrapped = new UnwrapRefEvaluator(newEvaluator)
+        cache.add(position, scalaFragment, new ExpressionEvaluatorImpl(unwrapped))
+      }
     }
 
-    new ExpressionEvaluatorImpl(evaluator)
+    def buildCompilingEvaluator: ExpressionEvaluator = {
+      val compilingEvaluator = new ScalaCompilingEvaluator(position.getElementAt, scalaFragment)
+      cache.add(position, scalaFragment, compilingEvaluator)
+    }
+
+    try buildSimpleEvaluator
+    catch {
+      case e: NeedCompilationException =>
+        buildCompilingEvaluator
+      case e: EvaluateException =>
+        try buildCompilingEvaluator
+        catch {
+          case _: EvaluateException => throw e
+        }
+    }
   }
 }
+
+private[evaluation] class NeedCompilationException(message: String) extends EvaluateException(message)
 
 private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextClass: Option[PsiClass] = null)
                                                  (implicit val position: SourcePosition)
@@ -64,7 +87,7 @@ private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextC
     try {
       element match {
         case expr if ScUnderScoreSectionUtil.isUnderscoreFunction(expr) =>
-          throw EvaluationException("Anonymous functions are not supported")
+          throw new NeedCompilationException("Anonymous functions are not supported")
         case implicitlyConvertedTo(expr) => expr.accept(this)
         case elem => elem.accept(this)
       }
@@ -85,7 +108,7 @@ private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextC
   }
 
   override def visitFunctionExpression(stmt: ScFunctionExpr) {
-    throw EvaluationException("Anonymous functions are not supported")
+    throw new NeedCompilationException("Anonymous functions are not supported")
   }
 
   override def visitExprInParent(expr: ScParenthesisedExpr) {
@@ -183,10 +206,7 @@ private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextC
 
 
   override def visitForExpression(forStmt: ScForStatement) {
-    myResult = forStmt.getDesugarizedExpr match {
-      case Some(expr) => ScalaEvaluator(expr)
-      case None => throw EvaluationException("Cannot desugarize for statement")
-    }
+    new NeedCompilationException("Its better to compile for expression")
     super.visitForExpression(forStmt)
   }
 
@@ -197,15 +217,15 @@ private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextC
   }
 
   override def visitTryExpression(tryStmt: ScTryStmt) {
-    throw EvaluationException("Try expression is not supported")
+    throw new NeedCompilationException("Try expression is not supported")
   }
 
   override def visitReturnStatement(ret: ScReturnStmt) {
-    throw EvaluationException("Return statement is not supported")
+    throw new NeedCompilationException("Return statement is not supported")
   }
 
   override def visitFunction(fun: ScFunction) {
-    throw EvaluationException("Function definition is not supported")
+    throw new NeedCompilationException("Function definition is not supported")
   }
 
   override def visitThisReference(t: ScThisReference) {
@@ -224,11 +244,11 @@ private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextC
   }
 
   override def visitMatchStatement(ms: ScMatchStmt) {
-    throw EvaluationException("Match statement is not supported")
+    throw new NeedCompilationException("Match statement is not supported")
   }
 
   override def visitThrowExpression(throwStmt: ScThrowStmt) {
-    throw EvaluationException("Throw statement is not supported")
+    throw new NeedCompilationException("Throw statement is not supported")
   }
 
   override def visitAssignmentStatement(stmt: ScAssignStmt) {
@@ -259,7 +279,7 @@ private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextC
           return
         } else {
           //should be handled on assignment
-          throw EvaluationException("Update method is not supported")
+          throw new NeedCompilationException("Update method is not supported")
         }
       }
       call.getInvokedExpr match {
@@ -365,7 +385,7 @@ private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextC
   }
 
   override def visitVariableDefinition(varr: ScVariableDefinition) {
-    throw EvaluationException("Evaluation of variables is not supported")
+    throw new NeedCompilationException("Evaluation of variables is not supported")
   }
 
   override def visitTupleExpr(tuple: ScTuple) {
@@ -376,16 +396,16 @@ private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextC
   }
 
   override def visitPatternDefinition(pat: ScPatternDefinition) {
-    throw EvaluationException("Evaluation of values is not supported")
+    throw new NeedCompilationException("Evaluation of values is not supported")
   }
 
   override def visitTypeDefinition(typedef: ScTypeDefinition) {
-    throw EvaluationException("Evaluation of local classes is not supported")
+    throw new NeedCompilationException("Evaluation of local classes is not supported")
   }
 
   override def visitNewTemplateDefinition(templ: ScNewTemplateDefinition) {
     templ.extendsBlock.templateBody match {
-      case Some(tb) => throw EvaluationException("Anonymous classes are not supported")
+      case Some(tb) => throw new NeedCompilationException("Anonymous classes are not supported")
       case _ =>
     }
     myResult = newTemplateDefinitionEvaluator(templ)

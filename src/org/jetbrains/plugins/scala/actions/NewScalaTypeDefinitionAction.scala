@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.actions
+package org.jetbrains.plugins.scala
+package actions
 
 import java.util.Properties
 
@@ -17,11 +18,10 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
-import org.jetbrains.plugins.scala.config.ScalaFacet
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
+import org.jetbrains.plugins.scala.project._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -90,7 +90,9 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
 
   private def isUnderSourceRoots(dataContext: DataContext): Boolean = {
     val module: Module = dataContext.getData(LangDataKeys.MODULE.getName).asInstanceOf[Module]
-    if (module == null || !ScalaFacet.isPresentIn(module)) return false
+    if (!Option(module).exists(_.hasScala)) {
+      return false
+    }
     val view = dataContext.getData(LangDataKeys.IDE_VIEW.getName).asInstanceOf[IdeView]
     val project = dataContext.getData(CommonDataKeys.PROJECT.getName).asInstanceOf[Project]
     if (view != null && project != null) {

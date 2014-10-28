@@ -22,7 +22,6 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util._
 import com.intellij.util.containers.ConcurrentWeakHashMap
 import org.jetbrains.plugins.scala.caches.CachesUtil
-import org.jetbrains.plugins.scala.config.ScalaFacet
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -177,12 +176,6 @@ object ScalaPsiUtil {
   def cachedDeepIsInheritor(clazz: PsiClass, base: PsiClass): Boolean = {
     val manager = ScalaPsiManager.instance(clazz.getProject)
     manager.cachedDeepIsInheritor(clazz, base)
-  }
-
-  def hasScalaFacet(element: PsiElement): Boolean = {
-    val module: Module = ModuleUtilCore.findModuleForPsiElement(element)
-    if (module == null) false
-    else ScalaFacet.findIn(module) != None
   }
 
   def lastChildElementOrStub(element: PsiElement): PsiElement = {

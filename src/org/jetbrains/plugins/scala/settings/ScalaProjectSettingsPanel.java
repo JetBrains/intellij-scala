@@ -35,6 +35,7 @@ public class ScalaProjectSettingsPanel {
   private JSpinner implicitParametersSearchDepthSpinner;
   private JCheckBox myDontCacheCompound;
   private JCheckBox runWorksheetInTheCheckBox;
+  private JTextField myBasePackage;
   private JCheckBox worksheetInteractiveModeCheckBox;
   private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
   private Project myProject;
@@ -64,6 +65,7 @@ public class ScalaProjectSettingsPanel {
     if (!isModified()) return;
 
     final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
+    scalaProjectSettings.setBasePackage(myBasePackage.getText());
     scalaProjectSettings.setImplicitParametersSearchDepth((Integer) implicitParametersSearchDepthSpinner.getValue());
     scalaProjectSettings.setOutputLimit((Integer) outputSpinner.getValue());
     scalaProjectSettings.setInProcessMode(runWorksheetInTheCheckBox.isSelected());
@@ -91,7 +93,9 @@ public class ScalaProjectSettingsPanel {
   public boolean isModified() {
 
     final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
-    
+
+    if (!scalaProjectSettings.getBasePackage().equals(
+        myBasePackage.getText())) return true;
     if (scalaProjectSettings.isShowImplisitConversions() !=
         showImplicitConversionsInCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isShowArgumentsToByNameParams() !=
@@ -148,6 +152,8 @@ public class ScalaProjectSettingsPanel {
 
   private void setSettings() {
     final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
+
+    setValue(myBasePackage, scalaProjectSettings.getBasePackage());
     setValue(implicitParametersSearchDepthSpinner, scalaProjectSettings.getImplicitParametersSearchDepth());
     setValue(outputSpinner, scalaProjectSettings.getOutputLimit());
     setValue(runWorksheetInTheCheckBox, scalaProjectSettings.isInProcessMode());
@@ -183,6 +189,10 @@ public class ScalaProjectSettingsPanel {
 
   private static void setValue(final JComboBox box, final int value) {
     box.setSelectedIndex(value);
+  }
+
+  private static void setValue(final JTextField field, final String value) {
+    field.setText(value);
   }
 
   private void createUIComponents() {

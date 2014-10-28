@@ -3,6 +3,7 @@ package project.structure
 
 import java.io.File
 
+import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.ParsedValue
 
 case class Structure(projects: Seq[Project], repository: Option[Repository], localCachePath: Option[String], sbtVersion: String)
@@ -18,7 +19,7 @@ case class Configuration(id: String, sources: Seq[Directory], resources: Seq[Dir
 
 case class Java(home: Option[File], options: Seq[String])
 
-case class Scala(version: String, libraryJar: File, compilerJar: File, extraJars: Seq[File], options: Seq[String])
+case class Scala(version: Version, libraryJar: File, compilerJar: File, extraJars: Seq[File], options: Seq[String])
 
 case class Android(version: String, manifestFile: File, apkPath: File, resPath: File, assetsPath: File, genPath: File, libsPath: File, isLibrary: Boolean, proguardConfig: Seq[String])
 

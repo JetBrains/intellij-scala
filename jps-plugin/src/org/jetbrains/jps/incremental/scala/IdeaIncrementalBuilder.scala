@@ -10,12 +10,12 @@ import org.jetbrains.jps.builders.{DirtyFilesHolder, FileProcessor}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.{ExitCode, OutputConsumer}
 import org.jetbrains.jps.incremental.messages.ProgressMessage
 import org.jetbrains.jps.incremental.scala.local.IdeClientIdea
+import org.jetbrains.jps.incremental.scala.model.CompileOrder
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import org.jetbrains.jps.incremental._
-import org.jetbrains.plugin.scala.compiler.CompileOrder
 
 /**
  * Nikolay.Tropin
@@ -73,7 +73,7 @@ object IdeaIncrementalBuilder extends ScalaBuilderDelegate {
 
     val project = context.getProjectDescriptor
 
-    val compileOrder = SettingsManager.getProjectSettings(project).compileOrder
+    val compileOrder = SettingsManager.getProjectSettings(project.getProject).getCompileOrder
     val extensionsToCollect = compileOrder match {
       case CompileOrder.Mixed => List(".scala", ".java")
       case _ => List(".scala")
