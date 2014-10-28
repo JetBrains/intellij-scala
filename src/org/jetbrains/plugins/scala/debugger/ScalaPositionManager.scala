@@ -220,7 +220,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
 
   private def calcPosition(file: PsiFile, lineNumber: Int, methodName: String): Option[SourcePosition] = {
     val scFile = file match {
-      case sf: ScalaFile => sf
+      case sf: ScalaFile if !sf.isCompiled => sf
       case _ => return None
     }
     val exprs = expressionsOnLine(scFile, lineNumber)
