@@ -31,14 +31,6 @@ class ModuleNode(val data: ModuleData)
   protected def key = ProjectKeys.MODULE
 }
 
-class RunConfigurationNode(val data: RunConfigurationData)
-  extends Node[RunConfigurationData] {
-  def this(mainClass: String, homePath: String, vmOpts: Seq[String], moduleName: String, artifacts: Seq[String]) {
-    this(new RunConfigurationData(SbtProjectSystem.Id, mainClass, homePath, vmOpts, moduleName, artifacts))
-  }
-  override protected def key: Key[RunConfigurationData] = RunConfigurationData.Key
-}
-
 class LibraryNode(val data: LibraryData)
   extends Node[LibraryData] {
   def this(name: String, resolved: Boolean) {

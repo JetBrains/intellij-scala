@@ -24,7 +24,6 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi._
 import org.jdom.Element
 import org.jetbrains.idea.maven.project.MavenProjectsManager
-import org.jetbrains.plugins.scala.compiler.rt.ClassRunner
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
