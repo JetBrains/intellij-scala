@@ -24,11 +24,7 @@ unmanagedSourceDirectories in Test += baseDirectory.value /  "test"
 
 unmanagedResourceDirectories in Compile += baseDirectory.value /  "resources"
 
-javacOptions ++= Seq("-source", "1.6", "-target", "1.6")
-
-scalacOptions += "-target:jvm-1.6"
-
-ideaVersion := "139.224.1"
+ideaVersion := "139.222.5"
 
 ideaBasePath in Global := baseDirectory.value / "SDK" / "ideaSDK" / s"idea-${ideaVersion.value}"
 
@@ -176,8 +172,7 @@ packageStructure in Compile := {
     (dependencyClasspath in Compile).value ++
       (dependencyClasspath in(Runners, Compile)).value ++
       (dependencyClasspath in(ScalaCommunity, Compile)).value ++
-      (dependencyClasspath in(intellij_hocon, Compile)).value ++
-      (dependencyClasspath in(SBT, Compile)).value
+      (dependencyClasspath in(intellij_hocon, Compile)).value
     )
     .map { f => f.metadata.get(moduleID.key) -> f.data}.toMap
     .collect { case (Some(x), y) => (x.organization % x.name % x.revision) -> y}
@@ -211,7 +206,7 @@ packageStructure in Compile := {
 packagePlugin in Compile := {
   val (dirs, files) = (packageStructure in Compile).value.partition(_._1.isDirectory)
   val base = baseDirectory.value / "out" / "plugin" / "Scala"
-  IO.delete(base.getParentFile)
+  IO.delete(base)
   dirs  foreach { case (from, to) => IO.copyDirectory(from, base / to, overwrite = true) }
   files foreach { case (from, to) => IO.copyFile(from, base / to)}
 }
