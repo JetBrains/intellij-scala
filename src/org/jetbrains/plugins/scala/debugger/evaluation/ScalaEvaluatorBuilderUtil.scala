@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -20,8 +19,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitParametersOwner, ScPackage}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -37,107 +37,11 @@ import scala.reflect.NameTransformer
 * 2014-09-28
 */
 private[evaluation] trait ScalaEvaluatorBuilderUtil {
-
   this: EvaluatorBuilderVisitor =>
 
-  def getContextClass(elem: PsiElement): PsiElement = {
-    var element = elem.getContext
-    var child = elem
-    while (element != null && !isGenerateClass(element, child)) {
-      element = element.getContext
-      child = child.getContext
-    }
-    element
-  }
-
-  def isGenerateClass(elem: PsiElement, child: PsiElement): Boolean = {
-    elem match {
-      case clazz: PsiClass => true
-      case f: ScFunctionExpr => true
-      case f: ScForStatement if f.body == Some(child) => true
-      case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).length > 0 => true
-      case b: ScBlockExpr if b.isAnonymousFunction => true
-      case _ => false
-    }
-  }
-
-  def anonClassCount(elem: PsiElement): Int = {
-    elem match {
-      case f: ScForStatement =>
-        f.enumerators.fold(1)(e => e.enumerators.length + e.generators.length + e.guards.length) //todo: non irrefutable patterns?
-      case _ => 1
-    }
-  }
-
-  def getContainingClass(elem: PsiElement): PsiElement = {
-    var element = elem.getParent
-    var child = elem
-    while (element != null && !isGenerateClass(element, child)) {
-      element = element.getParent
-      child = child.getParent
-    }
-    if (element == null) getContextClass(elem) else element
-  }
+  import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil._
 
   def fileName = contextClass.toOption.flatMap(_.getContainingFile.toOption).map(_.name).orNull
-
-  def localFunctionIndex(fun: ScFunction): Int = {
-    val containingClass = getContainingClass(fun)
-    val sameNameLocalFunctions = containingClass.depthFirst.collect{
-      case f: ScFunction if f.isLocal && f.name == fun.name => f
-    }.toList
-    sameNameLocalFunctions.indexOf(fun) + 1
-  }
-
-  def defaultParameterMethodName(method: ScMethodLike, p: Parameter, parameters: Seq[Parameter]): String = {
-    val paramIndex = parameters.indexOf(p) + 1
-    method match {
-      case fun: ScFunction if !fun.isConstructor =>
-        val suffix: String = if (!fun.isLocal) "" else "$" + localFunctionIndex(fun)
-        fun.name + "$default$" + paramIndex + suffix
-      case _ if method.isConstructor =>  "$lessinit$greater$default$" + paramIndex + "()"
-    }
-  }
-
-  def traitImplementation(elem: PsiElement): Option[JVMName] = {
-    val clazz = getContextClass(elem)
-    clazz match {
-      case t: ScTrait =>
-        Some(DebuggerUtil.getClassJVMName(t, withPostfix = true))
-      case _ => None
-    }
-  }
-
-  def isLocalFunction(fun: ScFunction): Boolean = {
-    !fun.getContext.isInstanceOf[ScTemplateBody]
-  }
-
-  object isInsideLocalFunction {
-    def unapply(elem: PsiElement): Option[ScFunction] = {
-      @tailrec
-      def inner(element: PsiElement): Option[ScFunction] = {
-        element match {
-          case null => None
-          case fun: ScFunction if isLocalFunction(fun) &&
-                  !fun.parameters.exists(param => PsiTreeUtil.isAncestor(param, elem, false)) =>
-            Some(fun)
-          case other if other.getContext != null => inner(other.getContext)
-          case _ => None
-        }
-      }
-      inner(elem)
-    }
-  }
-
-  @tailrec
-  final def isStable(o: ScObject): Boolean = {
-    val context = ScalaPsiUtil.getContextOfType(o, true, classOf[PsiClass])
-    if (context == null) return true
-    context match {
-      case o: ScObject => isStable(o)
-      case _ => false
-    }
-  }
 
   def importedQualifierEvaluator(ref: ScReferenceElement, resolveResult: ScalaResolveResult): Evaluator = {
     resolveResult.fromType match {
@@ -189,7 +93,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case _ =>
     }
     var iterationCount = 0
-    var outerClass = contextClass
+    var outerClass: PsiElement = contextClass
     while (outerClass != null && outerClass != containingClass) {
       outerClass = getContextClass(outerClass)
       iterationCount += anonClassCount(outerClass)
@@ -239,27 +143,13 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   }
 
   def findContextClass(condition: PsiElement => Boolean): (PsiElement, Int) = {
-    var current = contextClass
+    var current: PsiElement = contextClass
     var iterations = 0
     while (!condition(current)) {
       current = getContextClass(current)
       iterations += anonClassCount(current)
     }
     (current, iterations)
-  }
-
-  def constructorSignature(named: PsiNamedElement): JVMName = {
-    named match {
-      case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
-      case constr: ScPrimaryConstructor => DebuggerUtil.getFunctionJVMSignature(constr)
-      case method: PsiMethod => JVMNameUtil.getJVMSignature(method)
-      case clazz: ScClass => clazz.constructor match {
-        case Some(cnstr) => DebuggerUtil.getFunctionJVMSignature(cnstr)
-        case _ => JVMNameUtil.getJVMRawText("()V")
-      }
-      case clazz: PsiClass => JVMNameUtil.getJVMRawText("()V")
-      case _ => JVMNameUtil.getJVMRawText("()V")
-    }
   }
 
   def localMethodEvaluator(fun: ScFunctionDefinition, argEvaluators: Seq[Evaluator]): Evaluator = {
@@ -278,21 +168,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         else null
     }
     if (thisEvaluator != null) {
-      val args = DebuggerUtil.localParams(fun, getContextClass(fun))
-      val evaluators = argEvaluators ++ args.map(arg => {
-        val name = arg.asInstanceOf[PsiNamedElement].name
-        val elemAt = position.getElementAt
-        val ref = ScalaPsiElementFactory.createExpressionWithContextFromText(name, elemAt, elemAt)
-        val refEval = ScalaEvaluator(ref)
-
-        if (arg.isInstanceOf[ScObject]) {
-          val qual = "scala.runtime.VolatileObjectRef"
-          val typeEvaluator = new TypeEvaluator(JVMNameUtil.getJVMRawText(qual))
-          val signature = JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)V")
-          new ScalaNewClassInstanceEvaluator(typeEvaluator, signature, Array(refEval))
-        }
-        else refEval
-      })
+      val locals = DebuggerUtil.localParamsForFunDef(fun)
+      val evaluators = argEvaluators ++ locals.map(fromLocalArgEvaluator)
       val signature = DebuggerUtil.getFunctionJVMSignature(fun)
       val positions = DebuggerUtil.getSourcePositions(fun.getNavigationElement)
       val idx = localFunctionIndex(fun)
@@ -323,37 +200,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       new ScalaMethodEvaluator(qualEvaluator(), objName, null /* todo? */, Seq.empty,
         traitImplementation(obj), DebuggerUtil.getSourcePositions(obj.getNavigationElement))
     }
-  }
-
-  private val BOXES_RUN_TIME = new TypeEvaluator(JVMNameUtil.getJVMRawText("scala.runtime.BoxesRunTime"))
-  private val BOXED_UNIT = new TypeEvaluator(JVMNameUtil.getJVMRawText("scala.runtime.BoxedUnit"))
-  def boxEvaluator(eval: Evaluator): Evaluator = new BoxingEvaluator(eval)
-  def boxed(evaluators: Evaluator*): Seq[Evaluator] = evaluators.map(boxEvaluator)
-  def unboxEvaluator(eval: Evaluator): Evaluator = new UnBoxingEvaluator(eval)
-  def notEvaluator(eval: Evaluator): Evaluator = {
-    val rawText = JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Ljava/lang/Object;")
-    unboxEvaluator(new ScalaMethodEvaluator(BOXES_RUN_TIME, "takeNot", rawText, boxed(eval)))
-  }
-  def eqEvaluator(left: Evaluator, right: Evaluator): Evaluator = {
-    new ScalaEqEvaluator(left, right)
-  }
-
-  def neEvaluator(left: Evaluator, right: Evaluator): Evaluator = {
-    notEvaluator(eqEvaluator(left, right))
-  }
-
-  def unitEvaluator(): Evaluator = {
-    new ScalaFieldEvaluator(BOXED_UNIT, _ => true, "UNIT")
-  }
-
-  def unaryEvaluator(eval: Evaluator, boxesRunTimeName: String): Evaluator = {
-    val rawText = JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Ljava/lang/Object;")
-    unboxEvaluator(new ScalaMethodEvaluator(BOXES_RUN_TIME, boxesRunTimeName, rawText, boxed(eval)))
-  }
-
-  def binaryEvaluator(left: Evaluator, right: Evaluator, boxesRunTimeName: String): Evaluator = {
-    val rawText = JVMNameUtil.getJVMRawText("(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;")
-    unboxEvaluator(new ScalaMethodEvaluator(BOXES_RUN_TIME, boxesRunTimeName, rawText, boxed(left, right)))
   }
 
   def syntheticFunctionEvaluator(synth: ScSyntheticFunction,
@@ -421,7 +267,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case "isInstanceOf" => isInstanceOfEval
       case "asInstanceOf" => unaryEval(name, identity) //todo: primitive type casting?
       case "##" => unaryEval(name, eval => new ScalaMethodEvaluator(BOXES_RUN_TIME, "hashFromObject",
-        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)I"), Seq(new BoxingEvaluator(eval))))
+        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)I"), Seq(boxEvaluator(eval))))
       case "==" => equalsEval("==")
       case "!=" => unaryEvaluator(equalsEval("!="), "takeNot")
       case "unary_!" => unaryEvalForBoxes("!", "takeNot")
@@ -479,7 +325,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case "update" =>
         if (argEvaluators.length == 2) {
           val leftEval = new ScalaArrayAccessEvaluator(qualEval, argEvaluators(0))
-          new AssignmentEvaluator(leftEval, argEvaluators(1))
+          new AssignmentEvaluator(leftEval, unboxEvaluator(argEvaluators(1)))
         } else throw EvaluationException("Wrong number of parameters for Array.update method")
       case "toString" =>
         if (argEvaluators.length == 0) new ScalaMethodEvaluator(qualEval, "toString", null/*todo*/, Nil)
@@ -529,116 +375,11 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     else new ScalaLiteralEvaluator(null, Null)
   }
 
-  def boxArguments(arguments: Seq[Evaluator], method: PsiElement): Seq[Evaluator] = {
-    def isOfPrimitiveType(param: PsiParameter) = param match {
-      case p: ScParameter =>
-        val tp: ScType = p.getType(TypingContext.empty).getOrAny
-        import org.jetbrains.plugins.scala.lang.psi.types._
-        Set[ScType](Boolean, Int, Char, Double, Float, Long, Byte, Short).contains(tp)
-      case p: PsiParameter =>
-        val tp = param.getType
-        import com.intellij.psi.PsiType._
-        Set[PsiType](BOOLEAN, INT, CHAR, DOUBLE, FLOAT, LONG, BYTE, SHORT).contains(tp)
-      case _ => false
-    }
-    val params = method match {
-      case fun: ScMethodLike => fun.effectiveParameterClauses.flatMap(_.effectiveParameters)
-      case m: PsiMethod => m.getParameterList.getParameters.toSeq
-      case _ => return arguments
-    }
-
-    arguments.zipWithIndex.map {
-      case (arg, i) =>
-        if (params.length <= i || isOfPrimitiveType(params(i))) arg
-        else boxEvaluator(arg)
-    }
-  }
-
-
-  object implicitlyConvertedTo {
-    def unapply(expr: ScExpression): Option[ScExpression] = {
-      val implicits = expr.getImplicitConversions(fromUnder = true)
-      implicits._2 match {
-        case Some(fun: ScFunction) =>
-          val exprText = expr.getText
-          val callText = s"${fun.name}($exprText)"
-          val newExprText = fun.containingClass match {
-            case o: ScObject if isStable(o) => s"${o.qualifiedName}.$callText"
-            case o: ScObject => //todo: It can cover many cases!
-              throw EvaluationException("Implicit conversions from dependent objects are not supported")
-            case _ => callText //from scope
-          }
-          Some(ScalaPsiElementFactory.createExpressionWithContextFromText(newExprText, expr.getContext, expr))
-        case _ => None
-      }
-    }
-  }
-
   def valueClassInstanceEvaluator(value: Evaluator, innerType: ScType, classType: ScType): Evaluator = {
     val valueClassType = new TypeEvaluator(DebuggerUtil.getJVMQualifiedName(classType))
     val innerJvmName = DebuggerUtil.getJVMStringForType(innerType, isParam = true)
     val signature = JVMNameUtil.getJVMRawText(s"($innerJvmName)V")
     new ScalaDuplexEvaluator(new ScalaNewClassInstanceEvaluator(valueClassType, signature, Array(value)), value)
-  }
-
-  def classTagText(arg: ScType): String = {
-    import org.jetbrains.plugins.scala.lang.psi.types._
-    arg match {
-      case Short => "_root_.scala.reflect.ClassTag.Short"
-      case Byte => "_root_.scala.reflect.ClassTag.Byte"
-      case Char => "_root_.scala.reflect.ClassTag.Char"
-      case Int => "_root_.scala.reflect.ClassTag.Int"
-      case Long => "_root_.scala.reflect.ClassTag.Long"
-      case Float => "_root_.scala.reflect.ClassTag.Float"
-      case Double => "_root_.scala.reflect.ClassTag.Double"
-      case Boolean => "_root_.scala.reflect.ClassTag.Boolean"
-      case Unit => "_root_.scala.reflect.ClassTag.Unit"
-      case Any => "_root_.scala.reflect.ClassTag.Any"
-      case AnyVal => "_root_.scala.reflect.ClassTag.AnyVal"
-      case Nothing => "_root_.scala.reflect.ClassTag.Nothing"
-      case Null => "_root_.scala.reflect.ClassTag.Null"
-      case Singleton => "_root_.scala.reflect.ClassTag.Object"
-      //todo:
-      case _ => "_root_.scala.reflect.ClassTag.apply(classOf[_root_.java.lang.Object])"
-    }
-  }
-  
-  def classManifestText(scType: ScType): String = {
-    import org.jetbrains.plugins.scala.lang.psi.types._
-    scType match {
-      case Short => "_root_.scala.reflect.ClassManifest.Short"
-      case Byte => "_root_.scala.reflect.ClassManifest.Byte"
-      case Char => "_root_.scala.reflect.ClassManifest.Char"
-      case Int => "_root_.scala.reflect.ClassManifest.Int"
-      case Long => "_root_.scala.reflect.ClassManifest.Long"
-      case Float => "_root_.scala.reflect.ClassManifest.Float"
-      case Double => "_root_.scala.reflect.ClassManifest.Double"
-      case Boolean => "_root_.scala.reflect.ClassManifest.Boolean"
-      case Unit => "_root_.scala.reflect.ClassManifest.Unit"
-      case Any => "_root_.scala.reflect.ClassManifest.Any"
-      case AnyVal => "_root_.scala.reflect.ClassManifest.AnyVal"
-      case Nothing => "_root_.scala.reflect.ClassManifest.Nothing"
-      case Null => "_root_.scala.reflect.ClassManifest.Null"
-      case Singleton => "_root_.scala.reflect.ClassManifest.Object"
-      case JavaArrayType(arg) =>
-        "_root_.scala.reflect.ClassManifest.arrayType(" + classManifestText(arg) + ")"
-      case ScParameterizedType(ScDesignatorType(clazz: ScClass), Seq(arg))
-
-        if clazz.qualifiedName == "scala.Array" =>
-        "_root_.scala.reflect.ClassManifest.arrayType(" + classManifestText(arg) + ")"
-      /*case ScParameterizedType(des, args) =>
-        ScType.extractClass(des, Option(expr.getProject)) match {
-          case Some(clazz) =>
-            "_root_.scala.reflect.ClassManifest.classType(" +
-          case _ => "null"
-        }*/   //todo:
-      case _ => ScType.extractClass(scType, Option(position.getFile.getProject)) match {
-        case Some(clss) => "_root_.scala.reflect.ClassManifest.classType(classOf[_root_." +
-                clss.qualifiedName + "])"
-        case _ => "_root_.scala.reflect.ClassManifest.classType(classOf[_root_.java.lang." +
-                "Object])"
-      }
-    }
   }
 
   def repeatedArgEvaluator(exprsForP: Seq[ScExpression], expectedType: ScType, context: PsiElement): Evaluator = {
@@ -660,14 +401,14 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     } else seqEvaluator
   }
 
-  def implicitArgEvaluator(fun: ScMethodLike, param: ScParameter, expr: ScExpression): Evaluator = {
+  def implicitArgEvaluator(fun: ScMethodLike, param: ScParameter, owner: ImplicitParametersOwner): Evaluator = {
     assert(param.owner == fun)
     val implicitParameters = fun.effectiveParameterClauses.lastOption match {
-      case Some(clause) if clause.isImplicit => clause.effectiveParameters
+      case Some(clause) if clause.isImplicit => clause.parameters
       case _ => Seq.empty
     }
     val i = implicitParameters.indexOf(param)
-    expr.findImplicitParameters match {
+    owner.findImplicitParameters match {
       case Some(resolveResults) if resolveResults.length == implicitParameters.length =>
         if (resolveResults(i) == null) throw EvaluationException("cannot find implicit parameters to pass")
 
@@ -702,7 +443,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
               case _ => elem.name //from scope
             }
         }
-        val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, expr.getContext, expr)
+        val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, owner.getContext, owner)
         ScalaEvaluator(newExpr)
       case None =>
         throw EvaluationException("cannot find implicit parameters to pass")
@@ -716,8 +457,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     fun match {
       case funDef: ScFunctionDefinition =>
         def paramIndex(fun: ScFunctionDefinition, context: PsiElement, elem: PsiElement): Int = {
-          val locIndex = DebuggerUtil.localParams(fun, context).indexOf(elem)
-          val funParams = fun.effectiveParameterClauses.flatMap(_.effectiveParameters)
+          val locIndex = DebuggerUtil.localParamsForFunDef(fun).indexOf(elem)
+          val funParams = fun.effectiveParameterClauses.flatMap(_.parameters)
           if (locIndex < 0) funParams.indexOf(elem)
           else locIndex + funParams.size
         }
@@ -750,6 +491,21 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   }
   
   def javaMethodEvaluator(method: PsiMethod, ref: ScReferenceExpression, arguments: Seq[ScExpression]): Evaluator = {
+
+    def boxArguments(arguments: Seq[Evaluator], method: PsiElement): Seq[Evaluator] = {
+      val params = method match {
+        case fun: ScMethodLike => fun.effectiveParameterClauses.flatMap(_.parameters)
+        case m: PsiMethod => m.getParameterList.getParameters.toSeq
+        case _ => return arguments
+      }
+
+      arguments.zipWithIndex.map {
+        case (arg, i) =>
+          if (params.length <= i || isOfPrimitiveType(params(i))) arg
+          else boxEvaluator(arg)
+      }
+    }
+
     val argEvals = boxArguments(arguments.map(ScalaEvaluator(_)), method)
     val methodPosition = DebuggerUtil.getSourcePositions(method.getNavigationElement)
     val signature = JVMNameUtil.getJVMSignature(method)
@@ -786,26 +542,30 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val clauses = fun.effectiveParameterClauses
 
     def addForNextClause(previousClausesEvaluators: Seq[Evaluator], clause: ScParameterClause): Seq[Evaluator] = {
-      previousClausesEvaluators ++ clause.effectiveParameters.map {
+      previousClausesEvaluators ++ clause.parameters.map {
         case param =>
           val p = new Parameter(param)
           val exprsForP = matchedParameters.find(_._1.name == p.name).map(_._2).getOrElse(Seq.empty).filter(_ != null)
-          if (p.isByName) throw EvaluationException("cannot evaluate methods with by-name parameters")
+          if (p.isByName) throw new NeedCompilationException("cannot evaluate methods with by-name parameters")
 
-          if (p.isRepeated) repeatedArgEvaluator(exprsForP, p.expectedType, call)
-          else if (exprsForP.length > 0) {
-            if (exprsForP.length == 1) ScalaEvaluator(exprsForP(0))
-            else {
-              throw EvaluationException("Wrong number of matched expressions")
+          val evaluator =
+            if (p.isRepeated) repeatedArgEvaluator(exprsForP, p.expectedType, call)
+            else if (exprsForP.length > 0) {
+              if (exprsForP.length == 1) ScalaEvaluator(exprsForP(0))
+              else {
+                throw EvaluationException("Wrong number of matched expressions")
+              }
             }
-          }
-          else if (param.isImplicitParameter) implicitArgEvaluator(fun, param, call)
-          else if (p.isDefault) {
-            val parameters = clauses.flatMap(_.effectiveParameters).map(new Parameter(_))
-            val methodName = defaultParameterMethodName(fun, p, parameters)
-            functionEvaluator(ref.qualifier, ref, methodName, previousClausesEvaluators)
-          }
-          else null
+            else if (param.isImplicitParameter) implicitArgEvaluator(fun, param, call)
+            else if (p.isDefault) {
+              val parameters = clauses.flatMap(_.parameters).map(new Parameter(_))
+              val methodName = defaultParameterMethodName(fun, p, parameters)
+              functionEvaluator(ref.qualifier, ref, methodName, previousClausesEvaluators)
+            }
+            else throw EvaluationException(s"Cannot evaluate parameter ${p.name}")
+
+          if (!isOfPrimitiveType(param)) boxEvaluator(evaluator)
+          else evaluator
       }
     }
 
@@ -833,7 +593,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
           case _ => null
         }
-        new ScalaMethodEvaluator(qualEval, name, signature, boxArguments(argEvaluators, resolve),
+        new ScalaMethodEvaluator(qualEval, name, signature, argEvaluators,
           traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
     }
   }
@@ -859,8 +619,17 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         val args = argumentEvaluators(fun, matchedParameters, call, ref, arguments)
         arrayMethodEvaluator(fun.name,  qualOption, args)
       case fun: ScFunction =>
-        val args: Seq[Evaluator] = argumentEvaluators(fun, matchedParameters, call, ref, arguments)
-        functionEvaluator(qualOption, ref, fun.name, args)
+        ref match {
+          case isInsideValueClass(c) if qualOption == None =>
+            val clName = c.name
+            val paramName = c.allClauses.flatMap(_.parameters).map(_.name).headOption.getOrElse("$this")
+            val text = s"new $clName($paramName).${call.getText}"
+            val expr = ScalaPsiElementFactory.createExpressionFromText(text, call.getContext)
+            ScalaEvaluator(expr)
+          case _ =>
+            val args: Seq[Evaluator] = argumentEvaluators(fun, matchedParameters, call, ref, arguments)
+            functionEvaluator(qualOption, ref, fun.name, args)
+        }
       case method: PsiMethod =>
         javaMethodEvaluator(method, ref, arguments)
       case _ =>
@@ -902,7 +671,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         case null | `containingClass` => localVariableEvaluator()
         case _ =>
           var iterationCount = 0
-          var positionClass = contextClass
+          var positionClass: PsiElement = contextClass
           var outerClass = getContextClass(contextClass)
           while (outerClass != null && outerClass != containingClass) {
             iterationCount += anonClassCount(outerClass)
@@ -919,7 +688,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             }
             else new ScalaDuplexEvaluator(fieldEval, localVariableEvaluator())
           }
-          else throw EvaluationException("Cannot load local variable from anonymous class")
+          else throw new NeedCompilationException("Cannot load local variable from anonymous class")
       }
     }
 
@@ -940,6 +709,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         val qualEval = qualifierEvaluator(qualifier, ref)
         val name = NameTransformer.encode(named.name)
         new ScalaFieldEvaluator(qualEval, _ => true, name, true)
+      case cp: ScClassParameter if qualifier == None && ValueClassType.isValueClass(cp.containingClass) =>
+        //methods of value classes have hidden argument with underlying value
+        new ScalaLocalVariableEvaluator("$this", fileName)
       case _: ScClassParameter | _: ScBindingPattern =>
         //this is scala "field"
         val named = resolve.asInstanceOf[ScNamedElement]
@@ -1105,7 +877,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     templ.extendsBlock.templateParents match {
       case Some(parents: ScClassParents) =>
         if (parents.typeElements.length != 1) {
-          throw EvaluationException("Anonymous classes are not supported")
+          throw new NeedCompilationException("Anonymous classes are not supported")
         }
         parents.constructor match {
           case Some(constr) =>
@@ -1120,17 +892,11 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
               case Some(clazz) =>
                 val jvmName = DebuggerUtil.getClassJVMName(clazz)
                 val typeEvaluator = new TypeEvaluator(jvmName)
-                val arguments = constr.arguments.flatMap(_.exprs)
-                val argumentEvaluators = arguments.map(ScalaEvaluator(_)) //todo: make arguments better, like for method call
-                constr.reference match {
-                  case Some(ref) =>
-                    ref.resolveAllConstructors match {
-                      case Array(ScalaResolveResult(named, _)) =>
-                        val signature = constructorSignature(named)
-                        new ScalaMethodEvaluator(typeEvaluator, "<init>", signature, boxArguments(argumentEvaluators, named))
-                      case _ =>
-                        new ScalaMethodEvaluator(typeEvaluator, "<init>", null, argumentEvaluators)
-                    }
+                val argumentEvaluators = constructorArgumentsEvaluators(templ, constr, clazz)
+                constr.reference.map(_.resolve()) match {
+                  case Some(named: PsiNamedElement) =>
+                    val signature = DebuggerUtil.constructorSignature(named)
+                    new ScalaMethodEvaluator(typeEvaluator, "<init>", signature, argumentEvaluators)
                   case _ =>
                     new ScalaMethodEvaluator(typeEvaluator, "<init>", null, argumentEvaluators)
                 }
@@ -1143,6 +909,96 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
   }
 
+  def constructorArgumentsEvaluators(newTd: ScNewTemplateDefinition,
+                                     constr: ScConstructor,
+                                     clazz: PsiClass): Seq[Evaluator] = {
+    val constrDef = constr.reference match {
+      case Some(ResolvesTo(elem)) => elem
+      case _ => throw EvaluationException("Could not resolve constructor")
+    }
+    val explicitArgs = constr.arguments.flatMap(_.exprs)
+    val explEvaluators =
+      for {
+        arg <- explicitArgs
+      } yield {
+        val eval = ScalaEvaluator(arg)
+        val param = ScalaPsiUtil.parameterOf(arg).flatMap(_.psiParam)
+        if (param.exists(!isOfPrimitiveType(_))) boxEvaluator(eval)
+        else eval
+      }
+    constrDef match {
+      case scMethod: ScMethodLike =>
+        val scClass = scMethod.containingClass.asInstanceOf[ScClass]
+        val contextClass = getContextClass(scClass)
+        val implicitParams = scMethod.parameterList.params.filter(_.isImplicitParameter)
+
+        val implicitsEvals =
+          for {
+            typeElem <- constr.simpleTypeElement.toSeq
+            p <- implicitParams
+          } yield {
+            val eval = implicitArgEvaluator(scMethod, p, typeElem)
+            if (isOfPrimitiveType(p)) eval
+            else boxEvaluator(eval)
+          }
+        val outerThis = contextClass match {
+          case obj: ScObject if isStable(obj) => None
+          case null => None
+          case _ => Some(new ScalaThisEvaluator())
+        }
+        val locals = DebuggerUtil.localParamsForConstructor(scClass)
+        outerThis ++: explEvaluators ++: implicitsEvals ++: locals.map(fromLocalArgEvaluator)
+      case _ => explEvaluators
+    }
+  }
+  
+  def fromLocalArgEvaluator(local: ScTypedDefinition): Evaluator = {
+    val name = local.asInstanceOf[PsiNamedElement].name
+    val elemAt = position.getElementAt
+    val ref = ScalaPsiElementFactory.createExpressionWithContextFromText(name, elemAt, elemAt)
+    val refEval = ScalaEvaluator(ref)
+
+    if (local.isInstanceOf[ScObject]) {
+      val qual = "scala.runtime.VolatileObjectRef"
+      val typeEvaluator = new TypeEvaluator(JVMNameUtil.getJVMRawText(qual))
+      val signature = JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)V")
+      new ScalaNewClassInstanceEvaluator(typeEvaluator, signature, Array(refEval))
+    }
+    else refEval
+  }
+}
+
+object ScalaEvaluatorBuilderUtil {
+  private val BOXES_RUN_TIME = new TypeEvaluator(JVMNameUtil.getJVMRawText("scala.runtime.BoxesRunTime"))
+  private val BOXED_UNIT = new TypeEvaluator(JVMNameUtil.getJVMRawText("scala.runtime.BoxedUnit"))
+  def boxEvaluator(eval: Evaluator): Evaluator = new ScalaBoxingEvaluator(eval)
+  def boxed(evaluators: Evaluator*): Seq[Evaluator] = evaluators.map(boxEvaluator)
+  def unboxEvaluator(eval: Evaluator): Evaluator = new UnBoxingEvaluator(eval)
+  def notEvaluator(eval: Evaluator): Evaluator = {
+    val rawText = JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Ljava/lang/Object;")
+    unboxEvaluator(new ScalaMethodEvaluator(BOXES_RUN_TIME, "takeNot", rawText, boxed(eval)))
+  }
+  def eqEvaluator(left: Evaluator, right: Evaluator): Evaluator = {
+    new ScalaEqEvaluator(left, right)
+  }
+
+  def neEvaluator(left: Evaluator, right: Evaluator): Evaluator = {
+    notEvaluator(eqEvaluator(left, right))
+  }
+
+  def unitEvaluator(): Evaluator = {
+    new ScalaFieldEvaluator(BOXED_UNIT, _ => true, "UNIT")
+  }
+
+  def unaryEvaluator(eval: Evaluator, boxesRunTimeName: String): Evaluator = {
+    val rawText = JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Ljava/lang/Object;")
+    unboxEvaluator(new ScalaMethodEvaluator(BOXES_RUN_TIME, boxesRunTimeName, rawText, boxed(eval)))
+  }
+
+  def binaryEvaluator(left: Evaluator, right: Evaluator, boxesRunTimeName: String): Evaluator = {
+    val rawText = JVMNameUtil.getJVMRawText("(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;")
+    unboxEvaluator(new ScalaMethodEvaluator(BOXES_RUN_TIME, boxesRunTimeName, rawText, boxed(left, right)))
+  }
 
   object hasDeepestInvokedReference {
     @tailrec
@@ -1152,8 +1008,208 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         case genCall: ScGenericCall => unapply(genCall.referencedExpr)
         case ref: ScReferenceExpression => Some(ref)
         case _ => None
-      } 
+      }
     }
   }
 
+  def classTagText(arg: ScType): String = {
+    import org.jetbrains.plugins.scala.lang.psi.types._
+    arg match {
+      case Short => "_root_.scala.reflect.ClassTag.Short"
+      case Byte => "_root_.scala.reflect.ClassTag.Byte"
+      case Char => "_root_.scala.reflect.ClassTag.Char"
+      case Int => "_root_.scala.reflect.ClassTag.Int"
+      case Long => "_root_.scala.reflect.ClassTag.Long"
+      case Float => "_root_.scala.reflect.ClassTag.Float"
+      case Double => "_root_.scala.reflect.ClassTag.Double"
+      case Boolean => "_root_.scala.reflect.ClassTag.Boolean"
+      case Unit => "_root_.scala.reflect.ClassTag.Unit"
+      case Any => "_root_.scala.reflect.ClassTag.Any"
+      case AnyVal => "_root_.scala.reflect.ClassTag.AnyVal"
+      case Nothing => "_root_.scala.reflect.ClassTag.Nothing"
+      case Null => "_root_.scala.reflect.ClassTag.Null"
+      case Singleton => "_root_.scala.reflect.ClassTag.Object"
+      //todo:
+      case _ => "_root_.scala.reflect.ClassTag.apply(classOf[_root_.java.lang.Object])"
+    }
+  }
+
+  def classManifestText(scType: ScType): String = {
+    import org.jetbrains.plugins.scala.lang.psi.types._
+    scType match {
+      case Short => "_root_.scala.reflect.ClassManifest.Short"
+      case Byte => "_root_.scala.reflect.ClassManifest.Byte"
+      case Char => "_root_.scala.reflect.ClassManifest.Char"
+      case Int => "_root_.scala.reflect.ClassManifest.Int"
+      case Long => "_root_.scala.reflect.ClassManifest.Long"
+      case Float => "_root_.scala.reflect.ClassManifest.Float"
+      case Double => "_root_.scala.reflect.ClassManifest.Double"
+      case Boolean => "_root_.scala.reflect.ClassManifest.Boolean"
+      case Unit => "_root_.scala.reflect.ClassManifest.Unit"
+      case Any => "_root_.scala.reflect.ClassManifest.Any"
+      case AnyVal => "_root_.scala.reflect.ClassManifest.AnyVal"
+      case Nothing => "_root_.scala.reflect.ClassManifest.Nothing"
+      case Null => "_root_.scala.reflect.ClassManifest.Null"
+      case Singleton => "_root_.scala.reflect.ClassManifest.Object"
+      case JavaArrayType(arg) =>
+        "_root_.scala.reflect.ClassManifest.arrayType(" + classManifestText(arg) + ")"
+      case ScParameterizedType(ScDesignatorType(clazz: ScClass), Seq(arg))
+
+        if clazz.qualifiedName == "scala.Array" =>
+        "_root_.scala.reflect.ClassManifest.arrayType(" + classManifestText(arg) + ")"
+      /*case ScParameterizedType(des, args) =>
+        ScType.extractClass(des, Option(expr.getProject)) match {
+          case Some(clazz) =>
+            "_root_.scala.reflect.ClassManifest.classType(" +
+          case _ => "null"
+        }*/   //todo:
+      case _ => ScType.extractClass(scType) match {
+        case Some(clss) => "_root_.scala.reflect.ClassManifest.classType(classOf[_root_." +
+                clss.qualifiedName + "])"
+        case _ => "_root_.scala.reflect.ClassManifest.classType(classOf[_root_.java.lang." +
+                "Object])"
+      }
+    }
+  }
+
+  def isOfPrimitiveType(param: PsiParameter) = param match { //todo specialized type parameters
+    case p: ScParameter =>
+      val tp: ScType = p.getType(TypingContext.empty).getOrAny
+      import org.jetbrains.plugins.scala.lang.psi.types._
+      Set[ScType](Boolean, Int, Char, Double, Float, Long, Byte, Short).contains(tp)
+    case p: PsiParameter =>
+      val tp = param.getType
+      import com.intellij.psi.PsiType._
+      Set[PsiType](BOOLEAN, INT, CHAR, DOUBLE, FLOAT, LONG, BYTE, SHORT).contains(tp)
+    case _ => false
+  }
+
+  object implicitlyConvertedTo {
+    def unapply(expr: ScExpression): Option[ScExpression] = {
+      val implicits = expr.getImplicitConversions(fromUnder = true)
+      implicits._2 match {
+        case Some(fun: ScFunction) =>
+          val exprText = expr.getText
+          val callText = s"${fun.name}($exprText)"
+          val newExprText = fun.containingClass match {
+            case o: ScObject if isStable(o) => s"${o.qualifiedName}.$callText"
+            case o: ScObject => //todo: It can cover many cases!
+              throw EvaluationException("Implicit conversions from dependent objects are not supported")
+            case _ => callText //from scope
+          }
+          Some(ScalaPsiElementFactory.createExpressionWithContextFromText(newExprText, expr.getContext, expr))
+        case _ => None
+      }
+    }
+  }
+
+  @tailrec
+  final def isStable(o: ScObject): Boolean = {
+    val context = getContextClass(o)
+    if (context == null) return true
+    context match {
+      case o: ScObject => isStable(o)
+      case _ => false
+    }
+  }
+
+  def getContextClass(elem: PsiElement): PsiElement = {
+    var element = elem.getContext
+    var child = elem
+    while (element != null && !isGenerateClass(element, child)) {
+      element = element.getContext
+      child = child.getContext
+    }
+    element
+  }
+
+  def isGenerateClass(elem: PsiElement, child: PsiElement): Boolean = {
+    elem match {
+      case clazz: PsiClass => true
+      case f: ScFunctionExpr => true
+      case f: ScForStatement if f.body == Some(child) => true
+      case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).length > 0 => true
+      case b: ScBlockExpr if b.isAnonymousFunction => true
+      case (g: ScGuard) childOf (_: ScEnumerators) => true
+      case (g: ScGenerator) childOf (enums: ScEnumerators) if enums.generators.headOption != Some(g) => true
+      case e: ScEnumerator => true
+      case (expr: ScExpression) childOf (argLisg: ScArgumentExprList) if ScalaPsiUtil.parameterOf(expr).exists(_.isByName) => true
+      case _ => false
+    }
+  }
+
+  def anonClassCount(elem: PsiElement): Int = {
+    elem match {
+      case f: ScForStatement =>
+        f.enumerators.fold(1)(e => e.enumerators.length + e.generators.length + e.guards.length) //todo: non irrefutable patterns?
+      case _ => 1
+    }
+  }
+
+  def getContainingClass(elem: PsiElement): PsiElement = {
+    var element = elem.getParent
+    var child = elem
+    while (element != null && !isGenerateClass(element, child)) {
+      element = element.getParent
+      child = child.getParent
+    }
+    if (element == null) getContextClass(elem) else element
+  }
+
+  def localFunctionIndex(fun: ScFunction): Int = {
+    val containingClass = getContainingClass(fun)
+    val sameNameLocalFunctions = containingClass.depthFirst.collect{
+      case f: ScFunction if f.isLocal && f.name == fun.name => f
+    }.toList
+    sameNameLocalFunctions.indexOf(fun) + 1
+  }
+
+  def defaultParameterMethodName(method: ScMethodLike, p: Parameter, parameters: Seq[Parameter]): String = {
+    val paramIndex = parameters.indexOf(p) + 1
+    method match {
+      case fun: ScFunction if !fun.isConstructor =>
+        val suffix: String = if (!fun.isLocal) "" else "$" + localFunctionIndex(fun)
+        fun.name + "$default$" + paramIndex + suffix
+      case _ if method.isConstructor =>  "$lessinit$greater$default$" + paramIndex + "()"
+    }
+  }
+
+  def traitImplementation(elem: PsiElement): Option[JVMName] = {
+    val clazz = getContextClass(elem)
+    clazz match {
+      case t: ScTrait =>
+        Some(DebuggerUtil.getClassJVMName(t, withPostfix = true))
+      case _ => None
+    }
+  }
+
+  def isLocalFunction(fun: ScFunction): Boolean = {
+    !fun.getContext.isInstanceOf[ScTemplateBody]
+  }
+
+  object isInsideValueClass {
+    def unapply(elem: PsiElement): Option[ScClass] = {
+      getContextClass(elem) match {
+        case c: ScClass if ValueClassType.isValueClass(c) => Some(c)
+        case _ => None
+      }
+    }
+  }
+
+  object isInsideLocalFunction {
+    def unapply(elem: PsiElement): Option[ScFunction] = {
+      @tailrec
+      def inner(element: PsiElement): Option[ScFunction] = {
+        element match {
+          case null => None
+          case fun: ScFunction if isLocalFunction(fun) &&
+                  !fun.parameters.exists(param => PsiTreeUtil.isAncestor(param, elem, false)) =>
+            Some(fun)
+          case other if other.getContext != null => inner(other.getContext)
+          case _ => None
+        }
+      }
+      inner(elem)
+    }
+  }
 }

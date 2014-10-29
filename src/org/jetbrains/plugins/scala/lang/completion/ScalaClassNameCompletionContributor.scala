@@ -10,7 +10,6 @@ import com.intellij.psi.{PsiClass, _}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{ClassTypeToImport, TypeAliasToImport, TypeToImport}
-import org.jetbrains.plugins.scala.config.ScalaVersionUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
@@ -29,6 +28,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticCla
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_9
+import org.jetbrains.plugins.scala.project._
 
 import scala.collection.mutable
 
@@ -127,8 +128,8 @@ object ScalaClassNameCompletionContributor {
 
     val project = insertedElement.getProject
 
-    import org.jetbrains.plugins.scala.config.ScalaVersionUtil._
-    val checkSynthetic = ScalaVersionUtil.isGeneric(parameters.getOriginalFile, true, SCALA_2_7, SCALA_2_8)
+    val checkSynthetic = parameters.getOriginalFile.scalaLanguageLevel.map(_ < Scala_2_9).getOrElse(true)
+
     for {
       clazz <- SyntheticClasses.get(project).all.valuesIterator
       if checkSynthetic || !ScType.baseTypesQualMap.contains(clazz.qualifiedName)

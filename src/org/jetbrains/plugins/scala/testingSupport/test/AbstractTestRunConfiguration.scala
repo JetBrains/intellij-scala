@@ -22,25 +22,25 @@ import com.intellij.openapi.projectRoots.{JdkUtil, Sdk}
 import com.intellij.openapi.util.{Computable, Getter, JDOMExternalizer}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi._
-import com.intellij.util.PathUtil
 import org.jdom.Element
 import org.jetbrains.idea.maven.project.MavenProjectsManager
-import org.jetbrains.plugins.scala.compiler.rt.ClassRunner
-import org.jetbrains.plugins.scala.config.ScalaFacet
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
+import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.PropertiesExtension
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
+import org.jetbrains.plugins.scala.util.ScalaUtil
 
 import scala.beans.BeanProperty
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import com.intellij.openapi.util.text.StringUtil
 
 /**
  * @author Ksenia.Sautina
@@ -49,7 +49,9 @@ import scala.collection.mutable.ArrayBuffer
 
 abstract class AbstractTestRunConfiguration(val project: Project,
                                             val configurationFactory: ConfigurationFactory,
-                                            val name: String)
+                                            val name: String,
+                                            private var envs: java.util.Map[String, String] =
+                                            new mutable.HashMap[String, String]())
   extends ModuleBasedConfiguration[RunConfigurationModule](name,
     new RunConfigurationModule(project),
     configurationFactory)
@@ -147,6 +149,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     setModule(configuration.getModule)
     setWorkingDirectory(configuration.getWorkingDirectory)
     setTestName(configuration.getTestName)
+    setEnvVariables(configuration.getEnvironmentVariables)
     setShowProgressMessages(configuration.getShowProgressMessages)
   }
 
@@ -199,11 +202,17 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     path
   }
 
+  def getEnvVariables = envs
+
+  def setEnvVariables(variables: java.util.Map[String, String]) = {
+    envs = variables
+  }
+
   def getModule: Module = {
     getConfigurationModule.getModule
   }
 
-  def getValidModules: java.util.List[Module] = ScalaFacet.findModulesIn(getProject).toList
+  def getValidModules: java.util.List[Module] = getProject.modulesWithScala
 
   override def getModules: Array[Module] = {
     ApplicationManager.getApplication.runReadAction(new Computable[Array[Module]] {
@@ -340,14 +349,30 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         val params = new JavaParameters()
 
         params.setCharset(null)
-        params.getVMParametersList.addParametersString(getJavaOptions)
+        var vmParams = getJavaOptions
+
+        //expand macros
+        vmParams = PathMacroManager.getInstance(project).expandPath(vmParams)
+
+        if (module != null) {
+          vmParams = PathMacroManager.getInstance(module).expandPath(vmParams)
+        }
+
+        params.setEnv(getEnvVariables)
+
+        //expand environment variables in vmParams
+        for (entry <- params.getEnv.entrySet) {
+          vmParams = StringUtil.replace(vmParams, "$" + entry.getKey + "$", entry.getValue, false)
+        }
+
+        params.getVMParametersList.addParametersString(vmParams)
         val wDir = getWorkingDirectory
         params.setWorkingDirectory(expandPath(wDir))
 
 //        params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug " +
 //          "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5010")
 
-        val rtJarPath = PathUtil.getJarPathForClass(classOf[ClassRunner])
+        val rtJarPath = ScalaUtil.runnersPath()
         params.getClassPath.add(rtJarPath)
 
         searchTest match {
@@ -483,6 +508,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     JDOMExternalizer.write(element, "testName", testName)
     JDOMExternalizer.write(element, "testKind", if (testKind != null) testKind.toString else TestKind.CLASS.toString)
     JDOMExternalizer.write(element, "showProgressMessages", showProgressMessages.toString)
+    JDOMExternalizer.writeMap(element, envs, "envs", "envVar")
     PathMacroManager.getInstance(getProject).collapsePathsRecursively(element)
   }
 
@@ -496,6 +522,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     javaOptions = JDOMExternalizer.readString(element, "vmparams")
     testArgs = JDOMExternalizer.readString(element, "params")
     workingDirectory = JDOMExternalizer.readString(element, "workingDirectory")
+    JDOMExternalizer.readMap(element, envs, "envs", "envVar")
     val s = JDOMExternalizer.readString(element, "searchForTest")
     for (search <- SearchForTest.values()) {
       if (search.toString == s) searchTest = search

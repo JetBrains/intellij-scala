@@ -8,9 +8,8 @@ import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{CompilerModuleExtension, ModuleRootManager}
 import com.intellij.openapi.ui.Messages
-import org.jetbrains.plugins.scala.config.ScalaFacet
 import org.jetbrains.plugins.scala.extensions._
-
+import org.jetbrains.plugins.scala.project._
 
 /**
  * Pavel Fatin
@@ -18,7 +17,7 @@ import org.jetbrains.plugins.scala.extensions._
 
 class ServerMediator(project: Project) extends ProjectComponent {
 
-  private val isScalaProject = ScalaFacet.isPresentIn(project)
+  private def isScalaProject = project.hasScala
   private val settings = ScalaApplicationSettings.getInstance
 
   CompilerManager.getInstance(project).addBeforeTask(new CompileTask {
@@ -64,7 +63,7 @@ class ServerMediator(project: Project) extends ProjectComponent {
   })
 
   private def checkCompilationSettings(): Boolean = {
-    def hasClashes(module: Module) = ScalaFacet.findIn(module).isDefined && {
+    def hasClashes(module: Module) = module.hasScala && {
       val extension = CompilerModuleExtension.getInstance(module)
       val production = extension.getCompilerOutputUrl
       val test = extension.getCompilerOutputUrlForTests

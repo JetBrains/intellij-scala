@@ -3,7 +3,9 @@ package project.structure
 
 import java.io.File
 
+import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.structure.FS._
+import org.jetbrains.sbt.project.structure.Play2Keys.{KeyTransformer, KeyExtractor}
 
 import scala.xml.Node
 
@@ -18,8 +20,9 @@ object StructureParser {
     val project = (node \ "project").map(parseProject)
     val repository = (node \ "repository").headOption.map(parseRepository)
     val localCachePath = (node \ "localCachePath").headOption.map(_.text)
+    val sbtVersion = (node \ "@sbt").text
 
-    Structure(project, repository, localCachePath)
+    Structure(project, repository, localCachePath, sbtVersion)
   }
 
   private def parseProject(node: Node)(implicit fs: FS): Project = {
@@ -36,8 +39,10 @@ object StructureParser {
     val android = (node \ "android").headOption.map(parseAndroid(_)(fs.withBase(base)))
     val dependencies = parseDependencies(node)(fs.withBase(base))
     val resolvers = parseResolvers(node)
+    val play2 = (node \ "playimps").headOption.map(parsePlay2(_)(fs.withBase(base)))
 
-    Project(id, name, organization, version, base, target, build, configurations, java, scala, android, dependencies, resolvers)
+    Project(id, name, organization, version, base, target, build, configurations, java, scala,
+      android, dependencies, resolvers, play2)
   }
 
   private def parseBuild(node: Node)(implicit fs: FS): Build = {
@@ -63,8 +68,10 @@ object StructureParser {
     val extra = (node \ "extra").map(e => file(e.text))
     val options = (node \ "option").map(_.text)
 
-    Scala(version, library, compiler, extra, options)
+    Scala(Version(version), library, compiler, extra, options)
   }
+
+  def parsePlay2(node: Node)(implicit fs: FS): Play2 = Play2(KeyTransformer.transform(node.child flatMap KeyExtractor.extract))
 
   private def parseAndroid(node: Node)(implicit fs: FS): Android = {
     val version = (node \ "version").text
@@ -119,7 +126,7 @@ object StructureParser {
   }
 
   private def parseJarDependency(node: Node)(implicit fs: FS): JarDependency = {
-    val jar = file(node.text)
+    val jar = file(node.text.trim)
     val configurations = (node \ "@configurations").headOption
             .map(it => parseConfigurations(it.text)).getOrElse(Seq.empty)
 

@@ -35,6 +35,8 @@ class SbtSettings(project: Project)
 
   private var _resolveSbtClassifiers: Boolean = false
 
+  private var _sbtVersion: String = _
+
   def jdk: String = _jdk
 
   def jdk_=(value: String) {
@@ -65,6 +67,16 @@ class SbtSettings(project: Project)
     }
   }
 
+  def sbtVersion: String = _sbtVersion
+
+  def sbtVersion_=(value: String): Unit = {
+    if (!Comparing.equal(_sbtVersion, value)) {
+      val oldValue = _sbtVersion
+      _sbtVersion = value
+      getPublisher.onSbtVersionChanged(oldValue, value)
+    }
+  }
+
   def checkSettings(old: SbtProjectSettings, current: SbtProjectSettings) {
     if (old.jdkName != current.jdkName) {
       getPublisher.onJdkChanged(old.jdk, current.jdk)
@@ -75,6 +87,9 @@ class SbtSettings(project: Project)
     if (old.resolveSbtClassifiers != current.resolveSbtClassifiers) {
       getPublisher.onResolveSbtClassifiersChanged(old.resolveSbtClassifiers, current.resolveSbtClassifiers)
     }
+    if (old.sbtVersion != current.sbtVersion) {
+      getPublisher.onSbtVersionChanged(old.sbtVersion, current.sbtVersion)
+    }
   }
 
   def getState = {
@@ -83,6 +98,7 @@ class SbtSettings(project: Project)
     state.jdk = jdk
     state.resolveClassifiers = resolveClassifiers
     state.resolveSbtClassifiers = resolveSbtClassifiers
+    state.sbtVersion = sbtVersion
     state
   }
 
@@ -91,6 +107,7 @@ class SbtSettings(project: Project)
     jdk = state.jdk
     resolveClassifiers = state.resolveClassifiers
     resolveSbtClassifiers = state.resolveSbtClassifiers
+    sbtVersion = state.sbtVersion
   }
 
   def subscribe(listener: ExternalSystemSettingsListener[SbtProjectSettings]) {
@@ -102,6 +119,7 @@ class SbtSettings(project: Project)
     jdk = settings.jdk
     resolveClassifiers = settings.resolveClassifiers
     resolveSbtClassifiers = settings.resolveSbtClassifiers
+    sbtVersion = settings.sbtVersion
   }
 }
 
@@ -119,6 +137,10 @@ class SbtSettingsState extends AbstractExternalSystemSettings.State[SbtProjectSe
 
   @BeanProperty
   var resolveSbtClassifiers: Boolean = false
+
+  @Nullable
+  @BeanProperty
+  var sbtVersion: String = _
 
   private val projectSettings = ContainerUtilRt.newTreeSet[SbtProjectSettings]()
 

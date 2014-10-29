@@ -21,8 +21,8 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
   private JSpinner myEndIndexSpinner;
   private JLabel endIndexLabel;
   private JCheckBox friendlyDisplayOfScalaCheckBox;
+  private JCheckBox dontShowRuntimeRefs;
   private JCheckBox doNotExpandStreamsCheckBox;
-  private JCheckBox friendlyDisplayOfObjectRefCheckBox;
   private boolean isModified = false;
   private final ScalaDebuggerSettings mySettings;
 
@@ -31,7 +31,7 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
     final Boolean flag = settings.DEBUG_DISABLE_SPECIFIC_SCALA_METHODS;
     myIgnoreScalaMethods.setSelected(flag == null || flag.booleanValue());
     friendlyDisplayOfScalaCheckBox.setSelected(settings.FRIENDLY_COLLECTION_DISPLAY_ENABLED);
-    friendlyDisplayOfObjectRefCheckBox.setSelected(settings.FRIENDLY_OBJECT_REF_DISPLAY_ENABLED);
+    dontShowRuntimeRefs.setSelected(settings.DONT_SHOW_RUNTIME_REFS);
     friendlyDisplayOfScalaCheckBox.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -69,19 +69,19 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
   public boolean isModified() {
     return mySettings.COLLECTION_START_INDEX != myStartIndexSpinner.getValue() || 
         mySettings.COLLECTION_END_INDEX != myEndIndexSpinner.getValue() || 
-        mySettings.FRIENDLY_COLLECTION_DISPLAY_ENABLED != friendlyDisplayOfScalaCheckBox.isEnabled() ||
-        mySettings.FRIENDLY_OBJECT_REF_DISPLAY_ENABLED != friendlyDisplayOfObjectRefCheckBox.isEnabled() ||
-        mySettings.DEBUG_DISABLE_SPECIFIC_SCALA_METHODS != myIgnoreScalaMethods.isEnabled() || 
-        mySettings.DO_NOT_DISPLAY_STREAMS != doNotExpandStreamsCheckBox.isEnabled();
+        mySettings.FRIENDLY_COLLECTION_DISPLAY_ENABLED != friendlyDisplayOfScalaCheckBox.isSelected() ||
+        mySettings.DONT_SHOW_RUNTIME_REFS != dontShowRuntimeRefs.isSelected() ||
+        mySettings.DEBUG_DISABLE_SPECIFIC_SCALA_METHODS != myIgnoreScalaMethods.isSelected() ||
+        mySettings.DO_NOT_DISPLAY_STREAMS != doNotExpandStreamsCheckBox.isSelected();
   }
 
   public void apply() throws ConfigurationException {
-    mySettings.FRIENDLY_COLLECTION_DISPLAY_ENABLED = friendlyDisplayOfScalaCheckBox.isEnabled();
-    mySettings.FRIENDLY_OBJECT_REF_DISPLAY_ENABLED = friendlyDisplayOfObjectRefCheckBox.isEnabled();
-    mySettings.DEBUG_DISABLE_SPECIFIC_SCALA_METHODS = myIgnoreScalaMethods.isEnabled();
+    mySettings.FRIENDLY_COLLECTION_DISPLAY_ENABLED = friendlyDisplayOfScalaCheckBox.isSelected();
+    mySettings.DONT_SHOW_RUNTIME_REFS = dontShowRuntimeRefs.isSelected();
+    mySettings.DEBUG_DISABLE_SPECIFIC_SCALA_METHODS = myIgnoreScalaMethods.isSelected();
     mySettings.COLLECTION_START_INDEX = (Integer)myStartIndexSpinner.getValue();
     mySettings.COLLECTION_END_INDEX = (Integer)myEndIndexSpinner.getValue();
-    mySettings.DO_NOT_DISPLAY_STREAMS = doNotExpandStreamsCheckBox.isEnabled();
+    mySettings.DO_NOT_DISPLAY_STREAMS = doNotExpandStreamsCheckBox.isSelected();
   }
 
   public void reset() {

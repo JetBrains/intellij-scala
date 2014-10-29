@@ -102,12 +102,12 @@
           <text value="   "/>
         </properties>
       </component>
-      <component id="f2dfc" class="javax.swing.JCheckBox" binding="friendlyDisplayOfObjectRefCheckBox" default-binding="true">
+      <component id="f2dfc" class="javax.swing.JCheckBox" binding="dontShowRuntimeRefs" default-binding="true">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="friendly.object.ref.display"/>
+          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="dont.show.runtime.refs"/>
         </properties>
       </component>
     </children>

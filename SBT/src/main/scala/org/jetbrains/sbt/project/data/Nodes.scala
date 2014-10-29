@@ -5,7 +5,9 @@ import java.io.File
 
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
+import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.SbtProjectSystem
+import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.ParsedValue
 import org.jetbrains.sbt.resolvers.SbtResolver
 
 /**
@@ -75,20 +77,20 @@ class LibraryDependencyNode(val data: LibraryDependencyData)
 
 class ScalaProjectNode(val data: ScalaProjectData)
   extends Node[ScalaProjectData] {
-  def this(jdk: Option[ScalaProjectData.Sdk], javacOptions: Seq[String]) {
-    this(new ScalaProjectData(SbtProjectSystem.Id, jdk, javacOptions))
+  def this(jdk: Option[ScalaProjectData.Sdk], javacOptions: Seq[String], sbtVersion: String) {
+    this(new ScalaProjectData(SbtProjectSystem.Id, jdk, javacOptions, sbtVersion))
   }
 
   protected def key = ScalaProjectData.Key
 }
 
-class ScalaFacetNode(val data: ScalaFacetData)
-  extends Node[ScalaFacetData] {
-  def this(scalaVersion: String, basePackage: String, compilerLibraryName: String, compilerOptions: Seq[String]) {
-    this(new ScalaFacetData(SbtProjectSystem.Id, scalaVersion, basePackage, compilerLibraryName, compilerOptions))
+class ScalaSdkNode(val data: ScalaSdkData)
+  extends Node[ScalaSdkData] {
+  def this(scalaVersion: Version, basePackage: String, compilerClasspath: Seq[File], compilerOptions: Seq[String]) {
+    this(new ScalaSdkData(SbtProjectSystem.Id, scalaVersion, basePackage, compilerClasspath, compilerOptions))
   }
 
-  protected def key = ScalaFacetData.Key
+  protected def key = ScalaSdkData.Key
 }
 
 class AndroidFacetNode(val data: AndroidFacetData)
@@ -98,6 +100,14 @@ class AndroidFacetNode(val data: AndroidFacetData)
   }
 
   protected def key = AndroidFacetData.Key
+}
+
+class Play2ProjectNode(val data: Play2ProjectData) extends Node[Play2ProjectData] {
+  def this(projectKeys: Map[String, Map[String, ParsedValue[_]]]) {
+    this(new Play2ProjectData(SbtProjectSystem.Id, projectKeys))
+  }
+
+  def key = Play2ProjectData.Key
 }
 
 class SbtModuleNode(val data: SbtModuleData)

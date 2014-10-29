@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
  */
 
 abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with ScMember
-        with ScFunction with ScTypeParametersOwner {
+with ScFunction with ScTypeParametersOwner {
   override def isStable = false
 
   def nameId: PsiElement = {

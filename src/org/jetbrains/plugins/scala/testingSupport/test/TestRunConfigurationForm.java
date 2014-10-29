@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.testingSupport.test;
 
 import com.intellij.execution.ExecutionBundle;
 import com.intellij.execution.configuration.BrowseModuleValueActionListener;
+import com.intellij.execution.configuration.EnvironmentVariablesComponent;
 import com.intellij.execution.ui.ClassBrowser;
 import com.intellij.execution.ui.ConfigurationModuleSelector;
 import com.intellij.ide.util.ClassFilter;
@@ -21,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager;
 import javax.swing.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.Map;
 
 /**
  * @author Ksenia.Sautina
@@ -59,6 +61,7 @@ public class TestRunConfigurationForm{
   private JTextField testNameTextField;
   private JLabel testNameLabel;
   private JCheckBox myShowProgressMessagesCheckBox;
+  private EnvironmentVariablesComponent environmentVariables;
 
   public static enum TestKind {
     ALL_IN_PACKAGE, CLASS, TEST_NAME;
@@ -144,6 +147,7 @@ public class TestRunConfigurationForm{
     });
 
     suitePath = configuration.suitePath();
+    environmentVariables.setEnvs(configuration.getEnvVariables());
  }
 
   private void setupModuleComboBox() {
@@ -222,6 +226,7 @@ public class TestRunConfigurationForm{
     myModuleSelector.applyTo(configuration);
     searchForTestsComboBox.setSelectedItem(configuration.getSearchTest());
     setTestName(configuration.getTestName());
+    environmentVariables.setEnvs(configuration.getEnvVariables());
     setShowProgressMessages(configuration.getShowProgressMessages());
   }
 
@@ -251,6 +256,10 @@ public class TestRunConfigurationForm{
 
   public String getWorkingDirectory() {
     return workingDirectoryField.getText();
+  }
+
+  public Map<String, String> getEnvironmentVariables() {
+    return environmentVariables.getEnvs();
   }
 
   public void setTestClassPath(String s) {

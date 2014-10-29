@@ -1,25 +1,21 @@
 package org.jetbrains.sbt
 package annotator
 
-import com.intellij.facet.FacetManager
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
-import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.config.ScalaFacet
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.sbt.annotator.quickfix.{SbtRefreshProjectQuickFix, SbtUpdateResolverIndexesQuickFix}
 import org.jetbrains.sbt.resolvers.{SbtResolverIndexesManager, SbtResolverUtils}
-
-import scala.util.Try
-
 
 /**
  * @author Nikolay Obedin
  * @since 8/4/14.
  */
+
 class SbtDependencyAnnotator extends Annotator {
 
   private case class ArtifactInfo(group: String, artifact: String, version: String)
@@ -28,15 +24,7 @@ class SbtDependencyAnnotator extends Annotator {
 
     if (ScalaPsiUtil.fileContext(element).getFileType.getName != Sbt.Name) return
 
-    val scalaFacet = Try(FacetManager.getInstance(ModuleUtilCore.findModuleForPsiElement(element))
-                                     .getFacetByType(ScalaFacet.Id)).toOption
-    val scalaVersion = scalaFacet.flatMap { facet =>
-      facet.version.split('.').toSeq.map(Integer.parseInt) match {
-        case Seq(major, minor, rest@_*) =>
-          if (major == 2 && minor < 10) Some(facet.version) else Some(s"$major.$minor")
-        case _ => None
-      }
-    }
+    val scalaVersion = element.scalaLanguageLevel.map(_.version)
 
     def isValidOperation(op: ScReferenceExpression) = op.getText == "%" || op.getText == "%%"
 

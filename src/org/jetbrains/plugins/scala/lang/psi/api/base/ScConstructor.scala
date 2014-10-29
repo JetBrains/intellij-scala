@@ -5,7 +5,7 @@ package api
 package base
 
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeArgs, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScTypeArgs, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
@@ -17,6 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 trait ScConstructor extends ScalaPsiElement {
   def typeElement: ScTypeElement
+
+  def simpleTypeElement: Option[ScSimpleTypeElement]
 
   def typeArgList: Option[ScTypeArgs] = typeElement match {
     case x: ScParameterizedTypeElement => Some(x.typeArgList)

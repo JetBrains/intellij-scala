@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package compiler
 
 import java.io.{File, IOException}
+import java.net.ServerSocket
 import javax.swing.event.HyperlinkEvent
 
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
@@ -29,7 +30,19 @@ class CompileServerLauncher extends ApplicationComponent {
      if (running) stop()
    }
 
-  def tryToStart(project: Project): Boolean = running || start(project)
+  def tryToStart(project: Project): Boolean = {
+    if (!running) {
+      val started = start(project)
+      if (started) {
+        try new RemoteServerRunner(project).send("addDisconnectListener", Seq.empty, null)
+        catch {
+          case e: Exception =>
+        }
+      }
+      started
+    }
+    else true
+  }
 
   private def start(project: Project): Boolean = {
      val applicationSettings = ScalaApplicationSettings.getInstance
@@ -68,62 +81,68 @@ class CompileServerLauncher extends ApplicationComponent {
     }
   }
 
-   private def start(jdk: JDK): Either[String, Process] = {
-     import org.jetbrains.plugins.scala.compiler.CompileServerLauncher.{compilerJars, jvmParameters}
-     val settings = ScalaApplicationSettings.getInstance
-     
+  private def start(jdk: JDK): Either[String, Process] = {
+    import org.jetbrains.plugins.scala.compiler.CompileServerLauncher.{compilerJars, jvmParameters}
 
-     compilerJars.partition(_.exists) match {
-       case (presentFiles, Seq()) =>
-         val classpath = (jdk.tools +: presentFiles).map(_.canonicalPath).mkString(File.pathSeparator)
+    compilerJars.partition(_.exists) match {
+      case (presentFiles, Seq()) =>
+        val classpath = (jdk.tools +: presentFiles).map(_.canonicalPath).mkString(File.pathSeparator)
+        val settings = ScalaApplicationSettings.getInstance
 
-         val commands = jdk.executable.canonicalPath +: "-cp" +: classpath +: jvmParameters :+
-                 "org.jetbrains.plugins.scala.nailgun.NailgunRunner" :+ settings.COMPILE_SERVER_PORT
+        val freePort = CompileServerLauncher.findFreePort
+        if (settings.COMPILE_SERVER_PORT != freePort) {
+          new RemoteServerStopper(settings.COMPILE_SERVER_PORT).sendStop()
+          settings.COMPILE_SERVER_PORT = freePort
+          ApplicationManager.getApplication.saveSettings()
+        }
 
-         val builder = new ProcessBuilder(commands.asJava)
+        val ngRunnerFqn = "org.jetbrains.plugins.scala.nailgun.NailgunRunner"
+        val id = settings.COMPILE_SERVER_ID
 
-         catching(classOf[IOException]).either(builder.start())
-                 .left.map(_.getMessage)
-                 .right.map { process =>
-           val watcher = new ProcessWatcher(process)
-           instance = Some(ServerInstance(watcher, settings.COMPILE_SERVER_PORT.toInt))
-           watcher.startNotify()
-           process
-         }
+        val commands = jdk.executable.canonicalPath +: "-cp" +: classpath +: jvmParameters ++:
+                ngRunnerFqn +: freePort.toString +: id.toString +: Nil
 
-       case (_, absentFiles) =>
-         val paths = absentFiles.map(_.getPath).mkString(", ")
-         Left("Required file(s) not found: " + paths)
-     }
-   }
+        val builder = new ProcessBuilder(commands.asJava)
 
-   // TODO stop server more gracefully
-   def stop() {
-     instance.foreach { it =>
-       it.destroyProcess()
-     }
-   }
+        catching(classOf[IOException]).either(builder.start())
+                .left.map(_.getMessage)
+                .right.map { process =>
+          val watcher = new ProcessWatcher(process)
+          instance = Some(ServerInstance(watcher, freePort))
+          watcher.startNotify()
+          process
+        }
+      case (_, absentFiles) =>
+        val paths = absentFiles.map(_.getPath).mkString(", ")
+        Left("Required file(s) not found: " + paths)
+    }
+  }
+
+  // TODO stop server more gracefully
+  def stop() {
+    instance.foreach { it =>
+      it.destroyProcess()
+    }
+  }
   
-   def stop(project: Project) {
-     stop()
+  def stop(project: Project) {
+    stop()
      
-     ApplicationManager.getApplication invokeLater new Runnable {
-       override def run() {
-         CompileServerManager.instance(project).configureWidget()
-       }
-     }
-   }
-    
-  
+    ApplicationManager.getApplication invokeLater new Runnable {
+      override def run() {
+        CompileServerManager.instance(project).configureWidget()
+      }
+    }
+  }
 
-   def running: Boolean = instance.exists(_.running)
+  def running: Boolean = instance.exists(_.running)
 
-   def errors(): Seq[String] = instance.map(_.errors()).getOrElse(Seq.empty)
+  def errors(): Seq[String] = instance.map(_.errors()).getOrElse(Seq.empty)
 
-   def port: Option[Int] = instance.map(_.port)
+  def port: Option[Int] = instance.map(_.port)
 
-   def getComponentName = getClass.getSimpleName
- }
+  def getComponentName = getClass.getSimpleName
+}
 
 object CompileServerLauncher {
   def instance = ApplicationManager.getApplication.getComponent(classOf[CompileServerLauncher])
@@ -154,6 +173,35 @@ object CompileServerLauncher {
     }
 
     xmx ++ settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").toSeq
+  }
+
+  def ensureServerRunning(project: Project) {
+    val launcher = CompileServerLauncher.instance
+    if (!launcher.running) CompileServerLauncher.instance tryToStart project
+  }
+
+  def ensureNotRunning(project: Project) {
+    val launcher = CompileServerLauncher.instance
+    if (launcher.running) launcher.stop(project)
+  }
+
+  def findFreePort: Int = {
+    val port = ScalaApplicationSettings.getInstance().COMPILE_SERVER_PORT
+    try {
+      val socket = new ServerSocket(port)
+      socket.close()
+      port
+    } catch {
+      case e: IOException =>
+        try {
+          val socket = new ServerSocket(0)
+          val newPort = socket.getLocalPort
+          socket.close()
+          newPort
+        } catch {
+          case e: Exception => -1
+        }
+    }
   }
 }
 

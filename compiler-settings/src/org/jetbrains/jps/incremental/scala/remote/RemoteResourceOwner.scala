@@ -20,12 +20,15 @@ trait RemoteResourceOwner {
   protected val serverAlias = "compile-server"
 
   def send(command: String, arguments: Seq[String], client: Client) {
+    val encodedArgs = arguments.map(s => Base64Converter.encode(s.getBytes("UTF-8")))
     using(new Socket(address, port)) { socket =>
       using(new DataOutputStream(new BufferedOutputStream(socket.getOutputStream))) { output =>
-        createChunks(command, arguments).foreach(_.writeTo(output))
+        createChunks(command, encodedArgs).foreach(_.writeTo(output))
         output.flush()
-        using(new DataInputStream(new BufferedInputStream(socket.getInputStream))) { input =>
-          handle(input, client)
+        if (client != null) {
+          using(new DataInputStream(new BufferedInputStream(socket.getInputStream))) { input =>
+            handle(input, client)
+          }
         }
       }
     }
