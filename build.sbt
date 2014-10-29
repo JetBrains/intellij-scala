@@ -42,7 +42,7 @@ ideaICPluginJars in Global := {
       basePluginsDir / "maven" / "lib" +++
       basePluginsDir / "junit" / "lib" +++
       basePluginsDir / "properties" / "lib"
-  val customJars = baseDirectories * "*.jar"
+  val customJars = baseDirectories * (globFilter("*.jar") -- "*asm*.jar")
   customJars.classpath
 }
 
@@ -96,8 +96,8 @@ ideaResolver := {
     artifacts = Seq(
       System.getProperty("os.name") match {
         case r"^Linux"     => (s"/ideaIC-$s.SNAPSHOT.tar.gz", ideaArchiveName, Some({ _: File => s"tar xvfz $ideaArchiveName -C ${ideaSDKPath.getAbsolutePath}".!; renameFun}))
-        case r"^Mac OS.*"  => (s"/ideaIC-$s.SNAPSHOT.mac.zip", ideaArchiveName, Some({ _: File => IO.unzip(_: File, ideaSDKPath); renameFun}))
-        case r"^Windows.*" => (s"/ideaIC-$s.SNAPSHOT.win.zip", ideaArchiveName, Some({ _: File => IO.unzip(_: File, ideaSDKPath); renameFun}))
+        case r"^Mac OS.*"  => (s"/ideaIC-$s.SNAPSHOT.win.zip", ideaArchiveName, Some({ _: File => s"unzip $ideaArchiveName -d ${ideaBasePath.value}".!; renameFun}))
+        case r"^Windows.*" => (s"/ideaIC-$s.SNAPSHOT.win.zip", ideaArchiveName, Some({ _: File => IO.unzip(_: File, ideaBasePath.value); renameFun}))
         case other => throw new IllegalStateException(s"OS $other is not supported")
       },
       ("/sources.zip",  ideaBasePath.value.getAbsolutePath + "/sources.zip")
