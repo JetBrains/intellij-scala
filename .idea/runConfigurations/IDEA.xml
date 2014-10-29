@@ -17,11 +17,6 @@
       <option name="TRANSPORT" value="0" />
       <option name="LOCAL" value="true" />
     </RunnerSettings>
-    <RunnerSettings RunnerId="Debug">
-      <option name="DEBUG_PORT" value="" />
-      <option name="TRANSPORT" value="0" />
-      <option name="LOCAL" value="true" />
-    </RunnerSettings>
     <RunnerSettings RunnerId="JavaRebel">
       <option name="bootstrapPath" />
       <option name="jrebelArgs" value="" />
@@ -43,7 +38,6 @@
       <option name="myExternalizedOptions" value="&#10;additional-options2=onexit\=snapshot&#10;" />
     </RunnerSettings>
     <RunnerSettings RunnerId="Run" />
-    <ConfigurationWrapper RunnerId="Debug" />
     <ConfigurationWrapper RunnerId="Debug" />
     <ConfigurationWrapper RunnerId="Run" />
     <method />
