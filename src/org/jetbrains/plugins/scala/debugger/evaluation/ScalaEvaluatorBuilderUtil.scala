@@ -325,7 +325,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case "update" =>
         if (argEvaluators.length == 2) {
           val leftEval = new ScalaArrayAccessEvaluator(qualEval, argEvaluators(0))
-          new AssignmentEvaluator(leftEval, argEvaluators(1))
+          new AssignmentEvaluator(leftEval, unboxEvaluator(argEvaluators(1)))
         } else throw EvaluationException("Wrong number of parameters for Array.update method")
       case "toString" =>
         if (argEvaluators.length == 0) new ScalaMethodEvaluator(qualEval, "toString", null/*todo*/, Nil)
