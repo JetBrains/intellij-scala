@@ -46,7 +46,7 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
 
   def process(modelsProvider: MavenModifiableModelsProvider, module: Module,
               rootModel: MavenRootModelAdapter, mavenModel: MavenProjectsTree, mavenProject: MavenProject,
-              changes: MavenProjectChanges, mavenProjectToModuleName: util.Map[MavenProject, String], 
+              changes: MavenProjectChanges, mavenProjectToModuleName: util.Map[MavenProject, String],
               postTasks: util.List[MavenProjectsProcessorTask]) {
 
     validConfigurationIn(mavenProject).foreach { configuration =>
@@ -118,11 +118,13 @@ private object ScalaMavenImporter {
 }
 
 private class ScalaConfiguration(project: MavenProject) {
-  private def scalaCompilerId = new MavenId("org.scala-lang", "scala-compiler", compilerVersion.mkString)
+  private def versionNumber = compilerVersion.map(_.number).getOrElse("unknown")
 
-  private def scalaLibraryId = new MavenId("org.scala-lang", "scala-library", compilerVersion.mkString)
+  private def scalaCompilerId = new MavenId("org.scala-lang", "scala-compiler", versionNumber)
 
-  private def scalaReflectId = new MavenId("org.scala-lang", "scala-reflect", compilerVersion.mkString)
+  private def scalaLibraryId = new MavenId("org.scala-lang", "scala-library", versionNumber)
+
+  private def scalaReflectId = new MavenId("org.scala-lang", "scala-reflect", versionNumber)
 
   private def compilerPlugin: Option[MavenPlugin] =
     project.findPlugin("org.scala-tools", "maven-scala-plugin").toOption.filter(!_.isDefault).orElse(
@@ -140,11 +142,11 @@ private class ScalaConfiguration(project: MavenProject) {
     val basicIds = Seq(scalaCompilerId, scalaLibraryId)
     if (usesReflect) basicIds :+ scalaReflectId else basicIds
   }
-  
+
   def compilerVersion: Option[Version] = element("scalaVersion").map(_.getTextTrim)
           .orElse(standardLibrary.map(_.getVersion)).map(Version(_))
 
-  private def usesReflect: Boolean = compilerVersion.exists(it => ScalaLanguageLevel.from(it).exists(_ >= Scala_2_10))
+  private def usesReflect: Boolean = compilerVersion.exists(it => it.toLanguageLevel.exists(_ >= Scala_2_10))
 
   def vmOptions: Seq[String] = elements("jvmArgs", "jvmArg").map(_.getTextTrim)
 
