@@ -5,6 +5,10 @@
 .idea/modules/
 .idea/.name
 .idea/*.xml
+!.idea/vcs.xml
+!.idea/compiler.xml
+!.idea/misc.xml
+!.idea/scala_compiler.xml
 /classes
 /dist
 /out
