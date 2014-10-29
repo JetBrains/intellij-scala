@@ -129,8 +129,8 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
   }
 
   def getRunType(project: Project): WorksheetMakeType = {
-    if (ScalaProjectSettings.getInstance(project).isInProcessMode) {
-      if (ScalaApplicationSettings.getInstance().COMPILE_SERVER_ENABLED)
+    if (ScalaApplicationSettings.getInstance().COMPILE_SERVER_ENABLED) {
+      if (ScalaProjectSettings.getInstance(project).isInProcessMode)
         InProcessServer
       else OutOfProcessServer
     }
