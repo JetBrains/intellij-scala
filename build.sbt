@@ -142,7 +142,7 @@ javaOptions in Test := Seq(
   "-ea",
   s"-Didea.system.path=${Path.userHome}/.IdeaData/IDEA-14/scala/test-system",
   s"-Didea.config.path=${Path.userHome}/.IdeaData/IDEA-14/scala/test-config",
-  s"-Dplugin.path=${baseDirectory.value}/out/plugin/"
+  s"-Dplugin.path=${baseDirectory.value}/out/plugin/Scala"
 )
 
 fullClasspath in Test := (fullClasspath in (SBT, Test)).value
@@ -205,7 +205,7 @@ packageStructure in Compile := {
 
 packagePlugin in Compile := {
   val (dirs, files) = (packageStructure in Compile).value.partition(_._1.isDirectory)
-  val base = baseDirectory.value / "out" / "plugin"
+  val base = baseDirectory.value / "out" / "plugin" / "Scala"
   IO.delete(base)
   dirs  foreach { case (from, to) => IO.copyDirectory(from, base / to, overwrite = true) }
   files foreach { case (from, to) => IO.copyFile(from, base / to)}
