@@ -10,10 +10,7 @@
         <element id="archive" name="scala-plugin.jar">
           <element id="module-output" name="ScalaCommunity" />
           <element id="directory" name="META-INF">
-            <element id="dir-copy" path="$PROJECT_DIR$/META-INF" />
             <element id="dir-copy" path="$PROJECT_DIR$/SBT/src/main/resources/META-INF" />
-            <element id="dir-copy" path="$PROJECT_DIR$/intellij-hocon/META-INF" />
-            <element id="dir-copy" path="$PROJECT_DIR$/intellij-scalastyle/META-INF" />
           </element>
           <element id="module-output" name="intellij-hocon" />
           <element id="module-output" name="intellij-scalastyle" />
@@ -24,18 +21,23 @@
           <element id="archive" name="scala-jps-plugin.jar">
             <element id="module-output" name="scala-jps-plugin" />
           </element>
+          <element id="library" level="project" name="nailgun" />
+          <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/jline.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/sbt-interface.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/incremental-compiler.jar" />
         </element>
         <element id="archive" name="compiler-settings.jar">
-          <element id="module-output" name="compiler-settings" />
+          <element id="module-output" name="compiler_settings" />
         </element>
         <element id="archive" name="scala-nailgun-runner.jar">
           <element id="module-output" name="NailgunRunners" />
         </element>
+        <element id="library" level="application" name="scala-library" />
       </element>
       <element id="directory" name="launcher">
-        <element id="file-copy" path="$PROJECT_DIR$/SBT/lib/sbt-launch.jar" />
-        <element id="file-copy" path="$PROJECT_DIR$/SBT/lib/sbt-structure-0.12.jar" />
-        <element id="file-copy" path="$PROJECT_DIR$/SBT/lib/sbt-structure-0.13.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/SBT/jars/sbt-launch.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/SBT/jars/sbt-structure-0.12.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/SBT/jars/sbt-structure-0.13.jar" />
       </element>
     </root>
   </artifact>
