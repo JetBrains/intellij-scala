@@ -107,7 +107,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
                                isFromCompanion: Boolean,
                                args: Seq[ScType] = Seq.empty,
                                exprType: Option[ScType] = None): Seq[ImplicitResolveResult] = {
-    ScalaPsiUtil.debug(s"Implicit map: $exprType, from companion: $isFromCompanion, expected: $exp")
+    ScalaPsiUtil.debug(s"Implicit map: $exprType, from companion: $isFromCompanion, expected: $exp", LOG)
 
     val typez: ScType = exprType.getOrElse(placeType(fromUnder).getOrElse(return Seq.empty))
 
@@ -174,7 +174,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
   }
 
   private def buildSimpleImplicitMapInner(fromUnder: Boolean, exprType: Option[ScType] = None): ArrayBuffer[ImplicitMapResult] = {
-    ScalaPsiUtil.debug(s"Simple implicit map: $exprType")
+    ScalaPsiUtil.debug(s"Simple implicit map: $exprType", LOG)
 
     val typez: ScType = exprType.getOrElse(placeType(fromUnder).getOrElse(return ArrayBuffer.empty))
 
@@ -209,7 +209,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
   }
 
   def forMap(r: ScalaResolveResult, typez: ScType): ImplicitMapResult = {
-    ScalaPsiUtil.debug(s"Check implicit: $r for type: $typez")
+    ScalaPsiUtil.debug(s"Check implicit: $r for type: $typez", LOG)
 
     val default = ImplicitMapResult(condition = false, r, null, null, null, null, null)
     if (!PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(r.element), place, false)) { //to prevent infinite recursion
@@ -266,7 +266,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
         case _ => ScSubstitutor.empty
       }
       if (!typez.weakConforms(newSubst.subst(tp))) {
-        ScalaPsiUtil.debug(s"Implicit $r doesn't conform to $typez")
+        ScalaPsiUtil.debug(s"Implicit $r doesn't conform to $typez", LOG)
 
         ImplicitMapResult(condition = false, r, tp, retTp, null, null, null)
       } else {
@@ -353,18 +353,18 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
 
 
                     //todo: pass implicit parameters
-                    ScalaPsiUtil.debug(s"Implicit $r is ok for type $typez")
+                    ScalaPsiUtil.debug(s"Implicit $r is ok for type $typez", LOG)
                     ImplicitMapResult(condition = true, r, tp, dependentSubst.subst(retTp), newSubst, uSubst, implicitDependentSubst)
                   case _ =>
-                    ScalaPsiUtil.debug(s"Implicit $r has problems with type parameters bounds for type $typez")
+                    ScalaPsiUtil.debug(s"Implicit $r has problems with type parameters bounds for type $typez", LOG)
                     ImplicitMapResult(condition = false, r, tp, retTp, null, null, null)
                 }
               case _ =>
-                ScalaPsiUtil.debug(s"Implicit $r has problems with type parameters bounds for type $typez")
+                ScalaPsiUtil.debug(s"Implicit $r has problems with type parameters bounds for type $typez", LOG)
                 ImplicitMapResult(condition = false, r, tp, retTp, null, null, null)
             }
           case _ =>
-            ScalaPsiUtil.debug(s"Implicit $r is ok for type $typez")
+            ScalaPsiUtil.debug(s"Implicit $r is ok for type $typez", LOG)
             ImplicitMapResult(condition = true, r, tp, retTp, newSubst, null: ScUndefinedSubstitutor, ScSubstitutor.empty)
         }
       } //possible true

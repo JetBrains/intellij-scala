@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.util
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Computable
+import com.intellij.util.PathUtil
+import org.jetbrains.jps.incremental.scala.Client
 
 /**
  * User: Alexander Podkhalyuzin
@@ -20,5 +22,9 @@ object ScalaUtil {
     ApplicationManager.getApplication.runReadAction(new Computable[T] {
       def compute(): T = callback
     })
+  }
+
+  def runnersPath(): String = {
+    PathUtil.getJarPathForClass(classOf[Client]).replace("compiler-settings", "scala-plugin-runners")
   }
 }

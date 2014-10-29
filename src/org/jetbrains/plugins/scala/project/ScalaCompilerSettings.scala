@@ -75,7 +75,7 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
 
     val pluginOptions = plugins.map(path => "-P:" + path)
 
-    (toggledOptions :+ debuggingLevelOption) ++ pluginOptions
+    (toggledOptions :+ debuggingLevelOption) ++ pluginOptions ++ additionalCompilerOptions
   }
 
   def configureFrom(options: Seq[String]) {
