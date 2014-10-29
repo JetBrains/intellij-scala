@@ -7,7 +7,6 @@ import com.intellij.debugger.engine.evaluation.expression._
 import com.intellij.debugger.engine.{JVMName, JVMNameUtil}
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi._
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
@@ -499,14 +498,10 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         case m: PsiMethod => m.getParameterList.getParameters.toSeq
         case _ => return arguments
       }
-      val subst = ref match {
-        case ResolvedWithSubst(_, s) => s
-        case _ => ScSubstitutor.empty
-      }
 
       arguments.zipWithIndex.map {
         case (arg, i) =>
-          if (params.length <= i || isOfPrimitiveType(params(i), subst)) arg
+          if (params.length <= i || isOfPrimitiveType(params(i))) arg
           else boxEvaluator(arg)
       }
     }
@@ -569,12 +564,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             }
             else throw EvaluationException(s"Cannot evaluate parameter ${p.name}")
 
-          val substitutor = ref match {
-            case ResolvedWithSubst(_, subst) => subst
-            case _ => ScSubstitutor.empty
-          }
-
-          if (!isOfPrimitiveType(param, substitutor)) boxEvaluator(evaluator)
+          if (!isOfPrimitiveType(param)) boxEvaluator(evaluator)
           else evaluator
       }
     }
@@ -922,8 +912,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   def constructorArgumentsEvaluators(newTd: ScNewTemplateDefinition,
                                      constr: ScConstructor,
                                      clazz: PsiClass): Seq[Evaluator] = {
-    val (constrDef, subst) = constr.reference match {
-      case Some(ResolvedWithSubst(elem, s)) => (elem, s)
+    val constrDef = constr.reference match {
+      case Some(ResolvesTo(elem)) => elem
       case _ => throw EvaluationException("Could not resolve constructor")
     }
     val explicitArgs = constr.arguments.flatMap(_.exprs)
@@ -933,7 +923,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       } yield {
         val eval = ScalaEvaluator(arg)
         val param = ScalaPsiUtil.parameterOf(arg).flatMap(_.psiParam)
-        if (param.exists(!isOfPrimitiveType(_, subst))) boxEvaluator(eval)
+        if (param.exists(!isOfPrimitiveType(_))) boxEvaluator(eval)
         else eval
       }
     constrDef match {
@@ -948,7 +938,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             p <- implicitParams
           } yield {
             val eval = implicitArgEvaluator(scMethod, p, typeElem)
-            if (isOfPrimitiveType(p, subst)) eval
+            if (isOfPrimitiveType(p)) eval
             else boxEvaluator(eval)
           }
         val outerThis = contextClass match {
@@ -1082,14 +1072,13 @@ object ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def isOfPrimitiveType(param: PsiParameter, subst: ScSubstitutor) = param match {
+  def isOfPrimitiveType(param: PsiParameter) = param match { //todo specialized type parameters
     case p: ScParameter =>
-      val tp: ScType = subst.subst(p.getType(TypingContext.empty).getOrAny)
+      val tp: ScType = p.getType(TypingContext.empty).getOrAny
       import org.jetbrains.plugins.scala.lang.psi.types._
       Set[ScType](Boolean, Int, Char, Double, Float, Long, Byte, Short).contains(tp)
     case p: PsiParameter =>
-      val psiSubst = ScalaPsiUtil.getPsiSubstitutor(subst, p.getProject, GlobalSearchScope.allScope(p.getProject))
-      val tp = psiSubst.substitute(param.getType)
+      val tp = param.getType
       import com.intellij.psi.PsiType._
       Set[PsiType](BOOLEAN, INT, CHAR, DOUBLE, FLOAT, LONG, BYTE, SHORT).contains(tp)
     case _ => false
