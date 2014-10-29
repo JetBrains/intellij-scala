@@ -42,10 +42,10 @@ object common extends Build {
     import scala.xml._
     (resolver.buildTypes flatMap { bt: String =>
       val tcUrl = resolver.teamcityURL + s"/guestAuth/app/rest/builds/?locator=buildType:(id:$bt),branch:(default:any,name:${resolver.branch})"
-      println(s"trying: $tcUrl")
+      print(s"trying: $tcUrl -> ")
       try {
         val buildId = (XML.loadString(IO.readLinesURL(url(tcUrl)).mkString) \ "build" \\ "@id").head
-        println("got build id = " + buildId)
+        println(if(buildId.nonEmpty) s"[$buildId]" else "Not Found")
         if (buildId.nonEmpty) Some(buildId.text) else None
       } catch {
         case e: Throwable => None

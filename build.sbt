@@ -24,7 +24,7 @@ unmanagedSourceDirectories in Test += baseDirectory.value /  "test"
 
 unmanagedResourceDirectories in Compile += baseDirectory.value /  "resources"
 
-ideaVersion := "138.2458.8"
+ideaVersion := "139.144.2"
 
 ideaBasePath in Global := baseDirectory.value / "SDK" / "ideaSDK" / s"idea-${ideaVersion.value}"
 
@@ -179,7 +179,7 @@ packageStructure in Compile := {
   def simplify(lib: ModuleID) = lib.organization % lib.name % lib.revision
   def libOf(lib: ModuleID, prefix: String = "lib/") = resolved(simplify(lib)) -> (prefix + resolved(simplify(lib)).name)
   Seq(
-    (artifactPath in (ScalaCommunity, Compile, packageBin)).value     -> "lib/scala-plugin.jar",
+    (artifactPath in (ScalaCommunity, Compile, packageBin)).value    -> "lib/scala-plugin.jar",
     (artifactPath in (compiler_settings, Compile, packageBin)).value -> "lib/compiler-settings.jar",
     (artifactPath in (NailgunRunners, Compile, packageBin)).value    -> "lib/scala-nailgun-runner.jar",
     merge(

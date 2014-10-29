@@ -120,9 +120,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val localCachePath = data.localCachePath
     projectNode.addAll(projects.map(createBuildModule(_, moduleFilesDirectory, localCachePath)))
 
-    val runConfigurations = project.runConfigurations map { new RunConfigurationNode(_) }
-    projectNode.addAll(runConfigurations)
-
     projectNode
   }
 
