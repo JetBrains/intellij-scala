@@ -35,6 +35,10 @@ class SbtFileImpl(provider: FileViewProvider) extends ScalaFileImpl(provider, Sb
     val expressions0 = expressions.map {
       case "Keys._" => "sbt.Keys._"
       case "Build._" => "sbt.Build._"
+      // TODO: this is a workaround. `processDeclarations` does not resolve "Play.autoImport -> PlayImport"
+      //    However, when object with implicit imports is located in the same file where plugin object resides
+      //    everything is resolved, but PlayImport and Play are in different files.
+      case "_root_.play.Play.autoImport._" => "_root_.play.PlayImport._"
       case it => it
     }
 

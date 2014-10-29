@@ -3,7 +3,7 @@ package debugger.evaluation
 
 import com.intellij.debugger.codeinsight.RuntimeTypeEvaluator
 import com.intellij.debugger.engine.ContextUtil
-import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
+import com.intellij.debugger.engine.evaluation.{CodeFragmentKind, TextWithImportsImpl, EvaluationContextImpl}
 import com.intellij.debugger.engine.evaluation.expression.ExpressionEvaluator
 import com.intellij.debugger.impl.DebuggerContextImpl
 import com.intellij.debugger.{DebuggerBundle, DebuggerInvocationUtil, EvaluatingComputable}
@@ -37,7 +37,9 @@ abstract class ScalaRuntimeTypeEvaluator(@Nullable editor: Editor, expression: P
 
     val evaluator: ExpressionEvaluator = DebuggerInvocationUtil.commitAndRunReadAction(project, new EvaluatingComputable[ExpressionEvaluator] {
       def compute: ExpressionEvaluator = {
-        ScalaEvaluatorBuilder.build(myElement, ContextUtil.getSourcePosition(evaluationContext))
+        val textWithImports = new TextWithImportsImpl(CodeFragmentKind.CODE_BLOCK, expression.getText)
+        val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(textWithImports, expression, project)
+        ScalaEvaluatorBuilder.build(codeFragment, ContextUtil.getSourcePosition(evaluationContext))
       }
     })
     val value: Value = evaluator.evaluate(evaluationContext)
@@ -52,7 +54,8 @@ object ScalaRuntimeTypeEvaluator {
   val KEY: Key[ScExpression => ScType] = Key.create("SCALA_RUNTIME_TYPE_EVALUATOR")
 
   def getCastableRuntimeType(project: Project, value: Value): PsiClass = {
-    val jdiType: Type = DebuggerUtil.unwrapScalaRuntimeObjectRef(value).asInstanceOf[Value].`type`
+    val unwrapped = DebuggerUtil.unwrapScalaRuntimeObjectRef(value)
+    val jdiType: Type = unwrapped.asInstanceOf[Value].`type`
     var psiClass: PsiClass = findPsiClass(project, jdiType)
     if (psiClass != null) {
       return psiClass

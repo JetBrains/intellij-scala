@@ -29,9 +29,10 @@
         <lang.documentationProvider language="Scala" implementationClass="org.jetbrains.sbt.editor.documentationProvider.SbtDocumentationProvider" order="first"/>
 
         <externalSystemManager implementation="org.jetbrains.sbt.project.SbtExternalSystemManager"/>
-        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtFacetDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.ScalaSdkDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtProjectDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtModuleDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.RunConfigurationDataService"/>
 
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtSettings"/>
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtLocalSettings"/>

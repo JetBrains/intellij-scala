@@ -26,7 +26,7 @@ public class ScalaDebuggerSettings extends XDebuggerSettings<ScalaDebuggerSettin
 
   public Boolean DEBUG_DISABLE_SPECIFIC_SCALA_METHODS = true;
   public Boolean FRIENDLY_COLLECTION_DISPLAY_ENABLED = true;
-  public Boolean FRIENDLY_OBJECT_REF_DISPLAY_ENABLED = true;
+  public Boolean DONT_SHOW_RUNTIME_REFS = true;
   public Boolean DO_NOT_DISPLAY_STREAMS = true;
   public Integer COLLECTION_START_INDEX = 0;
   public Integer COLLECTION_END_INDEX = 49;

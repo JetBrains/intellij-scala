@@ -1,9 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.api.expr
+package org.jetbrains.plugins.scala
+package lang.psi.api.expr
 
 import com.intellij.openapi.util.Key
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
@@ -15,6 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil, types}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
+import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 
 /**
  * Pavel Fatin, Alexander Podkhalyuzin.
@@ -173,8 +175,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
         setApplicabilityProblemsVar(c._2)
         setMatchedParametersVar(c._3)
         val dependentSubst = new ScSubstitutor(() => {
-          val level = ScalaLanguageLevel.getLanguageLevel(this)
-          if (level.isThoughScala2_10) {
+          val level = this.languageLevel
+          if (level >= Scala_2_10) {
             c._4.toMap
           } else Map.empty
         })
@@ -188,8 +190,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
             setApplicabilityProblemsVar(cd._2)
             setMatchedParametersVar(cd._3)
             val dependentSubst = new ScSubstitutor(() => {
-              val level = ScalaLanguageLevel.getLanguageLevel(this)
-              if (level.isThoughScala2_10) {
+              val level = this.languageLevel
+              if (level >= Scala_2_10) {
                 cd._4.toMap
               } else Map.empty
             })

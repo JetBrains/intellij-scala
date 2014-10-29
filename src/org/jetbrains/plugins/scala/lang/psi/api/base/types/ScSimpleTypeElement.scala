@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
  * Author: Alexander Podkhalyuzin
  * Date: 22.02.2008
  */
-trait ScSimpleTypeElement extends ScTypeElement {
+trait ScSimpleTypeElement extends ScTypeElement with ImplicitParametersOwner {
 
   def reference: Option[ScStableCodeReferenceElement] = findChild(classOf[ScStableCodeReferenceElement])
   def pathElement: ScPathElement = findChildByClassScala(classOf[ScPathElement])

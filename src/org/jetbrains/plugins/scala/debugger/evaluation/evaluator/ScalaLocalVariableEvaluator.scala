@@ -7,7 +7,7 @@ import com.intellij.debugger.jdi.{LocalVariableProxyImpl, StackFrameProxyImpl}
 import com.intellij.debugger.ui.impl.watch.{LocalVariableDescriptorImpl, NodeDescriptorImpl}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
-import com.sun.jdi.{InternalException, Type, Value}
+import com.sun.jdi.{ObjectReference, InternalException, Type, Value}
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
@@ -45,10 +45,7 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
       def saveContextAndGetValue(framePr: StackFrameProxyImpl, local: LocalVariableProxyImpl) = {
         myEvaluatedVariable = local
         myContext = context
-        val value = DebuggerUtil.unwrapScalaRuntimeObjectRef {
-          frameProxy.getValue(local)
-        }
-        Some(value)
+        Some(frameProxy.getValue(local))
       }
       var local: LocalVariableProxyImpl = frameProxy.visibleVariableByName(myName)
       if (local != null) return saveContextAndGetValue(frameProxy, local)
@@ -129,7 +126,17 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
         def setValue(value: Value) {
           val frameProxy: StackFrameProxyImpl = myContext.getFrameProxy
           try {
-            frameProxy.setValue(myEvaluatedVariable, value)
+            if (DebuggerUtil.isScalaRuntimeRef(myEvaluatedVariable.getType.name())) {
+              frameProxy.getValue(myEvaluatedVariable) match {
+                case objRef: ObjectReference =>
+                  val field = objRef.referenceType().fieldByName("elem")
+                  objRef.setValue(field, value)
+                case _ =>
+                  frameProxy.setValue(myEvaluatedVariable, value)
+              }
+            } else {
+              frameProxy.setValue(myEvaluatedVariable, value)
+            }
           }
           catch {
             case e: EvaluateException =>

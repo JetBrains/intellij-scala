@@ -1,15 +1,16 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.util
 
-import com.intellij.debugger.engine.{DebugProcessImpl, JVMName, JVMNameUtil}
+import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl, JVMName, JVMNameUtil}
 import com.intellij.debugger.jdi.VirtualMachineProxyImpl
 import com.intellij.debugger.{DebuggerBundle, SourcePosition}
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiElement, PsiLocalVariable, PsiParameter}
-import com.sun.jdi.{ObjectReference, Value}
-import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
+import com.intellij.psi._
+import com.sun.jdi.{ReferenceType, ObjectReference, Value}
+import org.jetbrains.plugins.scala.debugger.evaluation.{ScalaEvaluatorBuilderUtil, EvaluationException}
+import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
@@ -19,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
@@ -158,8 +159,13 @@ object DebuggerUtil {
       (subst, tp) => subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)), tp.upperBound.getOrAny)
     }
     val localParameters = function match {
-      case fun: ScFunctionDefinition if fun.isLocal =>
-        localParams(fun, PsiTreeUtil.getParentOfType(fun, classOf[ScTemplateDefinition]))
+      case fun: ScFunctionDefinition if fun.isLocal => localParamsForFunDef(fun)
+      case fun if fun.isConstructor =>
+        fun.containingClass match {
+          case c: ScClass => localParamsForConstructor(c)
+          case _ => Seq.empty
+        }
+
       case _ => Seq.empty
     }
     val parameters = function.effectiveParameterClauses.flatMap(_.effectiveParameters) ++ localParameters
@@ -170,6 +176,25 @@ object DebuggerUtil {
       case _: ScFunction | _: ScPrimaryConstructor => "V"
     }
     JVMNameUtil.getJVMRawText(paramTypes + resultType)
+  }
+
+  def constructorSignature(named: PsiNamedElement): JVMName = {
+    named match {
+      case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
+      case constr: ScPrimaryConstructor =>
+        constr.containingClass match {
+          case td: ScTypeDefinition if td.isTopLevel => DebuggerUtil.getFunctionJVMSignature(constr)
+          case clazz => new JVMConstructorSignature(clazz)
+        }
+      case method: PsiMethod => JVMNameUtil.getJVMSignature(method)
+      case clazz: ScClass if clazz.isTopLevel => clazz.constructor match {
+        case Some(cnstr) => DebuggerUtil.getFunctionJVMSignature(cnstr)
+        case _ => JVMNameUtil.getJVMRawText("()V")
+      }
+      case clazz: ScClass => new JVMConstructorSignature(clazz)
+      case clazz: PsiClass => JVMNameUtil.getJVMRawText("()V")
+      case _ => JVMNameUtil.getJVMRawText("()V")
+    }
   }
 
   private def parameterForJVMSignature(param: ScTypedDefinition, subst: ScSubstitutor) = param match {
@@ -248,22 +273,40 @@ object DebuggerUtil {
 
   class JVMClassAt(sourcePosition: SourcePosition) extends JVMName {
     def getName(process: DebugProcessImpl): String = {
-      val allClasses = process.getPositionManager.getAllClasses(mySourcePosition)
-      if (!allClasses.isEmpty) {
-        return allClasses.get(0).name
+      jvmClassAtPosition(sourcePosition, process) match {
+        case Some(refType) => refType.name
+        case _ =>
+          throw EvaluationException(DebuggerBundle.message("error.class.not.loaded", getDisplayName(process)))
       }
-      throw EvaluationException(DebuggerBundle.message("error.class.not.loaded", getDisplayName(process)))
     }
 
     def getDisplayName(debugProcess: DebugProcessImpl): String = {
       ApplicationManager.getApplication.runReadAction(new Computable[String] {
         def compute: String = {
-          JVMNameUtil.getSourcePositionClassDisplayName(debugProcess, mySourcePosition)
+          JVMNameUtil.getSourcePositionClassDisplayName(debugProcess, sourcePosition)
         }
       })
     }
+  }
 
-    private final val mySourcePosition: SourcePosition = null
+  class JVMConstructorSignature(clazz: PsiClass) extends JVMName {
+    val position = SourcePosition.createFromElement(clazz)
+
+    override def getName(process: DebugProcessImpl): String = {
+      jvmClassAtPosition(position, process) match {
+        case Some(refType) => refType.methodsByName("<init>").get(0).signature()
+        case None =>
+          throw EvaluationException(DebuggerBundle.message("error.class.not.loaded", getDisplayName(process)))
+      }
+    }
+
+    override def getDisplayName(debugProcess: DebugProcessImpl): String = getName(debugProcess)
+  }
+
+  def jvmClassAtPosition(sourcePosition: SourcePosition, debugProcess: DebugProcess): Option[ReferenceType] = {
+    val allClasses = debugProcess.getPositionManager.getAllClasses(sourcePosition)
+    if (!allClasses.isEmpty) Some(allClasses.get(0))
+    else None
   }
 
   def withoutBackticks(name: String): String = {
@@ -309,45 +352,85 @@ object DebuggerUtil {
     lines.toSet
   }
 
-  def unwrapScalaRuntimeObjectRef(evaluated: AnyRef): AnyRef = evaluated match {
-    case objRef: ObjectReference => {
+  def unwrapScalaRuntimeObjectRef(evaluated: AnyRef): AnyRef = {
+    unwrapRuntimeRef(evaluated, _ == "scala.runtime.ObjectRef")
+  }
+
+  def unwrapScalaRuntimeRef(value: AnyRef) = {
+    unwrapRuntimeRef(value, isScalaRuntimeRef)
+  }
+
+  def isScalaRuntimeRef(typeFqn: String) = {
+    typeFqn.startsWith("scala.runtime.") && typeFqn.endsWith("Ref")
+  }
+
+  object scalaRuntimeRefTo {
+    def unapply(objRef: ObjectReference) = {
+      val typeName = objRef.referenceType().name()
+      if (isScalaRuntimeRef(typeName)) Some(unwrapScalaRuntimeRef(objRef))
+      else None
+    }
+  }
+
+  private def unwrapRuntimeRef(value: AnyRef, typeNameCondition: String => Boolean) = value match {
+    case _ if !ScalaDebuggerSettings.getInstance().DONT_SHOW_RUNTIME_REFS => value
+    case objRef: ObjectReference =>
       val refType = objRef.referenceType()
-      if (refType.name == "scala.runtime.ObjectRef") {
+      if (typeNameCondition(refType.name)) {
         val elemField = refType.fieldByName("elem")
         if (elemField != null) objRef.getValue(elemField)
         else objRef
       }
       else objRef
-    }
-    case _ => evaluated
+    case _ => value
   }
 
-  def localParams(fun: ScFunctionDefinition, context: PsiElement): Seq[ScTypedDefinition] = {
-    val buf = new mutable.HashSet[PsiElement]
-    val body = fun.body //to exclude references from default parameters
-    body.foreach(_.accept(new ScalaRecursiveElementVisitor {
+  def localParamsForFunDef(fun: ScFunctionDefinition, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Seq[ScTypedDefinition] = {
+    val container = ScalaEvaluatorBuilderUtil.getContextClass(fun)
+    fun.body match { //to exclude references from default parameters
+      case Some(b) => localParams(b, fun, container)
+      case _ => Seq.empty
+    } 
+  }
+
+  def localParamsForConstructor(cl: ScClass, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Seq[ScTypedDefinition] = {
+    val container = ScalaEvaluatorBuilderUtil.getContextClass(cl)
+    val extendsBlock = cl.extendsBlock //to exclude references from default parameters
+    localParams(extendsBlock, cl, container)
+  }
+  
+  def localParams(block: PsiElement, excludeContext: PsiElement, container: PsiElement,
+                  visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Seq[ScTypedDefinition] = {
+    def atRightPlace(elem: PsiElement) = PsiTreeUtil.isContextAncestor(container, elem, false) &&
+            !PsiTreeUtil.isContextAncestor(excludeContext, elem, false)
+
+    val buf = new mutable.HashSet[ScTypedDefinition]
+    block.accept(new ScalaRecursiveElementVisitor {
       override def visitReference(ref: ScReferenceElement) {
         if (ref.qualifier != None) {
           super.visitReference(ref)
           return
         }
         val elem = ref.resolve()
-        if (elem != null) {
-          var element = elem
-          while (element.getContext != null) {
-            element = element.getContext
-            if (element == fun) return
-            else if (element == context) {
-              buf += elem
-              return
+        elem match {
+          case null =>
+          case fun: ScFunctionDefinition if fun.isLocal && !visited.contains(fun) =>
+            buf ++= localParamsForFunDef(fun, visited)
+            visited += fun
+          case fun: ScMethodLike if fun.isConstructor =>
+            fun.containingClass match {
+              case c: ScClass if ScalaPsiUtil.isLocalClass(c) && !visited.contains(fun) =>
+                buf ++= localParamsForConstructor(c, visited)
+                visited += c
+              case _ =>
             }
-          }
+          case td: ScTypedDefinition if isLocalV(td) && atRightPlace(td) =>
+            buf += td
+          case _ => super.visitReference(ref)
         }
-        super.visitReference(ref)
       }
-    }))
-    buf.toSeq.collect {case td: ScTypedDefinition if isLocalV(td) => td}
-            .sortBy(e => (e.isInstanceOf[ScObject], e.getTextRange.getStartOffset))
+    })
+    buf.toSeq.sortBy(e => (e.isInstanceOf[ScObject], e.getTextRange.getStartOffset))
   }
 
   def isLocalV(resolve: PsiElement): Boolean = {

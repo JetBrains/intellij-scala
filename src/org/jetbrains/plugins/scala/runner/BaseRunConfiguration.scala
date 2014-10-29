@@ -8,10 +8,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.JDOMExternalizer
-import com.intellij.util.PathUtil
 import org.jdom.Element
-import org.jetbrains.plugins.scala.compiler.ScalacSettings
-import org.jetbrains.plugins.scala.config.{CompilerLibraryData, Libraries, ScalaFacet}
+import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.util.ScalaUtil
 
 import scala.collection.JavaConverters._
 
@@ -29,7 +28,7 @@ abstract class BaseRunConfiguration(val project: Project, val configurationFacto
   var javaOptions = defaultJavaOptions
   var workingDirectory = Option(getProject.getBaseDir) map (_.getPath) getOrElse ""
   def getModule: Module = getConfigurationModule.getModule
-  def getValidModules: java.util.List[Module] = ScalaFacet.findModulesIn(getProject).toList.asJava
+  def getValidModules: java.util.List[Module] = getProject.modulesWithScala.toList.asJava
 
   override def writeExternal(element: Element) {
     super.writeExternal(element)
@@ -55,7 +54,7 @@ abstract class BaseRunConfiguration(val project: Project, val configurationFacto
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
 
-    val facet = ScalaFacet.findIn(module).getOrElse {
+    val scalaSdk = module.scalaSdk.getOrElse {
       throw new ExecutionException("No Scala facet configured for module " + module.getName)
     }
 
@@ -67,20 +66,13 @@ abstract class BaseRunConfiguration(val project: Project, val configurationFacto
 
     val params = new JavaParameters()
     params.getVMParametersList.addParametersString(javaOptions)
-    val files =
-      if (facet.fsc) {
-        val settings = ScalacSettings.getInstance(getProject)
-        val lib: Option[CompilerLibraryData] = Libraries.findBy(settings.COMPILER_LIBRARY_NAME,
-          settings.COMPILER_LIBRARY_LEVEL, getProject)
-        lib match {
-          case Some(compilerLib) => compilerLib.files
-          case _ => facet.files
-        }
-      } else facet.files
+
+    val files = scalaSdk.compilerClasspath
+
     params.getClassPath.addAllFiles(files.asJava)
     params.setUseDynamicClasspath(JdkUtil.useDynamicClasspath(getProject))
     params.setUseDynamicVMOptions(JdkUtil.useDynamicVMOptions())
-    params.getClassPath.add(PathUtil.getJarPathForClass(classOf[_root_.org.jetbrains.plugins.scala.worksheet.MyWorksheetRunner]))
+    params.getClassPath.add(ScalaUtil.runnersPath())
     params.setWorkingDirectory(workingDirectory)
     params.setMainClass(mainClass)
     params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)

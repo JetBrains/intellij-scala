@@ -128,8 +128,7 @@ object ScalaRenameUtil {
         if (usagez.isEmpty) Nil
         else {
           val needDollarSign: UsageInfo => Boolean = { u =>
-            val ref = u.getReference.getElement
-            !ref.getLanguage.isInstanceOf[ScalaLanguage]
+            !u.getReference.isInstanceOf[ResolvableReferenceElement]
           }
           val (usagesWithDS, usagesPlain) = usagez.partition(needDollarSign)
           Seq(UsagesWithName(name + "$", usagesWithDS), UsagesWithName(name, usagesPlain))
