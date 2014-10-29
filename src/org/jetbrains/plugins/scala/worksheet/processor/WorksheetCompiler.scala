@@ -43,7 +43,6 @@ class WorksheetCompiler {
 
     if (runType != NonServer)
       CompileServerLauncher.ensureServerRunning(project)
-    else CompileServerLauncher.ensureNotRunning(project)
 
     val contentManager = MessageView.SERVICE.getInstance(project).getContentManager
     val oldContent = contentManager findContent ERROR_CONTENT_NAME
