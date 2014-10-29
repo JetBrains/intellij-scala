@@ -76,9 +76,6 @@ class ScalaPsiElementFactoryImpl(manager: PsiManager) extends JVMElementFactory 
 
   def createField(name: String, `type`: PsiType): PsiField = throw new IncorrectOperationException
 
-  override def createMethod(s: String, psiType: PsiType, psiElement: PsiElement): PsiMethod =
-    throw new IncorrectOperationException
-
   def createMethod(name: String, returnType: PsiType): PsiMethod = throw new IncorrectOperationException
 
   def createMethod(name: String, returnType: PsiType, context: PsiElement): PsiMethod = throw new IncorrectOperationException
