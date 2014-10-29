@@ -145,11 +145,6 @@ object SbtProjectDataService {
     }
   }
 
-  private def createRunConfigurations(project: Project, runConfigurations: Seq[RunConfigurationData]) = {
-
-    ???
-  }
-
   // TODO don't rely on XML when there will be other ways to bypass "reload project" message
   private def setLanguageLevelIn(project: Project, level: LanguageLevel) {
     val element = new Element("component").setAttribute("languageLevel", level.name)
