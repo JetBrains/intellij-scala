@@ -5,7 +5,6 @@ package util
 
 import _root_.java.awt.Component
 import _root_.javax.swing.event.{ListSelectionEvent, ListSelectionListener}
-import _root_.javax.swing.{DefaultListModel, JList}
 import java.util
 
 import _root_.com.intellij.codeInsight.unwrap.ScopeHighlighter
@@ -41,6 +40,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.util.JListCompatibility
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -375,14 +375,15 @@ object ScalaRefactoringUtil {
 
     val selection = new Selection
     val highlighter: ScopeHighlighter = new ScopeHighlighter(editor)
-    val model: DefaultListModel[T] = new DefaultListModel
+    val model = JListCompatibility.createDefaultListModel()
     for (element <- elements) {
-      model.addElement(element)
+      JListCompatibility.addElement(model, element)
     }
-    val list: JList[T] = new JList(model)
-    list.setCellRenderer(new DefaultListCellRendererAdapter {
-      def getListCellRendererComponentAdapter(list: JList[_], value: Object, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
-        val rendererComponent: Component = getSuperListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
+    val list = JListCompatibility.createJListFromModel(model)
+    JListCompatibility.setCellRenderer(list, new DefaultListCellRendererAdapter {
+      def getListCellRendererComponentAdapter(container: JListCompatibility.JListContainer,
+                                              value: Object, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
+        val rendererComponent: Component = getSuperListCellRendererComponent(container.getList, value, index, isSelected, cellHasFocus)
         val element: T = value.asInstanceOf[T]
         if (element.isValid) {
           setText(elementName(element))
@@ -395,7 +396,7 @@ object ScalaRefactoringUtil {
         highlighter.dropHighlight()
         val index: Int = list.getSelectedIndex
         if (index < 0) return
-        val element: T = model.get(index)
+        val element: T = model.get(index).asInstanceOf[T]
         val toExtract: util.ArrayList[PsiElement] = new util.ArrayList[PsiElement]
         toExtract.add(if (highlightParent) element.getParent else element)
         highlighter.highlight(if (highlightParent) element.getParent else element, toExtract)
@@ -404,7 +405,7 @@ object ScalaRefactoringUtil {
 
     JBPopupFactory.getInstance.createListPopupBuilder(list).setTitle(title).setMovable(false).setResizable(false).setRequestFocus(true).setItemChoosenCallback(new Runnable {
       def run() {
-        pass(list.getSelectedValue)
+        pass(list.getSelectedValue.asInstanceOf[PsiElement])
       }
     }).addListener(new JBPopupAdapter {
       override def beforeShown(event: LightweightWindowEvent): Unit = {

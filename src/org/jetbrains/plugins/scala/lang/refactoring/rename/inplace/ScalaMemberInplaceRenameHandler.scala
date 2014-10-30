@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.rename.inplace
 
-import javax.swing.JList
-
 import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
@@ -13,7 +11,6 @@ import com.intellij.psi._
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.util.PsiUtilBase
 import com.intellij.refactoring.rename.inplace.{InplaceRefactoring, MemberInplaceRenameHandler, MemberInplaceRenamer}
-import com.intellij.ui.components.JBList
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
@@ -22,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
+import org.jetbrains.plugins.scala.util.JListCompatibility
 
 /**
  * Nikolay.Tropin
@@ -58,7 +56,7 @@ class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler with Sc
   override def doRename(elementToRename: PsiElement, editor: Editor, dataContext: DataContext): InplaceRefactoring = {
     def showSubstitutePopup(title: String, positive: String, subst: => PsiNamedElement): Unit = {
       val cancel = ScalaBundle.message("rename.cancel")
-      val list: JList[_] = new JBList(positive, cancel).asInstanceOf[JList[_]]
+      val list = JListCompatibility.createJBListFromListData(positive, cancel)
       JBPopupFactory.getInstance.createListPopupBuilder(list)
               .setTitle(title)
               .setMovable(false)
