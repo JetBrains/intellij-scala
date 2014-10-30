@@ -210,7 +210,7 @@ packageStructure in Compile := {
 packagePlugin in Compile := {
   val (dirs, files) = (packageStructure in Compile).value.partition(_._1.isDirectory)
   val base = baseDirectory.value / "out" / "plugin" / "Scala"
-  IO.delete(base)
+  IO.delete(base.getParentFile)
   dirs  foreach { case (from, to) => IO.copyDirectory(from, base / to, overwrite = true) }
   files foreach { case (from, to) => IO.copyFile(from, base / to)}
 }
