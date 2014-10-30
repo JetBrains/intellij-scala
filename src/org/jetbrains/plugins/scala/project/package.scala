@@ -187,7 +187,7 @@ package object project {
     }
   }
 
-  val LibraryVersion: Regex = """(?<=:|-)\d+\.\d+\.\d+\S*$""".r
+  val LibraryVersion: Regex = """(?<=:|-)\d+\.\d+\.\d+""".r
 
   val JarVersion: Regex = """(?<=-)\d+\.\d+\.\d+\S*(?=\.jar$)""".r
 }

@@ -48,7 +48,7 @@ object SbtException {
 
   private object Utils {
     def joinLines(lines: Seq[String]): String =
-      lines.mkString(System.lineSeparator())
+      lines.mkString(System.getProperty("line.separator"))
 
     trait TrimResult
     object NotTrimmed extends TrimResult
