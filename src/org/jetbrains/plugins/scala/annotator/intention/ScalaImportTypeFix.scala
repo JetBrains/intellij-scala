@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.annotator.intention
 
 
 import java.awt.Point
-import javax.swing.{Icon, JList, ListCellRenderer}
+import javax.swing.Icon
 
 import com.intellij.codeInsight.FileModificationService
 import com.intellij.codeInsight.completion.JavaCompletionUtil
@@ -10,7 +10,6 @@ import com.intellij.codeInsight.daemon.QuickFixBundle
 import com.intellij.codeInsight.daemon.impl.actions.AddImportAction
 import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, QuestionAction}
 import com.intellij.codeInspection.HintAction
-import com.intellij.ide.util.FQNameCellRenderer
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.{Editor, LogicalPosition}
@@ -154,9 +153,6 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
     }
 
     def chooseClass() {
-      val list = new JList(classes)
-      list.setCellRenderer(new FQNameCellRenderer().asInstanceOf[ListCellRenderer[Any]])
-
       val popup = new BaseListPopupStep[TypeToImport](QuickFixBundle.message("class.to.import.chooser.title"), classes) {
         override def getIconFor(aValue: TypeToImport): Icon = {
           aValue.getIcon

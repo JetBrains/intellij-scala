@@ -10,12 +10,12 @@ import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.ui.{InputValidator, Messages}
 import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.psi.PsiElement
-import com.intellij.ui.components.JBList
 import com.intellij.ui.{AnActionButton, AnActionButtonRunnable, ListScrollingUtil, ToolbarDecorator}
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspectionBase._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettingsUtil
+import org.jetbrains.plugins.scala.util.JListCompatibility
 
 /**
  * Nikolay.Tropin
@@ -116,9 +116,9 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
 
     def createPatternListPanel(parent: JComponent, patternListKey: String): JComponent = {
       val patternList: Array[String] = patternLists(patternListKey)()
-      val listModel = new DefaultListModel[String]()
-      patternList.foreach(listModel.add(listModel.size, _))
-      val patternJBList: JList[_] = new JBList(listModel).asInstanceOf[JList[_]]
+      val listModel = JListCompatibility.createDefaultListModel()
+      patternList.foreach(JListCompatibility.add(listModel, listModel.size, _))
+      val patternJBList = JListCompatibility.createJBListFromModel(listModel)
       def resetValues() {
         val newArray = listModel.toArray collect {case s: String => s}
         setPatternLists(patternListKey)(newArray)
@@ -128,10 +128,10 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
           if (pattern == null) return
           val index: Int = - util.Arrays.binarySearch (listModel.toArray, pattern) - 1
           if (index < 0) return
-          listModel.add(index, pattern)
+          JListCompatibility.add(listModel, index, pattern)
           resetValues()
           patternJBList.setSelectedValue (pattern, true)
-          ListScrollingUtil.ensureIndexIsVisible (patternJBList, index, 0)
+          ListScrollingUtil.ensureIndexIsVisible(patternJBList, index, 0)
           IdeFocusManager.getGlobalInstance.requestFocus(patternJBList, false)
         }
 

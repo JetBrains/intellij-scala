@@ -25,15 +25,13 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import org.junit.Assert;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+
+//import java.nio.file.FileSystems;
+//import java.nio.file.Files;
+//import java.nio.file.Path;
 
 public abstract class BaseScalaFileSetTestCase extends ScalaFileSetTestCase {
   public BaseScalaFileSetTestCase(String path) {
@@ -95,7 +93,7 @@ public abstract class BaseScalaFileSetTestCase extends ScalaFileSetTestCase {
   }
 
   //creates directory on dataPath1 with new fixed testData
-  private void fixTestData(String dataPath, String[] input, String result) {
+  /*private void fixTestData(String dataPath, String[] input, String result) {
     String newDataPath = dataPath + "1";
     Path relPath = FileSystems.getDefault().getPath(dataPath).relativize(myFile.toPath());
     File newFile = FileSystems.getDefault().getPath(newDataPath).resolve(relPath).toFile();
@@ -115,7 +113,7 @@ public abstract class BaseScalaFileSetTestCase extends ScalaFileSetTestCase {
       bos.write(result.getBytes());
       bos.close();
     } catch (IOException e) {}
-  }
+  }*/
 
 
 }

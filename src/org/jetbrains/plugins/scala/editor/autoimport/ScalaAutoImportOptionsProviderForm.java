@@ -19,7 +19,7 @@ public class ScalaAutoImportOptionsProviderForm {
     private static final String INSERT_IMPORTS_NONE = ApplicationBundle.message("combobox.insert.imports.none");
 
     private JPanel panel1;
-    private JComboBox<String> importOnPasteComboBox;
+    private JComboBox importOnPasteComboBox;
     private JCheckBox addUnambiguousImportsOnCheckBox;
     private JCheckBox optimizeImportsOnTheCheckBox;
 
