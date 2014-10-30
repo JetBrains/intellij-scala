@@ -37,7 +37,7 @@ abstract class RemoteServerConnectorBase(module: Module, fileToCompile: File, ou
     case Right(data) => data
   }
 
-  private val scalaParameters = compilerSettings.toOptions.mkString(" ")
+  private val scalaParameters = compilerSettings.toOptions.toArray
 
   private val javaParameters = Array.empty[String]
 

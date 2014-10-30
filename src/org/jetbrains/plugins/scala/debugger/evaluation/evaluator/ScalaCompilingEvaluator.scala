@@ -19,6 +19,7 @@ import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -204,12 +205,13 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
     @tailrec
     def findAnchorAndParent(elem: PsiElement): (ScBlockStatement, PsiElement) = elem match {
       case (stmt: ScBlockStatement) childOf (b: ScBlock) => (stmt, b)
+      case (stmt: ScBlockStatement) childOf (funDef: ScFunctionDefinition) if funDef.body == Some(stmt) => (stmt, funDef)
       case (elem: PsiElement) childOf (other: ScBlockStatement) => findAnchorAndParent(other)
       case (stmt: ScBlockStatement) childOf (nonExpr: PsiElement) => (stmt, nonExpr)
       case _ => throw EvaluationException("Could not compile local class in this context")
     }
 
-    val (prevParent, parent) = findAnchorAndParent(context)
+    var (prevParent, parent) = findAnchorAndParent(context)
 
     val needBraces = parent match {
       case _: ScBlock | _: ScTemplateBody => false
@@ -217,8 +219,9 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
     }
 
     if (needBraces) {
-      val newBlock = ScalaPsiElementFactory.createExpressionFromText(s"{\n${prevParent.getText}\n}", prevParent)
-      prevParent.replace(newBlock) match {
+      val newBlock = ScalaPsiElementFactory.createExpressionWithContextFromText(s"{\n${prevParent.getText}\n}", prevParent.getContext, prevParent)
+      parent = prevParent.replace(newBlock)
+      parent match {
         case bl: ScBlock =>
           anchor = bl.statements(0)
         case _ => throw EvaluationException("Could not compile local class in this context")
@@ -243,7 +246,7 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
          |    ${fragment.getText}
          |  }
          |}""".stripMargin
-    ScalaPsiElementFactory.createTemplateDefinitionFromText(text, context, context).asInstanceOf[ScClass]
+    ScalaPsiElementFactory.createTemplateDefinitionFromText(text, context.getContext, context).asInstanceOf[ScClass]
   }
 }
 

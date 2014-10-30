@@ -69,7 +69,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
   }
 }
 
-private class NeedCompilationException(message: String) extends EvaluateException(message)
+private[evaluation] class NeedCompilationException(message: String) extends EvaluateException(message)
 
 private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextClass: Option[PsiClass] = null)
                                                  (implicit val position: SourcePosition)

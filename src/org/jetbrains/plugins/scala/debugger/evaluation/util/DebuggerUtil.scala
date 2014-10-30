@@ -9,7 +9,7 @@ import com.intellij.openapi.util.Computable
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi._
 import com.sun.jdi.{ReferenceType, ObjectReference, Value}
-import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
+import org.jetbrains.plugins.scala.debugger.evaluation.{ScalaEvaluatorBuilderUtil, EvaluationException}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -159,8 +159,13 @@ object DebuggerUtil {
       (subst, tp) => subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)), tp.upperBound.getOrAny)
     }
     val localParameters = function match {
-      case fun: ScFunctionDefinition if fun.isLocal =>
-        localParams(fun, PsiTreeUtil.getParentOfType(fun, classOf[ScTemplateDefinition]))
+      case fun: ScFunctionDefinition if fun.isLocal => localParamsForFunDef(fun)
+      case fun if fun.isConstructor =>
+        fun.containingClass match {
+          case c: ScClass => localParamsForConstructor(c)
+          case _ => Seq.empty
+        }
+
       case _ => Seq.empty
     }
     val parameters = function.effectiveParameterClauses.flatMap(_.parameters) ++ localParameters
@@ -359,6 +364,14 @@ object DebuggerUtil {
     typeFqn.startsWith("scala.runtime.") && typeFqn.endsWith("Ref")
   }
 
+  object scalaRuntimeRefTo {
+    def unapply(objRef: ObjectReference) = {
+      val typeName = objRef.referenceType().name()
+      if (isScalaRuntimeRef(typeName)) Some(unwrapScalaRuntimeRef(objRef))
+      else None
+    }
+  }
+
   private def unwrapRuntimeRef(value: AnyRef, typeNameCondition: String => Boolean) = value match {
     case _ if !ScalaDebuggerSettings.getInstance().DONT_SHOW_RUNTIME_REFS => value
     case objRef: ObjectReference =>
@@ -372,50 +385,52 @@ object DebuggerUtil {
     case _ => value
   }
 
-  def localParams(fun: ScFunctionDefinition, context: PsiElement): Seq[ScTypedDefinition] = {
-    val buf = new mutable.HashSet[PsiElement]
-    val body = fun.body //to exclude references from default parameters
-    body.foreach(_.accept(new ScalaRecursiveElementVisitor {
+  def localParamsForFunDef(fun: ScFunctionDefinition, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Seq[ScTypedDefinition] = {
+    val container = ScalaEvaluatorBuilderUtil.getContextClass(fun)
+    fun.body match { //to exclude references from default parameters
+      case Some(b) => localParams(b, fun, container)
+      case _ => Seq.empty
+    } 
+  }
+
+  def localParamsForConstructor(cl: ScClass, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Seq[ScTypedDefinition] = {
+    val container = ScalaEvaluatorBuilderUtil.getContextClass(cl)
+    val extendsBlock = cl.extendsBlock //to exclude references from default parameters
+    localParams(extendsBlock, cl, container)
+  }
+  
+  def localParams(block: PsiElement, excludeContext: PsiElement, container: PsiElement,
+                  visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Seq[ScTypedDefinition] = {
+    def atRightPlace(elem: PsiElement) = PsiTreeUtil.isContextAncestor(container, elem, false) &&
+            !PsiTreeUtil.isContextAncestor(excludeContext, elem, false)
+
+    val buf = new mutable.HashSet[ScTypedDefinition]
+    block.accept(new ScalaRecursiveElementVisitor {
       override def visitReference(ref: ScReferenceElement) {
         if (ref.qualifier != None) {
           super.visitReference(ref)
           return
         }
         val elem = ref.resolve()
-        if (elem == null) return
-
-        if (PsiTreeUtil.isContextAncestor(context, elem, false) && !PsiTreeUtil.isContextAncestor(fun, elem, false)) {
-              buf += elem
-              return
+        elem match {
+          case null =>
+          case fun: ScFunctionDefinition if fun.isLocal && !visited.contains(fun) =>
+            buf ++= localParamsForFunDef(fun, visited)
+            visited += fun
+          case fun: ScMethodLike if fun.isConstructor =>
+            fun.containingClass match {
+              case c: ScClass if ScalaPsiUtil.isLocalClass(c) && !visited.contains(fun) =>
+                buf ++= localParamsForConstructor(c, visited)
+                visited += c
+              case _ =>
             }
-        super.visitReference(ref)
-          }
-    }))
-    buf.toSeq.collect {case td: ScTypedDefinition if isLocalV(td) => td}
-            .sortBy(e => (e.isInstanceOf[ScObject], e.getTextRange.getStartOffset))
+          case td: ScTypedDefinition if isLocalV(td) && atRightPlace(td) =>
+            buf += td
+          case _ => super.visitReference(ref)
         }
-
-  def localParamsForConstructor(cl: ScClass, context: PsiElement): Seq[ScTypedDefinition] = {
-    val buf = new mutable.HashSet[PsiElement]
-    val extendsBlock = cl.extendsBlock //to exclude references from default parameters
-    extendsBlock.accept(new ScalaRecursiveElementVisitor {
-      override def visitReference(ref: ScReferenceElement) {
-        if (ref.qualifier != None) {
-        super.visitReference(ref)
-          return
-      }
-        val elem = ref.resolve()
-        if (elem == null) return
-
-        if (PsiTreeUtil.isContextAncestor(context, elem, false) && !PsiTreeUtil.isContextAncestor(cl, elem, false)) {
-          buf += elem
-          return
-        }
-        super.visitReference(ref)
       }
     })
-    buf.toSeq.collect {case td: ScTypedDefinition if isLocalV(td) => td}
-            .sortBy(e => (e.isInstanceOf[ScObject], e.getTextRange.getStartOffset))
+    buf.toSeq.sortBy(e => (e.isInstanceOf[ScObject], e.getTextRange.getStartOffset))
   }
 
   def isLocalV(resolve: PsiElement): Boolean = {

@@ -23,7 +23,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.util.PathUtil
 import org.jetbrains.plugins.scala
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.worksheet.MacroPrinter
+import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
 import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
@@ -145,12 +145,12 @@ object RunWorksheetAction {
     params.getClassPath.addAllFiles(files.asJava)
     params.setUseDynamicClasspath(JdkUtil.useDynamicClasspath(project))
     params.setUseDynamicVMOptions(JdkUtil.useDynamicVMOptions())
-    params.getClassPath.add(PathUtil.getJarPathForClass(classOf[_root_.org.jetbrains.plugins.scala.worksheet.MyWorksheetRunner]))
+    params.getClassPath.add(ScalaUtil.runnersPath())
     params.setWorkingDirectory(workingDirectory)
     params.setMainClass(runnerClassName)
     params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
 
-    params.getClassPath.add(PathUtil.getJarPathForClass(classOf[MacroPrinter]))
+    params.getClassPath.add(ScalaUtil.runnersPath())
     params.getClassPath.add(additionalCp)
     params.getProgramParametersList addParametersString worksheetField
     if (!consoleArgs.isEmpty) params.getProgramParametersList addParametersString consoleArgs

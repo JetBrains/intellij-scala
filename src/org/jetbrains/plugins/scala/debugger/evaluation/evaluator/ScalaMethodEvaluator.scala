@@ -121,11 +121,11 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
             val jdiMethod = findMethod(referenceType)
             if (jdiMethod != null && methodName == "<init>") {
               import scala.collection.JavaConversions._
-              return debugProcess.newInstance(context, classType, jdiMethod, args)
+              return debugProcess.newInstance(context, classType, jdiMethod, unwrappedArgs(args, jdiMethod))
             }
             if (jdiMethod != null && jdiMethod.isStatic) {
               import scala.collection.JavaConversions._
-              return debugProcess.invokeMethod(context, classType, jdiMethod, args)
+              return debugProcess.invokeMethod(context, classType, jdiMethod, unwrappedArgs(args, jdiMethod))
             }
           case _ =>
         }
@@ -159,7 +159,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
             if (className != null) {
               context.getDebugProcess.findClass(context, className, context.getClassLoader) match {
                 case c: ClassType =>
-                  return debugProcess.invokeMethod(context, c, jdiMethod, obj +: args)
+                  return debugProcess.invokeMethod(context, c, jdiMethod, unwrappedArgs(obj +: args, jdiMethod))
                 case _ =>
               }
             }
@@ -167,10 +167,18 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
         }
         return debugProcess.invokeInstanceMethod(context, objRef, jdiMethod, args, ObjectReference.INVOKE_NONVIRTUAL)
       }
-      debugProcess.invokeMethod(context, objRef, jdiMethod, args)
+      debugProcess.invokeMethod(context, objRef, jdiMethod, unwrappedArgs(args, jdiMethod))
     }
     catch {
       case e: Exception => throw EvaluationException(e)
+    }
+  }
+
+  private def unwrappedArgs(args: Seq[AnyRef], jdiMethod: Method): Seq[AnyRef] = {
+    val argTypeNames = jdiMethod.argumentTypeNames()
+    args.zipWithIndex.map {
+      case (DebuggerUtil.scalaRuntimeRefTo(value), idx) if !DebuggerUtil.isScalaRuntimeRef(argTypeNames.get(idx)) => value
+      case (arg, _) => arg
     }
   }
 }

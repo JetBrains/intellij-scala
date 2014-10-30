@@ -14,18 +14,18 @@ class ScalaProjectConverter(context: ConversionContext) extends ProjectConverter
   private val scalaModuleConverter = new ScalaModuleConversionProcessor(context)
 
   private val scalaFacets: Seq[ScalaFacetData] = scalaFacetsIn(context)
-  private val scalaProjectLibraries: Seq[LibraryReference] = scalaProjectLibrariesIn(context)
+  private val obsoleteLibraries: Set[LibraryReference] = obsoleteLibrariesIn(context)
 
   private var createdSettingsFiles: Seq[File] = Seq.empty
 
   override def getAdditionalAffectedFiles =
-    scalaProjectLibraries.flatMap(_.libraryStorageFileIn(context)).asJava
+    obsoleteLibraries.flatMap(_.libraryStorageFileIn(context)).asJava
 
   override def createModuleFileConverter(): ConversionProcessor[ModuleSettings] = scalaModuleConverter
 
   override def processingFinished() {
     updateScalaCompilerSettings()
-    deleteScalaProjectLibraries()
+    deleteObsoleteLibraries()
   }
 
   private def updateScalaCompilerSettings() {
@@ -33,8 +33,8 @@ class ScalaProjectConverter(context: ConversionContext) extends ProjectConverter
     createdSettingsFiles = compilerOptions.createIn(context).toSeq
   }
 
-  private def deleteScalaProjectLibraries() {
-    scalaProjectLibraries.foreach(_.deleteIn(context))
+  private def deleteObsoleteLibraries() {
+    obsoleteLibraries.foreach(_.deleteIn(context))
   }
 
   override def getCreatedFiles = (scalaModuleConverter.createdFiles ++ createdSettingsFiles).asJava
@@ -44,18 +44,23 @@ private object ScalaProjectConverter {
   def findStandardScalaLibraryIn(module: ModuleSettings): Option[LibraryReference] =
     LibraryReference.findAllIn(module).find(_.name.contains("scala-library"))
 
+  private def findScalaCompilerLibraryIn(module: ModuleSettings): Option[LibraryReference] =
+    ScalaFacetData.findIn(module).flatMap(_.compilerLibrary)
+
   private def scalaFacetsIn(context: ConversionContext): Seq[ScalaFacetData] =
     modulesIn(context).flatMap(ScalaFacetData.findIn)
-
-  private def scalaProjectLibrariesIn(context: ConversionContext): Seq[LibraryReference] =
-    modulesIn(context).flatMap(scalaProjectLibrariesIn)
 
   private def modulesIn(context: ConversionContext): Seq[ModuleSettings] =
     context.getModuleFiles.map(context.getModuleSettings).toSeq
 
-  private def scalaProjectLibrariesIn(module: ModuleSettings): Seq[LibraryReference] = {
-    val scalaStandardLibrary = findStandardScalaLibraryIn(module)
-    val scalaCompilerLibrary = ScalaFacetData.findIn(module).flatMap(_.compilerLibrary)
-    scalaStandardLibrary.toSeq ++ scalaCompilerLibrary.toSeq
+  private def obsoleteLibrariesIn(context: ConversionContext): Set[LibraryReference] = {
+    val modules = modulesIn(context)
+
+    val referencedLibraries = modules.flatMap(LibraryReference.findAllIn).toSet
+
+    val standardLibraries = modules.flatMap(findStandardScalaLibraryIn).toSet
+    val compilerLibraries = modules.flatMap(findScalaCompilerLibraryIn).toSet
+
+    standardLibraries ++ (compilerLibraries -- referencedLibraries)
   }
 }

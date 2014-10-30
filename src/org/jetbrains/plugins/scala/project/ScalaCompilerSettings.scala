@@ -46,13 +46,13 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
     ("-language:higherKinds", () => higherKinds, higherKinds = _),
     ("-language:existentials", () => existentials, existentials = _),
     ("-language:macros", () => macros, macros = _),
-    ("-nowarn", () => warnings, (b: Boolean) => warnings = !b),
+    ("-nowarn", () => !warnings, (b: Boolean) => warnings = !b),
     ("-deprecation", () => deprecationWarnings, deprecationWarnings = _),
     ("-unchecked", () => uncheckedWarnings, uncheckedWarnings = _),
     ("-feature", () => featureWarnings, featureWarnings = _),
     ("-optimise", () => optimiseBytecode, optimiseBytecode = _),
     ("-explaintypes", () => explainTypeErrors, explainTypeErrors = _),
-    ("-no-specialization", () => specialization, (b: Boolean) => specialization = !b),
+    ("-no-specialization", () => !specialization, (b: Boolean) => specialization = !b),
     ("-P:continuations:enable", () => continuations, continuations = _))
 
   private val DebuggingOptions: Map[String, DebuggingInfoLevel] = Map(
@@ -72,10 +72,10 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
     }
 
     val debuggingLevelOption = debuggingLevelToOption(debuggingInfoLevel)
-    
+
     val pluginOptions = plugins.map(path => "-P:" + path)
 
-    (toggledOptions :+ debuggingLevelOption) ++ pluginOptions
+    (toggledOptions :+ debuggingLevelOption) ++ pluginOptions ++ additionalCompilerOptions
   }
 
   def configureFrom(options: Seq[String]) {
@@ -123,7 +123,7 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
     additionalCompilerOptions = state.additionalCompilerOptions.toSeq
     plugins = state.plugins.toSeq
   }
-  
+
   def getState = {
     val state = new ScalaCompilerSettingsState()
     state.incrementalityType = incrementalityType

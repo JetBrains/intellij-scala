@@ -107,8 +107,8 @@ object Play2Keys {
 
     val PROJECT_URI = new StringParsedKey("uri")
 
-    val TEMPLATES_IMPORT = new SeqStringParsedKey("playTemplatesImports")
-    val ROUTES_IMPORT = new SeqStringParsedKey("routesImport")
+    val TEMPLATES_IMPORT = new SeqStringParsedKey("twirlTemplatesImports")
+    val ROUTES_IMPORT = new SeqStringParsedKey("playRoutesImports")
 
     val TEST_OPTIONS = new StringParsedKey("testOptions")
 //    val TEMPLATE_FORMATS = "playTemplatesFormats"

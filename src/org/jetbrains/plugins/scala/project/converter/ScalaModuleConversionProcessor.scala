@@ -8,6 +8,7 @@ import com.intellij.conversion.{ConversionContext, ModuleSettings, ConversionPro
  * @author Pavel Fatin
  */
 private class ScalaModuleConversionProcessor(context: ConversionContext) extends ConversionProcessor[ModuleSettings] {
+  private var createdSdks: Seq[ScalaSdkData] = Seq.empty
   private var newSdkFiles: Seq[File] = Seq.empty
   
   def isConversionNeeded(module: ModuleSettings) = ScalaFacetData.isPresentIn(module)
@@ -18,11 +19,10 @@ private class ScalaModuleConversionProcessor(context: ConversionContext) extends
 
     val scalaStandardLibraryReference = ScalaProjectConverter.findStandardScalaLibraryIn(module)
     val scalaStandardLibrary = scalaStandardLibraryReference.flatMap(_.resolveIn(context))
-    val projectScalaSdks = ScalaSdkData.findAllIn(context)
     val scalaCompilerLibrary = scalaFacet.compilerLibrary.flatMap(_.resolveIn(context))
 
     scalaCompilerLibrary.foreach { compilerLibrary =>
-      val existingScalaSdk = projectScalaSdks.find(_.isEquivalentTo(compilerLibrary))
+      val existingScalaSdk = createdSdks.find(_.isEquivalentTo(compilerLibrary))
 
       val scalaSdk = existingScalaSdk.getOrElse {
         val name = scalaStandardLibrary.map(_.name.replaceFirst("library", "sdk")).getOrElse("scala-sdk")
@@ -30,6 +30,7 @@ private class ScalaModuleConversionProcessor(context: ConversionContext) extends
         val compilerClasspath = compilerLibrary.classesAsFileUrls
         val languageLevel = ScalaSdkData.languageLevelFrom(compilerClasspath)
         val sdk = ScalaSdkData(name, standardLibrary, languageLevel, compilerClasspath)
+        createdSdks :+= sdk
         newSdkFiles ++= sdk.createIn(context)
         sdk
       }

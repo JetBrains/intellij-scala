@@ -20,7 +20,7 @@ package object project {
   implicit class LibraryExt(library: Library) {
     def isScalaSdk: Boolean = libraryEx.getKind == ScalaLibraryKind
 
-    def scalaVersion: Option[String] = LibraryVersion.findFirstIn(library.getName)
+    def scalaVersion: Option[Version] = LibraryVersion.findFirstIn(library.getName).map(Version(_))
 
     def scalaCompilerClasspath: Option[Seq[File]] = scalaProperties.map(_.compilerClasspath)
 
@@ -145,6 +145,9 @@ package object project {
 
   object ScalaSdk {
     implicit def toLibrary(v: ScalaSdk): Library = v.library
+
+    def documentationUrlFor(version: Option[Version]): String =
+      "http://www.scala-lang.org/api/" + version.map(_.number).getOrElse("current") + "/"
   }
 
   implicit class ProjectPsiElementExt(element: PsiElement) {
