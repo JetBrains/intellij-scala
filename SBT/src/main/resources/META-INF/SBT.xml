@@ -32,7 +32,7 @@
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.ScalaSdkDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtProjectDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtModuleDataService"/>
-        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.RunConfigurationDataService"/>
+        <!--<externalProjectDataService implementation="org.jetbrains.sbt.project.data.RunConfigurationDataService"/>-->
 
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtSettings"/>
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtLocalSettings"/>
