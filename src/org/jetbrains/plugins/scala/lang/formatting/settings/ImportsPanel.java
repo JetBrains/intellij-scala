@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter;
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettingsUtil;
+import org.jetbrains.plugins.scala.util.JListCompatibility;
 
 import javax.swing.*;
 import java.awt.*;
@@ -47,14 +48,16 @@ public class ImportsPanel extends CodeStyleAbstractPanel {
         referencesWithPrefixList = new JBList();
         myReferencesWithPrefixModel = new DefaultListModel();
         referencesWithPrefixList.setModel(myReferencesWithPrefixModel);
-        JPanel panel = ScalaProjectSettingsUtil.getPatternListPanel(contentPanel, referencesWithPrefixList,
+        JPanel panel = ScalaProjectSettingsUtil.getPatternListPanel(contentPanel,
+                new JListCompatibility.JListContainer(referencesWithPrefixList),
                 "Add pattern to use appropriate classes only with prefix", "Use References With Prefix:");
         myImportsWithPrefixPanel.add(panel, BorderLayout.CENTER);
         referencesWithPrefixList.getEmptyText().setText(ApplicationBundle.message("exclude.from.imports.no.exclusions"));
         myImportLayoutModel = new DefaultListModel();
         importLayoutTable = new JBList(myImportLayoutModel);
 
-        panel = ScalaProjectSettingsUtil.getUnsortedPatternListPanel(contentPanel, importLayoutTable, "Add package name", "Import Layout Manager");
+        panel = ScalaProjectSettingsUtil.getUnsortedPatternListPanel(contentPanel,
+                new JListCompatibility.JListContainer(importLayoutTable), "Add package name", "Import Layout Manager");
         importLayoutPanel.add(panel, BorderLayout.CENTER);
     }
 

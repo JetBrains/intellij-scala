@@ -17,7 +17,6 @@ import com.intellij.execution.process.{ProcessAdapter, ProcessEvent, ProcessHand
 import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiCodeFragment
@@ -45,7 +44,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
       def run() {
         if (needMake) {
           make()
-          saveChecksums()
+//          saveChecksums()
         }
         addBreakpoints()
         val runner = ProgramRunner.PROGRAM_RUNNER_EP.getExtensions.find { _.getClass == classOf[GenericDebuggerRunner] }.get
@@ -113,12 +112,12 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
   private def addBreakpoints() {
     breakpoints.foreach {
       case (fileName, line) =>
-        val ioFile = srcDir.toPath.resolve(fileName).toFile
-        val file = getVirtualFile(ioFile)
+//        val ioFile = srcDir.toPath.resolve(fileName).toFile
+//        val file = getVirtualFile(ioFile)
         UsefulTestCase.edt(new Runnable {
           def run() {
-            DebuggerManagerEx.getInstanceEx(getProject).getBreakpointManager.
-                addLineBreakpoint(FileDocumentManager.getInstance().getDocument(file), line)
+//            DebuggerManagerEx.getInstanceEx(getProject).getBreakpointManager.
+//                addLineBreakpoint(FileDocumentManager.getInstance().getDocument(file), line)
           }
         })
     }
