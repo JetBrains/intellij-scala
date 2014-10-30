@@ -18,3 +18,5 @@ build
 .DS_Store
 *~
 target/
+
+testdata/debugger
