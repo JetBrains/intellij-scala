@@ -176,7 +176,8 @@ packageStructure in Compile := {
     (dependencyClasspath in Compile).value ++
       (dependencyClasspath in(Runners, Compile)).value ++
       (dependencyClasspath in(ScalaCommunity, Compile)).value ++
-      (dependencyClasspath in(intellij_hocon, Compile)).value
+      (dependencyClasspath in(intellij_hocon, Compile)).value ++
+      (dependencyClasspath in(SBT, Compile)).value
     )
     .map { f => f.metadata.get(moduleID.key) -> f.data}.toMap
     .collect { case (Some(x), y) => (x.organization % x.name % x.revision) -> y}
