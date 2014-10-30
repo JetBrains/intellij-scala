@@ -44,7 +44,8 @@ public class ParserTest extends BaseScalaFileSetTestCase {
   }
 
   public static Test suite() {
-    return new ParserTest();
+      ParserTest parserTest = new ParserTest();
+      return parserTest;
   }
 
 }
