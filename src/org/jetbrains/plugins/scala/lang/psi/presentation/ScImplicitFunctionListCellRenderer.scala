@@ -15,14 +15,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.DefaultListCellRendererAdapter
+import org.jetbrains.plugins.scala.util.JListCompatibility
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 15.06.2010
  */
 class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends ScImplicitFunctionListCellRendererAdapter {
-
-  def getListCellRendererComponentAdapter(list: JList[_], value: Any, index: Int, isSelected: Boolean, cellHasFocus: Boolean) = {
+  def getListCellRendererComponentAdapter(containter: JListCompatibility.JListContainer,
+                                          value: Any, index: Int, isSelected: Boolean, cellHasFocus: Boolean) = {
     val attrFirstPart = EditorColorsManager.getInstance().getGlobalScheme.getAttributes(DefaultHighlighter.IMPLICIT_FIRST_PART)
     val attrSecondPart =  EditorColorsManager.getInstance().getGlobalScheme.getAttributes(DefaultHighlighter.IMPLICIT_SECOND_PART)
     val implicitFirstPart =  if (attrFirstPart == null)
@@ -33,7 +34,7 @@ class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends ScImpl
     val item = tuple.getNewExpression
     val firstPart = tuple.getFirstPart
     val secondPart = tuple.getSecondPart
-    val comp = getSuperListCellRendererComponent(list, item, index, isSelected, cellHasFocus)
+    val comp = getSuperListCellRendererComponent(containter.getList, item, index, isSelected, cellHasFocus)
     comp match {
       case container: Container =>
         val colored = container.getComponents.apply(2).asInstanceOf[SimpleColoredComponent]
@@ -54,7 +55,7 @@ class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends ScImpl
         val rightRenderer: DefaultListCellRenderer = getRightCellRenderer(item)
         if (rightRenderer != null) {
           val rightCellRendererComponent: Component =
-            DefaultListCellRendererAdapter.getListCellRendererComponent(rightRenderer, list, item, index, isSelected, cellHasFocus)
+            DefaultListCellRendererAdapter.getListCellRendererComponent(rightRenderer, containter.getList, item, index, isSelected, cellHasFocus)
           val color: Color = isSelected match {
             case true => UIUtil.getListSelectionBackground
             case false if firstPart.contains(item) => implicitFirstPart

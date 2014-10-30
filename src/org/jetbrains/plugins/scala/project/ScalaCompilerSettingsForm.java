@@ -16,15 +16,15 @@ public class ScalaCompilerSettingsForm {
   private JPanel myContentPanel;
   private JPanel myPluginsPanel;
   private RawCommandLineEditor myAdditionalCompilerOptions;
-  private JComboBox<DebuggingInfoLevel> myDebuggingInfoLevel;
+  private JComboBox myDebuggingInfoLevel;
   private JCheckBox myWarnings;
   private JCheckBox myDeprecationWarnings;
   private JCheckBox myUncheckedWarnings;
   private JCheckBox myOptimiseBytecode;
   private JCheckBox myExplainTypeErrors;
   private JCheckBox myContinuations;
-  private JComboBox<CompileOrder> myCompileOrder;
-  private JComboBox<IncrementalityType> myIncrementalityType;
+  private JComboBox myCompileOrder;
+  private JComboBox myIncrementalityType;
   private JCheckBox myDynamics;
   private JCheckBox myPostfixOps;
   private JCheckBox myReflectiveCalls;
@@ -39,13 +39,13 @@ public class ScalaCompilerSettingsForm {
 
   public ScalaCompilerSettingsForm() {
     myIncrementalityType.setRenderer(new NamedValueRenderer());
-    myIncrementalityType.setModel(new DefaultComboBoxModel<IncrementalityType>(IncrementalityType.values()));
+    myIncrementalityType.setModel(new DefaultComboBoxModel(IncrementalityType.values()));
 
     myCompileOrder.setRenderer(new NamedValueRenderer());
-    myCompileOrder.setModel(new DefaultComboBoxModel<CompileOrder>(CompileOrder.values()));
+    myCompileOrder.setModel(new DefaultComboBoxModel(CompileOrder.values()));
 
     myDebuggingInfoLevel.setRenderer(new NamedValueRenderer());
-    myDebuggingInfoLevel.setModel(new DefaultComboBoxModel<DebuggingInfoLevel>(DebuggingInfoLevel.values()));
+    myDebuggingInfoLevel.setModel(new DefaultComboBoxModel(DebuggingInfoLevel.values()));
 
     myPluginsPanel.setBorder(IdeBorderFactory.createBorder());
     myPluginsPanel.add(myPluginsEditor.createComponent(), BorderLayout.CENTER);

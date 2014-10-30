@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.presentation.ScImplicitFunctionListCellRenderer
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
-import org.jetbrains.plugins.scala.util.IntentionUtils
+import org.jetbrains.plugins.scala.util.{JListCompatibility, IntentionUtils}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -34,7 +34,6 @@ import scala.collection.mutable.ArrayBuffer
 
 object GoToImplicitConversionAction {
   var popup: JBPopup = null
-  var list: JList[_] = null
 
   def getPopup = popup
 
@@ -42,11 +41,7 @@ object GoToImplicitConversionAction {
     popup = p
   }
 
-  def getList = list
-
-  def setList(l: JList[_]) {
-    list = l
-  }
+  def getList = JListCompatibility.GoToImplicitConversionAction.getList
 }
 
 class GoToImplicitConversionAction extends AnAction("Go to implicit conversion action") {
@@ -87,43 +82,43 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
       val functions = implicitConversions._1
       if (functions.length == 0) return true
       val conversionFun = implicitConversions._2.orNull
-      val model: DefaultListModel[Parameters] = new DefaultListModel
+      val model = JListCompatibility.createDefaultListModel()
       val firstPart = implicitConversions._3.sortBy(_.name)
       val secondPart = implicitConversions._4.sortBy(_.name)
       var actualIndex = -1
       //todo actualIndex should be another if conversionFun is not one
       for (element <- firstPart) {
         val elem = new Parameters(element, expr, editor, firstPart, secondPart)
-        model.addElement(elem)
+        JListCompatibility.addElement(model, elem)
         if (element == conversionFun) actualIndex = model.indexOf(elem)
       }
       for (element <- secondPart) {
         val elem = new Parameters(element, expr, editor, firstPart, secondPart)
-        model.addElement(elem)
+        JListCompatibility.addElement(model, elem)
         if (element == conversionFun) actualIndex = model.indexOf(elem)
       }
-      val list: JList[Parameters] = new JList(model)
+      val list = JListCompatibility.createJListFromModel(model)
       val renderer = new ScImplicitFunctionListCellRenderer(conversionFun)
       val font = editor.getColorsScheme.getFont(EditorFontType.PLAIN)
       renderer.setFont(font)
       list.setFont(font)
-      list.setCellRenderer(renderer.asInstanceOf[ListCellRenderer[_ >: Parameters]])
+      JListCompatibility.setCellRenderer(list, renderer)
       list.getSelectionModel.addListSelectionListener(new ListSelectionListener {
         def valueChanged(e: ListSelectionEvent) {
           hintAlarm.cancelAllRequests
-          val item = list.getSelectedValue
+          val item = list.getSelectedValue.asInstanceOf[Parameters]
           if (item == null) return
           updateHint(item, project)
         }
       })
-      GoToImplicitConversionAction.setList(list)
+      JListCompatibility.GoToImplicitConversionAction.setList(list)
 
       val builder = JBPopupFactory.getInstance.createListPopupBuilder(list)
       val popup = builder.setTitle("Choose implicit conversion method:").setAdText("Press Alt+Enter").
       setMovable(false).setResizable(false).setRequestFocus(true).
       setItemChoosenCallback(new Runnable {
         def run() {
-          val entity = list.getSelectedValue
+          val entity = list.getSelectedValue.asInstanceOf[Parameters]
           entity.getNewExpression match {
             case f: ScFunction =>
               f.getSyntheticNavigationElement match {

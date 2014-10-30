@@ -2,17 +2,12 @@ package org.jetbrains.plugins.scala
 package debugger
 
 import java.io._
-import java.nio.charset.StandardCharsets
-import java.nio.file.{FileSystems, Files, Path, Paths}
-import java.security.MessageDigest
-import java.util
 
 import com.intellij.execution.application.{ApplicationConfiguration, ApplicationConfigurationType}
-import com.intellij.ide.highlighter.{ModuleFileType, ProjectFileType}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
-import com.intellij.testFramework.{PlatformTestCase, PsiTestUtil, UsefulTestCase}
+import com.intellij.testFramework.{PsiTestUtil, UsefulTestCase}
 import org.jetbrains.plugins.scala.util.TestUtils
 
 import scala.collection.mutable
@@ -29,7 +24,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
   protected var needMake = false
 
   override def setUp() {
-    needMake = !testDataProjectIsValid()
+//    needMake = !testDataProjectIsValid()
 
     UsefulTestCase.edt(new Runnable {
       def run() {
@@ -47,9 +42,9 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
 
   override def setUpModule(): Unit = {
     if (needMake) super.setUpModule()
-    else myModule = loadModule(getImlFile)
+//    else myModule = loadModule(getImlFile)
 
-    PlatformTestCase.myFilesToDelete.remove(getImlFile)
+//    PlatformTestCase.myFilesToDelete.remove(getImlFile)
   }
 
   protected override def tearDown(): Unit = {
@@ -57,7 +52,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
     super.tearDown()
   }
 
-  override def getIprFile: File = {
+  /*override def getIprFile: File = {
     val path = testDataBasePath.resolve(getName + ProjectFileType.DOT_DEFAULT_EXTENSION)
     Files.createDirectories(path.getParent)
     if (!path.toFile.exists()) Files.createFile(path).toFile else path.toFile
@@ -69,7 +64,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
       _.getName.endsWith(ModuleFileType.DOT_DEFAULT_EXTENSION)
     }.getOrElse(null)
     else null
-  }
+  }*/
 
   override def runInDispatchThread(): Boolean = false
 
@@ -82,7 +77,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
     configuration
   }
 
-  override protected def addFileToProject(relPath: String, fileText: String) {
+  /*override protected def addFileToProject(relPath: String, fileText: String) {
     val srcPath = Paths.get("src", relPath)
     if (needMake || !checkSourceFile(srcPath, fileText)) {
       needMake = true
@@ -97,15 +92,15 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
     val path = FileSystems.getDefault.getPath(TestUtils.getTestDataPath, dataPath, testClassName, getTestName(true))
     if (path.toFile.exists()) path
     else Files.createDirectories(path)
-  }
+  }*/
 
-  private def testDataBasePath: Path = testDataBasePath(testDataBasePrefix)
+//  private def testDataBasePath: Path = testDataBasePath(testDataBasePrefix)
 
   protected val testDataBasePrefix = "debugger"
 
   def getVirtualFile(file: File) = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(file)
 
-  def md5(file: File): Array[Byte] = {
+  /*def md5(file: File): Array[Byte] = {
     val md = MessageDigest.getInstance("MD5")
     val isSource = file.getName.endsWith(".java") || file.getName.endsWith(".scala")
     if (isSource) {
@@ -162,9 +157,9 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
       }
     }
     finally ois.close()
-  }
+  }*/
 
-  private def testDataProjectIsValid(): Boolean = {
+  /*private def testDataProjectIsValid(): Boolean = {
     loadChecksums()
     !needMake && checksums.keys.forall(checkFile) && getImlFile != null
   }
@@ -178,7 +173,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
   private def checkFile(relPath: String): Boolean = {
     val file = testDataBasePath.resolve(relPath).toFile
     file.exists && util.Arrays.equals(checksums(relPath), md5(file))
-  }
+  }*/
 
   protected def addLibrary(libraryName: String, libraryPath: String, jarNames: String*) {
     val pathExtended = TestUtils.getTestDataPath.replace("\\", "/") + "/" + libraryPath + "/"

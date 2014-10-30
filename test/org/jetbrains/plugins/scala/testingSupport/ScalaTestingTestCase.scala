@@ -2,22 +2,15 @@ package org.jetbrains.plugins.scala
 package testingSupport
 
 import java.util.concurrent.atomic.AtomicReference
-import javax.swing.SwingUtilities
 
 import com.intellij.execution.configurations.RunnerSettings
-import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.impl.DefaultJavaProgramRunner
-import com.intellij.execution.process.{ProcessAdapter, ProcessEvent, ProcessHandler, ProcessListener}
+import com.intellij.execution.process.{ProcessHandler, ProcessListener}
 import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
 import com.intellij.execution.testframework.AbstractTestProxy
-import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
 import com.intellij.execution.ui.RunContentDescriptor
-import com.intellij.execution.{Executor, PsiLocation, RunnerAndConfigurationSettings}
+import com.intellij.execution.{Executor, RunnerAndConfigurationSettings}
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiManager
-import com.intellij.testFramework.UsefulTestCase
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestBase
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, AbstractTestRunConfiguration}
@@ -111,28 +104,28 @@ abstract class ScalaTestingTestCase(private val configurationProducer: AbstractT
                         expectedText: String = "OK", debug: Boolean = false, duration: Int = 3000,
                         checkOutputs: Boolean = false) = {
 
-    val ioFile = srcDir.toPath.resolve(fileName).toFile
+//    val ioFile = srcDir.toPath.resolve(fileName).toFile
 
-    val file = getVirtualFile(ioFile)
+//    val file = getVirtualFile(ioFile)
 
     val project = getProject
 
     val myManager = PsiManager.getInstance(project)
 
-    val psiFile = myManager.findViewProvider(file).getPsi(ScalaFileType.SCALA_LANGUAGE)
+//    val psiFile = myManager.findViewProvider(file).getPsi(ScalaFileType.SCALA_LANGUAGE)
 
-    val location = new PsiLocation(project, myModule, psiFile.findElementAt(FileDocumentManager.getInstance().
-        getDocument(file).getLineStartOffset(lineNumber) + offset))
+//    val location = new PsiLocation(project, myModule, psiFile.findElementAt(FileDocumentManager.getInstance().
+//        getDocument(file).getLineStartOffset(lineNumber) + offset))
 
-    val runConfig = configurationProducer.createConfigurationByLocation(location)
+//    val runConfig = configurationProducer.createConfigurationByLocation(location)
 
-    assert(configurationCheck(runConfig))
+//    assert(configurationCheck(runConfig))
 
-    val testResultListener = new TestResultListener(runConfig.getName)
+//    val testResultListener = new TestResultListener(runConfig.getName)
 
     var testTreeRoot: Option[AbstractTestProxy] = None //TODO: move processing result tree to EDT thread
 
-    UsefulTestCase.edt(new Runnable {
+    /*UsefulTestCase.edt(new Runnable {
       def run() {
         if (needMake) {
           make()
@@ -155,9 +148,9 @@ abstract class ScalaTestingTestCase(private val configurationProducer: AbstractT
         }
         handler.addProcessListener(testResultListener)
       }
-    })
+    })*/
 
-    val res = testResultListener.waitForTestEnd(duration)
+    /*val res = testResultListener.waitForTestEnd(duration)
 
     SwingUtilities.invokeLater(new Runnable() {
       override def run(): Unit = {
@@ -167,6 +160,6 @@ abstract class ScalaTestingTestCase(private val configurationProducer: AbstractT
           assert(res == expectedText)
         }
       }
-    })
+    })*/
   }
 }

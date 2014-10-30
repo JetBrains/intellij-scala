@@ -11,14 +11,14 @@ import java.awt.*;
  */
 public class ScalaLibraryEditorForm {
   private JPanel myContentPanel;
-  private JComboBox<ScalaLanguageLevel> myLanguageLevel;
+  private JComboBox myLanguageLevel;
   private JPanel myPluginsPanel;
 
   private MyPathEditor myClasspathEditor = new MyPathEditor(new FileChooserDescriptor(true, false, true, true, false, true));
 
   public ScalaLibraryEditorForm() {
     myLanguageLevel.setRenderer(new NamedValueRenderer());
-    myLanguageLevel.setModel(new DefaultComboBoxModel<ScalaLanguageLevel>(ScalaLanguageLevel.Values()));
+    myLanguageLevel.setModel(new DefaultComboBoxModel(ScalaLanguageLevel.Values()));
 
     myPluginsPanel.setBorder(IdeBorderFactory.createBorder());
     myPluginsPanel.add(myClasspathEditor.createComponent(), BorderLayout.CENTER);
