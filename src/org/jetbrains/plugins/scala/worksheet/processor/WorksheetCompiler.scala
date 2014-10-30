@@ -43,7 +43,6 @@ class WorksheetCompiler {
 
     if (runType != NonServer)
       CompileServerLauncher.ensureServerRunning(project)
-    else CompileServerLauncher.ensureNotRunning(project)
 
     val contentManager = MessageView.SERVICE.getInstance(project).getContentManager
     val oldContent = contentManager findContent ERROR_CONTENT_NAME
@@ -129,8 +128,8 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
   }
 
   def getRunType(project: Project): WorksheetMakeType = {
-    if (ScalaProjectSettings.getInstance(project).isInProcessMode) {
-      if (ScalaApplicationSettings.getInstance().COMPILE_SERVER_ENABLED)
+    if (ScalaApplicationSettings.getInstance().COMPILE_SERVER_ENABLED) {
+      if (ScalaProjectSettings.getInstance(project).isInProcessMode)
         InProcessServer
       else OutOfProcessServer
     }

@@ -8,7 +8,7 @@ import com.intellij.openapi.roots.ui.configuration.libraryEditor.LibraryEditor
 import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project.template.Artifact.ScalaLibrary
-import org.jetbrains.plugins.scala.project.{Version, ScalaLanguageLevel, ScalaLibraryProperties, ScalaLibraryType}
+import org.jetbrains.plugins.scala.project._
 
 /**
  * @author Pavel Fatin
@@ -32,6 +32,10 @@ case class ScalaSdkDescriptor(version: Option[Version],
         libraryFiles.map(_.toLibraryRootURL).foreach(editor.addRoot(_, OrderRootType.CLASSES))
         sourceFiles.map(_.toLibraryRootURL).foreach(editor.addRoot(_, OrderRootType.SOURCES))
         docFiles.map(_.toLibraryRootURL).foreach(editor.addRoot(_, JavadocOrderRootType.getInstance))
+
+        if (sourceFiles.isEmpty && docFiles.isEmpty) {
+          editor.addRoot(ScalaSdk.documentationUrlFor(version), JavadocOrderRootType.getInstance)
+        }
       }
     }
   }
