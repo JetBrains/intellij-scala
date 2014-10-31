@@ -2,6 +2,8 @@ package org.jetbrains.jps.incremental.scala.model;
 
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.intellij.util.xmlb.annotations.AbstractCollection;
+import com.intellij.util.xmlb.annotations.Tag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.model.ex.JpsElementBase;
 
@@ -109,11 +111,7 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
       list.add("-Xplugin:" + FileUtil.toCanonicalPath(pluginPath));
     }
 
-    String optionsString = myState.additionalCompilerOptions.trim();
-    if (!optionsString.isEmpty()) {
-      String[] options = optionsString.split("\\s+");
-      list.addAll(Arrays.asList(options));
-    }
+    list.addAll(Arrays.asList(myState.additionalCompilerOptions));
 
     return list.toArray(new String[list.size()]);
   }
@@ -164,8 +162,13 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
 
     public DebuggingInfoLevel debuggingInfoLevel = DebuggingInfoLevel.Vars;
 
-    public String additionalCompilerOptions = "";
+    // Why serialization doesn't work when elementTag is "option"?
+    @Tag("parameters")
+    @AbstractCollection(surroundWithTag = false, elementTag = "parameter")
+    public String[] additionalCompilerOptions = new String[] {};
 
+    @Tag("plugins")
+    @AbstractCollection(surroundWithTag = false, elementTag = "plugin", elementValueAttribute = "path")
     public String[] plugins = new String[] {};
   }
 }
