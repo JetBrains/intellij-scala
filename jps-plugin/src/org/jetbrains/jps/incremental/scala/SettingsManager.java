@@ -58,7 +58,8 @@ public class SettingsManager {
     for (JpsDependencyElement element : module.getDependenciesList().getDependencies()) {
       if (element instanceof JpsLibraryDependency) {
         JpsLibrary library = ((JpsLibraryDependency) element).getLibrary();
-        libraries.add(library);
+        if (library != null)
+          libraries.add(library);
       }
     }
     return libraries;
