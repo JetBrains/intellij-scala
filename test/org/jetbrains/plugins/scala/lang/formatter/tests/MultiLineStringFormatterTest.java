@@ -6,6 +6,8 @@ import junit.framework.Test;
 import org.jetbrains.plugins.scala.lang.formatter.FormatterTest;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import org.junit.runner.RunWith;
+import org.junit.runners.AllTests;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,6 +16,7 @@ import java.io.IOException;
  * User: Dmitry Naydanov
  * Date: 4/16/12
  */
+@RunWith(AllTests.class)
 public class MultiLineStringFormatterTest extends FormatterTest {
   private final static String DATA_PATH = "/formatter/multiLineStringData/";
 
