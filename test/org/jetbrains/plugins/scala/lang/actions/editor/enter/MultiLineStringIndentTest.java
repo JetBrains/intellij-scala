@@ -5,11 +5,14 @@ import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import junit.framework.Test;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import org.junit.runner.RunWith;
+import org.junit.runners.AllTests;
 
 /**
  * User: Dmitry Naydanov
  * Date: 4/16/12
  */
+@RunWith(AllTests.class)
 public class MultiLineStringIndentTest extends AbstractEnterActionTestBase {
   private static final String DATA_PATH = "/actions/editor/enter/multiLineStringData/indentOnly";
 
