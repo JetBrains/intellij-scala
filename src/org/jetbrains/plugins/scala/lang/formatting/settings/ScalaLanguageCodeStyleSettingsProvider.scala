@@ -160,6 +160,8 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         CodeStyleSettingsCustomizable.SPACES_BEFORE_PARENTHESES)
       showCustomOption("SPACE_BEFORE_BRACE_METHOD_CALL", "Space before method call brace",
         CodeStyleSettingsCustomizable.SPACES_BEFORE_PARENTHESES)
+      showCustomOption("SPACES_IN_IMPORTS", "Spaces after open and before close braces in imports",
+        CodeStyleSettingsCustomizable.SPACES_OTHER)
     }
 
   }
