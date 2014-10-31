@@ -230,7 +230,11 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
       anchor = prevParent
     }
 
+    val newInstance = ScalaPsiElementFactory.createExpressionWithContextFromText(s"new $generatedClassName()", anchor.getContext, anchor)
+
     parent.addBefore(scClass, anchor)
+    parent.addBefore(ScalaPsiElementFactory.createNewLine(context.getManager), anchor)
+    parent.addBefore(newInstance, anchor)
     parent.addBefore(ScalaPsiElementFactory.createNewLine(context.getManager), anchor)
   }
 
