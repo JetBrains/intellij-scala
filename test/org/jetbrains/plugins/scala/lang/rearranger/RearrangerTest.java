@@ -14,6 +14,8 @@ import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import org.junit.runner.RunWith;
+import org.junit.runners.AllTests;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +24,7 @@ import java.io.IOException;
  * @author Roman.Shein
  * Date: 26.07.13
  */
+@RunWith(AllTests.class)
 public class RearrangerTest extends BaseScalaFileSetTestCase {
   @NonNls
   private static final String DATA_PATH = "/rearranger/defaultSettingsData";

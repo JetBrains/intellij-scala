@@ -14,6 +14,8 @@ import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import org.junit.runner.RunWith;
+import org.junit.runners.AllTests;
 
 import java.io.IOException;
 
@@ -22,6 +24,7 @@ import java.io.IOException;
  * Date: 03.07.2008
  */
 
+@RunWith(AllTests.class)
 public class BackspaceActionTest extends ActionTestBase {
 
   @NonNls
