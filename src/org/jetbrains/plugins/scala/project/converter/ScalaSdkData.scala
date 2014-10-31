@@ -40,7 +40,7 @@ private case class ScalaSdkData(name: String, standardLibrary: LibraryData, lang
 
   private def addDirectoryBasedLibrary(library: Elem, context: ConversionContext): File = {
     val file = {
-      val fileName = name.replace('-', '_')
+      val fileName = name.replaceAll("\\W", "_")
       suggestLibraryFile(fileName, context)
     }
     val componentElement = <component name="libraryTable"> {library} </component>
