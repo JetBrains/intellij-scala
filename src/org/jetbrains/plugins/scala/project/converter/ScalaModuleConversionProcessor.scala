@@ -3,6 +3,7 @@ package project.converter
 
 import java.io.File
 import com.intellij.conversion.{ConversionContext, ModuleSettings, ConversionProcessor}
+import org.jetbrains.plugins.scala.project.converter.ScalaModuleConversionProcessor._
 
 /**
  * @author Pavel Fatin
@@ -25,7 +26,7 @@ private class ScalaModuleConversionProcessor(context: ConversionContext) extends
       val existingScalaSdk = createdSdks.find(_.isEquivalentTo(compilerLibrary))
 
       val scalaSdk = existingScalaSdk.getOrElse {
-        val name = scalaStandardLibrary.map(_.name.replaceFirst("library", "sdk")).getOrElse("scala-sdk")
+        val name = scalaStandardLibrary.map(library => transform(library.name)).getOrElse("scala-sdk")
         val standardLibrary = scalaStandardLibrary.getOrElse(LibraryData.empty)
         val compilerClasspath = compilerLibrary.classesAsFileUrls
         val languageLevel = ScalaSdkData.languageLevelFrom(compilerClasspath)
@@ -43,4 +44,18 @@ private class ScalaModuleConversionProcessor(context: ConversionContext) extends
   }
   
   def createdFiles: Seq[File] = newSdkFiles
+}
+
+object ScalaModuleConversionProcessor {
+  private val BuildTools = Set("sbt", "maven", "gradle")
+
+  def transform(name: String): String = {
+    val name0 = name.toLowerCase
+
+    if (BuildTools.exists(name0.startsWith)) {
+      name
+    } else {
+      name.replaceFirst("library", "sdk")
+    }
+  }
 }
