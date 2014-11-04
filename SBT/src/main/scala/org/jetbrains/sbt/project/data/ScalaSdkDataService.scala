@@ -27,9 +27,12 @@ class ScalaSdkDataService(platformFacade: PlatformFacade, helper: ProjectStructu
 
     val compilerVersion = sdkData.scalaVersion
 
-    val scalaLibrary = project.libraries
-            .filter(_.getName.contains("scala-library"))
+    val scalaLibraries = project.libraries.filter(_.getName.contains("scala-library"))
+
+    // TODO Why SBT's scala-libary module version sometimes differs from SBT's declared scalaVersion?
+    val scalaLibrary = scalaLibraries
             .find(_.scalaVersion == Some(compilerVersion))
+            .orElse(scalaLibraries.find(_.scalaVersion.exists(_.toLanguageLevel == compilerVersion.toLanguageLevel)))
             .getOrElse(throw new ExternalSystemException("Cannot find project Scala library " +
                          compilerVersion.number + " for module " + sdkNode.getData(ProjectKeys.MODULE).getExternalName))
 
