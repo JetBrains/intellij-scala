@@ -1715,7 +1715,7 @@ object ScalaPsiUtil {
             case Some(pc: ScPrimaryConstructor) => pc.parameters
             case Some(fun: ScFunction) if fun.isConstructor => fun.parameters
             case Some(m: PsiMethod) if m.isConstructor => m.getParameterList.getParameters.toSeq
-            case None => Seq.empty
+            case _ => Seq.empty
           }
           val maybeParameter = params.lift(args.exprs.indexOf(expr))
           maybeParameter.map(new Parameter(_))
