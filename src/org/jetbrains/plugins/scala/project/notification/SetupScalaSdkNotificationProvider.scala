@@ -34,6 +34,7 @@ class SetupScalaSdkNotificationProvider(project: Project, notifications: EditorN
   override def createNotificationPanel(file: VirtualFile, fileEditor: FileEditor) = {
     val hasSdk = Option(PsiManager.getInstance(project).findFile(file))
             .filter(_.getLanguage == ScalaLanguage.Instance)
+            .filter(!_.getName.endsWith(".sbt")) // root SBT files belong to main (not *-build) modules
             .flatMap(psiFile => Option(ModuleUtilCore.findModuleForPsiElement(psiFile)))
             .filter(module => ModuleUtil.getModuleType(module) == JavaModuleType.getModuleType)
             .filter(!_.getName.endsWith("-build")) // gen-idea doesn't use the SBT module type
