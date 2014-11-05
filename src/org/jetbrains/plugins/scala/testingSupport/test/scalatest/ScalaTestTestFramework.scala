@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test.scalatest
 
+import com.intellij.ide.DataManager
+import com.intellij.openapi.actionSystem.CommonDataKeys
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestFramework
 
 /**
@@ -10,7 +13,11 @@ import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestFramework
 
 class ScalaTestTestFramework extends AbstractTestFramework {
 
-  def getDefaultSuperClass: String = "org.scalatest.FunSuite"
+  def getDefaultSuperClass: String = {
+    val project = CommonDataKeys.PROJECT.getData(DataManager.getInstance().getDataContext())
+    val scalaProjectSettings = ScalaProjectSettings.getInstance(project)
+    scalaProjectSettings.getScalaTestDefaultSuperClass
+  }
 
   def getName: String = "ScalaTest"
 

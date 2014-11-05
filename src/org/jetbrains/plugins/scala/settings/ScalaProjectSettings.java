@@ -26,6 +26,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private int IMPLICIT_PARAMETERS_SEARCH_DEPTH = -1;
 
   private String BASE_PACKAGE = "";
+  private String SCALATEST_DEFAULT_SUPERCLASS = "org.scalatest.FunSuite";
   
   private boolean SEARCH_ALL_SYMBOLS = false;
 
@@ -212,6 +213,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public String getBasePackage() {
     return BASE_PACKAGE;
+  }
+
+  public String getScalaTestDefaultSuperClass() {
+    return SCALATEST_DEFAULT_SUPERCLASS;
+  }
+
+  public void setScalaTestDefaultSuperClass(String superClassName) {
+    SCALATEST_DEFAULT_SUPERCLASS = superClassName;
   }
 
   public void setBasePackage(String name) {
