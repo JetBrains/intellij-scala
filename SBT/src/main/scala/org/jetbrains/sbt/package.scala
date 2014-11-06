@@ -166,4 +166,12 @@ package object sbt {
       def compute: T = body
     })
   }
+
+  def invokeLater[T](body: => T) {
+    ApplicationManager.getApplication.invokeLater(new Runnable {
+      def run() {
+        body
+      }
+    })
+  }
 }

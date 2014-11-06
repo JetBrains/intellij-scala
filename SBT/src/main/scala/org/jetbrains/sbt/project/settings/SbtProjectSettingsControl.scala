@@ -7,10 +7,9 @@ import javax.swing._
 import com.intellij.openapi.externalSystem.service.settings.AbstractExternalProjectSettingsControl
 import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
 import com.intellij.openapi.externalSystem.util.PaintAwarePanel
-import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
+import com.intellij.openapi.projectRoots.{Sdk, JavaSdkType, ProjectJdkTable}
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
-import com.intellij.openapi.util.Condition
 import org.jetbrains.annotations.NotNull
 
 /**
@@ -26,25 +25,14 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     val result = new JdkComboBox(model)
 
     val button = new JButton("Ne\u001Bw...")
-
-    val addToTable = new Condition[Sdk] {
-      override def value(sdk: Sdk): Boolean = {
-        inWriteAction {
-          val table = ProjectJdkTable.getInstance()
-          if (!table.getAllJdks.contains(sdk)) table.addJdk(sdk)
-        }
-        true
-      }
-    }
-
-    result.setSetupButton(button, null, model, new JdkComboBox.NoneJdkComboBoxItem, addToTable, false)
+    result.setSetupButton(button, null, model, new JdkComboBox.NoneJdkComboBoxItem, null, false)
 
     result
   }
 
-  private val resolveClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveClassifiers"))
+  private val resolveClassifiersCheckBox = new JCheckBox("Download sources and docs")
 
-  private val resolveSbtClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveSbtClassifiers"))
+  private val resolveSbtClassifiersCheckBox = new JCheckBox("Download SBT sources and docs")
 
   def fillExtraControls(@NotNull content: PaintAwarePanel, indentLevel: Int) {
     val label = new JLabel("Project \u001BSDK:")
@@ -66,7 +54,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
   def isExtraSettingModified = {
     val settings = getInitialSettings
 
-    selectedJdkName != settings.jdkName ||
+    selectedJdkName != settings.jdkName || selectedVmExecutable != Option(settings.vmExecutable) ||
             resolveClassifiersCheckBox.isSelected != settings.resolveClassifiers ||
             resolveSbtClassifiersCheckBox.isSelected != settings.resolveClassifiers
   }
@@ -87,11 +75,33 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
   protected def applyExtraSettings(settings: SbtProjectSettings) {
     settings.jdk = selectedJdkName.orNull
+    settings.vmExecutable = selectedVmExecutable.orNull
     settings.resolveClassifiers = resolveClassifiersCheckBox.isSelected
     settings.resolveSbtClassifiers = resolveSbtClassifiersCheckBox.isSelected
+
+    checkAndAddJdk()
   }
 
-  private def selectedJdkName = Option(jdkComboBox.getSelectedJdk).map(_.getName)
+  private def selectedJdkName = Option(selectedJdk).map(_.getName)
+
+  private def selectedVmExecutable = {
+    val jdk = selectedJdk
+    jdk.getSdkType match {
+      case jsdk: JavaSdkType => Some(jsdk.getVMExecutablePath(jdk))
+      case _ => None
+    }
+  }
+
+  private def checkAndAddJdk() = {
+    val table = ProjectJdkTable.getInstance()
+    if (!table.getAllJdks.contains(selectedJdk)) {
+      invokeLater {
+        inWriteAction(table.addJdk(selectedJdk))
+      }
+    }
+  }
+
+  def selectedJdk: Sdk = jdkComboBox.getSelectedJdk
 
   def validate(sbtProjectSettings: SbtProjectSettings) = selectedJdkName.isDefined
 }
