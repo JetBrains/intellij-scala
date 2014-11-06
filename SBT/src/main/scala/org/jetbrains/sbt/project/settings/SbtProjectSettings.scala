@@ -18,6 +18,10 @@ class SbtProjectSettings extends ExternalProjectSettings {
   @BeanProperty
   var jdk: String = null
 
+  @Nullable
+  @BeanProperty
+  var vmExecutable: String = null
+
   @BeanProperty
   var resolveClassifiers: Boolean = false
 
@@ -32,6 +36,7 @@ class SbtProjectSettings extends ExternalProjectSettings {
     val result = new SbtProjectSettings()
     copyTo(result)
     result.jdk = jdk
+    result.vmExecutable = vmExecutable
     result.resolveClassifiers = resolveClassifiers
     result.resolveSbtClassifiers = resolveSbtClassifiers
     result.sbtVersion = sbtVersion

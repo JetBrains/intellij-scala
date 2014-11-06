@@ -9,6 +9,8 @@ import com.intellij.openapi.externalSystem.settings.ExternalSystemSettingsListen
 trait SbtSettingsListener extends ExternalSystemSettingsListener[SbtProjectSettings] {
   def onJdkChanged(oldValue: String, newValue: String)
 
+  def onVmExecutableChanged(oldValue: String, newValue: String)
+
   def onResolveClassifiersChanged(oldValue: Boolean, newValue: Boolean)
 
   def onResolveSbtClassifiersChanged(oldValue: Boolean, newValue: Boolean)

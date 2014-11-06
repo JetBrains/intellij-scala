@@ -31,6 +31,9 @@ class SbtSettings(project: Project)
   @Nullable
   private var _jdk: String = _
 
+  @Nullable
+  private var _vmExecutable: String = _
+
   private var _resolveClassifiers: Boolean = false
 
   private var _resolveSbtClassifiers: Boolean = false
@@ -44,6 +47,16 @@ class SbtSettings(project: Project)
       val oldValue = _jdk
       _jdk = value
       getPublisher.onJdkChanged(oldValue, value)
+    }
+  }
+
+  def vmExecutable: String = _vmExecutable
+
+  def vmExecutable_=(value: String) {
+    if (!Comparing.equal(_vmExecutable, value)) {
+      val oldValue = _vmExecutable
+      _vmExecutable = value
+      getPublisher.onVmExecutableChanged(oldValue, value)
     }
   }
 
@@ -81,6 +94,9 @@ class SbtSettings(project: Project)
     if (old.jdkName != current.jdkName) {
       getPublisher.onJdkChanged(old.jdk, current.jdk)
     }
+    if (old.vmExecutable != current.vmExecutable) {
+      getPublisher.onVmExecutableChanged(old.vmExecutable, current.vmExecutable)
+    }
     if (old.resolveClassifiers != current.resolveClassifiers) {
       getPublisher.onResolveClassifiersChanged(old.resolveClassifiers, current.resolveClassifiers)
     }
@@ -96,6 +112,7 @@ class SbtSettings(project: Project)
     val state = new SbtSettingsState()
     fillState(state)
     state.jdk = jdk
+    state.vmExecutable = vmExecutable
     state.resolveClassifiers = resolveClassifiers
     state.resolveSbtClassifiers = resolveSbtClassifiers
     state.sbtVersion = sbtVersion
@@ -105,6 +122,7 @@ class SbtSettings(project: Project)
   def loadState(state: SbtSettingsState) {
     super[AbstractExternalSystemSettings].loadState(state)
     jdk = state.jdk
+    vmExecutable = state.vmExecutable
     resolveClassifiers = state.resolveClassifiers
     resolveSbtClassifiers = state.resolveSbtClassifiers
     sbtVersion = state.sbtVersion
@@ -117,6 +135,7 @@ class SbtSettings(project: Project)
 
   def copyExtraSettingsFrom(settings: SbtSettings) {
     jdk = settings.jdk
+    vmExecutable = settings.vmExecutable
     resolveClassifiers = settings.resolveClassifiers
     resolveSbtClassifiers = settings.resolveSbtClassifiers
     sbtVersion = settings.sbtVersion
@@ -131,6 +150,10 @@ class SbtSettingsState extends AbstractExternalSystemSettings.State[SbtProjectSe
   @Nullable
   @BeanProperty
   var jdk: String = _
+
+  @Nullable
+  @BeanProperty
+  var vmExecutable: String = _
 
   @BeanProperty
   var resolveClassifiers: Boolean = false
