@@ -235,7 +235,7 @@ public class ScalaCompilerSettingsForm {
         myPostfixOps.setDisplayedMnemonicIndex(0);
         panel1.add(myPostfixOps, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myHigherKinds = new JCheckBox();
-        myHigherKinds.setText("Hhigher-kinded types");
+        myHigherKinds.setText("Higher-kinded types");
         myHigherKinds.setMnemonic('H');
         myHigherKinds.setDisplayedMnemonicIndex(0);
         panel1.add(myHigherKinds, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
