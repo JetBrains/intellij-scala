@@ -30,7 +30,7 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
 
       val existingJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
 
-      val projectJdk = existingJdk.orElse(data.jdk.flatMap(findJdkBy)).orElse(allJdks.headOption)
+      val projectJdk = data.jdk.flatMap(findJdkBy).orElse(existingJdk).orElse(allJdks.headOption)
 
       projectJdk.foreach(ProjectRootManager.getInstance(project).setProjectSdk)
 
