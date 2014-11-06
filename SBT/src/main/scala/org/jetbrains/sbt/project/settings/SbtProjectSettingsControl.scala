@@ -7,7 +7,7 @@ import javax.swing._
 import com.intellij.openapi.externalSystem.service.settings.AbstractExternalProjectSettingsControl
 import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
 import com.intellij.openapi.externalSystem.util.PaintAwarePanel
-import com.intellij.openapi.projectRoots.ProjectJdkTable
+import com.intellij.openapi.projectRoots.{Sdk, JavaSdkType, ProjectJdkTable}
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
 import org.jetbrains.annotations.NotNull
@@ -54,7 +54,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
   def isExtraSettingModified = {
     val settings = getInitialSettings
 
-    selectedJdkName != settings.jdkName ||
+    selectedJdkName != settings.jdkName || selectedVmExecutable != Option(settings.vmExecutable) ||
             resolveClassifiersCheckBox.isSelected != settings.resolveClassifiers ||
             resolveSbtClassifiersCheckBox.isSelected != settings.resolveClassifiers
   }
@@ -75,11 +75,33 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
   protected def applyExtraSettings(settings: SbtProjectSettings) {
     settings.jdk = selectedJdkName.orNull
+    settings.vmExecutable = selectedVmExecutable.orNull
     settings.resolveClassifiers = resolveClassifiersCheckBox.isSelected
     settings.resolveSbtClassifiers = resolveSbtClassifiersCheckBox.isSelected
+
+    checkAndAddJdk()
   }
 
-  private def selectedJdkName = Option(jdkComboBox.getSelectedJdk).map(_.getName)
+  private def selectedJdkName = Option(selectedJdk).map(_.getName)
+
+  private def selectedVmExecutable = {
+    val jdk = selectedJdk
+    jdk.getSdkType match {
+      case jsdk: JavaSdkType => Some(jsdk.getVMExecutablePath(jdk))
+      case _ => None
+    }
+  }
+
+  private def checkAndAddJdk() = {
+    val table = ProjectJdkTable.getInstance()
+    if (!table.getAllJdks.contains(selectedJdk)) {
+      invokeLater {
+        inWriteAction(table.addJdk(selectedJdk))
+      }
+    }
+  }
+
+  def selectedJdk: Sdk = jdkComboBox.getSelectedJdk
 
   def validate(sbtProjectSettings: SbtProjectSettings) = selectedJdkName.isDefined
 }

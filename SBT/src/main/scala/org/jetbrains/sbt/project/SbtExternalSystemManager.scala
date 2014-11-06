@@ -12,7 +12,6 @@ import com.intellij.openapi.externalSystem.util._
 import com.intellij.openapi.externalSystem.{ExternalSystemAutoImportAware, ExternalSystemConfigurableAware, ExternalSystemManager}
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.{JavaSdkType, ProjectJdkTable}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.sbt.project.settings._
@@ -86,16 +85,12 @@ object SbtExternalSystemManager {
     val projectJdkName = projectSettings.flatMap(_.jdkName)
             .orElse(Option(ProjectRootManager.getInstance(project).getProjectSdk).map(_.getName))
 
-    val vmExecutable = customVmExecutable.orElse {
-      val projectSdk = projectJdkName.flatMap(name => Option(ProjectJdkTable.getInstance().findJdk(name)))
-
-      projectSdk.map { sdk =>
-        val sdkType = sdk.getSdkType.asInstanceOf[JavaSdkType]
-        new File(sdkType.getVMExecutablePath(sdk))
+    val vmExecutable =
+      customVmExecutable.orElse {
+        projectSettings.flatMap(ps => Option(ps.vmExecutable).map(new File(_)))
+      }.getOrElse {
+        throw new ExternalSystemException("Cannot determine Java VM executable in selected JDK")
       }
-    } getOrElse {
-      throw new ExternalSystemException("Cannot determine Java VM executable in selected JDK")
-    }
 
     val resolveClassifiers = projectSettings.fold(settings.resolveClassifiers)(_.resolveClassifiers)
     val resolveSbtClassifiers = projectSettings.fold(settings.resolveSbtClassifiers)(_.resolveSbtClassifiers)
