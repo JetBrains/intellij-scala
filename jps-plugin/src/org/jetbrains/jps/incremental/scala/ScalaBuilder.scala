@@ -66,11 +66,11 @@ class ScalaBuilder(category: BuilderCategory, @NotNull delegate: ScalaBuilderDel
 }
 
 object ScalaBuilder {
-  def isScalaProject(project: JpsProject): Boolean = hasScalaFacets(project.getModules)
+  def isScalaProject(project: JpsProject): Boolean = hasScalaSdks(project.getModules)
 
-  def hasScalaModules(chunk: ModuleChunk): Boolean = hasScalaFacets(chunk.getModules)
+  def hasScalaModules(chunk: ModuleChunk): Boolean = hasScalaSdks(chunk.getModules)
 
-  private def hasScalaFacets(modules: util.Collection[JpsModule]): Boolean = {
+  private def hasScalaSdks(modules: util.Collection[JpsModule]): Boolean = {
     import scala.collection.JavaConversions._
     modules.exists(SettingsManager.hasScalaSdk)
   }
