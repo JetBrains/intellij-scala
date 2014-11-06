@@ -6,7 +6,8 @@ import java.io.File
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SdkSettingsStep, SettingsStep}
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
 import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSettings, ExternalSystemSettingsListener}
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
+import com.intellij.openapi.externalSystem.util.{ExternalSystemUtil, ExternalSystemApiUtil}
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel}
 import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
 import com.intellij.openapi.roots.ModifiableRootModel
@@ -92,6 +93,11 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     externalProjectSettings.setCreateEmptyContentRootDirectories(true) //create empty dirs anyway as src in our template is empty
 
     settings.linkProject(externalProjectSettings)
+
+    if (!externalProjectSettings.isUseAutoImport) {
+      FileDocumentManager.getInstance.saveAllDocuments()
+      ExternalSystemUtil.refreshProjects(model.getProject, SbtProjectSystem.Id, false)
+    }
   }
 }
 
