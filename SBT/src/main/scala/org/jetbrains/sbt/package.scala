@@ -4,10 +4,9 @@ import _root_.java.io._
 import _root_.java.lang.{Boolean => JavaBoolean}
 import _root_.java.security.MessageDigest
 
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.util.{Pair => IdeaPair, Computable}
+import com.intellij.openapi.util.{Pair => IdeaPair}
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.util.{PathUtil, Function => IdeaFunction}
 
@@ -159,19 +158,5 @@ package object sbt {
   private def parse(fileName: String): (String, String) = fileName match {
     case NameWithExtension(name, extension) => (name, extension)
     case name => (name, "")
-  }
-
-  def inWriteAction[T](body: => T): T = {
-    ApplicationManager.getApplication.runWriteAction(new Computable[T] {
-      def compute: T = body
-    })
-  }
-
-  def invokeLater[T](body: => T) {
-    ApplicationManager.getApplication.invokeLater(new Runnable {
-      def run() {
-        body
-      }
-    })
   }
 }
