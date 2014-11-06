@@ -11,8 +11,6 @@ class SbtSettingsListenerAdapter(listener: ExternalSystemSettingsListener[SbtPro
 
   def onJdkChanged(oldValue: String, newValue: String) {}
 
-  def onVmExecutableChanged(oldValue: String, newValue: String): Unit = {}
-
   def onResolveClassifiersChanged(oldValue: Boolean, newValue: Boolean) {}
 
   def onResolveSbtClassifiersChanged(oldValue: Boolean, newValue: Boolean) {}
