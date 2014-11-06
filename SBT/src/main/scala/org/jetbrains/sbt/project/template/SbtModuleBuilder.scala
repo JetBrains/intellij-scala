@@ -92,6 +92,11 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     externalProjectSettings.setExternalProjectPath(getContentEntryPath)
     externalProjectSettings.setCreateEmptyContentRootDirectories(true) //create empty dirs anyway as src in our template is empty
 
+    // TODO Add our SBT option checkboxes (auto-import, downloads) in the project wizard UI
+    externalProjectSettings.resolveClassifiers = true
+    externalProjectSettings.resolveSbtClassifiers = true
+    externalProjectSettings.setUseAutoImport(true)
+
     settings.linkProject(externalProjectSettings)
 
     if (!externalProjectSettings.isUseAutoImport) {
