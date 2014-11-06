@@ -57,6 +57,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     val buildFile = root / Sbt.BuildFile
     val projectDir = root / Sbt.ProjectDirectory
     val pluginsFile = projectDir / Sbt.PluginsFile
+    val propertiesFile = projectDir / Sbt.PropertiesFile
 
     if (!buildFile.createNewFile() ||
             !projectDir.mkdir() ||
@@ -64,6 +65,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
     writeToFile(buildFile, SbtModuleBuilder.formatProjectDefinition(name))
     writeToFile(pluginsFile, SbtModuleBuilder.PluginsDefinition)
+    writeToFile(propertiesFile, SbtModuleBuilder.SbtProperties)
   }
 
   override def getNodeIcon = Sbt.Icon
@@ -106,12 +108,17 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
   }
 }
 
+// TODO Allow to specify Scala and SBT versions in the project wizard UI
 private object SbtModuleBuilder {
   def formatProjectDefinition(name: String) =
     s"""name := "$name"
       |
       |version := "1.0"
+      |
+      |scalaVersion := "2.11.4"
     """.stripMargin
   
   def PluginsDefinition = "logLevel := Level.Warn"
+
+  def SbtProperties = "sbt.version = 0.13.5"
 }
