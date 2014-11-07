@@ -65,7 +65,7 @@ object IdeaIncrementalBuilder extends ScalaBuilderDelegate {
     }
   }
 
-  private def collectSources(context: CompileContext,
+  def collectSources(context: CompileContext,
                              chunk: ModuleChunk,
                              dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]): Seq[File] = {
 
