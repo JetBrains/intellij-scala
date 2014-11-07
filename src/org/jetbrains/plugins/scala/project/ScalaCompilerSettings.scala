@@ -62,7 +62,7 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
     "-g:vars" -> DebuggingInfoLevel.Vars,
     "-g:notc" -> DebuggingInfoLevel.Notc)
 
-  private val PluginOptionPattern = "-P:(.+)".r
+  private val PluginOptionPattern = "-Xplugin:(.+)".r
 
   def toOptions: Seq[String] = {
     val debuggingLevelToOption = DebuggingOptions.map(_.swap)
@@ -73,7 +73,7 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
 
     val debuggingLevelOption = debuggingLevelToOption(debuggingInfoLevel)
 
-    val pluginOptions = plugins.map(path => "-P:" + path)
+    val pluginOptions = plugins.map(path => "-Xplugin:" + path)
 
     (toggledOptions :+ debuggingLevelOption) ++ pluginOptions ++ additionalCompilerOptions
   }

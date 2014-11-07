@@ -5,11 +5,14 @@ import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import junit.framework.Test;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import org.junit.runner.RunWith;
+import org.junit.runners.AllTests;
 
 /**
  * User: Dmitry.Naydanov
  * Date: 09.07.14.
  */
+@RunWith(AllTests.class)
 public class AddUnitReturnTypeTest extends AbstractEnterActionTestBase {
   public AddUnitReturnTypeTest() {
     super(TestUtils.getTestDataPath() + "/actions/editor/enter/addunit");

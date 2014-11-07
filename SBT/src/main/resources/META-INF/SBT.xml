@@ -50,9 +50,9 @@
 
         <projectTemplatesFactory implementation="org.jetbrains.sbt.project.template.SbtProjectTemplateFactory"/>
 
-        <applicationConfigurable instance="org.jetbrains.sbt.settings.SbtConfigurable"/>
+        <applicationConfigurable groupId="build.tools" displayName="SBT Runner" instance="org.jetbrains.sbt.settings.SbtConfigurable" />
 
-        <projectConfigurable instance="org.jetbrains.sbt.project.settings.SbtExternalSystemConfigurable"/>
+        <projectConfigurable groupId="build.tools" displayName="SBT" instance="org.jetbrains.sbt.project.settings.SbtExternalSystemConfigurable" />
 
         <toolWindow id="SBT" anchor="right" icon="/sbt.png"
                     factoryClass="org.jetbrains.sbt.project.ScalaToolWindowFactory"

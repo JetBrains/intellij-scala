@@ -23,6 +23,8 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.Assert;
+import org.junit.runner.RunWith;
+import org.junit.runners.AllTests;
 
 import java.io.File;
 import java.util.List;
@@ -30,6 +32,7 @@ import java.util.List;
 /**
  * @author ilyas
  */
+@RunWith(AllTests.class)
 public class DragSearchTest extends BaseScalaFileSetTestCase {
   protected static final int MAX_ROLLBACKS = 30;
 

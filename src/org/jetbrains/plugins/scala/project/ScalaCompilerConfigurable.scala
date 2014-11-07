@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
  * @author Pavel Fatin
  */
 class ScalaCompilerConfigurable(project: Project, settings: ScalaCompilerSettings) extends AbstractConfigurable("Scala Compiler")  {
-  protected lazy val form = new ScalaCompilerSettingsForm()
+  protected val form = new ScalaCompilerSettingsForm()
 
   def createComponent() = form.getComponent
 

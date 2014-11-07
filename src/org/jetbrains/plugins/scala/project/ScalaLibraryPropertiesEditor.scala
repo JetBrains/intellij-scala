@@ -7,7 +7,7 @@ import com.intellij.openapi.roots.libraries.ui.{LibraryPropertiesEditor, Library
  * @author Pavel Fatin
  */
 private class ScalaLibraryPropertiesEditor(editorComponent: LibraryEditorComponent[ScalaLibraryProperties]) extends LibraryPropertiesEditor {
-  private lazy val form = new ScalaLibraryEditorForm()
+  private val form = new ScalaLibraryEditorForm()
 
   def createComponent() = form.getComponent
 

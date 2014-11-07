@@ -14,18 +14,18 @@ class ScalaProjectConverter(context: ConversionContext) extends ProjectConverter
   private val scalaModuleConverter = new ScalaModuleConversionProcessor(context)
 
   private val scalaFacets: Seq[ScalaFacetData] = scalaFacetsIn(context)
-  private val obsoleteLibraries: Set[LibraryReference] = obsoleteLibrariesIn(context)
+  private val obsoleteProjectLibraries: Set[LibraryReference] = obsoleteLibrariesIn(context).filter(_.level == ProjectLevel)
 
   private var createdSettingsFiles: Seq[File] = Seq.empty
 
   override def getAdditionalAffectedFiles =
-    obsoleteLibraries.flatMap(_.libraryStorageFileIn(context)).asJava
+    obsoleteProjectLibraries.flatMap(_.libraryStorageFileIn(context)).asJava
 
   override def createModuleFileConverter(): ConversionProcessor[ModuleSettings] = scalaModuleConverter
 
   override def processingFinished() {
     updateScalaCompilerSettings()
-    deleteObsoleteLibraries()
+    deleteObsoleteProjectLibraries()
   }
 
   private def updateScalaCompilerSettings() {
@@ -33,8 +33,8 @@ class ScalaProjectConverter(context: ConversionContext) extends ProjectConverter
     createdSettingsFiles = compilerOptions.createIn(context).toSeq
   }
 
-  private def deleteObsoleteLibraries() {
-    obsoleteLibraries.foreach(_.deleteIn(context))
+  private def deleteObsoleteProjectLibraries() {
+    obsoleteProjectLibraries.foreach(_.deleteIn(context))
   }
 
   override def getCreatedFiles = (scalaModuleConverter.createdFiles ++ createdSettingsFiles).asJava
