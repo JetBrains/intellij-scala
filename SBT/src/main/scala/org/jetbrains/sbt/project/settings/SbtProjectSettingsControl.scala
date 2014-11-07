@@ -30,9 +30,9 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     result
   }
 
-  private val resolveClassifiersCheckBox = new JCheckBox("Download sources and docs")
+  private val resolveClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveClassifiers"))
 
-  private val resolveSbtClassifiersCheckBox = new JCheckBox("Download SBT sources and docs")
+  private val resolveSbtClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveSbtClassifiers"))
 
   def fillExtraControls(@NotNull content: PaintAwarePanel, indentLevel: Int) {
     val label = new JLabel("Project \u001BSDK:")

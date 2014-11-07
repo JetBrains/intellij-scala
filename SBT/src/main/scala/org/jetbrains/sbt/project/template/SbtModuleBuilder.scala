@@ -2,11 +2,12 @@ package org.jetbrains.sbt
 package project.template
 
 import java.io.File
+import javax.swing.JCheckBox
 
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SdkSettingsStep, SettingsStep}
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
 import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSettings, ExternalSystemSettingsListener}
-import com.intellij.openapi.externalSystem.util.{ExternalSystemUtil, ExternalSystemApiUtil}
+import com.intellij.openapi.externalSystem.util.{ExternalSystemBundle, ExternalSystemUtil, ExternalSystemApiUtil}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel}
 import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
@@ -44,13 +45,33 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
   }
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
-    new SdkSettingsStep(settingsStep, this, new Condition[SdkTypeId] {
+    val resolveClassifiersCheckBox    = new JCheckBox(SbtBundle("sbt.settings.resolveClassifiers"))
+    val resolveSbtClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveSbtClassifiers"))
+    val useAutoImportCheckBox         = new JCheckBox(ExternalSystemBundle.message("settings.label.use.auto.import"))
+    val createContentDirsCheckBox     = new JCheckBox(ExternalSystemBundle.message("settings.label.create.empty.content.root.directories"))
+
+    val step = new SdkSettingsStep(settingsStep, this, new Condition[SdkTypeId] {
       def value(t: SdkTypeId): Boolean = t != null && t.isInstanceOf[JavaSdk]
     }) {
       override def updateDataModel() {
         settingsStep.getContext setProjectJdk myJdkComboBox.getSelectedJdk
+        getExternalProjectSettings.setResolveClassifiers(resolveClassifiersCheckBox.isSelected)
+        getExternalProjectSettings.setResolveSbtClassifiers(resolveSbtClassifiersCheckBox.isSelected)
+        getExternalProjectSettings.setUseAutoImport(useAutoImportCheckBox.isSelected)
+        getExternalProjectSettings.setCreateEmptyContentRootDirectories(createContentDirsCheckBox.isSelected)
       }
     }
+
+    createContentDirsCheckBox.setSelected(true)
+    resolveClassifiersCheckBox.setSelected(true)
+    resolveSbtClassifiersCheckBox.setSelected(true)
+
+    settingsStep.addSettingsField("", useAutoImportCheckBox)
+    settingsStep.addSettingsField("", createContentDirsCheckBox)
+    settingsStep.addSettingsField("", resolveClassifiersCheckBox)
+    settingsStep.addSettingsField("", resolveSbtClassifiersCheckBox)
+
+    step
   }
 
   private def createProjectTemplateIn(root: File, name: String) {
@@ -90,15 +111,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 //    model.commit()
 
     val externalProjectSettings = getExternalProjectSettings
-
     externalProjectSettings.setExternalProjectPath(getContentEntryPath)
-    externalProjectSettings.setCreateEmptyContentRootDirectories(true) //create empty dirs anyway as src in our template is empty
-
-    // TODO Add our SBT option checkboxes (auto-import, downloads) in the project wizard UI
-    externalProjectSettings.resolveClassifiers = true
-    externalProjectSettings.resolveSbtClassifiers = true
-    externalProjectSettings.setUseAutoImport(true)
-
     settings.linkProject(externalProjectSettings)
 
     if (!externalProjectSettings.isUseAutoImport) {
