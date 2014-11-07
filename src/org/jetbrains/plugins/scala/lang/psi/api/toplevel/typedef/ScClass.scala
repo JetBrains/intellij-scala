@@ -78,7 +78,10 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
             }
           }
           val accessModifier = clazz.getModifierList.accessModifier.fold("")(_.modifierFormattedText + " ")
-          val objText = accessModifier + "object " + clazz.name + extendsText + "{\n  " + texts._1 + "\n  " + texts._2 + "\n" + "}"
+          val objText =
+            s"""${accessModifier}object ${clazz.name}$extendsText{
+               |  ${texts.mkString("\n  ")}
+               |}""".stripMargin
           val next = ScalaPsiUtil.getNextStubOrPsiElement(clazz)
           val obj: ScObject =
             ScalaPsiElementFactory.createObjectWithContext(objText, clazz.getParent, if (next != null) next else clazz)
@@ -126,7 +129,7 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
   }).mkString("[", ", ", "]")
   else ""
 
-  def getSyntheticMethodsText: (String, String) = {
+  def getSyntheticMethodsText: List[String] = {
     val paramString = constructor match {
       case Some(x: ScPrimaryConstructor) =>
         (if (x.parameterList.clauses.length == 1 &&
@@ -175,7 +178,8 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
                 " = throw new Error()"
     val unapplyText = "def unapply" + unapplyMethodNameSuffix + typeParamString + "(x$0: " + name + typeParamStringRes + "): " +
                 paramStringRes + " = throw new Error()"
-    (applyText, unapplyText)
+    if (hasModifierProperty("abstract")) List(unapplyText)
+    else List(applyText, unapplyText)
   }
 
   def getSyntheticImplicitMethod: Option[ScFunction]
