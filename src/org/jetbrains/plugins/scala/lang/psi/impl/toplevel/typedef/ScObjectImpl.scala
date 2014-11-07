@@ -143,8 +143,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
     ScalaPsiUtil.getCompanionModule(this) match {
       case Some(c: ScClass) if c.isCase =>
         val res = new ArrayBuffer[PsiMethod]
-        val texts = c.getSyntheticMethodsText
-        Seq(texts._1, texts._2).foreach(s => {
+        c.getSyntheticMethodsText.foreach(s => {
           try {
             val method = ScalaPsiElementFactory.createMethodWithContext(s, c.getContext, c)
             method.setSynthetic(this)
