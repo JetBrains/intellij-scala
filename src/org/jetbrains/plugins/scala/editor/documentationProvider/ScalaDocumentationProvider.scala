@@ -67,7 +67,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         }
       case _ => ScSubstitutor.empty
     }
-    element match {
+    val text = element match {
       case clazz: ScTypeDefinition => generateClassInfo(clazz, substitutor)
       case function: ScFunction => generateFunctionInfo(function, substitutor)
       case value: ScNamedElement if ScalaPsiUtil.nameContext(value).isInstanceOf[ScValue]
@@ -77,6 +77,8 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
       case b: ScBindingPattern => generateBindingPatternInfo(b, substitutor)
       case _ => null
     }
+    if (text != null) text.replace("<", "&lt;")
+    else null
   }
 
   def getDocumentationElementForLink(psiManager: PsiManager, link: String, context: PsiElement): PsiElement = {

@@ -7,10 +7,13 @@ import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.base.ScalaLibraryLoader;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import org.junit.runner.RunWith;
+import org.junit.runners.AllTests;
 
 /**
  * @author Alexander Podkhalyuzin
  */
+@RunWith(AllTests.class)
 public class IntroduceVariableTest extends AbstractIntroduceVariableTestBase {
   @NonNls
   private static final String DATA_PATH = "/introduceVariable/data";

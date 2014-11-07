@@ -12,6 +12,8 @@ import org.jetbrains.plugins.scala.lang.actions.ActionTestBase;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import org.junit.runner.RunWith;
+import org.junit.runners.AllTests;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -23,6 +25,7 @@ import java.util.Set;
  */
 
 
+@RunWith(AllTests.class)
 public class IntroduceVariableValidatorTest extends ActionTestBase {
 
   @NonNls

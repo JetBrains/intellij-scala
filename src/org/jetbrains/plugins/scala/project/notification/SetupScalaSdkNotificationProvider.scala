@@ -6,7 +6,7 @@ import javax.swing.JComponent
 import com.intellij.ProjectTopics
 import com.intellij.framework.addSupport.impl.AddSupportForSingleFrameworkDialog
 import com.intellij.openapi.fileEditor.FileEditor
-import com.intellij.openapi.module.ModuleUtilCore
+import com.intellij.openapi.module.{JavaModuleType, ModuleUtil, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.Key
@@ -34,10 +34,13 @@ class SetupScalaSdkNotificationProvider(project: Project, notifications: EditorN
   override def createNotificationPanel(file: VirtualFile, fileEditor: FileEditor) = {
     val hasSdk = Option(PsiManager.getInstance(project).findFile(file))
             .filter(_.getLanguage == ScalaLanguage.Instance)
+            .filter(!_.getName.endsWith(".sbt")) // root SBT files belong to main (not *-build) modules
             .flatMap(psiFile => Option(ModuleUtilCore.findModuleForPsiElement(psiFile)))
+            .filter(module => ModuleUtil.getModuleType(module) == JavaModuleType.getModuleType)
+            .filter(!_.getName.endsWith("-build")) // gen-idea doesn't use the SBT module type
             .map(module => module.hasScala)
 
-    if (hasSdk.exists(_ == false)) createPanel(project, PsiManager.getInstance(project).findFile(file)) else null
+    if (hasSdk.contains(false)) createPanel(project, PsiManager.getInstance(project).findFile(file)) else null
   }
 }
 

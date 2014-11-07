@@ -1,16 +1,14 @@
 package org.jetbrains.jps.incremental.scala;
 
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.jps.model.JpsProject;
 import org.jetbrains.jps.incremental.scala.model.*;
 import org.jetbrains.jps.model.JpsGlobal;
+import org.jetbrains.jps.model.JpsProject;
 import org.jetbrains.jps.model.ex.JpsElementChildRoleBase;
+import org.jetbrains.jps.model.java.JpsJavaExtensionService;
 import org.jetbrains.jps.model.library.JpsLibrary;
-import org.jetbrains.jps.model.module.JpsDependencyElement;
-import org.jetbrains.jps.model.module.JpsLibraryDependency;
 import org.jetbrains.jps.model.module.JpsModule;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -54,13 +52,6 @@ public class SettingsManager {
   }
 
   public static Collection<JpsLibrary> libraryDependenciesIn(JpsModule module) {
-    Collection<JpsLibrary> libraries = new ArrayList<JpsLibrary>();
-    for (JpsDependencyElement element : module.getDependenciesList().getDependencies()) {
-      if (element instanceof JpsLibraryDependency) {
-        JpsLibrary library = ((JpsLibraryDependency) element).getLibrary();
-        libraries.add(library);
-      }
-    }
-    return libraries;
+    return JpsJavaExtensionService.dependencies(module).recursivelyExportedOnly().getLibraries();
   }
 }

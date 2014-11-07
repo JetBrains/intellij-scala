@@ -18,8 +18,7 @@ private object Level {
   private val TitleToLevel = Values.map(level => (level.title, level)).toMap
   private val FacetTitleToLevel = Values.map(level => (level.facetTitle, level)).toMap
 
-  def fromTitle(title: String): Level = TitleToLevel.getOrElse(title,
-    throw new IllegalArgumentException("Unknown level title: " + title))
+  def fromTitle(title: String): Level = TitleToLevel.getOrElse(title, new CustomLevel(title))
 
   def fromFacetTitle(title: String): Level = FacetTitleToLevel.getOrElse(title,
     throw new IllegalArgumentException("Unknown level title: " + title))
@@ -38,4 +37,9 @@ private object ApplicationLevel extends Level("application", "Global") {
 private object ModuleLevel extends Level("module", "Module") {
   def librariesIn(context: ConversionContext) =
     throw new IllegalArgumentException("Module-level libraries are not supported")
+}
+
+private class CustomLevel(title: String) extends Level(title, title) {
+  def librariesIn(context: ConversionContext) =
+    throw new IllegalArgumentException("Custom-level libraries are not supported: " + title)
 }

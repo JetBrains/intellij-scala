@@ -9,12 +9,10 @@ import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, ProjectStructureHelper}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
-import com.intellij.openapi.roots.impl.{JavaLanguageLevelPusher, LanguageLevelProjectExtensionImpl}
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
 import com.intellij.pom.java.LanguageLevel
-import org.jdom.Element
-import org.jetbrains.sbt.project.data.SbtProjectDataService._
 import org.jetbrains.android.sdk.{AndroidPlatform, AndroidSdkType}
+import org.jetbrains.sbt.project.data.SbtProjectDataService._
 import org.jetbrains.sbt.project.settings.SbtSettings
 
 import scala.collection.JavaConverters._
@@ -32,7 +30,7 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
 
       val existingJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
 
-      val projectJdk = existingJdk.orElse(data.jdk.flatMap(findJdkBy)).orElse(allJdks.headOption)
+      val projectJdk = data.jdk.flatMap(findJdkBy).orElse(existingJdk).orElse(allJdks.headOption)
 
       projectJdk.foreach(ProjectRootManager.getInstance(project).setProjectSdk)
 
@@ -138,17 +136,6 @@ object SbtProjectDataService {
 
   def updateJavaLanguageLevelIn(project: Project, level: LanguageLevel) {
     val extension = LanguageLevelProjectExtension.getInstance(project)
-
-    if (extension.getLanguageLevel != level) {
-      setLanguageLevelIn(project, level)
-      JavaLanguageLevelPusher.pushLanguageLevel(project)
-    }
-  }
-
-  // TODO don't rely on XML when there will be other ways to bypass "reload project" message
-  private def setLanguageLevelIn(project: Project, level: LanguageLevel) {
-    val element = new Element("component").setAttribute("languageLevel", level.name)
-    val projectExtension = new LanguageLevelProjectExtensionImpl.MyProjectExtension(project)
-    projectExtension.readExternal(element)
+    extension.setLanguageLevel(level)
   }
 }

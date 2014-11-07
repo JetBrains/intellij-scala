@@ -11,13 +11,13 @@ import com.intellij.codeInsight.daemon.impl.AttachSourcesNotificationProvider
 import com.intellij.ide.highlighter.{JavaClassFileType, JavaFileType}
 import com.intellij.openapi.extensions.{ExtensionPointName, Extensions}
 import com.intellij.openapi.fileEditor.FileEditor
-import com.intellij.openapi.project.{Project, ProjectBundle}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{LibraryOrderEntry, OrderEntry, ProjectRootManager}
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{ActionCallback, Comparing}
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiClass, PsiJavaFile, PsiFile, PsiManager}
+import com.intellij.psi.{PsiClass, PsiFile, PsiJavaFile, PsiManager}
 import com.intellij.ui.{EditorNotificationPanel, EditorNotifications, GuiUtils}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
@@ -38,6 +38,7 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
     if (libraries == null) return null
     val psiFile: PsiFile = PsiManager.getInstance(myProject).findFile(file)
     val isScala = psiFile.isInstanceOf[ScalaFile]
+    if (!isScala) return super.createNotificationPanel(file, fileEditor) //as Java has now different message
     val fqn: String =
       if (isScala) ScalaEditorFileSwapper.getFQN(psiFile)
       else getFQN(psiFile)
@@ -48,10 +49,10 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
     val sourceFile: VirtualFile = findSourceFile(file)
     var defaultAction: AttachSourcesProvider.AttachSourcesAction = null
     if (sourceFile != null) {
-      panel.setText(ProjectBundle.message("library.sources.not.attached"))
+      panel.setText(ScalaBundle.message("library.sources.not.attached"))
       defaultAction = new AttachSourcesUtil.AttachJarAsSourcesAction(file, sourceFile, myProject)
     } else {
-      panel.setText(ProjectBundle.message("library.sources.not.found"))
+      panel.setText(ScalaBundle.message("library.sources.not.found"))
       defaultAction = new AttachSourcesUtil.ChooseAndAttachSourcesAction(myProject, panel)
     }
 
@@ -97,7 +98,7 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
             def run() {
               SwingUtilities.invokeLater(new Runnable {
                 def run() {
-                  panel.setText(ProjectBundle.message("library.sources.not.found"))
+                  panel.setText(ScalaBundle.message("library.sources.not.found"))
                 }
               })
             }
