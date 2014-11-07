@@ -5,6 +5,8 @@ import java.io.File
 import javax.swing.JCheckBox
 
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SdkSettingsStep, SettingsStep}
+import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
+import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
 import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSettings, ExternalSystemSettingsListener}
 import com.intellij.openapi.externalSystem.util.{ExternalSystemBundle, ExternalSystemUtil, ExternalSystemApiUtil}
@@ -116,7 +118,11 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
     if (!externalProjectSettings.isUseAutoImport) {
       FileDocumentManager.getInstance.saveAllDocuments()
-      ExternalSystemUtil.refreshProjects(model.getProject, SbtProjectSystem.Id, false)
+      ExternalSystemUtil.refreshProjects(
+        new ImportSpecBuilder(model.getProject, SbtProjectSystem.Id)
+                .forceWhenUptodate(false)
+                .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
+      )
     }
   }
 }
