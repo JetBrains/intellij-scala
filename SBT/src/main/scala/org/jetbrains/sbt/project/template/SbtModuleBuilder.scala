@@ -5,11 +5,12 @@ import java.io.File
 import javax.swing.JCheckBox
 
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SdkSettingsStep, SettingsStep}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
 import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSettings, ExternalSystemSettingsListener}
-import com.intellij.openapi.externalSystem.util.{ExternalSystemBundle, ExternalSystemUtil, ExternalSystemApiUtil}
+import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemBundle, ExternalSystemUtil}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel}
 import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
@@ -118,11 +119,14 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
     if (!externalProjectSettings.isUseAutoImport) {
       FileDocumentManager.getInstance.saveAllDocuments()
-      ExternalSystemUtil.refreshProjects(
-        new ImportSpecBuilder(model.getProject, SbtProjectSystem.Id)
-                .forceWhenUptodate(false)
-                .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
-      )
+      ApplicationManager.getApplication.invokeLater(new Runnable() {
+        override def run(): Unit =
+          ExternalSystemUtil.refreshProjects(
+            new ImportSpecBuilder(model.getProject, SbtProjectSystem.Id)
+                    .forceWhenUptodate()
+                    .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
+          )
+      })
     }
   }
 }
