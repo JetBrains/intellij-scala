@@ -9,7 +9,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbServiceImpl
 import com.intellij.psi._
-import com.intellij.psi.util.PsiModificationTracker
+import com.intellij.psi.util.{PsiTreeUtil, PsiModificationTracker}
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
@@ -81,11 +81,16 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
     if (DumbServiceImpl.getInstance(getProject).isDumb) return true
     if (!super[ScTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)) return false
 
-    for (p <- parameters) {
-      ProgressManager.checkCanceled()
-      if (processor.isInstanceOf[BaseProcessor]) { // don't expose class parameters to Java.
-        if (!processor.execute(p, state)) return false
-      }
+    constructor match {
+      case Some(constr) if place != null && PsiTreeUtil.isContextAncestor(constr, place, false) =>
+        //ignore, should be processed in ScParameters
+      case _ =>
+        for (p <- parameters) {
+          ProgressManager.checkCanceled()
+          if (processor.isInstanceOf[BaseProcessor]) { // don't expose class parameters to Java.
+            if (!processor.execute(p, state)) return false
+          }
+        }
     }
 
     super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)
