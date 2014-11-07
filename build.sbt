@@ -69,7 +69,7 @@ lazy val Runners = project.in(file( "Runners")).dependsOn(ScalaRunner)
 
 lazy val ScalaCommunity = project.in(file("")).dependsOn(compiler_settings, Runners).aggregate(jps_plugin)
 
-lazy val intellij_hocon = Project( "intellij-hocon", file("intellij-hocon")).dependsOn(ScalaCommunity)
+lazy val intellij_hocon = Project( "intellij-hocon", file("intellij-hocon")).dependsOn(ScalaCommunity % "test;compile;compile->test")
   .settings(unmanagedJars in Compile := allIdeaJars.value)
 
 lazy val intellij_scalastyle  =
@@ -99,7 +99,7 @@ ideaResolver := {
     branch = s"idea/${ideaVersion.value}",
     artifacts = Seq(
       System.getProperty("os.name") match {
-        case r"^Linux"     => (s"/ideaIC-$s.SNAPSHOT.tar.gz", ideaArchiveName, Some({ _: File => s"tar xvfz $ideaArchiveName -C ${ideaSDKPath.getAbsolutePath}".!; renameFun}))
+        case r"^Linux"     => (s"/ideaIC-$s.SNAPSHOT.tar.gz", ideaArchiveName,  Some({ _: File => s"tar xvfz $ideaArchiveName -C ${ideaSDKPath.getAbsolutePath}".!; renameFun}))
         case r"^Mac OS.*"  => (s"/ideaIC-$s.SNAPSHOT.win.zip", ideaArchiveName, Some({ _: File => s"unzip $ideaArchiveName -d ${ideaBasePath.value}".!; renameFun}))
         case r"^Windows.*" => (s"/ideaIC-$s.SNAPSHOT.win.zip", ideaArchiveName, Some({ _: File => IO.unzip(file(ideaArchiveName), ideaBasePath.value); renameFun}))
         case other => throw new IllegalStateException(s"OS $other is not supported")
@@ -152,6 +152,10 @@ javaOptions in Test := Seq(
 fullClasspath in Test := (fullClasspath in (SBT, Test)).value
 
 baseDirectory in Test := baseDirectory.value.getParentFile
+
+test in Test <<= (test in Test) dependsOn (
+  test in (intellij_hocon, Test)
+  )
 
 // packaging
 
