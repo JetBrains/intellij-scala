@@ -7,6 +7,7 @@ import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.DirtyFilesHolder
 import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
+import org.jetbrains.jps.incremental.messages.{CompilerMessage, BuildMessage}
 import org.jetbrains.jps.incremental.scala.ScalaBuilder._
 import org.jetbrains.jps.incremental.{BuilderCategory, CompileContext, ModuleBuildTarget, ModuleLevelBuilder}
 import org.jetbrains.jps.model.JpsProject
@@ -27,6 +28,14 @@ class ScalaBuilder(category: BuilderCategory, @NotNull delegate: ScalaBuilderDel
             chunk: ModuleChunk,
             dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
             outputConsumer: ModuleLevelBuilder.OutputConsumer): ModuleLevelBuilder.ExitCode = {
+
+    // TODO Remove this check later, when users will get accustomed to the new project configuration
+    if (delegate == IdeaIncrementalBuilder &&
+            !hasScalaModules(chunk) &&
+            IdeaIncrementalBuilder.collectSources(context, chunk, dirtyFilesHolder).nonEmpty) {
+      val message = "skipping Scala files without a Scala SDK in module(s) " + chunk.getPresentableShortName
+      context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.WARNING, message))
+    }
 
     if (isDisabled(context, Some(chunk))) ExitCode.NOTHING_DONE
     else delegate.build(context, chunk, dirtyFilesHolder, outputConsumer)
