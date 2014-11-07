@@ -34,6 +34,8 @@
         </element>
         <element id="library" level="project" name="SBT: org.scala-lang:scala-library:2.11.2" />
         <element id="library" level="project" name="SBT: org.scala-lang.modules:scala-xml_2.11:1.0.2" />
+        <element id="dir-copy" path="$PROJECT_DIR$/SDK/scalap" />
+        <element id="library" level="project" name="SBT: org.scala-lang:scala-reflect:2.11.2" />
       </element>
       <element id="directory" name="launcher">
         <element id="file-copy" path="$PROJECT_DIR$/SBT/jars/sbt-launch.jar" />
