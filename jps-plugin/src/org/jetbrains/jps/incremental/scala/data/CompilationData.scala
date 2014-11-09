@@ -156,7 +156,7 @@ object CompilationData {
 
     targets.filterNot { target =>
       val chunk = new ModuleChunk(Collections.singleton(target))
-      ChunkExclusionService.isExcluded(chunk, context.getProjectDescriptor.getModel.getGlobal)
+      ChunkExclusionService.isExcluded(chunk)
     }
   }
 
