@@ -1,21 +1,21 @@
 package org.jetbrains.plugins.scala
 package lang.psi.light.scala
 
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.psi.impl.light.LightElement
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.{PsiAnnotation, PsiClass, PsiElement, PsiTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 
 /**
  * @author Alefas
  * @since 03/04/14.
  */
-class ScLightParameter(param: ScParameter, tp: ScType, i: Int)
+class ScLightParameter(val param: ScParameter, tp: ScType, i: Int)
   extends LightElement(param.getManager, param.getLanguage) with ScParameter {
   override def nameId: PsiElement = param.nameId
 

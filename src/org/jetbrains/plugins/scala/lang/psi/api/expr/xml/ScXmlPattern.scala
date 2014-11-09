@@ -5,7 +5,6 @@ package api
 package expr
 package xml
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 
 /**

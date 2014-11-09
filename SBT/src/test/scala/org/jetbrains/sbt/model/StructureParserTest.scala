@@ -1,10 +1,13 @@
 package org.jetbrains.sbt
 package model
 
-import org.junit.{Test, Assert}
-import scala.xml.XML
-import org.jetbrains.sbt.project.structure._
 import java.io.File
+
+import org.jetbrains.sbt.project.structure._
+import org.jetbrains.plugins.scala.project.Version
+import org.junit.{Assert, Test}
+
+import scala.xml.XML
 
 /**
  * @author Pavel Fatin
@@ -22,7 +25,7 @@ class StructureParserTest {
 
 object StructureParserTest {
   def createExpectedStructure: Structure = {
-    val moduleId = ModuleId("org.scala-lang", "scala-library", "2.10.1")
+    val moduleId = ModuleId("org.scala-lang", "scala-library", "2.10.1", "jar", None)
 
     val configuration = Configuration(
       id = "compile",
@@ -41,7 +44,7 @@ object StructureParserTest {
       options = Seq("-j1", "-j2"))
 
     val scala = Scala(
-      version = "2.10.1",
+      version = Version("2.10.1"),
       libraryJar = new File("$HOME/.sbt/boot/scala-2.10.1/lib/scala-library.jar"),
       compilerJar = new File("$HOME/.sbt/boot/scala-2.10.1/lib/scala-compiler.jar"),
       extraJars = Seq(new File("$HOME/.sbt/boot/scala-2.10.1/lib/scala-reflect.jar")),
@@ -63,7 +66,9 @@ object StructureParserTest {
       configurations = Seq(configuration),
       java = Some(java),
       scala = Some(scala),
-      dependencies = dependencies)
+      android = None,
+      dependencies = dependencies,
+      resolvers = Set.empty, None)
 
     val module = Module(
       id = moduleId,
@@ -73,6 +78,6 @@ object StructureParserTest {
 
     val repository = Repository(new File("."), Seq(module))
 
-    Structure(Seq(project), Some(repository))
+    Structure(Seq(project), Some(repository), None, "")
   }
 }

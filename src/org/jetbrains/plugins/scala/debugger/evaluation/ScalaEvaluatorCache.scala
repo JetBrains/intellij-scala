@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala
 package debugger.evaluation
 
-import com.intellij.openapi.components.{ServiceManager, AbstractProjectComponent}
-import com.intellij.openapi.project.Project
-import com.intellij.debugger.impl.{DebuggerSession, DebuggerManagerAdapter}
-import scala.collection.mutable
-import com.intellij.psi.{PsiFile, PsiElement}
-import com.intellij.debugger.engine.evaluation.expression.ExpressionEvaluator
-import com.intellij.debugger.{SourcePosition, DebuggerManagerEx}
 import com.intellij.codeInsight.PsiEquivalenceUtil
+import com.intellij.debugger.engine.evaluation.expression.ExpressionEvaluator
+import com.intellij.debugger.impl.{DebuggerManagerAdapter, DebuggerSession}
+import com.intellij.debugger.{DebuggerManagerEx, SourcePosition}
+import com.intellij.openapi.components.{AbstractProjectComponent, ServiceManager}
+import com.intellij.openapi.project.Project
+import com.intellij.psi.{PsiElement, PsiFile}
+
+import scala.collection.mutable
 
 /**
  * Nikolay.Tropin
@@ -43,17 +44,17 @@ class ScalaEvaluatorCache(project: Project) extends AbstractProjectComponent(pro
           cachedEvaluators.remove(pos)
       }
       None
-    }
-    else {
+    } else {
       cachedEvaluators.get((file, offset)) match {
         case Some(map) => map.collectFirst {
           case (elem, eval) if PsiEquivalenceUtil.areElementsEquivalent(element, elem) => eval
         }
+        case None => None
       }
     }
   }
 
-  def add(position: SourcePosition, element: PsiElement, evaluator: ExpressionEvaluator) = {
+  def add(position: SourcePosition, element: PsiElement, evaluator: ExpressionEvaluator): ExpressionEvaluator = {
     val file = position.getFile
     val offset = position.getOffset
     cachedEvaluators.get((file, offset)) match {
@@ -61,6 +62,7 @@ class ScalaEvaluatorCache(project: Project) extends AbstractProjectComponent(pro
       case None =>
         cachedEvaluators += ((file, offset) -> mutable.HashMap(element -> evaluator))
     }
+    evaluator
   }
 }
 

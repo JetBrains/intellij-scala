@@ -5,15 +5,14 @@ package impl
 package expr
 
 import _root_.com.intellij.psi.util.PsiTreeUtil
-import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import api.expr._
-import types.Nothing
-import lexer.ScalaTokenTypes
-import types.result.{TypingContext, Failure, Success}
-import api.statements.ScFunctionDefinition
-import com.intellij.psi.{PsiElementVisitor, PsiElement}
-import api.ScalaElementVisitor
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.Nothing
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 
 /**
  * @author Alexander Podkhalyuzin

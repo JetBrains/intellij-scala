@@ -5,10 +5,10 @@ package impl
 package base
 
 import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import api.base.patterns._
-import parser.ScalaElementTypes
-import stubs.ScPatternListStub
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScPatternListStub
 /**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008

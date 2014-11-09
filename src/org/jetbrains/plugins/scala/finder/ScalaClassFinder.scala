@@ -1,16 +1,17 @@
 package org.jetbrains.plugins.scala
 package finder
 
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi._
-import java.lang.String
-import caches.ScalaShortNamesCacheManager
-import lang.psi.impl.ScalaPsiManager
-import com.intellij.openapi.project.Project
-import collection.mutable.ArrayBuffer
 import java.util
-import lang.psi.api.toplevel.typedef.{ScTrait, ScClass, ScObject}
+
+import com.intellij.openapi.project.Project
+import com.intellij.psi._
+import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+
+import scala.collection.mutable.ArrayBuffer
 
 class ScalaClassFinder(project: Project) extends PsiElementFinder {
   def findClasses(qualifiedName: String, scope: GlobalSearchScope): Array[PsiClass] = {

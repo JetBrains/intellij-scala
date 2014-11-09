@@ -4,10 +4,8 @@ package psi
 package api
 package base
 
-import com.intellij.psi.tree.IElementType
-import lexer.ScalaTokenTypes
-import psi.ScalaPsiElement
 import com.intellij.psi.PsiModifierList
+import com.intellij.psi.tree.IElementType
 
 /** 
 * @author Alexander Podkhalyuzin

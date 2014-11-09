@@ -23,8 +23,10 @@ import java.util.Map;
     }
 )
 public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProjectSettings>, ExportableComponent {
-  private int IMPLICIT_PARAMETERS_SEARCH_DEPTH = 5;
+  private int IMPLICIT_PARAMETERS_SEARCH_DEPTH = -1;
 
+  private String BASE_PACKAGE = "";
+  
   private boolean SEARCH_ALL_SYMBOLS = false;
 
   private boolean ENABLE_JAVA_TO_SCALA_CONVERSION = true;
@@ -38,7 +40,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   private boolean TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = false;
   private boolean DISABLE_LANGUAGE_INJECTION = true;
-  private boolean DISABLE_I18N = true;
+  private boolean DISABLE_I18N = false;
   private boolean DONT_CACHE_COMPOUND_TYPES = false;
   private boolean SCALA_CLASSES_PRIORITY = true;
 
@@ -172,14 +174,6 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = value;
   }
 
-  public boolean isDisableI18N() {
-    return DISABLE_I18N;
-  }
-
-  public void setDisableI18N(boolean value) {
-    DISABLE_I18N = value;
-  }
-
   public boolean isDontCacheCompoundTypes() {
       return DONT_CACHE_COMPOUND_TYPES;
   }
@@ -215,7 +209,15 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   public Map<String, String> getIntInjectionMapping() {
     return INTERPOLATED_INJECTION_MAPPING;
   }
-  
+
+  public String getBasePackage() {
+    return BASE_PACKAGE;
+  }
+
+  public void setBasePackage(String name) {
+    BASE_PACKAGE = name;
+  }
+
   public void setIntInjectionMapping(Map<String, String> intInjectionMapping) {
     INTERPOLATED_INJECTION_MAPPING = intInjectionMapping;
   }

@@ -1,7 +1,7 @@
 package org.jetbrains.jps.incremental.scala
 package local
 
-import data.CompilationData
+import org.jetbrains.jps.incremental.scala.data.CompilationData
 
 /**
  * @author Pavel Fatin

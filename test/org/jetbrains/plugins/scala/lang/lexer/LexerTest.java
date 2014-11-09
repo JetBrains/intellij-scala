@@ -15,17 +15,19 @@
 
 package org.jetbrains.plugins.scala.lang.lexer;
 
-import org.jetbrains.plugins.scala.Console;
 import com.intellij.lexer.Lexer;
 import com.intellij.psi.tree.IElementType;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import org.junit.runner.RunWith;
+import org.junit.runners.AllTests;
 
 /**
  * @author ilyas
  */
+@RunWith(AllTests.class)
 public class LexerTest extends BaseScalaFileSetTestCase {
 
   @NonNls

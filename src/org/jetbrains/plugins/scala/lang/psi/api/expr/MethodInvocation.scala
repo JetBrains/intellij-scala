@@ -1,21 +1,22 @@
-package org.jetbrains.plugins.scala.lang.psi.api.expr
+package org.jetbrains.plugins.scala
+package lang.psi.api.expr
 
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContext, Success, TypeResult}
-import org.jetbrains.plugins.scala.lang.psi.types._
-import nonvalue.{TypeParameter, Parameter, ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.{types, ScalaPsiElement, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
-import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import com.intellij.psi.{PsiNamedElement, PsiElement}
-import org.jetbrains.plugins.scala.extensions.toSeqExt
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import com.intellij.openapi.util.Key
-import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ResolvableReferenceExpression}
-import scala.collection
+import com.intellij.psi.{PsiElement, PsiNamedElement}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil, types}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
+import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 
 /**
  * Pavel Fatin, Alexander Podkhalyuzin.
@@ -121,8 +122,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
    */
   def updateAccordingToExpectedType(nonValueType: TypeResult[ScType],
                                     check: Boolean = false): TypeResult[ScType] = {
-    InferUtil.updateAccordingToExpectedType(nonValueType, fromImplicitParameters = false, expectedType = expectedType(),
-      expr = this, check = check)
+    InferUtil.updateAccordingToExpectedType(nonValueType, fromImplicitParameters = false, filterTypeParams = false,
+      expectedType = expectedType(), expr = this, check = check)
   }
 
   /**
@@ -174,8 +175,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
         setApplicabilityProblemsVar(c._2)
         setMatchedParametersVar(c._3)
         val dependentSubst = new ScSubstitutor(() => {
-          val level = ScalaLanguageLevel.getLanguageLevel(this)
-          if (level.isThoughScala2_10) {
+          val level = this.languageLevel
+          if (level >= Scala_2_10) {
             c._4.toMap
           } else Map.empty
         })
@@ -189,8 +190,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
             setApplicabilityProblemsVar(cd._2)
             setMatchedParametersVar(cd._3)
             val dependentSubst = new ScSubstitutor(() => {
-              val level = ScalaLanguageLevel.getLanguageLevel(this)
-              if (level.isThoughScala2_10) {
+              val level = this.languageLevel
+              if (level >= Scala_2_10) {
                 cd._4.toMap
               } else Map.empty
             })
@@ -242,7 +243,11 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
             }
             new Expression(actualExpr) {
               override def getTypeAfterImplicitConversion(checkImplicits: Boolean, isShape: Boolean,
-                                                          expectedOption: Option[ScType]): (TypeResult[ScType], collection.Set[ImportUsed]) = {
+                                                          _expectedOption: Option[ScType]): (TypeResult[ScType], collection.Set[ImportUsed]) = {
+                val expectedOption = _expectedOption.map {
+                  case ScTupleType(comps) if comps.length == 2 => comps(1)
+                  case t => t
+                }
                 val (res, imports) = super.getTypeAfterImplicitConversion(checkImplicits, isShape, expectedOption)
                 val str = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.String")
                 val stringType = if (str != null) ScType.designator(str) else types.Any

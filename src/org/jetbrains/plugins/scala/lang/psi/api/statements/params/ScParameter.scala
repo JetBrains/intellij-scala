@@ -5,21 +5,23 @@ package api
 package statements
 package params
 
-import icons.Icons
 import javax.swing.Icon
-import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import com.intellij.psi._
-import toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScParameterizedType, ScType}
-import util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScUnderScoreSectionUtil, ScFunctionExpr, ScExpression}
+
 import com.intellij.lang.java.lexer.JavaLexer
 import com.intellij.pom.java.LanguageLevel
-import com.intellij.psi.search.{LocalSearchScope, GlobalSearchScope}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import com.intellij.psi._
+import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScUnderScoreSectionUtil}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScClass}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScParameterizedType, ScType}
+
 import scala.annotation.tailrec
 import scala.collection.immutable.HashSet
 
@@ -110,6 +112,14 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
 
   def getType: PsiType = ScType.toPsi(getRealParameterType(TypingContext.empty).getOrNothing, getProject, getResolveScope)
 
+  def isAnonymousParameter: Boolean = getContext match {
+    case clause: ScParameterClause => clause.getContext.getContext match {
+      case f: ScFunctionExpr => true
+      case _ => false
+    }
+    case _ => false
+  }
+
   def expectedParamType: Option[ScType] = getContext match {
     case clause: ScParameterClause => clause.getContext.getContext match {
       // For parameter of anonymous functions to infer parameter's type from an appropriate
@@ -157,6 +167,43 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
     if (res == None) {
       getSuperParameter.flatMap(_.getDefaultExpression)
     } else res
+  }
+
+  def getDefaultExpressionInSource: Option[ScExpression] = {
+    val res = getActualDefaultExpression
+    if (res == None) {
+      getSuperParameter.flatMap(_.getDefaultExpressionInSource)
+    } else {
+      getContainingFile match {
+        case file: ScalaFile =>
+          if (file.isCompiled) {
+            val containingMember = PsiTreeUtil.getContextOfType(this, true, classOf[ScMember])
+            if (containingMember == null) res
+            else {
+              def extractFromParameterOwner(owner: ScParameterOwner): Option[ScExpression] = {
+                owner.parameters.find(_.name == name) match {
+                  case Some(param) => param.getDefaultExpression
+                  case _ => res
+                }
+              }
+              containingMember match {
+                case c: ScClass =>
+                  c.getSourceMirrorClass match {
+                    case c: ScClass => extractFromParameterOwner(c)
+                    case _ => res
+                  }
+                case f: ScFunction =>
+                  f.getNavigationElement match {
+                    case f: ScFunction => extractFromParameterOwner(f)
+                    case _ => res
+                  }
+                case _ => res
+              }
+            }
+          } else res
+        case _ => res
+      }
+    }
   }
 
   def getSuperParameter: Option[ScParameter] = {

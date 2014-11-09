@@ -1,14 +1,13 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
+import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
+import com.intellij.debugger.engine.evaluation.expression.{DisableGC, Evaluator, Modifier}
+import com.intellij.debugger.engine.{DebugProcessImpl, JVMName}
 import com.intellij.debugger.impl.DebuggerUtilsEx
-import com.intellij.debugger.engine.{JVMName, DebugProcessImpl}
-import com.intellij.debugger.engine.evaluation.{EvaluationContextImpl, EvaluateExceptionUtil}
-import com.intellij.debugger.engine.evaluation.expression.{DisableGC, Modifier, Evaluator}
-import collection.mutable.ArrayBuffer
-import com.sun.jdi._
-import java.lang.String
-import com.intellij.debugger.{SourcePosition, DebuggerBundle}
+import com.intellij.debugger.{DebuggerBundle, SourcePosition}
 import com.intellij.openapi.application.ApplicationManager
+import com.sun.jdi._
+import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
 /**
@@ -34,10 +33,10 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
       objectEvaluator.evaluate(context)
     }
     if (obj == null) {
-      throw EvaluateExceptionUtil.createEvaluateException(new NullPointerException)
+      throw EvaluationException(new NullPointerException)
     }
     if (!(obj.isInstanceOf[ObjectReference] || obj.isInstanceOf[ClassType])) {
-      throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.evaluating.method", methodName))
+      throw EvaluationException(DebuggerBundle.message("evaluation.error.evaluating.method", methodName))
     }
     val args = argumentEvaluators.map(arg => arg.evaluate(context))
     try {
@@ -122,15 +121,15 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
             val jdiMethod = findMethod(referenceType)
             if (jdiMethod != null && methodName == "<init>") {
               import scala.collection.JavaConversions._
-              return debugProcess.newInstance(context, classType, jdiMethod, args)
+              return debugProcess.newInstance(context, classType, jdiMethod, unwrappedArgs(args, jdiMethod))
             }
             if (jdiMethod != null && jdiMethod.isStatic) {
               import scala.collection.JavaConversions._
-              return debugProcess.invokeMethod(context, classType, jdiMethod, args)
+              return debugProcess.invokeMethod(context, classType, jdiMethod, unwrappedArgs(args, jdiMethod))
             }
           case _ =>
         }
-        throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.no.static.method", mName))
+        throw EvaluationException(DebuggerBundle.message("evaluation.error.no.static.method", mName))
       }
       val objRef: ObjectReference = obj.asInstanceOf[ObjectReference]
       var _refType: ReferenceType = referenceType
@@ -150,7 +149,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
       }
       val jdiMethod: Method = findMethod(_refType)
       if (jdiMethod == null) {
-        throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.no.instance.method", mName))
+        throw EvaluationException(DebuggerBundle.message("evaluation.error.no.instance.method", mName))
       }
       import scala.collection.JavaConversions._
       if (requiresSuperObject) {
@@ -160,7 +159,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
             if (className != null) {
               context.getDebugProcess.findClass(context, className, context.getClassLoader) match {
                 case c: ClassType =>
-                  return debugProcess.invokeMethod(context, c, jdiMethod, obj +: args)
+                  return debugProcess.invokeMethod(context, c, jdiMethod, unwrappedArgs(obj +: args, jdiMethod))
                 case _ =>
               }
             }
@@ -168,10 +167,18 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
         }
         return debugProcess.invokeInstanceMethod(context, objRef, jdiMethod, args, ObjectReference.INVOKE_NONVIRTUAL)
       }
-      debugProcess.invokeMethod(context, objRef, jdiMethod, args)
+      debugProcess.invokeMethod(context, objRef, jdiMethod, unwrappedArgs(args, jdiMethod))
     }
     catch {
-      case e: Exception => throw EvaluateExceptionUtil.createEvaluateException(e)
+      case e: Exception => throw EvaluationException(e)
+    }
+  }
+
+  private def unwrappedArgs(args: Seq[AnyRef], jdiMethod: Method): Seq[AnyRef] = {
+    val argTypeNames = jdiMethod.argumentTypeNames()
+    args.zipWithIndex.map {
+      case (DebuggerUtil.scalaRuntimeRefTo(value), idx) if !DebuggerUtil.isScalaRuntimeRef(argTypeNames.get(idx)) => value
+      case (arg, _) => arg
     }
   }
 }

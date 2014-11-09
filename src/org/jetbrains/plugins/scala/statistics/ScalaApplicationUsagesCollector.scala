@@ -1,18 +1,20 @@
 package org.jetbrains.plugins.scala
 package statistics
 
-import com.intellij.internal.statistic.AbstractApplicationUsagesCollector
-import com.intellij.internal.statistic.beans.{UsageDescriptor, GroupDescriptor}
-import com.intellij.openapi.project.Project
 import java.util
-import scala.collection.mutable
-import com.intellij.openapi.module.ModuleManager
-import org.jetbrains.plugins.scala.config.ScalaFacet
-import com.intellij.psi.JavaPsiFacade
+
 import com.intellij.ide.plugins.PluginManager
+import com.intellij.internal.statistic.AbstractApplicationUsagesCollector
+import com.intellij.internal.statistic.beans.{GroupDescriptor, UsageDescriptor}
 import com.intellij.openapi.extensions.PluginId
+import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.JavaSdk
 import com.intellij.openapi.roots.ModuleRootManager
+import com.intellij.psi.JavaPsiFacade
+import org.jetbrains.plugins.scala.project._
+
+import scala.collection.mutable
 
 /**
  * @author Alefas
@@ -27,10 +29,8 @@ class ScalaApplicationUsagesCollector extends AbstractApplicationUsagesCollector
       var scala_version: Option[String] = None
       var java_version: Option[String] = None
       for (module <- ModuleManager.getInstance(project).getModules) {
-        ScalaFacet.findIn(module) match {
-          case Some(facet) =>
-            scala_version = Some(facet.version)
-          case _ =>
+        module.scalaSdk.flatMap(_.compilerVersion).foreach { version => 
+          scala_version = Some(version)
         }
 
         ModuleRootManager.getInstance(module).getSdk match {

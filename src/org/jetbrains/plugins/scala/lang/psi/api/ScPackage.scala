@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
-import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.{PsiElement, ResolveState, PsiPackage}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.PsiPackage
 
 /**
  * User: Alexander Podkhalyuzin

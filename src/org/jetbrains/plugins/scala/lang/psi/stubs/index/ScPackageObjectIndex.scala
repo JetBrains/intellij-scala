@@ -6,10 +6,10 @@ package index
 
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.stubs.IntStubIndexExtension
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
-import psi.impl.search.ScSourceFilterScope
+import com.intellij.psi.stubs.IntStubIndexExtension
+import org.jetbrains.plugins.scala.lang.psi.impl.search.ScSourceFilterScope
 
 /**
  * @author ilyas

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.xml
 
-import base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 
 /**

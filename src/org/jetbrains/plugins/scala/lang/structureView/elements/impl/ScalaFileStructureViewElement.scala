@@ -5,16 +5,17 @@ package elements
 package impl
 
 import com.intellij.ide.util.treeView.smartTree.TreeElement
-import psi.api.ScalaFile
 import com.intellij.navigation.ItemPresentation
-import psi.api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
-import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import _root_.scala.collection.mutable._
+import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
-import console.ScalaLanguageConsole
-import psi.impl.ScalaPsiElementFactory
-import collection.mutable
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
+
+import _root_.scala.collection.mutable._
+import scala.collection.mutable
 
 /**
 * @author Alexander Podkhalyuzin

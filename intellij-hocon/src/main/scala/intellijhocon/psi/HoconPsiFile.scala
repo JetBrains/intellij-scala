@@ -1,11 +1,12 @@
-package intellijhocon.psi
+package intellijhocon
+package psi
 
-import com.intellij.psi.impl.source.PsiFileImpl
-import com.intellij.psi.{PsiElementVisitor, FileViewProvider}
 import com.intellij.openapi.fileTypes.FileType
-import intellijhocon.parser.HoconElementType
-import HoconElementType.HoconFileElementType
+import com.intellij.psi.impl.source.PsiFileImpl
+import com.intellij.psi.{FileViewProvider, PsiElementVisitor}
 import intellijhocon.lang.HoconLanguageFileType
+import intellijhocon.parser.HoconElementType
+import intellijhocon.parser.HoconElementType.HoconFileElementType
 
 class HoconPsiFile(provider: FileViewProvider) extends PsiFileImpl(HoconFileElementType, HoconFileElementType, provider) {
   def accept(visitor: PsiElementVisitor): Unit =

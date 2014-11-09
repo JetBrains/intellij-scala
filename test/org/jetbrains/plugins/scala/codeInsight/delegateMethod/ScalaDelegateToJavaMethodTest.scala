@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala
 package codeInsight.delegateMethod
 
-import com.intellij.testFramework.fixtures.{ModuleFixture, JavaCodeInsightFixtureTestCase}
-import com.intellij.testFramework.builders.JavaModuleFixtureBuilder
 import com.intellij.testFramework.IdeaTestUtil
-import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
+import com.intellij.testFramework.builders.JavaModuleFixtureBuilder
+import com.intellij.testFramework.fixtures.{JavaCodeInsightFixtureTestCase, ModuleFixture}
 import junit.framework.Assert._
 import org.jetbrains.plugins.scala.codeInsight.delegate.ScalaGenerateDelegateHandler
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings

@@ -5,10 +5,9 @@ package parsing
 package top.template
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Constructor
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.AnnotType
-import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -29,7 +28,7 @@ object ClassParents {
     //Look for mixin
     while (builder.getTokenType == ScalaTokenTypes.kWITH) {
       builder.advanceLexer() //Ate with
-      if (!AnnotType.parse(builder)) {
+      if (!AnnotType.parse(builder, isPattern = false)) {
         builder error ScalaBundle.message("wrong.simple.type")
         classParentsMarker.done(ScalaElementTypes.CLASS_PARENTS)
         return true

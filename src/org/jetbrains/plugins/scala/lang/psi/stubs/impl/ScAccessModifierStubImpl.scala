@@ -5,10 +5,10 @@ package stubs
 package impl
 
 
-import api.base.ScAccessModifier
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.util.io.StringRef
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
 
 /**
  * User: Alexander Podkhalyuzin
@@ -39,5 +39,5 @@ class ScAccessModifierStubImpl[ParentPsi <: PsiElement](parent: StubElement[Pare
 
   def isThis: Boolean = _isThis
 
-  def getIdText: Option[String] = idText.map(StringRef.toString(_))
+  def getIdText: Option[String] = idText.map(StringRef.toString)
 }

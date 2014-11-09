@@ -4,10 +4,9 @@ package parser
 package parsing
 package base
 
-import com.intellij.lang.PsiBuilder
-import lexer.ScalaTokenTypes
-import types.StableId
-import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 
 /**
 * User: Alexander.Podkhalyuzin

@@ -1,12 +1,13 @@
-package intellijhocon.highlight
+package intellijhocon
+package highlight
 
-import com.intellij.openapi.fileTypes.{SyntaxHighlighterFactory, SyntaxHighlighter}
-import com.intellij.psi.tree.IElementType
+import com.intellij.lexer.{LayeredLexer, StringLiteralLexer}
 import com.intellij.openapi.editor.colors.TextAttributesKey
+import com.intellij.openapi.fileTypes.{SyntaxHighlighter, SyntaxHighlighterFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.StringEscapesTokenTypes
-import com.intellij.lexer.{StringLiteralLexer, LayeredLexer}
+import com.intellij.psi.tree.IElementType
 import intellijhocon.highlight.{HoconHighlighterColors => HHC}
 import intellijhocon.lexer.{HoconLexer, HoconTokenType}
 
@@ -17,7 +18,7 @@ class HoconSyntaxHighlighterFactory extends SyntaxHighlighterFactory {
 
 object HoconSyntaxHighlighter extends SyntaxHighlighter {
 
-  import HoconTokenType._
+  import intellijhocon.lexer.HoconTokenType._
 
   private val tokenHighlights = Map[IElementType, Array[TextAttributesKey]](
     BadCharacter -> Array(HHC.BadCharacter),
@@ -45,7 +46,7 @@ object HoconSyntaxHighlighter extends SyntaxHighlighter {
   )
 
   def getTokenHighlights(tokenType: IElementType) =
-    tokenHighlights.get(tokenType).getOrElse(Array.empty)
+    tokenHighlights.getOrElse(tokenType, Array.empty)
 
   def getHighlightingLexer = new LayeredLexer(new HoconLexer) {
     registerSelfStoppingLayer(new StringLiteralLexer('\"', QuotedString), Array(QuotedString), IElementType.EMPTY_ARRAY)

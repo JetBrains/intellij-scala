@@ -4,18 +4,15 @@ package psi
 package api
 package toplevel
 
-import com.intellij.util.ArrayFactory
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import psi.api.toplevel.typedef._
-import psi.api.toplevel.packaging._
-import org.jetbrains.plugins.scala.lang.parser._
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi._
-import stubs.StubElement
-import impl.source.PsiFileImpl
-import collection.mutable.ArrayBuffer
-import psi.impl.toplevel.packaging.ScPackagingImpl
+import com.intellij.psi.impl.source.PsiFileImpl
+import com.intellij.psi.stubs.StubElement
+import org.jetbrains.plugins.scala.lang.parser._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging.ScPackagingImpl
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * Trait that implements logic by some type definitions aggregation

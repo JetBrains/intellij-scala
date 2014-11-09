@@ -8,10 +8,11 @@ import java.util.Collections
 import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
 import org.jetbrains.jps.incremental.java.JavaBuilder
 import org.jetbrains.jps.incremental.{CompileContext, ModuleBuildTarget}
+import org.jetbrains.jps.incremental.scala.model.CompileOrder
 import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
 import org.jetbrains.jps.{ModuleChunk, ProjectPaths}
-import org.jetbrains.plugin.scala.compiler.{CompileOrder, NameHashing}
+import org.jetbrains.plugin.scala.compiler. NameHashing
 
 import scala.collection.JavaConverters._
 
@@ -42,13 +43,12 @@ object CompilationData {
     checkOrCreate(output)
 
     val classpath = ProjectPaths.getCompilationClasspathFiles(chunk, chunk.containsTests, false, false).asScala.toSeq
-    val facetSettings = Option(SettingsManager.getFacetSettings(module))
+    val projectSettings = SettingsManager.getProjectSettings(module.getProject)
     val noBootCp = Seq("-nobootcp", "-javabootclasspath", File.pathSeparator)
-    val scalaOptions = noBootCp ++: facetSettings.map(_.getCompilerOptions.toSeq).getOrElse(Seq.empty)
-    val order = facetSettings.map(_.getCompileOrder).getOrElse(CompileOrder.Mixed)
+    val scalaOptions = noBootCp ++: projectSettings.getCompilerOptions
+    val order = projectSettings.getCompileOrder
 
-    val globalSettings = SettingsManager.getGlobalSettings(context.getProjectDescriptor.getModel.getGlobal)
-    val nameHashing = globalSettings.getNameHashing
+    val nameHashing = NameHashing.ENABLED // TODO do we really need an UI setting for that?
 
     createOutputToCacheMap(context).map { outputToCacheMap =>
 
@@ -156,7 +156,7 @@ object CompilationData {
 
     targets.filterNot { target =>
       val chunk = new ModuleChunk(Collections.singleton(target))
-      ChunkExclusionService.isExcluded(chunk)
+      ChunkExclusionService.isExcluded(chunk, context.getProjectDescriptor.getModel.getGlobal)
     }
   }
 

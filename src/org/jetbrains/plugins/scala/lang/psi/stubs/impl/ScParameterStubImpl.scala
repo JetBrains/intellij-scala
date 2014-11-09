@@ -4,14 +4,14 @@ package psi
 package stubs
 package impl
 
-import api.statements.params.ScParameter
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubElement, IStubElementType}
-import com.intellij.util.io.StringRef
-import api.base.types.ScTypeElement
-import psi.impl.ScalaPsiElementFactory
-import api.expr.ScExpression
+import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.reference.SoftReference
+import com.intellij.util.io.StringRef
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * User: Alexander Podkhalyuzin
@@ -23,14 +23,14 @@ class ScParameterStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
 extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
   private var name: String = _
   private var typeText: String = _
-  private var myTypeElement: SoftReference[Option[ScTypeElement]] = null
+  private var myTypeElement: SoftReference[Option[ScTypeElement]] = new SoftReference[Option[ScTypeElement]](null)
   private var stable: Boolean = false
   private var default: Boolean = false
   private var repeated: Boolean = false
   private var _isVal: Boolean = false
   private var _isVar: Boolean = false
   private var _isCallByName: Boolean = false
-  private var myDefaultExpression: SoftReference[Option[ScExpression]] = null
+  private var myDefaultExpression: SoftReference[Option[ScExpression]] = new SoftReference[Option[ScExpression]](null)
   private var defaultExprText: Option[String] = None
   private var _deprecatedName: Option[String] = None
 
@@ -75,13 +75,11 @@ extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
   def getTypeText: String = typeText
 
   def getTypeElement: Option[ScTypeElement] = {
-    if (myTypeElement != null && myTypeElement.get != null) return myTypeElement.get
-    val res: Option[ScTypeElement] = {
-      if (getTypeText != "") {
-        Some(ScalaPsiElementFactory.createTypeElementFromText(getTypeText, getPsi, null))
-      }
+    val typeElement = myTypeElement.get
+    if (typeElement != null && (typeElement.isEmpty || (typeElement.get.getContext eq getPsi))) return typeElement
+    val res: Option[ScTypeElement] =
+      if (getTypeText != "") Some(ScalaPsiElementFactory.createTypeElementFromText(getTypeText, getPsi, null))
       else None
-    }
     myTypeElement = new SoftReference[Option[ScTypeElement]](res)
     res
   }
@@ -101,15 +99,15 @@ extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
   def getDefaultExprText: Option[String] = defaultExprText
 
   def getDefaultExpr: Option[ScExpression] = {
-    if (myDefaultExpression != null && myDefaultExpression.get != null) return myDefaultExpression.get
-    val res: Option[ScExpression] = {
+    val expression = myDefaultExpression.get
+    if (expression != null && (expression.isEmpty || (expression.get.getContext eq getPsi))) return expression
+    val res: Option[ScExpression] =
       getDefaultExprText match {
         case None => None
         case Some("") => None
         case Some(text) =>
           Some(ScalaPsiElementFactory.createExpressionWithContextFromText(text, getPsi, null))
       }
-    }
     myDefaultExpression = new SoftReference[Option[ScExpression]](res)
     res
   }

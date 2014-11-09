@@ -2,28 +2,42 @@ package org.jetbrains.sbt
 package project.structure
 
 import java.io._
-import scala.xml.{Elem, XML}
-import com.intellij.execution.process.OSProcessHandler
-import java.util.jar.{JarEntry, JarFile}
 import java.util.Properties
-import SbtRunner._
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.jar.{JarEntry, JarFile}
+
+import com.intellij.execution.process.OSProcessHandler
+import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.sbt.project.structure.SbtRunner._
+
+import scala.collection.JavaConverters._
+import scala.xml.{Elem, XML}
 
 /**
  * @author Pavel Fatin
  */
-class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customVM: Option[File]) {
-  private val JavaHome = customVM.getOrElse(new File(System.getProperty("java.home")))
-  private val JavaVM = JavaHome / "bin" / "java"
+class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], vmExecutable: File) {
   private val LauncherDir = getSbtLauncherDir
   private val SbtLauncher = customLauncher.getOrElse(LauncherDir / "sbt-launch.jar")
   private val DefaultSbtVersion = "0.13"
   private val SinceSbtVersion = "0.12.4"
 
-  def read(directory: File, download: Boolean)(listener: (String) => Unit): Either[Exception, Elem] = {
-    checkFilePresence.fold(read0(directory, download)(listener))(it => Left(new FileNotFoundException(it)))
+  private val cancellationFlag: AtomicBoolean = new AtomicBoolean(false)
+
+  def cancel(): Unit =
+    cancellationFlag.set(true)
+
+  def read(directory: File, download: Boolean, resolveClassifiers: Boolean, resolveSbtClassifiers: Boolean)
+          (listener: (String) => Unit): Either[Exception, Elem] = {
+
+    val options = download.seq("download") ++
+            resolveClassifiers.seq("resolveClassifiers") ++
+            resolveSbtClassifiers.seq("resolveSbtClassifiers")
+
+    checkFilePresence.fold(read0(directory, options.mkString(", "))(listener))(it => Left(new FileNotFoundException(it)))
   }
 
-  private def read0(directory: File, download: Boolean)(listener: (String) => Unit): Either[Exception, Elem] = {
+  private def read0(directory: File, options: String)(listener: (String) => Unit): Either[Exception, Elem] = {
     val sbtVersion = sbtVersionIn(directory)
             .orElse(implementationVersionOf(SbtLauncher))
             .getOrElse(DefaultSbtVersion)
@@ -34,50 +48,61 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customVM: 
       val message = s"SBT $SinceSbtVersion+ required. Please update the project definition"
       Left(new UnsupportedOperationException(message))
     } else {
-      read1(directory, majorSbtVersion, download, listener)
+      read1(directory, majorSbtVersion, options, listener)
     }
   }
 
   private def checkFilePresence: Option[String] = {
-    val files = Stream("Java home" -> JavaHome, "SBT launcher" -> SbtLauncher)
+    val files = Stream("SBT launcher" -> SbtLauncher)
     files.map((check _).tupled).flatten.headOption
   }
 
   private def check(entity: String, file: File) = (!file.exists()).option(s"$entity does not exist: $file")
 
-  private def read1(directory: File, sbtVersion: String, download: Boolean, listener: (String) => Unit) = {
+  private def read1(directory: File, sbtVersion: String, options: String, listener: (String) => Unit) = {
     val pluginFile = LauncherDir / s"sbt-structure-$sbtVersion.jar"
-    val className = if (download) "ReadProjectAndRepository" else "ReadProject"
+
+    val sbtOpts: Seq[String] = {
+      val sbtOptsFile = directory / ".sbtopts"
+      if (sbtOptsFile.exists && sbtOptsFile.isFile && sbtOptsFile.canRead)
+        FileUtil.loadLines(sbtOptsFile).asScala.filterNot(_.startsWith("#"))
+      else
+        Seq.empty
+    }
 
     usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
       usingTempFile("sbt-commands", Some(".lst")) { commandsFile =>
 
         commandsFile.write(
           s"""set artifactPath := file("${path(structureFile)}")""",
-          s"""apply -cp "${path(pluginFile)}" org.jetbrains.sbt.$className""")
+          s"""set artifactClassifier := Some("$options")""",
+          s"""apply -cp "${path(pluginFile)}" org.jetbrains.sbt.ReadProject""")
 
-        val processCommands =
-          path(JavaVM) +:
+        val processCommandsRaw =
+          path(vmExecutable) +:
 //                    "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005" +:
                   "-Djline.terminal=jline.UnsupportedTerminal" +:
                   "-Dsbt.log.noformat=true" +:
-                  vmOptions :+
+                  (vmOptions ++ sbtOpts) :+
                   "-jar" :+
                   path(SbtLauncher) :+
                   s"< ${path(commandsFile)}"
+        val processCommands = processCommandsRaw.filterNot(_.isEmpty)
 
         try {
           val process = Runtime.getRuntime.exec(processCommands.toArray, null, directory)
-          val output = handle(process, listener)
-          (structureFile.length > 0).either(
-            XML.load(structureFile.toURI.toURL))(new SbtException(output))
+          val result = handle(process, listener)
+          result.map { output =>
+            (structureFile.length > 0).either(
+              XML.load(structureFile.toURI.toURL))(SbtException.fromSbtLog(output))
+          }.getOrElse(Left(new ImportCancelledException))
         } catch {
           case e: Exception => Left(e)
         }
       }}
   }
 
-  private def handle(process: Process, listener: (String) => Unit): String = {
+  private def handle(process: Process, listener: (String) => Unit): Option[String] = {
     val output = new StringBuilder()
 
     val processListener: (OutputType, String) => Unit = {
@@ -99,15 +124,27 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customVM: 
     handler.addProcessListener(new ListenerAdapter(processListener))
     handler.startNotify()
 
-    handler.waitFor()
+    var processEnded = false
+    while (!processEnded && !cancellationFlag.get())
+      processEnded = handler.waitFor(SBT_PROCESS_CHECK_TIMEOUT_MSEC)
 
-    output.toString()
+    if (!processEnded) {
+      handler.setShouldDestroyProcessRecursively(false)
+      handler.destroyProcess()
+      None
+    } else {
+      Some(output.toString())
+    }
   }
 
   private def path(file: File): String = file.getAbsolutePath.replace('\\', '/')
 }
 
 object SbtRunner {
+  class ImportCancelledException extends Exception
+
+  val SBT_PROCESS_CHECK_TIMEOUT_MSEC = 100
+
   def getSbtLauncherDir = {
     val file: File = jarWith[this.type]
     val deep = if (file.getName == "classes") 1 else 2
@@ -128,11 +165,17 @@ object SbtRunner {
   }
 
   private def readManifestAttributeFrom(file: File, name: String): Option[String] = {
-    using(new JarFile(file)) { jar =>
+    val jar = new JarFile(file)
+    try {
       using(new BufferedInputStream(jar.getInputStream(new JarEntry("META-INF/MANIFEST.MF")))) { input =>
         val manifest = new java.util.jar.Manifest(input)
         val attributes = manifest.getMainAttributes
         Option(attributes.getValue(name))
+      }
+    }
+    finally {
+      if (jar.isInstanceOf[Closeable]) {
+        jar.close()
       }
     }
   }

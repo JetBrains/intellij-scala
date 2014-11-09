@@ -2,19 +2,18 @@ package org.jetbrains.plugins.scala
 package codeInsight.intention.imports
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.{PsiNamedElement, PsiElement}
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import ImportMembersUtil._
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
-import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.openapi.project.Project
 import com.intellij.psi.search.LocalSearchScope
-import scala.collection.JavaConverters._
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiNamedElement}
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
+import org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportMembersUtil._
+import org.jetbrains.plugins.scala.extensions.PsiReferenceEx.resolve
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
-import extensions.PsiReferenceEx.resolve
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 
 /**

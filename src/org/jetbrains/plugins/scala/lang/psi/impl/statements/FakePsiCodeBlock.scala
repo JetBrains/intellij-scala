@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package lang.psi.impl.statements
 
-import com.intellij.psi._
-import impl.light.LightElement
 import com.intellij.openapi.util.TextRange
-import lang.psi.api.expr.{ScBlockExpr, ScExpression}
+import com.intellij.psi._
+import com.intellij.psi.impl.light.LightElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 
 final class FakePsiCodeBlock(body: ScExpression) extends LightElement(body.getManager, body.getLanguage) with PsiCodeBlock {
   def shouldChangeModificationCount(place: PsiElement): Boolean = false

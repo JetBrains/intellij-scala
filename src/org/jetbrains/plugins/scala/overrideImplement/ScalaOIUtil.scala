@@ -1,27 +1,25 @@
 package org.jetbrains.plugins.scala
 package overrideImplement
 
-import com.intellij.codeInsight.generation.GenerateMembersUtil
-import com.intellij.openapi.editor.Editor
-
-import com.intellij.psi.util.PsiTreeUtil
-
-import com.intellij.util.IncorrectOperationException
-import com.intellij.psi._
-import lang.psi.api.toplevel.typedef.{ScTrait, ScTypeDefinition, ScMember, ScTemplateDefinition}
-import lang.psi.api.toplevel.ScTypedDefinition
-import lang.psi.api.statements._
-import lang.psi.types._
-import lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.util.ScalaUtils
-import scala.collection.mutable.ListBuffer
-import com.intellij.openapi.project.Project
-import collection.immutable.HashSet
-import extensions._
+import com.intellij.codeInsight.generation.{GenerateMembersUtil, ClassMember => JClassMember}
 import com.intellij.openapi.application.ApplicationManager
-import scala.collection.JavaConversions._
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
+import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
-import com.intellij.codeInsight.generation.{ClassMember => JClassMember}
+import org.jetbrains.plugins.scala.util.ScalaUtils
+
+import scala.collection.JavaConversions._
+import scala.collection.immutable.HashSet
+import scala.collection.mutable.ListBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -101,7 +99,7 @@ object ScalaOIUtil {
         val sortedMembers = ScalaMemberChooser.sorted(selectedMembers, clazz)
         val genInfos = sortedMembers.map(new ScalaGenerationInfo(_))
         val anchor = getAnchor(editor.getCaretModel.getOffset, clazz)
-        val inserted = GenerateMembersUtil.insertMembersBeforeAnchor(clazz, anchor.getOrElse(null), genInfos.reverse)
+        val inserted = GenerateMembersUtil.insertMembersBeforeAnchor(clazz, anchor.orNull, genInfos.reverse)
         inserted.headOption.foreach(_.positionCaret(editor, toEditMethodBody = true))
       }
     }, clazz.getProject, if (isImplement) "Implement method" else "Override method")
@@ -192,7 +190,7 @@ object ScalaOIUtil {
       case x if name == "$tag" || name == "$init$" => false
       case x if !withOwn && x.containingClass == clazz => false
       case x if x.containingClass != null && x.containingClass.isInterface &&
-              !x.containingClass.isInstanceOf[ScTrait] => true
+              !x.containingClass.isInstanceOf[ScTrait] && x.hasModifierProperty("abstract") => true
       case x if x.hasModifierPropertyScala("abstract") && !x.isInstanceOf[ScFunctionDefinition] &&
               !x.isInstanceOf[ScPatternDefinition] && !x.isInstanceOf[ScVariableDefinition] => true
       case x: ScFunctionDeclaration if x.hasAnnotation("scala.native") == None => true

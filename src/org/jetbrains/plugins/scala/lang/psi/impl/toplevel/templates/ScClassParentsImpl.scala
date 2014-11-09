@@ -5,12 +5,12 @@ package impl
 package toplevel
 package templates
 
-import stubs.ScTemplateParentsStub
-import types.result.TypingContext
-import types._
 import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
-import api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateParentsStub
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 
 /**
@@ -27,7 +27,7 @@ class ScClassParentsImpl extends ScalaStubBasedElementImpl[ScTemplateParents] wi
   def superTypes: Seq[ScType] = {
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScTemplateParentsStub].getTemplateParentsTypes.toSeq
+      return stub.asInstanceOf[ScTemplateParentsStub].getTemplateParentsTypes
     }
     typeElements.map(_.getType(TypingContext.empty).getOrAny)
   }

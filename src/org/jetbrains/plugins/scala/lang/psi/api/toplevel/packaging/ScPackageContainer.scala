@@ -5,7 +5,7 @@ package api
 package toplevel
 package packaging
 
-import typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
  * @author ilyas

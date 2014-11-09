@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package resolve
 
-import ResolveTargets._
+import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 
 object StdKinds {
   val stableQualRef = ValueSet(PACKAGE, OBJECT, VAL)

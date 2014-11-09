@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.scaladoc
 
-import base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 /**
  * User: Dmitry Naydanov
@@ -9,8 +9,6 @@ import base.ScalaLightCodeInsightFixtureTestAdapter
  */
 
 class WikiTagAutoCompletionTest extends ScalaLightCodeInsightFixtureTestAdapter {
-
-  import ScalaLightCodeInsightFixtureTestAdapter.CARET_MARKER
 
   def testCodeLinkAC() {
     val text = "/** [" + CARET_MARKER + " */"

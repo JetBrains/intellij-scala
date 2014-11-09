@@ -1,24 +1,24 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intention.expression
 
-import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.Editor
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.openapi.util.TextRange
-import lang.psi.impl.ScalaPsiElementFactory
-import extensions._
-import lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import com.intellij.codeInsight.hint.HintManager
-import lang.psi.api.expr._
-import lang.psi.api.toplevel.ScEarlyDefinitions
-import lang.psi.api.statements.params.ScClassParameter
-import lang.psi.api.statements.ScFunction
-import com.intellij.psi.{PsiNamedElement, PsiMethod, PsiDocumentManager, PsiElement}
-import lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
-import lang.psi.api.base.ScPrimaryConstructor
-import codeInspection.InspectionBundle
+import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiMethod, PsiNamedElement}
+import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * @author Ksenia.Sautina

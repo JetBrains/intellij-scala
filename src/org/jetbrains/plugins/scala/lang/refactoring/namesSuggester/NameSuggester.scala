@@ -10,8 +10,8 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiNamedElement}
 import org.atteo.evo.inflector.English
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
-import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScType.ExtractClass
@@ -146,11 +146,10 @@ object NameSuggester {
         val baseJavaCollectionClassName = "java.lang.Iterable"
         val baseMapClassName = "scala.collection.GenMap"
         val baseJavaMapClassName = "java.util.Map"
-        val function1ClassName = "scala.Function1"
         val eitherClassName = "scala.util.Either"
         def isInheritor(c: PsiClass, baseFqn: String) = {
           val baseClass = JavaPsiFacade.getInstance(project).findClass(baseFqn, GlobalSearchScope.allScope(project))
-          c.isInheritor(baseClass, true) || ScEquivalenceUtil.areClassesEquivalent(c, baseClass)
+          baseClass != null && (c.isInheritor(baseClass, true) || ScEquivalenceUtil.areClassesEquivalent(c, baseClass))
         }
         val needPrefix = Map(
           "scala.Option" -> "maybe",
@@ -234,6 +233,11 @@ object NameSuggester {
         }
       case x: ScMethodCall =>
         generateNamesByExpr(x.getEffectiveInvokedExpr)
+      case l: ScLiteral if l.isString =>
+        l.getValue match {
+          case s: String if ScalaNamesUtil.isIdentifier(s.toLowerCase) => add(s.toLowerCase)
+          case _ =>
+        }
       case _ => expr.getContext match {
         case x: ScAssignStmt => x.assignName.foreach(add)
         case x: ScArgumentExprList => x.matchedParameters.getOrElse(Seq.empty).find(_._1 == expr) match {
@@ -247,7 +251,7 @@ object NameSuggester {
 
   private def generateCamelNames(name: String)(implicit names: ArrayBuffer[String], validator: NameValidator) {
     if (name == "") return
-    val s = if (Array("get", "set", "is").map(name.startsWith).contains(elem = true))
+    val s = if (Array("get", "set", "is").exists(name.startsWith))
       name.charAt(0) match {
         case 'g' | 's' => name.substring(3, name.length)
         case _ => name.substring(2, name.length)
@@ -268,7 +272,7 @@ object NameSuggester {
   private def getCamelNames(name: String): Seq[String] = {
     if (name == "") return Seq.empty
     val names = new ArrayBuffer[String]
-    val s = if (Array("get", "set", "is").map(name.startsWith).contains(elem = true))
+    val s = if (Array("get", "set", "is").exists(name.startsWith))
       name.charAt(0) match {
         case 'g' | 's' => name.substring(3, name.length)
         case _ => name.substring(2, name.length)

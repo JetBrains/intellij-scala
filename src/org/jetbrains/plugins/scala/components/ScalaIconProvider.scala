@@ -1,20 +1,21 @@
 package org.jetbrains.plugins.scala
 package components
 
-import com.intellij.psi._
-import icons.Icons
 import javax.swing.Icon
+
 import com.intellij.ide.IconProvider
-import lang.psi.api.ScalaFile
-import org.jetbrains.annotations.Nullable
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.psi._
+import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 class ScalaIconProvider extends IconProvider {
   @Nullable
   override def getIcon(element: PsiElement, flags: Int): Icon = {
     ProgressManager.checkCanceled()
     element match {
-      case null => null
+      case null =>
       case file: ScalaFile =>
         if (file.isWorksheetFile) return Icons.WORKSHEET_LOGO
         if (file.isScriptFile()) return Icons.SCRIPT_FILE_LOGO

@@ -4,14 +4,14 @@ package psi
 package stubs
 package impl
 
-import api.base.types.ScTypeElement
-import api.expr.ScExpression
-import api.statements.ScFunction
-import com.intellij.psi.stubs.{StubElement, IStubElementType}
 import com.intellij.psi.PsiElement
-import com.intellij.util.io.StringRef
-import psi.impl.ScalaPsiElementFactory
+import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.reference.SoftReference
+import com.intellij.util.io.StringRef
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  *  User: Alexander Podkhalyuzin
@@ -26,8 +26,8 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
   private var annotations: Array[StringRef] = Array[StringRef]()
   private var typeText: StringRef = _
   private var bodyText: StringRef = _
-  private var myReturnTypeElement: SoftReference[Option[ScTypeElement]] = null
-  private var myBodyExpression: SoftReference[Option[ScExpression]] = null
+  private var myReturnTypeElement: SoftReference[Option[ScTypeElement]] = new SoftReference[Option[ScTypeElement]](null)
+  private var myBodyExpression: SoftReference[Option[ScExpression]] = new SoftReference[Option[ScExpression]](null)
   private var assign: Boolean = false
   private var _implicit: Boolean = false
   private var local: Boolean = false
@@ -39,7 +39,7 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = StringRef.fromString(name)
     this.declaration = isDeclaration
-    this.annotations = annotations.map(StringRef.fromString(_))
+    this.annotations = annotations.map(StringRef.fromString)
     this.typeText = StringRef.fromString(typeText)
     this.bodyText = StringRef.fromString(bodyText)
     this.assign = assign
@@ -68,30 +68,28 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
 
   def isDeclaration = declaration
 
-  def getAnnotations: Array[String] = annotations.map(StringRef.toString(_))
+  def getAnnotations: Array[String] = annotations.map(StringRef.toString)
 
   def getReturnTypeElement: Option[ScTypeElement] = {
-    if (myReturnTypeElement != null && myReturnTypeElement.get != null) return myReturnTypeElement.get
-    val res: Option[ScTypeElement] = {
+    val returnTypeElement = myReturnTypeElement.get
+    if (returnTypeElement != null && (returnTypeElement.isEmpty || (returnTypeElement.get.getContext eq getPsi))) {
+      return returnTypeElement
+    }
+    val res: Option[ScTypeElement] =
       if (getReturnTypeText != "") {
         Some(ScalaPsiElementFactory.createTypeElementFromText(getReturnTypeText, getPsi, null))
-      }
-      else None
-    }
+      } else None
     myReturnTypeElement = new SoftReference[Option[ScTypeElement]](res)
     res
   }
 
   def getBodyExpression: Option[ScExpression] = {
-    if (myBodyExpression != null && myBodyExpression.get != null) return myBodyExpression.get
-    val res: Option[ScExpression] = {
+    val body = myBodyExpression.get
+    if (body != null && (body.isEmpty || (body.get.getContext eq getPsi))) return body
+    val res: Option[ScExpression] =
       if (getBodyText != "") {
         Some(ScalaPsiElementFactory.createExpressionWithContextFromText(getBodyText, getPsi, null))
-      }
-      else {
-        None
-      }
-    }
+      } else None
     myBodyExpression = new SoftReference[Option[ScExpression]](res)
     res
   }

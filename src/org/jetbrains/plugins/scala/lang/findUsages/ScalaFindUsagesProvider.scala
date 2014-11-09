@@ -2,21 +2,20 @@ package org.jetbrains.plugins.scala
 package lang
 package findUsages
 
-import com.intellij.psi._
-import psi.api.base.patterns.ScBindingPattern
-import com.intellij.psi.util.PsiFormatUtil
-import com.intellij.psi.util.PsiFormatUtilBase
 import com.intellij.lang.cacheBuilder.WordsScanner
-import psi.api.statements.{ScValue, ScTypeAlias, ScVariable}
-import psi.api.toplevel.ScNamedElement
-import psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait, ScObject}
 import com.intellij.lang.findUsages.FindUsagesProvider
-import org.jetbrains.annotations.{Nullable, NotNull}
-import psi.impl.toplevel.PsiClassFake
-import psi.api.statements.params.ScTypeParam
-import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
-import psi.api.base.ScFieldId
-import psi.ScalaPsiUtil
+import com.intellij.psi._
+import com.intellij.psi.util.{PsiFormatUtil, PsiFormatUtilBase}
+import org.jetbrains.annotations.{NotNull, Nullable}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 
 class ScalaFindUsagesProvider extends FindUsagesProvider {
   @Nullable

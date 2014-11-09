@@ -1,16 +1,14 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.move
 
-import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesProcessor
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.psi.PsiElement
 import com.intellij.refactoring.MoveDestination
 import com.intellij.refactoring.move.MoveCallback
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesProcessor
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
-import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /**
  * Nikolay.Tropin

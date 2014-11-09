@@ -8,8 +8,8 @@ package patterns
 import com.intellij.psi._
 import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.caches.CachesUtil
-import org.jetbrains.plugins.scala.extensions.toPsiClassExt
-import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeVariableTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
@@ -22,6 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ExpandedExtractorResolveProcessor}
+import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 
 import scala.annotation.tailrec
 import scala.collection.immutable.Set
@@ -38,23 +40,47 @@ trait ScPattern extends ScalaPsiElement {
 
   def bindings: Seq[ScBindingPattern] = {
     val b = new ArrayBuffer[ScBindingPattern]
-    _bindings(this, b)
+
+    def inner(p: ScPattern) {
+      p match {
+        case binding: ScBindingPattern => b += binding
+        case _ =>
+      }
+
+      for (sub <- p.subpatterns) {
+        inner(sub)
+      }
+    }
+
+    inner(this)
+    b
+  }
+
+  def typeVariables: Seq[ScTypeVariableTypeElement] = {
+    val b = new ArrayBuffer[ScTypeVariableTypeElement]
+
+    def inner(p: ScPattern) {
+      p match {
+        case ScTypedPattern(te) =>
+          te.accept(new ScalaRecursiveElementVisitor {
+            override def visitTypeVariableTypeElement(tvar: ScTypeVariableTypeElement): Unit = {
+              b += tvar
+            }
+          })
+        case _ =>
+      }
+
+      for (sub <- p.subpatterns) {
+        inner(sub)
+      }
+    }
+
+    inner(this)
     b
   }
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitPattern(this)
-  }
-
-  private def _bindings(p: ScPattern, b: ArrayBuffer[ScBindingPattern]) {
-    p match {
-      case binding: ScBindingPattern => b += binding
-      case _ =>
-    }
-
-    for (sub <- p.subpatterns) {
-      _bindings(sub, b)
-    }
   }
 
   def subpatterns: Seq[ScPattern] = this match {
@@ -378,8 +404,8 @@ object ScPattern {
       extractPossibleProductParts(receiverType, place, isOneArgCaseClass)
     }
 
-    val level = ScalaLanguageLevel.getLanguageLevel(place)
-    if (level.isThoughScala2_11) collectFor2_11
+    val level = place.languageLevel
+    if (level >= Scala_2_11) collectFor2_11
     else {
       returnType match {
         case ScParameterizedType(des, args) =>

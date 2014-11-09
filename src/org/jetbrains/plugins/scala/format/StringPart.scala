@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala
 package format
 
-import lang.psi.api.expr.{ScBlockExpr, ScExpression}
-import org.jetbrains.plugins.scala.lang.psi.types
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import types.result.{Success, TypingContext}
-import com.intellij.psi.{PsiManager, PsiElement}
-import types.ScType
 import java.util.{IllegalFormatConversionException, IllegalFormatException}
+
+import com.intellij.psi.{PsiElement, PsiManager}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 
 /**
  * Pavel Fatin
@@ -63,14 +63,13 @@ case class Injection(expression: ScExpression, specifier: Option[Specifier]) ext
               value.formatted(it.format)
               None
             } catch {
-              case e: IllegalFormatConversionException => return Some(Inapplicable)
-              case e: IllegalFormatException => return Some(Malformed)
+              case e: IllegalFormatConversionException => Some(Inapplicable)
+              case e: IllegalFormatException => Some(Malformed)
             }
-          case _ => return Some(Malformed)
+          case _ => Some(Malformed)
         }
-        case _ => return Some(Malformed)
+        case _ => Some(Malformed)
       }
-      None
   }
 }
 

@@ -5,13 +5,11 @@ package impl
 package base
 package patterns
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
-import api.base.patterns.ScStableReferenceElementPattern
-import api.expr.{ScReferenceExpression, ScExpression}
 import com.intellij.lang.ASTNode
-import psi.types.result.TypingContext
 import com.intellij.psi.PsiElementVisitor
-import api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferenceElementPattern
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
  * @author ilyas

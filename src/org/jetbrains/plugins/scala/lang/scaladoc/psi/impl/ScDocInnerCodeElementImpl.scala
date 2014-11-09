@@ -5,8 +5,8 @@ package psi
 package impl
 
 import com.intellij.lang.ASTNode
-import lang.psi.ScalaPsiElementImpl
-import api.{ScDocInnerCodeElement, ScDocTag}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocInnerCodeElement
 
 /**
  * User: Dmitry Naidanov

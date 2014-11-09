@@ -5,9 +5,8 @@ package parsing
 package top
 
 import _root_.org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
-import com.intellij.lang.PsiBuilder
-import lexer.ScalaTokenTypes
-import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin

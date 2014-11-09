@@ -1,17 +1,18 @@
-package intellijhocon.parser
+package intellijhocon
+package parser
 
-import com.intellij.lang.{PsiParser, ASTNode, ParserDefinition}
-import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiFile, PsiElement, FileViewProvider}
 import com.intellij.lang.ParserDefinition.SpaceRequirements
+import com.intellij.lang.{ASTNode, ParserDefinition, PsiParser}
 import com.intellij.lexer.Lexer
-import com.intellij.psi.tree.{TokenSet, IFileElementType}
+import com.intellij.openapi.project.Project
+import com.intellij.psi.tree.{IFileElementType, TokenSet}
+import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile}
+import intellijhocon.lexer.{HoconLexer, HoconTokenSets, HoconTokenType}
 import intellijhocon.psi.{HoconPsiElement, HoconPsiFile}
-import intellijhocon.lexer.{HoconTokenType, HoconTokenSets, HoconLexer}
 
 class HoconParserDefinition extends ParserDefinition {
 
-  import HoconTokenType._
+  import intellijhocon.lexer.HoconTokenType._
 
   def spaceExistanceTypeBetweenTokens(left: ASTNode, right: ASTNode): SpaceRequirements =
     (left.getElementType, right.getElementType) match {

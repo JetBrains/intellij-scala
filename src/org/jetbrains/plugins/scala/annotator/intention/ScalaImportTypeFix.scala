@@ -1,13 +1,15 @@
 package org.jetbrains.plugins.scala.annotator.intention
 
 
+import java.awt.Point
+import javax.swing.Icon
+
 import com.intellij.codeInsight.FileModificationService
 import com.intellij.codeInsight.completion.JavaCompletionUtil
 import com.intellij.codeInsight.daemon.QuickFixBundle
 import com.intellij.codeInsight.daemon.impl.actions.AddImportAction
 import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, QuestionAction}
 import com.intellij.codeInspection.HintAction
-import com.intellij.ide.util.FQNameCellRenderer
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.{Editor, LogicalPosition}
@@ -18,14 +20,13 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ObjectUtils
-import java.awt.Point
-import javax.swing.{Icon, JList, ListCellRenderer}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
-import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScPostfixExpr, ScPrefixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
@@ -38,6 +39,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.ScalaUtils
+
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -141,11 +143,9 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
           ScalaUtils.runWriteAction(new Runnable {
             def run() {
               PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
-              if (!ref.isInstanceOf[ScDocResolvableCodeReference]) {
-                ref.bindToElement(clazz.element)
-              } else {
-                ref.replace(ScalaPsiElementFactory.createDocLinkValue(clazz.qualifiedName, ref.getManager))
-              }
+              if (!ref.isValid) return
+              if (!ref.isInstanceOf[ScDocResolvableCodeReference]) ref.bindToElement(clazz.element)
+              else ref.replace(ScalaPsiElementFactory.createDocLinkValue(clazz.qualifiedName, ref.getManager))
             }
           }, clazz.getProject, "Add import action")
         }
@@ -153,9 +153,6 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
     }
 
     def chooseClass() {
-      val list = new JList(classes)
-      list.setCellRenderer(new FQNameCellRenderer().asInstanceOf[ListCellRenderer[Any]])
-
       val popup = new BaseListPopupStep[TypeToImport](QuickFixBundle.message("class.to.import.chooser.title"), classes) {
         override def getIconFor(aValue: TypeToImport): Icon = {
           aValue.getIcon
@@ -297,6 +294,7 @@ object ScalaImportTypeFix {
 
   def getTypesToImport(ref: ScReferenceElement, myProject: Project): Array[TypeToImport] = {
     if (!ref.isValid) return Array.empty
+    if (ref.isInstanceOf[ScTypeProjection]) return Array.empty
     val kinds = ref.getKinds(incomplete = false)
     val cache = ScalaPsiManager.instance(myProject)
     val classes = cache.getClassesByName(ref.refName, ref.getResolveScope)
@@ -305,7 +303,7 @@ object ScalaImportTypeFix {
       def addClazz(clazz: PsiClass) {
         if (clazz != null && clazz.qualifiedName != null && clazz.qualifiedName.indexOf(".") > 0 &&
           ResolveUtils.kindMatches(clazz, kinds) && notInner(clazz, ref) && ResolveUtils.isAccessible(clazz, ref) &&
-          !JavaCompletionUtil.isInExcludedPackage(clazz, true)) {
+          !JavaCompletionUtil.isInExcludedPackage(clazz, false)) {
           buffer += ClassTypeToImport(clazz)
         }
       }
@@ -327,7 +325,7 @@ object ScalaImportTypeFix {
       val containingClass = alias.containingClass
       if (containingClass != null && ScalaPsiUtil.hasStablePath(alias) &&
         ResolveUtils.kindMatches(alias, kinds) && ResolveUtils.isAccessible(alias, ref) &&
-        !JavaCompletionUtil.isInExcludedPackage(containingClass, true)) {
+        !JavaCompletionUtil.isInExcludedPackage(containingClass, false)) {
         buffer += TypeAliasToImport(alias)
       }
     }

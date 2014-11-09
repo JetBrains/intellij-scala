@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala
 package util.macroDebug
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
  * User: Dmitry Naydanov

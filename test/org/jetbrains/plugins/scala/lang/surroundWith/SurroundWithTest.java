@@ -1,23 +1,20 @@
 package org.jetbrains.plugins.scala.lang.surroundWith;
 
-import org.jetbrains.plugins.scala.Console;
-import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
-import org.jetbrains.plugins.scala.util.TestUtils;
-import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
-import junit.framework.Test;
-import junit.framework.Assert;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiElement;
+import com.intellij.codeInsight.generation.surroundWith.SurroundWithHandler;
+import com.intellij.lang.surroundWith.Surrounder;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
-import com.intellij.openapi.fileEditor.TextEditor;
-import com.intellij.openapi.command.CommandProcessor;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.lang.surroundWith.Surrounder;
-import com.intellij.util.IncorrectOperationException;
-import com.intellij.codeInsight.generation.surroundWith.SurroundWithHandler;
+import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiFile;
+import junit.framework.Test;
+import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
+import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
+import org.jetbrains.plugins.scala.util.TestUtils;
+import org.junit.runner.RunWith;
+import org.junit.runners.AllTests;
 import scala.Tuple4;
 
 /**
@@ -25,6 +22,7 @@ import scala.Tuple4;
  * Date: 08.11.2008
  */
 @SuppressWarnings({"ConstantConditions"})
+@RunWith(AllTests.class)
 public class SurroundWithTest extends BaseScalaFileSetTestCase{
   private static final String DATA_PATH = "/surroundWith/data/";
 

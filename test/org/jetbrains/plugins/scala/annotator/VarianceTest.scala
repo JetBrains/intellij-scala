@@ -7,9 +7,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
- * Created by Svyaatoslav ILINSKIY on 6/27/2014.
+ * @author Svyaatoslav ILINSKIY
+ * @since  6/27/2014.
  */
 class VarianceTest extends SimpleTestCase {
   final val Header = "class A; class B\n"
@@ -91,24 +93,6 @@ class VarianceTest extends SimpleTestCase {
     }
   }
 
-  def testBoundCyclicSimple() {
-    assertMatches(messages("trait N[A <: A]")) {
-      case Error("N", CyclicReference()) :: Nil =>
-    }
-  }
-
-  def testBoundCyclicComplex() {
-    assertMatches(messages("trait O[B, A >: B with A]")) {
-      case Error("O", CyclicReference()) :: Nil =>
-    }
-  }
-
-  def testBoundCyclicMoreComplex() {
-    assertMatches(messages("trait P[A >: B, B >: A]")) {
-      case Error("P", CyclicReference()) :: Error("P", CyclicReference()) :: Nil =>
-    }
-  }
-
   def testBoundsConformance() {
     assertMatches(messages("trait T[Q, R <: Q, C >: Q <: R]")) {
       case Error("C >: Q <: R", NotConformsUpper()) :: Nil =>
@@ -124,21 +108,6 @@ class VarianceTest extends SimpleTestCase {
   def testTypeBoundNoErrorParameterized() {
     assertMatches(messages("trait V[M[X <: Bound[X]], Bound[_]]")) {
       case Nil =>
-    }
-  }
-
-  def testCurriedFunctionParameters() {
-    val code = """object T {
-                 |  def f(x: Int)(y: Int) = x * y
-                 |
-                 |  def t() : Unit = {
-                 |    val cf = f(1)
-                 |    // should be f(1) _
-                 |    println(cf(5))
-                 |  }
-                 |}""".stripMargin
-    assertMatches(messages(code)) {
-      case Error("cf", MissingArguments()) :: Nil =>
     }
   }
 
@@ -178,20 +147,19 @@ class VarianceTest extends SimpleTestCase {
       case v: ScValue => annotator.annotate(v, mock)
       case tbo: ScTypeBoundsOwner => annotator.annotate(tbo, mock)
       case call: ScMethodCall => annotator.annotate(call, mock)
+      case td: ScTypeDefinition => annotator.annotate(td, mock)
       case _ =>
     }
 
     mock.annotations.filter((p: Message) => !p.isInstanceOf[Info])
   }
 
-  val ContravariantPosition = containsPattern("occurs in contravariant position")
-  val CovariantPosition = containsPattern("occurs in covariant position")
-  val AbstractModifier = containsPattern("Abstract member may not have private modifier")
-  val CyclicReference = containsPattern("Illegal cyclic reference")
-  val NotConformsUpper = containsPattern("does not conform to upper bound")
-  val MissingArguments = containsPattern("Missing arguments for method")
+  val ContravariantPosition = ContainsPattern("occurs in contravariant position")
+  val CovariantPosition = ContainsPattern("occurs in covariant position")
+  val AbstractModifier = ContainsPattern("Abstract member may not have private modifier")
+  val NotConformsUpper = ContainsPattern("doesn't conform to upper bound")
 
-  def containsPattern(fragment: String) = new {
+  case class ContainsPattern(fragment: String) {
     def unapply(s: String) = s.contains(fragment)
   }
 }

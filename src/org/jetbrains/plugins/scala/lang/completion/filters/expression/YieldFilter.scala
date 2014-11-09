@@ -3,12 +3,12 @@ package lang
 package completion
 package filters.expression
 
-import lexer.ScalaTokenTypes
-import com.intellij.psi.filters.ElementFilter;
-import org.jetbrains.annotations.NonNls;
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import com.intellij.psi.filters.ElementFilter
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
 * @author Alexander Podkhalyuzin

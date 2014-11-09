@@ -4,10 +4,9 @@ package parser
 package parsing
 package types
 
-import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.ScalaBundle
-import statements.{EmptyDcl, Dcl}
-import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{Dcl, EmptyDcl}
 
 /**
 * @author Alexander Podkhalyuzin

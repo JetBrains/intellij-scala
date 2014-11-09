@@ -1,65 +1,76 @@
 package org.jetbrains.plugins.scala.worksheet
 
-import scala.reflect.macros.Context
 import scala.language.experimental.macros
+import scala.reflect.macros._
 
 /**
  * User: Dmitry Naydanov
  * Date: 1/21/14
  */
 object MacroPrinter {
-  def printDefInfo[T](toPrint: T) = macro printDefImpl[T]
+  def printDefInfo[T](toPrint: T): String = macro printDefImpl[T]
 
-  def printTypeInfo[T] = macro printTypeInfoImpl[T]
+  def printTypeInfo[T]: String = macro printTypeInfoImpl[T]
 
   /**
-   * Usage 
+   * Usage
    * {{{
    *   printImportInfo({import java.io.File;})
    * }}}
    */
-  def printImportInfo[T](toPrint: T) = macro printImportInfoImpl[T]
+  def printImportInfo[T](toPrint: T): String = macro printImportInfoImpl[T]
 
-  def printGeneric[T](toPrint: T) = macro printGenericImpl[T]
+  def printGeneric[T](toPrint: T): String = macro printGenericImpl[T]
 
-  def printDefImpl[T: c.WeakTypeTag](c: Context)(toPrint: c.Expr[T]) = c literal toPrint.tree.tpe.toString
+  def printDefImpl[T: c.WeakTypeTag](c: blackbox.Context)(toPrint: c.Expr[T]): c.universe.Tree = {
+    import c.universe._
 
-  def printTypeInfoImpl[T](c: Context)(implicit ev: c.WeakTypeTag[T]) = c literal ev.tpe.toString
+    q"${toPrint.tree.tpe.toString}"
+  }
 
-  def printImportInfoImpl[T: c.WeakTypeTag](c: Context)(toPrint: c.Expr[T]) = {
+  def printTypeInfoImpl[T](c: blackbox.Context)(implicit ev: c.WeakTypeTag[T]): c.universe.Tree = {
+    import c.universe._
+
+    q"${ev.tpe.toString}"
+  }
+
+  def printImportInfoImpl[T: c.WeakTypeTag](c: blackbox.Context)(toPrint: c.Expr[T]): c.universe.Tree = {
+    import c.universe._
+
     toPrint.tree match {
-      case c.universe.Block(imp, _) => c literal imp.head.toString()
+      case c.universe.Block(imp, _) => q"${imp.head.toString()}"
     }
   }
 
-   def printGenericImpl[T: c.WeakTypeTag](c: Context)(toPrint: c.Expr[T]): c.Expr[String] = {
-     val u = c.universe
-     import u._
+  def printGenericImpl[T: c.WeakTypeTag](c: blackbox.Context)(toPrint: c.Expr[T]): c.universe.Tree = {
+    import c.universe._
 
-     val e = toPrint.tree match {
-       case c.universe.Block(imp, _) =>
-         Option(imp.apply(1)) flatMap {
-           case defdef: c.universe.DefDef =>
-             val a = s"${u.show(defdef.name)}${
-               defdef.tparams.map {
-                 case tp =>
-                   u.show(tp, true, false, false, false).stripPrefix("type ")
-               }.mkString("[", ",", "]")
-             }${defdef.vparamss.map {
-               case vparams =>
-                 vparams.map {
-                   case param => show(param, false, true, false, false).stripSuffix(" = _")
-                 }.mkString("(", ",", ")")
-             }.mkString("")} => ${defdef.tpt.toString()}"
+    val u = c.universe
 
-             Some(a)
-           case _ => None
-         }
-       case _ => None
-     }
+    val e = toPrint.tree match {
+      case c.universe.Block(imp, _) =>
+        Option(imp.apply(1)) flatMap {
+          case defdef: c.universe.DefDef =>
+            val a = s"${u.show(defdef.name)}${
+              defdef.tparams.map {
+                case tp =>
+                  u.show(tp, true, false, false, false).stripPrefix("type ")
+              }.mkString("[", ",", "]")
+            }${defdef.vparamss.map {
+              case vparams =>
+                vparams.map {
+                  case param => show(param, false, true, false, false).stripSuffix(" = _")
+                }.mkString("(", ",", ")")
+            }.mkString("")} => ${defdef.tpt.toString()}"
 
-     c literal e.getOrElse("")
-   }
+            Some(a)
+          case _ => None
+        }
+      case _ => None
+    }
+
+    q"${e getOrElse ""}"
+  }
 }
 
 class MacroPrinter {}

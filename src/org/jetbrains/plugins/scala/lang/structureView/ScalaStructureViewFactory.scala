@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala
 package lang
 package structureView
 
+import com.intellij.ide.structureView.StructureViewBuilder
 import com.intellij.lang.PsiStructureViewFactory
 import com.intellij.psi.PsiFile
-import com.intellij.ide.structureView.StructureViewBuilder
-import psi.api.ScalaFile
-import console.{ScalaConsoleInfo, ScalaLanguageConsoleView}
+import org.jetbrains.plugins.scala.console.{ScalaConsoleInfo, ScalaLanguageConsoleView}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
 * @author Alexander Podkhalyuzin

@@ -4,11 +4,8 @@ package structureView
 package itemsPresentations
 package impl
 
-import org.jetbrains.plugins.scala.lang.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import com.intellij.openapi.editor.colors.CodeInsightColors
-import com.intellij.openapi.editor.colors.TextAttributesKey
 
 /**
 * @author Alexander Podkhalyuzin

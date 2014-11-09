@@ -6,7 +6,7 @@ package types
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -32,9 +32,10 @@ object ScFunctionType {
   }
 
   @tailrec
-  def extractForPrefix(tp: ScType, prefix: String): Option[(ScTypeDefinition, Seq[ScType])] = {
+  def extractForPrefix(tp: ScType, prefix: String, depth: Int = 100): Option[(ScTypeDefinition, Seq[ScType])] = {
+    if (depth == 0) return None //hack for http://youtrack.jetbrains.com/issue/SCL-6880 to avoid infinite loop.
     tp.isAliasType match {
-      case Some(AliasType(t: ScTypeAliasDefinition, Success(lower, _), _)) => extractForPrefix(lower, prefix)
+      case Some(AliasType(t: ScTypeAliasDefinition, Success(lower, _), _)) => extractForPrefix(lower, prefix, depth - 1)
       case _ =>
         tp match {
           case p: ScParameterizedType =>

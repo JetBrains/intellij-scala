@@ -2,20 +2,20 @@ package org.jetbrains.plugins.scala
 package lang
 package structureView
 
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.base._
-import psi.api.ScalaFile
 import com.intellij.openapi.project.IndexNotReadyException
-import psi.types.{ScSubstitutor, ScType}
-import extensions.toPsiNamedElementExt
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContextOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContextOwner
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -46,10 +46,7 @@ object ScalaElementPresentation {
     val presentableText: StringBuffer = new StringBuffer
     presentableText.append(if (!function.isConstructor) function.name else "this")
 
-    function.typeParametersClause match {
-      case Some(clause) => presentableText.append(clause.getText.replace("<", "&lt;"))
-      case _ => ()
-    }
+    function.typeParametersClause.foreach(clause => presentableText.append(clause.getText))
 
     if (function.paramClauses != null)
       presentableText.append(StructureViewUtil.getParametersAsString(function.paramClauses, fast, subst))

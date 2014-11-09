@@ -2,111 +2,170 @@ package org.jetbrains.plugins.scala.lang.scaladoc.generate;
 
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
 
 import javax.swing.*;
+import java.awt.*;
 
 /**
  * User: DarthGamer
  * Date: 01.10.11
  */
 public class ScaladocConsoleRunConfigurationForm {
-  private JPanel myPanel1;
-  private JTextField additionalFlagsField;
-  private JLabel dirLabel;
-  private TextFieldWithBrowseButton destDirChooser;
-  private JCheckBox myOpenInBrowserCheckBox;
-  private JCheckBox myVerboseCheckBox;
-  private JTextField docTitle;
-  private JTextField maxHeapSizeField;
-  private Project project;
+    private JPanel myPanel1;
+    private JTextField additionalFlagsField;
+    private JLabel dirLabel;
+    private TextFieldWithBrowseButton destDirChooser;
+    private JCheckBox myOpenInBrowserCheckBox;
+    private JCheckBox myVerboseCheckBox;
+    private JTextField docTitle;
+    private JTextField maxHeapSizeField;
+    private Project project;
 
-  public ScaladocConsoleRunConfigurationForm(Project project) {
-    this.project = project;
-    addFileChooser("Output dir", destDirChooser, project);
+    public ScaladocConsoleRunConfigurationForm(Project project) {
+        this.project = project;
+        addFileChooser("Output dir", destDirChooser, project);
 
-    ScaladocSettings settings = ScaladocSettings.getInstance(project);
-    if (settings.docTitle != null) {
-      docTitle.setText(settings.docTitle);
-    } else {
-      docTitle.setText(project.getName() +  " documentation");
+        ScaladocSettings settings = ScaladocSettings.getInstance(project);
+        if (settings.docTitle != null) {
+            docTitle.setText(settings.docTitle);
+        } else {
+            docTitle.setText(project.getName() + " documentation");
+        }
+
+        if (settings.additionalFlags != null) {
+            additionalFlagsField.setText(settings.additionalFlags);
+        }
+
+        if (settings.maxHeapSize != null) {
+            maxHeapSizeField.setText(settings.maxHeapSize);
+        }
+
+        if (settings.outputDir != null) {
+            destDirChooser.setText(settings.outputDir);
+        }
+
+        if (settings.verbose != null) {
+            myVerboseCheckBox.setSelected(settings.verbose);
+        }
+
+        if (settings.openInBrowser != null) {
+            myOpenInBrowserCheckBox.setSelected(settings.openInBrowser);
+        }
     }
 
-    if (settings.additionalFlags != null) {
-      additionalFlagsField.setText(settings.additionalFlags);
+    public void saveSettings() {
+        ScaladocSettings settings = ScaladocSettings.getInstance(project);
+        settings.outputDir = getOutputDir();
+        settings.additionalFlags = getAdditionalFlags();
+        settings.openInBrowser = isShowInBrowser();
+        settings.verbose = isVerbose();
+        settings.docTitle = getDocTitle();
+        settings.maxHeapSize = getMaxHeapSize();
     }
 
-    if (settings.maxHeapSize != null) {
-      maxHeapSizeField.setText(settings.maxHeapSize);
+    public String getOutputDir() {
+        return destDirChooser.getText();
     }
 
-    if (settings.outputDir != null) {
-      destDirChooser.setText(settings.outputDir);
+    public String getAdditionalFlags() {
+        return additionalFlagsField.getText();
     }
 
-    if (settings.verbose != null) {
-      myVerboseCheckBox.setSelected(settings.verbose);
+    public boolean isShowInBrowser() {
+        return myOpenInBrowserCheckBox.isSelected();
     }
 
-    if (settings.openInBrowser != null) {
-      myOpenInBrowserCheckBox.setSelected(settings.openInBrowser);
+    public boolean isVerbose() {
+        return myVerboseCheckBox.isSelected();
     }
-  }
 
-  public void saveSettings() {
-    ScaladocSettings settings = ScaladocSettings.getInstance(project);
-    settings.outputDir = getOutputDir();
-    settings.additionalFlags = getAdditionalFlags();
-    settings.openInBrowser = isShowInBrowser();
-    settings.verbose = isVerbose();
-    settings.docTitle = getDocTitle();
-    settings.maxHeapSize = getMaxHeapSize();
-  }
+    public String getDocTitle() {
+        return docTitle.getText();
+    }
 
-  public String getOutputDir() {
-    return destDirChooser.getText();
-  }
-  
-  public String getAdditionalFlags() {
-    return additionalFlagsField.getText();
-  }
+    public String getMaxHeapSize() {
+        return maxHeapSizeField.getText();
+    }
 
-  public boolean isShowInBrowser() {
-    return myOpenInBrowserCheckBox.isSelected();
-  }
-  
-  public boolean isVerbose() {
-    return myVerboseCheckBox.isSelected();
-  }
+    public JComponent createCenterPanel() {
+        return myPanel1;
+    }
 
-  public String getDocTitle() {
-    return docTitle.getText();
-  }
+    public JTextField getOutputDirChooser() {
+        return destDirChooser.getTextField();
+    }
 
-  public String getMaxHeapSize() {
-    return maxHeapSizeField.getText();
-  }
+    private void addFileChooser(final String title,
+                                final TextFieldWithBrowseButton textField,
+                                final Project project) {
+        final FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(false, true, false, false, false, false) {
+            @Override
+            public boolean isFileVisible(VirtualFile file, boolean showHiddenFiles) {
+                return super.isFileVisible(file, showHiddenFiles) && file.isDirectory();
+            }
+        };
+        fileChooserDescriptor.setTitle(title);
+        textField.addBrowseFolderListener(title, null, project, fileChooserDescriptor);
+    }
 
-  public JComponent createCenterPanel() {
-    return myPanel1;
-  }
+    {
+// GUI initializer generated by IntelliJ IDEA GUI Designer
+// >>> IMPORTANT!! <<<
+// DO NOT EDIT OR ADD ANY CODE HERE!
+        $$$setupUI$$$();
+    }
 
-  public JTextField getOutputDirChooser() {
-    return destDirChooser.getTextField();
-  }
+    /**
+     * Method generated by IntelliJ IDEA GUI Designer
+     * >>> IMPORTANT!! <<<
+     * DO NOT edit this method OR call it in your code!
+     *
+     * @noinspection ALL
+     */
+    private void $$$setupUI$$$() {
+        myPanel1 = new JPanel();
+        myPanel1.setLayout(new GridLayoutManager(7, 2, new Insets(0, 0, 0, 0), -1, -1));
+        dirLabel = new JLabel();
+        dirLabel.setText("Output Directory");
+        myPanel1.add(dirLabel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label1 = new JLabel();
+        label1.setText("Additional Parameters");
+        myPanel1.add(label1, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        myOpenInBrowserCheckBox = new JCheckBox();
+        myOpenInBrowserCheckBox.setText("Open in Browser");
+        myPanel1.add(myOpenInBrowserCheckBox, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        myVerboseCheckBox = new JCheckBox();
+        myVerboseCheckBox.setText("Verbose");
+        myPanel1.add(myVerboseCheckBox, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label2 = new JLabel();
+        label2.setText("Doc Title");
+        myPanel1.add(label2, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        docTitle = new JTextField();
+        myPanel1.add(docTitle, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        maxHeapSizeField = new JTextField();
+        myPanel1.add(maxHeapSizeField, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        final JLabel label3 = new JLabel();
+        label3.setText("Max Heap Size (mb)");
+        myPanel1.add(label3, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        destDirChooser = new TextFieldWithBrowseButton();
+        myPanel1.add(destDirChooser, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(150, -1), new Dimension(150, -1), null, 0, false));
+        additionalFlagsField = new JTextField();
+        myPanel1.add(additionalFlagsField, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        final JSeparator separator1 = new JSeparator();
+        myPanel1.add(separator1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        final JLabel label4 = new JLabel();
+        label4.setText("Scaladoc Parameters");
+        myPanel1.add(label4, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    }
 
-  private void addFileChooser(final String title,
-                                               final TextFieldWithBrowseButton textField,
-                                               final Project project) {
-    final FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(false, true, false, false, false, false) {
-      @Override
-      public boolean isFileVisible(VirtualFile file, boolean showHiddenFiles) {
-        return super.isFileVisible(file, showHiddenFiles) && file.isDirectory();
-      }
-    };
-    fileChooserDescriptor.setTitle(title);
-    textField.addBrowseFolderListener(title, null, project, fileChooserDescriptor);
-  }
+    /**
+     * @noinspection ALL
+     */
+    public JComponent $$$getRootComponent$$$() {
+        return myPanel1;
+    }
 }

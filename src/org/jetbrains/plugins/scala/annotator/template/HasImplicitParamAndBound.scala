@@ -2,10 +2,9 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
-import org.jetbrains.plugins.scala.annotator.AnnotatorPart
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 
 object HasImplicitParamAndBound extends AnnotatorPart[ScClass] {
   def kind = classOf[ScClass]

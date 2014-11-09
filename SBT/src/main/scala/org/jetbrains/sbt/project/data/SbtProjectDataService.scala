@@ -1,21 +1,21 @@
 package org.jetbrains.sbt
 package project.data
 
-import java.io.File
 import java.util
-import com.intellij.openapi.externalSystem.model.DataNode
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.externalSystem.service.project.{ProjectStructureHelper, PlatformFacade}
-import com.intellij.openapi.projectRoots.{Sdk, ProjectJdkTable, JavaSdk}
-import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil._
-import collection.JavaConverters._
-import org.jetbrains.plugins.scala.components.HighlightingAdvisor
+
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
+import com.intellij.compiler.{CompilerConfiguration, CompilerConfigurationImpl}
+import com.intellij.openapi.externalSystem.model.DataNode
+import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, ProjectStructureHelper}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
+import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
 import com.intellij.pom.java.LanguageLevel
-import SbtProjectDataService._
-import com.intellij.openapi.roots.impl.{LanguageLevelProjectExtensionImpl, DirectoryIndex, JavaLanguageLevelPusher}
-import org.jdom.Element
+import org.jetbrains.android.sdk.{AndroidPlatform, AndroidSdkType}
+import org.jetbrains.sbt.project.data.SbtProjectDataService._
+import org.jetbrains.sbt.project.settings.SbtSettings
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -27,9 +27,10 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
     toImport.asScala.foreach { node =>
       val data = node.getData
 
+
       val existingJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
 
-      val projectJdk = existingJdk.orElse(findJdkBy(data.javaHome)).orElse(allJdks.headOption)
+      val projectJdk = data.jdk.flatMap(findJdkBy).orElse(existingJdk).orElse(allJdks.headOption)
 
       projectJdk.foreach(ProjectRootManager.getInstance(project).setProjectSdk)
 
@@ -40,10 +41,10 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
       val javaLanguageLevel = javaLanguageLevelFrom(javacOptions)
               .orElse(projectJdk.flatMap(defaultJavaLanguageLevelIn))
 
-      javaLanguageLevel.foreach(upgradeJavaLanguageLevelIn(project, _))
-    }
+      javaLanguageLevel.foreach(updateJavaLanguageLevelIn(project, _))
 
-    configureHighlightingIn(project)
+      SbtSettings.getInstance(project).sbtVersion = data.sbtVersion
+    }
   }
 
   def doRemoveData(toRemove: util.Collection[_ <: Project], project: Project) {}
@@ -56,11 +57,22 @@ object SbtProjectDataService {
     "1.5" -> LanguageLevel.JDK_1_5,
     "1.6" -> LanguageLevel.JDK_1_6,
     "1.7" -> LanguageLevel.JDK_1_7,
-    "1.8" -> LanguageLevel.JDK_1_8)
+    "1.8" -> LanguageLevel.JDK_1_8,
+    "1.9" -> LanguageLevel.JDK_1_9)
   
-  def findJdkBy(home: File): Option[Sdk] = {
-    val homePath = toCanonicalPath(home.getAbsolutePath)
-    allJdks.find(jdk => homePath.startsWith(toCanonicalPath(jdk.getHomePath)))
+  def findJdkBy(sdk: ScalaProjectData.Sdk): Option[Sdk] = sdk match {
+    case ScalaProjectData.Android(version) => findAndroidJdkByVersion(version)
+    case ScalaProjectData.Jdk(version) => Option(ProjectJdkTable.getInstance().findJdk(version))
+  }
+
+  def findAndroidJdkByVersion(version: String): Option[Sdk] = {
+    val sdks = ProjectJdkTable.getInstance().getSdksOfType(AndroidSdkType.getInstance()).asScala
+    for (sdk <- sdks) {
+      val platformVersion = Option(AndroidPlatform.getInstance(sdk)).map { _.getApiLevel.toString }
+      if (platformVersion.fold(false){ _ == version })
+        return Some(sdk)
+    }
+    None
   }
 
   def allJdks: Seq[Sdk] = ProjectJdkTable.getInstance.getSdksOfType(JavaSdk.getInstance).asScala
@@ -82,17 +94,36 @@ object SbtProjectDataService {
       settings.DEPRECATION = true
     }
 
-    val handledOptions = Set("-g:none", "-nowarn", "-Xlint:none", "-deprecation", "-Xlint:deprecation")
-    val customOptions = options.filterNot(handledOptions.contains)
+    valueOf("-target", options).foreach { target =>
+      val compilerSettings = CompilerConfiguration.getInstance(project).asInstanceOf[CompilerConfigurationImpl]
+      compilerSettings.setProjectBytecodeTarget(target)
+    }
+
+    val customOptions = additionalOptionsFrom(options)
+
     settings.ADDITIONAL_OPTIONS_STRING = customOptions.mkString(" ")
   }
 
   def javaLanguageLevelFrom(options: Seq[String]): Option[LanguageLevel] = {
-    def valueOf(name: String): Option[String] =
-      Option(options.indexOf(name)).filterNot(-1 ==).flatMap(options.lift)
-    
-    valueOf("-source").orElse(valueOf("-target"))
-            .flatMap(s => Option(LanguageLevel.parse(s)))
+    valueOf("-source", options).flatMap(s => Option(LanguageLevel.parse(s)))
+  }
+
+  def valueOf(name: String, options: Seq[String]): Option[String] =
+    Option(options.indexOf(name)).filterNot(-1 == _).flatMap(i => options.lift(i + 1))
+
+  def additionalOptionsFrom(options: Seq[String]): Seq[String] = {
+    val handledOptions = Set("-g:none", "-nowarn", "-Xlint:none", "-deprecation", "-Xlint:deprecation")
+
+    removePair("-source", removePair("-target", options.filterNot(handledOptions.contains)))
+  }
+
+  def removePair(name: String, options: Seq[String]): Seq[String] = {
+    val index = options.indexOf(name)
+
+    if (index == -1) options else {
+      val (prefix, suffix) = options.splitAt(index)
+      prefix ++ suffix.drop(2)
+    }
   }
 
   def defaultJavaLanguageLevelIn(jdk: Sdk): Option[LanguageLevel] = {
@@ -103,29 +134,8 @@ object SbtProjectDataService {
     }
   }
 
-  def upgradeJavaLanguageLevelIn(project: Project, level: LanguageLevel) {
+  def updateJavaLanguageLevelIn(project: Project, level: LanguageLevel) {
     val extension = LanguageLevelProjectExtension.getInstance(project)
-
-    if (!extension.getLanguageLevel.isAtLeast(level)) {
-      setLanguageLevelIn(project, level)
-
-      if (DirectoryIndex.getInstance(project).isInitialized) {
-        JavaLanguageLevelPusher.pushLanguageLevel(project)
-      }
-    }
-  }
-
-  // TODO don't rely on XML when there will be other ways to bypass "reload project" message
-  private def setLanguageLevelIn(project: Project, level: LanguageLevel) {
-    val element = new Element("component").setAttribute("languageLevel", level.name)
-    val projectExtension = new LanguageLevelProjectExtensionImpl.MyProjectExtension(project)
-    projectExtension.readExternal(element)
-  }
-
-  def configureHighlightingIn(project: Project) {
-    val highlightingSettings = project.getComponent(classOf[HighlightingAdvisor]).getState()
-    
-    highlightingSettings.TYPE_AWARE_HIGHLIGHTING_ENABLED = true
-    highlightingSettings.SUGGEST_TYPE_AWARE_HIGHLIGHTING = false
+    extension.setLanguageLevel(level)
   }
 }

@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.util
 
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import com.intellij.psi.{PsiElement, PsiClass}
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
+import com.intellij.psi.{PsiClass, PsiElement}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 /**
  * @author Alexander Podkhalyuzin

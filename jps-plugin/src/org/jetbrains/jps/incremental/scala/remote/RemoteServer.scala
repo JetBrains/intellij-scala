@@ -1,20 +1,17 @@
 package org.jetbrains.jps.incremental.scala
 package remote
 
-import data.{CompilationData, CompilerData, SbtData}
-import java.net.{InetAddress, UnknownHostException, ConnectException}
+import java.net.{ConnectException, InetAddress, UnknownHostException}
+
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
-import com.intellij.util.Base64Converter
+import org.jetbrains.jps.incremental.scala.data.{CompilationData, CompilerData, SbtData}
 
 /**
  * @author Pavel Fatin
  */
 class RemoteServer(val address: InetAddress, val port: Int) extends Server with RemoteResourceOwner {
   def compile(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData, client: Client): ExitCode = {
-    val arguments = {
-      val strings = Arguments(sbtData, compilerData, compilationData, Seq.empty).asStrings
-      strings.map(s => Base64Converter.encode(s.getBytes("UTF-8")))
-    }
+    val arguments = Arguments(sbtData, compilerData, compilationData, Seq.empty).asStrings
 
     try {
       send(serverAlias, arguments, client)

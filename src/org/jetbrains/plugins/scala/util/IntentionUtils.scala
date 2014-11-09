@@ -1,29 +1,30 @@
 package org.jetbrains.plugins.scala
 package util
 
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import com.intellij.psi.util.PsiTreeUtil
-import collection.Seq
-import lang.psi.api.base.ScLiteral
-import lang.psi.api.expr.xml.ScXmlExpr
-import lang.psi.api.expr._
-import com.intellij.psi._
-import lang.lexer.ScalaTokenTypes
-import lang.refactoring.util.ScalaNamesUtil
-import lang.psi.api.statements.ScFunction
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.command.CommandProcessor
-import scala.Some
-import lang.psi.types.nonvalue.Parameter
 import java.awt.{Point, Rectangle}
-import collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.actions.{GoToImplicitConversionAction, MakeExplicitAction}
+
+import com.intellij.openapi.command.CommandProcessor
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep}
+import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.ui.awt.RelativePoint
-import lang.psi.types.Boolean
+import org.jetbrains.plugins.scala.actions.{GoToImplicitConversionAction, MakeExplicitAction}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.Boolean
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+
+import scala.collection.Seq
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Ksenia.Sautina

@@ -1,15 +1,9 @@
 package org.jetbrains.plugins.scala
 package codeInspection.collections
 
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import OperationOnCollectionsUtil._
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType, ScParameterizedType, ScDesignatorType}
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
-import com.intellij.psi.search.GlobalSearchScope
-import scala.Some
+import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
  * Nikolay.Tropin

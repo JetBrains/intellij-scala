@@ -5,14 +5,14 @@ package impl
 package expr
 
 
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import java.util
+
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
-import parser.ScalaElementTypes
-import com.intellij.util.ReflectionCache
-import java.util.{List, ArrayList}
-import api.statements.{ScFunction, ScVariable, ScValue}
-import com.intellij.psi.{PsiElementVisitor, PsiClass, PsiModifiableCodeBlock, PsiElement}
+import com.intellij.psi.{PsiClass, PsiElement, PsiElementVisitor, PsiModifiableCodeBlock}
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -21,15 +21,23 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 
 class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaElementTypes.BLOCK_EXPR, text)
   with ScBlockExpr with PsiModifiableCodeBlock {
+  //todo: bad architecture to have it duplicated here, as ScBlockExprImpl is not instance of ScalaPsiElementImpl
+  override def getContext: PsiElement = {
+    context match {
+      case null => super.getContext
+      case _ => context
+    }
+  }
+
   override def toString: String = "BlockExpression"
 
   override def isAnonymousFunction: Boolean = caseClauses != None
 
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](aClass: Class[T]): Array[T] = {
-    val result: List[T] = new ArrayList[T]
+    val result: util.List[T] = new util.ArrayList[T]
     var cur: PsiElement = getFirstChild
     while (cur != null) {
-      if (ReflectionCache.isInstance(cur, aClass)) result.add(cur.asInstanceOf[T])
+      if (aClass.isInstance(cur)) result.add(cur.asInstanceOf[T])
       cur = cur.getNextSibling
     }
     result.toArray[T](java.lang.reflect.Array.newInstance(aClass, result.size).asInstanceOf[Array[T]])
@@ -38,7 +46,7 @@ class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaE
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](aClass: Class[T]): T = {
     var cur: PsiElement = getFirstChild
     while (cur != null) {
-      if (ReflectionCache.isInstance(cur, aClass)) return cur.asInstanceOf[T]
+      if (aClass.isInstance(cur)) return cur.asInstanceOf[T]
       cur = cur.getNextSibling
     }
     null

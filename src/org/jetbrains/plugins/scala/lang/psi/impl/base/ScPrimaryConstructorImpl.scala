@@ -4,23 +4,21 @@ package psi
 package impl
 package base
 
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import com.intellij.lang.ASTNode
-import psi.stubs.ScPrimaryConstructorStub
-import java.lang.String
-import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
-import com.intellij.psi.util.MethodSignature
-import com.intellij.psi._
-import impl.source.HierarchicalMethodSignatureImpl
-import javadoc.PsiDocComment
-import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import api.expr.ScAnnotations
-import toplevel.synthetic.JavaIdentifier
-import java.util.{ArrayList, List}
+import java.util.ArrayList
 import javax.swing.Icon
+
+import com.intellij.lang.ASTNode
+import com.intellij.psi._
+import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
+import com.intellij.psi.javadoc.PsiDocComment
+import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotations
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScPrimaryConstructorStub
 
 /**
 * @author Alexander Podkhalyuzin

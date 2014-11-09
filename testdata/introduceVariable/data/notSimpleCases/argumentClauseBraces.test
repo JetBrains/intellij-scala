@@ -4,7 +4,7 @@ def outer {
 ------
 def outer {
 	def inner(p: String) = {
-    val value: Any = p.concat("")
+    val value: String = p.concat("")
     println(value)
   }
 }

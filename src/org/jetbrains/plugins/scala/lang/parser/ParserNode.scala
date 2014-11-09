@@ -6,8 +6,8 @@ package parser
 * @author ilyas 
 */
 
-import com.intellij.psi.tree.IElementType
 import com.intellij.lang.PsiBuilder
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 trait ParserNode extends ScalaTokenTypes {

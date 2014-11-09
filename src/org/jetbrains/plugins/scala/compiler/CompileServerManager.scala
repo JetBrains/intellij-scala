@@ -1,26 +1,26 @@
 package org.jetbrains.plugins.scala
 package compiler
 
-import com.intellij.openapi.project.{DumbAware, Project}
-import com.intellij.openapi.components.ProjectComponent
-import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
-import com.intellij.openapi.wm.StatusBarWidget.PlatformType
-import config.ScalaFacet
-import com.intellij.facet.{ProjectWideFacetListenersRegistry, ProjectWideFacetAdapter}
+import java.awt.Point
 import java.awt.event.{ActionEvent, ActionListener, MouseEvent}
 import javax.swing.Timer
-import com.intellij.openapi.util.IconLoader
-import com.intellij.util.Consumer
-import com.intellij.notification.{NotificationType, NotificationDisplayType, Notifications, Notification}
-import icons.Icons
-import java.awt.Point
-import com.intellij.openapi.ui.popup.JBPopupFactory
-import com.intellij.ui.awt.RelativePoint
-import com.intellij.ide.DataManager
-import com.intellij.openapi.actionSystem.{Separator, AnActionEvent, AnAction, DefaultActionGroup}
-import com.intellij.compiler.CompilerWorkspaceConfiguration
-import com.intellij.openapi.options.ShowSettingsUtil
+
+import com.intellij.facet.ProjectWideFacetListenersRegistry
 import com.intellij.icons.AllIcons
+import com.intellij.ide.DataManager
+import com.intellij.notification.{Notification, NotificationType, Notifications}
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, DefaultActionGroup, Separator}
+import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.options.ShowSettingsUtil
+import com.intellij.openapi.project.{DumbAware, Project}
+import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.openapi.util.IconLoader
+import com.intellij.openapi.wm.StatusBarWidget.PlatformType
+import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
+import com.intellij.ui.awt.RelativePoint
+import com.intellij.util.Consumer
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.project._
 
 /**
  * @author Pavel Fatin
@@ -37,14 +37,14 @@ class CompileServerManager(project: Project) extends ProjectComponent {
    def disposeComponent() {}
 
    def projectOpened() {
-     registry.registerListener(ScalaFacet.Id, FacetListener)
+     project.scalaEvents.addScalaProjectListener(ScalaListener)
      configureWidget()
      timer.setRepeats(true)
      timer.start()
    }
 
    def projectClosed() {
-     registry.unregisterListener(ScalaFacet.Id, FacetListener)
+     project.scalaEvents.addScalaProjectListener(ScalaListener)
      configureWidget()
      timer.stop()
    }
@@ -76,10 +76,9 @@ class CompileServerManager(project: Project) extends ProjectComponent {
      bar.updateWidget(Widget.ID)
    }
 
-   private def applicable = running ||
-           CompilerWorkspaceConfiguration.getInstance(project).USE_OUT_OF_PROCESS_BUILD &&
-                   ScalaApplicationSettings.getInstance.COMPILE_SERVER_ENABLED &&
-                   ScalaFacet.isPresentIn(project)
+  private def applicable = running ||
+          ScalaApplicationSettings.getInstance.COMPILE_SERVER_ENABLED &&
+                  project.hasScala
 
    private def running = launcher.running
 
@@ -151,23 +150,19 @@ class CompileServerManager(project: Project) extends ProjectComponent {
 
   private object Configure extends AnAction("&Configure...", "Configure compile server", AllIcons.General.Settings) with DumbAware {
     def actionPerformed(e: AnActionEvent) {
-      ShowSettingsUtil.getInstance().showSettingsDialog(null, "Scala")
+      ShowSettingsUtil.getInstance().showSettingsDialog(null, "Scala Compile Server")
     }
   }
 
-  private object FacetListener extends ProjectWideFacetAdapter[ScalaFacet]() {
-     override def facetAdded(facet: ScalaFacet) {
-       configureWidget()
-     }
+  private object ScalaListener extends ScalaProjectListener {
+    def onScalaAdded() {
+      configureWidget()
+    }
 
-     override def facetRemoved(facet: ScalaFacet) {
-       configureWidget()
-     }
-
-     override def facetConfigurationChanged(facet: ScalaFacet) {
-       configureWidget()
-     }
-   }
+    def onScalaRemoved() {
+      configureWidget()
+    }
+  }
 
    private object TimerListener extends ActionListener {
      private var wasRunning: Option[Boolean] = None

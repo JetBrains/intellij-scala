@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intention.expression
 
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.Editor
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import lang.psi.api.expr.ScExpression
 import com.intellij.psi.util.PsiTreeUtil
-import lang.psi.api.statements.ScFunction
-import extensions._
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.util.IntentionUtils
 
 /**

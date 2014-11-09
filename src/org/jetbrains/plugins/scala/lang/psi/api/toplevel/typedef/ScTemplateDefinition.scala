@@ -5,27 +5,29 @@ package api
 package toplevel
 package typedef
 
-import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.util.{PsiUtil, PsiTreeUtil}
-import psi.impl.ScalaPsiElementFactory
-import psi.impl.toplevel.typedef.TypeDefinitionMembers
-import parser.ScalaElementTypes
-import statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
-import templates.ScExtendsBlock
-import com.intellij.openapi.progress.ProgressManager
-import lang.resolve.processor.BaseProcessor
-import types._
-import result.{TypingContext, TypeResult}
-import com.intellij.psi._
-import base.types.ScSelfTypeElement
-import impl.PsiClassImplUtil.MemberType
-import impl.{PsiSuperMethodImplUtil, PsiClassImplUtil}
-import search.GlobalSearchScope
-import com.intellij.openapi.project.{DumbServiceImpl, DumbService}
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
-import com.intellij.pom.java.LanguageLevel
-import com.intellij.psi.scope.processor.MethodsProcessor
+import java.util
+
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.project.{DumbService, DumbServiceImpl}
+import com.intellij.pom.java.LanguageLevel
+import com.intellij.psi._
+import com.intellij.psi.impl.PsiClassImplUtil.MemberType
+import com.intellij.psi.impl.{PsiClassImplUtil, PsiSuperMethodImplUtil}
+import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.scope.processor.MethodsProcessor
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
 /**
  * @author ven
@@ -95,9 +97,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     PsiClassImplUtil.findInnerByName(this, name, checkBases)
   }
 
-  import com.intellij.openapi.util.{Pair => IPair}
-  import java.util.{List => JList}
-  import java.util.{Collection => JCollection}
+  import java.util.{Collection => JCollection, List => JList}
+
+import com.intellij.openapi.util.{Pair => IPair}
 
   def getAllFields: Array[PsiField] = {
     PsiClassImplUtil.getAllFields(this)
@@ -261,7 +263,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   def processDeclarationsForTemplateBody(processor: PsiScopeProcessor,
                                          oldState: ResolveState,
                                          lastParent: PsiElement,
-                                         place: PsiElement) : Boolean = {
+                                         place: PsiElement): Boolean = {
     if (DumbServiceImpl.getInstance(getProject).isDumb) return true
     var state = oldState
     //exception cases
@@ -311,7 +313,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
                     this match {
                       case t: ScTypeDefinition if selfTypeElement != None &&
                         !PsiTreeUtil.isContextAncestor(selfTypeElement.get, place, true) &&
-                        PsiTreeUtil.isContextAncestor(e.templateBody.getOrElse(null), place, true) &&
+                        PsiTreeUtil.isContextAncestor(e.templateBody.orNull, place, true) &&
                         processor.isInstanceOf[BaseProcessor] && !t.isInstanceOf[ScObject] =>
                           selfTypeElement match {
                             case Some(_) => processor.asInstanceOf[BaseProcessor].processType(ScThisType(t), place, state)
@@ -324,7 +326,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
                         if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
                     }
                   }
-                case _ => true
+                case _ =>
               }
           }
           true
@@ -370,7 +372,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   }
 
   override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean = {
-    val visited: _root_.java.util.Set[PsiClass] = new _root_.java.util.HashSet[PsiClass]
+    if (baseClass == null) return false
+
+    val visited: util.Set[PsiClass] = new util.HashSet[PsiClass]
     val baseQualifiedName = baseClass.qualifiedName
     val baseName = baseClass.name
     def isInheritorInner(base: PsiClass, drv: PsiClass, deep: Boolean): Boolean = {

@@ -2,15 +2,15 @@ package org.jetbrains.plugins.scala
 package codeInsight.intention.expression
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.Editor
-import com.intellij.psi.PsiElement
-import codeInspection.typeChecking.TypeCheckToMatchUtil._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMatchStmt, ScIfStmt, ScGenericCall}
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.application.ApplicationManager
-import extensions.inWriteAction
-import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.GroupInplaceRenamer
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.codeInspection.typeChecking.TypeCheckToMatchUtil._
+import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScIfStmt, ScMatchStmt}
+import org.jetbrains.plugins.scala.lang.refactoring.util.InplaceRenameHelper
 
 
 /**
@@ -29,7 +29,7 @@ class ReplaceTypeCheckWithMatchIntention extends PsiElementBaseIntentionAction {
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     for {
-      iioCall <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScGenericCall], false)).filter(isIsInstOfCall)
+      IsInstanceOfCall(iioCall) <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScGenericCall], false))
       ifStmt <- Option(PsiTreeUtil.getParentOfType(iioCall, classOf[ScIfStmt]))
       condition <- ifStmt.condition
       if findIsInstanceOfCalls(condition, onlyFirst = false) contains iioCall
@@ -43,7 +43,7 @@ class ReplaceTypeCheckWithMatchIntention extends PsiElementBaseIntentionAction {
 
   def invoke(project: Project, editor: Editor, element: PsiElement) {
     for {
-      iioCall <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScGenericCall], false)).filter(isIsInstOfCall)
+      IsInstanceOfCall(iioCall) <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScGenericCall], false))
       ifStmt <- Option(PsiTreeUtil.getParentOfType(iioCall, classOf[ScIfStmt]))
       condition <- ifStmt.condition
       if findIsInstanceOfCalls(condition, onlyFirst = false) contains iioCall
@@ -54,9 +54,9 @@ class ReplaceTypeCheckWithMatchIntention extends PsiElementBaseIntentionAction {
           ifStmt.replaceExpression(matchStmt, removeParenthesis = true).asInstanceOf[ScMatchStmt]
         }
         if (!ApplicationManager.getApplication.isUnitTestMode) {
-          val renamer = new GroupInplaceRenamer(newMatch)
-          setElementsForRename(newMatch, renamer, renameData)
-          renamer.startRenaming()
+          val renameHelper = new InplaceRenameHelper(newMatch)
+          setElementsForRename(newMatch, renameHelper, renameData)
+          renameHelper.startRenaming()
         }
       }
     }

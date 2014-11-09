@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package format
 
-import lang.psi.types
-import types.{ScType, ScDesignatorType}
-import extensions._
 import com.intellij.openapi.util.text.StringUtil
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.types
+import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScType}
 
 /**
  * Pavel Fatin

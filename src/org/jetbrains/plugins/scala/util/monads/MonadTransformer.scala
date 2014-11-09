@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.util.monads
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import com.intellij.psi.{PsiElement}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Failure, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
 
 /**
  * @author ilyas
@@ -10,18 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Failure, Type
 
 trait MonadTransformer { self : PsiElement =>
 
-  type MonadLike[+T] = {
-    def flatMap[U <: ScType](f: T => TypeResult[U]): TypeResult[U]
-    def map[U <: ScType](f: T => U): TypeResult[U]
-  }
-
-  type SemiMonadLike[+T] = {
-    def flatMap(f: T => TypeResult[ScType]): TypeResult[ScType]
-  }
-
-  implicit val DEFAULT_ERROR_MESSAGE = "No element found"
-
-  implicit def wrap[T](opt: Option[T])(implicit msg: String): MonadLike[T] = new {
+  class MonadLike[+T](opt: Option[T])(implicit msg: String) {
     def flatMap[U <: ScType](f: T => TypeResult[U]): TypeResult[U] = opt match {
       case Some(elem) => f(elem)
       case None =>  Failure(msg, Some(self))
@@ -32,11 +21,19 @@ trait MonadTransformer { self : PsiElement =>
     }
   }
 
-  implicit def wrapWith[T](opt: Option[T], default: ScType)(implicit msg: String): SemiMonadLike[T] = new {
+  class SemiMonadLike[+T](opt: Option[T], default: ScType)(implicit msg: String) {
     def flatMap(f: T => TypeResult[ScType]): TypeResult[ScType] = opt match {
       case Some(elem) => f(elem)
       case None       => Success(default, None)
     }
+  }
+
+  implicit val DEFAULT_ERROR_MESSAGE = "No element found"
+
+  def wrap[T](opt: Option[T])(implicit msg: String): MonadLike[T] = new MonadLike[T](opt)(msg)
+
+  def wrapWith[T](opt: Option[T], default: ScType)(implicit msg: String): SemiMonadLike[T] = {
+    new SemiMonadLike[T](opt, default)(msg)
   }
 
   /**

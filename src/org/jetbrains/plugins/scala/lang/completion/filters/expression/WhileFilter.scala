@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.lang.completion.filters.expression
 
-import com.intellij.psi.filters.ElementFilter
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
-import com.intellij.psi.{PsiWhiteSpace, PsiComment, PsiElement}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import java.util.regex.{Matcher, Pattern}
+
+import com.intellij.psi.filters.ElementFilter
+import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import org.jetbrains.annotations.NonNls
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScDoStmt, ScExpression}
 
 /**

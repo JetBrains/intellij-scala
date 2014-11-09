@@ -4,16 +4,15 @@ package psi
 package impl
 package expr
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import com.intellij.psi.PsiElementVisitor
-import api.ScalaElementVisitor
-import types.result.{Success, TypeResult, TypingContext}
-import resolve.processor.MethodResolveProcessor
-import types.{ScDesignatorType, Compatibility, Bounds, ScType}
-import api.statements.ScFunction
-import resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Bounds, Compatibility, ScDesignatorType, ScType}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 
 /**
 * @author Alexander Podkhalyuzin

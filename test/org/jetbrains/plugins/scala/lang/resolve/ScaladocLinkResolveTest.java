@@ -1,22 +1,8 @@
 package org.jetbrains.plugins.scala.lang.resolve;
 
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.CharsetToolkit;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiReference;
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterImpl;
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScTypeParamImpl;
 import org.jetbrains.plugins.scala.util.TestUtils;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * User: Dmitry Naydanov

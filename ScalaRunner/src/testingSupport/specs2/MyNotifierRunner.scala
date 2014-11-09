@@ -1,8 +1,8 @@
 package testingSupport.specs2
 
-import org.specs2.reporter.{NotifierReporter, Reporter, Notifier}
-import org.specs2.runner.ClassRunner
 import org.specs2.main.Arguments
+import org.specs2.reporter.{Notifier, NotifierReporter, Reporter}
+import org.specs2.runner.ClassRunner
 import org.specs2.specification.{ExecutedSpecification, ExecutingSpecification}
 
 /**

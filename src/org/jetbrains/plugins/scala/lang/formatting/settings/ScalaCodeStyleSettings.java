@@ -45,7 +45,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SPACE_AFTER_TYPE_COLON = true;
 
   //todo: add to spacing settings
-  //spcaing settings:
+  //spacing settings:
   public boolean SPACE_BEFORE_BRACE_METHOD_CALL = true;
   public boolean SPACE_BEFORE_MATCH_LBRACE = true;
   public boolean KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST = false;
@@ -56,6 +56,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES = false;
 
   public boolean SPACES_IN_ONE_LINE_BLOCKS = false;
+  public boolean SPACES_IN_IMPORTS = false;
 
   //xml formatting
   public boolean KEEP_XML_FORMATTING = false;
@@ -89,9 +90,9 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   //other
   public boolean ENFORCE_PROCEDURE_SYNTAX_FOR_UNIT = true;
-  public boolean ADD_ARROW_AFTER_INDENT_CASE = true;
   public boolean REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = false;
   public boolean REPLACE_MAP_ARROW_WITH_UNICODE_CHAR = false;
+  public boolean REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR = false;
 
 
   @Override

@@ -2,13 +2,9 @@ package org.jetbrains.plugins.scala
 package script
 
 
-import com.intellij.execution.configurations.{RunConfiguration, ConfigurationType, ConfigurationFactory}
-import com.intellij.facet.FacetManager
-import com.intellij.openapi.module.ModuleManager
+import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType, RunConfiguration}
 import com.intellij.openapi.project.Project
-import javax.swing.Icon
-import java.lang.String
-import config.ScalaFacet
+import org.jetbrains.plugins.scala.project._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -24,10 +20,9 @@ class ScalaScriptRunConfigurationFactory(val typez: ConfigurationType) extends C
 
   override def createConfiguration(name: String, template: RunConfiguration): RunConfiguration = {
     val configuration = (super.createConfiguration(name, template)).asInstanceOf[ScalaScriptRunConfiguration]
-    ScalaFacet.findModulesIn(template.getProject).headOption.foreach {
-      configuration.setModule _
-    }
-    configuration  }
+    template.getProject.anyScalaModule.foreach(configuration.setModule(_))
+    configuration
+  }
 
   private def initDefault(configuration: ScalaScriptRunConfiguration): Unit = {
   }

@@ -1,20 +1,16 @@
 package org.jetbrains.plugins.scala
 package base
 
+import java.io.File
+
 import _root_.com.intellij.testFramework.PsiTestCase
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.roots.{ModifiableRootModel, ContentEntry, OrderRootType, ModuleRootManager}
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs.{VfsUtil, LocalFileSystem, VirtualFile}
-import java.io.{File, IOException}
-import lang.superMember.SuperMethodTestUtil
-import util.TestUtils
-import com.intellij.openapi.roots.libraries.LibraryTable
 import com.intellij.openapi.projectRoots.JavaSdk
-import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.roots.libraries.Library.ModifiableModel
+import com.intellij.openapi.roots.{ModifiableRootModel, ModuleRootManager, OrderRootType}
 import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil}
+import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
  * User: Alexander Podkhalyuzin

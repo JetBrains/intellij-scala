@@ -1,18 +1,20 @@
 package org.jetbrains.plugins.scala
 package lang.resolve.processor
 
+import java.util
+
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiPackage}
-import java.util
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 
 /**
  * User: Alexander Podkhalyuzin
@@ -138,7 +140,7 @@ trait PrecedenceHelper[T] {
     val topPrecedence = getTopPrecedence(results(0))
     if (currentPrecedence < topPrecedence) return false
     else if (currentPrecedence == topPrecedence && levelSet.isEmpty) return false
-    else if (currentPrecedence == topPrecedence && !levelSet.isEmpty) {
+    else if (currentPrecedence == topPrecedence) {
       if (isCheckForEqualPrecedence && qualifiedName != null &&
         (levelQualifiedNamesSet.contains(qualifiedName) ||
           qualifiedNamesSet.contains(qualifiedName))) {
@@ -148,8 +150,7 @@ trait PrecedenceHelper[T] {
         results.foreach(ignoredSet.add)
       } else addResults()
     } else {
-      if (qualifiedName != null && (levelQualifiedNamesSet.contains(qualifiedName) ||
-        qualifiedNamesSet.contains(qualifiedName))) {
+      if (qualifiedName != null && qualifiedNamesSet.contains(qualifiedName)) {
         return false
       } else {
         if (!fromHistory && isUpdateHistory && isSpecialResult(results(0))) {

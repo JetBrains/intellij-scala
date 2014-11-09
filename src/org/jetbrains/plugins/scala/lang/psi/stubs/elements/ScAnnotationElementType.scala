@@ -5,18 +5,15 @@ package stubs
 package elements
 
 
-import api.expr.ScAnnotation
-import impl.{ScAnnotationStubImpl, ScEarlyDefinitionsStubImpl}
-import psi.impl.expr.ScAnnotationImpl
-import api.toplevel.ScEarlyDefinitions
-import com.intellij.psi.stubs.{IndexSink, StubInputStream, StubElement, StubOutputStream}
-
 import com.intellij.psi.PsiElement
-import psi.impl.toplevel.ScEarlyDefinitionsImpl
-import api.base.types.{ScSimpleTypeElement, ScParenthesisedTypeElement}
-import api.base.ScStableCodeReferenceElement
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io.StringRef
-import index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParenthesisedTypeElement, ScSimpleTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScAnnotationImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScAnnotationStubImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 
 /**
  * User: Alexander Podkhalyuzin

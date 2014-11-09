@@ -1,8 +1,8 @@
 package org.jetbrains.sbt
 package project
 
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ide.actions.OpenProjectFileChooserDescriptor
+import com.intellij.openapi.vfs.VirtualFile
 
 /**
  * @author Pavel Fatin

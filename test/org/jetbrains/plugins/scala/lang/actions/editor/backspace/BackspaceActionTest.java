@@ -1,29 +1,30 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.backspace;
 
-import com.intellij.testFramework.LightPlatformTestCase;
-import org.jetbrains.plugins.scala.Console;
-import org.jetbrains.plugins.scala.lang.actions.ActionTestBase;
-import org.jetbrains.plugins.scala.util.TestUtils;
-import org.jetbrains.annotations.NonNls;
+import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.editor.actionSystem.EditorActionManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
-import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.psi.PsiFile;
+import com.intellij.testFramework.LightPlatformTestCase;
 import com.intellij.util.IncorrectOperationException;
+import junit.framework.Test;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.plugins.scala.lang.actions.ActionTestBase;
+import org.jetbrains.plugins.scala.util.TestUtils;
+import org.junit.runner.RunWith;
+import org.junit.runners.AllTests;
 
 import java.io.IOException;
-
-import junit.framework.Test;
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 03.07.2008
  */
 
+@RunWith(AllTests.class)
 public class BackspaceActionTest extends ActionTestBase {
 
   @NonNls
@@ -31,7 +32,6 @@ public class BackspaceActionTest extends ActionTestBase {
 
   protected Editor myEditor;
   protected FileEditorManager fileEditorManager;
-  protected String newDocumentText;
   protected PsiFile myFile;
 
   public BackspaceActionTest() {
@@ -55,6 +55,7 @@ public class BackspaceActionTest extends ActionTestBase {
     myFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
     fileEditorManager = FileEditorManager.getInstance(LightPlatformTestCase.getProject());
     myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(getProject(), myFile.getVirtualFile(), 0), false);
+    assert myEditor != null;
     myEditor.getCaretModel().moveToOffset(offset);
 
     final myDataContext dataContext = getDataContext(myFile);
@@ -63,7 +64,7 @@ public class BackspaceActionTest extends ActionTestBase {
     try {
       performAction(getProject(), new Runnable() {
         public void run() {
-          handler.execute(myEditor, dataContext);
+          handler.execute(myEditor, myEditor.getCaretModel().getCurrentCaret(), dataContext);
         }
       });
       offset = myEditor.getCaretModel().getOffset();
@@ -81,8 +82,7 @@ public class BackspaceActionTest extends ActionTestBase {
     setSettings();
     String fileText = data[0];
     final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
-    String result = processFile(psiFile);
-    return result;
+    return processFile(psiFile);
   }
 
 

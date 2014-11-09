@@ -2,14 +2,14 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package notImplementedCode
 
-import com.intellij.psi.{PsiFile, PsiElement}
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
-import com.intellij.codeInsight.{CodeInsightUtilCore, CodeInsightUtilBase}
-import com.intellij.codeInsight.template.{TemplateManager, TemplateBuilderImpl}
+import com.intellij.codeInsight.CodeInsightUtilCore
+import com.intellij.codeInsight.template.{TemplateBuilderImpl, TemplateManager}
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
-import extensions._
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
+import com.intellij.openapi.project.Project
+import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * Pavel Fatin

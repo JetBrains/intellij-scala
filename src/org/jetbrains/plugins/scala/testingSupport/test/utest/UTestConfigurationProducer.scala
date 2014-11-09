@@ -1,21 +1,22 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test.utest
 
-import org.jetbrains.plugins.scala.testingSupport.test.{TestConfigurationUtil, AbstractTestConfigurationProducer, TestConfigurationProducer}
-import com.intellij.execution.{JavaRunConfigurationExtensionManager, RunManager, RunnerAndConfigurationSettings, Location}
-import com.intellij.psi.{PsiDirectory, PsiPackage, PsiElement}
 import com.intellij.execution.configurations.RunConfiguration
+import com.intellij.execution.{JavaRunConfigurationExtensionManager, Location, RunManager, RunnerAndConfigurationSettings}
 import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember, ScTypeDefinition}
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression, ScMethodCall, ScBlockExpr}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScArguments
-import scala.annotation.tailrec
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import com.intellij.psi.impl.source.tree.LeafElement
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiDirectory, PsiElement, PsiPackage}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScInfixExpr, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScArguments
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, TestConfigurationProducer, TestConfigurationUtil}
+
+import scala.annotation.tailrec
 
 class UTestConfigurationProducer extends {
   val confType = new UTestConfigurationType

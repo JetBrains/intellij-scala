@@ -4,11 +4,11 @@ package structureView
 package itemsPresentations
 package impl
 
-import com.intellij.openapi.editor.colors.{TextAttributesKey, CodeInsightColors}
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.icons.Icons
+import javax.swing._
 
-import javax.swing._;
+import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
+import com.intellij.psi._
+import org.jetbrains.plugins.scala.icons.Icons;
 
 /**
 * @author Alexander Podkhalyuzin

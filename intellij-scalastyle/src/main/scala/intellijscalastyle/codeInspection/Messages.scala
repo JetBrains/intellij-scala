@@ -1,8 +1,8 @@
 package intellijscalastyle
 package codeInspection
 
-import java.util.Properties
 import java.text.MessageFormat
+import java.util.Properties
 
 object Messages {
 

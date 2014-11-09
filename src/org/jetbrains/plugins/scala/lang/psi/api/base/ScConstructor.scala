@@ -4,11 +4,11 @@ package psi
 package api
 package base
 
-import psi.ScalaPsiElement
-import psi.types.ScType
-import expr.{ScNewTemplateDefinition, ScArgumentExprList}
-import psi.types.result.TypeResult
-import types.{ScTypeArgs, ScParameterizedTypeElement, ScTypeElement}
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScTypeArgs, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 /**
 * @author Alexander Podkhalyuzin
@@ -17,6 +17,8 @@ import types.{ScTypeArgs, ScParameterizedTypeElement, ScTypeElement}
 
 trait ScConstructor extends ScalaPsiElement {
   def typeElement: ScTypeElement
+
+  def simpleTypeElement: Option[ScSimpleTypeElement]
 
   def typeArgList: Option[ScTypeArgs] = typeElement match {
     case x: ScParameterizedTypeElement => Some(x.typeArgList)
@@ -40,3 +42,20 @@ trait ScConstructor extends ScalaPsiElement {
 
   def reference: Option[ScStableCodeReferenceElement]
 }
+
+object ScConstructor {
+  def unapply(c: ScConstructor): Option[(ScTypeElement, Seq[ScArgumentExprList])] = {
+    Option(c).map(it => (it.typeElement, it.arguments))
+  }
+
+  object byReference {
+    def unapply(ref: ScReferenceElement): Option[ScConstructor] = {
+      PsiTreeUtil.getParentOfType(ref, classOf[ScConstructor]) match {
+        case null => None
+        case c if c.reference == Some(ref) => Some(c)
+        case _ => None
+      }
+    }
+  }
+}
+

@@ -4,7 +4,6 @@ package structureView
 package itemsPresentations
 package impl
 
-import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 /**

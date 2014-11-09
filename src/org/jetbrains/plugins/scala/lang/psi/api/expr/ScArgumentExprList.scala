@@ -4,11 +4,11 @@ package psi
 package api
 package expr
 
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi.PsiElement
-import types.ScType
-import lexer.ScalaTokenTypes
-import types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
 /** 
 * @author Alexander Podkhalyuzin

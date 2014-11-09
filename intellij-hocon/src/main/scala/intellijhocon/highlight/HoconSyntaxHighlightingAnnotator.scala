@@ -1,17 +1,17 @@
-package intellijhocon.highlight
+package intellijhocon
+package highlight
 
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.psi.PsiElement
 import intellijhocon.lexer.HoconTokenType
-import intellijhocon.parser.{HoconElementSets, HoconPsiParser, HoconElementType}
-import intellijhocon.Util
+import intellijhocon.parser.{HoconElementSets, HoconElementType, HoconPsiParser}
 
 class HoconSyntaxHighlightingAnnotator extends Annotator {
 
-  import HoconElementType._
-  import HoconElementSets._
-  import HoconTokenType._
-  import Util._
+  import intellijhocon.Util._
+  import intellijhocon.lexer.HoconTokenType._
+  import intellijhocon.parser.HoconElementSets._
+  import intellijhocon.parser.HoconElementType._
 
   def annotate(element: PsiElement, holder: AnnotationHolder) {
     lazy val parentType = element.getParent.getNode.getElementType

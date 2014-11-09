@@ -2,26 +2,27 @@ package org.jetbrains.plugins.scala
 package lang
 package parameterInfo
 
-import _root_.java.lang.{Class, String}
-import collection.mutable.ArrayBuffer
-import com.intellij.codeInsight.CodeInsightBundle
-import com.intellij.psi._
-import com.intellij.codeInsight.lookup.LookupElement
-import com.intellij.psi.tree.IElementType
-import com.intellij.lang.parameterInfo._
-import com.intellij.psi.util.PsiTreeUtil
-import psi.api.base.ScStableCodeReferenceElement
-import psi.api.statements.ScFunction
-import psi.api.toplevel.typedef.{ScObject, ScClass}
-import psi.ScalaPsiUtil
-import psi.types._
-import com.intellij.util.ArrayUtil
 import java.awt.Color
-import lexer.ScalaTokenTypes
-import psi.api.base.patterns.{ScPattern, ScConstructorPattern, ScPatternArgumentList}
-import lang.resolve.ScalaResolveResult
-import result.TypingContext
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
+
+import com.intellij.codeInsight.CodeInsightBundle
+import com.intellij.codeInsight.lookup.LookupElement
+import com.intellij.lang.parameterInfo._
+import com.intellij.psi._
+import com.intellij.psi.tree.IElementType
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.ArrayUtil
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScPattern, ScPatternArgumentList}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin

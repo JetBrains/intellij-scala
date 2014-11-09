@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package components
 
-import com.intellij.openapi.components._
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.components._
 
 /**
  * User: Dmitry Naydanov
@@ -17,7 +17,7 @@ import com.intellij.openapi.application.ApplicationManager
   ))
 class TypeAwareHighlightingApplicationState extends ApplicationComponent with 
                                                     PersistentStateComponent[TypeAwareHighlightingApplicationState.TypeAwareHighlightingApplicationSettings] {
-  import TypeAwareHighlightingApplicationState.TypeAwareHighlightingApplicationSettings
+  import org.jetbrains.plugins.scala.components.TypeAwareHighlightingApplicationState.TypeAwareHighlightingApplicationSettings
   private var myState = new TypeAwareHighlightingApplicationSettings
   
   def suggest() = myState.getSUGGEST_TYPE_AWARE_HIGHLIGHTING_ENABLED

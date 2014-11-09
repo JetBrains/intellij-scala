@@ -1,49 +1,26 @@
-package intellijhocon.lexer
+package intellijhocon
+package lexer
 
-import org.scalatest.FunSuite
-import com.intellij.psi.tree.IElementType
-import scala.collection.mutable.ListBuffer
+import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase
+import org.jetbrains.plugins.scala.util.TestUtils
 
-class HoconLexerTest extends FunSuite {
+class HoconLexerTest extends BaseScalaFileSetTestCase(TestUtils.getTestDataPath + "/hocon/lexer/data") {
+  def advance(lexer: HoconLexer) = {
+    lexer.advance()
+    lexer
+  }
 
-  import HoconTokenType._
-
-  private def lex(str: String): List[(IElementType, String)] = {
+  override def transform(testName: String, data: Array[String]) = {
+    val fileContents = data(0)
     val lexer = new HoconLexer
-    lexer.start(str)
-    val lb = new ListBuffer[(IElementType, String)]
-    while (lexer.getTokenType != null) {
-      lb += ((lexer.getTokenType, lexer.getTokenText))
-      lexer.advance()
-    }
-    lb.result()
-  }
 
-  test("basic quoted string test") {
-    assert(List(
-      (QuotedString, "\"something\"")
-    ) === lex("\"something\""))
-  }
+    lexer.start(fileContents)
+    val tokenIterator = Iterator.iterate(lexer)(advance)
+            .takeWhile(_.getTokenType != null)
+            .map(l => (l.getTokenType, fileContents.substring(l.getTokenStart, l.getTokenEnd)))
 
-  test("quoted string with escaping test") {
-    assert(List(
-      (QuotedString, "\"some\\nthing\"")
-    ) === lex("\"some\\nthing\""))
+    tokenIterator.map {
+      case (token, str) => s"$token {$str}"
+    }.mkString("\n")
   }
-
-  test("quoted string with double quote escaping test") {
-    assert(List(
-      (QuotedString, "\"something\\\"\""),
-      (UnquotedChars, "somethingmore")
-    ) === lex("\"something\\\"\"somethingmore"))
-  }
-
-  test("quoted string ending on newline test") {
-    assert(List(
-      (QuotedString, "\"something"),
-      (LineBreakingWhitespace, "\n"),
-      (UnquotedChars, "more")
-    ) === lex("\"something\nmore"))
-  }
-
 }

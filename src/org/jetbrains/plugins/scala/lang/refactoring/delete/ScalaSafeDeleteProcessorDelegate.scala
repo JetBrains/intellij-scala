@@ -3,28 +3,19 @@ package lang
 package refactoring
 package delete
 
-import com.intellij.usageView.UsageInfo
-import com.intellij.refactoring.safeDelete.{NonCodeUsageSearchInfo, JavaSafeDeleteProcessor, SafeDeleteProcessorDelegate}
-import com.intellij.refactoring.safeDelete.usageInfo.SafeDeleteReferenceJavaDeleteUsageInfo
-import com.intellij.codeInsight.daemon.impl.quickfix.RemoveUnusedVariableFix
-import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
-import com.intellij.psi._
-import java.util.{ArrayList, List}
-import search.searches.ReferencesSearch
-import org.jetbrains.annotations.Nullable
-import com.intellij.openapi.util.Condition
-import SafeDeleteProcessorUtil._
-import collection.JavaConversions._
-import java.util.{List => JList, ArrayList => JArrayList}
-import psi.api.statements.params.ScParameter
-import psi.api.statements.ScFunction
-import psi.api.toplevel.ScTypedDefinition
+import java.util.{ArrayList => JArrayList, List => JList}
+
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Condition
+import com.intellij.psi._
+import com.intellij.refactoring.safeDelete.{JavaSafeDeleteProcessor, NonCodeUsageSearchInfo}
+import com.intellij.usageView.UsageInfo
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
-import scala.collection.JavaConversions._
-import psi.api.toplevel.imports.ScImportStmt
-import psi.api.base.ScStableCodeReferenceElement
-import psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.refactoring.delete.SafeDeleteProcessorUtil._
 
 class ScalaSafeDeleteProcessorDelegate extends JavaSafeDeleteProcessor {
   override def handlesElement(element: PsiElement) =

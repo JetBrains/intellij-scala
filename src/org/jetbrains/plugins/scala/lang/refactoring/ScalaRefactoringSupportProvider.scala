@@ -6,15 +6,16 @@ package refactoring
 import com.intellij.lang.refactoring.RefactoringSupportProvider
 import com.intellij.psi.PsiElement
 import com.intellij.refactoring.RefactoringActionHandler
-import extractMethod.ScalaExtractMethodHandler
-import introduceParameter.ScalaIntroduceParameterHandler
-import introduceVariable.ScalaIntroduceVariableHandler
-import psi.api.toplevel.typedef.ScTypeDefinition
-import psi.api.base.patterns.ScReferencePattern
-import psi.api.statements._
-import psi.api.base.ScFieldId
+import com.intellij.refactoring.changeSignature.ChangeSignatureHandler
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaChangeSignatureHandler
+import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodHandler
 import org.jetbrains.plugins.scala.lang.refactoring.introduceField.ScalaIntroduceFieldFromExpressionHandler
-import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractTraitHandler
+import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterHandler
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler
 
 /**
  * User: Alexander Podkhalyuzin
@@ -40,4 +41,6 @@ class ScalaRefactoringSupportProvider extends RefactoringSupportProvider {
   }
 
   override def getExtractMethodHandler: RefactoringActionHandler = new ScalaExtractMethodHandler
+
+  override def getChangeSignatureHandler: ChangeSignatureHandler = new ScalaChangeSignatureHandler
 }

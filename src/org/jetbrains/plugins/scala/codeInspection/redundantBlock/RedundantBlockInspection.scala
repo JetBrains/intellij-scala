@@ -3,14 +3,14 @@ package codeInspection.redundantBlock
 
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
-import codeInspection.{AbstractFix, AbstractInspection}
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.extensions.childOf
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClauses, ScCaseClause}
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * Pavel Fatin
@@ -33,14 +33,16 @@ class RedundantBlockInspection extends AbstractInspection {
       if (probablyRedundant) {
         val next: PsiElement = block.getNextSibling
         val parent = block.getParent
-        val isRedundant =
-        if (parent.isInstanceOf[ScArgumentExprList]) false
-        else if (next == null) true
-        else if (parent.isInstanceOf[ScInterpolatedStringLiteral] && child.getText.startsWith("_")) false //SCL-6124
-        else {
-            val refName: String = child.getText + (if (next.getText.length > 0) next.getText charAt 0 else "")
-            !ScalaNamesUtil.isIdentifier(refName) && !refName.exists(_ == '$') && !refName.startsWith("`")
-          }
+        val isRedundant = parent match {
+          case _: ScArgumentExprList => false
+          case _ if next == null => true
+          case _: ScInterpolatedStringLiteral =>
+            val text = child.getText
+            val nextLetter = next.getText.headOption.getOrElse(' ')
+            val checkId = ScalaNamesUtil.isIdentifier(text) && (nextLetter == '$' || !ScalaNamesUtil.isIdentifier(text + nextLetter))
+            checkId && !text.startsWith("_") && !text.exists(_ == '$') && !text.startsWith("`")
+          case _ => false
+        }
         if (isRedundant) {
           holder.registerProblem(block, "The enclosing block is redundant", new QuickFix(block))
         }

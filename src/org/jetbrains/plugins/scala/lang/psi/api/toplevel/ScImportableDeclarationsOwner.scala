@@ -5,10 +5,8 @@ package api
 package toplevel
 
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.{ResolveState, PsiElement}
-import types.ScSubstitutor
-import types.result.{Success, TypingContext}
-import resolve.processor.BaseProcessor
+import com.intellij.psi.{PsiElement, ResolveState}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
  * @author ilyas

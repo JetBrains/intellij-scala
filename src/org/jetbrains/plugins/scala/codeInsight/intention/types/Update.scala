@@ -2,16 +2,16 @@ package org.jetbrains.plugins.scala
 package codeInsight.intention.types
 
 import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.extensions._
-import lang.psi.ScalaPsiUtil
-import lang.psi.api.base.patterns.{ScWildcardPattern, ScBindingPattern, ScTypedPattern}
-import lang.psi.api.statements.params.{ScParameterClause, ScParameter}
-import lang.psi.api.expr.{ScInfixExpr, ScFunctionExpr}
-import com.intellij.psi.util.PsiTreeUtil
 
 /**
  * Pavel.Fatin, 28.04.2010

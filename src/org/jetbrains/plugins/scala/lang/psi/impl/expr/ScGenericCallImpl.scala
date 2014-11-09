@@ -4,18 +4,17 @@ package psi
 package impl
 package expr
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import types._
 import com.intellij.psi._
-import nonvalue.ScTypePolymorphicType
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import api.statements.{ScFun, ScFunction}
-import api.base.types.ScTypeElement
-import lang.resolve.{ResolveUtils, ScalaResolveResult}
-import lang.resolve.processor._
-import result._
-import api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
+import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.resolve.processor._
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -49,7 +48,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
                 else Seq.empty) :: Nil
       }
     val typeArgs: Seq[ScTypeElement] = this.arguments
-    import Compatibility.Expression._
+    import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression._
     val processor = new MethodResolveProcessor(referencedExpr, methodName, args, typeArgs,
       Seq.empty /* todo: ? */, isShapeResolve = isShape, enableTupling = true)
     processor.processType(tp, referencedExpr, ResolveState.initial)
@@ -57,13 +56,12 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     if (candidates.length != 1) types.Nothing
     else {
       candidates(0) match {
-        case ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor) => {
+        case ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor) =>
           fun match {
             case fun: ScFun => s.subst(fun.polymorphicType)
             case fun: ScFunction => s.subst(fun.polymorphicType())
             case meth: PsiMethod => ResolveUtils.javaPolymorphicType(meth, s, getResolveScope)
           }
-        }
         case _ => types.Nothing
       }
     }
@@ -85,10 +83,9 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     var refType = typeResult.getOrElse(return typeResult)
     if (!refType.isInstanceOf[ScTypePolymorphicType]) refType = processType(refType, isShape = true)
     refType match {
-      case ScTypePolymorphicType(int, tps) => {
+      case ScTypePolymorphicType(int, tps) =>
         val subst = ScalaPsiUtil.genericCallSubstitutor(tps.map(p => (p.name, ScalaPsiUtil.getPsiElementId(p.ptp))), this)
         Success(subst.subst(int), Some(this))
-      }
       case _ => Success(refType, Some(this))
     }
   }
@@ -114,12 +111,26 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     typeResult.map(shapeType(_))
   }
 
+  override def shapeMultiResolve: Option[Array[ResolveResult]] = {
+    referencedExpr match {
+      case ref: ScReferenceExpression => Some(ref.shapeResolve)
+      case expr => None
+    }
+  }
+
   def multiType: Array[TypeResult[ScType]] = {
     val typeResult: Array[TypeResult[ScType]] = referencedExpr match {
       case ref: ScReferenceExpression => ref.multiType
       case expr => Array(expr.getNonValueType(TypingContext.empty))
     }
     typeResult.map(convertReferencedType)
+  }
+
+  override def multiResolve: Option[Array[ResolveResult]] = {
+    referencedExpr match {
+      case ref: ScReferenceExpression => Some(ref.multiResolve(false))
+      case expr => None
+    }
   }
 
   override def accept(visitor: ScalaElementVisitor) {

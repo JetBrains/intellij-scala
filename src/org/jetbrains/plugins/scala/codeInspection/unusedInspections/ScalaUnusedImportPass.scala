@@ -3,6 +3,9 @@ package codeInspection
 package unusedInspections
 
 
+import java.util
+import java.util.Collections
+
 import com.intellij.codeInsight.daemon.ProblemHighlightFilter
 import com.intellij.codeInsight.daemon.impl._
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightingLevelManager
@@ -15,13 +18,11 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.util.Processor
-import java.util
 import org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import java.util.Collections
 
 /**
  * User: Alexander Podkhalyuzin
@@ -35,7 +36,7 @@ class ScalaUnusedImportPass(val file: PsiFile, editor: Editor, val document: Doc
       highlightInfoProcessor) with ScalaUnusedImportPassBase {
   protected def getFixes: List[IntentionAction] = List(new ScalaOptimizeImportsFix, new ScalaEnableOptimizeImportsOnTheFlyFix)
 
-  private var myHighlights: util.Collection[HighlightInfo] = null
+  private var myHighlights: util.List[HighlightInfo] = null
   private var myOptimizeImportsRunnable: Runnable = null
 
   override def collectInformationWithProgress(progress: ProgressIndicator): Unit = {
@@ -70,8 +71,6 @@ class ScalaUnusedImportPass(val file: PsiFile, editor: Editor, val document: Doc
       }
     }
   }
-
-  override def getInfos: util.List[HighlightInfo] = new util.ArrayList[HighlightInfo](myHighlights)
 }
 
 object ScalaUnusedImportPass {

@@ -3,12 +3,12 @@ package lang
 package superMember
 
 import com.intellij.psi.util.PsiTreeUtil
-import psi.api.statements.ScFunction
-import psi.api.toplevel.typedef.ScMember
-import psi.ScalaPsiUtil
-import com.intellij.psi.{PsiMember, PsiNamedElement, PsiFile}
-import psi.api.toplevel.ScNamedElement
-import extensions.{toPsiMemberExt, toPsiClassExt}
+import com.intellij.psi.{PsiFile, PsiMember, PsiNamedElement}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
 /**
  * User: Alexander Podkhalyuzin

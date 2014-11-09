@@ -15,9 +15,7 @@
 
 package org.jetbrains.plugins.scala.lang.actions;
 
-import com.intellij.openapi.actionSystem.DataConstants;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.DataProvider;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.project.Project;
@@ -43,8 +41,6 @@ public abstract class ActionTestBase extends BaseScalaFileSetTestCase {
 
   /**
    * Runs editor action
-   *
-   * @param runnable
    */
   public static void runAsWriteAction(final Runnable runnable) {
     ApplicationManager.getApplication().runWriteAction(runnable);
@@ -52,22 +48,13 @@ public abstract class ActionTestBase extends BaseScalaFileSetTestCase {
 
   /**
    * Returns context for action performing
-   *
-   * @return
-   * @throws com.intellij.openapi.util.InvalidDataException
-   *
-   * @throws java.io.IOException
    */
   protected myDataContext getDataContext(PsiFile file) throws InvalidDataException, IOException {
-    final myDataContext dataContext = new myDataContext(file);
-//    IdeaTestApplication.getInstance().setDataProvider(dataContext);
-    return dataContext;
+    return new myDataContext(file);
   }
 
   /**
    * Removes CARET_MARKER from file text
-   * @param text
-   * @return
    */
   protected String removeMarker(String text) {
     int index = text.indexOf(CARET_MARKER);
@@ -77,9 +64,6 @@ public abstract class ActionTestBase extends BaseScalaFileSetTestCase {
 
   /**
    * Performs specified action
-   *
-   * @param project
-   * @param action
    */
   public static void performAction(final Project project, final Runnable action) {
     runAsWriteAction(new Runnable() {
@@ -101,8 +85,8 @@ public abstract class ActionTestBase extends BaseScalaFileSetTestCase {
     }
     @Nullable
     public Object getData(@NonNls String dataId) {
-      if (DataConstants.LANGUAGE.equals(dataId)) return myFile.getLanguage();
-      if (DataConstants.PROJECT.equals(dataId)) return myFile.getProject();
+      if (LangDataKeys.LANGUAGE.is(dataId)) return myFile.getLanguage();
+      if (PlatformDataKeys.PROJECT.is(dataId)) return myFile.getProject();
       return null;
     }
   }

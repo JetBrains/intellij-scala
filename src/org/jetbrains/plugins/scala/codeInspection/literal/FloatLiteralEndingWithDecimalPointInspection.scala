@@ -2,12 +2,11 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package literal
 
-import com.intellij.psi.PsiElement
-import org.intellij.lang.annotations.Language
-import lang.psi.api.base.ScLiteral
-import com.intellij.openapi.project.Project
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
-import lang.psi.impl.ScalaPsiElementFactory
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 class FloatLiteralEndingWithDecimalPointInspection extends AbstractInspection("FloatLiteralEndingWithDecimalPoint", "Floating point literal ending with '.'"){
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {

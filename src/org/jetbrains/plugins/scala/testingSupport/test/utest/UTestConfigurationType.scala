@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test.utest
 
-import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfigurationFactory
-import com.intellij.execution.configurations.{ConfigurationType, ConfigurationFactory}
 import javax.swing.Icon
+
+import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType}
 import org.jetbrains.plugins.scala.icons.Icons
 
 class UTestConfigurationType extends ConfigurationType {

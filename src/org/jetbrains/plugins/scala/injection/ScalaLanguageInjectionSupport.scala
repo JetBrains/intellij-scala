@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.injection
 
+import com.intellij.psi.PsiLanguageInjectionHost
 import org.intellij.plugins.intelliLang.inject.AbstractLanguageInjectionSupport
-import com.intellij.psi.{PsiLanguageInjectionHost, PsiElement}
 
 /**
  * Pavel Fatin

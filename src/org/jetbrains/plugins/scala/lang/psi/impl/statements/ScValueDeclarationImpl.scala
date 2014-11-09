@@ -4,18 +4,15 @@ package psi
 package impl
 package statements
 
-import com.intellij.util.ArrayFactory
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.types.Any
 import com.intellij.lang.ASTNode
-import stubs.ScValueStub
-import api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.base._
-import psi.types.Nothing
-import psi.types.result.{Failure, TypingContext}
-import api.ScalaElementVisitor
 import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScValueStub
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypingContext}
 
 /**
  * @author Alexander Podkhalyuzin

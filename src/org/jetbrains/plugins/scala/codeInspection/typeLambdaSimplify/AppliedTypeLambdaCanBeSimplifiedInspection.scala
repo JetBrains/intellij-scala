@@ -3,16 +3,15 @@ package codeInspection
 package typeLambdaSimplify
 
 import com.intellij.codeInspection._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import com.intellij.psi.{PsiElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDefinition}
 import com.intellij.openapi.project.Project
-import java.lang.String
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScParenthesisedTypeElement, ScParameterizedTypeElement, ScTypeProjection}
+import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScParameterizedTypeElement, ScParenthesisedTypeElement, ScTypeProjection}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{Any, ScSubstitutor, ScType}
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 
 /**
  * Inspection to simplify a type like:
@@ -44,7 +43,8 @@ class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
 
     def addInfo(paramType: ScParameterizedTypeElement, replacementText: => String) = {
       val fixes = Array[LocalQuickFix](new SimplifyAppliedTypeLambdaQuickFix(paramType, replacementText))
-      val problem = holder.getManager.createProblemDescriptor(paramType, getShortName, fixes, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+      val problem = holder.getManager.createProblemDescriptor(paramType, getShortName, isOnTheFly,
+        fixes, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       holder.registerProblem(problem)
     }
 
@@ -53,7 +53,7 @@ class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
         case paramType: ScParameterizedTypeElement => paramType.typeElement match {
           case typeProjection: ScTypeProjection => typeProjection.typeElement match {
             case parenType: ScParenthesisedTypeElement => parenType.typeElement match {
-              case Some(ct: ScCompoundTypeElement) => {
+              case Some(ct: ScCompoundTypeElement) =>
                 (ct.components, ct.refinement) match {
                   case (Seq(), Some(refinement)) =>
                     (refinement.holders, refinement.types) match {
@@ -69,9 +69,9 @@ class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
                             lazy val simplified: String = {
                               val aliased = typeAliasDefinition.aliasedType.getOrAny
                               val subst = params.zip(typeArgs).foldLeft(ScSubstitutor.empty) {
-                                case (subst, (param, arg)) =>
+                                case (res, (param, arg)) =>
                                   val typeVar = ScalaPsiManager.typeVariable(param)
-                                  subst.bindT((typeVar.name, typeVar.getId), arg.calcType)
+                                  res.bindT((typeVar.name, typeVar.getId), arg.calcType)
                               }
                               val substituted = subst.subst(aliased)
                               ScType.presentableText(substituted)
@@ -83,7 +83,6 @@ class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
                     }
                   case _ =>
                 }
-              }
               case _ =>
             }
             case _ =>

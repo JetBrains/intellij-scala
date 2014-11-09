@@ -2,30 +2,34 @@ package org.jetbrains.plugins.scala
 package conversion
 package copy
 
-import com.intellij.openapi.editor.{RangeMarker, Editor}
 import java.awt.datatransfer.{DataFlavor, Transferable}
-import com.intellij.psi.{PsiDocumentManager, PsiJavaFile, PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, CodeStyleManager}
 import java.lang.Boolean
-import org.jetbrains.plugins.scala.extensions._
-import com.intellij.openapi.extensions.Extensions
-import collection.mutable.{ListBuffer, ArrayBuffer}
-import com.intellij.openapi.project.{DumbService, Project}
-import org.jetbrains.plugins.scala.ScalaFileType
+import java.util.Collections.singletonList
+
 import com.intellij.codeInsight.editorActions._
-import com.intellij.openapi.util.{TextRange, Ref}
-import com.intellij.openapi.diagnostic.{Attachment, Logger}
-import settings._
 import com.intellij.diagnostic.LogMessageEx
+import com.intellij.openapi.diagnostic.{Attachment, Logger}
+import com.intellij.openapi.editor.{Editor, RangeMarker}
+import com.intellij.openapi.extensions.Extensions
+import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.util.{Ref, TextRange}
+import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiJavaFile}
 import com.intellij.util.ExceptionUtil
+import org.jetbrains.plugins.scala.conversion.JavaToScala.Offset
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.settings._
+
+import scala.annotation.tailrec
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 30.11.2009
  */
 
-class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransferableData] {
+class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBlockTransferableData] {
   private val Log = Logger.getInstance(classOf[JavaCopyPastePostProcessor])
 
   private lazy val referenceProcessor = Extensions.getExtensions(CopyPastePostProcessor.EP_NAME)
@@ -34,29 +38,53 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
   private lazy val scalaProcessor = Extensions.getExtensions(CopyPastePostProcessor.EP_NAME)
           .find(_.isInstanceOf[ScalaCopyPastePostProcessor]).get.asInstanceOf[ScalaCopyPastePostProcessor]
 
-  def collectTransferableData(file: PsiFile, editor: Editor, startOffsets: Array[Int], endOffsets: Array[Int]): TextBlockTransferableData = {
+  protected def collectTransferableData0(file: PsiFile, editor: Editor, startOffsets: Array[Int], endOffsets: Array[Int]): TextBlockTransferableData = {
     if (DumbService.getInstance(file.getProject).isDumb) return null
     if (!ScalaProjectSettings.getInstance(file.getProject).isEnableJavaToScalaConversion ||
-        !file.isInstanceOf[PsiJavaFile]) return null;
+        !file.isInstanceOf[PsiJavaFile]) return null
 
-    val buffer = new ArrayBuffer[PsiElement]
+    sealed trait Part
+    case class ElementPart(elem: PsiElement) extends Part
+    case class TextPart(text: String) extends Part
+
+    val buffer = new ArrayBuffer[Part]
 
     try {
       for ((startOffset, endOffset) <- startOffsets.zip(endOffsets)) {
-        var elem: PsiElement = file.findElementAt(startOffset)
-        while (elem != null && elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] &&
-                elem.getParent.getTextRange.getEndOffset <= endOffset) {
-          elem = elem.getParent
+        @tailrec
+        def findElem(offset: Int): PsiElement = {
+          if (offset > endOffset) return null
+          val elem = file.findElementAt(offset)
+          if (elem == null) return null
+          if (elem.getParent.getTextRange.getEndOffset > endOffset ||
+            elem.getParent.getTextRange.getStartOffset < startOffset) findElem(elem.getTextRange.getEndOffset + 1)
+          else elem
         }
-        buffer += elem
-        while (elem.getTextRange.getEndOffset < endOffset) {
-          elem = elem.getNextSibling
-          buffer += elem
+        var elem: PsiElement = findElem(startOffset)
+        if (elem != null) {
+          while (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] &&
+            elem.getParent.getTextRange.getEndOffset <= endOffset &&
+            elem.getParent.getTextRange.getStartOffset >= startOffset) {
+            elem = elem.getParent
+          }
+          if (startOffset < elem.getTextRange.getStartOffset) {
+            buffer += TextPart(new TextRange(startOffset, elem.getTextRange.getStartOffset).substring(file.getText))
+          }
+          buffer += ElementPart(elem)
+          while (elem.getNextSibling != null && elem.getNextSibling.getTextRange.getEndOffset <= endOffset) {
+            elem = elem.getNextSibling
+            buffer += ElementPart(elem)
+          }
+          if (elem.getTextRange.getEndOffset < endOffset) {
+            buffer += TextPart(new TextRange(elem.getTextRange.getEndOffset, endOffset).substring(file.getText))
+          }
         }
       }
 
-      val refs = referenceProcessor.collectTransferableData(file, editor, startOffsets, endOffsets)
-              .asInstanceOf[ReferenceTransferableData]
+      val refs = {
+        val data = referenceProcessor.collectTransferableData(file, editor, startOffsets, endOffsets)
+        if (data.isEmpty) null else data.get(0).asInstanceOf[ReferenceTransferableData]
+      }
 
       val associations = new ListBuffer[Association]()
 
@@ -67,9 +95,15 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
           new ReferenceData(it.startOffset + shift, it.endOffset + shift, it.qClassName, it.staticMemberName)
         } else Seq.empty
 
-      val newText = JavaToScala.convertPsisToText(buffer.toArray, associations, data)
-
-      new ConvertedCode(newText, associations.toArray)
+      val res = new StringBuilder("")
+      for (part <- buffer) {
+        part match {
+          case TextPart(text) => res.append(text)
+          case ElementPart(element) =>
+            res.append(JavaToScala.convertPsiToText(element)(associations, data, new Offset(res.length)))
+        }
+      }
+      new ConvertedCode(res.toString(), associations.toArray)
     } catch {
       case e: Exception =>
         val selections = (startOffsets, endOffsets).zipped.map((a, b) => file.getText.substring(a, b))
@@ -79,14 +113,14 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
     }
   }
 
-  def extractTransferableData(content: Transferable): TextBlockTransferableData = {
+  protected def extractTransferableData0(content: Transferable): TextBlockTransferableData = {
     if (content.isDataFlavorSupported(ConvertedCode.Flavor))
       content.getTransferData(ConvertedCode.Flavor).asInstanceOf[TextBlockTransferableData]
     else
       null
   }
 
-  def processTransferableData(project: Project, editor: Editor, bounds: RangeMarker, i: Int, ref: Ref[Boolean], value: TextBlockTransferableData) {
+  protected def processTransferableData0(project: Project, editor: Editor, bounds: RangeMarker, i: Int, ref: Ref[Boolean], value: TextBlockTransferableData) {
     if (!ScalaProjectSettings.getInstance(project).isEnableJavaToScalaConversion) return
     if (value == null) return
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
@@ -94,7 +128,7 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
     val dialog = new ScalaPasteFromJavaDialog(project)
     val (text, associations) = value match {
       case code: ConvertedCode => (code.data, code.associations)
-      case _ => ("", Array.empty)
+      case _ => ("", Array.empty[Association])
     }
     if (text == "") return //copy as usually
     if (!ScalaProjectSettings.getInstance(project).isDontShowConversionDialog) dialog.show()
@@ -121,7 +155,7 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
             movedAssociation
         }
       }
-      scalaProcessor.processTransferableData(project, editor, bounds, i, ref, new Associations(shiftedAssociations))
+      scalaProcessor.processTransferableData(project, editor, bounds, i, ref, singletonList(new Associations(shiftedAssociations)))
     }
   }
 

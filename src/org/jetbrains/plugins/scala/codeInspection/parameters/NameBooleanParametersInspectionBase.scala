@@ -1,22 +1,21 @@
 package org.jetbrains.plugins.scala
 package codeInspection.parameters
 
-import lang.psi.api.ScalaElementVisitor
-import codeInspection.InspectionBundle
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
-import lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.util.IntentionUtils
-import lang.psi.types.result.TypingContext
-import com.intellij.psi.{PsiElementVisitor, PsiElement}
-import org.jetbrains.plugins.scala.extensions._
 import com.intellij.psi.util.PsiTreeUtil
-import collection.Seq
-import lang.psi.types.nonvalue.Parameter
-import lang.psi.api.base.ScLiteral
-import lang.psi.api.expr._
-import com.intellij.openapi.diagnostic.Logger
-import scala.Some
-import lang.psi.api.statements.ScFunction
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.util.IntentionUtils
+
+import scala.collection.Seq
 
 /**
  * @author Ksenia.Sautina
@@ -32,7 +31,6 @@ abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
         mc.getInvokedExpr match {
           case ref: ScReferenceExpression => ref.resolve() match {
             case fun: ScFunction =>
-              //todo
               if (fun.name.startsWith("set") && mc.args.exprs.size == 1 && isBooleanType(mc.args.exprs(0)) &&
                       getIgnoreSetters) return
             case _ =>
@@ -69,15 +67,14 @@ abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
                   arg => (arg, al.parameterOf(arg))
                 }
                 argsAndMatchingParams.exists {
-                  case (expr, Some(param)) => {
-                    val paramInCode = param.paramInCode.getOrElse(null)
+                  case (expr, Some(param)) =>
+                    val paramInCode = param.paramInCode.orNull
                     if (paramInCode == null) return false
                     if (!paramInCode.isValid) return false //todo: find why it can be invalid?
                     val realParameterType = paramInCode.getRealParameterType(TypingContext.empty).getOrElse(null)
                     if (realParameterType == null) return false
                     else if (realParameterType.canonicalText == "Boolean") return true
                     else return false
-                  }
                   case _ => return false
                 }
             }
@@ -90,8 +87,4 @@ abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
   def getIgnoreSetters: Boolean
   def setIgnoreSetters(value: Boolean)
 
-}
-
-object NameBooleanParametersInspectionBase {
-  private val LOG = Logger.getInstance(getClass)
 }

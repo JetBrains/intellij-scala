@@ -1,38 +1,39 @@
 package org.jetbrains.plugins.scala.conversion.copy
 
-import com.intellij.openapi.editor.{RangeMarker, Editor}
-import java.lang.Boolean
 import java.awt.datatransfer.Transferable
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import java.lang.Boolean
+
+import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.daemon.impl.CollectHighlightsUtil
-import collection.JavaConversions._
-import com.intellij.codeInsight.editorActions.CopyPastePostProcessor
+import com.intellij.diagnostic.LogMessageEx
+import com.intellij.openapi.diagnostic.{Attachment, Logger}
+import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util.Ref
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
-import com.intellij.codeInsight.CodeInsightSettings
-import org.jetbrains.plugins.scala.lang.dependency.Dependency
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.settings._
-import com.intellij.openapi.ui.DialogWrapper
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import scala.util.control.Breaks._
-import com.intellij.openapi.diagnostic.{Attachment, Logger}
-import com.intellij.diagnostic.LogMessageEx
 import com.intellij.util.ExceptionUtil
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.dependency.Dependency
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.settings._
+
+import scala.collection.JavaConversions._
+import scala.util.control.Breaks._
 
 /**
  * Pavel Fatin
  */
 
-class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[Associations] {
+class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associations] {
   private val Log = Logger.getInstance(getClass)
   private val Timeout = 3000L
 
-  def collectTransferableData(file: PsiFile, editor: Editor,
-                              startOffsets: Array[Int], endOffsets: Array[Int]): Associations = {
+  protected def collectTransferableData0(file: PsiFile, editor: Editor,
+                                         startOffsets: Array[Int], endOffsets: Array[Int]): Associations = {
     if (DumbService.getInstance(file.getProject).isDumb) return null
 
     if(!file.isInstanceOf[ScalaFile]) return null
@@ -65,14 +66,14 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[Associations] {
     new Associations(associations.reverse)
   }
 
-  def extractTransferableData(content: Transferable) = {
+  protected def extractTransferableData0(content: Transferable) = {
     content.isDataFlavorSupported(Associations.Flavor)
             .ifTrue(content.getTransferData(Associations.Flavor).asInstanceOf[Associations])
             .orNull
   }
 
-  def processTransferableData(project: Project, editor: Editor, bounds: RangeMarker,
-                              caretColumn: Int, indented: Ref[Boolean], value: Associations) {
+  protected def processTransferableData0(project: Project, editor: Editor, bounds: RangeMarker,
+                                         caretColumn: Int, indented: Ref[Boolean], value: Associations) {
     if (DumbService.getInstance(project).isDumb) return
 
     if (ScalaApplicationSettings.getInstance().ADD_IMPORTS_ON_PASTE == CodeInsightSettings.NO) return

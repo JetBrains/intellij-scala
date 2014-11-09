@@ -1,33 +1,37 @@
 package org.jetbrains.plugins.scala
 package debugger
 
-import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil, ModuleTestCase}
+import java.io.File
+import javax.swing.SwingUtilities
+
 import com.intellij.ProjectTopics
 import com.intellij.compiler.CompilerTestUtil
-import com.intellij.openapi.roots._
 import com.intellij.compiler.server.BuildManager
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.util.io.FileUtil
-import java.io.File
-import com.intellij.packaging.artifacts.ArtifactManager
+import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager, CompilerMessageCategory}
+import com.intellij.openapi.projectRoots._
+import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
+import com.intellij.openapi.roots._
+import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
+import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
+import com.intellij.testFramework.{ModuleTestCase, PsiTestUtil, VfsTestUtil}
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
-import com.intellij.openapi.compiler.{CompileContext, CompilerMessageCategory, CompileStatusNotification, CompilerManager}
-import javax.swing.SwingUtilities
-import scala.collection.mutable.ListBuffer
 import junit.framework.Assert
-import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
-import com.intellij.openapi.projectRoots._
-import org.jetbrains.plugins.scala.util.TestUtils
-import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
-import extensions._
+import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.template.Artifact
+import org.jetbrains.plugins.scala.util.TestUtils
+
+import scala.collection.mutable.ListBuffer
 
 /**
  * Nikolay.Tropin
  * 2/26/14
  */
 abstract class ScalaCompilerTestBase extends ModuleTestCase {
+
+  protected var compilerVersion: Option[String] = null
 
   protected def useExternalCompiler: Boolean = true
 
@@ -39,7 +43,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase {
           forceFSRescan()
         }
       })
-      CompilerTestUtil.enableExternalCompiler(myProject)
+      CompilerTestUtil.enableExternalCompiler()
     }
     else CompilerTestUtil.disableExternalCompiler(myProject)
 
@@ -59,13 +63,31 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase {
     }
   }
 
-  protected def addScalaLibrary() {
+  protected val compilerDirectorySuffix = ""
+  
+  protected def addScalaSdk(loadReflect: Boolean = true) {
     ScalaLoader.loadScala()
     val cl = SyntheticClasses.get(getProject)
     if (!cl.isClassesRegistered) cl.registerClasses()
-    PsiTestUtil.addLibrary(myModule, "scala-compiler",
-      TestUtils.getTestDataPath.replace("\\", "/") + "/scala-compiler/", "scala-compiler.jar",
-      "scala-library.jar")
+
+    val root = TestUtils.getTestDataPath.replace("\\", "/") + "/scala-compiler/" +
+            (if (compilerDirectorySuffix != "") compilerDirectorySuffix + "/" else "")
+    
+    VfsRootAccess.allowRootAccess(root)
+
+    PsiTestUtil.addLibrary(myModule, "scala-compiler", root, "scala-library.jar")
+
+    myModule.libraries.find(_.getName == "scala-compiler").foreach { library =>
+      val compilerClasspath = Seq("scala-compiler.jar", "scala-library.jar") ++
+              (if (loadReflect) Seq("scala-reflect.jar") else Seq.empty)
+
+      val languageLevel = Artifact.ScalaCompiler.versionOf(new File(root, "scala-compiler.jar"))
+              .flatMap(ScalaLanguageLevel.from).getOrElse(ScalaLanguageLevel.Default)
+
+      inWriteAction {
+        library.convertToScalaSdkWith(languageLevel, compilerClasspath.map(new File(root, _)))
+      }
+    }
   }
 
   override protected def getTestProjectJdk: Sdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk

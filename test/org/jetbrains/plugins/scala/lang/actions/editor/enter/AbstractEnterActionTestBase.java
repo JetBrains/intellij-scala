@@ -15,7 +15,6 @@
 
 package org.jetbrains.plugins.scala.lang.actions.editor.enter;
 
-import org.jetbrains.plugins.scala.Console;
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
@@ -25,11 +24,8 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
-import junit.framework.Test;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase;
 import org.jetbrains.plugins.scala.util.TestUtils;
-import org.jetbrains.plugins.scala.ScalaFileType;
 
 import java.io.IOException;
 
@@ -72,6 +68,7 @@ abstract public class AbstractEnterActionTestBase extends ActionTestBase {
     myFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
     fileEditorManager = FileEditorManager.getInstance(getProject());
     myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(getProject(), myFile.getVirtualFile(), 0), false);
+    assert myEditor != null;
     myEditor.getCaretModel().moveToOffset(offset);
 
     final myDataContext dataContext = getDataContext(myFile);
@@ -80,7 +77,7 @@ abstract public class AbstractEnterActionTestBase extends ActionTestBase {
     try {
       performAction(getProject(), new Runnable() {
         public void run() {
-          handler.execute(myEditor, dataContext);
+          handler.execute(myEditor, myEditor.getCaretModel().getCurrentCaret(), dataContext);
         }
       });
 

@@ -5,7 +5,7 @@ package types
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -14,12 +14,44 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 object Bounds {
   def lub(seq: Seq[ScType]): ScType = {
     seq.reduce((l: ScType, r: ScType) => lub(l,r))
+  }
+
+  //similar to Scala code, this code is duplicated and optimized to avoid closures.
+  def typeDepth(ts: Seq[ScType]): Int = {
+    @tailrec def loop(tps: Seq[ScType], acc: Int): Int = tps match {
+      case tp :: rest => loop(rest, acc max tp.typeDepth)
+      case _          => acc
+    }
+    loop(ts, 0)
+  }
+
+  def baseTypeSeqDepth(ts: Seq[ScType]): Int = {
+    @tailrec def loop(tps: Seq[ScType], acc: Int): Int = tps match {
+      case tp :: rest => loop(rest, acc max tp.baseTypeSeqDepth)
+      case _          => acc
+    }
+    loop(ts, 0)
+  }
+
+  def lubDepth(ts: Seq[ScType]): Int = {
+    val td = typeDepth(ts)
+    val bd = baseTypeSeqDepth(ts)
+    lubDepthAdjust(td, td max bd)
+  }
+
+  //This weird method is copy from Scala compiler. See scala.reflect.internal.Types#lubDepthAdjust
+  private def lubDepthAdjust(td: Int, bd: Int): Int = {
+    if (bd <= 3) bd
+    else if (bd <= 5) td max (bd - 1)
+    else if (bd <= 7) td max (bd - 2)
+    else (td - 1) max (bd - 3)
   }
 
   private class Options(_tp: ScType) extends {
@@ -168,41 +200,38 @@ object Bounds {
     res
   }
 
-  def lub(t1: ScType, t2: ScType, checkWeak: Boolean = false): ScType = lub(t1, t2, 0, checkWeak)(stopAddingUpperBound = false)
+  def lub(t1: ScType, t2: ScType, checkWeak: Boolean = false): ScType = lub(t1, t2, lubDepth(Seq(t1, t2)), checkWeak)(stopAddingUpperBound = false)
 
   def weakLub(t1: ScType, t2: ScType): ScType = lub(t1, t2, checkWeak = true)
 
-  private def lub(seq: Seq[ScType], depth : Int, checkWeak: Boolean)(implicit stopAddingUpperBound: Boolean): ScType = {
-    seq.reduce((l: ScType, r: ScType) => lub(l,r, depth, checkWeak))
+  private def lub(seq: Seq[ScType], checkWeak: Boolean)(implicit stopAddingUpperBound: Boolean): ScType = {
+    seq.reduce((l: ScType, r: ScType) => lub(l,r, lubDepth(Seq(l, r)), checkWeak))
   }
 
   private def lub(t1: ScType, t2: ScType, depth : Int, checkWeak: Boolean)(implicit stopAddingUpperBound: Boolean): ScType = {
-    if (Set(t1.toString, t2.toString) == Set("Rewriter.this.type#c#universe#Apply", "Rewriter.this.type#c#universe#TypeApply")) {
-      "stop here"
-    }
     if (t1.conforms(t2, checkWeak)) t2
     else if (t2.conforms(t1, checkWeak)) t1
     else {
       def lubWithExpandedAliases(t1: ScType, t2: ScType): ScType = {
         (t1, t2) match {
           case (ScDesignatorType(t: ScParameter), _) =>
-            lub(t.getRealParameterType(TypingContext.empty).getOrAny, t2, 0, checkWeak)
+            lub(t.getRealParameterType(TypingContext.empty).getOrAny, t2, checkWeak)
           case (ScDesignatorType(t: ScTypedDefinition), _) if !t.isInstanceOf[ScObject] =>
-            lub(t.getType(TypingContext.empty).getOrAny, t2, 0, checkWeak)
+            lub(t.getType(TypingContext.empty).getOrAny, t2, checkWeak)
           case (_, ScDesignatorType(t: ScParameter)) =>
-            lub(t1, t.getRealParameterType(TypingContext.empty).getOrAny, 0, checkWeak)
+            lub(t1, t.getRealParameterType(TypingContext.empty).getOrAny, checkWeak)
           case (_, ScDesignatorType(t: ScTypedDefinition)) if !t.isInstanceOf[ScObject] =>
-            lub(t1, t.getType(TypingContext.empty).getOrAny, 0, checkWeak)
-          case (ex: ScExistentialType, _) => lub(ex.skolem, t2, 0, checkWeak).unpackedType
-          case (_, ex: ScExistentialType) => lub(t1, ex.skolem, 0, checkWeak).unpackedType
-          case (ScTypeParameterType(_, Nil, _, upper, _), _) => lub(upper.v, t2, 0, checkWeak)
-          case (_, ScTypeParameterType(_, Nil, _, upper, _)) => lub(t1, upper.v, 0, checkWeak)
+            lub(t1, t.getType(TypingContext.empty).getOrAny, checkWeak)
+          case (ex: ScExistentialType, _) => lub(ex.skolem, t2, checkWeak).unpackedType
+          case (_, ex: ScExistentialType) => lub(t1, ex.skolem, checkWeak).unpackedType
+          case (ScTypeParameterType(_, Nil, _, upper, _), _) => lub(upper.v, t2, checkWeak)
+          case (_, ScTypeParameterType(_, Nil, _, upper, _)) => lub(t1, upper.v, checkWeak)
           case (ScSkolemizedType(name, args, lower, upper), ScSkolemizedType(name2, args2, lower2, upper2)) =>
-            ScSkolemizedType(name, args, glb(lower, lower2, checkWeak), lub(upper, upper2, 0, checkWeak))
+            ScSkolemizedType(name, args, glb(lower, lower2, checkWeak), lub(upper, upper2, checkWeak))
           case (ScSkolemizedType(name, args, lower, upper), r) =>
-            ScSkolemizedType(name, args, glb(lower, r, checkWeak), lub(upper, t2, 0, checkWeak))
+            ScSkolemizedType(name, args, glb(lower, r, checkWeak), lub(upper, t2, checkWeak))
           case (r, ScSkolemizedType(name, args, lower, upper)) =>
-            ScSkolemizedType(name, args, glb(lower, r, checkWeak), lub(upper, t2, 0, checkWeak))
+            ScSkolemizedType(name, args, glb(lower, r, checkWeak), lub(upper, t2, checkWeak))
           case (_: ValType, _: ValType) => types.AnyVal
           case (JavaArrayType(arg1), JavaArrayType(arg2)) =>
             val (v, ex) = calcForTypeParamWithoutVariance(arg1, arg2, depth, checkWeak)
@@ -280,13 +309,13 @@ object Bounds {
       } else {
         (substed1, substed2) match {
           case (ScSkolemizedType(name, args, lower, upper), ScSkolemizedType(name2, args2, lower2, upper2)) =>
-            val newLub = if (stopAddingUpperBound) types.Any else lub(Seq(upper, upper2), 0, checkWeak)(stopAddingUpperBound = true)
+            val newLub = if (stopAddingUpperBound) types.Any else lub(Seq(upper, upper2), checkWeak)(stopAddingUpperBound = true)
             (ScSkolemizedType(name, args, glb(lower, lower2, checkWeak), newLub), None)
           case (ScSkolemizedType(name, args, lower, upper), _) =>
-            val newLub = if (stopAddingUpperBound) types.Any else lub(Seq(upper, substed2), 0, checkWeak)(stopAddingUpperBound = true)
+            val newLub = if (stopAddingUpperBound) types.Any else lub(Seq(upper, substed2), checkWeak)(stopAddingUpperBound = true)
             (ScSkolemizedType(name, args, glb(lower, substed2), newLub), None)
           case (_, ScSkolemizedType(name, args, lower, upper)) =>
-            val newLub = if (stopAddingUpperBound) types.Any else lub(Seq(upper, substed1), 0, checkWeak)(stopAddingUpperBound = true)
+            val newLub = if (stopAddingUpperBound) types.Any else lub(Seq(upper, substed1), checkWeak)(stopAddingUpperBound = true)
             (ScSkolemizedType(name, args, glb(lower, substed1), newLub), None)
           case _ =>
             val newGlb = Bounds.glb(substed1, substed2)
@@ -295,7 +324,7 @@ object Bounds {
               // example: the lub of "_ >: Int with Double <: AnyVal" & Long we need here should be AnyVal, not Any
               def getTypesForLubEvaluation(t: ScType) = Seq(t)
               val typesToCover = getTypesForLubEvaluation(substed1) ++ getTypesForLubEvaluation(substed2)
-              val newLub = Bounds.lub(typesToCover, 0, checkWeak = false)(stopAddingUpperBound = true)
+              val newLub = Bounds.lub(typesToCover, checkWeak = false)(stopAddingUpperBound = true)
               (ScTypeVariable("_$" + count), Some(ScExistentialArgument("_$" + count, List.empty, newGlb, newLub)))
             } else {
               //todo: this is wrong, actually we should pick lub, just without merging parameters in this method
@@ -322,7 +351,7 @@ object Bounds {
           val substed1 = tp1.typeArgs.apply(i)
           val substed2 = tp2.typeArgs.apply(i)
           resTypeArgs += (baseClass.getTypeParameters.apply(i) match {
-            case scp: ScTypeParam if scp.isCovariant => if (depth < 2) lub(substed1, substed2, depth + 1, checkWeak) else types.Any
+            case scp: ScTypeParam if scp.isCovariant => if (depth > 0) lub(substed1, substed2, depth - 1, checkWeak) else types.Any
             case scp: ScTypeParam if scp.isContravariant => glb(substed1, substed2, checkWeak)
             case _ =>
               val (v, ex) = calcForTypeParamWithoutVariance(substed1, substed2, depth, checkWeak, count = wildcards.length + 1)

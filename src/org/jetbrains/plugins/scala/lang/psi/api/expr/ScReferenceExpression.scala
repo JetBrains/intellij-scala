@@ -4,16 +4,13 @@ package psi
 package api
 package expr
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base._
 import com.intellij.psi._
-import psi.types.result.TypeResult
-import psi.types.ScType
-import psi.impl.ScalaPsiElementFactory
-import extensions.toPsiNamedElementExt
-import psi.types.nonvalue.TypeParameter
-import lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
+import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -60,6 +57,9 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
    */
   def multiType: Array[TypeResult[ScType]]
 
+  /**
+   * @return types in the same order as shapeResolve
+   */
   def shapeMultiType: Array[TypeResult[ScType]]
 
   def shapeResolve: Array[ResolveResult]

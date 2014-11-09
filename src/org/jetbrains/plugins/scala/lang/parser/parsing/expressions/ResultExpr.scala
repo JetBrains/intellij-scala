@@ -5,9 +5,9 @@ package parsing
 package expressions
 
 import com.intellij.lang.PsiBuilder
-import lexer.ScalaTokenTypes
-import types.CompoundType
-import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.CompoundType
 
 /**
 * @author Alexander Podkhalyuzin
@@ -43,7 +43,7 @@ object ResultExpr {
       if (ScalaTokenTypes.tCOLON == builder.getTokenType) {
         builder.advanceLexer() // ate ':'
         val pt = builder.mark
-        CompoundType.parse(builder)
+        CompoundType.parse(builder, isPattern = false)
         pt.done(ScalaElementTypes.PARAM_TYPE)
       }
       builder.getTokenType match {

@@ -1,0 +1,12 @@
+class a {
+  def foo() = {
+    s"""Hello, <begin>Bob<end>!"""
+  }
+}
+------
+class a {
+  def foo() = {
+    val value: String = """Bob"""
+    s"""Hello, $value!"""
+  }
+}

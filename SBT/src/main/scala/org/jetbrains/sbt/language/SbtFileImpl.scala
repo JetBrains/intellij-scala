@@ -1,16 +1,17 @@
 package org.jetbrains.sbt
 package language
 
-import com.intellij.psi.{PsiClass, PsiElement, ResolveState, FileViewProvider}
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager, ScalaFileImpl}
-import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
-import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
-import com.intellij.psi.search.searches.ClassInheritorsSearch
-import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.search.searches.ClassInheritorsSearch
+import com.intellij.psi.{FileViewProvider, PsiClass, PsiElement, ResolveState}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.sbt.project.module.SbtModule
-import collection.JavaConverters._
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -34,6 +35,10 @@ class SbtFileImpl(provider: FileViewProvider) extends ScalaFileImpl(provider, Sb
     val expressions0 = expressions.map {
       case "Keys._" => "sbt.Keys._"
       case "Build._" => "sbt.Build._"
+      // TODO: this is a workaround. `processDeclarations` does not resolve "Play.autoImport -> PlayImport"
+      //    However, when object with implicit imports is located in the same file where plugin object resides
+      //    everything is resolved, but PlayImport and Play are in different files.
+      case "_root_.play.Play.autoImport._" => "_root_.play.PlayImport._"
       case it => it
     }
 

@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala
 package debugger.evaluation.evaluator
 
-import com.intellij.debugger.engine.evaluation.expression.{Modifier, Evaluator}
-import com.intellij.debugger.engine.evaluation.{EvaluateExceptionUtil, EvaluationContextImpl}
+import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
+import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
+import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 
 /**
  * Nikolay.Tropin
@@ -28,9 +29,9 @@ class ScalaDuplexEvaluator(val first: Evaluator, val second: Evaluator) extends 
           myModifier = second.getModifier
         }
         catch {
-          case e2: Exception => throw EvaluateExceptionUtil.createEvaluateException(e1.getMessage + "\n " + e2.getMessage)
+          case e2: Exception => throw EvaluationException(e1.getMessage + "\n " + e2.getMessage)
         }
-      case e: Exception => throw EvaluateExceptionUtil.createEvaluateException(e)
+      case e: Exception => throw EvaluationException(e)
     }
     result
   }

@@ -5,8 +5,8 @@ package impl
 package toplevel
 package synthetic
 
-import com.intellij.psi.impl.light.LightIdentifier
 import com.intellij.psi.PsiElement
+import com.intellij.psi.impl.light.LightIdentifier
 
 class JavaIdentifier(scalaId : PsiElement) extends LightIdentifier(scalaId.getManager, scalaId.getText) {
   override def getTextRange = scalaId.getTextRange

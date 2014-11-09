@@ -3,17 +3,18 @@ package lang
 package resolve
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.types._
-import psi.ScalaPsiUtil
-import psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject}
-import psi.api.base.patterns.ScBindingPattern
-import psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportUsed}
-import extensions.{toPsiClassExt, toPsiNamedElementExt}
-import psi.api.toplevel.ScNamedElement
-import scala.annotation.tailrec
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import org.jetbrains.plugins.scala.lang.psi.types._
+
+import scala.annotation.tailrec
 
 object ScalaResolveResult {
   def empty = new ScalaResolveResult(null, ScSubstitutor.empty, Set[ImportUsed]())
@@ -44,7 +45,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val prefixCompletion: Boolean = false,
                          val isDynamic: Boolean = false,
                          val isForwardReference: Boolean = false,
-                         val implicitParameterType: Option[ScType] = None) extends ResolveResult {
+                         val implicitParameterType: Option[ScType] = None,
+                         val implicitParameters: Seq[ScalaResolveResult] = Seq.empty) extends ResolveResult {
   if (element == null) throw new NullPointerException("element is null")
 
   def getElement = element
@@ -61,16 +63,18 @@ class ScalaResolveResult(val element: PsiNamedElement,
     }
   }
 
-  def isApplicable: Boolean = problems.isEmpty
+  def isApplicable(withExpectedType: Boolean = false): Boolean =
+    if (withExpectedType) problems.isEmpty
+    else problems.forall(_ == ExpectedTypeMismatch)
 
-  def isApplicableInternal: Boolean = {
+  def isApplicableInternal(withExpectedType: Boolean): Boolean = {
     innerResolveResult match {
-      case Some(r) => r.isApplicable
-      case None => isApplicable
+      case Some(r) => r.isApplicable(withExpectedType)
+      case None => isApplicable(withExpectedType)
     }
   }
 
-  def isValidResult = isAccessible && isApplicable
+  def isValidResult = isAccessible && isApplicable()
 
   def isCyclicReference = false
 
@@ -87,12 +91,13 @@ class ScalaResolveResult(val element: PsiNamedElement,
            isDynamic: Boolean = isDynamic,
            isForwardReference: Boolean = isForwardReference,
            implicitParameterType: Option[ScType] = implicitParameterType,
-           importsUsed: collection.Set[ImportUsed] = importsUsed): ScalaResolveResult =
+           importsUsed: collection.Set[ImportUsed] = importsUsed,
+           implicitParameters: Seq[ScalaResolveResult] = implicitParameters): ScalaResolveResult =
     new ScalaResolveResult(element, subst, importsUsed, nameShadow, implicitConversionClass, problems, boundClass,
       implicitFunction, implicitType, defaultParameterUsed, innerResolveResult, parentElement,
       isNamedParameter, fromType, tuplingUsed, isSetterFunction, isAssignment, notCheckedResolveResult,
       isAccessible, resultUndef, isDynamic = isDynamic, isForwardReference = isForwardReference,
-      implicitParameterType = implicitParameterType)
+      implicitParameterType = implicitParameterType, implicitParameters = implicitParameters)
 
   //In valid program we should not have two resolve results with the same element but different substitutor,
   // so factor by element

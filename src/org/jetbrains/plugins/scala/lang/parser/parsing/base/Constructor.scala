@@ -4,10 +4,10 @@ package parser
 package parsing
 package base
 
-import expressions.ArgumentExprs
-import lexer.ScalaTokenTypes
-import types.{SimpleType, AnnotType}
-import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.ArgumentExprs
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.{AnnotType, SimpleType}
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -18,10 +18,11 @@ import builder.ScalaPsiBuilder
  */
 
 object Constructor {
-  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, false)
+  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, isAnnotation = false)
   def parse(builder: ScalaPsiBuilder, isAnnotation: Boolean): Boolean = {
     val constrMarker = builder.mark
-    if ((!isAnnotation && !AnnotType.parse(builder)) || (isAnnotation && !SimpleType.parse(builder))) {
+    if ((!isAnnotation && !AnnotType.parse(builder, isPattern = false)) ||
+      (isAnnotation && !SimpleType.parse(builder, isPattern = false))) {
       constrMarker.drop()
       return false
     }

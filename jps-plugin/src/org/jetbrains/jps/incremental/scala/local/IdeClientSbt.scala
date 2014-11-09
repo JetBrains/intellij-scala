@@ -1,15 +1,17 @@
 package org.jetbrains.jps.incremental.scala
 package local
 
+import java.io.File
+import java.util
+
+import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget}
 import org.jetbrains.jps.incremental.CompileContext
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.OutputConsumer
-import java.io.File
-import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget}
+
+import scala.collection.JavaConverters._
 import scala.util.control.Exception._
-import com.intellij.openapi.util.Key
-import java.util
-import com.intellij.openapi.util.io.FileUtil
-import collection.JavaConverters._
 
 
 /**

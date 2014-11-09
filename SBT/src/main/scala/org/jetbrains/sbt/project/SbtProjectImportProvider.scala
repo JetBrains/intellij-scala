@@ -1,9 +1,9 @@
 package org.jetbrains.sbt
 package project
 
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalProjectImportProvider
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
 
 /**
  * @author Pavel Fatin
@@ -13,7 +13,7 @@ class SbtProjectImportProvider(builder: SbtProjectImportBuilder)
 
   override def getId = Sbt.Name
 
-  override def getName = Sbt.ProjectDescription
+  override def getName = Sbt.Name
 
   override def getIcon = Sbt.Icon
 

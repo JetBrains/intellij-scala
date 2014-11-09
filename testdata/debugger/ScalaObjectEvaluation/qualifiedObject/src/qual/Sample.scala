@@ -1,3 +1,0 @@
-package qual
-
-object Simple

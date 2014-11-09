@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.rename.inplace
 
-import com.intellij.refactoring.rename.inplace.{VariableInplaceRenamer, VariableInplaceRenameHandler}
-import com.intellij.psi.{PsiNamedElement, PsiFile, PsiElement}
-import com.intellij.openapi.editor.Editor
-import com.intellij.psi.search.LocalSearchScope
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.internal.statistic.UsageTrigger
+import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
+import com.intellij.psi.search.LocalSearchScope
+import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
+import com.intellij.refactoring.rename.inplace.{VariableInplaceRenameHandler, VariableInplaceRenamer}
 
 /**
  * Nikolay.Tropin

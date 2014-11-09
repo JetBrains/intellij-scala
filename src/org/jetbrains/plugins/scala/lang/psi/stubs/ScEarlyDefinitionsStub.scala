@@ -4,8 +4,8 @@ package psi
 package stubs
 
 
-import api.toplevel.ScEarlyDefinitions
 import com.intellij.psi.stubs.StubElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 
 /**
  * User: Alexander Podkhalyuzin

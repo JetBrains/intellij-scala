@@ -1,13 +1,11 @@
 package org.jetbrains.plugins.scala
 package compiler
 
-import config.ScalaFacet
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.components.ProjectComponent
-import com.intellij.facet.{ProjectWideFacetListenersRegistry, ProjectWideFacetAdapter}
 import com.intellij.compiler.CompilerWorkspaceConfiguration
-import com.intellij.openapi.module.ModuleManager
-import com.intellij.openapi.compiler.{CompilerMessageCategory, CompileContext, CompileTask, CompilerManager}
+import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManager, CompilerMessageCategory}
+import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.project._
 
 /**
  * @author Pavel Fatin
@@ -26,13 +24,11 @@ class CompilerConfigurationMonitor(project: Project) extends ProjectComponent {
     }
   })
 
-  private def registry = ProjectWideFacetListenersRegistry.getInstance(project)
-
   private def compilerConfiguration = CompilerWorkspaceConfiguration.getInstance(project)
 
   private def compileServerConfiguration = ScalaApplicationSettings.getInstance
 
-  private def isScalaProject = ScalacBackendCompiler.isScalaProject(ModuleManager.getInstance(project).getModules)
+  private def isScalaProject = project.hasScala
 
   private def isCompileServerEnabled = compileServerConfiguration.COMPILE_SERVER_ENABLED
 
@@ -45,7 +41,7 @@ class CompilerConfigurationMonitor(project: Project) extends ProjectComponent {
   def disposeComponent() {}
 
   def projectOpened() {
-    registry.registerListener(ScalaFacet.Id, FacetListener)
+    project.scalaEvents.addScalaProjectListener(ScalaListener)
 
     if (isScalaProject && isCompileServerEnabled) {
       disableAutomake()
@@ -53,18 +49,20 @@ class CompilerConfigurationMonitor(project: Project) extends ProjectComponent {
   }
 
   def projectClosed() {
-    registry.unregisterListener(ScalaFacet.Id, FacetListener)
+    project.scalaEvents.removeScalaProjectListener(ScalaListener)
   }
 
   private def disableAutomake() {
     compilerConfiguration.MAKE_PROJECT_ON_SAVE = false
   }
 
-  private object FacetListener extends ProjectWideFacetAdapter[ScalaFacet]() {
-    override def facetAdded(facet: ScalaFacet) {
+  private object ScalaListener extends ScalaProjectListener {
+    def onScalaAdded() {
       if (isCompileServerEnabled) {
         disableAutomake()
       }
     }
+
+    def onScalaRemoved() {}
   }
 }

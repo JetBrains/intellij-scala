@@ -4,15 +4,18 @@ package annotator
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.psi.{PsiElement, PsiMethod, PsiNamedElement, PsiParameter}
-import org.jetbrains.plugins.scala.annotator.createFromUsage.{CreateMethodQuickFix, CreateParameterlessMethodQuickFix, CreateValueQuickFix, CreateVariableQuickFix}
+import org.jetbrains.plugins.scala.annotator.createFromUsage._
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern, ScPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -30,7 +33,7 @@ trait ApplicationAnnotator {
       if (r.isAssignment) {
         annotateAssignmentReference(reference, holder)
       }
-      if (!r.isApplicable) {
+      if (!r.isApplicable()) {
         r.element match {
           case f@(_: ScFunction | _: PsiMethod | _: ScSyntheticFunction) =>
             reference.getContext match {
@@ -108,6 +111,7 @@ trait ApplicationAnnotator {
                       //TODO investigate case when assignment is null. It's possible when new Expression(ScType)
                     }
                   case WrongTypeParameterInferred => //todo: ?
+                  case ExpectedTypeMismatch => //will be reported later
                   case ElementApplicabilityProblem(element, actual, expected) =>
                     holder.createErrorAnnotation(element, ScalaBundle.message("return.expression.does.not.conform",
                       actual.presentableText, expected.presentableText))
@@ -178,7 +182,12 @@ trait ApplicationAnnotator {
     //todo: duplicate
     problems.foreach {
       case DoesNotTakeParameters() =>
-        holder.createErrorAnnotation(call.argsElement, "Application does not take parameters")
+        val annotation = holder.createErrorAnnotation(call.argsElement, "Application does not take parameters")
+        (call, call.getInvokedExpr) match {
+          case (c: ScMethodCall, InstanceOfClass(td: ScTypeDefinition)) =>
+            annotation.registerFix(new CreateApplyQuickFix(td, c))
+          case _ =>
+        }
       case ExcessArgument(argument) =>
         holder.createErrorAnnotation(argument, "Too many arguments")
       case TypeMismatch(expression, expectedType) =>
@@ -198,21 +207,33 @@ trait ApplicationAnnotator {
         holder.createErrorAnnotation(argument, "Positional after named argument")
       case ParameterSpecifiedMultipleTimes(assignment) =>
         holder.createErrorAnnotation(assignment.getLExpression, "Parameter specified multiple times")
-
+      case ExpectedTypeMismatch => // it will be reported later
       case _ => holder.createErrorAnnotation(call.argsElement, "Not applicable")
     }
   }
 
   protected def registerCreateFromUsageFixesFor(ref: ScReferenceElement, annotation: Annotation) {
     ref match {
-      case Both(exp: ScReferenceExpression, Parent(_: ScMethodCall)) =>
+      case (exp: ScReferenceExpression) childOf (_: ScMethodCall) =>
         annotation.registerFix(new CreateMethodQuickFix(exp))
-      case Both(exp: ScReferenceExpression, Parent(infix: ScInfixExpr)) if infix.operation == exp =>
+      case (exp: ScReferenceExpression) childOf (infix: ScInfixExpr) if infix.operation == exp =>
         annotation.registerFix(new CreateMethodQuickFix(exp))
+      case (exp: ScReferenceExpression) childOf ((_: ScGenericCall) childOf (_: ScMethodCall)) =>
+        annotation.registerFix(new CreateMethodQuickFix(exp))
+      case (exp: ScReferenceExpression) childOf (_: ScGenericCall) =>
+        annotation.registerFix(new CreateParameterlessMethodQuickFix(exp))
       case exp: ScReferenceExpression =>
         annotation.registerFix(new CreateParameterlessMethodQuickFix(exp))
         annotation.registerFix(new CreateValueQuickFix(exp))
         annotation.registerFix(new CreateVariableQuickFix(exp))
+        annotation.registerFix(new CreateObjectQuickFix(exp))
+      case (stRef: ScStableCodeReferenceElement) childOf (st: ScSimpleTypeElement) if st.singleton =>
+      case (stRef: ScStableCodeReferenceElement) childOf (Both(p: ScPattern, (_: ScConstructorPattern | _: ScInfixPattern))) =>
+        annotation.registerFix(new CreateCaseClassQuickFix(stRef))
+        annotation.registerFix(new CreateExtractorObjectQuickFix(stRef, p))
+      case stRef: ScStableCodeReferenceElement =>
+        annotation.registerFix(new CreateTraitQuickFix(stRef))
+        annotation.registerFix(new CreateClassQuickFix(stRef))
       case _ =>
     }
   }
@@ -239,10 +260,10 @@ trait ApplicationAnnotator {
     paramClauses.clauses.map(clause => formatParams(clause.parameters, clause.paramTypes)).mkString
   }
 
-  private def formatJavaParams(parameters: Seq[PsiParameter]) = {
-    val types = ScalaPsiUtil.getTypesStream(parameters)
+  private def formatJavaParams(parameters: Seq[PsiParameter]): String = {
+    val types = ScalaPsiUtil.mapToLazyTypesSeq(parameters)
     val parts = parameters.zip(types).map {
-      case (p, t) => t.presentableText + (if(p.isVarArgs) "*" else "")
+      case (p, t) => t().presentableText + (if(p.isVarArgs) "*" else "")
     }
     parenthesise(parts)
   }

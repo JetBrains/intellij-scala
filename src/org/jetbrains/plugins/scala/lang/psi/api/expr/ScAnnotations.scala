@@ -5,14 +5,12 @@ package api
 package expr
 
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import base.ScStableCodeReferenceElement
-import base.types.ScSimpleTypeElement
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import types.{ScParameterizedType, ScType}
-import types.result.{Success, TypingContext}
-import extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 
 /**
  * @author Alexander Podkhalyuzin

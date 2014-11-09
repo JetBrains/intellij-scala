@@ -5,10 +5,10 @@ package stubs
 package index
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.search.ScSourceFilterScope
-import api.toplevel.packaging.ScPackageContainer
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.IntStubIndexExtension
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackageContainer
 
 /**
  * @author ilyas

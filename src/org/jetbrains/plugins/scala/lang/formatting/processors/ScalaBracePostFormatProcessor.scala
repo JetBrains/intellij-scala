@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.formatting.processors
 
-import com.intellij.psi.impl.source.codeStyle.PostFormatProcessor
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiFile, PsiElement}
 import com.intellij.psi.codeStyle.CodeStyleSettings
+import com.intellij.psi.impl.source.codeStyle.PostFormatProcessor
+import com.intellij.psi.{PsiElement, PsiFile}
 
 /**
  * @author Alexander Podkhalyuzin

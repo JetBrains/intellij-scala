@@ -1,19 +1,15 @@
 package org.jetbrains.plugins.scala
 package compiler
 
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.components.ProjectComponent
-import config.ScalaFacet
-import com.intellij.compiler.CompilerWorkspaceConfiguration
-import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManager}
-import com.intellij.openapi.module.{Module, ModuleManager}
-import com.intellij.openapi.roots.{ModuleRootManager, CompilerModuleExtension}
-import com.intellij.openapi.ui.Messages
-import extensions._
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.internal.statistic.UsageTrigger
-import org.jetbrains.plugin.scala.compiler.IncrementalType
-
+import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManager}
+import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.module.{Module, ModuleManager}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.{CompilerModuleExtension, ModuleRootManager}
+import com.intellij.openapi.ui.Messages
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.project._
 
 /**
  * Pavel Fatin
@@ -21,42 +17,21 @@ import org.jetbrains.plugin.scala.compiler.IncrementalType
 
 class ServerMediator(project: Project) extends ProjectComponent {
 
+  private def isScalaProject = project.hasScala
+  private val settings = ScalaApplicationSettings.getInstance
+
   CompilerManager.getInstance(project).addBeforeTask(new CompileTask {
-    var firstCompilation = true
 
     def execute(context: CompileContext): Boolean = {
-      val scalaProject = ScalaFacet.isPresentIn(project)
 
-      val externalCompiler = CompilerWorkspaceConfiguration.getInstance(project).USE_OUT_OF_PROCESS_BUILD
+      val externalCompiler = true // TODO In-process build is now deprecated
 
-      def collectStats() {
-        val withCompileServerId = "scala.compilation.with.server"
-        val withoutCompileServerId = "scala.compilation.without.server"
-        val incrementalByIdeaId = "scala.compilation.incremental.by.idea"
-        val incrementalBySbtId = "scala.compilation.incremental.by.sbt"
-
-        if (externalCompiler) UsageTrigger.trigger(withCompileServerId)
-        else UsageTrigger.trigger(withoutCompileServerId)
-
-        ScalaApplicationSettings.getInstance().INCREMENTAL_TYPE match {
-          case IncrementalType.SBT => UsageTrigger.trigger(incrementalBySbtId)
-          case IncrementalType.IDEA => UsageTrigger.trigger(incrementalByIdeaId)
-        }
-      }
-
-      if (scalaProject) {
-        collectStats()
+      if (isScalaProject) {
 
         if (externalCompiler) {
-          invokeAndWait {
-            if (!checkCompilationSettings()) {
-              return false
-            }
-            project.getComponent(classOf[FscServerLauncher]).stop()
-            project.getComponent(classOf[FscServerManager]).removeWidget()
+          if (!checkCompilationSettings()) {
+            return false
           }
-
-          val settings = ScalaApplicationSettings.getInstance
 
           if (settings.COMPILE_SERVER_ENABLED && !ApplicationManager.getApplication.isUnitTestMode) {
             invokeAndWait {
@@ -88,7 +63,7 @@ class ServerMediator(project: Project) extends ProjectComponent {
   })
 
   private def checkCompilationSettings(): Boolean = {
-    def hasClashes(module: Module) = ScalaFacet.findIn(module).isDefined && {
+    def hasClashes(module: Module) = module.hasScala && {
       val extension = CompilerModuleExtension.getInstance(module)
       val production = extension.getCompilerOutputUrl
       val test = extension.getCompilerOutputUrlForTests

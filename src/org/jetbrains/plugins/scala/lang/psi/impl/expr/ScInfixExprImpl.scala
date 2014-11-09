@@ -4,20 +4,19 @@ package psi
 package impl
 package expr
 
-import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import api.expr._
-import java.lang.String
-import api.statements.params.ScTypeParam
-import types._
-import api.statements.ScFunction
-import collection.mutable.ArrayBuffer
-import resolve.ScalaResolveResult
-import collection.Seq
-import result.{Success, TypeResult, TypingContext}
-import api.ScalaElementVisitor
-import com.intellij.psi.{PsiElementVisitor, PsiParameter, PsiMethod, PsiTypeParameter}
-import org.jetbrains.plugins.scala.extensions.{PsiParameterExt, toPsiNamedElementExt}
+import com.intellij.psi.{PsiElementVisitor, PsiMethod, PsiParameter, PsiTypeParameter}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+
+import scala.collection.Seq
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin
@@ -45,7 +44,7 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
     val invocationCount = 1
     for (variant <- variants) {
       variant match {
-        case ScalaResolveResult(method: PsiMethod, s: ScSubstitutor) => {
+        case ScalaResolveResult(method: PsiMethod, s: ScSubstitutor) =>
           val subst = if (method.getTypeParameters.length != 0) {
             val subst = method.getTypeParameters.foldLeft(ScSubstitutor.empty) {
               (subst, tp) => subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)), ScUndefinedType(tp match {
@@ -57,22 +56,19 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
           }
           else s
           method match {
-            case fun: ScFunction => {
+            case fun: ScFunction =>
               if (fun.paramClauses.clauses.length >= invocationCount) {
                 buffer += fun.paramClauses.clauses.apply(invocationCount - 1).parameters.map({
                   p => (p.name,
                           subst.subst(p.getType(TypingContext.empty).getOrAny))
                 }).toArray
               } else if (invocationCount == 1) buffer += Array.empty
-            }
-            case method: PsiMethod if invocationCount == 1 => {
+            case method: PsiMethod if invocationCount == 1 =>
               buffer += method.getParameterList.getParameters.map({
                 p: PsiParameter => ("", subst.subst(p.exactParamType()))
               })
-            }
             case _ =>
           }
-        }
         case _ => //todo: other options
       }
     }
@@ -80,11 +76,26 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
   }
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
+    def cacheBaseParts(inf: ScInfixExpr): Unit = {
+      inf.getBaseExpr match {
+        case inf: ScInfixExpr =>
+          cacheBaseParts(inf)
+        case _ =>
+      }
+      inf.getBaseExpr.getType(TypingContext.empty)
+    }
+
+    cacheBaseParts(this)
+
     operation.bind() match {
       //this is assignment statement: x += 1 equals to x = x + 1
       case Some(r) if r.element.name + "=" == operation.refName =>
         super.innerType(ctx)
-        Success(Unit, Some(this))
+        val lText = lOp.getText
+        val rText = rOp.getText
+        val exprText = s"$lText = $lText ${r.element.name} $rText"
+        val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, getContext, this)
+        newExpr.getType(TypingContext.empty)
       case _ => super.innerType(ctx)
     }
   }

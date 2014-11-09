@@ -4,10 +4,10 @@ package parser
 package parsing
 package statements
 
-import lexer.ScalaTokenTypes
-import builder.ScalaPsiBuilder
-import top.Qual_Id
-import types.{TypeArgs, Type}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.Qual_Id
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Type, TypeArgs}
 
 /**
  * @author Jason Zaugg
@@ -19,27 +19,26 @@ object MacroDef {
     val marker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kDEF => builder.advanceLexer()
-      case _ => {
+      case _ =>
         marker.drop()
         return false
-      }
     }
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => {
+      case ScalaTokenTypes.tIDENTIFIER =>
         FunSig parse builder
         builder.getTokenType match {
-          case ScalaTokenTypes.tCOLON => {
+          case ScalaTokenTypes.tCOLON =>
             builder.advanceLexer() //Ate :
             if (Type.parse(builder)) {
               builder.getTokenType match {
-                case ScalaTokenTypes.tASSIGN => {
+                case ScalaTokenTypes.tASSIGN =>
                   builder.advanceLexer() //Ate =
                   builder.getTokenType match {
                     case ScalaTokenTypes.kMACRO =>
                       builder.advanceLexer() //Ate `macro`
                       if (Qual_Id.parse(builder)) {
                         if (builder.getTokenType == ScalaTokenTypes.tLSQBRACKET) {
-                          TypeArgs.parse(builder)
+                          TypeArgs.parse(builder, isPattern = false)
                         }
                         marker.drop()
                         true
@@ -51,26 +50,23 @@ object MacroDef {
                       marker.rollbackTo()
                       false
                   }
-                }
-                case _ => {
+                case _ =>
                   marker.rollbackTo()
                   false
-                }
               }
             }
             else {
               marker.rollbackTo()
               false
             }
-          }
-          case ScalaTokenTypes.tASSIGN => {
+          case ScalaTokenTypes.tASSIGN =>
             builder.advanceLexer() //Ate =
             builder.getTokenType match {
               case ScalaTokenTypes.kMACRO =>
                 builder.advanceLexer() //Ate `macro`
                 if (Qual_Id.parse(builder)) {
                   if (builder.getTokenType == ScalaTokenTypes.tLSQBRACKET) {
-                    TypeArgs.parse(builder)
+                    TypeArgs.parse(builder, isPattern = false)
                   }
                   marker.drop()
                   true
@@ -82,17 +78,13 @@ object MacroDef {
                 marker.rollbackTo()
                 false
             }
-          }
-          case _ => {
+          case _ =>
             marker.rollbackTo()
             false
-          }
         }
-      }
-      case _ => {
+      case _ =>
         marker.rollbackTo()
         false
-      }
     }
   }
 }

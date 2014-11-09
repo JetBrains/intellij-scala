@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
-import com.intellij.debugger.engine.evaluation.expression.{Modifier, Evaluator}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
+import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
+import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
-import com.intellij.debugger.engine.evaluation.{EvaluateExceptionUtil, EvaluationContextImpl}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
  * User: Alefas
@@ -22,7 +23,7 @@ class ScalaLiteralEvaluator(value: AnyRef, tp: ScType) extends Evaluator {
       case f: java.lang.Float => DebuggerUtil.createValue(vm, tp, f.floatValue())
       case d: java.lang.Double => DebuggerUtil.createValue(vm, tp, d.doubleValue())
       case n: java.lang.Number => DebuggerUtil.createValue(vm, tp, n.longValue())
-      case _ => throw EvaluateExceptionUtil.createEvaluateException("unknown type of literal")
+      case _ => throw EvaluationException("unknown type of literal")
     }
   }
 
@@ -35,7 +36,7 @@ object ScalaLiteralEvaluator {
     val value = l.getValue
     import org.jetbrains.plugins.scala.lang.psi.types.Null
     if (value == null && tp != Null) {
-      throw EvaluateExceptionUtil.createEvaluateException("Literal has null value")
+      throw EvaluationException(s"Literal ${l.getText} has null value")
     }
     new ScalaLiteralEvaluator(value, tp)
   }

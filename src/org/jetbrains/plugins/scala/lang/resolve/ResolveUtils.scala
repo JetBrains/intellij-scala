@@ -2,44 +2,35 @@ package org.jetbrains.plugins.scala
 package lang
 package resolve
 
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.resolve.processor.{ResolverEnv, ResolveProcessor, BaseProcessor}
-import psi.api.ScalaFile
-import psi.api.toplevel.typedef._
-import psi.impl.toplevel.typedef.TypeDefinitionMembers
-import psi.types._
-import _root_.scala.collection.Set
-import nonvalue._
-import com.intellij.psi._
-import psi.api.base.patterns.ScBindingPattern
-import psi.api.toplevel.packaging.ScPackaging
-import ResolveTargets._
-import psi.api.statements._
-import params.{ScClassParameter, ScParameter, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.{types, ScalaPsiUtil, ScalaPsiElement}
-import psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticValue}
-import result.TypingContext
-import scope.{NameHint, PsiScopeProcessor}
-import search.GlobalSearchScope
-import java.lang.String
-import com.intellij.psi.impl.source.resolve.JavaResolveUtil
-import psi.fake.FakePsiMethod
-import psi.api.base.types.{ScTypeElement, ScSelfTypeElement}
-import psi.api.base.{ScReferenceElement, ScAccessModifier, ScFieldId}
-import psi.api.expr.{ScThisReference, ScSuperReference}
-import psi.impl.{ScPackageImpl, ScalaPsiManager}
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import scala.{Predef, Some}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
-import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
-import org.jetbrains.plugins.scala.lang.psi.types.ScThisType
-import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
 import com.intellij.lang.java.JavaLanguage
+import com.intellij.psi._
+import com.intellij.psi.impl.source.resolve.JavaResolveUtil
+import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeVariableTypeElement, ScSelfTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScFieldId, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticValue}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil, types}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
+import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
+
+import _root_.scala.collection.Set
 
 /**
  * @author ven
@@ -50,6 +41,7 @@ object ResolveUtils {
             case _: PsiPackage | _: ScPackaging => kinds contains PACKAGE
             case obj: ScObject if obj.isPackageObject => kinds contains PACKAGE
             case obj: ScObject => (kinds contains OBJECT) || (kinds contains METHOD)
+            case _: ScTypeVariableTypeElement => kinds contains CLASS
             case _: ScTypeParam => kinds contains CLASS
             case _: ScTypeAlias => kinds contains CLASS
             case _: ScTypeDefinition => kinds contains CLASS
@@ -105,7 +97,8 @@ object ResolveUtils {
         case _ =>
           m.getParameterList.getParameters.toSeq.mapWithIndex {
             case (param, index) =>
-              new Parameter("", None, s.subst(param.exactParamType()), false, param.isVarArgs, false, index)
+              val scType = s.subst(param.exactParamType())
+              new Parameter("", None, scType, scType, false, param.isVarArgs, false, index, Some(param))
           }
       }, false)(m.getProject, scope)
   }
@@ -136,7 +129,7 @@ object ResolveUtils {
       return JavaResolveUtil.isAccessible(memb, memb.containingClass, memb.getModifierList, place, null, null)
     }
 
-    import ScalaPsiUtil.getPlaceTd
+    import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getPlaceTd
     //this is to make place and member on same level (resolve from library source)
     var member: PsiMember = memb
     memb.getContainingFile match {
@@ -201,7 +194,7 @@ object ResolveUtils {
         case None => true
         case Some(am: ScAccessModifier) =>
           if (am.isPrivate) {
-            if (am.access == am.Access.THIS_PRIVATE) {
+            if (am.access == ScAccessModifier.Type.THIS_PRIVATE) {
               /*
               ScalaRefernce.pdf:
                 A member M marked with this modifier can be accessed only from
@@ -297,7 +290,7 @@ object ResolveUtils {
               }
             }
           } else if (am.isProtected) { //todo: it's wrong if reference after not appropriate class type
-            val withCompanion = am.access != am.Access.THIS_PROTECTED
+            val withCompanion = am.access != ScAccessModifier.Type.THIS_PROTECTED
             val ref = am.getReference
             if (ref != null) {
               val bind = ref.resolve
@@ -349,6 +342,7 @@ object ResolveUtils {
                   ref.qualifier match {
                     case None =>
                     case Some(t: ScThisReference) =>
+                    case Some(s: ScSuperReference) =>
                     case Some(ref: ScReferenceElement) =>
                       val enclosing = PsiTreeUtil.getContextOfType(scMember, true, classOf[ScTemplateDefinition])
                       if (enclosing == null) return false

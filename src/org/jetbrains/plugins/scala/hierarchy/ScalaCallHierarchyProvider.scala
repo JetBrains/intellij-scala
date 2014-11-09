@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.hierarchy
 
-import com.intellij.psi.{PsiMethod, PsiElement}
-import com.intellij.ide.hierarchy.call.{CallHierarchyBrowser, JavaCallHierarchyProvider}
+import com.intellij.ide.hierarchy.call.JavaCallHierarchyProvider
 import com.intellij.ide.hierarchy.{CallHierarchyBrowserBase, HierarchyBrowser}
+import com.intellij.psi.{PsiElement, PsiMethod}
 
 /**
  * @author Alexander Podkhalyuzin

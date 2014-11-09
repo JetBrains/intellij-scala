@@ -2,15 +2,11 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package scaladoc
 
-import java.lang.String
-import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.codeInspection._
-import ex.{ProblemDescriptorImpl, UnfairLocalInspectionTool}
-import com.intellij.psi.{PsiErrorElement, PsiElement, PsiElementVisitor}
-import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiErrorElement}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocInlinedTag, ScDocSyntaxElement}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 /**
  * User: Dmitry Naidanov

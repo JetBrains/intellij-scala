@@ -3,21 +3,21 @@ package script
 
 import com.intellij.execution.configurations._
 import com.intellij.execution.filters._
-import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiElement, PsiManager}
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.{ExecutionException, Executor}
-import com.intellij.openapi.module.{ModuleUtilCore, Module}
+import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.options.SettingsEditor
-import lang.psi.api.ScalaFile
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.JDOMExternalizer
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.{PsiElement, PsiManager}
+import com.intellij.refactoring.listeners.{RefactoringElementAdapter, RefactoringElementListener}
 import com.intellij.vcsUtil.VcsUtil
 import org.jdom.Element
-import collection.JavaConversions._
-import compiler.ScalacSettings
-import config.{Libraries, CompilerLibraryData, ScalaFacet}
-import com.intellij.refactoring.listeners.{RefactoringElementAdapter, RefactoringElementListener}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.project._
+
+import scala.collection.JavaConversions._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -105,20 +105,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
         params.getProgramParametersList.add("-classpath")
         params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
         params.getProgramParametersList.add(params.getClassPath.getPathsString)
-        ScalaFacet.findIn(module).foreach {
-          case facet =>
-            val files =
-              if (facet.fsc) {
-                val settings = ScalacSettings.getInstance(getProject)
-                val lib: Option[CompilerLibraryData] = Libraries.findBy(settings.COMPILER_LIBRARY_NAME,
-                  settings.COMPILER_LIBRARY_LEVEL, getProject)
-                lib match {
-                  case Some(libr) => libr.files
-                  case _ => facet.files
-                }
-              } else facet.files
-            files.foreach(params.getClassPath.add)
-        }
+        params.getClassPath.addAllFiles(module.scalaSdk.map(_.compilerClasspath).getOrElse(Seq.empty))
         val array = getConsoleArgs.trim.split("\\s+").filter(!_.trim().isEmpty)
         params.getProgramParametersList.addAll(array: _*)
         params.getProgramParametersList.add(scriptPath)
@@ -146,7 +133,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     module
   }
 
-  def getValidModules: java.util.List[Module] = ScalaFacet.findModulesIn(getProject).toList
+  def getValidModules: java.util.List[Module] = getProject.modulesWithScala
 
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaScriptRunConfigurationEditor(project, this)
 
@@ -172,7 +159,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
   }
 
   private def getFilter(file: VirtualFile): Filter = {
-    import Filter._
+    import com.intellij.execution.filters.Filter._
     new Filter {
       def applyFilter(line: String, entireLength: Int): Result = {
         val start = entireLength - line.length

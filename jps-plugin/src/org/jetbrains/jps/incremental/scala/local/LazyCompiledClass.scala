@@ -1,9 +1,10 @@
 package org.jetbrains.jps.incremental.scala
 package local
 
-import org.jetbrains.jps.incremental.{BinaryContent, CompiledClass}
 import java.io.File
+
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.jps.incremental.{BinaryContent, CompiledClass}
 
 /**
  * Nikolay.Tropin

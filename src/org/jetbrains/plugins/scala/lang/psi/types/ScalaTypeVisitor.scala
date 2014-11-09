@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi
 package types
 
-import types._
-import nonvalue._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 
 /**
  * User: Alefas

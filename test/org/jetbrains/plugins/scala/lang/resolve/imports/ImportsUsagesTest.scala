@@ -4,10 +4,8 @@ package resolve
 package imports
 
 
-import java.lang.String
-import util.TestUtils
-import com.intellij.psi.{PsiMethod, PsiField, PsiReference, PsiPolyVariantReference}
-import psi.api.toplevel.typedef.ScObject
+import com.intellij.psi.{PsiField, PsiMethod, PsiPolyVariantReference, PsiReference}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 /**
  * @author ilyas

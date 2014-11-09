@@ -1,40 +1,40 @@
 package org.jetbrains.plugins.scala
 package lang.completion
 
-import com.intellij.patterns.PlatformPatterns
-import com.intellij.psi._
-import com.intellij.util.ProcessingContext
-import com.intellij.patterns.PlatformPatterns.psiElement
-import com.intellij.util.Consumer
-import com.intellij.psi.PsiClass
 import com.intellij.codeInsight.completion._
-import lookups.{ScalaLookupItem, LookupElementManager}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScObject, ScTrait, ScClass}
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ResolveUtils}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
+import com.intellij.patterns.PlatformPatterns
+import com.intellij.patterns.PlatformPatterns.psiElement
+import com.intellij.psi.{PsiClass, _}
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType}
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
+import com.intellij.util.{Consumer, ProcessingContext}
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{ClassTypeToImport, TypeAliasToImport, TypeToImport}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
+import org.jetbrains.plugins.scala.lang.completion.lookups.{LookupElementManager, ScalaLookupItem}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
-import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
-import org.jetbrains.plugins.scala.config.ScalaVersionUtil
-import scala.collection.mutable
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{TypeAliasToImport, ClassTypeToImport, TypeToImport}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
+import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
+import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_9
+import org.jetbrains.plugins.scala.project._
+
+import scala.collection.mutable
 
 class ScalaClassNameCompletionContributor extends CompletionContributor {
-  import ScalaClassNameCompletionContributor._
+  import org.jetbrains.plugins.scala.lang.completion.ScalaClassNameCompletionContributor._
   extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).
     withParent(classOf[ScReferenceElement]), new CompletionProvider[CompletionParameters] {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
@@ -95,7 +95,7 @@ object ScalaClassNameCompletionContributor {
               if (containingClass == null) return false
               containingClass
           }
-          JavaCompletionUtil.isInExcludedPackage(clazz, true)
+          JavaCompletionUtil.isInExcludedPackage(clazz, false)
         }
       })
       if (isExcluded) return
@@ -110,7 +110,7 @@ object ScalaClassNameCompletionContributor {
         case _: ScObject if !isInImport && onlyClasses => return
         case _ =>
       }
-      val renamed = renamesMap.get(typeToImport.name).filter(_._2 == typeToImport).map(_._1)
+      val renamed = renamesMap.get(typeToImport.name).filter(_._2 == typeToImport.element).map(_._1)
       for {
         el <- LookupElementManager.getLookupElement(new ScalaResolveResult(typeToImport.element, nameShadow = renamed),
           isClassName = true, isInImport = isInImport, isInStableCodeReference = stableRefElement != null)
@@ -128,8 +128,8 @@ object ScalaClassNameCompletionContributor {
 
     val project = insertedElement.getProject
 
-    import org.jetbrains.plugins.scala.config.ScalaVersionUtil._
-    val checkSynthetic = ScalaVersionUtil.isGeneric(parameters.getOriginalFile, true, SCALA_2_7, SCALA_2_8)
+    val checkSynthetic = parameters.getOriginalFile.scalaLanguageLevel.map(_ < Scala_2_9).getOrElse(true)
+
     for {
       clazz <- SyntheticClasses.get(project).all.valuesIterator
       if checkSynthetic || !ScType.baseTypesQualMap.contains(clazz.qualifiedName)

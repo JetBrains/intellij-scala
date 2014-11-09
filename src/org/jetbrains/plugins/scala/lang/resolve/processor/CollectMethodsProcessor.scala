@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.resolve.processor
 
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
-import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -31,11 +31,9 @@ class CollectMethodsProcessor(place: PsiElement, name: String)
       if (accessibility && !accessible) return true
       val s = getSubst(state)
       element match {
-        case m: PsiMethod => {
+        case m: PsiMethod =>
           addResult(new ScalaResolveResult(m, s, getImports(state), None, implicitConversionClass,
             implicitFunction = implFunction, implicitType = implType, isAccessible = accessible))
-          true
-        }
         case _ =>
       }
     }

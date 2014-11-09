@@ -4,10 +4,11 @@ package surroundWith
 package surrounders
 package expression
 
-import com.intellij.psi.PsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
-import lang.psi.api.expr._
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -15,7 +16,8 @@ import lang.psi.api.expr._
 */
 class ScalaWithTryCatchFinallySurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
-    "try {\n" + super.getTemplateAsString(elements) + "\n}\ncatch {\n case _ => \n}\n finally {}"
+    val arrow = if (elements.length == 0) "=>" else ScalaPsiUtil.functionArrow(elements(0).getProject)
+    "try {\n" + super.getTemplateAsString(elements) + s"\n}\ncatch {\n case _ $arrow \n}\n finally {}"
   }
 
   override def getTemplateDescription = "try / catch / finally"

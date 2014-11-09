@@ -3,13 +3,13 @@ package testingSupport.test
 
 import com.intellij.execution.actions.{ConfigurationContext, RunConfigurationProducer}
 import com.intellij.execution.configurations.ConfigurationType
-import com.intellij.execution.{RunnerAndConfigurationSettings, Location}
-import com.intellij.psi.PsiElement
-import com.intellij.openapi.util.Ref
+import com.intellij.execution.{Location, RunnerAndConfigurationSettings}
 import com.intellij.openapi.module.Module
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import com.intellij.openapi.util.Ref
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 /**
  * @author Roman.Shein
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
  */
 abstract class TestConfigurationProducer(configurationType: ConfigurationType) extends RunConfigurationProducer[AbstractTestRunConfiguration](configurationType) with AbstractTestConfigurationProducer{
 
-  protected def isInheritor(clazz: ScTypeDefinition, fqn: String): Boolean = {
+  protected def isInheritor(clazz: ScTemplateDefinition, fqn: String): Boolean = {
     val suiteClazz = ScalaPsiManager.instance(clazz.getProject).getCachedClass(clazz.getResolveScope, fqn)
     if (suiteClazz == null) return false
     ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClazz)

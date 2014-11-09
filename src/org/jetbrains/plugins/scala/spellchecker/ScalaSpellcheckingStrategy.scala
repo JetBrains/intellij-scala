@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
 package spellchecker
 
-import com.intellij.spellchecker.tokenizer.{Tokenizer, SpellcheckingStrategy}
 import com.intellij.psi.PsiElement
-import lang.psi.api.base.ScLiteral
+import com.intellij.spellchecker.tokenizer.{SpellcheckingStrategy, Tokenizer}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 
 /**
  * @author Ksenia.Sautina

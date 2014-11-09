@@ -1,25 +1,26 @@
 package org.jetbrains.plugins.scala
 package refactoring.move
 
-import org.jetbrains.plugins.scala.util.TestUtils
-import com.intellij.testFramework.{PlatformTestUtil, PsiTestUtil}
-import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
-import java.util
 import java.io.File
-import com.intellij.psi.impl.source.PostprocessReformattingAspect
-import com.intellij.psi._
-import com.intellij.psi.search.GlobalSearchScope
-import collection.mutable.ArrayBuffer
-import lang.psi.impl.{ScalaFileImpl, ScalaPsiManager}
-import com.intellij.refactoring.move.moveClassesOrPackages.SingleSourceRootMoveDestination
-import com.intellij.refactoring.PackageWrapper
-import com.intellij.openapi.fileEditor.FileDocumentManager
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
+import java.util
+
 import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
+import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
+import com.intellij.psi._
+import com.intellij.psi.impl.source.PostprocessReformattingAspect
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.refactoring.PackageWrapper
+import com.intellij.refactoring.move.moveClassesOrPackages.SingleSourceRootMoveDestination
+import com.intellij.testFramework.{PlatformTestUtil, PsiTestUtil}
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveClassesOrPackagesProcessor
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.util.TestUtils
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alefas
@@ -129,7 +130,6 @@ def testPackageObject() {
         new SingleSourceRootMoveDestination(PackageWrapper.create(JavaDirectoryService.getInstance.getPackage(dirs(0))), dirs(0)), true, true, null).run()
     }
     PsiDocumentManager.getInstance(getProjectAdapter).commitAllDocuments()
-    FileDocumentManager.getInstance.saveAllDocuments()
   }
 
   object Kinds extends Enumeration {

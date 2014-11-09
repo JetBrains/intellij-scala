@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala
 package codeInspection.xml
 
-import com.intellij.psi.PsiElementVisitor
-import lang.psi.api.ScalaElementVisitor
-import lang.psi.api.expr.xml.{ScXmlEndTag, ScXmlStartTag}
+import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemDescriptor, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.codeInspection.{ProblemDescriptor, LocalQuickFix, ProblemsHolder, LocalInspectionTool}
-import lang.psi.ScalaPsiElement
-import codeInspection.InspectionsUtil
-import lang.psi.impl.ScalaPsiElementFactory
-import lang.parser.ScalaElementTypes
+import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.{ScXmlEndTag, ScXmlStartTag}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 
 /**
@@ -23,6 +23,8 @@ class ScalaXmlUnmatchedTagInspection extends LocalInspectionTool{
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
       override def visitXmlStartTag(s: ScXmlStartTag) {
+        if (s.getTextRange.isEmpty) return
+
         val endTag = s.getClosingTag
         def register(fixes: LocalQuickFix*) {
           holder.registerProblem(s, ScalaBundle.message("xml.no.closing.tag"), fixes: _*)

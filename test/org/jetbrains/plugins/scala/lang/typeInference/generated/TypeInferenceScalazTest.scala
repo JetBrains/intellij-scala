@@ -1,9 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.typeInference.generated
 
-import lang.typeInference.TypeInferenceTestBase
-import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
+import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
 /**
  * @author Alefas
@@ -26,4 +24,6 @@ class TypeInferenceScalazTest extends TypeInferenceTestBase {
   def testSCL4912() {doTest()}
 
   def testSCL6417() {doTest()}
+
+  def testSCL6417_Performance() {doTest()}
 }

@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.caches
 
-import com.intellij.psi.PsiElement
 import com.intellij.openapi.util.RecursionManager
-import java.lang.ThreadLocal
-import collection.mutable.{ArrayBuffer, Map}
-import collection.mutable
+import com.intellij.psi.PsiElement
+
+import scala.collection.mutable
+import scala.collection.mutable.{ArrayBuffer, Map}
 
 /**
  * @author Alexander Podkhalyuzin

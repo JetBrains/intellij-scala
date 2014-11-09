@@ -5,15 +5,15 @@ package stubs
 package impl
 
 
-import api.base.types.ScTypeElement
-import api.base.{ScPatternList, ScIdList}
-import api.expr.ScExpression
-import api.statements.ScValue
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubElement, IStubElementType}
-import com.intellij.util.io.StringRef
-import psi.impl.ScalaPsiElementFactory
+import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.reference.SoftReference
+import com.intellij.util.io.StringRef
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScIdList, ScPatternList}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * User: Alexander Podkhalyuzin
@@ -28,10 +28,10 @@ extends StubBaseWrapper[ScValue](parent, elemType) with ScValueStub {
   private var typeText: StringRef = _
   private var bodyText: StringRef = _
   private var containerText: StringRef = _
-  private var myTypeElement: SoftReference[Option[ScTypeElement]] = null
-  private var myBodyExpression: SoftReference[Option[ScExpression]] = null
-  private var myIds: SoftReference[Option[ScIdList]] = null
-  private var myPatterns: SoftReference[Option[ScPatternList]] = null
+  private var myTypeElement: SoftReference[Option[ScTypeElement]] = new SoftReference(null)
+  private var myBodyExpression: SoftReference[Option[ScExpression]] = new SoftReference(null)
+  private var myIds: SoftReference[Option[ScIdList]] = new SoftReference(null)
+  private var myPatterns: SoftReference[Option[ScPatternList]] = new SoftReference(null)
   private var _implicit: Boolean = false
   private var local: Boolean = false
 
@@ -71,52 +71,47 @@ extends StubBaseWrapper[ScValue](parent, elemType) with ScValueStub {
 
   def getPatternsContainer: Option[ScPatternList] = {
     if (isDeclaration) return None
-    if (myPatterns != null && myPatterns.get != null) return myPatterns.get
-    val res: Option[ScPatternList] = {
+    val patterns = myPatterns.get
+    if (patterns != null && (patterns.isEmpty || (patterns.get.getContext eq getPsi))) return patterns
+    val res: Option[ScPatternList] =
       if (getBindingsContainerText != "") {
         Some(ScalaPsiElementFactory.createPatterListFromText(getBindingsContainerText, getPsi, null))
       } else None
-    }
-    myPatterns = new SoftReference[Option[ScPatternList]](res)
+    myPatterns = new SoftReference(res)
     res
   }
 
   def getTypeText: String = StringRef.toString(typeText)
 
   def getBodyExpr: Option[ScExpression] = {
-    if (myBodyExpression != null && myBodyExpression.get != null) return myBodyExpression.get
-    val res: Option[ScExpression] = {
+    val body = myBodyExpression.get
+    if (body != null && (body.isEmpty || (body.get.getContext eq getPsi))) return body
+    val res: Option[ScExpression] =
       if (getBodyText != "") {
         Some(ScalaPsiElementFactory.createExpressionWithContextFromText(getBodyText, getPsi, null))
-      }
-      else {
-        None
-      }
-    }
-    myBodyExpression = new SoftReference[Option[ScExpression]](res)
+      } else None
+    myBodyExpression = new SoftReference(res)
     res
   }
 
   def getTypeElement: Option[ScTypeElement] = {
-    if (myTypeElement != null && myTypeElement.get != null) return myTypeElement.get
-    val res: Option[ScTypeElement] = {
-      if (getTypeText != "") {
-        Some(ScalaPsiElementFactory.createTypeElementFromText(getTypeText, getPsi, null))
-      }
+    val typeElement = myTypeElement.get
+    if (typeElement != null && (typeElement.isEmpty || (typeElement.get.getContext eq getPsi))) return typeElement
+    val res: Option[ScTypeElement] =
+      if (getTypeText != "") Some(ScalaPsiElementFactory.createTypeElementFromText(getTypeText, getPsi, null))
       else None
-    }
     myTypeElement = new SoftReference[Option[ScTypeElement]](res)
     res
   }
 
   def getIdsContainer: Option[ScIdList] = {
     if (!isDeclaration) return None
-    if (myIds != null && myIds.get != null) return myIds.get
-    val res: Option[ScIdList] = {
+    val ids = myIds.get
+    if (ids != null && (ids.isEmpty || (ids.get.getContext eq getPsi))) return ids
+    val res: Option[ScIdList] =
       if (getBindingsContainerText != "") {
         Some(ScalaPsiElementFactory.createIdsListFromText(getBindingsContainerText, getPsi, null))
       } else None
-    }
     myIds = new SoftReference[Option[ScIdList]](res)
     res
   }

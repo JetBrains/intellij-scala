@@ -4,14 +4,13 @@ package psi
 package impl
 package statements
 
-import stubs.ScFunctionStub
 import com.intellij.lang.ASTNode
-
-import api.statements._
-import types.result.{Success, TypingContext, TypeResult}
-import types.{Unit, ScType}
 import com.intellij.psi.PsiElementVisitor
-import api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Unit}
 
 /**
 * @author Alexander Podkhalyuzin

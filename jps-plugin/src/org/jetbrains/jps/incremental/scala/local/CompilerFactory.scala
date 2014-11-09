@@ -1,10 +1,11 @@
 package org.jetbrains.jps.incremental.scala
 package local
 
-import org.jetbrains.jps.incremental.scala.data.{CompilerJars, SbtData, CompilerData}
 import java.io.File
-import sbt.inc.AnalysisStore
+
+import org.jetbrains.jps.incremental.scala.data.{CompilerData, CompilerJars, SbtData}
 import sbt.compiler.AnalyzingCompiler
+import sbt.inc.AnalysisStore
 
 /**
  * @author Pavel Fatin

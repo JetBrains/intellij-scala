@@ -3,12 +3,10 @@ package lang
 package parser
 package parsing
 
-import builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.ScalaBundle
-import util.ParserUtils
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Qual_Id
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /** 
 * @author Alexander Podkhalyuzin

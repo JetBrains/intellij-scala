@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.mock
 
-import com.intellij.openapi.editor.{VisualPosition, Caret, LogicalPosition}
-import java.util
-import com.intellij.openapi.util.Segment
+import com.intellij.openapi.editor.LogicalPosition
 
 /**
  * Pavel Fatin

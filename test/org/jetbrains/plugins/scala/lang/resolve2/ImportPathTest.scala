@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.resolve2
 
-import java.lang.String
-
 /**
  * Pavel.Fatin, 02.02.2010
  */

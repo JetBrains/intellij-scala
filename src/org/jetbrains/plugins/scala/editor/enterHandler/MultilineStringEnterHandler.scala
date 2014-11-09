@@ -1,23 +1,22 @@
 package org.jetbrains.plugins.scala
 package editor.enterHandler
 
+import com.intellij.codeInsight.CodeInsightSettings
+import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegate.Result
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegateAdapter
 import com.intellij.openapi.actionSystem.DataContext
-import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegate.Result
-import lang.psi.api.ScalaFile
-import lang.formatting.settings.ScalaCodeStyleSettings
-import com.intellij.openapi.util.{Ref, TextRange}
-import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import com.intellij.psi.PsiFile
-import lang.psi.api.expr._
-import com.intellij.openapi.editor.{Document, Editor}
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler
-import com.intellij.codeInsight.CodeInsightSettings
-import org.jetbrains.plugins.scala.util.MultilineStringUtil
-import MultilineStringUtil._
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.util.{Ref, TextRange}
+import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.format.StringConcatenationParser
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.util.MultilineStringSettings
+import org.jetbrains.plugins.scala.util.MultilineStringUtil._
 
 /**
  * User: Dmitry Naydanov
@@ -49,7 +48,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
     if ((ch1 != '(' || ch2 != ')')&&(ch1 != '{' || ch2 != '}') || !CodeInsightSettings.getInstance.SMART_INDENT_ON_ENTER)
     return Result.Continue
 
-    originalHandler.execute(editor, dataContext)
+    originalHandler.execute(editor, editor.getCaretModel.getCurrentCaret, dataContext)
     Result.DefaultForceIndent
   }
 

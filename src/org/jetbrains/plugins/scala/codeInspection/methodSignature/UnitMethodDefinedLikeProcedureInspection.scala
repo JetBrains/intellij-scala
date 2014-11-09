@@ -4,8 +4,8 @@ package codeInspection.methodSignature
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.InsertReturnTypeAndEquals
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 /**
  * Nikolay.Tropin

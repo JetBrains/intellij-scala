@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.xml
 
-import base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 /**
  * User: Dmitry Naydanov
@@ -9,7 +9,6 @@ import base.ScalaLightCodeInsightFixtureTestAdapter
  */
 
 class XmlClosingTagAutoCompletionTest extends ScalaLightCodeInsightFixtureTestAdapter {
-  import ScalaLightCodeInsightFixtureTestAdapter.CARET_MARKER
   
   private def checkGeneratedTextGt(text: String,  assumedStub: String) {
     checkGeneratedTextAfterTyping(text, assumedStub, '>')

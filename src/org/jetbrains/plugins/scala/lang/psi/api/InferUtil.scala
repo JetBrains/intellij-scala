@@ -1,26 +1,29 @@
-package org.jetbrains.plugins.scala.lang.psi.api
+package org.jetbrains.plugins.scala
+package lang.psi.api
 
-import base.patterns.ScBindingPattern
-import base.ScLiteral
-import expr.ScExpression
-import collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitParametersCollector
-import statements.params.ScParameter
-import statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
-import org.jetbrains.plugins.scala.lang.psi.{types, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types._
-import nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
-import toplevel.typedef.ScObject
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions.toPsiClassExt
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitParametersCollector
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
+import org.jetbrains.plugins.scala.project._
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin
@@ -88,8 +91,8 @@ object InferUtil {
         }
         implicitParameters = Some(resolveResultsBuffer.toSeq)
         val dependentSubst = new ScSubstitutor(() => {
-          val level = ScalaLanguageLevel.getLanguageLevel(element)
-          if (level.isThoughScala2_10) {
+          val level = element.languageLevel
+          if (level >= Scala_2_10) {
             paramsForInferBuffer.zip(exprsBuffer).map {
               case (param: Parameter, expr: Expression) =>
                 val paramType: ScType = expr.getTypeAfterImplicitConversion(checkImplicits = true,
@@ -111,8 +114,8 @@ object InferUtil {
         implicitParameters = Some(resolveResults.toSeq)
         resInner = retType
         val dependentSubst = new ScSubstitutor(() => {
-          val level = ScalaLanguageLevel.getLanguageLevel(element)
-          if (level.isThoughScala2_10) {
+          val level = element.languageLevel
+          if (level >= Scala_2_10) {
             paramsForInfer.zip(exprs).map {
               case (param: Parameter, expr: Expression) =>
                 val paramType: ScType = expr.getTypeAfterImplicitConversion(checkImplicits = true,
@@ -142,7 +145,7 @@ object InferUtil {
       val collector = new ImplicitParametersCollector(place, paramType, coreElement, searchImplicitsRecursively)
       val results = collector.collect
       if (results.length == 1) {
-        if (check && !results(0).isApplicable) throw new SafeCheckException
+        if (check && !results(0).isApplicable()) throw new SafeCheckException
         resolveResults += results(0)
         def updateExpr() {
           results(0) match {
@@ -154,6 +157,8 @@ object InferUtil {
               exprs += new Expression(polymorphicSubst subst subst.subst(param.getType(TypingContext.empty).get))
             case ScalaResolveResult(patt: ScBindingPattern, subst) =>
               exprs += new Expression(polymorphicSubst subst subst.subst(patt.getType(TypingContext.empty).get))
+            case ScalaResolveResult(f: ScFieldId, subst) =>
+              exprs += new Expression(polymorphicSubst subst subst.subst(f.getType(TypingContext.empty).get))
             case ScalaResolveResult(fun: ScFunction, subst) =>
               val funType = {
                 if (fun.parameters.length == 0 || fun.paramClauses.clauses.apply(0).isImplicit) {
@@ -194,7 +199,11 @@ object InferUtil {
         }
         //check if it's ClassManifest parameter:
         checkManifest(r => {
-          if (r == null && check) throw new SafeCheckException
+          if (r == null && param.isDefault && param.paramInCode.nonEmpty) {
+            //todo: should be added for infer to
+            //todo: what if paramInCode is null?
+            resolveResults += new ScalaResolveResult(param.paramInCode.get)
+          } else if (r == null && check) throw new SafeCheckException
           else resolveResults += r
         })
       }
@@ -214,6 +223,7 @@ object InferUtil {
    */
   def updateAccordingToExpectedType(_nonValueType: TypeResult[ScType],
                                     fromImplicitParameters: Boolean,
+                                    filterTypeParams: Boolean,
                                     expectedType: Option[ScType], expr: PsiElement,
                                     check: Boolean): TypeResult[ScType] = {
     var nonValueType = _nonValueType
@@ -229,7 +239,7 @@ object InferUtil {
           val update: ScTypePolymorphicType = ScalaPsiUtil.localTypeInference(m,
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
             Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(innerInternal.inferValueType))),
-            typeParams, shouldUndefineParameters = false, safeCheck = check, filterTypeParams = false)
+            typeParams, shouldUndefineParameters = false, safeCheck = check, filterTypeParams = filterTypeParams)
           nonValueType = Success(update, Some(expr)) //here should work in different way:
         }
         updateRes(expectedType.get)
@@ -240,7 +250,7 @@ object InferUtil {
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
               Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(internal.inferValueType))),
             typeParams, shouldUndefineParameters = false, safeCheck = check,
-            filterTypeParams = false), Some(expr)) //here should work in different way:
+            filterTypeParams = filterTypeParams), Some(expr)) //here should work in different way:
         }
         updateRes(expectedType.get)
       case _ =>

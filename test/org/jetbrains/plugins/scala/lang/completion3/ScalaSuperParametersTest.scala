@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package lang.completion3
 
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
 import com.intellij.codeInsight.completion.CompletionType
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
 
 /**
  * @author Alefas

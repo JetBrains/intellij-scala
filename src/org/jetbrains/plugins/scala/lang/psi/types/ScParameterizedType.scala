@@ -11,7 +11,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.containers.ConcurrentWeakHashMap
-import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
@@ -81,6 +81,8 @@ case class JavaArrayType(arg: ScType) extends ValueType {
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitJavaArrayType(this)
   }
+
+  override def typeDepth: Int = arg.typeDepth
 }
 
 class ScParameterizedType private (val designator : ScType, val typeArgs : Seq[ScType]) extends ValueType {
@@ -272,6 +274,12 @@ class ScParameterizedType private (val designator : ScType, val typeArgs : Seq[S
     visitor.visitParameterizedType(this)
   }
 
+  override def typeDepth: Int = {
+    val depths = typeArgs.map(_.typeDepth)
+    if (depths.length == 0) designator.typeDepth //todo: shouldn't be possible
+    else designator.typeDepth.max(depths.max + 1)
+  }
+
   override def isFinalType: Boolean = designator.isFinalType && !typeArgs.exists {
     case tp: ScTypeParameterType => tp.isConravariant || tp.isCovariant
     case _ => false
@@ -364,7 +372,7 @@ case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
   }
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
-    var undefinedSubst = uSubst
+    val undefinedSubst = uSubst
     r match {
       case stp: ScTypeParameterType =>
         if (stp.param eq param) (true, undefinedSubst)
@@ -389,7 +397,7 @@ private[types] object CyclicHelper {
   }
 }
 
-case class ScTypeVariable(name: String) extends ValueType{
+case class ScTypeVariable(name: String) extends ValueType {
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitTypeVariable(this)
   }

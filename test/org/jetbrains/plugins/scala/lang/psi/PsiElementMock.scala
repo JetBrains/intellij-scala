@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.psi.PsiElement
+
 import scala.util.parsing.combinator._
 
 /**
@@ -44,7 +45,7 @@ class PsiElementMock(val name: String, children: PsiElementMock*) extends Abstra
     if(children.isEmpty) 
       toString 
     else 
-      toString + "(" + children.map(_ getText).mkString(", ") + ")"
+      toString + "(" + children.map(_.getText).mkString(", ") + ")"
   }
 }
 

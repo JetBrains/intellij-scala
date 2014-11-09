@@ -1,15 +1,18 @@
 package org.jetbrains.sbt
 package project.module
 
-import com.intellij.util.ui.UIUtil
-import com.intellij.ui.components.{JBLabel, JBList}
-import com.intellij.ui.{ToolbarDecorator, CollectionListModel}
-import com.intellij.openapi.roots.ui.configuration.{ModuleConfigurationState, ModuleElementsEditor}
-import javax.swing.border.EmptyBorder
-import javax.swing.{JPanel, ListModel, JList, DefaultListModel}
 import java.awt.BorderLayout
 import java.util
-import collection.JavaConverters._
+import javax.swing.JPanel
+import javax.swing.border.EmptyBorder
+
+import com.intellij.openapi.roots.ui.configuration.{ModuleConfigurationState, ModuleElementsEditor}
+import com.intellij.ui.components.{JBLabel, JBList}
+import com.intellij.ui.{CollectionListModel, ToolbarDecorator}
+import com.intellij.util.ui.UIUtil
+import org.jetbrains.plugins.scala.util.JListCompatibility
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -23,9 +26,9 @@ class SbtModuleImportsEditor(state: ModuleConfigurationState) extends ModuleElem
 
   override def createComponentImpl() = {
     val listPanel = {
-      val list =  new JBList(new DefaultListModel[String]())
+      val list =  new JBList(JListCompatibility.createDefaultListModel())
       list.setEmptyText("No implicit imports")
-      list.asInstanceOf[JList[String]].setModel(model.asInstanceOf[ListModel[String]])
+      JListCompatibility.setModel(list, model)
       ToolbarDecorator.createDecorator(list, model).createPanel()
     }
 

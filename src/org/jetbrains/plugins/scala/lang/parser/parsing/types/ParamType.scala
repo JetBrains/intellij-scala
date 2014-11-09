@@ -4,10 +4,9 @@ package parser
 package parsing
 package types
 
-import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import util.ParserUtils._
-import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -23,19 +22,17 @@ import builder.ScalaPsiBuilder
 object ParamType {
   def parseInner(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
-      case ScalaTokenTypes.tFUNTYPE => {
-        builder.advanceLexer //Ate '=>'
-          Type.parse(builder)
-      }
-      case _ => {
-        if (!Type.parse(builder,true)) false else {
+      case ScalaTokenTypes.tFUNTYPE =>
+        builder.advanceLexer() //Ate '=>'
+        Type.parse(builder)
+      case _ =>
+        if (!Type.parse(builder, star = true)) false else {
           builder.getTokenText match {
-            case "*" => builder.advanceLexer // Ate '*'
-            case _ => {/* nothing needs to be done */}
+            case "*" => builder.advanceLexer() // Ate '*'
+            case _ => /* nothing needs to be done */
           }
           true
         }
-      }
     }
   }
 

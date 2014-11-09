@@ -4,25 +4,26 @@ package psi
 package api
 package expr
 
-import com.intellij.psi.scope.PsiScopeProcessor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScDeclaredElementsHolder, ScTypeAlias}
-import toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClauses, ScCaseClause}
-import types.result.{Failure, Success, TypingContext, TypeResult}
-import toplevel.ScTypedDefinition
-import com.intellij.psi.util.PsiTreeUtil
-import impl.{ScalaPsiManager, ScalaPsiElementFactory}
-import types._
-import com.intellij.psi.{PsiElement, ResolveState}
-import toplevel.typedef._
-import com.intellij.psi.tree.TokenSet
-import lexer.ScalaTokenTypes
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import scala.collection.mutable
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, ResolveState}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScCaseClauses}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+
 import scala.collection.immutable.HashSet
+import scala.collection.mutable
 
 /**
  * Author: ilyas, alefas
@@ -100,16 +101,18 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
               new ScCompoundType(comps.map(existize(_, visitedWithT)), signatureMap.map {
                 case (s: Signature, tp) =>
                   def updateTypeParam(tp: TypeParameter): TypeParameter = {
-                    new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), existize(tp.lowerType, visitedWithT),
-                      existize(tp.upperType, visitedWithT), tp.ptp)
+                    new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), () => existize(tp.lowerType(), visitedWithT),
+                      () => existize(tp.upperType(), visitedWithT), tp.ptp)
                   }
 
-                  val pTypes: List[Stream[ScType]] = s.substitutedTypes.map(_.map(existize(_, visitedWithT)))
+                  val pTypes: List[Seq[() => ScType]] =
+                    s.substitutedTypes.map(_.map(f => () => existize(f(), visitedWithT)))
                   val tParams: Array[TypeParameter] = s.typeParams.map(updateTypeParam)
                   val rt: ScType = existize(tp, visitedWithT)
                   (new Signature(s.name, pTypes, s.paramLength, tParams,
                     ScSubstitutor.empty, s.namedElement match {
-                      case fun: ScFunction => ScFunction.getCompoundCopy(pTypes.map(_.toList), tParams.toList, rt, fun)
+                      case fun: ScFunction =>
+                        ScFunction.getCompoundCopy(pTypes.map(_.map(_()).toList), tParams.toList, rt, fun)
                       case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
                       case f: ScFieldId => ScFieldId.getCompoundCopy(rt, f)
                       case named => named

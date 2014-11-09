@@ -4,10 +4,9 @@ package psi
 package api
 package expr
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 
 /**
  * Author: Alexander Podkhalyuzin

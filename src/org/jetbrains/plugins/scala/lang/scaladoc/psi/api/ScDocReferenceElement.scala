@@ -5,7 +5,7 @@ package psi
 package api
 
 
-import lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 
 /**
  * User: Alexander Podkhalyuzin

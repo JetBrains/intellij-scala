@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.generate
 
+import javax.swing.JComponent
+import javax.swing.event.DocumentEvent
+
 import com.intellij.CommonBundle
 import com.intellij.analysis.{AnalysisScope, BaseAnalysisAction, BaseAnalysisActionDialog}
 import com.intellij.execution.configurations._
@@ -12,8 +15,6 @@ import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
 import com.intellij.ui.DocumentAdapter
-import javax.swing.JComponent
-import javax.swing.event.DocumentEvent
 import org.jetbrains.plugins.scala.console.ScalaConsoleConfigurationType
 import org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocAction.ScaladocRunConfiguration
 
@@ -41,8 +42,8 @@ class ScaladocAction extends BaseAnalysisAction("Generate Scaladoc", "Scaladoc")
           RunnerRegistry.getInstance.getRunner(DefaultRunExecutor.EXECUTOR_ID, config)
         val builder: ExecutionEnvironmentBuilder =
           new ExecutionEnvironmentBuilder(project, DefaultRunExecutor.getRunExecutorInstance)
-        builder.setRunProfile(config)
-        builder.setRunnerAndSettings(runner,
+        builder.runProfile(config)
+        builder.runnerAndSettings(runner,
           new RunnerAndConfigurationSettingsImpl(new RunManagerImpl(project, PropertiesComponent.getInstance()), runConfig, false))
         runner.execute(builder.build())
       } catch {

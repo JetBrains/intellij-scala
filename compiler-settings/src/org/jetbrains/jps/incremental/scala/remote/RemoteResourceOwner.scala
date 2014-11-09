@@ -1,11 +1,12 @@
 package org.jetbrains.jps.incremental.scala.remote
 
-import java.net.{Socket, InetAddress}
 import java.io._
-import org.jetbrains.jps.incremental.scala._
-import com.martiansoftware.nailgun.NGConstants
+import java.net.{InetAddress, Socket}
+
 import com.intellij.util.Base64Converter
+import com.martiansoftware.nailgun.NGConstants
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+import org.jetbrains.jps.incremental.scala._
 
 /**
  * @author Pavel Fatin
@@ -19,22 +20,17 @@ trait RemoteResourceOwner {
   protected val serverAlias = "compile-server"
 
   def send(command: String, arguments: Seq[String], client: Client) {
+    val encodedArgs = arguments.map(s => Base64Converter.encode(s.getBytes("UTF-8")))
     using(new Socket(address, port)) { socket =>
       using(new DataOutputStream(new BufferedOutputStream(socket.getOutputStream))) { output =>
-        createChunks(command, arguments).foreach(_.writeTo(output))
+        createChunks(command, encodedArgs).foreach(_.writeTo(output))
         output.flush()
-        using(new DataInputStream(new BufferedInputStream(socket.getInputStream))) { input =>
-          handle(input, client)
+        if (client != null) {
+          using(new DataInputStream(new BufferedInputStream(socket.getInputStream))) { input =>
+            handle(input, client)
+          }
         }
       }
-    }
-  }
-  
-  protected def using[A <: { def close() }, B](resource: A)(block: A => B): B = {
-    try {
-      block(resource)
-    } finally {
-      resource.close()
     }
   }
 

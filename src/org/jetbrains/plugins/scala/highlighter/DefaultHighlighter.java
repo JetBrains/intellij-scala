@@ -85,8 +85,6 @@ public class DefaultHighlighter {
   @NonNls
   static final String SCALA_DOC_HTML_ESCAPE_NAME = "ScalaDoc html escape sequences";
   @NonNls
-  static final String SCALA_DOC_MARKUP_NAME = "ScalaDoc comment markup";
-  @NonNls
   static final String SCALA_DOC_TAG_PARAM_VALUE_NAME = "ScalaDoc @param value";
   @NonNls
   static final String IMPLICIT_CONVERSIONS_NAME = "Implicit conversion";
@@ -108,6 +106,8 @@ public class DefaultHighlighter {
   static final String LAZY_NAME = "Template lazy val/var";
   @NonNls
   static final String PARAMETER_NAME = "Parameter";
+  @NonNls
+  static final String ANONYMOUS_PARAMETER_NAME = "Anonymous Parameter";
   @NonNls
   static final String METHOD_CALL_NAME = "Class method call";
   @NonNls
@@ -217,6 +217,8 @@ public class DefaultHighlighter {
   @NonNls
   static final String PARAMETER_ID = "Scala Parameter";
   @NonNls
+  static final String ANONYMOUS_PARAMETER_ID = "Scala Anonymous Parameter";
+  @NonNls
   static final String METHOD_CALL_ID = "Scala Class method call";
   @NonNls
   static final String OBJECT_METHOD_CALL_ID = "Scala Object method call";
@@ -280,6 +282,7 @@ public class DefaultHighlighter {
   public static TextAttributesKey LAZY = createKey(LAZY_ID, HighlightInfoType.STATIC_FIELD.getAttributesKey());
   public static TextAttributesKey PATTERN = createKey(PATTERN_ID, HighlightInfoType.LOCAL_VARIABLE.getAttributesKey());
   public static TextAttributesKey PARAMETER = createKey(PARAMETER_ID, HighlightInfoType.PARAMETER.getAttributesKey());
+  public static TextAttributesKey ANONYMOUS_PARAMETER = createKey(ANONYMOUS_PARAMETER_ID, HighlightInfoType.PARAMETER.getAttributesKey());
   public static TextAttributesKey METHOD_CALL = createKey(METHOD_CALL_ID, HighlightInfoType.METHOD_CALL.getAttributesKey());
   public static TextAttributesKey OBJECT_METHOD_CALL = createKey(OBJECT_METHOD_CALL_ID, HighlightInfoType.STATIC_METHOD.getAttributesKey());
   public static TextAttributesKey LOCAL_METHOD_CALL = createKey(LOCAL_METHOD_CALL_ID, HighlightInfoType.METHOD_CALL.getAttributesKey());

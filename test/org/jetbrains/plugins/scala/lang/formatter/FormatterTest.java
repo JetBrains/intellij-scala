@@ -24,9 +24,10 @@ import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.util.IncorrectOperationException;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.plugins.scala.Console;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import org.junit.runner.RunWith;
+import org.junit.runners.AllTests;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +37,7 @@ import java.io.IOException;
  * User: Ilya.Sergey
  */
 
+@RunWith(AllTests.class)
 public class FormatterTest extends BaseScalaFileSetTestCase {
   @NonNls
   private static final String DATA_PATH = "/formatter/data/";

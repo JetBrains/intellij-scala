@@ -5,23 +5,17 @@ package impl
 package base
 package patterns
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import psi.{types, ScalaPsiElementImpl}
 import com.intellij.lang.ASTNode
-import lang.lexer._
 import com.intellij.psi._
-import scope.PsiScopeProcessor
-import api.ScalaElementVisitor
-import psi.types._
-import psi.types.result.{TypeResult, Failure, Success, TypingContext}
-import api.toplevel.typedef.ScTypeDefinition
-import api.statements.params.ScTypeParam
-import result.Failure
-import result.Success
-import scala.Some
-import psi.types.ScExistentialType
-import psi.types.ScExistentialArgument
-import scala.Boolean
+import com.intellij.psi.scope.PsiScopeProcessor
+import org.jetbrains.plugins.scala.lang.lexer._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types
+import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialType, _}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 
 /**
 * @author Alexander Podkhalyuzin

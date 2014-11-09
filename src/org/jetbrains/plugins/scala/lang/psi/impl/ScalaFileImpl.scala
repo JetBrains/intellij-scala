@@ -4,49 +4,41 @@ package psi
 package impl
 
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import api.expr.ScExpression
-import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
-import psi.stubs.ScFileStub
-import com.intellij.extapi.psi.PsiFileBase
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.{ScControlFlowPolicy, Instruction}
-import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import psi.api.toplevel.packaging._
-import com.intellij.openapi.roots._
-import com.intellij.psi._
-import org.jetbrains.annotations.Nullable
-import api.toplevel.ScToplevelElement
-import com.intellij.openapi.vfs.VirtualFile
-import api.{FileDeclarationsHolder, ScControlFlowOwner, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{AllVariablesControlFlowPolicy, ScalaControlFlowBuilder}
-import decompiler.{DecompilerUtil, CompiledFileAdjuster}
-import collection.mutable.ArrayBuffer
-import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
-import config.ScalaFacet
-import com.intellij.openapi.util.{TextRange, Key}
-import caches.CachesUtil
-import com.intellij.psi.impl.ResolveScopeManager
-import com.intellij.util.indexing.FileBasedIndex
-import util.{PsiUtilCore, PsiModificationTracker}
-import com.intellij.openapi.diagnostic.Logger
-import java.lang.String
-import api.toplevel.typedef.{ScClass, ScTrait, ScObject}
 import java.util
+
+import com.intellij.extapi.psi.PsiFileBase
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
-import extensions._
-import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
-import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.openapi.fileTypes.LanguageFileType
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import com.intellij.openapi.vfs.newvfs.persistent.FSRecords
-import com.intellij.openapi.application.ex.ApplicationEx
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.ui.Messages
-import com.intellij.openapi.actionSystem.CommonDataKeys
-import javax.swing.SwingUtilities
+import com.intellij.openapi.roots._
+import com.intellij.openapi.util.{Key, TextRange}
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi._
+import com.intellij.psi.impl.ResolveScopeManager
+import com.intellij.psi.impl.source.PostprocessReformattingAspect
+import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
+import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
+import com.intellij.psi.util.{PsiModificationTracker, PsiUtilCore}
 import com.intellij.util.Processor
+import com.intellij.util.indexing.FileBasedIndex
+import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.decompiler.{CompiledFileAdjuster, DecompilerUtil}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScToplevelElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScControlFlowOwner, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+
+import scala.collection.mutable.ArrayBuffer
 
 class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType = ScalaFileType.SCALA_FILE_TYPE)
         extends PsiFileBase(viewProvider, fileType.getLanguage)
@@ -197,10 +189,10 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
 
 
   def setPackageName(name: String) {
-    val basePackageName = Option(ScalaPsiUtil.getModule(this))
-            .flatMap(ScalaFacet.findIn)
-            .flatMap(_.basePackage)
-            .mkString
+    val basePackageName = {
+      val scalaProjectSettings = ScalaProjectSettings.getInstance(getProject)
+      Option(scalaProjectSettings.getBasePackage).getOrElse("")
+    }
 
     this match {
       // Handle package object

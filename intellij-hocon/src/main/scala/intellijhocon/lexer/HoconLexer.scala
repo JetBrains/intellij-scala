@@ -1,10 +1,10 @@
-package intellijhocon.lexer
+package intellijhocon
+package lexer
 
 import com.intellij.lexer.LexerBase
-import scala.util.matching.Regex
 import com.intellij.psi.tree.IElementType
-import intellijhocon.Util
-import scala.Some
+
+import scala.util.matching.Regex
 
 object HoconLexer {
 
@@ -21,9 +21,9 @@ object HoconLexer {
 
 class HoconLexer extends LexerBase {
 
-  import Util._
-  import HoconLexer._
-  import HoconTokenType._
+  import intellijhocon.Util._
+  import intellijhocon.lexer.HoconLexer._
+  import intellijhocon.lexer.HoconTokenType._
 
   case class TokenMatch(token: HoconTokenType, length: Int, newState: State)
 

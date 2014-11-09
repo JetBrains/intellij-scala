@@ -1,0 +1,47 @@
+# not doc comment
+// not doc comment
+#doc comment
+#more doc comment
+key = value
+
+# not doc comment
+
+key = value
+-----
+HOCON_FILE
+  HoconPsiElement(OBJECT_ENTRIES)
+    PsiComment(HASH_COMMENT)('# not doc comment')
+    PsiWhiteSpace('\n')
+    PsiComment(DOUBLE_SLASH_COMMENT)('// not doc comment')
+    PsiWhiteSpace('\n')
+    HoconPsiElement(OBJECT_FIELD)
+      PsiComment(HASH_COMMENT)('#doc comment')
+      PsiWhiteSpace('\n')
+      PsiComment(HASH_COMMENT)('#more doc comment')
+      PsiWhiteSpace('\n')
+      HoconPsiElement(BARE_OBJECT_FIELD)
+        HoconPsiElement(FIELD_PATH)
+          HoconPsiElement(KEY)
+            HoconPsiElement(UNQUOTED_STRING)
+              PsiElement(UNQUOTED_CHARS)('key')
+        PsiWhiteSpace(' ')
+        PsiElement(EQUALS)('=')
+        PsiWhiteSpace(' ')
+        HoconPsiElement(VALUE)
+          HoconPsiElement(UNQUOTED_STRING)
+            PsiElement(UNQUOTED_CHARS)('value')
+    PsiWhiteSpace('\n\n')
+    PsiComment(HASH_COMMENT)('# not doc comment')
+    PsiWhiteSpace('\n\n')
+    HoconPsiElement(OBJECT_FIELD)
+      HoconPsiElement(BARE_OBJECT_FIELD)
+        HoconPsiElement(FIELD_PATH)
+          HoconPsiElement(KEY)
+            HoconPsiElement(UNQUOTED_STRING)
+              PsiElement(UNQUOTED_CHARS)('key')
+        PsiWhiteSpace(' ')
+        PsiElement(EQUALS)('=')
+        PsiWhiteSpace(' ')
+        HoconPsiElement(VALUE)
+          HoconPsiElement(UNQUOTED_STRING)
+            PsiElement(UNQUOTED_CHARS)('value')

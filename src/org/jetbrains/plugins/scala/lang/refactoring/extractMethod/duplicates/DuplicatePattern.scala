@@ -1,15 +1,16 @@
 package org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import scala.collection.mutable
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import scala.collection.mutable.ListBuffer
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition, ScPatternDefinition, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicatesUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ExtractMethodParameter
+import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicatesUtil._
+
+import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
 /**
  * Nikolay.Tropin

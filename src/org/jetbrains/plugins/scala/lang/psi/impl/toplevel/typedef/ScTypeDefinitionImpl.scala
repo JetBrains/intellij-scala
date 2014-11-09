@@ -22,7 +22,7 @@ import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import com.intellij.util.VisibilityIcons
 import org.jetbrains.plugins.scala.conversion.JavaToScala
-import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
@@ -76,7 +76,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
   override def isAnnotationType: Boolean = {
     val annotation = ScalaPsiManager.instance(getProject).getCachedClass("scala.annotation.Annotation",getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
     if (annotation == null) return false
-    isInheritor(annotation, deep = true)
+    ScalaPsiManager.instance(getProject).cachedDeepIsInheritor(this, annotation)
   }
 
   def getType(ctx: TypingContext)  = {

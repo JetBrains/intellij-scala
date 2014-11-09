@@ -4,14 +4,12 @@ package psi
 package impl
 package expr
 
-import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import api.expr._
-import types._
-import result.{TypeResult, TypingContext, Success}
-import java.lang.String
-import api.ScalaElementVisitor
 import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 
 /**
  * @author ilyas, Alexander Podkhalyuzin

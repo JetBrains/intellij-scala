@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala
 package lang.psi.applicability
 
-import org.jetbrains.plugins.scala.base.SimpleTestCase
-import lang.psi.api.base.ScReferenceElement
-import lang.psi.types._
-import nonvalue.Parameter
-import lang.psi.api.expr.{ScAssignStmt, ScExpression}
 import junit.framework.Assert
-import lang.psi.api.ScalaFile
-import lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -90,7 +90,7 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
     val typified = typify(definition, application)
 
     assertProblemsAre(auxiliary, formatFunction(definition, application))(pattern)
-    assertProblemsAre(auxiliary, formatFunction(typified._1, typified._2))((pattern))
+    assertProblemsAre(auxiliary, formatFunction(typified._1, typified._2))(pattern)
   }
 
   def assertProblemsConstructor(auxiliary: String, definition: String, application: String)
@@ -119,7 +119,7 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
   private def problemsIn(file: ScalaFile): List[ApplicabilityProblem] = {
     for (ref <- file.depthFirst.filterByType(classOf[ScReferenceElement]).toList;
          result <- ref.advancedResolve.toList;
-         problem <- result.problems)
+         problem <- result.problems.filter(_ != ExpectedTypeMismatch))
     yield problem
   }
   
@@ -136,8 +136,8 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
     val ids = (1 to types.size).map("T" + _)
 
     val id = ids.toIterator
-    val typedDefinition = Parameter.replaceAllIn(definition, _ match { 
-      case Parameter(n, t) => n + ": " + id.next    
+    val typedDefinition = Parameter.replaceAllIn(definition, _ match {
+      case Parameter(n, t) => n + ": " + id.next
     })
     
     val typeParameters = "[" + ids.mkString(", ") + "]"
@@ -147,7 +147,7 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
   }
   
   object Expression {
-    def unapply(e: ScExpression) = toObjectExt(e).toOption.map(_.getText)
+    def unapply(e: ScExpression) = e.toOption.map(_.getText)
   }
   
   object Parameter {

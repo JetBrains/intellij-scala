@@ -3,42 +3,43 @@ package lang
 package completion
 
 import com.intellij.codeInsight.completion._
-import lookups.{ScalaLookupItem, LookupElementManager}
-import psi.api.ScalaFile
-import com.intellij.util.ProcessingContext
-import com.intellij.patterns.PlatformPatterns
-import lexer.ScalaTokenTypes
-import scala.util.Random
-import psi.api.statements.ScFun
-import psi.api.base.patterns.ScBindingPattern
-import psi.ScalaPsiUtil
-import com.intellij.openapi.util.Computable
+import com.intellij.codeInsight.lookup.{InsertHandlerDecorator, LookupElement, LookupElementDecorator}
 import com.intellij.openapi.application.ApplicationManager
-import refactoring.util.ScalaNamesUtil
-import psi.impl.base.ScStableCodeReferenceElementImpl
-import lang.resolve.processor.CompletionProcessor
+import com.intellij.openapi.editor.Document
+import com.intellij.openapi.util.Computable
+import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import lang.resolve.{ScalaResolveResult, ResolveUtils}
-import psi.impl.expr.ScReferenceExpressionImpl
-import psi.impl.base.types.ScTypeProjectionImpl
-import com.intellij.codeInsight.lookup.{LookupElementDecorator, InsertHandlerDecorator, LookupElement}
-import psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScReferenceExpression, ScNewTemplateDefinition}
-import psi.types.{ScAbstractType, ScType}
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
-import psi.api.statements.params.ScClassParameter
-import psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement}
-import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
-import psi.api.toplevel.typedef.ScTemplateDefinition
-import extensions.toPsiNamedElementExt
-import scaladoc.lexer.ScalaDocTokenType
-import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
-import scala.annotation.tailrec
+import com.intellij.util.ProcessingContext
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaRuntimeTypeEvaluator
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
+import org.jetbrains.plugins.scala.lang.completion.lookups.{LookupElementManager, ScalaLookupItem}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScNewTemplateDefinition, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFun
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import com.intellij.openapi.editor.Document
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScTypeProjectionImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
+import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+
+import scala.annotation.tailrec
+import scala.util.Random
 
 /**
  * @author Alexander Podkhalyuzin
@@ -80,20 +81,20 @@ class ScalaCompletionContributor extends CompletionContributor {
       }
 
       parameters.getPosition.getParent match {
-        case ref: ScReferenceElement => {
+        case ref: ScReferenceElement =>
           val isInImport = ScalaPsiUtil.getParentOfType(ref, classOf[ScImportStmt]) != null
           def applyVariant(variant: Object, addElement: LookupElement => Unit = addElement) {
             variant match {
-              case el: ScalaLookupItem => {
+              case el: ScalaLookupItem =>
                 val elem = el.element
                 elem match {
                   case clazz: PsiClass =>
-                    import collection.mutable.{HashMap => MHashMap}
+                    import scala.collection.mutable.{HashMap => MHashMap}
                     val renamedMap = new MHashMap[String, (String, PsiNamedElement)]
                     el.isRenamed.foreach(name => renamedMap += ((clazz.name, (name, clazz))))
                     val isExcluded: Boolean = ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
                       def compute: Boolean = {
-                        JavaCompletionUtil.isInExcludedPackage(clazz, true)
+                        JavaCompletionUtil.isInExcludedPackage(clazz, false)
                       }
                     })
 
@@ -109,24 +110,20 @@ class ScalaCompletionContributor extends CompletionContributor {
                   case fun: ScFun => addElement(el)
                   case param: ScClassParameter =>
                     addElement(el)
-                  case patt: ScBindingPattern => {
+                  case patt: ScBindingPattern =>
                     val context = ScalaPsiUtil.nameContext(patt)
                     context match {
-                      case memb: PsiMember => {
+                      case memb: PsiMember =>
                         if (parameters.getInvocationCount > 1 ||
                           ResolveUtils.isAccessible(memb, parameters.getPosition, forCompletion = true)) addElement(el)
-                      }
                       case _ => addElement(el)
                     }
-                  }
-                  case memb: PsiMember => {
+                  case memb: PsiMember =>
                     if (parameters.getInvocationCount > 1 || ResolveUtils.isAccessible(memb, parameters.getPosition,
                       forCompletion = true))
                       addElement(el)
-                  }
                   case _ => addElement(el)
                 }
-              }
               case _ =>
             }
           }
@@ -203,8 +200,6 @@ class ScalaCompletionContributor extends CompletionContributor {
               case _ =>
             }
           }
-
-        }
         case _ =>
       }
       if (elementType == ScalaDocTokenType.DOC_TAG_VALUE_TOKEN) result.stopHere()
@@ -272,7 +267,7 @@ class ScalaCompletionContributor extends CompletionContributor {
         (for (qualifier <- refExpr.qualifier) yield {
           val evaluator = refExpr.getContainingFile.getCopyableUserData(ScalaRuntimeTypeEvaluator.KEY)
           if (evaluator != null) evaluator(qualifier) else null
-        }).getOrElse(null)
+        }).orNull
       case _ => null
     }
   }

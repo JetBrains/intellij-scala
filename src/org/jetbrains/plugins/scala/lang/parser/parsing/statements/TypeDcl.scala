@@ -4,10 +4,10 @@ package parser
 package parsing
 package statements
 
-import lexer.ScalaTokenTypes
-import types.Type
-import builder.ScalaPsiBuilder
-import params.TypeParamClause
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 
 /**
 * @author Alexander Podkhalyuzin

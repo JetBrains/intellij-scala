@@ -4,14 +4,12 @@ package org.jetbrains.plugins.scala.lang.controlFlow
 import com.intellij.openapi.editor.SelectionModel
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.lang.psi.api.ScControlFlowOwner
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.ScalaControlFlowBuilder
-import org.jetbrains.plugins.scala.util.TestUtils
+import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
 import junit.framework.Assert
-import com.intellij.testFramework.fixtures.{LightCodeInsightFixtureTestCase}
+import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
+import org.jetbrains.plugins.scala.util.TestUtils
 /**
  * @author ilyas
  */
@@ -57,6 +55,7 @@ class ControlFlowTest extends LightCodeInsightFixtureTestCase {
   def testTry2() {doTest()}
   def testTry3() {doTest()}
   def testNoneThrow() = doTest()
-
+  def testScl_7393() = doTest()
+  def testUnresolvedParamThrow() = doTest()
 }
 

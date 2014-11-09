@@ -5,8 +5,8 @@ import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.psi.{PsiElement, PsiMethod, PsiModifier}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.quickfix.modifiers.{AddModifierWithValOrVarQuickFix, AddModifierQuickFix, RemoveModifierQuickFix}
-import org.jetbrains.plugins.scala.extensions.toPsiModifierListOwnerExt
+import org.jetbrains.plugins.scala.annotator.quickfix.modifiers.{AddModifierQuickFix, AddModifierWithValOrVarQuickFix, RemoveModifierQuickFix}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -27,6 +27,7 @@ trait OverridingAnnotator {
       case f: ScFunctionDeclaration if f.isNative => true
       case _: ScFunctionDeclaration => false
       case _: ScFun => true
+      case method: PsiMethod if method.getContainingClass != null && method.getContainingClass.isInterface => false
       case method: PsiMethod if !method.hasAbstractModifier && !method.isConstructor => true
       case method: PsiMethod if method.hasModifierProperty(PsiModifier.NATIVE) => true
       case _: ScPatternDefinition => true

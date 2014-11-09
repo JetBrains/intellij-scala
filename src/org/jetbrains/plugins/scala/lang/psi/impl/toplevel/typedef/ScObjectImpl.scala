@@ -5,31 +5,27 @@ package impl
 package toplevel
 package typedef
 
-import java.lang.String
-import com.intellij.psi._
-import com.intellij.psi.scope.PsiScopeProcessor
-import impl.light.LightField
-import psi.stubs.ScTemplateDefinitionStub
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import collection.mutable.ArrayBuffer
-import api.ScalaElementVisitor
-import caches.CachesUtil
-import com.intellij.psi.util.{PsiUtil, PsiModificationTracker}
-import lang.resolve.ResolveUtils
-import com.intellij.openapi.project.{Project, DumbServiceImpl}
-import com.intellij.openapi.util.TextRange
-import api.toplevel.ScTypedDefinition
-import light.{EmptyPrivateConstructor, PsiClassWrapper}
-import api.statements._
-import params.ScClassParameter
-import types.ScType
-import extensions.toPsiMemberExt
-import collection.mutable
-import lang.resolve.processor.BaseProcessor
 import com.intellij.lang.java.lexer.JavaLexer
+import com.intellij.openapi.project.{DumbServiceImpl, Project}
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi._
+import com.intellij.psi.impl.light.LightField
+import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.util.{PsiModificationTracker, PsiUtil}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.light.{EmptyPrivateConstructor, PsiClassWrapper}
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin
@@ -121,7 +117,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
     if (isPackageObject) {
-      import ScPackageImpl._
+      import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl._
       startPackageObjectProcessing()
       try {
         super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
@@ -136,7 +132,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
   }
 
   def objectSyntheticMembers: Seq[PsiMethod] = {
-    import CachesUtil._
+    import org.jetbrains.plugins.scala.caches.CachesUtil._
     get(this, OBJECT_SYNTHETIC_MEMBERS_KEY, new MyProvider[ScObjectImpl, Seq[PsiMethod]](this, obj => {
       obj.objectSyntheticMembersImpl
     })(PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
@@ -147,8 +143,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
     ScalaPsiUtil.getCompanionModule(this) match {
       case Some(c: ScClass) if c.isCase =>
         val res = new ArrayBuffer[PsiMethod]
-        val texts = c.getSyntheticMethodsText
-        Seq(texts._1, texts._2).foreach(s => {
+        c.getSyntheticMethodsText.foreach(s => {
           try {
             val method = ScalaPsiElementFactory.createMethodWithContext(s, c.getContext, c)
             method.setSynthetic(this)
@@ -211,8 +206,6 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
     }
   }
 
-  import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
-
   override def getInnerClasses: Array[PsiClass] = Array.empty
 
   override def getMethods: Array[PsiMethod] = {
@@ -222,72 +215,12 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
   override def getAllMethods: Array[PsiMethod] = {
     val res = new ArrayBuffer[PsiMethod]()
     res ++= getConstructors
-    val linearization = MixinNodes.linearization(this).flatMap(tp => ScType.extractClass(tp, Some(getProject)))
-    def getClazz(t: ScTrait): PsiClass = {
-      var index = linearization.indexWhere(_ == t)
-      while (index >= 0) {
-        val clazz = linearization(index)
-        if (!clazz.isInterface) return clazz
-        index -= 1
+    TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(this) { node =>
+      val isInterface = node.info.namedElement match {
+        case t: ScTypedDefinition if t.isAbstractMember => true
+        case _ => false
       }
-      this
-    }
-    val signatures = TypeDefinitionMembers.getSignatures(this).allFirstSeq().iterator
-    while (signatures.hasNext) {
-      val signature = signatures.next()
-      signature.foreach {
-        case (t, node) => node.info.namedElement match {
-          case fun: ScFunction if !fun.isConstructor && fun.containingClass.isInstanceOf[ScTrait] &&
-            fun.isInstanceOf[ScFunctionDefinition] =>
-            res ++= fun.getFunctionWrappers(isStatic = false, isInterface = false, cClass = Some(getClazz(fun.containingClass.asInstanceOf[ScTrait])))
-          case fun: ScFunction if !fun.isConstructor =>
-            res ++= fun.getFunctionWrappers(isStatic = false, isInterface = fun.isInstanceOf[ScFunctionDeclaration])
-          case method: PsiMethod if !method.isConstructor => res += method
-          case t: ScTypedDefinition if t.isVal || t.isVar ||
-            (t.isInstanceOf[ScClassParameter] && t.asInstanceOf[ScClassParameter].isCaseClassVal) =>
-            val (isInterface, cClass) = t.nameContext match {
-              case m: ScMember =>
-                val isConcrete = m.isInstanceOf[ScPatternDefinition] || m.isInstanceOf[ScVariableDefinition] || m.isInstanceOf[ScClassParameter]
-                (!isConcrete, m.containingClass match {
-                  case t: ScTrait =>
-                    if (isConcrete) {
-                      Some(getClazz(t))
-                    } else None
-                case _ => None
-                })
-              case _ => (false, None)
-            }
-            val nodeName = node.info.name
-            if (nodeName == t.name) {
-              res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = SIMPLE_ROLE, cClass = cClass)
-              if (t.isVar) {
-                res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = EQ, cClass = cClass)
-              }
-            }
-            t.nameContext match {
-              case s: ScAnnotationsHolder =>
-                val beanProperty = ScalaPsiUtil.isBeanProperty(s)
-                val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s)
-                if (beanProperty) {
-                  if (nodeName == "get" + t.name.capitalize) {
-                    res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = GETTER, cClass = cClass)
-                  }
-                  if (t.isVar && nodeName == "set" + t.name.capitalize) {
-                    res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = SETTER, cClass = cClass)
-                  }
-                } else if (booleanBeanProperty) {
-                  if (nodeName == "is" + t.name.capitalize) {
-                    res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = IS_GETTER, cClass = cClass)
-                  }
-                  if (t.isVar && nodeName == "set" + t.name.capitalize) {
-                    res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = SETTER, cClass = cClass)
-                  }
-                }
-              case _ =>
-            }
-          case _ =>
-        }
-      }
+      this.processPsiMethodsForNode(node, isStatic = false, isInterface = isInterface)(res += _)
     }
     res.toArray
   }

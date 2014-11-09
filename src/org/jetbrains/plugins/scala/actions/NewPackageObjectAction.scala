@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala
 package actions
 
-import com.intellij.openapi.project.DumbAware
-import icons.Icons
-import com.intellij.ide.fileTemplates.actions.{AttributesDefaults, CreateFromTemplateAction}
 import com.intellij.ide.fileTemplates.FileTemplateManager
+import com.intellij.ide.fileTemplates.actions.{AttributesDefaults, CreateFromTemplateAction}
 import com.intellij.openapi.actionSystem._
-import com.intellij.psi.JavaDirectoryService
-import config.ScalaFacet
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.DumbAware
+import com.intellij.psi.JavaDirectoryService
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.project._
 
 /**
  * Pavel Fatin
@@ -30,7 +30,7 @@ class NewPackageObjectAction
             .exists(!_.isEmpty)
 
     val module: Module = e.getDataContext.getData(LangDataKeys.MODULE.getName).asInstanceOf[Module]
-    val isEnabled: Boolean = if (module == null) false else ScalaFacet.isPresentIn(module)
+    val isEnabled: Boolean = Option(module).exists(_.hasScala)
 
     e.getPresentation.setEnabled(hasPackage && isEnabled)
     e.getPresentation.setVisible(hasPackage && isEnabled)

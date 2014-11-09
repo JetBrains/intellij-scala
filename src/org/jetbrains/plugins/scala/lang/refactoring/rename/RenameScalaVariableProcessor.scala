@@ -4,26 +4,26 @@ package refactoring
 package rename
 
 
+import java.util
+
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.util.Pass
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.search.PsiElementProcessor
+import com.intellij.psi.{PsiElement, PsiNamedElement}
+import com.intellij.refactoring.listeners.RefactoringElementListener
+import com.intellij.refactoring.rename.RenameJavaMemberProcessor
 import com.intellij.refactoring.util.RefactoringUtil
 import com.intellij.usageView.UsageInfo
-import psi.api.statements.{ScValue, ScVariable}
-import psi.impl.search.ScalaOverridingMemberSearcher
-import psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import psi.api.toplevel.{ScTypedDefinition, ScNamedElement}
-import com.intellij.openapi.util.text.StringUtil
-import psi.fake.FakePsiMethod
-import extensions.toPsiNamedElementExt
-import com.intellij.refactoring.rename.RenameJavaMemberProcessor
-import com.intellij.psi.{PsiElement, PsiNamedElement}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
+import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
-import psi.api.toplevel.typedef.ScMember
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import com.intellij.psi.search.PsiElementProcessor
-import com.intellij.refactoring.listeners.RefactoringElementListener
-import com.intellij.openapi.util.Pass
-import java.util
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**

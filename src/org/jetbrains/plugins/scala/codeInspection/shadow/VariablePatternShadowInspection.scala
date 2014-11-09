@@ -2,15 +2,15 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package shadow
 
-import com.intellij.openapi.project.Project
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
-import lang.psi.impl.ScalaPsiElementFactory
-import lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
-import com.intellij.psi.{ResolveResult, PsiNamedElement, PsiElement}
-import lang.psi.ScalaPsiUtil
-import lang.resolve.processor.ResolveProcessor
-import lang.psi.api.base.ScStableCodeReferenceElement
-import lang.resolve.{ResolvableStableCodeReferenceElement, StdKinds}
+import com.intellij.openapi.project.Project
+import com.intellij.psi.{PsiElement, PsiNamedElement, ResolveResult}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
+import org.jetbrains.plugins.scala.lang.resolve.{ResolvableStableCodeReferenceElement, StdKinds}
 
 class VariablePatternShadowInspection extends AbstractInspection("VariablePatternShadow", "Suspicious shadowing by a Variable Pattern") {
 

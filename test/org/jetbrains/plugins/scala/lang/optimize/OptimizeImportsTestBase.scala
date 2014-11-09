@@ -3,11 +3,12 @@ package lang
 package optimize
 
 
+import java.io.File
+
 import _root_.com.intellij.psi.impl.source.tree.TreeUtil
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
-import java.io.File
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings

@@ -1,0 +1,16 @@
+class a {
+  def foo() = {
+    val x = "testtesttest"
+    val y = s"testtest"
+    <all>s"test"<end>
+  }
+}
+------
+class a {
+  def foo() = {
+    val x = "testtesttest"
+    val value: String = s"test"
+    val y = s"$value$value"
+    value
+  }
+}

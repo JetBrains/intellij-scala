@@ -16,6 +16,8 @@ object Sbt {
 
   val PluginsFile = "plugins.sbt"
 
+  val PropertiesFile = "build.properties"
+
   val ProjectDirectory = "project"
 
   val TargetDirectory = "target"
@@ -36,7 +38,7 @@ object Sbt {
 
   val UnmanagedLibraryName = "unmanaged-jars"
 
-  val StructurePluginVersion = "2.4.0"
+  val UnmanagedSourcesAndDocsName = "unmanaged-sources-and-docs"
 
   val DefinitionHolderClasses = Seq("sbt.Plugin", "sbt.Build")
 

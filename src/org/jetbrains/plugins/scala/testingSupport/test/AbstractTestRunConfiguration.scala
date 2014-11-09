@@ -1,49 +1,46 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test
 
-import com.intellij.psi.search.GlobalSearchScope
-import org.jdom.Element
-import config.ScalaFacet
-import collection.JavaConversions._
-import com.intellij.openapi.options.{SettingsEditorGroup, SettingsEditor}
+import java.io.{File, FileOutputStream, IOException, PrintStream}
+
 import com.intellij.diagnostic.logging.LogConfigurationPanel
-import scala.beans.BeanProperty
-import com.intellij.openapi.module.Module
-
-import com.intellij.openapi.components.PathMacroManager
-import lang.psi.impl.ScalaPsiManager
-import lang.psi.api.toplevel.typedef.{ScClass, ScObject}
-import com.intellij.psi.{PsiModifierList, PsiPackage, JavaPsiFacade, PsiClass}
-import com.intellij.openapi.util.{Computable, JDOMExternalizer, Getter}
-
-import testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
 import com.intellij.execution._
-import com.intellij.execution.runners.{ProgramRunner, ExecutionEnvironment}
-import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
-import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
-import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
-import com.intellij.openapi.project.Project
-import com.intellij.util.PathUtil
 import com.intellij.execution.configurations._
-import java.lang.String
-import lang.psi.ScalaPsiUtil
-import com.intellij.openapi.extensions.Extensions
-import com.intellij.openapi.module.ModuleManager
-import com.intellij.openapi.projectRoots.{JdkUtil, Sdk}
-import testingSupport.ScalaTestingConfiguration
-import testframework.sm.runner.ui.SMTRunnerConsoleView
-import testframework.TestFrameworkRunningModel
-import lang.psi.impl.ScPackageImpl
-import extensions.toPsiClassExt
-import lang.psi.api.ScPackage
-import collection.mutable.ArrayBuffer
-import testingSupport.test.AbstractTestRunConfiguration.PropertiesExtension
-import org.jetbrains.plugins.scala.compiler.rt.ClassRunner
-import lang.psi.api.toplevel.ScModifierListOwner
+import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
+import com.intellij.execution.testframework.TestFrameworkRunningModel
+import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
+import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
+import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
+import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
 import com.intellij.openapi.application.ApplicationManager
-import java.io.{IOException, FileOutputStream, PrintStream, File}
+import com.intellij.openapi.components.PathMacroManager
+import com.intellij.openapi.extensions.Extensions
+import com.intellij.openapi.module.{Module, ModuleManager}
+import com.intellij.openapi.options.{SettingsEditor, SettingsEditorGroup}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.{JdkUtil, Sdk}
+import com.intellij.openapi.util.{Computable, Getter, JDOMExternalizer}
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi._
+import org.jdom.Element
 import org.jetbrains.idea.maven.project.MavenProjectsManager
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
+import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.PropertiesExtension
+import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
+import org.jetbrains.plugins.scala.util.ScalaUtil
+
+import scala.beans.BeanProperty
+import scala.collection.JavaConversions._
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
+import com.intellij.openapi.util.text.StringUtil
 
 /**
  * @author Ksenia.Sautina
@@ -52,7 +49,9 @@ import scala.collection.mutable
 
 abstract class AbstractTestRunConfiguration(val project: Project,
                                             val configurationFactory: ConfigurationFactory,
-                                            val name: String)
+                                            val name: String,
+                                            private var envs: java.util.Map[String, String] =
+                                            new mutable.HashMap[String, String]())
   extends ModuleBasedConfiguration[RunConfigurationModule](name,
     new RunConfigurationModule(project),
     configurationFactory)
@@ -150,6 +149,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     setModule(configuration.getModule)
     setWorkingDirectory(configuration.getWorkingDirectory)
     setTestName(configuration.getTestName)
+    setEnvVariables(configuration.getEnvironmentVariables)
     setShowProgressMessages(configuration.getShowProgressMessages)
   }
 
@@ -202,11 +202,17 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     path
   }
 
+  def getEnvVariables = envs
+
+  def setEnvVariables(variables: java.util.Map[String, String]) = {
+    envs = variables
+  }
+
   def getModule: Module = {
     getConfigurationModule.getModule
   }
 
-  def getValidModules: java.util.List[Module] = ScalaFacet.findModulesIn(getProject).toList
+  def getValidModules: java.util.List[Module] = getProject.modulesWithScala
 
   override def getModules: Array[Module] = {
     ApplicationManager.getApplication.runReadAction(new Computable[Array[Module]] {
@@ -343,14 +349,30 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         val params = new JavaParameters()
 
         params.setCharset(null)
-        params.getVMParametersList.addParametersString(getJavaOptions)
+        var vmParams = getJavaOptions
+
+        //expand macros
+        vmParams = PathMacroManager.getInstance(project).expandPath(vmParams)
+
+        if (module != null) {
+          vmParams = PathMacroManager.getInstance(module).expandPath(vmParams)
+        }
+
+        params.setEnv(getEnvVariables)
+
+        //expand environment variables in vmParams
+        for (entry <- params.getEnv.entrySet) {
+          vmParams = StringUtil.replace(vmParams, "$" + entry.getKey + "$", entry.getValue, false)
+        }
+
+        params.getVMParametersList.addParametersString(vmParams)
         val wDir = getWorkingDirectory
         params.setWorkingDirectory(expandPath(wDir))
 
 //        params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug " +
 //          "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5010")
 
-        val rtJarPath = PathUtil.getJarPathForClass(classOf[ClassRunner])
+        val rtJarPath = ScalaUtil.runnersPath()
         params.getClassPath.add(rtJarPath)
 
         searchTest match {
@@ -390,14 +412,15 @@ abstract class AbstractTestRunConfiguration(val project: Project,
               }
             }
 
-            val parms: Array[String] = ParametersList.parse(getTestArgs)
-            for (parm <- parms) {
-              printer.println(parm)
-            }
             printer.println("-showProgressMessages")
             printer.println(showProgressMessages.toString)
             printer.println("-C")
             printer.println(reporterClass)
+
+            val parms: Array[String] = ParametersList.parse(getTestArgs)
+            for (parm <- parms) {
+              printer.println(parm)
+            }
 
             printer.close()
             params.getProgramParametersList.add("@" + fileWithParams.getPath)
@@ -423,12 +446,13 @@ abstract class AbstractTestRunConfiguration(val project: Project,
             }
           }
 
-          params.getProgramParametersList.addParametersString(getTestArgs)
           params.getProgramParametersList.add("-showProgressMessages")
           params.getProgramParametersList.add(showProgressMessages.toString)
 
           params.getProgramParametersList.add("-C")
           params.getProgramParametersList.add(reporterClass)
+
+          params.getProgramParametersList.addParametersString(getTestArgs)
         }
 
         for (ext <- Extensions.getExtensions(RunConfigurationExtension.EP_NAME)) {
@@ -457,8 +481,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         val res = new DefaultExecutionResult(consoleView, processHandler,
           createActions(consoleView, processHandler, executor): _*)
 
-        val rerunFailedTestsAction = new AbstractTestRerunFailedTestsAction(consoleView.getComponent)
-        rerunFailedTestsAction.init(consoleView.getProperties, getEnvironment)
+        val rerunFailedTestsAction = new AbstractTestRerunFailedTestsAction(consoleView)
+        rerunFailedTestsAction.init(consoleView.getProperties)
         rerunFailedTestsAction.setModelProvider(new Getter[TestFrameworkRunningModel] {
           def get: TestFrameworkRunningModel = {
             consoleView.asInstanceOf[SMTRunnerConsoleView].getResultsViewer
@@ -484,6 +508,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     JDOMExternalizer.write(element, "testName", testName)
     JDOMExternalizer.write(element, "testKind", if (testKind != null) testKind.toString else TestKind.CLASS.toString)
     JDOMExternalizer.write(element, "showProgressMessages", showProgressMessages.toString)
+    JDOMExternalizer.writeMap(element, envs, "envs", "envVar")
     PathMacroManager.getInstance(getProject).collapsePathsRecursively(element)
   }
 
@@ -497,6 +522,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     javaOptions = JDOMExternalizer.readString(element, "vmparams")
     testArgs = JDOMExternalizer.readString(element, "params")
     workingDirectory = JDOMExternalizer.readString(element, "workingDirectory")
+    JDOMExternalizer.readMap(element, envs, "envs", "envVar")
     val s = JDOMExternalizer.readString(element, "searchForTest")
     for (search <- SearchForTest.values()) {
       if (search.toString == s) searchTest = search
@@ -507,7 +533,16 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   }
 }
 
-object AbstractTestRunConfiguration {
+trait SuiteValidityChecker {
+  protected[test] def isInvalidSuite(clazz: PsiClass): Boolean = {
+    val list: PsiModifierList = clazz.getModifierList
+    list != null && list.hasModifierProperty(PsiModifier.ABSTRACT) || lackSuitableConstructor(clazz)
+  }
+
+  protected[test] def lackSuitableConstructor(clazz: PsiClass): Boolean
+}
+
+object AbstractTestRunConfiguration extends SuiteValidityChecker {
 
   private[test] trait TestCommandLinePatcher {
     private var failedTests: Seq[(String, String)] = null
@@ -528,35 +563,19 @@ object AbstractTestRunConfiguration {
     def getRunConfigurationBase: RunConfigurationBase
   }
 
-  protected[test] def isInvalidSuite(clazz: PsiClass): Boolean = {
-    val list: PsiModifierList = clazz.getModifierList
-    list != null && list.hasModifierProperty("abstract") || lackNoArgConstructor(clazz)
-  }
-
-  private def lackNoArgConstructor(clazz: PsiClass): Boolean = {
-    clazz match {
-      case c: ScClass =>
-        val constructors = c.secondaryConstructors.filter(_.isConstructor).toList ::: c.constructor.toList
-        for (con <- constructors) {
-          if (con.isConstructor && con.parameterList.getParametersCount == 0) {
-            con match {
-              case owner: ScModifierListOwner =>
-                if (owner.hasModifierProperty("public")) return false
-              case _ =>
-            }
-          }
+  protected[test] def lackSuitableConstructor(clazz: PsiClass): Boolean = {
+    val constructors = clazz match {
+      case c: ScClass => c.secondaryConstructors.filter(_.isConstructor).toList ::: c.constructor.toList
+      case _ => clazz.getConstructors.toList
+    }
+    for (con <- constructors) {
+      if (con.isConstructor && con.getParameterList.getParametersCount == 0) {
+        con match {
+          case owner: ScModifierListOwner =>
+            if (owner.hasModifierProperty(PsiModifier.PUBLIC)) return false
+          case _ =>
         }
-
-      case _ =>
-        for (constructor <- clazz.getConstructors) {
-          if (constructor.isConstructor && constructor.getParameterList.getParametersCount == 0) {
-            constructor match {
-              case owner: ScModifierListOwner =>
-                if (owner.hasModifierProperty("public")) return false
-              case _ =>
-            }
-          }
-        }
+      }
     }
     true
   }

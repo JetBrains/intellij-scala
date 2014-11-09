@@ -6,12 +6,9 @@ package elements
 package signatures 
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScClassParameterImpl
-import api.statements.params.{ScClassParameter, ScParameter}
-import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
-import com.intellij.util.io.StringRef
-import impl.{ScParameterStubImpl}
-import index.ScalaIndexKeys
+import com.intellij.psi.stubs.IndexSink
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 
 /**
  * User: Alexander Podkhalyuzin

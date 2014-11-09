@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala
 package findUsages.factory
 
+import javax.swing.{BoxLayout, JComponent, JPanel}
+
+import com.intellij.find.FindBundle
 import com.intellij.find.findUsages._
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiClass
 import com.intellij.ui.{IdeBorderFactory, StateRestoringCheckBox}
-import javax.swing.{BoxLayout, JPanel, JComponent}
-import com.intellij.find.FindBundle
-import lang.psi.api.toplevel.typedef.ScTypeDefinition
-import lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
  * @author Alefas
@@ -28,8 +28,7 @@ class ScalaTypeDefinitionUsagesDialog(element: ScTypeDefinition, project: Projec
     myCbUsages
   }
 
-  import AbstractFindUsagesDialog.isToChange
-  import AbstractFindUsagesDialog.isSelected
+  import com.intellij.find.findUsages.AbstractFindUsagesDialog.{isSelected, isToChange}
 
   override def calcFindUsagesOptions(options: ScalaTypeDefinitionFindUsagesOptions) {
     super.calcFindUsagesOptions(options)

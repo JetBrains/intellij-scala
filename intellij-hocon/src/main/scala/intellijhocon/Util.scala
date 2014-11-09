@@ -1,16 +1,17 @@
 package intellijhocon
 
+import java.{lang => jl}
+
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.{IElementType, TokenSet}
-import java.{lang => jl, util => ju}
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.tree.{IElementType, TokenSet}
+
+import scala.language.implicitConversions
 
 object Util {
+  implicit def liftSingleToken(token: IElementType): TokenSet = TokenSet.create(token)
 
-  implicit def liftSingleToken(token: IElementType): TokenSet =
-    TokenSet.create(token)
-
-  implicit class TokenSetOps(tokenSet: TokenSet) {
+  implicit class TokenSetOps(val tokenSet: TokenSet) {
     def |(otherTokenSet: TokenSet) =
       TokenSet.orSet(tokenSet, otherTokenSet)
 
@@ -26,10 +27,9 @@ object Util {
     val extractor = this
   }
 
-  implicit def token2TokenSetOps(token: IElementType) =
-    new TokenSetOps(token)
+  implicit def token2TokenSetOps(token: IElementType) = new TokenSetOps(token)
 
-  implicit class CharSequenceOps(cs: CharSequence) {
+  implicit class CharSequenceOps(val cs: CharSequence) extends AnyVal {
     def startsWith(str: String) =
       cs.length >= str.length && str.contentEquals(cs.subSequence(0, str.length))
 
@@ -37,7 +37,7 @@ object Util {
       Iterator.range(0, cs.length).map(cs.charAt)
   }
 
-  implicit class NodeOps(node: ASTNode) {
+  implicit class NodeOps(val node: ASTNode) extends AnyVal {
     def childrenIterator =
       Iterator.iterate(node.getFirstChildNode)(_.getTreeNext).takeWhile(_ != null)
 
@@ -49,7 +49,7 @@ object Util {
 
   }
 
-  implicit class StringOps(str: String) {
+  implicit class StringOps(val str: String) extends AnyVal {
     def indent(ind: String) =
       ind + str.replaceAllLiterally("\n", "\n" + ind)
   }

@@ -1,19 +1,18 @@
 package org.jetbrains.plugins.scala
 package worksheet.server
 
-import com.intellij.util.containers.ConcurrentWeakHashMap
-import org.jetbrains.plugins.scala.components.WorksheetProcess
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.util.containers.ConcurrentWeakHashMap
+import org.jetbrains.plugins.scala.compiler.CompilationProcess
 
 /**
  * User: Dmitry Naydanov
  * Date: 2/20/14
  */
 object WorksheetProcessManager {
-  private val processes = new ConcurrentWeakHashMap[VirtualFile, WorksheetProcess]()
+  private val processes = new ConcurrentWeakHashMap[VirtualFile, CompilationProcess]()
 
-  def add(file: VirtualFile, process: WorksheetProcess) {
+  def add(file: VirtualFile, process: CompilationProcess) {
     process.addTerminationCallback({remove(file)})
     processes.put(file, process)
   }

@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.annotator.createFromUsage._
 import org.jetbrains.plugins.scala.annotator.importsTracker._
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
-import org.jetbrains.plugins.scala.annotator.quickfix.{AddElementToMethodCallFix, ChangeTypeFix, ReportHighlightingErrorQuickFix, WrapInOptionQuickFix}
+import org.jetbrains.plugins.scala.annotator.quickfix.{ChangeTypeFix, ReportHighlightingErrorQuickFix, WrapInOptionQuickFix}
 import org.jetbrains.plugins.scala.annotator.template._
 import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.{RemoveValFromEnumeratorIntentionAction, RemoveValFromGeneratorIntentionAction}
 import org.jetbrains.plugins.scala.components.HighlightingAdvisor
@@ -25,22 +25,22 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScInfixPattern, ScPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScClassParameter, ScParameter, ScParameters}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportUsed, ReadValueUsed, ValueUsed, WriteValueUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContextOwner, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext, TypingContextOwner}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
@@ -218,7 +218,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       override def visitMethodCallExpression(call: ScMethodCall) {
         checkMethodCallImplicitConversion(call, holder)
         if (typeAware) annotateMethodInvocation(call, holder)
-        checkMethodCallForCaretConformance(call, holder) //fix for SCL-7202
         super.visitMethodCallExpression(call)
       }
 
@@ -319,8 +318,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         super.visitParameters(parameters)
       }
 
-      override def visitTypeDefintion(typedef: ScTypeDefinition) {
-        super.visitTypeDefintion(typedef)
+      override def visitTypeDefinition(typedef: ScTypeDefinition) {
+        super.visitTypeDefinition(typedef)
       }
 
       override def visitExistentialTypeElement(exist: ScExistentialTypeElement): Unit = {
@@ -513,18 +512,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
   }
 
-  private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) { //fix for SCL-7139
-    sTypeParam.lowerTypeElement match {
-      case Some(lower) =>
-        checkForCyclicReference(lower, isUpperBound = false)
-      case None =>
-    }
-    sTypeParam.upperTypeElement match {
-      case Some(upper) =>
-        checkForCyclicReference(upper, isUpperBound = true)
-      case None =>
-    }
-
+  private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) {
     for {
       lower <- sTypeParam.lowerBound
       upper <- sTypeParam.upperBound
@@ -532,42 +520,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       annotation = holder.createErrorAnnotation(sTypeParam,
         ScalaBundle.message("lower.bound.conform.to.upper", upper, lower))
     } annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-
-    def checkForCyclicReference(element: ScTypeElement, isUpperBound: Boolean) {
-      val visited = new mutable.HashSet[ScTypeElement]()
-      var currentElement: ScTypeElement = element
-      while (visited.add(currentElement) && !currentElement.isInstanceOf[ScParameterizedTypeElement]) {
-        currentElement.accept(new ScalaRecursiveElementVisitor() {
-          override def visitSimpleTypeElement(simple: ScSimpleTypeElement) {
-            simple.reference match {
-              case Some(ref) =>
-                val resolveRes = ref.resolve()
-                if (resolveRes == sTypeParam) {
-                  sTypeParam.getParent.getParent match {
-                    case n: ScNamedElement =>
-                      val annotation = holder.createErrorAnnotation(n.nameId, ScalaBundle.message("cyclic.reference.type", simple.getText))
-                      annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-                    case _ =>
-                  }
-                } else {
-                  resolveRes match {
-                    case boundOwner: ScTypeBoundsOwner =>
-                      val boundToCheckNext =
-                        if(isUpperBound) boundOwner.upperTypeElement
-                        else boundOwner.lowerTypeElement
-                      boundToCheckNext match {
-                        case Some(bound) => currentElement = bound
-                        case _ =>
-                      }
-                    case _ =>
-                  }
-                }
-              case None =>
-            }
-          }
-        })
-      }
-    }
   }
 
   private def registerUsedElement(element: PsiElement, resolveResult: ScalaResolveResult,
@@ -628,7 +580,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
 
     val resolve: Array[ResolveResult] = refElement.multiResolve(false)
-    if (refElement.isInstanceOf[ScDocResolvableCodeReference] && resolve.length > 1) return
     def processError(countError: Boolean, fixes: => Seq[IntentionAction]) {
       //todo remove when resolve of unqualified expression will be fully implemented
       if (refElement.getManager.isInProject(refElement) && resolve.length == 0 &&
@@ -647,7 +598,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
 
 
-    if (resolve.length != 1) {
+    val goodDoc = refElement.isInstanceOf[ScDocResolvableCodeReference] && resolve.length > 1
+    if (resolve.length != 1 && !goodDoc) {
       if (resolve.length == 0) { //Let's try to hide dynamic named parameter usage
         refElement match {
           case e: ScReferenceExpression =>
@@ -724,22 +676,34 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       }
     }
 
-    if (isAdvancedHighlightingEnabled(refElement) && resolve.length != 1) {
+    if (isAdvancedHighlightingEnabled(refElement) && resolve.length != 1 && !goodDoc) {
+      val parent = refElement.getParent
+      def addCreateApplyOrUnapplyFix(messageKey: String, fix: ScTypeDefinition => IntentionAction): Boolean = {
+        val refWithoutArgs = ScalaPsiElementFactory.createReferenceFromText(refElement.getText, parent.getContext, parent)
+        if (refWithoutArgs.multiResolve(false).exists(!_.getElement.isInstanceOf[PsiPackage])) {
+          // We can't resolve the method call A(arg1, arg2), but we can resolve A. Highlight this differently.
+          val error = ScalaBundle.message(messageKey, refElement.refName)
+          val annotation = holder.createErrorAnnotation(refElement.nameId, error)
+          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+          annotation.registerFix(ReportHighlightingErrorQuickFix)
+          refWithoutArgs match {
+            case ResolvesTo(obj: ScObject) => annotation.registerFix(fix(obj))
+            case InstanceOfClass(td: ScTypeDefinition) => annotation.registerFix(fix(td))
+            case _ =>
+          }
+          true
+        }
+        else false
+      }
+
       refElement.getParent match {
         case s: ScImportSelector if resolve.length > 0 => return
         case mc: ScMethodCall =>
-          val refWithoutArgs = ScalaPsiElementFactory.createReferenceFromText(refElement.getText, mc.getContext, mc)
-          if (refWithoutArgs.multiResolve(false).exists(!_.getElement.isInstanceOf[PsiPackage])) {
-            // We can't resolve the method call A(arg1, arg2), but we can resolve A. Highlight this differently.
-            val error = ScalaBundle.message("cannot.resolve.apply.method", refElement.refName)
-            val annotation = holder.createErrorAnnotation(refElement.nameId, error)
-            annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-            annotation.registerFix(ReportHighlightingErrorQuickFix)
-            if (refWithoutArgs.resolve().isInstanceOf[ScTypeDefinition]) {
-              annotation.registerFix(new CreateApplyQuickFix(refWithoutArgs, mc))
-            }
-            return
-          }
+          val messageKey = "cannot.resolve.apply.method"
+          if (addCreateApplyOrUnapplyFix(messageKey, td => new CreateApplyQuickFix(td, mc))) return
+        case Both(p: ScPattern, (_: ScConstructorPattern | _: ScInfixPattern)) =>
+          val messageKey = "cannot.resolve.unapply.method"
+          if (addCreateApplyOrUnapplyFix(messageKey, td => new CreateUnapplyQuickFix(td, p))) return
         case _ =>
       }
 
@@ -967,13 +931,13 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                     annotation.registerFix(wrapInOptionFix)
                   }
                   typeElement match {
-                    case Some(te) =>
+                    case Some(te) if te.getContainingFile == expr.getContainingFile =>
                       val fix = new ChangeTypeFix(te, exprType.getOrNothing)
                       annotation.registerFix(fix)
                       val teAnnotation = holder.createErrorAnnotation(te, null)
                       teAnnotation.setHighlightType(ProblemHighlightType.INFORMATION)
                       teAnnotation.registerFix(fix)
-                    case None =>
+                    case _ =>
                   }
                 }
               }
@@ -1192,61 +1156,11 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   private def checkAbstractMemberPrivateModifier(element: PsiElement, toHighlight: Seq[PsiElement], holder: AnnotationHolder) {
     element match {
       case modOwner: ScModifierListOwner =>
-        if (modOwner.hasModifierProperty("private")) {
-          for (e <- toHighlight) {
-            val annotation = holder.createErrorAnnotation(e, ScalaBundle.message("abstract.member.not.have.private.modifier"))
-            annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-          }
-        }
-      case _ =>
-    }
-  }
-
-  private def checkMethodCallForCaretConformance(call: ScMethodCall, holder: AnnotationHolder) {
-    call.getEffectiveInvokedExpr match {
-      case ref: ScReferenceElement =>
-        ref.bind() match {
-          case Some(res) =>
-            res.getElement match {
-              case fun: ScFunction =>
-                val callParentIt = call.parents
-                var currentElement: PsiElement = call
-                var argClauses = new ArrayBuffer[ScArgumentExprList]
-                var hasWildcard: Int = 0
-                while (callParentIt.hasNext && currentElement.isInstanceOf[ScMethodCall]) {
-                  argClauses += currentElement.asInstanceOf[ScMethodCall].args
-                  currentElement = callParentIt.next()
-                  if (currentElement.isInstanceOf[ScUnderscoreSection])  {
-                    hasWildcard += 1
-                    if (callParentIt.hasNext) currentElement = callParentIt.next()
-                  }
-                }
-                if (currentElement.isInstanceOf[ScUnderscoreSection])  {
-                  hasWildcard += 1
-                  if (callParentIt.hasNext) currentElement = callParentIt.next()
-                  if (currentElement.isInstanceOf[ScUnderscoreSection]) hasWildcard += 1
-                }
-                val parameterClauseSize = fun.effectiveParameterClauses.size
-                val callArgumentSize = if(currentElement.isInstanceOf[ScUnderscoreSection]) argClauses.size + 1 else argClauses.size
-                if (hasWildcard > 1) {
-                  val toHighlight = if(argClauses.nonEmpty) argClauses.last.getParent else call.getParent
-                  val annotation = holder.createErrorAnnotation(toHighlight, "Too many placeholders")
-                  annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-                } else if(parameterClauseSize > callArgumentSize && parameterClauseSize > 1) {
-                  val sibl = argClauses.last.getParent.getPrevSiblingNotWhitespaceComment
-                  if (sibl!= null) sibl.getPrevSiblingNotWhitespaceComment match {
-                    case f: ScFunctionalTypeElement => //its conformance will be checked, we don't worry about it
-                    case _ =>
-                      val message = ScalaBundle.message("missing.arguments.for.method", fun.paramClauses.getText)
-                      val toHighlight = if(!argClauses.isEmpty) argClauses.last.getParent else call.getParent
-                      val annotation = holder.createErrorAnnotation(toHighlight, message)
-                      annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-                      val wild = ScalaPsiElementFactory.createWildcardNode(call.getManager)
-                      val fix = new AddElementToMethodCallFix(toHighlight.asInstanceOf[ScMethodCall], wild.getPsi, "placeholder")
-                      annotation.registerFix(fix)
-                  }
-                }
-              case _ =>
+        modOwner.getModifierList.accessModifier match {
+          case Some(am) if am.isUnqualifiedPrivateOrThis =>
+            for (e <- toHighlight) {
+              val annotation = holder.createErrorAnnotation(e, ScalaBundle.message("abstract.member.not.have.private.modifier"))
+              annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
             }
           case _ =>
         }

@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.lang.psi.dataFlow
 package impl.reachingDefs
 
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
-import collection.Iterable
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{DefinitionType, ReadWriteVariableInstruction, DefinitionInstruction}
-import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{DefinitionInstruction, DefinitionType, ReadWriteVariableInstruction}
+
+import scala.collection.Iterable
 /**
  * @author ilyas
  */

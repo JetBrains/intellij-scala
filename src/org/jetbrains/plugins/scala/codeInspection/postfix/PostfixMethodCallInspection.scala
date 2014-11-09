@@ -2,14 +2,13 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package postfix
 
-import com.intellij.psi.PsiElement
-import lang.lexer.ScalaTokenTypes
-import com.intellij.openapi.project.Project
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
-import lang.psi.impl.ScalaPsiElementFactory
-import lang.psi.api.base.ScLiteral
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions.childOf
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import extensions.childOf
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 class PostfixMethodCallInspection extends AbstractInspection("UseOfPostfixMethodCall", "Use of postfix method call"){
 
@@ -35,15 +34,7 @@ class PostfixMethodCallInspection extends AbstractInspection("UseOfPostfixMethod
 
 class AddDotFix(pexpr: ScPostfixExpr) extends AbstractFix("Add dot to method call", pexpr) {
   def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
-    val operand = pexpr.operand
-    val needParens = operand match {
-      case lit: ScLiteral if lit.getText.endsWith(".") => true
-      case _: ScInfixExpr => true
-      case _ => false // TODO others?
-    }
-    val operandText = if (needParens) "(" + operand.getText + ")" else operand.getText
-    val call = operandText + "." + pexpr.operation.getText
-    val exp = ScalaPsiElementFactory.createExpressionFromText(call, pexpr.getManager)
-    pexpr.replace(exp)
+    val expr = ScalaPsiElementFactory.createEquivQualifiedReference(pexpr)
+    pexpr.replaceExpression(expr, removeParenthesis = true)
   }
 }

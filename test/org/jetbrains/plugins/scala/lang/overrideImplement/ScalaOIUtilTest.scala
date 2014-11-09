@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package lang.overrideImplement
 
-import org.jetbrains.plugins.scala.base.SimpleTestCase
-import overrideImplement.ScalaOIUtil
 import junit.framework.Assert
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
-import lang.psi.api.ScalaFile
-import lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 
 /**
  * Pavel Fatin
@@ -105,7 +105,7 @@ class ScalaOIUtilTest extends SimpleTestCase {
   private def unimplementedIn(@Language(value = "Scala", prefix = Prefix, suffix = Suffix) code: String) = {
     val text: String = "" + code + Suffix
     val file: ScalaFile = text.parse
-    val templateDefinitions: Seq[ScTemplateDefinition] = toRichIterator(file.children).filterByType(classOf[ScTemplateDefinition]).toSeq
+    val templateDefinitions: Seq[ScTemplateDefinition] = file.children.filterByType(classOf[ScTemplateDefinition]).toSeq
     val lastDefinition: ScTemplateDefinition = templateDefinitions.last
     val members = ScalaOIUtil.getMembersToImplement(lastDefinition)
     members.map(_.getText)

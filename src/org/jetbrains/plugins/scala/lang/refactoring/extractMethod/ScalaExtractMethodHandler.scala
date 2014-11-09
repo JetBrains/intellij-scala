@@ -2,40 +2,39 @@ package org.jetbrains.plugins.scala
 package lang
 package refactoring.extractMethod
 
-import com.intellij.psi._
-import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.DataContext
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.{ScrollType, Editor}
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
+import com.intellij.openapi.editor.{Editor, ScrollType}
+import com.intellij.openapi.project.Project
+import com.intellij.psi._
+import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.psi.search.LocalSearchScope
+import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.refactoring.util.CommonRefactoringUtil
+import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
+import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
-import scala.collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition, ScPatternDefinition, ScFunction, ScFunctionDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaRecursiveElementVisitor, ScalaFile}
-import psi.api.base.patterns.ScCaseClause
-import psi.types.result.TypingContext
-import com.intellij.refactoring.util.CommonRefactoringUtil
-import com.intellij.psi.codeStyle.CodeStyleManager
-import scala.annotation.tailrec
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
-import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.search.LocalSearchScope
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicatesUtil
-import org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger
-import com.intellij.internal.statistic.UsageTrigger
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+
+import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -63,13 +62,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
       return
     }
     if (!editor.getSelectionModel.hasSelection) return
-    ScalaRefactoringUtil.trimSpacesAndComments(editor, file, trimComments = false)
-    val startElement: PsiElement = file.findElementAt(editor.getSelectionModel.getSelectionStart)
-    val endElement: PsiElement = file.findElementAt(editor.getSelectionModel.getSelectionEnd - 1)
-    val elements = ScalaPsiUtil.getElementsRange(startElement, endElement) match {
-      case Seq(b: ScBlock) if !b.hasRBrace => b.children.toSeq
-      case elems => elems
-    }
+    val elements: Seq[PsiElement] = ScalaRefactoringUtil.selectedElements(editor, file, trimComments = false)
 
     if (showNotPossibleWarnings(elements, project, editor)) return
 
@@ -130,7 +123,10 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     val hasReturn: Option[ScType] = returnType
     val stopAtScope: PsiElement = findScopeBound(elements).getOrElse(file)
     val siblings: Array[PsiElement] = getSiblings(elements(0), stopAtScope)
-    if (siblings.length == 0) return
+    if (siblings.length == 0) {
+      showErrorMessage(ScalaBundle.message("extract.method.cannot.find.possible.scope"), project, editor)
+      return
+    }
     val array = elements.toArray
     if (ApplicationManager.getApplication.isUnitTestMode && siblings.length > 0) {
       invokeDialog(project, editor, array, hasReturn, lastReturn, siblings(0), siblings.length == 1,
@@ -194,7 +190,8 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
             }
           case member: ScMember if !member.isLocal => member.containingClass.toOption
           case td: ScTypeDefinition => td.parent
-          case ScalaPsiUtil.inNameContext(varDef: ScVariableDefinition) if ScalaPsiUtil.isLValue(ref) => varDef.parent
+          case ScalaPsiUtil.inNameContext(varDef: ScVariableDefinition)
+            if ScalaPsiUtil.isLValue(ref) && !elements.exists(_.isAncestorOf(varDef)) => varDef.parent
           case member: PsiMember => member.containingClass.toOption
           case _ => return None
         }
@@ -394,7 +391,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     var typeDefMessage: Option[String] = None
     for (element <- elements) {
       val visitor = new ScalaRecursiveElementVisitor {
-        override def visitTypeDefintion(typedef: ScTypeDefinition) {
+        override def visitTypeDefinition(typedef: ScTypeDefinition) {
           typeDefMessage = checkTypeDefUsages(typedef)
         }
       }

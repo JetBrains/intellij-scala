@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package lang.overrideImplement
 
-import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
-import com.intellij.testFramework.fixtures.{ModuleFixture, JavaCodeInsightFixtureTestCase}
-import junit.framework.Assert.assertEquals
-import com.intellij.testFramework.builders.JavaModuleFixtureBuilder
 import com.intellij.testFramework.IdeaTestUtil
+import com.intellij.testFramework.builders.JavaModuleFixtureBuilder
+import com.intellij.testFramework.fixtures.{JavaCodeInsightFixtureTestCase, ModuleFixture}
+import junit.framework.Assert.assertEquals
+import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /**
@@ -27,6 +27,30 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
     ScalaOIUtil.invokeOverrideImplement(myFixture.getProject, myFixture.getEditor, scalaFile, isImplement, methodName)
     assertEquals(expectedText.replace("\r", "").stripMargin.trim, scalaFile.getText.stripMargin.trim)
     ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY = oldSpecifyRetType
+  }
+
+  def testDefaultImplementations(): Unit = {
+    val javaText =
+      """
+        |public interface JavaDummy {
+        |    default int foo() {
+        |      return 1;
+        |    }
+        |}
+      """
+    val scalaText =
+      """
+        |class Child extends JavaDummy {
+        |  <caret>
+        |}
+      """
+    val expectedText =
+      """
+        |class Child extends JavaDummy {
+        |  override def foo(): Int = super.foo()
+        |}
+      """
+    runTest("foo", javaText, scalaText, expectedText, isImplement = false, needsInferType = true)
   }
 
   def testVarargImplement() {

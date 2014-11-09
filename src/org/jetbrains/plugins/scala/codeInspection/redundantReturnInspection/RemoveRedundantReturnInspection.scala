@@ -2,11 +2,10 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package redundantReturnInspection
 
-import org.intellij.lang.annotations.Language
 import com.intellij.codeInspection._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReturnStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReturnStmt
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 
 
 class RemoveRedundantReturnInspection extends AbstractInspection("ScalaRedundantReturn", "Redundant Return") {
@@ -18,12 +17,8 @@ class RemoveRedundantReturnInspection extends AbstractInspection("ScalaRedundant
         body.depthFirst(!_.isInstanceOf[ScFunction]).foreach {
           case r: ScReturnStmt =>
             if (returns.contains(r)) {
-              r.expr match {
-                case Some(expr) =>
-                  holder.registerProblem(r.returnKeyword, "Return keyword is redundant",
-                    ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new RemoveReturnKeywordQuickFix(r, expr))
-                case _ =>
-              }
+              holder.registerProblem(r.returnKeyword, "Return keyword is redundant",
+                ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new RemoveReturnKeywordQuickFix(r))
             }
           case _ =>
         }
@@ -31,10 +26,13 @@ class RemoveRedundantReturnInspection extends AbstractInspection("ScalaRedundant
   }
 }
 
-class RemoveReturnKeywordQuickFix(ret: ScReturnStmt, expr: ScExpression) extends LocalQuickFix {
+class RemoveReturnKeywordQuickFix(ret: ScReturnStmt) extends LocalQuickFix {
   def applyFix(project: Project, descriptor: ProblemDescriptor) {
-    if (!ret.isValid || !expr.isValid) return
-    ret.replace(expr.copy())
+    if (!ret.isValid) return
+    ret.expr match {
+      case Some(e) => ret.replace(e.copy())
+      case None => ret.delete()
+    }
   }
 
   def getFamilyName: String = "Remove return keyword"

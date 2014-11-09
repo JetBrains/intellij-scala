@@ -5,9 +5,9 @@ package stubs
 package elements
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionDeclarationImpl
-import api.statements.ScFunction
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 /**
  * User: Alexander Podkhalyuzin

@@ -1,40 +1,48 @@
 package org.jetbrains.sbt
 package project
 
-import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
-import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskNotificationListener, ExternalSystemTaskNotificationEvent, ExternalSystemTaskId}
-import com.intellij.openapi.externalSystem.model.project._
-import com.intellij.openapi.module.StdModuleTypes
-import com.intellij.openapi.externalSystem.model.{ExternalSystemException, DataNode}
-import com.intellij.openapi.roots.DependencyScope
 import java.io.File
-import module.SbtModuleType
-import settings._
-import structure._
-import data._
+
+import com.intellij.openapi.externalSystem.model.project._
+import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
+import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
+import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
+import com.intellij.openapi.module.StdModuleTypes
+import com.intellij.openapi.roots.DependencyScope
+import org.jetbrains.sbt.project.data._
+import org.jetbrains.sbt.project.module.SbtModuleType
+import org.jetbrains.sbt.project.settings._
+import org.jetbrains.sbt.project.structure._
+import org.jetbrains.sbt.resolvers.SbtResolver
 
 /**
  * @author Pavel Fatin
  */
 class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSettings] {
+
+  private var runner: SbtRunner = null
+
   def resolveProjectInfo(id: ExternalSystemTaskId, projectPath: String, isPreview: Boolean, settings: SbtExecutionSettings, listener: ExternalSystemTaskNotificationListener): DataNode[ProjectData] = {
     val root = {
       val file = new File(projectPath)
       if (file.isDirectory) file.getPath else file.getParent
     }
 
-    val runner = new SbtRunner(settings.vmOptions, settings.customLauncher, settings.customVm)
+    runner = new SbtRunner(settings.vmOptions, settings.customLauncher, settings.vmExecutable)
 
     var warnings = new StringBuilder()
 
-    val xml = runner.read(new File(root), !isPreview) { message =>
+    val xml = runner.read(new File(root), !isPreview, settings.resolveClassifiers, settings.resolveSbtClassifiers) { message =>
       if (message.startsWith("[error] ") || message.startsWith("[warn] ")) {
         warnings ++= message
       }
 
       listener.onStatusChange(new ExternalSystemTaskNotificationEvent(id, message.trim))
     } match {
-      case Left(errors) => throw new ExternalSystemException(errors)
+      case Left(errors) => errors match {
+        case _ : SbtRunner.ImportCancelledException => return null
+        case _ => throw new ExternalSystemException(errors)
+      }
       case Right(node) => node
     }
 
@@ -55,45 +63,64 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       listener.onTaskOutput(id, WarningMessage(warning), false)
     }
 
-    convert(root, data).toDataNode
+    convert(root, data, settings.jdk).toDataNode
   }
 
-  private def convert(root: String, data: Structure): Node[ProjectData] = {
+  private def convert(root: String, data: Structure, jdk: Option[String]): Node[ProjectData] = {
     val projects = data.projects
 
     val project = data.projects.headOption.getOrElse(throw new RuntimeException("No root project found"))
 
     val projectNode = new ProjectNode(project.name, root, root)
 
-    val javaHome = project.java.flatMap(_.home).getOrElse(new File(System.getProperty("java.home")))
     val javacOptions = project.java.map(_.options).getOrElse(Seq.empty)
+    val sbtVersion = data.sbtVersion
+    val projectJdk =
+      if (project.android.isDefined)
+        Some(ScalaProjectData.Android(project.android.get.version))
+      else
+        jdk map ScalaProjectData.Jdk
 
-    projectNode.add(new ScalaProjectNode(javaHome, javacOptions))
+    projectNode.add(new ScalaProjectNode(projectJdk, javacOptions, sbtVersion))
+
+    project.play2 map {
+      case play2Data => projectNode.add(new Play2ProjectNode(play2Data.keys))
+    }
 
     val libraries = {
       val repositoryModules = data.repository.map(_.modules).getOrElse(Seq.empty)
-
+      val (modulesWithoutBinaries, modulesWithBinaries) = repositoryModules.partition(_.binaries.isEmpty)
       val otherModuleIds = projects.flatMap(_.dependencies.modules.map(_.id)).toSet --
               repositoryModules.map(_.id).toSet
 
-      repositoryModules.map(createResolvedLibrary) ++ otherModuleIds.map(createUnresolvedLibrary)
+      val libs = modulesWithBinaries.map(createResolvedLibrary) ++ otherModuleIds.map(createUnresolvedLibrary)
+
+      if (modulesWithoutBinaries.nonEmpty) {
+        val unmanagedSourceLibrary = new LibraryNode(Sbt.UnmanagedSourcesAndDocsName, true)
+        unmanagedSourceLibrary.addPaths(LibraryPathType.DOC, modulesWithoutBinaries.flatMap(_.docs).map(_.path))
+        unmanagedSourceLibrary.addPaths(LibraryPathType.SOURCE, modulesWithoutBinaries.flatMap(_.sources).map(_.path))
+        libs :+ unmanagedSourceLibrary
+      } else {
+        libs
+      }
     }
+    projectNode.addAll(libraries)
 
-    val compilerLibraries = {
-      val scalas = projects.flatMap(_.scala).distinctBy(_.version)
-      scalas.map(createCompilerLibrary)
-    }
-
-    projectNode.addAll(libraries ++ compilerLibraries)
-
+    val unmanagedSourcesAndDocsLibrary = libraries.map(_.data).find(_.getExternalName == Sbt.UnmanagedSourcesAndDocsName)
     val moduleFilesDirectory = new File(root + "/" + Sbt.ModulesDirectory)
 
     val moduleNodes: Seq[ModuleNode] = projects.map { project =>
       val moduleNode = createModule(project, moduleFilesDirectory)
       moduleNode.add(createContentRoot(project))
       moduleNode.addAll(createLibraryDependencies(project.dependencies.modules)(moduleNode, libraries.map(_.data)))
-      moduleNode.addAll(project.scala.map(createFacet(project, _)).toSeq)
+      moduleNode.addAll(project.scala.map(createScalaSdk(project, _)).toSeq)
+      moduleNode.addAll(project.android.map(createFacet(project, _)).toSeq)
       moduleNode.addAll(createUnmanagedDependencies(project.dependencies.jars)(moduleNode))
+      unmanagedSourcesAndDocsLibrary foreach { lib =>
+        val dependency = new LibraryDependencyNode(moduleNode, lib, LibraryLevel.MODULE)
+        dependency.setScope(DependencyScope.COMPILE)
+        moduleNode.add(dependency)
+      }
       moduleNode
     }
 
@@ -110,15 +137,24 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       }
     }
 
-    projectNode.addAll(projects.map(createBuildModule(_, moduleFilesDirectory)))
+    val localCachePath = data.localCachePath
+    projectNode.addAll(projects.map(createBuildModule(_, moduleFilesDirectory, localCachePath)))
 
     projectNode
   }
 
-  private def createFacet(project: Project, scala: Scala): ScalaFacetNode = {
+  private def createScalaSdk(project: Project, scala: Scala): ScalaSdkNode = {
     val basePackage = Some(project.organization).filter(_.contains(".")).mkString
 
-    new ScalaFacetNode(scala.version, basePackage, internalNameFor(scala), scala.options)
+    val compilerClasspath = scala.compilerJar +: scala.libraryJar +: scala.extraJars
+
+    new ScalaSdkNode(scala.version, basePackage, compilerClasspath, scala.options)
+  }
+
+  private def createFacet(project: Project, android: Android): AndroidFacetNode = {
+    new AndroidFacetNode(android.version, android.manifestFile, android.apkPath,
+                         android.resPath, android.assetsPath, android.genPath, android.libsPath,
+                         android.isLibrary, android.proguardConfig)
   }
 
   private def createUnresolvedLibrary(moduleId: ModuleId): LibraryNode = {
@@ -138,22 +174,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  private def nameFor(id: ModuleId) = s"${id.organization}:${id.name}:${id.revision}"
-
-  private def createCompilerLibrary(scala: Scala): LibraryNode = {
-    val result = new LibraryNode(nameFor(scala), resolved = true)
-    // TODO don't use custom delimiter either when the external system will preserve compiler libraries
-    // or when we will adopt the new Scala project configuration scheme
-    // (see processOrphanProjectLibraries in ExternalSystemUtil)
-    result.setInternalName(internalNameFor(scala))
-    val jars = scala.compilerJar +: scala.libraryJar +: scala.extraJars
-    result.addPaths(LibraryPathType.BINARY, jars.map(_.path))
-    result
-  }
-
-  private def nameFor(scala: Scala) = s"scala-compiler-bundle:${scala.version}"
-
-  private def internalNameFor(scala: Scala) = "SBT:: " + nameFor(scala)
+  private def nameFor(id: ModuleId) =
+    s"${id.organization}:${id.name}:${id.revision}" + id.classifier.map(":"+_).getOrElse("") + s":${id.artifactType}"
 
   private def createModule(project: Project, moduleFilesDirectory: File): ModuleNode = {
     // TODO use both ID and Name when related flaws in the External System will be fixed
@@ -188,8 +210,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result.storePaths(ExternalSystemSourceType.TEST, testSources)
     result.storePaths(ExternalSystemSourceType.TEST_RESOURCE, testResources)
 
-    if(canExcludeTargetIn(project)) {
-      result.storePath(ExternalSystemSourceType.EXCLUDED, project.target.path)
+    getExcludedTargetDirs(project).foreach { path =>
+      result.storePath(ExternalSystemSourceType.EXCLUDED, path.path)
     }
 
     result
@@ -197,7 +219,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   // We cannot always exclude the whole ./target/ directory because of
   // the generated sources, so we resort to an heuristics.
-  private def canExcludeTargetIn(project: Project): Boolean = {
+  private def getExcludedTargetDirs(project: Project): List[File] = {
     val managedDirectories = project.configurations
             .flatMap(configuration => configuration.sources ++ configuration.resources)
             .filter(_.managed)
@@ -206,11 +228,17 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val defaultNames = Set("main", "test")
 
     val relevantDirectories = managedDirectories.filter(file => file.exists || !defaultNames.contains(file.getName))
+    def isRelevant(f: File): Boolean = !relevantDirectories.forall(_.isOutsideOf(f))
 
-    relevantDirectories.forall(_.isOutsideOf(project.target))
+    if (isRelevant(project.target)) {
+      // If we can't exclude the target directory, go one level deeper (which may hit resolution-cache and streams)
+      Option(project.target.listFiles()).toList.flatten.filter {
+        child => child.isDirectory && !isRelevant(child)
+      }
+    } else List(project.target)
   }
 
-  private def createBuildModule(project: Project, moduleFilesDirectory: File): ModuleNode = {
+  private def createBuildModule(project: Project, moduleFilesDirectory: File, localCachePath: Option[String]): ModuleNode = {
     val id = project.id + Sbt.BuildModuleSuffix
     val name = project.name + Sbt.BuildModuleSuffix
     val buildRoot = project.base / Sbt.ProjectDirectory
@@ -235,7 +263,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     result.add(library)
 
-    result.add(createSbtModuleData(project))
+    result.add(createSbtModuleData(project, localCachePath))
 
     result
   }
@@ -255,9 +283,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  def createSbtModuleData(project: Project): SbtModuleNode = {
-    val imports = project.build.imports.flatMap(_.substring(7).split(", "))
-    new SbtModuleNode(imports)
+  def createSbtModuleData(project: Project, localCachePath: Option[String]): SbtModuleNode = {
+    val imports = project.build.imports.flatMap(_.trim.substring(7).split(", "))
+    val resolvers = project.resolvers map { r => new SbtResolver(SbtResolver.Kind.Maven, r.name, r.root) }
+    new SbtModuleNode(imports, resolvers + SbtResolver.localCacheResolver(localCachePath))
   }
 
   private def validRootPathsIn(project: Project, scope: String)
@@ -276,7 +305,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val sourceRoots = project.configurations
             .filter(it => scopes.contains(it.id))
-            .flatMap(it => it.resources ++ it.resources)
+            .flatMap(it => it.sources ++ it.resources)
             .map(_.file)
 
     sourceRoots.filter(_.isOutsideOf(project.base))
@@ -322,15 +351,19 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     if (ids.contains("compile"))
       DependencyScope.COMPILE
-    else if (ids.contains("test"))
-      DependencyScope.TEST
     else if (ids.contains("runtime"))
       DependencyScope.RUNTIME
+    else if (ids.contains("test"))
+      DependencyScope.TEST
     else if (ids.contains("provided"))
       DependencyScope.PROVIDED
     else
       DependencyScope.COMPILE
   }
 
-  def cancelTask(taskId: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener) = false
+  def cancelTask(taskId: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener) = {
+    if (runner != null)
+      runner.cancel()
+    false
+  }
 }

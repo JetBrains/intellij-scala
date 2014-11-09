@@ -1,18 +1,18 @@
 package org.jetbrains.plugins.scala
 package codeInspection.booleans
 
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemDescriptor, ProblemsHolder}
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import scala.Predef._
+import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import scala.Some
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getShortText
+
+import scala.Predef._
 
 
 /**

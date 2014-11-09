@@ -11,7 +11,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.{Disposer, Key}
 import com.intellij.openapi.vfs.newvfs.FileAttribute
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
 import com.intellij.openapi.wm.{ToolWindowId, ToolWindowManager}
 import com.intellij.psi.{PsiErrorElement, PsiFile}
 import com.intellij.ui.content.{Content, ContentFactory, MessageView}
@@ -20,9 +19,8 @@ import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaApplica
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
-import org.jetbrains.plugins.scala.worksheet.server.{InProcessServer, NonServer, OutOfProcessServer, RemoteServerConnector}
+import org.jetbrains.plugins.scala.worksheet.server._
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
-import scala.collection.mutable
 
 /**
  * User: Dmitry Naydanov
@@ -40,15 +38,11 @@ class WorksheetCompiler {
     val (iteration, tempFile, outputDir) = WorksheetBoundCompilationInfo.updateOrCreate(worksheetVirtual.getCanonicalPath, worksheetFile.getName)
 
     val project = worksheetFile.getProject
-    val runType = (ScalaApplicationSettings.getInstance().COMPILE_SERVER_ENABLED,
-      ScalaProjectSettings.getInstance(project).isInProcessMode) match {
-      case (true, true) => InProcessServer
-      case (true, false) => OutOfProcessServer
-      case (false, _) => NonServer
-    }
 
-    if (runType != NonServer) ensureServerRunning(project) else ensureNotRunning(project)
+    val runType = getRunType(project)
 
+    if (runType != NonServer)
+      CompileServerLauncher.ensureServerRunning(project)
 
     val contentManager = MessageView.SERVICE.getInstance(project).getContentManager
     val oldContent = contentManager findContent ERROR_CONTENT_NAME
@@ -68,16 +62,14 @@ class WorksheetCompiler {
 
         task.start(new Runnable {
           override def run() {
-            try {
-              //todo smth with exit code
-              new RemoteServerConnector(
-                RunWorksheetAction getModuleFor worksheetFile, tempFile, outputDir
-              ).compileAndRun(new Runnable {
-                override def run() {
-                  if (runType == OutOfProcessServer) callback(name, outputDir.getAbsolutePath)
-                }
-              }, worksheetVirtual, consumer, name, runType)
-            }
+            //todo smth with exit code
+            new RemoteServerConnector(
+              RunWorksheetAction getModuleFor worksheetFile, tempFile, outputDir, name
+            ).compileAndRun(new Runnable {
+              override def run() {
+                if (runType == OutOfProcessServer) callback(name, outputDir.getAbsolutePath)
+              }
+            }, worksheetVirtual, consumer)
           }
         }, new Runnable {override def run() {}})
       case Right(errorMessage: PsiErrorElement) =>
@@ -122,49 +114,25 @@ class WorksheetCompiler {
   }
 }
 
-object WorksheetCompiler {
+object WorksheetCompiler extends WorksheetPerFileConfig {
   private val MAKE_BEFORE_RUN = new FileAttribute("ScalaWorksheetMakeBeforeRun", 1, true)
   private val ERROR_CONTENT_NAME = "Worksheet errors"
-
-  private val enabled = "enabled"
-  private val disabled = "disable"
-
-  private val lightKeys = mutable.WeakHashMap[VirtualFile, mutable.HashMap[FileAttribute, String]]()
 
   def getCompileKey = Key.create[String]("scala.worksheet.compilation")
   def getOriginalFileKey = Key.create[String]("scala.worksheet.original.file")
 
-
-  def ensureServerRunning(project: Project) {
-    val launcher = CompileServerLauncher.instance
-    if (!launcher.running) CompileServerLauncher.instance tryToStart project
-  }
-
-  def ensureNotRunning(project: Project) {
-    val launcher = CompileServerLauncher.instance
-    if (launcher.running) launcher.stop(project)
-  }
-
-  def readAttribute(attribute: FileAttribute, file: PsiFile): Option[String] = {
-    file.getVirtualFile match {
-      case normalFile: VirtualFileWithId => Option(attribute readAttributeBytes normalFile) map (new String(_))
-      case other => lightKeys get other flatMap (map => map get attribute)
-    }
-  }
-
-  def writeAttribute(attribute: FileAttribute, file: PsiFile, data: String) {
-    file.getVirtualFile match {
-      case normalFile: VirtualFileWithId => attribute.writeAttributeBytes(normalFile, data.getBytes)
-      case other => lightKeys get other match {
-        case Some(e) => e.put(attribute, data)
-        case _ => lightKeys.put(other, mutable.HashMap(attribute -> data))
-      }
-    }
-  }
-
-  def isMakeBeforeRun(file: PsiFile) = readAttribute(MAKE_BEFORE_RUN, file).exists(_ == enabled)
+  def isMakeBeforeRun(file: PsiFile) = isEnabled(file, MAKE_BEFORE_RUN)
 
   def setMakeBeforeRun(file: PsiFile, isMake: Boolean) = {
-    writeAttribute(MAKE_BEFORE_RUN, file, if (isMake) enabled else disabled)
+    setEnabled(file, MAKE_BEFORE_RUN, isMake)
+  }
+
+  def getRunType(project: Project): WorksheetMakeType = {
+    if (ScalaApplicationSettings.getInstance().COMPILE_SERVER_ENABLED) {
+      if (ScalaProjectSettings.getInstance(project).isInProcessMode)
+        InProcessServer
+      else OutOfProcessServer
+    }
+    else NonServer
   }
 }
