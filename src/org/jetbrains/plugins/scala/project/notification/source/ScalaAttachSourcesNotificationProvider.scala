@@ -38,7 +38,6 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
     if (libraries == null) return null
     val psiFile: PsiFile = PsiManager.getInstance(myProject).findFile(file)
     val isScala = psiFile.isInstanceOf[ScalaFile]
-    if (!isScala) return super.createNotificationPanel(file, fileEditor) //as Java has now different message
     val fqn: String =
       if (isScala) ScalaEditorFileSwapper.getFQN(psiFile)
       else getFQN(psiFile)
@@ -49,10 +48,10 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
     val sourceFile: VirtualFile = findSourceFile(file)
     var defaultAction: AttachSourcesProvider.AttachSourcesAction = null
     if (sourceFile != null) {
-      panel.setText("Library sources aren't attached")
+      panel.setText(ScalaBundle.message("library.sources.not.attached"))
       defaultAction = new AttachSourcesUtil.AttachJarAsSourcesAction(file, sourceFile, myProject)
     } else {
-      panel.setText("Library sources aren't found")
+      panel.setText(ScalaBundle.message("library.sources.not.found"))
       defaultAction = new AttachSourcesUtil.ChooseAndAttachSourcesAction(myProject, panel)
     }
 
@@ -98,7 +97,7 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
             def run() {
               SwingUtilities.invokeLater(new Runnable {
                 def run() {
-                  panel.setText("Library sources aren't found")
+                  panel.setText(ScalaBundle.message("library.sources.not.found"))
                 }
               })
             }
