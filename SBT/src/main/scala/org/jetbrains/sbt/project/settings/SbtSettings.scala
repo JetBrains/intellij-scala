@@ -37,6 +37,8 @@ class SbtSettings(project: Project)
 
   private var _sbtVersion: String = _
 
+  var sbtSupportSuggested = false
+
   def jdk: String = _jdk
 
   def jdk_=(value: String) {
@@ -99,6 +101,7 @@ class SbtSettings(project: Project)
     state.resolveClassifiers = resolveClassifiers
     state.resolveSbtClassifiers = resolveSbtClassifiers
     state.sbtVersion = sbtVersion
+    state.sbtSupportSuggested = sbtSupportSuggested
     state
   }
 
@@ -108,6 +111,7 @@ class SbtSettings(project: Project)
     resolveClassifiers = state.resolveClassifiers
     resolveSbtClassifiers = state.resolveSbtClassifiers
     sbtVersion = state.sbtVersion
+    sbtSupportSuggested = state.sbtSupportSuggested
   }
 
   def subscribe(listener: ExternalSystemSettingsListener[SbtProjectSettings]) {
@@ -120,6 +124,7 @@ class SbtSettings(project: Project)
     resolveClassifiers = settings.resolveClassifiers
     resolveSbtClassifiers = settings.resolveSbtClassifiers
     sbtVersion = settings.sbtVersion
+    sbtSupportSuggested = settings.sbtSupportSuggested
   }
 }
 
@@ -141,6 +146,9 @@ class SbtSettingsState extends AbstractExternalSystemSettings.State[SbtProjectSe
   @Nullable
   @BeanProperty
   var sbtVersion: String = _
+
+  @BeanProperty
+  var sbtSupportSuggested: Boolean = false
 
   private val projectSettings = ContainerUtilRt.newTreeSet[SbtProjectSettings]()
 

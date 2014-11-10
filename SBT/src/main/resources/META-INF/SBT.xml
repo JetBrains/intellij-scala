@@ -77,6 +77,12 @@
                         level="WARNING" enabledByDefault="true" language="Scala"/>
     </extensions>
 
+    <project-components>
+        <component>
+            <implementation-class>org.jetbrains.sbt.project.LegacyProjectFormatNotifier</implementation-class>
+        </component>
+    </project-components>
+
     <extensions defaultExtensionNs="org.intellij.scala">
         <scalaFileFactory implementation="org.jetbrains.sbt.language.SbtFileFactory" />
     </extensions>
