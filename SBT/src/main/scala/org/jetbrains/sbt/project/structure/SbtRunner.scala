@@ -103,7 +103,7 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], vmExecutab
   }
 
   private def handle(process: Process, listener: (String) => Unit): Option[String] = {
-    val output = new StringBuilder()
+    val output = new StringBuffer()
 
     val processListener: (OutputType, String) => Unit = {
       case (OutputType.StdOut, text) =>
@@ -133,7 +133,7 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], vmExecutab
       handler.destroyProcess()
       None
     } else {
-      Some(output.toString())
+      Some(output.toString)
     }
   }
 
