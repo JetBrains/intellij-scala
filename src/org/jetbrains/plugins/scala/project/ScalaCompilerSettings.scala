@@ -78,7 +78,39 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
     (toggledOptions :+ debuggingLevelOption) ++ pluginOptions ++ additionalCompilerOptions
   }
 
-  def configureFrom(options: Seq[String]) {
+  def updateFrom(options: Seq[String]) {
+    val settings = new ScalaCompilerSettings()
+    settings.initFromOptions(options)
+
+    initFromSettings(this, settings)
+  }
+
+  private def initFromSettings(instances: ScalaCompilerSettings*) {
+    dynamics = instances.exists(_.dynamics)
+    postfixOps = instances.exists(_.postfixOps)
+    reflectiveCalls = instances.exists(_.reflectiveCalls)
+    implicitConversions = instances.exists(_.implicitConversions)
+    higherKinds = instances.exists(_.higherKinds)
+    existentials = instances.exists(_.existentials)
+    macros = instances.exists(_.macros)
+
+    warnings = instances.exists(_.warnings)
+    deprecationWarnings = instances.exists(_.deprecationWarnings)
+    uncheckedWarnings = instances.exists(_.uncheckedWarnings)
+    featureWarnings = instances.exists(_.featureWarnings)
+    optimiseBytecode = instances.exists(_.optimiseBytecode)
+    explainTypeErrors = instances.exists(_.explainTypeErrors)
+    specialization = instances.exists(_.specialization)
+    continuations = instances.exists(_.continuations)
+
+    debuggingInfoLevel = instances.map(_.debuggingInfoLevel).max
+
+    plugins = instances.flatMap(_.plugins).distinct
+
+    additionalCompilerOptions = instances.flatMap(_.additionalCompilerOptions).distinct
+  }
+
+  private def initFromOptions(options: Seq[String]) {
     val optionToSetter = ToggleOptions.map(it => (it._1, it._3)).toMap
 
     optionToSetter.foreach {

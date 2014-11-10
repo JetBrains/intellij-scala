@@ -23,7 +23,7 @@ class ScalaSdkDataService(platformFacade: PlatformFacade, helper: ProjectStructu
     val sdkData = sdkNode.getData
 
     val compilerOptions = sdkData.compilerOptions
-    project.scalaCompilerSettigns.configureFrom(compilerOptions)
+    project.scalaCompilerSettigns.updateFrom(compilerOptions)
 
     val compilerVersion = sdkData.scalaVersion
 
