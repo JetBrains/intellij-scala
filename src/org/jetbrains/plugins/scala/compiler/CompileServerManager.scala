@@ -77,7 +77,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
    }
 
   private def applicable = running ||
-          ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED &&
+          ScalaApplicationSettings.getInstance.COMPILE_SERVER_ENABLED &&
                   project.hasScala
 
    private def running = launcher.running

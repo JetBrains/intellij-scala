@@ -45,7 +45,7 @@ class CompileServerLauncher extends ApplicationComponent {
   }
 
   private def start(project: Project): Boolean = {
-     val applicationSettings = ScalaCompileServerSettings.getInstance
+     val applicationSettings = ScalaApplicationSettings.getInstance
 
      if (applicationSettings.COMPILE_SERVER_SDK == null) {
        // Try to find a suitable JDK
@@ -87,7 +87,7 @@ class CompileServerLauncher extends ApplicationComponent {
     compilerJars.partition(_.exists) match {
       case (presentFiles, Seq()) =>
         val classpath = (jdk.tools +: presentFiles).map(_.canonicalPath).mkString(File.pathSeparator)
-        val settings = ScalaCompileServerSettings.getInstance
+        val settings = ScalaApplicationSettings.getInstance
 
         val freePort = CompileServerLauncher.findFreePort
         if (settings.COMPILE_SERVER_PORT != freePort) {
@@ -167,7 +167,7 @@ object CompileServerLauncher {
   }
 
   def jvmParameters = {
-    val settings = ScalaCompileServerSettings.getInstance
+    val settings = ScalaApplicationSettings.getInstance
     val xmx = settings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE |> { size =>
       if (size.isEmpty) Nil else List("-Xmx%sm".format(size))
     }
@@ -186,7 +186,7 @@ object CompileServerLauncher {
   }
 
   def findFreePort: Int = {
-    val port = ScalaCompileServerSettings.getInstance().COMPILE_SERVER_PORT
+    val port = ScalaApplicationSettings.getInstance().COMPILE_SERVER_PORT
     try {
       val socket = new ServerSocket(port)
       socket.close()

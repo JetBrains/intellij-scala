@@ -26,7 +26,7 @@ class CompilerConfigurationMonitor(project: Project) extends ProjectComponent {
 
   private def compilerConfiguration = CompilerWorkspaceConfiguration.getInstance(project)
 
-  private def compileServerConfiguration = ScalaCompileServerSettings.getInstance
+  private def compileServerConfiguration = ScalaApplicationSettings.getInstance
 
   private def isScalaProject = project.hasScala
 
