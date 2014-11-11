@@ -64,8 +64,8 @@ import org.intellij.lang.annotations.JdkConstants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.actions.ShowTypeInfoAction;
-import org.jetbrains.plugins.scala.compiler.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings;
 import scala.Option;
 
 import javax.swing.*;
@@ -160,7 +160,7 @@ public class MouseHoverHandler extends AbstractProjectComponent {
           myTooltipProvider = new TooltipProvider(finalEditor, pos);
           myTooltipProvider.execute(browseMode);
         }
-      }, ScalaApplicationSettings.getInstance().SHOW_TYPE_TOOLTIP_DELAY);
+      }, ScalaProjectSettings.getInstance(myProject).getShowTypeTooltipDelay());
     }
   };
 
@@ -315,7 +315,7 @@ public class MouseHoverHandler extends AbstractProjectComponent {
   @Nullable
   private Info getInfoAt(final Editor editor, PsiFile file, int offset, BrowseMode browseMode) {
     if (browseMode == BrowseMode.Hover) {
-      if (!isShowTooltip()) return null;
+      if (!isShowTooltip(file.getProject())) return null;
       if (file instanceof ScalaFile) {
         final PsiElement elementAtPointer = file.findElementAt(offset);
         if (elementAtPointer == null) return null;
@@ -331,9 +331,9 @@ public class MouseHoverHandler extends AbstractProjectComponent {
     return null;
   }
 
-    private boolean isShowTooltip() {
+    private boolean isShowTooltip(Project project) {
         return !PowerSaveMode.isEnabled() &&
-                ScalaApplicationSettings.getInstance().SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER;
+                ScalaProjectSettings.getInstance(project).isShowTypeTooltipOnMouseHover();
     }
 
     private void fulfillDocInfo(@NotNull final String header,

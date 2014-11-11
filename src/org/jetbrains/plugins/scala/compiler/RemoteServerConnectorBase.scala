@@ -112,7 +112,7 @@ abstract class RemoteServerConnectorBase(module: Module, fileToCompile: File, ou
   
   protected def configurationError(message: String) = throw new IllegalArgumentException(message)
 
-  protected def settings = ScalaApplicationSettings.getInstance()
+  protected def settings = ScalaCompileServerSettings.getInstance()
 
   private def assemblyClasspath() = OrderEnumerator.orderEntries(module).compileOnly().getClassesRoots
 
