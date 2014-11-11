@@ -40,7 +40,7 @@
         <codeFoldingOptionsProvider instance="org.jetbrains.plugins.scala.editor.codeFolding.ScalaCodeFoldingOptionsProvider"/>
         <langCodeStyleSettingsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaLanguageCodeStyleSettingsProvider"/>
         <projectConfigurable groupId="language" displayName="Scala" instance="org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable"/>
-        <applicationConfigurable groupId="language" displayName="Scala Compile Server" instance="org.jetbrains.plugins.scala.compiler.ScalaApplicationSettingsForm"/>
+        <applicationConfigurable groupId="language" displayName="Scala Compile Server" instance="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettingsForm"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"
                             serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"
@@ -284,8 +284,8 @@
         <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalacSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalacSettings"/>
 
-        <applicationService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalaApplicationSettings"
-                        serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalaApplicationSettings"/>
+        <applicationService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"
+                        serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"/>
 
         <projectService serviceInterface="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
