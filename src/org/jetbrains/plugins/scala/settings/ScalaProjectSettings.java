@@ -23,9 +23,6 @@ import java.util.Map;
     }
 )
 public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProjectSettings>, ExportableComponent {
-  private boolean SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER = false;
-  private Integer SHOW_TYPE_TOOLTIP_DELAY = 500;
-
   private int IMPLICIT_PARAMETERS_SEARCH_DEPTH = -1;
 
   private String BASE_PACKAGE = "";
@@ -87,22 +84,6 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   @NotNull
   public String getPresentableName() {
     return "Scala Project Settings";
-  }
-
-  public boolean isShowTypeTooltipOnMouseHover() {
-    return SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER;
-  }
-
-  public void setShowTypeTooltipOnMouseHover(boolean value) {
-    this.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER = value;
-  }
-
-  public Integer getShowTypeTooltipDelay() {
-    return SHOW_TYPE_TOOLTIP_DELAY;
-  }
-
-  public void setShowTypeTooltipDelay(Integer delay) {
-    this.SHOW_TYPE_TOOLTIP_DELAY = delay;
   }
 
   public int getImplicitParametersSearchDepth() {
