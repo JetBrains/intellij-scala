@@ -31,6 +31,7 @@ class ScalaBuilder(category: BuilderCategory, @NotNull delegate: ScalaBuilderDel
 
     // TODO Remove this check later, when users will get accustomed to the new project configuration
     if (delegate == IdeaIncrementalBuilder &&
+            !hasBuildModules(chunk) && // *.scala files in SBT "build" modules are rightly excluded from compilation
             !hasScalaModules(chunk) &&
             IdeaIncrementalBuilder.collectSources(context, chunk, dirtyFilesHolder).nonEmpty) {
       val message = "skipping Scala files without a Scala SDK in module(s) " + chunk.getPresentableShortName
@@ -78,6 +79,11 @@ object ScalaBuilder {
   def isScalaProject(project: JpsProject): Boolean = hasScalaSdks(project.getModules)
 
   def hasScalaModules(chunk: ModuleChunk): Boolean = hasScalaSdks(chunk.getModules)
+
+  private def hasBuildModules(chunk: ModuleChunk): Boolean = {
+    import scala.collection.JavaConversions._
+    chunk.getModules.exists(_.getName.endsWith("-build")) // gen-idea doesn't use the SBT module type
+  }
 
   private def hasScalaSdks(modules: util.Collection[JpsModule]): Boolean = {
     import scala.collection.JavaConversions._
