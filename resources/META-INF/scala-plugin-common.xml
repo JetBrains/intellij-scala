@@ -624,9 +624,6 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.CaseClassParamInspection"
                          displayName="Case Class Parameter" groupName="Scala: General" shortName="CaseClassParam"
                          id="CaseClassParam" level="WARNING" enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.inference.SuspiciousInferredTypeInspection"
-                         displayName="Suspicious Inferred Type" groupName="Scala: General" shortName="SuspiciousInferredType"
-                         id="SuspiciousInferredType" level="WARNING" enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.VarCouldBeValInspection"
                          displayName="'var' could be a 'val'" groupName="Scala: General" shortName="VarCouldBeVal"
                          level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
