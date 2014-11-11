@@ -15,7 +15,7 @@ import com.intellij.openapi.wm.{ToolWindowId, ToolWindowManager}
 import com.intellij.psi.{PsiErrorElement, PsiFile}
 import com.intellij.ui.content.{Content, ContentFactory, MessageView}
 import com.intellij.util.ui.MessageCategory
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaApplicationSettings}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
@@ -128,7 +128,7 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
   }
 
   def getRunType(project: Project): WorksheetMakeType = {
-    if (ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED) {
+    if (ScalaApplicationSettings.getInstance().COMPILE_SERVER_ENABLED) {
       if (ScalaProjectSettings.getInstance(project).isInProcessMode)
         InProcessServer
       else OutOfProcessServer
