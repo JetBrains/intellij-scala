@@ -80,7 +80,7 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
 
   def updateFrom(options: Seq[String]) {
     val settings = new ScalaCompilerSettings()
-    settings.initFromOptions(options)
+    settings.initFromOptions(normalized(options))
 
     initFromSettings(this, settings)
   }
@@ -127,6 +127,14 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
       optionToSetter.keySet.contains(option) ||
               DebuggingOptions.keySet.contains(option) ||
               PluginOptionPattern.findFirstIn(option).isDefined
+    }
+  }
+
+  private def normalized(options: Seq[String]): Seq[String] = options.flatMap { option =>
+    if (option.startsWith("-language:")) {
+      option.substring(10).split(",").map("-language:" + _)
+    } else {
+      Seq(option)
     }
   }
 
