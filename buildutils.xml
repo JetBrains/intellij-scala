@@ -1,0 +1,13 @@
+<project name="Production build" default="idea.postbuild">
+
+    <target name="rename.scala.library">
+        <move todir="out/plugin/Scala/lib">
+            <fileset dir="out/plugin/Scala/lib">
+                <include name="scala-library*.jar"/>
+            </fileset>
+            <mapper type="glob" from="*" to="scala-library.jar"/>
+        </move>
+    </target>
+
+    <target name="idea.postbuild" depends="rename.scala.library"/>
+</project>

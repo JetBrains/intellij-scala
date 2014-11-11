@@ -203,13 +203,12 @@ packageStructure in Compile := {
     (artifactPath in (jps_plugin, Compile, packageBin)).value -> "lib/jps/scala-jps-plugin.jar",
     libOf("org.atteo" % "evo-inflector" % "1.2"),
     libOf("org.scala-lang" % "scala-library" % "2.11.2")._1 -> "lib/scala-library.jar",
-    libOf("org.scala-lang" % "scala-library" % "2.11.2"),
     libOf("org.scala-lang" % "scala-reflect" % "2.11.2"),
     libOf("org.scalatest" % "scalatest-finders" % "0.9.6"),
     libOf("org.scala-lang.modules" % "scala-xml_2.11" % "1.0.2"),
     libOf("org.scala-lang.modules" % "scala-parser-combinators_2.11" % "1.0.2")
   ) ++
-    (libraryDependencies in SBT).value.map(libOf(_))
+    (libraryDependencies in SBT).value.filterNot(_.name == "scala-library").map(libOf(_))
 }
 
 packagePlugin in Compile := {
