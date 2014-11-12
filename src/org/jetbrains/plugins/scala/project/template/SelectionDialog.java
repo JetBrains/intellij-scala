@@ -11,13 +11,13 @@ import java.awt.*;
 */
 public class SelectionDialog<T> extends DialogWrapper {
     private JLabel myLabel;
-    private JComboBox<T> myComboBox;
+    private JComboBox myComboBox;
 
     public SelectionDialog(JComponent parent, String title, String name, T[] values) {
         super(parent, false);
         setTitle(title);
         myLabel = new JLabel(name);
-        myComboBox = new JComboBox<T>(new DefaultComboBoxModel<T>(values));
+        myComboBox = new JComboBox(new DefaultComboBoxModel(values));
         myLabel.setLabelFor(myComboBox);
         init();
     }
