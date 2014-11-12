@@ -18,6 +18,36 @@ libraryDependencies +=  "org.scala-lang" % "scala-reflect" % scalaVersion.value
 
 libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test"
 
+libraryDependencies ++= Seq(
+  "org.apache.maven.indexer" % "indexer-core" % "5.1.1" % Compile,
+  "org.apache.maven.indexer" % "indexer-artifact" % "5.1.1" % Compile,
+  "org.apache.maven" % "maven-model" % "3.0.4" % Compile,
+  "org.codehaus.plexus" % "plexus-container-default" % "1.5.5" % Compile,
+  "org.codehaus.plexus" % "plexus-classworlds" % "2.4" % Compile,
+  "org.codehaus.plexus" % "plexus-utils" % "3.0.8" % Compile,
+  "org.codehaus.plexus" % "plexus-component-annotations" % "1.5.5" % Compile,
+  "org.apache.lucene" % "lucene-core" % "3.6.2" % Compile,
+  "org.apache.lucene" % "lucene-highlighter" % "3.6.2" % Compile,
+  "org.apache.lucene" % "lucene-memory" % "3.6.2" % Compile,
+  "org.apache.lucene" % "lucene-queries" % "3.6.2" % Compile,
+  "jakarta-regexp" % "jakarta-regexp" % "1.4" % Compile,
+  "org.sonatype.aether" % "aether-api" % "1.13.1" % Compile,
+  "org.sonatype.aether" % "aether-util" % "1.13.1" % Compile,
+  "org.sonatype.sisu" % "sisu-inject-plexus" % "2.2.3" % Compile,
+  "org.sonatype.sisu" % "sisu-inject-bean" % "2.2.3" % Compile,
+  ("org.sonatype.sisu" % "sisu-guice" % "3.0.3" classifier "no_aop") % Compile,
+  "org.apache.maven.wagon" % "wagon-http" % "2.6" % Compile,
+  "org.apache.maven.wagon" % "wagon-http-shared" % "2.6" % Compile,
+  "org.apache.maven.wagon" % "wagon-provider-api" % "2.6" % Compile,
+  "org.jsoup" % "jsoup" % "1.7.2" % Compile,
+  "commons-lang" % "commons-lang" % "2.6" % Compile,
+  "commons-io" % "commons-io" % "2.2" % Compile,
+  "org.apache.httpcomponents" % "httpclient" % "4.3.1" % Compile,
+  "org.apache.httpcomponents" % "httpcore" % "4.3" % Compile,
+  "commons-logging" % "commons-logging" % "1.1.3" % Compile,
+  "commons-codec" % "commons-codec" % "1.6" % Compile
+)
+
 unmanagedSourceDirectories in Compile += baseDirectory.value /  "src"
 
 unmanagedSourceDirectories in Test += baseDirectory.value /  "test"
@@ -82,9 +112,6 @@ lazy val idea_runner = Project( "idea-runner", file("idea-runner"))
 
 lazy val NailgunRunners = project.in(file( "NailgunRunners")).dependsOn(ScalaRunner)
 
-lazy val SBT = project.in(file( "SBT")).dependsOn(intellij_hocon, ScalaCommunity % "compile->compile;test->test")
-  .settings(unmanagedJars in Compile := allIdeaJars.value)
-
 ideaResolver := {
   val ideaVer = ideaVersion.value
   val ideaSDKPath = ideaBasePath.value.getParentFile
@@ -147,8 +174,6 @@ javaOptions in Test := Seq(
   s"-Dplugin.path=${baseDirectory.value}/out/plugin/Scala"
 )
 
-fullClasspath in Test := (fullClasspath in (SBT, Test)).value
-
 baseDirectory in Test := baseDirectory.value.getParentFile
 
 test in Test <<= (test in Test) dependsOn (
@@ -158,7 +183,6 @@ test in Test <<= (test in Test) dependsOn (
 // packaging
 
 pack in Compile <<= (pack in Compile) dependsOn (
-  pack in (SBT, Compile),
   pack in (compiler_settings, Compile),
   pack in (intellij_hocon, Compile),
   pack in (jps_plugin, Compile),
@@ -168,16 +192,14 @@ pack in Compile <<= (pack in Compile) dependsOn (
   )
 
 mappings in (Compile, packageBin) ++=
-    mappings.in(intellij_hocon, Compile, packageBin).value ++
-    mappings.in(SBT, Compile, packageBin).value
+    mappings.in(intellij_hocon, Compile, packageBin).value
 
 packageStructure in Compile := {
   lazy val resolved = (
     (dependencyClasspath in Compile).value ++
       (dependencyClasspath in(Runners, Compile)).value ++
       (dependencyClasspath in(ScalaCommunity, Compile)).value ++
-      (dependencyClasspath in(intellij_hocon, Compile)).value ++
-      (dependencyClasspath in(SBT, Compile)).value
+      (dependencyClasspath in(intellij_hocon, Compile)).value
     )
     .map { f => f.metadata.get(moduleID.key) -> f.data}.toMap
     .collect { case (Some(x), y) => (x.organization % x.name % x.revision) -> y}
@@ -191,7 +213,7 @@ packageStructure in Compile := {
       (artifactPath in (Runners, Compile, packageBin)).value,
       (artifactPath in (ScalaRunner, Compile, packageBin)).value
     ) -> "lib/scala-plugin-runners.jar",
-    file("SBT/jars") -> "launcher/",
+    file("jars") -> "launcher/",
     file("SDK/nailgun") -> "lib/jps/",
     file("SDK/sbt") -> "lib/jps/",
     file("SDK/scalap") -> "lib/",
@@ -202,9 +224,35 @@ packageStructure in Compile := {
     libOf("org.scala-lang" % "scala-reflect" % "2.11.2"),
     libOf("org.scalatest" % "scalatest-finders" % "0.9.6"),
     libOf("org.scala-lang.modules" % "scala-xml_2.11" % "1.0.2"),
-    libOf("org.scala-lang.modules" % "scala-parser-combinators_2.11" % "1.0.2")
-  ) ++
-    (libraryDependencies in SBT).value.filterNot(_.name == "scala-library").map(libOf(_))
+    libOf("org.scala-lang.modules" % "scala-parser-combinators_2.11" % "1.0.2"),
+    libOf("org.apache.maven.indexer" % "indexer-core" % "5.1.1"),
+    libOf("org.apache.maven.indexer" % "indexer-artifact" % "5.1.1"),
+    libOf("org.apache.maven" % "maven-model" % "3.0.4"),
+    libOf("org.codehaus.plexus" % "plexus-container-default" % "1.5.5"),
+    libOf("org.codehaus.plexus" % "plexus-classworlds" % "2.4"),
+    libOf("org.codehaus.plexus" % "plexus-utils" % "3.0.8"),
+    libOf("org.codehaus.plexus" % "plexus-component-annotations" % "1.5.5"),
+    libOf("org.apache.lucene" % "lucene-core" % "3.6.2"),
+    libOf("org.apache.lucene" % "lucene-highlighter" % "3.6.2"),
+    libOf("org.apache.lucene" % "lucene-memory" % "3.6.2"),
+    libOf("org.apache.lucene" % "lucene-queries" % "3.6.2"),
+    libOf("jakarta-regexp" % "jakarta-regexp" % "1.4"),
+    libOf("org.sonatype.aether" % "aether-api" % "1.13.1"),
+    libOf("org.sonatype.aether" % "aether-util" % "1.13.1"),
+    libOf("org.sonatype.sisu" % "sisu-inject-plexus" % "2.2.3"),
+    libOf("org.sonatype.sisu" % "sisu-inject-bean" % "2.2.3"),
+    libOf("org.sonatype.sisu" % "sisu-guice" % "3.0.3"),
+    libOf("org.apache.maven.wagon" % "wagon-http" % "2.6"),
+    libOf("org.apache.maven.wagon" % "wagon-http-shared" % "2.6"),
+    libOf("org.apache.maven.wagon" % "wagon-provider-api" % "2.6"),
+    libOf("org.jsoup" % "jsoup" % "1.7.2"),
+    libOf("commons-lang" % "commons-lang" % "2.6"),
+    libOf("commons-io" % "commons-io" % "2.2"),
+    libOf("org.apache.httpcomponents" % "httpclient" % "4.3.1"),
+    libOf("org.apache.httpcomponents" % "httpcore" % "4.3"),
+    libOf("commons-logging" % "commons-logging" % "1.1.3"),
+    libOf("commons-codec" % "commons-codec" % "1.6")
+  )
 }
 
 packagePlugin in Compile := {
