@@ -50,13 +50,13 @@ class RedundantBlockInspection extends AbstractInspection {
   }
 
   private class QuickFix(e: PsiElement) extends AbstractFix("Unwrap the expression", e) {
-    def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+    def doApplyFix(project: Project) {
       e.replace(e.getChildren.apply(1))
     }
   }
   
   private class InCaseClauseQuickFix(block: ScBlock) extends AbstractFix("Remove redundant braces", block) {
-    def doApplyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
+    def doApplyFix(project: Project): Unit = {
       val children = block.getChildren.drop(1).dropRight(1)
       for (child <- children) {
         block.getParent.addBefore(child, block)

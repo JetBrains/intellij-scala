@@ -166,7 +166,7 @@ class ScalaUselessExpressionInspection extends AbstractInspection("ScalaUselessE
 }
 
 class AddReturnQuickFix(expr: ScExpression) extends AbstractFix("Add return keyword", expr) {
-  override def doApplyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
+  override def doApplyFix(project: Project): Unit = {
     val retStmt = ScalaPsiElementFactory.createExpressionWithContextFromText(s"return ${expr.getText}", expr.getContext, expr)
     expr.replaceExpression(retStmt, removeParenthesis = true)
   }

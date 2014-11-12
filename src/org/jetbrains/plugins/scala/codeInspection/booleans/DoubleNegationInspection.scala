@@ -26,7 +26,7 @@ class DoubleNegationInspection extends AbstractInspection("DoubleNegation", "Dou
 }
 
 class DoubleNegationQuickFix(expr: ScExpression) extends AbstractFix("Remove double negation", expr){
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+  def doApplyFix(project: Project) {
     if (!expr.isValid || !DoubleNegationUtil.hasDoubleNegation(expr)) return
 
     val newExpr = DoubleNegationUtil.removeDoubleNegation(expr)

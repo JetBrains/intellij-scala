@@ -90,7 +90,7 @@ private case class Feature(name: String,
 private class ImportFeatureFlagFix(e: PsiElement, name: String, flag: String)
         extends AbstractFix("Import feature flag for %ss".format(name), e) {
 
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+  def doApplyFix(project: Project) {
     val importsHolder = ScalaImportTypeFix.getImportHolder(e, e.getProject)
     importsHolder.addImportForPath(flag, e)
   }
@@ -99,7 +99,7 @@ private class ImportFeatureFlagFix(e: PsiElement, name: String, flag: String)
 private class EnableFeatureInProjectFix(e: PsiElement, name: String, f: ScalaCompilerSettings => Unit)
         extends AbstractFix("Enable %ss in the project".format(name), e) {
 
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+  def doApplyFix(project: Project) {
     val settings = e.getProject.scalaCompilerSettigns
     f(settings)
   }

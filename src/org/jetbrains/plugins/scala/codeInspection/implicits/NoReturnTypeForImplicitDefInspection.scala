@@ -30,7 +30,7 @@ object NoReturnTypeForImplicitDefInspection {
 }
 
 class AddReturnTypeQuickFix(td: ScTypedDefinition) extends AbstractFix("Add explicit return type", td) {
-  override def doApplyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
+  override def doApplyFix(project: Project): Unit = {
     (new ToggleTypeAnnotation).complete(Update, td.getFirstChild)
   }
 }

@@ -84,7 +84,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
 class ConvertibleToMethodValueQuickFix(expr: ScExpression, replacement: String, hint: String)
         extends AbstractFix(hint, expr){
 
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+  def doApplyFix(project: Project) {
     if (!expr.isValid) return
     val newExpr = ScalaPsiElementFactory.createExpressionFromText(replacement, expr.getManager)
     expr.replaceExpression(newExpr, removeParenthesis = true)

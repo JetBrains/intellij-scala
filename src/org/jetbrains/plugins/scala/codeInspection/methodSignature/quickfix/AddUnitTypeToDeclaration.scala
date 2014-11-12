@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 class AddUnitTypeToDeclaration(functionDecl: ScFunctionDeclaration)
         extends AbstractFix(InspectionBundle.message("add.unit.type.to.declaration"), functionDecl) {
 
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+  def doApplyFix(project: Project) {
     val manager = functionDecl.getManager
     val colon = ScalaPsiElementFactory.createColon(manager)
     val whitespace = ScalaPsiElementFactory.createWhitespace(manager)

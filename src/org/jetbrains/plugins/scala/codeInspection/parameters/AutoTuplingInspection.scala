@@ -21,7 +21,7 @@ class AutoTuplingInspection extends AbstractInspection("Auto-tupling") {
 }
 
 class MakeTuplesExplicitFix(invoc: MethodInvocation) extends AbstractFix("Make tuple explicit", invoc) {
-  override def doApplyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
+  override def doApplyFix(project: Project): Unit = {
     invoc match {
       case mc: ScMethodCall =>
         val newArgsText = s"(${mc.args.getText})"

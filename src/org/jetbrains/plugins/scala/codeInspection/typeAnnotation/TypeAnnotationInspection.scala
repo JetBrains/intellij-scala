@@ -102,7 +102,7 @@ class TypeAnnotationInspection extends AbstractInspection {
   }
 
   private class QuickFix(id: PsiElement) extends AbstractFix("", id) {
-    def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+    def doApplyFix(project: Project) {
     }
   }
 }

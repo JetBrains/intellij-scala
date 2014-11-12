@@ -69,7 +69,7 @@ object MatchToPartialFunctionInspection {
 
 class MatchToPartialFunctionQuickFix(matchStmt: ScMatchStmt, fExprToReplace: ScExpression)
         extends AbstractFix(inspectionName, fExprToReplace) {
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+  def doApplyFix(project: Project) {
     val matchStmtCopy = matchStmt.copy.asInstanceOf[ScMatchStmt]
     val leftBrace = matchStmtCopy.findFirstChildByType(ScalaTokenTypes.tLBRACE)
     if (leftBrace == null) return

@@ -37,7 +37,7 @@ class VariablePatternShadowInspection extends AbstractInspection("VariablePatter
 
 class ConvertToStableIdentifierPatternFix(ref: ScReferencePattern)
         extends AbstractFix("Convert to Stable Identifier Pattern `%s`".format(ref.getText), ref) {
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+  def doApplyFix(project: Project) {
     val stableIdPattern = ScalaPsiElementFactory.createPatternFromText("`%s`".format(ref.getText), ref.getManager)
     ref.replace(stableIdPattern)
   }

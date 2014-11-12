@@ -84,7 +84,7 @@ class ScalaUnreachableCodeInspection extends AbstractInspection("ScalaUnreachabl
 
 class RemoveFragmentQuickFix(fragment: Seq[PsiElement]) extends AbstractFix("Remove unreachable code", fragment.head){
 
-  override def doApplyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
+  override def doApplyFix(project: Project): Unit = {
     val parent = fragment.head.getParent
     parent.deleteChildRange(fragment.head, fragment.last)
   }
