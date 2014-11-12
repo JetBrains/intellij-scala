@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
  */
 
 class RemoveCallParentheses(call: ScMethodCall) extends AbstractFix("Remove call parentheses", call) {
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+  def doApplyFix(project: Project) {
     val text = call.getInvokedExpr.getText
     val exp = ScalaPsiElementFactory.createExpressionFromText(text, call.getManager)
     call.replace(exp)

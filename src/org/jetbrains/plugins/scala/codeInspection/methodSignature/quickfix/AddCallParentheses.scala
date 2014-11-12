@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
  */
 
 class AddCallParentheses(e: ScExpression) extends AbstractFix("Add call parentheses", e) {
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+  def doApplyFix(project: Project) {
     if (!e.isValid) return
     val exprToFix = e.getParent match {
       case postf: ScPostfixExpr => postf
@@ -25,7 +25,7 @@ class AddCallParentheses(e: ScExpression) extends AbstractFix("Add call parenthe
 }
 
 class AddGenericCallParentheses(e: ScGenericCall) extends AbstractFix("Add call parentheses", e) {
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+  def doApplyFix(project: Project) {
     if (!e.isValid) return
     val text = s"${e.getText}()"
     val call = ScalaPsiElementFactory.createExpressionFromText(text, e.getManager)
