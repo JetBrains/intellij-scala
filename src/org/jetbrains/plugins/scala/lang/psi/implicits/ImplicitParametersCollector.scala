@@ -41,7 +41,7 @@ object ImplicitParametersCollector {
  * Date: 23.11.2009
  */
 class ImplicitParametersCollector(private var place: PsiElement, tp: ScType, coreElement: Option[ScNamedElement],
-                                  searchImplicitsRecursively: Int = 0) {
+                                  isImplicitConversion: Boolean, searchImplicitsRecursively: Int = 0) {
   private var placeCalculated = false
 
   def collect: Seq[ScalaResolveResult] = {
@@ -218,7 +218,7 @@ class ImplicitParametersCollector(private var place: PsiElement, tp: ScType, cor
                         val expected = Some(tp)
                         InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type: " + nonValueType.toString)
                         nonValueType = InferUtil.updateAccordingToExpectedType(nonValueType,
-                          fromImplicitParameters = true, filterTypeParams = true, expected, place, check = true)
+                          fromImplicitParameters = true, filterTypeParams = isImplicitConversion, expected, place, check = true)
 
                         InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type after expected type: " + nonValueType.toString)
 
