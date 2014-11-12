@@ -58,6 +58,8 @@ unmanagedJars in Compile ++= (baseDirectory.value /  "SDK/scalap" * "*.jar").cla
 
 unmanagedJars in Compile ++= (baseDirectory.value /  "SDK/nailgun" * "*.jar").classpath
 
+unmanagedJars in Compile ++= (baseDirectory.value /  "SDK/scalastyle" * "*.jar").classpath
+
 unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar"
 
 lazy val compiler_settings = project.in(file( "compiler-settings"))
@@ -71,10 +73,6 @@ lazy val ScalaCommunity = project.in(file("")).dependsOn(compiler_settings, Runn
 
 lazy val intellij_hocon = Project( "intellij-hocon", file("intellij-hocon")).dependsOn(ScalaCommunity % "test;compile;compile->test")
   .settings(unmanagedJars in Compile := allIdeaJars.value)
-
-lazy val intellij_scalastyle  =
-  Project("intellij-scalastyle", file( "intellij-scalastyle")).dependsOn(ScalaCommunity)
-    .settings(unmanagedJars in Compile := allIdeaJars.value)
 
 lazy val jps_plugin = Project( "scala-jps-plugin", file("jps-plugin")).dependsOn(compiler_settings)
   .settings(unmanagedJars in Compile := allIdeaJars.value)
@@ -163,7 +161,6 @@ pack in Compile <<= (pack in Compile) dependsOn (
   pack in (SBT, Compile),
   pack in (compiler_settings, Compile),
   pack in (intellij_hocon, Compile),
-  pack in (intellij_scalastyle, Compile),
   pack in (jps_plugin, Compile),
   pack in (Runners, Compile),
   pack in (NailgunRunners, Compile),
@@ -172,7 +169,6 @@ pack in Compile <<= (pack in Compile) dependsOn (
 
 mappings in (Compile, packageBin) ++=
     mappings.in(intellij_hocon, Compile, packageBin).value ++
-    mappings.in(intellij_scalastyle, Compile, packageBin).value ++
     mappings.in(SBT, Compile, packageBin).value
 
 packageStructure in Compile := {
@@ -199,7 +195,7 @@ packageStructure in Compile := {
     file("SDK/nailgun") -> "lib/jps/",
     file("SDK/sbt") -> "lib/jps/",
     file("SDK/scalap") -> "lib/",
-    file("intellij-scalastyle/jars") -> "lib/",
+    file("SDK/scalastyle") -> "lib/",
     (artifactPath in (jps_plugin, Compile, packageBin)).value -> "lib/jps/scala-jps-plugin.jar",
     libOf("org.atteo" % "evo-inflector" % "1.2"),
     libOf("org.scala-lang" % "scala-library" % "2.11.2")._1 -> "lib/scala-library.jar",

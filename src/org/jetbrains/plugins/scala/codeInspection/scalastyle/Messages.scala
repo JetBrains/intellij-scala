@@ -1,5 +1,4 @@
-package intellijscalastyle
-package codeInspection
+package org.jetbrains.plugins.scala.codeInspection.scalastyle
 
 import java.text.MessageFormat
 import java.util.Properties
