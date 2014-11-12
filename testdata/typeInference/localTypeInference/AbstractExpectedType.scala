@@ -6,4 +6,4 @@ class AbstractExpectedType {
     )/*end*/
   }
 }
-//Seq[Int]
+//Seq[Nothing]
