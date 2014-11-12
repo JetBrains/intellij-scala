@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 class InsertReturnTypeAndEquals(functionDef: ScFunctionDefinition)
         extends AbstractFix(InspectionBundle.message("insert.return.type.and.equals"), functionDef) {
 
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
+  def doApplyFix(project: Project): Unit = {
     functionDef.removeAssignment()
     functionDef.removeExplicitType()
     val manager = functionDef.getManager

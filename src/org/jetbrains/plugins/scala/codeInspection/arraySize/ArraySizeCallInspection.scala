@@ -24,7 +24,7 @@ class ArraySizeCallInspection extends AbstractInspection {
   }
 
   private class QuickFix(id: PsiElement) extends AbstractFix("Replace with \"length\"", id) {
-    def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+    def doApplyFix(project: Project) {
       val ref = ScalaPsiElementFactory.createIdentifier("length", id.getManager)
       id.replace(ref.getPsi)
     }

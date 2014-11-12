@@ -32,7 +32,7 @@ class SimplifyBooleanInspection extends AbstractInspection("SimplifyBoolean", "S
 
 class SimplifyBooleanQuickFix(expr: ScExpression) extends AbstractFix("Simplify " + getShortText(expr), expr) {
 
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+  def doApplyFix(project: Project) {
     if (!expr.isValid || !SimplifyBooleanUtil.canBeSimplified(expr)) return
     else {
       val simplified = SimplifyBooleanUtil.simplify(expr)

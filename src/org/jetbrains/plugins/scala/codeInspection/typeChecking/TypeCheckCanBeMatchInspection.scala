@@ -64,7 +64,7 @@ class TypeCheckCanBeMatchInspection extends AbstractInspection(inspectionId, ins
 }
 
 class TypeCheckCanBeMatchQuickFix(isInstOfUnderFix: ScGenericCall, ifStmt: ScIfStmt) extends AbstractFix(inspectionName, isInstOfUnderFix) {
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+  def doApplyFix(project: Project) {
     if (!ifStmt.isValid || !isInstOfUnderFix.isValid) return
     val (matchStmtOption, renameData) = buildMatchStmt(ifStmt, isInstOfUnderFix, onlyFirst = true)
     for (matchStmt <- matchStmtOption) {

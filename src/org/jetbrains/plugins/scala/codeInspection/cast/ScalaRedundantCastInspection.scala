@@ -40,7 +40,7 @@ class ScalaRedundantCastInspection extends AbstractInspection("Redundant cast") 
 
   class RemoveCastQuickFix(call: ScGenericCall, exp: ScExpression)
           extends AbstractFix("Remove Redundant Cast", call) {
-    def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+    def doApplyFix(project: Project) {
       call.getParent.addBefore(exp, call)
       call.delete()
     }

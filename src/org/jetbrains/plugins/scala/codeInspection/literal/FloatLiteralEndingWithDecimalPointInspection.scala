@@ -16,21 +16,21 @@ class FloatLiteralEndingWithDecimalPointInspection extends AbstractInspection("F
 }
 
 class MakeDoubleFix(lit: ScLiteral) extends AbstractFix("Convert to %s".format(lit.getText.dropRight(1) + "d"), lit) {
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+  def doApplyFix(project: Project) {
     val exp = ScalaPsiElementFactory.createExpressionFromText(lit.getText.dropRight(1) + "d", lit.getManager)
     lit.replace(exp)
   }
 }
 
 class MakeFloatFix(lit: ScLiteral) extends AbstractFix("Convert to %s".format(lit.getText.dropRight(1) + "f"), lit) {
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+  def doApplyFix(project: Project) {
     val exp = ScalaPsiElementFactory.createExpressionFromText(lit.getText.dropRight(1) + "f", lit.getManager)
     lit.replace(exp)
   }
 }
 
 class AddZeroAfterDecimalPoint(lit: ScLiteral) extends AbstractFix("Convert to %s".format(lit.getText + "0"), lit) {
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+  def doApplyFix(project: Project) {
     val exp = ScalaPsiElementFactory.createExpressionFromText(lit.getText + "0", lit.getManager)
     lit.replace(exp)
   }

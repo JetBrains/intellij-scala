@@ -55,7 +55,7 @@ class ScalaRedundantConversionInspection extends AbstractInspection("Redundant c
 
   private class RemoveConversionQuickFix(element: PsiElement, exp: ScExpression)
           extends AbstractFix("Remove Redundant Conversion", element) {
-    def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+    def doApplyFix(project: Project) {
       element.getParent.addBefore(exp, element)
       element.delete()
     }
