@@ -42,7 +42,7 @@ object ReferenceMustBePrefixedInspection {
 }
 
 class AddPrefixFix(ref: ScReferenceElement, clazz: PsiClass) extends AbstractFix(AddPrefixFix.hint, ref) {
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+  def doApplyFix(project: Project) {
     if (!ref.isValid || !clazz.isValid) return
     val parts = clazz.qualifiedName.split('.')
     val packageName = parts.dropRight(1).mkString(".")

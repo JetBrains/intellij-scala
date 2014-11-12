@@ -19,8 +19,8 @@ abstract class AbstractFix(name: String, e: PsiElement) extends LocalQuickFix {
     val file = e.getContainingFile
     if(file == null) return
     if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
-    doApplyFix(project, descriptor)
+    doApplyFix(project)
   }
 
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor)
+  def doApplyFix(project: Project)
 }

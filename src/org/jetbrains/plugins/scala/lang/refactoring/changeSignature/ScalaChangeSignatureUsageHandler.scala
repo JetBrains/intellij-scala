@@ -369,12 +369,13 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     params.mkString("(", ", ", ")")
   }
 
+  private def isRepeated(p: ParameterInfo) = p match {
+    case p: ScalaParameterInfo => p.isRepeatedParameter
+    case p: JavaParameterInfo => p.isVarargType
+    case _ => false
+  }
+
   private def nonVarargArgs(change: ChangeInfo, oldArgsInfo: OldArgsInfo): Seq[String] = {
-    def isRepeated(p: ParameterInfo) = p match {
-      case p: ScalaParameterInfo => p.isRepeatedParameter
-      case p: JavaParameterInfo => p.isVarargType
-      case _ => false
-    }
 
     val isAddDefault = change match {
       case c: ScalaChangeInfo => c.isAddDefaultArgs
