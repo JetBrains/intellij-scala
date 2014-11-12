@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.util;
 
 import com.intellij.ide.util.gotoByName.GotoFileCellRenderer;
+import com.intellij.ui.CollectionListModel;
 import com.intellij.ui.components.JBList;
 
 import javax.swing.*;
+import java.util.ArrayList;
 
 /**
  * @author Alefas
@@ -13,6 +15,26 @@ public class JListCompatibility {
   public static DefaultListModel createDefaultListModel() {
       return new DefaultListModel();
   }
+
+    public static class CollectionListModelWrapper {
+        public CollectionListModelWrapper(CollectionListModel<String> model) {
+            this.model = model;
+        }
+
+        public CollectionListModel<String> getModel() {
+            return model;
+        }
+
+        CollectionListModel<String> model;
+
+        public ListModel getModelRaw() {
+            return model;
+        }
+    }
+
+    public static ListModel createCollectionListModel() {
+        return new CollectionListModel<String>(new ArrayList<String>());
+    }
 
     public static JList createJListFromModel(DefaultListModel model) {
         return new JList(model);

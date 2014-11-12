@@ -11,6 +11,7 @@ import com.intellij.ui.components.{JBLabel, JBList}
 import com.intellij.ui.{CollectionListModel, ToolbarDecorator}
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.util.JListCompatibility
+import org.jetbrains.plugins.scala.util.JListCompatibility.CollectionListModelWrapper
 
 import scala.collection.JavaConverters._
 
@@ -18,7 +19,7 @@ import scala.collection.JavaConverters._
  * @author Pavel Fatin
  */
 class SbtModuleImportsEditor(state: ModuleConfigurationState) extends ModuleElementsEditor(state) {
-  private val model = new CollectionListModel[String](new util.ArrayList[String]())
+  private val modelWrapper = new CollectionListModelWrapper(new CollectionListModel[String](new util.ArrayList[String]))
 
   override def getDisplayName = "Imports"
 
@@ -26,10 +27,10 @@ class SbtModuleImportsEditor(state: ModuleConfigurationState) extends ModuleElem
 
   override def createComponentImpl() = {
     val listPanel = {
-      val list =  new JBList(JListCompatibility.createDefaultListModel())
-      list.setEmptyText("No implicit imports")
-      JListCompatibility.setModel(list, model)
-      ToolbarDecorator.createDecorator(list, model).createPanel()
+      val list = JListCompatibility.createJBListFromModel(JListCompatibility.createDefaultListModel())
+      list.asInstanceOf[JBList].setEmptyText("No implicit imports")
+      JListCompatibility.setModel(list, modelWrapper.getModelRaw)
+      ToolbarDecorator.createDecorator(list, modelWrapper.getModel).createPanel()
     }
 
     val mainPanel = new JPanel(new BorderLayout())
@@ -41,7 +42,7 @@ class SbtModuleImportsEditor(state: ModuleConfigurationState) extends ModuleElem
   }
 
   override def reset() {
-    model.replaceAll(importsInModule.asJava)
+    modelWrapper.getModel.replaceAll(importsInModule.asJava)
   }
 
   override def saveData() {
@@ -52,5 +53,5 @@ class SbtModuleImportsEditor(state: ModuleConfigurationState) extends ModuleElem
 
   private def importsInModule: Seq[String] = SbtModule.getImportsFrom(getModel.getModule)
 
-  private def importsInList: Seq[String] = model.getItems.asScala
+  private def importsInList: Seq[String] = modelWrapper.getModel.getItems.asScala
 }
