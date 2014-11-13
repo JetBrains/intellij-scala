@@ -26,16 +26,14 @@ class RemoveRedundantReturnInspection extends AbstractInspection("ScalaRedundant
   }
 }
 
-class RemoveReturnKeywordQuickFix(ret: ScReturnStmt) extends LocalQuickFix {
-  def applyFix(project: Project, descriptor: ProblemDescriptor) {
+class RemoveReturnKeywordQuickFix(r: ScReturnStmt)
+        extends AbstractFixOnPsiElement(ScalaBundle.message("remove.return.keyword"), r) {
+  def doApplyFix(project: Project) {
+    val ret = getElement
     if (!ret.isValid) return
     ret.expr match {
       case Some(e) => ret.replace(e.copy())
       case None => ret.delete()
     }
   }
-
-  def getFamilyName: String = "Remove return keyword"
-
-  def getName: String = getFamilyName
 }

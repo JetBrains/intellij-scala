@@ -32,31 +32,31 @@ class ScalaDocInlinedTagInspection extends LocalInspectionTool {
 }
 
 
-class ScalaDocInlinedTagDeleteQuickFix(inlinedTag: ScDocInlinedTag) extends LocalQuickFix {
-  def getName: String = "Delete Inlined Tag"
+class ScalaDocInlinedTagDeleteQuickFix(inlinedTag: ScDocInlinedTag)
+        extends AbstractFixOnPsiElement(ScalaBundle.message("delete.inlined.tag"), inlinedTag) {
+  override def getFamilyName: String = InspectionsUtil.SCALADOC
 
-  def getFamilyName: String = InspectionsUtil.SCALADOC
-
-  def applyFix(project: Project, descriptor: ProblemDescriptor) {
-    if (!inlinedTag.isValid) return
-    inlinedTag.delete()
+  def doApplyFix(project: Project) {
+    val tag = getElement
+    if (!tag.isValid) return
+    tag.delete()
   }
 }
 
-class ScalaDocInlinedTagReplaceQuickFix(inlinedTag: ScDocInlinedTag) extends LocalQuickFix {
-  def getName: String = "Replace inlined tag with monospace wiki syntax"
+class ScalaDocInlinedTagReplaceQuickFix(inlinedTag: ScDocInlinedTag)
+        extends AbstractFixOnPsiElement(ScalaBundle.message("replace.with.wiki.syntax"), inlinedTag) {
+  override def getFamilyName: String = InspectionsUtil.SCALADOC
 
-  def getFamilyName: String = InspectionsUtil.SCALADOC
+  def doApplyFix(project: Project) {
+    val tag = getElement
+    if (!tag.isValid) return
 
-  def applyFix(project: Project, descriptor: ProblemDescriptor) {
-    if (!inlinedTag.isValid) return
-
-    if (inlinedTag.getValueElement == null) {
-      inlinedTag.replace(ScalaPsiElementFactory.createMonospaceSyntaxFromText("", inlinedTag.getManager))  
+    if (tag.getValueElement == null) {
+      tag.replace(ScalaPsiElementFactory.createMonospaceSyntaxFromText("", tag.getManager))
     } else{
       val tagText =
-        inlinedTag.getValueElement.getText.replace("`", MyScaladocParsing.escapeSequencesForWiki.get("`").get)
-      inlinedTag.replace(ScalaPsiElementFactory.createMonospaceSyntaxFromText(tagText, inlinedTag.getManager))
+        tag.getValueElement.getText.replace("`", MyScaladocParsing.escapeSequencesForWiki.get("`").get)
+      tag.replace(ScalaPsiElementFactory.createMonospaceSyntaxFromText(tagText, tag.getManager))
     }
   }
 }

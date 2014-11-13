@@ -1,10 +1,10 @@
 package org.jetbrains.sbt
 package codeInspection
 
-import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
@@ -47,14 +47,15 @@ class SbtReplaceProjectWithProjectInInspection extends AbstractInspection {
   }
 }
 
-class SbtReplaceProjectWithProjectInQuickFix(val place: ScMethodCall) extends LocalQuickFix {
-  def getName = SbtBundle("sbt.inspection.projectIn.name")
+class SbtReplaceProjectWithProjectInQuickFix(call: ScMethodCall)
+        extends AbstractFixOnPsiElement(SbtBundle("sbt.inspection.projectIn.name"), call) {
 
-  def getFamilyName = getName
-
-  def applyFix(project: Project, descriptor: ProblemDescriptor) = place match {
-    case ScMethodCall(_, Seq(_, pathElt)) =>
-      place.replace(ScalaPsiElementFactory.createExpressionFromText("project.in(" + pathElt.getText + ")", place.getManager))
-    case _ => // do nothing
+  def doApplyFix(project: Project) = {
+    val place = getElement
+    place match {
+      case ScMethodCall(_, Seq(_, pathElt)) =>
+        place.replace(ScalaPsiElementFactory.createExpressionFromText("project.in(" + pathElt.getText + ")", place.getManager))
+      case _ => // do nothing
+    }
   }
 }
