@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package compiler
 
 import java.io.{File, IOException}
-import java.net.ServerSocket
 import javax.swing.event.HyperlinkEvent
 
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
@@ -13,6 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.util.PathUtil
+import com.intellij.util.net.NetUtils
 import org.jetbrains.plugins.scala.extensions._
 
 import scala.collection.JavaConverters._
@@ -187,21 +187,9 @@ object CompileServerLauncher {
 
   def findFreePort: Int = {
     val port = ScalaApplicationSettings.getInstance().COMPILE_SERVER_PORT
-    try {
-      val socket = new ServerSocket(port)
-      socket.close()
-      port
-    } catch {
-      case e: IOException =>
-        try {
-          val socket = new ServerSocket(0)
-          val newPort = socket.getLocalPort
-          socket.close()
-          newPort
-        } catch {
-          case e: Exception => -1
-        }
-    }
+    if (NetUtils.canConnectToSocket("localhost", port))
+      NetUtils.findAvailableSocketPort()
+    else port
   }
 }
 
