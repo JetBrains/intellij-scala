@@ -176,6 +176,9 @@ javaOptions in Test := Seq(
   s"-Dplugin.path=${baseDirectory.value}/out/plugin/Scala"
 )
 
+// jar hell workaround(ignore idea bundled lucene in test runtime)
+fullClasspath in Test := {(fullClasspath in Test).value.filterNot(_.data.getName.endsWith("lucene-core-2.4.1.jar"))}
+
 baseDirectory in Test := baseDirectory.value.getParentFile
 
 test in Test <<= (test in Test) dependsOn (
