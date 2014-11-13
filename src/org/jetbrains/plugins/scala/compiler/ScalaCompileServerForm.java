@@ -185,9 +185,9 @@ public class ScalaCompileServerForm implements Configurable {
         mySdkPanel.setEnabled(false);
         myCompilationServerPanel.add(mySdkPanel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         myEnableCompileServer = new JCheckBox();
-        myEnableCompileServer.setText("Run compile server (in external build mode)");
+        myEnableCompileServer.setText("Use external compile server for scala");
         myEnableCompileServer.setMnemonic('S');
-        myEnableCompileServer.setDisplayedMnemonicIndex(12);
+        myEnableCompileServer.setDisplayedMnemonicIndex(21);
         myContentPanel.add(myEnableCompileServer, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
