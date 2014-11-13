@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala
 package codeInspection.controlFlow
 
 import com.intellij.codeInspection.ex.ProblemDescriptorImpl
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
@@ -82,10 +82,9 @@ class ScalaUnreachableCodeInspection extends AbstractInspection("ScalaUnreachabl
   }
 }
 
-class RemoveFragmentQuickFix(fragment: Seq[PsiElement]) extends AbstractFix("Remove unreachable code", fragment.head){
-
+class RemoveFragmentQuickFix(fragment: Seq[PsiElement]) extends AbstractFixOnPsiElement("Remove unreachable code", fragment.head, fragment.last){
   override def doApplyFix(project: Project): Unit = {
-    val parent = fragment.head.getParent
-    parent.deleteChildRange(fragment.head, fragment.last)
+    val parent = getStartElement.getParent
+    parent.deleteChildRange(getStartElement, getEndElement)
   }
 }

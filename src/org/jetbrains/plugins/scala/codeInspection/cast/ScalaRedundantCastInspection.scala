@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala
 package codeInspection.cast
 
 import com.intellij.codeInspection.ex.ProblemDescriptorImpl
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScGenericCall}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
@@ -38,10 +38,11 @@ class ScalaRedundantCastInspection extends AbstractInspection("Redundant cast") 
       }
   }
 
-  class RemoveCastQuickFix(call: ScGenericCall, exp: ScExpression)
-          extends AbstractFix("Remove Redundant Cast", call) {
+  class RemoveCastQuickFix(c: ScGenericCall, e: ScExpression)
+          extends AbstractFixOnTwoPsiElements("Remove Redundant Cast", c, e) {
     def doApplyFix(project: Project) {
-      call.getParent.addBefore(exp, call)
+      val (call, expr) = (getFirstElement, getSecondElement)
+      call.getParent.addBefore(expr, call)
       call.delete()
     }
   }

@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package codeInspection.parameters
 
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
+import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
@@ -20,9 +20,10 @@ class AutoTuplingInspection extends AbstractInspection("Auto-tupling") {
   }
 }
 
-class MakeTuplesExplicitFix(invoc: MethodInvocation) extends AbstractFix("Make tuple explicit", invoc) {
+class MakeTuplesExplicitFix(invoc: MethodInvocation) extends AbstractFixOnPsiElement("Make tuple explicit", invoc) {
   override def doApplyFix(project: Project): Unit = {
-    invoc match {
+    val mInvoc = getElement
+    mInvoc match {
       case mc: ScMethodCall =>
         val newArgsText = s"(${mc.args.getText})"
         val invokedExprText = mc.getInvokedExpr.getText

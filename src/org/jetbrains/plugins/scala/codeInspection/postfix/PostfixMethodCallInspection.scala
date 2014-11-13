@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package postfix
 
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
+import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.childOf
@@ -32,9 +32,10 @@ class PostfixMethodCallInspection extends AbstractInspection("UseOfPostfixMethod
   }
 }
 
-class AddDotFix(pexpr: ScPostfixExpr) extends AbstractFix("Add dot to method call", pexpr) {
+class AddDotFix(pexpr: ScPostfixExpr) extends AbstractFixOnPsiElement("Add dot to method call", pexpr) {
   def doApplyFix(project: Project) {
-    val expr = ScalaPsiElementFactory.createEquivQualifiedReference(pexpr)
-    pexpr.replaceExpression(expr, removeParenthesis = true)
+    val postfix = getElement
+    val expr = ScalaPsiElementFactory.createEquivQualifiedReference(postfix)
+    postfix.replaceExpression(expr, removeParenthesis = true)
   }
 }
