@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package codeInspection.typeAnnotation
 
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
+import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, TypeAnnotationPolicy, TypeAnnotationRequirement}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
@@ -101,7 +101,7 @@ class TypeAnnotationInspection extends AbstractInspection {
     }
   }
 
-  private class QuickFix(id: PsiElement) extends AbstractFix("", id) {
+  private class QuickFix(id: PsiElement) extends AbstractFixOnPsiElement("", id) {
     def doApplyFix(project: Project) {
     }
   }

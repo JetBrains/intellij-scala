@@ -4,10 +4,10 @@ package codeInspection.parentheses
 import javax.swing.JComponent
 
 import com.intellij.codeInspection.ui.SingleCheckboxOptionsPanel
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -39,13 +39,14 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase extends AbstractInspect
 }
 
 class UnnecessaryParenthesesQuickFix(parenthesized: ScParenthesisedExpr, textOfStripped: String)
-        extends AbstractFix("Remove unnecessary parentheses " + getShortText(parenthesized), parenthesized){
+        extends AbstractFixOnPsiElement("Remove unnecessary parentheses " + getShortText(parenthesized), parenthesized){
 
   def doApplyFix(project: Project) {
-    if (!parenthesized.isValid) return
+    val parenthExpr = getElement
+    if (!parenthExpr.isValid) return
 
-    val newExpr = ScalaPsiElementFactory.createExpressionFromText(textOfStripped, parenthesized.getManager)
-    val replaced = parenthesized.replaceExpression(newExpr, removeParenthesis = true)
+    val newExpr = ScalaPsiElementFactory.createExpressionFromText(textOfStripped, parenthExpr.getManager)
+    val replaced = parenthExpr.replaceExpression(newExpr, removeParenthesis = true)
     ScalaPsiUtil.padWithWhitespaces(replaced)
   }
 }

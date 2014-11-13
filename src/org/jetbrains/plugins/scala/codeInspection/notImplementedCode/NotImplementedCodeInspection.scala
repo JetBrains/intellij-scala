@@ -4,7 +4,7 @@ package notImplementedCode
 
 import com.intellij.codeInsight.CodeInsightUtilCore
 import com.intellij.codeInsight.template.{TemplateBuilderImpl, TemplateManager}
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.project.Project
@@ -22,14 +22,15 @@ class NotImplementedCodeInspection extends AbstractInspection {
         ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new ImplementQuickFix(reference))
   }
 
-  private class ImplementQuickFix(e: PsiElement) extends AbstractFix("Implement", e) {
+  private class ImplementQuickFix(e: PsiElement) extends AbstractFixOnPsiElement("Implement", e) {
     def doApplyFix(project: Project) {
-      val builder = new TemplateBuilderImpl(e)
-      builder.replaceElement(e, e.getText)
-      CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(e)
+      val elem = getElement
+      val builder = new TemplateBuilderImpl(elem)
+      builder.replaceElement(elem, elem.getText)
+      CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(elem)
       val template = builder.buildTemplate()
-      val editor = positionCursor(project, e.getContainingFile, e)
-      val range = e.getTextRange
+      val editor = positionCursor(project, elem.getContainingFile, elem)
+      val range = elem.getTextRange
       editor.getDocument.deleteString(range.getStartOffset, range.getEndOffset)
       TemplateManager.getInstance(project).startTemplate(editor, template)
     }

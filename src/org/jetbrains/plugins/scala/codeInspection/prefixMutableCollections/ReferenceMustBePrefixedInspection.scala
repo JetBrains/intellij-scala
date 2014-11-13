@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections
 
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
+import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{JavaPsiFacade, PsiClass}
 import org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.ReferenceMustBePrefixedInspection._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
@@ -41,15 +41,18 @@ object ReferenceMustBePrefixedInspection {
   val displayName = "Reference must be prefixed"
 }
 
-class AddPrefixFix(ref: ScReferenceElement, clazz: PsiClass) extends AbstractFix(AddPrefixFix.hint, ref) {
+class AddPrefixFix(ref: ScReferenceElement, clazz: PsiClass)
+        extends AbstractFixOnTwoPsiElements(AddPrefixFix.hint, ref, clazz) {
   def doApplyFix(project: Project) {
-    if (!ref.isValid || !clazz.isValid) return
-    val parts = clazz.qualifiedName.split('.')
+    val refElem = getFirstElement
+    val cl = getSecondElement
+    if (!refElem.isValid || !cl.isValid) return
+    val parts = cl.qualifiedName.split('.')
     val packageName = parts.dropRight(1).mkString(".")
-    val pckg = JavaPsiFacade.getInstance(clazz.getProject).findPackage(packageName)
+    val pckg = JavaPsiFacade.getInstance(cl.getProject).findPackage(packageName)
     if (parts.length < 2) return
     val newRefText = parts.takeRight(2).mkString(".")
-    ref match {
+    refElem match {
       case stRef: ScStableCodeReferenceElement =>
         stRef.replace(ScalaPsiElementFactory.createReferenceFromText(newRefText, stRef.getManager)) match {
           case r: ScStableCodeReferenceElement => r.qualifier.foreach(_.bindToPackage(pckg, addImport = true))
