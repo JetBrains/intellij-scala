@@ -9,6 +9,7 @@ import com.intellij.psi.PsiElement
  * Pavel Fatin
  */
 
+@deprecated("Use AbstractFixOnPsiElement or AbstractFixOnTwoPsiElements instead")
 abstract class AbstractFix(name: String, e: PsiElement) extends LocalQuickFix {
   def getName = name
 
