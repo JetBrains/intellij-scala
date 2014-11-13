@@ -51,32 +51,34 @@ class ScalaDocUnbalancedHeaderInspection extends LocalInspectionTool {
 }
 
 
-class ScalaDocHeaderBalanceQuickFix(opening: PsiElement, closing: PsiElement) extends LocalQuickFix {
-  def getName: String = "Balance Header"
+class ScalaDocHeaderBalanceQuickFix(opening: PsiElement, closing: PsiElement)
+        extends AbstractFixOnTwoPsiElements(ScalaBundle.message("balance.header"), opening, closing) {
 
-  def getFamilyName: String = InspectionsUtil.SCALADOC
+  override def getFamilyName: String = InspectionsUtil.SCALADOC
 
-  def applyFix(project: Project, descriptor: ProblemDescriptor) {
-    if (!opening.isValid || !closing.isValid) return
-    if (opening.getNode.getElementType != ScalaDocTokenType.VALID_DOC_HEADER ||
-            closing.getNode.getElementType != ScalaDocTokenType.DOC_HEADER &&
-                    closing.getNode.getElementType != ScalaDocTokenType.DOC_HEADER) {
+  def doApplyFix(project: Project) {
+    val op = getFirstElement
+    val cl = getSecondElement
+    if (!op.isValid || !cl.isValid) return
+    if (op.getNode.getElementType != ScalaDocTokenType.VALID_DOC_HEADER ||
+            cl.getNode.getElementType != ScalaDocTokenType.DOC_HEADER &&
+                    cl.getNode.getElementType != ScalaDocTokenType.DOC_HEADER) {
       return
     }
 
-    closing.replace(ScalaPsiElementFactory.createDocHeaderElement(opening.getText.length(), opening.getManager))
+    cl.replace(ScalaPsiElementFactory.createDocHeaderElement(op.getText.length(), op.getManager))
   }
 }
 
-class ScalaDocMoveTextToNewLineQuickFix(textData: PsiElement) extends LocalQuickFix {
-  def getName: String = "Move text after header closing to new line"
+class ScalaDocMoveTextToNewLineQuickFix(textData: PsiElement)
+        extends AbstractFixOnPsiElement(ScalaBundle.message("move.text.after.header.to.new.line"), textData) {
+  override def getFamilyName: String = InspectionsUtil.SCALADOC
 
-  def getFamilyName: String = InspectionsUtil.SCALADOC
+  def doApplyFix(project: Project) {
+    val data = getElement
+    if (!data.isValid) return
 
-  def applyFix(project: Project, descriptor: ProblemDescriptor) {
-    if (!textData.isValid) return
-
-    textData.getParent.addBefore(ScalaPsiElementFactory.createDocWhiteSpace(textData.getManager), textData)
-    textData.getParent.addBefore(ScalaPsiElementFactory.createLeadingAsterisk(textData.getManager), textData)
+    data.getParent.addBefore(ScalaPsiElementFactory.createDocWhiteSpace(data.getManager), data)
+    data.getParent.addBefore(ScalaPsiElementFactory.createLeadingAsterisk(data.getManager), data)
   }
 }

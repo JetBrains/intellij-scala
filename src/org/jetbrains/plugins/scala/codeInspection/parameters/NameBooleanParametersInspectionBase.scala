@@ -45,7 +45,7 @@ abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
                     expr.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kFALSE) =>
               holder.registerProblem(holder.getManager.createProblemDescriptor(expr,
                 InspectionBundle.message("name.boolean"),
-                new NameBooleanParametersQuickFix(mc, literal),
+                new NameBooleanParametersQuickFix(literal),
                 ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly))
             case _ =>
           }

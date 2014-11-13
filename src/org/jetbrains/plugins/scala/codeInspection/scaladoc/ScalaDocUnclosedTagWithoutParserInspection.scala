@@ -41,21 +41,21 @@ class ScalaDocUnclosedTagWithoutParserInspection extends LocalInspectionTool {
 }
 
 
-class ScalaDocEscapeTagQuickFix(s: ScDocSyntaxElement) extends LocalQuickFix {
-  def getName: String = "Replace tag with escape sequence"
+class ScalaDocEscapeTagQuickFix(s: ScDocSyntaxElement)
+        extends AbstractFixOnPsiElement(ScalaBundle.message("replace.tag.with.esc.seq"), s) {
+  override def getFamilyName: String = InspectionsUtil.SCALADOC
 
-  def getFamilyName: String = InspectionsUtil.SCALADOC
+  def doApplyFix(project: Project) {
+    val syntElem = getElement
+    if (!syntElem.isValid) return
 
-  def applyFix(project: Project, descriptor: ProblemDescriptor) {
-    if (!s.isValid) return
-
-    val replaceText = if (s.getFirstChild.getText.contains("=")) {
-      StringUtils.repeat(MyScaladocParsing.escapeSequencesForWiki.get("=").get, s.getFirstChild.getText.length())
+    val replaceText = if (syntElem.getFirstChild.getText.contains("=")) {
+      StringUtils.repeat(MyScaladocParsing.escapeSequencesForWiki.get("=").get, syntElem.getFirstChild.getText.length())
     } else {
-      MyScaladocParsing.escapeSequencesForWiki.get(s.getFirstChild.getText).get
+      MyScaladocParsing.escapeSequencesForWiki.get(syntElem.getFirstChild.getText).get
     }
-    val doc = FileDocumentManager.getInstance().getDocument(s.getContainingFile.getVirtualFile)
-    val range: TextRange = s.getFirstChild.getTextRange
+    val doc = FileDocumentManager.getInstance().getDocument(syntElem.getContainingFile.getVirtualFile)
+    val range: TextRange = syntElem.getFirstChild.getTextRange
     doc.replaceString(range.getStartOffset, range.getEndOffset, replaceText)
   }
 }

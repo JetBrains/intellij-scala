@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package codeInspection.xml
 
-import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemDescriptor, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElementVisitor
-import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, InspectionsUtil}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -53,41 +53,41 @@ class ScalaXmlUnmatchedTagInspection extends LocalInspectionTool{
   }
 }
 
-class DeleteUnmatchedTagQuickFix(s: ScalaPsiElement) extends LocalQuickFix {
-  def getName: String = ScalaBundle.message("xml.delete.unmatched.tag")
+class DeleteUnmatchedTagQuickFix(s: ScalaPsiElement)
+        extends AbstractFixOnPsiElement(ScalaBundle.message("xml.delete.unmatched.tag"), s) {
+  override def getFamilyName: String = InspectionsUtil.SCALA
 
-  def getFamilyName: String = InspectionsUtil.SCALA
+  def doApplyFix(project: Project) {
+    val elem = getElement
+    if (!elem.isValid) return
 
-  def applyFix(project: Project, descriptor: ProblemDescriptor) {
-    if (!s.isValid) return
-
-    s.delete()
+    elem.delete()
   }
 }
 
-class RenameClosingTagQuickFix(s: ScXmlStartTag) extends LocalQuickFix {
-  def getName: String = ScalaBundle.message("xml.rename.closing.tag")
+class RenameClosingTagQuickFix(s: ScXmlStartTag)
+        extends AbstractFixOnPsiElement(ScalaBundle.message("xml.rename.closing.tag"), s) {
+  override def getFamilyName: String = InspectionsUtil.SCALA
 
-  def getFamilyName: String = InspectionsUtil.SCALA
+  def doApplyFix(project: Project) {
+    val elem = getElement
+    if (!elem.isValid) return
 
-  def applyFix(project: Project, descriptor: ProblemDescriptor) {
-    if (!s.isValid) return
-
-    s.getClosingTag.replace(ScalaPsiElementFactory.createXmlEndTag(s.getTagName, s.getManager))
+    elem.getClosingTag.replace(ScalaPsiElementFactory.createXmlEndTag(elem.getTagName, elem.getManager))
   }
 }
 
-class RenameOpeningTagQuickFix(s: ScXmlEndTag) extends LocalQuickFix {
-  def getName: String = ScalaBundle.message("xml.rename.opening.tag")
+class RenameOpeningTagQuickFix(s: ScXmlEndTag)
+        extends AbstractFixOnPsiElement(ScalaBundle.message("xml.rename.opening.tag"), s) {
+  override def getFamilyName: String = InspectionsUtil.SCALA
 
-  def getFamilyName: String = InspectionsUtil.SCALA
-
-  def applyFix(project: Project, descriptor: ProblemDescriptor) {
-    if (!s.isValid) return
-    val openingTag = s.getOpeningTag
+  def doApplyFix(project: Project) {
+    val elem = getElement
+    if (!elem.isValid) return
+    val openingTag = elem.getOpeningTag
     val attributes = openingTag.findChildrenByType(ScalaElementTypes.XML_ATTRIBUTE).map(_.getText)
 
-    s.getOpeningTag.replace(ScalaPsiElementFactory.createXmlStartTag(s.getTagName, s.getManager,
+    elem.getOpeningTag.replace(ScalaPsiElementFactory.createXmlStartTag(elem.getTagName, elem.getManager,
       if (attributes.length == 0) "" else attributes.mkString(" ", " ", "")))
   }
 }
