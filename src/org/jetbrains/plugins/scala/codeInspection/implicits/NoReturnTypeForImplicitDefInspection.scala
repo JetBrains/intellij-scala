@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package codeInspection.implicits
 
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
+import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInsight.intention.types.{ToggleTypeAnnotation, Update}
 import org.jetbrains.plugins.scala.codeInspection.implicits.NoReturnTypeForImplicitDefInspection._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 
@@ -29,8 +29,8 @@ object NoReturnTypeForImplicitDefInspection {
   val description = "No return type for implicit function"
 }
 
-class AddReturnTypeQuickFix(td: ScTypedDefinition) extends AbstractFix("Add explicit return type", td) {
+class AddReturnTypeQuickFix(td: ScTypedDefinition) extends AbstractFixOnPsiElement("Add explicit return type", td) {
   override def doApplyFix(project: Project): Unit = {
-    (new ToggleTypeAnnotation).complete(Update, td.getFirstChild)
+    (new ToggleTypeAnnotation).complete(Update, getElement.getFirstChild)
   }
 }
