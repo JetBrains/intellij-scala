@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.catchAll
 
-import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor}
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInsight.intention.types.Update
+import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern, ScWildcardPattern}
 
 /**
@@ -10,15 +11,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScR
  * @since 6/25/12
  */
 
-class ReplaceDangerousCatchAllQuickFix(caseClause: ScCaseClause) extends LocalQuickFix {
-  def getName = "Specify type of exception"
+class ReplaceDangerousCatchAllQuickFix(caseClause: ScCaseClause)
+        extends AbstractFixOnPsiElement(ScalaBundle.message("specify.type.of.exception"), caseClause) {
+  def doApplyFix(project: Project) {
+    val cc = getElement
+    if (!cc.isValid) return
 
-  def getFamilyName = "Specify type of exception"
-
-  def applyFix(project: Project, descriptor: ProblemDescriptor) {
-    if (!caseClause.isValid) return
-
-    val pattern = caseClause.pattern.getOrElse(null)
+    val pattern = cc.pattern.orNull
     if (pattern == null) return
 
     pattern match {
