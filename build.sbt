@@ -161,6 +161,8 @@ downloadIdea := {
 
 fork in Test := true
 
+fullClasspath in Test ++= (fullClasspath in (intellij_hocon, Compile)).value
+
 parallelExecution := true
 
 javaOptions in Test := Seq(
