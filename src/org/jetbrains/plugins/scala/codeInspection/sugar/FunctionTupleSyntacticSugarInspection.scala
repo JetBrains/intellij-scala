@@ -67,28 +67,28 @@ object FunctionTupleSyntacticSugarInspection {
   
   import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 
-  class TupleTypeSyntacticSugarQuickFix(te: ScParameterizedTypeElement) extends LocalQuickFix {
-    def applyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
+  class TupleTypeSyntacticSugarQuickFix(te: ScParameterizedTypeElement)
+          extends AbstractFixOnPsiElement(ScalaBundle.message("replace.tuple.type"), te) {
+    def doApplyFix(project: Project): Unit = {
+      val typeElement = getElement
 
       val typeTextWithParens = {
-        val needParens = te.getContext match {
+        val needParens = typeElement.getContext match {
           case ft: ScFunctionalTypeElement => true // (Tuple2[A, B]) => B  ==>> ((A, B)) => C
           case _ => false
         }
-        ("(" + te.typeArgList.getText.drop(1).dropRight(1) + ")").parenthesisedIf(needParens)
+        ("(" + typeElement.typeArgList.getText.drop(1).dropRight(1) + ")").parenthesisedIf(needParens)
       }
-      te.replace(createTypeElementFromText(typeTextWithParens, te.getManager))
+      typeElement.replace(createTypeElementFromText(typeTextWithParens, typeElement.getManager))
     }
-
-    def getName: String = "Replace TupleN[A1, A1, ...,  AN] with (A1, A1, ...,  AN)"
-
-    def getFamilyName: String = getName
   }
 
-  class FunctionTypeSyntacticSugarQuickFix(te: ScParameterizedTypeElement) extends LocalQuickFix {
-    def applyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
-      val paramTypes = te.typeArgList.typeArgs.dropRight(1)
-      val returnType = te.typeArgList.typeArgs.last
+  class FunctionTypeSyntacticSugarQuickFix(te: ScParameterizedTypeElement)
+          extends AbstractFixOnPsiElement(ScalaBundle.message("replace.fun.type"), te) {
+    def doApplyFix(project: Project): Unit = {
+      val typeElement = getElement
+      val paramTypes = typeElement.typeArgList.typeArgs.dropRight(1)
+      val returnType = typeElement.typeArgList.typeArgs.last
       val elemsInParamTypes = if (paramTypes.isEmpty) Seq.empty else ScalaPsiUtil.getElementsRange(paramTypes.head, paramTypes.last)
 
       val returnTypeTextWithParens = {
@@ -100,7 +100,7 @@ object FunctionTupleSyntacticSugarInspection {
         returnType.getText.parenthesisedIf(returnTypeNeedParens)
       }
       val typeTextWithParens = {
-        val needParens = te.getContext match {
+        val needParens = typeElement.getContext match {
           case ft: ScFunctionalTypeElement => true
           case ft: ScInfixTypeElement => true
           case _: ScConstructor | _: ScTraitParents | _: ScClassParents => true
@@ -109,12 +109,8 @@ object FunctionTupleSyntacticSugarInspection {
         val arrow = ScalaPsiUtil.functionArrow(project)
         s"(${elemsInParamTypes.map(_.getText).mkString}) $arrow $returnTypeTextWithParens".parenthesisedIf(needParens)
       }
-      te.replace(createTypeElementFromText(typeTextWithParens, te.getManager))
+      typeElement.replace(createTypeElementFromText(typeTextWithParens, typeElement.getManager))
     }
-
-    def getName: String = "Replace FunctionN[A1, A1, ...,  AN, R] with (A1, A1, ...,  AN) => R"
-
-    def getFamilyName: String = getName
   }
 }
 

@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala
 package codeInspection.parameters
 
-import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor}
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.util.IntentionUtils
 
 /**
@@ -12,15 +11,14 @@ import org.jetbrains.plugins.scala.util.IntentionUtils
  * @since 5/10/12
  */
 
-class NameBooleanParametersQuickFix(expr: ScMethodCall, element: ScLiteral) extends LocalQuickFix {
-  def getName = "Name boolean parameters"
+class NameBooleanParametersQuickFix(element: ScLiteral)
+        extends AbstractFixOnPsiElement(ScalaBundle.message("name.boolean.params"), element){
 
-  def getFamilyName = "Name boolean parameters"
+  def doApplyFix(project: Project) {
+    val elem = getElement
+    if (!elem.isValid) return
 
-  def applyFix(project: Project, descriptor: ProblemDescriptor) {
-    if (!element.isValid) return
-
-    IntentionUtils.check(element, true) match {
+    IntentionUtils.check(elem, onlyBoolean = true) match {
       case Some(x) => x()
       case None =>
     }

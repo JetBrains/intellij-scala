@@ -4,7 +4,7 @@ package codeInspection.relativeImports
 import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiPackage}
-import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
@@ -64,20 +64,19 @@ private class EnableFullQualifiedImports(project: Project) extends LocalQuickFix
   }
 }
 
-private class MakeFullQualifiedImportFix(q: ScStableCodeReferenceElement, fqn: String) extends LocalQuickFix {
-  def getName: String = getFamilyName
+private class MakeFullQualifiedImportFix(q: ScStableCodeReferenceElement, fqn: String)
+        extends AbstractFixOnPsiElement(ScalaBundle.message("make.import.fully.qualified"), q) {
 
-  def getFamilyName: String = "Make import fully qualified"
-
-  def applyFix(project: Project, descriptor: ProblemDescriptor) {
-    if (q == null || !q.isValid) return
-    val newRef = ScalaPsiElementFactory.createReferenceFromText(fqn, q.getContext, q)
+  def doApplyFix(project: Project) {
+    val ref = getElement
+    if (ref == null || !ref.isValid) return
+    val newRef = ScalaPsiElementFactory.createReferenceFromText(fqn, ref.getContext, ref)
     import org.jetbrains.plugins.scala.codeInspection.relativeImports.RelativeImportInspection.qual
     val newFqn = qual(newRef).resolve() match {
       case p: PsiPackage if p.getQualifiedName.contains(".") => "_root_." + fqn
       case p: PsiPackage => fqn
       case _ => "_root_." + fqn
     }
-    q.replace(ScalaPsiElementFactory.createReferenceFromText(newFqn, q.getManager))
+    ref.replace(ScalaPsiElementFactory.createReferenceFromText(newFqn, ref.getManager))
   }
 }

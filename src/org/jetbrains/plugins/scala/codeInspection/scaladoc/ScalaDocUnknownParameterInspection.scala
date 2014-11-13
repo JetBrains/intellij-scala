@@ -127,14 +127,15 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
 }
 
 
-class ScalaDocDeleteDuplicatingParamQuickFix(paramTag: ScDocTag, isDuplicating: Boolean) extends LocalQuickFix {
-  def getName: String = if (isDuplicating) "Delete duplicating param" else "Delete tag"
+class ScalaDocDeleteDuplicatingParamQuickFix(paramTag: ScDocTag, isDuplicating: Boolean)
+        extends AbstractFixOnPsiElement(
+          if (isDuplicating) ScalaBundle.message("delete.duplicating.param") else ScalaBundle.message("delete.tag"), paramTag) {
+  override def getFamilyName: String = InspectionsUtil.SCALADOC
 
-  def getFamilyName: String = InspectionsUtil.SCALADOC
+  def doApplyFix(project: Project) {
+    val tag = getElement
+    if (!tag.isValid) return
 
-  def applyFix(project: Project, descriptor: ProblemDescriptor) {
-    if (!paramTag.isValid) return
-
-    paramTag.delete()
+    tag.delete()
   }
 }
