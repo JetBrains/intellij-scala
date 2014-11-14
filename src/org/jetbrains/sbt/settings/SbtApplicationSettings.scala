@@ -29,6 +29,9 @@ class SbtApplicationSettings extends PersistentStateComponent[SbtApplicationSett
   @BeanProperty
   var customVMPath: String = ""
 
+  @BeanProperty
+  var customSbtStructureDir: String = ""
+
   def getState = this
 
   def loadState(state: SbtApplicationSettings) {

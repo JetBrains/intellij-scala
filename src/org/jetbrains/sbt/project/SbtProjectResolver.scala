@@ -28,7 +28,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       if (file.isDirectory) file.getPath else file.getParent
     }
 
-    runner = new SbtRunner(settings.vmOptions, settings.customLauncher, settings.vmExecutable)
+    runner = new SbtRunner(settings.vmOptions, settings.customLauncher, settings.customSbtStructureDir, settings.vmExecutable)
 
     var warnings = new StringBuilder()
 
