@@ -79,6 +79,9 @@
         <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaMemberNameCompletionContributor"/>
         <completion.contributor language="Scala" id="scaladocTagsCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.scaladoc.completion.ScalaDocCompletionContributor"/>
+        <completion.contributor language="Scala" id="scalaIdentifierCompletionContributor"
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaParameterCompletionContributor"
+                                order="before scalaCompletionContrubutor"/>
         <completion.contributor language="Scala" id="scalaCompletionContrubutor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionContributor"/>
         <completion.contributor language="Scala" id="sameSignatureCallParametersProvider"
@@ -912,10 +915,10 @@
                        shortName="AutoTupling" level="WARNING"
                        enabledByDefault="false" language="Scala"/>
       <!--Scalastyle inspection-->
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection"
-                       displayName="Scala style inspection" groupName="Scala: Code Style"
-                       shortName="ScalaStyle"
-                       enabledByDefault="true" language="Scala"/>
+      <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection"-->
+                       <!--displayName="Scala style inspection" groupName="Scala: Code Style"-->
+                       <!--shortName="ScalaStyle"-->
+                       <!--enabledByDefault="true" language="Scala"/>-->
 
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"

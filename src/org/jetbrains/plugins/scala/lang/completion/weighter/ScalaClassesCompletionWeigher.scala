@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.settings._
 class ScalaClassesCompletionWeigher extends CompletionWeigher {
   def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
     if (!ScalaProjectSettings.getInstance(location.getProject).isScalaPriority) return null
-    element match {
+    ScalaLookupItem.original(element) match {
       case s: ScalaLookupItem =>
         s.element match {
           case s: ScTypeDefinition => 1
