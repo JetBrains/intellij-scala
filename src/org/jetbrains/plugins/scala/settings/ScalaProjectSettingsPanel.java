@@ -2,12 +2,13 @@ package org.jetbrains.plugins.scala.settings;
 
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.EnumComboBoxModel;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.compiler.ScalaApplicationSettings;
+import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings;
 import org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings;
 import org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency;
 
@@ -44,6 +45,7 @@ public class ScalaProjectSettingsPanel {
     private JCheckBox worksheetInteractiveModeCheckBox;
     private JCheckBox showTypeInfoOnCheckBox;
     private JSpinner delaySpinner;
+    private JComboBox updateChannel;
     private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
     private Project myProject;
 
@@ -51,6 +53,7 @@ public class ScalaProjectSettingsPanel {
         myProject = project;
         $$$setupUI$$$();
         outputSpinner.setModel(new SpinnerNumberModel(35, 1, null, 1));
+        updateChannel.setModel(new EnumComboBoxModel(ScalaApplicationSettings.pluginBranch.class));
 
         ScalaUiWithDependency[] deps = DependencyAwareInjectionSettings.EP_NAME.getExtensions();
         for (ScalaUiWithDependency uiWithDependency : deps) {
@@ -73,10 +76,13 @@ public class ScalaProjectSettingsPanel {
         if (!isModified()) return;
 
         final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
+        final ScalaCompileServerSettings compileServerSettings = ScalaCompileServerSettings.getInstance();
         final ScalaApplicationSettings applicationSettings = ScalaApplicationSettings.getInstance();
 
-        applicationSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER = showTypeInfoOnCheckBox.isSelected();
-        applicationSettings.SHOW_TYPE_TOOLTIP_DELAY = (Integer) delaySpinner.getValue();
+        compileServerSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER = showTypeInfoOnCheckBox.isSelected();
+        compileServerSettings.SHOW_TYPE_TOOLTIP_DELAY = (Integer) delaySpinner.getValue();
+
+        applicationSettings.setScalaPluginBranch((ScalaApplicationSettings.pluginBranch) updateChannel.getModel().getSelectedItem());
 
         scalaProjectSettings.setBasePackage(myBasePackage.getText());
         scalaProjectSettings.setImplicitParametersSearchDepth((Integer) implicitParametersSearchDepthSpinner.getValue());
@@ -106,41 +112,41 @@ public class ScalaProjectSettingsPanel {
     public boolean isModified() {
 
         final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
+        final ScalaCompileServerSettings compileServerSettings = ScalaCompileServerSettings.getInstance();
         final ScalaApplicationSettings applicationSettings = ScalaApplicationSettings.getInstance();
 
-        applicationSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER = showTypeInfoOnCheckBox.isSelected();
-        applicationSettings.SHOW_TYPE_TOOLTIP_DELAY = (Integer) delaySpinner.getValue();
+        if (compileServerSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER != showTypeInfoOnCheckBox.isSelected()) return true;
+        if (compileServerSettings.SHOW_TYPE_TOOLTIP_DELAY != (Integer) delaySpinner.getValue()) return true;
 
-        if (applicationSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER != showTypeInfoOnCheckBox.isSelected()) return false;
-        if (applicationSettings.SHOW_TYPE_TOOLTIP_DELAY != (Integer) delaySpinner.getValue()) return false;
+        if (!applicationSettings.getScalaPluginBranch().equals(updateChannel.getModel().getSelectedItem())) return true;
 
         if (!scalaProjectSettings.getBasePackage().equals(
-            myBasePackage.getText())) return true;
+                myBasePackage.getText())) return true;
         if (scalaProjectSettings.isShowImplisitConversions() !=
-            showImplicitConversionsInCheckBox.isSelected()) return true;
+                showImplicitConversionsInCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isShowArgumentsToByNameParams() !=
-            showArgumentsToByNameParametersCheckBox.isSelected()) return true;
+                showArgumentsToByNameParametersCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isIncludeBlockExpressions() !=
-            includeBlockExpressionsExpressionsCheckBox.isSelected()) return true;
+                includeBlockExpressionsExpressionsCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isIncludeLiterals() !=
-            includeLiteralsCheckBox.isSelected()) return true;
+                includeLiteralsCheckBox.isSelected()) return true;
 
         if (scalaProjectSettings.getImplicitParametersSearchDepth() !=
-            (Integer) implicitParametersSearchDepthSpinner.getValue()) return true;
+                (Integer) implicitParametersSearchDepthSpinner.getValue()) return true;
         if (scalaProjectSettings.getOutputLimit() !=
-            (Integer) outputSpinner.getValue()) return true;
+                (Integer) outputSpinner.getValue()) return true;
         if (scalaProjectSettings.isInProcessMode() !=
-            runWorksheetInTheCheckBox.isSelected()) return true;
+                runWorksheetInTheCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isInteractiveMode() != worksheetInteractiveModeCheckBox.isSelected()) return true;
 
         if (scalaProjectSettings.isSearchAllSymbols() !=
-            searchAllSymbolsIncludeCheckBox.isSelected()) return true;
+                searchAllSymbolsIncludeCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isEnableJavaToScalaConversion() !=
-            enableConversionOnCopyCheckBox.isSelected()) return true;
+                enableConversionOnCopyCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isDontShowConversionDialog() !=
-            donTShowDialogCheckBox.isSelected()) return true;
+                donTShowDialogCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isTreatDocCommentAsBlockComment() !=
-            treatDocCommentAsBlockComment.isSelected()) return true;
+                treatDocCommentAsBlockComment.isSelected()) return true;
 
         if (scalaProjectSettings.isIgnorePerformance() != myResolveToAllClassesCheckBox.isSelected())
             return true;
@@ -155,7 +161,7 @@ public class ScalaProjectSettingsPanel {
             return true;
 
         if (scalaProjectSettings.getCollectionTypeHighlightingLevel() !=
-            collectionHighlightingChooser.getSelectedIndex()) return true;
+                collectionHighlightingChooser.getSelectedIndex()) return true;
 
         if (injectionPrefixTable.isModified(scalaProjectSettings)) return true;
 
@@ -172,10 +178,13 @@ public class ScalaProjectSettingsPanel {
 
     private void setSettings() {
         final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
+        final ScalaCompileServerSettings compileServerSettings = ScalaCompileServerSettings.getInstance();
         final ScalaApplicationSettings applicationSettings = ScalaApplicationSettings.getInstance();
 
-        setValue(showTypeInfoOnCheckBox, applicationSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER);
-        setValue(delaySpinner, applicationSettings.SHOW_TYPE_TOOLTIP_DELAY);
+        setValue(showTypeInfoOnCheckBox, compileServerSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER);
+        setValue(delaySpinner, compileServerSettings.SHOW_TYPE_TOOLTIP_DELAY);
+
+        updateChannel.getModel().setSelectedItem(applicationSettings.getScalaPluginBranch());
 
         setValue(myBasePackage, scalaProjectSettings.getBasePackage());
         setValue(implicitParametersSearchDepthSpinner, scalaProjectSettings.getImplicitParametersSearchDepth());
@@ -346,6 +355,22 @@ public class ScalaProjectSettingsPanel {
         panel3.add(label8, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         outputSpinner = new JSpinner();
         panel3.add(outputSpinner, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(218, 24), null, 0, false));
+        final JPanel panel4 = new JPanel();
+        panel4.setLayout(new GridLayoutManager(2, 2, new Insets(9, 9, 0, 0), -1, -1));
+        tabbedPane1.addTab("Misc", panel4);
+        final Spacer spacer3 = new Spacer();
+        panel4.add(spacer3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        final JLabel label9 = new JLabel();
+        label9.setText("Plugin update channel:");
+        panel4.add(label9, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        updateChannel = new JComboBox();
+        updateChannel.setEditable(false);
+        final DefaultComboBoxModel defaultComboBoxModel2 = new DefaultComboBoxModel();
+        defaultComboBoxModel2.addElement("Release");
+        defaultComboBoxModel2.addElement("EAP");
+        defaultComboBoxModel2.addElement("Nightly");
+        updateChannel.setModel(defaultComboBoxModel2);
+        panel4.add(updateChannel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
