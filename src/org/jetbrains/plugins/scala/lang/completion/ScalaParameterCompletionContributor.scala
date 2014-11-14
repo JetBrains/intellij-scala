@@ -36,6 +36,8 @@ class ScalaParameterCompletionContributor extends CompletionContributor {
     val text = element.getText
     val prefix = text.substring(0, text.length - CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED.length)
 
+    if (prefix.isEmpty) return
+
     val parameter = createParameterFrom(prefix + ": " + capitalize(text), element)
     parameter.setContext(element.getParent.getParent, null)
 
