@@ -3,24 +3,28 @@ package org.jetbrains.plugins.scala.lang.completion3
 import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementPresentation}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
-import org.jetbrains.plugins.scala.lang.completion3.ScalaParameterCompletionTest._
+import org.jetbrains.plugins.scala.lang.completion3.ScalaAotCompletionTest._
 import org.junit.Assert
 
 /**
  * @author Pavel Fatin
  */
-class ScalaParameterCompletionTest extends ScalaCodeInsightTestBase {
+class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
   def testParameterName() {
     val before =
       """
-      |class Foo
-      |def f(f<caret>)
+      |object Dummy {
+      |  class Foo
+      |  def f(f<caret>)
+      |}
       """
 
     val after =
       """
-        |class Foo
-        |def f(foo: Foo<caret>)
+        |object Dummy {
+        |  class Foo
+        |  def f(foo: Foo<caret>)
+        |}
       """
 
     test(before, after) {
@@ -30,7 +34,51 @@ class ScalaParameterCompletionTest extends ScalaCodeInsightTestBase {
     }
   }
 
-  def testParameterPartialName() {
+  def testValueName() {
+    val before =
+      """
+      |object Dummy {
+      |  class Foo
+      |  val f<caret>
+      |}
+      """
+
+    val after =
+      """
+        |object Dummy {
+        |  class Foo
+        |  val foo<caret>
+        |}
+      """
+
+    test(before, after) {
+      val (activeLookup, _) = complete(1, CompletionType.BASIC)
+      Assert.assertTrue(activeLookup.exists(_.getLookupString == "Foo"))
+      completeLookupItem(findByText(activeLookup, "foo"))
+    }
+  }
+
+  def testVariableName() {
+    val before =
+      """
+      |class Foo
+      |var f<caret>
+      """
+
+    val after =
+      """
+        |class Foo
+        |var foo<caret>
+      """
+
+    test(before, after) {
+      val (activeLookup, _) = complete(1, CompletionType.BASIC)
+      Assert.assertTrue(activeLookup.exists(_.getLookupString == "Foo"))
+      completeLookupItem(findByText(activeLookup, "foo"))
+    }
+  }
+
+  def testPartialName() {
     val before =
       """
         |class FooBarMoo
@@ -57,7 +105,7 @@ class ScalaParameterCompletionTest extends ScalaCodeInsightTestBase {
   }
 }
 
-object ScalaParameterCompletionTest {
+object ScalaAotCompletionTest {
   def findByText(elements: Array[LookupElement], text: String): LookupElement = {
     findByText0(elements, text).getOrElse {
       Assert.fail("No such element: " + text)
