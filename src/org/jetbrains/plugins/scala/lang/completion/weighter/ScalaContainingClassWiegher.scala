@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 
 class ScalaContainingClassWiegher extends CompletionWeigher {
   def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
-    element match {
+    ScalaLookupItem.original(element) match {
       case element: ScalaLookupItem =>
         if (element.bold) new Integer(2)
         else if (element.isUnderlined) new Integer(0)
