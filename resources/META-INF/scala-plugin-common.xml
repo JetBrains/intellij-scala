@@ -915,10 +915,10 @@
                        shortName="AutoTupling" level="WARNING"
                        enabledByDefault="false" language="Scala"/>
       <!--Scalastyle inspection-->
-      <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection"-->
-                       <!--displayName="Scala style inspection" groupName="Scala: Code Style"-->
-                       <!--shortName="ScalaStyle"-->
-                       <!--enabledByDefault="true" language="Scala"/>-->
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection"
+                       displayName="Scala style inspection" groupName="Scala: Code Style"
+                       shortName="ScalaStyle"
+                       enabledByDefault="true" language="Scala"/>
 
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
