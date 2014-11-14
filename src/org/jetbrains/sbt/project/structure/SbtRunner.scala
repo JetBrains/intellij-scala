@@ -16,7 +16,8 @@ import scala.xml.{Elem, XML}
 /**
  * @author Pavel Fatin
  */
-class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], vmExecutable: File) {
+class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customStructureDir: Option[String],
+                vmExecutable: File) {
   private val LauncherDir = getSbtLauncherDir
   private val SbtLauncher = customLauncher.getOrElse(LauncherDir / "sbt-launch.jar")
   private val DefaultSbtVersion = "0.13"
@@ -60,7 +61,7 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], vmExecutab
   private def check(entity: String, file: File) = (!file.exists()).option(s"$entity does not exist: $file")
 
   private def read1(directory: File, sbtVersion: String, options: String, listener: (String) => Unit) = {
-    val pluginFile = LauncherDir / s"sbt-structure-$sbtVersion.jar"
+    val pluginFile = customStructureDir.map(new File(_)).getOrElse(LauncherDir) / s"sbt-structure-$sbtVersion.jar"
 
     val sbtOpts: Seq[String] = {
       val sbtOptsFile = directory / ".sbtopts"
@@ -145,7 +146,7 @@ object SbtRunner {
 
   val SBT_PROCESS_CHECK_TIMEOUT_MSEC = 100
 
-  def getSbtLauncherDir = {
+  def getSbtLauncherDir: File = {
     val file: File = jarWith[this.type]
     val deep = if (file.getName == "classes") 1 else 2
     (file << deep) / "launcher"
