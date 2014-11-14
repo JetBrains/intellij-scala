@@ -101,9 +101,6 @@ lazy val Runners = project.in(file( "Runners")).dependsOn(ScalaRunner)
 
 lazy val ScalaCommunity = project.in(file("")).dependsOn(compiler_settings, Runners).aggregate(jps_plugin)
 
-lazy val intellij_hocon = Project( "intellij-hocon", file("intellij-hocon")).dependsOn(ScalaCommunity % "test;compile;compile->test")
-  .settings(unmanagedJars in Compile := allIdeaJars.value)
-
 lazy val jps_plugin = Project( "scala-jps-plugin", file("jps-plugin")).dependsOn(compiler_settings)
   .settings(unmanagedJars in Compile := allIdeaJars.value)
 
@@ -161,8 +158,6 @@ downloadIdea := {
 
 fork in Test := true
 
-fullClasspath in Test ++= (fullClasspath in (intellij_hocon, Compile)).value
-
 parallelExecution := true
 
 javaOptions in Test := Seq(
@@ -176,32 +171,26 @@ javaOptions in Test := Seq(
   s"-Dplugin.path=${baseDirectory.value}/out/plugin/Scala"
 )
 
-baseDirectory in Test := baseDirectory.value.getParentFile
+// jar hell workaround(ignore idea bundled lucene in test runtime)
+fullClasspath in Test := {(fullClasspath in Test).value.filterNot(_.data.getName.endsWith("lucene-core-2.4.1.jar"))}
 
-test in Test <<= (test in Test) dependsOn (
-  test in (intellij_hocon, Test)
-  )
+baseDirectory in Test := baseDirectory.value.getParentFile
 
 // packaging
 
 pack in Compile <<= (pack in Compile) dependsOn (
   pack in (compiler_settings, Compile),
-  pack in (intellij_hocon, Compile),
   pack in (jps_plugin, Compile),
   pack in (Runners, Compile),
   pack in (NailgunRunners, Compile),
   pack in (ScalaRunner, Compile)
   )
 
-mappings in (Compile, packageBin) ++=
-    mappings.in(intellij_hocon, Compile, packageBin).value
-
 packageStructure in Compile := {
   lazy val resolved = (
     (dependencyClasspath in Compile).value ++
       (dependencyClasspath in(Runners, Compile)).value ++
-      (dependencyClasspath in(ScalaCommunity, Compile)).value ++
-      (dependencyClasspath in(intellij_hocon, Compile)).value
+      (dependencyClasspath in(ScalaCommunity, Compile)).value
     )
     .map { f => f.metadata.get(moduleID.key) -> f.data}.toMap
     .collect { case (Some(x), y) => (x.organization % x.name % x.revision) -> y}

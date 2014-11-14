@@ -10,6 +10,8 @@ import java.util.UUID;
  */
 @State(name = "ScalaSettings", storages = {@Storage(file = StoragePathMacros.APP_CONFIG + "/scala.xml")})
 public class ScalaCompileServerSettings implements PersistentStateComponent<ScalaCompileServerSettings> {
+  public boolean SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER = false;
+  public int SHOW_TYPE_TOOLTIP_DELAY = 500;
 
   public boolean COMPILE_SERVER_ENABLED = true;
 

@@ -3,7 +3,7 @@ package lang.completion.lookups
 
 import com.intellij.codeInsight.AutoPopupController
 import com.intellij.codeInsight.completion.InsertionContext
-import com.intellij.codeInsight.lookup.{LookupElementPresentation, LookupItem}
+import com.intellij.codeInsight.lookup.{LookupElement, LookupElementDecorator, LookupElementPresentation, LookupItem}
 import com.intellij.openapi.util.Condition
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -28,6 +28,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.settings._
+
+import scala.annotation.tailrec
 
 /**
  * @author Alefas
@@ -288,7 +290,11 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
 }
 
 object ScalaLookupItem {
-  def unapply(item: ScalaLookupItem): Option[PsiNamedElement] = {
-    Some(item.element)
+  def unapply(item: ScalaLookupItem): Option[PsiNamedElement] = Some(item.element)
+
+  @tailrec
+  def original(element: LookupElement): LookupElement = element match {
+    case decorator: LookupElementDecorator[_] => original(decorator.getDelegate)
+    case it => it
   }
 }

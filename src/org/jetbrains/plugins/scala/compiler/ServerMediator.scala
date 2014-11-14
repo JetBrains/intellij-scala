@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.project._
 class ServerMediator(project: Project) extends ProjectComponent {
 
   private def isScalaProject = project.hasScala
-  private val settings = ScalaApplicationSettings.getInstance
+  private val settings = ScalaCompileServerSettings.getInstance
 
   CompilerManager.getInstance(project).addBeforeTask(new CompileTask {
 
