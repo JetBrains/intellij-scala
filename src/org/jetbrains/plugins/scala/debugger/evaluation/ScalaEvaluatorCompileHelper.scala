@@ -12,7 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerConnectorBase, RemoteServerRunner, ScalaApplicationSettings}
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerConnectorBase, RemoteServerRunner, ScalaCompileServerSettings}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -27,7 +27,7 @@ import scala.util.{Failure, Try}
  */
 class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectComponent(project) {
 
-  def isCompileServerEnabled = ScalaApplicationSettings.getInstance().COMPILE_SERVER_ENABLED
+  def isCompileServerEnabled = ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED
 
   private val tempFiles = mutable.Set[File]()
 
@@ -43,7 +43,7 @@ class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectCompo
             FileUtil.delete(f)
           }
 
-          if (!ScalaApplicationSettings.getInstance().COMPILE_SERVER_ENABLED) {
+          if (!ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED) {
             CompileServerLauncher.ensureNotRunning(project)
           }
         }
