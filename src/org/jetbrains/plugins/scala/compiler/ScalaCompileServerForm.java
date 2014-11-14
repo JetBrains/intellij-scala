@@ -33,9 +33,9 @@ public class ScalaCompileServerForm implements Configurable {
     private JdkComboBox myCompilationServerSdk;
     private MultiLineLabel myNote;
     private JPanel mySdkPanel;
-    private ScalaApplicationSettings mySettings;
+    private ScalaCompileServerSettings mySettings;
 
-    public ScalaCompileServerForm(ScalaApplicationSettings settings) {
+    public ScalaCompileServerForm(ScalaCompileServerSettings settings) {
         mySettings = settings;
 
         myEnableCompileServer.addChangeListener(new ChangeListener() {

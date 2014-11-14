@@ -7,10 +7,14 @@ import javax.swing.event.HyperlinkEvent
 import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.ide.plugins.{PluginManager, PluginManagerConfigurable, PluginManagerCore}
 import com.intellij.notification._
-import com.intellij.openapi.application.{Application, ApplicationManager}
+import com.intellij.openapi.application.impl.ApplicationInfoImpl
+import com.intellij.openapi.application.{Application, ApplicationInfo, ApplicationManager}
 import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.ExtensionPointName
+import com.intellij.openapi.updateSettings.impl.UpdateSettings
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch._
 
 /**
  * @author Alefas
@@ -38,6 +42,38 @@ object ScalaPluginVersionVerifierApplicationComponent {
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierApplicationComponent")
 }
 
+object PluginHostsUpdater {
+
+  val baseUrl = "http://www.jetbrains.com/idea/plugins"
+  val eapRepo = s"$baseUrl/scala-eap-cassiopeia.xml"
+  val nightlyRepo = s"$baseUrl/scala-nightly-cassiopeia.xml"
+
+  def doUpdatePluginHosts(branch: ScalaApplicationSettings.pluginBranch) = {
+    val updateSettings = UpdateSettings.getInstance()
+    updateSettings.myPluginHosts.remove(eapRepo)
+    updateSettings.myPluginHosts.remove(nightlyRepo)
+
+    branch match {
+      case Release => // leave default plugin repository
+      case EAP     => updateSettings.myPluginHosts.add(eapRepo)
+      case Nightly => updateSettings.myPluginHosts.add(nightlyRepo)
+    }
+  }
+
+  def pluginIsEap = {
+    val updateSettings = UpdateSettings.getInstance()
+    updateSettings.myPluginHosts.contains(eapRepo)
+  }
+
+  def pluginIsNightly = {
+    val updateSettings = UpdateSettings.getInstance()
+    updateSettings.myPluginHosts.contains(nightlyRepo)
+  }
+
+  def pluginIsRelease = !pluginIsEap && !pluginIsNightly
+
+}
+
 class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponent {
   def getComponentName: String = "ScalaPluginVersionVerifierApplicationComponent"
 
@@ -52,6 +88,36 @@ class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponen
         else false
       }
     }
+
+    def askUpdatePluginBranch(): Unit = {
+      val infoImpl = ApplicationInfo.getInstance().asInstanceOf[ApplicationInfoImpl]
+      val applicationSettings = ScalaApplicationSettings.getInstance()
+      if ((infoImpl.isEAP || infoImpl.isBetaOrRC)
+          && applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS
+          && PluginHostsUpdater.pluginIsRelease) {
+        val message = "Your Idea build seems to be an EAP.\n" +
+        "Do you want to use up-to-date Scala Plugin channel?" +
+          s"""<p/><a href="EAP">Use EAP</a>\n""" +
+//          s"""<p/><a href="Nightly">Use Nightly</a>\n""" +
+          s"""<p/><a href="Release">Stay on Release</a>""" +
+          s"""<p/><a href="NotNow">Not now(ask me later)</a>"""
+        val notification = new Notification("Scala Plugin Update", "Scala Plugin Update", message, NotificationType.INFORMATION, new NotificationListener {
+          def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent) {
+            notification.expire()
+            applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS = false
+            event.getDescription match {
+              case "EAP"     => applicationSettings.setScalaPluginBranch(EAP)
+              case "Nightly" => applicationSettings.setScalaPluginBranch(Nightly)
+              case "Release" => applicationSettings.setScalaPluginBranch(Release)
+              case _         => applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS = true
+            }
+          }
+        })
+
+        Notifications.Bus.notify(notification)
+      }
+    }
+
     def parseVersion(version: String): Option[Version] = {
       val VersionRegex = "([0-9]*)[.]([0-9]*)[.]([0-9]*)".r
       version match {
@@ -123,6 +189,7 @@ class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponen
           }
         case None          =>
       }
+      askUpdatePluginBranch()
     }
     SwingUtilities.invokeLater(new Runnable {
       def run() {
