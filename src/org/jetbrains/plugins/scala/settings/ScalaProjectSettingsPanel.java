@@ -2,12 +2,13 @@ package org.jetbrains.plugins.scala.settings;
 
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.EnumComboBoxModel;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.compiler.ScalaApplicationSettings;
+import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings;
 import org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings;
 import org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency;
 
@@ -44,6 +45,8 @@ public class ScalaProjectSettingsPanel {
     private JCheckBox worksheetInteractiveModeCheckBox;
     private JCheckBox showTypeInfoOnCheckBox;
     private JSpinner delaySpinner;
+    private JComboBox updateChannel;
+    private JCheckBox myAotCompletion;
     private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
     private Project myProject;
 
@@ -51,6 +54,7 @@ public class ScalaProjectSettingsPanel {
         myProject = project;
         $$$setupUI$$$();
         outputSpinner.setModel(new SpinnerNumberModel(35, 1, null, 1));
+        updateChannel.setModel(new EnumComboBoxModel(ScalaApplicationSettings.pluginBranch.class));
 
         ScalaUiWithDependency[] deps = DependencyAwareInjectionSettings.EP_NAME.getExtensions();
         for (ScalaUiWithDependency uiWithDependency : deps) {
@@ -73,10 +77,13 @@ public class ScalaProjectSettingsPanel {
         if (!isModified()) return;
 
         final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
+        final ScalaCompileServerSettings compileServerSettings = ScalaCompileServerSettings.getInstance();
         final ScalaApplicationSettings applicationSettings = ScalaApplicationSettings.getInstance();
 
-        applicationSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER = showTypeInfoOnCheckBox.isSelected();
-        applicationSettings.SHOW_TYPE_TOOLTIP_DELAY = (Integer) delaySpinner.getValue();
+        compileServerSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER = showTypeInfoOnCheckBox.isSelected();
+        compileServerSettings.SHOW_TYPE_TOOLTIP_DELAY = (Integer) delaySpinner.getValue();
+
+        applicationSettings.setScalaPluginBranch((ScalaApplicationSettings.pluginBranch) updateChannel.getModel().getSelectedItem());
 
         scalaProjectSettings.setBasePackage(myBasePackage.getText());
         scalaProjectSettings.setImplicitParametersSearchDepth((Integer) implicitParametersSearchDepthSpinner.getValue());
@@ -97,6 +104,7 @@ public class ScalaProjectSettingsPanel {
         scalaProjectSettings.setIgnorePerformance(myResolveToAllClassesCheckBox.isSelected());
         scalaProjectSettings.setDisableLangInjection(myDisableLanguageInjection.isSelected());
         scalaProjectSettings.setDontCacheCompoundTypes(myDontCacheCompound.isSelected());
+        scalaProjectSettings.setAotCOmpletion(myAotCompletion.isSelected());
         scalaProjectSettings.setScalaPriority(useScalaClassesPriorityCheckBox.isSelected());
         scalaProjectSettings.setCollectionTypeHighlightingLevel(collectionHighlightingChooser.getSelectedIndex());
         injectionPrefixTable.saveSettings(scalaProjectSettings);
@@ -106,13 +114,13 @@ public class ScalaProjectSettingsPanel {
     public boolean isModified() {
 
         final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
+        final ScalaCompileServerSettings compileServerSettings = ScalaCompileServerSettings.getInstance();
         final ScalaApplicationSettings applicationSettings = ScalaApplicationSettings.getInstance();
 
-        applicationSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER = showTypeInfoOnCheckBox.isSelected();
-        applicationSettings.SHOW_TYPE_TOOLTIP_DELAY = (Integer) delaySpinner.getValue();
+        if (compileServerSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER != showTypeInfoOnCheckBox.isSelected()) return true;
+        if (compileServerSettings.SHOW_TYPE_TOOLTIP_DELAY != (Integer) delaySpinner.getValue()) return true;
 
-        if (applicationSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER != showTypeInfoOnCheckBox.isSelected()) return false;
-        if (applicationSettings.SHOW_TYPE_TOOLTIP_DELAY != (Integer) delaySpinner.getValue()) return false;
+        if (!applicationSettings.getScalaPluginBranch().equals(updateChannel.getModel().getSelectedItem())) return true;
 
         if (!scalaProjectSettings.getBasePackage().equals(
             myBasePackage.getText())) return true;
@@ -151,6 +159,9 @@ public class ScalaProjectSettingsPanel {
 
         if (scalaProjectSettings.isDontCacheCompoundTypes() != myDontCacheCompound.isSelected()) return true;
 
+        if (scalaProjectSettings.isAotCompletion() != myAotCompletion.isSelected())
+            return true;
+
         if (scalaProjectSettings.isScalaPriority() != useScalaClassesPriorityCheckBox.isSelected())
             return true;
 
@@ -172,10 +183,13 @@ public class ScalaProjectSettingsPanel {
 
     private void setSettings() {
         final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
+        final ScalaCompileServerSettings compileServerSettings = ScalaCompileServerSettings.getInstance();
         final ScalaApplicationSettings applicationSettings = ScalaApplicationSettings.getInstance();
 
-        setValue(showTypeInfoOnCheckBox, applicationSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER);
-        setValue(delaySpinner, applicationSettings.SHOW_TYPE_TOOLTIP_DELAY);
+        setValue(showTypeInfoOnCheckBox, compileServerSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER);
+        setValue(delaySpinner, compileServerSettings.SHOW_TYPE_TOOLTIP_DELAY);
+
+        updateChannel.getModel().setSelectedItem(applicationSettings.getScalaPluginBranch());
 
         setValue(myBasePackage, scalaProjectSettings.getBasePackage());
         setValue(implicitParametersSearchDepthSpinner, scalaProjectSettings.getImplicitParametersSearchDepth());
@@ -197,6 +211,7 @@ public class ScalaProjectSettingsPanel {
 
         setValue(myDisableLanguageInjection, scalaProjectSettings.isDisableLangInjection());
         setValue(myDontCacheCompound, scalaProjectSettings.isDontCacheCompoundTypes());
+        setValue(myAotCompletion, scalaProjectSettings.isAotCompletion());
         setValue(useScalaClassesPriorityCheckBox, scalaProjectSettings.isScalaPriority());
         collectionHighlightingChooser.setSelectedIndex(scalaProjectSettings.getCollectionTypeHighlightingLevel());
 
@@ -239,7 +254,7 @@ public class ScalaProjectSettingsPanel {
         final JTabbedPane tabbedPane1 = new JTabbedPane();
         myPanel.add(tabbedPane1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(200, 200), null, 0, false));
         final JPanel panel1 = new JPanel();
-        panel1.setLayout(new GridLayoutManager(21, 3, new Insets(9, 9, 0, 0), -1, -1));
+        panel1.setLayout(new GridLayoutManager(22, 3, new Insets(9, 9, 0, 0), -1, -1));
         tabbedPane1.addTab("Core", panel1);
         searchAllSymbolsIncludeCheckBox = new JCheckBox();
         searchAllSymbolsIncludeCheckBox.setText("Search all symbols (include locals)");
@@ -293,10 +308,10 @@ public class ScalaProjectSettingsPanel {
         useScalaClassesPriorityCheckBox = new JCheckBox();
         useScalaClassesPriorityCheckBox.setSelected(true);
         useScalaClassesPriorityCheckBox.setText("Use Scala classes priority over Java classes");
-        panel1.add(useScalaClassesPriorityCheckBox, new GridConstraints(18, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(useScalaClassesPriorityCheckBox, new GridConstraints(19, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel2 = new JPanel();
         panel2.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-        panel1.add(panel2, new GridConstraints(20, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel1.add(panel2, new GridConstraints(21, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JLabel label5 = new JLabel();
         label5.setText("Implicit parameters search depth:");
         panel1.add(label5, new GridConstraints(12, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -313,15 +328,15 @@ public class ScalaProjectSettingsPanel {
         panel1.add(myBasePackage, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         final JLabel label7 = new JLabel();
         this.$$$loadLabelText$$$(label7, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("collection.type.highlighting.option"));
-        panel1.add(label7, new GridConstraints(19, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(label7, new GridConstraints(20, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         collectionHighlightingChooser = new JComboBox();
         final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
         defaultComboBoxModel1.addElement("None");
         defaultComboBoxModel1.addElement("Only non-qualified");
         defaultComboBoxModel1.addElement("All");
         collectionHighlightingChooser.setModel(defaultComboBoxModel1);
-        panel1.add(collectionHighlightingChooser, new GridConstraints(19, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        panel1.add(injectionJPanel, new GridConstraints(20, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel1.add(collectionHighlightingChooser, new GridConstraints(20, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(injectionJPanel, new GridConstraints(21, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         showTypeInfoOnCheckBox = new JCheckBox();
         showTypeInfoOnCheckBox.setText("Show type info on mouse motion with delay:");
         panel1.add(showTypeInfoOnCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -329,6 +344,9 @@ public class ScalaProjectSettingsPanel {
         panel1.add(delaySpinner, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
         panel1.add(spacer1, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        myAotCompletion = new JCheckBox();
+        myAotCompletion.setText("Ahead-of-time competion (parameter and variable names)");
+        panel1.add(myAotCompletion, new GridConstraints(18, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel3 = new JPanel();
         panel3.setLayout(new GridLayoutManager(4, 2, new Insets(9, 9, 0, 0), -1, -1));
         tabbedPane1.addTab("Worksheet", panel3);
@@ -346,6 +364,22 @@ public class ScalaProjectSettingsPanel {
         panel3.add(label8, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         outputSpinner = new JSpinner();
         panel3.add(outputSpinner, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(218, 24), null, 0, false));
+        final JPanel panel4 = new JPanel();
+        panel4.setLayout(new GridLayoutManager(2, 2, new Insets(9, 9, 0, 0), -1, -1));
+        tabbedPane1.addTab("Misc", panel4);
+        final Spacer spacer3 = new Spacer();
+        panel4.add(spacer3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        final JLabel label9 = new JLabel();
+        label9.setText("Plugin update channel:");
+        panel4.add(label9, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        updateChannel = new JComboBox();
+        updateChannel.setEditable(false);
+        final DefaultComboBoxModel defaultComboBoxModel2 = new DefaultComboBoxModel();
+        defaultComboBoxModel2.addElement("Release");
+        defaultComboBoxModel2.addElement("EAP");
+        defaultComboBoxModel2.addElement("Nightly");
+        updateChannel.setModel(defaultComboBoxModel2);
+        panel4.add(updateChannel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**

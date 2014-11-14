@@ -15,7 +15,6 @@
         </element>
         <element id="archive" name="scala-plugin.jar">
           <element id="module-output" name="ScalaCommunity" />
-          <element id="module-output" name="intellij-hocon" />
         </element>
         <element id="directory" name="jps">
           <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/compiler-interface-sources.jar" />
