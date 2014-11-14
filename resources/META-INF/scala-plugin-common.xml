@@ -284,8 +284,8 @@
         <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalacSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalacSettings"/>
 
-        <applicationService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalaApplicationSettings"
-                        serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalaApplicationSettings"/>
+        <applicationService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"
+                        serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"/>
 
         <projectService serviceInterface="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>

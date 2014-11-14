@@ -9,7 +9,7 @@ import java.util.UUID;
  * @author Pavel Fatin
  */
 @State(name = "ScalaSettings", storages = {@Storage(file = StoragePathMacros.APP_CONFIG + "/scala.xml")})
-public class ScalaApplicationSettings implements PersistentStateComponent<ScalaApplicationSettings> {
+public class ScalaCompileServerSettings implements PersistentStateComponent<ScalaCompileServerSettings> {
   public boolean SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER = false;
   public int SHOW_TYPE_TOOLTIP_DELAY = 500;
 
@@ -23,15 +23,15 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public String COMPILE_SERVER_MAXIMUM_HEAP_SIZE = "1024";
   public String COMPILE_SERVER_JVM_PARAMETERS = "-server -Xss1m -XX:MaxPermSize=256m";
 
-  public ScalaApplicationSettings getState() {
+  public ScalaCompileServerSettings getState() {
     return this;
   }
 
-  public void loadState(ScalaApplicationSettings state) {
+  public void loadState(ScalaCompileServerSettings state) {
     XmlSerializerUtil.copyBean(state, this);
   }
 
-  public static ScalaApplicationSettings getInstance() {
-    return ServiceManager.getService(ScalaApplicationSettings.class);
+  public static ScalaCompileServerSettings getInstance() {
+    return ServiceManager.getService(ScalaCompileServerSettings.class);
   }
 }
