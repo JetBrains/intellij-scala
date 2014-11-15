@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.annotator.createFromUsage._
 import org.jetbrains.plugins.scala.annotator.importsTracker._
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
-import org.jetbrains.plugins.scala.annotator.quickfix.{ChangeTypeFix, ReportHighlightingErrorQuickFix, WrapInOptionQuickFix}
+import org.jetbrains.plugins.scala.annotator.quickfix.{AddLToLongLiteralFix, ChangeTypeFix, ReportHighlightingErrorQuickFix, WrapInOptionQuickFix}
 import org.jetbrains.plugins.scala.annotator.template._
 import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.{RemoveValFromEnumeratorIntentionAction, RemoveValFromGeneratorIntentionAction}
 import org.jetbrains.plugins.scala.components.HighlightingAdvisor
@@ -172,6 +172,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         l match {
           case interpolated: ScInterpolatedStringLiteral if l.getFirstChild != null =>
             highlightWrongInterpolatedString(interpolated, holder)
+          case _ if l.getFirstChild.getNode.getElementType == ScalaTokenTypes.tINTEGER => // the literal is a tINTEGER
+            checkIntegerNumberRange(l, holder)
           case _ =>
         }
         super.visitLiteral(l)
@@ -1165,6 +1167,47 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           case _ =>
         }
       case _ =>
+    }
+  }
+
+  private def checkIntegerNumberRange(literal: ScLiteral, holder: AnnotationHolder) {
+    val child = literal.getFirstChild.getNode
+    val text = literal.getText
+    val endsWithL = child.getText.endsWith('l') || child.getText.endsWith('L')
+    val longValue = if (endsWithL)
+      try {
+        java.lang.Long.valueOf(text.substring(0, text.length - 1))
+      } catch {
+        case e: Exception => null
+      }
+    else {
+      try {
+        if (text.startsWith("0x")) {
+          java.lang.Long.valueOf(java.lang.Long.parseLong(text.substring(2), 16))
+        } else if (text.startsWith('0')) {
+          java.lang.Long.valueOf(java.lang.Long.parseLong(text, 8))
+        } else {
+          java.lang.Long.valueOf(text)
+        }
+      } catch {
+        case e: Exception => null
+      }
+    }
+    if (longValue == null) { // the Integer number is out of range even for Long
+      val error = "Integer number is out of range even for type Long"
+      val annotation = holder.createErrorAnnotation(literal, error)
+      annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+    } else {
+      if (longValue > Integer.MAX_VALUE && !endsWithL) {
+        val error = "Integer number is out of range for type Int"
+        val annotation = holder.createErrorAnnotation(literal, error)
+        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+        if (literal.expectedType().map(Long.conforms(_)).getOrElse(true)) {
+          // expected :> Long and it's Long but without trailing L, register fix
+          val addLtoLongFix = new AddLToLongLiteralFix(literal)
+          annotation.registerFix(addLtoLongFix)
+        }
+      }
     }
   }
 }
