@@ -41,6 +41,11 @@ public class ScalaProjectSettingsPanel {
     private JCheckBox runWorksheetInTheCheckBox;
     private JTextField myBasePackage;
     private JCheckBox worksheetInteractiveModeCheckBox;
+    private JCheckBox showTypeInfoOnCheckBox;
+    private JSpinner delaySpinner;
+    private JComboBox updateChannel;
+    private JCheckBox myAotCompletion;
+    private JCheckBox useEclipseCompatibilityModeCheckBox;
     private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
     private Project myProject;
 
@@ -75,6 +80,7 @@ public class ScalaProjectSettingsPanel {
         scalaProjectSettings.setOutputLimit((Integer) outputSpinner.getValue());
         scalaProjectSettings.setInProcessMode(runWorksheetInTheCheckBox.isSelected());
         scalaProjectSettings.setInteractiveMode(worksheetInteractiveModeCheckBox.isSelected());
+        scalaProjectSettings.setUseEclipseCompatibility(useEclipseCompatibilityModeCheckBox.isSelected());
 
         scalaProjectSettings.setSearchAllSymbols(searchAllSymbolsIncludeCheckBox.isSelected());
         scalaProjectSettings.setEnableJavaToScalaConversion(enableConversionOnCopyCheckBox.isSelected());
@@ -117,6 +123,8 @@ public class ScalaProjectSettingsPanel {
         if (scalaProjectSettings.isInProcessMode() !=
                 runWorksheetInTheCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isInteractiveMode() != worksheetInteractiveModeCheckBox.isSelected()) return true;
+        if (scalaProjectSettings.isUseEclipseCompatibility() != useEclipseCompatibilityModeCheckBox.isSelected())
+            return true;
 
         if (scalaProjectSettings.isSearchAllSymbols() !=
                 searchAllSymbolsIncludeCheckBox.isSelected()) return true;
@@ -163,6 +171,7 @@ public class ScalaProjectSettingsPanel {
         setValue(outputSpinner, scalaProjectSettings.getOutputLimit());
         setValue(runWorksheetInTheCheckBox, scalaProjectSettings.isInProcessMode());
         setValue(worksheetInteractiveModeCheckBox, scalaProjectSettings.isInteractiveMode());
+        setValue(useEclipseCompatibilityModeCheckBox, scalaProjectSettings.isUseEclipseCompatibility());
 
         setValue(searchAllSymbolsIncludeCheckBox, scalaProjectSettings.isSearchAllSymbols());
         setValue(enableConversionOnCopyCheckBox, scalaProjectSettings.isEnableJavaToScalaConversion());
@@ -308,22 +317,54 @@ public class ScalaProjectSettingsPanel {
         defaultComboBoxModel1.addElement("Only non-qualified");
         defaultComboBoxModel1.addElement("All");
         collectionHighlightingChooser.setModel(defaultComboBoxModel1);
-        panel2.add(collectionHighlightingChooser, new GridConstraints(18, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        panel2.add(injectionJPanel, new GridConstraints(19, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final JLabel label7 = new JLabel();
-        label7.setText("Implicit parameters search depth:");
-        panel2.add(label7, new GridConstraints(11, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        implicitParametersSearchDepthSpinner = new JSpinner();
-        panel2.add(implicitParametersSearchDepthSpinner, new GridConstraints(11, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myDontCacheCompound = new JCheckBox();
-        myDontCacheCompound.setText("Don't cache compound types (use it in case of big pauses in GC)");
-        panel2.add(myDontCacheCompound, new GridConstraints(15, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(collectionHighlightingChooser, new GridConstraints(20, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(injectionJPanel, new GridConstraints(21, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        showTypeInfoOnCheckBox = new JCheckBox();
+        showTypeInfoOnCheckBox.setText("Show type info on mouse motion with delay:");
+        panel1.add(showTypeInfoOnCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        delaySpinner = new JSpinner();
+        panel1.add(delaySpinner, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer1 = new Spacer();
+        panel1.add(spacer1, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        myAotCompletion = new JCheckBox();
+        myAotCompletion.setText("Ahead-of-time competion (parameter and variable names)");
+        panel1.add(myAotCompletion, new GridConstraints(18, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JPanel panel3 = new JPanel();
+        panel3.setLayout(new GridLayoutManager(5, 2, new Insets(9, 9, 0, 0), -1, -1));
+        tabbedPane1.addTab("Worksheet", panel3);
+        final Spacer spacer2 = new Spacer();
+        panel3.add(spacer2, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        runWorksheetInTheCheckBox = new JCheckBox();
+        runWorksheetInTheCheckBox.setSelected(true);
+        runWorksheetInTheCheckBox.setText("Run worksheet in the compiler process");
+        panel3.add(runWorksheetInTheCheckBox, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        worksheetInteractiveModeCheckBox = new JCheckBox();
+        worksheetInteractiveModeCheckBox.setText("Run worksheet in the interactive mode");
+        panel3.add(worksheetInteractiveModeCheckBox, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label8 = new JLabel();
-        label8.setText("Base package clause:");
-        panel2.add(label8, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myBasePackage = new JTextField();
-        myBasePackage.setColumns(50);
-        panel2.add(myBasePackage, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        label8.setText("Output cutoff limit: ");
+        panel3.add(label8, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        outputSpinner = new JSpinner();
+        panel3.add(outputSpinner, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(218, 24), null, 0, false));
+        useEclipseCompatibilityModeCheckBox = new JCheckBox();
+        useEclipseCompatibilityModeCheckBox.setText("Use \"eclipse compatibility\" mode");
+        panel3.add(useEclipseCompatibilityModeCheckBox, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JPanel panel4 = new JPanel();
+        panel4.setLayout(new GridLayoutManager(2, 2, new Insets(9, 9, 0, 0), -1, -1));
+        tabbedPane1.addTab("Misc", panel4);
+        final Spacer spacer3 = new Spacer();
+        panel4.add(spacer3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        final JLabel label9 = new JLabel();
+        label9.setText("Plugin update channel:");
+        panel4.add(label9, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        updateChannel = new JComboBox();
+        updateChannel.setEditable(false);
+        final DefaultComboBoxModel defaultComboBoxModel2 = new DefaultComboBoxModel();
+        defaultComboBoxModel2.addElement("Release");
+        defaultComboBoxModel2.addElement("EAP");
+        defaultComboBoxModel2.addElement("Nightly");
+        updateChannel.setModel(defaultComboBoxModel2);
+        panel4.add(updateChannel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**

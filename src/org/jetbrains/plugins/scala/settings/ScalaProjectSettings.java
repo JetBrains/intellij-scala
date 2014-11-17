@@ -48,6 +48,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private int OUTPUT_LIMIT = 35;
   private boolean IN_PROCESS_MODE = true;
   private boolean INTERACTIVE_MODE = true;
+  private boolean USE_ECLIPSE_COMPATIBILITY = false;
 
   private Map<String, String> INTERPOLATED_INJECTION_MAPPING = new HashMap<String, String>();
 
@@ -234,5 +235,13 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setInteractiveMode(boolean interactiveMode) {
     INTERACTIVE_MODE = interactiveMode;
+  }
+
+  public boolean isUseEclipseCompatibility() {
+    return USE_ECLIPSE_COMPATIBILITY;
+  }
+
+  public void setUseEclipseCompatibility(boolean USE_ECLIPSE_COMPATIBILITY) {
+    this.USE_ECLIPSE_COMPATIBILITY = USE_ECLIPSE_COMPATIBILITY;
   }
 }
