@@ -14,6 +14,7 @@ import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -73,6 +74,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
     element match {
       case t: ScTypeDefinition => factory.typeDefinitionOptions
       case ScalaPsiUtil.inNameContext(m: ScMember) => factory.memberOptions
+      case p: ScParameter => factory.paramOptions
       case _ => super.getFindUsagesOptions(dataContext)
     }
   }
@@ -104,6 +106,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
       case _ => Array.empty
     }
   }
+
 
   override def getFindUsagesDialog(isSingleFile: Boolean, toShowInNewTab: Boolean, mustOpenInNewTab: Boolean): AbstractFindUsagesDialog = {
     element match {
