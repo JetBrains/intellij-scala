@@ -31,9 +31,9 @@ trait ScAnnotationExpr extends ScalaPsiElement {
   private class ScNameValueAssignment(assign: ScAssignStmt) extends ScNameValuePairImpl(assign.getNode) {
     override def nameId: PsiElement = assign.getLExpression
 
-    override def getValue: PsiAnnotationMemberValue = assign.getRExpression map {
+    override def getValue: PsiAnnotationMemberValue = (assign.getRExpression map {
       case annotationMember: PsiAnnotationMemberValue => annotationMember
       case _ => null
-    } getOrElse null
+    }).orNull
   }
 }

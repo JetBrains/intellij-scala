@@ -136,12 +136,12 @@ object ScalaWrapManager {
       }
       case inf: ScInfixPattern => {
         return arrageBinary(_.isInstanceOf[ScInfixPattern], _.asInstanceOf[ScInfixPattern].refernece,
-                            _.asInstanceOf[ScInfixPattern].rightPattern.getOrElse(null),
+                            _.asInstanceOf[ScInfixPattern].rightPattern.orNull,
                             _.asInstanceOf[ScInfixPattern].leftPattern)
       }
       case inf: ScInfixTypeElement => {
         return arrageBinary(_.isInstanceOf[ScInfixTypeElement], _.asInstanceOf[ScInfixTypeElement].ref,
-                            _.asInstanceOf[ScInfixTypeElement].rOp.getOrElse(null),
+                            _.asInstanceOf[ScInfixTypeElement].rOp.orNull,
                             _.asInstanceOf[ScInfixTypeElement].lOp)
       }
       case psi: ScCompositePattern => {
