@@ -18,9 +18,9 @@ class ScalaForStatementFixer extends ScalaFixer {
     val forStatement = PsiTreeUtil.getParentOfType(psiElement, classOf[ScForStatement], false)
     if (forStatement == null) return
     val doc: Document = editor.getDocument
-    val leftParenthesis = forStatement.getLeftParenthesis.getOrElse(null)
-    val rightParenthesis = forStatement.getRightParenthesis.getOrElse(null)
-    val condition = forStatement.enumerators.getOrElse(null)
+    val leftParenthesis = forStatement.getLeftParenthesis.orNull
+    val rightParenthesis = forStatement.getRightParenthesis.orNull
+    val condition = forStatement.enumerators.orNull
 
     if (condition == null) {
       if (leftParenthesis == null && rightParenthesis == null) {

@@ -29,14 +29,14 @@ class MergeElseIfIntention extends PsiElementBaseIntentionAction {
     if (ifStmt == null) return false
 
     val offset = editor.getCaretModel.getOffset
-    val thenBranch = ifStmt.thenBranch.getOrElse(null)
-    val elseBranch = ifStmt.elseBranch.getOrElse(null)
+    val thenBranch = ifStmt.thenBranch.orNull
+    val elseBranch = ifStmt.elseBranch.orNull
     if (thenBranch == null || elseBranch == null) return false
 
     if (!(thenBranch.getTextRange.getEndOffset <= offset && offset <= elseBranch.getTextRange.getStartOffset))
       return false
 
-    val blockExpr = ifStmt.elseBranch.getOrElse(null)
+    val blockExpr = ifStmt.elseBranch.orNull
     if (blockExpr != null && blockExpr.isInstanceOf[ScBlockExpr]) {
       val exprs = blockExpr.asInstanceOf[ScBlockExpr].exprs
       if (exprs.size == 1 && exprs(0).isInstanceOf[ScIfStmt]) {

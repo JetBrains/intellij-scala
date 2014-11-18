@@ -33,7 +33,7 @@ class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
     val offset = editor.getCaretModel.getOffset
     if (!(range.getStartOffset <= offset && offset <= range.getEndOffset)) return false
 
-    val value = returnStmt.expr.getOrElse(null)
+    val value = returnStmt.expr.orNull
     if (value == null) return false
     val valType = value.getType(TypingContext.empty).getOrElse(null)
     if (valType == null) return false
@@ -48,7 +48,7 @@ class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
 
     val start = returnStmt.getTextRange.getStartOffset
     val expr = new StringBuilder
-    val value = returnStmt.expr.getOrElse(null)
+    val value = returnStmt.expr.orNull
     if (value == null) return
     expr.append("if ")
 

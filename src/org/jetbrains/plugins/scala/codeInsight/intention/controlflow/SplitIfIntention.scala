@@ -28,7 +28,7 @@ class SplitIfIntention extends PsiElementBaseIntentionAction {
     val ifStmt: ScIfStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt], false)
     if (ifStmt == null) return false
 
-    val cond = ifStmt.condition.getOrElse(null)
+    val cond = ifStmt.condition.orNull
     if (cond == null || !cond.isInstanceOf[ScInfixExpr]) return false
 
     val range: TextRange = cond.asInstanceOf[ScInfixExpr].operation.nameId.getTextRange
@@ -60,7 +60,7 @@ class SplitIfIntention extends PsiElementBaseIntentionAction {
     expr.append("if ").append(firstCond).append("\n").append("if ").append(secondCond).append(" ").
       append(ifStmt.thenBranch.get.getText)
 
-    val elseBranch = ifStmt.elseBranch.getOrElse(null)
+    val elseBranch = ifStmt.elseBranch.orNull
     if (elseBranch != null) {
       if (expr.toString().trim.endsWith("}")) expr.append(" else ")
       else expr.append("\nelse ")
