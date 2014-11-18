@@ -862,8 +862,14 @@ object ScalaRefactoringUtil {
 
       val funDef = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionDefinition])
 
+      val isAnonFunBlock = candidate match {
+        case b: ScBlock if b.isAnonymousFunction => true
+        case _ => false
+      }
+
       if (funDef != null && PsiTreeUtil.isAncestor(candidate, funDef, true) && oneExprBody(funDef))
         funDef.body.get
+      else if (isAnonFunBlock) container(candidate.getContext, file)
       else candidate
     }
   }
