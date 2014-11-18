@@ -779,7 +779,7 @@ object ScalaRefactoringUtil {
       if (parExpr.isInstanceOf[ScBlock]) return true
       val result: Boolean = nextParent match {
         case _: ScBlock => true
-        case forSt: ScForStatement if forSt.body.getOrElse(null) == parExpr => false //in this case needBraces == true
+        case forSt: ScForStatement if forSt.body.orNull == parExpr => false //in this case needBraces == true
         case forSt: ScForStatement => true
         case _ => false
       }
@@ -810,13 +810,13 @@ object ScalaRefactoringUtil {
       case _: ScFunction => true
       case Both(fun: ScFunction, _ childOf (_: ScTemplateBody | _: ScEarlyDefinitions)) => true
       case ifSt: ScIfStmt if Seq(ifSt.thenBranch, ifSt.elseBranch) contains Option(parExpr) => true
-      case forSt: ScForStatement if forSt.body.getOrElse(null) == parExpr => true
+      case forSt: ScForStatement if forSt.body.orNull == parExpr => true
       case forSt: ScForStatement => false
       case _: ScEnumerator | _: ScGenerator => false
       case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => false
-      case whSt: ScWhileStmt if whSt.body.getOrElse(null) == parExpr => true
-      case doSt: ScDoStmt if doSt.getExprBody.getOrElse(null) == parExpr => true
-      case finBl: ScFinallyBlock if finBl.expression.getOrElse(null) == parExpr => true
+      case whSt: ScWhileStmt if whSt.body.orNull == parExpr => true
+      case doSt: ScDoStmt if doSt.getExprBody.orNull == parExpr => true
+      case finBl: ScFinallyBlock if finBl.expression.orNull == parExpr => true
       case fE: ScFunctionExpr =>
         fE.getContext match {
           case be: ScBlock if be.lastExpr == Some(fE) => false
