@@ -28,17 +28,17 @@ class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
     val ifStmt: ScIfStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt], false)
     if (ifStmt == null) return false
 
-    val thenBranch =  ifStmt.thenBranch.getOrElse(null)
+    val thenBranch =  ifStmt.thenBranch.orNull
     if (thenBranch == null) return false
 
-    val condition = ifStmt.condition.getOrElse(null)
+    val condition = ifStmt.condition.orNull
     if (condition == null) return false
 
     val offset = editor.getCaretModel.getOffset
     if (!(ifStmt.getTextRange.getStartOffset <= offset && offset <= condition.getTextRange.getStartOffset - 1))
       return false
 
-    val elseBranch =  ifStmt.elseBranch.getOrElse(null)
+    val elseBranch =  ifStmt.elseBranch.orNull
     if (elseBranch != null) return elseBranch.isInstanceOf[ScBlockExpr]
 
     true
@@ -70,7 +70,7 @@ class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
       case _ => IntentionUtils.negate(ifStmt.condition.get)
     }
 
-    val elseBranch =  ifStmt.elseBranch.getOrElse(null)
+    val elseBranch =  ifStmt.elseBranch.orNull
     val newThenBranch = if (elseBranch != null) elseBranch.asInstanceOf[ScBlockExpr].getText else "{\n\n}"
     expr.append("if (").append(newCond).append(")").append(newThenBranch).append(" else ")
     val res =  ifStmt.thenBranch.get match {

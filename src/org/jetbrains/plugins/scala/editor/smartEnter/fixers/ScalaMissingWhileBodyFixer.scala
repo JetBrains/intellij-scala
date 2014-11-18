@@ -22,10 +22,10 @@ class ScalaMissingWhileBodyFixer extends ScalaFixer {
     val whileStatement = PsiTreeUtil.getParentOfType(psiElement, classOf[ScWhileStmt], false)
     if (whileStatement == null) return
     val doc: Document = editor.getDocument
-    val body: PsiElement = whileStatement.body.getOrElse(null)
+    val body: PsiElement = whileStatement.body.orNull
     if (body.isInstanceOf[ScBlockExpr]) return
-    if (body != null && startLine(doc, body) == startLine(doc, whileStatement) && whileStatement.condition.getOrElse(null) != null) return
-    val rParenth = whileStatement.getRightParenthesis.getOrElse(null)
+    if (body != null && startLine(doc, body) == startLine(doc, whileStatement) && whileStatement.condition.orNull != null) return
+    val rParenth = whileStatement.getRightParenthesis.orNull
     assert(rParenth != null)
     doc.insertString(rParenth.getTextRange.getEndOffset, "{\n\n}")
   }

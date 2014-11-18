@@ -115,7 +115,7 @@ object PatternAnnotator {
       case naming: ScNamingPattern =>
         patternType(naming.named)
       case parenth: ScParenthesisedPattern =>
-        patternType(parenth.subpattern.getOrElse(null))
+        patternType(parenth.subpattern.orNull)
       case null => None
       case _ => pattern.getType(TypingContext.empty).toOption
     }

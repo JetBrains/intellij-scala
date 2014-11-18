@@ -324,8 +324,8 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
         while (fieldsIterator.hasNext) {
           val field = fieldsIterator.next()
           val namedElement = field match {
-            case v: ScValue => v.declaredElements.find(_.name == fieldName).getOrElse(null)
-            case v: ScVariable => v.declaredElements.find(_.name == fieldName).getOrElse(null)
+            case v: ScValue => v.declaredElements.find(_.name == fieldName).orNull
+            case v: ScVariable => v.declaredElements.find(_.name == fieldName).orNull
           }
           if (field.containingClass != null) {
             val inheritors = ClassInheritorsSearch.search(field.containingClass, scope, true).toArray(PsiClass.EMPTY_ARRAY)

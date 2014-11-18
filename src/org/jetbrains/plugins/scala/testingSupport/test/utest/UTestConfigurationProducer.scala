@@ -146,7 +146,7 @@ class UTestConfigurationProducer extends {
     //now get test name
     val testName = Option(parentLiteral) match {
       case Some(x) =>
-        buildTestPath(x, "").getOrElse(null)
+        buildTestPath(x, "").orNull
       case None if element.isInstanceOf[LeafElement] =>
         val patDef: ScPatternDefinition = Option(element.getParent).map(_.getParent).map(_.getParent) match {
           case Some(pat: ScPatternDefinition) => pat

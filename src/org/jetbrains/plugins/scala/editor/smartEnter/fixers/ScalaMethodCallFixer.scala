@@ -22,10 +22,10 @@ class ScalaMethodCallFixer extends ScalaFixer {
     }
 
     if (args == null) return
-    val parenthesis: PsiElement = args.lastChild.getOrElse(null)
+    val parenthesis: PsiElement = args.lastChild.orNull
     if (parenthesis == null || !(")" == parenthesis.getText)) {
       var endOffset: Int = -1
-      var child: PsiElement = args.firstChild.getOrElse(null)
+      var child: PsiElement = args.firstChild.orNull
       var flag = true
       //todo tail recursion
       while (child != null && flag) {

@@ -88,7 +88,7 @@ class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Do
   override def visitPatternDefinition(pat: ScPatternDefinition) {
     //TODO: insert inter-field dependency here
     processEntry(createNewEntry(pat.getParent, expandTextRangeToComment(pat), VAL,
-      pat.pList.patterns.toList.head.bindings(0).getName, canArrange = true), pat, pat.expr.getOrElse(null))
+      pat.pList.patterns.toList.head.bindings(0).getName, canArrange = true), pat, pat.expr.orNull)
   }
 
   override def visitElement(v: ScalaPsiElement) = v match {
@@ -102,7 +102,7 @@ class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Do
   override def visitVariableDefinition(varr: ScVariableDefinition) {
     //TODO: insert inter-field dependency here
     processEntry(createNewEntry(varr.getParent, expandTextRangeToComment(varr), VAR, varr.declaredElements(0).getName,
-      canArrange = true), varr, varr.expr.getOrElse(null))
+      canArrange = true), varr, varr.expr.orNull)
   }
 
   override def visitVariableDeclaration(varr: ScVariableDeclaration) =
@@ -115,7 +115,7 @@ class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Do
       case _: ScTrait => TRAIT
       case _ => OBJECT
     }, typedef.getName, canArrange = true)
-    processEntry(entry, typedef, typedef.extendsBlock.templateBody getOrElse null)
+    processEntry(entry, typedef, typedef.extendsBlock.templateBody.orNull)
   }
 
   private def withinBounds(range: TextRange) = ranges.foldLeft(false)((acc: Boolean, current: TextRange) =>

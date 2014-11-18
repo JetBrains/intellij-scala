@@ -71,7 +71,7 @@ object ScalaRuntimeTypeEvaluator {
           }
         }
         import scala.collection.JavaConversions._
-        classType.interfaces.map(findPsiClass(project, _)).find(_ != null).getOrElse(null)
+        classType.interfaces.map(findPsiClass(project, _)).find(_ != null).orNull
       case _ => null
     }
   }

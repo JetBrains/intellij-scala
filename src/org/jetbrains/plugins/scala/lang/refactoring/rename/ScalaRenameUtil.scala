@@ -91,7 +91,7 @@ object ScalaRenameUtil {
       case fun: ScFunction if fun.isConstructor => fun.containingClass
       case fun: ScFunction if Seq("apply", "unapply", "unapplySeq") contains fun.name =>
         fun.containingClass match {
-          case newTempl: ScNewTemplateDefinition => ScalaPsiUtil.findInstanceBinding(newTempl).getOrElse(null)
+          case newTempl: ScNewTemplateDefinition => ScalaPsiUtil.findInstanceBinding(newTempl).orNull
           case obj: ScObject if obj.isSyntheticObject => obj.fakeCompanionClassOrCompanionClass
           case clazz => clazz
         }
