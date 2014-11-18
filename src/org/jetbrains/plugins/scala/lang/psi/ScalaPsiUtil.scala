@@ -2008,14 +2008,20 @@ object ScalaPsiUtil {
         if (ScalaPsiUtil.isLineTerminator(last.getPrevSibling)) last.getPrevSibling
         else last
     }
+
     def addBefore(e: PsiElement) = parent.addBefore(e, anchor)
+    def newLine: PsiElement = ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi
+
     val anchorEndsLine = ScalaPsiUtil.isLineTerminator(anchor)
-    if (anchorEndsLine) addBefore(ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi)
+    if (anchorEndsLine) addBefore(newLine)
+
+    val anchorStartsLine = ScalaPsiUtil.isLineTerminator(anchor.getPrevSibling)
+    if (!anchorStartsLine) addBefore(newLine)
 
     val addedStmt = addBefore(stmt).asInstanceOf[ScBlockStatement]
 
-    if (!anchorEndsLine) addBefore(ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi)
-    else anchor.replace(ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi)
+    if (!anchorEndsLine) addBefore(newLine)
+    else anchor.replace(newLine)
 
     addedStmt
   }
