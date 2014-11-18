@@ -469,4 +469,37 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
       evalEquals("B.apply(1)", "B(1)")
     }
   }
+
+  def testPrivateInTrait(): Unit = {
+    addFileToProject("com/Sample.scala",
+      """package com
+        |trait PrivateTrait {
+        |
+        |  private[this] def privThis(i: Int) = i + 1
+        |
+        |  private def priv(i: Int) = i + 2
+        |
+        |  private val privConst = 42
+        |
+        |  def open() = {
+        |    ""
+        |  }
+        |}
+        |
+        |object Sample {
+        |  class A extends PrivateTrait
+        |
+        |  def main(args: Array[String]) {
+        |    val a = new A
+        |    a.open()
+        |  }
+        |}""".stripMargin)
+    addBreakpoint("com/Sample.scala", 10)
+    runDebugger("com.Sample") {
+      waitForBreakpoint()
+      evalEquals("priv(0)", "2")
+      evalEquals("privThis(0)", "1")
+      evalEquals("privConst", "42")
+    }
+  }
 }
