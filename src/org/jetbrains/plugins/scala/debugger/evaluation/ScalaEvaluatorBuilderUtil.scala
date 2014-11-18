@@ -578,17 +578,26 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   def functionEvaluator(qualOption: Option[ScExpression], ref: ScReferenceExpression,
                         funName: String, argEvaluators: Seq[Evaluator]): Evaluator = {
 
+    def qualEvaluator(r: ScalaResolveResult) = {
+      def defaultQualEvaluator = qualifierEvaluator(qualOption, ref)
+
+      r.getActualElement match {
+        case o: ScObject if funName == "apply" => objectEvaluator(o, defaultQualEvaluator _)
+        case _ => defaultQualEvaluator
+      }
+    }
+    val name = NameTransformer.encode(funName)
+
     ref.bind() match {
       case Some(r) if r.tuplingUsed => throw EvaluationException("Tupling is unsupported. Use tuple expression.")
-      case None => throw EvaluationException("Cannot evaluate method")
+      case None => throw EvaluationException(s"Cannot evaluate method $funName")
+      case Some(r @ privateTraitMethod(tr, fun)) =>
+        val traitTypeEval = new TypeEvaluator(DebuggerUtil.getClassJVMName(tr, withPostfix = true))
+        val qualEval = qualEvaluator(r)
+        new ScalaMethodEvaluator(traitTypeEval, name, null, qualEval +: argEvaluators)
       case Some(r) =>
         val resolve = r.element
-        def defaultQualEvaluator = qualifierEvaluator(qualOption, ref)
-        val qualEval = r.getActualElement match {
-          case o: ScObject if funName == "apply" => objectEvaluator(o, defaultQualEvaluator _)
-          case _ => defaultQualEvaluator
-        }
-        val name = NameTransformer.encode(funName)
+        val qualEval = qualEvaluator(r)
         val signature = resolve match {
           case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
           case _ => null
@@ -1210,6 +1219,15 @@ object ScalaEvaluatorBuilderUtil {
         }
       }
       inner(elem)
+    }
+  }
+
+  object privateTraitMethod {
+    def unapply(r: ScalaResolveResult): Option[(ScTrait, ScFunctionDefinition)] = {
+      r.getElement match {
+        case Both(fun: ScFunctionDefinition, ContainingClass(tr: ScTrait)) if fun.isPrivate => Some(tr, fun)
+        case _ => None
+      }
     }
   }
 }
