@@ -914,6 +914,10 @@
                        displayName="Auto-tupling" groupName="Scala: General"
                        shortName="AutoTupling" level="WARNING"
                        enabledByDefault="false" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.implicits.DeprecatedViewBoundInspection"
+                       displayName="View bounds are deprecated" groupName="Scala: General"
+                       shortName="DeprecatedViewBound" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
       <!--Scalastyle inspection-->
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection"
                        displayName="Scala style inspection" groupName="Scala: Code Style"
