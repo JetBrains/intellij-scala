@@ -29,23 +29,31 @@ class ScalaBuilder(category: BuilderCategory, @NotNull delegate: ScalaBuilderDel
             dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
             outputConsumer: ModuleLevelBuilder.OutputConsumer): ModuleLevelBuilder.ExitCode = {
 
-    // TODO Remove this check later, when users will get accustomed to the new project configuration
-    if (delegate == IdeaIncrementalBuilder &&
-            !hasBuildModules(chunk) && // *.scala files in SBT "build" modules are rightly excluded from compilation
-            !hasScalaModules(chunk) &&
-            IdeaIncrementalBuilder.collectSources(context, chunk, dirtyFilesHolder).nonEmpty) {
-      val message = "skipping Scala files without a Scala SDK in module(s) " + chunk.getPresentableShortName
-      context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.WARNING, message))
+    if (isDisabled(context, Some(chunk))) {
+      return ExitCode.NOTHING_DONE
     }
 
-    if (isDisabled(context, Some(chunk))) ExitCode.NOTHING_DONE
-    else delegate.build(context, chunk, dirtyFilesHolder, outputConsumer)
+    if (delegate == IdeaIncrementalBuilder) {
+      if (IdeaIncrementalBuilder.collectSources(context, chunk, dirtyFilesHolder).isEmpty) {
+        return ExitCode.NOTHING_DONE
+      } else if (!hasScalaModules(chunk)) {
+        if (!hasBuildModules(chunk)) {
+          val message = "skipping Scala files without a Scala SDK in module(s) " + chunk.getPresentableShortName
+          context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.WARNING, message))
+        }
+        return ExitCode.NOTHING_DONE
+      }
+    } else {
+      if (!isScalaProject(context.getProjectDescriptor.getProject)) {
+        return ExitCode.NOTHING_DONE
+      }
+    }
+
+    delegate.build(context, chunk, dirtyFilesHolder, outputConsumer)
   }
 
   override def buildStarted(context: CompileContext) {
-    if (isScalaProject(context.getProjectDescriptor.getProject)) {
-      new IncrementalTypeChecker(context).checkAndUpdate()
-    }
+    new IncrementalTypeChecker(context).checkAndUpdate()
 
     if (isDisabled(context)) {}
     else delegate.buildStarted(context)
@@ -54,10 +62,6 @@ class ScalaBuilder(category: BuilderCategory, @NotNull delegate: ScalaBuilderDel
   override def getCompilableFileExtensions: util.List[String] = List("scala").asJava
 
   private def isDisabled(context: CompileContext, chunk: Option[ModuleChunk] = None): Boolean = {
-    val project: JpsProject = context.getProjectDescriptor.getProject
-    if (!isScalaProject(project)) return true
-    if (chunk.isDefined && delegate == IdeaIncrementalBuilder && !hasScalaModules(chunk.get)) return true
-
     val projectSettings = SettingsManager.getProjectSettings(context.getProjectDescriptor.getProject)
 
     projectSettings.getIncrementalityType match {
@@ -75,6 +79,7 @@ class ScalaBuilder(category: BuilderCategory, @NotNull delegate: ScalaBuilderDel
   }
 }
 
+// Invokation of these methods can take a long time on large projects (like IDEA's one)
 object ScalaBuilder {
   def isScalaProject(project: JpsProject): Boolean = hasScalaSdks(project.getModules)
 
