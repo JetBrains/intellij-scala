@@ -928,7 +928,7 @@
 
         <!-- scaladoc inspections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnclosedTagWithoutParserInspection"
-                         displayName="Tag Unclosed" groupName="Scaladoc" shortName="ScalaDocUnclosedTagWithoutParser" level="WARNING"
+                         displayName="Tag Unclosed" groupName="Scala: Scaladoc" shortName="ScalaDocUnclosedTagWithoutParser" level="WARNING"
                          enabledByDefault="true" language="Scala" />
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocInlinedTagInspection"
                          displayName="Inlined Tag" groupName="Scala: Scaladoc" shortName="ScalaDocInlinedTag" level="WARNING"
@@ -943,7 +943,7 @@
                          displayName="Unknown Parameter" groupName="Scala: Scaladoc" shortName="ScalaDocUnknownParameter" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocMissingParameterDescriptionInspection"
-                         displayName="Missing tag parameter description" groupName="Scaladoc" shortName="ScalaDocMissingParameterDescription"
+                         displayName="Missing tag parameter description" groupName="Scala: Scaladoc" shortName="ScalaDocMissingParameterDescription"
                          level="WARNING" enabledByDefault="true" language="Scala" />
         <!-- end of scaladoc inspections -->
         <!-- end of inspections -->
