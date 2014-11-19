@@ -1843,12 +1843,19 @@ object ScalaPsiUtil {
     var i = 0
     def nextName(): String = {
       i += 1
-      "evidence$" + i
+      "ev" + i
     }
     def synthParams(typeParam: ScTypeParam): Seq[(String, ScTypeElement => Unit)] = {
       val views = typeParam.viewTypeElement.map {
         vte =>
-          val code = "%s: _root_.scala.Function1[%s, %s]".format(nextName(), typeParam.name, vte.getText)
+          val needParenths = vte match {
+            case _: ScCompoundTypeElement | _: ScInfixTypeElement |
+                 _: ScFunctionalTypeElement | _: ScExistentialTypeElement => true
+            case _ => false
+          }
+          val vteText = if (needParenths) s"(${vte.getText})" else vte.getText
+          val arrow = ScalaPsiUtil.functionArrow(vte.getProject)
+          val code = s"${nextName()}: ${typeParam.name} $arrow $vteText"
           def updateAnalog(typeElement: ScTypeElement) {
             vte.analog = typeElement
           }
@@ -1856,7 +1863,7 @@ object ScalaPsiUtil {
       }
       val bounds = typeParam.contextBoundTypeElement.map {
         (cbte: ScTypeElement) =>
-          val code = "%s: %s[%s]".format(nextName(), cbte.getText, typeParam.name)
+          val code = s"${nextName()}: ${cbte.getText}[${typeParam.name}]"
           def updateAnalog(typeElement: ScTypeElement) {
             cbte.analog = typeElement
           }
