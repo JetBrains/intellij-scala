@@ -210,8 +210,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
     if (synth.isStringPlusMethod && arguments.length == 1) {
       val qualText = qualOpt.fold("this")(_.getText)
-      val exprText = s"($qualText).concat(_root_.java.lang.String.valueOf(${arguments(0).getText})"
-      val expr = ScalaPsiElementFactory.createExpressionFromText(exprText, ref.getManager)
+      val exprText = s"($qualText).concat(_root_.java.lang.String.valueOf(${arguments(0).getText}))"
+      val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, ref.getContext, ref)
       return ScalaEvaluator(expr)
     }
 
@@ -510,9 +510,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val methodPosition = DebuggerUtil.getSourcePositions(method.getNavigationElement)
     val signature = JVMNameUtil.getJVMSignature(method)
     ref.qualifier match {
-      case Some(literal: ScLiteral) =>
-        val litEval = boxEvaluator(ScalaLiteralEvaluator(literal))
-        ScalaMethodEvaluator(litEval, method.name, signature, argEvals, None, methodPosition)
+      case Some(qual @ ExpressionType(tp)) if isPrimitiveScType(tp) =>
+        val boxEval = boxEvaluator(ScalaEvaluator(qual))
+        ScalaMethodEvaluator(boxEval, method.name, signature, argEvals, None, methodPosition)
       case Some(q) if method.hasModifierPropertyScala("static") =>
         val eval = new TypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(method)))
         val name = method.name
@@ -1084,13 +1084,17 @@ object ScalaEvaluatorBuilderUtil {
   def isOfPrimitiveType(param: PsiParameter) = param match { //todo specialized type parameters
     case p: ScParameter =>
       val tp: ScType = p.getType(TypingContext.empty).getOrAny
-      import org.jetbrains.plugins.scala.lang.psi.types._
-      Set[ScType](Boolean, Int, Char, Double, Float, Long, Byte, Short).contains(tp)
+      isPrimitiveScType(tp)
     case p: PsiParameter =>
       val tp = param.getType
       import com.intellij.psi.PsiType._
       Set[PsiType](BOOLEAN, INT, CHAR, DOUBLE, FLOAT, LONG, BYTE, SHORT).contains(tp)
     case _ => false
+  }
+  
+  def isPrimitiveScType(tp: ScType) = {
+    import org.jetbrains.plugins.scala.lang.psi.types._
+    Set[ScType](Boolean, Int, Char, Double, Float, Long, Byte, Short).contains(tp)
   }
 
   object implicitlyConvertedTo {
