@@ -1,9 +1,9 @@
 package org.jetbrains.sbt
 package resolvers
 
-import java.io.{Closeable, File}
+import java.io.{IOException, Closeable, File}
 
-import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator}
 import org.apache.maven.index._
 import org.apache.maven.index.context.{IndexCreator, IndexUtils, IndexingContext}
 import org.apache.maven.index.updater.{IndexUpdateRequest, IndexUpdater, WagonHelper}
@@ -72,7 +72,8 @@ class SbtMavenRepoIndexer private (val root: String, val indexDir: File) extends
       override def scanningFinished(p1: IndexingContext, p2: ScanningResult) =
         progressIndicator foreach { _.setFraction(0.5) }
       override def artifactError(p1: ArtifactContext, p2: Exception) {}
-      override def artifactDiscovered(p1: ArtifactContext) {}
+      override def artifactDiscovered(p1: ArtifactContext): Unit =
+        progressIndicator foreach { _.checkCanceled() }
     }
 
     val repoDir = context.getRepository
@@ -118,6 +119,7 @@ class SbtMavenRepoIndexer private (val root: String, val indexDir: File) extends
       val reader = searcher.getIndexReader
       val maxDoc = reader.maxDoc()
       1.to(maxDoc) foreach { i =>
+        progressIndicator foreach { _.checkCanceled() }
         val info = IndexUtils.constructArtifactInfo(reader.document(i-1), context)
         if (info != null)
           f(info)
