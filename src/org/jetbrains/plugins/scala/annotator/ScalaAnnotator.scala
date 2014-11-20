@@ -1174,6 +1174,12 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     val child = literal.getFirstChild.getNode
     val text = literal.getText
     val endsWithL = child.getText.endsWith('l') || child.getText.endsWith('L')
+    val parent = literal.getParent
+    val isNegative = parent match {
+      // only "-1234" is negative, "- 1234" should be considered as positive 1234
+      case prefixExpr: ScPrefixExpr if prefixExpr.getChildren.size == 2 && prefixExpr.getFirstChild.getText == "-" => true
+      case _ => false
+    }
     val longValue = if (endsWithL)
       try {
         java.lang.Long.valueOf(text.substring(0, text.length - 1))
@@ -1198,9 +1204,10 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       val annotation = holder.createErrorAnnotation(literal, error)
       annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
     } else {
-      if (longValue > Integer.MAX_VALUE && !endsWithL) {
+      val realLongValue: Long = if (isNegative) -1 * longValue else longValue
+      if ((realLongValue > Integer.MAX_VALUE || realLongValue < Integer.MIN_VALUE) && !endsWithL) {
         val error = "Integer number is out of range for type Int"
-        val annotation = holder.createErrorAnnotation(literal, error)
+        val annotation = if (isNegative) holder.createErrorAnnotation(parent, error) else holder.createErrorAnnotation(literal, error)
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
         if (literal.expectedType().map(Long.conforms(_)).getOrElse(true)) {
           // expected :> Long and it's Long but without trailing L, register fix
