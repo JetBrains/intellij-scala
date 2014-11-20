@@ -1843,12 +1843,19 @@ object ScalaPsiUtil {
     var i = 0
     def nextName(): String = {
       i += 1
-      "evidence$" + i
+      "ev" + i
     }
     def synthParams(typeParam: ScTypeParam): Seq[(String, ScTypeElement => Unit)] = {
       val views = typeParam.viewTypeElement.map {
         vte =>
-          val code = "%s: _root_.scala.Function1[%s, %s]".format(nextName(), typeParam.name, vte.getText)
+          val needParenths = vte match {
+            case _: ScCompoundTypeElement | _: ScInfixTypeElement |
+                 _: ScFunctionalTypeElement | _: ScExistentialTypeElement => true
+            case _ => false
+          }
+          val vteText = if (needParenths) s"(${vte.getText})" else vte.getText
+          val arrow = ScalaPsiUtil.functionArrow(vte.getProject)
+          val code = s"${nextName()}: ${typeParam.name} $arrow $vteText"
           def updateAnalog(typeElement: ScTypeElement) {
             vte.analog = typeElement
           }
@@ -1856,7 +1863,7 @@ object ScalaPsiUtil {
       }
       val bounds = typeParam.contextBoundTypeElement.map {
         (cbte: ScTypeElement) =>
-          val code = "%s: %s[%s]".format(nextName(), cbte.getText, typeParam.name)
+          val code = s"${nextName()}: ${cbte.getText}[${typeParam.name}]"
           def updateAnalog(typeElement: ScTypeElement) {
             cbte.analog = typeElement
           }
@@ -2008,14 +2015,20 @@ object ScalaPsiUtil {
         if (ScalaPsiUtil.isLineTerminator(last.getPrevSibling)) last.getPrevSibling
         else last
     }
+
     def addBefore(e: PsiElement) = parent.addBefore(e, anchor)
+    def newLine: PsiElement = ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi
+
     val anchorEndsLine = ScalaPsiUtil.isLineTerminator(anchor)
-    if (anchorEndsLine) addBefore(ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi)
+    if (anchorEndsLine) addBefore(newLine)
+
+    val anchorStartsLine = ScalaPsiUtil.isLineTerminator(anchor.getPrevSibling)
+    if (!anchorStartsLine) addBefore(newLine)
 
     val addedStmt = addBefore(stmt).asInstanceOf[ScBlockStatement]
 
-    if (!anchorEndsLine) addBefore(ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi)
-    else anchor.replace(ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi)
+    if (!anchorEndsLine) addBefore(newLine)
+    else anchor.replace(newLine)
 
     addedStmt
   }

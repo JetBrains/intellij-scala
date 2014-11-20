@@ -6,7 +6,6 @@ package expr
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
 * @author Alexander Podkhalyuzin
@@ -42,11 +41,6 @@ trait ScInfixExpr extends ScExpression with ScSugarCallExpr {
   }
 
   def isAssignmentOperator = ParserUtils.isAssignmentOperator(operation.getText)
-
-  /**
-   * Return possible applications without using resolve of reference to this call (to avoid SOE)
-   */
-  def possibleApplications: Array[Array[(String, ScType)]]
 
   def getInvokedExpr: ScExpression = operation
 

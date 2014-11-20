@@ -18,6 +18,8 @@ class ScLightParameterClause(types: List[ScType], clause: ScParameterClause)
     case ((param, tp), i) => new ScLightParameter(param, tp, i)
   }
 
+  override def effectiveParameters: Seq[ScParameter] = parameters
+
   override def toString: String = "Light parameter clause"
 
   override def addParameter(param: ScParameter): ScParameterClause =

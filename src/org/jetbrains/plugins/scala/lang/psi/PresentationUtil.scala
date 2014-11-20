@@ -23,31 +23,28 @@ object PresentationUtil {
   def presentationString(obj: Any, substitutor: ScSubstitutor): String = {
     val res: String = obj match {
       case clauses: ScParameters => clauses.clauses.map(presentationString(_, substitutor)).mkString("")
-      case clause: ScParameterClause => {
+      case clause: ScParameterClause =>
         val buffer = new StringBuilder("")
         buffer.append("(")
         if (clause.isImplicit) buffer.append("implicit ")
         buffer.append(clause.parameters.map(presentationString(_, substitutor)).mkString(", "))
         buffer.append(")")
         buffer.toString()
-      }
       case param: ScParameter => ScalaDocumentationProvider.parseParameter(param, presentationString(_, substitutor))
-      case param: Parameter => {
+      case param: Parameter =>
         val builder = new StringBuilder
         builder.append(param.name)
         builder.append(": " + presentationString(param.paramType, substitutor))
         if (param.isRepeated) builder.append("*")
         if (param.isDefault) builder.append(" = _")
         builder.toString()
-      }
       case tp: ScType => ScType.presentableText(substitutor.subst(tp))
       case tp: PsiEllipsisType =>
         presentationString(tp.getComponentType, substitutor) + "*"
       case tp: PsiType => presentationString(ScType.create(tp, DecompilerUtil.obtainProject), substitutor)
-      case tp: ScTypeParamClause => {
+      case tp: ScTypeParamClause =>
         tp.typeParameters.map(t => presentationString(t, substitutor)).mkString("[", ", ", "]")
-      }
-      case param: ScTypeParam => {
+      case param: ScTypeParam =>
         var paramText = param.name
         if (param.isContravariant) paramText = "-" + paramText
         else if (param.isCovariant) paramText = "+" + paramText
@@ -64,18 +61,15 @@ object PresentationUtil {
         }
         param.contextBound foreach {
           (tp: ScType) => paramText = paramText + " : " + presentationString(ScTypeUtil.stripTypeArgs(substitutor.subst(tp)), substitutor)
-        }        
+        }
         paramText
-      }
-      case param: PsiTypeParameter => {
+      case param: PsiTypeParameter =>
         var paramText = param.name
         //todo: possibly add supers and extends?
         paramText
-      }
-      case params: PsiParameterList => {
+      case params: PsiParameterList =>
         params.getParameters.map(presentationString(_, substitutor)).mkString("(", ", ", ")")
-      }
-      case param: PsiParameter => {
+      case param: PsiParameter =>
         val buffer: StringBuilder = new StringBuilder("")
         val list = param.getModifierList
         if (list == null) return ""
@@ -93,16 +87,14 @@ object PresentationUtil {
         buffer.append(": ")
         buffer.append(presentationString(param.getType, substitutor)) //todo: create param type, java.lang.Object => Any
         buffer.toString()
-      }
-      case fun: ScFunction => {
+      case fun: ScFunction =>
         val buffer: StringBuilder = new StringBuilder("")
         fun.getParent match {
-          case body: ScTemplateBody if fun.containingClass != null => {
+          case body: ScTemplateBody if fun.containingClass != null =>
             val qual = fun.containingClass.qualifiedName
             if (qual != null) {
               buffer.append(qual).append(".")
             }
-          }
           case _ =>
         }
         buffer.append(fun.name)
@@ -110,7 +102,6 @@ object PresentationUtil {
         buffer.append(presentationString(fun.paramClauses, substitutor)).append(": ")
         buffer.append(presentationString(fun.returnType.getOrAny, substitutor))
         buffer.toString()
-      }
       case elem: PsiElement => elem.getText
       case null => ""
       case _ => obj.toString
