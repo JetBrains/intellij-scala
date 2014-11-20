@@ -31,5 +31,6 @@ libraryDependencies ++= Seq(
   "org.apache.httpcomponents" % "httpclient" % "4.3.1" % Compile,
   "org.apache.httpcomponents" % "httpcore" % "4.3" % Compile,
   "commons-logging" % "commons-logging" % "1.1.3" % Compile,
-  "commons-codec" % "commons-codec" % "1.6" % Compile
+  "commons-codec" % "commons-codec" % "1.6" % Compile,
+  "org.apache.xbean" % "xbean-reflect" % "3.4" % Compile
 )
