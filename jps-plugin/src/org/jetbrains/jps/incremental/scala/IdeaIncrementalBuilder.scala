@@ -8,9 +8,10 @@ import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
 import org.jetbrains.jps.builders.{DirtyFilesHolder, FileProcessor}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.{ExitCode, OutputConsumer}
-import org.jetbrains.jps.incremental.messages.ProgressMessage
+import org.jetbrains.jps.incremental.messages.{CompilerMessage, BuildMessage, ProgressMessage}
+import org.jetbrains.jps.incremental.scala.ScalaBuilder._
 import org.jetbrains.jps.incremental.scala.local.IdeClientIdea
-import org.jetbrains.jps.incremental.scala.model.CompileOrder
+import org.jetbrains.jps.incremental.scala.model.{IncrementalityType, CompileOrder}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -21,17 +22,16 @@ import org.jetbrains.jps.incremental._
  * Nikolay.Tropin
  * 11/19/13
  */
-object IdeaIncrementalBuilder extends ScalaBuilderDelegate {
-  def getPresentableName: String = "Scala IDEA builder"
+class IdeaIncrementalBuilder(category: BuilderCategory) extends ScalaBuilder(category) {
 
-  def build(context: CompileContext,
+  override def getPresentableName: String = "Scala IDEA builder"
+
+  override def doBuild(context: CompileContext,
             chunk: ModuleChunk,
             dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
             outputConsumer: OutputConsumer): ExitCode = {
 
     val successfullyCompiled = mutable.Set[File]()
-
-    if (ChunkExclusionService.isExcluded(chunk)) return ExitCode.NOTHING_DONE
 
     context.processMessage(new ProgressMessage("Searching for compilable files..."))
     val sources = collectSources(context, chunk, dirtyFilesHolder)
@@ -46,11 +46,9 @@ object IdeaIncrementalBuilder extends ScalaBuilderDelegate {
     val modules = chunk.getModules.asScala.toSet
     val client = new IdeClientIdea("scalac", context, modules.map(_.getName).toSeq, outputConsumer, callback, successfullyCompiled)
 
-    val compileResult = compile(context, chunk, sources, modules, client)
-
     val scalaSources = sources.filter(_.getName.endsWith(".scala")).asJava
 
-    compileResult match {
+    compile(context, chunk, sources, modules, client) match {
       case Left(error) =>
         client.error(error)
         ExitCode.ABORT
@@ -65,15 +63,41 @@ object IdeaIncrementalBuilder extends ScalaBuilderDelegate {
     }
   }
 
-  def collectSources(context: CompileContext,
-                             chunk: ModuleChunk,
-                             dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]): Seq[File] = {
+  override protected def isDisabled(context: CompileContext): Boolean = {
+    val settings = projectSettings(context)
+    def wrongIncrType = settings.getIncrementalityType != IncrementalityType.IDEA
+    def wrongCompileOrder = settings.getCompileOrder match {
+      case CompileOrder.JavaThenScala => getCategory == BuilderCategory.SOURCE_PROCESSOR
+      case (CompileOrder.ScalaThenJava | CompileOrder.Mixed) => getCategory == BuilderCategory.OVERWRITING_TRANSLATOR
+      case _ => false
+    }
+    wrongIncrType || wrongCompileOrder
+  }
+
+
+  override protected def isNeeded(context: CompileContext, chunk: ModuleChunk,
+                                  dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]): Boolean = {
+
+    if (ChunkExclusionService.isExcluded(chunk)) false
+    else if (collectSources(context, chunk, dirtyFilesHolder).isEmpty) false
+    else if (hasBuildModules(chunk)) false // *.scala files in SBT "build" modules are rightly excluded from compilation
+    else if (!hasScalaModules(chunk)) {
+      val message = "skipping Scala files without a Scala SDK in module(s) " + chunk.getPresentableShortName
+      context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.WARNING, message))
+      false
+    }
+    else true
+  }
+
+  private def collectSources(context: CompileContext,
+                     chunk: ModuleChunk,
+                     dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]): Seq[File] = {
 
     val result = ListBuffer[File]()
 
     val project = context.getProjectDescriptor
 
-    val compileOrder = SettingsManager.getProjectSettings(project.getProject).getCompileOrder
+    val compileOrder = projectSettings(context).getCompileOrder
     val extensionsToCollect = compileOrder match {
       case CompileOrder.Mixed => List(".scala", ".java")
       case _ => List(".scala")
@@ -105,5 +129,6 @@ object IdeaIncrementalBuilder extends ScalaBuilderDelegate {
     if (!result.exists(_.getName.endsWith(".scala"))) Seq.empty
     else result.toSeq
   }
+
 
 }

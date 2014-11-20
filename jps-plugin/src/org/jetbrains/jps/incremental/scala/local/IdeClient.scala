@@ -48,7 +48,7 @@ abstract class IdeClient(compilerName: String,
   }
 
   def debug(text: String) {
-    ScalaBuilderDelegate.Log.info(text)
+    ScalaBuilder.Log.info(text)
   }
 
   def deleted(module: File) {
