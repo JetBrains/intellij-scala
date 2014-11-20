@@ -210,8 +210,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
     if (synth.isStringPlusMethod && arguments.length == 1) {
       val qualText = qualOpt.fold("this")(_.getText)
-      val exprText = s"($qualText).concat(_root_.java.lang.String.valueOf(${arguments(0).getText})"
-      val expr = ScalaPsiElementFactory.createExpressionFromText(exprText, ref.getManager)
+      val exprText = s"($qualText).concat(_root_.java.lang.String.valueOf(${arguments(0).getText}))"
+      val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, ref.getContext, ref)
       return ScalaEvaluator(expr)
     }
 
