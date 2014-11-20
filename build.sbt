@@ -236,6 +236,7 @@ packageStructure in Compile := {
     libOf("org.apache.maven.wagon" % "wagon-http" % "2.6"),
     libOf("org.apache.maven.wagon" % "wagon-http-shared" % "2.6"),
     libOf("org.apache.maven.wagon" % "wagon-provider-api" % "2.6"),
+    libOf( "org.apache.xbean" % "xbean-reflect" % "3.4"),
     libOf("org.jsoup" % "jsoup" % "1.7.2"),
     libOf("commons-lang" % "commons-lang" % "2.6"),
     libOf("commons-io" % "commons-io" % "2.2"),
