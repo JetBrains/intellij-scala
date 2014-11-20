@@ -1,18 +1,19 @@
 package org.jetbrains.jps.incremental.scala
 
-import java.io.File
+import _root_.java.io._
 import java.net.InetAddress
 import java.util
 
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
+import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.ModuleChunk
-import org.jetbrains.jps.builders.DirtyFilesHolder
-import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
+import org.jetbrains.jps.builders.java.JavaBuilderUtil
 import org.jetbrains.jps.incremental._
-import org.jetbrains.jps.incremental.scala.ScalaBuilder._
+import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.data.{CompilationData, CompilerData, SbtData}
 import org.jetbrains.jps.incremental.scala.local.LocalServer
+import org.jetbrains.jps.incremental.scala.model.IncrementalityType
 import org.jetbrains.jps.incremental.scala.remote.RemoteServer
 import org.jetbrains.jps.model.JpsProject
 import org.jetbrains.jps.model.module.JpsModule
@@ -23,32 +24,17 @@ import _root_.scala.collection.JavaConverters._
  * Nikolay.Tropin
  * 11/19/13
  */
-abstract class ScalaBuilder(category: BuilderCategory) extends ModuleLevelBuilder(category) {
-  def getPresentableName: String = "Scala builder"
 
-  def build(context: CompileContext,
-            chunk: ModuleChunk,
-            dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
-            outputConsumer: ModuleLevelBuilder.OutputConsumer): ModuleLevelBuilder.ExitCode = {
-
-    new IncrementalTypeChecker(context).checkAndUpdate()
-
-    if (isDisabled(context) || !isNeeded(context, chunk, dirtyFilesHolder))
-      return ModuleLevelBuilder.ExitCode.NOTHING_DONE
-
-    doBuild(context, chunk, dirtyFilesHolder, outputConsumer)
-  }
-
-  def doBuild(context: CompileContext,
-              chunk: ModuleChunk,
-              dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
-              outputConsumer: ModuleLevelBuilder.OutputConsumer): ModuleLevelBuilder.ExitCode
+object ScalaBuilder {
 
   def compile(context: CompileContext,
               chunk: ModuleChunk,
               sources: Seq[File],
               modules: Set[JpsModule],
               client: Client): Either[String, ModuleLevelBuilder.ExitCode] = {
+
+    context.processMessage(new ProgressMessage("Reading compilation settings..."))
+
     for {
       sbtData <-  sbtData
       compilerData <- CompilerData.from(context, chunk)
@@ -62,34 +48,98 @@ abstract class ScalaBuilder(category: BuilderCategory) extends ModuleLevelBuilde
     }
   }
 
-  protected def isDisabled(context: CompileContext): Boolean
+  def checkIncrementalTypeChange(context: CompileContext) = {
+    def storageFile: Option[File] = {
+      val projectDir = context.getProjectDescriptor.dataManager.getDataPaths.getDataStorageRoot
+      if (projectDir != null)
+        Some(new File(projectDir, "incrementalType.dat"))
+      else None
+    }
 
-  protected def isNeeded(context: CompileContext, chunk: ModuleChunk,
-                         dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]): Boolean
+    def getPreviousIncrementalType: Option[IncrementalityType] = {
+      storageFile.filter(_.exists).flatMap { file =>
+        val result = using(new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) { in =>
+          try {
+            Some(IncrementalityType.valueOf(in.readUTF()))
+          } catch {
+            case _: IOException | _: IllegalArgumentException | _: NullPointerException => None
+          }
+        }
+        if (result.isEmpty) file.delete()
+        result
+      }
+    }
 
-  override def getCompilableFileExtensions: util.List[String] = List("scala").asJava
-}
+    def setPreviousIncrementalType(incrType: IncrementalityType) {
+      storageFile.foreach { file =>
+        val parentDir = file.getParentFile
+        if (!parentDir.exists()) parentDir.mkdirs()
+        using(new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
+          _.writeUTF(incrType.name)
+        }
+      }
+    }
 
-object ScalaBuilder {
+    def cleanCaches() {
+      context.getProjectDescriptor.setFSCache(FSCache.NO_CACHE)
+      try {
+        val directory = context.getProjectDescriptor.dataManager.getDataPaths.getDataStorageRoot
+        FileUtil.delete(directory)
+      }
+      catch {
+        case e: Exception => throw new IOException("Can not delete project system directory: \n" + e.getMessage)
+      }
+    }
+
+    val settings = projectSettings(context)
+    val previousIncrementalType = getPreviousIncrementalType
+    val incrType = settings.getIncrementalityType
+    previousIncrementalType match {
+      case _ if JavaBuilderUtil.isForcedRecompilationAllJavaModules(context) => //isRebiuld
+        setPreviousIncrementalType(incrType)
+      case None =>
+      //        ScalaBuilderDelegate.Log.info("scala: cannot find type of the previous incremental compiler, full rebuild may be required")
+      case Some(`incrType`) => //same incremental type, nothing to be done
+      case Some(_) if isMakeProject(context) =>
+        if (ScalaBuilder.isScalaProject(context.getProjectDescriptor.getProject)) {
+          cleanCaches()
+          setPreviousIncrementalType(incrType)
+          context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.WARNING,
+            "type of incremental compiler has been changed, full rebuild..."))
+        }
+      case Some(_) =>
+        if (ScalaBuilder.isScalaProject(context.getProjectDescriptor.getProject)) {
+          throw new ProjectBuildException("scala: type of incremental compiler has been changed, full rebuild is required")
+        }
+    }
+  }
 
   // Invokation of these methods can take a long time on large projects (like IDEA's one)
   def isScalaProject(project: JpsProject): Boolean = hasScalaSdks(project.getModules)
-
   def hasScalaModules(chunk: ModuleChunk): Boolean = hasScalaSdks(chunk.getModules)
+  private def hasScalaSdks(modules: util.Collection[JpsModule]): Boolean = {
+    import _root_.scala.collection.JavaConversions._
+    modules.exists(SettingsManager.hasScalaSdk)
+  }
 
   def hasBuildModules(chunk: ModuleChunk): Boolean = {
     import _root_.scala.collection.JavaConversions._
     chunk.getModules.exists(_.getName.endsWith("-build")) // gen-idea doesn't use the SBT module type
   }
 
-  private def hasScalaSdks(modules: util.Collection[JpsModule]): Boolean = {
-    import _root_.scala.collection.JavaConversions._
-    modules.exists(SettingsManager.hasScalaSdk)
-  }
-
   def projectSettings(context: CompileContext) = SettingsManager.getProjectSettings(context.getProjectDescriptor.getProject)
 
-  val Log = JpsLogger.getInstance(classOf[ScalaBuilder])
+  def isMakeProject(context: CompileContext): Boolean = JavaBuilderUtil.isCompileJavaIncrementally(context) && {
+    for {
+      chunk <- context.getProjectDescriptor.getBuildTargetIndex.getSortedTargetChunks(context).asScala
+      target <- chunk.getTargets.asScala
+    } {
+      if (!context.getScope.isAffected(target)) return false
+    }
+    true
+  }
+
+  val Log = JpsLogger.getInstance(ScalaBuilder.getClass.getName)
 
   // Cached local localServer
   private var cachedServer: Option[Server] = None

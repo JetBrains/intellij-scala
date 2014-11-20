@@ -8,7 +8,7 @@ import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.impl.TargetOutputIndexImpl
 import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor
 import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget, DirtyFilesHolder}
-import org.jetbrains.jps.incremental.ModuleLevelBuilder.{ExitCode, OutputConsumer}
+import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.incremental.java.JavaBuilder
 import org.jetbrains.jps.incremental.messages.ProgressMessage
@@ -22,7 +22,7 @@ import _root_.scala.collection.JavaConverters._
 /**
  * @author Pavel Fatin
  */
-class SbtBuilder extends ScalaBuilder(BuilderCategory.TRANSLATOR) {
+class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
   override def getPresentableName = "Scala SBT builder"
 
   override def buildStarted(context: CompileContext) = {
@@ -31,27 +31,24 @@ class SbtBuilder extends ScalaBuilder(BuilderCategory.TRANSLATOR) {
       JavaBuilder.IS_ENABLED.set(context, false)
   }
 
-  override protected def isDisabled(context: CompileContext): Boolean = {
-    projectSettings(context).getIncrementalityType != IncrementalityType.SBT
-  }
+  override def build(context: CompileContext,
+            chunk: ModuleChunk,
+            dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
+            outputConsumer: ModuleLevelBuilder.OutputConsumer): ModuleLevelBuilder.ExitCode = {
 
-  override protected def isNeeded(context: CompileContext, chunk: ModuleChunk,
-                                  dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]): Boolean = {
+    if (isDisabled(context) || ChunkExclusionService.isExcluded(chunk))
+      return ExitCode.NOTHING_DONE
 
-    if (ChunkExclusionService.isExcluded(chunk)) return false
+    checkIncrementalTypeChange(context)
 
-    hasDirtyFilesOrDependencies(context, chunk, dirtyFilesHolder)
-  }
-
-  override def doBuild(context: CompileContext,
-                                 chunk: ModuleChunk,
-                                 dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
-                                 outputConsumer: OutputConsumer): ModuleLevelBuilder.ExitCode = {
+    if (!hasDirtyFilesOrDependencies(context, chunk, dirtyFilesHolder))
+      return ExitCode.NOTHING_DONE
 
     context.processMessage(new ProgressMessage("Searching for compilable files..."))
-    val filesToCompile = collectCompilableFiles(context, chunk)
 
-    if (filesToCompile.isEmpty) return ExitCode.NOTHING_DONE
+    val filesToCompile = collectCompilableFiles(context, chunk)
+    if (filesToCompile.isEmpty)
+      return ExitCode.NOTHING_DONE
 
     // Delete dirty class files (to handle force builds and form changes)
     BuildOperations.cleanOutputsCorrespondingToChangedFiles(context, dirtyFilesHolder)
@@ -62,10 +59,7 @@ class SbtBuilder extends ScalaBuilder(BuilderCategory.TRANSLATOR) {
 
     val client = new IdeClientSbt("scala", context, modules.map(_.getName).toSeq, outputConsumer, filesToCompile.get)
 
-    client.progress("Reading compilation settings...")
-
     compile(context, chunk, sources, modules, client) match {
-
       case Left(error) =>
         client.error(error)
         ExitCode.ABORT
@@ -77,6 +71,10 @@ class SbtBuilder extends ScalaBuilder(BuilderCategory.TRANSLATOR) {
           code
         }
     }
+  }
+
+  private def isDisabled(context: CompileContext): Boolean = {
+    projectSettings(context).getIncrementalityType != IncrementalityType.SBT
   }
 
   private def hasDirtyFilesOrDependencies(context: CompileContext, chunk: ModuleChunk,
