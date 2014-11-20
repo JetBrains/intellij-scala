@@ -28,7 +28,7 @@ class ScalaScriptConfugurationProducer extends {
   override def findExistingByElement(location: Location[_ <: PsiElement], existingConfigurations: util.List[RunnerAndConfigurationSettings],
                                      context: ConfigurationContext): RunnerAndConfigurationSettings = {
     import scala.collection.JavaConversions._
-    existingConfigurations.find(c => isConfigurationByLocation(c.getConfiguration, location)).getOrElse(null)
+    existingConfigurations.find(c => isConfigurationByLocation(c.getConfiguration, location)).orNull
   }
 
   def createConfigurationByElement(location: Location[_ <: PsiElement], context: ConfigurationContext): RunnerAndConfigurationSettings = {

@@ -201,7 +201,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
 
   override def findFieldByName(name: String, checkBases: Boolean): PsiField = {
     name match {
-      case "MODULE$" => getModuleField.getOrElse(null)
+      case "MODULE$" => getModuleField.orNull
       case _ => null
     }
   }

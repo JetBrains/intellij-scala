@@ -211,7 +211,7 @@ object ScFunctionWrapper {
       case _ =>
     }
 
-    val params = function.effectiveParameterClauses.flatMap(_.parameters)
+    val params = function.effectiveParameterClauses.flatMap(_.effectiveParameters)
 
     val defaultParam = forDefault match {
       case Some(i) => Some(params(i - 1))
@@ -248,10 +248,10 @@ object ScFunctionWrapper {
 
     builder.append(function.effectiveParameterClauses.takeWhile { clause =>
       defaultParam match {
-        case Some(param) => !clause.parameters.contains(param)
+        case Some(param) => !clause.effectiveParameters.contains(param)
         case None => true
       }
-    }.flatMap(_.parameters).map { case param =>
+    }.flatMap(_.effectiveParameters).map { case param =>
       val builder = new StringBuilder
       val varargs: Boolean = param.isRepeatedParameter && isJavaVarargs
       val tt =

@@ -62,7 +62,7 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
                 val typeElementText =
                   constructor.get.effectiveParameterClauses.map {
                     clause =>
-                      clause.parameters.map(parameter => {
+                      clause.effectiveParameters.map(parameter => {
                         val parameterText = parameter.typeElement.fold("_root_.scala.Nothing")(_.getText)
                         if (parameter.isRepeatedParameter) s"_root_.scala.Seq[$parameterText]"
                         else parameterText
