@@ -42,7 +42,8 @@ class SbtResolverIndex private (val kind: SbtResolver.Kind.Value, val root: Stri
     else
       new SbtIvyCacheIndexer(new File(root)).artifacts.foreach(processArtifact)
 
-    progressIndicator foreach (_.setText2(SbtBundle("sbt.resolverIndexer.progress.saving")))
+    progressIndicator foreach { _.checkCanceled() }
+    progressIndicator foreach { _.setText2(SbtBundle("sbt.resolverIndexer.progress.saving")) }
 
     agMap  foreach { element => artifactToGroupMap.put(element._1, element._2.toSet) }
     gaMap  foreach { element => groupToArtifactMap.put(element._1, element._2.toSet) }
@@ -84,6 +85,8 @@ class SbtResolverIndex private (val kind: SbtResolver.Kind.Value, val root: Stri
 
   def versions(group: String, artifact: String) =
     secureResults(groupArtifactToVersionMap.get(SbtResolverUtils.joinGroupArtifact(group, artifact)))
+
+  def isLocal: Boolean = kind == SbtResolver.Kind.Ivy || root.startsWith("file:")
 
   private def ensureIndexDir() {
     indexDir.mkdirs()
