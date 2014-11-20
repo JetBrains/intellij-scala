@@ -1,27 +1,29 @@
 package org.jetbrains.jps.incremental.scala
 
+import java.io.File
+import java.net.InetAddress
 import java.util
 
-import org.jetbrains.annotations.NotNull
+import com.intellij.openapi.application.PathManager
+import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.DirtyFilesHolder
-import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor
-import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
-import org.jetbrains.jps.incremental.messages.{CompilerMessage, BuildMessage}
+import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
+import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.incremental.scala.ScalaBuilder._
-import org.jetbrains.jps.incremental.{BuilderCategory, CompileContext, ModuleBuildTarget, ModuleLevelBuilder}
+import org.jetbrains.jps.incremental.scala.data.{CompilationData, CompilerData, SbtData}
+import org.jetbrains.jps.incremental.scala.local.LocalServer
+import org.jetbrains.jps.incremental.scala.remote.RemoteServer
 import org.jetbrains.jps.model.JpsProject
 import org.jetbrains.jps.model.module.JpsModule
-import org.jetbrains.jps.incremental.scala.model.CompileOrder
-import org.jetbrains.jps.incremental.scala.model.IncrementalityType
 
-import scala.collection.JavaConverters._
+import _root_.scala.collection.JavaConverters._
 
 /**
  * Nikolay.Tropin
  * 11/19/13
  */
-class ScalaBuilder(category: BuilderCategory, @NotNull delegate: ScalaBuilderDelegate) extends ModuleLevelBuilder(category) {
+abstract class ScalaBuilder(category: BuilderCategory) extends ModuleLevelBuilder(category) {
   def getPresentableName: String = "Scala builder"
 
   def build(context: CompileContext,
@@ -29,69 +31,112 @@ class ScalaBuilder(category: BuilderCategory, @NotNull delegate: ScalaBuilderDel
             dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
             outputConsumer: ModuleLevelBuilder.OutputConsumer): ModuleLevelBuilder.ExitCode = {
 
-    if (isDisabled(context, Some(chunk))) {
-      return ExitCode.NOTHING_DONE
-    }
-
-    if (delegate == IdeaIncrementalBuilder) {
-      if (IdeaIncrementalBuilder.collectSources(context, chunk, dirtyFilesHolder).isEmpty) {
-        return ExitCode.NOTHING_DONE
-      } else if (!hasScalaModules(chunk)) {
-        if (!hasBuildModules(chunk)) {
-          val message = "skipping Scala files without a Scala SDK in module(s) " + chunk.getPresentableShortName
-          context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.WARNING, message))
-        }
-        return ExitCode.NOTHING_DONE
-      }
-    } else {
-      if (!isScalaProject(context.getProjectDescriptor.getProject)) {
-        return ExitCode.NOTHING_DONE
-      }
-    }
-
-    delegate.build(context, chunk, dirtyFilesHolder, outputConsumer)
-  }
-
-  override def buildStarted(context: CompileContext) {
     new IncrementalTypeChecker(context).checkAndUpdate()
 
-    if (isDisabled(context)) {}
-    else delegate.buildStarted(context)
+    if (isDisabled(context) || !isNeeded(context, chunk, dirtyFilesHolder))
+      return ModuleLevelBuilder.ExitCode.NOTHING_DONE
+
+    doBuild(context, chunk, dirtyFilesHolder, outputConsumer)
   }
 
-  override def getCompilableFileExtensions: util.List[String] = List("scala").asJava
+  def doBuild(context: CompileContext,
+              chunk: ModuleChunk,
+              dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
+              outputConsumer: ModuleLevelBuilder.OutputConsumer): ModuleLevelBuilder.ExitCode
 
-  private def isDisabled(context: CompileContext, chunk: Option[ModuleChunk] = None): Boolean = {
-    val projectSettings = SettingsManager.getProjectSettings(context.getProjectDescriptor.getProject)
+  def compile(context: CompileContext,
+              chunk: ModuleChunk,
+              sources: Seq[File],
+              modules: Set[JpsModule],
+              client: Client): Either[String, ModuleLevelBuilder.ExitCode] = {
+    for {
+      sbtData <-  sbtData
+      compilerData <- CompilerData.from(context, chunk)
+      compilationData <- CompilationData.from(sources, context, chunk)
+    }
+    yield {
+      scalaLibraryWarning(modules, compilationData, client)
 
-    projectSettings.getIncrementalityType match {
-      case IncrementalityType.SBT if delegate != SbtBuilder => true
-      case IncrementalityType.IDEA =>
-        if (delegate != IdeaIncrementalBuilder) return true
-
-        projectSettings.getCompileOrder match {
-          case CompileOrder.JavaThenScala if getCategory == BuilderCategory.SOURCE_PROCESSOR => true
-          case (CompileOrder.ScalaThenJava | CompileOrder.Mixed) if getCategory == BuilderCategory.OVERWRITING_TRANSLATOR => true
-          case _ => false
-        }
-      case _ => false
+      val server = getServer(context)
+      server.compile(sbtData, compilerData, compilationData, client)
     }
   }
+
+  protected def isDisabled(context: CompileContext): Boolean
+
+  protected def isNeeded(context: CompileContext, chunk: ModuleChunk,
+                         dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]): Boolean
+
+  override def getCompilableFileExtensions: util.List[String] = List("scala").asJava
 }
 
-// Invokation of these methods can take a long time on large projects (like IDEA's one)
 object ScalaBuilder {
+
+  // Invokation of these methods can take a long time on large projects (like IDEA's one)
   def isScalaProject(project: JpsProject): Boolean = hasScalaSdks(project.getModules)
 
   def hasScalaModules(chunk: ModuleChunk): Boolean = hasScalaSdks(chunk.getModules)
 
-  private def hasBuildModules(chunk: ModuleChunk): Boolean = {
-    import scala.collection.JavaConversions._
+  def hasBuildModules(chunk: ModuleChunk): Boolean = {
+    import _root_.scala.collection.JavaConversions._
     chunk.getModules.exists(_.getName.endsWith("-build")) // gen-idea doesn't use the SBT module type
   }
 
   private def hasScalaSdks(modules: util.Collection[JpsModule]): Boolean = {
-    import scala.collection.JavaConversions._
+    import _root_.scala.collection.JavaConversions._
     modules.exists(SettingsManager.hasScalaSdk)
+  }
+
+  def projectSettings(context: CompileContext) = SettingsManager.getProjectSettings(context.getProjectDescriptor.getProject)
+
+  val Log = JpsLogger.getInstance(classOf[ScalaBuilder])
+
+  // Cached local localServer
+  private var cachedServer: Option[Server] = None
+
+  private val lock = new Object()
+
+  def localServer = {
+    lock.synchronized {
+      val server = cachedServer.getOrElse(new LocalServer())
+      cachedServer = Some(server)
+      server
+    }
+  }
+
+  private def cleanLocalServerCache() {
+    lock.synchronized {
+      cachedServer = None
+    }
+  }
+
+  private lazy val sbtData = {
+    val classLoader = getClass.getClassLoader
+    val pluginRoot = new File(PathManager.getJarPathForClass(getClass)).getParentFile
+    val systemRoot = Utils.getSystemRoot
+    val javaClassVersion = System.getProperty("java.class.version")
+
+    SbtData.from(classLoader, pluginRoot, systemRoot, javaClassVersion)
+  }
+
+  private def scalaLibraryWarning(modules: Set[JpsModule], compilationData: CompilationData, client: Client) {
+    val hasScalaFacet = modules.exists(SettingsManager.hasScalaSdk)
+    val hasScalaLibrary = compilationData.classpath.exists(_.getName.startsWith("scala-library"))
+
+    if (hasScalaFacet && !hasScalaLibrary) {
+      val names = modules.map(_.getName).mkString(", ")
+      client.warning("No 'scala-library*.jar' in module dependencies [%s]".format(names))
+    }
+  }
+
+  private def getServer(context: CompileContext): Server = {
+    val settings = SettingsManager.getGlobalSettings(context.getProjectDescriptor.getModel.getGlobal)
+
+    if (settings.isCompileServerEnabled && JavaBuilderUtil.CONSTANT_SEARCH_SERVICE.get(context) != null) {
+      cleanLocalServerCache()
+      new RemoteServer(InetAddress.getByName(null), settings.getCompileServerPort)
+    } else {
+      localServer
+    }
   }
 }
