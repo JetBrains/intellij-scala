@@ -50,6 +50,8 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
 
   def testScalaPlugin(): Unit = doRunTest()
 
+  def testDotty(): Unit = doRunTest()
+
   def doRunTest(): Unit = {
     val projectDir: File = new File(getRootDir, getTestName(false))
     //this test is not intended to ran locally
