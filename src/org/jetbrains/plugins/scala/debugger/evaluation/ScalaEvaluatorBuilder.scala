@@ -77,7 +77,7 @@ private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextC
 
   import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil._
 
-  val contextClass = _contextClass.getOrElse(getContextClass(element))
+  val contextClass = _contextClass.getOrElse(getContextClass(position.getElementAt))
 
   private var myResult: Evaluator = null
 
