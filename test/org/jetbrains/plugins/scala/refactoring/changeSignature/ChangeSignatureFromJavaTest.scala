@@ -145,4 +145,9 @@ class ChangeSignatureFromJavaTest extends ChangeSignatureTestBase {
     val params = Seq(new ParameterInfoImpl(0, "i", PsiType.INT), new ParameterInfoImpl(-1, "j", PsiType.INT, "0"))
     doTest(null, "foo", null, Seq(params))
   }
+
+  def testDifferentParamNames(): Unit = {
+    val params = Seq(new ParameterInfoImpl(0, "newName", PsiType.INT))
+    doTest(null, "foo", null, Seq(params))
+  }
 }
