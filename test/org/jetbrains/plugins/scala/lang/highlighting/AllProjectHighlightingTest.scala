@@ -10,13 +10,14 @@ import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase
-import com.intellij.openapi.projectRoots.JavaSdkType
+import com.intellij.openapi.projectRoots.{ProjectJdkTable, JavaSdkType}
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.IdeaTestUtil
 import com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl
-import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.{extensions, ScalaFileType}
 import org.jetbrains.plugins.scala.codeInspection.internal.AnnotatorBasedErrorInspection
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -60,6 +61,18 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
       return
     }
     importProject()
+
+    extensions.inWriteAction {
+      val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
+      val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk17
+      else internalSdk
+
+      //todo: why we need this??? Looks like SBT integration problem, as we attached SDK as setting
+      if (ProjectJdkTable.getInstance().findJdk(sdk.getName) == null) {
+        ProjectJdkTable.getInstance().addJdk(sdk)
+      }
+      ProjectRootManager.getInstance(myProject).setProjectSdk(sdk)
+    }
 
     doRunHighlighting()
   }
