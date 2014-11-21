@@ -38,6 +38,7 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
     if (libraries == null) return null
     val psiFile: PsiFile = PsiManager.getInstance(myProject).findFile(file)
     val isScala = psiFile.isInstanceOf[ScalaFile]
+    if (!isScala) return super.createNotificationPanel(file, fileEditor) //as Java has now different message
     val fqn: String =
       if (isScala) ScalaEditorFileSwapper.getFQN(psiFile)
       else getFQN(psiFile)

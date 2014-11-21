@@ -13,6 +13,8 @@ import junit.framework.Test;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import org.junit.runner.RunWith;
+import org.junit.runners.AllTests;
 import scala.Tuple4;
 
 /**
@@ -20,6 +22,7 @@ import scala.Tuple4;
  * Date: 08.11.2008
  */
 @SuppressWarnings({"ConstantConditions"})
+@RunWith(AllTests.class)
 public class SurroundWithTest extends BaseScalaFileSetTestCase{
   private static final String DATA_PATH = "/surroundWith/data/";
 

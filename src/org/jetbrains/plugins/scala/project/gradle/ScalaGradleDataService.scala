@@ -26,7 +26,7 @@ class ScalaGradleDataService(platformFacade: PlatformFacade, helper: ProjectStru
     val scalaData = scalaNode.getData
 
     val compilerOptions = ScalaGradleDataService.compilerOptionsFrom(scalaData)
-    project.scalaCompilerSettigns.configureFrom(compilerOptions)
+    project.scalaCompilerSettigns.updateFrom(compilerOptions)
 
     val compilerClasspath = scalaData.getScalaClasspath.asScala.toSeq
 

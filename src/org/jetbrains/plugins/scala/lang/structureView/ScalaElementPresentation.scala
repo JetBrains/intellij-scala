@@ -46,10 +46,7 @@ object ScalaElementPresentation {
     val presentableText: StringBuffer = new StringBuffer
     presentableText.append(if (!function.isConstructor) function.name else "this")
 
-    function.typeParametersClause match {
-      case Some(clause) => presentableText.append(clause.getText.replace("<", "&lt;"))
-      case _ => ()
-    }
+    function.typeParametersClause.foreach(clause => presentableText.append(clause.getText))
 
     if (function.paramClauses != null)
       presentableText.append(StructureViewUtil.getParametersAsString(function.paramClauses, fast, subst))

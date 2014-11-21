@@ -180,7 +180,7 @@
               <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="&amp;Hhigher-kinded types"/>
+              <text value="&amp;Higher-kinded types"/>
             </properties>
           </component>
           <component id="5881a" class="javax.swing.JCheckBox" binding="myExistentials">

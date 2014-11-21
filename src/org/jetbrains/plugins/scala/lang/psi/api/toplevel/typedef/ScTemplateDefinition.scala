@@ -263,7 +263,7 @@ import com.intellij.openapi.util.{Pair => IPair}
   def processDeclarationsForTemplateBody(processor: PsiScopeProcessor,
                                          oldState: ResolveState,
                                          lastParent: PsiElement,
-                                         place: PsiElement) : Boolean = {
+                                         place: PsiElement): Boolean = {
     if (DumbServiceImpl.getInstance(getProject).isDumb) return true
     var state = oldState
     //exception cases

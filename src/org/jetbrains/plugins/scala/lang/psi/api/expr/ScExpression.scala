@@ -73,7 +73,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                 case Success(tp, _) if tp.conforms(expected) => defaultResult
                 case Success(tp, _) =>
                   val functionType = ScFunctionType(expected, Seq(tp))(getProject, getResolveScope)
-                  val results = new ImplicitParametersCollector(this, functionType, None).collect
+                  val results = new ImplicitParametersCollector(this, functionType, None, isImplicitConversion = true).collect
                   if (results.length == 1) {
                     val res = results(0)
                     val paramType = res match {

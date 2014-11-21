@@ -1,15 +1,18 @@
 package org.jetbrains.plugins.scala
 
 import java.io.File
+import com.intellij.util.Processor
+
 import scala.annotation.tailrec
 import com.intellij.psi.{PsiFile, PsiElement}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.module.{ModuleUtilCore, ModuleManager, Module}
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.impl.libraries.{ProjectLibraryTable, LibraryEx}
-import com.intellij.openapi.roots.{OrderRootType, ProjectFileIndex, LibraryOrderEntry, ModuleRootManager}
+import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.{NewLibraryEditor, ExistingLibraryEditor}
 import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore}
+import scala.collection.immutable.HashSet
 import scala.util.matching.Regex
 import extensions._
 
@@ -52,10 +55,20 @@ package object project {
 
     def scalaSdk: Option[ScalaSdk] = libraries.find(_.isScalaSdk).map(new ScalaSdk(_))
 
-    def libraries = inReadAction {
-      ModuleRootManager.getInstance(module).getOrderEntries.collect {
-        case entry: LibraryOrderEntry if entry.getLibrary != null => entry.getLibrary
-      }
+    def libraries: Set[Library] = inReadAction {
+      var libraries = HashSet.empty[Library]
+
+      val enumerator = ModuleRootManager.getInstance(module)
+              .orderEntries().recursively().librariesOnly().exportedOnly()
+
+      enumerator.forEachLibrary(new Processor[Library] {
+        override def process(library: Library) = {
+          libraries += library
+          true
+        }
+      })
+
+      libraries
     }
 
     def attach(library: Library) {
@@ -175,7 +188,7 @@ package object project {
     }
   }
 
-  val LibraryVersion: Regex = """(?<=:|-)\d+\.\d+\.\d+\S*$""".r
+  val LibraryVersion: Regex = """(?<=:|-)\d+\.\d+\.\d+""".r
 
   val JarVersion: Regex = """(?<=-)\d+\.\d+\.\d+\S*(?=\.jar$)""".r
 }

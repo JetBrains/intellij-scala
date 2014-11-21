@@ -142,7 +142,7 @@ object InferUtil {
     while (iterator.hasNext) {
       val param = iterator.next()
       val paramType = abstractSubstitutor.subst(param.paramType) //we should do all of this with information known before
-      val collector = new ImplicitParametersCollector(place, paramType, coreElement, searchImplicitsRecursively)
+      val collector = new ImplicitParametersCollector(place, paramType, coreElement, isImplicitConversion = false, searchImplicitsRecursively)
       val results = collector.collect
       if (results.length == 1) {
         if (check && !results(0).isApplicable()) throw new SafeCheckException

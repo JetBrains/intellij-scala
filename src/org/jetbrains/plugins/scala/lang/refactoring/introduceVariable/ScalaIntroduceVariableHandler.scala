@@ -95,12 +95,12 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
             }
             val needExplicitType = forceInferType.getOrElse(ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_EXPLICIT_TYPE)
             val selectedType = if (needExplicitType) types(0) else null
-            val introduceRunnable: Computable[PsiElement] =
+            val introduceRunnable: Computable[SmartPsiElementPointer[PsiElement]] =
               introduceVariable(startOffset, endOffset, file, editor, expr, occurrences, suggestedNames(0), selectedType,
                 replaceAll, asVar)
             CommandProcessor.getInstance.executeCommand(project, new Runnable {
               def run() {
-                val newDeclaration: PsiElement = ApplicationManager.getApplication.runWriteAction(introduceRunnable)
+                val newDeclaration: PsiElement = ApplicationManager.getApplication.runWriteAction(introduceRunnable).getElement
                 val namedElement: PsiNamedElement = newDeclaration match {
                   case holder: ScDeclaredElementsHolder => holder.declaredElements.headOption.orNull
                   case enum: ScEnumerator => enum.pattern.bindings.headOption.orNull
@@ -143,10 +143,10 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
     }
   }
 
-  //returns ScDeclaredElementsHolder or ScEnumerator
+  //returns smart pointer to ScDeclaredElementsHolder or ScEnumerator
   def runRefactoringInside(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression_ : ScExpression,
                            occurrences_ : Array[TextRange], varName: String, varType: ScType,
-                           replaceAllOccurrences: Boolean, isVariable: Boolean): PsiElement = {
+                           replaceAllOccurrences: Boolean, isVariable: Boolean): SmartPsiElementPointer[PsiElement] = {
 
     def isIntroduceEnumerator(parExpr: PsiElement, prev: PsiElement, firstOccurenceOffset: Int): Option[ScForStatement] = {
       val result = prev match {
@@ -325,7 +325,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
 
     addPrivateIfNotLocal(createdDeclaration)
     ScalaPsiUtil.adjustTypes(createdDeclaration)
-    createdDeclaration
+    SmartPointerManager.getInstance(file.getProject).createSmartPsiElementPointer(createdDeclaration)
   }
 
   def runRefactoring(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression: ScExpression,
@@ -344,10 +344,10 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
 
   def introduceVariable(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression: ScExpression,
                         occurrences_ : Array[TextRange], varName: String, varType: ScType,
-                        replaceAllOccurrences: Boolean, isVariable: Boolean): Computable[PsiElement] = {
+                        replaceAllOccurrences: Boolean, isVariable: Boolean): Computable[SmartPsiElementPointer[PsiElement]] = {
 
-    new Computable[PsiElement]() {
-      def compute(): PsiElement = runRefactoringInside(startOffset, endOffset, file, editor, expression, occurrences_, varName,
+    new Computable[SmartPsiElementPointer[PsiElement]]() {
+      def compute() = runRefactoringInside(startOffset, endOffset, file, editor, expression, occurrences_, varName,
         varType, replaceAllOccurrences, isVariable)
     }
 

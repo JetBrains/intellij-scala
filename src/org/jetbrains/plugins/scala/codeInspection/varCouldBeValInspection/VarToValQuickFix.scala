@@ -3,7 +3,6 @@ package codeInspection
 package varCouldBeValInspection
 
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
@@ -11,15 +10,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
-class VarToValQuickFix(varDef: ScVariableDefinition) extends LocalQuickFix {
-  def applyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
-    val parent = varDef.getContext
+class VarToValQuickFix(varDef: ScVariableDefinition)
+        extends AbstractFixOnPsiElement(ScalaBundle.message("convert.var.to.val"), varDef) {
+  def doApplyFix(project: Project): Unit = {
+    val varDef = getElement
     varDef.replace(ScalaPsiElementFactory.createValFromVarDefinition(varDef, varDef.getManager))
   }
-
-  def getName: String = "Convert 'var' to 'val'"
-
-  def getFamilyName: String = getName
 }
 
 class ValToVarQuickFix(valDef: ScValue) extends IntentionAction {

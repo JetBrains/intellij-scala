@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package codeInspection.etaExpansion
 
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.codeInspection.etaExpansion.ConvertibleToMethodValueInspection._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -82,11 +82,12 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
 }
 
 class ConvertibleToMethodValueQuickFix(expr: ScExpression, replacement: String, hint: String)
-        extends AbstractFix(hint, expr){
+        extends AbstractFixOnPsiElement(hint, expr){
 
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
-    if (!expr.isValid) return
-    val newExpr = ScalaPsiElementFactory.createExpressionFromText(replacement, expr.getManager)
-    expr.replaceExpression(newExpr, removeParenthesis = true)
+  def doApplyFix(project: Project) {
+    val scExpr = getElement
+    if (!scExpr.isValid) return
+    val newExpr = ScalaPsiElementFactory.createExpressionFromText(replacement, scExpr.getManager)
+    scExpr.replaceExpression(newExpr, removeParenthesis = true)
   }
 }

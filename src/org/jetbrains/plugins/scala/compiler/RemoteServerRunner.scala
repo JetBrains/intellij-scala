@@ -14,7 +14,7 @@ import org.jetbrains.jps.incremental.scala.remote.RemoteResourceOwner
 class RemoteServerRunner(project: Project) extends RemoteResourceOwner {
   protected val address = InetAddress.getByName(null)
 
-  protected val port = ScalaApplicationSettings.getInstance().COMPILE_SERVER_PORT
+  protected val port = ScalaCompileServerSettings.getInstance().COMPILE_SERVER_PORT
 
   def buildProcess(arguments: Seq[String], client: Client) = new CompilationProcess {
     val COUNT = 10
@@ -61,7 +61,7 @@ class RemoteServerStopper(val port: Int) extends RemoteResourceOwner {
 
   def sendStop(): Unit =
     try {
-      val stopCommand = "stop_" + ScalaApplicationSettings.getInstance().COMPILE_SERVER_ID
+      val stopCommand = "stop_" + ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ID
       send(stopCommand, Seq(s"--nailgun-port $port"), null)
     } catch {
       case e: Exception =>

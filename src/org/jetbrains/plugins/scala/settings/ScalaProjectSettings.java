@@ -42,6 +42,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean DISABLE_LANGUAGE_INJECTION = true;
   private boolean DISABLE_I18N = false;
   private boolean DONT_CACHE_COMPOUND_TYPES = false;
+  private boolean AOT_COMPLETION = true;
   private boolean SCALA_CLASSES_PRIORITY = true;
 
   //WORKSHEET
@@ -188,6 +189,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setDisableLangInjection(boolean value) {
     DISABLE_LANGUAGE_INJECTION = value;
+  }
+
+  public boolean isAotCompletion() {
+    return AOT_COMPLETION;
+  }
+
+  public void setAotCOmpletion(boolean value) {
+    AOT_COMPLETION = value;
   }
 
   public boolean isScalaPriority() {

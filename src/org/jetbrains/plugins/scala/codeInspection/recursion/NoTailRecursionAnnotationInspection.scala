@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
 package codeInspection.recursion
 
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
+import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{RecursionType, ScAnnotationsHolder, ScFunctionDefinition}
 
 /**
@@ -18,9 +18,9 @@ class NoTailRecursionAnnotationInspection extends AbstractInspection("No tail re
   }
 
   class AddAnnotationQuickFix(holder: ScAnnotationsHolder)
-          extends AbstractFix("Add @tailrec annotation", holder) {
-    def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
-      holder.addAnnotation("scala.annotation.tailrec")
+          extends AbstractFixOnPsiElement("Add @tailrec annotation", holder) {
+    def doApplyFix(project: Project) {
+      getElement.addAnnotation("scala.annotation.tailrec")
     }
   }
 }

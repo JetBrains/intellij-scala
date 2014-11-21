@@ -1,14 +1,12 @@
 package org.jetbrains.plugins.scala
 package codeInspection.feature
 
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
+import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ScalaCompilerSettings}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ReferenceTarget, _}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
@@ -18,6 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamCla
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScMacroDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScClassParents
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ScalaCompilerSettings}
 
 /**
  * @author Pavel Fatin
@@ -88,19 +88,21 @@ private case class Feature(name: String,
 }
 
 private class ImportFeatureFlagFix(e: PsiElement, name: String, flag: String)
-        extends AbstractFix("Import feature flag for %ss".format(name), e) {
+        extends AbstractFixOnPsiElement("Import feature flag for %ss".format(name), e) {
 
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
-    val importsHolder = ScalaImportTypeFix.getImportHolder(e, e.getProject)
-    importsHolder.addImportForPath(flag, e)
+  def doApplyFix(project: Project) {
+    val elem = getElement
+    val importsHolder = ScalaImportTypeFix.getImportHolder(elem, elem.getProject)
+    importsHolder.addImportForPath(flag, elem)
   }
 }
 
 private class EnableFeatureInProjectFix(e: PsiElement, name: String, f: ScalaCompilerSettings => Unit)
-        extends AbstractFix("Enable %ss in the project".format(name), e) {
+        extends AbstractFixOnPsiElement("Enable %ss in the project".format(name), e) {
 
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
-    val settings = e.getProject.scalaCompilerSettigns
+  def doApplyFix(project: Project) {
+    val elem = getElement
+    val settings = elem.getProject.scalaCompilerSettigns
     f(settings)
   }
 }

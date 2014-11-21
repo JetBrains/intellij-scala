@@ -23,7 +23,7 @@ import scala.tools.scalap.scalax.rules.scalasig._
  */
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil")
-  val DECOMPILER_VERSION = 257
+  val DECOMPILER_VERSION = 258
   private val SCALA_DECOMPILER_FILE_ATTRIBUTE = new FileAttribute("_is_scala_compiled_", DECOMPILER_VERSION, true)
   private val SCALA_DECOMPILER_KEY = new Key[SoftReference[DecompilationResult]]("Is Scala File Key")
   
@@ -188,6 +188,8 @@ object DecompilerUtil {
 
       DecompilationResult(isScala = true, sourceFileName, sourceText, file.getTimeStamp)
     } catch {
+      // TODO Narrow the try block scope, catch only specific exception classes
+      case e: ClassNotFoundException => throw e
       case t: Throwable =>
 //        LOG.info(s"Error during decompiling ${file.getName}: ${t.getMessage}", t)
         DecompilationResult(isScala = false, "", "", file.getTimeStamp)

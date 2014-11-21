@@ -17,17 +17,17 @@ class ScalaMissingIfBranchesFixer extends ScalaFixer {
     val ifStatement = PsiTreeUtil.getParentOfType(psiElement, classOf[ScIfStmt], false)
     if (ifStatement != null) {
       val doc: Document = editor.getDocument
-      val elseBranch: ScExpression = ifStatement.elseBranch.getOrElse(null)
-      val thenBranch: ScExpression = ifStatement.thenBranch.getOrElse(null)
+      val elseBranch: ScExpression = ifStatement.elseBranch.orNull
+      val thenBranch: ScExpression = ifStatement.thenBranch.orNull
       if (thenBranch.isInstanceOf[ScBlockExpr]) return
       var transformingOneLiner: Boolean = false
       if (thenBranch != null && startLine(doc, thenBranch) == startLine(doc, ifStatement)) {
-        if (ifStatement.condition.getOrElse(null) != null) {
+        if (ifStatement.condition.orNull != null) {
           return
         }
         transformingOneLiner = true
       }
-      val rParenth = ifStatement.getRightParenthesis.getOrElse(null)
+      val rParenth = ifStatement.getRightParenthesis.orNull
       assert(rParenth != null)
       if (elseBranch == null && !transformingOneLiner || thenBranch == null) {
         doc.insertString(rParenth.getTextRange.getEndOffset, "{\n\n}")

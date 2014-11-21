@@ -30,7 +30,7 @@ class InlineImplicitConversionIntention extends PsiElementBaseIntentionAction {
     if (expr == null) return false
 
     val implicitConversions = expr.getImplicitConversions(fromUnder = true)
-    val conversionFun = implicitConversions._2.getOrElse(null)
+    val conversionFun = implicitConversions._2.orNull
     if (conversionFun == null) return false
 
     true
@@ -41,7 +41,7 @@ class InlineImplicitConversionIntention extends PsiElementBaseIntentionAction {
     if (expr == null || !expr.isValid) return
 
     val implicitConversions = expr.getImplicitConversions(true)
-    val conversionFun = implicitConversions._2.getOrElse(null)
+    val conversionFun = implicitConversions._2.orNull
     if (conversionFun == null || !conversionFun.isInstanceOf[ScFunction]) return
     val secondPart = implicitConversions._4.getOrElse(Seq.empty)
 

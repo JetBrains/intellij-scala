@@ -210,8 +210,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
     if (synth.isStringPlusMethod && arguments.length == 1) {
       val qualText = qualOpt.fold("this")(_.getText)
-      val exprText = s"($qualText).concat(_root_.java.lang.String.valueOf(${arguments(0).getText})"
-      val expr = ScalaPsiElementFactory.createExpressionFromText(exprText, ref.getManager)
+      val exprText = s"($qualText).concat(_root_.java.lang.String.valueOf(${arguments(0).getText}))"
+      val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, ref.getContext, ref)
       return ScalaEvaluator(expr)
     }
 
@@ -404,7 +404,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   def implicitArgEvaluator(fun: ScMethodLike, param: ScParameter, owner: ImplicitParametersOwner): Evaluator = {
     assert(param.owner == fun)
     val implicitParameters = fun.effectiveParameterClauses.lastOption match {
-      case Some(clause) if clause.isImplicit => clause.parameters
+      case Some(clause) if clause.isImplicit => clause.effectiveParameters
       case _ => Seq.empty
     }
     val i = implicitParameters.indexOf(param)
@@ -458,7 +458,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case funDef: ScFunctionDefinition =>
         def paramIndex(fun: ScFunctionDefinition, context: PsiElement, elem: PsiElement): Int = {
           val locIndex = DebuggerUtil.localParamsForFunDef(fun).indexOf(elem)
-          val funParams = fun.effectiveParameterClauses.flatMap(_.parameters)
+          val funParams = fun.effectiveParameterClauses.flatMap(_.effectiveParameters)
           if (locIndex < 0) funParams.indexOf(elem)
           else locIndex + funParams.size
         }
@@ -510,9 +510,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val methodPosition = DebuggerUtil.getSourcePositions(method.getNavigationElement)
     val signature = JVMNameUtil.getJVMSignature(method)
     ref.qualifier match {
-      case Some(literal: ScLiteral) =>
-        val litEval = boxEvaluator(ScalaLiteralEvaluator(literal))
-        ScalaMethodEvaluator(litEval, method.name, signature, argEvals, None, methodPosition)
+      case Some(qual @ ExpressionType(tp)) if isPrimitiveScType(tp) =>
+        val boxEval = boxEvaluator(ScalaEvaluator(qual))
+        ScalaMethodEvaluator(boxEval, method.name, signature, argEvals, None, methodPosition)
       case Some(q) if method.hasModifierPropertyScala("static") =>
         val eval = new TypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(method)))
         val name = method.name
@@ -542,7 +542,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val clauses = fun.effectiveParameterClauses
 
     def addForNextClause(previousClausesEvaluators: Seq[Evaluator], clause: ScParameterClause): Seq[Evaluator] = {
-      previousClausesEvaluators ++ clause.parameters.map {
+      previousClausesEvaluators ++ clause.effectiveParameters.map {
         case param =>
           val p = new Parameter(param)
           val exprsForP = matchedParameters.find(_._1.name == p.name).map(_._2).getOrElse(Seq.empty).filter(_ != null)
@@ -558,7 +558,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             }
             else if (param.isImplicitParameter) implicitArgEvaluator(fun, param, call)
             else if (p.isDefault) {
-              val parameters = clauses.flatMap(_.parameters).map(new Parameter(_))
+              val parameters = clauses.flatMap(_.effectiveParameters).map(new Parameter(_))
               val methodName = defaultParameterMethodName(fun, p, parameters)
               functionEvaluator(ref.qualifier, ref, methodName, previousClausesEvaluators)
             }
@@ -578,17 +578,26 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   def functionEvaluator(qualOption: Option[ScExpression], ref: ScReferenceExpression,
                         funName: String, argEvaluators: Seq[Evaluator]): Evaluator = {
 
+    def qualEvaluator(r: ScalaResolveResult) = {
+      def defaultQualEvaluator = qualifierEvaluator(qualOption, ref)
+
+      r.getActualElement match {
+        case o: ScObject if funName == "apply" => objectEvaluator(o, defaultQualEvaluator _)
+        case _ => defaultQualEvaluator
+      }
+    }
+    val name = NameTransformer.encode(funName)
+
     ref.bind() match {
       case Some(r) if r.tuplingUsed => throw EvaluationException("Tupling is unsupported. Use tuple expression.")
-      case None => throw EvaluationException("Cannot evaluate method")
+      case None => throw EvaluationException(s"Cannot evaluate method $funName")
+      case Some(r @ privateTraitMethod(tr, fun)) =>
+        val traitTypeEval = new TypeEvaluator(DebuggerUtil.getClassJVMName(tr, withPostfix = true))
+        val qualEval = qualEvaluator(r)
+        new ScalaMethodEvaluator(traitTypeEval, name, null, qualEval +: argEvaluators)
       case Some(r) =>
         val resolve = r.element
-        def defaultQualEvaluator = qualifierEvaluator(qualOption, ref)
-        val qualEval = r.getActualElement match {
-          case o: ScObject if funName == "apply" => objectEvaluator(o, defaultQualEvaluator _)
-          case _ => defaultQualEvaluator
-        }
-        val name = NameTransformer.encode(funName)
+        val qualEval = qualEvaluator(r)
         val signature = resolve match {
           case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
           case _ => null
@@ -1075,13 +1084,17 @@ object ScalaEvaluatorBuilderUtil {
   def isOfPrimitiveType(param: PsiParameter) = param match { //todo specialized type parameters
     case p: ScParameter =>
       val tp: ScType = p.getType(TypingContext.empty).getOrAny
-      import org.jetbrains.plugins.scala.lang.psi.types._
-      Set[ScType](Boolean, Int, Char, Double, Float, Long, Byte, Short).contains(tp)
+      isPrimitiveScType(tp)
     case p: PsiParameter =>
       val tp = param.getType
       import com.intellij.psi.PsiType._
       Set[PsiType](BOOLEAN, INT, CHAR, DOUBLE, FLOAT, LONG, BYTE, SHORT).contains(tp)
     case _ => false
+  }
+  
+  def isPrimitiveScType(tp: ScType) = {
+    import org.jetbrains.plugins.scala.lang.psi.types._
+    Set[ScType](Boolean, Int, Char, Double, Float, Long, Byte, Short).contains(tp)
   }
 
   object implicitlyConvertedTo {
@@ -1210,6 +1223,15 @@ object ScalaEvaluatorBuilderUtil {
         }
       }
       inner(elem)
+    }
+  }
+
+  object privateTraitMethod {
+    def unapply(r: ScalaResolveResult): Option[(ScTrait, ScFunctionDefinition)] = {
+      r.getElement match {
+        case Both(fun: ScFunctionDefinition, ContainingClass(tr: ScTrait)) if fun.isPrivate => Some(tr, fun)
+        case _ => None
+      }
     }
   }
 }

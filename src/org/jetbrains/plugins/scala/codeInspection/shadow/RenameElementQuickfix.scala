@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.codeInspection.shadow
 
-import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.ide.DataManager
 import com.intellij.injected.editor.EditorWindow
 import com.intellij.openapi.actionSystem._
@@ -12,7 +11,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.refactoring.actions.RenameElementAction
-import org.jetbrains.plugins.scala.codeInspection.AbstractFix
+import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.extensions._
 
 /**
@@ -20,17 +19,18 @@ import org.jetbrains.plugins.scala.extensions._
  * Date: 06.02.12
  */
 
-class RenameElementQuickfix(ref: PsiElement, name: String) extends AbstractFix(name, ref) {
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
-    if (!ref.isValid) return
+class RenameElementQuickfix(ref: PsiElement, name: String) extends AbstractFixOnPsiElement(name, ref) {
+  def doApplyFix(project: Project) {
+    val elem = getElement
+    if (!elem.isValid) return
     val action: AnAction = new RenameElementAction
-    val event: AnActionEvent = actionEventForElement(descriptor, project, action)
+    val event: AnActionEvent = actionEventForElement(project, action)
     invokeLater {
       action.actionPerformed(event)
     }
   }
 
-  private def actionEventForElement(descriptor: ProblemDescriptor, project: Project, action: AnAction): AnActionEvent = {
+  private def actionEventForElement(project: Project, action: AnAction): AnActionEvent = {
     import scala.collection.JavaConversions._
     import scala.collection.mutable
 
