@@ -57,7 +57,7 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
         configuration.compilerOptions ++ plugins.map(path => "-P:" + path)
       }
 
-      module.getProject.scalaCompilerSettigns.configureFrom(compilerOptions)
+      module.getProject.scalaCompilerSettigns.updateFrom(compilerOptions)
 
       val compilerVersion = configuration.compilerVersion.get
 

@@ -1,7 +1,6 @@
 package org.jetbrains.jps.incremental.scala
 
 import org.jetbrains.jps.ModuleChunk
-import org.jetbrains.jps.model.JpsGlobal
 import org.jetbrains.jps.service.JpsServiceManager
 
 import scala.collection.JavaConverters._
@@ -10,12 +9,12 @@ import scala.collection.JavaConverters._
  * @author Pavel Fatin
  */
 abstract class ChunkExclusionService {
-  def isExcluded(chunk: ModuleChunk, global: JpsGlobal): Boolean
+  def isExcluded(chunk: ModuleChunk): Boolean
 }
 
 object ChunkExclusionService {
-  def isExcluded(chunk: ModuleChunk, global: JpsGlobal): Boolean = {
+  def isExcluded(chunk: ModuleChunk): Boolean = {
     val providers = JpsServiceManager.getInstance.getExtensions(classOf[ChunkExclusionService]).asScala
-    providers.exists(_.isExcluded(chunk, global: JpsGlobal))
+    providers.exists(_.isExcluded(chunk))
   }
 }

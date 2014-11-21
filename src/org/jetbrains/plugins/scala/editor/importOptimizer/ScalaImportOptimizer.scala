@@ -233,6 +233,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val collectImports = settings.isCollectImports
     val groups = settings.getImportLayout
     val isUnicodeArrow = settings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR
+    val spacesInImports = settings.SPACES_IN_IMPORTS
 
     val sortedImportsInfo: mutable.Map[TextRange, Seq[ImportInfo]] =
       for ((range, (names, _importInfos)) <- importsInfo) yield {
@@ -278,8 +279,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
             while (i + 1 < buffer.length) {
               val l: String = buffer(i).prefixQualifier
               val r: String = buffer(i + 1).prefixQualifier
-              val lText = getImportTextCreator.getImportText(buffer(i), isUnicodeArrow)
-              val rText = getImportTextCreator.getImportText(buffer(i + 1), isUnicodeArrow)
+              val lText = getImportTextCreator.getImportText(buffer(i), isUnicodeArrow, spacesInImports, sortImports)
+              val rText = getImportTextCreator.getImportText(buffer(i + 1), isUnicodeArrow, spacesInImports, sortImports)
               if (greater(l, r, lText, rText, project) && swap(i)) changed = true
               i = i + 1
             }
@@ -383,7 +384,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
           var currentGroupIndex = -1
           val text = importInfos.map { info =>
             val index: Int = findGroupIndex(info.prefixQualifier, project)
-            if (index <= currentGroupIndex) textCreator.getImportText(info, isUnicodeArrow)
+            if (index <= currentGroupIndex) textCreator.getImportText(info, isUnicodeArrow, spacesInImports, sortImports)
             else {
               var blankLines = ""
               def iteration() {
@@ -395,7 +396,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
               }
               while (currentGroupIndex != -1 && blankLines.isEmpty && currentGroupIndex < index) iteration()
               currentGroupIndex = index
-              blankLines + textCreator.getImportText(info, isUnicodeArrow)
+              blankLines + textCreator.getImportText(info, isUnicodeArrow, spacesInImports, sortImports)
             }
           }.mkString(splitter)
           val newRange: TextRange = if (text.isEmpty) {
@@ -482,42 +483,32 @@ object ScalaImportOptimizer {
   }
 
   class ImportTextCreator {
-    def getImportText(importInfo: ImportInfo, isUnicodeArrow: Boolean): String = {
+    def getImportText(importInfo: ImportInfo, isUnicodeArrow: Boolean, spacesInImports: Boolean, 
+                      sortLexicografically: Boolean): String = {
       import importInfo._
 
       val groupStrings = new ArrayBuffer[String]
-      groupStrings ++= singleNames.toSeq.sorted
+      groupStrings ++= singleNames
       val arrow = if (isUnicodeArrow) ScalaTypedHandler.unicodeCaseArrow else "=>"
-      groupStrings ++= renames.map(pair => s"${pair._1} $arrow ${pair._2}").toSeq.sorted
-      groupStrings ++= hidedNames.map(_ + s" $arrow _").toSeq.sorted
-      if (hasWildcard) groupStrings += "_"
+      groupStrings ++= renames.map(pair => s"${pair._1} $arrow ${pair._2}")
+      groupStrings ++= hidedNames.map(_ + s" $arrow _")
+      val sortedGroupStrings = if (sortLexicografically) groupStrings.sorted else groupStrings
+      if (hasWildcard) sortedGroupStrings += "_"
+      val space = if (spacesInImports) " " else ""
+      val root = if (rootUsed) "_root_." else ""
       val postfix =
-        if (groupStrings.length > 1 || renames.nonEmpty || hidedNames.nonEmpty) groupStrings.mkString("{", ", ", "}")
-        else groupStrings(0)
-      "import " + (if (rootUsed) "_root_." else "") + relative.getOrElse(prefixQualifier) + "." + postfix
+        if (sortedGroupStrings.length > 1 || renames.nonEmpty || hidedNames.nonEmpty) sortedGroupStrings.mkString(s"{$space", ", ", s"$space}")
+        else sortedGroupStrings(0)
+      s"import $root${relative.getOrElse(prefixQualifier)}.$postfix"
     }
   }
 
-  class ImportInfo(val importUsed: Set[ImportUsed], val prefixQualifier: String,
-                   val relative: Option[String], val allNames: Set[String],
-                   val singleNames: Set[String], val renames: Map[String, String],
-                   val hidedNames: Set[String], val hasWildcard: Boolean, val rootUsed: Boolean) {
-    def withoutRelative(holderNames: Set[String]): ImportInfo = {
-      if (relative.isDefined || rootUsed) {
-        val id = getFirstId(prefixQualifier)
-        val rootUsed = holderNames.contains(id)
-        this.copy(relative = None)
-      } else this
-    }
-
-    def copy(importUsed: Set[ImportUsed] = importUsed, prefixQualifier: String = prefixQualifier,
-             relative: Option[String] = relative, allNames: Set[String] = allNames,
-             singleNames: Set[String] = singleNames, renames: Map[String, String] = renames,
-             hidedNames: Set[String] = hidedNames, hasWildcard: Boolean = hasWildcard,
-             rootUsed: Boolean = rootUsed): ImportInfo = {
-      new ImportInfo(importUsed, prefixQualifier, relative, allNames,
-        singleNames, renames, hidedNames, hasWildcard, rootUsed)
-    }
+  case class ImportInfo(importUsed: Set[ImportUsed], prefixQualifier: String,
+                   relative: Option[String], allNames: Set[String],
+                   singleNames: Set[String], renames: Map[String, String],
+                   hidedNames: Set[String], hasWildcard: Boolean, rootUsed: Boolean) {
+    def withoutRelative(holderNames: Set[String]): ImportInfo =
+      if (relative.isDefined || rootUsed) copy(relative = None) else this
   }
 
   def name(s: String): String = {

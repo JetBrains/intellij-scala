@@ -95,14 +95,13 @@ class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
   }
 }
 
-class SimplifyAppliedTypeLambdaQuickFix(paramType: ScParameterizedTypeElement, replacement: => String) extends LocalQuickFix {
-  def applyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
-    val parent = paramType.getContext
-    paramType.replace(ScalaPsiElementFactory.createTypeElementFromText(replacement, paramType.getManager))
+class SimplifyAppliedTypeLambdaQuickFix(paramType: ScParameterizedTypeElement, replacement: => String)
+        extends AbstractFixOnPsiElement("Simplify type", paramType) {
+
+  def doApplyFix(project: Project): Unit = {
+    val pType = getElement
+    val parent = pType.getContext
+    pType.replace(ScalaPsiElementFactory.createTypeElementFromText(replacement, pType.getManager))
   }
-
-  def getName: String = "Simplify type"
-
-  def getFamilyName: String = getName
 }
 

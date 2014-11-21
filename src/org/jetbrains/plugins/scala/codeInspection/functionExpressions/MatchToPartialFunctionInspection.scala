@@ -11,7 +11,7 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.codeInspection.functionExpressions.MatchToPartialFunctionInspection._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -68,26 +68,28 @@ object MatchToPartialFunctionInspection {
 }
 
 class MatchToPartialFunctionQuickFix(matchStmt: ScMatchStmt, fExprToReplace: ScExpression)
-        extends AbstractFix(inspectionName, fExprToReplace) {
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
-    val matchStmtCopy = matchStmt.copy.asInstanceOf[ScMatchStmt]
+        extends AbstractFixOnTwoPsiElements(inspectionName, matchStmt, fExprToReplace) {
+  def doApplyFix(project: Project) {
+    val mStmt = getFirstElement
+    val fExpr = getSecondElement
+    val matchStmtCopy = mStmt.copy.asInstanceOf[ScMatchStmt]
     val leftBrace = matchStmtCopy.findFirstChildByType(ScalaTokenTypes.tLBRACE)
     if (leftBrace == null) return
 
-    addNamingPatterns(matchStmtCopy, needNamingPattern(matchStmt))
+    addNamingPatterns(matchStmtCopy, needNamingPattern(mStmt))
     matchStmtCopy.deleteChildRange(matchStmtCopy.getFirstChild, leftBrace.getPrevSibling)
-    val newBlock = ScalaPsiElementFactory.createExpressionFromText(matchStmtCopy.getText, matchStmt.getManager)
+    val newBlock = ScalaPsiElementFactory.createExpressionFromText(matchStmtCopy.getText, mStmt.getManager)
     CodeEditUtil.setOldIndentation(newBlock.getNode.asInstanceOf[TreeElement], CodeEditUtil.getOldIndentation(matchStmtCopy.getNode))
     extensions.inWriteAction {
-      fExprToReplace.getParent match {
+      fExpr.getParent match {
         case (argList: ScArgumentExprList) childOf (call: ScMethodCall) if argList.exprs.size == 1 =>
           val newMethCall =
-            ScalaPsiElementFactory.createExpressionFromText(call.getInvokedExpr.getText + " " + newBlock.getText, fExprToReplace.getManager)
+            ScalaPsiElementFactory.createExpressionFromText(call.getInvokedExpr.getText + " " + newBlock.getText, fExpr.getManager)
           call.replace(newMethCall)
-        case block@ScBlock(`fExprToReplace`) =>
+        case block@ScBlock(`fExpr`) =>
           block.replace(newBlock)
         case _ =>
-          fExprToReplace.replace(newBlock)
+          fExpr.replace(newBlock)
       }
       PsiDocumentManager.getInstance(project).commitAllDocuments()
     }

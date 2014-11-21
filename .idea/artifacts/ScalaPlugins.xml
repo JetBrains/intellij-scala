@@ -1,6 +1,12 @@
 <component name="ArtifactManager">
   <artifact build-on-make="true" name="ScalaPlugins">
-    <output-path>$PROJECT_DIR$/out/IDEA-14/artifacts/Scala</output-path>
+    <output-path>$PROJECT_DIR$/out/plugin/Scala</output-path>
+    <properties id="ant-postprocessing">
+      <options enabled="true">
+        <file>file://$PROJECT_DIR$/buildutils.xml</file>
+        <target>idea.postbuild</target>
+      </options>
+    </properties>
     <root id="root">
       <element id="directory" name="lib">
         <element id="archive" name="scala-plugin-runners.jar">
@@ -9,12 +15,6 @@
         </element>
         <element id="archive" name="scala-plugin.jar">
           <element id="module-output" name="ScalaCommunity" />
-          <element id="directory" name="META-INF">
-            <element id="dir-copy" path="$PROJECT_DIR$/SBT/src/main/resources/META-INF" />
-          </element>
-          <element id="module-output" name="intellij-hocon" />
-          <element id="module-output" name="intellij-scalastyle" />
-          <element id="module-output" name="SBT" />
         </element>
         <element id="directory" name="jps">
           <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/compiler-interface-sources.jar" />
@@ -32,12 +32,16 @@
         <element id="archive" name="scala-nailgun-runner.jar">
           <element id="module-output" name="NailgunRunners" />
         </element>
-        <element id="library" level="application" name="scala-library" />
+        <element id="library" level="project" name="SBT: org.scala-lang:scala-library:2.11.2" />
+        <element id="library" level="project" name="SBT: org.scala-lang.modules:scala-xml_2.11:1.0.2" />
+        <element id="dir-copy" path="$PROJECT_DIR$/SDK/scalap" />
+        <element id="library" level="project" name="SBT: org.scala-lang:scala-reflect:2.11.2" />
+        <element id="dir-copy" path="$PROJECT_DIR$/SDK/scalastyle" />
       </element>
       <element id="directory" name="launcher">
-        <element id="file-copy" path="$PROJECT_DIR$/SBT/jars/sbt-launch.jar" />
-        <element id="file-copy" path="$PROJECT_DIR$/SBT/jars/sbt-structure-0.12.jar" />
-        <element id="file-copy" path="$PROJECT_DIR$/SBT/jars/sbt-structure-0.13.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/jars/sbt-launch.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/jars/sbt-structure-0.12.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/jars/sbt-structure-0.13.jar" />
       </element>
     </root>
   </artifact>

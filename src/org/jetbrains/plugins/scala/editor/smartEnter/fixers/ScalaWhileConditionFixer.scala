@@ -18,13 +18,13 @@ class ScalaWhileConditionFixer extends ScalaFixer {
     val whileStatement = PsiTreeUtil.getParentOfType(psiElement, classOf[ScWhileStmt], false)
     if (whileStatement == null) return
     val doc: Document = editor.getDocument
-    val leftParenthesis = whileStatement.getLeftParenthesis.getOrElse(null)
-    val rightParenthesis = whileStatement.getRightParenthesis.getOrElse(null)
-    val condition = whileStatement.condition.getOrElse(null)
+    val leftParenthesis = whileStatement.getLeftParenthesis.orNull
+    val rightParenthesis = whileStatement.getRightParenthesis.orNull
+    val condition = whileStatement.condition.orNull
     if (condition == null) {
       if (leftParenthesis == null || rightParenthesis == null) {
         var stopOffset: Int = doc.getLineEndOffset(doc.getLineNumber(whileStatement.getTextRange.getStartOffset))
-        val block = whileStatement.body.getOrElse(null)
+        val block = whileStatement.body.orNull
         if (block != null) {
           stopOffset = Math.min(stopOffset, block.getTextRange.getStartOffset)
         }

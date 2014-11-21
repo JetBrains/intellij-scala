@@ -1,0 +1,19 @@
+class a {
+  def foo() = {
+    1 match {
+      case 1 => <begin>1<end>
+      case _ => 2
+    }
+  }
+}
+------
+class a {
+  def foo() = {
+    1 match {
+      case 1 =>
+        val value: Int = 1
+        value
+      case _ => 2
+    }
+  }
+}

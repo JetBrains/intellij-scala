@@ -1,17 +1,17 @@
 package org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix
 
-import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.codeInspection.AbstractFix
+import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 /**
  * Pavel Fatin
  */
 
-class RemoveTypeAnnotationAndEqualSign(f: ScFunctionDefinition) extends AbstractFix("Remove redundant type annotation and equals sign", f) {
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
-    f.removeExplicitType()
-    f.removeAssignment()
+class RemoveTypeAnnotationAndEqualSign(f: ScFunctionDefinition) extends AbstractFixOnPsiElement("Remove redundant type annotation and equals sign", f) {
+  def doApplyFix(project: Project) {
+    val funDef = getElement
+    funDef.removeExplicitType()
+    funDef.removeAssignment()
   }
 }

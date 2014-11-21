@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package compiler
 
 import java.io.{File, IOException}
-import java.net.ServerSocket
 import javax.swing.event.HyperlinkEvent
 
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
@@ -13,6 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.util.PathUtil
+import com.intellij.util.net.NetUtils
 import org.jetbrains.plugins.scala.extensions._
 
 import scala.collection.JavaConverters._
@@ -45,7 +45,7 @@ class CompileServerLauncher extends ApplicationComponent {
   }
 
   private def start(project: Project): Boolean = {
-     val applicationSettings = ScalaApplicationSettings.getInstance
+     val applicationSettings = ScalaCompileServerSettings.getInstance
 
      if (applicationSettings.COMPILE_SERVER_SDK == null) {
        // Try to find a suitable JDK
@@ -87,7 +87,7 @@ class CompileServerLauncher extends ApplicationComponent {
     compilerJars.partition(_.exists) match {
       case (presentFiles, Seq()) =>
         val classpath = (jdk.tools +: presentFiles).map(_.canonicalPath).mkString(File.pathSeparator)
-        val settings = ScalaApplicationSettings.getInstance
+        val settings = ScalaCompileServerSettings.getInstance
 
         val freePort = CompileServerLauncher.findFreePort
         if (settings.COMPILE_SERVER_PORT != freePort) {
@@ -167,7 +167,7 @@ object CompileServerLauncher {
   }
 
   def jvmParameters = {
-    val settings = ScalaApplicationSettings.getInstance
+    val settings = ScalaCompileServerSettings.getInstance
     val xmx = settings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE |> { size =>
       if (size.isEmpty) Nil else List("-Xmx%sm".format(size))
     }
@@ -186,22 +186,10 @@ object CompileServerLauncher {
   }
 
   def findFreePort: Int = {
-    val port = ScalaApplicationSettings.getInstance().COMPILE_SERVER_PORT
-    try {
-      val socket = new ServerSocket(port)
-      socket.close()
-      port
-    } catch {
-      case e: IOException =>
-        try {
-          val socket = new ServerSocket(0)
-          val newPort = socket.getLocalPort
-          socket.close()
-          newPort
-        } catch {
-          case e: Exception => -1
-        }
-    }
+    val port = ScalaCompileServerSettings.getInstance().COMPILE_SERVER_PORT
+    if (NetUtils.canConnectToSocket("localhost", port))
+      NetUtils.findAvailableSocketPort()
+    else port
   }
 }
 

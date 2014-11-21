@@ -28,14 +28,14 @@ class SplitElseIfIntention extends PsiElementBaseIntentionAction {
     if (ifStmt == null) return false
 
     val offset = editor.getCaretModel.getOffset
-    val thenBranch = ifStmt.thenBranch.getOrElse(null)
-    val elseBranch = ifStmt.elseBranch.getOrElse(null)
+    val thenBranch = ifStmt.thenBranch.orNull
+    val elseBranch = ifStmt.elseBranch.orNull
     if (thenBranch == null || elseBranch == null) return false
 
     if (!(thenBranch.getTextRange.getEndOffset <= offset && offset <= elseBranch.getTextRange.getStartOffset))
       return false
 
-    val elseIfExpr = ifStmt.elseBranch.getOrElse(null)
+    val elseIfExpr = ifStmt.elseBranch.orNull
     if (elseIfExpr != null && elseIfExpr.isInstanceOf[ScIfStmt]) {
       return true
     }

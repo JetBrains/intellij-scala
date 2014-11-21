@@ -3,7 +3,6 @@ package codeInspection
 package caseClassParamInspection
 
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
@@ -12,18 +11,16 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 
-class RemoveValQuickFix(param: ScClassParameter) extends LocalQuickFix{
-  def applyFix(project: Project, descriptor: ProblemDescriptor) {
-    if (!param.isValid) return
-    param.findChildrenByType(ScalaTokenTypes.kVAL).foreach(_.delete())
-    CodeStyleManager.getInstance(param.getProject).reformatText(param.getContainingFile,
-      param.getModifierList.getTextRange.getStartOffset,
-      param.getModifierList.getTextRange.getEndOffset)
+class RemoveValQuickFix(param: ScClassParameter)
+        extends AbstractFixOnPsiElement(ScalaBundle.message("remove.val"), param) {
+  def doApplyFix(project: Project) {
+    val p = getElement
+    if (!p.isValid) return
+    p.findChildrenByType(ScalaTokenTypes.kVAL).foreach(_.delete())
+    CodeStyleManager.getInstance(p.getProject).reformatText(p.getContainingFile,
+      p.getModifierList.getTextRange.getStartOffset,
+      p.getModifierList.getTextRange.getEndOffset)
   }
-
-  def getName: String = "Remove 'val'"
-
-  def getFamilyName: String = "Remove 'val'"
 }
 
 class RemoveValFromEnumeratorIntentionAction(enum: ScEnumerator) extends IntentionAction {

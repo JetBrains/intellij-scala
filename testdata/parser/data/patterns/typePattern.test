@@ -1,0 +1,48 @@
+(1, 2) match {
+  case x: Tuple2[a, b] =>
+}
+------
+ScalaFile
+  MatchStatement
+    Tuple
+      PsiElement(()('(')
+      Literal
+        PsiElement(integer)('1')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      Literal
+        PsiElement(integer)('2')
+      PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(match)('match')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiWhiteSpace('\n  ')
+    CaseClauses
+      CaseClause
+        PsiElement(case)('case')
+        PsiWhiteSpace(' ')
+        TypedPattern: x
+          PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TypePattern
+            ParametrizedTypeElement: Tuple2[a, b]
+              SimpleTypeElement: Tuple2
+                CodeReferenceElement: Tuple2
+                  PsiElement(identifier)('Tuple2')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeVariable: a
+                  PsiElement(identifier)('a')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeVariable: b
+                  PsiElement(identifier)('b')
+                PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+        BlockOfExpressions
+          <empty list>
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')

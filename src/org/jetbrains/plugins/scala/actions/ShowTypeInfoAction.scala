@@ -88,18 +88,26 @@ object ShowTypeInfoAction {
     }
   }
 
+  val NO_TYPE: String = "No type was inferred"
+
   private[this] val typeOf: (PsiElement, ScSubstitutor) => Option[String] = {
     case (p: ScPrimaryConstructor, _) => None
     case (e: ScFunction, _) if e.isConstructor => None
-    case (e: ScFunction, s) => e.returnType.toOption.map(s.subst).map(_.presentableText)
-    case (e: ScBindingPattern, s) => e.getType(TypingContext.empty).toOption.map(s.subst).map(_ .presentableText)
-    case (e: ScFieldId, s) => e.getType(TypingContext.empty).toOption.map(s.subst).map(_ .presentableText)
-    case (e: ScParameter, s) => e.getRealParameterType(TypingContext.empty).toOption.map(s.subst).map(_ .presentableText)
+    case (e: ScFunction, s) =>
+      Some(e.returnType.toOption.map(s.subst).map(_.presentableText).getOrElse(NO_TYPE))
+    case (e: ScBindingPattern, s) =>
+      Some(e.getType(TypingContext.empty).toOption.map(s.subst).map(_ .presentableText).getOrElse(NO_TYPE))
+    case (e: ScFieldId, s) =>
+      Some(e.getType(TypingContext.empty).toOption.map(s.subst).map(_ .presentableText).getOrElse(NO_TYPE))
+    case (e: ScParameter, s) =>
+      Some(e.getRealParameterType(TypingContext.empty).toOption.map(s.subst).map(_ .presentableText).getOrElse(NO_TYPE))
     case (e: PsiMethod, _) if e.isConstructor => None
-    case (e: PsiMethod, s) => e.getReturnType.toOption.
-            map(p => s.subst(ScType.create(p, e.getProject, e.getResolveScope))).map(_ presentableText)
-    case (e: PsiVariable, s) => e.getType.toOption.
-            map(p => s.subst(ScType.create(p, e.getProject, e.getResolveScope))).map(_ presentableText)
+    case (e: PsiMethod, s) =>
+      Some(e.getReturnType.toOption.map(p => s.subst(ScType.create(p, e.getProject, e.getResolveScope))).
+        map(_.presentableText).getOrElse(NO_TYPE))
+    case (e: PsiVariable, s) =>
+      Some(e.getType.toOption.map(p => s.subst(ScType.create(p, e.getProject, e.getResolveScope))).
+        map(_.presentableText).getOrElse(NO_TYPE))
     case _ => None
   }
 }

@@ -42,7 +42,7 @@ object CompilationData {
     val output = target.getOutputDir
     checkOrCreate(output)
 
-    val classpath = ProjectPaths.getCompilationClasspathFiles(chunk, chunk.containsTests, false, false).asScala.toSeq
+    val classpath = ProjectPaths.getCompilationClasspathFiles(chunk, chunk.containsTests, false, true).asScala.toSeq
     val projectSettings = SettingsManager.getProjectSettings(module.getProject)
     val noBootCp = Seq("-nobootcp", "-javabootclasspath", File.pathSeparator)
     val scalaOptions = noBootCp ++: projectSettings.getCompilerOptions
@@ -156,7 +156,7 @@ object CompilationData {
 
     targets.filterNot { target =>
       val chunk = new ModuleChunk(Collections.singleton(target))
-      ChunkExclusionService.isExcluded(chunk, context.getProjectDescriptor.getModel.getGlobal)
+      ChunkExclusionService.isExcluded(chunk)
     }
   }
 
