@@ -1209,9 +1209,14 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         val error = "Integer number is out of range for type Int"
         val annotation = if (isNegative) holder.createErrorAnnotation(parent, error) else holder.createErrorAnnotation(literal, error)
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-        if (literal.expectedType().map(Long.conforms(_)).getOrElse(true)) {
-          // expected :> Long and it's Long but without trailing L, register fix
-          val addLtoLongFix = new AddLToLongLiteralFix(literal)
+        val bigIntType = ScalaPsiElementFactory.createTypeFromText("math.BigInt", literal.getContext, literal)
+        val conformsToTypeList = List(Long, bigIntType)
+        val shouldRegisterFix = if (isNegative)
+            parent.asInstanceOf[ScPrefixExpr].expectedType().map(x => conformsToTypeList.exists(_.weakConforms(x))).getOrElse(true)
+            else literal.expectedType().map(x => conformsToTypeList.exists(_.weakConforms(x))).getOrElse(true)
+
+        if (shouldRegisterFix) {
+          val addLtoLongFix: AddLToLongLiteralFix = new AddLToLongLiteralFix(literal)
           annotation.registerFix(addLtoLongFix)
         }
       }
