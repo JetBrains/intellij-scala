@@ -29,9 +29,9 @@ import _root_.scala.collection.JavaConverters._
 import _root_.scala.collection.mutable.ArrayBuffer
 
 /**
-* Nikolay.Tropin
-* 2014-08-10
-*/
+ * Nikolay.Tropin
+ * 2014-08-10
+ */
 class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor with ScalaChangeSignatureUsageHandler {
 
   override def findUsages(info: ChangeInfo): Array[UsageInfo] = {
@@ -55,9 +55,12 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
             findMethodRefUsages(named, results)
           case _ =>
         }
-        methods.foreach {
-          case m: PsiMethod => findParameterUsages(info, m, results)
-          case _ =>
+        if (info.isParameterSetOrOrderChanged || info.isParameterNamesChanged) {
+          methods.foreach {
+            case m: PsiMethod =>
+              findParameterUsages(jInfo, m, results)
+            case _ =>
+          }
         }
       case _ =>
     }
@@ -188,18 +191,19 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
     }
   }
 
-  private def findParameterUsages(changeInfo: ChangeInfo,
+  private def findParameterUsages(changeInfo: JavaChangeInfo,
                                   method: PsiMethod,
                                   results: ArrayBuffer[UsageInfo]): Unit = {
     for {
       paramInfo <- changeInfo.getNewParameters
       oldIdx = paramInfo.getOldIndex
       if oldIdx >= 0
+      oldName = changeInfo.getOldParameterNames()(oldIdx)
       parameters = method.getParameterList.getParameters
       if parameters.length > oldIdx
       param = parameters(oldIdx)
       newName = paramInfo.getName
-      if newName != param.name
+      if oldName == param.name /*skip overriders with other param name*/ && newName != param.name
     } {
       addParameterUsages(param, oldIdx, newName, results)
     }
