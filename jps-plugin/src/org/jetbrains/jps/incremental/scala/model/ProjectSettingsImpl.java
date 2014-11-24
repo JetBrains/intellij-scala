@@ -86,6 +86,10 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
       list.add("-explaintypes");
     }
 
+    if (!myState.specialization) {
+      list.add("-no-specialization");
+    }
+
     if (myState.continuations) {
       list.add("-P:continuations:enable");
     }
@@ -157,6 +161,8 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
     public boolean optimiseBytecode;
 
     public boolean explainTypeErrors;
+
+    public boolean specialization;
 
     public boolean continuations;
 
