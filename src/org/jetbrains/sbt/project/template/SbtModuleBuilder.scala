@@ -2,7 +2,7 @@ package org.jetbrains.sbt
 package project.template
 
 import java.io.File
-import javax.swing.JCheckBox
+import javax.swing.{JTextField, DefaultComboBoxModel, JComboBox, JCheckBox}
 
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SdkSettingsStep, SettingsStep}
 import com.intellij.openapi.application.ApplicationManager
@@ -19,6 +19,7 @@ import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.io.FileUtil._
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.LocalFileSystem
+import org.jetbrains.plugins.scala.project.VersionLoader
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
@@ -27,13 +28,17 @@ import org.jetbrains.sbt.project.settings.SbtProjectSettings
  * Date: 11/23/13
  */
 class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings](SbtProjectSystem.Id, new SbtProjectSettings) {
+  private var sbtVersion = "0.13.5"
+
+  private var scalaVersion = "2.11.4"
+
   def getModuleType = JavaModuleType.getModuleType
 
   override def createModule(moduleModel: ModifiableModuleModel) = {
     val root = getModuleFileDirectory.toFile
-    
+
     if (root.exists) {
-      createProjectTemplateIn(root, getName)
+      createProjectTemplateIn(root, getName, scalaVersion, sbtVersion)
       updateModulePath()
     }
 
@@ -48,6 +53,10 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
   }
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
+    val scalaVersions = VersionLoader.loadScalaVersions
+
+    val sbtVersionTextField           = new JTextField(sbtVersion)
+    val scalaVersionComboBox          = new SComboBox[String](scalaVersions)
     val resolveClassifiersCheckBox    = new JCheckBox(SbtBundle("sbt.settings.resolveClassifiers"))
     val resolveSbtClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveSbtClassifiers"))
     val useAutoImportCheckBox         = new JCheckBox(ExternalSystemBundle.message("settings.label.use.auto.import"))
@@ -57,7 +66,11 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
       def value(t: SdkTypeId): Boolean = t != null && t.isInstanceOf[JavaSdk]
     }) {
       override def updateDataModel() {
+        sbtVersion = sbtVersionTextField.getText
+        scalaVersion = scalaVersionComboBox.getSelectedItem
+
         settingsStep.getContext setProjectJdk myJdkComboBox.getSelectedJdk
+
         getExternalProjectSettings.setResolveClassifiers(resolveClassifiersCheckBox.isSelected)
         getExternalProjectSettings.setResolveSbtClassifiers(resolveSbtClassifiersCheckBox.isSelected)
         getExternalProjectSettings.setUseAutoImport(useAutoImportCheckBox.isSelected)
@@ -69,6 +82,8 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     resolveClassifiersCheckBox.setSelected(true)
     resolveSbtClassifiersCheckBox.setSelected(true)
 
+    settingsStep.addSettingsField(SbtBundle("sbt.settings.sbtVersion"), sbtVersionTextField)
+    settingsStep.addSettingsField(SbtBundle("sbt.settings.scalaVersion"), scalaVersionComboBox)
     settingsStep.addSettingsField("", useAutoImportCheckBox)
     settingsStep.addSettingsField("", createContentDirsCheckBox)
     settingsStep.addSettingsField("", resolveClassifiersCheckBox)
@@ -77,7 +92,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     step
   }
 
-  private def createProjectTemplateIn(root: File, name: String) {
+  private def createProjectTemplateIn(root: File, name: String, scalaVersion: String, sbtVersion: String) {
     val buildFile = root / Sbt.BuildFile
     val projectDir = root / Sbt.ProjectDirectory
     val pluginsFile = projectDir / Sbt.PluginsFile
@@ -87,9 +102,9 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
             !projectDir.mkdir() ||
             !pluginsFile.createNewFile()) return
 
-    writeToFile(buildFile, SbtModuleBuilder.formatProjectDefinition(name))
+    writeToFile(buildFile, SbtModuleBuilder.formatProjectDefinition(name, scalaVersion))
     writeToFile(pluginsFile, SbtModuleBuilder.PluginsDefinition)
-    writeToFile(propertiesFile, SbtModuleBuilder.SbtProperties)
+    writeToFile(propertiesFile, SbtModuleBuilder.formatSbtProperties(sbtVersion))
   }
 
   override def getNodeIcon = Sbt.Icon
@@ -133,15 +148,15 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
 // TODO Allow to specify Scala and SBT versions in the project wizard UI
 private object SbtModuleBuilder {
-  def formatProjectDefinition(name: String) =
+  def formatProjectDefinition(name: String, scalaVersion: String) =
     s"""name := "$name"
       |
       |version := "1.0"
       |
-      |scalaVersion := "2.11.4"
+      |scalaVersion := "$scalaVersion"
     """.stripMargin
   
   def PluginsDefinition = "logLevel := Level.Warn"
 
-  def SbtProperties = "sbt.version = 0.13.5"
+  def formatSbtProperties(sbtVersion: String) = s"sbt.version = $sbtVersion"
 }
