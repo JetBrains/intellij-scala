@@ -8,7 +8,7 @@ import com.intellij.ui.table.TableView;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import org.jetbrains.plugins.scala.project.Versions;
+import org.jetbrains.plugins.scala.project.VersionLoader;
 import scala.Function0;
 import scala.Function1;
 import scala.Option;
@@ -108,7 +108,7 @@ public class SdkSelectionDialog extends JDialog {
     }
 
     private void onDownload() {
-        String[] scalaVersions = Versions.loadScalaVersions();
+        String[] scalaVersions = VersionLoader.loadScalaVersions();
 
         final SelectionDialog<String> dialog = new SelectionDialog<String>(contentPane,
             "Download (via SBT)", "Scala version:", scalaVersions);
