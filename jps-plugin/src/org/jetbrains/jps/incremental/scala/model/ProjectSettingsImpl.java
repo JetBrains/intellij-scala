@@ -150,7 +150,7 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
 
     public boolean macros;
 
-    public boolean warnings;
+    public boolean warnings = true; //no -nowarn
 
     public boolean deprecationWarnings;
 
@@ -162,7 +162,7 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
 
     public boolean explainTypeErrors;
 
-    public boolean specialization;
+    public boolean specialization = true; //no -no-specialization
 
     public boolean continuations;
 
