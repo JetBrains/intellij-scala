@@ -1,17 +1,22 @@
 package org.jetbrains.sbt
 package project.module
 
-import java.awt.BorderLayout
+import java.awt.{GridBagConstraints, GridBagLayout, FlowLayout, BorderLayout}
 import java.util
 import javax.swing.JPanel
 import javax.swing.border.EmptyBorder
 
 import com.intellij.openapi.roots.ui.configuration.{ModuleConfigurationState, ModuleElementsEditor}
-import com.intellij.ui.components.{JBLabel, JBList}
+import com.intellij.openapi.ui.VerticalFlowLayout
+import com.intellij.ui.components.{JBTextField, JBLabel, JBList}
 import com.intellij.ui.{CollectionListModel, ToolbarDecorator}
+import com.intellij.uiDesigner.compiler.GridBagLayoutCodeGenerator
+import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager}
 import com.intellij.util.ui.UIUtil
+import com.jgoodies.forms.layout.FormLayout
 import org.jetbrains.plugins.scala.util.JListCompatibility
 import org.jetbrains.plugins.scala.util.JListCompatibility.CollectionListModelWrapper
+import org.jetbrains.sbt.project.settings.SbtSettings
 
 import scala.collection.JavaConverters._
 
@@ -19,30 +24,22 @@ import scala.collection.JavaConverters._
  * @author Pavel Fatin
  */
 class SbtModuleImportsEditor(state: ModuleConfigurationState) extends ModuleElementsEditor(state) {
+  private val myForm = new SbtModuleImportsForm
   private val modelWrapper = new CollectionListModelWrapper(new CollectionListModel[String](new util.ArrayList[String]))
 
-  override def getDisplayName = "Imports"
+  override def getDisplayName = SbtBundle("sbt.settings.importsAndSbtVersion")
 
   override def getHelpTopic = null
 
   override def createComponentImpl() = {
-    val listPanel = {
-      val list = JListCompatibility.createJBListFromModel(JListCompatibility.createDefaultListModel())
-      list.asInstanceOf[JBList].setEmptyText("No implicit imports")
-      JListCompatibility.setModel(list, modelWrapper.getModelRaw)
-      ToolbarDecorator.createDecorator(list, modelWrapper.getModel).createPanel()
-    }
-
-    val mainPanel = new JPanel(new BorderLayout())
-    mainPanel.setBorder(new EmptyBorder(UIUtil.PANEL_SMALL_INSETS))
-    mainPanel.add(new JBLabel("SBT implicit imports", UIUtil.ComponentStyle.SMALL, UIUtil.FontColor.NORMAL), BorderLayout.NORTH)
-    mainPanel.add(listPanel, BorderLayout.CENTER)
-
-    mainPanel
+    myForm.sbtImportsList.setEmptyText(SbtBundle("sbt.settings.noImplicitImportsFound"))
+    myForm.sbtImportsList.setModel(modelWrapper.getModelRaw)
+    myForm.mainPanel
   }
 
   override def reset() {
     modelWrapper.getModel.replaceAll(importsInModule.asJava)
+    myForm.sbtVersionTextField.setText(Option(SbtSettings.getInstance(state.getProject).sbtVersion).getOrElse("Not detected"))
   }
 
   override def saveData() {
