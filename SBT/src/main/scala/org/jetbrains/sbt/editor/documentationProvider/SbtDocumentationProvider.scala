@@ -20,11 +20,21 @@ class SbtDocumentationProvider extends AbstractDocumentationProvider {
   private val scalaDocProvider = new ScalaDocumentationProvider
 
   override def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String = {
+    val scalaDoc = scalaDocProvider.getQuickNavigateInfo(element, originalElement)
+    extractDoc(element, originalElement, scalaDoc)
+  }
+
+  override def generateDoc(element: PsiElement, originalElement: PsiElement): String = {
+    val scalaDoc = scalaDocProvider.generateDoc(element, originalElement).replace("</body></html>", "")
+    val doc = extractDoc(element, originalElement, scalaDoc)
+    if (doc != null) doc + "</body></html>" else doc
+  }
+
+  private def extractDoc(element: PsiElement, originalElement: PsiElement, scalaDoc: String): String = {
     if (originalElement.getContainingFile.getFileType.getName != Sbt.Name) return null
 
     element match {
       case value: ScNamedElement =>
-        val scalaDoc = scalaDocProvider.getQuickNavigateInfo(element, originalElement)
         if (scalaDoc == null) return null
 
         val keyDefinition = Option(element.getNavigationElement)
@@ -51,9 +61,9 @@ class SbtDocumentationProvider extends AbstractDocumentationProvider {
 
         scalaDoc + (keyArgs.headOption match {
           case Some(_: ScLiteral) => // new key definition
-            docs lift 1 map { "\n<b>" + _ + "</b>" }
+            docs lift 1 map { "<br/><b>" + _ + "</b>" }
           case Some(_: ScReferenceExpressionImpl) => // reference to another key
-            docs lift 0 map { "\n<b><i>" + _ + "</i></b>" }
+            docs lift 0 map { "</br><b><i>" + _ + "</i></b>" }
           case _ => None
         }).getOrElse("")
       case _ => null
