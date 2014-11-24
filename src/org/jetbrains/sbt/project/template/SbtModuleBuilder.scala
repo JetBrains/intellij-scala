@@ -2,7 +2,7 @@ package org.jetbrains.sbt
 package project.template
 
 import java.io.File
-import javax.swing.JCheckBox
+import javax.swing.{JTextField, DefaultComboBoxModel, JComboBox, JCheckBox}
 
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SdkSettingsStep, SettingsStep}
 import com.intellij.openapi.application.ApplicationManager
@@ -19,7 +19,7 @@ import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.io.FileUtil._
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.LocalFileSystem
-import org.jetbrains.plugins.scala.project.Versions
+import org.jetbrains.plugins.scala.project.VersionLoader
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
@@ -28,9 +28,9 @@ import org.jetbrains.sbt.project.settings.SbtProjectSettings
  * Date: 11/23/13
  */
 class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings](SbtProjectSystem.Id, new SbtProjectSettings) {
-  private var sbtVersion = Versions.DefaultSbtVersion
+  private var sbtVersion = "0.13.5"
 
-  private var scalaVersion = Versions.DefaultScalaVersion
+  private var scalaVersion = "2.11.4"
 
   def getModuleType = JavaModuleType.getModuleType
 
@@ -53,12 +53,10 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
   }
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
-    val sbtVersionComboBox            = new SComboBox[String](Versions.loadSbtVersions)
-    val scalaVersionComboBox          = new SComboBox[String](Versions.loadScalaVersions)
+    val scalaVersions = VersionLoader.loadScalaVersions
 
-    // TODO Remove this line when SBT 0.13.7+ will be able to download its components flawlessly
-    sbtVersionComboBox.setSelectedItem("0.13.5")
-
+    val sbtVersionTextField           = new JTextField(sbtVersion)
+    val scalaVersionComboBox          = new SComboBox[String](scalaVersions)
     val resolveClassifiersCheckBox    = new JCheckBox(SbtBundle("sbt.settings.resolveClassifiers"))
     val resolveSbtClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveSbtClassifiers"))
     val useAutoImportCheckBox         = new JCheckBox(ExternalSystemBundle.message("settings.label.use.auto.import"))
@@ -68,7 +66,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
       def value(t: SdkTypeId): Boolean = t != null && t.isInstanceOf[JavaSdk]
     }) {
       override def updateDataModel() {
-        sbtVersion = sbtVersionComboBox.getSelectedItem
+        sbtVersion = sbtVersionTextField.getText
         scalaVersion = scalaVersionComboBox.getSelectedItem
 
         settingsStep.getContext setProjectJdk myJdkComboBox.getSelectedJdk
@@ -84,7 +82,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     resolveClassifiersCheckBox.setSelected(true)
     resolveSbtClassifiersCheckBox.setSelected(true)
 
-    settingsStep.addSettingsField(SbtBundle("sbt.settings.sbtVersion"), sbtVersionComboBox)
+    settingsStep.addSettingsField(SbtBundle("sbt.settings.sbtVersion"), sbtVersionTextField)
     settingsStep.addSettingsField(SbtBundle("sbt.settings.scalaVersion"), scalaVersionComboBox)
     settingsStep.addSettingsField("", useAutoImportCheckBox)
     settingsStep.addSettingsField("", createContentDirsCheckBox)
