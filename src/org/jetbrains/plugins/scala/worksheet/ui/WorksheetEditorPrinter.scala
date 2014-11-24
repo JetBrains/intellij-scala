@@ -4,8 +4,10 @@ package worksheet.ui
 import java.awt.event.{ActionEvent, ActionListener, AdjustmentEvent, AdjustmentListener}
 import java.awt.{BorderLayout, Color, Dimension}
 import java.util
-import javax.swing.{JLayeredPane, Timer}
+import javax.swing.{JComponent, JLayeredPane, Timer}
 
+import com.intellij.ide.DataManager
+import com.intellij.openapi.actionSystem.{CommonDataKeys, DataProvider}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.diff.impl.EditingSides
@@ -460,6 +462,14 @@ object WorksheetEditorPrinter {
     val factory: EditorFactory = EditorFactory.getInstance
     val editor: Editor = factory.createViewer(factory createDocument "", project)
     editor setBorder null
+    editor.getContentComponent.getParent match {
+      case jComp: JComponent =>
+        jComp.putClientProperty(
+          DataManager.CLIENT_PROPERTY_DATA_PROVIDER, new DataProvider {
+            override def getData(dataId: String) = if (CommonDataKeys.HOST_EDITOR.is(dataId)) editor else null
+          })
+      case _ =>
+    }
     editor
   }
 }
