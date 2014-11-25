@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
  * Nikolay.Tropin
@@ -28,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
  */
 class ScalaUselessExpressionInspection extends AbstractInspection("ScalaUselessExpression", "Useless expression") {
   override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case expr: ScExpression =>
+    case expr: ScExpression if IntentionAvailabilityChecker.checkInspection(this, expr.getParent) =>
       if (canResultInSideEffectsOnly(expr) && exprHasNoSideEffects(expr)) {
         val message = "Useless expression"
         val removeElemFix = new RemoveElementQuickFix("Remove expression", expr)
