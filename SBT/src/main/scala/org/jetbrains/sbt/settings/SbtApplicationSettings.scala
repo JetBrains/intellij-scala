@@ -21,7 +21,7 @@ class SbtApplicationSettings extends PersistentStateComponent[SbtApplicationSett
   var maximumHeapSize: String = "768"
 
   @BeanProperty
-  var vmParameters: String = "-XX:MaxPermSize=384M -Dplay.version=2.2.1"
+  var vmParameters: String = "-XX:MaxPermSize=384M"
 
   @BeanProperty
   var customVMEnabled: Boolean = false
