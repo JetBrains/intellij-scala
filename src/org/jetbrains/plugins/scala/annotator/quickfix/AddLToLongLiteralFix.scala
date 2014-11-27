@@ -2,13 +2,10 @@ package org.jetbrains.plugins.scala
 package annotator
 package quickfix
 
-import com.intellij.codeInsight.FileModificationService
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.openapi.command.undo.UndoUtil
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
@@ -25,7 +22,6 @@ class AddLToLongLiteralFix(literal: ScLiteral) extends IntentionAction {
     if (!literal.isValid) return
     val psi = ScalaPsiElementFactory.createExpressionFromText(literal.getText + "L", literal.getManager)
     literal.replace(psi)
-    UndoUtil.markPsiFileForUndo(file)
   }
 }
 
