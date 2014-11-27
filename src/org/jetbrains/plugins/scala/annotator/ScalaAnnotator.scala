@@ -1196,11 +1196,15 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       val divider = if (base == 10) 1 else 2
       var statusCode: Byte = 0
       val limit = java.lang.Long.MAX_VALUE
+      val intLimit = java.lang.Integer.MAX_VALUE
       var i = 0
       val len = text.length
       while (i < len) {
         val d = text.charAt(i).asDigit
-        if (value > Integer.MAX_VALUE) {
+        if (value > intLimit ||
+            intLimit / (base / divider) < value ||
+            intLimit - (d / divider) < value * (base / divider) &&
+            !(isNegative && intLimit == value * base - 1 + d)) {
           statusCode = 1
         }
         if (value < 0 ||
@@ -1213,23 +1217,11 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         value = value * base + d
         i += 1
       }
-      // final check
-      if (value > Integer.MAX_VALUE && statusCode == 0) { // It may be negative or out of range for Int
-        if (base == 10) (Some(value), 1) // It's out of range for decimal
-        else {
-          val intValue = value.toInt
-          value = if(isNegative) -intValue else intValue
-          (Some(value), 0)
-        }
-      }
-      else {
-       value = if(isNegative) -value else value
-        (Some(value), 0)
-      }
-
+      value = if (isNegative) -value else value
+      if (statusCode == 0) (Some(value.toInt), 0) else (Some(value), statusCode)
     }
     val textWithoutL = if (endsWithL) number.substring(0, number.length - 1) else number
-    val (value, status) = parseIntegerNumber(textWithoutL, isNegative)
+    val (_, status) = parseIntegerNumber(textWithoutL, isNegative)
     if (status == 2) { // the Integer number is out of range even for Long
       val error = "Integer number is out of range even for type Long"
       val annotation = holder.createErrorAnnotation(literal, error)
