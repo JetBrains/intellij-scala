@@ -45,6 +45,7 @@ import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
+import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
 import scala.collection.mutable.ArrayBuffer
@@ -1175,6 +1176,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     val text = literal.getText
     val endsWithL = child.getText.endsWith('l') || child.getText.endsWith('L')
     val parent = literal.getParent
+    val scalaVersion = literal.scalaLanguageLevel
     val isNegative = parent match {
       // only "-1234" is negative, "- 1234" should be considered as positive 1234
       case prefixExpr: ScPrefixExpr if prefixExpr.getChildren.size == 2 && prefixExpr.getFirstChild.getText == "-" => true
@@ -1185,6 +1187,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       case t if t.startsWith("0") && t.length >= 2 => (t.substring(1), 8)
       case _ => (text, 10)
     }
+
     // parse integer literal. the return is (Option(value), statusCode)
     // the Option(value) will be the real integer represented by the literal, if it cannot fit in Long, It's None
     // there is 3 value for statusCode:
@@ -1219,6 +1222,21 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       }
       value = if (isNegative) -value else value
       if (statusCode == 0) (Some(value.toInt), 0) else (Some(value), statusCode)
+    }
+
+    if (base == 8) {
+      scalaVersion match {
+        case Some(ScalaLanguageLevel.Scala_2_10) =>
+          val deprecatedMeaasge = "Octal number is deprecated in Scala-2.10 and will be removed in Scala-2.11"
+          val annotation = holder.createWarningAnnotation(literal, deprecatedMeaasge)
+          annotation.setHighlightType(ProblemHighlightType.LIKE_DEPRECATED)
+        case Some(version) if version >= ScalaLanguageLevel.Scala_2_11 =>
+          val error = "Octal number is removed in Scala-2.11 and after"
+          val annotation = holder.createErrorAnnotation(literal, error)
+          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+          return
+        case _ =>
+      }
     }
     val textWithoutL = if (endsWithL) number.substring(0, number.length - 1) else number
     val (_, status) = parseIntegerNumber(textWithoutL, isNegative)
