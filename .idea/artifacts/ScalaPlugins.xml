@@ -32,11 +32,41 @@
         <element id="archive" name="scala-nailgun-runner.jar">
           <element id="module-output" name="NailgunRunners" />
         </element>
-        <element id="library" level="project" name="SBT: org.scala-lang:scala-library:2.11.2" />
-        <element id="library" level="project" name="SBT: org.scala-lang.modules:scala-xml_2.11:1.0.2" />
         <element id="dir-copy" path="$PROJECT_DIR$/SDK/scalap" />
-        <element id="library" level="project" name="SBT: org.scala-lang:scala-reflect:2.11.2" />
         <element id="dir-copy" path="$PROJECT_DIR$/SDK/scalastyle" />
+        <element id="library" level="project" name="SBT: org.codehaus.plexus:plexus-container-default:1.5.5:jar" />
+        <element id="library" level="project" name="SBT: org.apache.httpcomponents:httpclient:4.3.1:jar" />
+        <element id="library" level="project" name="SBT: commons-codec:commons-codec:1.6:jar" />
+        <element id="library" level="project" name="SBT: org.apache.lucene:lucene-highlighter:3.6.2:jar" />
+        <element id="library" level="project" name="SBT: org.scala-lang:scala-reflect:2.11.2:jar" />
+        <element id="library" level="project" name="SBT: org.codehaus.plexus:plexus-component-annotations:1.5.5:jar" />
+        <element id="library" level="project" name="SBT: org.apache.lucene:lucene-memory:3.6.2:jar" />
+        <element id="library" level="project" name="SBT: org.jsoup:jsoup:1.7.2:jar" />
+        <element id="library" level="project" name="SBT: org.sonatype.aether:aether-util:1.13.1:jar" />
+        <element id="library" level="project" name="SBT: org.codehaus.plexus:plexus-classworlds:2.4:jar" />
+        <element id="library" level="project" name="SBT: org.apache.maven.indexer:indexer-artifact:5.1.1:jar" />
+        <element id="library" level="project" name="SBT: commons-io:commons-io:2.2:jar" />
+        <element id="library" level="project" name="SBT: commons-logging:commons-logging:1.1.3:jar" />
+        <element id="library" level="project" name="SBT: org.apache.lucene:lucene-queries:3.6.2:jar" />
+        <element id="library" level="project" name="SBT: org.apache.maven.indexer:indexer-core:5.1.1:jar" />
+        <element id="library" level="project" name="SBT: org.apache.lucene:lucene-core:3.6.2:jar" />
+        <element id="library" level="project" name="SBT: commons-lang:commons-lang:2.6:jar" />
+        <element id="library" level="project" name="SBT: jakarta-regexp:jakarta-regexp:1.4:jar" />
+        <element id="library" level="project" name="SBT: org.apache.maven:maven-model:3.0.4:jar" />
+        <element id="library" level="project" name="SBT: org.apache.httpcomponents:httpcore:4.3:jar" />
+        <element id="library" level="project" name="SBT: org.atteo:evo-inflector:1.2:jar" />
+        <element id="library" level="project" name="SBT: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.2:jar" />
+        <element id="library" level="project" name="SBT: org.sonatype.aether:aether-api:1.13.1:jar" />
+        <element id="library" level="project" name="SBT: org.codehaus.plexus:plexus-utils:3.0.8:jar" />
+        <element id="library" level="project" name="SBT: org.scalatest:scalatest-finders:0.9.6:jar" />
+        <element id="library" level="project" name="SBT: org.scala-lang.modules:scala-xml_2.11:1.0.2:jar" />
+        <element id="library" level="project" name="SBT: org.sonatype.sisu:sisu-guice:3.0.3:no_aop:jar" />
+        <element id="library" level="project" name="SBT: org.sonatype.sisu:sisu-inject-bean:2.2.3:jar" />
+        <element id="library" level="project" name="SBT: org.sonatype.sisu:sisu-inject-plexus:2.2.3:jar" />
+        <element id="library" level="project" name="SBT: org.apache.xbean:xbean-reflect:3.4:jar" />
+        <element id="library" level="project" name="SBT: org.apache.maven.wagon:wagon-http-shared:2.6:jar" />
+        <element id="library" level="project" name="SBT: org.apache.maven.wagon:wagon-http:2.6:jar" />
+        <element id="library" level="project" name="SBT: org.apache.maven.wagon:wagon-provider-api:2.6:jar" />
       </element>
       <element id="directory" name="launcher">
         <element id="file-copy" path="$PROJECT_DIR$/jars/sbt-launch.jar" />
