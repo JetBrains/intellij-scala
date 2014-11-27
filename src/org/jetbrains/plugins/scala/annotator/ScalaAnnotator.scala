@@ -1180,32 +1180,62 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       case prefixExpr: ScPrefixExpr if prefixExpr.getChildren.size == 2 && prefixExpr.getFirstChild.getText == "-" => true
       case _ => false
     }
-    val longValue = if (endsWithL)
-      try {
-        java.lang.Long.valueOf(text.substring(0, text.length - 1))
-      } catch {
-        case e: Exception => null
-      }
-    else {
-      try {
-        if (text.startsWith("0x")) {
-          java.lang.Long.valueOf(java.lang.Long.parseLong(text.substring(2), 16))
-        } else if (text.startsWith('0')) {
-          java.lang.Long.valueOf(java.lang.Long.parseLong(text, 8))
-        } else {
-          java.lang.Long.valueOf(text)
-        }
-      } catch {
-        case e: Exception => null
-      }
+    val (number, base) = text match {
+      case t if t.startsWith("0x") => (t.substring(2), 16)
+      case t if t.startsWith("0") && t.length >= 2 => (t.substring(1), 8)
+      case _ => (text, 10)
     }
-    if (longValue == null) { // the Integer number is out of range even for Long
+    // parse integer literal. the return is (Option(value), statusCode)
+    // the Option(value) will be the real integer represented by the literal, if it cannot fit in Long, It's None
+    // there is 3 value for statusCode:
+    // 0 -> the literal can fit in Int
+    // 1 -> the literal can fit in Long
+    // 2 -> the literal cannot fit in Long
+    def parseIntegerNumber(text: String, isNegative: Boolean): (Option[Long], Byte) = {
+      var value = 0l
+      val divider = if (base == 10) 1 else 2
+      var statusCode: Byte = 0
+      val limit = java.lang.Long.MAX_VALUE
+      var i = 0
+      val len = text.length
+      while (i < len) {
+        val d = text.charAt(i).asDigit
+        if (value > Integer.MAX_VALUE) {
+          statusCode = 1
+        }
+        if (value < 0 ||
+            limit / (base / divider) < value ||
+            limit - (d / divider) < value * (base / divider) &&
+            !(isNegative && limit == value * base - 1 + d)) {
+          statusCode = 2
+          return (None, 2)
+        }
+        value = value * base + d
+        i += 1
+      }
+      // final check
+      if (value > Integer.MAX_VALUE && statusCode == 0) { // It may be negative or out of range for Int
+        if (base == 10) (Some(value), 1) // It's out of range for decimal
+        else {
+          val intValue = value.toInt
+          value = if(isNegative) -intValue else intValue
+          (Some(value), 0)
+        }
+      }
+      else {
+       value = if(isNegative) -value else value
+        (Some(value), 0)
+      }
+
+    }
+    val textWithoutL = if (endsWithL) number.substring(0, number.length - 1) else number
+    val (value, status) = parseIntegerNumber(textWithoutL, isNegative)
+    if (status == 2) { // the Integer number is out of range even for Long
       val error = "Integer number is out of range even for type Long"
       val annotation = holder.createErrorAnnotation(literal, error)
       annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
     } else {
-      val realLongValue: Long = if (isNegative) -1 * longValue else longValue
-      if ((realLongValue > Integer.MAX_VALUE || realLongValue < Integer.MIN_VALUE) && !endsWithL) {
+      if (status == 1 && !endsWithL) {
         val error = "Integer number is out of range for type Int"
         val annotation = if (isNegative) holder.createErrorAnnotation(parent, error) else holder.createErrorAnnotation(literal, error)
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
