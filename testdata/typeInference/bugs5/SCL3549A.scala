@@ -1,3 +1,3 @@
 def foo(a: String) = 0
-/*start*/foo(_)/*end*/ : (String => Unit) // good code red
+val z: String => Unit = /*start*/foo(_)/*end*/ // good code red
 //(String) => Unit
