@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.annotator.createFromUsage._
 import org.jetbrains.plugins.scala.annotator.importsTracker._
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
-import org.jetbrains.plugins.scala.annotator.quickfix.{AddLToLongLiteralFix, ChangeTypeFix, ReportHighlightingErrorQuickFix, WrapInOptionQuickFix}
+import org.jetbrains.plugins.scala.annotator.quickfix._
 import org.jetbrains.plugins.scala.annotator.template._
 import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.{RemoveValFromEnumeratorIntentionAction, RemoveValFromGeneratorIntentionAction}
 import org.jetbrains.plugins.scala.components.HighlightingAdvisor
@@ -1225,15 +1225,18 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
 
     if (base == 8) {
+      val convertFix = new ConvertOctalToHexFix(literal)
       scalaVersion match {
         case Some(ScalaLanguageLevel.Scala_2_10) =>
           val deprecatedMeaasge = "Octal number is deprecated in Scala-2.10 and will be removed in Scala-2.11"
           val annotation = holder.createWarningAnnotation(literal, deprecatedMeaasge)
           annotation.setHighlightType(ProblemHighlightType.LIKE_DEPRECATED)
+          annotation.registerFix(convertFix)
         case Some(version) if version >= ScalaLanguageLevel.Scala_2_11 =>
           val error = "Octal number is removed in Scala-2.11 and after"
           val annotation = holder.createErrorAnnotation(literal, error)
           annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+          annotation.registerFix(convertFix)
           return
         case _ =>
       }
