@@ -1,19 +1,10 @@
 package org.jetbrains.sbt
 package project.module
 
-import java.awt.{GridBagConstraints, GridBagLayout, FlowLayout, BorderLayout}
 import java.util
-import javax.swing.JPanel
-import javax.swing.border.EmptyBorder
 
 import com.intellij.openapi.roots.ui.configuration.{ModuleConfigurationState, ModuleElementsEditor}
-import com.intellij.openapi.ui.VerticalFlowLayout
-import com.intellij.ui.components.{JBTextField, JBLabel, JBList}
-import com.intellij.ui.{CollectionListModel, ToolbarDecorator}
-import com.intellij.uiDesigner.compiler.GridBagLayoutCodeGenerator
-import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager}
-import com.intellij.util.ui.UIUtil
-import com.jgoodies.forms.layout.FormLayout
+import com.intellij.ui.CollectionListModel
 import org.jetbrains.plugins.scala.util.JListCompatibility
 import org.jetbrains.plugins.scala.util.JListCompatibility.CollectionListModelWrapper
 import org.jetbrains.sbt.project.settings.SbtSettings
@@ -33,7 +24,7 @@ class SbtModuleImportsEditor(state: ModuleConfigurationState) extends ModuleElem
 
   override def createComponentImpl() = {
     myForm.sbtImportsList.setEmptyText(SbtBundle("sbt.settings.noImplicitImportsFound"))
-    myForm.sbtImportsList.setModel(modelWrapper.getModelRaw)
+    JListCompatibility.setModel(myForm.sbtImportsList, modelWrapper.getModelRaw)
     myForm.mainPanel
   }
 
