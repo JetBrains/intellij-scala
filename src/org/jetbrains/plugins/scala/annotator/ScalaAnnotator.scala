@@ -1231,7 +1231,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         val error = "Integer number is out of range for type Int"
         val annotation = if (isNegative) holder.createErrorAnnotation(parent, error) else holder.createErrorAnnotation(literal, error)
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-        val bigIntType = ScalaPsiElementFactory.createTypeFromText("math.BigInt", literal.getContext, literal)
+        val bigIntType = ScalaPsiElementFactory.createTypeFromText("_root_.scala.math.BigInt", literal.getContext, literal)
         val conformsToTypeList = List(Long, bigIntType)
         val shouldRegisterFix = if (isNegative)
             parent.asInstanceOf[ScPrefixExpr].expectedType().map(x => conformsToTypeList.exists(_.weakConforms(x))).getOrElse(true)
