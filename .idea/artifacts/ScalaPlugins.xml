@@ -67,6 +67,7 @@
         <element id="library" level="project" name="SBT: org.apache.maven.wagon:wagon-http-shared:2.6:jar" />
         <element id="library" level="project" name="SBT: org.apache.maven.wagon:wagon-http:2.6:jar" />
         <element id="library" level="project" name="SBT: org.apache.maven.wagon:wagon-provider-api:2.6:jar" />
+        <element id="library" level="project" name="SBT: org.scala-lang:scala-library:2.11.2:jar" />
       </element>
       <element id="directory" name="launcher">
         <element id="file-copy" path="$PROJECT_DIR$/jars/sbt-launch.jar" />
