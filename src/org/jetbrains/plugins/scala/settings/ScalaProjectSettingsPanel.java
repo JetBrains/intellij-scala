@@ -125,34 +125,34 @@ public class ScalaProjectSettingsPanel {
         if (!applicationSettings.getScalaPluginBranch().equals(updateChannel.getModel().getSelectedItem())) return true;
 
         if (!scalaProjectSettings.getBasePackage().equals(
-            myBasePackage.getText())) return true;
+                myBasePackage.getText())) return true;
         if (scalaProjectSettings.isShowImplisitConversions() !=
-            showImplicitConversionsInCheckBox.isSelected()) return true;
+                showImplicitConversionsInCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isShowArgumentsToByNameParams() !=
-            showArgumentsToByNameParametersCheckBox.isSelected()) return true;
+                showArgumentsToByNameParametersCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isIncludeBlockExpressions() !=
-            includeBlockExpressionsExpressionsCheckBox.isSelected()) return true;
+                includeBlockExpressionsExpressionsCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isIncludeLiterals() !=
-            includeLiteralsCheckBox.isSelected()) return true;
+                includeLiteralsCheckBox.isSelected()) return true;
 
         if (scalaProjectSettings.getImplicitParametersSearchDepth() !=
-            (Integer) implicitParametersSearchDepthSpinner.getValue()) return true;
+                (Integer) implicitParametersSearchDepthSpinner.getValue()) return true;
         if (scalaProjectSettings.getOutputLimit() !=
-            (Integer) outputSpinner.getValue()) return true;
+                (Integer) outputSpinner.getValue()) return true;
         if (scalaProjectSettings.isInProcessMode() !=
-            runWorksheetInTheCheckBox.isSelected()) return true;
+                runWorksheetInTheCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isInteractiveMode() != worksheetInteractiveModeCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isUseEclipseCompatibility() != useEclipseCompatibilityModeCheckBox.isSelected())
             return true;
 
         if (scalaProjectSettings.isSearchAllSymbols() !=
-            searchAllSymbolsIncludeCheckBox.isSelected()) return true;
+                searchAllSymbolsIncludeCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isEnableJavaToScalaConversion() !=
-            enableConversionOnCopyCheckBox.isSelected()) return true;
+                enableConversionOnCopyCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isDontShowConversionDialog() !=
-            donTShowDialogCheckBox.isSelected()) return true;
+                donTShowDialogCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isTreatDocCommentAsBlockComment() !=
-            treatDocCommentAsBlockComment.isSelected()) return true;
+                treatDocCommentAsBlockComment.isSelected()) return true;
 
         if (scalaProjectSettings.isIgnorePerformance() != myResolveToAllClassesCheckBox.isSelected())
             return true;
@@ -170,7 +170,7 @@ public class ScalaProjectSettingsPanel {
             return true;
 
         if (scalaProjectSettings.getCollectionTypeHighlightingLevel() !=
-            collectionHighlightingChooser.getSelectedIndex()) return true;
+                collectionHighlightingChooser.getSelectedIndex()) return true;
 
         if (injectionPrefixTable.isModified(scalaProjectSettings)) return true;
 
@@ -350,7 +350,7 @@ public class ScalaProjectSettingsPanel {
         final Spacer spacer1 = new Spacer();
         panel1.add(spacer1, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         myAotCompletion = new JCheckBox();
-        myAotCompletion.setText("Ahead-of-time competion (parameter and variable names)");
+        myAotCompletion.setText("Ahead-of-time completion (parameter and variable names)");
         panel1.add(myAotCompletion, new GridConstraints(18, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel3 = new JPanel();
         panel3.setLayout(new GridLayoutManager(5, 2, new Insets(9, 9, 0, 0), -1, -1));
