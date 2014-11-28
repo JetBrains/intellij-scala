@@ -683,6 +683,16 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       else return WITH_SPACING
     }
 
+    if (rightElementType == tAT &&  rightNode.getTreeParent != null &&
+        rightNode.getTreeParent.getElementType == ScalaElementTypes.NAMING_PATTERN) {
+      return if (scalaSettings.SPACES_AROUND_AT_IN_PATTERNS) WITH_SPACING else WITHOUT_SPACING
+    }
+
+    if (leftElementType == tAT && leftNode.getTreeParent != null &&
+        leftNode.getTreeParent.getElementType == ScalaElementTypes.NAMING_PATTERN) {
+      return if (scalaSettings.SPACES_AROUND_AT_IN_PATTERNS) WITH_SPACING else WITHOUT_SPACING
+    }
+
     //old formatter spacing
 
 
