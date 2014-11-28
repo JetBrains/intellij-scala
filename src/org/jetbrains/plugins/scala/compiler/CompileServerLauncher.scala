@@ -166,13 +166,19 @@ object CompileServerLauncher {
       new File(jpsRoot, "scala-jps-plugin.jar"))
   }
 
-  def jvmParameters = {
+  def jvmParameters: Seq[String] = {
     val settings = ScalaCompileServerSettings.getInstance
     val xmx = settings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE |> { size =>
       if (size.isEmpty) Nil else List("-Xmx%sm".format(size))
     }
 
-    xmx ++ settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").toSeq
+    val (userMaxPermSize, otherParams) = settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").partition(_.contains("-XX:MaxPermSize"))
+
+    val defaultMaxPermSize = Some("-XX:MaxPermSize=256m")
+    val needMaxPermSize = settings.COMPILE_SERVER_SDK < "1.8"
+    val maxPermSize = if (needMaxPermSize) userMaxPermSize.headOption.orElse(defaultMaxPermSize) else None
+
+    xmx ++ otherParams ++ maxPermSize
   }
 
   def ensureServerRunning(project: Project) {
