@@ -7,7 +7,7 @@ import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.components.ServiceManager
-import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
 
 import scala.collection.mutable
 
@@ -54,14 +54,17 @@ class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Dispos
 
     ProgressManager.getInstance().run(new Task.Backgroundable(null, "Indexing resolvers") {
       def run(progressIndicator: ProgressIndicator) {
-        indexesToUpdate.foreach { index =>
-          progressIndicator.setFraction(0.0)
-          progressIndicator.setText(index.root)
-          try {
+        try {
+          indexesToUpdate.foreach { index =>
+            progressIndicator.setFraction(0.0)
+            progressIndicator.setText(index.root)
             index.update(Some(progressIndicator))
-          } finally {
-            updatingIndexes synchronized { updatingIndexes -= index }
+            updatingIndexes synchronized {
+              updatingIndexes -= index
+            }
           }
+        } finally {
+            updatingIndexes synchronized { updatingIndexes --= indexesToUpdate }
         }
       }
     })

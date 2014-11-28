@@ -176,7 +176,7 @@ object IntentionUtils {
         inWriteAction {
           val replaced = expr.replace(newExpr)
           val ref = replaced.asInstanceOf[ScMethodCall].deepestInvokedExpr.asInstanceOf[ScReferenceExpression]
-          val qualRef = ref.qualifier.getOrElse(null)
+          val qualRef = ref.qualifier.orNull
           if (clazz!= null && qualRef != null && secondPart.contains(f)) qualRef.asInstanceOf[ScReferenceExpression].bindToElement(clazz)
           PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
         }

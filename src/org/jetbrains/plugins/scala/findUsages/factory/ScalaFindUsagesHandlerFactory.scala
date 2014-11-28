@@ -27,6 +27,8 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
 
   val memberOptions = new ScalaMemberFindUsagesOptions(project)
 
+  val paramOptions = new ScalaParameterFindUsagesOptions(project)
+
   override def canFindUsages(element: PsiElement): Boolean = {
     element match {
       case _: FakePsiMethod => true

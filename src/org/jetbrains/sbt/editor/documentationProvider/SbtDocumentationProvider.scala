@@ -20,13 +20,20 @@ class SbtDocumentationProvider extends AbstractDocumentationProvider {
   private val scalaDocProvider = new ScalaDocumentationProvider
 
   override def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String = {
-    if (originalElement.getContainingFile.getFileType.getName != Sbt.Name) return null
+    val scalaDoc = Option(scalaDocProvider.getQuickNavigateInfo(element, originalElement))
+    scalaDoc.map { d => extractDoc(element, originalElement, d) }.orNull
+  }
+
+  override def generateDoc(element: PsiElement, originalElement: PsiElement): String = {
+    val scalaDoc = Option(scalaDocProvider.generateDoc(element, originalElement)).map(_.replace("</body></html>", ""))
+    scalaDoc.map { d => extractDoc(element, originalElement, d) + "</body></html>" }.orNull
+  }
+
+  private def extractDoc(element: PsiElement, originalElement: PsiElement, scalaDoc: String): String = {
+    if (originalElement.getContainingFile.getFileType.getName != Sbt.Name) return scalaDoc
 
     element match {
       case value: ScNamedElement =>
-        val scalaDoc = scalaDocProvider.getQuickNavigateInfo(element, originalElement)
-        if (scalaDoc == null) return null
-
         val keyDefinition = Option(element.getNavigationElement)
                             .safeMap { _.getParent }
                             .safeMap { _.getParent }
@@ -51,12 +58,12 @@ class SbtDocumentationProvider extends AbstractDocumentationProvider {
 
         scalaDoc + (keyArgs.headOption match {
           case Some(_: ScLiteral) => // new key definition
-            docs lift 1 map { "\n<b>" + _ + "</b>" }
+            docs lift 1 map { "<br/><b>" + _ + "</b>" }
           case Some(_: ScReferenceExpressionImpl) => // reference to another key
-            docs lift 0 map { "\n<b><i>" + _ + "</i></b>" }
+            docs lift 0 map { "</br><b><i>" + _ + "</i></b>" }
           case _ => None
         }).getOrElse("")
-      case _ => null
+      case _ => scalaDoc
     }
   }
 }

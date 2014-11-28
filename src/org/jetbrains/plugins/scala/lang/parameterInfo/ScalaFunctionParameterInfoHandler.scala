@@ -271,8 +271,8 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                 if (clauses.length <= i || (i == -1 && clauses.length == 0)) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
                 else {
                   val clause: ScParameterClause = if (i >= 0) clauses(i) else clauses(0)
-                  val length = clause.parameters.length
-                  val parameters: Seq[ScParameter] = if (i != -1) clause.parameters else clause.parameters.take(length - 1)
+                  val length = clause.effectiveParameters.length
+                  val parameters: Seq[ScParameter] = if (i != -1) clause.effectiveParameters else clause.effectiveParameters.take(length - 1)
                   applyToParameters(parameters.map(param =>
                     (new Parameter(param), paramText(param, subst))), subst, canBeNaming = true, isImplicit = clause.isImplicit)
                 }
@@ -342,7 +342,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             if (clauses.length <= i) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {
               val clause: ScParameterClause = clauses(i)
-              applyToParameters(clause.parameters.map(param =>
+              applyToParameters(clause.effectiveParameters.map(param =>
                 (new Parameter(param), paramText(param, subst))), subst, canBeNaming = true, isImplicit = clause.isImplicit)
             }
           case _ =>

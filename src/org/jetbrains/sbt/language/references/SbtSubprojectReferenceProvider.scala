@@ -78,6 +78,8 @@ class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
       extractPathFromConcatenation(expr)
     case expr : ScReferenceExpression =>
       Option(expr.resolve()).flatMap(extractPathFromReference)
+    case ScMethodCall(expr, ScLiteralImpl.string(path) :: _) if expr.getText == "file" =>
+      Option(path)
     case _ => None
   }
 

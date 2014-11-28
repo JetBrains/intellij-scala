@@ -193,9 +193,10 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
   
   private def compileGeneratedClass(fileText: String): Unit = {
     val module = inReadAction(ModuleUtilCore.findModuleForPsiElement(context))
-    val helper = ScalaEvaluatorCompileHelper.instance(project)
-    val file = helper.writeToTempFile(fileText)
-    val compiled = helper.compile(file, module)
+    val helper = EvaluatorCompileHelper.EP_NAME.getExtensions.headOption.getOrElse {
+      ScalaEvaluatorCompileHelper.instance(project)
+    }
+    val compiled = helper.compile(fileText, module)
     compiledClasses = compiled.collect {
       case (f, name) if name.contains(generatedClassName) => new OutputFileObject(f, name)
     }

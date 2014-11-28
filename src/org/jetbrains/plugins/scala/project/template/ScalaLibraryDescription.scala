@@ -21,7 +21,7 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
   def getSuitableLibraryKinds = Collections.singleton(ScalaLibraryKind)
 
   def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile) = {
-    implicit val ordering = Version.VersionOrdering.reverse
+    implicit val ordering = implicitly[Ordering[Version]].reverse
 
     def sdks = localSkdsIn(virtualToIoFile(contextDirectory)).map(SdkChoice(_, "Project")) ++
             systemSdks.sortBy(_.version).map(SdkChoice(_, "System")) ++

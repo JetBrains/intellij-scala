@@ -25,7 +25,7 @@ class SbtAnnotator extends Annotator {
         checkElements(children, holder)
         val sbtVersion = SbtSettings.getInstance(element.getProject).sbtVersion
         if (StringUtil.compareVersionNumbers(sbtVersion, "0.13.7") < 0)
-          checkBlankLines(children, holder)
+          checkBlankLines(children, holder, sbtVersion)
       case _ =>
     }
   }
@@ -68,10 +68,10 @@ class SbtAnnotator extends Annotator {
     }
   }
 
-  private def checkBlankLines(children: Seq[PsiElement], holder: AnnotationHolder) {
+  private def checkBlankLines(children: Seq[PsiElement], holder: AnnotationHolder, sbtVersion: String) {
     children.sliding(3).foreach {
       case Seq(_: ScExpression, space: PsiWhiteSpace, e: ScExpression) if space.getText.count(_ == '\n') == 1 =>
-        holder.createErrorAnnotation(e, "Blank line required to separate expressions in SBT file")
+        holder.createErrorAnnotation(e, SbtBundle("sbt.annotation.blankLineRequired", sbtVersion))
       case _ =>
     }
   }

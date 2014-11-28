@@ -8,6 +8,7 @@ import com.intellij.ui.table.TableView;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import org.jetbrains.plugins.scala.project.Versions;
 import scala.Function0;
 import scala.Function1;
 import scala.Option;
@@ -23,8 +24,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class SdkSelectionDialog extends JDialog {
-    public static final String[] VERSIONS = new String[]{"2.11.4", "2.10.4", "2.9.3"};
-
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
@@ -109,8 +108,10 @@ public class SdkSelectionDialog extends JDialog {
     }
 
     private void onDownload() {
+        String[] scalaVersions = Versions.loadScalaVersions();
+
         final SelectionDialog<String> dialog = new SelectionDialog<String>(contentPane,
-            "Download (via SBT)", "Scala version:", VERSIONS);
+            "Download (via SBT)", "Scala version:", scalaVersions);
 
         if (dialog.showAndGet()) {
             final String version = dialog.getSelectedValue();

@@ -7,12 +7,14 @@ import com.intellij.util.Processor
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.impl.TargetOutputIndexImpl
 import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor
-import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget, DirtyFilesHolder, FileProcessor}
-import org.jetbrains.jps.incremental.ModuleLevelBuilder.{ExitCode, OutputConsumer}
+import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget, DirtyFilesHolder}
+import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.incremental.java.JavaBuilder
 import org.jetbrains.jps.incremental.messages.ProgressMessage
+import org.jetbrains.jps.incremental.scala.ScalaBuilder._
 import org.jetbrains.jps.incremental.scala.local.IdeClientSbt
+import org.jetbrains.jps.incremental.scala.model.IncrementalityType
 import org.jetbrains.jps.model.JpsProject
 
 import _root_.scala.collection.JavaConverters._
@@ -20,18 +22,63 @@ import _root_.scala.collection.JavaConverters._
 /**
  * @author Pavel Fatin
  */
-object SbtBuilder extends ScalaBuilderDelegate {
-  def getPresentableName = "Scala SBT builder"
+class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
+  override def getPresentableName = "Scala SBT builder"
 
   override def buildStarted(context: CompileContext) = {
     val project: JpsProject = context.getProjectDescriptor.getProject
-    if (ScalaBuilder.isScalaProject(project))
+    if (isScalaProject(project) && !isDisabled(context))
       JavaBuilder.IS_ENABLED.set(context, false)
   }
 
-  def build(context: CompileContext, chunk: ModuleChunk,
+  override def build(context: CompileContext,
+            chunk: ModuleChunk,
             dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
-            outputConsumer: OutputConsumer): ModuleLevelBuilder.ExitCode = {
+            outputConsumer: ModuleLevelBuilder.OutputConsumer): ModuleLevelBuilder.ExitCode = {
+
+    if (isDisabled(context) || ChunkExclusionService.isExcluded(chunk))
+      return ExitCode.NOTHING_DONE
+
+    checkIncrementalTypeChange(context)
+
+    if (!hasDirtyFilesOrDependencies(context, chunk, dirtyFilesHolder))
+      return ExitCode.NOTHING_DONE
+
+    context.processMessage(new ProgressMessage("Searching for compilable files..."))
+
+    val filesToCompile = collectCompilableFiles(context, chunk)
+    if (filesToCompile.isEmpty)
+      return ExitCode.NOTHING_DONE
+
+    // Delete dirty class files (to handle force builds and form changes)
+    BuildOperations.cleanOutputsCorrespondingToChangedFiles(context, dirtyFilesHolder)
+
+    val sources = filesToCompile.keySet.toSeq
+
+    val modules = chunk.getModules.asScala.toSet
+
+    val client = new IdeClientSbt("scala", context, modules.map(_.getName).toSeq, outputConsumer, filesToCompile.get)
+
+    compile(context, chunk, sources, modules, client) match {
+      case Left(error) =>
+        client.error(error)
+        ExitCode.ABORT
+      case Right(code) =>
+        if (client.hasReportedErrors || client.isCanceled) {
+          ExitCode.ABORT
+        } else {
+          client.progress("Compilation completed", Some(1.0F))
+          code
+        }
+    }
+  }
+
+  private def isDisabled(context: CompileContext): Boolean = {
+    projectSettings(context).getIncrementalityType != IncrementalityType.SBT
+  }
+
+  private def hasDirtyFilesOrDependencies(context: CompileContext, chunk: ModuleChunk,
+                                          dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]): Boolean = {
 
     val representativeTarget = chunk.representativeTarget()
 
@@ -52,74 +99,14 @@ object SbtBuilder extends ScalaBuilderDelegate {
       }
     }
 
-    if (!hasDirtyDependencies &&
-            !hasDirtyFiles(dirtyFilesHolder) &&
-            !dirtyFilesHolder.hasRemovedFiles) {
-
-      if (targetTimestamp.isEmpty) {
+    if (!hasDirtyDependencies && !dirtyFilesHolder.hasDirtyFiles && !dirtyFilesHolder.hasRemovedFiles) {
+      if (targetTimestamp.isEmpty)
         timestamps.set(representativeTarget, context.getCompilationStartStamp)
-      }
-
-      ExitCode.NOTHING_DONE
-    } else {
-      timestamps.set(representativeTarget, context.getCompilationStartStamp)
-
-      doBuild(context, chunk, dirtyFilesHolder, outputConsumer)
-    }
-  }
-
-  private def doBuild(context: CompileContext, chunk: ModuleChunk,
-                      dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
-                      outputConsumer: OutputConsumer): ModuleLevelBuilder.ExitCode = {
-
-    if (ChunkExclusionService.isExcluded(chunk)) {
-      return ExitCode.NOTHING_DONE
+      return false
     }
 
-    context.processMessage(new ProgressMessage("Searching for compilable files..."))
-    val filesToCompile = collectCompilableFiles(context, chunk)
-
-    if (filesToCompile.isEmpty) {
-      return ExitCode.NOTHING_DONE
-    }
-
-    // Delete dirty class files (to handle force builds and form changes)
-    BuildOperations.cleanOutputsCorrespondingToChangedFiles(context, dirtyFilesHolder)
-
-    val sources = filesToCompile.keySet.toSeq
-
-    val modules = chunk.getModules.asScala.toSet
-
-    val client = new IdeClientSbt("scala", context, modules.map(_.getName).toSeq, outputConsumer, filesToCompile.get)
-
-    client.progress("Reading compilation settings...")
-
-    compile(context, chunk, sources, modules, client) match {
-
-      case Left(error) =>
-        client.error(error)
-        ExitCode.ABORT
-      case Right(code) =>
-        if (client.hasReportedErrors || client.isCanceled) {
-          ExitCode.ABORT
-        } else {
-          client.progress("Compilation completed", Some(1.0F))
-          code
-        }
-    }
-  }
-
-  private def hasDirtyFiles(dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]): Boolean = {
-    var result = false
-
-    dirtyFilesHolder.processDirtyFiles(new FileProcessor[JavaSourceRootDescriptor, ModuleBuildTarget] {
-      def apply(target: ModuleBuildTarget, file: File, root: JavaSourceRootDescriptor) = {
-        result = true
-        false
-      }
-    })
-
-    result
+    timestamps.set(representativeTarget, context.getCompilationStartStamp)
+    true
   }
 
   private def collectCompilableFiles(context: CompileContext,chunk: ModuleChunk): Map[File, BuildTarget[_ <: BuildRootDescriptor]] = {

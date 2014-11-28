@@ -1,5 +1,7 @@
 import sbt._
 import Keys._
+import scala.language.implicitConversions
+import scala.language.postfixOps
 
 object common extends Build {
   lazy val ideaVersion = settingKey[String]("gets idea sdk version from file")

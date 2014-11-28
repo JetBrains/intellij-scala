@@ -342,7 +342,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
         }
       case i if i < 0 || i >= effectiveParameterClauses.length => None
       case _ =>
-        effectiveParameterClauses.apply(clausePosition).parameters.find { case param =>
+        effectiveParameterClauses.apply(clausePosition).effectiveParameters.find { case param =>
           ScalaPsiUtil.memberNamesEquals(param.name, name) ||
             param.deprecatedName.exists(ScalaPsiUtil.memberNamesEquals(_, name))
         }

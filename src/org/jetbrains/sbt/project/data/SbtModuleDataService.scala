@@ -9,6 +9,7 @@ import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, Proj
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jetbrains.sbt.project.module.SbtModule
+import org.jetbrains.sbt.resolvers.{SbtResolverIndex, SbtResolverIndexesManager}
 
 import scala.collection.JavaConverters._
 
@@ -29,6 +30,12 @@ class SbtModuleDataService(platformFacade: PlatformFacade, helper: ProjectStruct
 
       SbtModule.setImportsTo(module, moduleData.imports)
       SbtModule.setResolversTo(module, moduleData.resolvers)
+
+      moduleData.resolvers foreach { _ => SbtResolverIndexesManager().add(_) }
+      val localResolvers = moduleData.resolvers.toSeq.filter {
+        _.associatedIndex.exists { i => i.isLocal && i.timestamp == SbtResolverIndex.NO_TIMESTAMP }
+      }
+      SbtResolverIndexesManager().update(localResolvers)
     }
   }
 
