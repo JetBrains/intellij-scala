@@ -693,6 +693,13 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       return if (scalaSettings.SPACES_AROUND_AT_IN_PATTERNS) WITH_SPACING else WITHOUT_SPACING
     }
 
+    if (leftElementType == ScalaDocTokenType.DOC_COMMENT_BAD_CHARACTER ||
+        rightElementType == ScalaDocTokenType.DOC_COMMENT_BAD_CHARACTER) {
+      //FIXME: this is a quick hack to stop method signature in scalaDoc from getting disrupted. (#SCL-4280)
+      //actually the DOC_COMMENT_BAD_CHARACTER elements seem out of place in here
+      return Spacing.getReadOnlySpacing
+    }
+
     //old formatter spacing
 
 
