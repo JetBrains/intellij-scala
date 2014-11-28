@@ -45,6 +45,10 @@ class ImplicitParametersCollector(private var place: PsiElement, tp: ScType, cor
   private var placeCalculated = false
 
   def collect: Seq[ScalaResolveResult] = {
+    ScType.extractClass(tp, Some(place.getProject)) match {
+      case Some(clazz) if InferUtil.skipQualSet.contains(clazz.qualifiedName) => return Seq.empty
+      case _ =>
+    }
     var result = ImplicitParametersCollector.cache.get((place, tp))
     if (result != null) return result
     ProgressManager.checkCanceled()

@@ -11,6 +11,7 @@
         <extensionPoint name="memberElementTypesExtension" interface="org.jetbrains.plugins.scala.util.MemberElementTypesExtension"/>
         <extensionPoint name="scalaElementToRenameContributor" interface="org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaElementToRenameContributor"/>
         <extensionPoint name="scalaSyntheticClassProducer" interface="org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer"/>
+        <extensionPoint name="evaluatorCompileHelper" interface="org.jetbrains.plugins.scala.debugger.evaluation.EvaluatorCompileHelper"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -914,6 +915,10 @@
                        displayName="Auto-tupling" groupName="Scala: General"
                        shortName="AutoTupling" level="WARNING"
                        enabledByDefault="false" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.implicits.DeprecatedViewBoundInspection"
+                       displayName="View bounds are deprecated" groupName="Scala: General"
+                       shortName="DeprecatedViewBound" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
       <!--Scalastyle inspection-->
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection"
                        displayName="Scala style inspection" groupName="Scala: Code Style"
@@ -928,7 +933,7 @@
 
         <!-- scaladoc inspections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnclosedTagWithoutParserInspection"
-                         displayName="Tag Unclosed" groupName="Scaladoc" shortName="ScalaDocUnclosedTagWithoutParser" level="WARNING"
+                         displayName="Tag Unclosed" groupName="Scala: Scaladoc" shortName="ScalaDocUnclosedTagWithoutParser" level="WARNING"
                          enabledByDefault="true" language="Scala" />
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocInlinedTagInspection"
                          displayName="Inlined Tag" groupName="Scala: Scaladoc" shortName="ScalaDocInlinedTag" level="WARNING"
@@ -943,7 +948,7 @@
                          displayName="Unknown Parameter" groupName="Scala: Scaladoc" shortName="ScalaDocUnknownParameter" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocMissingParameterDescriptionInspection"
-                         displayName="Missing tag parameter description" groupName="Scaladoc" shortName="ScalaDocMissingParameterDescription"
+                         displayName="Missing tag parameter description" groupName="Scala: Scaladoc" shortName="ScalaDocMissingParameterDescription"
                          level="WARNING" enabledByDefault="true" language="Scala" />
         <!-- end of scaladoc inspections -->
         <!-- end of inspections -->

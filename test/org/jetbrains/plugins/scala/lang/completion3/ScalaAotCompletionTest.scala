@@ -98,6 +98,26 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
     }
   }
 
+  def testImport() {
+    val before =
+      """
+        |def f(rectangle<caret>)
+      """
+
+    val after =
+      """
+        |import java.awt.Rectangle
+        |
+        |def f(rectangle: Rectangle<caret>)
+      """
+
+    test(before, after) {
+      val (activeLookup, _) = complete(1, CompletionType.BASIC)
+      Assert.assertTrue(activeLookup.exists(_.getLookupString == "Rectangle"))
+      completeLookupItem(findByText(activeLookup, "rectangle: Rectangle"))
+    }
+  }
+
   private def test(before: String, after: String)(actions: => Unit) {
     configureFromFileTextAdapter("dummy.scala", before.stripMargin('|').replaceAll("\r", "").trim())
     actions

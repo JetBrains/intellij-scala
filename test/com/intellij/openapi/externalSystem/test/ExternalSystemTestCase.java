@@ -45,8 +45,11 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.packaging.artifacts.Artifact;
 import com.intellij.packaging.impl.compiler.ArtifactCompileScope;
 import com.intellij.testFramework.*;
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture;
 import com.intellij.testFramework.fixtures.IdeaProjectTestFixture;
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
+import com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl;
+import com.intellij.testFramework.fixtures.impl.TempDirTestFixtureImpl;
 import com.intellij.util.io.TestFileSystemItem;
 import gnu.trove.THashSet;
 import org.jetbrains.annotations.NonNls;
@@ -55,7 +58,9 @@ import org.junit.After;
 import org.junit.Before;
 
 import java.awt.*;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -72,7 +77,7 @@ import java.util.jar.Manifest;
 public abstract class ExternalSystemTestCase extends UsefulTestCase {
   private static File ourTempDir;
 
-  protected IdeaProjectTestFixture myTestFixture;
+  protected CodeInsightTestFixture myFixture;
 
   protected Project myProject;
 
@@ -95,7 +100,7 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
     FileUtil.ensureExists(myTestDir);
 
     setUpFixtures();
-    myProject = myTestFixture.getProject();
+    myProject = myFixture.getProject();
 
     edt(new Runnable() {
       @Override
@@ -131,9 +136,22 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
 
   protected abstract String getTestsTempDir();
 
+  protected abstract String getRootDir();
+
   protected void setUpFixtures() throws Exception {
-    myTestFixture = IdeaTestFixtureFactory.getFixtureFactory().createFixtureBuilder(getName()).getFixture();
-    myTestFixture.setUp();
+    IdeaProjectTestFixture ideaProjectTestFixture =
+            IdeaTestFixtureFactory.getFixtureFactory().createFixtureBuilder(getName()).getFixture();
+    TempDirTestFixtureImpl tempDirTestFixture = new TempDirTestFixtureImpl() {
+      @NotNull
+      @Override
+      public String getTempDirPath() {
+        File file = new File(getRootDir(), getTestName(false));
+        if (!file.exists()) return super.getTempDirPath();
+        else return file.getAbsolutePath();
+      }
+    };
+    myFixture = new CodeInsightTestFixtureImpl(ideaProjectTestFixture, tempDirTestFixture);
+    myFixture.setUp();
   }
 
   protected void setUpInWriteAction() throws Exception {
@@ -185,8 +203,6 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
   }
 
   protected void tearDownFixtures() throws Exception {
-    myTestFixture.tearDown();
-    myTestFixture = null;
   }
 
   private void resetClassFields(final Class<?> aClass) {

@@ -73,7 +73,7 @@ class SameSignatureCallParametersProvider extends CompletionContributor {
               val signatures = variants.toSeq.map {
                 case ScalaResolveResult(fun: ScMethodLike, subst) =>
                   val params = fun.effectiveParameterClauses
-                  if (params.length > index) params(index).parameters.map(p =>
+                  if (params.length > index) params(index).effectiveParameters.map(p =>
                     (p.name, subst.subst(p.getType(TypingContext.empty).getOrAny)))
                   else Seq.empty
                 case ScalaResolveResult(method: PsiMethod, subst) =>
@@ -113,7 +113,7 @@ class SameSignatureCallParametersProvider extends CompletionContributor {
                 clazz.constructors.toSeq.map {
                   case fun: ScMethodLike =>
                     val params = fun.effectiveParameterClauses
-                    if (params.length > index) params(index).parameters.map(p =>
+                    if (params.length > index) params(index).effectiveParameters.map(p =>
                       (p.name, subst.subst(p.getType(TypingContext.empty).getOrAny)))
                     else Seq.empty
                 }.filter(_.length > 1)

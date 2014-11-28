@@ -214,7 +214,7 @@ import com.intellij.psi.PsiMethod
 object PhysicalSignature {
   def typesEval(method: PsiMethod): List[Seq[() => ScType]] = method match {
     case fun: ScFunction =>
-      fun.effectiveParameterClauses.map(clause => ScalaPsiUtil.mapToLazyTypesSeq(clause.parameters)).toList
+      fun.effectiveParameterClauses.map(clause => ScalaPsiUtil.mapToLazyTypesSeq(clause.effectiveParameters)).toList
     case _ => List(ScalaPsiUtil.mapToLazyTypesSeq(method.getParameterList match {
       case p: ScParameters => p.params
       case p => p.getParameters.toSeq
@@ -222,7 +222,7 @@ object PhysicalSignature {
   }
 
   def paramLength(method: PsiMethod): List[Int] = method match {
-    case fun: ScFunction => fun.effectiveParameterClauses.map(_.parameters.length).toList
+    case fun: ScFunction => fun.effectiveParameterClauses.map(_.effectiveParameters.length).toList
     case _ => List(method.getParameterList.getParametersCount)
   }
 

@@ -58,7 +58,7 @@ javacOptions in Global ++= Seq("-source", "1.6", "-target", "1.6")
 
 scalacOptions in Global += "-target:jvm-1.6"
 
-ideaVersion := "139.224.1"
+ideaVersion := "139.560.4"
 
 ideaBasePath in Global := baseDirectory.value / "SDK" / "ideaSDK" / s"idea-${ideaVersion.value}"
 
@@ -236,6 +236,7 @@ packageStructure in Compile := {
     libOf("org.apache.maven.wagon" % "wagon-http" % "2.6"),
     libOf("org.apache.maven.wagon" % "wagon-http-shared" % "2.6"),
     libOf("org.apache.maven.wagon" % "wagon-provider-api" % "2.6"),
+    libOf( "org.apache.xbean" % "xbean-reflect" % "3.4"),
     libOf("org.jsoup" % "jsoup" % "1.7.2"),
     libOf("commons-lang" % "commons-lang" % "2.6"),
     libOf("commons-io" % "commons-io" % "2.2"),

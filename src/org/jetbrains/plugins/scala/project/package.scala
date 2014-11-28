@@ -12,6 +12,7 @@ import com.intellij.openapi.roots.impl.libraries.{ProjectLibraryTable, LibraryEx
 import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.{NewLibraryEditor, ExistingLibraryEditor}
 import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore}
+import scala.collection.immutable.HashSet
 import scala.util.matching.Regex
 import extensions._
 
@@ -54,15 +55,15 @@ package object project {
 
     def scalaSdk: Option[ScalaSdk] = libraries.find(_.isScalaSdk).map(new ScalaSdk(_))
 
-    def libraries: Seq[Library] = inReadAction {
-      var libraries = Seq[Library]()
+    def libraries: Set[Library] = inReadAction {
+      var libraries = HashSet.empty[Library]
 
       val enumerator = ModuleRootManager.getInstance(module)
               .orderEntries().recursively().librariesOnly().exportedOnly()
 
       enumerator.forEachLibrary(new Processor[Library] {
         override def process(library: Library) = {
-          libraries :+= library
+          libraries += library
           true
         }
       })

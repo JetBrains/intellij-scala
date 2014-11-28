@@ -35,3 +35,23 @@ class ScalaSourceFilterScope(myDelegate: GlobalSearchScope, project: Project) ex
         StdFileTypes.CLASS.getDefaultExtension == file.getExtension && myIndex.isInLibraryClasses(file))
   }
 }
+
+class SourceFilterScope(myDelegate: GlobalSearchScope, project: Project) extends GlobalSearchScope(project) {
+  val myIndex = ProjectRootManager.getInstance(project).getFileIndex
+
+  override def contains(file: VirtualFile): Boolean = {
+    (myDelegate == null || myDelegate.contains(file)) && myIndex.isInSourceContent(file)
+  }
+
+  override def compare(file1: VirtualFile, file2: VirtualFile): Int = {
+    if (myDelegate == null) myDelegate.compare(file1, file2) else 0
+  }
+
+  override def isSearchInModuleContent(aModule: Module): Boolean = {
+    myDelegate == null || myDelegate.isSearchInModuleContent(aModule)
+  }
+
+  override def isSearchInLibraries: Boolean = {
+    myDelegate == null || myDelegate.isSearchInLibraries
+  }
+}

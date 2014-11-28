@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
 import org.jetbrains.plugins.scala.project._
 
@@ -379,11 +380,14 @@ object WorksheetSourceProcessor {
   }
   
   private def isForObject(file: ScalaFile) = {
+    val isEclipseMode = ScalaProjectSettings.getInstance(file.getProject).isUseEclipseCompatibility
+
     @tailrec
     def isObjectOk(psi: PsiElement): Boolean = psi match {
       case _: ScImportStmt | _: PsiWhiteSpace | _: PsiComment  => isObjectOk(psi.getNextSibling)
       case obj: ScObject => obj.extendsBlock.templateParents.isEmpty && isObjectOk(obj.getNextSibling)//isOk(psi.getNextSibling) - for compatibility with Eclipse. Its worksheet proceeds with expressions inside first object found
-//      case _: PsiClass => isObjectOk(psi.getNextSibling)
+      case _: PsiClass if isEclipseMode => isObjectOk(psi.getNextSibling)
+      case null => true
       case _ => false
     }
     

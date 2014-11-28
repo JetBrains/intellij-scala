@@ -9,5 +9,5 @@ import com.intellij.psi.codeStyle.arrangement.DefaultArrangementSettingsSerializ
  */
 class ScalaSettingsSerializerMixin extends DefaultArrangementSettingsSerializer.Mixin{
   def deserializeToken(id: String) =
-    getTokenById(id).getOrElse(null)
+    getTokenById(id).orNull
 }

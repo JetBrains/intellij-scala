@@ -98,7 +98,7 @@ class ScalaTestConfigurationProducer extends {
     val element = location.getPsiElement
     var clazz: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
     if (clazz == null) return (null, null)
-    val tb = clazz.extendsBlock.templateBody.getOrElse(null)
+    val tb = clazz.extendsBlock.templateBody.orNull
     while (PsiTreeUtil.getParentOfType(clazz, classOf[ScTypeDefinition], true) != null) {
       clazz = PsiTreeUtil.getParentOfType(clazz, classOf[ScTypeDefinition], true)
     }
@@ -554,7 +554,7 @@ class ScalaTestConfigurationProducer extends {
               case i: ScInfixExpr =>
                 i.getBaseExpr
               case m: MethodInvocation => m.getInvokedExpr match {
-                case ref: ScReferenceExpression => ref.qualifier.getOrElse(null)
+                case ref: ScReferenceExpression => ref.qualifier.orNull
                 case _ => null
               }
             }
@@ -624,72 +624,72 @@ class ScalaTestConfigurationProducer extends {
 
 
     val oldResult = (testClassPath,
-      checkFunSuite("org.scalatest.FunSuite") ++
-        checkFunSuite("org.scalatest.FunSuiteLike") ++
-        checkFunSuite("org.scalatest.fixture.FunSuite") ++
-        checkFunSuite("org.scalatest.fixture.FunSuiteLike") ++
-        checkFunSuite("org.scalatest.fixture.FixtureFunSuite") ++
-        checkFunSuite("org.scalatest.fixture.MultipleFixtureFunSuite") ++
-        checkFeatureSpec("org.scalatest.FeatureSpec") ++
-        checkFeatureSpec("org.scalatest.FeatureSpecLike") ++
-        checkFeatureSpec("org.scalatest.fixture.FeatureSpec") ++
-        checkFeatureSpec("org.scalatest.fixture.FeatureSpecLike") ++
-        checkFeatureSpec("org.scalatest.fixture.FixtureFeatureSpec") ++
-        checkFeatureSpec("org.scalatest.fixture.MultipleFixtureFeatureSpec") ++
-        checkFreeSpec("org.scalatest.FreeSpec") ++
-        checkFreeSpec("org.scalatest.FreeSpecLike") ++
-        checkFreeSpec("org.scalatest.fixture.FreeSpec") ++
-        checkFreeSpec("org.scalatest.fixture.FreeSpecLike") ++
-        checkFreeSpec("org.scalatest.fixture.FixtureFreeSpec") ++
-        checkFreeSpec("org.scalatest.fixture.MultipleFixtureFreeSpec") ++
-        checkFreeSpec("org.scalatest.path.FreeSpec") ++
-        checkFreeSpec("org.scalatest.path.FreeSpecLike") ++
-        checkJUnit3Suite("org.scalatest.junit.JUnit3Suite") ++
-        checkJUnitSuite("org.scalatest.junit.JUnitSuite") ++
-        checkJUnitSuite("org.scalatest.junit.JUnitSuiteLike") ++
-        checkPropSpec("org.scalatest.PropSpec") ++
-        checkPropSpec("org.scalatest.PropSpecLike") ++
-        checkPropSpec("org.scalatest.fixture.PropSpec") ++
-        checkPropSpec("org.scalatest.fixture.PropSpecLike") ++
-        checkPropSpec("org.scalatest.fixture.FixturePropSpec") ++
-        checkPropSpec("org.scalatest.fixture.MultipleFixturePropSpec") ++
-        /**
-        //TODO: actually implement checkSpec for scalatest 2.0 Spec
+      (checkFunSuite("org.scalatest.FunSuite") ++
+              checkFunSuite("org.scalatest.FunSuiteLike") ++
+              checkFunSuite("org.scalatest.fixture.FunSuite") ++
+              checkFunSuite("org.scalatest.fixture.FunSuiteLike") ++
+              checkFunSuite("org.scalatest.fixture.FixtureFunSuite") ++
+              checkFunSuite("org.scalatest.fixture.MultipleFixtureFunSuite") ++
+              checkFeatureSpec("org.scalatest.FeatureSpec") ++
+              checkFeatureSpec("org.scalatest.FeatureSpecLike") ++
+              checkFeatureSpec("org.scalatest.fixture.FeatureSpec") ++
+              checkFeatureSpec("org.scalatest.fixture.FeatureSpecLike") ++
+              checkFeatureSpec("org.scalatest.fixture.FixtureFeatureSpec") ++
+              checkFeatureSpec("org.scalatest.fixture.MultipleFixtureFeatureSpec") ++
+              checkFreeSpec("org.scalatest.FreeSpec") ++
+              checkFreeSpec("org.scalatest.FreeSpecLike") ++
+              checkFreeSpec("org.scalatest.fixture.FreeSpec") ++
+              checkFreeSpec("org.scalatest.fixture.FreeSpecLike") ++
+              checkFreeSpec("org.scalatest.fixture.FixtureFreeSpec") ++
+              checkFreeSpec("org.scalatest.fixture.MultipleFixtureFreeSpec") ++
+              checkFreeSpec("org.scalatest.path.FreeSpec") ++
+              checkFreeSpec("org.scalatest.path.FreeSpecLike") ++
+              checkJUnit3Suite("org.scalatest.junit.JUnit3Suite") ++
+              checkJUnitSuite("org.scalatest.junit.JUnitSuite") ++
+              checkJUnitSuite("org.scalatest.junit.JUnitSuiteLike") ++
+              checkPropSpec("org.scalatest.PropSpec") ++
+              checkPropSpec("org.scalatest.PropSpecLike") ++
+              checkPropSpec("org.scalatest.fixture.PropSpec") ++
+              checkPropSpec("org.scalatest.fixture.PropSpecLike") ++
+              checkPropSpec("org.scalatest.fixture.FixturePropSpec") ++
+              checkPropSpec("org.scalatest.fixture.MultipleFixturePropSpec") ++
+
+              /**
+              //TODO: actually implement checkSpec for scalatest 2.0 Spec
         checkSpec("org.scalatest.Spec") ++
         checkSpec("org.scalatest.SpecLike") ++
         checkSpec("org.scalatest.fixture.Spec") ++
         checkSpec("org.scalatest.fixture.SpecLike") ++
-          */
-        //this is intended for scalatest versions < 2.0
-        checkFunSpec("org.scalatest.Spec") ++
-        checkFunSpec("org.scalatest.SpecLike") ++
-        checkFunSpec("org.scalatest.fixture.Spec") ++
-        checkFunSpec("org.scalatest.fixture.SpecLike") ++
-        checkFunSpec("org.scalatest.fixture.FixtureSpec") ++
-        checkFunSpec("org.scalatest.fixture.MultipleFixtureSpec") ++
-        //this is intended for scalatest version 2.0
-        checkFunSpec("org.scalatest.FunSpec") ++
-        checkFunSpec("org.scalatest.FunSpecLike") ++
-        checkFunSpec("org.scalatest.fixture.FunSpec") ++
-        checkFunSpec("org.scalatest.fixture.FunSpecLike") ++
-        checkFunSpec("org.scalatest.path.FunSpec") ++
-        checkFunSpec("org.scalatest.path.FunSpecLike") ++
-        //---
-        checkTestNGSuite("org.scalatest.testng.TestNGSuite") ++
-        checkTestNGSuite("org.scalatest.testng.TestNGSuiteLike") ++
-        checkFlatSpec("org.scalatest.FlatSpec") ++
-        checkFlatSpec("org.scalatest.FlatSpecLike") ++
-        checkFlatSpec("org.scalatest.fixture.FlatSpec") ++
-        checkFlatSpec("org.scalatest.fixture.FlatSpecLike") ++
-        checkFlatSpec("org.scalatest.fixture.FixtureFlatSpec") ++
-        checkFlatSpec("org.scalatest.fixture.MultipleFixtureFlatSpec") ++
-        checkWordSpec("org.scalatest.WordSpec") ++
-        checkWordSpec("org.scalatest.WordSpecLike") ++
-        checkWordSpec("org.scalatest.fixture.WordSpec") ++
-        checkWordSpec("org.scalatest.fixture.WordSpecLike") ++
-        checkWordSpec("org.scalatest.fixture.FixtureWordSpec") ++
-        checkWordSpec("org.scalatest.fixture.MultipleFixtureWordSpec")
-        getOrElse null)
+                */
+              //this is intended for scalatest versions < 2.0
+              checkFunSpec("org.scalatest.Spec") ++
+              checkFunSpec("org.scalatest.SpecLike") ++
+              checkFunSpec("org.scalatest.fixture.Spec") ++
+              checkFunSpec("org.scalatest.fixture.SpecLike") ++
+              checkFunSpec("org.scalatest.fixture.FixtureSpec") ++
+              checkFunSpec("org.scalatest.fixture.MultipleFixtureSpec") ++
+              //this is intended for scalatest version 2.0
+              checkFunSpec("org.scalatest.FunSpec") ++
+              checkFunSpec("org.scalatest.FunSpecLike") ++
+              checkFunSpec("org.scalatest.fixture.FunSpec") ++
+              checkFunSpec("org.scalatest.fixture.FunSpecLike") ++
+              checkFunSpec("org.scalatest.path.FunSpec") ++
+              checkFunSpec("org.scalatest.path.FunSpecLike") ++
+              //---
+              checkTestNGSuite("org.scalatest.testng.TestNGSuite") ++
+              checkTestNGSuite("org.scalatest.testng.TestNGSuiteLike") ++
+              checkFlatSpec("org.scalatest.FlatSpec") ++
+              checkFlatSpec("org.scalatest.FlatSpecLike") ++
+              checkFlatSpec("org.scalatest.fixture.FlatSpec") ++
+              checkFlatSpec("org.scalatest.fixture.FlatSpecLike") ++
+              checkFlatSpec("org.scalatest.fixture.FixtureFlatSpec") ++
+              checkFlatSpec("org.scalatest.fixture.MultipleFixtureFlatSpec") ++
+              checkWordSpec("org.scalatest.WordSpec") ++
+              checkWordSpec("org.scalatest.WordSpecLike") ++
+              checkWordSpec("org.scalatest.fixture.WordSpec") ++
+              checkWordSpec("org.scalatest.fixture.WordSpecLike") ++
+              checkWordSpec("org.scalatest.fixture.FixtureWordSpec") ++
+              checkWordSpec("org.scalatest.fixture.MultipleFixtureWordSpec")).orNull)
 
     val astTransformer = new ScalaTestAstTransformer()
     val selection = astTransformer.testSelection(location)

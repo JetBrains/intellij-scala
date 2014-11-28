@@ -28,9 +28,9 @@ class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction {
     val ifStmt: ScIfStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt], false)
     if (ifStmt == null) return false
 
-    val thenBranch = ifStmt.thenBranch.getOrElse(null)
-    val elseBranch = ifStmt.elseBranch.getOrElse(null)
-    val condition = ifStmt.condition.getOrElse(null)
+    val thenBranch = ifStmt.thenBranch.orNull
+    val elseBranch = ifStmt.elseBranch.orNull
+    val condition = ifStmt.condition.orNull
     if (thenBranch == null || elseBranch == null || condition == null) return false
 
     val offset = editor.getCaretModel.getOffset
@@ -39,7 +39,7 @@ class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction {
 
     thenBranch match {
       case tb: ScBlockExpr =>
-        val lastExpr = tb.lastExpr.getOrElse(null)
+        val lastExpr = tb.lastExpr.orNull
         if (lastExpr == null) return false
         if (lastExpr.isInstanceOf[ScReturnStmt]) return true
         if (lastExpr.isInstanceOf[ScThrowStmt]) return true
