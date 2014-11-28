@@ -3,6 +3,7 @@ object a{
   val x1 = 2L
   val y = 1.0
   val z = true
+  0X123
 }
 -----
 object {object}
@@ -45,6 +46,9 @@ white space in line { }
 = {=}
 white space in line { }
 true {true}
+white space in line {
+  }
+integer {0X123}
 white space in line {
 }
 } {}}

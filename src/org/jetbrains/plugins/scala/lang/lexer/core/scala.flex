@@ -125,7 +125,7 @@ import com.intellij.openapi.util.text.StringUtil;
 
 integerLiteral = ({decimalNumeral} | {hexNumeral} | {octalNumeral}) (L | l)?
 decimalNumeral = 0 | {nonZeroDigit} {digit}*
-hexNumeral = 0 x {hexDigit}+
+hexNumeral = 0 (x | X) {hexDigit}+
 octalNumeral = 0{octalDigit}+
 digit = [0-9]
 nonZeroDigit = [1-9]
