@@ -175,7 +175,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           case interpolated: ScInterpolatedStringLiteral if l.getFirstChild != null =>
             highlightWrongInterpolatedString(interpolated, holder)
           case _ if l.getFirstChild.getNode.getElementType == ScalaTokenTypes.tINTEGER => // the literal is a tINTEGER
-            checkIntegerNumberRange(l, holder)
+            checkIntegerLiteral(l, holder)
           case _ =>
         }
         super.visitLiteral(l)
@@ -1175,7 +1175,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
   }
 
-  private def checkIntegerNumberRange(literal: ScLiteral, holder: AnnotationHolder) {
+  private def checkIntegerLiteral(literal: ScLiteral, holder: AnnotationHolder) {
     val child = literal.getFirstChild.getNode
     val text = literal.getText
     val endsWithL = child.getText.endsWith('l') || child.getText.endsWith('L')
@@ -1187,7 +1187,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       case _ => false
     }
     val (number, base) = text match {
-      case t if t.startsWith("0x") => (t.substring(2), 16)
+      case t if t.startsWith("0x") || t.startsWith("0X") => (t.substring(2), 16)
       case t if t.startsWith("0") && t.length >= 2 => (t.substring(1), 8)
       case _ => (text, 10)
     }
