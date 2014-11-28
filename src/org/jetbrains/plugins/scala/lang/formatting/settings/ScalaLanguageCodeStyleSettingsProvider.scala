@@ -163,6 +163,8 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         CodeStyleSettingsCustomizable.SPACES_BEFORE_PARENTHESES)
       showCustomOption("SPACES_IN_IMPORTS", "Spaces after open and before close braces in imports",
         CodeStyleSettingsCustomizable.SPACES_OTHER)
+      showCustomOption("SPACES_AROUND_AT_IN_PATTERNS", "Spaces around '@' in pattern bindings",
+        CodeStyleSettingsCustomizable.SPACES_OTHER)
     }
 
   }
