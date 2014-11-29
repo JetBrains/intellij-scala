@@ -17,11 +17,12 @@ class IntegerLiteralCheckTest extends SimpleTestCase {
   final val Header = ""
 
   def randomIntValues(num: Int): List[Int] = {
-    List.fill(num)(Random.nextInt)
+    Int.MaxValue :: Int.MinValue :: List.fill(num)(Random.nextInt)
   }
 
   def randomLongValues(num: Int): List[Long] = {
-    Stream.continually(Random.nextLong).filter(x => x > Int.MaxValue || x < Int.MinValue).take(num).toList
+    val randomList = Stream.continually(Random.nextLong).filter(_.toHexString.length > 8).take(num).toList
+    Long.MaxValue :: Long.MinValue :: randomList
   }
 
   // how should I bound T to Int and Long only?
@@ -35,21 +36,41 @@ class IntegerLiteralCheckTest extends SimpleTestCase {
 
   def prependSign(s: String): List[String] = if (s.startsWith("-")) List(s) else List(s, "-" + s)
 
-  def appendL(ss: String): List[String] = List(ss + "l", ss + "L")
+  def appendL(s: String): List[String] = List(s + "l", s + "L")
 
-  val intValues = List(0, 1, 1234, Int.MaxValue, Int.MinValue)
-  val longValues = List(1l + Int.MaxValue, 1234l + Int.MaxValue, Long.MaxValue, Long.MinValue)
+  val intValues = List(0, -0, 1, -1, 1234, -1234)
+  val longValues = List(1l + Int.MaxValue, 12345l + Int.MaxValue, -1l +  Int.MinValue, -1234l + Int.MinValue)
   val numOfGenInteger = 10
 
-  def testFine(): Unit = {
-    val intStrings = ((intValues ++ randomIntValues(numOfGenInteger)) flatMap expandIntegerLiteral flatMap prependSign).distinct
+  def testFine() {
+    val intStrings = ((intValues ++ randomIntValues(numOfGenInteger)).flatMap(expandIntegerLiteral).flatMap(prependSign)).distinct
     for (s <- intStrings) {
       assertNothing(messages(s"val a = $s"))
     }
     val longStrings = (intStrings flatMap appendL) ++
-                      ((longValues ++ randomLongValues(numOfGenInteger))  flatMap expandIntegerLiteral flatMap prependSign flatMap appendL).distinct
+                      ((longValues ++ randomLongValues(numOfGenInteger)).flatMap(expandIntegerLiteral).flatMap(prependSign).flatMap(appendL)).distinct
     for (s <- longStrings) {
       assertNothing(messages(s"val a = $s"))
+    }
+  }
+
+  def testLiteralOverflowInt() {
+    val longStrings = longValues.map(_.toString) ++ randomLongValues(numOfGenInteger).flatMap(expandIntegerLiteral).distinct
+    for (s <- longStrings) {
+      assertMatches(messages(s"val a = $s")) {
+        case Error(s, OverflowIntPattern()) :: Nil =>
+      }
+    }
+  }
+
+  def testLiteralOverflowLong() {
+    val overflowLongStrings = (longValues ++ randomLongValues(numOfGenInteger)).
+                              flatMap(x => List(x.toString.padTo(21, '1'), "0x" + x.toHexString.padTo(17, '1'), "0" + x.toOctalString.padTo(23, '1')))
+    val overflowLongStringsWithL = overflowLongStrings.flatMap(appendL)
+    for (s <- overflowLongStrings ++ overflowLongStringsWithL) {
+      assertMatches(messages(s"val a = $s")) {
+        case Error(s, OverflowLongPattern()) :: Nil =>
+      }
     }
   }
 
@@ -64,8 +85,12 @@ class IntegerLiteralCheckTest extends SimpleTestCase {
         case _ =>
       }
 
-//      mock.annotations.filter((p: Message) => !p.isInstanceOf[Info])
-    mock.annotations
+      mock.annotations.filter((p: Message) => !p.isInstanceOf[Info])
   }
 
+  val OverflowIntPattern = ContainsPattern("out of range for type Int")
+  val OverflowLongPattern = ContainsPattern("out of range even for type Long")
+  case class ContainsPattern(fragment: String) {
+      def unapply(s: String) = s.contains(fragment)
+    }
 }
