@@ -97,25 +97,26 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
         if (chars.length != 1) return null
         Character.valueOf(chars.charAt(0))
       case ScalaTokenTypes.tINTEGER =>
-        if (child.getText.endsWith('l') || child.getText.endsWith('L'))
-          try {
-            java.lang.Long.valueOf(text.substring(0, text.length - 1))
-          } catch {
-            case e: Exception => null
-          }
-        else {
-          try {
-            if (text.startsWith("0x")) {
-              Integer.valueOf(java.lang.Integer.parseInt(text.substring(2), 16))
-            } else if (text.startsWith('0')) {
-              Integer.valueOf(Integer.parseInt(text, 8))
-            } else {
-              Integer.valueOf(text)
-            }
-          } catch {
-            case e: Exception => null
-          }
+        val endsWithL = child.getText.endsWith('l') || child.getText.endsWith('L')
+        val (number, base) = text match {
+          case t if t.startsWith("0x") || t.startsWith("0X") => (t.substring(2), 16)
+          case t if t.startsWith("0") && t.length >= 2 => (t.substring(0), 8)
+          case t => (t, 10)
         }
+        val limit = if (endsWithL) java.lang.Long.MAX_VALUE else java.lang.Integer.MAX_VALUE
+        val divider = if (base == 10) 1 else 2
+        var value = 0l
+        text = if (endsWithL) number.substring(0, number.length - 1) else number
+        for (d <- text.map(_.asDigit)) {
+          if (value < 0 ||
+              limit / (base / divider) < value / divider ||
+              limit - (d / divider) < value * (base / divider)
+              ) {
+            return null
+          }
+          value = value * base + d
+        }
+        if (endsWithL) value else value.toInt
       case ScalaTokenTypes.tFLOAT =>
         if (child.getText.endsWith('f') || child.getText.endsWith('F'))
           try {
