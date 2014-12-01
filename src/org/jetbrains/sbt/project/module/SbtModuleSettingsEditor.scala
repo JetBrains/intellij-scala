@@ -1,7 +1,7 @@
 package org.jetbrains.sbt
 package project.module
 
-import java.awt.event.{ActionListener, ActionEvent}
+import java.awt.event.{ActionEvent, ActionListener}
 import java.util
 import javax.swing.table.AbstractTableModel
 
@@ -11,7 +11,7 @@ import com.intellij.util.text.DateFormatUtil
 import org.jetbrains.plugins.scala.util.JListCompatibility
 import org.jetbrains.plugins.scala.util.JListCompatibility.CollectionListModelWrapper
 import org.jetbrains.sbt.project.settings.SbtSettings
-import org.jetbrains.sbt.resolvers.{SbtResolverIndexesManager, SbtResolverIndex, SbtResolver}
+import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndex, SbtResolverIndexesManager}
 
 import scala.collection.JavaConverters._
 
@@ -38,7 +38,7 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
       override def actionPerformed(e: ActionEvent): Unit = {
         val resolversToUpdate: Seq[SbtResolver] =
           myForm.resolversTable.getSelectedRows map (resolvers(_))
-        SbtResolverIndexesManager().update(if (resolversToUpdate.isEmpty) resolvers else resolversToUpdate)
+        SbtResolverIndexesManager().update(resolversToUpdate)
       }
     })
 
@@ -52,6 +52,7 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
     modelWrapper.getModel.replaceAll(SbtModule.getImportsFrom(getModel.getModule).asJava)
 
     myForm.resolversTable.setModel(new ResolversModel(resolvers))
+    myForm.resolversTable.setRowSelectionInterval(0, 0)
     myForm.resolversTable.getColumnModel.getColumn(0).setPreferredWidth(50)
     myForm.resolversTable.getColumnModel.getColumn(1).setPreferredWidth(400)
     myForm.resolversTable.getColumnModel.getColumn(2).setPreferredWidth(20)
