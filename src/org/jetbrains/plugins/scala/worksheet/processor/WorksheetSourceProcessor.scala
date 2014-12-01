@@ -268,6 +268,7 @@ object WorksheetSourceProcessor {
 
     val rootChildren = root match {
       case file: PsiFile => file.getChildren
+      case null => srcFile.getChildren
       case other => other.getNode.getChildren(null) map (_.getPsi)
     }
 
