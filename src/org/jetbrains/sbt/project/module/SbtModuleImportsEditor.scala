@@ -30,7 +30,8 @@ class SbtModuleImportsEditor(state: ModuleConfigurationState) extends ModuleElem
 
   override def reset() {
     modelWrapper.getModel.replaceAll(importsInModule.asJava)
-    myForm.sbtVersionTextField.setText(Option(SbtSettings.getInstance(state.getProject).sbtVersion).getOrElse("Not detected"))
+    val moduleSettings = Option(SbtSettings.getInstance(state.getProject).getLinkedProjectSettings(getModel.getModule))
+    myForm.sbtVersionTextField.setText(moduleSettings.map(_.sbtVersion).getOrElse("Not detected"))
   }
 
   override def saveData() {
