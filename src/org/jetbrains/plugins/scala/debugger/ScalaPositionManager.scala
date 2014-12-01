@@ -251,7 +251,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     val inMethodBody = exprs.find {
       case e =>
         val fun = PsiTreeUtil.getParentOfType(e, classOf[ScFunctionDefinition])
-        fun.body.exists(PsiTreeUtil.isAncestor(_, e, false))
+        fun != null && fun.body.exists(PsiTreeUtil.isAncestor(_, e, false))
     }
     inMethodBody.map(SourcePosition.createFromElement)
   }
