@@ -43,7 +43,9 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
 
       javaLanguageLevel.foreach(updateJavaLanguageLevelIn(project, _))
 
-      SbtSettings.getInstance(project).sbtVersion = data.sbtVersion
+      Option(SbtSettings.getInstance(project).getLinkedProjectSettings(data.projectPath)).foreach { s =>
+        s.sbtVersion = data.sbtVersion
+      }
     }
   }
 
