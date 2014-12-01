@@ -58,7 +58,6 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     Success(inner, Some(this))
   }
 
-  //TODO complete the implementation
   def getValue: AnyRef = {
     val child = getFirstChild.getNode
     var text = getText
