@@ -38,3 +38,8 @@ class SbtProjectSettings extends ExternalProjectSettings {
     result
   }
 }
+
+object SbtProjectSettings {
+  def default: SbtProjectSettings =
+    new SbtProjectSettings
+}

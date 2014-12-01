@@ -89,9 +89,9 @@ object SbtExternalSystemManager {
 
     val settings = SbtSettings.getInstance(project)
 
-    val projectSettings = Option(settings.getLinkedProjectSettings(path))
+    val projectSettings = Option(settings.getLinkedProjectSettings(path)).getOrElse(SbtProjectSettings.default)
 
-    val projectJdkName = projectSettings.flatMap(_.jdkName)
+    val projectJdkName: Option[String] = projectSettings.jdkName
             .orElse(Option(ProjectRootManager.getInstance(project).getProjectSdk).map(_.getName))
 
     val vmExecutable = if (!ApplicationManager.getApplication.isUnitTestMode) {
@@ -114,11 +114,8 @@ object SbtExternalSystemManager {
       new File(sdkType.getVMExecutablePath(sdk))
     }
 
-    val resolveClassifiers = projectSettings.fold(settings.resolveClassifiers)(_.resolveClassifiers)
-    val resolveSbtClassifiers = projectSettings.fold(settings.resolveSbtClassifiers)(_.resolveSbtClassifiers)
-
     new SbtExecutionSettings(vmExecutable, vmOptions, customLauncher, customSbtStructureDir, projectJdkName,
-      resolveClassifiers, resolveSbtClassifiers)
+      projectSettings.resolveClassifiers, projectSettings.resolveSbtClassifiers)
   }
 
   private def proxyOptionsFor(http: HttpConfigurable): Seq[String] = {
