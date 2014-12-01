@@ -5,13 +5,13 @@ import java.util
 
 import com.intellij.openapi.components._
 import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSettings, ExternalSystemSettingsListener}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Comparing
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.containers.ContainerUtilRt
 import com.intellij.util.xmlb.annotations.AbstractCollection
-import org.jetbrains.annotations.Nullable
 
-import scala.beans.BeanProperty
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -27,57 +27,6 @@ import scala.beans.BeanProperty
 class SbtSettings(project: Project)
   extends AbstractExternalSystemSettings[SbtSettings, SbtProjectSettings, SbtSettingsListener](SbtTopic, project)
   with PersistentStateComponent[SbtSettingsState]{
-
-  @Nullable
-  private var _jdk: String = _
-
-  private var _resolveClassifiers: Boolean = false
-
-  private var _resolveSbtClassifiers: Boolean = false
-
-  private var _sbtVersion: String = _
-
-  var sbtSupportSuggested = false
-
-  def jdk: String = _jdk
-
-  def jdk_=(value: String) {
-    if (!Comparing.equal(_jdk, value)) {
-      val oldValue = _jdk
-      _jdk = value
-      getPublisher.onJdkChanged(oldValue, value)
-    }
-  }
-
-  def resolveClassifiers: Boolean = _resolveClassifiers
-  
-  def resolveClassifiers_=(value: Boolean) {
-    if (_resolveClassifiers != value) {
-      val oldValue = _resolveClassifiers
-      _resolveClassifiers = value
-      getPublisher.onResolveClassifiersChanged(oldValue, value)
-    }
-  }
-
-  def resolveSbtClassifiers: Boolean = _resolveSbtClassifiers
-
-  def resolveSbtClassifiers_=(value: Boolean) {
-    if (_resolveSbtClassifiers != value) {
-      val oldValue = _resolveSbtClassifiers
-      _resolveSbtClassifiers = value
-      getPublisher.onResolveSbtClassifiersChanged(oldValue, value)
-    }
-  }
-
-  def sbtVersion: String = _sbtVersion
-
-  def sbtVersion_=(value: String): Unit = {
-    if (!Comparing.equal(_sbtVersion, value)) {
-      val oldValue = _sbtVersion
-      _sbtVersion = value
-      getPublisher.onSbtVersionChanged(oldValue, value)
-    }
-  }
 
   def checkSettings(old: SbtProjectSettings, current: SbtProjectSettings) {
     if (old.jdkName != current.jdkName) {
@@ -97,21 +46,11 @@ class SbtSettings(project: Project)
   def getState = {
     val state = new SbtSettingsState()
     fillState(state)
-    state.jdk = jdk
-    state.resolveClassifiers = resolveClassifiers
-    state.resolveSbtClassifiers = resolveSbtClassifiers
-    state.sbtVersion = sbtVersion
-    state.sbtSupportSuggested = sbtSupportSuggested
     state
   }
 
   def loadState(state: SbtSettingsState) {
     super[AbstractExternalSystemSettings].loadState(state)
-    jdk = state.jdk
-    resolveClassifiers = state.resolveClassifiers
-    resolveSbtClassifiers = state.resolveSbtClassifiers
-    sbtVersion = state.sbtVersion
-    sbtSupportSuggested = state.sbtSupportSuggested
   }
 
   def subscribe(listener: ExternalSystemSettingsListener[SbtProjectSettings]) {
@@ -120,11 +59,23 @@ class SbtSettings(project: Project)
   }
 
   def copyExtraSettingsFrom(settings: SbtSettings) {
-    jdk = settings.jdk
-    resolveClassifiers = settings.resolveClassifiers
-    resolveSbtClassifiers = settings.resolveSbtClassifiers
-    sbtVersion = settings.sbtVersion
-    sbtSupportSuggested = settings.sbtSupportSuggested
+  }
+
+  def getLinkedProjectSettings(module: Module): SbtProjectSettings = {
+    val linkedSettings = getLinkedProjectsSettings.asScala
+    linkedSettings.foldLeft(null.asInstanceOf[SbtProjectSettings]) { (acc, settings) =>
+      // TODO: This is a workaround based on assumption that IDEA module's .iml file will
+      // always be located in the same dir where linked project's build.sbt file is.
+      // What we really need is a way of tracking linked projects which will
+      // allow retrieval of their settings using Module object, because linked projects
+      // are IDEA's modules after all.
+      // It's either our bug or External system's missing feature.
+      // @dancingrobot84
+      if (settings.getModules.asScala.exists { m => FileUtil.isAncestor(m, module.getModuleFilePath, false) })
+        settings
+      else
+        acc
+    }
   }
 }
 
@@ -133,23 +84,6 @@ object SbtSettings {
 }
 
 class SbtSettingsState extends AbstractExternalSystemSettings.State[SbtProjectSettings] {
-  @Nullable
-  @BeanProperty
-  var jdk: String = _
-
-  @BeanProperty
-  var resolveClassifiers: Boolean = false
-
-  @BeanProperty
-  var resolveSbtClassifiers: Boolean = false
-
-  @Nullable
-  @BeanProperty
-  var sbtVersion: String = _
-
-  @BeanProperty
-  var sbtSupportSuggested: Boolean = false
-
   private val projectSettings = ContainerUtilRt.newTreeSet[SbtProjectSettings]()
 
   @AbstractCollection(surroundWithTag = false, elementTypes = Array(classOf[SbtProjectSettings]))
