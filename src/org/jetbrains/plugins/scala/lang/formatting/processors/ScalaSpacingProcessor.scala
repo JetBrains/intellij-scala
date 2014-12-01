@@ -507,6 +507,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
 
           return Spacing.createDependentLFSpacing(spaces, spaces, block.getTextRange, keepLineBreaks, keepBlankLinesBeforeRBrace)
+        case _: ScImportSelectors =>
+          return if (scalaSettings.SPACES_IN_IMPORTS) WITH_SPACING else WITHOUT_SPACING
         case _ => return Spacing.createSpacing(0, 0, 0, keepLineBreaks, keepBlankLinesBeforeRBrace)
       }
     }
@@ -561,6 +563,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           } else {
             return ON_NEW_LINE
           }
+        case _: ScImportSelectors =>
+          return if (scalaSettings.SPACES_IN_IMPORTS) WITH_SPACING else WITHOUT_SPACING
         case _ => return Spacing.createSpacing(0, 0, 0, keepLineBreaks, keepBlankLinesBeforeRBrace)
       }
     }
@@ -677,6 +681,23 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (rightElementType == kWHILE) {
       if (settings.WHILE_ON_NEW_LINE) return WITH_SPACING_DEPENDENT(rightPsi.getParent.getTextRange)
       else return WITH_SPACING
+    }
+
+    if (rightElementType == tAT &&  rightNode.getTreeParent != null &&
+        rightNode.getTreeParent.getElementType == ScalaElementTypes.NAMING_PATTERN) {
+      return if (scalaSettings.SPACES_AROUND_AT_IN_PATTERNS) WITH_SPACING else WITHOUT_SPACING
+    }
+
+    if (leftElementType == tAT && leftNode.getTreeParent != null &&
+        leftNode.getTreeParent.getElementType == ScalaElementTypes.NAMING_PATTERN) {
+      return if (scalaSettings.SPACES_AROUND_AT_IN_PATTERNS) WITH_SPACING else WITHOUT_SPACING
+    }
+
+    if (leftElementType == ScalaDocTokenType.DOC_COMMENT_BAD_CHARACTER ||
+        rightElementType == ScalaDocTokenType.DOC_COMMENT_BAD_CHARACTER) {
+      //FIXME: this is a quick hack to stop method signature in scalaDoc from getting disrupted. (#SCL-4280)
+      //actually the DOC_COMMENT_BAD_CHARACTER elements seem out of place in here
+      return Spacing.getReadOnlySpacing
     }
 
     //old formatter spacing
