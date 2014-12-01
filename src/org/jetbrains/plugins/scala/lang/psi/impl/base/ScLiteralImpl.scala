@@ -115,7 +115,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
           }
           value = value * base + d
         }
-        if (endsWithL) value else value.toInt
+        if (endsWithL) java.lang.Long.valueOf(value) else Integer.valueOf(value.toInt)
       case ScalaTokenTypes.tFLOAT =>
         if (child.getText.endsWith('f') || child.getText.endsWith('F'))
           try {
