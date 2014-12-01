@@ -258,6 +258,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
 
   private def expressionsOnLine(file: ScalaFile, lineNumber: Int): Seq[ScExpression] = {
     val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
+    if (lineNumber >= document.getLineCount) throw new NoDataException
     val startLine = document.getLineStartOffset(lineNumber)
     val endLine = document.getLineEndOffset(lineNumber)
     val lineRange = new TextRange(startLine, endLine)
