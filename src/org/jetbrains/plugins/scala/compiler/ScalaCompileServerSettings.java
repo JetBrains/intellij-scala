@@ -21,7 +21,7 @@ public class ScalaCompileServerSettings implements PersistentStateComponent<Scal
 
   public String COMPILE_SERVER_SDK;
   public String COMPILE_SERVER_MAXIMUM_HEAP_SIZE = "1024";
-  public String COMPILE_SERVER_JVM_PARAMETERS = "-server -Xss1m -XX:MaxPermSize=256m";
+  public String COMPILE_SERVER_JVM_PARAMETERS = "-server -Xss1m";
 
   public ScalaCompileServerSettings getState() {
     return this;

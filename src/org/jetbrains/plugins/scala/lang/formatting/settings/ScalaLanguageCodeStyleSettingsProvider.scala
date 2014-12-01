@@ -138,6 +138,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       showCustomOption("KEEP_XML_FORMATTING", "Keep xml formatting", XML_FORMATTING)
       showCustomOption("KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST", "Do not format one-line lambdas in arg list",
         CodeStyleSettingsCustomizable.WRAPPING_KEEP)
+      showCustomOption("DO_NOT_ALIGN_BLOCK_EXPR_PARAMS", "Do not align block expression parameters", CodeStyleSettingsCustomizable.WRAPPING_METHOD_ARGUMENTS_WRAPPING)
     }
 
     if (settingsType == SettingsType.SPACING_SETTINGS) {
@@ -161,6 +162,8 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       showCustomOption("SPACE_BEFORE_BRACE_METHOD_CALL", "Space before method call brace",
         CodeStyleSettingsCustomizable.SPACES_BEFORE_PARENTHESES)
       showCustomOption("SPACES_IN_IMPORTS", "Spaces after open and before close braces in imports",
+        CodeStyleSettingsCustomizable.SPACES_OTHER)
+      showCustomOption("SPACES_AROUND_AT_IN_PATTERNS", "Spaces around '@' in pattern bindings",
         CodeStyleSettingsCustomizable.SPACES_OTHER)
     }
 

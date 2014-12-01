@@ -113,6 +113,9 @@ extends Object with ScalaTokenTypes with Block {
         new ChildAttributes(Indent.getSpaceIndent(1), null)
       case _ if parent.getNode.getElementType == ScalaTokenTypes.kIF =>
         new ChildAttributes(Indent.getNormalIndent, null)
+      case _: ScParameterClause =>
+        new ChildAttributes(if (scalaSettings.NOT_CONTINUATION_INDENT_FOR_PARAMS) Indent.getNormalIndent
+          else Indent.getContinuationWithoutFirstIndent, this.getAlignment)
       case _ => new ChildAttributes(Indent.getNoneIndent, null)
     }
   }
