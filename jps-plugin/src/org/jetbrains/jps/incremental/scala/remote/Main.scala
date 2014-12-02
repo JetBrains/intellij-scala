@@ -122,7 +122,7 @@ object Main {
             arguments.worksheetFiles.tail.map(toUrlSpec) ++ 
             compilerUrls.map(toUrlSpec) ++ 
             arguments.compilationData.classpath.map(_.toURI.toURL)
-          val classLoader = new URLClassLoader(urls.toArray)
+          val classLoader = new URLClassLoader(urls.toArray, null)
 
           try {
             val cl = Class.forName(className, true, classLoader)
