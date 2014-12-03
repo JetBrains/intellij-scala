@@ -78,14 +78,15 @@ object WorksheetSourceProcessor {
     val packStmt = packOpt map ("package " + _ + " ; ") getOrElse ""
 
     val importStmts = mutable.ArrayBuffer[String]()
-    //val macroPrinterName = "MacroPrinter210" // "worksheet$$macro$$printer"
-    
-    val macroPrinterName = Option(RunWorksheetAction getModuleFor srcFile) flatMap {
+
+    def withCompilerVersion[T](if210: =>T, if211: => T, dflt: =>T) = Option(RunWorksheetAction getModuleFor srcFile) flatMap {
       case module => module.scalaSdk.flatMap(_.compilerVersion).collect {
-        case v if v.startsWith("2.10") => "MacroPrinter210"
-        case v if v.startsWith("2.11") => "MacroPrinter211"
+        case v if v.startsWith("2.10") => if210
+        case v if v.startsWith("2.11") => if211
       }
-    } getOrElse "MacroPrinter"
+    } getOrElse dflt
+
+    val macroPrinterName = withCompilerVersion("MacroPrinter210", "MacroPrinter211", "MacroPrinter")
     
     val runPrinterName = "worksheet$$run$$printer"
 
@@ -98,7 +99,7 @@ object WorksheetSourceProcessor {
     val startText = ""
     
     val classRes = new StringBuilder(s"final class $classPrologue { \n")
-    val objectRes = new StringBuilder(s"def main($runPrinterName: Any) { \n val $instanceName = new $name \n")
+    val objectRes = new StringBuilder(s"def main($runPrinterName: Any) ${withCompilerVersion("", " : Unit = ", "")} { \n val $instanceName = new $name \n")
     
     var resCount = 0
     var assignCount = 0
