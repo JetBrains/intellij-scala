@@ -118,11 +118,11 @@ object Main {
             case CompilerJars(lib, compiler, extra) => Seq(lib, compiler) ++ extra
           } map (a => a.map(_.getCanonicalPath)) getOrElse Seq.empty
 
-          val urls = 
-            arguments.worksheetFiles.tail.map(toUrlSpec) ++ 
-            compilerUrls.map(toUrlSpec) ++ 
-            arguments.compilationData.classpath.map(_.toURI.toURL)
-          val classLoader = new URLClassLoader(urls.toArray, null)
+          val worksheetUrls = arguments.worksheetFiles.tail.map(toUrlSpec)
+          val compilerUrlSeq = compilerUrls.map(toUrlSpec)
+          val classpathUrls = arguments.compilationData.classpath.map(_.toURI.toURL)
+
+          val classLoader = new URLClassLoader(worksheetUrls.toArray, Server.getWorksheetClassLoader(compilerUrlSeq, classpathUrls))
 
           try {
             val cl = Class.forName(className, true, classLoader)
