@@ -24,7 +24,13 @@ class ScTypeAliasDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeAlias] w
   def this(stub: ScTypeAliasStub) = {this(); setStub(stub); setNode(null)}
 
   def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
-    case null => ScalaPsiElementFactory.createIdentifier(getStub.asInstanceOf[ScTypeAliasStub].getName, getManager).getPsi
+    case null =>
+      val name = getStub.asInstanceOf[ScTypeAliasStub].getName
+      val id = ScalaPsiElementFactory.createIdentifier(name, getManager)
+      if (id == null) {
+        assert(assertion = false, s"Id is null. Name: $name. Text: $getText. Parent text: ${getParent.getText}.")
+      }
+      id.getPsi
     case n => n
   }
 
