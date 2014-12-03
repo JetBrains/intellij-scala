@@ -2,6 +2,7 @@ package org.jetbrains.jps.incremental.scala
 package local
 
 import java.io.File
+import java.net.URL
 
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.scala.data._
@@ -12,6 +13,7 @@ import sbt.inc.{AnalysisStore, FileBasedStore}
  */
 class LocalServer extends Server {
   private var cachedCompilerFactory: Option[CompilerFactory] = None
+  private val worksheetClassLoaderFactory = new WorksheetParentClassLoaderFactory
   private val lock = new Object()
 
   def compile(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData, client: Client): ExitCode = {
@@ -29,6 +31,9 @@ class LocalServer extends Server {
     client.compilationEnd()
     ExitCode.OK
   }
+
+  def getWorksheetClassLoader(compilerUrls: Seq[URL], classpathUrls: Seq[URL]) =
+    worksheetClassLoaderFactory.getClassLoader(compilerUrls, classpathUrls)
 
   private def compilerFactoryFrom(sbtData: SbtData): CompilerFactory = cachedCompilerFactory.getOrElse {
     val factory = new CachingFactory(new CompilerFactoryImpl(sbtData), 5, 5, 5)
