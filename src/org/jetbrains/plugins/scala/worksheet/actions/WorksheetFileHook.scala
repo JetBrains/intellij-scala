@@ -7,11 +7,13 @@ import java.util
 import javax.swing.event.{ChangeEvent, ChangeListener}
 import javax.swing.{JCheckBox, JPanel}
 
+import com.intellij.openapi.actionSystem.impl.ActionButton
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.components.{ProjectComponent, ServiceManager}
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileEditor._
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.DumbService.DumbModeListener
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiManager}
 import org.jetbrains.plugins.scala.compiler.CompilationProcess
@@ -42,6 +44,32 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
 
   override def projectOpened() {
     project.getMessageBus.connect(project).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, WorksheetEditorListener)
+    project.getMessageBus.connect(project).subscribe(DumbService.DUMB_MODE,
+      new DumbModeListener {
+      override def enteredDumbMode() {}
+
+      override def exitDumbMode()  {
+        val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
+        if (editor == null) return
+
+        val file = PsiDocumentManager.getInstance(project) getPsiFile editor.getDocument
+        if (file == null) return
+
+        val vFile = file.getVirtualFile
+        if (vFile == null) return
+
+        WorksheetFileHook getPanel vFile map {
+          case ref =>
+            val panel = ref.get()
+            if (panel != null) {
+              panel.getComponents.foreach {
+                case ab: ActionButton => ab.addNotify()
+                case _ =>
+              }
+            }
+        }
+      }
+    })
   }
 
   override def getComponentName: String = "Clean worksheet on editor close"
