@@ -79,7 +79,7 @@ object WorksheetSourceProcessor {
 
     val importStmts = mutable.ArrayBuffer[String]()
 
-    def withCompilerVersion[T](if210: =>T, if211: => T, dflt: =>T) = Option(RunWorksheetAction getModuleFor srcFile) flatMap {
+    @inline def withCompilerVersion[T](if210: =>T, if211: => T, dflt: =>T) = Option(RunWorksheetAction getModuleFor srcFile) flatMap {
       case module => module.scalaSdk.flatMap(_.compilerVersion).collect {
         case v if v.startsWith("2.10") => if210
         case v if v.startsWith("2.11") => if211
@@ -171,6 +171,18 @@ object WorksheetSourceProcessor {
         val count = comment.getText count (_ == '\n')
         for (_ <- 0 until count) objectRes append printMethodName append "()\n"
       }
+    }
+
+    def appendCommentToClass(comment: PsiComment) {
+      val range = comment.getTextRange
+      if (comment.getNode.getElementType != ScalaTokenTypes.tLINE_COMMENT) return
+
+      val count = ifDocument map {
+        case d => d.getLineNumber(range.getEndOffset) - d.getLineNumber(range.getStartOffset) + 1
+      } getOrElse comment.getText.count(_ == '\n')
+
+      for (_ <- 0 until count) classRes append "//\n"
+      classRes append insertNlsFromWs(comment).stripPrefix("\n")
     }
     
     @inline def appendPsiWhitespace(ws: PsiWhiteSpace) {
@@ -355,7 +367,9 @@ object WorksheetSourceProcessor {
         assignCount += 1
       case imp: ScImportStmt =>
         if (!processLocalImport(imp)) processImport(imp)
-      case comm: PsiComment => appendPsiComment(comm)
+      case comm: PsiComment =>
+        appendPsiComment(comm)
+        appendCommentToClass(comm)
       case expr: ScExpression =>
         val resName = s"get$$$$instance$$$$res$resCount"
         val lineNums = psiToLineNumbers(expr)
