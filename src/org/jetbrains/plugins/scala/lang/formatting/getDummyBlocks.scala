@@ -146,6 +146,7 @@ object getDummyBlocks {
                   alternateAlignment
                 } else null
               }
+              case ScalaElementTypes.BLOCK_EXPR if scalaSettings.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS => null
               case _ if settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => alignment
               case _ => null
             }
@@ -162,6 +163,7 @@ object getDummyBlocks {
                   alternateAlignment
                 } else null
               }
+              case ScalaElementTypes.BLOCK_EXPR if scalaSettings.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS => null
               case _ if settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => alignment
               case _ => null
             }
