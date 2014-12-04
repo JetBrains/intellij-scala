@@ -13,7 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.sbt.language.SbtFileImpl
-import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SbtSettings}
+import org.jetbrains.sbt.project.settings.SbtProjectSettings
+import org.jetbrains.sbt.settings.SbtSystemSettings
 
 /**
  * @author Pavel Fatin
@@ -33,7 +34,7 @@ class SbtAnnotator extends Annotator {
   private def getSbtVersion(element: PsiElement): String = {
     val projectFileIndex = ProjectRootManager.getInstance(element.getProject).getFileIndex
     val module = Option(projectFileIndex.getModuleForFile(element.getContainingFile.getVirtualFile))
-    val settings = SbtSettings.getInstance(element.getProject)
+    val settings = SbtSystemSettings.getInstance(element.getProject)
     val projectSettings = module.safeMap(settings.getLinkedProjectSettings).getOrElse(SbtProjectSettings.default)
     projectSettings.sbtVersion
   }
