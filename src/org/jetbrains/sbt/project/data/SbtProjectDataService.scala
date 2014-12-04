@@ -13,7 +13,7 @@ import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootMan
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.android.sdk.{AndroidPlatform, AndroidSdkType}
 import org.jetbrains.sbt.project.data.SbtProjectDataService._
-import org.jetbrains.sbt.project.settings.SbtSettings
+import org.jetbrains.sbt.settings.SbtSystemSettings
 
 import scala.collection.JavaConverters._
 
@@ -43,7 +43,7 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
 
       javaLanguageLevel.foreach(updateJavaLanguageLevelIn(project, _))
 
-      Option(SbtSettings.getInstance(project).getLinkedProjectSettings(data.projectPath)).foreach { s =>
+      Option(SbtSystemSettings.getInstance(project).getLinkedProjectSettings(data.projectPath)).foreach { s =>
         s.sbtVersion = data.sbtVersion
       }
     }
