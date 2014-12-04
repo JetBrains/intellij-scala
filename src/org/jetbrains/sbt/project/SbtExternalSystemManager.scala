@@ -90,8 +90,9 @@ object SbtExternalSystemManager {
 
     val projectSettings = Option(settings.getLinkedProjectSettings(path)).getOrElse(SbtProjectSettings.default)
 
-    val projectJdkName: Option[String] = projectSettings.jdkName
-            .orElse(Option(ProjectRootManager.getInstance(project).getProjectSdk).map(_.getName))
+    val projectJdkName = Option(ProjectRootManager.getInstance(project).getProjectSdk)
+                            .map(_.getName)
+                            .orElse(projectSettings.jdkName)
 
     val vmExecutable = if (!ApplicationManager.getApplication.isUnitTestMode) {
       customVmExecutable.orElse {
