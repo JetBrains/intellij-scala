@@ -30,6 +30,7 @@ public class ScalaDebuggerSettings extends XDebuggerSettings<ScalaDebuggerSettin
   public Boolean DO_NOT_DISPLAY_STREAMS = true;
   public Integer COLLECTION_START_INDEX = 0;
   public Integer COLLECTION_END_INDEX = 49;
+  public Boolean SHOW_VARIABLES_FROM_OUTER_SCOPES = true;
 
   public ScalaDebuggerSettings() {
     super("scala_debugger");

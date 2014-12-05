@@ -28,6 +28,7 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
     private JCheckBox friendlyDisplayOfScalaCheckBox;
     private JCheckBox dontShowRuntimeRefs;
     private JCheckBox doNotExpandStreamsCheckBox;
+    private JCheckBox showOuterVariables;
     private boolean isModified = false;
     private final ScalaDebuggerSettings mySettings;
 
@@ -46,6 +47,7 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
                 doNotExpandStreamsCheckBox.setEnabled(collectionsSettingsEnabled);
             }
         });
+        showOuterVariables.setSelected(settings.SHOW_VARIABLES_FROM_OUTER_SCOPES);
     }
 
     @Nls
@@ -77,7 +79,8 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
                 mySettings.FRIENDLY_COLLECTION_DISPLAY_ENABLED != friendlyDisplayOfScalaCheckBox.isSelected() ||
                 mySettings.DONT_SHOW_RUNTIME_REFS != dontShowRuntimeRefs.isSelected() ||
                 mySettings.DEBUG_DISABLE_SPECIFIC_SCALA_METHODS != myIgnoreScalaMethods.isSelected() ||
-                mySettings.DO_NOT_DISPLAY_STREAMS != doNotExpandStreamsCheckBox.isSelected();
+                mySettings.DO_NOT_DISPLAY_STREAMS != doNotExpandStreamsCheckBox.isSelected() ||
+                mySettings.SHOW_VARIABLES_FROM_OUTER_SCOPES != showOuterVariables.isSelected();
     }
 
     public void apply() throws ConfigurationException {
@@ -87,6 +90,7 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
         mySettings.COLLECTION_START_INDEX = (Integer) myStartIndexSpinner.getValue();
         mySettings.COLLECTION_END_INDEX = (Integer) myEndIndexSpinner.getValue();
         mySettings.DO_NOT_DISPLAY_STREAMS = doNotExpandStreamsCheckBox.isSelected();
+        mySettings.SHOW_VARIABLES_FROM_OUTER_SCOPES = showOuterVariables.isSelected();
     }
 
     public void reset() {
