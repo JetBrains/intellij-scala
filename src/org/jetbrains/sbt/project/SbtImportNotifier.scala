@@ -25,7 +25,8 @@ import com.intellij.psi.{PsiDocumentManager, PsiManager}
 import com.intellij.util.containers.ContainerUtilRt
 import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.sbt.language.SbtFileType
-import org.jetbrains.sbt.project.settings.{SbtSettings, SbtProjectSettings => Settings}
+import org.jetbrains.sbt.project.settings.{SbtProjectSettings => Settings}
+import org.jetbrains.sbt.settings.SbtSystemSettings
 
 /**
  * User: Dmitry Naydanov
@@ -165,8 +166,8 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
   
   private def builder(message: String) = NotificationUtil.builder(project, message).setGroup(SbtImportNotifier.groupName)
   
-  private def getSbtSettings: Option[SbtSettings] = ExternalSystemApiUtil.getSettings(project, SbtProjectSystem.Id) match {
-    case sbta: SbtSettings => Some(sbta)
+  private def getSbtSettings: Option[SbtSystemSettings] = ExternalSystemApiUtil.getSettings(project, SbtProjectSystem.Id) match {
+    case sbta: SbtSystemSettings => Some(sbta)
     case _ => None 
   }
   

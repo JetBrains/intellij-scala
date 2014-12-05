@@ -3,24 +3,22 @@ package org.jetbrains.sbt.project
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.{ActionManager, ActionPlaces}
 import com.intellij.openapi.components.AbstractProjectComponent
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.playback.commands.ActionCommand
 import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.sbt.project.LegacyProjectFormatNotifier._
-import org.jetbrains.sbt.project.settings.SbtSettings
+import org.jetbrains.sbt.project.settings.SbtLocalSettings
 
 /**
  * @author Pavel Fatin
  */
 class LegacyProjectFormatNotifier(project: Project) extends AbstractProjectComponent(project) {
   override def projectOpened() {
-    val externalProjectSettings = ExternalSystemApiUtil.getSettings(project, SbtProjectSystem.Id)
 
-    val sbtSettings = SbtSettings.getInstance(project)
+    val sbtSettings = SbtLocalSettings.getInstance(project)
 
-    if (externalProjectSettings.getLinkedProjectsSettings.isEmpty && !sbtSettings.sbtSupportSuggested) {
+    if (!sbtSettings.sbtSupportSuggested) {
       val modules = ModuleManager.getInstance(project).getModules.toSeq
 
       val fromGenIdea = modules.exists(_.getModuleFilePath.contains(".idea_modules"))

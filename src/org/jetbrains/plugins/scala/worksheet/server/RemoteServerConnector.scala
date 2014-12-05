@@ -135,7 +135,7 @@ object RemoteServerConnector {
         buffer.toString()
       }
       
-      val line1 = line.map(i => i - 3).map(_.toInt)
+      val line1 = line.map(i => i - 4).map(_.toInt)
       val column1 = column.map(_ + 1 - differ).map(_.toInt)
 
       val category = kind match {
