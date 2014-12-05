@@ -195,4 +195,18 @@ object DecompilerUtil {
         DecompilationResult(isScala = false, "", "", file.getTimeStamp)
     }
   }
+
+  //aload, dload, fload, iload, lload
+  val loadWithIndexInstructions: Set[Byte] = Set(0x19, 0x18, 0x17, 0x15, 0x16)
+  val loadWithoutIndexInstructions: Set[Byte] = Set(
+    0x2A, 0x2B, 0x2C, 0x2D, //aload_n
+    0x26, 0x27, 0x28, 0x29, //dload_n
+    0x22, 0x23, 0x24, 0x25, //fload_n
+    0x1A, 0x1B, 0x1C, 0x1D, //iload_n
+    0x1E, 0x1F, 0x20, 0x21  //lload_n
+  )
+  val invokeStaticInstruction = 0xB8.toByte
+
+  //areturn, dreturn, freturn, ireturn, lreturn
+  val returnInstructions = Set(0xB0, 0xAF, 0xAE, 0xAC, 0xAD).map(_.toByte)
 }
