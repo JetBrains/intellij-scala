@@ -7,6 +7,8 @@ import com.intellij.openapi.externalSystem.settings.AbstractExternalSystemLocalS
 import com.intellij.openapi.project.Project
 import org.jetbrains.sbt.project.SbtProjectSystem
 
+import scala.beans.BeanProperty
+
 /**
  * @author Pavel Fatin
  */
@@ -18,13 +20,26 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 )
 class SbtLocalSettings(platformFacade: PlatformFacade, project: Project)
   extends AbstractExternalSystemLocalSettings(SbtProjectSystem.Id, project, platformFacade)
-  with PersistentStateComponent[AbstractExternalSystemLocalSettings.State] {
+  with PersistentStateComponent[SbtLocalSettingsState] {
+
+  var sbtSupportSuggested = false
 
   def getState = {
-    val state = new AbstractExternalSystemLocalSettings.State
+    val state = new SbtLocalSettingsState
     fillState(state)
+    state.setSbtSupportSuggested(sbtSupportSuggested)
     state
   }
+
+  def loadState(state: SbtLocalSettingsState)  {
+    super[AbstractExternalSystemLocalSettings].loadState(state)
+    sbtSupportSuggested = state.getSbtSupportSuggested
+  }
+}
+
+class SbtLocalSettingsState extends AbstractExternalSystemLocalSettings.State {
+  @BeanProperty
+  var sbtSupportSuggested: Boolean = false
 }
 
 object SbtLocalSettings {

@@ -251,13 +251,14 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     val inMethodBody = exprs.find {
       case e =>
         val fun = PsiTreeUtil.getParentOfType(e, classOf[ScFunctionDefinition])
-        fun.body.exists(PsiTreeUtil.isAncestor(_, e, false))
+        fun != null && fun.body.exists(PsiTreeUtil.isAncestor(_, e, false))
     }
     inMethodBody.map(SourcePosition.createFromElement)
   }
 
   private def expressionsOnLine(file: ScalaFile, lineNumber: Int): Seq[ScExpression] = {
     val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
+    if (lineNumber >= document.getLineCount) throw new NoDataException
     val startLine = document.getLineStartOffset(lineNumber)
     val endLine = document.getLineEndOffset(lineNumber)
     val lineRange = new TextRange(startLine, endLine)

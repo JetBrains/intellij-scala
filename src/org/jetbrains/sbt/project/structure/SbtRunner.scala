@@ -7,10 +7,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.jar.{JarEntry, JarFile}
 
 import com.intellij.execution.process.OSProcessHandler
-import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.sbt.project.structure.SbtRunner._
 
-import scala.collection.JavaConverters._
 import scala.xml.{Elem, XML}
 
 /**
@@ -63,14 +61,6 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customStru
   private def read1(directory: File, sbtVersion: String, options: String, listener: (String) => Unit) = {
     val pluginFile = customStructureDir.map(new File(_)).getOrElse(LauncherDir) / s"sbt-structure-$sbtVersion.jar"
 
-    val sbtOpts: Seq[String] = {
-      val sbtOptsFile = directory / ".sbtopts"
-      if (sbtOptsFile.exists && sbtOptsFile.isFile && sbtOptsFile.canRead)
-        FileUtil.loadLines(sbtOptsFile).asScala.filterNot(_.startsWith("#"))
-      else
-        Seq.empty
-    }
-
     usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
       usingTempFile("sbt-commands", Some(".lst")) { commandsFile =>
 
@@ -81,13 +71,12 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customStru
 
         val processCommandsRaw =
           path(vmExecutable) +:
-//                    "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005" +:
-                  "-Djline.terminal=jline.UnsupportedTerminal" +:
-                  "-Dsbt.log.noformat=true" +:
-                  (vmOptions ++ sbtOpts) :+
-                  "-jar" :+
-                  path(SbtLauncher) :+
-                  s"< ${path(commandsFile)}"
+          "-Djline.terminal=jline.UnsupportedTerminal" +:
+          "-Dsbt.log.noformat=true" +:
+          (vmOptions ++ SbtOpts.loadFrom(directory)) :+
+          "-jar" :+
+          path(SbtLauncher) :+
+          s"< ${path(commandsFile)}"
         val processCommands = processCommandsRaw.filterNot(_.isEmpty)
 
         try {
