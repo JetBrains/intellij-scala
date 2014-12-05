@@ -92,10 +92,10 @@ final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
 
   private def bindReference(caseClause: ScCaseClause, bindTo: PsiNamedElement) {
     val pattern: ScPattern = caseClause.pattern.get
-    val ref = pattern.depthFirst.collect {
+    val ref = pattern.depthFirst.collectFirst {
       case x: ScReferenceElement if x.refName == bindTo.name => x
-    }.next()
-    ref.bindToElement(bindTo)
+    }
+    ref.foreach(_.bindToElement(bindTo))
   }
 
   private def inheritorsOf(cls: PsiClass): Seq[ScTypeDefinition] = {

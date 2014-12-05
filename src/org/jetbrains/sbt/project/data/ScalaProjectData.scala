@@ -10,7 +10,8 @@ import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys, ProjectSyste
 class ScalaProjectData(val owner: ProjectSystemId,
                        val jdk: Option[ScalaProjectData.Sdk],
                        val javacOptions: Seq[String],
-                       val sbtVersion: String) extends AbstractExternalEntityData(owner)
+                       val sbtVersion: String,
+                       val projectPath: String) extends AbstractExternalEntityData(owner)
 
 object ScalaProjectData {
   val Key: Key[ScalaProjectData] = new Key(classOf[ScalaProjectData].getName,

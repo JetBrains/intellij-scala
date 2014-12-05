@@ -3,12 +3,6 @@
 <idea-plugin version="2">
   <depends optional="true" config-file="android-support.xml">org.jetbrains.android</depends>
 
-    <application-components>
-        <component>
-            <implementation-class>org.jetbrains.sbt.settings.SbtApplicationSettings</implementation-class>
-        </component>
-    </application-components>
-
     <project-components>
         <component>
             <implementation-class>org.jetbrains.sbt.language.SbtProjectComponent</implementation-class>
@@ -35,7 +29,7 @@
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.Play2StubDataService"/>
         <!--<externalProjectDataService implementation="org.jetbrains.sbt.project.data.RunConfigurationDataService"/>-->
 
-        <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtSettings"/>
+        <projectService serviceImplementation="org.jetbrains.sbt.settings.SbtSystemSettings"/>
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtLocalSettings"/>
         <!--<projectService serviceImplementation="org.jetbrains.sbt.settings.SbtImportNotifier"/>-->
 
@@ -51,9 +45,7 @@
 
         <projectTemplatesFactory implementation="org.jetbrains.sbt.project.template.SbtProjectTemplateFactory"/>
 
-        <applicationConfigurable groupId="build.tools" displayName="SBT Runner" instance="org.jetbrains.sbt.settings.SbtConfigurable" />
-
-        <projectConfigurable groupId="build.tools" displayName="SBT" instance="org.jetbrains.sbt.project.settings.SbtExternalSystemConfigurable" />
+        <projectConfigurable groupId="build.tools" displayName="SBT" instance="org.jetbrains.sbt.settings.SbtExternalSystemConfigurable" />
 
         <toolWindow id="SBT" anchor="right" icon="/sbt.png"
                     factoryClass="org.jetbrains.sbt.project.ScalaToolWindowFactory"

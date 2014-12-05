@@ -3,26 +3,26 @@ package org.jetbrains.plugins.scala.lang.highlighting
 import java.io.File
 
 import com.intellij.analysis.AnalysisScope
-import com.intellij.codeInspection.{CommonProblemDescriptor, InspectionManager}
 import com.intellij.codeInspection.ex.{GlobalInspectionContextImpl, InspectionManagerEx, LocalInspectionToolWrapper}
-import com.intellij.codeInspection.reference.{RefFile, RefEntity}
+import com.intellij.codeInspection.reference.{RefEntity, RefFile}
+import com.intellij.codeInspection.{CommonProblemDescriptor, InspectionManager}
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase
-import com.intellij.openapi.projectRoots.{ProjectJdkTable, JavaSdkType}
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
+import com.intellij.openapi.projectRoots.{JavaSdkType, ProjectJdkTable}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.IdeaTestUtil
 import com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl
-import org.jetbrains.plugins.scala.{extensions, ScalaFileType}
 import org.jetbrains.plugins.scala.codeInspection.internal.AnnotatorBasedErrorInspection
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
+import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
-import org.jetbrains.sbt.settings.SbtApplicationSettings
+import org.jetbrains.sbt.settings.SbtSystemSettings
 
 /**
  * @author Alefas
@@ -119,9 +119,9 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
     val projectDir: File = new File(getRootDir, getTestName(false))
     if (!projectDir.exists()) return
     myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(projectDir)
-    SbtApplicationSettings.instance.setCustomLauncherEnabled(true)
-    SbtApplicationSettings.instance.setCustomLauncherPath(new File("scala-plugin/jars/sbt-launch.jar").getAbsolutePath)
-    SbtApplicationSettings.instance.setCustomSbtStructureDir(new File("scala-plugin/jars").getAbsolutePath)
+    SbtSystemSettings.getInstance(myProject).setCustomLauncherEnabled(true)
+    SbtSystemSettings.getInstance(myProject).setCustomLauncherPath(new File("scala-plugin/jars/sbt-launch.jar").getAbsolutePath)
+    SbtSystemSettings.getInstance(myProject).setCustomSbtStructureDir(new File("scala-plugin/jars").getAbsolutePath)
     myFixture.enableInspections(classOf[AnnotatorBasedErrorInspection])
   }
 }
