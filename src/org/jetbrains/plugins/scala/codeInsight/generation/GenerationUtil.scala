@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTemplateDefinition, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 import scala.collection.mutable.ListBuffer
 
@@ -80,12 +80,15 @@ object GenerationUtil {
       case variable: ScVariable => variable.declaredElements
       case _ => Seq.empty
     }
-    aClass match {
-      case scClass: ScClass =>
-        (scClass.members ++ scClass.constructor.toSeq.flatMap(_.parameters))
-                .flatMap(memberProcessor)
+
+    val fields = aClass match {
+      case scClass: ScClass => scClass.members ++ scClass.constructor.toSeq.flatMap(_.parameters)
+      case scObject: ScObject => scObject.members
+      case scTrait: ScTrait => scTrait.members
       case _ => Seq.empty
     }
+
+    fields.flatMap(memberProcessor)
   }
 
   def elementOfTypeAtCaret[T <: PsiElement](editor: Editor, file: PsiFile, types: Class[_ <: T]*): Option[T] = {
