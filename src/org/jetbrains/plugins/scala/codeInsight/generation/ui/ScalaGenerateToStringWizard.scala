@@ -13,17 +13,36 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
 import scala.collection.JavaConversions._
 
+/**
+ * Wizard dialog to select class members for generation of toString method.
+ *
+ * @param project IntelliJ project.
+ * @param aClass Class to generate toString for.
+ *
+ * @author Rado Buransky (buransky.com)
+ */
 class ScalaGenerateToStringWizard(project: Project, aClass: PsiClass) extends AbstractWizard[Step](
   ScalaBundle.message("org.jetbrains.plugins.scala.codeInsight.generation.ui.toString.title"), project) {
 
+  /**
+   * Get selected fields.
+   * @return List of fields.
+   */
   def getToStringFields: Seq[ScNamedElement] = toStringPanel.getTable.getSelectedMemberInfos.map(_.getMember).toSeq
-  override def getHelpID: String = "editing.altInsert.toString"
 
-  private lazy val allFields =  GenerationUtil.getAllFields(aClass).map(new ScalaMemberInfo(_))
+  /**
+   * Get IntelliJ help ID.
+   * @return IntelliJ help ID.
+   */
+  override def getHelpID: String = null
 
+  /**
+   * Scala member selection panel.
+   */
   private lazy val toStringPanel = {
+    val allFields =  GenerationUtil.getAllFields(aClass).map(new ScalaMemberInfo(_))
     val panel = new ScalaMemberSelectionPanel(
-      ScalaBundle.message("org.jetbrains.plugins.scala.codeInsight.generation.ui.toString.title"), allFields, null)
+      ScalaBundle.message("org.jetbrains.plugins.scala.codeInsight.generation.ui.toString.fields"), allFields, null)
     panel.getTable.setMemberInfoModel(new ScalaToStringMemberInfoModel)
     panel
   }
@@ -42,6 +61,7 @@ class ScalaGenerateToStringWizard(project: Project, aClass: PsiClass) extends Ab
     updateStep()
   }
 
+  // Constructor initialization
   toStringPanel.getTable.getModel.addTableModelListener(new ToStringTableModelListener)
   addStep(new ToStringStep(toStringPanel))
   init()
