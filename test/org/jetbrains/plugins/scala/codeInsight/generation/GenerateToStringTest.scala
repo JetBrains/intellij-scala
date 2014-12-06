@@ -35,4 +35,36 @@ class GenerateToStringTest extends ScalaGenerateTestBase {
 
     testInvoke(text, result, checkCaret = false)
   }
+
+  def testObject(): Unit = {
+    val text = s"""object Obj {
+                 |  val a = 1
+                 |  val b = 2
+                 |  $CARET_MARKER
+                 |}"""
+    val result = """object Obj {
+                 |  val a = 1
+                 |  val b = 2
+                 |
+                 |  override def toString = s"Obj($a, $b)"
+                 |}"""
+
+    testInvoke(text, result, checkCaret = false)
+  }
+
+  def testTrait(): Unit = {
+    val text = s"""trait T {
+                 |  val a = 1
+                 |  val b = 2
+                 |  $CARET_MARKER
+                 |}"""
+    val result = """trait T {
+                 |  val a = 1
+                 |  val b = 2
+                 |
+                 |  override def toString = s"T($a, $b)"
+                 |}"""
+
+    testInvoke(text, result, checkCaret = false)
+  }
 }
