@@ -7,8 +7,10 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, PhysicalSignature}
 import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
 
 class ScalaGenerateToStringHandler extends LanguageCodeInsightActionHandler {
@@ -41,7 +43,16 @@ class ScalaGenerateToStringHandler extends LanguageCodeInsightActionHandler {
   override def startInWriteAction(): Boolean = true
 
   private def createToString(aClass: ScClass): ScFunction = {
-    val methodText = """override def toString = "wat""""
+    val declText = "def toString: String"
+
+    val fields = getFields(aClass).map("$" + _.name)
+    val fieldsText = fields.mkString(s"${aClass.getName}(", ", ", ")")
+
+    val methodText = s"""override def toString = s"$fieldsText""""
     ScalaPsiElementFactory.createMethodWithContext(methodText, aClass, aClass.extendsBlock)
+  }
+
+  private def getFields(aClass: ScClass): Seq[ScNamedElement] = {
+    GenerationUtil.getAllFields(aClass)
   }
 }
