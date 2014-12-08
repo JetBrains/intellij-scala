@@ -14,6 +14,7 @@ import com.intellij.lang.parameterInfo._
 import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.ui.JBColor
 import com.intellij.util.ArrayUtil
 import com.intellij.util.containers.hash.HashSet
 import org.jetbrains.plugins.scala.extensions._
@@ -25,11 +26,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryCo
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 
 import _root_.scala.collection.mutable.ArrayBuffer
 import scala.annotation.tailrec
@@ -125,16 +127,16 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     if (context == null || context.getParameterOwner == null || !context.getParameterOwner.isValid) return
     context.getParameterOwner match {
       case args: PsiElement =>
-        val color: Color = context.getDefaultParameterColor
+        var color: Color = context.getDefaultParameterColor
         val index = context.getCurrentParameterIndex
         val buffer: StringBuilder = new StringBuilder("")
         var isGrey = false
         //todo: var isGreen = true
         var namedMode = false
-        def paramText(param: ScParameter, subst: ScSubstitutor) = {
+        def paramText(param: ScParameter, subst: ScSubstitutor, implicitParamType: Option[ScType] = None) = {
           ScalaDocumentationProvider.parseParameter(param,
             (t: ScType) =>
-              ScType.presentableText(subst.subst(t)), escape = false)
+              ScType.presentableText(subst.subst(t)), escape = false, implicitParamType)
         }
         def applyToParameters(parameters: Seq[(Parameter, String)], subst: ScSubstitutor, canBeNaming: Boolean,
                               isImplicit: Boolean = false) {
@@ -262,6 +264,21 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                           if (t._3 != null) " = " + t._3.getText else ""))
               }
               applyToParameters(paramsSeq, ScSubstitutor.empty, canBeNaming = true, isImplicit = false)
+            }
+          case (sign: PhysicalSignature, i: Int, implicitParamType: ScType) =>
+            val subst = sign.substitutor
+            sign.method match {
+              case method: ScFunction =>
+                val clauses = method.effectiveParameterClauses
+                if (clauses.length > i && i != -1) {
+                  val clause: ScParameterClause = if (i >= 0) clauses(i) else clauses(0)
+                  val parameters: Seq[ScParameter] = clause.effectiveParameters
+                  color = JBColor.PINK
+                  applyToParameters(parameters.map(param =>
+                    (new Parameter(param), paramText(param, subst, Some(implicitParamType)))),
+                    subst, canBeNaming = true, isImplicit = clause.isImplicit)
+                } else return
+              case _ => return
             }
           case (sign: PhysicalSignature, i: Int) => //i  can be -1 (it's update method)
             val subst = sign.substitutor
@@ -494,6 +511,62 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   case _ =>
                 }
               }
+              def addImplicitConversionsForMagnets(obj: Object): Unit = {
+                obj match {
+                  case (sign: PhysicalSignature, i: Int) =>
+                    sign.method match {
+                      case function: ScFunction =>
+                        val subst = sign.substitutor
+                        val clauses = function.effectiveParameterClauses
+                        if (clauses.length > i && i != -1) {
+                          val clause: ScParameterClause = if (i >= 0) clauses(i) else clauses(0)
+                          val parameters: Seq[ScParameter] = clause.effectiveParameters
+                          if (parameters.length == 1) { //do not consider more than one parameter
+                            val paramType = parameters(0).getType(TypingContext.empty).getOrAny
+                            ScType.extractClassType(paramType, Some(function.getProject)) match {
+                              case Some((clazz: ScTypeDefinition, _)) =>
+                                ScalaPsiUtil.getCompanionModule(clazz) match {
+                                  case Some(obj: ScObject) if obj.isStatic =>
+                                    val convertible = new ScImplicitlyConvertible(element, _ => None)
+                                    val processor = new convertible.CollectImplicitsProcessor(true)
+                                    processor.processType(obj.getType(TypingContext.empty).getOrAny, element)
+                                    val candidates = processor.candidatesS
+                                    for (candidate <- candidates) {
+                                      candidate match {
+                                        //todo: support other kind of implicits + functions with function return type
+                                        case ScalaResolveResult(f: ScFunction, resolveSubst)
+                                          if f.paramClauses.clauses.length > 0 &&
+                                            !f.paramClauses.clauses(0).isImplicit &&
+                                            f.paramClauses.clauses(0).parameters.length == 1 =>
+                                          val newSubst = ScalaPsiUtil.inferMethodTypesArgs(f, resolveSubst)
+                                          val returnType = newSubst.subst(f.returnType.getOrAny)
+                                          if (returnType.conforms(paramType)) {
+                                            val undefSubst = Conformance.undefinedSubst(paramType, returnType)
+                                            undefSubst.getSubstitutor match {
+                                              case Some(undefine) =>
+                                                f.paramClauses.clauses(0).parameters(0).getType(TypingContext.empty) match {
+                                                  case Success(implicitParamType, _) =>
+                                                    val goodType = newSubst.followed(undefine).subst(implicitParamType).removeUndefines()
+                                                    res += ((sign, i, goodType))
+                                                  case _ =>
+                                                }
+                                              case _ =>
+                                            }
+                                          }
+                                        case _ =>
+                                      }
+                                    }
+                                  case _ => //todo: support for path dependent objects
+                                }
+                              case _ =>
+                            }
+                          }
+                        }
+                      case _ => //no support for Java
+                    }
+                  case _ =>
+                }
+              }
               args.callReference match {
                 case Some(ref: ScReferenceExpression) =>
                   if (count > 1) {
@@ -501,8 +574,9 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     ref.bind() match {
                       case Some(ScalaResolveResult(function: ScFunction, subst: ScSubstitutor)) if function.
                               effectiveParameterClauses.length >= count =>
-                        res += ((new PhysicalSignature(function, subst.followed(collectSubstitutor(function))), count - 1))
-                        return
+                        val obj = (new PhysicalSignature(function, subst.followed(collectSubstitutor(function))), count - 1)
+                        res += obj
+                        addImplicitConversionsForMagnets(obj)
                       case _ =>
                         for (typez <- call.getEffectiveInvokedExpr.getType(TypingContext.empty)) //todo: implicit conversions
                         {collectForType(typez)}
@@ -517,7 +591,9 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       variant match {
                         //todo: Synthetic function
                         case ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor) =>
-                          res += ((new PhysicalSignature(method, subst.followed(collectSubstitutor(method))), 0))
+                          val obj = (new PhysicalSignature(method, subst.followed(collectSubstitutor(method))), 0)
+                          res += obj
+                          addImplicitConversionsForMagnets(obj)
                         case ScalaResolveResult(typed: ScTypedDefinition, subst: ScSubstitutor) =>
                           val typez = subst.subst(typed.getType(TypingContext.empty).getOrNothing) //todo: implicit conversions
                           collectForType(typez)

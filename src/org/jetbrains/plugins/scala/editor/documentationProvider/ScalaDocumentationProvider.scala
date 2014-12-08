@@ -238,12 +238,12 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
 object ScalaDocumentationProvider {
   val replaceWikiScheme = Map("__" -> "u>", "'''" -> "b>", "''" -> "i>", "`" -> "tt>", ",," -> "sub>", "^" -> "sup>")
 
-  def parseType(elem: ScTypedDefinition, typeToString: ScType => String): String = {
+  def parseType(elem: ScTypedDefinition, typeToString: ScType => String, implicitParamType: Option[ScType] = None): String = {
     val buffer: StringBuilder = new StringBuilder(": ")
-    val typez = elem match {
+    val typez = implicitParamType.getOrElse(elem match {
       case fun: ScFunction => fun.returnType.getOrAny
       case _ => elem.getType(TypingContext.empty).getOrAny
-    }
+    })
     buffer.append(typeToString(typez))
     buffer.toString()
   }
@@ -423,7 +423,8 @@ object ScalaDocumentationProvider {
     buffer.toString()
   }
   
-  def parseParameter(param: ScParameter, typeToString: ScType => String, escape: Boolean = true): String = {
+  def parseParameter(param: ScParameter, typeToString: ScType => String, escape: Boolean = true,
+                     implicitParamType: Option[ScType] = None): String = {
     val buffer: StringBuilder = new StringBuilder("")
     buffer.append(parseAnnotations(param, typeToString, ' ', escape))
     param match {case cl: ScClassParameter => buffer.append(parseModifiers(cl)) case _ =>}
@@ -437,7 +438,7 @@ object ScalaDocumentationProvider {
     val arrow = ScalaPsiUtil.functionArrow(param.getProject)
     buffer.append(parseType(param, t => {
       (if (param.isCallByNameParameter) s"$arrow " else "") + typeToString(t)
-    }))
+    }, implicitParamType))
     if (param.isRepeatedParameter) buffer.append("*")
     if (param.isDefaultParam) {
       buffer.append(" = ")
