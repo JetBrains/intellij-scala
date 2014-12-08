@@ -97,6 +97,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
         Character.valueOf(chars.charAt(0))
       case ScalaTokenTypes.tINTEGER =>
         val endsWithL = child.getText.endsWith('l') || child.getText.endsWith('L')
+        text = if (endsWithL) text.substring(0, text.length - 1) else text
         val (number, base) = text match {
           case t if t.startsWith("0x") || t.startsWith("0X") => (t.substring(2), 16)
           case t if t.startsWith("0") && t.length >= 2 => (t.substring(0), 8)
@@ -105,8 +106,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
         val limit = if (endsWithL) java.lang.Long.MAX_VALUE else java.lang.Integer.MAX_VALUE
         val divider = if (base == 10) 1 else 2
         var value = 0l
-        text = if (endsWithL) number.substring(0, number.length - 1) else number
-        for (d <- text.map(_.asDigit)) {
+        for (d <- number.map(_.asDigit)) {
           if (value < 0 ||
               limit / (base / divider) < value / divider ||
               limit - (d / divider) < value * (base / divider)
