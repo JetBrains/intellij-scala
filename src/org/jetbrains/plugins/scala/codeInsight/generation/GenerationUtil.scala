@@ -7,7 +7,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -78,6 +78,7 @@ object GenerationUtil {
       case classParam: ScClassParameter if classParam.isVal || classParam.isVar => Seq(classParam)
       case value: ScValue => value.declaredElements
       case variable: ScVariable => variable.declaredElements
+      case method: ScFunction if method.parameters.isEmpty => method.declaredElements
       case _ => Seq.empty
     }
 
