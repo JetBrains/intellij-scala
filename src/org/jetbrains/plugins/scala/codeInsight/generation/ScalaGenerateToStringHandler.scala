@@ -20,20 +20,13 @@ import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
  * @author Rado Buransky (buransky.com)
  */
 class ScalaGenerateToStringHandler extends LanguageCodeInsightActionHandler {
-  /**
-   * Main handler method.
-   */
   override def invoke(project: Project, editor: Editor, psiFile: PsiFile): Unit = {
     if (CodeInsightUtilBase.prepareEditorForWrite(editor) &&
         FileDocumentManager.getInstance.requestWriting(editor.getDocument, project)) {
-      // Get class at the caret
-//      GenerationUtil.classAtCaret(editor, psiFile).map { aClass =>
-      GenerationUtil.elementOfTypeAtCaret(editor, psiFile, classOf[ScClass], classOf[ScObject],
-        classOf[ScTrait]).map { aType =>
-        // Generate toString method signature
+      GenerationUtil.elementOfTypeAtCaret(editor, psiFile, classOf[ScClass],
+        classOf[ScObject], classOf[ScTrait]).map { aType =>
         val toStringMethod = createToString(aType, project)
 
-        // Write it to the source file
         extensions.inWriteAction {
           GenerationUtil.addMembers(aType, toStringMethod.toList, editor.getDocument)
         }
@@ -61,18 +54,13 @@ class ScalaGenerateToStringHandler extends LanguageCodeInsightActionHandler {
    * Create toString method signature.
    */
   private def createToString(aType: ScTypeDefinition, project: Project): Option[ScFunction] = {
-    // Remove trailing dollar from object name
     val typeName = aType match {
       case _: ScObject if aType.name.last == '$' => aType.name.dropRight(1)
       case _ => aType.name
     }
 
-    // Get fields from the wizard dialog
     getFields(aType, project).map { fields =>
-      // Fields to string
       val fieldsText = fields.map("$" + _.name).mkString(s"$typeName(", ", ", ")")
-
-      // Create method
       val methodText = s"""override def toString = s"$fieldsText""""
       ScalaPsiElementFactory.createMethodWithContext(methodText, aType, aType.extendsBlock)
     }
@@ -82,19 +70,15 @@ class ScalaGenerateToStringHandler extends LanguageCodeInsightActionHandler {
    * Get class fields using wizard dialog.
    */
   private def getFields(aType: ScTypeDefinition, project: Project): Option[Seq[ScNamedElement]] = {
-    // Not very nice
     if (ApplicationManager.getApplication.isUnitTestMode) {
       Some(GenerationUtil.getAllFields(aType))
     }
     else {
-      // Show wizard
       val wizard = new ScalaGenerateToStringWizard(project, aType)
       wizard.show()
       if (wizard.isOK)
-        // Get fields from the wizard
         Some(wizard.getToStringFields)
       else
-        // Nothing to do
         None
     }
   }

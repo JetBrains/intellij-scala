@@ -11,14 +11,20 @@ class GenerateToStringTest extends ScalaGenerateTestBase {
     val text = s"""class A (i: Int, val j: Int) {
                  |  val x = 0$CARET_MARKER
                  |  var y = 0
+                 |  def w(x: Int) = 42
+                 |  def v = -3
+                 |  def u() = 123
                  |  private val z = 0
                  |}"""
     val result = """class A (i: Int, val j: Int) {
                    |  val x = 0
                    |  var y = 0
+                   |  def w(x: Int) = 42
+                   |  def v = -3
+                   |  def u() = 123
                    |  private val z = 0
                    |
-                   |  override def toString = s"A($x, $y, $z, $j)"
+                   |  override def toString = s"A($x, $y, $v, $u, $z, $j)"
                    |}"""
 
     testInvoke(text, result, checkCaret = false)
@@ -39,12 +45,12 @@ class GenerateToStringTest extends ScalaGenerateTestBase {
   def testObject(): Unit = {
     val text = s"""object Obj {
                  |  val a = 1
-                 |  val b = 2
+                 |  def b = 2
                  |  $CARET_MARKER
                  |}"""
     val result = """object Obj {
                  |  val a = 1
-                 |  val b = 2
+                 |  def b = 2
                  |
                  |  override def toString = s"Obj($a, $b)"
                  |}"""
@@ -55,12 +61,12 @@ class GenerateToStringTest extends ScalaGenerateTestBase {
   def testTrait(): Unit = {
     val text = s"""trait T {
                  |  val a = 1
-                 |  val b = 2
+                 |  def b = 2
                  |  $CARET_MARKER
                  |}"""
     val result = """trait T {
                  |  val a = 1
-                 |  val b = 2
+                 |  def b = 2
                  |
                  |  override def toString = s"T($a, $b)"
                  |}"""

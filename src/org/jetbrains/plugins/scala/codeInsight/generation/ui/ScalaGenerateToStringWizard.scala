@@ -24,10 +24,6 @@ import scala.collection.JavaConversions._
 class ScalaGenerateToStringWizard(project: Project, aClass: PsiClass) extends AbstractWizard[Step](
   ScalaBundle.message("org.jetbrains.plugins.scala.codeInsight.generation.ui.toString.title"), project) {
 
-  /**
-   * Get selected fields.
-   * @return List of fields.
-   */
   def getToStringFields: Seq[ScNamedElement] = toStringPanel.getTable.getSelectedMemberInfos.map(_.getMember).toSeq
 
   /**
@@ -36,9 +32,6 @@ class ScalaGenerateToStringWizard(project: Project, aClass: PsiClass) extends Ab
    */
   override def getHelpID: String = null
 
-  /**
-   * Scala member selection panel.
-   */
   private lazy val toStringPanel = {
     val allFields =  GenerationUtil.getAllFields(aClass).map(new ScalaMemberInfo(_))
     val panel = new ScalaMemberSelectionPanel(
@@ -61,7 +54,6 @@ class ScalaGenerateToStringWizard(project: Project, aClass: PsiClass) extends Ab
     updateStep()
   }
 
-  // Constructor initialization
   toStringPanel.getTable.getModel.addTableModelListener(new ToStringTableModelListener)
   addStep(new ToStringStep(toStringPanel))
   init()
