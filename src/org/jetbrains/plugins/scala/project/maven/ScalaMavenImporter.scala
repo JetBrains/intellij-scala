@@ -54,7 +54,7 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
 
       val compilerOptions = {
         val plugins = configuration.plugins.map(id => mavenProject.localPathTo(id).getPath)
-        configuration.compilerOptions ++ plugins.map(path => "-P:" + path)
+        configuration.compilerOptions ++ plugins.map(path => "-Xplugin:" + path)
       }
 
       module.getProject.scalaCompilerSettigns.updateFrom(compilerOptions)
