@@ -59,8 +59,16 @@ class ScalaGenerateToStringHandler extends LanguageCodeInsightActionHandler {
       case _ => aType.name
     }
 
-    getFields(aType, project).map { fields =>
-      val fieldsText = fields.map("$" + _.name).mkString(s"$typeName(", ", ", ")")
+    showWizard(aType, project).map { result =>
+      val (fields, withFieldNames) = result
+
+      def getDollarName(elem: ScNamedElement) = "$" + elem.name
+      val fieldsWtihNames = if (withFieldNames)
+        fields.map(field => field.name + "=" + getDollarName(field))
+      else
+        fields.map(getDollarName)
+
+      val fieldsText = fieldsWtihNames.mkString(s"$typeName(", ", ", ")")
       val methodText = s"""override def toString = s"$fieldsText""""
       ScalaPsiElementFactory.createMethodWithContext(methodText, aType, aType.extendsBlock)
     }
@@ -69,15 +77,15 @@ class ScalaGenerateToStringHandler extends LanguageCodeInsightActionHandler {
   /**
    * Get class fields using wizard dialog.
    */
-  private def getFields(aType: ScTypeDefinition, project: Project): Option[Seq[ScNamedElement]] = {
+  private def showWizard(aType: ScTypeDefinition, project: Project): Option[(Seq[ScNamedElement], Boolean)] = {
     if (ApplicationManager.getApplication.isUnitTestMode) {
-      Some(GenerationUtil.getAllFields(aType))
+      Some(GenerationUtil.getAllFields(aType), true)
     }
     else {
       val wizard = new ScalaGenerateToStringWizard(project, aType)
       wizard.show()
       if (wizard.isOK)
-        Some(wizard.getToStringFields)
+        Some(wizard.getToStringFields, wizard.withFieldNames)
       else
         None
     }
