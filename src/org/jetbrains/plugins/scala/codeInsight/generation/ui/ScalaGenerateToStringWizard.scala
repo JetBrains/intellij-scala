@@ -25,6 +25,7 @@ class ScalaGenerateToStringWizard(project: Project, aClass: PsiClass) extends Ab
   ScalaBundle.message("org.jetbrains.plugins.scala.codeInsight.generation.ui.toString.title"), project) {
 
   def getToStringFields: Seq[ScNamedElement] = toStringPanel.getTable.getSelectedMemberInfos.map(_.getMember).toSeq
+  def withFieldNames = toStringPanel.checkBox.isSelected
 
   /**
    * Get IntelliJ help ID.
@@ -34,7 +35,7 @@ class ScalaGenerateToStringWizard(project: Project, aClass: PsiClass) extends Ab
 
   private lazy val toStringPanel = {
     val allFields =  GenerationUtil.getAllFields(aClass).map(new ScalaMemberInfo(_))
-    val panel = new ScalaMemberSelectionPanel(
+    val panel = new ScalaToStringMemberSelectionPanel(
       ScalaBundle.message("org.jetbrains.plugins.scala.codeInsight.generation.ui.toString.fields"), allFields, null)
     panel.getTable.setMemberInfoModel(new ScalaToStringMemberInfoModel)
     panel

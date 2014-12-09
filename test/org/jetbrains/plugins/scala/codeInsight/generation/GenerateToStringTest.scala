@@ -24,7 +24,7 @@ class GenerateToStringTest extends ScalaGenerateTestBase {
                    |  def u() = 123
                    |  private val z = 0
                    |
-                   |  override def toString = s"A($x, $y, $v, $u, $z, $j)"
+                   |  override def toString = s"A(x=$x, y=$y, v=$v, u=$u, z=$z, j=$j)"
                    |}"""
 
     testInvoke(text, result, checkCaret = false)
@@ -52,7 +52,7 @@ class GenerateToStringTest extends ScalaGenerateTestBase {
                  |  val a = 1
                  |  def b = 2
                  |
-                 |  override def toString = s"Obj($a, $b)"
+                 |  override def toString = s"Obj(a=$a, b=$b)"
                  |}"""
 
     testInvoke(text, result, checkCaret = false)
@@ -68,7 +68,7 @@ class GenerateToStringTest extends ScalaGenerateTestBase {
                  |  val a = 1
                  |  def b = 2
                  |
-                 |  override def toString = s"T($a, $b)"
+                 |  override def toString = s"T(a=$a, b=$b)"
                  |}"""
 
     testInvoke(text, result, checkCaret = false)
