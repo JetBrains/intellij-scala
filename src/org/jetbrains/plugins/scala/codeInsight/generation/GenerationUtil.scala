@@ -78,22 +78,32 @@ object GenerationUtil {
       case classParam: ScClassParameter if classParam.isVal || classParam.isVar => Seq(classParam)
       case value: ScValue => value.declaredElements
       case variable: ScVariable => variable.declaredElements
+      case _ => Seq.empty
+    }
+
+    allMembers(aClass).flatMap(memberProcessor)
+  }
+
+  def getAllParameterlessMethods(aClass: PsiClass): Seq[ScNamedElement] = {
+    val memberProcessor: (ScMember) => Seq[ScNamedElement] = {
       case method: ScFunction if method.parameters.isEmpty => method.declaredElements
       case _ => Seq.empty
     }
 
-    val fields = aClass match {
-      case scClass: ScClass => scClass.members ++ scClass.constructor.toSeq.flatMap(_.parameters)
-      case scObject: ScObject => scObject.members
-      case scTrait: ScTrait => scTrait.members
-      case _ => Seq.empty
-    }
-
-    fields.flatMap(memberProcessor)
+    allMembers(aClass).flatMap(memberProcessor)
   }
 
   def elementOfTypeAtCaret[T <: PsiElement](editor: Editor, file: PsiFile, types: Class[_ <: T]*): Option[T] = {
     val elem = file.findElementAt(editor.getCaretModel.getOffset)
     Option(PsiTreeUtil.getParentOfType(elem, types: _*))
+  }
+
+  private def allMembers(aClass: PsiClass): Seq[ScMember] = {
+    aClass match {
+      case scClass: ScClass => scClass.members ++ scClass.constructor.toSeq.flatMap(_.parameters)
+      case scObject: ScObject => scObject.members
+      case scTrait: ScTrait => scTrait.members
+      case _ => Seq.empty
+    }
   }
 }
