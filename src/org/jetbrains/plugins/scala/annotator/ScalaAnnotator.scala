@@ -1179,6 +1179,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     val child = literal.getFirstChild.getNode
     val text = literal.getText
     val endsWithL = child.getText.endsWith('l') || child.getText.endsWith('L')
+    val textWithoutL = if (endsWithL) text.substring(0, text.length - 1) else text
     val parent = literal.getParent
     val scalaVersion = literal.scalaLanguageLevel
     val isNegative = parent match {
@@ -1186,7 +1187,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       case prefixExpr: ScPrefixExpr if prefixExpr.getChildren.size == 2 && prefixExpr.getFirstChild.getText == "-" => true
       case _ => false
     }
-    val (number, base) = text match {
+    val (number, base) = textWithoutL match {
       case t if t.startsWith("0x") || t.startsWith("0X") => (t.substring(2), 16)
       case t if t.startsWith("0") && t.length >= 2 => (t.substring(1), 8)
       case _ => (text, 10)
@@ -1245,8 +1246,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         case _ =>
       }
     }
-    val textWithoutL = if (endsWithL) number.substring(0, number.length - 1) else number
-    val (_, status) = parseIntegerNumber(textWithoutL, isNegative)
+    val (_, status) = parseIntegerNumber(number, isNegative)
     if (status == 2) { // the Integer number is out of range even for Long
       val error = "Integer number is out of range even for type Long"
       val annotation = holder.createErrorAnnotation(literal, error)
