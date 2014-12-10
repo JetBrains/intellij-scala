@@ -59,7 +59,7 @@ class AddPrefixFix(ref: ScReferenceElement, clazz: PsiClass)
           case _ =>
         }
       case ref: ScReferenceExpression =>
-        ref.replace(ScalaPsiElementFactory.createExpressionFromText(newRefText, ref.getManager)) match {
+        ref.replace(ScalaPsiElementFactory.createExpressionWithContextFromText(newRefText, ref.getContext, ref)) match {
           case ScReferenceExpression.qualifier(q: ScReferenceExpression) => q.bindToPackage(pckg, addImport = true)
           case _ =>
         }
