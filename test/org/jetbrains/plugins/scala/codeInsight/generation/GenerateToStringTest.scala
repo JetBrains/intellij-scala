@@ -24,7 +24,7 @@ class GenerateToStringTest extends ScalaGenerateTestBase {
                    |  def u() = 123
                    |  private val z = 0
                    |
-                   |  override def toString = s"A(x=$x, y=$y, v=$v, u=$u, z=$z, j=$j)"
+                   |  override def toString = s"A(x=$x, y=$y, z=$z, j=$j, v=$v, u=$u)"
                    |}"""
 
     testInvoke(text, result, checkCaret = false)

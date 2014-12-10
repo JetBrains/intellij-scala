@@ -78,16 +78,19 @@ class ScalaGenerateToStringHandler extends LanguageCodeInsightActionHandler {
    * Get class fields using wizard dialog.
    */
   private def showWizard(aType: ScTypeDefinition, project: Project): Option[(Seq[ScNamedElement], Boolean)] = {
+    val allSuitableMembers = getAllSuitableMembers(aType)
     if (ApplicationManager.getApplication.isUnitTestMode) {
-      Some(GenerationUtil.getAllFields(aType), true)
+      Some(allSuitableMembers, true)
     }
     else {
-      val wizard = new ScalaGenerateToStringWizard(project, aType)
-      wizard.show()
-      if (wizard.isOK)
+      val wizard = new ScalaGenerateToStringWizard(project, allSuitableMembers)
+      if (wizard.showAndGet())
         Some(wizard.getToStringFields, wizard.withFieldNames)
       else
         None
     }
   }
+
+  private def getAllSuitableMembers(aType: ScTypeDefinition): Seq[ScNamedElement] =
+    GenerationUtil.getAllFields(aType) ++ GenerationUtil.getAllParameterlessMethods(aType)
 }
