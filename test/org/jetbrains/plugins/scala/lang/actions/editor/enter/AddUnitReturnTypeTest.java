@@ -24,7 +24,7 @@ public class AddUnitReturnTypeTest extends AbstractEnterActionTestBase {
 
     final CommonCodeStyleSettings settings = getSettings();
     final ScalaCodeStyleSettings scalaSettings = settings.getRootSettings().getCustomSettings(ScalaCodeStyleSettings.class);
-    scalaSettings.ENFORCE_PROCEDURE_SYNTAX_FOR_UNIT = true;
+    scalaSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT = true;
   }
 
   public static Test suite() {
