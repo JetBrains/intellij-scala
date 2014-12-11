@@ -52,7 +52,7 @@ class SbtAndroidFacetDataService(platformFacade: PlatformFacade, helper: Project
     val props = facet.getConfiguration.getState
 
     val base = AndroidRootUtil.getModuleDirPath(module)
-    def getRelativePath(f: File) = "/" + FileUtil.getRelativePath(base, f.getAbsolutePath, File.separatorChar)
+    def getRelativePath(f: File) = "/" + FileUtil.getRelativePath(base, FileUtil.toSystemIndependentName(f.getAbsolutePath), '/')
 
     props.GEN_FOLDER_RELATIVE_PATH_APT = getRelativePath(data.gen)
     props.GEN_FOLDER_RELATIVE_PATH_AIDL = getRelativePath(data.gen)
