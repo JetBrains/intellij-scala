@@ -91,7 +91,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public int SIMPLE_METHOD_TYPE_ANNOTATION = TypeAnnotationPolicy.Optional.ordinal();
 
   //other
-  public boolean ENFORCE_PROCEDURE_SYNTAX_FOR_UNIT = true;
+  public boolean ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT = true;
   public boolean REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = false;
   public boolean REPLACE_MAP_ARROW_WITH_UNICODE_CHAR = false;
   public boolean REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR = false;
