@@ -7,9 +7,10 @@ import javax.swing._
 import com.intellij.openapi.externalSystem.service.settings.AbstractExternalProjectSettingsControl
 import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
 import com.intellij.openapi.externalSystem.util.PaintAwarePanel
-import com.intellij.openapi.projectRoots.ProjectJdkTable
+import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
+import com.intellij.openapi.util.Condition
 import org.jetbrains.annotations.NotNull
 
 /**
@@ -25,7 +26,18 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     val result = new JdkComboBox(model)
 
     val button = new JButton("Ne\u001Bw...")
-    result.setSetupButton(button, null, model, new JdkComboBox.NoneJdkComboBoxItem, null, false)
+
+    val addToTable = new Condition[Sdk] {
+      override def value(sdk: Sdk): Boolean = {
+        inWriteAction {
+          val table = ProjectJdkTable.getInstance()
+          if (!table.getAllJdks.contains(sdk)) table.addJdk(sdk)
+        }
+        true
+      }
+    }
+
+    result.setSetupButton(button, null, model, new JdkComboBox.NoneJdkComboBoxItem, addToTable, false)
 
     result
   }
