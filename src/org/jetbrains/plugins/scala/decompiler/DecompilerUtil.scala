@@ -188,10 +188,11 @@ object DecompilerUtil {
 
       DecompilationResult(isScala = true, sourceFileName, sourceText, file.getTimeStamp)
     } catch {
-      // TODO Narrow the try block scope, catch only specific exception classes
-      case e: ClassNotFoundException => throw e
+      case m: MatchError =>
+        LOG.info(s"Error during decompiling ${file.getName}: ${m.getMessage()}. Stacktrace is suppressed.")
+        DecompilationResult(isScala = false, "", "", file.getTimeStamp)
       case t: Throwable =>
-//        LOG.info(s"Error during decompiling ${file.getName}: ${t.getMessage}", t)
+        LOG.info(s"Error during decompiling ${file.getName}: ${t.getMessage}", t)
         DecompilationResult(isScala = false, "", "", file.getTimeStamp)
     }
   }
