@@ -1901,7 +1901,7 @@ object ScalaPsiUtil {
   def isPossiblyAssignment(elem: PsiElement): Boolean = elem.getContext match {
     case assign: ScAssignStmt if assign.getLExpression == elem => true
     case infix: ScInfixExpr if infix.isAssignmentOperator => true
-    case ref1 @ ScReferenceExpression.qualifier(`elem`) => ParserUtils.isAssignmentOperator(ref1.refName)
+    case ref1 @ ScReferenceExpression.withQualifier(`elem`) => ParserUtils.isAssignmentOperator(ref1.refName)
     case _ => false
   }
 

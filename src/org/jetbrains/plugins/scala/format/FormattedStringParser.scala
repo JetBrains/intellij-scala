@@ -23,7 +23,7 @@ object FormattedStringParser extends StringParser {
 
   def extractFormatCall(element: PsiElement): Option[(ScLiteral, Seq[ScExpression])] = Some(element) collect {
     // "%d".format(1)
-    case ScMethodCall(ScReferenceExpression.qualifier(literal: ScLiteral) &&
+    case ScMethodCall(ScReferenceExpression.withQualifier(literal: ScLiteral) &&
             PsiReferenceEx.resolve((f: ScFunction) && ContainingClass(owner: ScTrait)), args)
       if literal.isString && isFormatMethod(owner.qualifiedName, f.name) =>
       (literal, args)
@@ -39,7 +39,7 @@ object FormattedStringParser extends StringParser {
       (literal, args)
 
     // 1.formatted("%d")
-    case ScMethodCall(ScReferenceExpression.qualifier(arg: ScExpression) &&
+    case ScMethodCall(ScReferenceExpression.withQualifier(arg: ScExpression) &&
             PsiReferenceEx.resolve((f: ScFunction) && ContainingClass(owner: ScClass)), Seq(literal: ScLiteral))
       if literal.isString && isFormattedMethod(owner.qualifiedName, f.name) =>
       (literal, Seq(arg))
