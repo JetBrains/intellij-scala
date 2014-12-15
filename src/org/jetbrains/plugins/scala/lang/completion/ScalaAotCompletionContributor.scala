@@ -63,7 +63,7 @@ class ScalaAotCompletionContributor extends CompletionContributor {
     val text = element.getText
     val prefix = text.substring(0, text.length - CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED.length)
 
-    if (prefix.isEmpty) return
+    if (prefix.isEmpty || prefix.exists(!_.isLetterOrDigit)) return
 
     val identifier = factory(prefix + ": " + capitalize(text), element)
 
