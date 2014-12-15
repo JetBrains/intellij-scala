@@ -29,3 +29,9 @@ trait ScStableCodeReferenceElement extends ScReferenceElement with ScPathElement
 
   def getResolveResultVariants: Array[ScalaResolveResult]
 }
+
+object ScStableCodeReferenceElement {
+  object withQualifier {
+    def unapply(ref: ScStableCodeReferenceElement): Option[ScStableCodeReferenceElement] = ref.qualifier
+  }
+}
