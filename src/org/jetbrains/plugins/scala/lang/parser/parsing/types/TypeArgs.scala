@@ -31,9 +31,18 @@ object TypeArgs {
                 val firstChar = idText.charAt(0)
                 if (firstChar != '`' && firstChar.isLower) {
                   val typeParameterMarker = builder.mark()
+                  val idMarker = builder.mark()
                   builder.advanceLexer()
-                  typeParameterMarker.done(ScalaElementTypes.TYPE_VARIABLE)
-                  true
+                  builder.getTokenType match {
+                    case ScalaTokenTypes.tCOMMA | ScalaTokenTypes.tRSQBRACKET =>
+                      idMarker.drop()
+                      typeParameterMarker.done(ScalaElementTypes.TYPE_VARIABLE)
+                      true
+                    case _ =>
+                      idMarker.rollbackTo()
+                      typeParameterMarker.drop()
+                      false
+                  }
                 } else false
               case _ => false
             }
