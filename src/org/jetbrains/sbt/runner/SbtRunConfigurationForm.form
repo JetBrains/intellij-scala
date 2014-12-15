@@ -13,7 +13,7 @@
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Tasks"/>
+          <text resource-bundle="org/jetbrains/sbt/SbtBundle" key="sbt.runner.form.tasks"/>
         </properties>
       </component>
       <component id="3e92b" class="com.intellij.ui.RawCommandLineEditor" binding="javaOptionsEditor">
@@ -22,7 +22,9 @@
             <preferred-size width="495" height="29"/>
           </grid>
         </constraints>
-        <properties/>
+        <properties>
+          <dialogCaption resource-bundle="org/jetbrains/sbt/SbtBundle" key="sbt.runner.form.vmParametersEditorTitle"/>
+        </properties>
       </component>
       <component id="94b57" class="com.intellij.ui.RawCommandLineEditor" binding="tasksEditor">
         <constraints>
@@ -30,7 +32,9 @@
             <preferred-size width="495" height="29"/>
           </grid>
         </constraints>
-        <properties/>
+        <properties>
+          <dialogCaption resource-bundle="org/jetbrains/sbt/SbtBundle" key="sbt.runner.form.tasksEditorTitle"/>
+        </properties>
       </component>
       <component id="59605" class="javax.swing.JLabel">
         <constraints>
@@ -39,14 +43,16 @@
           </grid>
         </constraints>
         <properties>
-          <text value="VM parameters:"/>
+          <text resource-bundle="org/jetbrains/sbt/SbtBundle" key="sbt.runner.form.vmParameters"/>
         </properties>
       </component>
       <component id="501cc" class="com.intellij.execution.configuration.EnvironmentVariablesComponent" binding="environmentVariables">
         <constraints>
           <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
-        <properties/>
+        <properties>
+          <text resource-bundle="org/jetbrains/sbt/SbtBundle" key="sbt.runner.form.environmentVariables"/>
+        </properties>
       </component>
       <vspacer id="fe301">
         <constraints>
