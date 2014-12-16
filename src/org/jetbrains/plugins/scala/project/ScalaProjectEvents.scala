@@ -15,21 +15,25 @@ class ScalaProjectEvents(project: Project) extends AbstractProjectComponent(proj
 
   private val connection = project.getMessageBus.connect()
 
-  connection.subscribe(ProjectTopics.MODULES, new ModuleAdapter {
-    override def moduleRemoved(project: Project, module: Module) {
-      update()
-    }
+  override def projectOpened()= {
+    // ModuleManagerImpl#projectOpened should be invoked before this methos
+    // because core is loaded before.
+    connection.subscribe(ProjectTopics.MODULES, new ModuleAdapter {
+      override def moduleRemoved(project: Project, module: Module) {
+        update()
+      }
 
-    override def moduleAdded(project: Project, module: Module) {
-      update()
-    }
-  })
+      override def moduleAdded(project: Project, module: Module) {
+        update()
+      }
+    })
 
-  connection.subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootAdapter {
-    override def rootsChanged(event: ModuleRootEvent) {
-      update()
-    }
-  })
+    connection.subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootAdapter {
+      override def rootsChanged(event: ModuleRootEvent) {
+        update()
+      }
+    })
+  }
 
   private def update() {
     if (project.hasScala) fireScalaAdded() else fireScalaRemoved()
