@@ -86,13 +86,15 @@ package object project {
   }
   
   implicit class ProjectExt(project: Project) {
-    def hasScala: Boolean = ModuleManager.getInstance(project).getModules.exists(_.hasScala)
+    private def modulesIterator = Iterator(ModuleManager.getInstance(project).getModules: _*)
 
-    def modulesWithScala: Seq[Module] = ModuleManager.getInstance(project).getModules.filter(_.hasScala)
+    def hasScala: Boolean = modulesIterator.exists(_.hasScala)
 
-    def scalaModules: Seq[ScalaModule] = modulesWithScala.map(new ScalaModule(_))
+    def modulesWithScala: Iterator[Module] = modulesIterator.filter(_.hasScala)
 
-    def anyScalaModule: Option[ScalaModule] = scalaModules.headOption
+    def scalaModules: Iterator[ScalaModule] = modulesWithScala.map(new ScalaModule(_))
+
+    def anyScalaModule: Option[ScalaModule] = if (scalaModules.hasNext) Option(scalaModules.next()) else None
 
     def scalaEvents: ScalaProjectEvents = project.getComponent(classOf[ScalaProjectEvents])
 

@@ -133,7 +133,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     module
   }
 
-  def getValidModules: java.util.List[Module] = getProject.modulesWithScala
+  def getValidModules: java.util.List[Module] = getProject.modulesWithScala.toList
 
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaScriptRunConfigurationEditor(project, this)
 
