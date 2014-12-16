@@ -16,8 +16,8 @@ class ScalaProjectEvents(project: Project) extends AbstractProjectComponent(proj
   private val connection = project.getMessageBus.connect()
 
   override def projectOpened()= {
-    // ModuleManagerImpl#projectOpened should be invoked before this methos
-    // because core is loaded before.
+    // ModuleManagerImpl#projectOpened should be invoked before this method
+    // because Lang plugin is loaded before.
     connection.subscribe(ProjectTopics.MODULES, new ModuleAdapter {
       override def moduleRemoved(project: Project, module: Module) {
         update()
