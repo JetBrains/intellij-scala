@@ -22,7 +22,7 @@ import java.awt.*;
  * Date: 09.07.14.
  */
 public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
-    private JCheckBox enforceProcedureSyntaxForCheckBox;
+    private JCheckBox enforceFunctionalSyntaxForCheckBox;
     private JPanel contentPanel;
     private JCheckBox replaceWithUnicodeSymbolCheckBox;
     private JCheckBox replaceWithUnicodeSymbolCheckBox1;
@@ -66,7 +66,7 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
         if (!isModified(settings)) return;
 
         ScalaCodeStyleSettings scalaCodeStyleSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
-        scalaCodeStyleSettings.ENFORCE_PROCEDURE_SYNTAX_FOR_UNIT = enforceProcedureSyntaxForCheckBox.isSelected();
+        scalaCodeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT = enforceFunctionalSyntaxForCheckBox.isSelected();
         scalaCodeStyleSettings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = replaceWithUnicodeSymbolCheckBox.isSelected();
         scalaCodeStyleSettings.REPLACE_MAP_ARROW_WITH_UNICODE_CHAR = replaceWithUnicodeSymbolCheckBox1.isSelected();
         scalaCodeStyleSettings.REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR = replaceInForGeneratorCheckBox.isSelected();
@@ -76,7 +76,7 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     public boolean isModified(CodeStyleSettings settings) {
         ScalaCodeStyleSettings scalaCodeStyleSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
 
-        if (scalaCodeStyleSettings.ENFORCE_PROCEDURE_SYNTAX_FOR_UNIT != enforceProcedureSyntaxForCheckBox.isSelected())
+        if (scalaCodeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT != enforceFunctionalSyntaxForCheckBox.isSelected())
             return true;
         if (scalaCodeStyleSettings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR != replaceWithUnicodeSymbolCheckBox.isSelected())
             return true;
@@ -97,7 +97,7 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     @Override
     protected void resetImpl(CodeStyleSettings settings) {
         ScalaCodeStyleSettings scalaCodeStyleSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
-        enforceProcedureSyntaxForCheckBox.setSelected(scalaCodeStyleSettings.ENFORCE_PROCEDURE_SYNTAX_FOR_UNIT);
+        enforceFunctionalSyntaxForCheckBox.setSelected(scalaCodeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT);
         replaceWithUnicodeSymbolCheckBox.setSelected(scalaCodeStyleSettings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR);
         replaceWithUnicodeSymbolCheckBox1.setSelected(scalaCodeStyleSettings.REPLACE_MAP_ARROW_WITH_UNICODE_CHAR);
         replaceInForGeneratorCheckBox.setSelected(scalaCodeStyleSettings.REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR);
@@ -123,9 +123,9 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
         contentPanel = new JPanel();
         contentPanel.setLayout(new GridLayoutManager(5, 1, new Insets(0, 0, 0, 0), -1, -1));
         panel1.add(contentPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        enforceProcedureSyntaxForCheckBox = new JCheckBox();
-        enforceProcedureSyntaxForCheckBox.setText("Enforce procedure syntax for methods with Unit return type");
-        contentPanel.add(enforceProcedureSyntaxForCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        enforceFunctionalSyntaxForCheckBox = new JCheckBox();
+        enforceFunctionalSyntaxForCheckBox.setText("Enforce procedure syntax for methods with Unit return type");
+        contentPanel.add(enforceFunctionalSyntaxForCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
         contentPanel.add(spacer1, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         replaceWithUnicodeSymbolCheckBox = new JCheckBox();

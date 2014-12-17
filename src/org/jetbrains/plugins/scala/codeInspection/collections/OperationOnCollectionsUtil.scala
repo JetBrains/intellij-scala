@@ -110,7 +110,7 @@ object OperationOnCollectionsUtil {
     baseExpr match {
       case None => false
       case Some(e) =>
-        val sumExpr = ScalaPsiElementFactory.createExpressionFromText(s"${e.getText}.$methodName", e.getManager)
+        val sumExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(s"${e.getText}.$methodName", e.getContext, e)
         sumExpr.findImplicitParameters match {
           case Some(Seq(srr: ScalaResolveResult, _*)) => true
           case _ => false
@@ -195,7 +195,7 @@ object OperationOnCollectionsUtil {
                 if leftRef.resolve() == x && isIndependentOf(right, x) =>
                 val secondArgName = y.getName
                 val funExprText = secondArgName + " => " + right.getText
-                Some(ScalaPsiElementFactory.createExpressionFromText(funExprText, expr.getManager))
+                Some(ScalaPsiElementFactory.createExpressionWithContextFromText(funExprText, expr.getContext, expr))
               case _ => None
             }
           case _ => None
