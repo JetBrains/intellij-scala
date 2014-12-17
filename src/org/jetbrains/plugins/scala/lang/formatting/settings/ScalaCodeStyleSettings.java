@@ -35,6 +35,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean NOT_CONTINUATION_INDENT_FOR_PARAMS = false;
   public boolean ALIGN_IN_COLUMNS_CASE_BRANCH = false;
   public boolean ALIGN_COMPOSITE_PATTERN = true;
+  public boolean DO_NOT_ALIGN_BLOCK_EXPR_PARAMS = false;
 
   public boolean SPACE_AFTER_MODIFIERS_CONSTRUCTOR = false;
 
@@ -57,6 +58,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   public boolean SPACES_IN_ONE_LINE_BLOCKS = false;
   public boolean SPACES_IN_IMPORTS = false;
+  public boolean SPACES_AROUND_AT_IN_PATTERNS = false;
 
   //xml formatting
   public boolean KEEP_XML_FORMATTING = false;
@@ -89,7 +91,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public int SIMPLE_METHOD_TYPE_ANNOTATION = TypeAnnotationPolicy.Optional.ordinal();
 
   //other
-  public boolean ENFORCE_PROCEDURE_SYNTAX_FOR_UNIT = true;
+  public boolean ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT = true;
   public boolean REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = false;
   public boolean REPLACE_MAP_ARROW_WITH_UNICODE_CHAR = false;
   public boolean REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR = false;

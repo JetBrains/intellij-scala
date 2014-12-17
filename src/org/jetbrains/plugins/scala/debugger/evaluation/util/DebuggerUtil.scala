@@ -388,7 +388,7 @@ object DebuggerUtil {
   def localParamsForFunDef(fun: ScFunctionDefinition, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Seq[ScTypedDefinition] = {
     val container = ScalaEvaluatorBuilderUtil.getContextClass(fun)
     fun.body match { //to exclude references from default parameters
-      case Some(b) => localParams(b, fun, container)
+      case Some(b) => localParams(b, fun, container, visited)
       case _ => Seq.empty
     } 
   }
@@ -396,7 +396,7 @@ object DebuggerUtil {
   def localParamsForConstructor(cl: ScClass, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Seq[ScTypedDefinition] = {
     val container = ScalaEvaluatorBuilderUtil.getContextClass(cl)
     val extendsBlock = cl.extendsBlock //to exclude references from default parameters
-    localParams(extendsBlock, cl, container)
+    localParams(extendsBlock, cl, container, visited)
   }
   
   def localParams(block: PsiElement, excludeContext: PsiElement, container: PsiElement,
@@ -415,13 +415,13 @@ object DebuggerUtil {
         elem match {
           case null =>
           case fun: ScFunctionDefinition if fun.isLocal && !visited.contains(fun) =>
-            buf ++= localParamsForFunDef(fun, visited)
             visited += fun
-          case fun: ScMethodLike if fun.isConstructor =>
+            buf ++= localParamsForFunDef(fun, visited)
+          case fun: ScMethodLike if fun.isConstructor && !visited.contains(fun) =>
             fun.containingClass match {
-              case c: ScClass if ScalaPsiUtil.isLocalClass(c) && !visited.contains(fun) =>
-                buf ++= localParamsForConstructor(c, visited)
+              case c: ScClass if ScalaPsiUtil.isLocalClass(c) =>
                 visited += c
+                buf ++= localParamsForConstructor(c, visited)
               case _ =>
             }
           case td: ScTypedDefinition if isLocalV(td) && atRightPlace(td) =>

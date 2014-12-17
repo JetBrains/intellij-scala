@@ -414,8 +414,10 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
             printer.println("-showProgressMessages")
             printer.println(showProgressMessages.toString)
-            printer.println("-C")
-            printer.println(reporterClass)
+            if (reporterClass != null) {
+              printer.println("-C")
+              printer.println(reporterClass)
+            }
 
             val parms: Array[String] = ParametersList.parse(getTestArgs)
             for (parm <- parms) {
@@ -449,8 +451,10 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           params.getProgramParametersList.add("-showProgressMessages")
           params.getProgramParametersList.add(showProgressMessages.toString)
 
-          params.getProgramParametersList.add("-C")
-          params.getProgramParametersList.add(reporterClass)
+          if (reporterClass != null) {
+            params.getProgramParametersList.add("-C")
+            params.getProgramParametersList.add(reporterClass)
+          }
 
           params.getProgramParametersList.addParametersString(getTestArgs)
         }
