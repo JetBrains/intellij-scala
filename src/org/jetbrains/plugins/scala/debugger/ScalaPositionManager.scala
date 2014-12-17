@@ -292,7 +292,10 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     val dollar: Int = originalQName.indexOf('$')
     val qName = if (dollar >= 0) originalQName.substring(0, dollar) else originalQName
     val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(qName, searchScope)
-    val clazz: PsiClass = if (classes.length == 1) classes.apply(0) else null
+    val clazz: PsiClass =
+      if (classes.length == 1) classes.apply(0)
+      else if (classes.length == 2 && ScalaPsiUtil.getCompanionModule(classes(0)) == Some(classes(1))) classes(0)
+      else null
     if (clazz != null && clazz.isValid && !ScalaMacroDebuggingUtil.isEnabled) {
       return clazz.getNavigationElement.getContainingFile
     }
