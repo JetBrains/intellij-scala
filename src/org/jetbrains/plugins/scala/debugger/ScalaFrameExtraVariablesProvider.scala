@@ -4,7 +4,7 @@ import java.util
 
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.FrameExtraVariablesProvider
-import com.intellij.debugger.engine.evaluation.{EvaluationContextImpl, TextWithImports, TextWithImportsImpl}
+import com.intellij.debugger.engine.evaluation.{EvaluationContext, TextWithImports, TextWithImportsImpl}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, ResolveState}
 import com.intellij.xdebugger.impl.breakpoints.XExpressionImpl
@@ -24,13 +24,13 @@ import scala.collection.mutable
 * 2014-12-04
 */
 class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
-  override def isAvailable(sourcePosition: SourcePosition, evaluationContext: EvaluationContextImpl): Boolean = {
+  override def isAvailable(sourcePosition: SourcePosition, evaluationContext: EvaluationContext): Boolean = {
     ScalaDebuggerSettings.getInstance().SHOW_VARIABLES_FROM_OUTER_SCOPES &&
             sourcePosition.getFile.getLanguage == ScalaLanguage.Instance
   }
 
   override def collectVariables(sourcePosition: SourcePosition,
-                                evaluationContext: EvaluationContextImpl,
+                                evaluationContext: EvaluationContext,
                                 alreadyCollected: util.Set[String]): util.Set[TextWithImports] = {
 
     val result: mutable.SortedSet[String] = inReadAction {
