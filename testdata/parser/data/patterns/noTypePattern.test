@@ -1,0 +1,121 @@
+Map(1, 2, 3) match {
+  case s: Seq[scala.Int] =>
+  case m: Map[a, scala.Int] =>
+  case g: Tuple3[a, scala.Int, c] =>
+}
+------
+ScalaFile
+  MatchStatement
+    MethodCall
+      ReferenceExpression: Map
+        PsiElement(identifier)('Map')
+      ArgumentList
+        PsiElement(()('(')
+        Literal
+          PsiElement(integer)('1')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Literal
+          PsiElement(integer)('2')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Literal
+          PsiElement(integer)('3')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(match)('match')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiWhiteSpace('\n  ')
+    CaseClauses
+      CaseClause
+        PsiElement(case)('case')
+        PsiWhiteSpace(' ')
+        TypedPattern: s
+          PsiElement(identifier)('s')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TypePattern
+            ParametrizedTypeElement: Seq[scala.Int]
+              SimpleTypeElement: Seq
+                CodeReferenceElement: Seq
+                  PsiElement(identifier)('Seq')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleTypeElement: scala.Int
+                  CodeReferenceElement: scala.Int
+                    CodeReferenceElement: scala
+                      PsiElement(identifier)('scala')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Int')
+                PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+        BlockOfExpressions
+          <empty list>
+      PsiWhiteSpace('\n  ')
+      CaseClause
+        PsiElement(case)('case')
+        PsiWhiteSpace(' ')
+        TypedPattern: m
+          PsiElement(identifier)('m')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TypePattern
+            ParametrizedTypeElement: Map[a, scala.Int]
+              SimpleTypeElement: Map
+                CodeReferenceElement: Map
+                  PsiElement(identifier)('Map')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeVariable: a
+                  PsiElement(identifier)('a')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement: scala.Int
+                  CodeReferenceElement: scala.Int
+                    CodeReferenceElement: scala
+                      PsiElement(identifier)('scala')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Int')
+                PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+        BlockOfExpressions
+          <empty list>
+      PsiWhiteSpace('\n  ')
+      CaseClause
+        PsiElement(case)('case')
+        PsiWhiteSpace(' ')
+        TypedPattern: g
+          PsiElement(identifier)('g')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TypePattern
+            ParametrizedTypeElement: Tuple3[a, scala.Int, c]
+              SimpleTypeElement: Tuple3
+                CodeReferenceElement: Tuple3
+                  PsiElement(identifier)('Tuple3')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeVariable: a
+                  PsiElement(identifier)('a')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement: scala.Int
+                  CodeReferenceElement: scala.Int
+                    CodeReferenceElement: scala
+                      PsiElement(identifier)('scala')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeVariable: c
+                  PsiElement(identifier)('c')
+                PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+        BlockOfExpressions
+          <empty list>
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')
