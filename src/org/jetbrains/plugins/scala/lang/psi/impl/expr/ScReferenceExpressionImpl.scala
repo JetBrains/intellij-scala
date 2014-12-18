@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -340,12 +340,25 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             case _ => tail
           }
         } else tail
+      case Some(r@ScalaResolveResult(f: ScFieldId, s)) =>
+        if (stableTypeRequired && f.isStable) {
+          r.fromType match {
+            case Some(fT) => ScProjectionType(fT, f, superReference = false)
+            case None => ScType.designator(f)
+          }
+        } else {
+          val result = f.getType(TypingContext.empty)
+          result match {
+            case Success(tp, _) => s.subst(tp)
+            case _ => return result
+          }
+        }
       case Some(ScalaResolveResult(typed: ScTypedDefinition, s)) =>
         val result = typed.getType(TypingContext.empty)
-        s.subst(result match {
-          case Success(tp, _) => tp
+        result match {
+          case Success(tp, _) => s.subst(tp)
           case _ => return result
-        })
+        }
       case Some(ScalaResolveResult(pack: PsiPackage, _)) => ScType.designator(pack)
       case Some(ScalaResolveResult(clazz: ScClass, s)) if clazz.isCase =>
         s.subst(clazz.constructor.

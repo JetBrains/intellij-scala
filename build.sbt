@@ -105,7 +105,8 @@ lazy val jps_plugin = Project( "scala-jps-plugin", file("jps-plugin")).dependsOn
   .settings(unmanagedJars in Compile := allIdeaJars.value)
 
 lazy val idea_runner = Project( "idea-runner", file("idea-runner"))
-  .settings(unmanagedJars in Compile := (ideaBasePath.value  / "lib" * "*.jar").classpath)
+  .settings(unmanagedJars in Compile := (ideaBasePath.value  / "lib" * "*.jar").classpath, autoScalaLibrary := false)
+  .dependsOn(Seq(compiler_settings, ScalaRunner, Runners, ScalaCommunity, jps_plugin, NailgunRunners).map(_ % Provided): _*)
 
 lazy val NailgunRunners = project.in(file( "NailgunRunners")).dependsOn(ScalaRunner)
 
