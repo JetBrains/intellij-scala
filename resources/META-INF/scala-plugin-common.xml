@@ -33,6 +33,9 @@
         <debuggerEditorTextProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEditorTextProvider"/>
         <debugger.nodeRenderer implementation="org.jetbrains.plugins.scala.debugger.ui.ListLikeCollectionNodeRenderer"/>
         <debugger.nodeRenderer implementation="org.jetbrains.plugins.scala.debugger.ui.RuntimeRefRenderer"/>
+        <debugger.syntheticProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaSyntheticProvider"/>
+        <debugger.frameExtraVarsProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaFrameExtraVariablesProvider"/>
+        <debugger.extraSteppingFilter implementation="org.jetbrains.plugins.scala.debugger.ScalaSyntheticSteppingFilter"/>
         <generation.topLevelFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.impl.ScalaFactoryProvider"/>
         <treeCopyHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeUtilSupport"/>
         <iconProvider implementation="org.jetbrains.plugins.scala.components.ScalaIconProvider"/>
