@@ -1243,9 +1243,11 @@ object ScalaPsiUtil {
     }
     if (element == null) return
     if (element.isInstanceOf[ScImportStmt] || PsiTreeUtil.getParentOfType(element, classOf[ScImportStmt]) != null) return
-    val typeAliases = availableTypeAliases(element)
+    val typeAliases = element match {
+      case typeElem: ScTypeElement => availableTypeAliases(element)
+      case _ => Set.empty
+    }
     def typeAliasFor(clazz: PsiClass): Option[ScTypeAlias] = typeAliases.find(_.isAliasFor(clazz))
-
     for (child <- element.getChildren) {
       child match {
         case stableRef: ScStableCodeReferenceElement =>
