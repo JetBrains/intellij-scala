@@ -15,7 +15,7 @@ import com.intellij.openapi.vfs.{CharsetToolkit, VirtualFile, VirtualFileWithId}
 import com.intellij.reference.SoftReference
 
 import scala.reflect.internal.pickling.ByteCodecs
-import scala.tools.scalap.scalax.rules.scalasig.ClassFileParser.ConstValueIndex
+import scala.tools.scalap.scalax.rules.scalasig.ClassFileParser._
 import scala.tools.scalap.scalax.rules.scalasig._
 
 /**
