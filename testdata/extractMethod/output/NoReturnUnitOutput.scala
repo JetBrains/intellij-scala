@@ -18,7 +18,7 @@ class NoReturnUnitOutput {
     x
   }
 
-  def testMethodName(i: Int) {
+  def testMethodName(i: Int): Unit = {
     val x: Unit = println("unit")
     println(i)
     x

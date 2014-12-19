@@ -25,7 +25,7 @@ object DifferentType {
 
   }
 
-  def testMethodName(i: Int) {
+  def testMethodName(i: Int): Unit = {
     val x = i
     println(i)
   }

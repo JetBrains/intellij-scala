@@ -12,7 +12,7 @@ class ChangeLocalVar {
   def foo {
     var i = 23
     /*start*/
-    def testMethodName {
+    def testMethodName: Unit = {
       i = 24
     }
     testMethodName

@@ -16,7 +16,7 @@ class FunTypeParam {
     /*end*/
   }
 
-  def testMethodName[T](x: T, y: T) {
+  def testMethodName[T](x: T, y: T): Unit = {
     x
     y
   }
