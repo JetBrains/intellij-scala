@@ -1264,9 +1264,9 @@ object ScalaPsiUtil {
                   }
                 case typeAlias: ScTypeAlias => replaceStablePath(stableRef, typeAlias.name, None, typeAlias)
                 case binding: ScBindingPattern => replaceStablePath(stableRef, binding.name, None, binding)
-                case _ => adjustTypes(child)
+                case _ => adjustTypes(child, addImports)
               }
-            case _ => adjustTypes(child)
+            case _ => adjustTypes(child, addImports)
           }
           update(stableRef.resolve())
         case tp: ScTypeProjection =>
@@ -1278,10 +1278,10 @@ object ScalaPsiUtil {
                 //cannot use newTypeElement because of bug with indentation
                 tp.replace(ScalaPsiElementFactory.createTypeElementFromText(ScalaNamesUtil.scalaName(m), tp.getManager))
               }
-              else adjustTypes(child)
-            case _ => adjustTypes(child)
+              else adjustTypes(child, addImports)
+            case _ => adjustTypes(child, addImports)
           }
-        case _ => adjustTypes(child)
+        case _ => adjustTypes(child, addImports)
       }
     }
   }
