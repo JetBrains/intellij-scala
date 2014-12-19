@@ -7,7 +7,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.containers.ConcurrentHashMap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
+import org.jetbrains.plugins.scala.lang.psi.api.{MacroInferUtil, InferUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
@@ -202,7 +202,7 @@ class ImplicitParametersCollector(private var place: PsiElement, tp: ScType, cor
             }
 
             fun.getTypeNoImplicits(TypingContext.empty) match {
-              case Success(funType: ScType, _) =>
+              case Success(_funType: ScType, _) =>
                 def checkType(ret: ScType): Option[(ScalaResolveResult, ScSubstitutor)] = {
                   def compute(): Option[(ScalaResolveResult, ScSubstitutor)] = {
                     InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, check function: " + fun.name)
@@ -266,6 +266,12 @@ class ImplicitParametersCollector(private var place: PsiElement, tp: ScType, cor
                   }
                 }
 
+                val funType = if (MacroInferUtil.isMacro(fun).isDefined) {
+                  MacroInferUtil.checkMacro(fun, Some(tp), place) match {
+                    case Some(newTp) => newTp
+                    case _ => _funType
+                  }
+                } else _funType
                 var substedFunType: ScType = funType
 
                 if (fun.hasTypeParameters) {
