@@ -16,7 +16,7 @@ class NoReturnNoOutput {
     println()
   }
 
-  def testMethodName(i: Int) {
+  def testMethodName(i: Int): Unit = {
     if (true) {}
     println(i)
   }
