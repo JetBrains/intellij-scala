@@ -28,18 +28,22 @@ class ResolverIndexSerializationTest extends ScalaFixtureTestCase {
     val index = indexOpt.get
     assertEquals(index.root, testResolver.root)
     assertEquals(index.timestamp, SbtResolverIndex.NO_TIMESTAMP)
+
+    storingManager.dispose()
   }
 
   def testIndexLoading() = {
     myFixture.setTestDataPath(rootPath)
     val testIndexDir = new File(myFixture.copyDirectoryToProject("sbt/resolvers/testIndex", "testIndex").getPath)
-    val manager = new SbtResolverIndexesManager(Some(testIndexDir))
+    val storingManager = new SbtResolverIndexesManager(Some(testIndexDir))
 
-    val indexOpt = manager.find(testResolver)
+    val indexOpt = storingManager.find(testResolver)
     assert(indexOpt.isDefined)
 
     val index = indexOpt.get
     assertEquals(index.root, testResolver.root)
     assertEquals(index.timestamp, SbtResolverIndex.NO_TIMESTAMP)
+
+    storingManager.dispose()
   }
 }
