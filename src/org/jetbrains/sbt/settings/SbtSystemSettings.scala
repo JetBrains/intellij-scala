@@ -106,7 +106,8 @@ class SbtSystemSettings(project: Project)
       // are IDEA's modules after all.
       // It's either our bug or External system's missing feature.
       // @dancingrobot84
-      if (settings.getModules.asScala.exists { m => FileUtil.isAncestor(m, module.getModuleFilePath, false) })
+      if (settings.getModules.asScala.exists { m => FileUtil.isAncestor(m, module.getModuleFilePath, false) }
+              || FileUtil.isAncestor(settings.getExternalProjectPath, module.getModuleFilePath, false))
         settings
       else
         acc
