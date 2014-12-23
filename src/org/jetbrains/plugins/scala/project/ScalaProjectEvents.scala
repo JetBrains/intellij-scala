@@ -16,33 +16,15 @@ class ScalaProjectEvents(project: Project) extends AbstractProjectComponent(proj
   private val connection = project.getMessageBus.connect()
 
   override def projectOpened()= {
-    connection.subscribe(ProjectTopics.MODULES, new ModuleAdapter {
-      override def moduleRemoved(project: Project, module: Module) {
-        update()
-      }
-
-      override def moduleAdded(project: Project, module: Module) {
-        update()
-      }
-    })
-
     connection.subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootAdapter {
       override def rootsChanged(event: ModuleRootEvent) {
-        update()
+        listeners.foreach(_.onScalaProjectChanged())
       }
     })
   }
 
   override def projectClosed() {
     connection.disconnect()
-  }
-
-  override def disposeComponent() {
-    connection.disconnect()
-  }
-
-  private def update() {
-    listeners.foreach(_.onScalaProjectChanged())
   }
 
   def addScalaProjectListener(listener: ScalaProjectListener) {

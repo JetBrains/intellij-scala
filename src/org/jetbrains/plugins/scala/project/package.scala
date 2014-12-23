@@ -12,7 +12,6 @@ import com.intellij.openapi.roots.impl.libraries.{ProjectLibraryTable, LibraryEx
 import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.{NewLibraryEditor, ExistingLibraryEditor}
 import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore}
-import scala.collection.immutable.HashSet
 import scala.util.matching.Regex
 import extensions._
 
@@ -53,11 +52,17 @@ package object project {
   implicit class ModuleExt(module: Module) {
     def hasScala: Boolean = scalaSdk.isDefined
 
-    def scalaSdk: Option[ScalaSdk] = inReadAction { // RA
+    def scalaSdk: Option[ScalaSdk] =
+      ScalaProjectCache.instanceIn(module.getProject)
+              .getOrUpdate(module)(scalaSdk0)
+
+    // TODO start read action from the outer scopes
+    private def scalaSdk0: Option[ScalaSdk] = inReadAction {
       var result: Option[ScalaSdk] = None
 
+      // TODO breadth-first search is preferable
       val enumerator = ModuleRootManager.getInstance(module)
-              .orderEntries().recursively().librariesOnly().exportedOnly() // BF
+              .orderEntries().recursively().librariesOnly().exportedOnly()
 
       enumerator.forEachLibrary(new Processor[Library] {
         override def process(library: Library) = {
