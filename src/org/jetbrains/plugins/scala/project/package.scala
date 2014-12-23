@@ -53,22 +53,24 @@ package object project {
   implicit class ModuleExt(module: Module) {
     def hasScala: Boolean = scalaSdk.isDefined
 
-    def scalaSdk: Option[ScalaSdk] = libraries.find(_.isScalaSdk).map(new ScalaSdk(_))
-
-    def libraries: Set[Library] = inReadAction {
-      var libraries = HashSet.empty[Library]
+    def scalaSdk: Option[ScalaSdk] = inReadAction { // RA
+      var result: Option[ScalaSdk] = None
 
       val enumerator = ModuleRootManager.getInstance(module)
-              .orderEntries().recursively().librariesOnly().exportedOnly()
+              .orderEntries().recursively().librariesOnly().exportedOnly() // BF
 
       enumerator.forEachLibrary(new Processor[Library] {
         override def process(library: Library) = {
-          libraries += library
-          true
+          if (library.isScalaSdk) {
+            result = Some(new ScalaSdk(library))
+            true
+          } else {
+            false
+          }
         }
       })
 
-      libraries
+      result
     }
 
     def attach(library: Library) {
@@ -86,15 +88,13 @@ package object project {
   }
   
   implicit class ProjectExt(project: Project) {
-    private def modulesIterator = Iterator(ModuleManager.getInstance(project).getModules: _*)
+    def hasScala: Boolean = ModuleManager.getInstance(project).getModules.exists(_.hasScala)
 
-    def hasScala: Boolean = modulesIterator.exists(_.hasScala)
+    def modulesWithScala: Seq[Module] = ModuleManager.getInstance(project).getModules.filter(_.hasScala)
 
-    def modulesWithScala: Iterator[Module] = modulesIterator.filter(_.hasScala)
+    def scalaModules: Seq[ScalaModule] = modulesWithScala.map(new ScalaModule(_))
 
-    def scalaModules: Iterator[ScalaModule] = modulesWithScala.map(new ScalaModule(_))
-
-    def anyScalaModule: Option[ScalaModule] = if (scalaModules.hasNext) Option(scalaModules.next()) else None
+    def anyScalaModule: Option[ScalaModule] = scalaModules.headOption
 
     def scalaEvents: ScalaProjectEvents = project.getComponent(classOf[ScalaProjectEvents])
 

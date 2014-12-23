@@ -212,7 +212,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     getConfigurationModule.getModule
   }
 
-  def getValidModules: java.util.List[Module] = getProject.modulesWithScala.toList
+  def getValidModules: java.util.List[Module] = getProject.modulesWithScala
 
   override def getModules: Array[Module] = {
     ApplicationManager.getApplication.runReadAction(new Computable[Array[Module]] {
