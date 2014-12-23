@@ -16,8 +16,6 @@ class ScalaProjectEvents(project: Project) extends AbstractProjectComponent(proj
   private val connection = project.getMessageBus.connect()
 
   override def projectOpened()= {
-    // ModuleManagerImpl#projectOpened should be invoked before this method
-    // because Lang plugin is loaded before.
     connection.subscribe(ProjectTopics.MODULES, new ModuleAdapter {
       override def moduleRemoved(project: Project, module: Module) {
         update()
@@ -35,8 +33,16 @@ class ScalaProjectEvents(project: Project) extends AbstractProjectComponent(proj
     })
   }
 
+  override def projectClosed() {
+    connection.disconnect()
+  }
+
+  override def disposeComponent() {
+    connection.disconnect()
+  }
+
   private def update() {
-    if (project.hasScala) fireScalaAdded() else fireScalaRemoved()
+    listeners.foreach(_.onScalaProjectChanged())
   }
 
   def addScalaProjectListener(listener: ScalaProjectListener) {
@@ -46,22 +52,8 @@ class ScalaProjectEvents(project: Project) extends AbstractProjectComponent(proj
   def removeScalaProjectListener(listener: ScalaProjectListener) {
     listeners = listeners.filterNot(_ == listener)
   }
-
-  private def fireScalaAdded() {
-    listeners.foreach(_.onScalaAdded())
-  }
-
-  private def fireScalaRemoved() {
-    listeners.foreach(_.onScalaRemoved())
-  }
-
-  override def disposeComponent() {
-    connection.disconnect()
-  }
 }
 
 trait ScalaProjectListener {
-  def onScalaAdded()
-
-  def onScalaRemoved()
+  def onScalaProjectChanged()
 }

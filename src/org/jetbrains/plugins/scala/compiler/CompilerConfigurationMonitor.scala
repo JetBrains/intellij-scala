@@ -57,12 +57,10 @@ class CompilerConfigurationMonitor(project: Project) extends ProjectComponent {
   }
 
   private object ScalaListener extends ScalaProjectListener {
-    def onScalaAdded() {
-      if (isCompileServerEnabled) {
+    def onScalaProjectChanged() {
+      if (project.hasScala && isCompileServerEnabled) {
         disableAutomake()
       }
     }
-
-    def onScalaRemoved() {}
   }
 }
