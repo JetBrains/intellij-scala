@@ -12,6 +12,7 @@ import com.intellij.openapi.roots.impl.libraries.{ProjectLibraryTable, LibraryEx
 import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.{NewLibraryEditor, ExistingLibraryEditor}
 import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore}
+import scala.collection.immutable.HashSet
 import scala.util.matching.Regex
 import extensions._
 
@@ -76,6 +77,21 @@ package object project {
       })
 
       result
+    }
+
+    def libraries: Set[Library] = {
+      var libraries = HashSet.empty[Library]
+
+      val enumerator = ModuleRootManager.getInstance(module).orderEntries().librariesOnly()
+
+      enumerator.forEachLibrary(new Processor[Library] {
+        override def process(library: Library) = {
+          libraries += library
+          true
+        }
+      })
+
+      libraries
     }
 
     def attach(library: Library) {
