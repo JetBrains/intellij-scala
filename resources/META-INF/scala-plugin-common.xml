@@ -1023,6 +1023,9 @@
           <implementation-class>org.jetbrains.plugins.scala.project.ScalaProjectEvents</implementation-class>
         </component>
         <component>
+          <implementation-class>org.jetbrains.plugins.scala.project.ScalaProjectCache</implementation-class>
+        </component>
+        <component>
             <implementation-class>org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner</implementation-class>
         </component>
         <component>

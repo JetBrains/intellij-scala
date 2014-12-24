@@ -311,6 +311,7 @@ trait ScPattern extends ScalaPsiElement {
               }
             case None => None
           }
+        case _ => None
       }
       case named: ScNamingPattern => named.expectedType
       case gen: ScGenerator =>
