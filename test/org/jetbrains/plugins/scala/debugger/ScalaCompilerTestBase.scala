@@ -81,7 +81,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase {
 
     PsiTestUtil.addLibrary(myModule, "scala-compiler", root, "scala-library.jar")
 
-    librariesIn(myModule).find(_.getName == "scala-compiler").foreach { library =>
+    myModule.libraries.find(_.getName == "scala-compiler").foreach { library =>
       val compilerClasspath = Seq("scala-compiler.jar", "scala-library.jar") ++
               (if (loadReflect) Seq("scala-reflect.jar") else Seq.empty)
 
@@ -92,21 +92,6 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase {
         library.convertToScalaSdkWith(languageLevel, compilerClasspath.map(new File(root, _)))
       }
     }
-  }
-
-  private def librariesIn(module: Module): Set[Library] = {
-    var libraries = HashSet.empty[Library]
-
-    val enumerator = ModuleRootManager.getInstance(module).orderEntries().librariesOnly()
-
-    enumerator.forEachLibrary(new Processor[Library] {
-      override def process(library: Library) = {
-        libraries += library
-        true
-      }
-    })
-
-    libraries
   }
 
   override protected def getTestProjectJdk: Sdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
