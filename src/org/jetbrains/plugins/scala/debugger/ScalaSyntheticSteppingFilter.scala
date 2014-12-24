@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.debugger
 
+import com.intellij.debugger.NoDataException
 import com.intellij.debugger.engine.{ExtraSteppingFilter, SuspendContext}
 import com.intellij.psi.util.PsiTreeUtil
 import com.sun.jdi.Location
@@ -25,7 +26,13 @@ class ScalaSyntheticSteppingFilter extends ExtraSteppingFilter {
   override def getStepRequestDepth(context: SuspendContext): Int = StepRequest.STEP_INTO
 
   private def isSyntheticMethod(location: Location, positionManager: ScalaPositionManager): Boolean = {
-    val sourcePosition = positionManager.getSourcePosition(location)
+    val sourcePosition =
+      try {
+        positionManager.getSourcePosition(location)
+      } catch {
+        case _: NoDataException => return false
+      }
+
     if (!sourcePosition.getFile.getLanguage.is(ScalaLanguage.Instance)) return false
 
     val classInSource = PsiTreeUtil.getParentOfType(sourcePosition.getElementAt, classOf[ScTemplateDefinition], false)
