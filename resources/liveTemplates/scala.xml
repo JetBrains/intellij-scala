@@ -3,7 +3,7 @@
   <template name="main" value="def main(args: Array[String]){&#13;&#10;  $END$&#13;&#10;}" description="Template for main method"
             toReformat="true" toShortenFQNames="true">
     <context>
-      <option name="SCALA" value="true"/>
+      <option name="SCALA_CODE" value="true"/>
     </context>
   </template>
   <template name="opt" value="$OPTION$ match {&#13;&#10;  case Some($NAME$) => $END$&#13;&#10;  case None =>&#13;&#10;}"
@@ -11,7 +11,7 @@
     <variable name="OPTION" expression="scalaVariableOfType(&quot;scala.Option&quot;)" defaultValue="option" alwaysStopAt="true"/>
     <variable name="NAME" expression="suggestScalaVariableName(&quot;option&quot;, OPTION)" defaultValue="x" alwaysStopAt="true"/>
     <context>
-      <option name="SCALA" value="true"/>
+      <option name="SCALA_CODE" value="true"/>
     </context>
   </template>
   <template name="itr" value="for ($NAME$ &lt;- $FOR$ $GUARD$) {&#13;&#10;  $END$&#13;&#10;  }"
@@ -20,7 +20,7 @@
     <variable name="NAME" expression="suggestScalaVariableName(&quot;foreach&quot;, FOR)" defaultValue="x" alwaysStopAt="true"/>
     <variable name="GUARD" expression="" defaultValue="" alwaysStopAt="true"/>
     <context>
-      <option name="SCALA" value="true"/>
+      <option name="SCALA_CODE" value="true"/>
     </context>
   </template>
   <template name="itry" value="for ($NAME$ &lt;- $FOR$ $GUARD$) yield {&#13;&#10;  $END$&#13;&#10;  }"
@@ -29,7 +29,7 @@
     <variable name="NAME" expression="suggestScalaVariableName(&quot;foreach&quot;, FOR)" defaultValue="x" alwaysStopAt="true"/>
     <variable name="GUARD" expression="" defaultValue="" alwaysStopAt="true"/>
     <context>
-      <option name="SCALA" value="true"/>
+      <option name="SCALA_CODE" value="true"/>
     </context>
   </template>
   <template name="priv" value="println(&quot;$EXPR_COPY$ = &quot; + $EXPR$)" description="Template for expressions output"
@@ -37,7 +37,7 @@
     <variable alwaysStopAt="true" defaultValue="false" name="EXPR" expression="scalaVariableOfType(&quot;&quot;)"/>
     <variable alwaysStopAt="false" defaultValue="" name="EXPR_COPY" expression="EXPR"/>
     <context>
-      <option name="SCALA" value="true"/>
+      <option name="SCALA_CODE" value="true"/>
     </context>
   </template>
   <template name="T" value="&lt;$TAG$&gt;$SELECTION$&lt;/$TAGNAME$&gt;&#13;&#10;"

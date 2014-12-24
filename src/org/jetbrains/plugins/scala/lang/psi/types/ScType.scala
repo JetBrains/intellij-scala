@@ -385,14 +385,6 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
     if (!updated) tp
     else removeAliasDefinitions(res, visited + tp)
   }
-
-  /**
-   * @return Some((designator, paramType, returnType)), or None
-   */
-  def extractPartialFunctionType(tp: ScType): Option[(ScType, ScType, ScType)] = expandAliases(tp).getOrAny match {
-    case pt@ScParameterizedType(des, typeArgs) => pt.getPartialFunctionType
-    case _ => None
-  }
   
   /**
    * Unwraps the method type corresponding to the parameter secion at index `n`.

@@ -334,3 +334,9 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
   }
 
 }
+
+object ScReferenceElement {
+  object withQualifier {
+    def unapply(ref: ScReferenceElement): Option[ScalaPsiElement] = ref.qualifier
+  }
+}

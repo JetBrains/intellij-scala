@@ -23,7 +23,7 @@ object WithSemicolon {
     /*end*/
   }
 
-  def testMethodName(i: Int) {
+  def testMethodName(i: Int): Unit = {
     val y = 0
     println(i)
     y + 1

@@ -24,7 +24,7 @@ object DifferentLiterals {
     }
   }
 
-  def testMethodName(message: String) {
+  def testMethodName(message: String): Unit = {
     println("info: ")
     println(message)
   }
