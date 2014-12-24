@@ -69,9 +69,9 @@ package object project {
         override def process(library: Library) = {
           if (library.isScalaSdk) {
             result = Some(new ScalaSdk(library))
-            true
-          } else {
             false
+          } else {
+            true
           }
         }
       })
