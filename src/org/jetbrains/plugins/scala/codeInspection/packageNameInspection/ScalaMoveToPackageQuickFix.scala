@@ -17,6 +17,7 @@ import com.intellij.refactoring.move.moveClassesOrPackages.{MoveClassesOrPackage
 import com.intellij.refactoring.util.RefactoringMessageUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -39,6 +40,7 @@ class ScalaMoveToPackageQuickFix(file: ScalaFile, packQualName: String) extends 
       Messages.showMessageDialog(project, error, CommonBundle.getErrorTitle, Messages.getErrorIcon)
       return
     }
+    ScalaMoveUtil.saveMoveDestination(file, directory)
     new MoveClassesOrPackagesProcessor(
       project,
       Array[PsiElement](file.typeDefinitions.apply(0)),
