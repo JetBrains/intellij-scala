@@ -155,11 +155,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
   }
 
   private object ScalaListener extends ScalaProjectListener {
-    def onScalaAdded() {
-      configureWidget()
-    }
-
-    def onScalaRemoved() {
+    def onScalaProjectChanged() {
       configureWidget()
     }
   }

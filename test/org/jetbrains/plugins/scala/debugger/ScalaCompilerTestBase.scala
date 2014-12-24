@@ -8,12 +8,15 @@ import com.intellij.ProjectTopics
 import com.intellij.compiler.CompilerTestUtil
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager, CompilerMessageCategory}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.roots._
+import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.testFramework.{ModuleTestCase, PsiTestUtil, VfsTestUtil}
+import com.intellij.util.Processor
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
 import junit.framework.Assert
@@ -23,6 +26,7 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.template.Artifact
 import org.jetbrains.plugins.scala.util.TestUtils
 
+import scala.collection.immutable.HashSet
 import scala.collection.mutable.ListBuffer
 
 /**

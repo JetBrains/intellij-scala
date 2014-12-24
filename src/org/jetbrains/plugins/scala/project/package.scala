@@ -53,13 +53,36 @@ package object project {
   implicit class ModuleExt(module: Module) {
     def hasScala: Boolean = scalaSdk.isDefined
 
-    def scalaSdk: Option[ScalaSdk] = libraries.find(_.isScalaSdk).map(new ScalaSdk(_))
+    def scalaSdk: Option[ScalaSdk] =
+      ScalaProjectCache.instanceIn(module.getProject)
+              .getOrUpdate(module)(scalaSdk0)
 
-    def libraries: Set[Library] = inReadAction {
-      var libraries = HashSet.empty[Library]
+    // TODO start read action from the outer scopes
+    private def scalaSdk0: Option[ScalaSdk] = inReadAction {
+      var result: Option[ScalaSdk] = None
 
+      // TODO breadth-first search is preferable
       val enumerator = ModuleRootManager.getInstance(module)
               .orderEntries().recursively().librariesOnly().exportedOnly()
+
+      enumerator.forEachLibrary(new Processor[Library] {
+        override def process(library: Library) = {
+          if (library.isScalaSdk) {
+            result = Some(new ScalaSdk(library))
+            false
+          } else {
+            true
+          }
+        }
+      })
+
+      result
+    }
+
+    def libraries: Set[Library] = {
+      var libraries = HashSet.empty[Library]
+
+      val enumerator = ModuleRootManager.getInstance(module).orderEntries().librariesOnly()
 
       enumerator.forEachLibrary(new Processor[Library] {
         override def process(library: Library) = {
@@ -86,13 +109,15 @@ package object project {
   }
   
   implicit class ProjectExt(project: Project) {
-    def hasScala: Boolean = ModuleManager.getInstance(project).getModules.exists(_.hasScala)
+    private def modules: Seq[Module] = ModuleManager.getInstance(project).getModules.toSeq
 
-    def modulesWithScala: Seq[Module] = ModuleManager.getInstance(project).getModules.filter(_.hasScala)
+    def hasScala: Boolean = modules.exists(_.hasScala)
+
+    def modulesWithScala: Seq[Module] = modules.filter(_.hasScala)
 
     def scalaModules: Seq[ScalaModule] = modulesWithScala.map(new ScalaModule(_))
 
-    def anyScalaModule: Option[ScalaModule] = scalaModules.headOption
+    def anyScalaModule: Option[ScalaModule] = modules.find(_.hasScala).map(new ScalaModule(_))
 
     def scalaEvents: ScalaProjectEvents = project.getComponent(classOf[ScalaProjectEvents])
 
