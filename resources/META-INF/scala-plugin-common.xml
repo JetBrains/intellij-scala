@@ -33,6 +33,9 @@
         <debuggerEditorTextProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEditorTextProvider"/>
         <debugger.nodeRenderer implementation="org.jetbrains.plugins.scala.debugger.ui.ListLikeCollectionNodeRenderer"/>
         <debugger.nodeRenderer implementation="org.jetbrains.plugins.scala.debugger.ui.RuntimeRefRenderer"/>
+        <debugger.syntheticProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaSyntheticProvider"/>
+        <debugger.frameExtraVarsProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaFrameExtraVariablesProvider"/>
+        <debugger.extraSteppingFilter implementation="org.jetbrains.plugins.scala.debugger.ScalaSyntheticSteppingFilter"/>
         <generation.topLevelFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.impl.ScalaFactoryProvider"/>
         <treeCopyHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeUtilSupport"/>
         <iconProvider implementation="org.jetbrains.plugins.scala.components.ScalaIconProvider"/>
@@ -93,6 +96,7 @@
         <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaGlobalMembersCompletionContributor"
                                 order="before scalaClassNameCompletionContributor"/>
         <completion.confidence language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence"/>
+        <completion.confidence language="Scala" implementationClass="com.intellij.codeInsight.completion.SkipAutopopupInStrings"/>
         <statistician key="completion" order="first"
                       implementationClass="org.jetbrains.plugins.scala.lang.completion.statistician.ScalaCompletionStatistician"/>
         <lookup.actionProvider implementation="org.jetbrains.plugins.scala.lang.completion.ScalaImportStaticLookupActionProvider"/>
@@ -214,6 +218,9 @@
         <defaultLiveTemplatesProvider implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaDefaultLiveTemplatesProvider"/>
         <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaLiveTemplateContextType"/>
         <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaXmlContextType"/>
+        <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCommentContextType"/>
+        <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaStringContextType"/>
+        <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaVariableOfTypeMacro"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.SuggestScalaVariableNameMacro"/>
 

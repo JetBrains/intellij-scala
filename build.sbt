@@ -20,32 +20,9 @@ libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test"
 
 libraryDependencies ++= Seq(
   "org.apache.maven.indexer" % "indexer-core" % "5.1.1" % Compile,
-  "org.apache.maven.indexer" % "indexer-artifact" % "5.1.1" % Compile,
-  "org.apache.maven" % "maven-model" % "3.0.4" % Compile,
   "org.codehaus.plexus" % "plexus-container-default" % "1.5.5" % Compile,
-  "org.codehaus.plexus" % "plexus-classworlds" % "2.4" % Compile,
-  "org.codehaus.plexus" % "plexus-utils" % "3.0.8" % Compile,
-  "org.codehaus.plexus" % "plexus-component-annotations" % "1.5.5" % Compile,
-  "org.apache.lucene" % "lucene-core" % "3.6.2" % Compile,
-  "org.apache.lucene" % "lucene-highlighter" % "3.6.2" % Compile,
-  "org.apache.lucene" % "lucene-memory" % "3.6.2" % Compile,
-  "org.apache.lucene" % "lucene-queries" % "3.6.2" % Compile,
-  "jakarta-regexp" % "jakarta-regexp" % "1.4" % Compile,
-  "org.sonatype.aether" % "aether-api" % "1.13.1" % Compile,
-  "org.sonatype.aether" % "aether-util" % "1.13.1" % Compile,
   "org.sonatype.sisu" % "sisu-inject-plexus" % "2.2.3" % Compile,
-  "org.sonatype.sisu" % "sisu-inject-bean" % "2.2.3" % Compile,
-  ("org.sonatype.sisu" % "sisu-guice" % "3.0.3" classifier "no_aop") % Compile,
-  "org.apache.maven.wagon" % "wagon-http" % "2.6" % Compile,
-  "org.apache.maven.wagon" % "wagon-http-shared" % "2.6" % Compile,
-  "org.apache.maven.wagon" % "wagon-provider-api" % "2.6" % Compile,
-  "org.jsoup" % "jsoup" % "1.7.2" % Compile,
-  "commons-lang" % "commons-lang" % "2.6" % Compile,
-  "commons-io" % "commons-io" % "2.2" % Compile,
-  "org.apache.httpcomponents" % "httpclient" % "4.3.1" % Compile,
-  "org.apache.httpcomponents" % "httpcore" % "4.3" % Compile,
-  "commons-logging" % "commons-logging" % "1.1.3" % Compile,
-  "commons-codec" % "commons-codec" % "1.6" % Compile
+  "org.apache.maven.wagon" % "wagon-http" % "2.6" % Compile
 )
 
 unmanagedSourceDirectories in Compile += baseDirectory.value /  "src"
@@ -58,7 +35,7 @@ javacOptions in Global ++= Seq("-source", "1.6", "-target", "1.6")
 
 scalacOptions in Global += "-target:jvm-1.6"
 
-ideaVersion := "139.560.4"
+ideaVersion := "139.791.2"
 
 ideaBasePath in Global := baseDirectory.value / "SDK" / "ideaSDK" / s"idea-${ideaVersion.value}"
 
@@ -105,7 +82,8 @@ lazy val jps_plugin = Project( "scala-jps-plugin", file("jps-plugin")).dependsOn
   .settings(unmanagedJars in Compile := allIdeaJars.value)
 
 lazy val idea_runner = Project( "idea-runner", file("idea-runner"))
-  .settings(unmanagedJars in Compile := (ideaBasePath.value  / "lib" * "*.jar").classpath)
+  .settings(unmanagedJars in Compile := (ideaBasePath.value  / "lib" * "*.jar").classpath, autoScalaLibrary := false)
+  .dependsOn(Seq(compiler_settings, ScalaRunner, Runners, ScalaCommunity, jps_plugin, NailgunRunners).map(_ % Provided): _*)
 
 lazy val NailgunRunners = project.in(file( "NailgunRunners")).dependsOn(ScalaRunner)
 
@@ -158,7 +136,7 @@ downloadIdea := {
 
 fork in Test := true
 
-parallelExecution := true
+parallelExecution := false
 
 javaOptions in Test := Seq(
 //  "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005",

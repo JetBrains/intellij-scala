@@ -53,8 +53,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ResolveTargets, ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
@@ -1242,7 +1243,11 @@ object ScalaPsiUtil {
     }
     if (element == null) return
     if (element.isInstanceOf[ScImportStmt] || PsiTreeUtil.getParentOfType(element, classOf[ScImportStmt]) != null) return
-
+    val typeAliases = element match {
+      case typeElem: ScTypeElement => availableTypeAliases(element)
+      case _ => Set.empty
+    }
+    def typeAliasFor(clazz: PsiClass): Option[ScTypeAlias] = typeAliases.find(_.isAliasFor(clazz))
     for (child <- element.getChildren) {
       child match {
         case stableRef: ScStableCodeReferenceElement =>
@@ -1254,12 +1259,16 @@ object ScalaPsiUtil {
             case m: PsiMethod if m.isConstructor => update(m.getContainingClass)
             case named: PsiNamedElement if hasStablePath(named) =>
               named match {
-                case clazz: PsiClass => replaceStablePath(stableRef, clazz.name, Option(clazz.qualifiedName), clazz)
+                case clazz: PsiClass =>
+                  typeAliasFor(clazz) match {
+                    case Some(ta) => replaceStablePath(stableRef, ta.name, None, ta)
+                    case _ => replaceStablePath(stableRef, clazz.name, Option(clazz.qualifiedName), clazz)
+                  }
                 case typeAlias: ScTypeAlias => replaceStablePath(stableRef, typeAlias.name, None, typeAlias)
                 case binding: ScBindingPattern => replaceStablePath(stableRef, binding.name, None, binding)
-                case _ => adjustTypes(child)
+                case _ => adjustTypes(child, addImports)
               }
-            case _ => adjustTypes(child)
+            case _ => adjustTypes(child, addImports)
           }
           update(stableRef.resolve())
         case tp: ScTypeProjection =>
@@ -1271,10 +1280,10 @@ object ScalaPsiUtil {
                 //cannot use newTypeElement because of bug with indentation
                 tp.replace(ScalaPsiElementFactory.createTypeElementFromText(ScalaNamesUtil.scalaName(m), tp.getManager))
               }
-              else adjustTypes(child)
-            case _ => adjustTypes(child)
+              else adjustTypes(child, addImports)
+            case _ => adjustTypes(child, addImports)
           }
-        case _ => adjustTypes(child)
+        case _ => adjustTypes(child, addImports)
       }
     }
   }
@@ -1901,7 +1910,7 @@ object ScalaPsiUtil {
   def isPossiblyAssignment(elem: PsiElement): Boolean = elem.getContext match {
     case assign: ScAssignStmt if assign.getLExpression == elem => true
     case infix: ScInfixExpr if infix.isAssignmentOperator => true
-    case ref1 @ ScReferenceExpression.qualifier(`elem`) => ParserUtils.isAssignmentOperator(ref1.refName)
+    case ref1 @ ScReferenceExpression.withQualifier(`elem`) => ParserUtils.isAssignmentOperator(ref1.refName)
     case _ => false
   }
 
@@ -1953,6 +1962,24 @@ object ScalaPsiUtil {
       val newRef: ScStableCodeReferenceElement = ScalaPsiElementFactory.createReferenceFromText(suitableAliases.head, position.getManager)
       Some(newRef)
     } else None
+  }
+
+  def availableTypeAliases(position: PsiElement): Set[ScTypeAliasDefinition] = {
+    class CollectTypeAliasesProcessor extends BaseProcessor(ValueSet(ResolveTargets.CLASS)) {
+      val collected = mutable.Set.empty[ScTypeAliasDefinition]
+
+      override def execute(element: PsiElement, state: ResolveState): Boolean = {
+        element match {
+          case ta: ScTypeAliasDefinition =>
+            collected += ta
+          case _ =>
+        }
+        true
+      }
+    }
+    val processor = new CollectTypeAliasesProcessor
+    PsiTreeUtil.treeWalkUp(processor, position, null, ResolveState.initial())
+    processor.collected
   }
 
   def isViableForAssignmentFunction(fun: ScFunction): Boolean = {

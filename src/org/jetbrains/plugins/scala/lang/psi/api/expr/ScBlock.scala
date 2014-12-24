@@ -52,14 +52,13 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           val et = expectedType(fromUnderscore = false).getOrElse(return Failure("Cannot infer type without expected type", Some(this)))
           return et match {
             case f@ScFunctionType(_, params) =>
-              Success(ScFunctionType(clausesType, params.map(_.removeVarianceAbstracts(1)))(getProject, getResolveScope), Some(this))
+              Success(ScFunctionType(clausesType, params.map(_.removeVarianceAbstracts(1)))
+                (getProject, getResolveScope), Some(this))
+            case f@ScPartialFunctionType(_, param) =>
+              Success(ScPartialFunctionType(clausesType, param.removeVarianceAbstracts(1))
+                (getProject, getResolveScope), Some(this))
             case _ =>
-              ScType.extractPartialFunctionType(et) match {
-                case Some((des, param, _)) =>
-                  Success(ScParameterizedType(des, Seq(param.removeVarianceAbstracts(1), clausesType)), Some(this))
-                case None =>
-                  Failure("Cannot infer type without expected type of scala.FunctionN or scala.PartialFunction", Some(this))
-              }
+              Failure("Cannot infer type without expected type of scala.FunctionN or scala.PartialFunction", Some(this))
           }
       }
     }

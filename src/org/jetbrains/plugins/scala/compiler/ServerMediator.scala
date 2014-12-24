@@ -72,10 +72,14 @@ class ServerMediator(project: Project) extends ProjectComponent {
     val modulesWithClashes = ModuleManager.getInstance(project).getModules.toSeq.filter(hasClashes)
 
     if (modulesWithClashes.nonEmpty) {
-      val result = Messages.showYesNoDialog(project,
-        "Production and test output paths are shared in: " + modulesWithClashes.map(_.getName).mkString(" "),
-        "Shared compile output paths in Scala module(s)",
-        "Split output path(s) automatically", "Cancel compilation", Messages.getErrorIcon)
+      val result =
+        if (!ApplicationManager.getApplication.isUnitTestMode) {
+          Messages.showYesNoDialog(project,
+            "Production and test output paths are shared in: " + modulesWithClashes.map(_.getName).mkString(" "),
+            "Shared compile output paths in Scala module(s)",
+            "Split output path(s) automatically", "Cancel compilation", Messages.getErrorIcon)
+        }
+        else Messages.YES
 
       val splitAutomatically = result == Messages.YES
 

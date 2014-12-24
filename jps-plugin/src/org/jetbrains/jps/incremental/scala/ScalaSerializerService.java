@@ -80,8 +80,9 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
 
     @Override
     public LibrarySettings loadProperties(@Nullable Element propertiesElement) {
-      LibrarySettingsImpl.State state = XmlSerializer.deserialize(propertiesElement, LibrarySettingsImpl.State.class);
-      return state == null ? null : new LibrarySettingsImpl(state);
+      LibrarySettingsImpl.State state = propertiesElement == null? null :
+          XmlSerializer.deserialize(propertiesElement, LibrarySettingsImpl.State.class);
+      return new LibrarySettingsImpl(state == null? new LibrarySettingsImpl.State() : state);
     }
 
     @Override

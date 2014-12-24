@@ -19,7 +19,7 @@ class UnitReturn {
     val j = i
   }
 
-  def testMethodName {
+  def testMethodName: Unit = {
     1;
     ()
   }

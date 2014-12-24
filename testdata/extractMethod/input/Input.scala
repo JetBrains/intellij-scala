@@ -24,7 +24,7 @@ class Input {
     if (x == 1) return
   }
 
-  def testMethodName(x: Int, y: Int, z: String) {
+  def testMethodName(x: Int, y: Int, z: String): Unit = {
     if (z == "") {
       val g = y + 1
       print(g)

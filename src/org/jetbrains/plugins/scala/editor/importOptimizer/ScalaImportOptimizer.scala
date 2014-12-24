@@ -390,7 +390,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
               def iteration() {
                 currentGroupIndex += 1
                 while (groups(currentGroupIndex) == ScalaCodeStyleSettings.BLANK_LINE) {
-                  blankLines += "\n"
+                  blankLines += splitter
                   currentGroupIndex += 1
                 }
               }
@@ -398,7 +398,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
               currentGroupIndex = index
               blankLines + textCreator.getImportText(info, isUnicodeArrow, spacesInImports, sortImports)
             }
-          }.mkString(splitter)
+          }.mkString(splitter).replaceAll("""\n[ \t]+\n""", "\n\n")
           val newRange: TextRange = if (text.isEmpty) {
             var start = range.getStartOffset
             while (start > 0 && documentText(start - 1).isWhitespace) start = start - 1
