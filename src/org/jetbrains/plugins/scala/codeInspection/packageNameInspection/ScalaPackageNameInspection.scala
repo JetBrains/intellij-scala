@@ -32,7 +32,10 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
         if (pack == null) return null
 
         val packName = cleanKeywords(file.packageName)
-        val ranges: Seq[TextRange] = file.packagingRanges
+        val ranges: Seq[TextRange] = file.packagingRanges match {
+          case Seq() => file.typeDefinitions.map(_.nameId.getTextRange)
+          case seq => seq
+        }
 
         def problemDescriptors(buffer: Seq[LocalQuickFix]): Seq[ProblemDescriptor] = ranges.map { range =>
           manager.createProblemDescriptor(file, range,
