@@ -8,6 +8,8 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
+import scala.tools.scalap.scalax.util.StringUtil
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 08.07.2009
@@ -22,7 +24,7 @@ class ScalaRenamePackageQuickFix(file: ScalaFile, name: String) extends LocalQui
     }, project, "Rename Package QuickFix")
   }
 
-  def getName: String = "Rename Package to " + name
+  def getName: String = if (name == null || name.isEmpty) "Remove package statement" else s"Rename Package to $name"
 
   def getFamilyName: String = "Rename Package"
 }
