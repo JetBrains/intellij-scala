@@ -45,9 +45,6 @@ public class SbtSettingsPane {
 
         myBundledButton.setSelected(true);
 
-        myLauncherPath.addBrowseFolderListener("Choose a custom launcher", "Choose sbt-launch.jar", null,
-            FileChooserDescriptorFactory.createSingleLocalFileDescriptor());
-
         useIDEVMButton.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent itemEvent) {
@@ -63,10 +60,18 @@ public class SbtSettingsPane {
         });
 
         useCustomVMButton.setSelected(false);
+    }
+
+    // TODO: this is a workaround to fix SCL-8059 non-working "..." buttons
+    // Investigation needed to find out why path listeners are being removed.
+    public void setPathListeners() {
+        myLauncherPath.addBrowseFolderListener("Choose a custom launcher", "Choose sbt-launch.jar", null,
+            FileChooserDescriptorFactory.createSingleLocalFileDescriptor());
 
         customVMPath.addBrowseFolderListener("Choose a custom VM", "Choose JRE home directory", null,
             FileChooserDescriptorFactory.createSingleFolderDescriptor());
     }
+
 
     public JPanel getContentPanel() {
         return myContentPanel;
