@@ -9,6 +9,7 @@ import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemExcept
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
 import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
+import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
@@ -79,7 +80,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       else
         jdk map ScalaProjectData.Jdk
 
-    projectNode.add(new ScalaProjectNode(projectJdk, javacOptions, sbtVersion, root))
+    projectNode.add(new ScalaProjectNode(projectJdk, javacOptions, sbtVersion, FileUtil.toSystemIndependentName(root)))
 
     project.play2 map {
       case play2Data => projectNode.add(new Play2ProjectNode(play2Data.keys))
