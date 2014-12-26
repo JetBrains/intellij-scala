@@ -178,7 +178,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
         case None =>
       }
     }
-    buf.toSeq
+    SyntheticMembersInjector.inject(this) ++: buf.toSeq
   }
 
   private def copyMethodText: String = {
