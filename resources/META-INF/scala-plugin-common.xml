@@ -37,6 +37,7 @@
         <debugger.frameExtraVarsProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaFrameExtraVariablesProvider"/>
         <debugger.extraSteppingFilter implementation="org.jetbrains.plugins.scala.debugger.ScalaSyntheticSteppingFilter"/>
         <generation.topLevelFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.impl.ScalaFactoryProvider"/>
+        <generation.toStringClassFilter implementation="org.jetbrains.plugins.scala.codeInsight.generation.GenerateToStringScalaClassFilter"/>
         <treeCopyHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeUtilSupport"/>
         <iconProvider implementation="org.jetbrains.plugins.scala.components.ScalaIconProvider"/>
         <colorSettingsPage implementation="org.jetbrains.plugins.scala.highlighter.ScalaColorsAndFontsPage"/>
