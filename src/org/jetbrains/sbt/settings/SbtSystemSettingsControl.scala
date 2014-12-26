@@ -42,6 +42,7 @@ class SbtSystemSettingsControl(settings: SbtSystemSettings) extends ExternalSyst
     pane.setMyVmParameters(settings.vmParameters)
     pane.setCustomVMEnabled(settings.customVMEnabled)
     pane.setCustomVMPath(settings.customVMPath)
+    pane.setPathListeners()
   }
 
   def validate(settings: SbtSystemSettings) = true
