@@ -14,6 +14,8 @@ import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
 import scala.collection.JavaConverters._
@@ -47,13 +49,31 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
     val completionProcessor = new CollectingProcessor(elem)
     PsiTreeUtil.treeWalkUp(completionProcessor, elem, null, ResolveState.initial)
     val sorted = mutable.SortedSet()(Ordering.by[ScalaResolveResult, Int](_.getElement.getTextRange.getStartOffset))
-    completionProcessor.candidates.foreach(sorted += _)
+    completionProcessor.candidates.filter(canEvaluate(_, elem)).foreach(sorted += _)
     sorted
   }
 
   private def toTextWithImports(s: String) = {
     val xExpr = new XExpressionImpl(s, ScalaLanguage.Instance, "")
     TextWithImportsImpl.fromXExpression(xExpr)
+  }
+
+  private def canEvaluate(srr: ScalaResolveResult, place: PsiElement) = {
+    srr.getElement match {
+      case cp: ScClassParameter if !cp.isEffectiveVal =>
+        def notInThisClass(elem: PsiElement) = {
+          elem != null && !PsiTreeUtil.isAncestor(cp.containingClass, elem, true)
+        }
+        val funDef = PsiTreeUtil.getParentOfType(place, classOf[ScFunctionDefinition])
+        val lazyVal = PsiTreeUtil.getParentOfType(place, classOf[ScPatternDefinition]) match {
+          case null => null
+          case pd: ScPatternDefinition if pd.hasModifierProperty("lazy") => pd
+          case _  => null
+        }
+
+        notInThisClass(funDef) || notInThisClass(lazyVal)
+      case _ => true
+    }
   }
 
 }
