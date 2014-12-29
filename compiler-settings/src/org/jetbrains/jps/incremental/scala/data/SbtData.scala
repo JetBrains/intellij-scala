@@ -79,7 +79,10 @@ object SbtData {
 
   private def clean(dir: File): Unit = {
     try {
-      dir.listFiles().foreach(_.delete())
+      if (!dir.exists()) return
+      val files = dir.listFiles()
+      if (files != null)
+        files.foreach(_.delete())
     }
     catch {
       case _: IOException =>
