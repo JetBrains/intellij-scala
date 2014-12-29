@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions.implementation._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
@@ -250,6 +250,18 @@ package object extensions {
 
           PsiTypedDefinitionWrapper.processWrappersFor(t, concreteClassFor(t), node.info.name, isStatic, isInterface, processMethod, processName)
         case _ =>
+      }
+    }
+
+    def namedElements: Seq[PsiNamedElement] = {
+      clazz match {
+        case td: ScTemplateDefinition =>
+          td.members.flatMap {
+            case holder: ScDeclaredElementsHolder => holder.declaredElements
+            case named: ScNamedElement => Seq(named)
+            case _ => Seq.empty
+          }
+        case _ => clazz.getFields ++ clazz.getMethods
       }
     }
   }
