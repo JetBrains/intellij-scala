@@ -704,12 +704,20 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     resolve match {
       case isInsideLocalFunction(fun) if isLocalValue =>
         new ScalaDuplexEvaluator(calcLocal(), parameterEvaluator(fun, resolve))
+      case p: ScParameter if p.isCallByNameParameter && isLocalValue =>
+        val localEval = calcLocal()
+        new ScalaMethodEvaluator(localEval, "apply", null, Nil)
       case _ if isLocalValue =>
         calcLocal()
       case obj: ScObject =>
         objectEvaluator(obj, () => qualifierEvaluator(qualifier, ref))
       case _: PsiMethod | _: ScSyntheticFunction =>
         methodCallEvaluator(ref, Nil, Map.empty)
+      case cp: ScClassParameter if cp.isCallByNameParameter =>
+        val qualEval = qualifierEvaluator(qualifier, ref)
+        val name = NameTransformer.encode(cp.name)
+        val fieldEval = new ScalaFieldEvaluator(qualEval, _ => true, name, true)
+        new ScalaMethodEvaluator(fieldEval, "apply", null, Nil)
       case c: ScClassParameter if c.isPrivateThis =>
         //this is field if it's used outside of initialization
         //name of this field ends with $$ + c.getName
