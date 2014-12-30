@@ -66,28 +66,16 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
   }
 
   def addAnnotation(qualifiedName: String): PsiAnnotation = {
-    val simpleName = qualifiedName.lastIndexOf('.') |> { i =>
-      if (i >= 0) qualifiedName.drop(i + 1) else qualifiedName
-    }
-
     val container = findChildByClassScala(classOf[ScAnnotations])
 
-    val element = ScalaPsiElementFactory.createAnAnnotation(simpleName, getManager)
+    val element = ScalaPsiElementFactory.createAnAnnotation(qualifiedName, getManager)
 
-    container.add(element)
+    val added = container.add(element).asInstanceOf[PsiAnnotation]
     container.add(ScalaPsiElementFactory.createNewLine(getManager))
 
-    val unresolvedReferences = element.depthFirst
-            .findByType(classOf[ScReferenceElement]).filter(_.resolve() == null)
+    ScalaPsiUtil.adjustTypes(added, true)
 
-    for (topReference <- unresolvedReferences.headOption;
-         manager = JavaPsiFacade.getInstance(getProject);
-         annotationClass = manager.findClass(qualifiedName, topReference.getResolveScope)) {
-      val holder = ScalaImportTypeFix.getImportHolder(this, getProject)
-      holder.addImportForClass(annotationClass, topReference)
-    }
-
-    element
+    added
   }
 
   def findAnnotation(qualifiedName: String): PsiAnnotation = {
