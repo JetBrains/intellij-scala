@@ -358,23 +358,35 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
         case _ => None
       }
     }
+    def newParamName(p: ParameterInfo) = {
+      val oldIdx = p.getOldIndex
+      change match {
+        case jc: JavaChangeInfo if oldIdx >= 0 =>
+          val oldNameOfChanged = jc.getOldParameterNames()(oldIdx)
+          val oldNameOfCurrent = usage.parameters(oldIdx).name
+          if (oldNameOfChanged != oldNameOfCurrent) oldNameOfCurrent
+          else p.getName
+        case _ => p.getName
+      }
+    }
 
     val paramInfos = change.getNewParameters.toSeq
     val project = change.getMethod.getProject
     val params = paramInfos.map { p =>
-      val typedName = ScalaExtractMethodUtils.typedName(p.getName, paramType(p), project, byName = false)
+      val typedName = ScalaExtractMethodUtils.typedName(newParamName(p), paramType(p), project, byName = false)
       val default = scalaDefaultValue(p).fold("")(" = " + _)
       typedName + default
     }
     params.mkString("(", ", ", ")")
   }
 
+  private def isRepeated(p: ParameterInfo) = p match {
+    case p: ScalaParameterInfo => p.isRepeatedParameter
+    case p: JavaParameterInfo => p.isVarargType
+    case _ => false
+  }
+
   private def nonVarargArgs(change: ChangeInfo, oldArgsInfo: OldArgsInfo): Seq[String] = {
-    def isRepeated(p: ParameterInfo) = p match {
-      case p: ScalaParameterInfo => p.isRepeatedParameter
-      case p: JavaParameterInfo => p.isVarargType
-      case _ => false
-    }
 
     val isAddDefault = change match {
       case c: ScalaChangeInfo => c.isAddDefaultArgs

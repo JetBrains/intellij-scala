@@ -15,7 +15,7 @@ class LazyInput {
     /*end*/
   }
 
-  def testMethodName(x: => Int) {
+  def testMethodName(x: => Int): Unit = {
     x + 77
   }
 }

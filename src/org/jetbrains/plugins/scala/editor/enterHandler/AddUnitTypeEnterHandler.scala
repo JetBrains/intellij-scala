@@ -20,7 +20,7 @@ class AddUnitTypeEnterHandler extends EnterHandlerDelegateAdapter {
   override def postProcessEnter(file: PsiFile, editor: Editor, dataContext: DataContext): Result = {
     val project = file.getProject
     val scalaSettings = ScalaCodeStyleSettings.getInstance(project)
-    if (!scalaSettings.ENFORCE_PROCEDURE_SYNTAX_FOR_UNIT) return Result.Continue
+    if (!scalaSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT) return Result.Continue
 
     val caretModel = editor.getCaretModel
     val document = editor.getDocument

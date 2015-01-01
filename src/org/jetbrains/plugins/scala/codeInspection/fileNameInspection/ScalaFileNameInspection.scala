@@ -40,7 +40,8 @@ class ScalaFileNameInspection extends LocalInspectionTool {
     if (scalaFile.isScriptFile() || scalaFile.isWorksheetFile) return Array.empty
     val definitions = scalaFile.typeDefinitions
 
-    if (definitions.length > 1) return Array.empty
+    if (definitions.length > 2) return Array.empty
+    if (definitions.length == 2 && definitions(0).name != definitions(1).name) return Array.empty //with companion
 
     var hasProblems = true
     for (clazz <- definitions) {

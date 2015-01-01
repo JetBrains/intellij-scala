@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.semicolon
 
-import com.intellij.codeInspection.{LocalInspectionTool, ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.codeInspection.AbstractFix
+import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -66,10 +66,10 @@ class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool {
   }
 }
 
-class RemoveSemicolonFix(element: PsiElement)
-  extends AbstractFix("Remove unnecessary semicolon", element) {
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
-    if (!element.isValid) return
-    element.delete()
+class RemoveSemicolonFix(element: PsiElement) extends AbstractFixOnPsiElement("Remove unnecessary semicolon", element) {
+  def doApplyFix(project: Project) {
+    val elem = getElement
+    if (!elem.isValid) return
+    elem.delete()
   }
 }

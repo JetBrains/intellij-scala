@@ -136,7 +136,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
       }
     } else if (node.getElementType == ScalaElementTypes.SIMPLE_TYPE && node.getText == "Unit" &&
       node.getPsi.getParent.isInstanceOf[ScFunctionDefinition] &&
-      ScalaCodeStyleSettings.getInstance(node.getPsi.getProject).ENFORCE_PROCEDURE_SYNTAX_FOR_UNIT && ScalaCodeFoldingSettings.getInstance().isCollapseCustomRegions) {
+      ScalaCodeStyleSettings.getInstance(node.getPsi.getProject).ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT && ScalaCodeFoldingSettings.getInstance().isCollapseCustomRegions) {
 
       node.getPsi match {
         case sc: ScalaPsiElement =>

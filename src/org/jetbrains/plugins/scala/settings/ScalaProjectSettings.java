@@ -42,12 +42,15 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean DISABLE_LANGUAGE_INJECTION = true;
   private boolean DISABLE_I18N = false;
   private boolean DONT_CACHE_COMPOUND_TYPES = false;
+  private boolean AOT_COMPLETION = true;
   private boolean SCALA_CLASSES_PRIORITY = true;
+  private boolean GENERATE_TOSTRING_WITH_FIELD_NAMES = false;
 
   //WORKSHEET
   private int OUTPUT_LIMIT = 35;
   private boolean IN_PROCESS_MODE = true;
   private boolean INTERACTIVE_MODE = true;
+  private boolean USE_ECLIPSE_COMPATIBILITY = false;
 
   private Map<String, String> INTERPOLATED_INJECTION_MAPPING = new HashMap<String, String>();
 
@@ -190,6 +193,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     DISABLE_LANGUAGE_INJECTION = value;
   }
 
+  public boolean isAotCompletion() {
+    return AOT_COMPLETION;
+  }
+
+  public void setAotCOmpletion(boolean value) {
+    AOT_COMPLETION = value;
+  }
+
   public boolean isScalaPriority() {
     return SCALA_CLASSES_PRIORITY;
   }
@@ -234,5 +245,19 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setInteractiveMode(boolean interactiveMode) {
     INTERACTIVE_MODE = interactiveMode;
+  }
+
+  public boolean isUseEclipseCompatibility() {
+    return USE_ECLIPSE_COMPATIBILITY;
+  }
+
+  public void setUseEclipseCompatibility(boolean USE_ECLIPSE_COMPATIBILITY) {
+    this.USE_ECLIPSE_COMPATIBILITY = USE_ECLIPSE_COMPATIBILITY;
+  }
+
+  public boolean isGenerateToStringWithFieldNames() { return GENERATE_TOSTRING_WITH_FIELD_NAMES; }
+
+  public void setGenerateToStringWithFieldNames(boolean generateToStringWithFieldNames) {
+    this.GENERATE_TOSTRING_WITH_FIELD_NAMES = generateToStringWithFieldNames;
   }
 }

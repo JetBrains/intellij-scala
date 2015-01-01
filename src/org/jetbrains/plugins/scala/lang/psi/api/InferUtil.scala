@@ -30,6 +30,9 @@ import scala.collection.mutable.ArrayBuffer
  */
 
 object InferUtil {
+  val skipQualSet = Set("scala.reflect.ClassManifest", "scala.reflect.Manifest",
+    "scala.reflect.ClassTag", "scala.reflect.api.TypeTags.TypeTag",
+    "scala.reflect.api.TypeTags.WeakTypeTag")
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.api.InferUtil$")
   private def isDebugImplicitParameters = LOG.isDebugEnabled
   def logInfo(searchLevel: Int, message: => String) {
@@ -142,7 +145,7 @@ object InferUtil {
     while (iterator.hasNext) {
       val param = iterator.next()
       val paramType = abstractSubstitutor.subst(param.paramType) //we should do all of this with information known before
-      val collector = new ImplicitParametersCollector(place, paramType, coreElement, searchImplicitsRecursively)
+      val collector = new ImplicitParametersCollector(place, paramType, coreElement, isImplicitConversion = false, searchImplicitsRecursively)
       val results = collector.collect
       if (results.length == 1) {
         if (check && !results(0).isApplicable()) throw new SafeCheckException
@@ -186,9 +189,7 @@ object InferUtil {
           val result = paramType match {
             case p@ScParameterizedType(des, Seq(arg)) =>
               ScType.extractClass(des) match {
-                case Some(clazz) if clazz.qualifiedName == "scala.reflect.ClassManifest" ||
-                  clazz.qualifiedName == "scala.reflect.Manifest" ||
-                  clazz.qualifiedName == "scala.reflect.ClassTag" =>
+                case Some(clazz) if skipQualSet.contains(clazz.qualifiedName) =>
                   //do not throw, it's safe
                   new ScalaResolveResult(clazz, p.substitutor)
                 case _ => null

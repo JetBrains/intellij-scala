@@ -26,7 +26,7 @@ class CompilerConfigurationMonitor(project: Project) extends ProjectComponent {
 
   private def compilerConfiguration = CompilerWorkspaceConfiguration.getInstance(project)
 
-  private def compileServerConfiguration = ScalaApplicationSettings.getInstance
+  private def compileServerConfiguration = ScalaCompileServerSettings.getInstance
 
   private def isScalaProject = project.hasScala
 
@@ -57,12 +57,10 @@ class CompilerConfigurationMonitor(project: Project) extends ProjectComponent {
   }
 
   private object ScalaListener extends ScalaProjectListener {
-    def onScalaAdded() {
-      if (isCompileServerEnabled) {
+    def onScalaProjectChanged() {
+      if (project.hasScala && isCompileServerEnabled) {
         disableAutomake()
       }
     }
-
-    def onScalaRemoved() {}
   }
 }

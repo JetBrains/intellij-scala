@@ -4,7 +4,7 @@ package codeInspection.typeChecking
 import java.util.Comparator
 
 import com.intellij.codeInsight.PsiEquivalenceUtil
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
@@ -12,7 +12,7 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInspection.typeChecking.TypeCheckCanBeMatchInspection.{inspectionId, inspectionName}
 import org.jetbrains.plugins.scala.codeInspection.typeChecking.TypeCheckToMatchUtil._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
@@ -63,13 +63,16 @@ class TypeCheckCanBeMatchInspection extends AbstractInspection(inspectionId, ins
   }
 }
 
-class TypeCheckCanBeMatchQuickFix(isInstOfUnderFix: ScGenericCall, ifStmt: ScIfStmt) extends AbstractFix(inspectionName, isInstOfUnderFix) {
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
-    if (!ifStmt.isValid || !isInstOfUnderFix.isValid) return
-    val (matchStmtOption, renameData) = buildMatchStmt(ifStmt, isInstOfUnderFix, onlyFirst = true)
+class TypeCheckCanBeMatchQuickFix(isInstOfUnderFix: ScGenericCall, ifStmt: ScIfStmt)
+        extends AbstractFixOnTwoPsiElements(inspectionName, isInstOfUnderFix, ifStmt) {
+  def doApplyFix(project: Project) {
+    val isInstOf = getFirstElement
+    val ifSt = getSecondElement
+    if (!ifSt.isValid || !isInstOf.isValid) return
+    val (matchStmtOption, renameData) = buildMatchStmt(ifSt, isInstOf, onlyFirst = true)
     for (matchStmt <- matchStmtOption) {
       val newMatch = inWriteAction {
-        ifStmt.replaceExpression(matchStmt, removeParenthesis = true).asInstanceOf[ScMatchStmt]
+        ifSt.replaceExpression(matchStmt, removeParenthesis = true).asInstanceOf[ScMatchStmt]
       }
       if (!ApplicationManager.getApplication.isUnitTestMode) {
         val renameHelper = new InplaceRenameHelper(newMatch)

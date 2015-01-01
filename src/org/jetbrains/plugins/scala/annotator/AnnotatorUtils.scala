@@ -9,8 +9,6 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
 /**
  * @author Aleksander Podkhalyuzin
@@ -50,17 +48,6 @@ private[annotator] object AnnotatorUtils {
           "Type mismatch, found: %s, required: %s".format(actual.presentableText, expected.presentableText))
         annotation.registerFix(ReportHighlightingErrorQuickFix)
       }
-    }
-  }
-
-  def checkImplicitParametersAndBounds(paramOwner: ScTypeParametersOwner, parameters: Option[ScParameters], holder: AnnotationHolder) {
-    val hasImplicitBound = paramOwner.typeParameters.exists(_.hasImplicitBound)
-    val implicitToken: Option[PsiElement] = parameters.toList.flatMap(_.clauses).flatMap(_.implicitToken).headOption
-    (hasImplicitBound, implicitToken) match {
-      case (true, Some(element)) =>
-        val message = ScalaBundle.message("cannot.have.implicit.parameters.and.implicit.bounds")
-        holder.createErrorAnnotation(element, message)
-      case _ =>
     }
   }
 }

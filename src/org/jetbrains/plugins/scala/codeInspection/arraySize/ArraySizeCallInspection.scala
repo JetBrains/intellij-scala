@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package codeInspection.arraySize
 
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScParameterizedType}
@@ -23,10 +23,11 @@ class ArraySizeCallInspection extends AbstractInspection {
       }
   }
 
-  private class QuickFix(id: PsiElement) extends AbstractFix("Replace with \"length\"", id) {
-    def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
-      val ref = ScalaPsiElementFactory.createIdentifier("length", id.getManager)
-      id.replace(ref.getPsi)
+  private class QuickFix(id: PsiElement) extends AbstractFixOnPsiElement("Replace with \"length\"", id) {
+    def doApplyFix(project: Project) {
+      val elem = getElement
+      val ref = ScalaPsiElementFactory.createIdentifier("length", elem.getManager)
+      elem.replace(ref.getPsi)
     }
   }
 }

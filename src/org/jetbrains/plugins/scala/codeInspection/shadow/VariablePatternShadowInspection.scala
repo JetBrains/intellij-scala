@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package shadow
 
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
+import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiNamedElement, ResolveResult}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -35,9 +35,10 @@ class VariablePatternShadowInspection extends AbstractInspection("VariablePatter
   }
 }
 
-class ConvertToStableIdentifierPatternFix(ref: ScReferencePattern)
-        extends AbstractFix("Convert to Stable Identifier Pattern `%s`".format(ref.getText), ref) {
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+class ConvertToStableIdentifierPatternFix(r: ScReferencePattern)
+        extends AbstractFixOnPsiElement("Convert to Stable Identifier Pattern `%s`".format(r.getText), r) {
+  def doApplyFix(project: Project) {
+    val ref = getElement
     val stableIdPattern = ScalaPsiElementFactory.createPatternFromText("`%s`".format(ref.getText), ref.getManager)
     ref.replace(stableIdPattern)
   }

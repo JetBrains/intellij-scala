@@ -1,5 +1,5 @@
-Reading skeleton file "..\..\scaladoc\lexer\scaladoc.skeleton".
-Reading "..\..\scaladoc\lexer\scaladoc.flex"
+Reading skeleton file "../../scaladoc/lexer/scaladoc.skeleton".
+Reading "../../scaladoc/lexer/scaladoc.flex"
 
 Warning : Macro "stringLiteral" has been declared but never used.
 
@@ -12,8 +12,8 @@ Warning : Macro "scalaIdentifierWithPath" has been declared but never used.
 Warning : Macro "octalDigit" has been declared but never used.
 
 Warning : Macro "symbolLiteral" has been declared but never used.
-Constructing NFA : 1 119 states in NFA
+Constructing NFA : 1,119 states in NFA
 Converting NFA to DFA : 
 ......................................................................................................................................................................................................................................
 272 states before minimization, 129 states in minimized DFA
-Writing code to "..\..\scaladoc\lexer\_ScalaDocLexer.java"
+Writing code to "../../scaladoc/lexer/_ScalaDocLexer.java"

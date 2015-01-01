@@ -1,7 +1,7 @@
 package org.jetbrains.jps.incremental.scala
 package data
 
-import java.io.File
+import java.io._
 
 import org.jetbrains.jps.incremental.scala._
 
@@ -36,11 +36,56 @@ object SbtData {
 
               val interfacesHome = new File(new File(systemRoot, "scala-compiler-interfaces"), sbtVersion + "-idea")
 
+              val sourcesTimestamp = new File(interfacesHome, "sourcesTimestamp.dat")
+              val currentTimestamp = sourceJar.lastModified()
+              if (readLong(sourcesTimestamp) != Some(currentTimestamp)) {
+                clean(interfacesHome)
+                writeLongTo(sourcesTimestamp, currentTimestamp)
+              }
+
               new SbtData(interfaceJar, sourceJar, interfacesHome, javaClassVersion)
             }
           }
         }
       }
+    }
+  }
+
+  private def readLong(file: File): Option[Long] = {
+    if (!file.exists()) None
+    else {
+      using(new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) { in =>
+        try {
+          Some(in.readLong())
+        } catch {
+          case _: IOException | _: IllegalArgumentException | _: NullPointerException => None
+        }
+      }
+    }
+  }
+
+  private def writeLongTo(file: File, long: Long): Unit = {
+    try {
+      if (!file.exists()) file.createNewFile()
+
+      using(new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
+        _.writeLong(long)
+      }
+    }
+    catch {
+      case _: IOException =>
+    }
+  }
+
+  private def clean(dir: File): Unit = {
+    try {
+      if (!dir.exists()) return
+      val files = dir.listFiles()
+      if (files != null)
+        files.foreach(_.delete())
+    }
+    catch {
+      case _: IOException =>
     }
   }
 

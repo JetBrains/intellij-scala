@@ -31,18 +31,18 @@ class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
     if (ifStmt == null) return false
 
     val offset = editor.getCaretModel.getOffset
-    val thenBranch =  ifStmt.thenBranch.getOrElse(null)
-    val elseBranch =  ifStmt.elseBranch.getOrElse(null)
+    val thenBranch =  ifStmt.thenBranch.orNull
+    val elseBranch =  ifStmt.elseBranch.orNull
     if (thenBranch == null || elseBranch == null) return false
 
     if (!elseBranch.isInstanceOf[ScIfStmt]) return false
-    if (ifStmt.condition.getOrElse(null) == null) return false
+    if (ifStmt.condition.orNull == null) return false
 
     if (!(thenBranch.getTextRange.getEndOffset <= offset && offset <= elseBranch.getTextRange.getStartOffset) &&
     !(ifStmt.getTextRange.getStartOffset <= offset && offset <= ifStmt.condition.get.getTextRange.getStartOffset))
     return false
 
-    val innerThenBranch = elseBranch.asInstanceOf[ScIfStmt].thenBranch.getOrElse(null)
+    val innerThenBranch = elseBranch.asInstanceOf[ScIfStmt].thenBranch.orNull
     if (innerThenBranch == null) return false
 
     val comparator = new util.Comparator[PsiElement]() {
@@ -69,7 +69,7 @@ class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
     val outerCondition = ifStmt.condition.get.getText
     val innerIfStmt = ifStmt.elseBranch.get.asInstanceOf[ScIfStmt]
     val innerCondition = innerIfStmt.condition.get.getText
-    val innerElseBranch = innerIfStmt.elseBranch.getOrElse(null)
+    val innerElseBranch = innerIfStmt.elseBranch.orNull
 
     expr.append("if (").append(outerCondition).append(" || ").append(innerCondition).append(") ").
       append(ifStmt.thenBranch.get.getText)

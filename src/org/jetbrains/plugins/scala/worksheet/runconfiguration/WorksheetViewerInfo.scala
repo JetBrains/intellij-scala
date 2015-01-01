@@ -60,7 +60,7 @@ object WorksheetViewerInfo {
     synchronized {
       allViewers.get(editor) match {
         case null => null
-        case list => list.headOption.getOrElse(null)
+        case list => list.headOption.orNull
       }
     }
   }

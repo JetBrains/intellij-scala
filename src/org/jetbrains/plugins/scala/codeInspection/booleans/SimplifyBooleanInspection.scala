@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package codeInspection.booleans
 
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -30,13 +30,13 @@ class SimplifyBooleanInspection extends AbstractInspection("SimplifyBoolean", "S
 
 }
 
-class SimplifyBooleanQuickFix(expr: ScExpression) extends AbstractFix("Simplify " + getShortText(expr), expr) {
+class SimplifyBooleanQuickFix(expr: ScExpression) extends AbstractFixOnPsiElement("Simplify " + getShortText(expr), expr) {
 
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
-    if (!expr.isValid || !SimplifyBooleanUtil.canBeSimplified(expr)) return
-    else {
-      val simplified = SimplifyBooleanUtil.simplify(expr)
-      expr.replaceExpression(simplified, removeParenthesis = true)
+  def doApplyFix(project: Project) {
+    val scExpr = getElement
+    if (scExpr.isValid && SimplifyBooleanUtil.canBeSimplified(scExpr)) {
+      val simplified = SimplifyBooleanUtil.simplify(scExpr)
+      scExpr.replaceExpression(simplified, removeParenthesis = true)
     }
   }
 }

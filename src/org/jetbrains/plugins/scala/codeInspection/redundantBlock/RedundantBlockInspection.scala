@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package codeInspection.redundantBlock
 
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
+import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
@@ -49,19 +49,21 @@ class RedundantBlockInspection extends AbstractInspection {
       }
   }
 
-  private class QuickFix(e: PsiElement) extends AbstractFix("Unwrap the expression", e) {
-    def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
-      e.replace(e.getChildren.apply(1))
+  private class QuickFix(e: PsiElement) extends AbstractFixOnPsiElement("Unwrap the expression", e) {
+    def doApplyFix(project: Project) {
+      val elem = getElement
+      elem.replace(elem.getChildren.apply(1))
     }
   }
   
-  private class InCaseClauseQuickFix(block: ScBlock) extends AbstractFix("Remove redundant braces", block) {
-    def doApplyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
-      val children = block.getChildren.drop(1).dropRight(1)
+  private class InCaseClauseQuickFix(block: ScBlock) extends AbstractFixOnPsiElement("Remove redundant braces", block) {
+    def doApplyFix(project: Project): Unit = {
+      val bl = getElement
+      val children = bl.getChildren.drop(1).dropRight(1)
       for (child <- children) {
-        block.getParent.addBefore(child, block)
+        bl.getParent.addBefore(child, bl)
       }
-      block.delete()
+      bl.delete()
     }
   }
 }

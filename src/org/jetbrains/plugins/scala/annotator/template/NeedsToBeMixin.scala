@@ -52,7 +52,7 @@ object NeedsToBeMixin extends AnnotatorPart[ScTemplateDefinition] {
                     val place: PsiElement = element match {
                       case td: ScTypeDefinition => td.nameId
                       case t: ScNewTemplateDefinition =>
-                        t.extendsBlock.templateParents.flatMap(_.typeElements.headOption).getOrElse(null)
+                        t.extendsBlock.templateParents.flatMap(_.typeElements.headOption).orNull
                       case _ => null
                     }
                     if (place != null) {

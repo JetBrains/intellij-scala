@@ -19,8 +19,10 @@ trait ScParameterClause extends ScalaPsiElement {
 
   def parameters: Seq[ScParameter]
 
+  def effectiveParameters: Seq[ScParameter]
+
   //hack: no ClassParamList present at the moment
-  def unsafeClassParameters = parameters.asInstanceOf[Seq[ScClassParameter]]
+  def unsafeClassParameters = effectiveParameters.asInstanceOf[Seq[ScClassParameter]]
 
   def paramTypes: Seq[ScType] = parameters.map(_.getType(TypingContext.empty).getOrAny)
 
@@ -31,7 +33,7 @@ trait ScParameterClause extends ScalaPsiElement {
   def hasRepeatedParam: Boolean = parameters.length > 0 && parameters.apply(parameters.length - 1).isRepeatedParameter
 
   def getSmartParameters: Seq[Parameter] = {
-    parameters.zipWithIndex.map {
+    effectiveParameters.zipWithIndex.map {
       case (param, index) =>
         new Parameter(param.name, param.deprecatedName, param.getType(TypingContext.empty).getOrNothing,
           param.getType(TypingContext.empty).getOrNothing, param.isDefaultParam, param.isRepeatedParameter,

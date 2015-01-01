@@ -160,7 +160,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
 
   private def syntheticMembersImpl: Seq[PsiMethod] = {
     val buf = new ArrayBuffer[PsiMethod]
-    if (isCase && parameters.length > 0) {
+    if (isCase && !hasModifierProperty("abstract") && parameters.length > 0) {
       constructor match {
         case Some(x: ScPrimaryConstructor) =>
           val hasCopy = !TypeDefinitionMembers.getSignatures(this).forName("copy")._1.isEmpty
@@ -178,7 +178,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
         case None =>
       }
     }
-    buf.toSeq
+    SyntheticMembersInjector.inject(this) ++: buf.toSeq
   }
 
   private def copyMethodText: String = {

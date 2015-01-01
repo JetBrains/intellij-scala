@@ -20,7 +20,7 @@ class RemoteServer(val address: InetAddress, val port: Int) extends Server with 
       case e: ConnectException =>
         val message = "Cannot connect to compile server at %s:%s\nTrying to compile without it".format(address.toString, port)
         client.warning(message)
-        ScalaBuilderDelegate.localServer.compile(sbtData, compilerData, compilationData, client)
+        ScalaBuilder.localServer.compile(sbtData, compilerData, compilationData, client)
       case e: UnknownHostException =>
         val message = "Unknown IP address of compile server host: " + address.toString
         client.error(message)

@@ -306,14 +306,12 @@ trait ScPattern extends ScalaPsiElement {
                 case ScFunctionType(_, params) =>
                   val tt = ScTupleType(params)(getProject, getResolveScope)
                   Some(tt)
-                case _ =>
-                  ScType.extractPartialFunctionType(et) match {
-                    case Some((des, param, _)) => Some(param)
-                    case None => None
-                  }
+                case ScPartialFunctionType(_, param) => Some(param)
+                case _ => None
               }
             case None => None
           }
+        case _ => None
       }
       case named: ScNamingPattern => named.expectedType
       case gen: ScGenerator =>

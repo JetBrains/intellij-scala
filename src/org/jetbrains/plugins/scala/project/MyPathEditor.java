@@ -28,8 +28,9 @@ public class MyPathEditor extends PathEditor {
   private static List<VirtualFile> pathsToVirtualFiles(String[] urls) {
     List<VirtualFile> result = new ArrayList<VirtualFile>(urls.length);
     for (String url : urls) {
-      VirtualFile file = VfsUtil.findFileByIoFile(new File(VfsUtil.urlToPath(url)), true);
-      result.add(file);
+      String path = VfsUtil.urlToPath(url);
+      VirtualFile file = VfsUtil.findFileByIoFile(new File(path), true);
+      result.add(file == null ? new AbsentLocalFile(url, path) : file);
     }
     return result;
   }

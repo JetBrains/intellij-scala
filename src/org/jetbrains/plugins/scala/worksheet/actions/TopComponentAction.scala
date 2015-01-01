@@ -36,24 +36,26 @@ trait TopComponentAction {
   
   def init(panel: JPanel) {
     val presentation = getTemplatePresentation
-    
+
+    presentation setIcon actionIcon
+    presentation setEnabled true
+
     val text = shortcutId flatMap {
       case id =>
         KeymapManager.getInstance.getActiveKeymap.getShortcuts(id).headOption map {
-          case shortcut => 
-            genericText + (" (" + KeymapUtil.getShortcutText(shortcut) + ")")  
+          case shortcut =>
+            genericText + (" (" + KeymapUtil.getShortcutText(shortcut) + ")")
         }
     } getOrElse genericText
 
-    val actionButton = getActionButton
-
     presentation setText text
-    presentation setIcon actionIcon
-    presentation setEnabled true
+
+    val actionButton = getActionButton
 
     ApplicationManager.getApplication.invokeAndWait(new Runnable {
       override def run() {
         panel.add(actionButton, 0)
+        actionButton.setEnabled(true)
       }
     }, ModalityState.any())
   }
@@ -73,12 +75,20 @@ trait TopComponentAction {
 
     try {
       val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
-      val psiFile = extensions.inReadAction(PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument))
 
-      psiFile match {
-        case sf: ScalaFile if sf.isWorksheetFile => enable()
-        case _ => disable()
+      extensions.inReadAction {
+        PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument) match {
+          case sf: ScalaFile if sf.isWorksheetFile => enable()
+          case _ => disable()
+        }
       }
+//
+//      val psiFile = extensions.inReadAction(PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument))
+//
+//      psiFile match {
+//        case sf: ScalaFile if sf.isWorksheetFile => enable()
+//        case _ => disable()
+//      }
     } catch {
       case e: Exception => disable()
     }

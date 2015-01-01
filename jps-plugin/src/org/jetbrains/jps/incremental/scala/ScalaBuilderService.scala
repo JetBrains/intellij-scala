@@ -12,10 +12,10 @@ import org.jetbrains.jps.incremental._
 class ScalaBuilderService extends BuilderService {
   @NotNull
   override def createModuleLevelBuilders: util.List[_ <: ModuleLevelBuilder] = {
-    util.Arrays.asList[ScalaBuilder](
-      new ScalaBuilder(BuilderCategory.SOURCE_PROCESSOR, IdeaIncrementalBuilder),
-      new ScalaBuilder(BuilderCategory.OVERWRITING_TRANSLATOR, IdeaIncrementalBuilder),
-      new ScalaBuilder(BuilderCategory.TRANSLATOR, SbtBuilder)
+    util.Arrays.asList[ModuleLevelBuilder](
+      new IdeaIncrementalBuilder(BuilderCategory.SOURCE_PROCESSOR),
+      new IdeaIncrementalBuilder(BuilderCategory.OVERWRITING_TRANSLATOR),
+      new SbtBuilder
     )
   }
 }

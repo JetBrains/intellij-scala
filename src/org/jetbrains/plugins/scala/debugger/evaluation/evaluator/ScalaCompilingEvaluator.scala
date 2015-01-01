@@ -186,6 +186,9 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
     val copy = PsiFileFactory.getInstance(project).createFileFromText(file.getName, file.getFileType, file.getText, file.getModificationStamp, false)
     val range = context.getTextRange
     val copyContext: PsiElement = CodeInsightUtilCore.findElementInRange(copy, range.getStartOffset, range.getEndOffset, context.getClass, file.getLanguage)
+
+    if (copyContext == null) throw EvaluationException("Could not evaluate due to a change in a source file")
+
     val clazz = localClass(fragment, copyContext)
     addLocalClass(copyContext, clazz)
     compileGeneratedClass(copy.getText)
@@ -193,9 +196,13 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
   
   private def compileGeneratedClass(fileText: String): Unit = {
     val module = inReadAction(ModuleUtilCore.findModuleForPsiElement(context))
-    val helper = ScalaEvaluatorCompileHelper.instance(project)
-    val file = helper.writeToTempFile(fileText)
-    val compiled = helper.compile(file, module)
+
+    if (module == null) throw EvaluationException("Could not evaluate due to a change in a source file")
+
+    val helper = EvaluatorCompileHelper.EP_NAME.getExtensions.headOption.getOrElse {
+      ScalaEvaluatorCompileHelper.instance(project)
+    }
+    val compiled = helper.compile(fileText, module)
     compiledClasses = compiled.collect {
       case (f, name) if name.contains(generatedClassName) => new OutputFileObject(f, name)
     }

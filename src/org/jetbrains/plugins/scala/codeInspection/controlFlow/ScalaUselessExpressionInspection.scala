@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala
 package codeInspection.controlFlow
 
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
+import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUselessExpressionInspection._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection, RemoveElementQuickFix}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, RemoveElementQuickFix}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScCaseClauses}
@@ -18,9 +18,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
  * Nikolay.Tropin
@@ -28,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
  */
 class ScalaUselessExpressionInspection extends AbstractInspection("ScalaUselessExpression", "Useless expression") {
   override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case expr: ScExpression =>
+    case expr: ScExpression if IntentionAvailabilityChecker.checkInspection(this, expr.getParent) =>
       if (canResultInSideEffectsOnly(expr) && exprHasNoSideEffects(expr)) {
         val message = "Useless expression"
         val removeElemFix = new RemoveElementQuickFix("Remove expression", expr)
@@ -77,7 +78,7 @@ class ScalaUselessExpressionInspection extends AbstractInspection("ScalaUselessE
       checkOperation && exprHasNoSideEffects(baseExpr) && args.forall(exprHasNoSideEffects)
     case ScMethodCall(baseExpr, args) =>
       val (checkQual, typeOfQual) = baseExpr match {
-        case ScReferenceExpression.qualifier(qual) => (exprHasNoSideEffects(qual), qual.getType().toOption)
+        case ScReferenceExpression.withQualifier(qual) => (exprHasNoSideEffects(qual), qual.getType().toOption)
         case _ => (true, None)
       }
       val checkBaseExpr = baseExpr match {
@@ -165,8 +166,9 @@ class ScalaUselessExpressionInspection extends AbstractInspection("ScalaUselessE
   }
 }
 
-class AddReturnQuickFix(expr: ScExpression) extends AbstractFix("Add return keyword", expr) {
-  override def doApplyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
+class AddReturnQuickFix(e: ScExpression) extends AbstractFixOnPsiElement("Add return keyword", e) {
+  override def doApplyFix(project: Project): Unit = {
+    val expr = getElement
     val retStmt = ScalaPsiElementFactory.createExpressionWithContextFromText(s"return ${expr.getText}", expr.getContext, expr)
     expr.replaceExpression(retStmt, removeParenthesis = true)
   }

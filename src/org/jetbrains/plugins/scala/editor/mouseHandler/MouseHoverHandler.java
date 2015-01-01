@@ -64,7 +64,7 @@ import org.intellij.lang.annotations.JdkConstants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.actions.ShowTypeInfoAction;
-import org.jetbrains.plugins.scala.compiler.ScalaApplicationSettings;
+import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import scala.Option;
 
@@ -160,7 +160,7 @@ public class MouseHoverHandler extends AbstractProjectComponent {
           myTooltipProvider = new TooltipProvider(finalEditor, pos);
           myTooltipProvider.execute(browseMode);
         }
-      }, ScalaApplicationSettings.getInstance().SHOW_TYPE_TOOLTIP_DELAY);
+      }, ScalaCompileServerSettings.getInstance().SHOW_TYPE_TOOLTIP_DELAY);
     }
   };
 
@@ -333,7 +333,7 @@ public class MouseHoverHandler extends AbstractProjectComponent {
 
     private boolean isShowTooltip() {
         return !PowerSaveMode.isEnabled() &&
-                ScalaApplicationSettings.getInstance().SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER;
+                ScalaCompileServerSettings.getInstance().SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER;
     }
 
     private void fulfillDocInfo(@NotNull final String header,

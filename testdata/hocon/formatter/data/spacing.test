@@ -50,6 +50,6 @@ sub = ${path.more}
 sub = ${path.more}
 sub = ${?path.more}
 include file("sth")
-include        file("sth")
-include   file("sth")
+include file("sth")
+include file("sth")
 concat = sth    more   " more quoted "   ${sub}

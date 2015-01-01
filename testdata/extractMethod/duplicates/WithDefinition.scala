@@ -27,7 +27,7 @@ object WithDefinition {
     /*end*/
   }
 
-  def testMethodName(i: Int) {
+  def testMethodName(i: Int): Unit = {
     def bar = {
       val y = 0
       y + 1

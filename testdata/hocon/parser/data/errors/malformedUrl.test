@@ -1,11 +1,11 @@
 include url("unknownProtocol")
 -----
 HOCON_FILE
-  HoconPsiElement(OBJECT_ENTRIES)
-    HoconPsiElement(INCLUDE)
+  HObjectEntries(OBJECT_ENTRIES)
+    HInclude(INCLUDE)
       PsiElement(UNQUOTED_CHARS)('include')
       PsiWhiteSpace(' ')
-      HoconPsiElement(INCLUDED)
+      HIncluded(INCLUDED)
         PsiElement(UNQUOTED_CHARS)('url(')
         PsiErrorElement:no protocol: unknownProtocol
           PsiElement(QUOTED_STRING)('"unknownProtocol"')

@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package codeInspection.booleans
 
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScParenthesisedExpr, ScPrefixExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
@@ -25,12 +25,14 @@ class DoubleNegationInspection extends AbstractInspection("DoubleNegation", "Dou
   }
 }
 
-class DoubleNegationQuickFix(expr: ScExpression) extends AbstractFix("Remove double negation", expr){
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
-    if (!expr.isValid || !DoubleNegationUtil.hasDoubleNegation(expr)) return
+class DoubleNegationQuickFix(expr: ScExpression)
+        extends AbstractFixOnPsiElement("Remove double negation", expr){
+  def doApplyFix(project: Project) {
+    val scExpr = getElement
+    if (!scExpr.isValid || !DoubleNegationUtil.hasDoubleNegation(scExpr)) return
 
-    val newExpr = DoubleNegationUtil.removeDoubleNegation(expr)
-    expr.replaceExpression(newExpr, removeParenthesis = true)
+    val newExpr = DoubleNegationUtil.removeDoubleNegation(scExpr)
+    scExpr.replaceExpression(newExpr, removeParenthesis = true)
   }
 }
 

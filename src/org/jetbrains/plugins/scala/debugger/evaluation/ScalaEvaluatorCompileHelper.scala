@@ -12,22 +12,20 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerConnectorBase, RemoteServerRunner, ScalaApplicationSettings}
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerConnectorBase, RemoteServerRunner, ScalaCompileServerSettings}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
-import scala.concurrent.duration.Duration
 import scala.concurrent._
+import scala.concurrent.duration.Duration
 import scala.util.{Failure, Try}
 
 /**
  * Nikolay.Tropin
  * 2014-10-07
  */
-class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectComponent(project) {
-
-  def isCompileServerEnabled = ScalaApplicationSettings.getInstance().COMPILE_SERVER_ENABLED
+class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectComponent(project) with EvaluatorCompileHelper {
 
   private val tempFiles = mutable.Set[File]()
 
@@ -35,7 +33,9 @@ class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectCompo
     DebuggerManagerEx.getInstanceEx(project).addDebuggerManagerListener(
       new DebuggerManagerAdapter {
         override def sessionAttached(session: DebuggerSession): Unit = {
-          CompileServerLauncher.ensureServerRunning(project)
+          if (EvaluatorCompileHelper.needCompileServer) {
+            CompileServerLauncher.ensureServerRunning(project)
+          }
         }
 
         override def sessionDetached(session: DebuggerSession) = {
@@ -43,7 +43,7 @@ class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectCompo
             FileUtil.delete(f)
           }
 
-          if (!ScalaApplicationSettings.getInstance().COMPILE_SERVER_ENABLED) {
+          if (!ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED && EvaluatorCompileHelper.needCompileServer) {
             CompileServerLauncher.ensureNotRunning(project)
           }
         }
@@ -63,8 +63,9 @@ class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectCompo
     file
   }
 
-  def compile(file: File, module: Module): Array[(File, String)] = {
+  def compile(fileText: String, module: Module): Array[(File, String)] = {
     val outputDir = tempDir()
+    val file = writeToTempFile(fileText)
     val connector = new ServerConnector(module, file, outputDir)
     val futureFiles = connector.compile()
     try Await.result(futureFiles, Duration(5, TimeUnit.SECONDS))

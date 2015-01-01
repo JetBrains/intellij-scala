@@ -1,9 +1,14 @@
 package org.jetbrains.plugins.scala
 package project
 
-import java.io.{Closeable, File}
+import java.io.{Closeable, File, FileWriter, PrintWriter}
 
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.util.PathUtil
+import org.apache.commons.io.FileUtils
+
+import scala.reflect.ClassTag
 
 /**
  * @author Pavel Fatin
@@ -14,6 +19,39 @@ package object template {
       block(resource)
     } finally {
       resource.close()
+    }
+  }
+
+  def usingTempFile[T](prefix: String, suffix: Option[String] = None)(block: File => T): T = {
+    val file = FileUtil.createTempFile(prefix, suffix.orNull, true)
+    try {
+      block(file)
+    } finally {
+      file.delete()
+    }
+  }
+
+  def usingTempDirectory[T](prefix: String, suffix: Option[String] = None)(block: File => T): T = {
+    val directory = FileUtil.createTempDirectory(prefix, suffix.orNull, true)
+    try {
+      block(directory)
+    } finally {
+      FileUtils.deleteDirectory(directory)
+    }
+  }
+
+  def writeLinesTo(file: File, lines: String*) {
+    using(new PrintWriter(new FileWriter(file))) { writer =>
+      lines.foreach(writer.println)
+      writer.flush()
+    }
+  }
+
+  def jarWith[T : ClassTag]: File = {
+    val tClass = implicitly[ClassTag[T]].runtimeClass
+
+    Option(PathUtil.getJarPathForClass(tClass)).map(new File(_)).getOrElse {
+      throw new RuntimeException("Jar file not found for class " + tClass.getName)
     }
   }
 

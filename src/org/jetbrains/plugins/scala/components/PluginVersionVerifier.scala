@@ -4,8 +4,8 @@ package components
 import javax.swing.SwingUtilities
 import javax.swing.event.HyperlinkEvent
 
+import com.intellij.ide.plugins._
 import com.intellij.ide.plugins.cl.PluginClassLoader
-import com.intellij.ide.plugins.{PluginManager, PluginManagerConfigurable, PluginManagerCore}
 import com.intellij.notification._
 import com.intellij.openapi.application.{Application, ApplicationManager}
 import com.intellij.openapi.components.ApplicationComponent
@@ -32,6 +32,15 @@ object ScalaPluginVersionVerifier {
       case _ => "Unknown"
     }
   }
+
+  def getPluginDescriptor = {
+    getClass.getClassLoader match {
+      case pluginLoader: PluginClassLoader =>
+        PluginManager.getPlugin(pluginLoader.getPluginId).asInstanceOf[IdeaPluginDescriptorImpl]
+      case other => throw new RuntimeException(s"Wrong plugin classLoader: $other")
+    }
+
+  }
 }
 
 object ScalaPluginVersionVerifierApplicationComponent {
@@ -52,6 +61,7 @@ class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponen
         else false
       }
     }
+
     def parseVersion(version: String): Option[Version] = {
       val VersionRegex = "([0-9]*)[.]([0-9]*)[.]([0-9]*)".r
       version match {
@@ -123,6 +133,7 @@ class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponen
           }
         case None          =>
       }
+      ScalaPluginUpdater.askUpdatePluginBranch()
     }
     SwingUtilities.invokeLater(new Runnable {
       def run() {

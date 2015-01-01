@@ -42,14 +42,14 @@ class ScalaDocUnknownTagInspection extends LocalInspectionTool {
 }
 
 
-class ScalaDocDeleteUnknownTagInspection(unknownTag: ScDocTag) extends LocalQuickFix {
-  def getName: String = "Delete Unknown Tag"
+class ScalaDocDeleteUnknownTagInspection(unknownTag: ScDocTag)
+        extends AbstractFixOnPsiElement(ScalaBundle.message("delete.unknown.tag"), unknownTag) {
+  override def getFamilyName: String = InspectionsUtil.SCALADOC
 
-  def getFamilyName: String = InspectionsUtil.SCALADOC
-
-  def applyFix(project: Project, descriptor: ProblemDescriptor) {
-    if (unknownTag.isValid) {
-      unknownTag.delete()
+  def doApplyFix(project: Project) {
+    val tag = getElement
+    if (tag.isValid) {
+      tag.delete()
     }
   }
 }

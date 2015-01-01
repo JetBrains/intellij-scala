@@ -279,8 +279,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
             while (i + 1 < buffer.length) {
               val l: String = buffer(i).prefixQualifier
               val r: String = buffer(i + 1).prefixQualifier
-              val lText = getImportTextCreator.getImportText(buffer(i), isUnicodeArrow, spacesInImports)
-              val rText = getImportTextCreator.getImportText(buffer(i + 1), isUnicodeArrow, spacesInImports)
+              val lText = getImportTextCreator.getImportText(buffer(i), isUnicodeArrow, spacesInImports, sortImports)
+              val rText = getImportTextCreator.getImportText(buffer(i + 1), isUnicodeArrow, spacesInImports, sortImports)
               if (greater(l, r, lText, rText, project) && swap(i)) changed = true
               i = i + 1
             }
@@ -384,21 +384,21 @@ class ScalaImportOptimizer extends ImportOptimizer {
           var currentGroupIndex = -1
           val text = importInfos.map { info =>
             val index: Int = findGroupIndex(info.prefixQualifier, project)
-            if (index <= currentGroupIndex) textCreator.getImportText(info, isUnicodeArrow, spacesInImports)
+            if (index <= currentGroupIndex) textCreator.getImportText(info, isUnicodeArrow, spacesInImports, sortImports)
             else {
               var blankLines = ""
               def iteration() {
                 currentGroupIndex += 1
                 while (groups(currentGroupIndex) == ScalaCodeStyleSettings.BLANK_LINE) {
-                  blankLines += "\n"
+                  blankLines += splitter
                   currentGroupIndex += 1
                 }
               }
               while (currentGroupIndex != -1 && blankLines.isEmpty && currentGroupIndex < index) iteration()
               currentGroupIndex = index
-              blankLines + textCreator.getImportText(info, isUnicodeArrow, spacesInImports)
+              blankLines + textCreator.getImportText(info, isUnicodeArrow, spacesInImports, sortImports)
             }
-          }.mkString(splitter)
+          }.mkString(splitter).replaceAll("""\n[ \t]+\n""", "\n\n")
           val newRange: TextRange = if (text.isEmpty) {
             var start = range.getStartOffset
             while (start > 0 && documentText(start - 1).isWhitespace) start = start - 1
@@ -483,7 +483,8 @@ object ScalaImportOptimizer {
   }
 
   class ImportTextCreator {
-    def getImportText(importInfo: ImportInfo, isUnicodeArrow: Boolean, spacesInImports: Boolean): String = {
+    def getImportText(importInfo: ImportInfo, isUnicodeArrow: Boolean, spacesInImports: Boolean, 
+                      sortLexicografically: Boolean): String = {
       import importInfo._
 
       val groupStrings = new ArrayBuffer[String]
@@ -491,7 +492,7 @@ object ScalaImportOptimizer {
       val arrow = if (isUnicodeArrow) ScalaTypedHandler.unicodeCaseArrow else "=>"
       groupStrings ++= renames.map(pair => s"${pair._1} $arrow ${pair._2}")
       groupStrings ++= hidedNames.map(_ + s" $arrow _")
-      val sortedGroupStrings = groupStrings.sorted
+      val sortedGroupStrings = if (sortLexicografically) groupStrings.sorted else groupStrings
       if (hasWildcard) sortedGroupStrings += "_"
       val space = if (spacesInImports) " " else ""
       val root = if (rootUsed) "_root_." else ""

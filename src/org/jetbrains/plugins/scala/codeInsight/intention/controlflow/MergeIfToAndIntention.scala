@@ -28,11 +28,11 @@ class MergeIfToAndIntention extends PsiElementBaseIntentionAction {
     if (ifStmt == null) return false
 
     val offset = editor.getCaretModel.getOffset
-    val thenBranch =  ifStmt.thenBranch.getOrElse(null)
-    val elseBranch =  ifStmt.elseBranch.getOrElse(null)
+    val thenBranch =  ifStmt.thenBranch.orNull
+    val elseBranch =  ifStmt.elseBranch.orNull
     if (thenBranch == null || elseBranch != null) return false
 
-    val condition = ifStmt.condition.getOrElse(null)
+    val condition = ifStmt.condition.orNull
     if (condition == null) return false
 
     if (!(ifStmt.getTextRange.getStartOffset <= offset &&
@@ -44,12 +44,12 @@ class MergeIfToAndIntention extends PsiElementBaseIntentionAction {
         if (exprs.size != 1 || !exprs(0).isInstanceOf[ScIfStmt]) return false
 
         val innerIfStmt = exprs(0).asInstanceOf[ScIfStmt]
-        val innerElseBranch = innerIfStmt.elseBranch.getOrElse(null)
+        val innerElseBranch = innerIfStmt.elseBranch.orNull
         if (innerElseBranch != null) return false
         true
 
       case branch: ScIfStmt =>
-        val innerElseBranch = branch.elseBranch.getOrElse(null)
+        val innerElseBranch = branch.elseBranch.orNull
         if (innerElseBranch != null) return false
         true
 

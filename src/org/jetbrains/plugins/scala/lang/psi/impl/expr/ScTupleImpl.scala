@@ -24,15 +24,6 @@ class ScTupleImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTuple 
       Success(tupleType, Some(this))
     }
 
-  def possibleApplications: Array[Array[(String, ScType)]] = {
-    getContext match {
-      case call: ScInfixExpr if isCall => {
-        call.possibleApplications
-      }
-      case _ => Array.empty //todo: constructor
-    }
-  }
-
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitTupleExpr(this)
   }

@@ -21,17 +21,24 @@ case class CompilerData(compilerJars: Option[CompilerJars], javaHome: Option[Fil
 object CompilerData {
   def from(context: CompileContext, chunk: ModuleChunk): Either[String, CompilerData] = {
     val project = context.getProjectDescriptor
-    val model = project.getModel
     val target = chunk.representativeTarget
     val module = target.getModule
 
-    val compilerJars =
-      if (SettingsManager.hasScalaSdk(module)) compilerJarsIn(module).map(Some(_))
-      else Right(None)
+    val compilerJars = if (SettingsManager.hasScalaSdk(module)) {
+      compilerJarsIn(module).flatMap { case jars: CompilerJars =>
+        val absentJars = jars.files.filter(!_.exists)
+        Either.cond(absentJars.isEmpty,
+          Some(jars),
+          "Scala compiler JARs not found (module '" + chunk.representativeTarget().getModule.getName + "'): "
+                  + absentJars.map(_.getPath).mkString(", "))
+      }
+    } else {
+      Right(None)
+    }
 
     compilerJars.flatMap { jars =>
-      val incrementalType = SettingsManager.getProjectSettings(project.getProject).getIncrementalityType
-      javaHome(context, module).map(CompilerData(jars, _, incrementalType))
+      val incrementalityType = SettingsManager.getProjectSettings(project.getProject).getIncrementalityType
+      javaHome(context, module).map(CompilerData(jars, _, incrementalityType))
     }
   }
 

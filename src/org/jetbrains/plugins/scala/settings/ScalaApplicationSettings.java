@@ -9,7 +9,9 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.updateSettings.impl.UpdateChecker;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import org.jetbrains.plugins.scala.components.ScalaPluginUpdater;
 
 @State(
     name = "ScalaApplicationSettings",
@@ -50,6 +52,32 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public boolean INSERT_MULTILINE_QUOTES = true;
 
   public boolean MOVE_COMPANION = true;
+
+  //MISC
+  public boolean ASK_USE_LATEST_PLUGIN_BUILDS = true;
+  public enum pluginBranch {Release, EAP, Nightly}
+
+  public pluginBranch getScalaPluginBranch() {
+    if (ScalaPluginUpdater.pluginIsEap())
+      this.SCALA_PLUGIN_BRANCH = pluginBranch.EAP;
+    else if (ScalaPluginUpdater.pluginIsNightly())
+      this.SCALA_PLUGIN_BRANCH = pluginBranch.Nightly;
+    else
+      this.SCALA_PLUGIN_BRANCH = pluginBranch.Release;
+    return this.SCALA_PLUGIN_BRANCH;
+  }
+
+  public void setScalaPluginBranch(pluginBranch SCALA_PLUGIN_BRANCH) {
+    // update hack - set plugin version to 0 when downgrading
+    if (getScalaPluginBranch().compareTo(SCALA_PLUGIN_BRANCH) > 0) {
+      ScalaPluginUpdater.patchPluginVersion();
+    }
+    this.SCALA_PLUGIN_BRANCH = SCALA_PLUGIN_BRANCH;
+    ScalaPluginUpdater.doUpdatePluginHosts(SCALA_PLUGIN_BRANCH);
+    UpdateChecker.updateAndShowResult();
+  }
+
+  public pluginBranch SCALA_PLUGIN_BRANCH = pluginBranch.Release;
 
   public ScalaApplicationSettings getState() {
     return this;

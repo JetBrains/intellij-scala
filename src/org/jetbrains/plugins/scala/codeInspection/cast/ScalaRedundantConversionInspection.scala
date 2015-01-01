@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala
 package codeInspection.cast
 
 import com.intellij.codeInspection.ex.ProblemDescriptorImpl
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiMethod}
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFix, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPostfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 class ScalaRedundantConversionInspection extends AbstractInspection("Redundant conversion") {
   def actionFor(holder: ProblemsHolder) = {
-    case element @ ScReferenceExpression.qualifier(qualifier) && PsiReferenceEx.resolve(target) =>
+    case element @ ScReferenceExpression.withQualifier(qualifier) && PsiReferenceEx.resolve(target) =>
       process(element, qualifier, target, qualifier.getTextLength, holder)
     case element @ ScPostfixExpr(operand, operator @ PsiReferenceEx.resolve(target)) =>
       process(element, operand, target, operator.getStartOffsetInParent, holder)
@@ -53,11 +53,13 @@ class ScalaRedundantConversionInspection extends AbstractInspection("Redundant c
     holder.registerProblem(descriptor)
   }
 
-  private class RemoveConversionQuickFix(element: PsiElement, exp: ScExpression)
-          extends AbstractFix("Remove Redundant Conversion", element) {
-    def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
-      element.getParent.addBefore(exp, element)
-      element.delete()
+  private class RemoveConversionQuickFix(element: PsiElement, expr: ScExpression)
+          extends AbstractFixOnTwoPsiElements("Remove Redundant Conversion", element, expr) {
+    def doApplyFix(project: Project) {
+      val elem = getFirstElement
+      val scExpr = getSecondElement
+      elem.getParent.addBefore(scExpr, elem)
+      elem.delete()
     }
   }
 }
