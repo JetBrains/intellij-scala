@@ -138,16 +138,19 @@ fork in Test := true
 
 parallelExecution := false
 
-javaOptions in Test := Seq(
-//  "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005",
-  "-Xms128m",
-  "-Xmx1024m",
-  "-XX:MaxPermSize=350m",
-  "-ea",
-  s"-Didea.system.path=${Path.userHome}/.IdeaData/IDEA-14/scala/test-system",
-  s"-Didea.config.path=${Path.userHome}/.IdeaData/IDEA-14/scala/test-config",
-  s"-Dplugin.path=${baseDirectory.value}/out/plugin/Scala"
-)
+javaOptions in Test := {
+  def extractMajorScalaVersion(version: String) = version.split('.').take(2).mkString(".")
+  Seq(
+    //  "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005",
+    "-Xms128m",
+    "-Xmx1024m",
+    "-XX:MaxPermSize=350m",
+    "-ea",
+    s"-Didea.system.path=${Path.userHome}/.IdeaData/IDEA-14/scala/test-system",
+    s"-Didea.config.path=${Path.userHome}/.IdeaData/IDEA-14/scala/test-config",
+    s"-Dplugin.path=${baseDirectory.value}/target/scala-${(scalaVersion in Test) map extractMajorScalaVersion}/classes"
+  )
+}
 
 // jar hell workaround(ignore idea bundled lucene in test runtime)
 fullClasspath in Test := {(fullClasspath in Test).value.filterNot(_.data.getName.endsWith("lucene-core-2.4.1.jar"))}

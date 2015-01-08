@@ -28,7 +28,7 @@
     <depends optional="true" config-file="scala-i18n.xml">com.intellij.properties</depends>
     <depends optional="true" config-file="scala-gradle-integration.xml">org.jetbrains.plugins.gradle</depends>
 
-    <xi:include href="/META-INF/scala-plugin-common.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="/META-INF/SBT.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="/META-INF/HOCON.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="scala-plugin-common.xml"/>
+    <xi:include href="SBT.xml"/>
+    <xi:include href="HOCON.xml"/>
 </idea-plugin>
