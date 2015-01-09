@@ -91,7 +91,7 @@ object ScalaBuilder {
       }
     }
 
-    val settings = projectSettings(context)
+    val settings = projectSettings(context).getDefaultSettings
     val previousIncrementalType = getPreviousIncrementalType
     val incrType = settings.getIncrementalityType
     previousIncrementalType match {
