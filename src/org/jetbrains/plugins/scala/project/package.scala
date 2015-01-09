@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 
 import java.io.File
 import com.intellij.util.Processor
+import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerSettings, ScalaCompilerConfiguration}
 
 import scala.annotation.tailrec
 import com.intellij.psi.{PsiFile, PsiElement}
@@ -106,8 +107,16 @@ package object project {
       model.removeOrderEntry(entry)
       model.commit()
     }
+
+    def scalaCompilerSettings: ScalaCompilerSettings = compilerConfiguration.getSettingsForModule(module)
+
+    def configureScalaCompilerSettingsFrom(source: String, options: Seq[String]) {
+      compilerConfiguration.configureSettingsForModule(module, source, options)
+    }
+
+    private def compilerConfiguration = ScalaCompilerConfiguration.instanceIn(module.getProject)
   }
-  
+
   implicit class ProjectExt(project: Project) {
     private def modules: Seq[Module] = ModuleManager.getInstance(project).getModules.toSeq
 
@@ -120,8 +129,6 @@ package object project {
     def anyScalaModule: Option[ScalaModule] = modules.find(_.hasScala).map(new ScalaModule(_))
 
     def scalaEvents: ScalaProjectEvents = project.getComponent(classOf[ScalaProjectEvents])
-
-    def scalaCompilerSettigns: ScalaCompilerSettings = ScalaCompilerSettings.instanceIn(project)
 
     def libraries: Seq[Library] = ProjectLibraryTable.getInstance(project).getLibraries.toSeq
 
@@ -189,7 +196,9 @@ package object project {
   }
 
   implicit class ProjectPsiElementExt(element: PsiElement) {
-    def isInScalaModule: Boolean = Option(ModuleUtilCore.findModuleForPsiElement(element)).exists(_.hasScala)
+    def module: Option[Module] = Option(ModuleUtilCore.findModuleForPsiElement(element))
+
+    def isInScalaModule: Boolean = module.exists(_.hasScala)
 
     @deprecated("legacy code")
     def languageLevel: ScalaLanguageLevel = {
@@ -208,9 +217,7 @@ package object project {
       module.scalaSdk.map(_.languageLevel).getOrElse(ScalaLanguageLevel.Default)
     }
 
-    def scalaLanguageLevel: Option[ScalaLanguageLevel] = {
-      Option(ModuleUtilCore.findModuleForPsiElement(element)).flatMap(_.scalaSdk.map(_.languageLevel))
-    }
+    def scalaLanguageLevel: Option[ScalaLanguageLevel] = module.flatMap(_.scalaSdk.map(_.languageLevel))
   }
 
   val LibraryVersion: Regex = """(?<=:|-)\d+\.\d+\.\d+""".r
