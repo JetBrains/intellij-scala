@@ -3,7 +3,8 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.project.ScalaCompilerSettings
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 /**
  * @author Mikhail.Mutcianko
@@ -28,5 +29,6 @@ object SyntheticMembersInjector {
     }
   }
 
-  private def needQQEmulation(e: PsiElement) = ScalaCompilerSettings.instanceIn(e.getProject).plugins.exists(_.contains("paradise_2.10"))
+  // TODO: I don't understand this enough to say what it should be, but maybe ScalaCompilerConfiguration.instanceIn(e.getProject).defaultProfile.getSettings ?
+  private def needQQEmulation(e: PsiElement): Boolean = e.module.map { ScalaCompilerConfiguration.instanceIn(e.getProject).getSettingsForModule }.exists { _.plugins.exists(_.contains("paradise_2.10")) }
 }
