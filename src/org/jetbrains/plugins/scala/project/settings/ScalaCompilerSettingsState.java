@@ -1,7 +1,10 @@
-package org.jetbrains.plugins.scala.project;
+package org.jetbrains.plugins.scala.project.settings;
 
 import com.intellij.util.xmlb.annotations.AbstractCollection;
 import com.intellij.util.xmlb.annotations.Tag;
+import org.jetbrains.plugins.scala.project.CompileOrder;
+import org.jetbrains.plugins.scala.project.DebuggingInfoLevel;
+import org.jetbrains.plugins.scala.project.IncrementalityType;
 
 import java.util.Arrays;
 

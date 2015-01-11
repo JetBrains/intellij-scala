@@ -43,10 +43,10 @@ object CompilationData {
     checkOrCreate(output)
 
     val classpath = ProjectPaths.getCompilationClasspathFiles(chunk, chunk.containsTests, false, true).asScala.toSeq
-    val projectSettings = SettingsManager.getProjectSettings(module.getProject)
+    val compilerSettings = SettingsManager.getProjectSettings(module.getProject).getCompilerSettings(chunk)
     val noBootCp = Seq("-nobootcp", "-javabootclasspath", File.pathSeparator)
-    val scalaOptions = noBootCp ++: projectSettings.getCompilerOptions
-    val order = projectSettings.getCompileOrder
+    val scalaOptions = noBootCp ++: compilerSettings.getCompilerOptions
+    val order = compilerSettings.getCompileOrder
 
     val nameHashing = NameHashing.ENABLED // TODO do we really need an UI setting for that?
 
