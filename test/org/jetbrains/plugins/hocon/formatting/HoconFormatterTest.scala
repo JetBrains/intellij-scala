@@ -7,7 +7,7 @@ import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.util.JDOMUtil
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
-import org.jetbrains.plugins.hocon.Util.TextRange
+import org.jetbrains.plugins.hocon.CommonUtil.TextRange
 import org.jetbrains.plugins.scala.testcases.ScalaFileSetTestCase
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
