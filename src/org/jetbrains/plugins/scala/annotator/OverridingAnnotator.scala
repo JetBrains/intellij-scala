@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.annotator
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
-import com.intellij.psi.{PsiModifierListOwner, PsiElement, PsiMethod, PsiModifier}
+import com.intellij.psi.{PsiElement, PsiMethod, PsiModifier}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.quickfix.modifiers.{AddModifierQuickFix, AddModifierWithValOrVarQuickFix, RemoveModifierQuickFix}
 import org.jetbrains.plugins.scala.extensions._
@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, Signature}
+import org.jetbrains.plugins.scala.lang.psi.types.Signature
 
 /**
  * User: Alexander Podkhalyuzin
@@ -138,21 +138,6 @@ trait OverridingAnnotator {
             case _ =>
           }
         }
-      }
-      //fix for SCL-7831
-      var overridesFinal = false
-      for (signature <- superSignatures if !overridesFinal) {
-        val e =
-          if (signature.isInstanceOf[Signature]) signature.asInstanceOf[Signature].namedElement
-          else signature
-        if (e.isInstanceOf[PsiModifierListOwner] && e.asInstanceOf[PsiModifierListOwner].hasFinalModifier) {
-          overridesFinal = true
-        }
-      }
-      if (overridesFinal) {
-        val annotation: Annotation = holder.createErrorAnnotation(member.nameId,
-          ScalaBundle.message("can.not.override.final", memberType, member.name))
-        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
     }
 
