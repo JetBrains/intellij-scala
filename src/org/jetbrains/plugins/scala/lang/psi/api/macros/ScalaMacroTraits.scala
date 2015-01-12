@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
  *         date 22.12.14
  */
 
-class MacroContext(val place: PsiElement, val expectedType: Option[ScType])
+case class MacroContext(place: PsiElement, expectedType: Option[ScType])
 
 trait ScalaMacroExpandable {
   def expandMacro(macros: ScFunction, context: MacroContext): Option[ScalaPsiElement]
