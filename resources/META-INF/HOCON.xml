@@ -3,18 +3,24 @@
     <fileTypeFactory implementation="org.jetbrains.plugins.hocon.lang.HoconFileTypeFactory"/>
     <lang.syntaxHighlighterFactory key="HOCON"
                                    implementationClass="org.jetbrains.plugins.hocon.highlight.HoconSyntaxHighlighterFactory"/>
-    <lang.parserDefinition language="HOCON" implementationClass="org.jetbrains.plugins.hocon.parser.HoconParserDefinition"/>
+    <lang.parserDefinition language="HOCON"
+                           implementationClass="org.jetbrains.plugins.hocon.parser.HoconParserDefinition"/>
     <lang.braceMatcher language="HOCON" implementationClass="org.jetbrains.plugins.hocon.misc.HoconBraceMatcher"/>
     <lang.foldingBuilder language="HOCON" implementationClass="org.jetbrains.plugins.hocon.misc.HoconFoldingBuilder"/>
     <quoteHandler fileType="HOCON" className="org.jetbrains.plugins.hocon.misc.HoconQuoteHandler"/>
-    <annotator language="HOCON" implementationClass="org.jetbrains.plugins.hocon.highlight.HoconSyntaxHighlightingAnnotator"/>
-    <annotator language="HOCON" implementationClass="org.jetbrains.plugins.hocon.parser.HoconErrorHighlightingAnnotator"/>
+    <annotator language="HOCON"
+               implementationClass="org.jetbrains.plugins.hocon.highlight.HoconSyntaxHighlightingAnnotator"/>
+    <annotator language="HOCON"
+               implementationClass="org.jetbrains.plugins.hocon.parser.HoconErrorHighlightingAnnotator"/>
+
     <additionalTextAttributes scheme="Default" file="colorSchemes/HoconDefault.xml"/>
     <additionalTextAttributes scheme="Darcula" file="colorSchemes/HoconDarcula.xml"/>
     <colorSettingsPage implementation="org.jetbrains.plugins.hocon.highlight.HoconColorSettingsPage"/>
     <codeStyleSettingsProvider implementation="org.jetbrains.plugins.hocon.codestyle.HoconCodeStyleSettingsProvider"/>
-    <langCodeStyleSettingsProvider implementation="org.jetbrains.plugins.hocon.codestyle.HoconLanguageCodeStyleSettingsProvider"/>
-    <lang.formatter language="HOCON" implementationClass="org.jetbrains.plugins.hocon.formatting.HoconFormattingModelBuilder"/>
+    <langCodeStyleSettingsProvider
+        implementation="org.jetbrains.plugins.hocon.codestyle.HoconLanguageCodeStyleSettingsProvider"/>
+    <lang.formatter language="HOCON"
+                    implementationClass="org.jetbrains.plugins.hocon.formatting.HoconFormattingModelBuilder"/>
     <lang.commenter language="HOCON" implementationClass="org.jetbrains.plugins.hocon.misc.HoconCommenter"/>
     <lang.elementManipulator forClass="org.jetbrains.plugins.hocon.psi.HString"
                              implementationClass="org.jetbrains.plugins.hocon.manipulators.HStringManipulator"/>
@@ -22,5 +28,9 @@
     <projectService serviceInterface="org.jetbrains.plugins.hocon.settings.HoconProjectSettings"
                     serviceImplementation="org.jetbrains.plugins.hocon.settings.HoconProjectSettings"/>
     <projectConfigurable instance="org.jetbrains.plugins.hocon.settings.HoconProjectSettingsConfigurable"/>
+
+    <localInspection language="HOCON"
+                     implementationClass="org.jetbrains.plugins.hocon.ref.HoconIncludeResolutionInspection"
+                     displayName="HOCON include resolution" groupName="HOCON" enabledByDefault="true" level="WARNING"/>
   </extensions>
 </idea-plugin>

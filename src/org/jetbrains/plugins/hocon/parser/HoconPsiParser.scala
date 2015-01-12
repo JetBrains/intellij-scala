@@ -7,24 +7,16 @@ import com.intellij.lang.PsiBuilder.Marker
 import com.intellij.lang.WhitespacesAndCommentsBinder.TokenTextGetter
 import com.intellij.lang.{PsiBuilder, PsiParser, WhitespacesAndCommentsBinder, WhitespacesBinders}
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.hocon.HoconConstants._
+import org.jetbrains.plugins.hocon.CommonUtil._
+import org.jetbrains.plugins.hocon.lexer.HoconTokenSets._
+import org.jetbrains.plugins.hocon.lexer.HoconTokenType._
+import org.jetbrains.plugins.hocon.parser.HoconElementType._
 
 import scala.annotation.tailrec
 import scala.util.matching.Regex
 
-object HoconPsiParser {
-  val IncludeQualifiers = Set("url(", "classpath(", "file(")
-  val IntegerPattern = """-?(0|[1-9][0-9]*)""".r
-  val DecimalPartPattern = """([0-9]+)((e|E)(\+|-)?[0-9]+)?""".r
-  val ProperlyClosedQuotedString = ".*[^\\\\](\\\\\\\\)*\"".r
-}
-
 class HoconPsiParser extends PsiParser {
-
-  import org.jetbrains.plugins.hocon.Util._
-  import org.jetbrains.plugins.hocon.lexer.HoconTokenSets._
-  import org.jetbrains.plugins.hocon.lexer.HoconTokenType._
-  import org.jetbrains.plugins.hocon.parser.HoconElementType._
-  import org.jetbrains.plugins.hocon.parser.HoconPsiParser._
 
   def parse(root: IElementType, builder: PsiBuilder) = {
     val file = builder.mark()
@@ -191,7 +183,7 @@ class HoconPsiParser extends PsiParser {
         val qualifier = builder.getTokenText
         advanceLexer()
         if (matches(QuotedString)) {
-          if (qualifier == "url(") {
+          if (qualifier == UrlQualifier) {
             try {
               new URL(unquote(builder.getTokenText))
               parseStringLiteral()
