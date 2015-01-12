@@ -1,14 +1,16 @@
 package org.jetbrains.plugins.hocon
 
-import java.{lang => jl}
+import java.net.{MalformedURLException, URL}
+import java.{lang => jl, util => ju}
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.tree.{IElementType, TokenSet}
 
+import scala.collection.GenTraversableOnce
 import scala.language.implicitConversions
 
-object Util {
+object CommonUtil {
   implicit def liftSingleToken(token: IElementType): TokenSet = TokenSet.create(token)
 
   implicit class TokenSetOps(val tokenSet: TokenSet) {
@@ -27,7 +29,7 @@ object Util {
     val extractor = this
   }
 
-  implicit def token2TokenSetOps(token: IElementType) = new TokenSetOps(token)
+  implicit def token2TokenSetOps(token: IElementType): TokenSetOps = new TokenSetOps(token)
 
   implicit class CharSequenceOps(val cs: CharSequence) extends AnyVal {
     def startsWith(str: String) =
@@ -56,6 +58,14 @@ object Util {
 
   implicit class any2opt[T](val t: T) extends AnyVal {
     def opt = Option(t)
+  }
+
+  implicit class collectionOps[A](val coll: GenTraversableOnce[A]) extends AnyVal {
+    def toJList[B >: A]: ju.List[B] = {
+      val result = new ju.ArrayList[B]
+      coll.foreach(result.add)
+      result
+    }
   }
 
   private val quotedCharPattern = "\\\\[\\\\\"/bfnrt]".r
@@ -87,4 +97,11 @@ object Util {
       com.intellij.openapi.util.TextRange.create(start, end)
   }
 
+  def isValidUrl(str: String) =
+    try {
+      new URL(str)
+      true
+    } catch {
+      case _: MalformedURLException => false
+    }
 }
