@@ -24,7 +24,7 @@ object HoconLexer {
 
 class HoconLexer extends LexerBase {
 
-  import org.jetbrains.plugins.hocon.Util._
+  import org.jetbrains.plugins.hocon.CommonUtil._
   import org.jetbrains.plugins.hocon.lexer.HoconLexer._
   import org.jetbrains.plugins.hocon.lexer.HoconTokenType._
 
