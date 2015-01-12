@@ -139,8 +139,8 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
   }
 
   protected def objectSyntheticMembersImpl: Seq[PsiMethod] = {
-    if (isSyntheticObject) return Seq.empty
-    (ScalaPsiUtil.getCompanionModule(this) match {
+    (if (isSyntheticObject) Seq.empty
+    else ScalaPsiUtil.getCompanionModule(this) match {
       case Some(c: ScClass) if c.isCase =>
         val res = new ArrayBuffer[PsiMethod]
         c.getSyntheticMethodsText.foreach(s => {

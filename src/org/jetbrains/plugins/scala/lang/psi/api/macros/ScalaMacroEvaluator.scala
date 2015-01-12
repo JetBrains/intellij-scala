@@ -15,7 +15,7 @@
 
 package org.jetbrains.plugins.scala.lang.psi.api.macros
 
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.components._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.macros.impl._
@@ -57,6 +57,10 @@ class ScalaMacroEvaluator(project: Project) extends ProjectComponent with ScalaM
   override def checkMacro(macros: ScFunction, context: MacroContext): Option[ScType] = {
     typingRules.filter(_.isApplicable(macros)).head.typeable.checkMacro(macros, context)
   }
+}
+
+object ScalaMacroEvaluator {
+  def getInstance(project: Project) = ServiceManager.getService(project, classOf[ScalaMacroEvaluator])
 }
 
 trait MacroRule {
