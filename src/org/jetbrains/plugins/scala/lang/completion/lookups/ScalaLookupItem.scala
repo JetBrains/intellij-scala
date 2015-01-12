@@ -244,6 +244,11 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
               }
             })
           }
+        case p: PsiPackage if shouldImport =>
+          simpleInsert(context)
+          val document = context.getEditor.getDocument
+          PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
+          ScalaImportTypeFix.getImportHolder(ref, ref.getProject).addImportForPath(p.getQualifiedName)
         case _ =>
           simpleInsert(context)
           if (containingClass != null) {
