@@ -96,6 +96,8 @@
                                 order="after scalaCompletionContrubutor"/> <!-- This is the last completion contributor! -->
         <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaGlobalMembersCompletionContributor"
                                 order="before scalaClassNameCompletionContributor"/>
+        <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaPrefixPackageCompletionContributor"
+                                order="before scalaClassNameCompletionContributor"/>
         <completion.confidence language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence"/>
         <completion.confidence language="Scala" implementationClass="com.intellij.codeInsight.completion.SkipAutopopupInStrings"/>
         <statistician key="completion" order="first"
@@ -304,6 +306,7 @@
                         serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
 
         <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.api.macros.ScalaMacroEvaluator"/>
         <projectConfigurable id="Scala Compiler" displayName="Scala Compiler" parentId="project.propCompiler"
                              instance="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfigurable" />
 

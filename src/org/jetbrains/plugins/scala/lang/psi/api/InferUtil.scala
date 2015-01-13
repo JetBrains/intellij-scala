@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.macros.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -22,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.util.macroDebug.ScalaMacroDebuggingUtil
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -37,6 +39,7 @@ object InferUtil {
   private def isDebugImplicitParameters = LOG.isDebugEnabled
   def logInfo(searchLevel: Int, message: => String) {
     val indent = Seq.fill(searchLevel)("  ").mkString
+//    println(indent + message)
     if (isDebugImplicitParameters) {
       LOG.debug(indent + message)
     }
@@ -175,9 +178,10 @@ object InferUtil {
               exprs += new Expression(polymorphicSubst subst funType)
           }
         }
-        MacroInferUtil.isMacro(results(0).getElement) match {
+        val evaluator = ScalaMacroEvaluator.getInstance(place.getProject)
+        evaluator.isMacro(results(0).getElement) match {
           case Some(m) =>
-            MacroInferUtil.checkMacro(m, Some(paramType), place) match {
+            evaluator.checkMacro(m, MacroContext(place, Some(paramType))) match {
               case Some(tp) => exprs += new Expression(polymorphicSubst subst tp)
               case None => updateExpr()
             }
