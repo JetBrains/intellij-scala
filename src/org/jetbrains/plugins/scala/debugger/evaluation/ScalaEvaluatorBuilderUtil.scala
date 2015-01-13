@@ -263,6 +263,12 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         new ScalaInstanceofEvaluator(eval, new TypeEvaluator(jvmName))
       })
     }
+
+    def trueEval = expressionFromTextEvaluator("true", ref)
+    def falseEval = expressionFromTextEvaluator("false", ref)
+    def conditionalOr = binaryEval("||", (first, second) => new ScalaIfEvaluator(first, trueEval, Some(second)))
+    def conditionalAnd = binaryEval("&&", (first, second) => new ScalaIfEvaluator(first, second, Some(falseEval)))
+
     name match {
       case "isInstanceOf" => isInstanceOfEval
       case "asInstanceOf" => unaryEval(name, identity) //todo: primitive type casting?
@@ -291,8 +297,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case "&" => binaryEvalForBoxes(name, "takeAnd")
       case "|" => binaryEvalForBoxes(name, "takeOr")
       case "^" => binaryEvalForBoxes(name, "takeXor")
-      case "&&" => binaryEvalForBoxes(name, "takeConditionalAnd") //todo: don't eval if not needed
-      case "||" => binaryEvalForBoxes(name, "takeConditionalOr") //todo: don't eval if not needed
+      case "&&" => conditionalAnd
+      case "||" => conditionalOr
       case "toInt" => unaryEvalForBoxes(name, "toInteger")
       case "toChar" => unaryEvalForBoxes(name, "toCharacter")
       case "toShort" => unaryEvalForBoxes(name, "toShort")
@@ -982,6 +988,12 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       new ScalaNewClassInstanceEvaluator(typeEvaluator, signature, Array(refEval))
     }
     else refEval
+  }
+
+
+  def expressionFromTextEvaluator(string: String, context: PsiElement): Evaluator = {
+    val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(string, context.getContext, context)
+    ScalaEvaluator(expr)
   }
 }
 
