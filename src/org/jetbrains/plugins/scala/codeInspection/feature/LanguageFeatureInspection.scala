@@ -17,7 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScClassParents
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ScalaCompilerSettings}
+import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 
 /**
  * @author Pavel Fatin
@@ -68,12 +69,14 @@ private case class Feature(name: String,
                           (findIn: PartialFunction[PsiElement, PsiElement]) {
 
   def process(e: PsiElement, holder: ProblemsHolder) {
-    if(!isEnabled(e.getProject.scalaCompilerSettigns)) {
-      findIn.lift(e).foreach { it =>
-        if (!isFlagImportedFor(it)) {
-          holder.registerProblem(it, "Advanced language feature: " + name,
-            new ImportFeatureFlagFix(it, name, flagQualifier + "." + flagName),
-            new EnableFeatureInProjectFix(it, name, enable))
+    e.module.foreach { module =>
+      if (!isEnabled(module.scalaCompilerSettings)) {
+        findIn.lift(e).foreach { it =>
+          if (!isFlagImportedFor(it)) {
+            holder.registerProblem(it, "Advanced language feature: " + name,
+              new ImportFeatureFlagFix(it, name, flagQualifier + "." + flagName),
+              new EnableFeatureFix(module.scalaCompilerSettings, it, name, enable))
+          }
         }
       }
     }
@@ -97,12 +100,10 @@ private class ImportFeatureFlagFix(e: PsiElement, name: String, flag: String)
   }
 }
 
-private class EnableFeatureInProjectFix(e: PsiElement, name: String, f: ScalaCompilerSettings => Unit)
-        extends AbstractFixOnPsiElement("Enable %ss in the project".format(name), e) {
+private class EnableFeatureFix(settings: => ScalaCompilerSettings, e: PsiElement, name: String, f: ScalaCompilerSettings => Unit)
+        extends AbstractFixOnPsiElement("Enable " + name + "s", e) {
 
   def doApplyFix(project: Project) {
-    val elem = getElement
-    val settings = elem.getProject.scalaCompilerSettigns
     f(settings)
   }
 }

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{StdType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 
 /**
@@ -40,7 +40,7 @@ class ScMacroDefinitionImpl extends ScFunctionImpl with ScMacroDefinition {
   override def toString: String = "ScMacroDefinition: " + name
 
   def returnTypeInner: TypeResult[ScType] = returnTypeElement match {
-    case None => Success(types.Any, Some(this)) // TODO look up type from the macro impl.
+    case None => Success(doGetType, Some(this)) // TODO look up type from the macro impl.
     case Some(rte: ScTypeElement) => rte.getType(TypingContext.empty)
   }
 
@@ -50,6 +50,17 @@ class ScMacroDefinitionImpl extends ScFunctionImpl with ScMacroDefinition {
     visitor.visitMacroDefinition(this)
   }
 
+  override def getType(ctx: TypingContext): TypeResult[ScType] = {
+    super.getType(ctx)
+  }
+
+  def doGetType() = {
+    name match {
+      case "doMacro" =>
+        ScalaPsiElementFactory.createTypeElementFromText("(Int, String)", getManager).getType().get
+      case _ => types.Any
+    }
+  }
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case s: ScalaElementVisitor => s.visitMacroDefinition(this)
