@@ -14,7 +14,6 @@ import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.android.sdk.{AndroidPlatform, AndroidSdkType}
 import org.jetbrains.sbt.project.data.SbtProjectDataService._
 import org.jetbrains.sbt.settings.SbtSystemSettings
-import org.jetbrains.plugins.scala.project._
 
 import scala.collection.JavaConverters._
 
@@ -26,8 +25,6 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
 
   def doImportData(toImport: util.Collection[DataNode[ScalaProjectData]], project: Project) {
     toImport.asScala.foreach { node =>
-      project.scalaCompilerSettigns.clear()
-
       val data = node.getData
 
       val existingJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)

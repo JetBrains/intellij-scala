@@ -1,17 +1,17 @@
-package org.jetbrains.plugins.scala
-package project
+package org.jetbrains.plugins.scala.project.settings
 
-import com.intellij.openapi.components._
-import com.intellij.openapi.components.StoragePathMacros._
-import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.project.{CompileOrder, DebuggingInfoLevel, IncrementalityType}
 
 /**
  * @author Pavel Fatin
  */
-@State(name = "ScalaCompilerConfiguration", storages = Array (
-  new Storage(file = PROJECT_FILE),
-  new Storage(file = PROJECT_CONFIG_DIR + "/scala_compiler.xml", scheme = StorageScheme.DIRECTORY_BASED)))
-class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettingsState]{
+class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
+  def this() {
+    this(new ScalaCompilerSettingsState())
+  }
+
+  loadState(state)
+
   var incrementalityType: IncrementalityType = _
   var compileOrder: CompileOrder = _
 
@@ -35,12 +35,6 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
   var debuggingInfoLevel: DebuggingInfoLevel = _
   var additionalCompilerOptions: Seq[String] = _
   var plugins: Seq[String] = _
-
-  clear()
-
-  def clear() {
-    loadState(new ScalaCompilerSettingsState())
-  }
 
   private val ToggleOptions: Seq[(String, () => Boolean, Boolean => Unit)] = Seq(
     ("-language:dynamics", () => dynamics, dynamics = _),
@@ -82,39 +76,11 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
     (toggledOptions :+ debuggingLevelOption) ++ pluginOptions ++ additionalCompilerOptions
   }
 
-  def updateFrom(options: Seq[String]) {
-    val settings = new ScalaCompilerSettings()
-    settings.initFromOptions(normalized(options))
-
-    initFromSettings(this, settings)
+  def initFrom(options: Seq[String]) {
+    initFrom0(normalized(options))
   }
 
-  private def initFromSettings(instances: ScalaCompilerSettings*) {
-    dynamics = instances.exists(_.dynamics)
-    postfixOps = instances.exists(_.postfixOps)
-    reflectiveCalls = instances.exists(_.reflectiveCalls)
-    implicitConversions = instances.exists(_.implicitConversions)
-    higherKinds = instances.exists(_.higherKinds)
-    existentials = instances.exists(_.existentials)
-    macros = instances.exists(_.macros)
-
-    warnings = instances.exists(_.warnings)
-    deprecationWarnings = instances.exists(_.deprecationWarnings)
-    uncheckedWarnings = instances.exists(_.uncheckedWarnings)
-    featureWarnings = instances.exists(_.featureWarnings)
-    optimiseBytecode = instances.exists(_.optimiseBytecode)
-    explainTypeErrors = instances.exists(_.explainTypeErrors)
-    specialization = instances.exists(_.specialization)
-    continuations = instances.exists(_.continuations)
-
-    debuggingInfoLevel = instances.map(_.debuggingInfoLevel).max
-
-    plugins = instances.flatMap(_.plugins).distinct
-
-    additionalCompilerOptions = instances.flatMap(_.additionalCompilerOptions).distinct
-  }
-
-  private def initFromOptions(options: Seq[String]) {
+  private def initFrom0(options: Seq[String]) {
     val optionToSetter = ToggleOptions.map(it => (it._1, it._3)).toMap
 
     optionToSetter.foreach {
@@ -195,9 +161,4 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
     state.plugins = plugins.toArray
     state
   }
-}
-
-object ScalaCompilerSettings {
-  def instanceIn(project: Project): ScalaCompilerSettings =
-    ServiceManager.getService(project, classOf[ScalaCompilerSettings])
 }

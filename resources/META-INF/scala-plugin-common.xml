@@ -305,9 +305,10 @@
         <projectService serviceInterface="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
 
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.project.ScalaCompilerSettings"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.api.macros.ScalaMacroEvaluator"/>
         <projectConfigurable id="Scala Compiler" displayName="Scala Compiler" parentId="project.propCompiler"
-                             instance="org.jetbrains.plugins.scala.project.ScalaCompilerConfigurable" />
+                             instance="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfigurable" />
 
         <quoteHandler fileType="Scala" className="org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler"/>
 
