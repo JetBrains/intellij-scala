@@ -5,9 +5,14 @@ package psi
 package impl
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.{JavaPsiFacade, ResolveState}
+import com.intellij.psi.impl.PsiClassImplUtil
+import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.util.PsiUtil
+import com.intellij.psi.{PsiReference, PsiElement, JavaPsiFacade, ResolveState}
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory}
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
@@ -22,7 +27,18 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
  */
 
 class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeReferenceElementImpl(node) with ScDocResolvableCodeReference {
-  private def is2_10plus = this.languageLevel >= Scala_2_10
+  private def is2_10plus = {
+    val module = ScalaPsiUtil.getModule(this)
+    module.scalaSdk.flatMap(_.compilerVersion) exists {
+      case version =>
+        try {
+          val numbers = version.split('.').take(2).map(c => Integer parseInt c) //Will we ever see Scala 3.X ?
+          numbers.length > 1 && numbers(1) >= 10
+        } catch {
+          case _: NumberFormatException => false
+        }
+    }
+  }
   
   override def getKinds(incomplete: Boolean, completion: Boolean) = stableImportSelector
 
@@ -38,6 +54,21 @@ class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeRefere
       case Some(q: ScDocResolvableCodeReference) =>
         q.multiResolve(true).foreach(processQualifierResolveResult(_, processor, ref))
       case _ =>
+    }
+  }
+
+  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
+    super.processDeclarations(processor, state, lastParent, place) && {
+      qualifier match {
+        case Some(ref: PsiReference) =>
+          val el = ref.resolve()
+          el match {
+            case clazz: ScClass =>
+              PsiClassImplUtil.processDeclarationsInClass(clazz, processor, state, null, lastParent, place, PsiUtil.getLanguageLevel(place), false)
+            case _ => true
+          }
+        case _ => true
+      }
     }
   }
 }
