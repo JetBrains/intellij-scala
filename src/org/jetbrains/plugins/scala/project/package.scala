@@ -58,8 +58,7 @@ package object project {
       ScalaProjectCache.instanceIn(module.getProject)
               .getOrUpdate(module)(scalaSdk0)
 
-    // TODO start read action from the outer scopes
-    private def scalaSdk0: Option[ScalaSdk] = inReadAction {
+    private def scalaSdk0: Option[ScalaSdk] = {
       var result: Option[ScalaSdk] = None
 
       // TODO breadth-first search is preferable
