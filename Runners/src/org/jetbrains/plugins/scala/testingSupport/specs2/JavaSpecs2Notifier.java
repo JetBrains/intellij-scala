@@ -19,7 +19,7 @@ public class JavaSpecs2Notifier implements Notifier {
   private HashMap<String, Long> map = new HashMap<String, Long>();
 
   public void specStart(String title, String location) {
-    System.out.println("##teamcity[testSuiteStarted name='" + escapeString(title) + "' "+ TestRunnerUtil.parseLocation(location).toHint() + "]");
+    System.out.println("##teamcity[testSuiteStarted name='" + escapeString(title) + "'"+ TestRunnerUtil.parseLocation(location).toHint() + "]");
   }
 
   public void specEnd(String title, String location) {
@@ -27,7 +27,7 @@ public class JavaSpecs2Notifier implements Notifier {
   }
 
   public void contextStart(String text, String location) {
-    System.out.println("##teamcity[testSuiteStarted name='" + escapeString(text) + "' " + TestRunnerUtil.parseLocation(location).toHint() + "]");
+    System.out.println("##teamcity[testSuiteStarted name='" + escapeString(text) + "'" + TestRunnerUtil.parseLocation(location).toHint() + "]");
     if (myShowProgressMessages) {
       String escapedMessage = escapeString(text.replaceFirst("\\s+$", ""));
       if (!escapedMessage.isEmpty()) {
@@ -37,14 +37,14 @@ public class JavaSpecs2Notifier implements Notifier {
   }
 
   public void contextEnd(String text, String location) {
-    System.out.println("##teamcity[testSuiteFinished name='" + escapeString(text) + "' "+ TestRunnerUtil.parseLocation(location).toHint() + "]");
+    System.out.println("##teamcity[testSuiteFinished name='" + escapeString(text) + "'"+ TestRunnerUtil.parseLocation(location).toHint() + "]");
   }
 
   public void text(String text, String location) {
   }
 
   public void exampleStarted(String name, String location) {
-    System.out.println("\n##teamcity[testStarted name='" + escapeString(name) + "' " + TestRunnerUtil.parseLocation(location).toHint() +
+    System.out.println("\n##teamcity[testStarted name='" + escapeString(name) + "'" + TestRunnerUtil.parseLocation(location).toHint() +
             " captureStandardOutput='true']");
   }
 
@@ -70,6 +70,13 @@ public class JavaSpecs2Notifier implements Notifier {
 
   public void exampleSkipped(String name, String message, long duration) {
     System.out.println("\n##teamcity[testIgnored name='" + escapeString(name) + "' message='" + escapeString(message) + "']");
+  }
+
+  public void exampleSkipped(String name, String message, String location, long duration) {
+    System.out.println("\n##teamcity[testIgnored name='" + escapeString(name) + "' message='" + escapeString(message) + "']");
+  }
+
+  public void examplePending(String name, String message, String location, long duration) {
   }
 
   public void examplePending(String name, String message, long duration) {
