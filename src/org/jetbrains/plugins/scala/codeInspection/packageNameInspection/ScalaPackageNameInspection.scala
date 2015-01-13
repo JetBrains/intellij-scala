@@ -9,6 +9,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
  * User: Alexander Podkhalyuzin
@@ -22,7 +23,7 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
     file match {
-      case file: ScalaFile =>
+      case file: ScalaFile if IntentionAvailabilityChecker.checkInspection(this, file) =>
         if (file.isScriptFile()) return null
         if (file.typeDefinitions.length == 0) return null
 
