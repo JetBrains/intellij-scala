@@ -31,7 +31,7 @@ class ScalaTestConfigurationProducer extends {
   val confFactory = confType.confFactory
 } with TestConfigurationProducer(confType) with AbstractTestConfigurationProducer {
 
-  override def suitePath = "org.scalatest.Suite"
+  override def suitePaths = List("org.scalatest.Suite")
 
   override def findExistingByElement(location: Location[_ <: PsiElement],
                                      existingConfigurations: Array[RunnerAndConfigurationSettings],
@@ -104,7 +104,7 @@ class ScalaTestConfigurationProducer extends {
     }
     if (!clazz.isInstanceOf[ScClass]) return (null, null)
     if (ScalaTestRunConfiguration.isInvalidSuite(clazz)) return (null, null)
-    if (!isInheritor(clazz, suitePath)) return (null, null)
+    if (!suitePaths.exists(suitePath => isInheritor(clazz, suitePath))) return (null, null)
     val testClassPath = clazz.qualifiedName
 
     sealed trait ReturnResult
