@@ -80,6 +80,11 @@ object getDummyBlocks {
               scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE =>
         subBlocks.addAll(getMultilineStringBlocks(node, block))
         return subBlocks
+      case _: PsiElement
+        if node.getFirstChildNode == null && node.getElementType == ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING &&
+          scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE =>
+        subBlocks.addAll(getMultilineStringBlocks(node, block))
+        return subBlocks
       case _
         if node.getElementType == ScalaDocElementTypes.DOC_TAG =>
         val docTag = node.getPsi.asInstanceOf[ScDocTag]
