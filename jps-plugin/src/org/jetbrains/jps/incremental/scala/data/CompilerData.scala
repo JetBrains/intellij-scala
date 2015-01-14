@@ -37,7 +37,7 @@ object CompilerData {
     }
 
     compilerJars.flatMap { jars =>
-      val incrementalityType = SettingsManager.getProjectSettings(project.getProject).getDefaultSettings.getIncrementalityType
+      val incrementalityType = SettingsManager.getProjectSettings(project.getProject).getIncrementalityType
       javaHome(context, module).map(CompilerData(jars, _, incrementalityType))
     }
   }

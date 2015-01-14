@@ -10,20 +10,25 @@ import scala.collection.JavaConverters._
  * @author Pavel Fatin
  */
 class ScalaCompilerConfigurable(project: Project, configuration: ScalaCompilerConfiguration) extends AbstractConfigurable("Scala Compiler")  {
-  protected val panel = new ScalaCompilerConfigurationPanel(project)
+  private val form = new ScalaCompilerConfigurationPanel(project)
+  
+  private val profiles = form.getProfilesPanel
 
-  def createComponent() = panel
+  def createComponent() = form.getContentPanel
 
-  def isModified = panel.getDefaultProfile.getSettings.getState != configuration.defaultProfile.getSettings.getState ||
-          !panel.getModuleProfiles.asScala.corresponds(configuration.customProfiles)(_.getSettings.getState == _.getSettings.getState)
+  def isModified = form.getIncrementalityType != configuration.incrementalityType ||
+          profiles.getDefaultProfile.getSettings.getState != configuration.defaultProfile.getSettings.getState ||
+          !profiles.getModuleProfiles.asScala.corresponds(configuration.customProfiles)(_.getSettings.getState == _.getSettings.getState)
 
   def reset() {
-    panel.initProfiles(configuration.defaultProfile, configuration.customProfiles.asJava)
+    form.setIncrementalityType(configuration.incrementalityType)
+    profiles.initProfiles(configuration.defaultProfile, configuration.customProfiles.asJava)
   }
 
   def apply() {
-    configuration.defaultProfile = panel.getDefaultProfile
-    configuration.customProfiles = panel.getModuleProfiles.asScala
+    configuration.incrementalityType = form.getIncrementalityType
+    configuration.defaultProfile = profiles.getDefaultProfile
+    configuration.customProfiles = profiles.getModuleProfiles.asScala
     DaemonCodeAnalyzer.getInstance(project).restart()
   }
 }
