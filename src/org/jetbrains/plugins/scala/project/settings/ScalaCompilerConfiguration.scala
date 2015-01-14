@@ -36,20 +36,13 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
     val settings = new ScalaCompilerSettings()
     settings.initFrom(options)
 
-    if (defaultProfile.getSettings.getState == settings.getState) {
-      defaultProfile.addModuleName(module.getName)
-    } else if (defaultProfile.getModuleNames.isEmpty) {
-      defaultProfile.setSettings(settings)
-      defaultProfile.addModuleName(module.getName)
-    } else {
-      customProfiles.find(_.getSettings.getState == settings.getState) match {
-        case Some(profile) => profile.addModuleName(module.getName)
-        case None =>
-          val profile = new ScalaCompilerSettingsProfile(source + " " + (customProfiles.length + 1))
-          profile.setSettings(settings)
-          profile.addModuleName(module.getName)
-          customProfiles :+= profile
-      }
+    customProfiles.find(_.getSettings.getState == settings.getState) match {
+      case Some(profile) => profile.addModuleName(module.getName)
+      case None =>
+        val profile = new ScalaCompilerSettingsProfile(source + " " + (customProfiles.length + 1))
+        profile.setSettings(settings)
+        profile.addModuleName(module.getName)
+        customProfiles :+= profile
     }
   }
 
