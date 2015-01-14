@@ -27,4 +27,8 @@ object ScalaUtil {
   def runnersPath(): String = {
     PathUtil.getJarPathForClass(classOf[Client]).replace("compiler-settings", "scala-plugin-runners")
   }
+
+  def testingSupportTestPath(): String = {
+    PathUtil.getJarPathForClass(classOf[Client]).replace("compiler-settings", "Runners")
+  }
 }

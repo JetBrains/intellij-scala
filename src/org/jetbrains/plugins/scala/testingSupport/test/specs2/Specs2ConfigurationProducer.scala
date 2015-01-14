@@ -23,7 +23,8 @@ class Specs2ConfigurationProducer extends {
   val confFactory = confType.confFactory
 } with TestConfigurationProducer(confType) with AbstractTestConfigurationProducer {
 
-  override def suitePath = "org.specs2.specification.SpecificationStructure"
+  override def suitePaths = List("org.specs2.specification.SpecificationStructure",
+    "org.specs2.specification.core.SpecificationStructure")
 
   override def findExistingByElement(location: Location[_ <: PsiElement],
                                      existingConfigurations: Array[RunnerAndConfigurationSettings],
@@ -88,10 +89,11 @@ class Specs2ConfigurationProducer extends {
     }
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
     if (parent == null) return false
-    val suiteClazz: PsiClass = ScalaPsiManager.instance(parent.getProject).
-      getCachedClass("org.specs2.specification.SpecificationStructure",
-      element.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
-    if (suiteClazz == null) return false
+    val suiteClasses = suitePaths.map(suite =>
+       ScalaPsiManager.instance(parent.getProject).getCachedClass(suite, element.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)).filter(_ != null)
+    if (suiteClasses.isEmpty) return false
+    val suiteClazz = suiteClasses.head
+
     if (!ScalaPsiUtil.cachedDeepIsInheritor(parent, suiteClazz)) return false
 
     val parentLiteral: ScLiteral = PsiTreeUtil.getParentOfType(element, classOf[ScLiteral], false)
@@ -122,10 +124,11 @@ class Specs2ConfigurationProducer extends {
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
     val parentLiteral: ScLiteral = PsiTreeUtil.getParentOfType(element, classOf[ScLiteral], false)
     if (parent == null) return (null, null)
-    val suiteClazz: PsiClass = ScalaPsiManager.instance(parent.getProject).
-      getCachedClass("org.specs2.specification.SpecificationStructure",
-      element.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
-    if (suiteClazz == null) return (null, null)
+    val psiManager = ScalaPsiManager.instance(parent.getProject)
+    val suiteClasses = suitePaths.map(suite =>
+      psiManager.getCachedClass(suite, element.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)).filter(_ != null)
+    if (suiteClasses.isEmpty) return (null, null)
+    val suiteClazz = suiteClasses.head
     if (!ScalaPsiUtil.cachedDeepIsInheritor(parent, suiteClazz)) return (null, null)
     val testClassPath = parent.qualifiedName
 

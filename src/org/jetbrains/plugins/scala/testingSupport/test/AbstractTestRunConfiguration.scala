@@ -39,7 +39,7 @@ import org.jetbrains.plugins.scala.util.ScalaUtil
 import scala.beans.BeanProperty
 import scala.collection.JavaConversions._
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.{ListBuffer, ArrayBuffer}
 import com.intellij.openapi.util.text.StringUtil
 
 /**
@@ -63,7 +63,12 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
   def currentConfiguration = AbstractTestRunConfiguration.this
 
-  def suitePath: String
+  def suitePaths: List[String]
+
+  final def javaSuitePaths = {
+    import scala.collection.JavaConverters._
+    suitePaths.asJava
+  }
 
   def mainClass: String
 
@@ -236,14 +241,24 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     })
   }
 
+  private def getSuiteClass = {
+    val suiteClasses = suitePaths.map(suitePath => getClazz(suitePath, withDependencies = true)).filter(_ != null)
+
+    if (suiteClasses.isEmpty) {
+      throw new RuntimeConfigurationException(errorMessage)
+    }
+
+    if (suiteClasses.size > 1) {
+      throw new RuntimeConfigurationException("Multiple suite traits detected: " + suiteClasses)
+    }
+
+    suiteClasses.head
+  }
+
   override def checkConfiguration() {
     super.checkConfiguration()
 
-    val suiteClass = getClazz(suitePath, withDependencies = true)
-
-    if (suiteClass == null) {
-      throw new RuntimeConfigurationException(errorMessage)
-    }
+    val suiteClass = getSuiteClass
 
     testKind match {
       case TestKind.ALL_IN_PACKAGE =>
@@ -309,7 +324,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           clazz = getClazz(getTestClassPath, withDependencies = false)
           if (getTestName == null || getTestName == "") throw new ExecutionException("Test name not found.")
       }
-      suiteClass = getClazz(suitePath, withDependencies = true)
+      suiteClass = getSuiteClass
     }
     catch {
       case e if clazz == null => classNotFoundError()
@@ -373,7 +388,9 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 //          "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5010")
 
         val rtJarPath = ScalaUtil.runnersPath()
+        val integrationTestsPath = ScalaUtil.testingSupportTestPath()
         params.getClassPath.add(rtJarPath)
+        params.getClassPath.add(integrationTestsPath)
 
         searchTest match {
           case SearchForTest.IN_WHOLE_PROJECT =>
