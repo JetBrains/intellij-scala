@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.project.settings
 
-import org.jetbrains.plugins.scala.project.{CompileOrder, DebuggingInfoLevel, IncrementalityType}
+import org.jetbrains.plugins.scala.project.{CompileOrder, DebuggingInfoLevel}
 
 /**
  * @author Pavel Fatin
@@ -12,7 +12,6 @@ class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
 
   loadState(state)
 
-  var incrementalityType: IncrementalityType = _
   var compileOrder: CompileOrder = _
 
   var dynamics: Boolean = _
@@ -109,7 +108,6 @@ class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
   }
 
   def loadState(state: ScalaCompilerSettingsState) {
-    incrementalityType = state.incrementalityType
     compileOrder = state.compileOrder
 
     dynamics = state.dynamics
@@ -136,7 +134,6 @@ class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
 
   def getState = {
     val state = new ScalaCompilerSettingsState()
-    state.incrementalityType = incrementalityType
     state.compileOrder = compileOrder
 
     state.dynamics = dynamics

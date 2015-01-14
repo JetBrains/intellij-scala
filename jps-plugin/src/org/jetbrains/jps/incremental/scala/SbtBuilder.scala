@@ -74,7 +74,7 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
   }
 
   private def isDisabled(context: CompileContext): Boolean = {
-    projectSettings(context).getDefaultSettings.getIncrementalityType != IncrementalityType.SBT
+    projectSettings(context).getIncrementalityType != IncrementalityType.SBT
   }
 
   private def hasDirtyFilesOrDependencies(context: CompileContext, chunk: ModuleChunk,

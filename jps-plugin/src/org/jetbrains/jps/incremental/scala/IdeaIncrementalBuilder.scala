@@ -77,7 +77,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
   private def isDisabled(context: CompileContext, chunk: ModuleChunk): Boolean = {
     val settings = projectSettings(context)
-    def wrongIncrType = settings.getDefaultSettings.getIncrementalityType != IncrementalityType.IDEA
+    def wrongIncrType = settings.getIncrementalityType != IncrementalityType.IDEA
     def wrongCompileOrder = settings.getCompilerSettings(chunk).getCompileOrder match {
       case CompileOrder.JavaThenScala => getCategory == BuilderCategory.SOURCE_PROCESSOR
       case (CompileOrder.ScalaThenJava | CompileOrder.Mixed) => getCategory == BuilderCategory.OVERWRITING_TRANSLATOR
