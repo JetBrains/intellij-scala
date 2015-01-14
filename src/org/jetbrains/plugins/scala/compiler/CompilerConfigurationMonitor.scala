@@ -11,18 +11,6 @@ import org.jetbrains.plugins.scala.project._
  * @author Pavel Fatin
  */
 class CompilerConfigurationMonitor(project: Project) extends ProjectComponent {
-  CompilerManager.getInstance(project).addBeforeTask(new CompileTask {
-    def execute(context: CompileContext): Boolean = {
-      if (isScalaProject && isCompileServerEnabled && isAutomakeEnabled) {
-        val message = "Automake is not supported with Scala compile server. " +
-                "Please either disable the compile server or turn off \"Project Setings / Compiler / Make project automatically\"."
-        context.addMessage(CompilerMessageCategory.ERROR, message, null, -1, -1)
-        false
-      } else {
-        true
-      }
-    }
-  })
 
   private def compilerConfiguration = CompilerWorkspaceConfiguration.getInstance(project)
 
@@ -41,26 +29,10 @@ class CompilerConfigurationMonitor(project: Project) extends ProjectComponent {
   def disposeComponent() {}
 
   def projectOpened() {
-    project.scalaEvents.addScalaProjectListener(ScalaListener)
-
-    if (isScalaProject && isCompileServerEnabled) {
-      disableAutomake()
+    if (isAutomakeEnabled && isCompileServerEnabled && isScalaProject) {
+      CompileServerLauncher.instance.tryToStart(project)
     }
   }
 
-  def projectClosed() {
-    project.scalaEvents.removeScalaProjectListener(ScalaListener)
-  }
-
-  private def disableAutomake() {
-    compilerConfiguration.MAKE_PROJECT_ON_SAVE = false
-  }
-
-  private object ScalaListener extends ScalaProjectListener {
-    def onScalaProjectChanged() {
-      if (project.hasScala && isCompileServerEnabled) {
-        disableAutomake()
-      }
-    }
-  }
+  def projectClosed() {}
 }

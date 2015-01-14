@@ -81,6 +81,74 @@ class OverridingAnnotatorTest extends SimpleTestCase {
     }
   }
 
+  def testOverrideFinalMethod() {
+    assertMatches(messages(
+      """
+        |object ppp {
+        | class Base {
+        |   final def foo() = 1
+        | }
+        |
+        | class Derived extends Base {
+        |   override def foo() = 2
+        | }
+        |}
+      """.stripMargin)) {
+      case List(Error(foo, "Method 'foo' cannot override final member")) =>
+    }
+  }
+
+  def testOverrideFinalVal() {
+    assertMatches(messages(
+      """
+        |object ppp {
+        | class Base {
+        |   final val foo = 1
+        | }
+        |
+        | class Derived extends Base {
+        |   override val foo = 2
+        | }
+        |}
+      """.stripMargin)) {
+      case List(Error(foo, "Value 'foo' cannot override final member")) =>
+    }
+  }
+
+  def testOverrideFinalVar() {
+    assertMatches(messages(
+      """
+        |object ppp {
+        | class Base {
+        |   final var foo = 1
+        | }
+        |
+        | class Derived extends Base {
+        |   override var foo = 2
+        | }
+        |}
+      """.stripMargin)) {
+      case List(Error(foo, "Variable 'foo' cannot override final member")) =>
+    }
+  }
+
+  def testOverrideFinalAlias() {
+    assertMatches(messages(
+      """
+        |object ppp {
+        | class Base {
+        |   final type foo = Int
+        | }
+        |
+        | class Derived extends Base {
+        |   override type foo = String
+        | }
+        |}
+      """.stripMargin)) {
+      case List(Error(foo, "Type 'foo' cannot override final member")) =>
+    }
+  }
+
   def messages(code: String): List[Message] = {
     val annotator = new OverridingAnnotator() {}
     val mock = new AnnotatorHolderMock

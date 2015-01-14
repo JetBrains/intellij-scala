@@ -47,4 +47,27 @@ class ScalaSyntheticFunctionEvaluationTest extends ScalaDebuggerTestCase {
       evalEquals("List(1, 2)", "List(1, 2)")
     }
   }
+
+  def testConditionalOperators(): Unit = {
+    addFileToProject("Sample.scala",
+      """
+        |object Sample {
+        |  def fail: Boolean = throw new Exception("fail!")
+        |  def main(args: Array[String]) {
+        |     val tr = true
+        |     val fls = false
+        |    "stop here"
+        |  }
+        |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 5)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("tr || fail", "true")
+      evalEquals("fls && fail", "false")
+      evalEquals("fls || tr", "true")
+      evalEquals("tr && fls", "false")
+    }
+  }
 }
