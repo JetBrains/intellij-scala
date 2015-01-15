@@ -13,6 +13,7 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
+import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.project.structure._
 import org.jetbrains.sbt.resolvers.SbtResolver
 
@@ -53,21 +54,23 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val data = StructureParser.parse(xml, new File(System.getProperty("user.home")))
 
-    val externalSourceRoots = data.projects.flatMap(externalSourceRootsIn)
+    val (sharedExternalSourceRoots, singularExternalSourceRoots) =
+      externalSourceRootsIn(data.projects).partition(_._2.length > 1)
 
-    if (externalSourceRoots.nonEmpty) {
-      val warning = externalSourceRoots.map(file => s"<li>${file.getPath}</li>").mkString(
+    if (singularExternalSourceRoots.nonEmpty) {
+      val warning = singularExternalSourceRoots.keys.map(file => s"<li>${file.getPath}</li>").mkString(
         "The following source roots are outside of the corresponding base directories:\n<ul>", "\n",
-        "\n</ul>\nThese source roots cannot be included in the IDEA project model." +
-                "<br>Please consider using shared SBT projects instead of shared source roots.")
+        "\n</ul>\nThese source roots cannot be included in the IDEA project model.\n\n" +
+                "<br>Usual solution: declare an SBT project for these sources and include the project in dependencies." +
+                "<br>Special case: shared source root should be external relative to all projects that include it.")
 
       listener.onTaskOutput(id, WarningMessage(warning), false)
     }
 
-    convert(root, data, settings.jdk).toDataNode
+    convert(root, data, settings.jdk, sharedExternalSourceRoots).toDataNode
   }
 
-  private def convert(root: String, data: Structure, jdk: Option[String]): Node[ProjectData] = {
+  private def convert(root: String, data: Structure, jdk: Option[String], externalSourceRoots: Map[File, Seq[Project]]): Node[ProjectData] = {
     val projects = data.projects
     val project = data.projects.headOption.getOrElse(throw new RuntimeException("No root project found"))
     val projectNode = new ProjectNode(project.name, root, root)
@@ -94,6 +97,13 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectNode.addAll(moduleNodes)
 
     createModuleDependencies(projects, moduleNodes)
+
+    val projectToModuleNode = projects.zip(moduleNodes).toMap
+    val sharedSourceModules = externalSourceRoots.map { case (sourceRoot, ownerProjects) =>
+      createSourceModuleNodesAndDependencies(sourceRoot, ownerProjects, projectToModuleNode, libraryNodes)
+    }
+    projectNode.addAll(sharedSourceModules.toSeq)
+
     projectNode.addAll(projects.map(createBuildModule(_, moduleFilesDirectory, data.localCachePath)))
     projectNode
   }
@@ -108,6 +118,48 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         data.setExported(true)
         moduleNode.add(data)
       }
+    }
+  }
+
+  def createSourceModuleNodesAndDependencies(sourceRoot: File, ownerProjects: Seq[Project],
+                                             projectToModuleNode: Map[Project, ModuleNode],
+                                             libraryNodes: Seq[LibraryNode]): ModuleNode = {
+    val sourceModuleNode = {
+      val node = createSourceModule(sourceRoot)
+      val commonDependencies = commonDependenciesIn(ownerProjects)
+      node.addAll(createLibraryDependencies(commonDependencies)(node, libraryNodes.map(_.data)))
+      node
+    }
+
+    ownerProjects.map(projectToModuleNode).foreach { ownerModule =>
+      ownerModule.add(new ModuleDependencyNode(ownerModule, sourceModuleNode))
+    }
+
+    sourceModuleNode
+  }
+
+  def createSourceModule(sourceRoot: File): ModuleNode = {
+    val contentRoot = if (sourceRoot.endsWith("src", "main", "scala")) sourceRoot << 3 else sourceRoot
+
+    val moduleName = contentRoot.name + "-sources"
+
+    val moduleNode = new ModuleNode(SharedSourcesModuleType.instance.getId,
+      moduleName, moduleName, contentRoot.path, contentRoot.path)
+
+    val contentRootNode = {
+      val node = new ContentRootNode(contentRoot.path)
+      node.storePath(ExternalSystemSourceType.SOURCE, sourceRoot.path)
+      node
+    }
+
+    moduleNode.add(contentRootNode)
+
+    moduleNode
+  }
+
+  def commonDependenciesIn(projects: Seq[Project]): Seq[ModuleDependency] = {
+    projects.flatMap(_.dependencies.modules).filter { dependency =>
+      projects.forall(_.dependencies.modules.contains(dependency))
     }
   }
 
@@ -300,6 +352,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             .map(_.file)
             .filter(!_.isOutsideOf(project.base))
             .map(_.path)
+  }
+
+  def externalSourceRootsIn(projects: Seq[Project]): Map[File, Seq[Project]] = {
+    val projectToExternalRoot = projects.flatMap(project => externalSourceRootsIn(project).map(file => (project, file.canonicalFile)))
+
+    projectToExternalRoot.groupBy(_._2).mapValues(_.map(_._1))
   }
 
   private def externalSourceRootsIn(project: Project): Seq[File] = {
