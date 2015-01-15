@@ -422,7 +422,7 @@ public class TestRunConfigurationForm {
 
                     public boolean isAccepted(PsiClass aClass) {
                         if (!getScope().accept(aClass.getContainingFile().getVirtualFile())) return false;
-                        for (String suitePath: suitePaths) {
+                        for (String suitePath : suitePaths) {
                             PsiClass[] classes = ScalaPsiManager.instance(project).getCachedClasses(getScope(), suitePath);
                             for (PsiClass psiClass : classes) {
                                 if (ScalaPsiUtil.cachedDeepIsInheritor(aClass, psiClass)) return true;
