@@ -10,7 +10,7 @@ import com.intellij.openapi.application.{ApplicationManager, Application, Applic
 import com.intellij.openapi.application.impl.ApplicationInfoImpl
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
-import com.intellij.openapi.updateSettings.impl.UpdateSettings
+import com.intellij.openapi.updateSettings.impl.{UpdateChecker, UpdateSettings}
 import com.intellij.openapi.util.JDOMExternalizableStringList
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch._
@@ -23,6 +23,9 @@ object ScalaPluginUpdater {
   val nightlyRepo = s"$baseUrl/scala-nightly-cassiopeia.xml"
 
   def doUpdatePluginHosts(branch: ScalaApplicationSettings.pluginBranch) = {
+    // update hack - set plugin version to 0 when downgrading
+    if (getScalaPluginBranch.compareTo(branch) > 0) ScalaPluginUpdater.patchPluginVersion()
+
     val updateSettings = UpdateSettings.getInstance()
     updateSettings.myPluginHosts.remove(eapRepo)
     updateSettings.myPluginHosts.remove(nightlyRepo)
@@ -32,6 +35,17 @@ object ScalaPluginUpdater {
       case EAP     => updateSettings.myPluginHosts.add(eapRepo)
       case Nightly => updateSettings.myPluginHosts.add(nightlyRepo)
     }
+  }
+
+  def doUpdatePluginHostsAndCheck(branch: ScalaApplicationSettings.pluginBranch) = {
+    doUpdatePluginHosts(branch)
+    UpdateChecker.updateAndShowResult()
+  }
+
+  def getScalaPluginBranch: ScalaApplicationSettings.pluginBranch = {
+    if (ScalaPluginUpdater.pluginIsEap) EAP
+    else if (ScalaPluginUpdater.pluginIsNightly) Nightly
+    else Release
   }
 
   def pluginIsEap = {
@@ -93,9 +107,9 @@ object ScalaPluginUpdater {
           notification.expire()
           applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS = false
           event.getDescription match {
-            case "EAP"     => applicationSettings.setScalaPluginBranch(EAP)
-            case "Nightly" => applicationSettings.setScalaPluginBranch(Nightly)
-            case "Release" => applicationSettings.setScalaPluginBranch(Release)
+            case "EAP"     => doUpdatePluginHostsAndCheck(EAP)
+            case "Nightly" => doUpdatePluginHostsAndCheck(Nightly)
+            case "Release" => doUpdatePluginHostsAndCheck(Release)
             case _         => applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS = true
           }
         }

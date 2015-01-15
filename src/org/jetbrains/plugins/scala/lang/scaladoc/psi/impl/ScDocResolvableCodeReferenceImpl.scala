@@ -8,7 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.impl.PsiClassImplUtil
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiUtil
-import com.intellij.psi.{PsiReference, PsiElement, JavaPsiFacade, ResolveState}
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
@@ -21,14 +21,22 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeRefe
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 
+import scala.collection.immutable.HashMap
+import scala.collection.mutable
+
 /**
  * User: Dmitry Naydanov
  * Date: 11/30/11
  */
 
 class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeReferenceElementImpl(node) with ScDocResolvableCodeReference {
-  private def is2_10plus = {
+  private def is2_10plus: Boolean = {
+    if (getContainingFile.getVirtualFile == null) return true  //in case of synthetic elements
+
     val module = ScalaPsiUtil.getModule(this)
+
+    if (module == null) return true // in case of worksheet
+
     module.scalaSdk.flatMap(_.compilerVersion) exists {
       case version =>
         try {
@@ -39,7 +47,7 @@ class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeRefere
         }
     }
   }
-  
+
   override def getKinds(incomplete: Boolean, completion: Boolean) = stableImportSelector
 
   override def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport) = 
