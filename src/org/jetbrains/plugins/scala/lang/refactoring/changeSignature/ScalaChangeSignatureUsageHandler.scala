@@ -375,7 +375,11 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     val params = paramInfos.map { p =>
       val typedName = ScalaExtractMethodUtils.typedName(newParamName(p), paramType(p), project, byName = false)
       val default = scalaDefaultValue(p).fold("")(" = " + _)
-      typedName + default
+      val keywordsAndAnnots = p match {
+        case spi: ScalaParameterInfo => spi.keywordsAndAnnotations
+        case _ => ""
+      }
+      keywordsAndAnnots + typedName + default
     }
     params.mkString("(", ", ", ")")
   }
