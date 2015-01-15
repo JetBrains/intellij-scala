@@ -17,16 +17,15 @@ import scala.collection.JavaConverters._
   new Storage(file = PROJECT_FILE),
   new Storage(file = PROJECT_CONFIG_DIR + "/scala_compiler.xml", scheme = StorageScheme.DIRECTORY_BASED)))
 class ScalaCompilerConfiguration(project: Project) extends PersistentStateComponent[Element] {
-  var incrementalityType: IncrementalityType = _
+  var incrementalityType: IncrementalityType = IncrementalityType.IDEA
 
   var defaultProfile: ScalaCompilerSettingsProfile = _
 
   var customProfiles: Seq[ScalaCompilerSettingsProfile] = _
 
-  clear()
+  clearProfiles()
 
-  def clear() {
-    incrementalityType = IncrementalityType.IDEA
+  def clearProfiles() {
     customProfiles = Seq.empty
     defaultProfile = new ScalaCompilerSettingsProfile("Default")
   }

@@ -41,6 +41,9 @@
         <moduleType id="SBT_MODULE" implementationClass="org.jetbrains.sbt.project.module.SbtModuleType"/>
         <moduleConfigurationEditorProvider implementation="org.jetbrains.sbt.project.module.SbtModuleEditorProvider"/>
 
+        <moduleType id="SHARED_SOURCES_MODULE" implementationClass="org.jetbrains.sbt.project.sources.SharedSourcesModuleType"/>
+        <moduleConfigurationEditorProvider implementation="org.jetbrains.sbt.project.sources.SharedSourcesModuleEditorProvider"/>
+
         <applicationService serviceImplementation="org.jetbrains.sbt.resolvers.SbtResolverIndexesManager"/>
 
         <projectTemplatesFactory implementation="org.jetbrains.sbt.project.template.SbtProjectTemplateFactory"/>
