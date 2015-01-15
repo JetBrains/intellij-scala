@@ -9,6 +9,7 @@ import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings;
+import org.jetbrains.plugins.scala.components.ScalaPluginUpdater;
 import org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings;
 import org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency;
 
@@ -79,12 +80,11 @@ public class ScalaProjectSettingsPanel {
 
         final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
         final ScalaCompileServerSettings compileServerSettings = ScalaCompileServerSettings.getInstance();
-        final ScalaApplicationSettings applicationSettings = ScalaApplicationSettings.getInstance();
 
         compileServerSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER = showTypeInfoOnCheckBox.isSelected();
         compileServerSettings.SHOW_TYPE_TOOLTIP_DELAY = (Integer) delaySpinner.getValue();
 
-        applicationSettings.setScalaPluginBranch((ScalaApplicationSettings.pluginBranch) updateChannel.getModel().getSelectedItem());
+        ScalaPluginUpdater.doUpdatePluginHostsAndCheck((ScalaApplicationSettings.pluginBranch) updateChannel.getModel().getSelectedItem());
 
         scalaProjectSettings.setBasePackage(myBasePackage.getText());
         scalaProjectSettings.setImplicitParametersSearchDepth((Integer) implicitParametersSearchDepthSpinner.getValue());
@@ -117,12 +117,11 @@ public class ScalaProjectSettingsPanel {
 
         final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
         final ScalaCompileServerSettings compileServerSettings = ScalaCompileServerSettings.getInstance();
-        final ScalaApplicationSettings applicationSettings = ScalaApplicationSettings.getInstance();
 
         if (compileServerSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER != showTypeInfoOnCheckBox.isSelected()) return true;
         if (compileServerSettings.SHOW_TYPE_TOOLTIP_DELAY != (Integer) delaySpinner.getValue()) return true;
 
-        if (!applicationSettings.getScalaPluginBranch().equals(updateChannel.getModel().getSelectedItem())) return true;
+        if (!ScalaPluginUpdater.getScalaPluginBranch().equals(updateChannel.getModel().getSelectedItem())) return true;
 
         if (!scalaProjectSettings.getBasePackage().equals(
                 myBasePackage.getText())) return true;
@@ -188,12 +187,11 @@ public class ScalaProjectSettingsPanel {
     private void setSettings() {
         final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
         final ScalaCompileServerSettings compileServerSettings = ScalaCompileServerSettings.getInstance();
-        final ScalaApplicationSettings applicationSettings = ScalaApplicationSettings.getInstance();
 
         setValue(showTypeInfoOnCheckBox, compileServerSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER);
         setValue(delaySpinner, compileServerSettings.SHOW_TYPE_TOOLTIP_DELAY);
 
-        updateChannel.getModel().setSelectedItem(applicationSettings.getScalaPluginBranch());
+        updateChannel.getModel().setSelectedItem(ScalaPluginUpdater.getScalaPluginBranch());
 
         setValue(myBasePackage, scalaProjectSettings.getBasePackage());
         setValue(implicitParametersSearchDepthSpinner, scalaProjectSettings.getImplicitParametersSearchDepth());
