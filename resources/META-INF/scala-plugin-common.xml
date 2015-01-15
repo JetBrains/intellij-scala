@@ -1010,9 +1010,6 @@
             <loadForDefaultProject/>
         </component>
         <component>
-          <implementation-class>org.jetbrains.plugins.scala.compiler.CompilerConfigurationMonitor</implementation-class>
-        </component>
-        <component>
             <implementation-class>org.jetbrains.plugins.scala.components.HighlightingAdvisor</implementation-class>
         </component>
         <component>
