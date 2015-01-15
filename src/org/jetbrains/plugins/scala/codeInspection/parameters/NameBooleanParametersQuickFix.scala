@@ -18,7 +18,7 @@ class NameBooleanParametersQuickFix(element: ScLiteral)
     val elem = getElement
     if (!elem.isValid) return
 
-    IntentionUtils.check(elem, onlyBoolean = true) match {
+    IntentionUtils.addNameToArgumentsFix(elem, onlyBoolean = true) match {
       case Some(x) => x()
       case None =>
     }
