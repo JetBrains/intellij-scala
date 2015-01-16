@@ -7,9 +7,9 @@ import java.net.URLClassLoader
 import org.jetbrains.jps.incremental.scala.data.{CompilerData, CompilerJars, SbtData}
 import org.jetbrains.jps.incremental.scala.local.CompilerFactoryImpl._
 import org.jetbrains.jps.incremental.scala.model.IncrementalityType
-import _root_.sbt.compiler.{AggressiveCompile, AnalyzingCompiler, IC}
-import _root_.sbt.inc.AnalysisStore
-import _root_.sbt.{ClasspathOptions, Path, ScalaInstance}
+import sbt.compiler.{AggressiveCompile, AnalyzingCompiler, IC}
+import sbt.inc.AnalysisStore
+import sbt.{ClasspathOptions, Path, ScalaInstance}
 import xsbti.{F0, Logger}
 
 /**
@@ -60,7 +60,7 @@ object CompilerFactoryImpl {
 
       val classLoader = {
         val urls = Path.toURLs(jars.library +: jars.compiler +: jars.extra)
-        new URLClassLoader(urls, _root_.sbt.classpath.ClasspathUtilities.rootLoader)
+        new URLClassLoader(urls, sbt.classpath.ClasspathUtilities.rootLoader)
       }
 
       val version = readProperty(classLoader, "compiler.properties", "version.number")
