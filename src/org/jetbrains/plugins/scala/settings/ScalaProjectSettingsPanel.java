@@ -49,6 +49,7 @@ public class ScalaProjectSettingsPanel {
     private JComboBox updateChannel;
     private JCheckBox myAotCompletion;
     private JCheckBox useEclipseCompatibilityModeCheckBox;
+    private JTextField scalaTestDefaultSuperClass;
     private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
     private Project myProject;
 
@@ -87,6 +88,7 @@ public class ScalaProjectSettingsPanel {
         ScalaPluginUpdater.doUpdatePluginHostsAndCheck((ScalaApplicationSettings.pluginBranch) updateChannel.getModel().getSelectedItem());
 
         scalaProjectSettings.setBasePackage(myBasePackage.getText());
+        scalaProjectSettings.setScalaTestDefaultSuperClass(scalaTestDefaultSuperClass.getText());
         scalaProjectSettings.setImplicitParametersSearchDepth((Integer) implicitParametersSearchDepthSpinner.getValue());
         scalaProjectSettings.setOutputLimit((Integer) outputSpinner.getValue());
         scalaProjectSettings.setInProcessMode(runWorksheetInTheCheckBox.isSelected());
@@ -125,6 +127,8 @@ public class ScalaProjectSettingsPanel {
 
         if (!scalaProjectSettings.getBasePackage().equals(
                 myBasePackage.getText())) return true;
+        if (!scalaProjectSettings.getScalaTestDefaultSuperClass().equals(
+            scalaTestDefaultSuperClass.getText())) return true;
         if (scalaProjectSettings.isShowImplisitConversions() !=
                 showImplicitConversionsInCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isShowArgumentsToByNameParams() !=
@@ -194,6 +198,7 @@ public class ScalaProjectSettingsPanel {
         updateChannel.getModel().setSelectedItem(ScalaPluginUpdater.getScalaPluginBranch());
 
         setValue(myBasePackage, scalaProjectSettings.getBasePackage());
+        setValue(scalaTestDefaultSuperClass, scalaProjectSettings.getScalaTestDefaultSuperClass());
         setValue(implicitParametersSearchDepthSpinner, scalaProjectSettings.getImplicitParametersSearchDepth());
         setValue(outputSpinner, scalaProjectSettings.getOutputLimit());
         setValue(runWorksheetInTheCheckBox, scalaProjectSettings.isInProcessMode());
