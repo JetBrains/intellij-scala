@@ -33,7 +33,7 @@ import scala.collection.mutable.ArrayBuffer
 
 object IntentionUtils {
 
-  def check(element: PsiElement, onlyBoolean: Boolean): Option[() => Unit] = {
+  def addNameToArgumentsFix(element: PsiElement, onlyBoolean: Boolean): Option[() => Unit] = {
     val containingArgList: Option[ScArgumentExprList] = element.parents.collectFirst {
       case al: ScArgumentExprList if !al.isBraceArgs => al
     }
@@ -52,11 +52,11 @@ object IntentionUtils {
               case _ => false
             }
             val hasName = argsAndMatchingParams.exists {
-              case (_, Some(param)) if (!param.name.isEmpty) => true
+              case (_, Some(param)) if !param.name.isEmpty => true
               case _ => false
             }
             val hasUnderscore = argsAndMatchingParams.exists {
-              case (_, Some(param)) if (param.isInstanceOf[ScUnderscoreSection]) => true
+              case (_, Some(param)) if param.isInstanceOf[ScUnderscoreSection] => true
               case (underscore: ScUnderscoreSection, Some(param)) => true
               case param: ScUnderscoreSection => true
               case _ => false
@@ -99,7 +99,7 @@ object IntentionUtils {
         case _: ScGenericCall => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
         case _: ScXmlExpr => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
         case _: ScMethodCall => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
-        case infix: ScInfixExpr if (infix.getBaseExpr.isInstanceOf[ScUnderscoreSection]) =>
+        case infix: ScInfixExpr if infix.getBaseExpr.isInstanceOf[ScUnderscoreSection] =>
           argsBuilder.insert(0, "(").append(")")
         case _ =>
       }
@@ -146,7 +146,7 @@ object IntentionUtils {
             else e.getBaseExpr.getText
           val newExpr = ScalaPsiElementFactory.createExpressionFromText(exprWithoutParentheses, expression.getManager)
           inWriteAction {
-            e.replaceExpression(newExpr, true).getText
+            e.replaceExpression(newExpr, removeParenthesis = true).getText
           }
         }
         else "!(" + e.getText + ")"

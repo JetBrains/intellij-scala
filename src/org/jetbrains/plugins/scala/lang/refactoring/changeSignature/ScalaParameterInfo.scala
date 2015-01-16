@@ -7,7 +7,7 @@ import com.intellij.psi.codeStyle.JavaCodeStyleManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.refactoring.changeSignature.JavaParameterInfo
 import com.intellij.refactoring.util.CanonicalTypes
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
@@ -23,11 +23,13 @@ class ScalaParameterInfo(@BeanProperty var name: String,
                          val project: Project,
                          var isRepeatedParameter: Boolean,
                          var isByName: Boolean,
-                         @BeanProperty var defaultValue: String = "")
+                         @BeanProperty var defaultValue: String = "",
+                         var keywordsAndAnnotations: String = "")
         extends JavaParameterInfo {
 
   def this(p: ScParameter) {
-    this(p.name, p.index, p.getType(TypingContext.empty).getOrAny, p.getProject, p.isRepeatedParameter, p.isCallByNameParameter)
+    this(p.name, p.index, p.getType(TypingContext.empty).getOrAny, p.getProject, p.isRepeatedParameter, p.isCallByNameParameter,
+      keywordsAndAnnotations = ScalaParameterInfo.keywordsAndAnnotations(p))
   }
 
   var defaultForJava = defaultValue
@@ -84,4 +86,10 @@ object ScalaParameterInfo {
   def apply(p: ScParameter) = new ScalaParameterInfo(p)
 
   def apply(project: Project) = new ScalaParameterInfo("", -1, null, project, false, false)
+
+  def keywordsAndAnnotations(p: ScParameter) = {
+    val nameId = p.nameId
+    val elems = p.children.takeWhile(_ != nameId)
+    elems.map(_.getText).mkString
+  }
 }

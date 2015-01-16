@@ -44,7 +44,7 @@ public class TestRunConfigurationForm {
     private TextFieldWithBrowseButton workingDirectoryField;
     private JPanel searchForTestsPanel;
     private ConfigurationModuleSelector myModuleSelector;
-    private String suitePath;
+    private java.util.List<String> suitePaths;
 
     private JComboBox searchForTestsComboBox;
 
@@ -252,7 +252,7 @@ public class TestRunConfigurationForm {
             }
         });
 
-        suitePath = configuration.suitePath();
+        suitePaths = configuration.javaSuitePaths();
         environmentVariables.setEnvs(configuration.getEnvVariables());
     }
 
@@ -422,9 +422,11 @@ public class TestRunConfigurationForm {
 
                     public boolean isAccepted(PsiClass aClass) {
                         if (!getScope().accept(aClass.getContainingFile().getVirtualFile())) return false;
-                        PsiClass[] classes = ScalaPsiManager.instance(project).getCachedClasses(getScope(), suitePath);
-                        for (PsiClass psiClass : classes) {
-                            if (ScalaPsiUtil.cachedDeepIsInheritor(aClass, psiClass)) return true;
+                        for (String suitePath : suitePaths) {
+                            PsiClass[] classes = ScalaPsiManager.instance(project).getCachedClasses(getScope(), suitePath);
+                            for (PsiClass psiClass : classes) {
+                                if (ScalaPsiUtil.cachedDeepIsInheritor(aClass, psiClass)) return true;
+                            }
                         }
                         return false;
                     }

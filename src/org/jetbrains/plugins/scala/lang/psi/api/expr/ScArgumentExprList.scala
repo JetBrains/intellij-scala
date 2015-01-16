@@ -7,7 +7,6 @@ package expr
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
 /** 
@@ -58,14 +57,7 @@ trait ScArgumentExprList extends ScArguments {
    */
   def matchedParameters: Option[Seq[(ScExpression, Parameter)]]
 
-  def parameterOf(argExpr: ScExpression): Option[Parameter] = matchedParameters.flatMap {
-    case params =>
-      argExpr match {
-        case a: ScAssignStmt =>
-          params.find(_._1 == argExpr).map(_._2).orElse(parameterOf(a.getRExpression.getOrElse(return None)))
-        case _ => params.find(_._1 == argExpr).map(_._2)
-      }
-  }
+  def parameterOf(argExpr: ScExpression): Option[Parameter] = ScalaPsiUtil.parameterOf(argExpr)
 
   def missedLastExpr: Boolean = {
     var child = getLastChild

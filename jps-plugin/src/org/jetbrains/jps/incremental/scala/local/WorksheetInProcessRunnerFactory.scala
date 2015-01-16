@@ -88,7 +88,7 @@ class WorksheetInProcessRunnerFactory {
           val compilerUrlSeq = compilerUrls.map(toUrlSpec)
           val classpathUrls = arguments.compilationData.classpath.map(_.toURI.toURL)
 
-          val classLoader = new URLClassLoader(worksheetUrls.toArray, getClassLoader(compilerUrlSeq, classpathUrls))
+          val classLoader = new URLClassLoader(worksheetUrls.toArray, getClassLoader(compilerUrlSeq, classpathUrls diff worksheetUrls.map(_.toURI.toURL) ))
 
           try {
             val cl = Class.forName(className, true, classLoader)

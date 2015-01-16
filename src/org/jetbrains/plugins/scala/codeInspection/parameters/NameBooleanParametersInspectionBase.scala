@@ -40,7 +40,7 @@ abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
         for (expr <- mc.args.exprs) {
           expr match {
             case literal: ScLiteral if isBooleanType(expr) &&
-                    IntentionUtils.check(literal, onlyBoolean = true).isDefined &&
+                    IntentionUtils.addNameToArgumentsFix(literal, onlyBoolean = true).isDefined &&
                     (expr.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kTRUE ||
                     expr.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kFALSE) =>
               holder.registerProblem(holder.getManager.createProblemDescriptor(expr,

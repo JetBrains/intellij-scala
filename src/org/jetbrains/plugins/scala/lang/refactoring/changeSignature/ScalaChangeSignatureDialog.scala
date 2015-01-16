@@ -151,7 +151,7 @@ class ScalaChangeSignatureDialog(val project: Project, method: ScalaMethodDescri
       case pc: ScPrimaryConstructor => s"class ${pc.getClassNameText} $getVisibility"
       case _ => ""
     }
-    val params = parametersTableModel.getItems.asScala.map(p => nameAndType(p))
+    val params = parametersTableModel.getItems.asScala.map(p => p.keywordsAndAnnotations + nameAndType(p))
     val paramsText = params.mkString("(", ", ", ")")
 
     if (params.exists(_.endsWith("*"))) defaultValuesUsagePanel.forceIsModifyCalls()
