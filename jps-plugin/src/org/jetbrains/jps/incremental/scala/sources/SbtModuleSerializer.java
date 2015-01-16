@@ -1,4 +1,4 @@
-package org.jetbrains.jps.incremental.scala.sbt;
+package org.jetbrains.jps.incremental.scala.sources;
 
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
