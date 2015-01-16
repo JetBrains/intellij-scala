@@ -23,10 +23,6 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
     myState = state;
   }
 
-  public IncrementalityType getIncrementalityType() {
-    return myState.incrementalityType;
-  }
-
   public CompileOrder getCompileOrder() {
     return myState.compileOrder;
   }

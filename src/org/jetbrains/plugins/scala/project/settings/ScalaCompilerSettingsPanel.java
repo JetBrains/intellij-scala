@@ -28,7 +28,6 @@ public class ScalaCompilerSettingsPanel {
   private JCheckBox myExplainTypeErrors;
   private JCheckBox myContinuations;
   private JComboBox myCompileOrder;
-  private JComboBox myIncrementalityType;
   private JCheckBox myDynamics;
   private JCheckBox myPostfixOps;
   private JCheckBox myReflectiveCalls;
@@ -42,9 +41,6 @@ public class ScalaCompilerSettingsPanel {
   private MyPathEditor myPluginsEditor = new MyPathEditor(new FileChooserDescriptor(true, false, true, true, false, true));
 
   public ScalaCompilerSettingsPanel() {
-    myIncrementalityType.setRenderer(new NamedValueRenderer());
-    myIncrementalityType.setModel(new DefaultComboBoxModel(IncrementalityType.values()));
-
     myCompileOrder.setRenderer(new NamedValueRenderer());
     myCompileOrder.setModel(new DefaultComboBoxModel(CompileOrder.values()));
 
@@ -66,7 +62,6 @@ public class ScalaCompilerSettingsPanel {
     state.existentials = myExistentials.isSelected();
     state.macros = myMacros.isSelected();
 
-    state.incrementalityType = (IncrementalityType) myIncrementalityType.getSelectedItem();
     state.compileOrder = (CompileOrder) myCompileOrder.getSelectedItem();
     state.warnings = myWarnings.isSelected();
     state.deprecationWarnings = myDeprecationWarnings.isSelected();
@@ -103,7 +98,6 @@ public class ScalaCompilerSettingsPanel {
     myExistentials.setSelected(state.existentials);
     myMacros.setSelected(state.macros);
 
-    myIncrementalityType.setSelectedItem(state.incrementalityType);
     myCompileOrder.setSelectedItem(state.compileOrder);
     myWarnings.setSelected(state.warnings);
     myDeprecationWarnings.setSelected(state.deprecationWarnings);
@@ -209,24 +203,15 @@ public class ScalaCompilerSettingsPanel {
     myExplainTypeErrors.setToolTipText("Explain type errors in more detail");
     panel1.add(myExplainTypeErrors, new GridConstraints(8, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JPanel panel2 = new JPanel();
-    panel2.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
+    panel2.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
     panel1.add(panel2, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     final JLabel label3 = new JLabel();
     label3.setText("Compile order:");
     label3.setDisplayedMnemonic('O');
     label3.setDisplayedMnemonicIndex(8);
-    panel2.add(label3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel2.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myCompileOrder = new JComboBox();
-    panel2.add(myCompileOrder, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    final JLabel label4 = new JLabel();
-    label4.setText("Incrementality type:");
-    label4.setDisplayedMnemonic('I');
-    label4.setDisplayedMnemonicIndex(0);
-    panel2.add(label4, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    myIncrementalityType = new JComboBox();
-    final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
-    myIncrementalityType.setModel(defaultComboBoxModel1);
-    panel2.add(myIncrementalityType, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel2.add(myCompileOrder, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final TitledSeparator titledSeparator1 = new TitledSeparator();
     titledSeparator1.setText("Options");
     panel1.add(titledSeparator1, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));

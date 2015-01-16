@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala
 package compiler
 
+import java.util.UUID
+
+import com.intellij.compiler.server.BuildManagerListener
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManager}
 import com.intellij.openapi.components.ProjectComponent
@@ -20,47 +23,38 @@ class ServerMediator(project: Project) extends ProjectComponent {
   private def isScalaProject = project.hasScala
   private val settings = ScalaCompileServerSettings.getInstance
 
-  CompilerManager.getInstance(project).addBeforeTask(new CompileTask {
+  private val connection = project.getMessageBus.connect
+  private val serverLauncher = new BuildManagerListener {
+    override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = {
+      if (settings.COMPILE_SERVER_ENABLED && isScalaProject && !ApplicationManager.getApplication.isUnitTestMode) {
+        invokeAndWait {
+          CompileServerManager.instance(project).configureWidget()
+        }
 
-    def execute(context: CompileContext): Boolean = {
-
-      val externalCompiler = true // TODO In-process build is now deprecated
-
-      if (isScalaProject) {
-
-        if (externalCompiler) {
-          if (!checkCompilationSettings()) {
-            return false
-          }
-
-          if (settings.COMPILE_SERVER_ENABLED && !ApplicationManager.getApplication.isUnitTestMode) {
-            invokeAndWait {
-              CompileServerManager.instance(project).configureWidget()
-            }
-
-            if (!CompileServerLauncher.instance.running) {
-              var started = false
-
-              invokeAndWait {
-                started = CompileServerLauncher.instance.tryToStart(project)
-              }
-
-              if (!started) {
-                return false
-              }
-            }
-          }
-        } else {
+        if (!CompileServerLauncher.instance.running) {
           invokeAndWait {
-            CompileServerLauncher.instance.stop(project)
-            CompileServerManager.instance(project).removeWidget()
+            CompileServerLauncher.instance.tryToStart(project)
           }
         }
       }
-
-      true
     }
-  })
+
+    override def buildFinished(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = {}
+  }
+
+  connection.subscribe(BuildManagerListener.TOPIC, serverLauncher)
+
+  private val checkSettingsTask = new CompileTask {
+    def execute(context: CompileContext): Boolean = {
+      if (isScalaProject) {
+        if (!checkCompilationSettings()) false
+        else true
+      }
+      else true
+    }
+  }
+
+  CompilerManager.getInstance(project).addBeforeTask(checkSettingsTask)
 
   private def checkCompilationSettings(): Boolean = {
     def hasClashes(module: Module) = module.hasScala && {

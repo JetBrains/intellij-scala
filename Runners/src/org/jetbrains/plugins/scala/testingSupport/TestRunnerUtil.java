@@ -84,7 +84,8 @@ public class TestRunnerUtil {
     String fileNameAndLine;
 
     public String toHint() {
-      String s = "locationHint='scala://" + escapeString(className);
+      if (className == null) return "";
+      String s = " locationHint='scala://" + escapeString(className);
       if (fileNameAndLine != null && !fileNameAndLine.isEmpty()) {
         s += "?filelocation=" + escapeString(fileNameAndLine);
       }

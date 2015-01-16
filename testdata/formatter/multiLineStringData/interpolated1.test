@@ -1,0 +1,11 @@
+val a =
+  s"""
+        |bla bla bla
+ |bla bla bla
+  """
+-----
+val a =
+  s"""
+      |bla bla bla
+      |bla bla bla
+  """

@@ -21,6 +21,8 @@ class ScalaParameterTableModelItem(parameter: ScalaParameterInfo,
 
   var typeText: String = typeCodeFragment.getText
 
+  def keywordsAndAnnotations = parameter.keywordsAndAnnotations
+
   override def isEllipsisType: Boolean = parameter.isRepeatedParameter
 
   def updateType(problems: ListBuffer[String] = ListBuffer()): Unit = {
