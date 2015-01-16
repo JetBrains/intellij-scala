@@ -6,9 +6,9 @@ import java.io.File
 import org.jetbrains.jps.incremental.scala.data.CompilationData
 import org.jetbrains.jps.incremental.scala.model.CompileOrder
 import org.jetbrains.plugin.scala.compiler.NameHashing
-import _root_.sbt.compiler._
-import _root_.sbt.inc.{Analysis, AnalysisStore, IncOptions, Locate}
-import _root_.sbt.{CompileOptions, CompileSetup}
+import sbt.compiler._
+import sbt.inc.{Analysis, AnalysisStore, IncOptions, Locate}
+import sbt.{CompileOptions, CompileSetup}
 
 /**
  * @author Pavel Fatin

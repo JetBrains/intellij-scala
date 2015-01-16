@@ -1,4 +1,4 @@
-package org.jetbrains.jps.incremental.scala.sbt;
+package org.jetbrains.jps.incremental.scala.sources;
 
 import org.jetbrains.jps.model.JpsDummyElement;
 import org.jetbrains.jps.model.ex.JpsElementTypeWithDummyProperties;

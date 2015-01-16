@@ -1,1 +1,1 @@
-org.jetbrains.jps.incremental.scala.sbt.ModuleTypeExclusionService
+org.jetbrains.jps.incremental.scala.sources.ModuleTypeExclusionService

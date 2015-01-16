@@ -5,7 +5,7 @@ import java.io.File
 
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.scala.data._
-import _root_.sbt.inc.{AnalysisStore, FileBasedStore}
+import sbt.inc.{AnalysisStore, FileBasedStore}
 
 /**
  * @author Pavel Fatin
