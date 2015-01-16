@@ -67,11 +67,12 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
         val funDef = PsiTreeUtil.getParentOfType(place, classOf[ScFunctionDefinition])
         val lazyVal = PsiTreeUtil.getParentOfType(place, classOf[ScPatternDefinition]) match {
           case null => null
-          case pd: ScPatternDefinition if pd.hasModifierProperty("lazy") => pd
+          case LazyVal(lzy) => lzy
           case _  => null
         }
 
         notInThisClass(funDef) || notInThisClass(lazyVal)
+      case ScalaPsiUtil.inNameContext(LazyVal(_)) => false //don't add lazy vals as they can be computed too early
       case _ => true
     }
   }
