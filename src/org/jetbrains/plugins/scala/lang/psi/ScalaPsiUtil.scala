@@ -1046,6 +1046,8 @@ object ScalaPsiUtil {
   def getPrevStubOrPsiElement(elem: PsiElement): PsiElement = {
     def workWithStub(stub: StubElement[_ <: PsiElement]): PsiElement = {
       val parent = stub.getParentStub
+      if (parent == null) return null
+
       val children = parent.getChildrenStubs
       val index = children.indexOf(stub)
       if (index == -1) {
@@ -1080,6 +1082,8 @@ object ScalaPsiUtil {
       case st: ScalaStubBasedElementImpl[_] if st.getStub != null =>
         val stub = st.getStub
         val parent = stub.getParentStub
+        if (parent == null) return null
+
         val children = parent.getChildrenStubs
         val index = children.indexOf(stub)
         if (index == -1) {
