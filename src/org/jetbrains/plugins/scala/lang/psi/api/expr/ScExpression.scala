@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
-import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitParametersCollector, ScImplicitlyConvertible}
+import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
@@ -71,7 +71,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                 case Success(tp, _) if tp.conforms(expected) => defaultResult
                 case Success(tp, _) =>
                   val functionType = ScFunctionType(expected, Seq(tp))(getProject, getResolveScope)
-                  val results = new ImplicitParametersCollector(this, functionType, functionType, None, isImplicitConversion = true, false).collect
+                  val results = new ImplicitCollector(this, functionType, functionType, None, isImplicitConversion = true, false).collect
                   if (results.length == 1) {
                     val res = results(0)
                     val paramType = InferUtil.extractImplicitParameterType(res)
