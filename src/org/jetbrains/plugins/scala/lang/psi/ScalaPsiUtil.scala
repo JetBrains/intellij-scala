@@ -44,7 +44,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockExprImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
-import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitParametersCollector, ScImplicitlyConvertible}
+import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
@@ -287,8 +287,8 @@ object ScalaPsiUtil {
         ))
         case _ => Seq.empty
       }
-      val exprType = ImplicitParametersCollector.exprType(e, fromUnder = false).getOrElse(return)
-      val convertible = new ImplicitParametersCollector(e,
+      val exprType = ImplicitCollector.exprType(e, fromUnder = false).getOrElse(return)
+      val convertible = new ImplicitCollector(e,
         ScFunctionType(types.Any, Seq(exprType))(e.getProject, e.getResolveScope),
         ScFunctionType(exprType, args)(e.getProject, e.getResolveScope), None, true, true,
         predicate = Some((rr, subst) => {
