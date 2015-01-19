@@ -211,7 +211,7 @@ private case class ServerInstance(watcher: ProcessWatcher, port: Int) {
 
 private object ConfigureLinkListener extends NotificationListener.Adapter {
   def hyperlinkActivated(notification: Notification, event: HyperlinkEvent) {
-    ShowSettingsUtil.getInstance().showSettingsDialog(null, "Scala")
+    CompileServerManager.showCompileServerSettingsDialog()
     notification.expire()
   }
 }
