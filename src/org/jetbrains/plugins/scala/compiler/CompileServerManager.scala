@@ -19,6 +19,7 @@ import com.intellij.openapi.wm.StatusBarWidget.PlatformType
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.util.Consumer
+import org.jetbrains.plugins.scala.compiler.CompileServerManager._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project._
 
@@ -150,7 +151,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
 
   private object Configure extends AnAction("&Configure...", "Configure compile server", AllIcons.General.Settings) with DumbAware {
     def actionPerformed(e: AnActionEvent) {
-      ShowSettingsUtil.getInstance().showSettingsDialog(null, "Scala Compile Server")
+      showCompileServerSettingsDialog()
     }
   }
 
@@ -190,4 +191,8 @@ class CompileServerManager(project: Project) extends ProjectComponent {
 
 object CompileServerManager {
   def instance(project: Project) = project.getComponent(classOf[CompileServerManager])
+
+  def showCompileServerSettingsDialog(): Unit = {
+    ShowSettingsUtil.getInstance().showSettingsDialog(null, "Scala Compile Server")
+  }
 }
