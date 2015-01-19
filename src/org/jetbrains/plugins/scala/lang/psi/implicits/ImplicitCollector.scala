@@ -30,7 +30,7 @@ import scala.annotation.tailrec
 import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 
-object ImplicitParametersCollector {
+object ImplicitCollector {
   val cache = new ConcurrentHashMap[(PsiElement, ScType), Seq[ScalaResolveResult]]()
 
   def exprType(expr: ScExpression, fromUnder: Boolean): Option[ScType] = {
@@ -51,7 +51,7 @@ object ImplicitParametersCollector {
  * User: Alexander Podkhalyuzin
  * Date: 23.11.2009
  */
-class ImplicitParametersCollector(private var place: PsiElement, tp: ScType, expandedTp: ScType,
+class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: ScType,
                                   coreElement: Option[ScNamedElement], isImplicitConversion: Boolean,
                                   isExtensionConversion: Boolean, searchImplicitsRecursively: Int = 0,
                                   predicate: Option[(ScalaResolveResult, ScSubstitutor) => Option[(ScalaResolveResult, ScSubstitutor)]] = None) {
@@ -62,7 +62,7 @@ class ImplicitParametersCollector(private var place: PsiElement, tp: ScType, exp
       case Some(clazz) if InferUtil.skipQualSet.contains(clazz.qualifiedName) => return Seq.empty
       case _ =>
     }
-    var result = ImplicitParametersCollector.cache.get((place, tp))
+    var result = ImplicitCollector.cache.get((place, tp))
     if (result != null) return result
     ProgressManager.checkCanceled()
     var processor = new ImplicitParametersProcessor(false)
@@ -84,7 +84,7 @@ class ImplicitParametersCollector(private var place: PsiElement, tp: ScType, exp
               placeCalculated = true //we need to check that, otherwise we will be outside
             case _ =>
           }
-          if (predicate.isEmpty) result = ImplicitParametersCollector.cache.get((place, tp))
+          if (predicate.isEmpty) result = ImplicitCollector.cache.get((place, tp))
           if (result != null) return result
         }
         lastParent = placeForTreeWalkUp
@@ -110,7 +110,7 @@ class ImplicitParametersCollector(private var place: PsiElement, tp: ScType, exp
       InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search second part failed for type: " + tp.toString)
       candidates
     } else secondCandidates
-    if (predicate.isEmpty) ImplicitParametersCollector.cache.put((place, tp), result)
+    if (predicate.isEmpty) ImplicitCollector.cache.put((place, tp), result)
     result
   }
 

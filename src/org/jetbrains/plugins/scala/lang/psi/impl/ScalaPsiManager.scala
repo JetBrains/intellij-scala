@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers._
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitParametersCollector
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -394,7 +394,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         Equivalence.cache.clear()
         ScParameterizedType.substitutorCache.clear()
         ScalaPsiUtil.collectImplicitObjectsCache.clear()
-        ImplicitParametersCollector.cache.clear()
+        ImplicitCollector.cache.clear()
       }
     })
 
@@ -420,7 +420,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         Equivalence.cache.clear()
         ScParameterizedType.substitutorCache.clear()
         ScalaPsiUtil.collectImplicitObjectsCache.clear()
-        ImplicitParametersCollector.cache.clear()
+        ImplicitCollector.cache.clear()
       }
     })
 
@@ -443,7 +443,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         Equivalence.cache.clear()
         ScParameterizedType.substitutorCache.clear()
         ScalaPsiUtil.collectImplicitObjectsCache.clear()
-        ImplicitParametersCollector.cache.clear()
+        ImplicitCollector.cache.clear()
       }
     })
   }

@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitParametersCollector
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
@@ -147,7 +147,7 @@ object InferUtil {
     while (iterator.hasNext) {
       val param = iterator.next()
       val paramType = abstractSubstitutor.subst(param.paramType) //we should do all of this with information known before
-      val collector = new ImplicitParametersCollector(place, paramType, paramType, coreElement, isImplicitConversion = false, false, searchImplicitsRecursively)
+      val collector = new ImplicitCollector(place, paramType, paramType, coreElement, isImplicitConversion = false, false, searchImplicitsRecursively)
       val results = collector.collect
       if (results.length == 1) {
         if (check && !results(0).isApplicable()) throw new SafeCheckException
