@@ -13,7 +13,7 @@ import ScalaProjectConverter._
 class ScalaProjectConverter(context: ConversionContext) extends ProjectConverter {
   private val scalaModuleConverter = new ScalaModuleConversionProcessor(context)
 
-  private val scalaFacets: Seq[ScalaFacetData] = scalaFacetsIn(context)
+  private val scalaCompilerSettings: Map[String, ScalaCompilerSettings] = scalaCompilerSettingsIn(context)
   private val obsoleteProjectLibraries: Set[LibraryReference] = obsoleteLibrariesIn(context).filter(_.level == ProjectLevel)
 
   private var createdSettingsFiles: Seq[File] = Seq.empty
@@ -29,8 +29,8 @@ class ScalaProjectConverter(context: ConversionContext) extends ProjectConverter
   }
 
   private def updateScalaCompilerSettings() {
-    val compilerOptions = ScalaCompilerOptions.generalize(scalaFacets.map(_.compilerOptions))
-    createdSettingsFiles = compilerOptions.createIn(context).toSeq
+    val compilerConfiguration = merge(scalaCompilerSettings)
+    createdSettingsFiles = compilerConfiguration.createIn(context).toSeq
   }
 
   private def deleteObsoleteProjectLibraries() {
@@ -47,8 +47,9 @@ private object ScalaProjectConverter {
   private def findScalaCompilerLibraryIn(module: ModuleSettings): Option[LibraryReference] =
     ScalaFacetData.findIn(module).flatMap(_.compilerLibrary)
 
-  private def scalaFacetsIn(context: ConversionContext): Seq[ScalaFacetData] =
-    modulesIn(context).flatMap(ScalaFacetData.findIn)
+  private def scalaCompilerSettingsIn(context: ConversionContext): Map[String, ScalaCompilerSettings] =
+    modulesIn(context).flatMap(module => ScalaFacetData.findIn(module).toSeq
+            .map(facet => (module.getModuleName, facet.compilerSettings)).toSeq).toMap
 
   private def modulesIn(context: ConversionContext): Seq[ModuleSettings] =
     context.getModuleFiles.map(context.getModuleSettings).toSeq
@@ -62,5 +63,20 @@ private object ScalaProjectConverter {
     val compilerLibraries = modules.flatMap(findScalaCompilerLibraryIn).toSet
 
     standardLibraries ++ (compilerLibraries -- referencedLibraries)
+  }
+
+  private def merge(moduleSettings: Map[String, ScalaCompilerSettings]): ScalaCompilerConfiguration = {
+    val settingsToModules = moduleSettings.groupBy(_._2).mapValues(_.keys.toSet).toSeq
+
+    val sortedSettingsToModules = settingsToModules.sortBy(p => (p._2.size, p._1.isDefault)).reverse
+
+    val profiles = sortedSettingsToModules.zipWithIndex.map {
+      case ((settings, modules), i) => new ScalaCompilerSettingsProfile("Profile " + i, modules.toSeq, settings)
+    }
+
+    val defaultSettings = profiles.headOption.fold(ScalaCompilerSettings.Default)(_.settings)
+    val customProfiles = profiles.drop(1)
+
+    new ScalaCompilerConfiguration(defaultSettings, customProfiles)
   }
 }
