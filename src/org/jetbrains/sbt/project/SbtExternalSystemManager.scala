@@ -18,8 +18,11 @@ import com.intellij.openapi.projectRoots.{JavaSdkType, ProjectJdkTable}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.testFramework.IdeaTestUtil
 import com.intellij.util.net.HttpConfigurable
+import org.jetbrains.android.sdk.AndroidSdkType
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSystemSettings}
+
+import scala.collection.mutable
 
 /**
  * @author Pavel Fatin
@@ -94,11 +97,18 @@ object SbtExternalSystemManager {
                             .map(_.getName)
                             .orElse(projectSettings.jdkName)
 
+    val environment = mutable.Map.empty[String, String]
+
     val vmExecutable = if (!ApplicationManager.getApplication.isUnitTestMode) {
       customVmExecutable.orElse {
         val projectSdk = projectJdkName.flatMap(name => Option(ProjectJdkTable.getInstance().findJdk(name)))
 
         projectSdk.map { sdk =>
+          sdk.getSdkType match {
+            case sdkType : AndroidSdkType =>
+              environment += ("ANDROID_HOME" -> sdk.getSdkModificator.getHomePath)
+            case _ => // do nothing
+          }
           val sdkType = sdk.getSdkType.asInstanceOf[JavaSdkType]
           new File(sdkType.getVMExecutablePath(sdk))
         }
@@ -114,7 +124,7 @@ object SbtExternalSystemManager {
       new File(sdkType.getVMExecutablePath(sdk))
     }
 
-    new SbtExecutionSettings(vmExecutable, vmOptions, customLauncher, customSbtStructureDir, projectJdkName,
+    new SbtExecutionSettings(vmExecutable, vmOptions, environment.toMap, customLauncher, customSbtStructureDir, projectJdkName,
       projectSettings.resolveClassifiers, projectSettings.resolveSbtClassifiers)
   }
 
