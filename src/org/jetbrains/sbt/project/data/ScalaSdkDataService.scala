@@ -17,7 +17,7 @@ class ScalaSdkDataService(platformFacade: PlatformFacade, helper: ProjectStructu
   extends AbstractDataService[ScalaSdkData, Library](ScalaSdkData.Key) {
 
   def doImportData(toImport: util.Collection[DataNode[ScalaSdkData]], project: Project) {
-    ScalaCompilerConfiguration.instanceIn(project).clear()
+    ScalaCompilerConfiguration.instanceIn(project).clearProfiles()
 
     toImport.asScala.foreach(doImport(_, project))
   }

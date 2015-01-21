@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitParametersCollector
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.util.macroDebug.ScalaMacroDebuggingUtil
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -148,35 +147,13 @@ object InferUtil {
     while (iterator.hasNext) {
       val param = iterator.next()
       val paramType = abstractSubstitutor.subst(param.paramType) //we should do all of this with information known before
-      val collector = new ImplicitParametersCollector(place, paramType, coreElement, isImplicitConversion = false, searchImplicitsRecursively)
+      val collector = new ImplicitCollector(place, paramType, paramType, coreElement, isImplicitConversion = false, false, searchImplicitsRecursively)
       val results = collector.collect
       if (results.length == 1) {
         if (check && !results(0).isApplicable()) throw new SafeCheckException
         resolveResults += results(0)
         def updateExpr() {
-          results(0) match {
-            case r: ScalaResolveResult if r.implicitParameterType.isDefined =>
-              exprs += new Expression(polymorphicSubst subst r.implicitParameterType.get)
-            case ScalaResolveResult(o: ScObject, subst) =>
-              exprs += new Expression(polymorphicSubst subst subst.subst(o.getType(TypingContext.empty).get))
-            case ScalaResolveResult(param: ScParameter, subst) =>
-              exprs += new Expression(polymorphicSubst subst subst.subst(param.getType(TypingContext.empty).get))
-            case ScalaResolveResult(patt: ScBindingPattern, subst) =>
-              exprs += new Expression(polymorphicSubst subst subst.subst(patt.getType(TypingContext.empty).get))
-            case ScalaResolveResult(f: ScFieldId, subst) =>
-              exprs += new Expression(polymorphicSubst subst subst.subst(f.getType(TypingContext.empty).get))
-            case ScalaResolveResult(fun: ScFunction, subst) =>
-              val funType = {
-                if (fun.parameters.length == 0 || fun.paramClauses.clauses.apply(0).isImplicit) {
-                  subst.subst(fun.getType(TypingContext.empty).get) match {
-                    case ScFunctionType(ret, _) => ret
-                    case other => other
-                  }
-                }
-                else subst.subst(fun.getType(TypingContext.empty).get)
-              }
-              exprs += new Expression(polymorphicSubst subst funType)
-          }
+          exprs += new Expression(polymorphicSubst subst extractImplicitParameterType(results(0)))
         }
         val evaluator = ScalaMacroEvaluator.getInstance(place.getProject)
         evaluator.isMacro(results(0).getElement) match {
@@ -288,6 +265,27 @@ object InferUtil {
       case tpt @ ScTypePolymorphicType(mt: ScMethodType, typeParams) => tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType))
       case mt: ScMethodType => applyImplicitViewToResult(mt, expectedType)
       case tp => tp
+    }
+  }
+
+  def extractImplicitParameterType(r: ScalaResolveResult): ScType = {
+    r match {
+      case r: ScalaResolveResult if r.implicitParameterType.isDefined => r.implicitParameterType.get
+      case ScalaResolveResult(o: ScObject, subst) => subst.subst(o.getType(TypingContext.empty).get)
+      case ScalaResolveResult(param: ScParameter, subst) => subst.subst(param.getType(TypingContext.empty).get)
+      case ScalaResolveResult(patt: ScBindingPattern, subst) => subst.subst(patt.getType(TypingContext.empty).get)
+      case ScalaResolveResult(f: ScFieldId, subst) => subst.subst(f.getType(TypingContext.empty).get)
+      case ScalaResolveResult(fun: ScFunction, subst) =>
+        val funType = {
+          if (fun.paramClauses.clauses.length > 0 && fun.paramClauses.clauses.apply(0).isImplicit) {
+            subst.subst(fun.getType(TypingContext.empty).get) match {
+              case ScFunctionType(ret, _) => ret
+              case other => other
+            }
+          }
+          else subst.subst(fun.getType(TypingContext.empty).get)
+        }
+        funType
     }
   }
 }

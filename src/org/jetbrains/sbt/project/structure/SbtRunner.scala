@@ -9,13 +9,14 @@ import java.util.jar.{JarEntry, JarFile}
 import com.intellij.execution.process.OSProcessHandler
 import org.jetbrains.sbt.project.structure.SbtRunner._
 
+import scala.collection.JavaConverters._
 import scala.xml.{Elem, XML}
 
 /**
  * @author Pavel Fatin
  */
-class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customStructureDir: Option[String],
-                vmExecutable: File) {
+class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[String, String],
+                customLauncher: Option[File], customStructureDir: Option[String]) {
   private val LauncherDir = getSbtLauncherDir
   private val SbtLauncher = customLauncher.getOrElse(LauncherDir / "sbt-launch.jar")
   private val DefaultSbtVersion = "0.13"
@@ -80,7 +81,12 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customStru
         val processCommands = processCommandsRaw.filterNot(_.isEmpty)
 
         try {
-          val process = Runtime.getRuntime.exec(processCommands.toArray, null, directory)
+          val processBuilder = new ProcessBuilder(processCommands.asJava)
+          processBuilder.directory(directory)
+          environment.foreach { case (name, value) =>
+            processBuilder.environment().put(name, value)
+          }
+          val process = processBuilder.start()
           val result = handle(process, listener)
           result.map { output =>
             (structureFile.length > 0).either(

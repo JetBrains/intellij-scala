@@ -1,19 +1,21 @@
 package org.jetbrains.plugins.scala.components
 
-import java.io.IOException
+import java.io.{File, IOException}
 import java.lang.reflect.Field
 import javax.swing.event.HyperlinkEvent
 
-import com.intellij.ide.plugins.{IdeaPluginDescriptorImpl, PluginManagerMain, PluginManagerUISettings, PluginInstaller}
+import com.intellij.ide.plugins.{IdeaPluginDescriptorImpl, PluginInstaller, PluginManagerMain, PluginManagerUISettings}
 import com.intellij.notification._
-import com.intellij.openapi.application.{ApplicationManager, Application, ApplicationInfo}
 import com.intellij.openapi.application.impl.ApplicationInfoImpl
+import com.intellij.openapi.application.{Application, ApplicationInfo, ApplicationManager}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.updateSettings.impl.{UpdateChecker, UpdateSettings}
 import com.intellij.openapi.util.JDOMExternalizableStringList
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch._
+
+import scala.xml.transform.{RewriteRule, RuleTransformer}
 
 object ScalaPluginUpdater {
   private val LOG = Logger.getInstance(getClass)
@@ -78,7 +80,27 @@ object ScalaPluginUpdater {
     }
   }
 
+  // this hack uses fake plugin.xml deserialization to downgrade plugin version
+  // at least it's not using reflection
   def patchPluginVersion() = {
+    import scala.xml._
+    val versionPatcher = new RewriteRule {
+      override def transform(n: Node): NodeSeq = n match {
+        case <version>{_}</version> => <version>{"0.0.0"}</version>
+        case <include/> => NodeSeq.Empty // relative path includes break temp file parsing
+        case other => other
+      }
+    }
+    val descriptor = ScalaPluginVersionVerifier.getPluginDescriptor
+    val stream = getClass.getClassLoader.getResource("META-INF/plugin.xml").openStream()
+    val document = new RuleTransformer(versionPatcher).transform(XML.load(stream))
+    val tempFile = File.createTempFile("plugin", "xml")
+    XML.save(tempFile.getAbsolutePath, document.head)
+    descriptor.readExternal(tempFile.toURI.toURL)
+    tempFile.delete()
+  }
+
+  def patchPluginVersionReflection() = {
     // crime of reflection goes below - workaround until force updating is available
     try {
       val hack: Field = classOf[IdeaPluginDescriptorImpl].getDeclaredField("myVersion")
@@ -86,8 +108,7 @@ object ScalaPluginUpdater {
       hack.set(ScalaPluginVersionVerifier.getPluginDescriptor, "0.0.0")
     }
     catch {
-      case e: NoSuchFieldException => LOG.error("Failed to set plugin version", e)
-      case e: IllegalAccessException =>
+      case _: NoSuchFieldException | _: IllegalAccessException  =>
         Notifications.Bus.notify(new Notification("Scala", "Scala Plugin Update", "Please remove and reinstall Scala plugin to finish downgrading", NotificationType.INFORMATION))
     }
   }

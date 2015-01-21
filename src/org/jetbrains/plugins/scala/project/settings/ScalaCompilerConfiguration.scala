@@ -6,6 +6,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.{SkipDefaultValuesSerializationFilters, XmlSerializer}
 import org.jdom.Element
+import org.jetbrains.plugins.scala.project.IncrementalityType
 
 import scala.collection.JavaConverters._
 
@@ -16,13 +17,15 @@ import scala.collection.JavaConverters._
   new Storage(file = PROJECT_FILE),
   new Storage(file = PROJECT_CONFIG_DIR + "/scala_compiler.xml", scheme = StorageScheme.DIRECTORY_BASED)))
 class ScalaCompilerConfiguration(project: Project) extends PersistentStateComponent[Element] {
+  var incrementalityType: IncrementalityType = IncrementalityType.IDEA
+
   var defaultProfile: ScalaCompilerSettingsProfile = _
 
   var customProfiles: Seq[ScalaCompilerSettingsProfile] = _
 
-  clear()
+  clearProfiles()
 
-  def clear() {
+  def clearProfiles() {
     customProfiles = Seq.empty
     defaultProfile = new ScalaCompilerSettingsProfile("Default")
   }
@@ -36,25 +39,25 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
     val settings = new ScalaCompilerSettings()
     settings.initFrom(options)
 
-    if (defaultProfile.getSettings.getState == settings.getState) {
-      defaultProfile.addModuleName(module.getName)
-    } else if (defaultProfile.getModuleNames.isEmpty) {
-      defaultProfile.setSettings(settings)
-      defaultProfile.addModuleName(module.getName)
-    } else {
-      customProfiles.find(_.getSettings.getState == settings.getState) match {
-        case Some(profile) => profile.addModuleName(module.getName)
-        case None =>
-          val profile = new ScalaCompilerSettingsProfile(source + " " + (customProfiles.length + 1))
-          profile.setSettings(settings)
-          profile.addModuleName(module.getName)
-          customProfiles :+= profile
-      }
+    customProfiles.find(_.getSettings.getState == settings.getState) match {
+      case Some(profile) => profile.addModuleName(module.getName)
+      case None =>
+        val profile = new ScalaCompilerSettingsProfile(source + " " + (customProfiles.length + 1))
+        profile.setSettings(settings)
+        profile.addModuleName(module.getName)
+        customProfiles :+= profile
     }
   }
 
   def getState: Element = {
     val configurationElement = XmlSerializer.serialize(defaultProfile.getSettings.getState, new SkipDefaultValuesSerializationFilters())
+
+    if (incrementalityType != IncrementalityType.IDEA) {
+      val incrementalityTypeElement = new Element("option")
+      incrementalityTypeElement.setAttribute("name", "incrementalityType")
+      incrementalityTypeElement.setAttribute("value", incrementalityType.toString)
+      configurationElement.addContent(incrementalityTypeElement)
+    }
 
     customProfiles.foreach { profile =>
       val profileElement = XmlSerializer.serialize(profile.getSettings.getState, new SkipDefaultValuesSerializationFilters())
@@ -69,6 +72,11 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
   }
 
   def loadState(configurationElement: Element) {
+    incrementalityType = configurationElement.getChildren("option").asScala
+            .find(_.getAttributeValue("name") == "incrementalityType")
+            .map(it => IncrementalityType.valueOf(it.getAttributeValue("value")))
+            .getOrElse(IncrementalityType.IDEA)
+
     defaultProfile.setSettings(new ScalaCompilerSettings(XmlSerializer.deserialize(configurationElement, classOf[ScalaCompilerSettingsState])))
 
     customProfiles = configurationElement.getChildren("profile").asScala.map { profileElement =>

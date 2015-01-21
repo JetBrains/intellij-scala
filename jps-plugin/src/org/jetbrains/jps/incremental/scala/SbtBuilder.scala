@@ -6,7 +6,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.Processor
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.impl.TargetOutputIndexImpl
-import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor
+import org.jetbrains.jps.builders.java.{JavaModuleBuildTargetType, JavaSourceRootDescriptor}
 import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget, DirtyFilesHolder}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental._
@@ -74,7 +74,7 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
   }
 
   private def isDisabled(context: CompileContext): Boolean = {
-    projectSettings(context).getDefaultSettings.getIncrementalityType != IncrementalityType.SBT
+    projectSettings(context).getIncrementalityType != IncrementalityType.SBT
   }
 
   private def hasDirtyFilesOrDependencies(context: CompileContext, chunk: ModuleChunk,
@@ -117,7 +117,16 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
     val rootIndex = project.getBuildRootIndex
     val excludeIndex = project.getModuleExcludeIndex
 
-    for (target <- chunk.getTargets.asScala;
+    val sourceTargets = {
+      val sourceDependencies = SourceDependenciesProviderService.getSourceDependenciesFor(chunk)
+      val targetType = chunk.representativeTarget.getTargetType match {
+        case javaBuildTarget: JavaModuleBuildTargetType => javaBuildTarget
+        case _ => JavaModuleBuildTargetType.PRODUCTION
+      }
+      sourceDependencies.map(new ModuleBuildTarget(_, targetType))
+    }
+
+    for (target <- chunk.getTargets.asScala ++ sourceTargets;
          root <- rootIndex.getTargetRoots(target, context).asScala) {
       FileUtil.processFilesRecursively(root.getRootFile, new Processor[File] {
         def process(file: File) = {
