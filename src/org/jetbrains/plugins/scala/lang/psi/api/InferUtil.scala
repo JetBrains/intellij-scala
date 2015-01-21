@@ -275,17 +275,7 @@ object InferUtil {
       case ScalaResolveResult(param: ScParameter, subst) => subst.subst(param.getType(TypingContext.empty).get)
       case ScalaResolveResult(patt: ScBindingPattern, subst) => subst.subst(patt.getType(TypingContext.empty).get)
       case ScalaResolveResult(f: ScFieldId, subst) => subst.subst(f.getType(TypingContext.empty).get)
-      case ScalaResolveResult(fun: ScFunction, subst) =>
-        val funType = {
-          if (fun.paramClauses.clauses.length > 0 && fun.paramClauses.clauses.apply(0).isImplicit) {
-            subst.subst(fun.getType(TypingContext.empty).get) match {
-              case ScFunctionType(ret, _) => ret
-              case other => other
-            }
-          }
-          else subst.subst(fun.getType(TypingContext.empty).get)
-        }
-        funType
+      case ScalaResolveResult(fun: ScFunction, subst) => subst.subst(fun.getTypeNoImplicits(TypingContext.empty).get)
     }
   }
 }
