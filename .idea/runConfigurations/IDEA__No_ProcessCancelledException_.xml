@@ -4,7 +4,7 @@
     <option name="MAIN_CLASS_NAME" value="com.intellij.idea.Main" />
     <option name="VM_PARAMETERS" value="-Xmx800m -XX:ReservedCodeCacheSize=64m -XX:MaxPermSize=250m -XX:+HeapDumpOnOutOfMemoryError -ea -Didea.is.internal=true -Didea.debug.mode=true -Didea.system.path=$USER_HOME$/.IdeaData/IDEA-14/scala/system -Didea.config.path=$USER_HOME$/.IdeaData/IDEA-14/scala/config -Dapple.laf.useScreenMenuBar=true -Dplugin.path=$PROJECT_DIR$/out/plugin/Scala -Didea.ProcessCanceledException=disabled" />
     <option name="PROGRAM_PARAMETERS" value="" />
-    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/SDK/ideaSDK/idea-139.224.1" />
+    <option name="WORKING_DIRECTORY" value="file://$IDEA-14_HOME$" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
     <option name="ALTERNATIVE_JRE_PATH" value="" />
     <option name="ENABLE_SWING_INSPECTOR" value="false" />
