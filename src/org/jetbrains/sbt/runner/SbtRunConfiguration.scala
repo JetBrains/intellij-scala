@@ -91,14 +91,10 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
     def createJavaParameters(): JavaParameters = {
       val params: JavaParameters = new JavaParameters
       val jdk: Sdk = JavaParametersUtil.createProjectJdk(configuration.getProject, null)
-      try {
-        jdk.getSdkType match {
-          case sdkType : AndroidSdkType =>
-            envirnomentVariables.put("ANDROID_HOME", jdk.getSdkModificator.getHomePath)
-          case _ => // do nothing
-        }
-      } catch {
-        case _ : NoClassDefFoundError => // no android plugin, do nothing
+      jdk.getSdkType match {
+        case sdkType : AndroidSdkType =>
+          envirnomentVariables.put("ANDROID_HOME", jdk.getSdkModificator.getHomePath)
+        case _ => // do nothing
       }
       params.setWorkingDirectory(project.getBaseDir.getPath)
       params.configureByProject(configuration.getProject, JavaParameters.JDK_ONLY, jdk)
