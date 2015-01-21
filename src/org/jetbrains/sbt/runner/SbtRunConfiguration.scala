@@ -14,6 +14,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.util.JDOMExternalizer
 import org.jdom.Element
+import org.jetbrains.android.sdk.AndroidSdkType
 import org.jetbrains.sbt.project.structure.SbtRunner
 import org.jetbrains.sbt.settings.SbtSystemSettings
 
@@ -44,7 +45,7 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
   /**
    * Environment variables.
    */
-  private var envirnomentVariables: java.util.Map[String, String] = new mutable.HashMap[String, String]()
+  private val envirnomentVariables: java.util.Map[String, String] = new mutable.HashMap[String, String]()
 
   override def getValidModules: util.Collection[Module] = List()
 
@@ -73,7 +74,8 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
   def apply(params: SbtRunConfigurationForm): Unit = {
     tasks = params.getTasks
     javaOptions = params.getJavaOptions
-    envirnomentVariables = params.getEnvironmentVariables
+    envirnomentVariables.clear()
+    envirnomentVariables.putAll(params.getEnvironmentVariables)
   }
 
 
@@ -89,6 +91,11 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
     def createJavaParameters(): JavaParameters = {
       val params: JavaParameters = new JavaParameters
       val jdk: Sdk = JavaParametersUtil.createProjectJdk(configuration.getProject, null)
+      jdk.getSdkType match {
+        case sdkType : AndroidSdkType =>
+          envirnomentVariables.put("ANDROID_HOME", jdk.getSdkModificator.getHomePath)
+        case _ => // do nothing
+      }
       params.setWorkingDirectory(project.getBaseDir.getPath)
       params.configureByProject(configuration.getProject, JavaParameters.JDK_ONLY, jdk)
       val sbtSystemSettings: SbtSystemSettings = SbtSystemSettings.getInstance(configuration.getProject)
