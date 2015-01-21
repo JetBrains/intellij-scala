@@ -6,7 +6,7 @@
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>
-    <module name="SBT" />
+    <module name="ScalaCommunity" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
     <option name="ALTERNATIVE_JRE_PATH" value="" />
     <option name="PACKAGE_NAME" value="org.jetbrains.plugins.scala.lang.typeInference" />
@@ -15,7 +15,7 @@
     <option name="TEST_OBJECT" value="package" />
     <option name="VM_PARAMETERS" value="-Xms128m -Xmx1024m -XX:MaxPermSize=350m -ea -Didea.system.path=$USER_HOME$/.IdeaData/IDEA-14/scala/test-system -Didea.config.path=$USER_HOME$/.IdeaData/IDEA-14/scala/test-config -Dplugin.path=$PROJECT_DIR$/out/plugin/Scala -Didea.platform.prefix=Idea" />
     <option name="PARAMETERS" value="" />
-    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/../" />
+    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
     <option name="ENV_VARIABLES" />
     <option name="PASS_PARENT_ENVS" value="true" />
     <option name="TEST_SEARCH_SCOPE">
