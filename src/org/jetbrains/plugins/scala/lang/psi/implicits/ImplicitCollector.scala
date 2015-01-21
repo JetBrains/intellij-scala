@@ -171,15 +171,15 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
       val clazz = ScType.extractClass(tp)
       def forMap(c: ScalaResolveResult, withLocalTypeInference: Boolean, checkFast: Boolean): Option[(ScalaResolveResult, ScSubstitutor)] = {
         val subst = c.substitutor
-        c.element match {
-          case o: ScObject if !PsiTreeUtil.isContextAncestor(o, place, false) =>
+        (c.element match {
+          case o: ScObject if !withLocalTypeInference && !PsiTreeUtil.isContextAncestor(o, place, false) =>
             o.getType(TypingContext.empty) match {
               case Success(objType: ScType, _) =>
                 if (!subst.subst(objType).conforms(tp)) None
                 else Some(c, subst)
               case _ => None
             }
-          case param: ScParameter if !PsiTreeUtil.isContextAncestor(param, place, false) =>
+          case param: ScParameter if !withLocalTypeInference && !PsiTreeUtil.isContextAncestor(param, place, false) =>
             param.getType(TypingContext.empty) match {
               case Success(paramType: ScType, _) =>
                 if (!subst.subst(paramType).conforms(tp)) None
@@ -187,15 +187,15 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
               case _ => None
             }
           case patt: ScBindingPattern
-            if !PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(patt), place, false) =>
+            if !withLocalTypeInference && !PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(patt), place, false) =>
             patt.getType(TypingContext.empty) match {
-              case Success(pattType: ScType, _) =>
+              case Success(pattType: ScType, _) if !withLocalTypeInference =>
                 if (!subst.subst(pattType).conforms(tp)) None
                 else Some(c, subst)
               case _ => None
             }
           case f: ScFieldId
-            if !PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(f), place, false) =>
+            if !withLocalTypeInference && !PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(f), place, false) =>
             f.getType(TypingContext.empty) match {
               case Success(fType: ScType, _) =>
                 if (!subst.subst(fType).conforms(tp)) None
@@ -203,6 +203,8 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
               case _ => None
             }
           case fun: ScFunction if !PsiTreeUtil.isContextAncestor(fun, place, false) =>
+            if (!fun.hasTypeParameters && withLocalTypeInference) return None
+
             val oneImplicit = fun.effectiveParameterClauses.length == 1 && fun.effectiveParameterClauses.apply(0).isImplicit
             //to avoid checking implicit functions in case of simple implicit parameter search
             if (!oneImplicit && fun.effectiveParameterClauses.length > 0) {
@@ -213,7 +215,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                   val qName = "scala.Function" + funNum
                   val classQualifiedName = cl.qualifiedName
                   if (classQualifiedName != qName && classQualifiedName != "java.lang.Object" &&
-                      classQualifiedName != "scala.ScalaObject") return None
+                    classQualifiedName != "scala.ScalaObject") return None
                 case _ =>
               }
             }
@@ -320,15 +322,13 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                   InferUtil.logInfo(searchImplicitsRecursively, s"Check as implicit parameter for fun `${fun.name}` with type ${funType.toString}")
                   if (withLocalTypeInference && hasTypeParametersInType) {
                     val inferredSubst = subst.followed(ScalaPsiUtil.inferMethodTypesArgs(fun, subst))
-                    substedFunType = inferredSubst subst funType
+                    substedFunType = inferredSubst.subst(funType)
                   } else if (!withLocalTypeInference && !hasTypeParametersInType) {
-                    substedFunType = subst subst funType
+                    substedFunType = subst.subst(funType)
                   } else return None
                 } else {
-                  if (withLocalTypeInference) return None
                   substedFunType = subst.subst(funType)
                 }
-
 
                 if (substedFunType conforms tp) {
                   if (checkFast) Some(c, ScSubstitutor.empty)
@@ -345,6 +345,11 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
               case _ => None
             }
           case _ => None
+        }) match {
+          case Some((result, resultSubst)) if predicate.isDefined && !withLocalTypeInference =>
+            val checkPredicate = predicate.get
+            checkPredicate(result, resultSubst)
+          case res => res
         }
       }
 
@@ -357,14 +362,14 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
         val results: ArrayBuffer[(ScalaResolveResult, ScSubstitutor)] = new ArrayBuffer[(ScalaResolveResult, ScSubstitutor)]()
         var lastResult: Option[ScalaResolveResult] = None
         while (candidatesSeq.nonEmpty) {
-          val (next, rest) = mostSpecific.nextSpecificForImplicitParameters(lastResult, candidatesSeq)
+          val (next, rest) = mostSpecific.nextLayerSpecificForImplicitParameters(lastResult, candidatesSeq)
           next match {
             case Some(c) =>
               candidatesSeq = rest
               forMap(c, withLocalTypeInference, checkFast = false) match {
                 case Some(res) if res._1.isApplicable()  =>
                   predicate match {
-                    case Some(fun) =>
+                    case Some(fun) if withLocalTypeInference =>
                       fun(res._1, res._2) match {
                         case Some(newRes) =>
                           lastResult = Some(c)
