@@ -39,11 +39,6 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
   override def getIcon(flags: Int) = Icons.CLASS
 
   protected override def innerType(ctx: TypingContext) = {
-    if (getText == """new {
-                     |    val global: Global.this.type = Global.this
-                     |  } with Analyzer""".stripMargin) {
-      "stop here"
-    }
     val earlyHolders: Seq[ScDeclaredElementsHolder] = extendsBlock.earlyDefinitions match {
       case Some(e: ScEarlyDefinitions) => e.members.flatMap {
         case holder: ScDeclaredElementsHolder => Seq(holder)
