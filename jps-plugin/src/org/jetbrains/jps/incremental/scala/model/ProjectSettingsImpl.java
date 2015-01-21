@@ -11,8 +11,11 @@ import java.util.Map;
  * @author Pavel Fatin
  */
 public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> implements ProjectSettings {
-  public static final ProjectSettingsImpl DEFAULT = new ProjectSettingsImpl(CompilerSettingsImpl.DEFAULT,
-      new HashMap<String, CompilerSettingsImpl>(), new HashMap<String, String>());
+  public static final ProjectSettingsImpl DEFAULT =
+      new ProjectSettingsImpl(IncrementalityType.IDEA, CompilerSettingsImpl.DEFAULT,
+          new HashMap<String, CompilerSettingsImpl>(), new HashMap<String, String>());
+
+  private IncrementalityType myIncrementalityType;
 
   private CompilerSettingsImpl myDefaultSettings;
 
@@ -21,7 +24,8 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
   private Map<String, String> myModuleToProfile;
 
 
-  public ProjectSettingsImpl(CompilerSettingsImpl defaultSettings, Map<String, CompilerSettingsImpl> profileToSettings, Map<String, String> moduleToProfile) {
+  public ProjectSettingsImpl(IncrementalityType incrementalityType, CompilerSettingsImpl defaultSettings, Map<String, CompilerSettingsImpl> profileToSettings, Map<String, String> moduleToProfile) {
+    myIncrementalityType = incrementalityType;
     myDefaultSettings = defaultSettings;
     myProfileToSettings = profileToSettings;
     myModuleToProfile = moduleToProfile;
@@ -39,7 +43,7 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
 
     HashMap<String, String> moduleToProfile = new HashMap<String, String>(myModuleToProfile);
 
-    return new ProjectSettingsImpl(defaultSettings, profileToSettings, moduleToProfile);
+    return new ProjectSettingsImpl(myIncrementalityType, defaultSettings, profileToSettings, moduleToProfile);
   }
 
   @Override
@@ -48,8 +52,8 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
   }
 
   @Override
-  public CompilerSettings getDefaultSettings() {
-    return myDefaultSettings;
+  public IncrementalityType getIncrementalityType() {
+    return myIncrementalityType;
   }
 
   @Override

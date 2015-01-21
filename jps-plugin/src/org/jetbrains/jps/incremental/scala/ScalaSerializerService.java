@@ -65,6 +65,8 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
 
     @Override
     public void loadExtension(@NotNull JpsProject jpsProject, @NotNull Element componentTag) {
+      IncrementalityType incrementalityType = loadIncrementalityType(componentTag);
+
       CompilerSettingsImpl defaultSetting = loadSettings(componentTag);
 
       Map<String, String> moduleToProfile = new HashMap<String, String>();
@@ -81,9 +83,18 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
         }
       }
 
-      ProjectSettings configuration = new ProjectSettingsImpl(defaultSetting, profileToSettings, moduleToProfile);
+      ProjectSettings configuration = new ProjectSettingsImpl(incrementalityType, defaultSetting, profileToSettings, moduleToProfile);
 
       SettingsManager.setProjectSettings(jpsProject, configuration);
+    }
+
+    private static IncrementalityType loadIncrementalityType(Element componentTag) {
+      for (Element option : componentTag.getChildren("option")) {
+        if ("incrementalityType".equals(option.getAttributeValue("name"))) {
+          return IncrementalityType.valueOf(option.getAttributeValue("value"));
+        }
+      }
+      return IncrementalityType.IDEA;
     }
 
     private static CompilerSettingsImpl loadSettings(Element componentTag) {

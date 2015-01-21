@@ -225,33 +225,6 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
         ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), tp.lowerType().inferValueType)
     }), Map.empty, None)
 
-  def polymorphicTypeSubstitutorMissedEmptyParams: ScSubstitutor =
-    new ScSubstitutor(new HashMap[(String, String), ScType] ++ typeParameters.flatMap(tp => {
-      var contraVariant = 0
-      var coOrInVariant = 0
-      internalType.recursiveVarianceUpdate {
-        case (typez: ScType, i: Int) =>
-          val pair = typez match {
-            case tp: ScTypeParameterType => (tp.name, ScalaPsiUtil.getPsiElementId(tp.param))
-            case ScUndefinedType(tp) => (tp.name, ScalaPsiUtil.getPsiElementId(tp.param))
-            case ScAbstractType(tp, _, _) => (tp.name, ScalaPsiUtil.getPsiElementId(tp.param))
-            case _ => null
-          }
-          if (pair != null) {
-            if ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)) == pair) {
-              if (i == -1) contraVariant += 1
-              else coOrInVariant += 1
-            }
-          }
-          (false, typez)
-      }
-      if (coOrInVariant == 0 && contraVariant != 0)
-        Seq(((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), tp.upperType()))
-      else if (coOrInVariant != 0)
-        Seq(((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), tp.lowerType()))
-      else Seq.empty
-    }),  Map.empty, None)
-
   def abstractTypeSubstitutor: ScSubstitutor = {
     def hasRecursiveTypeParameters(typez: ScType): Boolean = {
       var hasRecursiveTypeParameters = false

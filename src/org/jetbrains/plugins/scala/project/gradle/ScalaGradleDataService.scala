@@ -20,7 +20,7 @@ class ScalaGradleDataService(platformFacade: PlatformFacade, helper: ProjectStru
         extends AbstractDataService[ScalaModelData, Library](ScalaModelData.KEY) {
 
   def doImportData(toImport: util.Collection[DataNode[ScalaModelData]], project: Project) {
-    ScalaCompilerConfiguration.instanceIn(project).clear()
+    ScalaCompilerConfiguration.instanceIn(project).clearProfiles()
 
     toImport.asScala.foreach(doImport(_, project))
   }

@@ -10,6 +10,7 @@ import com.intellij.openapi.externalSystem.model.settings.ExternalSystemExecutio
  */
 class SbtExecutionSettings(val vmExecutable: File,
                            val vmOptions: Seq[String],
+                           val environment: Map[String,String],
                            val customLauncher: Option[File],
                            val customSbtStructureDir: Option[String],
                            val jdk: Option[String],
