@@ -114,9 +114,17 @@ public class ScalaTestReporterWithLocation implements Reporter {
       final String eventName = "org.scalatest.events.TestFailed";
       collectRecordableEvents(event, eventName);
     } else if (event instanceof TestIgnored) {
-      String testText = ((TestIgnored) event).testText();
-      System.out.println("\n##teamcity[testIgnored name='" + escapeString(testText) + " (Ignored)' message='" +
+      final String ignoredTestSuffix = "!!! IGNORED !!!";
+      TestIgnored testIgnored = (TestIgnored) event;
+      String testText = testIgnored.testText();
+      String decodedTestText = decodeString(testText);
+      final String locationHint = getLocationHint(testIgnored.suiteClassName(), testIgnored.location(), decodedTestText);
+      String suffixedTestText = decodedTestText + " " + ignoredTestSuffix;
+      System.out.println("\n##teamcity[testStarted name='" + escapeString(suffixedTestText) + "'" + locationHint + "]");
+      System.out.println("\n##teamcity[testIgnored name='" + escapeString(suffixedTestText) + "' message='" +
           escapeString("Test Ignored") + "']");
+      System.out.println("\n##teamcity[testFinished name='" + escapeString(suffixedTestText) +
+          "' duration='" + 0 +"']");
     } else if (event instanceof TestPending) {
       TestPending testPending = (TestPending) event;
       String testText = testPending.testText();
