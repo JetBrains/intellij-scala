@@ -315,8 +315,9 @@ object ScalaPsiUtil {
         ))
         case _ => Seq.empty
       }
-      val exprType = ImplicitParametersCollector.exprType(e, fromUnder = false).getOrElse(return)
-      val convertible = new ImplicitParametersCollector(e,
+      val exprType = ImplicitCollector.exprType(e, fromUnder = false).getOrElse(return)
+      if (exprType.equiv(types.Nothing)) return //do not proceed with nothing type, due to performance problems.
+      val convertible = new ImplicitCollector(e,
         ScFunctionType(types.Any, Seq(exprType))(e.getProject, e.getResolveScope),
         ScFunctionType(exprType, args)(e.getProject, e.getResolveScope), None, true, true,
         predicate = Some((rr, subst) => {
