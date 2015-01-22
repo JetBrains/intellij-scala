@@ -95,9 +95,14 @@ public class ScalaTestReporter implements Reporter {
       System.out.println("\n##teamcity[testFinished name='" + escapeString(testName) +
           "' duration='" + duration +"']");
     } else if (event instanceof TestIgnored) {
-      String testName = ((TestIgnored) event).testName();
-      System.out.println("\n##teamcity[testIgnored name='" + escapeString(testName) + " (Ignored)' message='" +
+      TestIgnored testIgnored = (TestIgnored) event;
+      final String ignoredTestSuffix = "!!! IGNORED !!!";
+      String testName = testIgnored.testName() + " " + ignoredTestSuffix;
+      System.out.println("\n##teamcity[testStarted name='" + escapeString(testName) + "']");
+      System.out.println("\n##teamcity[testIgnored name='" + escapeString(testName) + "' message='" +
           escapeString("Test Ignored") + "']");
+      System.out.println("\n##teamcity[testFinished name='" + escapeString(testName) +
+          "' duration='" + 0 +"']");
     } else if (event instanceof TestPending) {
       String testName = ((TestPending) event).testName();
       System.out.println("\n##teamcity[testIgnored name='" + escapeString(testName) + "' message='" +
