@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.testingSupport.scalaTest;
 
 import org.scalatest.Reporter;
 import org.scalatest.events.*;
+import org.scalatest.exceptions.StackDepthException;
 import scala.Option;
 import scala.Some;
 
@@ -81,19 +82,24 @@ public class ScalaTestReporterWithLocation implements Reporter {
       Option<Throwable> throwableOption = testFailed.throwable();
       String detail = "";
       String locationHint = ""; //todo: ?
+      String failureLocation = "";
       if (throwableOption instanceof Some) {
         Throwable throwable = throwableOption.get();
         if (throwable instanceof AssertionError) error = false;
         detail = getStackTraceString(throwable);
-        /*if (throwable instanceof StackDepthException) {
+        if (throwable instanceof StackDepthException) {
           StackDepthException stackDepthException = (StackDepthException) throwable;
-          String className = testFailed.suiteClassName() instanceof Some ? testFailed.suiteClassName().get() : null;
-          String fileName = stackDepthException.failedCodeFileName() instanceof Some ? stackDepthException.failedCodeFileName().get() : null;
-          Integer lineNumber = stackDepthException.failedCodeLineNumber() instanceof Some ? Integer.parseInt(stackDepthException.failedCodeLineNumber().get().toString()) : null;
-          if (className != null && fileName != null && lineNumber != null) {
-            locationHint = " locationHint='scalatest://LineInFile:" + className + ":" + fileName + ":" + lineNumber + "'";
+          Option<String> fileNameAndLineNumber = stackDepthException.failedCodeFileNameAndLineNumberString();
+          if (fileNameAndLineNumber instanceof Some) {
+            failureLocation = " (" + fileNameAndLineNumber.get() + ")";
           }
-        }*/
+//          String className = testFailed.suiteClassName() instanceof Some ? testFailed.suiteClassName().get() : null;
+//          String fileName = stackDepthException.failedCodeFileName() instanceof Some ? stackDepthException.failedCodeFileName().get() : null;
+//          Integer lineNumber = stackDepthException.failedCodeLineNumber() instanceof Some ? Integer.parseInt(stackDepthException.failedCodeLineNumber().get().toString()) : null;
+//          if (className != null && fileName != null && lineNumber != null) {
+//            locationHint = " locationHint='scalatest://LineInFile:" + className + ":" + fileName + ":" + lineNumber + "'";
+//          }
+        }
       }
       Option<Object> durationOption = testFailed.duration();
       long duration = 0;
@@ -102,7 +108,7 @@ public class ScalaTestReporterWithLocation implements Reporter {
       }
       String testText = testFailed.testText();
       String decodedTestText = decodeString(testText);
-      String message = testFailed.message();
+      String message = testFailed.message() + failureLocation;
       long timeStamp = event.timeStamp();
       String res = "\n##teamcity[testFailed name='" + escapeString(decodedTestText) + "' message='" + escapeString(message) +
           "' details='" + escapeString(detail) + "' ";
