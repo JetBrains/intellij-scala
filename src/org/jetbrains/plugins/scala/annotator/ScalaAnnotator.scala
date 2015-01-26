@@ -1190,7 +1190,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     val (number, base) = textWithoutL match {
       case t if t.startsWith("0x") || t.startsWith("0X") => (t.substring(2), 16)
       case t if t.startsWith("0") && t.length >= 2 => (t.substring(1), 8)
-      case _ => (text, 10)
+      case t => (t, 10)
     }
 
     // parse integer literal. the return is (Option(value), statusCode)
@@ -1220,6 +1220,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             limit - (d / divider) < value * (base / divider) &&
             !(isNegative && limit == value * base - 1 + d)) {
           statusCode = 2
+          if (isNegative && "-" + text == scala.Long.MinValue.toString) return (Some(scala.Long.MinValue), 0)
           return (None, 2)
         }
         value = value * base + d
