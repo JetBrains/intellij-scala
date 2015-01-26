@@ -1220,7 +1220,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             limit - (d / divider) < value * (base / divider) &&
             !(isNegative && limit == value * base - 1 + d)) {
           statusCode = 2
-          if (isNegative && "-" + text == scala.Long.MinValue.toString) return (Some(scala.Long.MinValue), 0)
+          val minLongString = java.lang.Long.toString(scala.Long.MinValue, base)
+          if (isNegative && "-" + text == minLongString) return (Some(scala.Long.MinValue), 0)
           return (None, 2)
         }
         value = value * base + d
