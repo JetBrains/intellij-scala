@@ -5,12 +5,11 @@ package psi
 package impl
 
 import com.intellij.lang.ASTNode
+import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiUtil
-import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
@@ -19,10 +18,6 @@ import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
-
-import scala.collection.immutable.HashMap
-import scala.collection.mutable
 
 /**
  * User: Dmitry Naydanov
@@ -30,23 +25,7 @@ import scala.collection.mutable
  */
 
 class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeReferenceElementImpl(node) with ScDocResolvableCodeReference {
-  private def is2_10plus: Boolean = {
-    if (getContainingFile.getVirtualFile == null) return true  //in case of synthetic elements
-
-    val module = ScalaPsiUtil.getModule(this)
-
-    if (module == null) return true // in case of worksheet
-
-    module.scalaSdk.flatMap(_.compilerVersion) exists {
-      case version =>
-        try {
-          val numbers = version.split('.').take(2).map(c => Integer parseInt c) //Will we ever see Scala 3.X ?
-          numbers.length > 1 && numbers(1) >= 10
-        } catch {
-          case _: NumberFormatException => false
-        }
-    }
-  }
+  private def is2_10plus: Boolean = this.scalaLanguageLevel.map(_ >= ScalaLanguageLevel.Scala_2_10).getOrElse(true)
 
   override def getKinds(incomplete: Boolean, completion: Boolean) = stableImportSelector
 
