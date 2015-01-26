@@ -104,10 +104,14 @@ object SbtExternalSystemManager {
         val projectSdk = projectJdkName.flatMap(name => Option(ProjectJdkTable.getInstance().findJdk(name)))
 
         projectSdk.map { sdk =>
-          sdk.getSdkType match {
-            case sdkType : AndroidSdkType =>
-              environment += ("ANDROID_HOME" -> sdk.getSdkModificator.getHomePath)
-            case _ => // do nothing
+          try {
+            sdk.getSdkType match {
+              case sdkType : AndroidSdkType =>
+                environment += ("ANDROID_HOME" -> sdk.getSdkModificator.getHomePath)
+              case _ => // do nothing
+            }
+          } catch {
+            case _ : NoClassDefFoundError => // no android plugin, do nothing
           }
           val sdkType = sdk.getSdkType.asInstanceOf[JavaSdkType]
           new File(sdkType.getVMExecutablePath(sdk))
