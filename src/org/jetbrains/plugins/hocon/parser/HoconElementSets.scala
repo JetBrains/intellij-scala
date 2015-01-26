@@ -4,7 +4,7 @@ import com.intellij.psi.TokenType
 
 object HoconElementSets {
 
-  import org.jetbrains.plugins.hocon.Util._
+  import org.jetbrains.plugins.hocon.CommonUtil._
   import org.jetbrains.plugins.hocon.parser.HoconElementType._
 
   val Path = FieldPath | SubstitutionPath
