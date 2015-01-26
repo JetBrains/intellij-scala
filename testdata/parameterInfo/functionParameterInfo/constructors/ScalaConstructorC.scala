@@ -1,4 +1,4 @@
 class ScalaConstructorC[T: Manifest]()
 
 new ScalaConstructorC[Int]()(/*caret*/)
-// implicit evidence$1: Manifest[Int]
+// implicit ev1: Manifest[Int]
