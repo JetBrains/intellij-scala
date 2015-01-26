@@ -343,7 +343,7 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
 
     val resultText =
       """
-      |val x: Int => String = new Function1[Int, String] {
+      |val x: Int => String = new Function[Int, String] {
       |  def apply(v1: Int): String = <selection>???</selection>
       |}
       """.stripMargin.replaceAll("\r", "").trim()
