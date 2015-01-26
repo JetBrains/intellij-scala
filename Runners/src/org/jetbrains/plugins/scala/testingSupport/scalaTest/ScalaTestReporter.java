@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.testingSupport.scalaTest;
 
 import org.scalatest.Reporter;
 import org.scalatest.events.*;
+import org.scalatest.exceptions.StackDepthException;
 import scala.Option;
 import scala.Some;
 
@@ -75,9 +76,18 @@ public class ScalaTestReporter implements Reporter {
       boolean error = true;
       Option<Throwable> throwableOption = ((TestFailed) event).throwable();
       String detail = "";
+      String failureLocation = "";
       if (throwableOption instanceof Some) {
-        if (throwableOption.get() instanceof AssertionError) error = false;
+        Throwable throwable = throwableOption.get();
+        if (throwable instanceof AssertionError) error = false;
         detail = getStackTraceString(throwableOption.get());
+        if (throwable instanceof StackDepthException) {
+          StackDepthException stackDepthException = (StackDepthException) throwable;
+          Option<String> fileNameAndLineNumber = stackDepthException.failedCodeFileNameAndLineNumberString();
+          if (fileNameAndLineNumber instanceof Some) {
+            failureLocation = " (" + fileNameAndLineNumber.get() + ")";
+          }
+        }
       }
       Option<Object> durationOption = ((TestFailed) event).duration();
       long duration = 0;
@@ -85,7 +95,7 @@ public class ScalaTestReporter implements Reporter {
         duration = (Long) durationOption.get();
       }
       String testName = ((TestFailed) event).testName();
-      String message = ((TestFailed) event).message();
+      String message = ((TestFailed) event).message() + failureLocation;
       long timeStamp = event.timeStamp();
       String res = "\n##teamcity[testFailed name='" + escapeString(testName) + "' message='" + escapeString(message) +
           "' details='" + escapeString(detail) + "'";
