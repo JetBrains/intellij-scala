@@ -12,7 +12,7 @@ trait Specs2_2_11_2_4_15_Base extends Specs2TestCase {
    */
   override protected def addOtherLibraries(): Unit = {
     addLibrary("specs2", "specs2", "specs2-common_2.11-2.4.15.jar", "specs2-core_2.11-2.4.15.jar", "specs2-matcher_2.11-2.4.15.jar")
-    addLibrary("scalaz", "scalaz", "scalaz-core_2.11-7.1.0.jar", "scalaz-concurrent_2.11-7.1.0.jar", "scalaz-effect_2.11-7.1.0.jar", "scalaz-stream_2.11-0.6a.jar")
+    addLibrary("scalaz", "scalaz", "scalaz-core_2.11-7.1.0.jar", "scalaz-concurrent_2.11-7.1.0.jar")
     addLibrary("scala-xml", "scala-xml", "scala-xml_2.11-1.0.1.jar")
   }
 
