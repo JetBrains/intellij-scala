@@ -14,7 +14,7 @@ abstract class ScalaTestTestCase extends ScalaTestingTestCase(new ScalaTestConfi
 
   override protected def checkConfigAndSettings(configAndSettings: RunnerAndConfigurationSettings,
                                        testClass: String,
-                                       testName: String) = {
+                                       testName: Option[String] = None) = {
     val config = configAndSettings.getConfiguration
     assert(config.isInstanceOf[ScalaTestRunConfiguration])
     val scalaTestConfig = config.asInstanceOf[ScalaTestRunConfiguration]

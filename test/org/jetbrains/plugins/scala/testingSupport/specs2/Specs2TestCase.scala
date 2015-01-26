@@ -13,7 +13,7 @@ abstract class Specs2TestCase extends ScalaTestingTestCase(new Specs2Configurati
 
   override protected def checkConfigAndSettings(configAndSettings: RunnerAndConfigurationSettings,
                                                 testClass: String,
-                                                testName: String) = {
+                                                testName: Option[String]) = {
     val config = configAndSettings.getConfiguration
     assert(config.isInstanceOf[Specs2RunConfiguration])
     val specsConfig = config.asInstanceOf[Specs2RunConfiguration]

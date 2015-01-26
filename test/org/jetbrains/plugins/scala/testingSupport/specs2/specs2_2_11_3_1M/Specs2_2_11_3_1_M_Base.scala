@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.testingSupport.specs2.Specs2TestCase
  * @author Roman.Shein
  * @since 11.01.2015.
  */
-trait Specs2_2_11_2_3_1_M_Base extends Specs2TestCase {
+trait Specs2_2_11_3_1_M_Base extends Specs2TestCase {
   /**
    * Intended for loading libraries different from scala-compiler.
    */

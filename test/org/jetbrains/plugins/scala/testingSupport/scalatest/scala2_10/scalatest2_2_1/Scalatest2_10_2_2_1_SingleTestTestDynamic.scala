@@ -5,6 +5,6 @@ package testingSupport.scalatest.scala2_10.scalatest2_2_1
  * @author Roman.Shein
  * @since 16.10.2014.
  */
-class Scalatest2_2_1_SingleTestTestDynamic extends Scalatest2_2_1_SingleTestTest {
+class Scalatest2_10_2_2_1_SingleTestTestDynamic extends Scalatest2_10_2_2_1_SingleTestTest {
   override val useDynamicClassPath = true
 }

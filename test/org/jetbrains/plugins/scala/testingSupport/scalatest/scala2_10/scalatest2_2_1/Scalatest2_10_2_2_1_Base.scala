@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
  * @author Roman.Shein
  * @since 16.10.2014.
  */
-trait Scalatest2_2_1_Base extends ScalaTestTestCase {
+abstract class Scalatest2_10_2_2_1_Base extends ScalaTestTestCase {
   /**
    * Intended for loading libraries different from scala-compiler.
    */
