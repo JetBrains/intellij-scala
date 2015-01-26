@@ -1,4 +1,4 @@
 def foo[A <% String : Manifest](x: Int = 45) = x
 
 foo[Int]()(/*caret*/)
-// implicit evidence$1: (Int) => String, evidence$2: Manifest[Int]
+// implicit ev1: (Int) => String, ev2: Manifest[Int]
