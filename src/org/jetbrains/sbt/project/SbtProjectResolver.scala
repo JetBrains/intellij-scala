@@ -13,13 +13,14 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
+import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.project.structure._
 import org.jetbrains.sbt.resolvers.SbtResolver
 
 /**
  * @author Pavel Fatin
  */
-class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSettings] with ExternalSourceRootResolution {
+class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSettings] {
 
   private var runner: SbtRunner = null
 
@@ -85,9 +86,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     createModuleDependencies(projects, moduleNodes)
 
-    val projectToModuleNode: Map[Project, ModuleNode] = projects.zip(moduleNodes).toMap
-    val sharedSourceModules = createSharedSourceModules(projectToModuleNode, libraryNodes, moduleFilesDirectory)
-    projectNode.addAll(sharedSourceModules)
+    val projectToModuleNode = projects.zip(moduleNodes).toMap
+    val sharedSourceModules = externalSourceRootGroupsIn(projects).map { group =>
+      createSourceModuleNodesAndDependencies(group, projectToModuleNode, libraryNodes, moduleFilesDirectory)
+    }
+    projectNode.addAll(sharedSourceModules.toSeq)
 
     projectNode.addAll(projects.map(createBuildModule(_, moduleFilesDirectory, data.localCachePath)))
     projectNode
@@ -103,6 +106,55 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         data.setExported(true)
         moduleNode.add(data)
       }
+    }
+  }
+
+  def createSourceModuleNodesAndDependencies(rootGroup: RootGroup,
+                                             projectToModuleNode: Map[Project, ModuleNode],
+                                             libraryNodes: Seq[LibraryNode],
+                                             moduleFilesDirectory: File): ModuleNode = {
+    val sourceModuleNode = {
+      val node = createSourceModule(rootGroup, moduleFilesDirectory)
+      val commonDependencies = commonDependenciesIn(rootGroup.projects)
+      node.addAll(createLibraryDependencies(commonDependencies)(node, libraryNodes.map(_.data)))
+      node
+    }
+
+    rootGroup.projects.map(projectToModuleNode).foreach { ownerModule =>
+      ownerModule.add(new ModuleDependencyNode(ownerModule, sourceModuleNode))
+    }
+
+    sourceModuleNode
+  }
+
+  def createSourceModule(group: RootGroup, moduleFilesDirectory: File): ModuleNode = {
+    val moduleNode = new ModuleNode(SharedSourcesModuleType.instance.getId,
+      group.name, group.name, moduleFilesDirectory.path, group.base.canonicalPath)
+
+    val contentRootNode = {
+      val node = new ContentRootNode(group.base.path)
+
+      group.roots.foreach { root =>
+        val sourceType = (root.scope, root.kind) match {
+          case (Root.Scope.Compile, Root.Kind.Sources) => ExternalSystemSourceType.SOURCE
+          case (Root.Scope.Compile, Root.Kind.Resources) => ExternalSystemSourceType.RESOURCE
+          case (Root.Scope.Test, Root.Kind.Sources) => ExternalSystemSourceType.TEST
+          case (Root.Scope.Test, Root.Kind.Resources) => ExternalSystemSourceType.TEST_RESOURCE
+        }
+        node.storePath(sourceType, root.directory.path)
+      }
+
+      node
+    }
+
+    moduleNode.add(contentRootNode)
+
+    moduleNode
+  }
+
+  def commonDependenciesIn(projects: Seq[Project]): Seq[ModuleDependency] = {
+    projects.flatMap(_.dependencies.modules).filter { dependency =>
+      projects.forall(_.dependencies.modules.contains(dependency))
     }
   }
 
@@ -297,7 +349,79 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             .map(_.path)
   }
 
-  protected def createLibraryDependencies(dependencies: Seq[ModuleDependency])(moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyNode] = {
+  def externalSourceRootGroupsIn(projects: Seq[Project]): Seq[RootGroup] = {
+    val projectToExternalRoot = projects.flatMap { project =>
+      sourceRootsIn(project).filter(_.directory.isOutsideOf(project.base)).map((project, _))
+    }
+
+    val sharedRoots = projectToExternalRoot
+            .groupBy(_._2)
+            .mapValues(_.map(_._1).toSet)
+            .map(p => SharedRoot(p._1, p._2.toSeq))
+            .toSeq
+
+    // TODO consider base/projects correspondence
+    sharedRoots.groupBy(_.root.base).values.toSeq.map { roots =>
+      val root = roots.head
+      val name = root.root.base.map(_.getName + "-sources").getOrElse("shared-source-root")
+      RootGroup(name, roots.map(_.root), root.projects)
+    }
+  }
+
+  private def sourceRootsIn(project: Project): Seq[Root] = {
+    val relevantScopes = Set("compile", "test", "it")
+
+    val relevantConfigurations = project.configurations.filter(it => relevantScopes.contains(it.id))
+
+    relevantConfigurations.flatMap { configuration =>
+      def createRoot(kind: Root.Kind)(directory: Directory) = {
+        val scope = if (configuration.id == "compile") Root.Scope.Compile else Root.Scope.Test
+        Root(scope, kind, directory.file.canonicalFile)
+      }
+
+      configuration.sources.map(createRoot(Root.Kind.Sources)) ++
+              configuration.resources.map(createRoot(Root.Kind.Resources))
+    }
+  }
+
+  case class RootGroup(name: String, roots: Seq[Root], projects: Seq[Project]) {
+    def base: File = {
+      val root = roots.head
+      root.base.getOrElse(root.directory)
+    }
+  }
+  
+  case class SharedRoot(root: Root, projects: Seq[Project])
+
+  case class Root(scope: Root.Scope, kind: Root.Kind, directory: File) {
+    def base: Option[File] = Root.DefaultPaths.collectFirst {
+      case paths if directory.endsWith(paths: _*) => directory << paths.length
+    }
+  }
+  
+  object Root {
+    private val DefaultPaths = Seq(
+      Seq("src", "main", "java"),
+      Seq("src", "main", "scala"),
+      Seq("src", "main", "resources"),
+      Seq("src", "test", "java"),
+      Seq("src", "test", "scala"),
+      Seq("src", "test", "resources"))
+
+    sealed trait Scope
+    object Scope {
+      case object Compile extends Scope
+      case object Test extends Scope
+    }
+
+    sealed trait Kind
+    object Kind {
+      case object Sources extends Kind
+      case object Resources extends Kind
+    }
+  }
+
+  private def createLibraryDependencies(dependencies: Seq[ModuleDependency])(moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyNode] = {
     dependencies.map { dependency =>
       val name = nameFor(dependency.id)
       val library = libraries.find(_.getExternalName == name).getOrElse(
@@ -332,7 +456,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  protected def scopeFor(configurations: Seq[String]): DependencyScope = {
+  private def scopeFor(configurations: Seq[String]): DependencyScope = {
     val ids = configurations.toSet
 
     if (ids.contains("compile"))
