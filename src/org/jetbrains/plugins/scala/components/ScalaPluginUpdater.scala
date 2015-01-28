@@ -4,6 +4,7 @@ import java.io.{File, IOException}
 import java.lang.reflect.Field
 import javax.swing.event.HyperlinkEvent
 
+import com.intellij.ide.IdeBundle
 import com.intellij.ide.plugins.{IdeaPluginDescriptorImpl, PluginInstaller, PluginManagerMain, PluginManagerUISettings}
 import com.intellij.notification._
 import com.intellij.openapi.application.impl.ApplicationInfoImpl
@@ -11,7 +12,8 @@ import com.intellij.openapi.application.{Application, ApplicationInfo, Applicati
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.updateSettings.impl.{UpdateChecker, UpdateSettings}
-import com.intellij.openapi.util.JDOMExternalizableStringList
+import com.intellij.openapi.util.{BuildNumber, JDOMExternalizableStringList}
+import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch._
 
@@ -23,6 +25,9 @@ object ScalaPluginUpdater {
   val baseUrl = "http://www.jetbrains.com/idea/plugins"
   val eapRepo = s"$baseUrl/scala-eap-cassiopeia.xml"
   val nightlyRepo = s"$baseUrl/scala-nightly-cassiopeia.xml"
+
+  val updGroupId = "ScalaPluginUpdate"
+  val GROUP = new NotificationGroup(updGroupId, NotificationDisplayType.STICKY_BALLOON, true)
 
   def doUpdatePluginHosts(branch: ScalaApplicationSettings.pluginBranch) = {
     // update hack - set plugin version to 0 when downgrading
@@ -42,6 +47,7 @@ object ScalaPluginUpdater {
   def doUpdatePluginHostsAndCheck(branch: ScalaApplicationSettings.pluginBranch) = {
     doUpdatePluginHosts(branch)
     UpdateChecker.updateAndShowResult()
+    postCheckIdeaCompatibility(branch)
   }
 
   def getScalaPluginBranch: ScalaApplicationSettings.pluginBranch = {
@@ -80,6 +86,33 @@ object ScalaPluginUpdater {
     }
   }
 
+  def postCheckIdeaCompatibility(branch: ScalaApplicationSettings.pluginBranch) = {
+    import scala.xml._
+    val infoImpl = ApplicationInfo.getInstance().asInstanceOf[ApplicationInfoImpl]
+    val localBuildNumber = infoImpl.getBuild
+    val url = branch match {
+      case Release => None
+      case EAP     => Some(eapRepo)
+      case Nightly => Some(nightlyRepo)
+    }
+    url.foreach(u => invokeLater {
+      try {
+        val resp = XML.load(u)
+        val text = (resp \\ "idea-plugin" \\ "idea-version" \\ "@since-build").text
+        val remoteBuildNumber = BuildNumber.fromString(text)
+        if (localBuildNumber.compareTo(remoteBuildNumber) < 0) {
+          val notification = GROUP.createNotification(
+            s"Your IDEA is outdated to use with $branch branch.<br/>Please update IDEA to at least $text to use latest Scala plugin.",
+            NotificationType.WARNING)
+          Notifications.Bus.notify(notification)
+        }
+      }
+      catch {
+        case e: Throwable => LOG.warn("Failed to check plugin compatibility", e)
+      }
+    })
+  }
+
   // this hack uses fake plugin.xml deserialization to downgrade plugin version
   // at least it's not using reflection
   def patchPluginVersion() = {
@@ -109,7 +142,7 @@ object ScalaPluginUpdater {
     }
     catch {
       case _: NoSuchFieldException | _: IllegalAccessException  =>
-        Notifications.Bus.notify(new Notification("Scala", "Scala Plugin Update", "Please remove and reinstall Scala plugin to finish downgrading", NotificationType.INFORMATION))
+        Notifications.Bus.notify(new Notification(updGroupId, "Scala Plugin Update", "Please remove and reinstall Scala plugin to finish downgrading", NotificationType.INFORMATION))
     }
   }
 
@@ -122,7 +155,6 @@ object ScalaPluginUpdater {
       val message = "Please select Scala plugin update channel:" +
         s"""<p/><a href="EAP">EAP</a>\n""" +
         s"""<p/><a href="Release">Release</a>"""
-      val updGroupId = "ScalaPluginUpdate"
       val notification = new Notification(updGroupId, "Scala Plugin Update", message, NotificationType.INFORMATION, new NotificationListener {
         def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent) {
           notification.expire()
@@ -135,9 +167,11 @@ object ScalaPluginUpdater {
           }
         }
       })
-      val app: Application = ApplicationManager.getApplication
-      app.getMessageBus.syncPublisher(Notifications.TOPIC).register(updGroupId, NotificationDisplayType.STICKY_BALLOON)
       Notifications.Bus.notify(notification)
     }
   }
+
+  def invokeLater(f: => Unit) = ApplicationManager.getApplication.executeOnPooledThread( new Runnable {
+    override def run(): Unit = f
+  })
 }
