@@ -54,23 +54,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val data = StructureParser.parse(xml, new File(System.getProperty("user.home")))
 
-    val (sharedExternalSourceRoots, singularExternalSourceRoots) =
-      externalSourceRootsIn(data.projects).partition(_._2.length > 1)
-
-    if (singularExternalSourceRoots.nonEmpty) {
-      val warning = singularExternalSourceRoots.keys.map(file => s"<li>${file.getPath}</li>").mkString(
-        "The following source roots are outside of the corresponding base directories:\n<ul>", "\n",
-        "\n</ul>\nThese source roots cannot be included in the IDEA project model.\n\n" +
-                "<br>Usual solution: declare an SBT project for these sources and include the project in dependencies." +
-                "<br>Special case: shared source root should be external relative to all projects that include it.")
-
-      listener.onTaskOutput(id, WarningMessage(warning), false)
-    }
-
-    convert(root, data, settings.jdk, sharedExternalSourceRoots).toDataNode
+    convert(root, data, settings.jdk).toDataNode
   }
 
-  private def convert(root: String, data: Structure, jdk: Option[String], externalSourceRoots: Map[File, Seq[Project]]): Node[ProjectData] = {
+  private def convert(root: String, data: Structure, jdk: Option[String]): Node[ProjectData] = {
     val projects = data.projects
     val project = data.projects.headOption.getOrElse(throw new RuntimeException("No root project found"))
     val projectNode = new ProjectNode(project.name, root, root)
@@ -99,8 +86,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     createModuleDependencies(projects, moduleNodes)
 
     val projectToModuleNode = projects.zip(moduleNodes).toMap
-    val sharedSourceModules = externalSourceRoots.map { case (sourceRoot, ownerProjects) =>
-      createSourceModuleNodesAndDependencies(sourceRoot, ownerProjects, projectToModuleNode, libraryNodes)
+    val sharedSourceModules = externalSourceRootGroupsIn(projects).map { group =>
+      createSourceModuleNodesAndDependencies(group, projectToModuleNode, libraryNodes, moduleFilesDirectory)
     }
     projectNode.addAll(sharedSourceModules.toSeq)
 
@@ -121,34 +108,41 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
   }
 
-  def createSourceModuleNodesAndDependencies(sourceRoot: File, ownerProjects: Seq[Project],
+  def createSourceModuleNodesAndDependencies(rootGroup: RootGroup,
                                              projectToModuleNode: Map[Project, ModuleNode],
-                                             libraryNodes: Seq[LibraryNode]): ModuleNode = {
+                                             libraryNodes: Seq[LibraryNode],
+                                             moduleFilesDirectory: File): ModuleNode = {
     val sourceModuleNode = {
-      val node = createSourceModule(sourceRoot)
-      val commonDependencies = commonDependenciesIn(ownerProjects)
+      val node = createSourceModule(rootGroup, moduleFilesDirectory)
+      val commonDependencies = commonDependenciesIn(rootGroup.projects)
       node.addAll(createLibraryDependencies(commonDependencies)(node, libraryNodes.map(_.data)))
       node
     }
 
-    ownerProjects.map(projectToModuleNode).foreach { ownerModule =>
+    rootGroup.projects.map(projectToModuleNode).foreach { ownerModule =>
       ownerModule.add(new ModuleDependencyNode(ownerModule, sourceModuleNode))
     }
 
     sourceModuleNode
   }
 
-  def createSourceModule(sourceRoot: File): ModuleNode = {
-    val contentRoot = if (sourceRoot.endsWith("src", "main", "scala")) sourceRoot << 3 else sourceRoot
-
-    val moduleName = contentRoot.name + "-sources"
-
+  def createSourceModule(group: RootGroup, moduleFilesDirectory: File): ModuleNode = {
     val moduleNode = new ModuleNode(SharedSourcesModuleType.instance.getId,
-      moduleName, moduleName, contentRoot.path, contentRoot.path)
+      group.name, group.name, moduleFilesDirectory.path, group.base.canonicalPath)
 
     val contentRootNode = {
-      val node = new ContentRootNode(contentRoot.path)
-      node.storePath(ExternalSystemSourceType.SOURCE, sourceRoot.path)
+      val node = new ContentRootNode(group.base.path)
+
+      group.roots.foreach { root =>
+        val sourceType = (root.scope, root.kind) match {
+          case (Root.Scope.Compile, Root.Kind.Sources) => ExternalSystemSourceType.SOURCE
+          case (Root.Scope.Compile, Root.Kind.Resources) => ExternalSystemSourceType.RESOURCE
+          case (Root.Scope.Test, Root.Kind.Sources) => ExternalSystemSourceType.TEST
+          case (Root.Scope.Test, Root.Kind.Resources) => ExternalSystemSourceType.TEST_RESOURCE
+        }
+        node.storePath(sourceType, root.directory.path)
+      }
+
       node
     }
 
@@ -354,21 +348,76 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             .map(_.path)
   }
 
-  def externalSourceRootsIn(projects: Seq[Project]): Map[File, Seq[Project]] = {
-    val projectToExternalRoot = projects.flatMap(project => externalSourceRootsIn(project).map(file => (project, file.canonicalFile)))
+  def externalSourceRootGroupsIn(projects: Seq[Project]): Seq[RootGroup] = {
+    val projectToExternalRoot = projects.flatMap { project =>
+      sourceRootsIn(project).filter(_.directory.isOutsideOf(project.base)).map((project, _))
+    }
 
-    projectToExternalRoot.groupBy(_._2).mapValues(_.map(_._1))
+    val sharedRoots = projectToExternalRoot
+            .groupBy(_._2)
+            .mapValues(_.map(_._1).toSet)
+            .map(p => SharedRoot(p._1, p._2.toSeq))
+            .toSeq
+
+    // TODO consider base/projects correspondence
+    sharedRoots.groupBy(_.root.base).values.toSeq.map { roots =>
+      val root = roots.head
+      val name = root.root.base.map(_.getName + "-sources").getOrElse("shared-source-root")
+      RootGroup(name, roots.map(_.root), root.projects)
+    }
   }
 
-  private def externalSourceRootsIn(project: Project): Seq[File] = {
-    val scopes = Set("compile", "test", "it")
+  private def sourceRootsIn(project: Project): Seq[Root] = {
+    val relevantScopes = Set("compile", "test", "it")
 
-    val sourceRoots = project.configurations
-            .filter(it => scopes.contains(it.id))
-            .flatMap(it => it.sources ++ it.resources)
-            .map(_.file)
+    val relevantConfigurations = project.configurations.filter(it => relevantScopes.contains(it.id))
 
-    sourceRoots.filter(_.isOutsideOf(project.base))
+    relevantConfigurations.flatMap { configuration =>
+      def createRoot(kind: Root.Kind)(directory: Directory) = {
+        val scope = if (configuration.id == "compile") Root.Scope.Compile else Root.Scope.Test
+        Root(scope, kind, directory.file.canonicalFile)
+      }
+
+      configuration.sources.map(createRoot(Root.Kind.Sources)) ++
+              configuration.resources.map(createRoot(Root.Kind.Resources))
+    }
+  }
+
+  case class RootGroup(name: String, roots: Seq[Root], projects: Seq[Project]) {
+    def base: File = {
+      val root = roots.head
+      root.base.getOrElse(root.directory)
+    }
+  }
+  
+  case class SharedRoot(root: Root, projects: Seq[Project])
+
+  case class Root(scope: Root.Scope, kind: Root.Kind, directory: File) {
+    def base: Option[File] = Root.DefaultPaths.collectFirst {
+      case paths if directory.endsWith(paths: _*) => directory << paths.length
+    }
+  }
+  
+  object Root {
+    private val DefaultPaths = Seq(
+      Seq("src", "main", "java"),
+      Seq("src", "main", "scala"),
+      Seq("src", "main", "resources"),
+      Seq("src", "test", "java"),
+      Seq("src", "test", "scala"),
+      Seq("src", "test", "resources"))
+
+    sealed trait Scope
+    object Scope {
+      case object Compile extends Scope
+      case object Test extends Scope
+    }
+
+    sealed trait Kind
+    object Kind {
+      case object Sources extends Kind
+      case object Resources extends Kind
+    }
   }
 
   private def createLibraryDependencies(dependencies: Seq[ModuleDependency])(moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyNode] = {
