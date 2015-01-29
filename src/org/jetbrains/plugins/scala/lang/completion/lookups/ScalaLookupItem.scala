@@ -90,6 +90,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
         }
       case p: PsiTypeParameterListOwner if p.getTypeParameters.length > 0 =>
         p.getTypeParameters.map(ptp => presentationString(ptp)).mkString("[", ", ", "]")
+      case p: PsiPackage => s"    (${p.getQualifiedName})"
       case _ => ""
     }
     element match {
@@ -167,6 +168,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
         }
       case f: PsiField =>
         presentation.setTypeText(presentationString(f.getType, substitutor))
+      case p: PsiPackage => presentation.setTailText(tailText, /*grayed*/ true)
       case _ =>
     }
     if (presentation.isReal)
@@ -244,6 +246,11 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
               }
             })
           }
+        case p: PsiPackage if shouldImport =>
+          simpleInsert(context)
+          val document = context.getEditor.getDocument
+          PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
+          ScalaImportTypeFix.getImportHolder(ref, ref.getProject).addImportForPath(p.getQualifiedName)
         case _ =>
           simpleInsert(context)
           if (containingClass != null) {

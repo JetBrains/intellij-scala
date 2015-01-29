@@ -44,6 +44,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean DONT_CACHE_COMPOUND_TYPES = false;
   private boolean AOT_COMPLETION = true;
   private boolean SCALA_CLASSES_PRIORITY = true;
+  private boolean GENERATE_TOSTRING_WITH_FIELD_NAMES = false;
 
   //WORKSHEET
   private int OUTPUT_LIMIT = 35;
@@ -252,5 +253,11 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setUseEclipseCompatibility(boolean USE_ECLIPSE_COMPATIBILITY) {
     this.USE_ECLIPSE_COMPATIBILITY = USE_ECLIPSE_COMPATIBILITY;
+  }
+
+  public boolean isGenerateToStringWithFieldNames() { return GENERATE_TOSTRING_WITH_FIELD_NAMES; }
+
+  public void setGenerateToStringWithFieldNames(boolean generateToStringWithFieldNames) {
+    this.GENERATE_TOSTRING_WITH_FIELD_NAMES = generateToStringWithFieldNames;
   }
 }

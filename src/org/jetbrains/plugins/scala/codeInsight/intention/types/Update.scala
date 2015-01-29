@@ -76,7 +76,7 @@ object Update extends Strategy {
               val param1 = param.getParent match {
                 case x: ScParameterClause if x.parameters.length == 1 =>
                   // ensure  that the parameter is wrapped in parentheses before we add the type annotation.
-                  val clause: PsiElement = x.replace(ScalaPsiElementFactory.createClauseFromText("(" + param.getText + ")", param.getManager))
+                  val clause: PsiElement = x.replace(ScalaPsiElementFactory.createClauseForFunctionExprFromText("(" + param.getText + ")", param.getManager))
                   clause.asInstanceOf[ScParameterClause].parameters.head
                 case _ => param
               }

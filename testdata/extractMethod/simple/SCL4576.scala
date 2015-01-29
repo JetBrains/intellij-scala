@@ -1,5 +1,4 @@
 object SCL4576 {
-  import java.util.Arrays.{asList, _}
 
   val zz = 1
 
@@ -13,7 +12,6 @@ object SCL4576 {
 }
 /*
 object SCL4576 {
-  import java.util.Arrays.{asList, _}
 
   val zz = 1
 
@@ -24,7 +22,7 @@ object SCL4576 {
     /*end*/
   }
 
-  def testMethodName(x: Int) {
+  def testMethodName(x: Int): Unit = {
     //some text
     print(x + zz)
   }

@@ -24,7 +24,7 @@ class CaseClauseInput {
     }
   }
 
-  def testMethodName(x: Int) {
+  def testMethodName(x: Int): Unit = {
     x + 1
     x + 2
   }

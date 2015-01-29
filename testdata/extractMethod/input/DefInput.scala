@@ -24,7 +24,7 @@ class DefInput {
     print("exit")
   }
 
-  def testMethodName(g: Int, goo: (Int) => Int) {
+  def testMethodName(g: Int, goo: (Int) => Int): Unit = {
     g match {
       case 77 => print(g)
       case _ => print(goo(g))

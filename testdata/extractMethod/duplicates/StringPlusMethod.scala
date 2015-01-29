@@ -14,7 +14,7 @@ object StringPlusMethod {
     /*start*/testMethodName(kind, message)/*end*/
   }
 
-  def testMethodName(kind: String, message: String) {
+  def testMethodName(kind: String, message: String): Unit = {
     println(kind + message)
   }
 

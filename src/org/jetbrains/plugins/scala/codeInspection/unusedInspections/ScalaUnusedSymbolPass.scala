@@ -17,6 +17,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
@@ -163,7 +164,9 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
           ("var could be a val", None)
       }
       val severity = state.config.localAssignSeverity
-      val annotation = state.annotationHolder.createAnnotation(severity, declElementHolder.getTextRange, message)
+      val start = declElementHolder.asInstanceOf[ScVariableDefinition].varKeyword.getTextRange.getStartOffset
+      val end = declElementHolder.getTextRange.getEndOffset
+      val annotation = state.annotationHolder.createAnnotation(severity, new TextRange(start, end), message)
       annotation.registerFix(new VarToValFix(declElementHolder.asInstanceOf[ScVariableDefinition], nameOpt))
       state.annotations += annotation
     }

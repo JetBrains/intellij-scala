@@ -1,24 +1,25 @@
 package org.jetbrains.plugins.scala
 package project.maven
 
-import com.intellij.openapi.externalSystem.model.{ProjectKeys, ExternalSystemException}
-import org.jetbrains.idea.maven.importing.{MavenImporter, MavenModifiableModelsProvider, MavenRootModelAdapter}
-import com.intellij.openapi.module.Module
-import org.jetbrains.idea.maven.project._
-import org.jdom.Element
-import org.jetbrains.idea.maven.model.{MavenArtifact, MavenPlugin, MavenArtifactInfo, MavenId}
-import org.jetbrains.idea.maven.server.{NativeMavenProjectHolder, MavenEmbedderWrapper}
-import org.jetbrains.plugins.scala.extensions._
-import com.intellij.openapi.project.Project
 import java.io.File
 import java.util
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 
-import collection.JavaConversions._
-import project._
-import ScalaMavenImporter._
+import com.intellij.openapi.externalSystem.model.ExternalSystemException
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.impl.libraries.LibraryEx.ModifiableModelEx
+import org.jdom.Element
+import org.jetbrains.idea.maven.importing.{MavenImporter, MavenModifiableModelsProvider, MavenRootModelAdapter}
+import org.jetbrains.idea.maven.model.{MavenArtifact, MavenArtifactInfo, MavenId, MavenPlugin}
+import org.jetbrains.idea.maven.project._
+import org.jetbrains.idea.maven.server.{MavenEmbedderWrapper, NativeMavenProjectHolder}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
+import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter._
+
+import scala.collection.JavaConversions._
 
 /**
  * @author Pavel Fatin
@@ -54,10 +55,10 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
 
       val compilerOptions = {
         val plugins = configuration.plugins.map(id => mavenProject.localPathTo(id).getPath)
-        configuration.compilerOptions ++ plugins.map(path => "-P:" + path)
+        configuration.compilerOptions ++ plugins.map(path => "-Xplugin:" + path)
       }
-
-      module.getProject.scalaCompilerSettigns.updateFrom(compilerOptions)
+      
+      module.configureScalaCompilerSettingsFrom("Maven", compilerOptions)
 
       val compilerVersion = configuration.compilerVersion.get
 
@@ -65,7 +66,7 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
               .filter(_.getName.contains("scala-library"))
               .find(_.scalaVersion == Some(compilerVersion))
               .getOrElse(throw new ExternalSystemException("Cannot find project Scala library " +
-                           compilerVersion.number + " for module " + module.getName))
+              compilerVersion.number + " for module " + module.getName))
 
       if (!scalaLibrary.isScalaSdk) {
         val languageLevel = compilerVersion.toLanguageLevel.getOrElse(ScalaLanguageLevel.Default)

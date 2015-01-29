@@ -310,10 +310,10 @@ private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextC
     }
 
     parentCall match {
-      case hasDeepestInvokedReference(ScReferenceExpression.qualifier(implicitlyConvertedTo(expr))) =>
+      case hasDeepestInvokedReference(ScReferenceExpression.withQualifier(implicitlyConvertedTo(expr))) =>
         val copy = parentCall.copy().asInstanceOf[ScMethodCall]
         copy match {
-          case hasDeepestInvokedReference(ScReferenceExpression.qualifier(q)) =>
+          case hasDeepestInvokedReference(ScReferenceExpression.withQualifier(q)) =>
             q.replaceExpression(expr, removeParenthesis = false)
             myResult = ScalaEvaluator(copy)
           case _ =>

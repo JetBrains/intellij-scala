@@ -31,12 +31,21 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
             dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
             outputConsumer: ModuleLevelBuilder.OutputConsumer): ModuleLevelBuilder.ExitCode = {
 
-    if (isDisabled(context) || ChunkExclusionService.isExcluded(chunk))
+    if (isDisabled(context, chunk) || ChunkExclusionService.isExcluded(chunk))
       return ExitCode.NOTHING_DONE
 
     checkIncrementalTypeChange(context)
 
     context.processMessage(new ProgressMessage("Searching for compilable files..."))
+
+    val sourceDependencies = SourceDependenciesProviderService.getSourceDependenciesFor(chunk)
+    if (sourceDependencies.nonEmpty) {
+      val message = "IDEA incremental compiler cannot handle shared source modules: " +
+              sourceDependencies.map(_.getName).mkString(", ") +
+              ".\nPlease enable SBT incremental compiler for the project."
+      context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.ERROR, message))
+      return ExitCode.ABORT
+    }
 
     val sources = collectSources(context, chunk, dirtyFilesHolder)
     if (sources.isEmpty) return ExitCode.NOTHING_DONE
@@ -75,10 +84,10 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
     }
   }
 
-  private def isDisabled(context: CompileContext): Boolean = {
+  private def isDisabled(context: CompileContext, chunk: ModuleChunk): Boolean = {
     val settings = projectSettings(context)
     def wrongIncrType = settings.getIncrementalityType != IncrementalityType.IDEA
-    def wrongCompileOrder = settings.getCompileOrder match {
+    def wrongCompileOrder = settings.getCompilerSettings(chunk).getCompileOrder match {
       case CompileOrder.JavaThenScala => getCategory == BuilderCategory.SOURCE_PROCESSOR
       case (CompileOrder.ScalaThenJava | CompileOrder.Mixed) => getCategory == BuilderCategory.OVERWRITING_TRANSLATOR
       case _ => false
@@ -94,7 +103,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
     val project = context.getProjectDescriptor
 
-    val compileOrder = projectSettings(context).getCompileOrder
+    val compileOrder = projectSettings(context).getCompilerSettings(chunk).getCompileOrder
     val extensionsToCollect = compileOrder match {
       case CompileOrder.Mixed => List(".scala", ".java")
       case _ => List(".scala")

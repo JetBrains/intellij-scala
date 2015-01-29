@@ -258,6 +258,8 @@ trait ScTypePresentation {
           clazz.name + ".this" + typeTail(needDotType)
         case ScThisType(clazz) =>
           "this" + typeTail(needDotType)
+        case ScTupleType(Seq(tpe)) =>
+          s"Tuple1[${innerTypeText(tpe)}]"
         case ScTupleType(comps) =>
           typeSeqText(comps, "(",", ",")")
         case ScDesignatorType(e@(_: ScObject | _: ScReferencePattern | _: ScParameter)) =>

@@ -25,7 +25,7 @@ class RuntimeRefRenderer extends NodeRendererImpl {
   override def getUniqueId: String = "ScalaRuntimeRefRenderer"
 
   override def isApplicable(t: Type): Boolean = {
-    t.name().startsWith("scala.runtime.") && t.name().endsWith("Ref")
+    t.name() != null && t.name().startsWith("scala.runtime.") && t.name().endsWith("Ref")
   }
   
   override def buildChildren(value: Value, builder: ChildrenBuilder, context: EvaluationContext): Unit = {

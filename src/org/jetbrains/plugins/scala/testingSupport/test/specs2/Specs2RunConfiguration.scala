@@ -18,7 +18,8 @@ class Specs2RunConfiguration(override val project: Project,
         extends AbstractTestRunConfiguration(project, configurationFactory, name)
         with ScalaTestingConfiguration {
 
-  override def suitePath = "org.specs2.specification.SpecificationStructure"
+  override def suitePaths = List("org.specs2.specification.SpecificationStructure",
+    "org.specs2.specification.core.SpecificationStructure")
 
   override def mainClass = "org.jetbrains.plugins.scala.testingSupport.specs2.JavaSpecs2Runner"
 

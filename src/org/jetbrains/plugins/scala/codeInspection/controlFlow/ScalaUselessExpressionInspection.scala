@@ -78,7 +78,7 @@ class ScalaUselessExpressionInspection extends AbstractInspection("ScalaUselessE
       checkOperation && exprHasNoSideEffects(baseExpr) && args.forall(exprHasNoSideEffects)
     case ScMethodCall(baseExpr, args) =>
       val (checkQual, typeOfQual) = baseExpr match {
-        case ScReferenceExpression.qualifier(qual) => (exprHasNoSideEffects(qual), qual.getType().toOption)
+        case ScReferenceExpression.withQualifier(qual) => (exprHasNoSideEffects(qual), qual.getType().toOption)
         case _ => (true, None)
       }
       val checkBaseExpr = baseExpr match {

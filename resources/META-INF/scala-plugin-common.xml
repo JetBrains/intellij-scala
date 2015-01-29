@@ -33,7 +33,11 @@
         <debuggerEditorTextProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEditorTextProvider"/>
         <debugger.nodeRenderer implementation="org.jetbrains.plugins.scala.debugger.ui.ListLikeCollectionNodeRenderer"/>
         <debugger.nodeRenderer implementation="org.jetbrains.plugins.scala.debugger.ui.RuntimeRefRenderer"/>
+        <debugger.syntheticProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaSyntheticProvider"/>
+        <debugger.frameExtraVarsProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaFrameExtraVariablesProvider"/>
+        <debugger.extraSteppingFilter implementation="org.jetbrains.plugins.scala.debugger.ScalaSyntheticSteppingFilter"/>
         <generation.topLevelFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.impl.ScalaFactoryProvider"/>
+        <generation.toStringClassFilter implementation="org.jetbrains.plugins.scala.codeInsight.generation.GenerateToStringScalaClassFilter"/>
         <treeCopyHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeUtilSupport"/>
         <iconProvider implementation="org.jetbrains.plugins.scala.components.ScalaIconProvider"/>
         <colorSettingsPage implementation="org.jetbrains.plugins.scala.highlighter.ScalaColorsAndFontsPage"/>
@@ -92,7 +96,10 @@
                                 order="after scalaCompletionContrubutor"/> <!-- This is the last completion contributor! -->
         <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaGlobalMembersCompletionContributor"
                                 order="before scalaClassNameCompletionContributor"/>
+        <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaPrefixPackageCompletionContributor"
+                                order="before scalaClassNameCompletionContributor"/>
         <completion.confidence language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence"/>
+        <completion.confidence language="Scala" implementationClass="com.intellij.codeInsight.completion.SkipAutopopupInStrings"/>
         <statistician key="completion" order="first"
                       implementationClass="org.jetbrains.plugins.scala.lang.completion.statistician.ScalaCompletionStatistician"/>
         <lookup.actionProvider implementation="org.jetbrains.plugins.scala.lang.completion.ScalaImportStaticLookupActionProvider"/>
@@ -153,6 +160,7 @@
         <overridingMethodsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher" order="first"/>
         <antCustomCompiler implementation="org.jetbrains.plugins.scala.ant.ScalaAntCustomCompilerProvider"/>
         <refactoring.moveClassHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaClassHandler" order="first"/>
+        <refactoring.moveDirectoryWithClassesHelper implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveDirectoryWithClassesHelper"/>
         <refactoring.elementListenerProvider implementation="org.jetbrains.plugins.scala.runner.ScalaRunConfigurationRefactoringListenerProvider"/>
         <!--<moveFileHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaFileHandler" order="first"/>-->
         <refactoring.inlineHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.inline.ScalaInlineHandler"/>
@@ -214,6 +222,9 @@
         <defaultLiveTemplatesProvider implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaDefaultLiveTemplatesProvider"/>
         <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaLiveTemplateContextType"/>
         <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaXmlContextType"/>
+        <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCommentContextType"/>
+        <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaStringContextType"/>
+        <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaVariableOfTypeMacro"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.SuggestScalaVariableNameMacro"/>
 
@@ -294,9 +305,10 @@
         <projectService serviceInterface="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
 
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.project.ScalaCompilerSettings"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.api.macros.ScalaMacroEvaluator"/>
         <projectConfigurable id="Scala Compiler" displayName="Scala Compiler" parentId="project.propCompiler"
-                             instance="org.jetbrains.plugins.scala.project.ScalaCompilerConfigurable" />
+                             instance="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfigurable" />
 
         <quoteHandler fileType="Scala" className="org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler"/>
 
@@ -998,9 +1010,6 @@
             <loadForDefaultProject/>
         </component>
         <component>
-          <implementation-class>org.jetbrains.plugins.scala.compiler.CompilerConfigurationMonitor</implementation-class>
-        </component>
-        <component>
             <implementation-class>org.jetbrains.plugins.scala.components.HighlightingAdvisor</implementation-class>
         </component>
         <component>
@@ -1014,6 +1023,9 @@
         </component>
         <component>
           <implementation-class>org.jetbrains.plugins.scala.project.ScalaProjectEvents</implementation-class>
+        </component>
+        <component>
+          <implementation-class>org.jetbrains.plugins.scala.project.ScalaProjectCache</implementation-class>
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner</implementation-class>
@@ -1122,6 +1134,11 @@
         <action id="Scala.GenerateEquals"
                 class="org.jetbrains.plugins.scala.codeInsight.generation.ScalaGenerateEqualsAction" text="equals() and hashCode()"
                 description="Generate equals() and hashCode() methods">
+          <add-to-group group-id="GenerateGroup"/>
+        </action>
+        <action id="Scala.GenerateToString"
+                class="org.jetbrains.plugins.scala.codeInsight.generation.ScalaGenerateToStringAction" text="toString()"
+                description="Generate toString() method">
           <add-to-group group-id="GenerateGroup"/>
         </action>
         <action id="Scala.GenerateCompanionObject"
