@@ -102,7 +102,7 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
       FileUtil.processFilesRecursively(root.getRootFile, new Processor[File] {
         def process(file: File) = {
-          if (file.isFile && filter.accept(file) && !excludeIndex.isExcluded(file)) {
+          if (file != root.getRootFile && filter.accept(file) && !excludeIndex.isExcluded(file)) {
             ResourceUpdater.updateResource(context, root, file, outputRoot)
           }
           true
