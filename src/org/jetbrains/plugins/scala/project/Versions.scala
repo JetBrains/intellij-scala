@@ -2,7 +2,10 @@ package org.jetbrains.plugins.scala.project
 
 import java.io.IOException
 
+import com.intellij.util.net.HttpConfigurable
+
 import scala.io.Source
+import scala.util.{Failure, Success, Try}
 import scala.util.control.Exception._
 
 /**
@@ -37,12 +40,17 @@ object Versions {
   }
 
   private def loadLinesFrom(url: String): Either[String, Seq[String]] = {
-    val source = Source.fromURL(url)
+    val result = for {
+      connection <- Try(HttpConfigurable.getInstance().openHttpConnection(url))
+      source     <- Try(Source.fromInputStream(connection.getInputStream))
+    } yield {
+      source.getLines().toVector
+    }
 
-    catching(classOf[IOException])
-            .andFinally(source.close())
-            .either(source.getLines().toVector)
-            .left.map(_.getMessage)
+    result match {
+      case Success(lines) => Right(lines)
+      case Failure(exc)   => Left(exc.getMessage)
+    }
   }
 }
 
