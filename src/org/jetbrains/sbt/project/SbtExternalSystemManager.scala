@@ -104,20 +104,20 @@ object SbtExternalSystemManager {
         val projectSdk = projectJdkName.flatMap(name => Option(ProjectJdkTable.getInstance().findJdk(name)))
 
         projectSdk.map { sdk =>
-          try {
-            sdk.getSdkType match {
-              case sdkType : AndroidSdkType =>
-                environment += ("ANDROID_HOME" -> sdk.getSdkModificator.getHomePath)
-              case _ => // do nothing
-            }
-          } catch {
-            case _ : NoClassDefFoundError => // no android plugin, do nothing
+          sdk.getSdkType match {
+            case sdkType : JavaSdkType =>
+              try {
+                if (sdkType.isInstanceOf[AndroidSdkType])
+                  environment += ("ANDROID_HOME" -> sdk.getSdkModificator.getHomePath)
+              } catch {
+                case _ : NoClassDefFoundError => // no android plugin, do nothing
+              }
+              new File(sdkType.getVMExecutablePath(sdk))
+            case _ => throw new ExternalSystemException(SbtBundle("sbt.import.noProjectJvmFound"))
           }
-          val sdkType = sdk.getSdkType.asInstanceOf[JavaSdkType]
-          new File(sdkType.getVMExecutablePath(sdk))
         }
       } getOrElse {
-        throw new ExternalSystemException("Cannot determine Java VM executable in selected JDK")
+        throw new ExternalSystemException(SbtBundle("sbt.import.noCustomJvmFound"))
       }
     } else {
       val internalSdk =
