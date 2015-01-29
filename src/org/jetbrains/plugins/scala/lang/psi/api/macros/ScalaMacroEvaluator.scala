@@ -76,6 +76,6 @@ case class MatchRule(name: String, clazz: String, typeable: ScalaMacroTypeable) 
 
 object DefaultRule extends MacroRule {
   override def isApplicable(fun: ScFunction) = true
-  override def typeable: ScalaMacroTypeable = ??? // TODO: interpreter goes here
+  override def typeable: ScalaMacroTypeable = ScalaMacroDummyTypeable // TODO: interpreter goes here
 }
 
