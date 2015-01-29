@@ -483,7 +483,7 @@ object ScalaImportOptimizer {
   }
 
   class ImportTextCreator {
-    def getImportText(importInfo: ImportInfo, isUnicodeArrow: Boolean, spacesInImports: Boolean, 
+    def getImportText(importInfo: ImportInfo, isUnicodeArrow: Boolean, spacesInImports: Boolean,
                       sortLexicografically: Boolean): String = {
       import importInfo._
 
