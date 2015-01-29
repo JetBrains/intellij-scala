@@ -185,13 +185,11 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
   }
 
   private object ScalaListener extends ScalaProjectListener {
-    def onScalaAdded() {
+    def onScalaProjectChanged() {
       configureWidget()
-      notifyIfNeeded()
-    }
-
-    def onScalaRemoved() {
-      configureWidget()
+      if (project.hasScala) {
+        notifyIfNeeded()
+      }
     }
   }
 }

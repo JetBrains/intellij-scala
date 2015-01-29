@@ -27,7 +27,7 @@ object ImportMembersUtil {
     ref match {
       case _ childOf (ScInfixExpr(qual: ScReferenceExpression, `ref`, _)) => true
       case _ childOf (ScPostfixExpr(qual: ScReferenceExpression, `ref`)) => true
-      case ScReferenceExpression.qualifier(qualRef: ScReferenceExpression) => true
+      case ScReferenceExpression.withQualifier(qualRef: ScReferenceExpression) => true
       case stCodeRef: ScStableCodeReferenceElement => stCodeRef.qualifier.isDefined
       case _ => false
     }
@@ -121,7 +121,7 @@ object ImportMembersUtil {
   object isQualifierFor {
     def unapply(qual: ScReferenceElement): Option[ScReferenceElement] = {
       qual.getParent match {
-        case ref @ ScReferenceExpression.qualifier(`qual`) => Some(ref)
+        case ref @ ScReferenceExpression.withQualifier(`qual`) => Some(ref)
         case ScInfixExpr(`qual`, op, _) => Some(op)
         case ScPostfixExpr(`qual`, op: ScReferenceElement) => Some(op)
         case stRef: ScStableCodeReferenceElement if stRef.qualifier == Some(qual) => Some(stRef)

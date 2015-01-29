@@ -263,6 +263,12 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         new ScalaInstanceofEvaluator(eval, new TypeEvaluator(jvmName))
       })
     }
+
+    def trueEval = expressionFromTextEvaluator("true", ref)
+    def falseEval = expressionFromTextEvaluator("false", ref)
+    def conditionalOr = binaryEval("||", (first, second) => new ScalaIfEvaluator(first, trueEval, Some(second)))
+    def conditionalAnd = binaryEval("&&", (first, second) => new ScalaIfEvaluator(first, second, Some(falseEval)))
+
     name match {
       case "isInstanceOf" => isInstanceOfEval
       case "asInstanceOf" => unaryEval(name, identity) //todo: primitive type casting?
@@ -291,8 +297,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case "&" => binaryEvalForBoxes(name, "takeAnd")
       case "|" => binaryEvalForBoxes(name, "takeOr")
       case "^" => binaryEvalForBoxes(name, "takeXor")
-      case "&&" => binaryEvalForBoxes(name, "takeConditionalAnd") //todo: don't eval if not needed
-      case "||" => binaryEvalForBoxes(name, "takeConditionalOr") //todo: don't eval if not needed
+      case "&&" => conditionalAnd
+      case "||" => conditionalOr
       case "toInt" => unaryEvalForBoxes(name, "toInteger")
       case "toChar" => unaryEvalForBoxes(name, "toCharacter")
       case "toShort" => unaryEvalForBoxes(name, "toShort")
@@ -704,12 +710,20 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     resolve match {
       case isInsideLocalFunction(fun) if isLocalValue =>
         new ScalaDuplexEvaluator(calcLocal(), parameterEvaluator(fun, resolve))
+      case p: ScParameter if p.isCallByNameParameter && isLocalValue =>
+        val localEval = calcLocal()
+        new ScalaMethodEvaluator(localEval, "apply", null, Nil)
       case _ if isLocalValue =>
         calcLocal()
       case obj: ScObject =>
         objectEvaluator(obj, () => qualifierEvaluator(qualifier, ref))
       case _: PsiMethod | _: ScSyntheticFunction =>
         methodCallEvaluator(ref, Nil, Map.empty)
+      case cp: ScClassParameter if cp.isCallByNameParameter =>
+        val qualEval = qualifierEvaluator(qualifier, ref)
+        val name = NameTransformer.encode(cp.name)
+        val fieldEval = new ScalaFieldEvaluator(qualEval, _ => true, name, true)
+        new ScalaMethodEvaluator(fieldEval, "apply", null, Nil)
       case c: ScClassParameter if c.isPrivateThis =>
         //this is field if it's used outside of initialization
         //name of this field ends with $$ + c.getName
@@ -974,6 +988,12 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       new ScalaNewClassInstanceEvaluator(typeEvaluator, signature, Array(refEval))
     }
     else refEval
+  }
+
+
+  def expressionFromTextEvaluator(string: String, context: PsiElement): Evaluator = {
+    val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(string, context.getContext, context)
+    ScalaEvaluator(expr)
   }
 }
 

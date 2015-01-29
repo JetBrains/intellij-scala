@@ -1,7 +1,9 @@
-package org.jetbrains.plugins.scala.project;
+package org.jetbrains.plugins.scala.project.settings;
 
 import com.intellij.util.xmlb.annotations.AbstractCollection;
 import com.intellij.util.xmlb.annotations.Tag;
+import org.jetbrains.plugins.scala.project.CompileOrder;
+import org.jetbrains.plugins.scala.project.DebuggingInfoLevel;
 
 import java.util.Arrays;
 
@@ -9,8 +11,6 @@ import java.util.Arrays;
  * @author Pavel Fatin
  */
 public class ScalaCompilerSettingsState {
-  public IncrementalityType incrementalityType = IncrementalityType.IDEA;
-
   public CompileOrder compileOrder = CompileOrder.Mixed;
 
   public boolean dynamics = false;
@@ -59,7 +59,6 @@ public class ScalaCompilerSettingsState {
     ScalaCompilerSettingsState that = (ScalaCompilerSettingsState) o;
 
     return
-        incrementalityType == that.incrementalityType &&
         compileOrder == that.compileOrder &&
         dynamics == that.dynamics &&
         postfixOps == that.postfixOps &&

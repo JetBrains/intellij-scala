@@ -25,7 +25,7 @@ object NoSearchGeneric {
     }
   }
 
-  def testMethodName[T](y: T) {
+  def testMethodName[T](y: T): Unit = {
     println(y)
   }
 }

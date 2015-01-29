@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScUnderScoreSectionUtil}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScClass}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
@@ -148,6 +148,12 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
 
   def getTypeNoResolve: PsiType = PsiType.VOID
 
+  @volatile
+  private var defaultParam: Option[Boolean] = None
+
+  @volatile
+  private var defaultParamModCount: Long = 0L
+
   def isDefaultParam: Boolean = {
     @tailrec
     def check(param: ScParameter, visited: HashSet[ScParameter]): Boolean = {
@@ -159,7 +165,16 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
         case _ => false
       }
     }
-    check(this, HashSet.empty)
+
+    val count = getManager.getModificationTracker.getModificationCount
+    defaultParam match {
+      case Some(res) if count == defaultParamModCount => res
+      case _ =>
+        val res = check(this, HashSet.empty)
+        defaultParamModCount = count
+        defaultParam = Some(res)
+        res
+    }
   }
 
   def getDefaultExpression: Option[ScExpression] = {

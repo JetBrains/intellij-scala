@@ -22,4 +22,6 @@ class TypeInferenceImplicitsTest extends TypeInferenceTestBase {
   def testImplicitParameterOnlyFirstStep() {doTest()}
 
   def testSCL1580() {doTest()}
+
+  def testSpecialConversion() {doTest()}
 }

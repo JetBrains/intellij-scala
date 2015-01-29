@@ -45,7 +45,7 @@ class RenameElementQuickfix(ref: PsiElement, name: String) extends AbstractFixOn
         editor, editor.getCaretModel.getCurrentCaret)
       map.put(CommonDataKeys.PSI_ELEMENT.getName, element)
     }
-    val dataContext = SimpleDataContext.getSimpleContext(map, DataManager.getInstance.getDataContextFromFocus.getResultSync)
+    val dataContext = SimpleDataContext.getSimpleContext(map, DataManager.getInstance.getDataContext(editor.getComponent))
     new AnActionEvent(null, dataContext, "", action.getTemplatePresentation, ActionManager.getInstance, 0)
   }
 }
