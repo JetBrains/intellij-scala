@@ -344,13 +344,15 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   def externalSourceRootGroupsIn(projects: Seq[Project]): Seq[RootGroup] = {
-    val projectToExternalRoot = projects.flatMap { project =>
-      sourceRootsIn(project).filter(_.directory.isOutsideOf(project.base)).map((project, _))
-    }
+    val projectRoots = projects.flatMap(project => sourceRootsIn(project).map(ProjectRoot(project,_)))
 
-    val sharedRoots = projectToExternalRoot
-            .groupBy(_._2)
-            .mapValues(_.map(_._1).toSet)
+    // TODO return the message about omitted directories
+    val internalSourceDirectories = projectRoots.filter(_.isInternal).map(_.root.directory).toSeq
+
+    val sharedRoots = projectRoots
+            .filter(it => it.isExternal && !internalSourceDirectories.contains(it.root.directory))
+            .groupBy(_.root)
+            .mapValues(_.map(_.project).toSet)
             .map(p => SharedRoot(p._1, p._2.toSeq))
             .toSeq
 
@@ -386,6 +388,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
   
   case class SharedRoot(root: Root, projects: Seq[Project])
+
+  case class ProjectRoot(project: Project, root: Root) {
+    def isInternal: Boolean = !isExternal
+
+    def isExternal: Boolean = root.directory.isOutsideOf(project.base)
+  }
 
   case class Root(scope: Root.Scope, kind: Root.Kind, directory: File) {
     def base: Option[File] = Root.DefaultPaths.collectFirst {
