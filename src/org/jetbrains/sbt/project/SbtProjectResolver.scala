@@ -355,11 +355,32 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             .map(p => SharedRoot(p._1, p._2.toSeq))
             .toSeq
 
+
+    val nameProvider = new SharedSourceRootNameProvider()
+
     // TODO consider base/projects correspondence
     sharedRoots.groupBy(_.root.base).values.toSeq.map { roots =>
-      val root = roots.head
-      val name = root.root.base.map(_.getName + "-sources").getOrElse("shared-source-root")
-      RootGroup(name, roots.map(_.root), root.projects)
+      val sharedRoot = roots.head
+      val name = nameProvider.nameFor(sharedRoot.root.base)
+      RootGroup(name, roots.map(_.root), sharedRoot.projects)
+    }
+  }
+
+  private class SharedSourceRootNameProvider {
+    var usedNames = Set.empty[String]
+    var counter = 1
+
+    def nameFor(base: Option[File]) = {
+      val namedDirectory = if (base.exists(_.getName == "shared")) base.flatMap(_.parent) else base
+      val prefix = namedDirectory.map(_.getName + "-sources").getOrElse("shared-sources")
+      if (usedNames.contains(prefix)) {
+        val result = prefix + counter
+        counter += 1
+        usedNames += result
+        result
+      } else {
+        prefix
+      }
     }
   }
 
