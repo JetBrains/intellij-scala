@@ -18,7 +18,8 @@ package org.jetbrains.plugins.scala.lang.psi.api.macros
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types
 
 /**
  * @author Mikhail.Mutcianko
@@ -33,4 +34,8 @@ trait ScalaMacroExpandable {
 
 trait ScalaMacroTypeable {
   def checkMacro(macros: ScFunction, context: MacroContext): Option[ScType]
+}
+
+object ScalaMacroDummyTypeable extends ScalaMacroTypeable{
+  def checkMacro(macros: ScFunction, context: MacroContext) = Some(types.Any)
 }
