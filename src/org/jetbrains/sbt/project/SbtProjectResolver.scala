@@ -115,8 +115,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
                                              moduleFilesDirectory: File): ModuleNode = {
     val sourceModuleNode = {
       val node = createSourceModule(rootGroup, moduleFilesDirectory)
-      val commonDependencies = commonDependenciesIn(rootGroup.projects)
-      node.addAll(createLibraryDependencies(commonDependencies)(node, libraryNodes.map(_.data)))
+      val uniqueDependencies = rootGroup.projects.flatMap(_.dependencies.modules).distinct
+      node.addAll(createLibraryDependencies(uniqueDependencies)(node, libraryNodes.map(_.data)))
       node
     }
 
@@ -150,12 +150,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     moduleNode.add(contentRootNode)
 
     moduleNode
-  }
-
-  def commonDependenciesIn(projects: Seq[Project]): Seq[ModuleDependency] = {
-    projects.flatMap(_.dependencies.modules).filter { dependency =>
-      projects.forall(_.dependencies.modules.contains(dependency))
-    }
   }
 
   def createModules(projects: Seq[Project], libraryNodes: Seq[LibraryNode], moduleFilesDirectory: File): Seq[ModuleNode] = {
