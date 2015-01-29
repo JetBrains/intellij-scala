@@ -41,7 +41,9 @@ class ScalaSyntheticSteppingFilter extends ExtraSteppingFilter {
     val name = location.method().name()
     if (name.endsWith("$lzycompute")) return false //should step into the body of a lazy val
 
-    val functionsWithName = classInSource.functions.filter(_.name == name)
-    functionsWithName.isEmpty
+    if (name == "apply") return false
+
+    val namedElements = classInSource.namedElements.filter(_.name == name)
+    namedElements.isEmpty
   }
 }
