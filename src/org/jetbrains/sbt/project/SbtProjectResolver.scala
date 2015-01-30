@@ -332,7 +332,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  private def scopeFor(configurations: Seq[String]): DependencyScope = {
+  protected def scopeFor(configurations: Seq[String]): DependencyScope = {
     val ids = configurations.toSet
 
     if (ids.contains("compile"))
