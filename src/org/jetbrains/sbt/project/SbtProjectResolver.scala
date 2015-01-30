@@ -417,18 +417,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   case class Root(scope: Root.Scope, kind: Root.Kind, directory: File) {
     def base: Option[File] = Root.DefaultPaths.collectFirst {
-      case paths if directory.endsWith(paths: _*) => directory << paths.length
+      case paths if directory.parent.exists(_.endsWith(paths: _*)) => directory << (paths.length + 1)
     }
   }
   
   object Root {
-    private val DefaultPaths = Seq(
-      Seq("src", "main", "java"),
-      Seq("src", "main", "scala"),
-      Seq("src", "main", "resources"),
-      Seq("src", "test", "java"),
-      Seq("src", "test", "scala"),
-      Seq("src", "test", "resources"))
+    private val DefaultPaths = Seq(Seq("src", "main"), Seq("src", "test"))
 
     sealed trait Scope
     object Scope {
