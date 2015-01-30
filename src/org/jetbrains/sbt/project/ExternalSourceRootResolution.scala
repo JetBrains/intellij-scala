@@ -50,7 +50,9 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     }
 
     projects.map(projectToModuleNode).foreach { ownerModule =>
-      ownerModule.add(new ModuleDependencyNode(ownerModule, sourceModuleNode))
+      val node = new ModuleDependencyNode(ownerModule, sourceModuleNode)
+      node.setExported(true)
+      ownerModule.add(node)
     }
 
     sourceModuleNode
