@@ -3,6 +3,7 @@ package project
 
 import java.io.File
 
+import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.externalSystem.model.project.ExternalSystemSourceType
 import org.jetbrains.sbt.project.data.{ContentRootNode, ModuleDependencyNode, LibraryNode, ModuleNode}
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
@@ -27,14 +28,28 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
                                              projectToModuleNode: Map[Project, ModuleNode],
                                              libraryNodes: Seq[LibraryNode],
                                              moduleFilesDirectory: File): ModuleNode = {
+    val projects = rootGroup.projects
+
     val sourceModuleNode = {
-      val node = createSourceModule(rootGroup, moduleFilesDirectory)
-      val uniqueDependencies = rootGroup.projects.flatMap(_.dependencies.modules).distinct
-      node.addAll(createLibraryDependencies(uniqueDependencies)(node, libraryNodes.map(_.data)))
-      node
+      val moduleNode = createSourceModule(rootGroup, moduleFilesDirectory)
+
+      val uniqueModuleDependencies = projects.flatMap(_.dependencies.modules).distinct
+      moduleNode.addAll(createLibraryDependencies(uniqueModuleDependencies)(moduleNode, libraryNodes.map(_.data)))
+
+      val uniqueProjectDependencies = projects.flatMap(_.dependencies.projects).distinct
+      uniqueProjectDependencies.foreach { dependencyId =>
+        val dependency = projectToModuleNode.values.find(_.getId == dependencyId.project).getOrElse(
+          throw new ExternalSystemException("Cannot find project dependency: " + dependencyId.project))
+        
+        val dependencyNode = new ModuleDependencyNode(moduleNode, dependency)
+        dependencyNode.setScope(scopeFor(dependencyId.configurations))
+        moduleNode.add(dependencyNode)
+      }
+
+      moduleNode
     }
 
-    rootGroup.projects.map(projectToModuleNode).foreach { ownerModule =>
+    projects.map(projectToModuleNode).foreach { ownerModule =>
       ownerModule.add(new ModuleDependencyNode(ownerModule, sourceModuleNode))
     }
 
