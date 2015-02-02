@@ -5,8 +5,6 @@ import java.io.IOException
 import com.intellij.util.net.HttpConfigurable
 
 import scala.io.Source
-import scala.util.{Failure, Success, Try}
-import scala.util.control.Exception._
 
 /**
  * @author Pavel Fatin
@@ -40,16 +38,16 @@ object Versions {
   }
 
   private def loadLinesFrom(url: String): Either[String, Seq[String]] = {
-    val result = for {
-      connection <- Try(HttpConfigurable.getInstance().openHttpConnection(url))
-      source     <- Try(Source.fromInputStream(connection.getInputStream))
-    } yield {
-      source.getLines().toVector
-    }
-
-    result match {
-      case Success(lines) => Right(lines)
-      case Failure(exc)   => Left(exc.getMessage)
+    try {
+      val connection = HttpConfigurable.getInstance().openHttpConnection(url)
+      try {
+        val source = Source.fromInputStream(connection.getInputStream)
+        Right(source.getLines().toVector)
+      } finally {
+        connection.disconnect()
+      }
+    } catch {
+      case exc : IOException => Left(exc.getMessage)
     }
   }
 }
@@ -59,7 +57,7 @@ private case class Entity(url: String, minVersion: Version, hardcodedVersions: S
 }
 
 private object Scala extends Entity("http://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
-  Version("2.8.0"), Seq("2.8.2", "2.9.3", "2.10.4", "2.11.4"))
+  Version("2.8.0"), Seq("2.8.2", "2.9.3", "2.10.4", "2.11.5"))
 
 private object Sbt extends Entity("http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/launcher/",
   Version("0.12.0"), Seq("0.12.4", "0.13.7"))
