@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala.util
 
-import java.util.concurrent.Future
-
-import com.intellij.openapi.application.{ApplicationManager, ModalityState}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Computable
 import com.intellij.util.PathUtil
@@ -33,19 +31,4 @@ object ScalaUtil {
   def testingSupportTestPath(): String = {
     PathUtil.getJarPathForClass(classOf[Client]).replace("compiler-settings", "Runners")
   }
-
-  def executeOnPooledThread(callback: => Unit): Future[_] =
-    ApplicationManager.getApplication.executeOnPooledThread(new Runnable {
-      def run() = callback
-    })
-
-  def invokeLater(callback: => Unit): Unit =
-    ApplicationManager.getApplication.invokeLater(new Runnable {
-      def run() = callback
-    })
-
-  def invokeAndWait(state: ModalityState)(callback: => Unit): Unit =
-    ApplicationManager.getApplication.invokeAndWait(new Runnable {
-      def run() = callback
-    }, state)
 }

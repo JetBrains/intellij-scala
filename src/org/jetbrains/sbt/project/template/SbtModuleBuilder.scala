@@ -19,6 +19,7 @@ import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.io.FileUtil._
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.LocalFileSystem
+import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.project.Versions
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -57,10 +58,10 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     val sbtVersionComboBox            = new SComboBox[String](Array.empty)
     val scalaVersionComboBox          = new SComboBox[String](Array.empty)
 
-    ScalaUtil.executeOnPooledThread {
+    extensions.executeOnPooledThread {
       val sbtVersions   = Versions.loadSbtVersions
       val scalaVersions = Versions.loadScalaVersions
-      ScalaUtil.invokeAndWait(ModalityState.any()) {
+      extensions.invokeAndWait {
         sbtVersionComboBox.setItems(sbtVersions)
         scalaVersionComboBox.setItems(scalaVersions)
       }
