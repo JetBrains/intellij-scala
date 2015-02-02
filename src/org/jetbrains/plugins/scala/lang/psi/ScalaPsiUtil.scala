@@ -590,6 +590,7 @@ object ScalaPsiUtil {
     val parts: mutable.Queue[ScType] = new mutable.Queue[ScType]
 
     def collectParts(tp: ScType) {
+      ProgressManager.checkCanceled()
       if (visited.contains(tp)) return
       visited += tp
       tp.isAliasType match {
