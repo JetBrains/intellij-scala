@@ -64,7 +64,7 @@ class ScalaAotCompletionContributor extends CompletionContributor {
     val text = element.getText
     val prefix = text.substring(0, text.length - CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED.length)
 
-    if (!isSuitableIdentifier(prefix)) return
+    if (!ScalaNamesUtil.isIdentifier(prefix)) return
 
     val identifier = factory(prefix + ": " + capitalize(text), element)
 
@@ -72,8 +72,6 @@ class ScalaAotCompletionContributor extends CompletionContributor {
     val result0 = result.withPrefixMatcher(result.getPrefixMatcher.cloneWithPrefix(capitalize(prefix)))
     result0.runRemainingContributors(parameters0, new MyConsumer(prefix, typed, result0), true)
   }
-
-  private def isSuitableIdentifier(s: String) = ScalaNamesUtil.isIdentifier(s) && s.forall(_.isLetterOrDigit)
 }
 
 private object ScalaAotCompletionContributor {
