@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.project
 
-import java.io.IOException
-
 import com.intellij.util.net.HttpConfigurable
 
 import scala.io.Source
+import scala.util.Try
 
 /**
  * @author Pavel Fatin
@@ -21,7 +20,7 @@ object Versions {
   def loadSbtVersions = loadVersionsOf(Sbt)
 
   private def loadVersionsOf(entity: Entity): Array[String] =
-    loadVersionsFrom(entity.url).right.toOption
+    loadVersionsFrom(entity.url)
             .getOrElse(entity.hardcodedVersions)
             .map(Version(_))
             .filter(_ >= entity.minVersion)
@@ -29,25 +28,21 @@ object Versions {
             .map(_.number)
             .toArray
 
-  private def loadVersionsFrom(url: String): Either[String, Seq[String]] = {
-    loadLinesFrom(url).right.map { lines =>
+  private def loadVersionsFrom(url: String): Try[Seq[String]] = {
+    loadLinesFrom(url).map { lines =>
       lines.collect {
         case ReleaseVersionLine(number) => number
       }
     }
   }
 
-  private def loadLinesFrom(url: String): Either[String, Seq[String]] = {
-    try {
-      val connection = HttpConfigurable.getInstance().openHttpConnection(url)
+  private def loadLinesFrom(url: String): Try[Seq[String]] = {
+    Try(HttpConfigurable.getInstance().openHttpConnection(url)).map { connection =>
       try {
-        val source = Source.fromInputStream(connection.getInputStream)
-        Right(source.getLines().toVector)
+        Source.fromInputStream(connection.getInputStream).getLines().toVector
       } finally {
         connection.disconnect()
       }
-    } catch {
-      case exc : IOException => Left(exc.getMessage)
     }
   }
 }
