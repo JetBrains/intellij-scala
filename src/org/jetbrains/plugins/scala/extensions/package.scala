@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 
 import java.io.Closeable
 import java.lang.reflect.InvocationTargetException
+import java.util.concurrent.{Callable, Future}
 import javax.swing.SwingUtilities
 
 import com.intellij.openapi.application.{ApplicationManager, Result}
@@ -343,6 +344,10 @@ package object extensions {
   implicit def toComputable[T](action: => T): Computable[T] = new Computable[T] {
     override def compute(): T = action
   }
+
+  implicit def toCallable[T](action: => T): Callable[T] = new Callable[T] {
+    override def call(): T = action
+  }
   
   def startCommand(project: Project, commandName: String)(body: => Unit): Unit = {
     CommandProcessor.getInstance.executeCommand(project, new Runnable {
@@ -375,6 +380,10 @@ package object extensions {
     ApplicationManager.getApplication.runReadAction(new Computable[T] {
       def compute: T = body
     })
+  }
+
+  def executeOnPooledThread[T](body: => T): Future[T] = {
+    ApplicationManager.getApplication.executeOnPooledThread(toCallable(body))
   }
 
   def postponeFormattingWithin[T](project: Project)(body: => T): T = {
