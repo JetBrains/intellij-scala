@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.controlFlow
 
-import scala.collection.mutable.{ArrayBuffer, HashSet, ListBuffer}
+import scala.annotation.tailrec
+import scala.collection.mutable
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 /**
  * @author ilyas
@@ -11,13 +13,14 @@ object ControlFlowUtil {
   /**
    * Detects connected components in a control-flow graph
    */
-  def detectConnectedComponents(cfg: Seq[Instruction]): Seq[Iterable[Instruction]] = {
+  def detectConnectedComponents(cfg: Seq[Instruction]): Seq[collection.Set[Instruction]] = {
     val mainSeq = new ListBuffer[Instruction]
     mainSeq ++= cfg
     mainSeq.sortBy(_.num)
-    var buffer = new ArrayBuffer[Iterable[Instruction]]
+    var buffer = new ArrayBuffer[collection.Set[Instruction]]
 
-    def inner(next: Iterable[Instruction], currentSet: HashSet[Instruction]): Unit = {
+    @tailrec
+    def inner(next: Iterable[Instruction], currentSet: mutable.HashSet[Instruction]): Unit = {
       if (next.isEmpty) {
         buffer += currentSet
         mainSeq --= currentSet
@@ -31,9 +34,9 @@ object ControlFlowUtil {
       }
     }
 
-    while (!mainSeq.isEmpty) {
+    while (mainSeq.nonEmpty) {
       mainSeq.headOption match {
-        case Some(h) => inner(Seq(h), new HashSet[Instruction])
+        case Some(h) => inner(Seq(h), new mutable.HashSet[Instruction])
         case None =>
       }
     }
