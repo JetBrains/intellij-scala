@@ -5,7 +5,7 @@ import java.io.File
 import javax.swing.JCheckBox
 
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SdkSettingsStep, SettingsStep}
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
@@ -20,6 +20,7 @@ import com.intellij.openapi.util.io.FileUtil._
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import org.jetbrains.plugins.scala.project.Versions
+import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
@@ -53,11 +54,17 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
   }
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
-    val sbtVersionComboBox            = new SComboBox[String](Versions.loadSbtVersions)
-    val scalaVersionComboBox          = new SComboBox[String](Versions.loadScalaVersions)
+    val sbtVersionComboBox            = new SComboBox[String](Array.empty)
+    val scalaVersionComboBox          = new SComboBox[String](Array.empty)
 
-    // TODO Remove this line when SBT 0.13.7+ will be able to download its components flawlessly
-    sbtVersionComboBox.setSelectedItem("0.13.5")
+    ScalaUtil.executeOnPooledThread {
+      val sbtVersions   = Versions.loadSbtVersions
+      val scalaVersions = Versions.loadScalaVersions
+      ScalaUtil.invokeAndWait(ModalityState.any()) {
+        sbtVersionComboBox.setItems(sbtVersions)
+        scalaVersionComboBox.setItems(scalaVersions)
+      }
+    }
 
     val resolveClassifiersCheckBox    = new JCheckBox(SbtBundle("sbt.settings.resolveClassifiers"))
     val resolveSbtClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveSbtClassifiers"))
