@@ -5,7 +5,7 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElementVisitor
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -29,12 +29,12 @@ class ScCatchBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScC
   }
 
   def getLeftParenthesis = {
-    val leftParenthesis = findChildByType(ScalaTokenTypes.tLPARENTHESIS)
+    val leftParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS)
     if (leftParenthesis == null) None else Some(leftParenthesis)
   }
 
   def getRightParenthesis = {
-    val rightParenthesis = findChildByType(ScalaTokenTypes.tRPARENTHESIS)
+    val rightParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)
     if (rightParenthesis == null) None else Some(rightParenthesis)
   }
 

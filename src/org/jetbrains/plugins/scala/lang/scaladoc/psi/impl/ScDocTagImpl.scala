@@ -39,7 +39,7 @@ class ScDocTagImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDocTa
       case _ => null
     }
 
-  def getNameElement: PsiElement = findChildByType(ScalaDocTokenType.DOC_TAG_NAME)
+  def getNameElement: PsiElement = findChildByType[PsiElement](ScalaDocTokenType.DOC_TAG_NAME)
 
   def getDataElements: Array[PsiElement] = getChildren
 
