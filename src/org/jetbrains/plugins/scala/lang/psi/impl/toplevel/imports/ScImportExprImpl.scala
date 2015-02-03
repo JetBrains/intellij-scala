@@ -38,7 +38,7 @@ class ScImportExprImpl extends ScalaStubBasedElementImpl[ScImportExpr] with ScIm
     if (stub != null) {
       return stub.asInstanceOf[ScImportExprStub].isSingleWildcard
     }
-    if (findChildByType(ScalaTokenTypes.tUNDER) != null) {
+    if (findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null) {
       true
     } else {
       selectorSet match {
@@ -49,13 +49,12 @@ class ScImportExprImpl extends ScalaStubBasedElementImpl[ScImportExpr] with ScIm
   }
 
   def wildcardElement: Option[PsiElement] = {
-    if (findChildByType(ScalaTokenTypes.tUNDER) != null) {
-      Some(findChildByType(ScalaTokenTypes.tUNDER))
+    if (findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null) {
+      Some(findChildByType[PsiElement](ScalaTokenTypes.tUNDER))
     } else {
       selectorSet match {
-        case Some(set) => {
+        case Some(set) =>
           set.wildcardElement
-        }
         case None => None
       }
     }
