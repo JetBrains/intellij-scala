@@ -259,7 +259,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                           val expected = Some(tp)
                           InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type: " + nonValueType.toString)
                           nonValueType = InferUtil.updateAccordingToExpectedType(nonValueType,
-                            fromImplicitParameters = true, filterTypeParams = true, expected, place, check = true)
+                            fromImplicitParameters = true, filterTypeParams = isImplicitConversion, expected, place, check = true)
 
                           InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type after expected type: " + nonValueType.toString)
 
