@@ -2,7 +2,7 @@ package org.jetbrains.plugins.hocon.psi
 
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
-import com.intellij.psi.{ContributedReferenceHost, PsiComment, PsiReferenceService}
+import com.intellij.psi.{PsiElement, ContributedReferenceHost, PsiComment, PsiReferenceService}
 import org.jetbrains.plugins.hocon.lexer.{HoconTokenSets, HoconTokenType}
 import org.jetbrains.plugins.hocon.parser.HoconPsiParser
 
@@ -60,7 +60,7 @@ final class HBareObjectField(ast: ASTNode) extends HoconPsiElement(ast) {
 
   def value = findChild[HValue]
 
-  def separator = Option(findChildByType(HoconTokenSets.PathValueSeparator))
+  def separator = Option(findChildByType[PsiElement](HoconTokenSets.PathValueSeparator))
           .map(_.getNode.getElementType.asInstanceOf[HoconTokenType])
 }
 

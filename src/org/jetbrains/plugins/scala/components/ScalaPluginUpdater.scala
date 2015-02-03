@@ -5,14 +5,13 @@ import java.io.{File, IOException}
 import java.lang.reflect.Field
 import javax.swing.event.HyperlinkEvent
 
-import com.intellij.ide.plugins.{IdeaPluginDescriptorImpl, PluginInstaller, PluginManagerMain, PluginManagerUISettings}
+import com.intellij.ide.plugins._
 import com.intellij.notification._
 import com.intellij.openapi.application.impl.ApplicationInfoImpl
 import com.intellij.openapi.application.{Application, ApplicationInfo, ApplicationManager}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.updateSettings.impl.{UpdateChecker, UpdateSettings}
-import com.intellij.openapi.util.JDOMExternalizableStringList
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch._
 
@@ -81,9 +80,10 @@ object ScalaPluginUpdater {
 
     try {
       PluginInstaller.prepareToUninstall(pluginId)
-      val installedPlugins: JDOMExternalizableStringList = PluginManagerUISettings.getInstance.getInstalledPlugins
+      val installedPlugins = InstalledPluginsState.getInstance().getInstalledPlugins
       val pluginIdString: String = pluginId.getIdString
-      while (installedPlugins.contains(pluginIdString)) {
+      import scala.collection.JavaConversions._
+      while (installedPlugins.exists(_.getPluginId.getIdString == pluginIdString)) {
         installedPlugins.remove(pluginIdString)
       }
     }

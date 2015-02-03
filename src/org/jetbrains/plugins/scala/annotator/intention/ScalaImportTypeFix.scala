@@ -153,7 +153,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
     }
 
     def chooseClass() {
-      val popup = new BaseListPopupStep[TypeToImport](QuickFixBundle.message("class.to.import.chooser.title"), classes) {
+      val popup = new BaseListPopupStep[TypeToImport](QuickFixBundle.message("class.to.import.chooser.title"), classes : _*) {
         override def getIconFor(aValue: TypeToImport): Icon = {
           aValue.getIcon
         }

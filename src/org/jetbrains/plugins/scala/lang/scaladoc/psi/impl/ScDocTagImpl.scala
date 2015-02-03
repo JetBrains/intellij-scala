@@ -53,8 +53,8 @@ class ScDocTagImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDocTa
     }
 
   def setName(name: String): PsiElement = {
-    if (findChildByType(ScalaDocTokenType.DOC_TAG_NAME) != null) {
-      findChildByType(ScalaDocTokenType.DOC_TAG_NAME).replace(ScalaPsiElementFactory.createDocTagName(name, getManager))
+    if (findChildByType[PsiElement](ScalaDocTokenType.DOC_TAG_NAME) != null) {
+      findChildByType[PsiElement](ScalaDocTokenType.DOC_TAG_NAME).replace(ScalaPsiElementFactory.createDocTagName(name, getManager))
     }
 
     this

@@ -3,6 +3,7 @@ package lang
 package structureView
 
 import com.intellij.ide.structureView.{StructureViewModel, TreeBasedStructureViewBuilder}
+import com.intellij.openapi.editor.Editor
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -16,7 +17,7 @@ class ScalaStructureViewBuilder(private val myPsiFile: ScalaFile, private val co
   extends TreeBasedStructureViewBuilder {
 
   @NotNull
-  override def createStructureViewModel(): StructureViewModel = {
+  override def createStructureViewModel(editor: Editor): StructureViewModel = {
     new ScalaStructureViewModel(myPsiFile, console)
   }
 

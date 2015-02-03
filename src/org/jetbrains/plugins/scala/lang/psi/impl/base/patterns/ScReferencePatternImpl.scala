@@ -37,7 +37,7 @@ class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScRefe
 
   override def isIrrefutableFor(t: Option[ScType]): Boolean = true
 
-  def nameId = findChildByType(TokenSets.ID_SET)
+  def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
 
   def isWildcard: Boolean = findChildByType(ScalaTokenTypes.tUNDER) != null
 
