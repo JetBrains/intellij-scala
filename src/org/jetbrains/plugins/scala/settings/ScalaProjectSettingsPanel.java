@@ -50,6 +50,7 @@ public class ScalaProjectSettingsPanel {
   private JCheckBox myAotCompletion;
   private JCheckBox useEclipseCompatibilityModeCheckBox;
   private JTextField scalaTestDefaultSuperClass;
+  private JCheckBox useOldImplicitConversionCheckBox;
   private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
   private Project myProject;
 
@@ -99,6 +100,7 @@ public class ScalaProjectSettingsPanel {
     scalaProjectSettings.setEnableJavaToScalaConversion(enableConversionOnCopyCheckBox.isSelected());
     scalaProjectSettings.setDontShowConversionDialog(donTShowDialogCheckBox.isSelected());
     scalaProjectSettings.setTreatDocCommentAsBlockComment(treatDocCommentAsBlockComment.isSelected());
+    scalaProjectSettings.setUseOldImplicitConversionAlg(useOldImplicitConversionCheckBox.isSelected());
 
     scalaProjectSettings.setShowImplisitConversions(showImplicitConversionsInCheckBox.isSelected());
     scalaProjectSettings.setShowArgumentsToByNameParams(showArgumentsToByNameParametersCheckBox.isSelected());
@@ -156,6 +158,8 @@ public class ScalaProjectSettingsPanel {
         donTShowDialogCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isTreatDocCommentAsBlockComment() !=
         treatDocCommentAsBlockComment.isSelected()) return true;
+    if (scalaProjectSettings.isUseOldImplicitConversionAlg() !=
+        useOldImplicitConversionCheckBox.isSelected()) return true;
 
     if (scalaProjectSettings.isIgnorePerformance() != myResolveToAllClassesCheckBox.isSelected())
       return true;
@@ -209,6 +213,7 @@ public class ScalaProjectSettingsPanel {
     setValue(enableConversionOnCopyCheckBox, scalaProjectSettings.isEnableJavaToScalaConversion());
     setValue(donTShowDialogCheckBox, scalaProjectSettings.isDontShowConversionDialog());
     setValue(treatDocCommentAsBlockComment, scalaProjectSettings.isTreatDocCommentAsBlockComment());
+    setValue(useOldImplicitConversionCheckBox, scalaProjectSettings.isUseOldImplicitConversionAlg());
 
     setValue(showImplicitConversionsInCheckBox, scalaProjectSettings.isShowImplisitConversions());
     setValue(showArgumentsToByNameParametersCheckBox, scalaProjectSettings.isShowArgumentsToByNameParams());
@@ -262,7 +267,7 @@ public class ScalaProjectSettingsPanel {
     final JTabbedPane tabbedPane1 = new JTabbedPane();
     myPanel.add(tabbedPane1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(200, 200), null, 0, false));
     final JPanel panel1 = new JPanel();
-    panel1.setLayout(new GridLayoutManager(23, 3, new Insets(9, 9, 0, 0), -1, -1));
+    panel1.setLayout(new GridLayoutManager(24, 3, new Insets(9, 9, 0, 0), -1, -1));
     tabbedPane1.addTab("Core", panel1);
     searchAllSymbolsIncludeCheckBox = new JCheckBox();
     searchAllSymbolsIncludeCheckBox.setText("Search all symbols (include locals)");
@@ -312,14 +317,14 @@ public class ScalaProjectSettingsPanel {
     panel1.add(myDisableLanguageInjection, new GridConstraints(15, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JLabel label4 = new JLabel();
     label4.setText("Completion options:");
-    panel1.add(label4, new GridConstraints(17, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel1.add(label4, new GridConstraints(18, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     useScalaClassesPriorityCheckBox = new JCheckBox();
     useScalaClassesPriorityCheckBox.setSelected(true);
     useScalaClassesPriorityCheckBox.setText("Use Scala classes priority over Java classes");
-    panel1.add(useScalaClassesPriorityCheckBox, new GridConstraints(19, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel1.add(useScalaClassesPriorityCheckBox, new GridConstraints(20, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JPanel panel2 = new JPanel();
     panel2.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-    panel1.add(panel2, new GridConstraints(22, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    panel1.add(panel2, new GridConstraints(23, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     final JLabel label5 = new JLabel();
     label5.setText("Implicit parameters search depth:");
     panel1.add(label5, new GridConstraints(12, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -336,20 +341,20 @@ public class ScalaProjectSettingsPanel {
     panel1.add(myBasePackage, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
     final JLabel label7 = new JLabel();
     this.$$$loadLabelText$$$(label7, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("collection.type.highlighting.option"));
-    panel1.add(label7, new GridConstraints(20, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel1.add(label7, new GridConstraints(21, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     collectionHighlightingChooser = new JComboBox();
     final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
     defaultComboBoxModel1.addElement("None");
     defaultComboBoxModel1.addElement("Only non-qualified");
     defaultComboBoxModel1.addElement("All");
     collectionHighlightingChooser.setModel(defaultComboBoxModel1);
-    panel1.add(collectionHighlightingChooser, new GridConstraints(20, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    panel1.add(injectionJPanel, new GridConstraints(22, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    panel1.add(collectionHighlightingChooser, new GridConstraints(21, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel1.add(injectionJPanel, new GridConstraints(23, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     final JLabel label8 = new JLabel();
     label8.setText("ScalaTest default super class:");
-    panel1.add(label8, new GridConstraints(21, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel1.add(label8, new GridConstraints(22, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     scalaTestDefaultSuperClass = new JTextField();
-    panel1.add(scalaTestDefaultSuperClass, new GridConstraints(21, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+    panel1.add(scalaTestDefaultSuperClass, new GridConstraints(22, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
     showTypeInfoOnCheckBox = new JCheckBox();
     showTypeInfoOnCheckBox.setText("Show type info on mouse motion with delay:");
     panel1.add(showTypeInfoOnCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -359,7 +364,10 @@ public class ScalaProjectSettingsPanel {
     panel1.add(spacer1, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
     myAotCompletion = new JCheckBox();
     myAotCompletion.setText("Ahead-of-time completion (parameter and variable names)");
-    panel1.add(myAotCompletion, new GridConstraints(18, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel1.add(myAotCompletion, new GridConstraints(19, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    useOldImplicitConversionCheckBox = new JCheckBox();
+    useOldImplicitConversionCheckBox.setText("Use old implicit conversion search algorithm");
+    panel1.add(useOldImplicitConversionCheckBox, new GridConstraints(17, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JPanel panel3 = new JPanel();
     panel3.setLayout(new GridLayoutManager(5, 2, new Insets(9, 9, 0, 0), -1, -1));
     tabbedPane1.addTab("Worksheet", panel3);
