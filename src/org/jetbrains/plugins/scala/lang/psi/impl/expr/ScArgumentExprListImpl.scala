@@ -87,7 +87,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   }
 
   def addExpr(expr: ScExpression): ScArgumentExprList = {
-    val par = findChildByType(ScalaTokenTypes.tLPARENTHESIS)
+    val par = findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS)
     val nextNode = par.getNode.getTreeNext
     val node = getNode
     val needCommaAndSpace = exprs.nonEmpty
