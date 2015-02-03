@@ -31,11 +31,11 @@ class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
   override def navigate(requestFocus: Boolean) {
-    val descriptor = EditSourceUtil.getDescriptor(nameId);
+    val descriptor = EditSourceUtil.getDescriptor(nameId)
     if (descriptor != null) descriptor.navigate(requestFocus)
   }
 
-  def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
+  def nameId = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
     case null => ScalaPsiElementFactory.createIdentifier(getStub.asInstanceOf[ScTypeAliasStub].getName, getManager).getPsi
     case n => n
   }

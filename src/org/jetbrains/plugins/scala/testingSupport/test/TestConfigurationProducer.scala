@@ -41,7 +41,7 @@ abstract class TestConfigurationProducer(configurationType: ConfigurationType) e
         //TODO: move field assignment into configuration creation
         val cfg = resConfig.getConfiguration.asInstanceOf[AbstractTestRunConfiguration]
         configuration.setTestClassPath(cfg.getTestClassPath)
-        configuration.setGeneratedName(cfg.getGeneratedName)
+        configuration.setGeneratedName(cfg.suggestedName)
         configuration.setJavaOptions(cfg.getJavaOptions)
         configuration.setTestArgs(cfg.getTestArgs)
         configuration.setTestPackagePath(cfg.getTestPackagePath)

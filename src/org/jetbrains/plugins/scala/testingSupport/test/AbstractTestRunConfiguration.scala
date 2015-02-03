@@ -19,9 +19,10 @@ import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.options.{SettingsEditor, SettingsEditorGroup}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JdkUtil, Sdk}
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Computable, Getter, JDOMExternalizer}
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi._
+import com.intellij.psi.search.GlobalSearchScope
 import org.jdom.Element
 import org.jetbrains.idea.maven.project.MavenProjectsManager
 import org.jetbrains.plugins.scala.extensions._
@@ -39,8 +40,7 @@ import org.jetbrains.plugins.scala.util.ScalaUtil
 import scala.beans.BeanProperty
 import scala.collection.JavaConversions._
 import scala.collection.mutable
-import scala.collection.mutable.{ListBuffer, ArrayBuffer}
-import com.intellij.openapi.util.text.StringUtil
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Ksenia.Sautina
@@ -134,15 +134,13 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
   private var generatedName: String = ""
 
-  override def getGeneratedName = generatedName
-
   def setGeneratedName(name: String) {
     generatedName = name
   }
 
   override def isGeneratedName = getName == null || getName.equals(suggestedName)
 
-  override def suggestedName = getGeneratedName
+  override def suggestedName = generatedName
 
   def apply(configuration: TestRunConfigurationForm) {
     testKind = configuration.getSelectedKind

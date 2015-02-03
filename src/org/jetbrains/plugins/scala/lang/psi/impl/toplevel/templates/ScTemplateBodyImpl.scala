@@ -64,10 +64,7 @@ class ScTemplateBodyImpl extends ScalaStubBasedElementImpl[ScTemplateBody] with 
         case s => return Some(s.getPsi)
       }
     }
-    findChildByType(ScalaElementTypes.SELF_TYPE) match {
-      case null => None
-      case s => Some(s.asInstanceOf[ScSelfTypeElement])
-    }
+    Option(findChildByType[ScSelfTypeElement](ScalaElementTypes.SELF_TYPE))
   }
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
