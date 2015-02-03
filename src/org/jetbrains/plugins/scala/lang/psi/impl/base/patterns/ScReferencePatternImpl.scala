@@ -39,7 +39,7 @@ class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScRefe
 
   def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
 
-  def isWildcard: Boolean = findChildByType(ScalaTokenTypes.tUNDER) != null
+  def isWildcard: Boolean = findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
 
   override def toString: String = "ReferencePattern: " + name
 

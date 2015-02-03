@@ -4,7 +4,7 @@ package psi
 package impl
 package base
 
-import com.intellij.psi.PsiWhiteSpace
+import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
@@ -22,7 +22,7 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
   override def contextBound: Seq[ScType] = contextBoundTypeElement.flatMap(_.getType(TypingContext.empty).toOption)
 
   override def upperTypeElement: Option[ScTypeElement] = {
-    val tUpper = findLastChildByType(ScalaTokenTypes.tUPPER_BOUND)
+    val tUpper = findLastChildByType[PsiElement](ScalaTokenTypes.tUPPER_BOUND)
     if (tUpper != null) {
       ScalaPsiUtil.getNextSiblingOfType(tUpper, classOf[ScTypeElement]) match {
         case null => None
@@ -32,7 +32,7 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
   }
 
   override def lowerTypeElement: Option[ScTypeElement] = {
-    val tLower = findLastChildByType(ScalaTokenTypes.tLOWER_BOUND)
+    val tLower = findLastChildByType[PsiElement](ScalaTokenTypes.tLOWER_BOUND)
     if (tLower != null) {
       ScalaPsiUtil.getNextSiblingOfType(tLower, classOf[ScTypeElement]) match {
         case null => None
