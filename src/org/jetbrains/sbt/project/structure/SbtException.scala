@@ -3,6 +3,7 @@ package project.structure
 
 import java.io.File
 
+import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.util.io.FileUtil
 
 /**
@@ -61,8 +62,8 @@ object SbtException {
         NotTrimmed
 
     def dumpLog(log: String): File = {
-      // TODO: maybe dump every log in the same file instead of creating new each time?
-      val file = FileUtil.createTempFile("sbt", ".log", true)
+      val file = new File(PathManager.getLogPath, "sbt.last.log")
+      file.createNewFile()
       file.write(log)
       file
     }

@@ -170,6 +170,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
     override def candidatesS: scala.collection.Set[ScalaResolveResult] = {
       val clazz = ScType.extractClass(tp)
       def forMap(c: ScalaResolveResult, withLocalTypeInference: Boolean, checkFast: Boolean): Option[(ScalaResolveResult, ScSubstitutor)] = {
+        ProgressManager.checkCanceled()
         val subst = c.substitutor
         (c.element match {
           case o: ScObject if !withLocalTypeInference && !PsiTreeUtil.isContextAncestor(o, place, false) =>
@@ -254,30 +255,34 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                         Success(if (polymorphicTypeParameters.isEmpty) methodType
                         else ScTypePolymorphicType(methodType, polymorphicTypeParameters), Some(place))
                       try {
-                        val expected = Some(tp)
-                        InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type: " + nonValueType.toString)
-                        nonValueType = InferUtil.updateAccordingToExpectedType(nonValueType,
-                          fromImplicitParameters = true, filterTypeParams = isImplicitConversion, expected, place, check = true)
+                        def updateImplicitParameters(): Some[(ScalaResolveResult, ScSubstitutor)] = {
+                          val expected = Some(tp)
+                          InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type: " + nonValueType.toString)
+                          nonValueType = InferUtil.updateAccordingToExpectedType(nonValueType,
+                            fromImplicitParameters = true, filterTypeParams = isImplicitConversion, expected, place, check = true)
 
-                        InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type after expected type: " + nonValueType.toString)
+                          InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type after expected type: " + nonValueType.toString)
 
-                        val depth = ScalaProjectSettings.getInstance(place.getProject).getImplicitParametersSearchDepth
-                        if (lastImplicit.isDefined &&
-                          (depth < 0 || searchImplicitsRecursively < depth)) {
-                          val (resType, results) = InferUtil.updateTypeWithImplicitParameters(nonValueType.getOrElse(throw new SafeCheckException),
-                            place, Some(fun), check = true, searchImplicitsRecursively + 1)
-                          val valueType = inferValueType(resType)
-                          InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type after additional implicit search: " + valueType.toString)
-                          def addImportsUsed(result: ScalaResolveResult, results: Seq[ScalaResolveResult]): ScalaResolveResult = {
-                            results.foldLeft(result) {
-                              case (r1: ScalaResolveResult, r2: ScalaResolveResult) => r1.copy(importsUsed = r1.importsUsed ++ r2.importsUsed)
+                          val depth = ScalaProjectSettings.getInstance(place.getProject).getImplicitParametersSearchDepth
+                          if (lastImplicit.isDefined &&
+                            (depth < 0 || searchImplicitsRecursively < depth)) {
+                            val (resType, results) = InferUtil.updateTypeWithImplicitParameters(nonValueType.getOrElse(throw new SafeCheckException),
+                              place, Some(fun), check = true, searchImplicitsRecursively + 1)
+                            val valueType = inferValueType(resType)
+                            InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type after additional implicit search: " + valueType.toString)
+                            def addImportsUsed(result: ScalaResolveResult, results: Seq[ScalaResolveResult]): ScalaResolveResult = {
+                              results.foldLeft(result) {
+                                case (r1: ScalaResolveResult, r2: ScalaResolveResult) => r1.copy(importsUsed = r1.importsUsed ++ r2.importsUsed)
+                              }
                             }
+                            Some(addImportsUsed(c.copy(implicitParameterType = Some(valueType), implicitParameters = results.getOrElse(Seq.empty)),
+                              results.getOrElse(Seq.empty)), subst)
+                          } else {
+                            Some(c.copy(implicitParameterType = Some(inferValueType(nonValueType.getOrElse(throw new SafeCheckException)))), subst)
                           }
-                          Some(addImportsUsed(c.copy(implicitParameterType = Some(valueType), implicitParameters = results.getOrElse(Seq.empty)),
-                            results.getOrElse(Seq.empty)), subst)
-                        } else {
-                          Some(c.copy(implicitParameterType = Some(inferValueType(nonValueType.getOrElse(throw new SafeCheckException)))), subst)
                         }
+
+                        updateImplicitParameters()
                       } catch {
                         case e: SafeCheckException =>
                           InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, problem detected for function: " + fun.name)

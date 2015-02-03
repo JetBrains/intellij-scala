@@ -46,6 +46,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean AOT_COMPLETION = true;
   private boolean SCALA_CLASSES_PRIORITY = true;
   private boolean GENERATE_TOSTRING_WITH_FIELD_NAMES = false;
+  private boolean USE_OLD_IMPLICIT_CONVERSION_ALG = false;
 
   //WORKSHEET
   private int OUTPUT_LIMIT = 35;
@@ -268,5 +269,13 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setGenerateToStringWithFieldNames(boolean generateToStringWithFieldNames) {
     this.GENERATE_TOSTRING_WITH_FIELD_NAMES = generateToStringWithFieldNames;
+  }
+
+  public boolean isUseOldImplicitConversionAlg() {
+    return USE_OLD_IMPLICIT_CONVERSION_ALG;
+  }
+
+  public void setUseOldImplicitConversionAlg(boolean useOldImplicitConversionAlg) {
+    USE_OLD_IMPLICIT_CONVERSION_ALG = useOldImplicitConversionAlg;
   }
 }
