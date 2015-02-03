@@ -51,7 +51,7 @@ abstract class ScSyntheticPackage(name: String, manager: PsiManager)
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
      processor match {
-      case bp: BaseProcessor => {
+      case bp: BaseProcessor =>
         if (bp.kinds.contains(PACKAGE)) {
           val subPackages = if (lastParent != null) getSubPackages(lastParent.getResolveScope) else getSubPackages
           for (subp <- subPackages) {
@@ -64,7 +64,6 @@ abstract class ScSyntheticPackage(name: String, manager: PsiManager)
           }
         }
         true
-      }
       case _ => true
     }
   }
@@ -93,6 +92,7 @@ object ScSyntheticPackage {
         case Some(obj) =>
           val pname = if (i < 0) "" else fqn.substring(0, i)
           new ScSyntheticPackage(name, PsiManager.getInstance(project)) {
+            override def getFiles(globalSearchScope: GlobalSearchScope): Array[PsiFile] = Array.empty //todo: ?
             def containsClassNamed(name: String): Boolean = false
             def getQualifiedName = fqn
             def getClasses: Array[PsiClass] = Array.empty
@@ -113,6 +113,8 @@ object ScSyntheticPackage {
       if (pkgs.isEmpty) null else {
         val pname = if (i < 0) "" else fqn.substring(0, i)
         new ScSyntheticPackage(name, PsiManager.getInstance(project)) {
+          override def getFiles(globalSearchScope: GlobalSearchScope): Array[PsiFile] = Array.empty //todo: ?
+
           def findClassByShortName(name: String, scope: GlobalSearchScope): Array[PsiClass] = {
             getClasses.filter(_.name == name)
           }
@@ -126,11 +128,11 @@ object ScSyntheticPackage {
           def getClasses = {
             Array(pkgs.flatMap(p =>
               if (p.fqn.length == fqn.length)
-                p.typeDefs.flatMap(td => td match {
-                  case c: ScClass if c.isCase && c.fakeCompanionModule != None =>
+                p.typeDefs.flatMap {
+                  case td@(c: ScClass) if c.isCase && c.fakeCompanionModule != None =>
                     Seq(td, c.fakeCompanionModule.get)
-                  case _ => Seq(td)
-                })
+                  case td => Seq(td)
+                }
               else Seq.empty): _*)
           }
 

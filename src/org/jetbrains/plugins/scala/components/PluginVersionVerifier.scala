@@ -104,7 +104,7 @@ class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponen
                         description match {
                           case "Yes" =>
                             PluginManagerCore.disablePlugin(plugin.getPluginId.getIdString)
-                            PluginManagerConfigurable.showRestartIDEADialog()
+                            PluginManagerConfigurable.showRestartDialog()
                           case "No"  => //do nothing it seems all is ok for the user
                           case _     => //do nothing it seems all is ok for the user
                         }
