@@ -43,7 +43,7 @@ package object extensions {
     import org.jetbrains.plugins.scala.extensions.PsiMethodExt._
 
     def isAccessor: Boolean = {
-      hasQueryLikeName && !hasVoidReturnType
+      hasNoParams && hasQueryLikeName && !hasVoidReturnType
     }
 
     def isMutator: Boolean = {
@@ -64,6 +64,8 @@ package object extensions {
     }
 
     def hasVoidReturnType = repr.getReturnType == PsiType.VOID
+
+    def hasNoParams = repr.getParameterList.getParameters.length == 0
   }
 
   object PsiMethodExt {
