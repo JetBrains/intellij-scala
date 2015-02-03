@@ -3,7 +3,7 @@ package actions
 
 import _root_.com.intellij.codeInsight.TargetElementUtilBase
 import _root_.com.intellij.psi._
-import _root_.com.intellij.psi.util.PsiUtilBase
+import com.intellij.psi.util.{PsiTreeUtil, PsiUtilBase}
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.editor.Editor
@@ -38,33 +38,44 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
     val selectionModel = editor.getSelectionModel
     if (selectionModel.hasSelection) {
       import selectionModel._
-      val a: Option[(ScExpression, Array[ScType])] = ScalaRefactoringUtil.getExpression(file.getProject, editor, file, getSelectionStart, getSelectionEnd)
-      a.foreach {
-        case (expr, arr) if arr.nonEmpty =>
-          val tpe = arr.head
-          val tpeWithoutImplicits = expr.getTypeWithoutImplicits(TypingContext.empty).toOption
-          val tpeWithoutImplicitsText = tpeWithoutImplicits.map(_.presentableText)
 
-          val tpeText = tpe.presentableText
-          val expectedTypeText = expr.expectedType().map(_.presentableText)
-
-          val hint = (tpeWithoutImplicitsText, expectedTypeText) match {
-            case (None, Some(expectedText)) =>
-              """|Type: %s
-                 |Expected Type: %s""".format(tpeText, expectedText).stripMargin
-            case (None | Some(`tpeText`), None) => tpeText
-            case (Some(originalTypeText), None) =>
-              """|Type:  %s
-                 |Original Type: %s""".format(tpeText, originalTypeText).stripMargin
-            case (Some(withoutImplicitsText), Some(expectedText)) =>
-              """|Type: %s
-                 |Original Type: %s
-                 |Expected Type: %s""".format(tpeText, withoutImplicitsText, expectedText).stripMargin
-          }
-
-          ScalaActionUtil.showHint(editor, hint)
-        case _ => ScalaActionUtil.showHint(editor, "Could not find type for selection")
+      def hintForPattern: Option[String] = {
+        val pattern = PsiTreeUtil.findElementOfClassAtRange(file, getSelectionStart, getSelectionEnd, classOf[ScBindingPattern])
+        ShowTypeInfoAction.typeInfoFromPattern(pattern).map("Type: " + _)
       }
+
+      def hintForExpression: Option[String] = {
+        val exprWithTypes: Option[(ScExpression, Array[ScType])] =
+          ScalaRefactoringUtil.getExpression(file.getProject, editor, file, getSelectionStart, getSelectionEnd)
+
+        exprWithTypes.map {
+          case (expr, arr) if arr.nonEmpty =>
+            val tpe = arr.head
+            val tpeWithoutImplicits = expr.getTypeWithoutImplicits(TypingContext.empty).toOption
+            val tpeWithoutImplicitsText = tpeWithoutImplicits.map(_.presentableText)
+
+            val tpeText = tpe.presentableText
+            val expectedTypeText = expr.expectedType().map(_.presentableText)
+
+            (tpeWithoutImplicitsText, expectedTypeText) match {
+              case (None, Some(expectedText)) =>
+                """|Type: %s
+                  |Expected Type: %s""".format(tpeText, expectedText).stripMargin
+              case (None | Some(`tpeText`), None) => tpeText
+              case (Some(originalTypeText), None) =>
+                """|Type:  %s
+                  |Original Type: %s""".format(tpeText, originalTypeText).stripMargin
+              case (Some(withoutImplicitsText), Some(expectedText)) =>
+                """|Type: %s
+                  |Original Type: %s
+                  |Expected Type: %s""".format(tpeText, withoutImplicitsText, expectedText).stripMargin
+            }
+          case _ => "Could not find type for selection"
+        }
+      }
+      val hint = hintForPattern orElse hintForExpression
+      hint.foreach(ScalaActionUtil.showHint(editor, _))
+
     } else {
       val offset = TargetElementUtilBase.adjustOffset(file, editor.getDocument,
         editor.logicalPositionToOffset(editor.getCaretModel.getLogicalPosition))
@@ -75,7 +86,7 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
 
 object ShowTypeInfoAction {
   def getTypeInfoHint(editor: Editor, file: PsiFile, offset: Int): Option[String] = {
-    file.findReferenceAt(offset) match {
+    val typeInfoFromRef = file.findReferenceAt(offset) match {
       case ResolvedWithSubst(e, subst) => typeOf(e, subst)
       case _ =>
         val element = file.findElementAt(offset)
@@ -85,6 +96,15 @@ object ShowTypeInfoAction {
           case Parent(p) => typeOf(p, ScSubstitutor.empty)
           case _ => None
         }
+    }
+    val pattern = PsiTreeUtil.findElementOfClassAtOffset(file, offset, classOf[ScBindingPattern], false)
+    typeInfoFromRef.orElse(typeInfoFromPattern(pattern))
+  }
+
+  def typeInfoFromPattern(p: ScBindingPattern): Option[String] = {
+    p match {
+      case null => None
+      case _ => typeOf(p, ScSubstitutor.empty)
     }
   }
 
