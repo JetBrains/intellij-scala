@@ -16,6 +16,6 @@ class SComboBox<T> extends JComboBox {
   }
 
   public void setItems(String[] items) {
-    super.setModel(new DefaultComboBoxModel<String>(items));
+    super.setModel(new DefaultComboBoxModel(items));
   }
 }
