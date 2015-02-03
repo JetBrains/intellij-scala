@@ -69,7 +69,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
   }
 
   def staticSuper: Option[ScType] = {
-    val id = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+    val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
     if (id == null) None else findSuper(id)
   }
 

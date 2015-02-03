@@ -31,7 +31,7 @@ class ScReturnStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScR
   protected[expr] override def innerType(ctx: TypingContext) = Success(Nothing, Some(this))
     //Failure("Cannot infer type of `return' expression", Some(this))
 
-  def returnKeyword: PsiElement = findChildByType(ScalaTokenTypes.kRETURN)
+  def returnKeyword: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.kRETURN)
 
   def returnFunction: Option[ScFunctionDefinition] = {
     val o = PsiTreeUtil.getParentOfType(this, classOf[ScFunctionDefinition])

@@ -59,7 +59,7 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
     if (stub != null) {
       return stub.asInstanceOf[ScPackageContainerStub].isExplicit
     }
-    findChildByType(ScalaTokenTypes.tLBRACE) != null
+    findChildByType[PsiElement](ScalaTokenTypes.tLBRACE) != null
   }
 
   def ownNamePart: String = {
