@@ -44,8 +44,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockExprImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
-import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
+import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -359,7 +359,7 @@ object ScalaPsiUtil {
   def findImplicitConversion(e: ScExpression, refName: String, ref: PsiElement, processor: BaseProcessor,
                              noImplicitsForArgs: Boolean):
     Option[ImplicitResolveResult] = {
-    val oldAlg = ScalaProjectSettings.getInstance(e.getProject).isUseOldImplicitConversionAlg();
+    val oldAlg = ScalaProjectSettings.getInstance(e.getProject).isUseOldImplicitConversionAlg
     if (oldAlg) {
       return oldFindImplicitConversion(e, refName, ref, processor, noImplicitsForArgs)
     }
