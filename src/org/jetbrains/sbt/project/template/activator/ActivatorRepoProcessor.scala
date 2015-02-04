@@ -1,7 +1,7 @@
 package org.jetbrains.sbt.project.template.activator
 
 import java.io.{File, IOException}
-import java.net.HttpURLConnection
+import java.net.{URLClassLoader, HttpURLConnection}
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.options.ConfigurationException
@@ -10,7 +10,7 @@ import com.intellij.openapi.util.io.{FileUtil, StreamUtil}
 import com.intellij.util.io.ZipUtil
 import com.intellij.util.net.HttpConfigurable
 import org.apache.lucene.document.Document
-import org.apache.lucene.index.IndexReader
+import org.apache.lucene.index.{DirectoryReader, IndexReader}
 import org.apache.lucene.store.FSDirectory
 
 import scala.collection.mutable
@@ -88,7 +88,14 @@ class ActivatorRepoProcessor {
       import org.apache.lucene.index.IndexReader
       import org.apache.lucene.search.IndexSearcher
 
-      reader = IndexReader.open(FSDirectory.open(extracted))
+      val loader = getClass.getClassLoader match { //hack to avoid lucene 2.4.1 from bundled maven plugin
+        case urlLoader: URLClassLoader =>
+          new URLClassLoader(urlLoader.getURLs, null)
+        case other => other
+      }
+      loader.loadClass("org.apache.lucene.store.FSDirectory")
+
+      reader = DirectoryReader.open(FSDirectory.open(extracted))
       val searcher = new IndexSearcher(reader)
       val docs = searcher.search(new lucene.search.MatchAllDocsQuery, reader.maxDoc())
       val data = docs.scoreDocs.map { case doc => reader document doc.doc }
