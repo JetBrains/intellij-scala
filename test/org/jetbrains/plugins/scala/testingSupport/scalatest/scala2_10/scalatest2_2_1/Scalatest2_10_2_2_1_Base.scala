@@ -12,7 +12,7 @@ abstract class Scalatest2_10_2_2_1_Base extends ScalaTestTestCase {
    * Intended for loading libraries different from scala-compiler.
    */
   override protected def addOtherLibraries(): Unit = {
-    addLibrary("scalaTest", "scalaTest", "scalatest_2.10-2.2.1.jar")
+    addIvyCacheLibrary("scalaTest", "org.scalatest/scalatest_2.10/bundles", "scalatest_2.10-2.2.1.jar")
   }
 
   override protected val compilerDirectorySuffix: String = "2.10"
