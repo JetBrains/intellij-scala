@@ -7,7 +7,7 @@ object common extends Build {
   lazy val ideaVersion = settingKey[String]("gets idea sdk version from file")
   lazy val ideaBasePath = settingKey[File]("path to idea SDK")
 
-  lazy val ideaBaseJars = settingKey[Classpath]("").map(kk => kk.seq.filterNot(_.data.name.contains("lucene-core-2.4.1")))
+  lazy val ideaBaseJars = settingKey[Classpath]("")
   lazy val ideaICPluginJars = settingKey[Classpath]("")
   lazy val ideaIUPluginJars = settingKey[Classpath]("")
   lazy val allIdeaJars = settingKey[Classpath]("")
