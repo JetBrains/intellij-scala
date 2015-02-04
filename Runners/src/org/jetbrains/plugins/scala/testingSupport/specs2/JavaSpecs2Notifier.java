@@ -7,6 +7,7 @@ import org.specs2.reporter.Notifier;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
+import java.util.Stack;
 
 import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeString;
 import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.formatCurrentTimestamp;
@@ -18,16 +19,41 @@ public class JavaSpecs2Notifier implements Notifier {
   public static boolean myShowProgressMessages = true;
   private HashMap<String, Long> map = new HashMap<String, Long>();
 
+  private int id = 0;
+
+  private int getCurrentId() {return idStack.peek();}
+
+  private int descend() {
+    int oldId = idStack.peek();
+    idStack.push(++id);
+    return oldId;
+  }
+
+  private void ascend() {
+    idStack.pop();
+  }
+
+  private final Stack<Integer> idStack = new Stack<Integer>();
+
   public void specStart(String title, String location) {
-    System.out.println("##teamcity[testSuiteStarted name='" + escapeString(title) + "'"+ TestRunnerUtil.parseLocation(location).toHint() + "]");
+    if (idStack.isEmpty()) {
+      idStack.push(id);
+    }
+    int parentId = descend();
+    System.out.println("\n##teamcity[testSuiteStarted name='" + escapeString(title) + "'"+ TestRunnerUtil.parseLocation(location).toHint() +
+        " nodeId='" + getCurrentId() + "' parentNodeId='" + parentId + "']");
   }
 
   public void specEnd(String title, String location) {
-    System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(title) + "']");
+    System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(title) + "' nodeId='" +
+        getCurrentId() + "']");
+    ascend();
   }
 
   public void contextStart(String text, String location) {
-    System.out.println("##teamcity[testSuiteStarted name='" + escapeString(text) + "'" + TestRunnerUtil.parseLocation(location).toHint() + "]");
+    int parentId = descend();
+    System.out.println("##teamcity[testSuiteStarted name='" + escapeString(text) + "'" + TestRunnerUtil.parseLocation(location).toHint() +
+        " nodeId='" + getCurrentId() + "' parentNodeId='" + parentId + "']");
     if (myShowProgressMessages) {
       String escapedMessage = escapeString(text.replaceFirst("\\s+$", ""));
       if (!escapedMessage.isEmpty()) {
@@ -37,19 +63,24 @@ public class JavaSpecs2Notifier implements Notifier {
   }
 
   public void contextEnd(String text, String location) {
-    System.out.println("##teamcity[testSuiteFinished name='" + escapeString(text) + "'"+ TestRunnerUtil.parseLocation(location).toHint() + "]");
+    System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(text) + "'"+ TestRunnerUtil.parseLocation(location).toHint() +
+        " nodeId='" + getCurrentId() + "']");
+    ascend();
   }
 
   public void text(String text, String location) {
   }
 
   public void exampleStarted(String name, String location) {
+    int parentId = descend();
     System.out.println("\n##teamcity[testStarted name='" + escapeString(name) + "'" + TestRunnerUtil.parseLocation(location).toHint() +
-            " captureStandardOutput='true']");
+            " captureStandardOutput='true' nodeId='" + getCurrentId() + "' parentNodeId='" + parentId + "']");
   }
 
   public void exampleSuccess(String text, long duration) {
-    System.out.println("\n##teamcity[testFinished name='" + escapeString(text) + "' duration='"+ duration +"']");
+    System.out.println("\n##teamcity[testFinished name='" + escapeString(text) + "' duration='"+ duration +
+        "' nodeId='" + getCurrentId() + "']");
+    ascend();
     if (myShowProgressMessages) {
       String escapedMessage = escapeString(text.replaceFirst("\\s+$", ""));
       if (!escapedMessage.isEmpty()) {
@@ -69,17 +100,23 @@ public class JavaSpecs2Notifier implements Notifier {
   }
 
   public void exampleSkipped(String name, String message, long duration) {
-    System.out.println("\n##teamcity[testIgnored name='" + escapeString(name) + "' message='" + escapeString(message) + "']");
+    System.out.println("\n##teamcity[testIgnored name='" + escapeString(name) + "' message='" + escapeString(message) +
+        "' nodeId='" + getCurrentId() + "']");
+    ascend();
   }
 
   public void exampleSkipped(String name, String message, String location, long duration) {
-    System.out.println("\n##teamcity[testIgnored name='" + escapeString(name) + "' message='" + escapeString(message) + "']");
+    System.out.println("\n##teamcity[testIgnored name='" + escapeString(name) + "' message='" + escapeString(message) +
+        "' nodeId='" + getCurrentId() + "']");
+    ascend();
   }
 
   public void examplePending(String name, String message, String location, long duration) {
+    ascend();
   }
 
   public void examplePending(String name, String message, long duration) {
+    ascend();
   }
 
   private void exampleFailureOrError(String name, String message, Throwable f, boolean error, String actualExpectedAttrs) {
@@ -92,8 +129,9 @@ public class JavaSpecs2Notifier implements Notifier {
         "' details='" + escapeString(detail) + "'";
     if (error) res += "error = '" + error + "'";
     res += actualExpectedAttrs;
-    res += " timestamp='" + escapeString(formatCurrentTimestamp()) +  "']";
+    res += " timestamp='" + escapeString(formatCurrentTimestamp()) +  "' nodeId='" + getCurrentId() + "']";
     System.out.println(res);
-    exampleSuccess(name, 0);
+    ascend();
+    //exampleSuccess(name, 0);
   }
 }

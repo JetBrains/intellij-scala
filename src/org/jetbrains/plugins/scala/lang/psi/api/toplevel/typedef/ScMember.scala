@@ -72,7 +72,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     } else {
       child match {
         // TODO is all of this mess still necessary?! 
-        case c: ScClass if c.isCase => {
+        case c: ScClass if c.isCase =>
           this match {
             case fun: ScFunction if fun.isSyntheticApply || fun.isSyntheticUnapply ||
               fun.isSyntheticUnapplySeq =>
@@ -83,7 +83,6 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
               }
             case _ =>
           }
-        }
         case _ =>
       }
       PsiTreeUtil.getContextOfType(this, true, classOf[ScTemplateDefinition])
@@ -123,7 +122,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     case tdb: ScTemplateBody => tdb.getParent match {
       case eb: ScExtendsBlock => eb.getParent match {
         case td: ScTypeDefinition => td.getNavigationElement match {
-          case c: ScTypeDefinition => {
+          case c: ScTypeDefinition =>
             val membersIterator = c.members.iterator
             val buf: ArrayBuffer[ScMember] = new ArrayBuffer[ScMember]
             while (membersIterator.hasNext) {
@@ -137,7 +136,6 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
               if (filter.length == 0) buf(0)
               else filter(0)
             }
-          }
           case _ => this
         }
         case _ => this
@@ -162,6 +160,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
         Option(m.containingClass).map(new LocalSearchScope(_))
       case m if m.getModifierList != null && m.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis) =>
         Option(m.containingClass).map(ScalaPsiUtil.withCompanionSearchScope)
+      case cp: ScClassParameter => Option(super.getUseScope)
       case _ =>
         val blockOrMember = PsiTreeUtil.getContextOfType(this, true, classOf[ScBlock], classOf[ScMember])
         blockOrMember match {

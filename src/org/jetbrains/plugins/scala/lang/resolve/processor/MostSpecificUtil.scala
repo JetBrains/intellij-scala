@@ -3,6 +3,7 @@ package lang
 package resolve
 package processor
 
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -253,6 +254,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
   }
 
   private def isMoreSpecific[T](r1: InnerScalaResolveResult[T], r2: InnerScalaResolveResult[T], checkImplicits: Boolean): Boolean = {
+    ProgressManager.checkCanceled()
     (r1.implicitConversionClass, r2.implicitConversionClass) match {
       case (Some(t1), Some(t2)) => if (ScalaPsiUtil.cachedDeepIsInheritor(t1, t2)) return true
       case _ =>

@@ -6,7 +6,7 @@ import java.net.URL
 import java.util
 
 import com.intellij.execution.configurations.SimpleJavaParameters
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.externalSystem.service.project.autoimport.CachingExternalSystemAutoImportAware
 import com.intellij.openapi.externalSystem.util._
@@ -49,6 +49,9 @@ class SbtExternalSystemManager
 
     parameters.getVMParametersList.addProperty(
       ExternalSystemConstants.EXTERNAL_SYSTEM_ID_KEY, SbtProjectSystem.Id.getId)
+
+    parameters.getVMParametersList.addProperty(
+      PathManager.PROPERTY_LOG_PATH, PathManager.getLogPath)
   }
 
   def getSystemId = SbtProjectSystem.Id
