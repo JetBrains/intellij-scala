@@ -49,7 +49,8 @@ public class ScalaProjectSettingsPanel {
     private JComboBox updateChannel;
     private JCheckBox myAotCompletion;
     private JCheckBox useEclipseCompatibilityModeCheckBox;
-    private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
+  private JCheckBox useOldImplicitConversionCheckBox;
+  private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
     private Project myProject;
 
     public ScalaProjectSettingsPanel(Project project) {
@@ -97,6 +98,7 @@ public class ScalaProjectSettingsPanel {
         scalaProjectSettings.setEnableJavaToScalaConversion(enableConversionOnCopyCheckBox.isSelected());
         scalaProjectSettings.setDontShowConversionDialog(donTShowDialogCheckBox.isSelected());
         scalaProjectSettings.setTreatDocCommentAsBlockComment(treatDocCommentAsBlockComment.isSelected());
+        scalaProjectSettings.setUseOldImplicitConversionAlg(useOldImplicitConversionCheckBox.isSelected());
 
         scalaProjectSettings.setShowImplisitConversions(showImplicitConversionsInCheckBox.isSelected());
         scalaProjectSettings.setShowArgumentsToByNameParams(showArgumentsToByNameParametersCheckBox.isSelected());
@@ -152,6 +154,8 @@ public class ScalaProjectSettingsPanel {
                 donTShowDialogCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isTreatDocCommentAsBlockComment() !=
                 treatDocCommentAsBlockComment.isSelected()) return true;
+        if (scalaProjectSettings.isUseOldImplicitConversionAlg() !=
+                useOldImplicitConversionCheckBox.isSelected()) return true;
 
         if (scalaProjectSettings.isIgnorePerformance() != myResolveToAllClassesCheckBox.isSelected())
             return true;
@@ -204,6 +208,7 @@ public class ScalaProjectSettingsPanel {
         setValue(enableConversionOnCopyCheckBox, scalaProjectSettings.isEnableJavaToScalaConversion());
         setValue(donTShowDialogCheckBox, scalaProjectSettings.isDontShowConversionDialog());
         setValue(treatDocCommentAsBlockComment, scalaProjectSettings.isTreatDocCommentAsBlockComment());
+        setValue(useOldImplicitConversionCheckBox, scalaProjectSettings.isUseOldImplicitConversionAlg());
 
         setValue(showImplicitConversionsInCheckBox, scalaProjectSettings.isShowImplisitConversions());
         setValue(showArgumentsToByNameParametersCheckBox, scalaProjectSettings.isShowArgumentsToByNameParams());
