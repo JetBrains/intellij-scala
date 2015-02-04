@@ -8,7 +8,7 @@ import com.intellij.execution._
 import com.intellij.execution.configurations._
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.testframework.TestFrameworkRunningModel
-import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
+import com.intellij.execution.testframework.sm.{CompositeTestLocationProvider, SMTestRunnerConnectionUtil}
 import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
 import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
 import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
@@ -496,8 +496,12 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         }
 
         // console view
-        val consoleView: BaseTestsOutputConsoleView = SMTestRunnerConnectionUtil.createAndAttachConsole("Scala",
-          processHandler, consoleProperties, getEnvironment)
+//        val consoleView: BaseTestsOutputConsoleView = SMTestRunnerConnectionUtil.createAndAttachConsole("Scala",
+//          processHandler, consoleProperties, getEnvironment)
+        //init it in two steps since there is no way to init it in one call with idBasedTreeConstruction = true
+        val consoleView = SMTestRunnerConnectionUtil.createConsoleWithCustomLocator("Scala", consoleProperties,
+          getEnvironment, new CompositeTestLocationProvider(null), true, null)
+        consoleView.attachToProcess(processHandler)
 
         val res = new DefaultExecutionResult(consoleView, processHandler,
           createActions(consoleView, processHandler, executor): _*)
