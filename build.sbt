@@ -90,8 +90,8 @@ ideaICPluginJars in Global := {
       basePluginsDir / "maven" / "lib" +++
       basePluginsDir / "junit" / "lib" +++
       basePluginsDir / "properties" / "lib"
-  val customJars = baseDirectories * (globFilter("*.jar") -- "*asm*.jar")
-  customJars.classpath.filterNot(_.data.name.contains("lucene-core"))
+  val customJars = baseDirectories * (globFilter("*.jar") -- "*asm*.jar" -- "*lucene-core*")
+  customJars.classpath
 }
 
 allIdeaJars in Global := (ideaBaseJars in Global).value ++ (ideaICPluginJars in Global).value
