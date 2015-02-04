@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScDoStmt, ScBlock}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.{ControlFlowUtil, Instruction}
 
@@ -26,7 +26,8 @@ class ScalaUnreachableCodeInspection extends AbstractInspection("ScalaUnreachabl
       if (components.length > 1) {
         for {
           comp <- components.tail
-          fragm = fragment(comp)
+          unreachable = comp.diff(components.head)
+          fragm = fragment(unreachable)
         } {
           registerProblem(fragm, holder)
         }
@@ -55,6 +56,7 @@ class ScalaUnreachableCodeInspection extends AbstractInspection("ScalaUnreachabl
       element.getParent match {
         case _: ScBlock => Some(element)
         case _: ScFunctionDefinition => Some(element)
+        case doStmt: ScDoStmt if doStmt.condition.contains(element) => Some(element)
         case null => None
         case parent => getParentStmt(parent)
       }

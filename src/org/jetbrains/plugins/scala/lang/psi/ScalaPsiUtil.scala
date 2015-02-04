@@ -44,8 +44,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockExprImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
-import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
+import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -57,6 +57,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ResolveTargets, ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
@@ -271,9 +272,97 @@ object ScalaPsiUtil {
     }
   }
 
+  @deprecated
+  def oldFindImplicitConversion(e: ScExpression, refName: String, ref: PsiElement, processor: BaseProcessor,
+                             noImplicitsForArgs: Boolean):
+    Option[ImplicitResolveResult] = {
+    //TODO! remove this after find a way to improve implicits according to compiler.
+    val isHardCoded = refName == "+" &&
+      e.getTypeWithoutImplicits(TypingContext.empty).map(_.isInstanceOf[ValType]).getOrElse(false)
+    val kinds = processor.kinds
+    var implicitMap: Seq[ImplicitResolveResult] = Seq.empty
+    def checkImplicits(secondPart: Boolean, noApplicability: Boolean, withoutImplicitsForArgs: Boolean = noImplicitsForArgs) {
+      lazy val args = processor match {
+        case _ if !noImplicitsForArgs => Seq.empty
+        case m: MethodResolveProcessor => m.argumentClauses.flatMap(_.map(
+          _.getTypeAfterImplicitConversion(checkImplicits = false, isShape = m.isShapeResolve, None)._1.getOrAny
+        ))
+        case _ => Seq.empty
+      }
+      val convertible: ScImplicitlyConvertible = new ScImplicitlyConvertible(e)
+      val mp =
+        if (noApplicability) convertible.implicitMap(args = args)
+        else if (!secondPart) convertible.implicitMapFirstPart()
+        else convertible.implicitMapSecondPart(args = args)
+      implicitMap = mp.flatMap({
+        case implRes: ImplicitResolveResult =>
+          ProgressManager.checkCanceled()
+          if (!isHardCoded || !implRes.tp.isInstanceOf[ValType]) {
+            val newProc = new ResolveProcessor(kinds, ref, refName)
+            newProc.processType(implRes.tp, e, ResolveState.initial)
+            val res = newProc.candidatesS.nonEmpty
+            if (!noApplicability && res && processor.isInstanceOf[MethodResolveProcessor]) {
+              val mrp = processor.asInstanceOf[MethodResolveProcessor]
+              val newProc = new MethodResolveProcessor(ref, refName, mrp.argumentClauses, mrp.typeArgElements,
+                implRes.element match {
+                  case fun: ScFunction if fun.hasTypeParameters => fun.typeParameters.map(new TypeParameter(_))
+                  case _ => Seq.empty
+                }, kinds,
+                mrp.expectedOption, mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve, noImplicitsForArgs = withoutImplicitsForArgs)
+              val tp = implRes.tp
+              newProc.processType(tp, e, ResolveState.initial)
+              val candidates = newProc.candidatesS.filter(_.isApplicable())
+              if (candidates.isEmpty) Seq.empty
+              else {
+                implRes.element match {
+                  case fun: ScFunction if fun.hasTypeParameters =>
+                    val rr = candidates.iterator.next()
+                    rr.resultUndef match {
+                      case Some(undef) =>
+                        undef.getSubstitutor match {
+                          case Some(subst) =>
+                            Seq(ImplicitResolveResult(subst.subst(implRes.getTypeWithDependentSubstitutor), fun,
+                              implRes.importUsed, implRes.subst, implRes.implicitDependentSubst, implRes.isFromCompanion))
+                          case _ => Seq(implRes)
+                        }
+                      case _ => Seq(implRes)
+                    }
+                  case _ => Seq(implRes)
+                }
+              }
+            } else {
+              if (res) Seq(implRes)
+              else Seq.empty
+            }
+          } else Seq.empty
+      })
+    }
+    //todo: insane logic. Important to have to navigate to problematic method, in case of failed resolve. That's why we need to have noApplicability parameter
+    checkImplicits(secondPart = false, noApplicability = false)
+    if (implicitMap.size > 1) {
+      val oldMap = implicitMap
+      checkImplicits(secondPart = false, noApplicability = false, withoutImplicitsForArgs = true)
+      if (implicitMap.isEmpty) implicitMap = oldMap
+    } else if (implicitMap.isEmpty) {
+      checkImplicits(secondPart = true, noApplicability = false)
+      if (implicitMap.size > 1) {
+        val oldMap = implicitMap
+        checkImplicits(secondPart = false, noApplicability = false, withoutImplicitsForArgs = true)
+        if (implicitMap.isEmpty) implicitMap = oldMap
+      } else if (implicitMap.isEmpty) checkImplicits(secondPart = false, noApplicability = true)
+    }
+    if (implicitMap.isEmpty) None
+    else if (implicitMap.length == 1) Some(implicitMap.apply(0))
+    else MostSpecificUtil(ref, 1).mostSpecificForImplicit(implicitMap.toSet)
+  }
+
   def findImplicitConversion(e: ScExpression, refName: String, ref: PsiElement, processor: BaseProcessor,
                              noImplicitsForArgs: Boolean):
     Option[ImplicitResolveResult] = {
+    val oldAlg = ScalaProjectSettings.getInstance(e.getProject).isUseOldImplicitConversionAlg
+    if (oldAlg) {
+      return oldFindImplicitConversion(e, refName, ref, processor, noImplicitsForArgs)
+    }
     lazy val funType = Option(
       ScalaPsiManager.instance(e.getProject).getCachedClass(
         "scala.Function1", e.getResolveScope, ScalaPsiManager.ClassCategory.TYPE
@@ -318,50 +407,50 @@ object ScalaPsiUtil {
       val exprType = ImplicitCollector.exprType(e, fromUnder = false).getOrElse(return)
       if (exprType.equiv(types.Nothing)) return //do not proceed with nothing type, due to performance problems.
       val convertible = new ImplicitCollector(e,
-        ScFunctionType(types.Any, Seq(exprType))(e.getProject, e.getResolveScope),
-        ScFunctionType(exprType, args)(e.getProject, e.getResolveScope), None, true, true,
-        predicate = Some((rr, subst) => {
-          ProgressManager.checkCanceled()
-          specialExtractParameterType(rr) match {
-            case Some(ScFunctionType(tp, _)) =>
-              if (!isHardCoded || !tp.isInstanceOf[ValType]) {
-                val newProc = new ResolveProcessor(kinds, ref, refName)
-                newProc.processType(tp, e, ResolveState.initial)
-                val res = newProc.candidatesS.nonEmpty
-                if (!noApplicability && res && processor.isInstanceOf[MethodResolveProcessor]) {
-                  val mrp = processor.asInstanceOf[MethodResolveProcessor]
-                  val newProc = new MethodResolveProcessor(ref, refName, mrp.argumentClauses, mrp.typeArgElements,
-                    rr.element match {
-                      case fun: ScFunction if fun.hasTypeParameters => fun.typeParameters.map(new TypeParameter(_))
-                      case _ => Seq.empty
-                    }, kinds,
-                    mrp.expectedOption, mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve, noImplicitsForArgs = withoutImplicitsForArgs)
+          ScFunctionType(types.Any, Seq(exprType))(e.getProject, e.getResolveScope),
+          ScFunctionType(exprType, args)(e.getProject, e.getResolveScope), None, true, true,
+          predicate = Some((rr, subst) => {
+            ProgressManager.checkCanceled()
+            specialExtractParameterType(rr) match {
+              case Some(ScFunctionType(tp, _)) =>
+                if (!isHardCoded || !tp.isInstanceOf[ValType]) {
+                  val newProc = new ResolveProcessor(kinds, ref, refName)
                   newProc.processType(tp, e, ResolveState.initial)
-                  val candidates = newProc.candidatesS.filter(_.isApplicable())
-                  if (candidates.nonEmpty) {
-                    rr.element match {
-                      case fun: ScFunction if fun.hasTypeParameters =>
-                        val newRR = candidates.iterator.next()
-                        newRR.resultUndef match {
-                          case Some(undef) =>
-                            undef.getSubstitutor match {
-                              case Some(uSubst) =>
-                                Some(rr.copy(subst = newRR.substitutor.followed(uSubst),
-                                  implicitParameterType = rr.implicitParameterType.map(uSubst.subst)),
-                                  subst.followed(uSubst))
-                              case _ => Some(rr, subst)
-                            }
-                          case _ => Some(rr, subst)
-                        }
-                      case _ => Some(rr, subst)
-                    }
-                  } else None
-                } else if (res) Some(rr, subst)
-                else None
-              } else None
-            case _ => None
-          }
-        }))
+                  val res = newProc.candidatesS.nonEmpty
+                  if (!noApplicability && res && processor.isInstanceOf[MethodResolveProcessor]) {
+                    val mrp = processor.asInstanceOf[MethodResolveProcessor]
+                    val newProc = new MethodResolveProcessor(ref, refName, mrp.argumentClauses, mrp.typeArgElements,
+                      rr.element match {
+                        case fun: ScFunction if fun.hasTypeParameters => fun.typeParameters.map(new TypeParameter(_))
+                        case _ => Seq.empty
+                      }, kinds,
+                      mrp.expectedOption, mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve, noImplicitsForArgs = withoutImplicitsForArgs)
+                    newProc.processType(tp, e, ResolveState.initial)
+                    val candidates = newProc.candidatesS.filter(_.isApplicable())
+                    if (candidates.nonEmpty) {
+                      rr.element match {
+                        case fun: ScFunction if fun.hasTypeParameters =>
+                          val newRR = candidates.iterator.next()
+                          newRR.resultUndef match {
+                            case Some(undef) =>
+                              undef.getSubstitutor match {
+                                case Some(uSubst) =>
+                                  Some(rr.copy(subst = newRR.substitutor.followed(uSubst),
+                                    implicitParameterType = rr.implicitParameterType.map(uSubst.subst)),
+                                    subst.followed(uSubst))
+                                case _ => Some(rr, subst)
+                              }
+                            case _ => Some(rr, subst)
+                          }
+                        case _ => Some(rr, subst)
+                      }
+                    } else None
+                  } else if (res) Some(rr, subst)
+                  else None
+                } else None
+              case _ => None
+            }
+          }))
       implicitMap = convertible.collect
     }
     //This logic is important to have to navigate to problematic method, in case of failed resolve.
@@ -590,6 +679,7 @@ object ScalaPsiUtil {
     val parts: mutable.Queue[ScType] = new mutable.Queue[ScType]
 
     def collectParts(tp: ScType) {
+      ProgressManager.checkCanceled()
       if (visited.contains(tp)) return
       visited += tp
       tp.isAliasType match {

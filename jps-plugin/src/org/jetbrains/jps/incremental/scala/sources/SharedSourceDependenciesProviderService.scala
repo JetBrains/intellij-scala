@@ -16,7 +16,7 @@ class SharedSourceDependenciesProviderService extends SourceDependenciesProvider
     val dependencies = modules.flatMap(_.getDependenciesList.getDependencies.asScala)
 
     dependencies.collect {
-      case it: JpsModuleDependency if it.getModule.getModuleType == SharedSourcesModuleType.INSTANCE => it.getModule
+      case it: JpsModuleDependency if it.getModule != null && it.getModule.getModuleType == SharedSourcesModuleType.INSTANCE => it.getModule
     }
   }
 }

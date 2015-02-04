@@ -28,7 +28,7 @@ abstract class Specs2ObjectSpecTest extends Specs2TestCase {
 
     runTestByLocation(5, 8, "SpecObject.scala",
       checkConfigAndSettings(_, "SpecObject", "run alone"),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", "single test in SpecObject should", "run alone") &&
+      root => checkResultTreeHasExactNamedPath(root, "[root]", "SpecObject", "single test in SpecObject should", "run alone") &&
           checkResultTreeDoesNotHaveNodes(root, "ignore other test"),
       debug = true
     )
