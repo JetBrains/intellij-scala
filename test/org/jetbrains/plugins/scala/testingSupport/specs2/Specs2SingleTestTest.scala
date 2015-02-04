@@ -29,7 +29,7 @@ abstract class Specs2SingleTestTest extends Specs2TestCase {
 
     runTestByLocation(5, 10, "SpecificationTest.scala",
       checkConfigAndSettings(_, "SpecificationTest", "run single test"),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", "The 'SpecificationTest' should", "run single test") &&
+      root => checkResultTreeHasExactNamedPath(root, "[root]", "SpecificationTest", "The 'SpecificationTest' should", "run single test") &&
           checkResultTreeDoesNotHaveNodes(root, "ignore other test"),
       debug = true
     )
