@@ -318,7 +318,10 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                   } else _funType
                   var substedFunType: ScType = funType
 
-                  if (fun.hasTypeParameters) {
+                  if (fun.hasTypeParameters && noReturnType) {
+                    val inferredSubst = subst.followed(ScalaPsiUtil.inferMethodTypesArgs(fun, subst))
+                    substedFunType = inferredSubst.subst(funType)
+                  } else if (fun.hasTypeParameters) {
                     val typeParameters = fun.typeParameters.map(_.name)
                     var hasTypeParametersInType = false
                     funType.recursiveUpdate {
