@@ -141,18 +141,31 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     setJavaOptions(configuration.getJavaOptions)
     setTestArgs(configuration.getTestArgs)
     setModule(configuration.getModule)
+    val workDir = configuration.getWorkingDirectory
     setWorkingDirectory(
-      Option(configuration.getWorkingDirectory).filter(x ⇒ x != null && !x.trim.isEmpty).getOrElse {
-        (for (
-          module <- Option(getModule);
-          mavenProject <- Option(MavenProjectsManager.getInstance(project).findProject(module))
-        ) yield mavenProject.getDirectory).getOrElse {
+      if (workDir != null && !workDir.trim.isEmpty) {
+        workDir
+      } else {
+        val module = getModule
+        val mavenProject =
+          if (module != null) {
+            MavenProjectsManager.getInstance(project).findProject(module)
+          } else {
+            null
+          }
+        if (mavenProject != null) {
+          mavenProject.getDirectory
+        } else {
           val base = getProject.getBaseDir
-          if (base != null) base.getPath
-          else ""
+          if (base != null) {
+            base.getPath
+          } else {
+            ""
+          }
         }
       }
     )
+
     setTestName(configuration.getTestName)
     setEnvVariables(configuration.getEnvironmentVariables)
     setShowProgressMessages(configuration.getShowProgressMessages)
