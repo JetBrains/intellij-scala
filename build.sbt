@@ -94,7 +94,7 @@ ideaICPluginJars in Global := {
   customJars.classpath
 }
 
-allIdeaJars in Global := (ideaBaseJars in Global).value ++ (ideaICPluginJars in Global).value
+allIdeaJars in Global := (ideaBaseJars in Global).value ++ (ideaICPluginJars in Global).value.filterNot(_.data.name.contains("lucene-core-2.4.1"))
 
 unmanagedJars in Compile := allIdeaJars.value
 
