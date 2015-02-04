@@ -29,38 +29,38 @@ libraryDependencies ++= Seq(
   "org.apache.maven.wagon" % "wagon-http" % "2.6" % Compile
 )
 
-lazy val dummyproj = project
+//lazy val dummyproj = project
 
-conflictWarning in dummyproj := ConflictWarning.disable
+//conflictWarning in dummyproj := ConflictWarning.disable
 
-resolvers in dummyproj += "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases"
+//resolvers in dummyproj += "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases"
 
-resolvers in dummyproj += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
+//resolvers in dummyproj += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
-libraryDependencies in dummyproj ++= Seq(
-  "org.scalatest" % "scalatest_2.11" % "2.2.1" % Compile,
-  "org.scalatest" % "scalatest_2.10" % "2.2.1" % Compile,
-  "org.specs2" % "specs2_2.11" % "2.4.15" % Compile,
-  "org.scalaz" % "scalaz-core_2.11" % "7.1.0" % Compile,
-  "org.scalaz" % "scalaz-concurrent_2.11" % "7.1.0" % Compile,
-  "org.scala-lang.modules" % "scala-xml_2.11" % "1.0.2" % Compile,
-  "org.specs2" % "specs2_2.10" % "2.4.6" % Compile,
-  "org.scalaz" % "scalaz-core_2.10" % "7.1.0" % Compile,
-  "org.scalaz" % "scalaz-concurrent_2.10" % "7.1.0" % Compile,
-  "org.scalaz.stream" % "scalaz-stream_2.11" % "0.6a" % Compile,
-  "com.chuusai" % "shapeless_2.11" % "2.0.0" % Compile,
-  "org.typelevel" % "scodec-bits_2.11" % "1.1.0-SNAPSHOT" % Compile,
-  "org.typelevel" % "scodec-core_2.11" % "1.7.0-SNAPSHOT" % Compile
-)
+//libraryDependencies in dummyproj ++= Seq(
+//  "org.scalatest" % "scalatest_2.11" % "2.2.1" % Compile,
+//  "org.scalatest" % "scalatest_2.10" % "2.2.1" % Compile,
+//  "org.specs2" % "specs2_2.11" % "2.4.15" % Compile,
+//  "org.scalaz" % "scalaz-core_2.11" % "7.1.0" % Compile,
+//  "org.scalaz" % "scalaz-concurrent_2.11" % "7.1.0" % Compile,
+//  "org.scala-lang.modules" % "scala-xml_2.11" % "1.0.2" % Compile,
+//  "org.specs2" % "specs2_2.10" % "2.4.6" % Compile,
+//  "org.scalaz" % "scalaz-core_2.10" % "7.1.0" % Compile,
+//  "org.scalaz" % "scalaz-concurrent_2.10" % "7.1.0" % Compile,
+//  "org.scalaz.stream" % "scalaz-stream_2.11" % "0.6a" % Compile,
+//  "com.chuusai" % "shapeless_2.11" % "2.0.0" % Compile,
+//  "org.typelevel" % "scodec-bits_2.11" % "1.1.0-SNAPSHOT" % Compile,
+//  "org.typelevel" % "scodec-core_2.11" % "1.7.0-SNAPSHOT" % Compile
+//)
 
-lazy val oldScalaTestDummyProj = project
+//lazy val oldScalaTestDummyProj = project
 
-conflictWarning in oldScalaTestDummyProj := ConflictWarning.disable
+//conflictWarning in oldScalaTestDummyProj := ConflictWarning.disable
 
-libraryDependencies in oldScalaTestDummyProj ++= Seq(
-  "org.scalatest" % "scalatest_2.11" % "2.1.7" % Compile,
-  "org.scalatest" % "scalatest_2.10" % "2.1.7" % Compile
-)
+//libraryDependencies in oldScalaTestDummyProj ++= Seq(
+//  "org.scalatest" % "scalatest_2.11" % "2.1.7" % Compile,
+//  "org.scalatest" % "scalatest_2.10" % "2.1.7" % Compile
+//)
 
 unmanagedSourceDirectories in Compile += baseDirectory.value /  "src"
 
