@@ -30,7 +30,7 @@ abstract class ScalaTestingTestCase(private val configurationProducer: AbstractT
 
   protected def addIvyCacheLibrary(libraryName: String, libraryPath: String, jarNames: String*) {
     val homePath = System.getProperty("user.home") + "\\.ivy2\\cache"
-    val ivyCachePath = System.getProperty("ivy.default.ivy.user.dir")
+    val ivyCachePath = System.getProperty("sbt.ivy.home")
     val libsPath = if (ivyCachePath != null) ivyCachePath else homePath
     val pathExtended = libsPath.replace("\\", "/") + "/" + libraryPath + "/"
     VfsRootAccess.allowRootAccess(pathExtended)
