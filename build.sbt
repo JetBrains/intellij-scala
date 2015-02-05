@@ -242,7 +242,6 @@ packageStructure in Compile := {
     libOf("org.apache.lucene" % "lucene-highlighter" % "4.4.0"),
     libOf("org.apache.lucene" % "lucene-memory" % "4.4.0"),
     libOf("org.apache.lucene" % "lucene-queries" % "4.4.0"),
-    libOf("jakarta-regexp" % "jakarta-regexp" % "1.4"),
     libOf("org.sonatype.aether" % "aether-api" % "1.13.1"),
     libOf("org.sonatype.aether" % "aether-util" % "1.13.1"),
     libOf("org.sonatype.sisu" % "sisu-inject-plexus" % "2.2.3"),
