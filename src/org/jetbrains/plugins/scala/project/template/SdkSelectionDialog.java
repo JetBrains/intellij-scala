@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala.project.template;
 
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.ui.table.TableView;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
@@ -14,6 +11,8 @@ import scala.Function1;
 import scala.Option;
 import scala.runtime.AbstractFunction1;
 import scala.runtime.BoxedUnit;
+import scala.util.Failure;
+import scala.util.Try;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -21,7 +20,8 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+
+import static org.jetbrains.plugins.scala.extensions.package$.MODULE$;
 
 public class SdkSelectionDialog extends JDialog {
     private JPanel contentPane;
@@ -108,39 +108,32 @@ public class SdkSelectionDialog extends JDialog {
     }
 
     private void onDownload() {
-        String[] scalaVersions = Versions.loadScalaVersions();
+        String[] scalaVersions = MODULE$.withProgressSynchronously("Fetching available Scala versions",
+            new AbstractFunction1<Function1<String, BoxedUnit>, String[]>() {
+                @Override
+                public String[] apply(Function1<String, BoxedUnit> listener) {
+                    return Versions.loadScalaVersions();
+                }
+            });
 
         final SelectionDialog<String> dialog = new SelectionDialog<String>(contentPane,
             "Download (via SBT)", "Scala version:", scalaVersions);
 
         if (dialog.showAndGet()) {
             final String version = dialog.getSelectedValue();
-            final AtomicReference<ProgressIndicator> progressIndicator = new AtomicReference<ProgressIndicator>();
 
-            final Function1<String, BoxedUnit> listener = new AbstractFunction1<String, BoxedUnit>() {
-                @Override
-                public BoxedUnit apply(String s) {
-                    progressIndicator.get().setText(s);
-                    return BoxedUnit.UNIT;
-                }
-            };
+            Try<BoxedUnit> result = MODULE$.withProgressSynchronouslyTry("Downloading Scala " + version + " (via SBT)",
+                new AbstractFunction1<Function1<String, BoxedUnit>, BoxedUnit>() {
+                    @Override
+                    public BoxedUnit apply(Function1<String, BoxedUnit> listener) {
+                        Downloader.downloadScala(version, listener);
+                        return BoxedUnit.UNIT;
+                    }
+                });
 
-            final ProgressManager progressManager = ProgressManager.getInstance();
-
-            ThrowableComputable<Object, Exception> runnable = new ThrowableComputable<Object, Exception>() {
-                @Override
-                public String compute() throws Exception {
-                    progressIndicator.set(progressManager.getProgressIndicator());
-                    Downloader.downloadScala(version, listener);
-                    return null;
-                }
-            };
-
-            try {
-                progressManager.runProcessWithProgressSynchronously(runnable,
-                    "Downloading Scala " + version + " (via SBT)", false, null);
-            } catch (Exception e) {
-                Messages.showErrorDialog(contentPane, e.getMessage(), "Error Downloading Scala " + version);
+            if (result.isFailure()) {
+                Throwable exception = ((Failure) result).exception();
+                Messages.showErrorDialog(contentPane, exception.getMessage(), "Error Downloading Scala " + version);
                 return;
             }
 
