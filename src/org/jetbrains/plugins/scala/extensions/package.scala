@@ -7,8 +7,9 @@ import javax.swing.SwingUtilities
 
 import com.intellij.openapi.application.{ApplicationManager, Result}
 import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
+import com.intellij.openapi.progress.{ProgressManager, ProgressIndicator}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Computable
+import com.intellij.openapi.util.{ThrowableComputable, Computable}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.util.Processor
@@ -32,6 +33,8 @@ import scala.collection.generic.CanBuildFrom
 import scala.language.higherKinds
 import scala.reflect.{ClassTag, classTag}
 import scala.runtime.NonLocalReturnControl
+import scala.util.control.Exception.catching
+import scala.util.{Failure, Success, Try}
 import scala.util.matching.Regex
 
 /**
@@ -386,6 +389,29 @@ package object extensions {
 
   def executeOnPooledThread[T](body: => T): Future[T] = {
     ApplicationManager.getApplication.executeOnPooledThread(toCallable(body))
+  }
+
+  def withProgressSynchronously[T](title: String)(body: ((String => Unit) => T)): T = {
+    withProgressSynchronouslyTry[T](title)(body) match {
+      case Success(result) => result
+      case Failure(exception) => throw exception
+    }
+  }
+
+  def withProgressSynchronouslyTry[T](title: String)(body: ((String => Unit) => T)): Try[T] = {
+    val progressManager = ProgressManager.getInstance
+
+    val computable  = new ThrowableComputable[T, Exception] {
+      @throws(classOf[Exception])
+      def compute: T = {
+        val progressIndicator = progressManager.getProgressIndicator
+        body(progressIndicator.setText)
+      }
+    }
+
+    catching(classOf[Exception]).withTry {
+      progressManager.runProcessWithProgressSynchronously(computable, title, false, null)
+    }
   }
 
   def postponeFormattingWithin[T](project: Project)(body: => T): T = {
