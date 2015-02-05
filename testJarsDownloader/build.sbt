@@ -21,3 +21,7 @@ libraryDependencies ++= Seq(
   "org.scalatest" % "scalatest_2.11" % "2.1.7" % Compile,
   "org.scalatest" % "scalatest_2.10" % "2.1.7" % Compile
 )
+
+dependencyOverrides += "org.scalatest" % "scalatest_2.10" % "2.1.7"
+
+dependencyOverrides += "org.scalatest" % "scalatest_2.11" % "2.1.7"
