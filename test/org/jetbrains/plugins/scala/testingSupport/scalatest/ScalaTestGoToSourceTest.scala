@@ -24,7 +24,7 @@ trait ScalaTestGoToSourceTest extends IntegrationTest {
             | }
             |
             | "failed test" should "fail" in {
-            |
+            |   fail
             | }
             |}
             |

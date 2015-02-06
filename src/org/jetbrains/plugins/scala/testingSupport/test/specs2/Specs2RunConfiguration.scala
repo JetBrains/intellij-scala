@@ -3,6 +3,7 @@ package testingSupport.test.specs2
 
 import com.intellij.execution.configurations._
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test._
 
@@ -28,4 +29,13 @@ class Specs2RunConfiguration(override val project: Project,
   override def errorMessage: String = "Specs2 is not specified"
 
   override def currentConfiguration = Specs2RunConfiguration.this
+
+  protected[test] override def isInvalidSuite(clazz: PsiClass): Boolean = Specs2RunConfiguration.isInvalidSuite(clazz)
+}
+
+object Specs2RunConfiguration extends SuiteValidityChecker {
+  private def isScalaObject(clazz: PsiClass) = clazz.getQualifiedName.endsWith("$")
+
+  override protected[test] def lackSuitableConstructor(clazz: PsiClass): Boolean =
+    !isScalaObject(clazz) && AbstractTestRunConfiguration.lackSuitableConstructor(clazz)
 }
