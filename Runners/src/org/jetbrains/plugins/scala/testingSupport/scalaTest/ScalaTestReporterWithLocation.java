@@ -54,17 +54,45 @@ public class ScalaTestReporterWithLocation implements Reporter {
 
   private int getCurrentId() {return idStack.peek();}
 
-  private int descend() {
-    int oldId = idStack.peek();
+  private void descend(String message) {
+    int parentId = idStack.peek();
     idStack.push(++id);
-    return oldId;
+    waitingScopeMessagesQueue.push("\n##teamcity[" + message + " nodeId='" + getCurrentId() + "' parentNodeId='" + parentId + "']");
   }
 
-  private void ascend() {
+  private void onTestStarted() {
+    for (String openScopeMessage : waitingScopeMessagesQueue) {
+      System.out.println(openScopeMessage);
+    }
+    waitingScopeMessagesQueue.clear();
+  }
+
+  private void ascendScopePending(String scopePendingMessage) {
+    if (waitingScopeMessagesQueue.isEmpty()) {
+      //print three messages from ScopePending event processing
+      System.out.println("\n##teamcity[testIgnored name='(Scope Pending)' message='" +
+          escapeString("Scope Pending") + "' nodeId='" + getCurrentId() + "']");
+      System.out.println("\n##teamcity[testIgnored name='" + escapeString(scopePendingMessage) + "' message='" +
+          escapeString("Scope Pending") + "' nodeId='" + getCurrentId() + "']");
+      System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(scopePendingMessage) + "' nodeId='" + getCurrentId() + "']");
+    } else {
+      waitingScopeMessagesQueue.pop();
+    }
+    idStack.pop();
+  }
+
+  private void ascend(String message) {
+    if (waitingScopeMessagesQueue.isEmpty()) {
+      //there are no open empty scopes, so scope currently being closed must be not empty, print the actual message
+      System.out.println("\n##teamcity[" + message +  "nodeId='" + getCurrentId() + "']");
+    } else {
+      waitingScopeMessagesQueue.pop();
+    }
     idStack.pop();
   }
 
   private final Stack<Integer> idStack = new Stack<Integer>();
+  private final Stack<String> waitingScopeMessagesQueue = new Stack<String>();
 
   public void apply(Event event) {
     if (event instanceof RunStarting) {
@@ -80,9 +108,10 @@ public class ScalaTestReporterWithLocation implements Reporter {
       String testName = testStarting.testName();
       String decodedTestName = decodeString(testName);
       String locationHint = getLocationHint(testStarting.suiteClassName(), testStarting.location(), decodedTestName);
-      int parentId = descend();
-      System.out.println("\n##teamcity[testStarted name='" + escapeString(decodedTestText) + "'" + locationHint +
-          " captureStandardOutput='true' nodeId='" + getCurrentId() + "' parentNodeId='" + parentId + "']");
+      String message = "testStarted name='" + escapeString(decodedTestText) + "'" + locationHint +
+      " captureStandardOutput='true'";
+      descend(message);
+      onTestStarted();
     } else if (event instanceof TestSucceeded) {
       TestSucceeded testSucceeded = (TestSucceeded) event;
       Option<Object> durationOption = testSucceeded.duration();
@@ -92,11 +121,11 @@ public class ScalaTestReporterWithLocation implements Reporter {
       }
       String testText = testSucceeded.testText();
       String decodedTestText = decodeString(testText);
-      System.out.println("\n##teamcity[testFinished name='" + escapeString(decodedTestText) +
-          "' duration='"+ duration +"' nodeId='" + getCurrentId() + "']");
+      String message = "testFinished name='" + escapeString(decodedTestText) +
+      "' duration='"+ duration +"'";
+      ascend(message);
       final String testSucceededName = "org.scalatest.events.TestSucceeded";
       collectRecordableEvents(testSucceeded, testSucceededName);
-      ascend();
     } else if (event instanceof TestFailed) {
       boolean error = true;
       TestFailed testFailed = (TestFailed) event;
@@ -133,16 +162,13 @@ public class ScalaTestReporterWithLocation implements Reporter {
       String decodedTestText = decodeString(testText);
       String message = testFailed.message() + failureLocation;
       long timeStamp = event.timeStamp();
-      String res = "\n##teamcity[testFailed name='" + escapeString(decodedTestText) + "' message='" + escapeString(message) +
+      String res = "testFailed name='" + escapeString(decodedTestText) + "' message='" + escapeString(message) +
           "' details='" + escapeString(detail) + "' ";
       if (error) res += "error = '" + error + "'";
-      res += "timestamp='" + escapeString(formatTimestamp(new Date(timeStamp))) + "' nodeId='" + getCurrentId() + "']";
-      System.out.println(res);
-//      System.out.println("\n##teamcity[testFinished name='" + escapeString(decodedTestText) +
-//          "' duration='" + duration +"' captureStandardOutput='true' " + locationHint + " nodeId='" + getCurrentId() + "']");
+      res += "timestamp='" + escapeString(formatTimestamp(new Date(timeStamp))) + "'";
+      ascend(res);
       final String eventName = "org.scalatest.events.TestFailed";
       collectRecordableEvents(event, eventName);
-      ascend();
     } else if (event instanceof TestIgnored) {
       final String ignoredTestSuffix = "!!! IGNORED !!!";
       TestIgnored testIgnored = (TestIgnored) event;
@@ -150,47 +176,41 @@ public class ScalaTestReporterWithLocation implements Reporter {
       String decodedTestText = decodeString(testText);
       final String locationHint = getLocationHint(testIgnored.suiteClassName(), testIgnored.location(), decodedTestText);
       String suffixedTestText = decodedTestText + " " + ignoredTestSuffix;
-      int parentNodeId = descend();
-      System.out.println("\n##teamcity[testStarted name='" + escapeString(suffixedTestText) + "'" + locationHint +
-          " nodeId='" + getCurrentId() + "' parentNodeId='" + parentNodeId + "']");
-      System.out.println("\n##teamcity[testIgnored name='" + escapeString(suffixedTestText) + "' message='" +
-          escapeString("Test Ignored") + "' nodeId='" + getCurrentId() + "']");
-//      System.out.println("\n##teamcity[testFinished name='" + escapeString(suffixedTestText) +
-//          "' duration='" + 0 +"' nodeId='" + getCurrentId() + "' parentNodeId='" + parentNodeId + "']");
-      ascend();
+      String openMessage = "testStarted name='" + escapeString(suffixedTestText) + "'" + locationHint;
+      descend(openMessage);
+      onTestStarted();
+      String closeMessage = "testIgnored name='" + escapeString(suffixedTestText) + "' message='" +
+          escapeString("Test Ignored") + "'";
+      ascend(closeMessage);
     } else if (event instanceof TestPending) {
       TestPending testPending = (TestPending) event;
       String testText = testPending.testText();
       String decodedTestText = decodeString(testText);
-      System.out.println("\n##teamcity[testIgnored name='" + escapeString(decodedTestText) + "' message='" +
-          escapeString("Test Pending") + "' nodeId='" + getCurrentId() + "']");
-//      System.out.println("\n##teamcity[testFinished name='" + escapeString(teamcityTestName) +
-//          "' duration='" + 0 +"' nodeId='" + currentId + "' parentNodeId='" + parentNodeId + "']");
+      String message = "testIgnored name='" + escapeString(decodedTestText) + "' message='" +
+      escapeString("Test Pending") + "'";
+      ascend(message);
       final String eventName = "org.scalatest.events.TestPending";
       collectRecordableEvents(event, eventName);
-      ascend();
     } else if (event instanceof TestCanceled) {
       TestCanceled testCanceled = (TestCanceled) event;
       String testText = testCanceled.testText();
       String decodedTestText = decodeString(testText);
-      System.out.println("\n##teamcity[testIgnored name='" + escapeString(decodedTestText) + "' message='" +
-          escapeString("Test Canceled") + "' nodeId='" + getCurrentId() + "']");
-      System.out.println("\n##teamcity[testFinished name='" + escapeString(decodedTestText) +
-          "' duration='" + 0 +"' nodeId='" + getCurrentId() + "']");
+      String message = "testIgnored name='" + escapeString(decodedTestText) + "' message='" +
+      escapeString("Test Canceled") + "'";
+      ascend(message);
       final String eventName = "org.scalatest.events.TestCancelled";
       collectRecordableEvents(event, eventName);
-      ascend();
     } else if (event instanceof SuiteStarting) {
       SuiteStarting suiteStarting = (SuiteStarting) event;
       String suiteName = suiteStarting.suiteName();
       String locationHint = getLocationHint(suiteStarting.suiteClassName(), suiteStarting.location(), suiteName);
-      int parentId = descend();
-      System.out.println("\n##teamcity[testSuiteStarted name='" + escapeString(suiteName) + "'" + locationHint +
-          " captureStandardOutput='true' nodeId='" + getCurrentId() + "' parentNodeId='" + parentId + "']");
+      String message = "testSuiteStarted name='" + escapeString(suiteName) + "'" + locationHint +
+      " captureStandardOutput='true'";
+      descend(message);
     } else if (event instanceof SuiteCompleted) {
       String suiteName = ((SuiteCompleted) event).suiteName();
-      System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(suiteName) + "' nodeId='" + getCurrentId() + "']");
-      ascend();
+      String message = "testSuiteFinished name='" + escapeString(suiteName) + "'";
+      ascend(message);
     } else if (event instanceof SuiteAborted) {
       //TODO: see if not processing id stack can cause trouble on suiteAborted
       SuiteAborted suiteAborted = (SuiteAborted) event;
@@ -233,23 +253,18 @@ public class ScalaTestReporterWithLocation implements Reporter {
       ScopeOpened scopeOpened = (ScopeOpened) event;
       String message = scopeOpened.message();
       String locationHint = getLocationHint(scopeOpened.nameInfo().suiteClassName(), scopeOpened.location(), message);
-      int parentId = descend();
-      System.out.println("\n##teamcity[testSuiteStarted name='" + escapeString(message) + "'" + locationHint +
-          " captureStandardOutput='true' nodeId='" + getCurrentId() + "' parentNodeId='" + parentId + "']");
+      String tcMessage = "testSuiteStarted name='" + escapeString(message) + "'" + locationHint +
+      " captureStandardOutput='true'";
+      descend(tcMessage);
     }
     else if(event instanceof ScopeClosed) {
       String message = ((ScopeClosed) event).message();
-      System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(message) + "' nodeId='" + getCurrentId() + "']");
-      ascend();
+      String tcMessage = "testSuiteFinished name='" + escapeString(message) + "'";
+      ascend(tcMessage);
     }
     else if(event instanceof ScopePending) {
       String message = ((ScopePending) event).message();
-      System.out.println("\n##teamcity[testIgnored name='(Scope Pending)' message='" +
-          escapeString("Scope Pending") + "' nodeId='" + getCurrentId() + "']");
-      System.out.println("\n##teamcity[testIgnored name='" + escapeString(message) + "' message='" +
-          escapeString("Scope Pending") + "' nodeId='" + getCurrentId() + "']");
-      System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(message) + "' nodeId='" + getCurrentId() + "']");
-      ascend();
+      ascendScopePending(message);
     }
   }
 
