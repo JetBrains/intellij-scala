@@ -18,12 +18,23 @@ libraryDependencies +=  "org.scala-lang" % "scala-reflect" % scalaVersion.value
 
 libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test"
 
+libraryDependencies += "org.apache.lucene" % "lucene-core" % "4.4.0" % Compile
+
+libraryDependencies += "org.apache.lucene" % "lucene-highlighter" % "4.4.0" % Compile
+
 libraryDependencies ++= Seq(
   "org.apache.maven.indexer" % "indexer-core" % "5.1.1" % Compile,
   "org.codehaus.plexus" % "plexus-container-default" % "1.5.5" % Compile,
   "org.sonatype.sisu" % "sisu-inject-plexus" % "2.2.3" % Compile,
   "org.apache.maven.wagon" % "wagon-http" % "2.6" % Compile
 )
+
+lazy val testDownloader = project.in(file("testJarsDownloader"))
+
+update := {
+  (update in testDownloader).value
+  update.value
+}
 
 unmanagedSourceDirectories in Compile += baseDirectory.value /  "src"
 
@@ -53,7 +64,7 @@ ideaICPluginJars in Global := {
       basePluginsDir / "maven" / "lib" +++
       basePluginsDir / "junit" / "lib" +++
       basePluginsDir / "properties" / "lib"
-  val customJars = baseDirectories * (globFilter("*.jar") -- "*asm*.jar")
+  val customJars = baseDirectories * (globFilter("*.jar") -- "*asm*.jar" -- "*lucene-core*")
   customJars.classpath
 }
 
@@ -201,11 +212,10 @@ packageStructure in Compile := {
     libOf("org.codehaus.plexus" % "plexus-classworlds" % "2.4"),
     libOf("org.codehaus.plexus" % "plexus-utils" % "3.0.8"),
     libOf("org.codehaus.plexus" % "plexus-component-annotations" % "1.5.5"),
-    libOf("org.apache.lucene" % "lucene-core" % "3.6.2"),
-    libOf("org.apache.lucene" % "lucene-highlighter" % "3.6.2"),
-    libOf("org.apache.lucene" % "lucene-memory" % "3.6.2"),
-    libOf("org.apache.lucene" % "lucene-queries" % "3.6.2"),
-    libOf("jakarta-regexp" % "jakarta-regexp" % "1.4"),
+    libOf("org.apache.lucene" % "lucene-core" % "4.4.0"),
+    libOf("org.apache.lucene" % "lucene-highlighter" % "4.4.0"),
+    libOf("org.apache.lucene" % "lucene-memory" % "4.4.0"),
+    libOf("org.apache.lucene" % "lucene-queries" % "4.4.0"),
     libOf("org.sonatype.aether" % "aether-api" % "1.13.1"),
     libOf("org.sonatype.aether" % "aether-util" % "1.13.1"),
     libOf("org.sonatype.sisu" % "sisu-inject-plexus" % "2.2.3"),

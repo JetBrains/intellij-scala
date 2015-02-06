@@ -15,19 +15,27 @@ import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.{PsiLocation, Executor, RunnerAndConfigurationSettings}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.psi.PsiManager
-import com.intellij.testFramework.UsefulTestCase
+import com.intellij.testFramework.{PsiTestUtil, UsefulTestCase}
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestBase
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer
-
-import scala.annotation.tailrec
 
 /**
  * @author Roman.Shein
  *         Date: 03.03.14
  */
 abstract class ScalaTestingTestCase(private val configurationProducer: AbstractTestConfigurationProducer) extends ScalaDebuggerTestBase with IntegrationTest {
+
+  protected def addIvyCacheLibrary(libraryName: String, libraryPath: String, jarNames: String*) {
+    val homePath = System.getProperty("user.home") + "\\.ivy2\\cache"
+    val ivyCachePath = System.getProperty("sbt.ivy.home")
+    val libsPath = if (ivyCachePath != null) ivyCachePath else homePath
+    val pathExtended = libsPath.replace("\\", "/") + "/" + libraryPath + "/"
+    VfsRootAccess.allowRootAccess(pathExtended)
+    PsiTestUtil.addLibrary(myModule, libraryName, pathExtended, jarNames: _*)
+  }
 
   override val testDataBasePrefix = "testingSupport"
 
