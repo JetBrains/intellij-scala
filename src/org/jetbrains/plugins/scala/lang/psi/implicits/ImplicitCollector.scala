@@ -270,6 +270,16 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                             val depth = ScalaProjectSettings.getInstance(place.getProject).getImplicitParametersSearchDepth
                             if (lastImplicit.isDefined &&
                               (depth < 0 || searchImplicitsRecursively < depth)) {
+                              predicate match {
+                                case Some(predicateFunction) if isExtensionConversion =>
+                                  inferValueType(nonValueType.getOrElse(throw new SafeCheckException)) match {
+                                    case ScFunctionType(rt, _) =>
+                                      if (predicateFunction(c.copy(implicitParameterType = Some(rt)), subst).isEmpty) throw new SafeCheckException
+                                    //this is not a function, when we still need to pass implicit?..
+                                    case _ => throw new SafeCheckException
+                                  }
+                                case _ =>
+                              }
                               val (resType, results) = InferUtil.updateTypeWithImplicitParameters(nonValueType.getOrElse(throw new SafeCheckException),
                                 place, Some(fun), check = true, searchImplicitsRecursively + 1)
                               val valueType = inferValueType(resType)
