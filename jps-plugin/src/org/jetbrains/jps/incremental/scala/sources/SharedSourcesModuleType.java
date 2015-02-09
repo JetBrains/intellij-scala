@@ -7,6 +7,6 @@ import org.jetbrains.jps.model.module.JpsModuleType;
 /**
  * @author Pavel Fatin
  */
-class SharedSourcesModuleType extends JpsElementTypeWithDummyProperties implements JpsModuleType<JpsDummyElement> {
+public class SharedSourcesModuleType extends JpsElementTypeWithDummyProperties implements JpsModuleType<JpsDummyElement> {
   public static final SharedSourcesModuleType INSTANCE = new SharedSourcesModuleType();
 }
