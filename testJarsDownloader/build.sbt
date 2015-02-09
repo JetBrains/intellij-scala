@@ -25,3 +25,5 @@ libraryDependencies ++= Seq(
 dependencyOverrides += "org.scalatest" % "scalatest_2.10" % "2.1.7"
 
 dependencyOverrides += "org.scalatest" % "scalatest_2.11" % "2.1.7"
+
+dependencyOverrides += "com.chuusai" % "shapeless_2.11" % "2.0.0"
