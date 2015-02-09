@@ -7,6 +7,6 @@ import org.jetbrains.jps.model.module.JpsModuleType;
 /**
  * @author Pavel Fatin
  */
-class SbtModuleType extends JpsElementTypeWithDummyProperties implements JpsModuleType<JpsDummyElement> {
+public class SbtModuleType extends JpsElementTypeWithDummyProperties implements JpsModuleType<JpsDummyElement> {
   public static final SbtModuleType INSTANCE = new SbtModuleType();
 }
