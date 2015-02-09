@@ -937,6 +937,9 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                     val wrapInOptionFix = new WrapInOptionQuickFix(expr, expectedType, exprType)
                     annotation.registerFix(wrapInOptionFix)
                   }
+                  if (AddBreakoutQuickFix.isAvailable(expr)) {
+                    annotation.registerFix(new AddBreakoutQuickFix(expr))
+                  }
                   typeElement match {
                     case Some(te) if te.getContainingFile == expr.getContainingFile =>
                       val fix = new ChangeTypeFix(te, exprType.getOrNothing)
