@@ -30,7 +30,7 @@ public class IntroduceVariableTest extends AbstractIntroduceVariableTestBase {
   protected void setUp(Project project) {
     super.setUp(project);
     Module[] modules = ModuleManager.getInstance(project).getModules();
-    ScalaLibraryLoader loader = ScalaLibraryLoader.withMockJdk(project, modules[0], null, false, false);
+    ScalaLibraryLoader loader = ScalaLibraryLoader.withMockJdk(project, modules[0], null, false, false, false);
     loader.loadLibrary(TestUtils.DEFAULT_SCALA_SDK_VERSION);
   }
 }
