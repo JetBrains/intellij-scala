@@ -47,6 +47,8 @@ package object sbt {
 
     def canonicalFile: File = new File(canonicalPath)
 
+    def parent: Option[File] = Option(file.getParentFile)
+
     def endsWith(parts: String*): Boolean = endsWith0(file, parts.reverse)
 
     private def endsWith0(file: File, parts: Seq[String]): Boolean = if (parts.isEmpty) true else
