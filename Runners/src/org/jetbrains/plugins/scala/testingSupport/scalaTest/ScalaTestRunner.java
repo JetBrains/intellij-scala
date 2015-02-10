@@ -285,6 +285,8 @@ public class ScalaTestRunner {
             return false;
           } else if (Integer.parseInt(nums[0]) == 2 && Integer.parseInt(nums[1]) >= 0) {
             return false;
+          } else if (Integer.parseInt(nums[0]) == 3 && Integer.parseInt(nums[1]) >= 0) {
+            return false;
           }
         }
       }
