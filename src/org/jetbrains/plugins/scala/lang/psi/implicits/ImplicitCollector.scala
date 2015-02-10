@@ -170,6 +170,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
     override def candidatesS: scala.collection.Set[ScalaResolveResult] = {
       val clazz = ScType.extractClass(tp)
       def forMap(c: ScalaResolveResult, withLocalTypeInference: Boolean, checkFast: Boolean): Option[(ScalaResolveResult, ScSubstitutor)] = {
+        ProgressManager.checkCanceled()
         val subst = c.substitutor
         (c.element match {
           case o: ScObject if !withLocalTypeInference && !PsiTreeUtil.isContextAncestor(o, place, false) =>
@@ -220,130 +221,159 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
               }
             }
 
-            fun.getTypeNoImplicits(TypingContext.empty) match {
-              case Success(_funType: ScType, _) =>
-                def checkType(ret: ScType): Option[(ScalaResolveResult, ScSubstitutor)] = {
-                  def compute(): Option[(ScalaResolveResult, ScSubstitutor)] = {
-                    InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, check function: " + fun.name)
-                    val typeParameters = fun.typeParameters
-                    val lastImplicit = fun.effectiveParameterClauses.lastOption.flatMap {
-                      case clause if clause.isImplicit => Some(clause)
-                      case _ => None
-                    }
-                    if (typeParameters.isEmpty && lastImplicit.isEmpty) Some(c, subst)
-                    else {
-                      val methodType = lastImplicit.map(li => subst.subst(ScMethodType(ret, li.getSmartParameters, isImplicit = true)
-                        (place.getProject, place.getResolveScope))).getOrElse(ret)
-                      val polymorphicTypeParameters = typeParameters.map(new TypeParameter(_))
-                      def inferValueType(tp: ScType): ScType = {
-                        if (isExtensionConversion) {
-                          tp match {
-                            case ScTypePolymorphicType(internalType, typeParams) =>
-                              val filteredTypeParams =
-                                typeParams.filter(tp => !tp.lowerType().equiv(types.Nothing) || !tp.upperType().equiv(types.Any))
-                              val newPolymorphicType = ScTypePolymorphicType(internalType, filteredTypeParams)
-                              newPolymorphicType.inferValueType.recursiveUpdate {
-                                case u: ScUndefinedType => (true, u.tpt)
-                                case tp: ScType => (false, tp)
-                              }
-                            case _ => tp.inferValueType
-                          }
-                        } else tp.inferValueType
+            def checkForFunctionType(noReturnType: Boolean): Option[(ScalaResolveResult, ScSubstitutor)] = {
+              val ft =
+                if (noReturnType) fun.getTypeNoImplicits(TypingContext.empty, Success(types.Nothing, Some(getPlace)))
+                else fun.getTypeNoImplicits(TypingContext.empty)
+              ft match {
+                case Success(_funType: ScType, _) =>
+                  def checkType(ret: ScType): Option[(ScalaResolveResult, ScSubstitutor)] = {
+                    def compute(): Option[(ScalaResolveResult, ScSubstitutor)] = {
+                      InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, check function: " + fun.name)
+                      val typeParameters = fun.typeParameters
+                      val lastImplicit = fun.effectiveParameterClauses.lastOption.flatMap {
+                        case clause if clause.isImplicit => Some(clause)
+                        case _ => None
                       }
-                      var nonValueType: TypeResult[ScType] =
-                        Success(if (polymorphicTypeParameters.isEmpty) methodType
-                        else ScTypePolymorphicType(methodType, polymorphicTypeParameters), Some(place))
-                      try {
-                        val expected = Some(tp)
-                        InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type: " + nonValueType.toString)
-                        nonValueType = InferUtil.updateAccordingToExpectedType(nonValueType,
-                          fromImplicitParameters = true, filterTypeParams = isImplicitConversion, expected, place, check = true)
+                      if (typeParameters.isEmpty && lastImplicit.isEmpty) Some(c, subst)
+                      else {
+                        val methodType = lastImplicit.map(li => subst.subst(ScMethodType(ret, li.getSmartParameters, isImplicit = true)
+                          (place.getProject, place.getResolveScope))).getOrElse(ret)
+                        val polymorphicTypeParameters = typeParameters.map(new TypeParameter(_))
+                        def inferValueType(tp: ScType): ScType = {
+                          if (isExtensionConversion) {
+                            tp match {
+                              case ScTypePolymorphicType(internalType, typeParams) =>
+                                val filteredTypeParams =
+                                  typeParams.filter(tp => !tp.lowerType().equiv(types.Nothing) || !tp.upperType().equiv(types.Any))
+                                val newPolymorphicType = ScTypePolymorphicType(internalType, filteredTypeParams)
+                                newPolymorphicType.inferValueType.recursiveUpdate {
+                                  case u: ScUndefinedType => (true, u.tpt)
+                                  case tp: ScType => (false, tp)
+                                }
+                              case _ => tp.inferValueType
+                            }
+                          } else tp.inferValueType
+                        }
+                        var nonValueType: TypeResult[ScType] =
+                          Success(if (polymorphicTypeParameters.isEmpty) methodType
+                          else ScTypePolymorphicType(methodType, polymorphicTypeParameters), Some(place))
+                        try {
+                          def updateImplicitParameters(): Some[(ScalaResolveResult, ScSubstitutor)] = {
+                            val expected = Some(tp)
+                            InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type: " + nonValueType.toString)
+                            nonValueType = InferUtil.updateAccordingToExpectedType(nonValueType,
+                              fromImplicitParameters = true, filterTypeParams = isImplicitConversion, expected, place, check = true)
 
-                        InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type after expected type: " + nonValueType.toString)
+                            InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type after expected type: " + nonValueType.toString)
 
-                        val depth = ScalaProjectSettings.getInstance(place.getProject).getImplicitParametersSearchDepth
-                        if (lastImplicit.isDefined &&
-                          (depth < 0 || searchImplicitsRecursively < depth)) {
-                          val (resType, results) = InferUtil.updateTypeWithImplicitParameters(nonValueType.getOrElse(throw new SafeCheckException),
-                            place, Some(fun), check = true, searchImplicitsRecursively + 1)
-                          val valueType = inferValueType(resType)
-                          InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type after additional implicit search: " + valueType.toString)
-                          def addImportsUsed(result: ScalaResolveResult, results: Seq[ScalaResolveResult]): ScalaResolveResult = {
-                            results.foldLeft(result) {
-                              case (r1: ScalaResolveResult, r2: ScalaResolveResult) => r1.copy(importsUsed = r1.importsUsed ++ r2.importsUsed)
+                            val depth = ScalaProjectSettings.getInstance(place.getProject).getImplicitParametersSearchDepth
+                            if (lastImplicit.isDefined &&
+                              (depth < 0 || searchImplicitsRecursively < depth)) {
+                              predicate match {
+                                case Some(predicateFunction) if isExtensionConversion =>
+                                  inferValueType(nonValueType.getOrElse(throw new SafeCheckException)) match {
+                                    case ScFunctionType(rt, _) =>
+                                      if (predicateFunction(c.copy(implicitParameterType = Some(rt)), subst).isEmpty) throw new SafeCheckException
+                                    //this is not a function, when we still need to pass implicit?..
+                                    case _ => throw new SafeCheckException
+                                  }
+                                case _ =>
+                              }
+                              val (resType, results) = InferUtil.updateTypeWithImplicitParameters(nonValueType.getOrElse(throw new SafeCheckException),
+                                place, Some(fun), check = true, searchImplicitsRecursively + 1)
+                              val valueType = inferValueType(resType)
+                              InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type after additional implicit search: " + valueType.toString)
+                              def addImportsUsed(result: ScalaResolveResult, results: Seq[ScalaResolveResult]): ScalaResolveResult = {
+                                results.foldLeft(result) {
+                                  case (r1: ScalaResolveResult, r2: ScalaResolveResult) => r1.copy(importsUsed = r1.importsUsed ++ r2.importsUsed)
+                                }
+                              }
+                              Some(addImportsUsed(c.copy(implicitParameterType = Some(valueType), implicitParameters = results.getOrElse(Seq.empty)),
+                                results.getOrElse(Seq.empty)), subst)
+                            } else {
+                              Some(c.copy(implicitParameterType = Some(inferValueType(nonValueType.getOrElse(throw new SafeCheckException)))), subst)
                             }
                           }
-                          Some(addImportsUsed(c.copy(implicitParameterType = Some(valueType), implicitParameters = results.getOrElse(Seq.empty)),
-                            results.getOrElse(Seq.empty)), subst)
-                        } else {
-                          Some(c.copy(implicitParameterType = Some(inferValueType(nonValueType.getOrElse(throw new SafeCheckException)))), subst)
+
+                          updateImplicitParameters()
+                        } catch {
+                          case e: SafeCheckException =>
+                            InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, problem detected for function: " + fun.name)
+                            Some(c.copy(problems = Seq(WrongTypeParameterInferred)), subst)
                         }
-                      } catch {
-                        case e: SafeCheckException =>
-                          InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, problem detected for function: " + fun.name)
-                          Some(c.copy(problems = Seq(WrongTypeParameterInferred)), subst)
                       }
                     }
-                  }
-                  import org.jetbrains.plugins.scala.caches.ScalaRecursionManager._
+                    import org.jetbrains.plugins.scala.caches.ScalaRecursionManager._
 
-                  val coreTypeForTp = coreType(tp)
-                  doComputations(coreElement.getOrElse(place), (tp: Object, searches: Seq[Object]) => {
-                    searches.find{
-                      case t: ScType if tp.isInstanceOf[ScType] =>
-                        if (Equivalence.equivInner(t, tp.asInstanceOf[ScType], new ScUndefinedSubstitutor(), falseUndef = false)._1) true
-                        else dominates(tp.asInstanceOf[ScType], t)
-                      case _ => false
-                    } == None
-                  }, coreTypeForTp, compute(), IMPLICIT_PARAM_TYPES_KEY) match {
-                    case Some(res) => res
-                    case None => None
+                    val coreTypeForTp = coreType(tp)
+                    doComputations(coreElement.getOrElse(place), (tp: Object, searches: Seq[Object]) => {
+                      searches.find{
+                        case t: ScType if tp.isInstanceOf[ScType] =>
+                          if (Equivalence.equivInner(t, tp.asInstanceOf[ScType], new ScUndefinedSubstitutor(), falseUndef = false)._1) true
+                          else dominates(tp.asInstanceOf[ScType], t)
+                        case _ => false
+                      } == None
+                    }, coreTypeForTp, compute(), IMPLICIT_PARAM_TYPES_KEY) match {
+                      case Some(res) => res
+                      case None => None
+                    }
                   }
-                }
 
-                val funType = if (MacroInferUtil.isMacro(fun).isDefined) {
-                  MacroInferUtil.checkMacro(fun, Some(tp), place) match {
-                    case Some(newTp) => newTp
-                    case _ => _funType
-                  }
-                } else _funType
-                var substedFunType: ScType = funType
+                  val funType = if (MacroInferUtil.isMacro(fun).isDefined) {
+                    MacroInferUtil.checkMacro(fun, Some(tp), place) match {
+                      case Some(newTp) => newTp
+                      case _ => _funType
+                    }
+                  } else _funType
+                  var substedFunType: ScType = funType
 
-                if (fun.hasTypeParameters) {
-                  val typeParameters = fun.typeParameters.map(_.name)
-                  var hasTypeParametersInType = false
-                  funType.recursiveUpdate {
-                    case tp@ScTypeParameterType(name, _, _, _, _) if typeParameters.contains(name) =>
-                      hasTypeParametersInType = true
-                      (true, tp)
-                    case tp: ScType if hasTypeParametersInType => (true, tp)
-                    case tp: ScType => (false, tp)
-                  }
-                  InferUtil.logInfo(searchImplicitsRecursively, s"Check as implicit parameter for fun `${fun.name}` with type ${funType.toString}")
-                  if (withLocalTypeInference && hasTypeParametersInType) {
+                  if (fun.hasTypeParameters && noReturnType) {
                     val inferredSubst = subst.followed(ScalaPsiUtil.inferMethodTypesArgs(fun, subst))
                     substedFunType = inferredSubst.subst(funType)
-                  } else if (!withLocalTypeInference && !hasTypeParametersInType) {
+                  } else if (fun.hasTypeParameters) {
+                    val typeParameters = fun.typeParameters.map(_.name)
+                    var hasTypeParametersInType = false
+                    funType.recursiveUpdate {
+                      case tp@ScTypeParameterType(name, _, _, _, _) if typeParameters.contains(name) =>
+                        hasTypeParametersInType = true
+                        (true, tp)
+                      case tp: ScType if hasTypeParametersInType => (true, tp)
+                      case tp: ScType => (false, tp)
+                    }
+                    InferUtil.logInfo(searchImplicitsRecursively, s"Check as implicit parameter for fun `${fun.name}` with type ${funType.toString}")
+                    if (withLocalTypeInference && hasTypeParametersInType) {
+                      val inferredSubst = subst.followed(ScalaPsiUtil.inferMethodTypesArgs(fun, subst))
+                      substedFunType = inferredSubst.subst(funType)
+                    } else if (!withLocalTypeInference && !hasTypeParametersInType) {
+                      substedFunType = subst.subst(funType)
+                    } else return None
+                  } else {
                     substedFunType = subst.subst(funType)
-                  } else return None
-                } else {
-                  substedFunType = subst.subst(funType)
-                }
-
-                if (substedFunType conforms tp) {
-                  if (checkFast) Some(c, ScSubstitutor.empty)
-                  else checkType(substedFunType)
-                } else {
-                  substedFunType match {
-                    case ScFunctionType(ret, params) if params.length == 0 =>
-                      if (!ret.conforms(tp)) None
-                      else if (checkFast) Some(c, ScSubstitutor.empty)
-                      else checkType(ret)
-                    case _ => None
                   }
-                }
-              case _ => None
+
+                  if (substedFunType conforms tp) {
+                    if (checkFast || noReturnType) Some(c, ScSubstitutor.empty)
+                    else checkType(substedFunType)
+                  } else if (noReturnType) Some(c, ScSubstitutor.empty) else {
+                    substedFunType match {
+                      case ScFunctionType(ret, params) if params.length == 0 =>
+                        if (!ret.conforms(tp)) None
+                        else if (checkFast) Some(c, ScSubstitutor.empty)
+                        else checkType(ret)
+                      case _ => None
+                    }
+                  }
+                case _ => None
+              }
             }
+
+            if (isExtensionConversion) {
+              checkForFunctionType(noReturnType = true) match {
+                case None => None
+                case _ => checkForFunctionType(noReturnType = false)
+              }
+            } else checkForFunctionType(noReturnType = false)
           case _ => None
         }) match {
           case Some((result, resultSubst)) if predicate.isDefined && !withLocalTypeInference =>

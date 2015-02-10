@@ -137,6 +137,7 @@ class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponen
     }
     SwingUtilities.invokeLater(new Runnable {
       def run() {
+        ScalaPluginUpdater.upgradeRepo()
         checkVersion()
       }
     })

@@ -454,10 +454,14 @@ object ScalaFileImpl {
   val DefaultImplicitlyImportedObjects = Seq("scala.Predef", "scala" /* package object*/)
 
   /**
-   * @param place actual place, can be null, if null => false
+   * @param _place actual place, can be null, if null => false
    * @return true, if place is out of source content root, or in Scala Worksheet.
    */
-  def isProcessLocalClasses(place: PsiElement): Boolean = {
+  def isProcessLocalClasses(_place: PsiElement): Boolean = {
+    val place = _place match {
+      case s: ScalaPsiElement => s.getDeepSameElementInContext
+      case _ => _place
+    }
     if (place == null) return false
     val containingFile: PsiFile = place.getContainingFile
     if (containingFile == null) return false
