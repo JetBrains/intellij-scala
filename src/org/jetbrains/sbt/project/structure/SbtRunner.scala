@@ -63,39 +63,42 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
     val pluginFile = customStructureDir.map(new File(_)).getOrElse(LauncherDir) / s"sbt-structure-$sbtVersion.jar"
 
     usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
-      usingTempFile("sbt-commands", Some(".lst")) { commandsFile =>
+      val sbtCommands =
+        s"""set shellPrompt := { _ => "" }
+           |set artifactPath := file("${path(structureFile)}")
+           |set artifactClassifier := Some("$options")
+           |apply -cp "${path(pluginFile)}" org.jetbrains.sbt.ReadProject
+           |exit""".stripMargin
 
-        commandsFile.write(
-          s"""set artifactPath := file("${path(structureFile)}")""",
-          s"""set artifactClassifier := Some("$options")""",
-          s"""apply -cp "${path(pluginFile)}" org.jetbrains.sbt.ReadProject""")
+      val processCommandsRaw =
+        path(vmExecutable) +:
+        "-Djline.terminal=jline.UnsupportedTerminal" +:
+        "-Dsbt.log.noformat=true" +:
+        (vmOptions ++ SbtOpts.loadFrom(directory)) :+
+        "-jar" :+
+        path(SbtLauncher)
+      val processCommands = processCommandsRaw.filterNot(_.isEmpty)
 
-        val processCommandsRaw =
-          path(vmExecutable) +:
-          "-Djline.terminal=jline.UnsupportedTerminal" +:
-          "-Dsbt.log.noformat=true" +:
-          (vmOptions ++ SbtOpts.loadFrom(directory)) :+
-          "-jar" :+
-          path(SbtLauncher) :+
-          s"< ${path(commandsFile)}"
-        val processCommands = processCommandsRaw.filterNot(_.isEmpty)
-
-        try {
-          val processBuilder = new ProcessBuilder(processCommands.asJava)
-          processBuilder.directory(directory)
-          environment.foreach { case (name, value) =>
-            processBuilder.environment().put(name, value)
-          }
-          val process = processBuilder.start()
-          val result = handle(process, listener)
-          result.map { output =>
-            (structureFile.length > 0).either(
-              XML.load(structureFile.toURI.toURL))(SbtException.fromSbtLog(output))
-          }.getOrElse(Left(new ImportCancelledException))
-        } catch {
-          case e: Exception => Left(e)
+      try {
+        val processBuilder = new ProcessBuilder(processCommands.asJava)
+        processBuilder.directory(directory)
+        environment.foreach { case (name, value) =>
+          processBuilder.environment().put(name, value)
         }
-      }}
+        val process = processBuilder.start()
+        using(new PrintWriter(process.getOutputStream)) { writer =>
+          writer.print(sbtCommands)
+          writer.flush()
+        }
+        val result = handle(process, listener)
+        result.map { output =>
+          (structureFile.length > 0).either(
+            XML.load(structureFile.toURI.toURL))(SbtException.fromSbtLog(output))
+        }.getOrElse(Left(new ImportCancelledException))
+      } catch {
+        case e: Exception => Left(e)
+      }
+    }
   }
 
   private def handle(process: Process, listener: (String) => Unit): Option[String] = {
