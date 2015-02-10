@@ -138,8 +138,19 @@ public class TestUtils {
     return getTestDataPath() + "/" + version.getPath() + "/scalaz-7.0.5.jar";
   }
 
+  public static String getMockSprayLib(ScalaSdkVersion version) {
+    return getIvyCachePath() + "/io.spray/spray-routing_2.11/jars/spray-routing_2.11-1.3.1.jar" ;
+  }
+
   public static String getMockScalaSrc(ScalaSdkVersion version) {
     return getTestDataPath() + "/" + version.getPath() + "/scala-src.jar";
+  }
+
+  public static String getIvyCachePath() {
+    String homePath = System.getProperty("user.home") + "\\.ivy2\\cache";
+    String ivyCachePath = System.getProperty("sbt.ivy.home");
+    String result = ivyCachePath != null ? ivyCachePath : homePath;
+    return result.replace("\\", "/");
   }
   
   public static String removeCaretMarker(String text) {
