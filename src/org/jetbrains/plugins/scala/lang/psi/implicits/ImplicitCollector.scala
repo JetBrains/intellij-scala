@@ -306,17 +306,20 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                     }
                     import org.jetbrains.plugins.scala.caches.ScalaRecursionManager._
 
-                    val coreTypeForTp = coreType(tp)
-                    doComputations(coreElement.getOrElse(place), (tp: Object, searches: Seq[Object]) => {
-                      searches.find{
-                        case t: ScType if tp.isInstanceOf[ScType] =>
-                          if (Equivalence.equivInner(t, tp.asInstanceOf[ScType], new ScUndefinedSubstitutor(), falseUndef = false)._1) true
-                          else dominates(tp.asInstanceOf[ScType], t)
-                        case _ => false
-                      } == None
-                    }, coreTypeForTp, compute(), IMPLICIT_PARAM_TYPES_KEY) match {
-                      case Some(res) => res
-                      case None => None
+                    if (isImplicitConversion) compute()
+                    else {
+                      val coreTypeForTp = coreType(tp)
+                      doComputations(coreElement.getOrElse(place), (tp: Object, searches: Seq[Object]) => {
+                        searches.find {
+                          case t: ScType if tp.isInstanceOf[ScType] =>
+                            if (Equivalence.equivInner(t, tp.asInstanceOf[ScType], new ScUndefinedSubstitutor(), falseUndef = false)._1) true
+                            else dominates(tp.asInstanceOf[ScType], t)
+                          case _ => false
+                        } == None
+                      }, coreTypeForTp, compute(), IMPLICIT_PARAM_TYPES_KEY) match {
+                        case Some(res) => res
+                        case None => None
+                      }
                     }
                   }
 
