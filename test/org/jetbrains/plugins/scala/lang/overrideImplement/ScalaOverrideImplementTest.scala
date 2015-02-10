@@ -179,12 +179,12 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     runTest(methodName, fileText, expectedText, isImplement, needsInferType)
   }
 
-  def testOverrideTypeAlias() {
+  def testImplementTypeAlias() {
     val fileText =
       """
         |package Y
-        |class Aa {
-        |  type K = Int
+        |trait Aa {
+        |  type K
         |}
         |class TypeAlias extends Aa {
         |  val t = foo()
@@ -195,19 +195,19 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     val expectedText =
       """
         |package Y
-        |class Aa {
-        |  type K = Int
+        |trait Aa {
+        |  type K
         |}
         |class TypeAlias extends Aa {
         |  val t = foo()
         |
-        |  override type K = <selection>Int</selection>
+        |  type K = <selection>this.type</selection>
         |
         |  def y(): Int = 3
         |}
       """
     val methodName: String = "K"
-    val isImplement = false
+    val isImplement = true
     val needsInferType = true
     runTest(methodName, fileText, expectedText, isImplement, needsInferType)
   }
