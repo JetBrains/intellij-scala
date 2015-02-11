@@ -270,6 +270,16 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                             val depth = ScalaProjectSettings.getInstance(place.getProject).getImplicitParametersSearchDepth
                             if (lastImplicit.isDefined &&
                               (depth < 0 || searchImplicitsRecursively < depth)) {
+                              predicate match {
+                                case Some(predicateFunction) if isExtensionConversion =>
+                                  inferValueType(nonValueType.getOrElse(throw new SafeCheckException)) match {
+                                    case ScFunctionType(rt, _) =>
+                                      if (predicateFunction(c.copy(implicitParameterType = Some(rt)), subst).isEmpty) throw new SafeCheckException
+                                    //this is not a function, when we still need to pass implicit?..
+                                    case _ => throw new SafeCheckException
+                                  }
+                                case _ =>
+                              }
                               val (resType, results) = InferUtil.updateTypeWithImplicitParameters(nonValueType.getOrElse(throw new SafeCheckException),
                                 place, Some(fun), check = true, searchImplicitsRecursively + 1)
                               val valueType = inferValueType(resType)
@@ -296,17 +306,20 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                     }
                     import org.jetbrains.plugins.scala.caches.ScalaRecursionManager._
 
-                    val coreTypeForTp = coreType(tp)
-                    doComputations(coreElement.getOrElse(place), (tp: Object, searches: Seq[Object]) => {
-                      searches.find{
-                        case t: ScType if tp.isInstanceOf[ScType] =>
-                          if (Equivalence.equivInner(t, tp.asInstanceOf[ScType], new ScUndefinedSubstitutor(), falseUndef = false)._1) true
-                          else dominates(tp.asInstanceOf[ScType], t)
-                        case _ => false
-                      } == None
-                    }, coreTypeForTp, compute(), IMPLICIT_PARAM_TYPES_KEY) match {
-                      case Some(res) => res
-                      case None => None
+                    if (isImplicitConversion) compute()
+                    else {
+                      val coreTypeForTp = coreType(tp)
+                      doComputations(coreElement.getOrElse(place), (tp: Object, searches: Seq[Object]) => {
+                        searches.find {
+                          case t: ScType if tp.isInstanceOf[ScType] =>
+                            if (Equivalence.equivInner(t, tp.asInstanceOf[ScType], new ScUndefinedSubstitutor(), falseUndef = false)._1) true
+                            else dominates(tp.asInstanceOf[ScType], t)
+                          case _ => false
+                        } == None
+                      }, coreTypeForTp, compute(), IMPLICIT_PARAM_TYPES_KEY) match {
+                        case Some(res) => res
+                        case None => None
+                      }
                     }
                   }
 

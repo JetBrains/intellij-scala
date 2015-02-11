@@ -12,7 +12,7 @@ trait Specs2_2_11_3_1_M_Base extends Specs2TestCase {
    */
   override protected def addOtherLibraries(): Unit = {
     //TODO: once specs2 2.3 is released, switch to SBT download for specs2 jar as well
-    addLibrary("specs2", "specs2", "specs2-common_2.11-3.0-M1.jar", "specs2-core_2.11-3.0-M1.jar", "specs2-matcher_2.11-3.0-M1.jar")
+    addLibrary("specs2", "specs2", "specs2-common_2.11-3.0-M3.jar", "specs2-core_2.11-3.0-M3.jar", "specs2-matcher_2.11-3.0-M3.jar")
     addIvyCacheLibrary("scalaz-core", "org.scalaz/scalaz-core_2.11/bundles", "scalaz-core_2.11-7.1.0.jar")
     addIvyCacheLibrary("scalaz-concurrent", "org.scalaz/scalaz-concurrent_2.11/bundles", "scalaz-concurrent_2.11-7.1.0.jar")
     addIvyCacheLibrary("scalaz-effect", "org.scalaz/scalaz-effect_2.11/bundles", "scalaz-effect_2.11-7.1.0.jar")
