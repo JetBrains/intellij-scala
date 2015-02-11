@@ -567,7 +567,11 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             else if (p.isDefault) {
               val paramIndex = parameters.indexOf(p) + 1
               val methodName = defaultParameterMethodName(fun, paramIndex)
-              functionEvaluator(ref.qualifier, ref, methodName, previousClausesEvaluators)
+              val localParams = p.paramInCode.toSeq.flatMap(DebuggerUtil.localParamsForDefaultParam(_))
+              val localParamRefs =
+                localParams.map(td => ScalaPsiElementFactory.createExpressionWithContextFromText(td.name, call.getContext, call))
+              val localEvals = localParamRefs.map(ScalaEvaluator(_))
+              functionEvaluator(ref.qualifier, ref, methodName, previousClausesEvaluators ++ localEvals)
             }
             else throw EvaluationException(s"Cannot evaluate parameter ${p.name}")
 
