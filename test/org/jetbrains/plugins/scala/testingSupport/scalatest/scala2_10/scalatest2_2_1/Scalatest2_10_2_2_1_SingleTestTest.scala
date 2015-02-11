@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package testingSupport.scalatest.scala2_10.scalatest2_2_1
 
-import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestSingleTestTest2
+import org.jetbrains.plugins.scala.testingSupport.scalatest.singleTest.ScalaTestSingleTestTest2
 
 /**
  * @author Roman.Shein
