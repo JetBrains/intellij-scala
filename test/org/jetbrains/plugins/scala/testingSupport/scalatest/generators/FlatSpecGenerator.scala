@@ -1,13 +1,13 @@
-package org.jetbrains.plugins.scala.testingSupport.scalatest
+package org.jetbrains.plugins.scala.testingSupport.scalatest.generators
 
-import org.jetbrains.plugins.scala.testingSupport.{TestByLocationRunner, IntegrationTest}
+import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
 
 /**
  * @author Roman.Shein
- * @since 20.01.2015.
+ * @since 10.02.2015.
  */
-trait FlatSpecSingleTestTest extends IntegrationTest {
-  def testFlatSpec() {
+trait FlatSpecGenerator extends IntegrationTest {
+  def addFlatSpec() {
     addFileToProject("FlatSpecTest.scala",
       """
         |import org.scalatest._
@@ -31,12 +31,25 @@ trait FlatSpecSingleTestTest extends IntegrationTest {
         |}
       """.stripMargin.trim()
     )
+  }
 
-    runTestByLocation(7, 1, "FlatSpecTest.scala",
-      checkConfigAndSettings(_, "FlatSpecTest", "A FlatSpecTest should be able to run single test"),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", "FlatSpecTest", "A FlatSpecTest", "should be able to run single test") &&
-          checkResultTreeDoesNotHaveNodes(root, "should not run other tests"),
-      debug = true
+  def addBehaviorFlatSpec() = {
+    addFileToProject("BehaviorFlatSpec.scala",
+    """
+      |import org.scalatest._
+      |
+      |class BehaviorFlatSpec extends FlatSpec with GivenWhenThen {
+      |  behavior of "FlatSpec"
+      |
+      |  it should "run scopes" in {
+      |
+      |  }
+      |
+      |  it should "do other stuff" in {
+      |
+      |  }
+      |}
+    """.stripMargin
     )
   }
 }
