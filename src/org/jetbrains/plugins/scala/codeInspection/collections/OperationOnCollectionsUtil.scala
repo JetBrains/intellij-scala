@@ -70,6 +70,14 @@ object MethodRepr {
           case _: ScMethodCall | _: ScGenericCall => None
           case _ => Some(expr, refExpr.qualifier, Some(refExpr), Seq())
         }
+      case genCall: ScGenericCall =>
+        genCall.getParent match {
+          case _: ScMethodCall => None
+          case _ => genCall.referencedExpr match {
+            case ref: ScReferenceExpression => Some(genCall, ref.qualifier, Some(ref), Seq.empty)
+            case other => Some(genCall, None, None, Seq.empty)
+          }
+        }
       case _ => None
     }
   }
