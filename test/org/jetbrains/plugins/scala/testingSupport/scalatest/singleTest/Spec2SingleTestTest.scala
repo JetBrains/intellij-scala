@@ -1,7 +1,6 @@
-package org.jetbrains.plugins.scala.testingSupport.scalatest
+package org.jetbrains.plugins.scala.testingSupport.scalatest.singleTest
 
 import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
-import org.junit.Ignore
 
 /**
  * @author Roman.Shein

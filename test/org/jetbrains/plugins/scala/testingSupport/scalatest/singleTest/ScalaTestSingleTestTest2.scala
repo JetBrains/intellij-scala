@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.testingSupport.scalatest
+package org.jetbrains.plugins.scala.testingSupport.scalatest.singleTest
 
 /**
  * @author Roman.Shein

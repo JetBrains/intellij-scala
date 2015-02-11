@@ -53,8 +53,10 @@ trait ScalaTestGoToSourceTest extends IntegrationTest {
     val testName = "IgnoredGoToLocationTest"
     addGoToSourceTest(testName)
 
-    runGoToSourceTest(10, 5, testName + ".scala",
-      checkConfigAndSettings(_, testName, "pending test should be ignored"),
+    //since finders API ignored ignored tests and provides neighbours for the same scope instead of ignored test poitned to
+    //we run all the tests
+    runGoToSourceTest(2, 5, testName + ".scala",
+      checkConfigAndSettings(_, testName),
       //notice that runConfig test name and testTree test name differ by !!! IGNORED !!! suffix
       List("[root]", testName, "pending test", "should be ignored !!! IGNORED !!!"), 10)
   }
