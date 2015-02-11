@@ -398,7 +398,22 @@ object DebuggerUtil {
     val extendsBlock = cl.extendsBlock //to exclude references from default parameters
     localParams(extendsBlock, cl, container, visited)
   }
-  
+
+  def localParamsForDefaultParam(param: ScParameter, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Seq[ScTypedDefinition] = {
+    val owner = param.owner
+    val container = ScalaEvaluatorBuilderUtil.getContextClass {
+      owner match {
+        case pc: ScPrimaryConstructor => pc.containingClass
+        case fun => fun
+      }
+    }
+    param.getDefaultExpression match {
+      case Some(expr) => localParams(expr, owner, container, visited)
+      case None => Seq.empty
+    }
+  }
+
+
   def localParams(block: PsiElement, excludeContext: PsiElement, container: PsiElement,
                   visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Seq[ScTypedDefinition] = {
     def atRightPlace(elem: PsiElement) = PsiTreeUtil.isContextAncestor(container, elem, false) &&
