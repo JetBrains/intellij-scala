@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
  */
 trait Spec1SingleTestTest extends IntegrationTest {
   //TODO: stop ignoring it once support for Spec is fixed
-  def __ignore__testSpec() {
+  def testSpec() {
     addFileToProject("Spec.scala",
       """
         |import org.scalatest._
