@@ -12,11 +12,11 @@ import com.intellij.openapi.util.Key
 import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
 import com.intellij.execution.testframework.AbstractTestProxy
 import com.intellij.execution.ui.RunContentDescriptor
-import com.intellij.execution.{PsiLocation, Executor, RunnerAndConfigurationSettings}
+import com.intellij.execution.{Location, PsiLocation, Executor, RunnerAndConfigurationSettings}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
-import com.intellij.psi.PsiManager
+import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.testFramework.{PsiTestUtil, UsefulTestCase}
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestBase
@@ -40,7 +40,7 @@ abstract class ScalaTestingTestCase(private val configurationProducer: AbstractT
 
   protected val useDynamicClassPath = false
 
-  override protected def createTestFromLocation(lineNumber: Int, offset: Int, fileName: String): RunnerAndConfigurationSettings = {
+  override protected def createLocation(lineNumber: Int, offset: Int, fileName: String): PsiLocation[PsiElement] = {
     val ioFile = new java.io.File(srcDir, fileName)
 
     val file = getVirtualFile(ioFile)
@@ -51,10 +51,13 @@ abstract class ScalaTestingTestCase(private val configurationProducer: AbstractT
 
     val psiFile = myManager.findViewProvider(file).getPsi(ScalaFileType.SCALA_LANGUAGE)
 
-    val location = new PsiLocation(project, myModule, psiFile.findElementAt(FileDocumentManager.getInstance().
+    new PsiLocation(project, myModule, psiFile.findElementAt(FileDocumentManager.getInstance().
         getDocument(file).getLineStartOffset(lineNumber) + offset))
+  }
 
-    configurationProducer.createConfigurationByLocation(location)
+  override protected def createTestFromLocation(lineNumber: Int, offset: Int, fileName: String): RunnerAndConfigurationSettings = {
+
+    configurationProducer.createConfigurationByLocation(createLocation(lineNumber, offset, fileName))
   }
 
   override protected def runTestFromConfig(

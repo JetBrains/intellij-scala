@@ -1,13 +1,13 @@
-package org.jetbrains.plugins.scala.testingSupport.scalatest
+package org.jetbrains.plugins.scala.testingSupport.scalatest.generators
 
-import org.jetbrains.plugins.scala.testingSupport.{TestByLocationRunner, IntegrationTest}
+import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
 
 /**
  * @author Roman.Shein
- * @since 20.01.2015.
+ * @since 10.02.2015.
  */
-trait FeatureSpecSingleTestTest extends IntegrationTest {
-  def testFeatureSpec() {
+trait FeatureSpecGenerator extends IntegrationTest{
+  def addFeatureSpec() {
     addFileToProject("FeatureSpecTest.scala",
       """
         |import org.scalatest._
@@ -32,13 +32,6 @@ trait FeatureSpecSingleTestTest extends IntegrationTest {
         | }
         |}
       """.stripMargin.trim()
-    )
-
-    runTestByLocation(5, 7, "FeatureSpecTest.scala",
-      checkConfigAndSettings(_, "FeatureSpecTest", "Feature: Feature 1 Scenario: Scenario A"),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", "FeatureSpecTest", "Feature: Feature 1", "Scenario: Scenario A") &&
-          checkResultTreeDoesNotHaveNodes(root, "Scenario: Scenario B"),
-      debug = true
     )
   }
 }

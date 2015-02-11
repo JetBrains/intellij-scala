@@ -1,23 +1,12 @@
 package org.jetbrains.plugins.scala.testingSupport
 
-import java.util.concurrent.atomic.AtomicReference
 import javax.swing.SwingUtilities
 
-import com.intellij.execution.configurations.RunnerSettings
-import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.impl.DefaultJavaProgramRunner
-import com.intellij.execution.process.{ProcessEvent, ProcessAdapter, ProcessHandler, ProcessListener}
-import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
-import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
-import com.intellij.execution.ui.RunContentDescriptor
-import com.intellij.execution.{Executor, RunnerAndConfigurationSettings}
+import com.intellij.execution.{PsiLocation, RunnerAndConfigurationSettings, Location}
 import com.intellij.execution.testframework.AbstractTestProxy
-import com.intellij.openapi.Disposable
-import com.intellij.openapi.util.Key
-import com.intellij.psi.PsiDocumentManager
+import com.intellij.openapi.project.Project
+import com.intellij.psi.{PsiElement, PsiDocumentManager}
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.testFramework.UsefulTestCase
-import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
 
 import scala.annotation.tailrec
@@ -26,7 +15,23 @@ import scala.annotation.tailrec
  * @author Roman.Shein
  * @since 20.01.2015.
  */
-trait IntegrationTest extends TestByLocationRunner {
+trait IntegrationTest {
+
+  protected def runTestFromConfig(
+                                     configurationCheck: RunnerAndConfigurationSettings => Boolean,
+                                     runConfig: RunnerAndConfigurationSettings,
+                                     checkOutputs: Boolean = false,
+                                     duration: Int = 3000,
+                                     debug: Boolean = false
+                                     ): (String, Option[AbstractTestProxy])
+
+  protected def createTestFromLocation(lineNumber: Int, offset: Int, fileName: String): RunnerAndConfigurationSettings
+
+  protected def createLocation(lineNumber: Int, offset: Int, fileName: String): PsiLocation[PsiElement]
+
+  def getProject: Project
+
+  protected def addFileToProject(fileName: String, fileText: String)
 
   protected def checkConfigAndSettings(configAndSettings: RunnerAndConfigurationSettings, testClass: String, testName: Option[String] = None): Boolean
 
