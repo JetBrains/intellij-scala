@@ -77,8 +77,9 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
 
   // todo override in more specific cases
   override def replace(newElement: PsiElement): PsiElement = {
-    getParent.getNode.replaceChild(getNode, newElement.getNode)
-    newElement
+    val newElementCopy = newElement.copy
+    getParent.getNode.replaceChild(getNode, newElementCopy.getNode)
+    newElementCopy
   }
 
   override def delete() {
