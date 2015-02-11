@@ -2,6 +2,7 @@ package org.jetbrains.sbt
 package project.structure
 
 import java.io._
+import java.nio.charset.Charset
 import java.util.Properties
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.jar.{JarEntry, JarFile}
@@ -63,17 +64,18 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
     val pluginFile = customStructureDir.map(new File(_)).getOrElse(LauncherDir) / s"sbt-structure-$sbtVersion.jar"
 
     usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
-      val sbtCommands =
-        s"""set shellPrompt := { _ => "" }
-           |set artifactPath := file("${path(structureFile)}")
-           |set artifactClassifier := Some("$options")
-           |apply -cp "${path(pluginFile)}" org.jetbrains.sbt.ReadProject
-           |exit""".stripMargin
+      val sbtCommands = Seq(
+        s"""set shellPrompt := { _ => "" }""",
+        s"""set artifactPath := file("${path(structureFile)}")""",
+        s"""set artifactClassifier := Some("$options")""",
+        s"""apply -cp "${path(pluginFile)}" org.jetbrains.sbt.ReadProject""",
+        s"""exit""")
 
       val processCommandsRaw =
         path(vmExecutable) +:
         "-Djline.terminal=jline.UnsupportedTerminal" +:
         "-Dsbt.log.noformat=true" +:
+        "-Dfile.encoding=UTF-8" +:
         (vmOptions ++ SbtOpts.loadFrom(directory)) :+
         "-jar" :+
         path(SbtLauncher)
@@ -86,9 +88,8 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
           processBuilder.environment().put(name, value)
         }
         val process = processBuilder.start()
-        using(new PrintWriter(process.getOutputStream)) { writer =>
-          writer.print(sbtCommands)
-          writer.flush()
+        using(new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream, "UTF-8")))) { writer =>
+          sbtCommands.foreach(writer.println)
         }
         val result = handle(process, listener)
         result.map { output =>
@@ -119,7 +120,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
         listener(text)
     }
 
-    val handler = new OSProcessHandler(process, null, null)
+    val handler = new OSProcessHandler(process, null, Charset.forName("UTF-8"))
     handler.addProcessListener(new ListenerAdapter(processListener))
     handler.startNotify()
 
