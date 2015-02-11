@@ -76,13 +76,15 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
   }
 
   protected def performTest(text: String, assumedText: String)(testBody: () => Unit) {
-    val caretIndex = text.indexOf(CARET_MARKER)
-    myFixture.configureByText("dummy.scala", text.replace(CARET_MARKER, ""))
+    val cleanedText =  text.replace("\r", "")
+    val cleanedAssumed =  assumedText.replace("\r", "")
+    val caretIndex = cleanedText.indexOf(CARET_MARKER)
+    myFixture.configureByText("dummy.scala", cleanedText.replace(CARET_MARKER, ""))
     myFixture.getEditor.getCaretModel.moveToOffset(caretIndex)
 
     testBody()
 
-    myFixture.checkResult(assumedText)
+    myFixture.checkResult(cleanedAssumed)
   }
 
   /**

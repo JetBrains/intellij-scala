@@ -546,6 +546,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
                          call: ScExpression, ref: ScReferenceExpression, arguments: Seq[ScExpression]): Seq[Evaluator] = {
 
     val clauses = fun.effectiveParameterClauses
+    val parameters = clauses.flatMap(_.effectiveParameters).map(new Parameter(_))
 
     def addForNextClause(previousClausesEvaluators: Seq[Evaluator], clause: ScParameterClause): Seq[Evaluator] = {
       previousClausesEvaluators ++ clause.effectiveParameters.map {
@@ -564,9 +565,13 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             }
             else if (param.isImplicitParameter) implicitArgEvaluator(fun, param, call)
             else if (p.isDefault) {
-              val parameters = clauses.flatMap(_.effectiveParameters).map(new Parameter(_))
-              val methodName = defaultParameterMethodName(fun, p, parameters)
-              functionEvaluator(ref.qualifier, ref, methodName, previousClausesEvaluators)
+              val paramIndex = parameters.indexOf(p) + 1
+              val methodName = defaultParameterMethodName(fun, paramIndex)
+              val localParams = p.paramInCode.toSeq.flatMap(DebuggerUtil.localParamsForDefaultParam(_))
+              val localParamRefs =
+                localParams.map(td => ScalaPsiElementFactory.createExpressionWithContextFromText(td.name, call.getContext, call))
+              val localEvals = localParamRefs.map(ScalaEvaluator(_))
+              functionEvaluator(ref.qualifier, ref, methodName, previousClausesEvaluators ++ localEvals)
             }
             else throw EvaluationException(s"Cannot evaluate parameter ${p.name}")
 
@@ -1205,8 +1210,7 @@ object ScalaEvaluatorBuilderUtil {
     })
   }
 
-  def defaultParameterMethodName(method: ScMethodLike, p: Parameter, parameters: Seq[Parameter]): String = {
-    val paramIndex = parameters.indexOf(p) + 1
+  def defaultParameterMethodName(method: ScMethodLike, paramIndex: Int): String = {
     method match {
       case fun: ScFunction if !fun.isConstructor =>
         val suffix: String = if (!fun.isLocal) "" else "$" + localFunctionIndex(fun)
