@@ -901,6 +901,10 @@
                        displayName="isEmpty replaceable for nonEmpty" groupName="Scala: Collections"
                        shortName="NotIsEmpty" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantCollectionConversionInspection"
+                       displayName="Redundant collection conversion" groupName="Scala: Collections"
+                       shortName="RedundantCollectionConversion" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.etaExpansion.ConvertibleToMethodValueInspection"
                        displayName="Anonymous function convertible to a method value" groupName="Scala: General"
                        shortName="ConvertibleToMethodValue" level="WARNING"
