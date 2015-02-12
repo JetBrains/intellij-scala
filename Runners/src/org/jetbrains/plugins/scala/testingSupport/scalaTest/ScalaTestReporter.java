@@ -50,6 +50,7 @@ public class ScalaTestReporter implements Reporter {
     Ordinal ordinal = event.ordinal();
     if (event instanceof RunStarting) {
       RunStarting r = (RunStarting) event;
+      treeBuilder.initRun(r);
       int testCount = r.testCount();
       System.out.println("##teamcity[testCount count='" + testCount + "']");
     } else if (event instanceof TestStarting) {
@@ -57,7 +58,6 @@ public class ScalaTestReporter implements Reporter {
       String locationHint = getLocationHint(((TestStarting) event).suiteClassName(), testName);
       String message = "testStarted name='" + escapeString(testName) + "'" + locationHint +
           " captureStandardOutput='true'";
-      System.out.println(message);
       treeBuilder.openScope(message, ordinal, ((TestStarting) event).suiteName(), true);
     } else if (event instanceof TestSucceeded) {
       Option<Object> durationOption = ((TestSucceeded) event).duration();
