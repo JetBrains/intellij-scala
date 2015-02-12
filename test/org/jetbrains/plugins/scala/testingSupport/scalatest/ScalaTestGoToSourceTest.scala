@@ -8,6 +8,16 @@ import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
  */
 trait ScalaTestGoToSourceTest extends IntegrationTest {
 
+  def getSuccessfulTestPath: List[String]
+  def getPendingTestPath: List[String]
+  def getIgnoredTestPath: List[String]
+  def getFailedTestPath: List[String]
+  
+  def getSuccessfulLocationLine: Int
+  def getPendingLocationLine: Int
+  def getIgnoredLocationLine: Int
+  def getFailedLocationLine: Int
+
   private def addGoToSourceTest(testName: String) =
     addFileToProject(testName + ".scala",
       "import org.scalatest._\n\n" +
@@ -37,7 +47,7 @@ trait ScalaTestGoToSourceTest extends IntegrationTest {
 
     runGoToSourceTest(3, 5, testName + ".scala",
       checkConfigAndSettings(_, testName, "Successful test should run fine"),
-      List("[root]", testName, "Successful test", "should run fine"), 3)
+      getSuccessfulTestPath, getSuccessfulLocationLine)
   }
 
   def testGoToPendingLocation(): Unit = {
@@ -46,7 +56,7 @@ trait ScalaTestGoToSourceTest extends IntegrationTest {
 
     runGoToSourceTest(6, 5, testName + ".scala",
       checkConfigAndSettings(_, testName, "pending test should be pending"),
-      List("[root]", testName, "pending test", "should be pending"), 6)
+      getPendingTestPath, getPendingLocationLine)
   }
 
   def testGoToIgnoredLocation(): Unit = {
@@ -58,7 +68,7 @@ trait ScalaTestGoToSourceTest extends IntegrationTest {
     runGoToSourceTest(2, 5, testName + ".scala",
       checkConfigAndSettings(_, testName),
       //notice that runConfig test name and testTree test name differ by !!! IGNORED !!! suffix
-      List("[root]", testName, "pending test", "should be ignored !!! IGNORED !!!"), 10)
+      getIgnoredTestPath, getIgnoredLocationLine)
   }
 
   def testGoToFailedTest(): Unit = {
@@ -67,6 +77,6 @@ trait ScalaTestGoToSourceTest extends IntegrationTest {
 
     runGoToSourceTest(13, 5, testName + ".scala",
       checkConfigAndSettings(_, testName, "failed test should fail"),
-      List("[root]", testName, "failed test", "should fail"), 13)
+      getFailedTestPath, getFailedLocationLine)
   }
 }
