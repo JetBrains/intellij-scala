@@ -28,39 +28,37 @@ public class UTestRunner {
    * @return location hint in buildserver notation
    */
   private static String getLocationHint(String className, String testName) {
-    return " locationHint='uTest://Class:" + className + "TestName:" + escapeString(testName) + "'";
+    return " locationHint='scalatest://TopOfClass:" + className + "TestName:" + escapeString(testName) + "'";
   }
 
-  private static String getLocationHint(String className) {
-    return " locationHint='uTest://Class:" + className + "'";
+  private static String getLocationHint(String className, Method method, String testName) {
+    return " locationHint='scalatest://TopOfMethod:" + className + ":" + method.getName() + "TestName:" + testName + "'";
   }
 
-  private static String buildPrefix(List<String> names, String testMethodName) {
-    StringBuilder res = new StringBuilder(testMethodName);
-    if (names.size() > 0) {
-      for (String name: names.subList(0, names.size() - 1)) {
-        res.append("\\").append(name);
-      }
-    }
-    return res.toString();
-  }
-
-  private static void traverseResults(Tree<Result> result, String suiteClassName, String namePrefix, boolean outerSuite) {
+  private static int traverseResults(Tree<Result> result, String suiteClassName, boolean outerSuite, int parentId, int prevId, Method method) {
     Result currentRes = result.value();
-    String testName = namePrefix + (outerSuite ? "" : "\\" + currentRes.name());
+    String testName = currentRes.name();//namePrefix + (outerSuite ? "" : "\\" + currentRes.name());
     String suiteName = currentRes.name();
+    int currentTestId = prevId;
+    int nextPrevId = currentTestId;
+    int suiteId = currentTestId;
     if (!outerSuite) {
-      String locationHint = getLocationHint(suiteClassName, testName);
+      currentTestId++;
+      nextPrevId++;
+      suiteId++;
+      String locationHint = getLocationHint(suiteClassName, method, testName);
       if (result.children().nonEmpty()) {
+        suiteId++;
+        nextPrevId++;
         //it's a test with inner tests, build tree structure
-        System.out.println("\n##teamcity[testSuiteStarted name='" + escapeString(suiteName) + "'" + locationHint +
-            " captureStandardOutput='true']");
+        System.out.println("\n##teamcity[testSuiteStarted name='" + escapeString(suiteName) + "' nodeId='" + suiteId +
+            "' parentNodeId='" + parentId + "'" + locationHint + " captureStandardOutput='true']");
       }
       System.out.println("\n##teamcity[testStarted name='" + escapeString(testName) +
-          "'" + locationHint + " captureStandardOutput='true']");
+          "' nodeId='" + currentTestId + "' parentNodeId='" + parentId + "'" + locationHint + " captureStandardOutput='true']");
     }
     for (scala.collection.Iterator<Tree<Result>> it =  result.children().iterator(); it.hasNext();) {
-      traverseResults(it.next(), suiteClassName, testName, false);
+      nextPrevId = traverseResults(it.next(), suiteClassName, false, suiteId, nextPrevId, method);
     }
     if (!outerSuite) {
       if (currentRes.value() instanceof Failure) {
@@ -69,15 +67,17 @@ public class UTestRunner {
         PrintWriter printWriter = new PrintWriter(stringWriter);
         failure.exception().printStackTrace(printWriter);
         System.out.println("\n##teamcity[testFailed name='" + escapeString(testName) + "' message='" + escapeString(failure.exception().getMessage()) +
-            "' details='" + escapeString(stringWriter.toString()) + "']");
+            "' details='" + escapeString(stringWriter.toString()) + "' nodeId='" + currentTestId + "']");
+      } else {
+        System.out.println("\n##teamcity[testFinished name='" + escapeString(testName) +
+            "' duration='" + currentRes.milliDuration() + "' nodeId='" + currentTestId + "']");
       }
-      System.out.println("\n##teamcity[testFinished name='" + escapeString(testName) +
-          "' duration='" + currentRes.milliDuration() + "']");
       if (result.children().nonEmpty()) {
         //it's a test with inner tests, build tree structure
-        System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(suiteName) + "']");
+        System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(suiteName) + "' nodeId='"+ suiteId + "']");
       }
     }
+    return nextPrevId;
   }
 
   private static class TestPath {
@@ -180,27 +180,31 @@ public class UTestRunner {
     }
     int testCount = testsToRun.size();
     System.out.println("##teamcity[testCount count='" + testCount + "']");
-    System.out.println("\n##teamcity[testSuiteStarted name='" + escapeString(suiteName) + "'" + getLocationHint(className) +
-        " captureStandardOutput='true']");
+    int parentNodeId = 0;
+    int nodeId = 1;
+    int prevId = nodeId;
+    System.out.println("\n##teamcity[testSuiteStarted name='" + escapeString(suiteName) + "'" + getLocationHint(className, suiteName) +
+        " nodeId='" + nodeId + "' parentNodeId='" + parentNodeId + "' captureStandardOutput='true']");
     for (TestMethod testMethod : testsToRun) {
       Method test = testMethod.method;
       Tree<Test> testTree = (Tree) test.invoke(null);
 
       TestTreeSeq treeSeq = new TestTreeSeq(testTree);
-      String testSuiteName = test.getName();
-      String locationHint = getLocationHint(className, testSuiteName);
-      System.out.println("\n##teamcity[testSuiteStarted name='" + escapeString(testSuiteName) + "'" + locationHint +
-          " captureStandardOutput='true']");
+      String testMethodName = test.getName();
+      String locationHint = getLocationHint(className, testMethodName);
+      int currentSuiteId = ++prevId;
+      System.out.println("\n##teamcity[testSuiteStarted name='" + escapeString(testMethodName) + "' nodeId='" +
+          currentSuiteId + "' parentNodeId='" + nodeId + "'" + locationHint + " captureStandardOutput='true']");
       Tree<Result> result = treeSeq.run(treeSeq.run$default$1(),
           treeSeq.run$default$2(),
           testMethod.testPath != null ? scala.collection.JavaConversions.asScalaBuffer(testMethod.testPath.path).toList() : treeSeq.run$default$3(),
           ExecutionContext.Implicits$.MODULE$.global());
       boolean classTestKind = testMethod.testPath == null || testMethod.testPath.path.isEmpty();
-      traverseResults(result, clazz.getName(), classTestKind ? test.getName() : buildPrefix(testMethod.testPath.path, test.getName()), classTestKind);
+      prevId = traverseResults(result, clazz.getName(), classTestKind, currentSuiteId, prevId, test);
 
-      System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(testSuiteName) + "']");
+      System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(testMethodName) + "' nodeId='" + currentSuiteId + "']");
     }
-    System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(suiteName) + "']");
+    System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(suiteName) + "' nodeId='" + nodeId + "']");
   }
 
 
