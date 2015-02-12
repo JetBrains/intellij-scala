@@ -50,7 +50,7 @@ public class JavaSpecs2Runner {
         }
       } else if (newArgs[i].equals("-testName")) {
         ++i;
-        testName = newArgs[i];
+        testName = TestRunnerUtil.unescapeTestName(newArgs[i]);
         ++i;
       } else if (newArgs[i].equals("-showProgressMessages")) {
         ++i;

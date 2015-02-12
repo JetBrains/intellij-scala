@@ -51,7 +51,7 @@ public class ScalaTestRunner {
     HashSet<String> classes = new HashSet<String>();
     HashMap<String, Set<String>> failedTestMap = new HashMap<String, Set<String>>();
     boolean failedUsed = false;
-    String testName = "";
+    List<String> testNames = new LinkedList<String>();
     boolean showProgressMessages = true;
     boolean useVersionFromOptions = false;
     boolean isOlderScalaVersionFromOptions = false;
@@ -66,7 +66,7 @@ public class ScalaTestRunner {
         }
       } else if (newArgs[i].equals("-testName")) {
         ++i;
-        testName = newArgs[i];
+        testNames.add(TestRunnerUtil.unescapeTestName(newArgs[i]));
         ++i;
       } else if (newArgs[i].equals("-showProgressMessages")) {
         ++i;
@@ -115,16 +115,17 @@ public class ScalaTestRunner {
         }
       }
 
-    } else if (testName.equals("")) {
+    } else if (testNames.isEmpty()) {
       for (String clazz : classes) {
         argsArray.add("-s");
         argsArray.add(clazz);
       }
 
     } else {
-      String[] testNames = testName.split(";");
+      //'test' kind of run should only contain one class, better fail then try to run something irrelevant
+      assert(classes.size() == 1);
       for (String clazz : classes) {
-          for (String tn : Arrays.asList(testNames)) {
+          for (String tn : testNames) {
           // Should encounter problem if the suite class does not have the specified test name.
           argsArray.add("-s");
           argsArray.add(clazz);
