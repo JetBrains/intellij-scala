@@ -7,6 +7,13 @@ import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
  * @since 18.01.2015.
  */
 trait SpecialCharactersTest extends IntegrationTest {
+
+  val commaTestPath = List("[root]", "TestComma", "Comma , test", "should contain , comma")
+  val exclamationTestPath = List("[root]", "TestExclamation", "! test", "should contain !")
+  val tickTestPath = List("[root]", "TestTick", "tick ' test", "should contain '")
+  val tildeTestPath = List("[root]", "TestTilde", "tilde ~ test", "should contain ~")
+  val backtickTestPath = List("[root]", "TestBacktick", "backtick ` test", "should contain `")
+
   private def addSpecialCharactersTest(testName: String) =
     addFileToProject(testName + ".scala",
       "import org.scalatest._\n\n" +
@@ -37,7 +44,7 @@ trait SpecialCharactersTest extends IntegrationTest {
 
     runTestByLocation(3, 3, testName + ".scala",
       checkConfigAndSettings(_, testName, "Comma , test should contain , comma"),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", testName, "Comma , test", "should contain , comma")
+      root => checkResultTreeHasExactNamedPath(root, commaTestPath:_*)
     )
   }
 
@@ -47,7 +54,7 @@ trait SpecialCharactersTest extends IntegrationTest {
 
     runTestByLocation(6, 3, testName + ".scala",
       checkConfigAndSettings(_, testName, "! test should contain !"),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", testName, "! test", "should contain !")
+      root => checkResultTreeHasExactNamedPath(root, exclamationTestPath:_*)
     )
   }
 
@@ -56,7 +63,7 @@ trait SpecialCharactersTest extends IntegrationTest {
     addSpecialCharactersTest(testName)
     runTestByLocation(9, 3, testName + ".scala",
       checkConfigAndSettings(_, testName, "tick ' test should contain '"),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", "TestTick", "tick ' test", "should contain '")
+      root => checkResultTreeHasExactNamedPath(root, tickTestPath:_*)
     )
   }
 
@@ -65,7 +72,7 @@ trait SpecialCharactersTest extends IntegrationTest {
     addSpecialCharactersTest(testName)
     runTestByLocation(15, 3, testName + ".scala",
       checkConfigAndSettings(_, testName, "tilde ~ test should contain ~"),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", testName, "tilde ~ test", "should contain ~")
+      root => checkResultTreeHasExactNamedPath(root, tildeTestPath:_*)
     )
   }
 
@@ -74,7 +81,7 @@ trait SpecialCharactersTest extends IntegrationTest {
     addSpecialCharactersTest(testName)
     runTestByLocation(12, 3, testName + ".scala",
       checkConfigAndSettings(_, testName, "backtick ` test should contain `"),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", testName, "backtick ` test", "should contain `")
+      root => checkResultTreeHasExactNamedPath(root, backtickTestPath:_*)
     )
   }
 
