@@ -11,7 +11,6 @@ import com.intellij.execution.testframework.TestFrameworkRunningModel
 import com.intellij.execution.testframework.sm.{CompositeTestLocationProvider, SMTestRunnerConnectionUtil}
 import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
 import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
-import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.PathMacroManager
 import com.intellij.openapi.extensions.Extensions
@@ -131,6 +130,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   var testKind = TestKind.CLASS
   @BeanProperty
   var showProgressMessages = true
+
+  def splitTests = testName.split("\n").filter(!_.isEmpty)
 
   private var generatedName: String = ""
 
@@ -416,9 +417,13 @@ abstract class AbstractTestRunConfiguration(val project: Project,
                 printer.println(cl)
               }
               if (testKind == TestKind.TEST_NAME && testName != "") {
-                printer.println("-testName")
-                printer.println(testName)
-                params.getVMParametersList.addParametersString("-Dspecs2.ex=\"" + testName + "\"")
+                //this is a "by-name" test for single suite, better fail in a known manner then do something undefined
+                assert(getClasses.size == 1)
+                for (test <- splitTests) {
+                  printer.println("-testName")
+                  printer.println(test)
+                  params.getVMParametersList.addParametersString("-Dspecs2.ex=\"" + test + "\"")
+                }
               }
             } else {
               printer.println("-failedTests")
@@ -452,9 +457,13 @@ abstract class AbstractTestRunConfiguration(val project: Project,
             params.getProgramParametersList.add("-s")
             for (cl <- getClasses) params.getProgramParametersList.add(cl)
             if (testKind == TestKind.TEST_NAME && testName != "") {
-              params.getProgramParametersList.add("-testName")
-              params.getProgramParametersList.add(testName)
-              params.getVMParametersList.addParametersString("-Dspecs2.ex=\"" + testName + "\"")
+              //this is a "by-name" test for single suite, better fail in a known manner then do something undefined
+              assert(getClasses.size == 1)
+              for (test <- splitTests) {
+                params.getProgramParametersList.add("-testName")
+                params.getProgramParametersList.add(test)
+                params.getVMParametersList.addParametersString("-Dspecs2.ex=\"" + test + "\"")
+              }
             }
           } else {
             params.getProgramParametersList.add("-failedTests")
