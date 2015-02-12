@@ -7,7 +7,9 @@ import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
  * @since 28.01.2015.
  */
 trait NestedSameNamesTest extends IntegrationTest {
-  def testNestedSameNames: Unit = {
+  val testPath = List("[root]", "FunSpecTest", "FunSpecTest", "FunSpecTest", "FunSpecTest")
+
+  def testNestedSameNames(): Unit = {
     addFileToProject("FunSpecTest.scala",
       """
         |import org.scalatest._
@@ -26,7 +28,7 @@ trait NestedSameNamesTest extends IntegrationTest {
 
     runTestByLocation(6, 12, "FunSpecTest.scala",
       checkConfigAndSettings(_, "FunSpecTest", "FunSpecTest FunSpecTest FunSpecTest"),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", "FunSpecTest", "FunSpecTest", "FunSpecTest", "FunSpecTest")
+      root => checkResultTreeHasExactNamedPath(root, testPath:_*)
     )
   }
 }

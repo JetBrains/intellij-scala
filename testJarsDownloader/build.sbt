@@ -19,12 +19,15 @@ libraryDependencies ++= Seq(
   "org.typelevel" % "scodec-bits_2.11" % "1.1.0-SNAPSHOT" % Compile,
   "org.typelevel" % "scodec-core_2.11" % "1.7.0-SNAPSHOT" % Compile,
   "org.scalatest" % "scalatest_2.11" % "2.1.7" % Compile,
-  "org.scalatest" % "scalatest_2.10" % "2.1.7" % Compile
+  "org.scalatest" % "scalatest_2.10" % "2.1.7" % Compile,
+  "org.scalatest" % "scalatest_2.10" % "1.9.2" % Compile
 )
 
 dependencyOverrides += "org.scalatest" % "scalatest_2.10" % "2.1.7"
 
 dependencyOverrides += "org.scalatest" % "scalatest_2.11" % "2.1.7"
+
+dependencyOverrides += "org.scalatest" % "scalatest_2.10" % "1.9.2"
 
 dependencyOverrides += "com.chuusai" % "shapeless_2.11" % "2.0.0"
 
