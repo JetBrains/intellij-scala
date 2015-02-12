@@ -130,4 +130,11 @@ public class TestRunnerUtil {
     }
     return newArgs;
   }
+
+  public static String unescapeTestName(String testName) {
+    Pattern pattern = Pattern.compile("([^\\\\])\\\\n");
+    Matcher matcher = pattern.matcher(testName);
+    return matcher.replaceAll("$1\n").replace("\\\\", "\\");
+  }
+
 }
