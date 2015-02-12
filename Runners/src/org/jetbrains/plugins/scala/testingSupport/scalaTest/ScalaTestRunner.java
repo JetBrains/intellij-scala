@@ -193,11 +193,15 @@ public class ScalaTestRunner {
       }
     }
     String[] arga = argsArray.toArray(new String[argsArray.size()]);
+    String reporterQualName = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter";
+    Class<?> reporterClass = ScalaTestRunner.class.getClassLoader().
+        loadClass(reporterQualName);
+    Reporter reporter = (Reporter) reporterClass.newInstance();
     if (failedUsed) {
       i = 0;
       while (i + 1 < failedTests.size()) {
         TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
-        runSingleTest(failedTests.get(i + 1), failedTests.get(i));
+        runSingleTest(failedTests.get(i + 1), failedTests.get(i), reporter);
         i += 2;
       }
     } else if (testName.equals("")) {
@@ -211,22 +215,18 @@ public class ScalaTestRunner {
       for (String clazz : classes) {
         for (String tn : Arrays.asList(testNames)) {
           TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
-          runSingleTest(tn, clazz);
+          runSingleTest(tn, clazz, reporter);
         }
       }
     }
   }
 
 
-  private static void runSingleTest(String testName, String clazz) throws IllegalAccessException,
+  private static void runSingleTest(String testName, String clazz, Reporter reporter) throws IllegalAccessException,
       InstantiationException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException {
     try {
     Class<?> aClass = ScalaTestRunner.class.getClassLoader().loadClass(clazz);
     Suite suite = (Suite) aClass.newInstance();
-    String reporterQualName = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter";
-    Class<?> reporterClass = ScalaTestRunner.class.getClassLoader().
-        loadClass(reporterQualName);
-    Reporter reporter = (Reporter) reporterClass.newInstance();
     Class<?> suiteClass = Class.forName("org.scalatest.Suite");
     Method method = suiteClass.getMethod("run", Option.class, Reporter.class, Stopper.class, org.scalatest.Filter.class,
         Map.class, Option.class, Tracker.class);

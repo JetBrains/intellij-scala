@@ -17,7 +17,8 @@ public class SequentialTreeBuilder implements TreeBuilder {
 
   private final Stack<Integer> idStack = new Stack<Integer>();
   private final Stack<String> waitingScopeMessagesQueue = new Stack<String>();
-  private int id = 0;
+  //ID is static because scalaTest v1.9.2 creates multiple reporters when running in package
+  private static int id = 0;
   private int getCurrentId() {return idStack.peek();}
 
   public void openScope(String message, Ordinal ordinal, String suiteId, boolean isTestStarted) {
@@ -75,8 +76,7 @@ public class SequentialTreeBuilder implements TreeBuilder {
   }
 
   public void initRun(RunStarting runStarting) {
-    idStack.clear();
-    idStack.push(id);
+    idStack.push(0);
   }
 
   /**
