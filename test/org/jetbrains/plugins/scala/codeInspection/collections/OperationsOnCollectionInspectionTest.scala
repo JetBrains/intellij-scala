@@ -19,4 +19,10 @@ abstract class OperationsOnCollectionInspectionTest extends ScalaLightCodeInsigh
   protected def testFix(text: String, result: String, hint: String) {
     testQuickFix(text.replace("\r", ""), result.replace("\r", ""), hint, inspectionClass)
   }
+
+  def doTest(selected: String, text: String, result: String) = {
+    check(selected)
+    testFix(text, result, hint)
+  }
+
 }

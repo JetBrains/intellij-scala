@@ -10,11 +10,6 @@ class RedundantConversionTest extends OperationsOnCollectionInspectionTest{
 
   override def hint: String = InspectionBundle.message("redundant.collection.conversion")
 
-  def doTest(selected: String, text: String, result: String) = {
-    check(selected)
-    testFix(text, result, hint)
-  }
-
   def test_1() {
     doTest(s"List(1, 2).${START}toList$END",
       "List(1, 2).toList",
