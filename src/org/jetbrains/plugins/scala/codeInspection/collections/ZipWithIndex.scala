@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.collections
 
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.psi.PsiMethod
+import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.extensions.ResolvesTo
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 
@@ -9,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
  * @author Nikolay.Tropin
  */
 class ZipWithIndex(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
-  override def hint: String = "Replace with zipWithIndex"
+  override def hint: String = InspectionBundle.message("replace.with.zipWithIndex")
 
   override def getSimplification(single: MethodRepr): List[Simplification] = {
     (single.optionalBase, single.optionalMethodRef, single.args) match {
