@@ -28,13 +28,18 @@ class MethodRepr private (val itself: ScExpression,
                                val args: Seq[ScExpression]) {
 
   def rightRangeInParent(parent: ScExpression): TextRange = {
-    optionalMethodRef match {
+    val endOffset = parent.getTextRange.getEndOffset
+
+    val startOffset = optionalMethodRef match {
       case Some(ref) =>
-        val startOffset = ref.nameId.getTextOffset
-        val endOffset = parent.getTextRange.getEndOffset
-        TextRange.create(startOffset, endOffset).shiftRight( - parent.getTextOffset)
-      case None => TextRange.create(0, parent.getTextLength)
+       ref.nameId.getTextOffset
+      case None =>
+        optionalBase match {
+          case Some(b) => b.getTextRange.getEndOffset
+          case _ => parent.getTextOffset
+        }
     }
+    TextRange.create(startOffset, endOffset).shiftRight( - parent.getTextOffset)
   }
 }
 
@@ -48,6 +53,8 @@ object MethodRepr {
           case _ => Nil
         }
         call.getEffectiveInvokedExpr match {
+          case baseExpr: ScExpression if call.isApplyOrUpdateCall && !call.isUpdateCall =>
+            Some(expr, Some(baseExpr), None, args)
           case ref: ScReferenceExpression => Some(expr, ref.qualifier, Some(ref), args)
           case genericCall: ScGenericCall =>
             genericCall.referencedExpr match {
