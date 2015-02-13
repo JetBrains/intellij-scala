@@ -7,6 +7,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.meta.trees.TreeAdapter
 
+import scala.::
+import scala.collection.immutable.::
 import scala.meta.internal.ast._
 
 
@@ -39,6 +41,7 @@ class TreeConverterTest extends SimpleTestCase {
   def doTest(text: String, tree: Tree) = {
     val converted = TreeAdapter.ideaToMeta(text)
     assert(treesEq(converted, tree), s"$converted <=> $tree")
+    assert(converted.toString() ==  tree.toString(), s"TEXT: $converted <=> $tree")
   }
 
   def testVal() {
@@ -77,4 +80,69 @@ class TreeConverterTest extends SimpleTestCase {
     )
   }
 
+  def testTypeUpperBound() {
+    doTest(
+    "type T <: Any",
+      Decl.Type(Nil, Type.Name("T"), Nil, Type.Bounds(None, Some(Type.Name("Any"))))
+    )
+  }
+
+  def testTypeLowerBound() {
+    doTest(
+      "type T >: Any",
+      Decl.Type(Nil, Type.Name("T"), Nil, Type.Bounds(Some(Type.Name("Any")), None))
+    )
+  }
+
+  def testBothTypeBounds() {
+    doTest(
+      "type T >: Any <: Int",
+      Decl.Type(Nil, Type.Name("T"), Nil, Type.Bounds(Some(Type.Name("Any")), Some(Type.Name("Int"))))
+    )
+  }
+
+  def testParametrizedType() {
+    doTest(
+      "type F[T]",
+      Decl.Type(Nil, Type.Name("F"),
+        Type.Param(Nil, Type.Name("T"), Nil, Nil, Nil, Type.Bounds(None, None)) :: Nil,
+        Type.Bounds(None, None))
+    )
+  }
+
+  def testParametrizedAnonType() {
+    doTest(
+      "type F[_]",
+      Decl.Type(Nil, Type.Name("F"),
+        Type.Param(Nil, Name.Anonymous(), Nil, Nil, Nil, Type.Bounds(None, None)) :: Nil,
+        Type.Bounds(None, None))
+    )
+  }
+
+  def testParametrizedWithUpperBoundType() {
+    doTest(
+      "type F[A <: Any]",
+      Decl.Type(Nil, Type.Name("F"),
+        Type.Param(Nil, Type.Name("T"), Nil, Nil, Nil, Type.Bounds(None, Some(Type.Name("Any")))) :: Nil,
+        Type.Bounds(None, None))
+    )
+  }
+
+  def testCovariantType() {
+    doTest(
+      "type F[+T]",
+      Decl.Type(Nil, Type.Name("F"),
+        Type.Param(Mod.Covariant() :: Nil, Type.Name("T"), Nil, Nil, Nil, Type.Bounds(None, None)) :: Nil,
+        Type.Bounds(None, None))
+    )
+  }
+
+  def testContravariantType() {
+    doTest(
+      "type F[-T]",
+      Decl.Type(Nil, Type.Name("F"),
+        Type.Param(Mod.Contravariant() :: Nil, Type.Name("T"), Nil, Nil, Nil, Type.Bounds(None, None)) :: Nil,
+        Type.Bounds(None, None))
+    )
+  }
 }

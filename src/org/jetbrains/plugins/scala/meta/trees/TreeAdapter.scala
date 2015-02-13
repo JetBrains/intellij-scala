@@ -45,7 +45,7 @@ object TypeAdapter {
   def apply(tp: psi.statements.params.ScTypeParam): metast.Type.Param = {
     metast.Type.Param(
       if(tp.isCovariant) metast.Mod.Covariant() :: Nil else if(tp.isContravariant) metast.Mod.Contravariant() :: Nil else Nil,
-      metast.Type.Name(tp.name),
+      if (tp.name != "_") metast.Type.Name(tp.name) else metast.Name.Anonymous(),
       Seq(tp.typeParameters.map(TypeAdapter(_)):_*),
       contextBounds(tp),
       viewBounds(tp),
@@ -62,6 +62,6 @@ object TypeAdapter {
   }
 
   def typeBounds(tp: psi.toplevel.ScTypeBoundsOwner): metast.Type.Bounds = {
-    metast.Type.Bounds(tp.lowerTypeElement.map(TypeAdapter(_)), tp.lowerTypeElement.map(TypeAdapter(_)))
+    metast.Type.Bounds(tp.lowerTypeElement.map(TypeAdapter(_)), tp.upperTypeElement.map(TypeAdapter(_)))
   }
 }
