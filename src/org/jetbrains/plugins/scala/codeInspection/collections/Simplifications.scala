@@ -20,6 +20,9 @@ abstract class SimplificationType(inspection: OperationOnCollectionInspection) {
   def likeOptionClasses = inspection.getLikeOptionClasses
   def likeCollectionClasses = inspection.getLikeCollectionClasses
 
+  def isCollectionMethod(expr: ScExpression) = OperationOnCollectionsUtil.checkResolve(expr, likeCollectionClasses)
+  def isOptionMethod(expr: ScExpression) = OperationOnCollectionsUtil.checkResolve(expr, likeOptionClasses)
+
   def createSimplification(methodToBuildFrom: MethodRepr,
                            parentExpr: ScExpression,
                            newMethodName: String,
