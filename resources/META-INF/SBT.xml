@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <idea-plugin version="2">
-  <depends optional="true" config-file="android-support.xml">org.jetbrains.android</depends>
+    <depends optional="true" config-file="android-support.xml">org.jetbrains.android</depends>
 
     <project-components>
         <component>
@@ -9,6 +9,9 @@
         </component>
         <component>
             <implementation-class>org.jetbrains.sbt.project.SbtImportNotifier</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.jetbrains.sbt.project.LegacyProjectFormatNotifier</implementation-class>
         </component>
     </project-components>
 
@@ -74,12 +77,6 @@
 
         <configurationType implementation="org.jetbrains.sbt.runner.SbtConfigurationType"/>
     </extensions>
-
-    <project-components>
-        <component>
-            <implementation-class>org.jetbrains.sbt.project.LegacyProjectFormatNotifier</implementation-class>
-        </component>
-    </project-components>
 
     <extensions defaultExtensionNs="org.intellij.scala">
         <scalaFileFactory implementation="org.jetbrains.sbt.language.SbtFileFactory" />

@@ -1,13 +1,13 @@
-package org.jetbrains.plugins.scala.testingSupport.scalatest
+package org.jetbrains.plugins.scala.testingSupport.scalatest.generators
 
 import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
 
 /**
  * @author Roman.Shein
- * @since 20.01.2015.
+ * @since 10.02.2015.
  */
-trait FunSpecSingleTestTest extends IntegrationTest {
-  def testFunSpec() {
+trait FunSpecGenerator extends IntegrationTest {
+  def addFunSpec() {
     addFileToProject("FunSpecTest.scala",
       """
         |import org.scalatest._
@@ -24,13 +24,6 @@ trait FunSpecSingleTestTest extends IntegrationTest {
         |  }
         |}
       """.stripMargin
-    )
-
-    runTestByLocation(6, 9, "FunSpecTest.scala",
-      checkConfigAndSettings(_, "FunSpecTest", "FunSpecTest should launch single test"),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", "FunSpecTest", "FunSpecTest", "should launch single test") &&
-          checkResultTreeDoesNotHaveNodes(root, "should not launch other tests"),
-      debug = true
     )
   }
 }

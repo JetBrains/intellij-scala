@@ -113,7 +113,7 @@ public class TestRunConfigurationForm {
         testNameLabel = new JLabel();
         testNameLabel.setText("Test Name:");
         panel1.add(testNameLabel, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        testNameTextField = new JTextField();
+        testNameTextField = new JTextArea();
         panel1.add(testNameTextField, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         final JLabel label5 = new JLabel();
         label5.setText("Use classpath and SDK of module:");
@@ -160,7 +160,7 @@ public class TestRunConfigurationForm {
     }
 
     private JComboBox kindComboBox;
-    private JTextField testNameTextField;
+    private JTextArea testNameTextField;
     private JLabel testNameLabel;
     private JCheckBox myShowProgressMessagesCheckBox;
     private EnvironmentVariablesComponent environmentVariables;
