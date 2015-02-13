@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
+import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
 
 /**
  * @author Nikolay.Tropin
  */
 class ReverseIterator(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
-  override def hint: String = "Replace .reverse.iterator with .reverseIterator"
+  override def hint: String = InspectionBundle.message("replace.reverse.iterator")
 
   override def getSimplification(last: MethodRepr, second: MethodRepr): List[Simplification] = {
     (last.optionalMethodRef, second.optionalMethodRef) match {
