@@ -913,6 +913,10 @@
                        displayName="Replace xs.zip(xs.indices) with xs.zipWithIndex" groupName="Scala: Collections"
                        shortName="ZipWithIndex" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ZeroIndexToHeadInspection"
+                       displayName="Replace getting value by zero index with head" groupName="Scala: Collections"
+                       shortName="ZeroIndexToHead" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantCollectionConversionInspection"
                        displayName="Redundant collection conversion" groupName="Scala: Collections"
                        shortName="RedundantCollectionConversion" level="WARNING"
