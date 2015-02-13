@@ -909,6 +909,10 @@
                        displayName="reverse.iterator to reverseIterator" groupName="Scala: Collections"
                        shortName="ReverseIterator" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ZipWithIndexInspection"
+                       displayName="Replace xs.zip(xs.indices) with xs.zipWithIndex" groupName="Scala: Collections"
+                       shortName="ZipWithIndex" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantCollectionConversionInspection"
                        displayName="Redundant collection conversion" groupName="Scala: Collections"
                        shortName="RedundantCollectionConversion" level="WARNING"
