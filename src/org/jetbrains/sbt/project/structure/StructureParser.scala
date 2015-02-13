@@ -91,9 +91,10 @@ object StructureParser {
     val id = (node \ "@id").text
     val sources = (node \ "sources").map(parseDirectory)
     val resources = (node \ "resources").map(parseDirectory)
+    val excludes = (node \ "exclude").map(e => file(e.text))
     val classes = file((node ! "classes").text)
 
-    Configuration(id, sources, resources, classes)
+    Configuration(id, sources, resources, excludes, classes)
   }
 
   private def parseDirectory(node: Node)(implicit fs: FS): Directory = {
