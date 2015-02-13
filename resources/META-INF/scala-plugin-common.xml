@@ -901,6 +901,14 @@
                        displayName="isEmpty replaceable for nonEmpty" groupName="Scala: Collections"
                        shortName="NotIsEmpty" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ReverseMapInspection"
+                       displayName="reverse.map to reverseMap" groupName="Scala: Collections"
+                       shortName="ReverseMap" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ReverseIteratorInspection"
+                       displayName="reverse.iterator to reverseIterator" groupName="Scala: Collections"
+                       shortName="ReverseIterator" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantCollectionConversionInspection"
                        displayName="Redundant collection conversion" groupName="Scala: Collections"
                        shortName="RedundantCollectionConversion" level="WARNING"
