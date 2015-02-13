@@ -1,13 +1,13 @@
-package org.jetbrains.plugins.scala.testingSupport.scalatest
+package org.jetbrains.plugins.scala.testingSupport.scalatest.generators
 
 import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
 
 /**
  * @author Roman.Shein
- * @since 20.01.2015.
+ * @since 10.02.2015.
  */
-trait PropSpecSingleTestTest extends IntegrationTest {
-  def testPropSpec() {
+trait PropSpecGenerator extends IntegrationTest {
+  def addPropSpec() {
     addFileToProject("PropSpecTest.scala",
       """
         |import org.scalatest._
@@ -23,13 +23,6 @@ trait PropSpecSingleTestTest extends IntegrationTest {
         |  }
         |}
       """.stripMargin
-    )
-
-    runTestByLocation(5, 5, "PropSpecTest.scala",
-      checkConfigAndSettings(_, "PropSpecTest", "Single tests should run"),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", "PropSpecTest", "Single tests should run") &&
-          checkResultTreeDoesNotHaveNodes(root, "other tests should not run"),
-      debug = true
     )
   }
 }

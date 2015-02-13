@@ -50,23 +50,32 @@ class ScalaTestLocationProvider extends TestLocationProvider {
           case ScalaTestTopOfClassPattern(className, testName) =>
             val clazz: PsiClass = ScalaPsiManager.instance(project).getCachedClass(className,
               GlobalSearchScope.allScope(project), ScalaPsiManager.ClassCategory.TYPE)
-            if (clazz != null) res.add(new PsiLocationWithName(project, clazz, testName))
+            if (clazz != null) res.add(new PsiLocationWithName(project, clazz, testName)) else {
+              val obj: PsiClass = ScalaPsiManager.instance(project).getCachedClass(className,
+              GlobalSearchScope.allScope(project), ScalaPsiManager.ClassCategory.OBJECT)
+              if (obj != null) res.add(new PsiLocationWithName(project, obj, testName))
+            }
           case ScalaTestTopOfMethodPattern(className, methodName, testName) =>
             val clazz: PsiClass = ScalaPsiManager.instance(project).getCachedClass(className,
               GlobalSearchScope.allScope(project), ScalaPsiManager.ClassCategory.TYPE)
-            clazz match {
+            val methodOwner = if (clazz != null) clazz else {
+              val obj = ScalaPsiManager.instance(project).getCachedClass(className,
+                GlobalSearchScope.allScope(project), ScalaPsiManager.ClassCategory.OBJECT)
+              obj
+            }
+            methodOwner match {
               case td: ScTypeDefinition =>
                 td.signaturesByName(methodName).foreach {
                   case signature: PhysicalSignature =>
                     res.add(new PsiLocationWithName(project, signature.method, testName))
                 }
               case _ =>
-                if (clazz != null) {
-                  val methods = clazz.findMethodsByName(methodName, false)
-                  methods.foreach {
-                    method => res.add(new PsiLocationWithName(project, method, testName))
-                  }
-                }
+            }
+            if (res.isEmpty && methodOwner != null) {
+              val methods = methodOwner.findMethodsByName(methodName, false)
+              methods.foreach {
+                method => res.add(new PsiLocationWithName(project, method, testName))
+              }
             }
           case ScalaTestLineInFinePattern(className, fileName, lineNumber, testName) =>
             val clazzes: Array[PsiClass] =

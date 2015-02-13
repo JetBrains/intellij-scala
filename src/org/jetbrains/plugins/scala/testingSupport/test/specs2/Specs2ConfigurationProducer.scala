@@ -98,7 +98,7 @@ class Specs2ConfigurationProducer extends {
 
     val parentLiteral: ScLiteral = PsiTreeUtil.getParentOfType(element, classOf[ScLiteral], false)
     val testClassPath = parent.qualifiedName
-    val testClassName = Option(parentLiteral) match {
+    val testName = Option(parentLiteral) match {
       case Some(x) if x.isString =>
         x.getValue match {
           case exampleName: String if exampleName.nonEmpty =>
@@ -110,11 +110,11 @@ class Specs2ConfigurationProducer extends {
 
     configuration match {
       case configuration: Specs2RunConfiguration if configuration.getTestKind == TestKind.CLASS &&
-        testClassName == null =>
+        testName == null =>
         testClassPath == configuration.getTestClassPath
       case configuration: Specs2RunConfiguration if configuration.getTestKind == TestKind.TEST_NAME =>
-        testClassPath == configuration.getTestClassPath && testClassName != null &&
-          testClassName == configuration.getTestName
+        testClassPath == configuration.getTestClassPath && testName != null &&
+          testName == configuration.getTestName
       case _ => false
     }
   }
@@ -138,7 +138,7 @@ class Specs2ConfigurationProducer extends {
       case Some(x) if x.isString =>
         x.getValue match {
           case exampleName: String if exampleName.nonEmpty =>
-            exampleName
+            escapeTestName(exampleName)
           case _ =>
             null
         }
