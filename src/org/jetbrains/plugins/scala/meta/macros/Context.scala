@@ -1,11 +1,15 @@
-package org.jetbrains.plugins.scala.metahost.semantic
+package org.jetbrains.plugins.scala.meta.macros
 
-import scala.meta._
 import scala.{Seq => _}
 import scala.collection.immutable.Seq
+import scala.meta._
 
-class Context extends semantic.Context {
+class Context extends macros.Context {
   override def dialect: Dialect = ???
+  override def warning(msg: String) = ???
+  override def error(msg: String) = ???
+  override def abort(msg: String) = ???
+  override def resources = ???
 
   override def desugar(term: Term): Term = ???
   override def tpe(term: Term): Type = ???
