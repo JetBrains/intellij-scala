@@ -27,8 +27,8 @@ class ChangeTypeFix(typeElement: ScTypeElement, newType: ScType) extends Intenti
     if (!FileModificationService.getInstance.prepareFileForWrite(typeElement.getContainingFile)) return
     if (typeElement.getParent == null || typeElement.getParent.getNode == null) return
     val newTypeElement = ScalaPsiElementFactory.createTypeElementFromText(newType.canonicalText, typeElement.getManager)
-    typeElement.replace(newTypeElement)
-    ScalaPsiUtil.adjustTypes(newTypeElement)
+    val replaced = typeElement.replace(newTypeElement)
+    ScalaPsiUtil.adjustTypes(replaced)
     UndoUtil.markPsiFileForUndo(file)
   }
 }

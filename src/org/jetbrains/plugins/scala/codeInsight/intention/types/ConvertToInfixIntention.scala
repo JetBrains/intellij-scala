@@ -38,13 +38,14 @@ class ConvertToInfixIntention extends PsiElementBaseIntentionAction {
     }
     val newTypeText = Seq(targ1, paramTypeElement.typeElement, targ2).map(_.getText).mkString(" ").parenthesisedIf(needParens)
     val newTypeElement = ScalaPsiElementFactory.createTypeElementFromText(newTypeText, element.getManager)
-    if (paramTypeElement.isValid)
-    try {
-      paramTypeElement.replace(newTypeElement)
-    } catch {
-      case npe: NullPointerException =>
-        throw new RuntimeException("Unable to replace: %s with %s".format(paramTypeElement, newTypeText), npe)
+    if (paramTypeElement.isValid) {
+      val replaced = try {
+        paramTypeElement.replace(newTypeElement)
+      } catch {
+        case npe: NullPointerException =>
+          throw new RuntimeException("Unable to replace: %s with %s".format(paramTypeElement, newTypeText), npe)
+      }
+      UndoUtil.markPsiFileForUndo(replaced.getContainingFile)
     }
-    UndoUtil.markPsiFileForUndo(newTypeElement.getContainingFile)
   }
 }
