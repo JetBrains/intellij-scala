@@ -127,8 +127,9 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
     inWriteAction {
       for (u <- underscores) {
         val param = underscoreToParam.get(u)
-        u.replace(param.get)
-        offsets.put(param.get.name, param.get.getTextRange.getStartOffset)
+        val replaced = u.replace(param.get).asInstanceOf[ScParameter]
+        underscoreToParam.put(u, replaced)
+        offsets.put(param.get.name, replaced.getTextRange.getStartOffset)
       }
     }
 
