@@ -20,6 +20,7 @@ class Context extends macros.Context {
   override def lub(tpes: Seq[Type]): Type = ???
   override def glb(tpes: Seq[Type]): Type = ???
   override def widen(tpe: Type): Type = ???
+  override def parents(tpe: Type): Seq[Type] = ???
   override def dealias(tpe: Type): Type = ???
 
   override def parents(member: Member): Seq[Member] = ???

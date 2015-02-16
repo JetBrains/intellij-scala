@@ -47,9 +47,9 @@ object TypeAdapter {
       if(tp.isCovariant) metast.Mod.Covariant() :: Nil else if(tp.isContravariant) metast.Mod.Contravariant() :: Nil else Nil,
       if (tp.name != "_") metast.Type.Name(tp.name) else metast.Name.Anonymous(),
       Seq(tp.typeParameters.map(TypeAdapter(_)):_*),
-      contextBounds(tp),
+      TypeAdapter.typeBounds(tp),
       viewBounds(tp),
-      TypeAdapter.typeBounds(tp)
+      contextBounds(tp)
     )
   }
 
