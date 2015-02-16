@@ -22,25 +22,23 @@ class TreeConverterTest extends SimpleTestCase {
     dummyFile.getFirstChild.asInstanceOf[ScalaPsiElement]
   }
 
-  def treesEq(a: Tree, b: Tree): Boolean = {
-    def seqEq(t1: Seq[Tree], t2: Seq[Tree]): Boolean = {
-      t1.zip(t2).forall { case(st1, st2) => treesEq(st1, st2) }
+  private def structuralEquals(tree1: Tree, tree2: Tree): Boolean = {
+    // NOTE: for an exhaustive list of tree field types see
+    // see /foundation/src/main/scala/org/scalameta/ast/internal.scala
+    def loop(x1: Any, x2: Any): Boolean = (x1, x2) match {
+      case (x1: Tree, x2: Tree) => structuralEquals(x1, x2)
+      case (Some(x1), Some(x2)) => loop(x1, x2)
+      case (Seq(xs1 @ _*), Seq(xs2 @ _*)) => xs1.zip(xs2).forall{ case (x1, x2) => loop(x1, x2) }
+      case (x1, x2) => x1 == x2
     }
-    val ai = a.productIterator
-    val bi = b.productIterator
-    (a.getClass == b.getClass) && ai.zip(bi).forall {
-      case (t1: Tree, t2: Tree) => treesEq(t1, t2)
-      case (Some(st1:Tree), Some(st2:Tree)) => treesEq(st1, st2)
-      case (t1: Seq[Tree], t2: Seq[Tree])   => seqEq(t1, t2)
-      case (t1: Seq[Seq[Tree]], t2: Seq[Seq[Tree]]) =>
-        t1.zip(t2).forall { case(st1, st2) => seqEq(st1, st2) }
-      case (prim1, prim2)                   => prim1.equals(prim2)
-    }
+    def tagsEqual = tree1.$tag == tree2.$tag
+    def fieldsEqual = tree1.productIterator.toList.zip(tree2.productIterator.toList).forall{ case (x1, x2) => loop(x1, x2) }
+    tagsEqual && fieldsEqual
   }
-  
+
   def doTest(text: String, tree: Tree) = {
     val converted = TreeAdapter.ideaToMeta(text)
-    assert(treesEq(converted, tree), s"$converted <=> $tree")
+    assert(structuralEquals(converted, tree), s"$converted <=> $tree")
     assert(converted.toString() ==  tree.toString(), s"TEXT: $converted <=> $tree")
   }
 
@@ -143,6 +141,49 @@ class TreeConverterTest extends SimpleTestCase {
       Decl.Type(Nil, Type.Name("F"),
         Type.Param(Mod.Contravariant() :: Nil, Type.Name("T"), Nil, Type.Bounds(None, None), Nil, Nil) :: Nil,
         Type.Bounds(None, None))
+    )
+  }
+
+  def testDefNoReturnType() {
+    doTest(
+      "def f",
+      Decl.Def(Nil, Term.Name("f"), Nil, Nil, Type.Name("Unit"))
+    )
+  }
+
+  def testDefWithReturnType() {
+    doTest(
+      "def f: Int",
+      Decl.Def(Nil, Term.Name("f"), Nil, Nil, Type.Name("Int"))
+    )
+  }
+
+  def testDefOneParameter(): Unit = {
+    doTest(
+      "def f(x: Int)",
+      Decl.Def(Nil, Term.Name("f"), Nil,
+        (Term.Param(Nil, Term.Name("x"), Some(Type.Name("Int")), None) :: Nil) :: Nil,
+        Type.Name("Unit"))
+    )
+  }
+
+  def testDefManyParameters(): Unit = {
+    doTest(
+      "def f(x: Int, y: Int)",
+      Decl.Def(Nil, Term.Name("f"), Nil,
+        (Term.Param(Nil, Term.Name("x"), Some(Type.Name("Int")), None) :: Term.Param(Nil, Term.Name("y"), Some(Type.Name("Int")), None)  :: Nil) :: Nil,
+        Type.Name("Unit"))
+    )
+  }
+
+  def testDefMiltiParameterList(): Unit = {
+    doTest(
+      "def f(x: Int)(y: Int)",
+      Decl.Def(Nil, Term.Name("f"), Nil,
+        (Term.Param(Nil, Term.Name("x"), Some(Type.Name("Int")), None) :: Nil) ::
+          (Term.Param(Nil, Term.Name("y"), Some(Type.Name("Int")), None) :: Nil)
+          ::  Nil,
+        Type.Name("Unit"))
     )
   }
 }
