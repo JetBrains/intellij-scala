@@ -30,6 +30,7 @@
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtProjectDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtModuleDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.Play2StubDataService"/>
+        <externalSystemConfigLocator implementation="org.jetbrains.sbt.project.SbtConfigLocator"/>
         <!--<externalProjectDataService implementation="org.jetbrains.sbt.project.data.RunConfigurationDataService"/>-->
 
         <projectService serviceImplementation="org.jetbrains.sbt.settings.SbtSystemSettings"/>
