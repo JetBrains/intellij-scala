@@ -15,6 +15,7 @@ class Context extends semantic.Context {
   override def isSubType(tpe1: Type, tpe2: Type): Boolean = ???
   override def lub(tpes: Seq[Type]): Type = ???
   override def glb(tpes: Seq[Type]): Type = ???
+  override def parents(tpe: Type): Seq[Type] = ???
   override def widen(tpe: Type): Type = ???
   override def dealias(tpe: Type): Type = ???
 

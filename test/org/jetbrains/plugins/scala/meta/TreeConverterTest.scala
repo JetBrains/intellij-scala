@@ -105,7 +105,7 @@ class TreeConverterTest extends SimpleTestCase {
     doTest(
       "type F[T]",
       Decl.Type(Nil, Type.Name("F"),
-        Type.Param(Nil, Type.Name("T"), Nil, Nil, Nil, Type.Bounds(None, None)) :: Nil,
+        Type.Param(Nil, Type.Name("T"), Nil, Type.Bounds(None, None), Nil, Nil) :: Nil,
         Type.Bounds(None, None))
     )
   }
@@ -114,16 +114,16 @@ class TreeConverterTest extends SimpleTestCase {
     doTest(
       "type F[_]",
       Decl.Type(Nil, Type.Name("F"),
-        Type.Param(Nil, Name.Anonymous(), Nil, Nil, Nil, Type.Bounds(None, None)) :: Nil,
+        Type.Param(Nil, Name.Anonymous(), Nil, Type.Bounds(None, None), Nil, Nil) :: Nil,
         Type.Bounds(None, None))
     )
   }
 
   def testParametrizedWithUpperBoundType() {
     doTest(
-      "type F[A <: Any]",
+      "type F[T <: Any]",
       Decl.Type(Nil, Type.Name("F"),
-        Type.Param(Nil, Type.Name("T"), Nil, Nil, Nil, Type.Bounds(None, Some(Type.Name("Any")))) :: Nil,
+        Type.Param(Nil, Type.Name("T"), Nil, Type.Bounds(None, Some(Type.Name("Any"))), Nil, Nil) :: Nil,
         Type.Bounds(None, None))
     )
   }
@@ -132,7 +132,7 @@ class TreeConverterTest extends SimpleTestCase {
     doTest(
       "type F[+T]",
       Decl.Type(Nil, Type.Name("F"),
-        Type.Param(Mod.Covariant() :: Nil, Type.Name("T"), Nil, Nil, Nil, Type.Bounds(None, None)) :: Nil,
+        Type.Param(Mod.Covariant() :: Nil, Type.Name("T"), Nil, Type.Bounds(None, None), Nil, Nil) :: Nil,
         Type.Bounds(None, None))
     )
   }
@@ -141,7 +141,7 @@ class TreeConverterTest extends SimpleTestCase {
     doTest(
       "type F[-T]",
       Decl.Type(Nil, Type.Name("F"),
-        Type.Param(Mod.Contravariant() :: Nil, Type.Name("T"), Nil, Nil, Nil, Type.Bounds(None, None)) :: Nil,
+        Type.Param(Mod.Contravariant() :: Nil, Type.Name("T"), Nil, Type.Bounds(None, None), Nil, Nil) :: Nil,
         Type.Bounds(None, None))
     )
   }
