@@ -40,7 +40,11 @@ object TreeAdapter {
 
   def convertParams(params: p.statements.params.ScParameterClause): Seq[Param] = {
       Seq(params.parameters.map {
-        param => m.Term.Param(Nil, m.Term.Name(param.name), param.typeElement.map(TypeAdapter(_)), None)
+        param =>
+          if(param.isVarArgs)
+           m.Term.Param(Nil, m.Term.Name(param.name),  param.typeElement.map(tp=>m.Type.Arg.Repeated(TypeAdapter(tp))), None)
+          else
+            m.Term.Param(Nil, m.Term.Name(param.name), param.typeElement.map(TypeAdapter(_)), None)
       }: _*)
   }
 
@@ -55,6 +59,7 @@ object TreeAdapter {
 object TypeAdapter {
 
   def apply(tp: p.base.types.ScTypeElement): m.Type = {
+
     tp match {
       case t: p.base.types.ScSimpleTypeElement =>
         m.Type.Name(t.calcType.canonicalText)
