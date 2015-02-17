@@ -205,4 +205,11 @@ class TreeConverterTest extends SimpleTestCase {
           Some(Type.Function(List(Type.Name("Int"), Type.Name("Any")), Type.Name("Any"))), None))), Type.Name("Unit"))
     )
   }
+  
+  def testDefVararg() {
+    doTest(
+      "def f (a: Int*)",
+      Decl.Def(Nil, Term.Name("f"), Nil, List(List(Term.Param(Nil, Term.Name("a"), Some(Type.Arg.Repeated(Type.Name("Int"))), None))), Type.Name("Unit"))
+    )
+  }
 }
