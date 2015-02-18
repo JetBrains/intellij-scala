@@ -817,10 +817,6 @@
                          displayName="Suspicious forward reference" groupName="Scala: General"
                          shortName="ForwardReference" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.arraySize.ArraySizeCallInspection"
-                         displayName="Call to Array.size" groupName="Scala: General"
-                         shortName="ArraySizeCall" level="WARNING"
-                         enabledByDefault="false" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeAnnotation.TypeAnnotationInspection"
                          displayName="Type annotation required" groupName="Scala: General"
                          shortName="TypeAnnotation" level="WARNING"
@@ -965,6 +961,11 @@
                        displayName="Side effects in a monadic transformation" groupName="Scala: Collections"
                        shortName="SideEffectsInMonadicTransformation" level="WARNING"
                        enabledByDefault="false" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SizeToLengthInspection"
+                       displayName="Replace .size to .length on arrays and strings" groupName="Scala: Collections"
+                       shortName="SizeToLength" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+
 
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
