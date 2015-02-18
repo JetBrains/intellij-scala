@@ -28,6 +28,9 @@ class FilterSizeCheck(inspection: OperationOnCollectionInspection) extends Simpl
         lhs match {
           case MethodSeq(last, second, _*) =>
             val innerSmpl = new FilterSize(inspection).getSimplification(last, second)
+
+            if (OperationOnCollectionsUtil.exprsWithSideEffect(second.itself).nonEmpty) return Nil
+
             (innerSmpl, oper.refName, arg.getText) match {
               case (Nil, _, _) => Nil
               case (_, ">", "0") | (_, ">=", "1") =>
