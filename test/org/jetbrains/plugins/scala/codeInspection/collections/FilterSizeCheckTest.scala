@@ -43,5 +43,16 @@ class FilterSizeCheckTest extends OperationsOnCollectionInspectionTest {
     checkTextHasNoErrors(text, hint, inspectionClass)
   }
 
+  def testWithSideEffect(): Unit = {
+    val text =
+      """var z = 1
+        |Seq(0).filter { x =>
+        |  z = x
+        |  true
+        |}.size > 0
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
+
   override val inspectionClass = classOf[FilterSizeCheckInspection]
 }
