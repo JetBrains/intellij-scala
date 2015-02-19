@@ -32,6 +32,13 @@ object TreeAdapter {
       case t: p.statements.ScVariableDefinition =>
         def pattern(bp: p.base.patterns.ScBindingPattern) = m.Pat.Var.Term(m.Term.Name(bp.name))
         m.Defn.Var(convertMods(t), Stream(t.bindings.map(pattern):_*), t.declaredType.map(TypeAdapter(_)), expression(t.expr))
+      case t: p.statements.ScFunctionDefinition =>
+        m.Defn.Def(convertMods(t), m.Term.Name(t.name),
+          Stream(t.typeParameters map {TypeAdapter(_)}:_*),
+          Stream(t.paramClauses.clauses.map(convertParams):_*),
+          t.definedReturnType.map(TypeAdapter(_)).toOption,
+          expression(t.body).get
+        )
       case other => println(other.getClass); ???
     }
   }
