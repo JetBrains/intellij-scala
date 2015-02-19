@@ -30,7 +30,7 @@ class SbtIvyCacheIndexer(val cacheDir: File) {
       val group    = (xml \\ "ivy-module" \\ "info" \\ "@organisation").text
       val artifact = (xml \\ "ivy-module" \\ "info" \\ "@module").text
       val version  = (xml \\ "ivy-module" \\ "info" \\ "@revision").text
-      Some(new ArtifactInfo("", group, artifact, version, ""))
+      Some(new ArtifactInfo("", group, artifact, version, "", ""))
     } catch {
       case e : Throwable => None
     }
