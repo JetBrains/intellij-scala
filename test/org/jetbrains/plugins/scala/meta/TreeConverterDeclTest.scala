@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala.meta
 
-import org.jetbrains.plugins.scala.base.SimpleTestCase
-
 import scala.meta.internal.ast._
 
 
-class TreeConverterDeclTest extends SimpleTestCase with TreeConverterTestBase {
+class TreeConverterDeclTest extends TreeConverterTestBase {
 
   def testVal() {
     doTest(
