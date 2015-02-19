@@ -41,4 +41,11 @@ class TreeConverterDefnTest extends  TreeConverterTestBase {
     )
   }
 
+  def testDef(): Unit = {
+    doTest(
+      "def f = 2",
+      Defn.Def(Nil, Term.Name("f"), Nil, Nil, None, Lit.Int(2))
+    )
+  }
+
 }
