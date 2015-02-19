@@ -1,7 +1,6 @@
 package org.jetbrains.sbt.project.template.activator
 
-import java.io.{File, FileOutputStream, IOException, OutputStream}
-import java.util.Locale
+import java.io._
 
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.io.FileUtil
@@ -19,7 +18,7 @@ object ActivatorDownloadUtil {
     val parentDirExists: Boolean = FileUtil.createParentDirs(outputFile)
     if (!parentDirExists) throw new IOException("Parent dir of '" + outputFile.getAbsolutePath + "' can not be created!")
 
-    val out = new FileOutputStream(outputFile)
+    val out = new BufferedOutputStream(new FileOutputStream(outputFile))
     try {
       download(progress, url, out)
     } finally out.close()
