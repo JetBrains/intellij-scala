@@ -12,8 +12,8 @@ import com.intellij.util.net.HttpConfigurable
 import org.apache.lucene.document.Document
 import org.apache.lucene.index.{DirectoryReader, IndexReader}
 import org.apache.lucene.store.FSDirectory
+import org.jetbrains.plugins.scala.project.template
 
-import scala.collection.mutable
 
 /**
  * User: Dmitry.Naydanov
@@ -81,29 +81,30 @@ class ActivatorRepoProcessor {
     var reader: IndexReader = null
 
     try {
-      val extracted = FileUtil.createTempDirectory("index-activator", null, true)
-      ZipUtil.extract(location, extracted, null)
+      template.usingTempDirectory("index-activator", None) {
+        extracted =>
 
-      import org.apache.lucene
-      import org.apache.lucene.index.IndexReader
-      import org.apache.lucene.search.IndexSearcher
+          ZipUtil.extract(location, extracted, null)
 
-      val loader = getClass.getClassLoader match { //hack to avoid lucene 2.4.1 from bundled maven plugin
-        case urlLoader: URLClassLoader =>
-          new URLClassLoader(urlLoader.getURLs, null)
-        case other => other
+          import org.apache.lucene
+          import org.apache.lucene.search.IndexSearcher
+
+          val loader = getClass.getClassLoader match { //hack to avoid lucene 2.4.1 from bundled maven plugin
+            case urlLoader: URLClassLoader =>
+              new URLClassLoader(urlLoader.getURLs, null)
+            case other => other
+          }
+          loader.loadClass("org.apache.lucene.store.FSDirectory")
+
+          reader = DirectoryReader.open(FSDirectory.open(extracted))
+          val searcher = new IndexSearcher(reader)
+          val docs = searcher.search(new lucene.search.MatchAllDocsQuery, reader.maxDoc())
+          val data = docs.scoreDocs.map { case doc => reader document doc.doc }
+
+          data.map {
+            case docData => Keys.from(docData)
+          }.toMap
       }
-      loader.loadClass("org.apache.lucene.store.FSDirectory")
-
-      reader = DirectoryReader.open(FSDirectory.open(extracted))
-      val searcher = new IndexSearcher(reader)
-      val docs = searcher.search(new lucene.search.MatchAllDocsQuery, reader.maxDoc())
-      val data = docs.scoreDocs.map { case doc => reader document doc.doc }
-
-      data.map {
-        case docData => Keys.from(docData)
-      }.toMap
-
     } catch {
       case io: IOException =>
         error("Can't process templates list", io)
