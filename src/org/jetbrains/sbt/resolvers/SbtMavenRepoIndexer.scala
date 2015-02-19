@@ -1,12 +1,14 @@
 package org.jetbrains.sbt
 package resolvers
 
-import java.io.{IOException, Closeable, File}
+import java.io.{Closeable, File}
 
-import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator}
+import com.intellij.openapi.progress.ProgressIndicator
 import org.apache.maven.index._
+import org.apache.maven.index.artifact.DefaultArtifactPackagingMapper
 import org.apache.maven.index.context.{IndexCreator, IndexUtils, IndexingContext}
-import org.apache.maven.index.updater.{IndexUpdateRequest, IndexUpdater, WagonHelper}
+import org.apache.maven.index.incremental.DefaultIncrementalHandler
+import org.apache.maven.index.updater.{DefaultIndexUpdater, IndexUpdateRequest, WagonHelper}
 import org.apache.maven.wagon.Wagon
 import org.apache.maven.wagon.events.TransferEvent
 import org.apache.maven.wagon.observers.AbstractTransferListener
@@ -29,8 +31,11 @@ class SbtMavenRepoIndexer private (val root: String, val indexDir: File) extends
   Thread.currentThread().setContextClassLoader(classOf[Indexer].getClassLoader)
 
   private val container = new DefaultPlexusContainer()
-  private val indexer   = container.lookup(classOf[Indexer])
-  private val updater   = container.lookup(classOf[IndexUpdater])
+
+  private val indexerEngine = new DefaultIndexerEngine
+  private val queryCreator = new DefaultQueryCreator
+  private val indexer   = new DefaultIndexer(new DefaultSearchEngine, indexerEngine, queryCreator)
+  private val updater   = new DefaultIndexUpdater(new DefaultIncrementalHandler, java.util.Collections.emptyList())
   private val httpWagon = container.lookup(classOf[Wagon], "http")
 
   private val indexers = Seq(
@@ -80,7 +85,11 @@ class SbtMavenRepoIndexer private (val root: String, val indexDir: File) extends
     indexer.closeIndexingContext(context, false)
 
       // TODO: when guys from maven-indexer fix their code (or at least Scanner class will work as it should)
-      val nexusIndexer = container.lookup(classOf[NexusIndexer])
+      val nexusIndexer = new DefaultNexusIndexer(
+        indexer,
+        new DefaultScanner(new DefaultArtifactContextProducer(new DefaultArtifactPackagingMapper)),
+        indexerEngine, queryCreator
+      )
       val nexusContext = nexusIndexer.addIndexingContext(root.shaDigest, root.shaDigest, context.getRepository, indexDir, null, null, indexers)
       nexusIndexer.scan(nexusContext, scannerListener, true)
       nexusIndexer.removeIndexingContext(nexusContext, false)
