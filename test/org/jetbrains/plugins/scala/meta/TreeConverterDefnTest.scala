@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.meta
 
-import org.jetbrains.plugins.scala.base.SimpleTestCase
 
 import scala.meta.internal.ast._
 
-class TreeConverterDefnTest extends SimpleTestCase with TreeConverterTestBase {
+class TreeConverterDefnTest extends  TreeConverterTestBase {
 
   def testValInit() {
     doTest(
@@ -31,13 +30,6 @@ class TreeConverterDefnTest extends SimpleTestCase with TreeConverterTestBase {
   def testTypedValInit(): Unit = {
     doTest(
       "val x: Int = 2",
-      Defn.Val(Nil, Pat.Var.Term(Term.Name("x")) :: Nil, Some(Type.Name("Int")), Lit.Int(2))
-    )
-  }
-
-  def testEscapedNameVal(): Unit = {
-    doTest(
-      "val `x`: Int = 2",
       Defn.Val(Nil, Pat.Var.Term(Term.Name("x")) :: Nil, Some(Type.Name("Int")), Lit.Int(2))
     )
   }

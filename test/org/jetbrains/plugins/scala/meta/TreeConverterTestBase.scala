@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala.meta
 import com.intellij.psi.{PsiFileFactory, PsiManager}
 import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.meta.trees.TreeAdapter
 
 import scala.meta.internal.ast.Tree
 
-trait TreeConverterTestBase {
+trait TreeConverterTestBase extends SimpleTestCase {
 
   implicit def psiFromText(text: String): ScalaPsiElement = {
     val manager = PsiManager.getInstance(fixture.getProject)
