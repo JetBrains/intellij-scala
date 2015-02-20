@@ -86,10 +86,12 @@ object TreeAdapter {
   def convertParams(params: p.statements.params.ScParameterClause): Seq[Param] = {
     params.parameters.toStream.map {
         param =>
+
+          val mods = convertMods(param) ++ (if(param.isImplicitParameter) Seq(m.Mod.Implicit()) else Seq.empty)
           if(param.isVarArgs)
-           m.Term.Param(convertMods(param), m.Term.Name(param.name),  param.typeElement.map(tp=>m.Type.Arg.Repeated(TypeAdapter(tp))), None)
+           m.Term.Param(mods, m.Term.Name(param.name),  param.typeElement.map(tp=>m.Type.Arg.Repeated(TypeAdapter(tp))), None)
           else
-            m.Term.Param(convertMods(param), m.Term.Name(param.name), param.typeElement.map(TypeAdapter(_)), None)
+            m.Term.Param(mods, m.Term.Name(param.name), param.typeElement.map(TypeAdapter(_)), None)
       }
   }
 
