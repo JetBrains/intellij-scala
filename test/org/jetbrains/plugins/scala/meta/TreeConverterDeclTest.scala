@@ -183,4 +183,13 @@ class TreeConverterDeclTest extends TreeConverterTestBase {
         Type.Name("Unit"))
     )
   }
+
+  def testDefTypeArgs() {
+    doTest(
+      "def f[T]: T",
+      Decl.Def(Nil, Term.Name("f"),
+        Type.Param(Nil, Type.Name("T"), Nil, Type.Bounds(None, None), Nil, Nil) :: Nil,
+        Nil, Type.Name("T"))
+    )
+  }
 }
