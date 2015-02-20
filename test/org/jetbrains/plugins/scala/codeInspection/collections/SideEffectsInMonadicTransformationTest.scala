@@ -146,15 +146,28 @@ class SideEffectsInMonadicTransformationTest extends OperationsOnCollectionInspe
   }
 
   def testUnitTypeMethod(): Unit = {
-    s"""
-       |import scala.collection.mutable.ArrayBuffer
-       |
-       |val s = ""
-       |Seq(1, 2).map {x =>
-       |  ${START}s.wait(1000)$END
-       |  x
-       |}
-      """.stripMargin
+    check(s"""
+          |val s = ""
+          |Seq(1, 2).map {x =>
+          |  ${START}s.wait(1000)$END
+          |  x
+          |}
+         """.stripMargin)
+
+    check(
+      s"""
+        |Seq("1", "2").map {
+        |    ${START}println(_)$END
+        |}
+      """.stripMargin)
+
+    checkTextHasNoErrors(
+      """
+        |def foo(i: Int) {
+        |   println(i)
+        |}
+        |val x: Seq[(Int) => Unit] = Seq(1, 2).map(x => foo _)
+      """.stripMargin)
   }
 
   def testScalaSetter(): Unit = {
@@ -206,6 +219,28 @@ class SideEffectsInMonadicTransformationTest extends OperationsOnCollectionInspe
          |}
       """.stripMargin
     )
+  }
+
+  def testExpressionsInOtherClasses(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |Seq(1, 2).filter { x =>
+        |  Seq(3, 4).foreach {
+        |    y => println(y)
+        |  }
+        |  true
+        |}
+      """.stripMargin)
+
+    checkTextHasNoErrors(
+      """
+        |Seq(1, 2).filter { x =>
+        |  class Inner {
+        |    def foo() = println(x)
+        |  }
+        |  true
+        |}
+      """.stripMargin)
   }
 
 }

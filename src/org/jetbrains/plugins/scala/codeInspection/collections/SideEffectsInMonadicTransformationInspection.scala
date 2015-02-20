@@ -30,5 +30,5 @@ class SideEffectsInMonadicTransformationInspection extends OperationOnCollection
 }
 
 object SideEffectsInMonadicTransformationInspection {
-  val monadicMethods = Seq("map", "flatMap", "filter", "withFilter")
+  val monadicMethods = Set("map", "flatMap", "filter", "withFilter")
 }
