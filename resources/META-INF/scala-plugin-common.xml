@@ -965,6 +965,10 @@
                        displayName="Replace .size to .length on arrays and strings" groupName="Scala: Collections"
                        shortName="SizeToLength" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.UnitInMapInspection"
+                       displayName="Expression with unit return type in the argument of map" groupName="Scala: Collections"
+                       shortName="UnitInMap" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
 
 
 
