@@ -217,6 +217,8 @@ packageStructure in Compile := {
     libOf("org.apache.lucene" % "lucene-highlighter" % "4.8.1"),
     libOf("org.apache.lucene" % "lucene-memory" % "4.8.1"),
     libOf("org.apache.lucene" % "lucene-queries" % "4.8.1"),
+    libOf("org.eclipse.aether" % "aether-api" % "1.0.0"),
+    libOf("org.eclipse.aether" % "aether-util" % "1.0.0"),
     libOf("org.sonatype.sisu" % "sisu-inject-plexus" % "2.2.3"),
     libOf("org.sonatype.sisu" % "sisu-inject-bean" % "2.2.3"),
     libOf("org.sonatype.sisu" % "sisu-guice" % "3.0.3"),
