@@ -14,28 +14,25 @@ import scala.meta.internal.{ast=>m}
 
 object TreeAdapter {
 
-  def convert[T](sq: collection.mutable.Seq[T]): collection.immutable.Seq[T] =
-    collection.immutable.Seq[T](sq:_*)
-
   def ideaToMeta(tree: ScalaPsiElement): m.Tree = {
     tree match {
       case t: p.statements.ScValueDeclaration =>
-        m.Decl.Val(Nil, Stream(t.getIdList.fieldIds map { it => m.Pat.Var.Term(m.Term.Name(it.name))}: _*), TypeAdapter(t.typeElement.get.calcType))
+        m.Decl.Val(Nil, t.getIdList.fieldIds.toStream map { it => m.Pat.Var.Term(m.Term.Name(it.name))}, TypeAdapter(t.typeElement.get.calcType))
       case t: p.statements.ScVariableDeclaration =>
-        m.Decl.Var(Nil, Stream(t.getIdList.fieldIds map { it => m.Pat.Var.Term(m.Term.Name(it.name))}: _*), TypeAdapter(t.typeElement.get.calcType))
+        m.Decl.Var(Nil, t.getIdList.fieldIds.toStream map { it => m.Pat.Var.Term(m.Term.Name(it.name))}, TypeAdapter(t.typeElement.get.calcType))
       case t: p.statements.ScTypeAliasDeclaration =>
-        m.Decl.Type(Nil, m.Type.Name(t.name), Stream(t.typeParameters map {TypeAdapter(_)}:_*), TypeAdapter.typeBounds(t))
+        m.Decl.Type(Nil, m.Type.Name(t.name), t.typeParameters.toStream map {TypeAdapter(_)}, TypeAdapter.typeBounds(t))
       case t: p.statements.ScFunctionDeclaration =>
-        m.Decl.Def(convertMods(t), m.Term.Name(t.name), Stream(t.typeParameters map {TypeAdapter(_)}:_*), Stream(t.paramClauses.clauses.map(convertParams):_*), returnType(t.typeElement))
+        m.Decl.Def(convertMods(t), m.Term.Name(t.name), t.typeParameters.toStream map {TypeAdapter(_)}, t.paramClauses.clauses.toStream.map(convertParams), returnType(t.typeElement))
       case t: p.statements.ScPatternDefinition =>
         patternDefinition(t)
       case t: p.statements.ScVariableDefinition =>
         def pattern(bp: p.base.patterns.ScBindingPattern) = m.Pat.Var.Term(m.Term.Name(bp.name))
-        m.Defn.Var(convertMods(t), Stream(t.bindings.map(pattern):_*), t.declaredType.map(TypeAdapter(_)), expression(t.expr))
+        m.Defn.Var(convertMods(t), t.bindings.toStream.map(pattern), t.declaredType.map(TypeAdapter(_)), expression(t.expr))
       case t: p.statements.ScFunctionDefinition =>
         m.Defn.Def(convertMods(t), m.Term.Name(t.name),
-          Stream(t.typeParameters map {TypeAdapter(_)}:_*),
-          Stream(t.paramClauses.clauses.map(convertParams):_*),
+          t.typeParameters.toStream map {TypeAdapter(_)},
+          t.paramClauses.clauses.toStream.map(convertParams),
           t.definedReturnType.map(TypeAdapter(_)).toOption,
           expression(t.body).get
         )
@@ -73,9 +70,9 @@ object TreeAdapter {
     }
 
     if(t.bindings.exists(_.isVal))
-      m.Defn.Val(convertMods(t), Stream(t.bindings.map(pattern):_*), t.declaredType.map(TypeAdapter(_)), expression(t.expr).get)
+      m.Defn.Val(convertMods(t), t.bindings.toStream.map(pattern), t.declaredType.map(TypeAdapter(_)), expression(t.expr).get)
     else if(t.bindings.exists(_.isVar))
-      m.Defn.Var(convertMods(t), Stream(t.bindings.map(pattern):_*), t.declaredType.map(TypeAdapter(_)), expression(t.expr))
+      m.Defn.Var(convertMods(t), t.bindings.toStream.map(pattern), t.declaredType.map(TypeAdapter(_)), expression(t.expr))
     else ???
   }
 
@@ -87,13 +84,13 @@ object TreeAdapter {
   }
 
   def convertParams(params: p.statements.params.ScParameterClause): Seq[Param] = {
-    Stream(params.parameters.map {
+    params.parameters.toStream.map {
         param =>
           if(param.isVarArgs)
            m.Term.Param(convertMods(param), m.Term.Name(param.name),  param.typeElement.map(tp=>m.Type.Arg.Repeated(TypeAdapter(tp))), None)
           else
             m.Term.Param(convertMods(param), m.Term.Name(param.name), param.typeElement.map(TypeAdapter(_)), None)
-      }: _*)
+      }
   }
 
   def returnType(tp: Option[ScTypeElement]): m.Type = {
@@ -117,7 +114,7 @@ object TypeAdapter {
           case param => m.Type.Function(Seq(param), TypeAdapter(t.returnTypeElement.get))
         }
       case t: p.base.types.ScParameterizedTypeElement =>
-        m.Type.Apply(m.Type.Name(t.typeElement.calcType.canonicalText), Stream(t.typeArgList.typeArgs.map(TypeAdapter(_)): _*))
+        m.Type.Apply(m.Type.Name(t.typeElement.calcType.canonicalText), t.typeArgList.typeArgs.toStream.map(TypeAdapter(_)))
       case t: p.base.types.ScTupleTypeElement =>
         m.Type.Tuple(Seq(t.components.map(TypeAdapter(_)):_*))
       case _ => ???
@@ -127,7 +124,7 @@ object TypeAdapter {
   def apply(tp: ptype.ScType): m.Type = {
 
     tp match {
-      case t: ptype.ScParameterizedType => m.Type.Apply(m.Type.Name(t.canonicalText), Stream(t.typeArgs.map(TypeAdapter(_)): _*))
+      case t: ptype.ScParameterizedType => m.Type.Apply(m.Type.Name(t.canonicalText), t.typeArgs.toStream.map(TypeAdapter(_)))
       case t: ptype.ScType => m.Type.Name(t.canonicalText)
 
     }
@@ -137,7 +134,7 @@ object TypeAdapter {
     m.Type.Param(
       if(tp.isCovariant) m.Mod.Covariant() :: Nil else if(tp.isContravariant) m.Mod.Contravariant() :: Nil else Nil,
       if (tp.name != "_") m.Type.Name(tp.name) else m.Name.Anonymous(),
-      Stream(tp.typeParameters.map(TypeAdapter(_)):_*),
+      tp.typeParameters.toStream.map(TypeAdapter(_)),
       TypeAdapter.typeBounds(tp),
       viewBounds(tp),
       contextBounds(tp)
@@ -145,11 +142,11 @@ object TypeAdapter {
   }
 
   def viewBounds(tp: p.toplevel.ScTypeBoundsOwner): Seq[m.Type] = {
-    Stream(tp.viewTypeElement.map(TypeAdapter(_)):_*)
+    tp.viewTypeElement.toStream.map(TypeAdapter(_))
   }
 
   def contextBounds(tp: p.toplevel.ScTypeBoundsOwner): Seq[m.Type] = {
-    Stream(tp.viewTypeElement.map(TypeAdapter(_)):_*)
+    tp.viewTypeElement.toStream.map(TypeAdapter(_))
   }
 
   def typeBounds(tp: p.toplevel.ScTypeBoundsOwner): m.Type.Bounds = {
