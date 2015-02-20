@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.{api => p}
 import org.jetbrains.plugins.scala.lang.psi.{types => ptype}
 
 import scala.meta.internal.{ast=>m}
+import scala.meta.internal.{hygiene => h}
 
 object TreeAdapter {
 
@@ -43,6 +44,13 @@ object TreeAdapter {
   def expression(tree: Option[p.expr.ScExpression]): Option[m.Term] = {
     tree match {
       case Some(t: p.base.ScLiteral) => Some(literal(t))
+      case Some(t: p.expr.ScInfixExpr) =>
+        if (!t.isAssignmentOperator) {
+//          m.Term.ApplyInfix(m.Term.Name("a"), Term.Name("+"), Nil, Term.Name("b") :: Nil))
+        }
+        ???
+      case Some(t: p.expr.ScBlockExpr) =>
+
       case Some(t: p.expr.ScUnderscoreSection) => None
       case None => None
       case Some(other) => println(other.getClass); ???
@@ -148,7 +156,7 @@ object TypeAdapter {
   }
 
   def contextBounds(tp: p.toplevel.ScTypeBoundsOwner): Seq[m.Type] = {
-    tp.viewTypeElement.toStream.map(TypeAdapter(_))
+    tp.contextBoundTypeElement.toStream.map(TypeAdapter(_))
   }
 
   def typeBounds(tp: p.toplevel.ScTypeBoundsOwner): m.Type.Bounds = {
@@ -156,3 +164,12 @@ object TypeAdapter {
   }
 }
 
+//object DenotationHelper {
+//  def denot(e: ScalaPsiElement): h.Denotation = {
+//
+//  }
+//
+//  def name(e: p.toplevel.ScNamedElement) : m.Name = {
+//
+//  }
+//}
