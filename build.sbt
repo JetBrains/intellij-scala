@@ -208,7 +208,7 @@ packageStructure in Compile := {
     libOf("org.scala-lang.modules" % "scala-parser-combinators_2.11" % "1.0.2"),
     libOf("org.apache.maven.indexer" % "indexer-core" % "6.0-SNAPSHOT"),
     libOf("org.apache.maven.indexer" % "indexer-artifact" % "5.1.2-SNAPSHOT"),
-    libOf("org.apache.maven" % "maven-model" % "3.0.4"),
+    libOf("org.apache.maven" % "maven-model" % "3.0.5"),
     libOf("org.codehaus.plexus" % "plexus-container-default" % "1.5.5"),
     libOf("org.codehaus.plexus" % "plexus-classworlds" % "2.4"),
     libOf("org.codehaus.plexus" % "plexus-utils" % "3.0.8"),
