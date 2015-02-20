@@ -174,4 +174,13 @@ class TreeConverterDeclTest extends TreeConverterTestBase {
       Decl.Def(Nil, Term.Name("f"), Nil, List(List(Term.Param(Nil, Term.Name("a"), Some(Type.Arg.Repeated(Type.Name("Int"))), None))), Type.Name("Unit"))
     )
   }
+
+  def testImplicitArgument(): Unit = {
+    doTest(
+      "def f(implicit x: Int)",
+      Decl.Def(Nil, Term.Name("f"), Nil,
+        (Term.Param(Mod.Implicit() :: Nil, Term.Name("x"), Some(Type.Name("Int")), None) :: Nil) :: Nil,
+        Type.Name("Unit"))
+    )
+  }
 }
