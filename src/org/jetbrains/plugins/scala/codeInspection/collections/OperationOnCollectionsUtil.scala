@@ -3,13 +3,14 @@ package codeInspection.collections
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiType, PsiMethod}
+import com.intellij.psi.{PsiElement, PsiType, PsiMethod}
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
-import org.jetbrains.plugins.scala.extensions.ResolvesTo
+import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
+import org.jetbrains.plugins.scala.extensions.{ExpressionType, ResolvesTo, childOf}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValue, ScVariable, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
@@ -80,6 +81,9 @@ object MethodRepr {
       case refExpr: ScReferenceExpression =>
         refExpr.getParent match {
           case _: ScMethodCall | _: ScGenericCall => None
+          case ScInfixExpr(_, `refExpr`, _) => None
+          case ScPostfixExpr(_, `refExpr`) => None
+          case ScPrefixExpr(`refExpr`, _) => None
           case _ => Some(expr, refExpr.qualifier, Some(refExpr), Seq())
         }
       case genCall: ScGenericCall =>
@@ -278,15 +282,15 @@ object OperationOnCollectionsUtil {
     }
   }
 
+  private val sideEffectsCollectionMethods = Set("append", "appendAll", "clear", "insert", "insertAll",
+    "prepend", "prependAll", "reduceToSize", "remove", "retain",
+    "transform", "trimEnd", "trimStart", "update",
+    "push", "pushAll", "pop", "dequeue", "dequeueAll", "dequeueFirst", "enqueue",
+    "next")
+
   def exprsWithSideEffect(expr: ScExpression): Iterator[ScExpression] = {
 
     def isSideEffectCollectionMethod(ref: ScReferenceExpression): Boolean = {
-      val sideEffectsCollectionMethods = Seq("append", "appendAll", "clear", "insert", "insertAll",
-        "prepend", "prependAll", "reduceToSize", "remove", "retain",
-        "transform", "trimEnd", "trimStart", "update",
-        "push", "pushAll", "pop", "dequeue", "dequeueAll", "dequeueFirst", "enqueue",
-        "next")
-
       val refName = ref.refName
       (refName.endsWith("=") || refName.endsWith("=:") || sideEffectsCollectionMethods.contains(refName)) &&
               OperationOnCollectionsUtil.checkResolve(ref, Array("scala.collection.mutable._", "scala.collection.Iterator"))
@@ -297,25 +301,41 @@ object OperationOnCollectionsUtil {
     }
 
     def hasUnitReturnType(ref: ScReferenceExpression): Boolean = {
-      ref.resolve() match {
-        case fun: ScFunction => fun.hasUnitResultType
-        case m: PsiMethod => m.getReturnType == PsiType.VOID
+      ref match {
+        case MethodRepr(ExpressionType(ScFunctionType(_, _)), _, _, _) => false
+        case ResolvesTo(fun: ScFunction) => fun.hasUnitResultType
+        case ResolvesTo(m: PsiMethod) => m.getReturnType == PsiType.VOID
         case _ => false
       }
     }
 
-    expr.depthFirst.collect {
-      case assign @ ScAssignStmt(ResolvesTo(ScalaPsiUtil.inNameContext(v: ScVariable)), _)
-        if !PsiTreeUtil.isAncestor(expr, v, false) =>
+    object definedOutside {
+      def unapply(ref: ScReferenceElement): Option[PsiElement] = ref match {
+        case ResolvesTo(elem: PsiElement) if !PsiTreeUtil.isAncestor(expr, elem, false) => Some(elem)
+        case _ => None
+      }
+    }
+
+    val predicate: (PsiElement) => Boolean = {
+      case `expr` => true
+      case ScFunctionExpr(_, _) childOf `expr` => true
+      case (e: ScExpression) childOf `expr` if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
+      case fun: ScFunctionDefinition => false
+      case elem: PsiElement => !ScalaEvaluatorBuilderUtil.isGenerateClass(elem)
+    }
+
+    val sameLevelIterator = expr.depthFirst(predicate).filter(predicate)
+
+    sameLevelIterator.collect {
+      case assign @ ScAssignStmt(definedOutside(ScalaPsiUtil.inNameContext(_: ScVariable)), _) =>
         assign
-      case assign @ ScAssignStmt(mc @ ScMethodCall(ResolvesTo(td: ScTypedDefinition), _), _)
-        if  !PsiTreeUtil.isAncestor(expr, td, false) && mc.isUpdateCall =>
+      case assign @ ScAssignStmt(mc @ ScMethodCall(definedOutside(_), _), _) if mc.isUpdateCall =>
         assign
-      case infix @ ScInfixExpr(ResolvesTo(ScalaPsiUtil.inNameContext(v: ScVariable)), _, _)
-        if !PsiTreeUtil.isAncestor(expr, v, false) && infix.isAssignmentOperator => infix
-      case MethodRepr(itself, Some(ResolvesTo(ScalaPsiUtil.inNameContext(v @ (_ : ScVariable | _: ScValue)))), Some(ref), _)
-        if !PsiTreeUtil.isAncestor(expr, v, false) && (isSideEffectCollectionMethod(ref) || isSetter(ref) || hasUnitReturnType(ref)) => itself
-      case MethodRepr(itself, None, Some(ref), _) if hasUnitReturnType(ref) => itself
+      case infix @ ScInfixExpr(definedOutside(ScalaPsiUtil.inNameContext(v: ScVariable)), _, _) if infix.isAssignmentOperator =>
+        infix
+      case MethodRepr(itself, Some(definedOutside(ScalaPsiUtil.inNameContext(v @ (_ : ScVariable | _: ScValue)))), Some(ref), _)
+        if isSideEffectCollectionMethod(ref) || isSetter(ref) || hasUnitReturnType(ref) => itself
+      case MethodRepr(itself, None, Some(ref @ definedOutside(_)), _) if hasUnitReturnType(ref) => itself
     }
   }
 
