@@ -21,5 +21,5 @@ object SbtResolverUtils {
   }
 
   def joinGroupArtifact(group: String, artifact: String) = group + ":" + artifact
-  def joinGroupArtifact(artifact: ArtifactInfo) = artifact.groupId + ":" + artifact.artifactId
+  def joinGroupArtifact(artifact: ArtifactInfo) = artifact.getGroupId + ":" + artifact.getArtifactId
 }
