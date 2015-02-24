@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeA
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
@@ -383,6 +384,13 @@ case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
 
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitTypeParameterType(this)
+  }
+}
+
+object ScTypeParameterType {
+  def toTypeParameterType(tp: TypeParameter): ScTypeParameterType = {
+    new ScTypeParameterType(tp.name, tp.typeParams.map(toTypeParameterType).toList, new Suspension[ScType](tp.lowerType()),
+      new Suspension[ScType](tp.upperType()), tp.ptp)
   }
 }
 
