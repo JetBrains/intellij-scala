@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.meta.trees
 
-
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-
 import scala.meta.internal.ast.Term.Param
 import scala.{Seq => _}
 import scala.collection.immutable.Seq
@@ -18,11 +15,13 @@ object TreeAdapter {
   def ideaToMeta(tree: ScalaPsiElement): m.Tree = {
     tree match {
       case t: p.statements.ScValueDeclaration =>
-        m.Decl.Val(Nil, t.getIdList.fieldIds.toStream map { it => m.Pat.Var.Term(m.Term.Name(it.name))}, TypeAdapter(t.typeElement.get.calcType))
+        m.Decl.Val(convertMods(t), t.getIdList.fieldIds.toStream map { it => m.Pat.Var.Term(m.Term.Name(it.name))}, TypeAdapter(t.typeElement.get.calcType))
       case t: p.statements.ScVariableDeclaration =>
-        m.Decl.Var(Nil, t.getIdList.fieldIds.toStream map { it => m.Pat.Var.Term(m.Term.Name(it.name))}, TypeAdapter(t.typeElement.get.calcType))
+        m.Decl.Var(convertMods(t), t.getIdList.fieldIds.toStream map { it => m.Pat.Var.Term(m.Term.Name(it.name))}, TypeAdapter(t.typeElement.get.calcType))
       case t: p.statements.ScTypeAliasDeclaration =>
-        m.Decl.Type(Nil, m.Type.Name(t.name), t.typeParameters.toStream map {TypeAdapter(_)}, TypeAdapter.typeBounds(t))
+        m.Decl.Type(convertMods(t), m.Type.Name(t.name), t.typeParameters.toStream map {TypeAdapter(_)}, TypeAdapter.typeBounds(t))
+      case t: p.statements.ScTypeAliasDefinition =>
+        m.Defn.Type(convertMods(t), Namer(t), t.typeParameters.toStream map {TypeAdapter(_)}, TypeAdapter(t.aliasedType.get))
       case t: p.statements.ScFunctionDeclaration =>
         m.Decl.Def(convertMods(t), m.Term.Name(t.name), t.typeParameters.toStream map {TypeAdapter(_)}, t.paramClauses.clauses.toStream.map(convertParams), returnType(t.returnType))
       case t: p.statements.ScPatternDefinition =>
@@ -165,8 +164,12 @@ object TypeAdapter {
   }
 }
 
-object Namer {
+object Namer { // TODO: denotaions
   def apply(e: p.expr.ScExpression): m.Term.Name = {
-    m.Term.Name(e.getText) // TODO: denotaions
+    m.Term.Name(e.getText)
+  }
+
+  def apply(e: p.statements.ScTypeAlias): m.Type.Name = {
+    m.Type.Name(e.name)
   }
 }
