@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.console
 
 import java.io.{IOException, OutputStream}
 
+import com.intellij.execution.console.LanguageConsoleBuilder
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.extensions
@@ -80,18 +81,18 @@ class SendSelectionToConsoleAction extends AnAction {
 
   def sendSelection(console: ScalaLanguageConsole, text: String) {
     val consoleEditor = console.getConsoleEditor
-    val model = ScalaConsoleInfo.getModel(console.getProject)
+    val controller = ScalaConsoleInfo.getController(console.getProject)
     val processHandler = ScalaConsoleInfo.getProcessHandler(console.getProject)
 
     if (consoleEditor != null) {
       val document = console.getEditorDocument
-      console.setTextToEditor(text)
+      console.setInputText(text)
 
       extensions.inWriteAction {
         val range: TextRange = new TextRange(0, document.getTextLength)
         consoleEditor.getSelectionModel.setSelection(range.getStartOffset, range.getEndOffset)
-        console.addCurrentToHistory(range, false, true)
-        model.addToHistory(text)
+        console.addToHistory(range, console.getConsoleEditor, true)
+        controller.addToHistory(text)
 
         consoleEditor.getCaretModel.moveToOffset(0)
         consoleEditor.getDocument.setText("")
