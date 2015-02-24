@@ -24,7 +24,7 @@ object TreeAdapter {
       case t: p.statements.ScTypeAliasDeclaration =>
         m.Decl.Type(Nil, m.Type.Name(t.name), t.typeParameters.toStream map {TypeAdapter(_)}, TypeAdapter.typeBounds(t))
       case t: p.statements.ScFunctionDeclaration =>
-        m.Decl.Def(convertMods(t), m.Term.Name(t.name), t.typeParameters.toStream map {TypeAdapter(_)}, t.paramClauses.clauses.toStream.map(convertParams), returnType(t.typeElement))
+        m.Decl.Def(convertMods(t), m.Term.Name(t.name), t.typeParameters.toStream map {TypeAdapter(_)}, t.paramClauses.clauses.toStream.map(convertParams), returnType(t.returnType))
       case t: p.statements.ScPatternDefinition =>
         patternDefinition(t)
       case t: p.statements.ScVariableDefinition =>
@@ -49,7 +49,7 @@ object TreeAdapter {
 //          m.Term.ApplyInfix(m.Term.Name("a"), Term.Name("+"), Nil, Term.Name("b") :: Nil))
         }
         ???
-      case Some(t: p.expr.ScBlockExpr) =>
+      case Some(t: p.expr.ScBlockExpr) => ???
 
       case Some(t: p.expr.ScUnderscoreSection) => None
       case None => None
@@ -103,10 +103,11 @@ object TreeAdapter {
       }
   }
 
-  def returnType(tp: Option[ScTypeElement]): m.Type = {
-    tp match {
-      case Some(t) => TypeAdapter(t)
-      case None    => m.Type.Name("Unit")
+  def returnType(tr: ptype.result.TypeResult[ptype.ScType]): m.Type = {
+    import ptype.result._
+    tr match {
+      case Success(t, elem) => TypeAdapter(t)
+      case Failure(cause, place)    => m.Type.Name("Unit")
     }
   }
 }
