@@ -37,7 +37,7 @@ class ScalaConsoleExecuteAction extends AnAction {
     }
     val console = ScalaConsoleInfo.getConsole(editor)
     val processHandler = ScalaConsoleInfo.getProcessHandler(editor)
-    val model = ScalaConsoleInfo.getModel(editor)
+    val model = ScalaConsoleInfo.getController(editor)
     if (editor != null && console != null && processHandler != null && model != null) {
       val document = console.getEditorDocument
       val text = document.getText
@@ -46,7 +46,7 @@ class ScalaConsoleExecuteAction extends AnAction {
       extensions.inWriteAction {
         val range: TextRange = new TextRange(0, document.getTextLength)
         editor.getSelectionModel.setSelection(range.getStartOffset, range.getEndOffset)
-        console.addCurrentToHistory(range, false, true)
+        console.addToHistory(range, console.getConsoleEditor, true)
         model.addToHistory(text)
 
         editor.getCaretModel.moveToOffset(0)
