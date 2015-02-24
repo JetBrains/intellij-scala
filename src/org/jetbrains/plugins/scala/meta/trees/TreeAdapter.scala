@@ -42,18 +42,18 @@ object TreeAdapter {
   }
 
   def expression(tree: Option[p.expr.ScExpression]): Option[m.Term] = {
+    def stripped(e: p.expr.ScExpression): m.Term = e match {
+      case t: p.base.ScLiteral    => literal(t)
+      case t: p.expr.ScReturnStmt => m.Term.Return(expression(t.expr).get)
+      case t: p.expr.ScBlockExpr  => m.Term.Block(t.exprs.toStream.map(stripped))
+      case t: p.expr.ScInfixExpr  => m.Term.ApplyInfix(stripped(t.getBaseExpr), Namer(t.getInvokedExpr), Nil, Seq(stripped(t.getArgExpr)))
+      case t: p.expr.ScReferenceExpression => Namer(t)
+      case other => println(other.getClass); ???
+    }
     tree match {
-      case Some(t: p.base.ScLiteral) => Some(literal(t))
-      case Some(t: p.expr.ScInfixExpr) =>
-        if (!t.isAssignmentOperator) {
-//          m.Term.ApplyInfix(m.Term.Name("a"), Term.Name("+"), Nil, Term.Name("b") :: Nil))
-        }
-        ???
-      case Some(t: p.expr.ScBlockExpr) => ???
-
-      case Some(t: p.expr.ScUnderscoreSection) => None
+      case Some(_: p.expr.ScUnderscoreSection) => None
+      case Some(expr) => Some(stripped(expr))
       case None => None
-      case Some(other) => println(other.getClass); ???
     }
   }
 
@@ -165,12 +165,8 @@ object TypeAdapter {
   }
 }
 
-//object DenotationHelper {
-//  def denot(e: ScalaPsiElement): h.Denotation = {
-//
-//  }
-//
-//  def name(e: p.toplevel.ScNamedElement) : m.Name = {
-//
-//  }
-//}
+object Namer {
+  def apply(e: p.expr.ScExpression): m.Term.Name = {
+    m.Term.Name(e.getText) // TODO: denotaions
+  }
+}
