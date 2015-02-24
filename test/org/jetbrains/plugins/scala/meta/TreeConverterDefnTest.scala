@@ -92,4 +92,11 @@ class TreeConverterDefnTest extends  TreeConverterTestBase {
     )
   }
 
+  def testTypeAliasDef(): Unit = {
+    doTest(
+      "type A = Any",
+      Defn.Type(Nil, Type.Name("A"), Nil, Type.Name("Any"))
+    )
+  }
+
 }
