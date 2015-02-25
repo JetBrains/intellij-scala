@@ -5,19 +5,17 @@ import java.io.{File, IOException}
 import java.lang.reflect.Field
 import javax.swing.event.HyperlinkEvent
 
-import com.intellij.ide.IdeBundle
-import com.intellij.ide.plugins.{IdeaPluginDescriptorImpl, PluginInstaller, PluginManagerMain, PluginManagerUISettings}
+import com.intellij.ide.plugins._
 import com.intellij.notification._
 import com.intellij.openapi.application.ex.ApplicationInfoEx
 import com.intellij.openapi.application.impl.ApplicationInfoImpl
-import com.intellij.openapi.application.{Application, ApplicationInfo, ApplicationManager}
+import com.intellij.openapi.application.{ApplicationInfo, ApplicationManager}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.updateSettings.impl._
-import com.intellij.openapi.util.{JDOMUtil, BuildNumber, JDOMExternalizableStringList}
+import com.intellij.openapi.util.{BuildNumber, JDOMUtil}
 import com.intellij.util.io.HttpRequests
-import com.intellij.util.ui.UIUtil
-import org.jdom.{JDOMException, Document}
+import org.jdom.JDOMException
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch._
 
@@ -31,14 +29,14 @@ object ScalaPluginUpdater {
   case class RepoHolder(eap: String, nightly: String)
 
   val CASSIOPEIA = "cassiopeia"
-  val FOURTEENONE = "14.1"
+  val FOURTEEN_ONE = "14.1"
 
   val knownVersions = Map(
     CASSIOPEIA  -> RepoHolder(s"$baseUrl/scala-eap-$CASSIOPEIA.xml", s"$baseUrl/scala-nightly-$CASSIOPEIA.xml"),
-    FOURTEENONE -> RepoHolder(s"$baseUrl/scala-eap-$FOURTEENONE.xml", "")
+    FOURTEEN_ONE -> RepoHolder(s"$baseUrl/scala-eap-$FOURTEEN_ONE.xml", "")
   )
 
-  val currentVersion = FOURTEENONE
+  val currentVersion = FOURTEEN_ONE
 
 
   val updGroupId = "ScalaPluginUpdate"
@@ -125,8 +123,8 @@ object ScalaPluginUpdater {
     val localBuildNumber = infoImpl.getBuild
     val url = branch match {
       case Release => None
-      case EAP     => Some(eapRepo)
-      case Nightly => Some(nightlyRepo)
+      case EAP     => Some(knownVersions(currentVersion).eap)
+      case Nightly => Some(knownVersions(currentVersion).nightly)
     }
 
     url.foreach(u => invokeLater {
