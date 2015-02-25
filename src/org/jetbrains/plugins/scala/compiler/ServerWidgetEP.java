@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.compiler;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.extensions.ExtensionPointName;
+import com.intellij.openapi.project.Project;
 
 /**
  * User: Dmitry.Naydanov
@@ -14,5 +15,5 @@ public abstract class ServerWidgetEP {
     return EP_NAME.getExtensions();
   }
 
-  public abstract AnAction[] getAdditionalActions();
+  public abstract AnAction[] getAdditionalActions(Project project);
 }
