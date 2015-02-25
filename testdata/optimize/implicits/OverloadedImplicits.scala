@@ -26,7 +26,7 @@ object OverloadedImplicits {
   }
 
   object Test {
-    import overloaded.OverloadedImplicits.Implicits.a2b
+    import Implicits.a2b
 
     def a(x: B) = 1
     def a(x: Int) = 2

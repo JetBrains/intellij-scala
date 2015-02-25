@@ -126,7 +126,6 @@ object ScalaExtractMethodUtils {
           }
           val retElem = ScalaPsiElementFactory.createExpressionFromText(s"return $newText", ret.getManager)
           ret.replace(retElem)
-          super.visitReturnStatement(ret)
         }
       }
       returnVisitor.visitElement(method: ScalaPsiElement)

@@ -49,6 +49,7 @@ public class ScalaProjectSettingsPanel {
   private JComboBox updateChannel;
   private JCheckBox myAotCompletion;
   private JCheckBox useEclipseCompatibilityModeCheckBox;
+  private JTextField scalaTestDefaultSuperClass;
   private JCheckBox useOldImplicitConversionCheckBox;
   private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
   private Project myProject;
@@ -88,6 +89,7 @@ public class ScalaProjectSettingsPanel {
     ScalaPluginUpdater.doUpdatePluginHostsAndCheck((ScalaApplicationSettings.pluginBranch) updateChannel.getModel().getSelectedItem());
 
     scalaProjectSettings.setBasePackage(myBasePackage.getText());
+    scalaProjectSettings.setScalaTestDefaultSuperClass(scalaTestDefaultSuperClass.getText());
     scalaProjectSettings.setImplicitParametersSearchDepth((Integer) implicitParametersSearchDepthSpinner.getValue());
     scalaProjectSettings.setOutputLimit((Integer) outputSpinner.getValue());
     scalaProjectSettings.setInProcessMode(runWorksheetInTheCheckBox.isSelected());
@@ -127,6 +129,8 @@ public class ScalaProjectSettingsPanel {
 
     if (!scalaProjectSettings.getBasePackage().equals(
         myBasePackage.getText())) return true;
+    if (!scalaProjectSettings.getScalaTestDefaultSuperClass().equals(
+        scalaTestDefaultSuperClass.getText())) return true;
     if (scalaProjectSettings.isShowImplisitConversions() !=
         showImplicitConversionsInCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isShowArgumentsToByNameParams() !=
@@ -198,6 +202,7 @@ public class ScalaProjectSettingsPanel {
     updateChannel.getModel().setSelectedItem(ScalaPluginUpdater.getScalaPluginBranch());
 
     setValue(myBasePackage, scalaProjectSettings.getBasePackage());
+    setValue(scalaTestDefaultSuperClass, scalaProjectSettings.getScalaTestDefaultSuperClass());
     setValue(implicitParametersSearchDepthSpinner, scalaProjectSettings.getImplicitParametersSearchDepth());
     setValue(outputSpinner, scalaProjectSettings.getOutputLimit());
     setValue(runWorksheetInTheCheckBox, scalaProjectSettings.isInProcessMode());
@@ -262,7 +267,7 @@ public class ScalaProjectSettingsPanel {
     final JTabbedPane tabbedPane1 = new JTabbedPane();
     myPanel.add(tabbedPane1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(200, 200), null, 0, false));
     final JPanel panel1 = new JPanel();
-    panel1.setLayout(new GridLayoutManager(23, 3, new Insets(9, 9, 0, 0), -1, -1));
+    panel1.setLayout(new GridLayoutManager(24, 3, new Insets(9, 9, 0, 0), -1, -1));
     tabbedPane1.addTab("Core", panel1);
     searchAllSymbolsIncludeCheckBox = new JCheckBox();
     searchAllSymbolsIncludeCheckBox.setText("Search all symbols (include locals)");
@@ -319,7 +324,7 @@ public class ScalaProjectSettingsPanel {
     panel1.add(useScalaClassesPriorityCheckBox, new GridConstraints(20, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JPanel panel2 = new JPanel();
     panel2.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-    panel1.add(panel2, new GridConstraints(22, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    panel1.add(panel2, new GridConstraints(23, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     final JLabel label5 = new JLabel();
     label5.setText("Implicit parameters search depth:");
     panel1.add(label5, new GridConstraints(12, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -344,7 +349,12 @@ public class ScalaProjectSettingsPanel {
     defaultComboBoxModel1.addElement("All");
     collectionHighlightingChooser.setModel(defaultComboBoxModel1);
     panel1.add(collectionHighlightingChooser, new GridConstraints(21, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    panel1.add(injectionJPanel, new GridConstraints(22, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    panel1.add(injectionJPanel, new GridConstraints(23, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    final JLabel label8 = new JLabel();
+    label8.setText("ScalaTest default super class:");
+    panel1.add(label8, new GridConstraints(22, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    scalaTestDefaultSuperClass = new JTextField();
+    panel1.add(scalaTestDefaultSuperClass, new GridConstraints(22, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
     showTypeInfoOnCheckBox = new JCheckBox();
     showTypeInfoOnCheckBox.setText("Show type info on mouse motion with delay:");
     panel1.add(showTypeInfoOnCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -370,9 +380,9 @@ public class ScalaProjectSettingsPanel {
     worksheetInteractiveModeCheckBox = new JCheckBox();
     worksheetInteractiveModeCheckBox.setText("Run worksheet in the interactive mode");
     panel3.add(worksheetInteractiveModeCheckBox, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    final JLabel label8 = new JLabel();
-    label8.setText("Output cutoff limit: ");
-    panel3.add(label8, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final JLabel label9 = new JLabel();
+    label9.setText("Output cutoff limit: ");
+    panel3.add(label9, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     outputSpinner = new JSpinner();
     panel3.add(outputSpinner, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(218, 24), null, 0, false));
     useEclipseCompatibilityModeCheckBox = new JCheckBox();
@@ -383,9 +393,9 @@ public class ScalaProjectSettingsPanel {
     tabbedPane1.addTab("Misc", panel4);
     final Spacer spacer3 = new Spacer();
     panel4.add(spacer3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-    final JLabel label9 = new JLabel();
-    label9.setText("Plugin update channel:");
-    panel4.add(label9, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final JLabel label10 = new JLabel();
+    label10.setText("Plugin update channel:");
+    panel4.add(label10, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     updateChannel = new JComboBox();
     updateChannel.setEditable(false);
     final DefaultComboBoxModel defaultComboBoxModel2 = new DefaultComboBoxModel();

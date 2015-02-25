@@ -6,6 +6,12 @@ organization :=  "JetBrains"
 
 scalaVersion :=  "2.11.2"
 
+resolvers in ThisBuild += "Apache snapshots" at "https://repository.apache.org/content/repositories/snapshots/"
+
+libraryDependencies += "org.apache.maven.indexer" % "indexer-core" % "6.0-SNAPSHOT" % Compile
+
+libraryDependencies += "org.apache.maven.indexer" % "indexer-artifact" % "5.1.2-SNAPSHOT" % Compile
+
 libraryDependencies +=  "org.scalatest" % "scalatest-finders" % "0.9.6"
 
 libraryDependencies +=  "org.atteo" % "evo-inflector" % "1.2"
@@ -19,11 +25,17 @@ libraryDependencies +=  "org.scala-lang" % "scala-reflect" % scalaVersion.value
 libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test"
 
 libraryDependencies ++= Seq(
-  "org.apache.maven.indexer" % "indexer-core" % "5.1.1" % Compile,
   "org.codehaus.plexus" % "plexus-container-default" % "1.5.5" % Compile,
   "org.sonatype.sisu" % "sisu-inject-plexus" % "2.2.3" % Compile,
   "org.apache.maven.wagon" % "wagon-http" % "2.6" % Compile
 )
+
+lazy val testDownloader = project.in(file("testJarsDownloader"))
+
+update := {
+  (update in testDownloader).value
+  update.value
+}
 
 unmanagedSourceDirectories in Compile += baseDirectory.value /  "src"
 
@@ -53,7 +65,7 @@ ideaICPluginJars in Global := {
       basePluginsDir / "maven" / "lib" +++
       basePluginsDir / "junit" / "lib" +++
       basePluginsDir / "properties" / "lib"
-  val customJars = baseDirectories * (globFilter("*.jar") -- "*asm*.jar")
+  val customJars = baseDirectories * (globFilter("*.jar") -- "*asm*.jar" -- "*lucene-core*")
   customJars.classpath
 }
 
@@ -194,20 +206,19 @@ packageStructure in Compile := {
     libOf("org.scalatest" % "scalatest-finders" % "0.9.6"),
     libOf("org.scala-lang.modules" % "scala-xml_2.11" % "1.0.2"),
     libOf("org.scala-lang.modules" % "scala-parser-combinators_2.11" % "1.0.2"),
-    libOf("org.apache.maven.indexer" % "indexer-core" % "5.1.1"),
-    libOf("org.apache.maven.indexer" % "indexer-artifact" % "5.1.1"),
-    libOf("org.apache.maven" % "maven-model" % "3.0.4"),
+    libOf("org.apache.maven.indexer" % "indexer-core" % "6.0-SNAPSHOT"),
+    libOf("org.apache.maven.indexer" % "indexer-artifact" % "5.1.2-SNAPSHOT"),
+    libOf("org.apache.maven" % "maven-model" % "3.0.5"),
     libOf("org.codehaus.plexus" % "plexus-container-default" % "1.5.5"),
     libOf("org.codehaus.plexus" % "plexus-classworlds" % "2.4"),
     libOf("org.codehaus.plexus" % "plexus-utils" % "3.0.8"),
     libOf("org.codehaus.plexus" % "plexus-component-annotations" % "1.5.5"),
-    libOf("org.apache.lucene" % "lucene-core" % "3.6.2"),
-    libOf("org.apache.lucene" % "lucene-highlighter" % "3.6.2"),
-    libOf("org.apache.lucene" % "lucene-memory" % "3.6.2"),
-    libOf("org.apache.lucene" % "lucene-queries" % "3.6.2"),
-    libOf("jakarta-regexp" % "jakarta-regexp" % "1.4"),
-    libOf("org.sonatype.aether" % "aether-api" % "1.13.1"),
-    libOf("org.sonatype.aether" % "aether-util" % "1.13.1"),
+    libOf("org.apache.lucene" % "lucene-core" % "4.8.1"),
+    libOf("org.apache.lucene" % "lucene-highlighter" % "4.8.1"),
+    libOf("org.apache.lucene" % "lucene-memory" % "4.8.1"),
+    libOf("org.apache.lucene" % "lucene-queries" % "4.8.1"),
+    libOf("org.eclipse.aether" % "aether-api" % "1.0.0.v20140518"),
+    libOf("org.eclipse.aether" % "aether-util" % "1.0.0.v20140518"),
     libOf("org.sonatype.sisu" % "sisu-inject-plexus" % "2.2.3"),
     libOf("org.sonatype.sisu" % "sisu-inject-bean" % "2.2.3"),
     libOf("org.sonatype.sisu" % "sisu-guice" % "3.0.3"),

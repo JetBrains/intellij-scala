@@ -29,6 +29,7 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
         case Some(expr) => Seq(expr)
         case None => Seq(t)
       }
+      case unit: ScUnitExpr => Seq.empty
       case expr => Seq(expr)
     }
   }

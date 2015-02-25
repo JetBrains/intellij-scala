@@ -17,5 +17,5 @@ object SCL6628 {
 
   /* resolved: false */foo(C)
 
-  List(1, 2, 3)./* resolved: false */map(C)
+  List(1, 2, 3)./* applicable: false */map(C)
 }

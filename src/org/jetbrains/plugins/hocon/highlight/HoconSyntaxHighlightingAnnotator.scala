@@ -2,11 +2,12 @@ package org.jetbrains.plugins.hocon.highlight
 
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.hocon.HoconConstants
 import org.jetbrains.plugins.hocon.parser.HoconPsiParser
 
 class HoconSyntaxHighlightingAnnotator extends Annotator {
 
-  import org.jetbrains.plugins.hocon.Util._
+  import org.jetbrains.plugins.hocon.CommonUtil._
   import org.jetbrains.plugins.hocon.lexer.HoconTokenType._
   import org.jetbrains.plugins.hocon.parser.HoconElementSets._
   import org.jetbrains.plugins.hocon.parser.HoconElementType._
@@ -28,7 +29,7 @@ class HoconSyntaxHighlightingAnnotator extends Annotator {
         holder.createInfoAnnotation(element, null).setTextAttributes(HoconHighlighterColors.Include)
 
       case UnquotedChars if parentType == Included =>
-        if (HoconPsiParser.IncludeQualifiers.contains(element.getText)) {
+        if (HoconConstants.IncludeQualifiers.contains(element.getText)) {
           val TextRange(start, end) = element.getTextRange
           holder.createInfoAnnotation(TextRange(start, end - 1), null).setTextAttributes(HoconHighlighterColors.IncludeModifier)
           holder.createInfoAnnotation(TextRange(end - 1, end), null).setTextAttributes(HoconHighlighterColors.IncludeModifierParens)

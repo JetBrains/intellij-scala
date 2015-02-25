@@ -28,13 +28,13 @@ object SCL6783 {
   class Z[T](x: T)(implicit o: O[T])
 
   object L {
-    import SCL6783.K.x
+    import K.x
 
     class K extends Z(123)
   }
 
   object T {
-    import SCL6783.K.x
+    import K.x
 
     class K extends Z[Int](123)
   }
