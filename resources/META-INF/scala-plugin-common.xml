@@ -12,6 +12,7 @@
         <extensionPoint name="scalaElementToRenameContributor" interface="org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaElementToRenameContributor"/>
         <extensionPoint name="scalaSyntheticClassProducer" interface="org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer"/>
         <extensionPoint name="evaluatorCompileHelper" interface="org.jetbrains.plugins.scala.debugger.evaluation.EvaluatorCompileHelper"/>
+        <extensionPoint name="serverWidgetEP" interface="org.jetbrains.plugins.scala.compiler.ServerWidgetEP"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
