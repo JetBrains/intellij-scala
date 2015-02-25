@@ -182,16 +182,15 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       checkPendingEdges(doStmtInstr)
       stmt.getExprBody map {e =>
         e.accept(this)
-        advancePendingEdges(e, stmt)
-        addPendingEdge(stmt, myHead)
       }
       stmt.condition map {c =>
         c.accept(this)
+        checkPendingEdges(myHead)
         if (myHead != null) {
           addEdge(myHead, doStmtInstr)
+          addPendingEdge(stmt, myHead)
         }
       }
-      moveHead(doStmtInstr)
     }
   }
 

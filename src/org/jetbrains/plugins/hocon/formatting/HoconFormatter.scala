@@ -9,7 +9,7 @@ import org.jetbrains.plugins.hocon.lang.HoconLanguage
 
 class HoconFormatter(settings: CodeStyleSettings) {
 
-  import org.jetbrains.plugins.hocon.Util._
+  import org.jetbrains.plugins.hocon.CommonUtil._
   import org.jetbrains.plugins.hocon.lexer.HoconTokenSets._
   import org.jetbrains.plugins.hocon.lexer.HoconTokenType._
   import org.jetbrains.plugins.hocon.parser.HoconElementSets._

@@ -53,6 +53,7 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
 
   //MISC
   public boolean ASK_USE_LATEST_PLUGIN_BUILDS = true;
+  public boolean ASK_PLATFORM_UPDATE = true;
   public enum pluginBranch {Release, EAP, Nightly}
 
   public ScalaApplicationSettings getState() {
