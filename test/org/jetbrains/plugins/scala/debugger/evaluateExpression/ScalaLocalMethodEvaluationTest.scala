@@ -358,26 +358,4 @@ class ScalaLocalMethodEvaluationTest extends ScalaDebuggerTestCase {
       evalEquals("outer()", "startaadefault2")
     }
   }
-
-  object Sample {
-    def main(args: Array[String]) {
-      val x = 1
-      val y = 2
-      def outer() {
-        val s = "start"
-        val d = "default"
-        def inner(a: String, b: String = d): String = {
-          val z = s + a + b + y
-          def inInner(): Unit = {
-            println(z + x)
-          }
-          inInner()
-          "stop here"
-          z
-        }
-        inner("aa")
-      }
-      outer()
-    }
-  }
 }
