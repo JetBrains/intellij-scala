@@ -120,6 +120,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   private int CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = 5;
   private boolean ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = false;
   private boolean ADD_FULL_QUALIFIED_IMPORTS = true;
+  private boolean DO_NOT_CHANGE_LOCAL_IMPORTS_ON_OPTIMIZE = true;
   private boolean SORT_IMPORTS = true;
   private boolean IMPORTS_MEMBERS_USING_UNDERSCORE = true;
   private boolean COLLECT_IMPORTS_TOGETHER = true;
@@ -298,5 +299,13 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
       }
     }
     return res;
+  }
+
+  public boolean isDoNotChangeLocalImportsOnOptimize() {
+    return DO_NOT_CHANGE_LOCAL_IMPORTS_ON_OPTIMIZE;
+  }
+
+  public void setDoNotChangeLocalImportsOnOptimize(boolean value) {
+    this.DO_NOT_CHANGE_LOCAL_IMPORTS_ON_OPTIMIZE = value;
   }
 }
