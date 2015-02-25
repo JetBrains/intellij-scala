@@ -121,7 +121,8 @@ class CompileServerManager(project: Project) extends ProjectComponent {
 
    private def toggleList(e: MouseEvent) {
      val mnemonics = JBPopupFactory.ActionSelectionAid.MNEMONICS
-     val group = new DefaultActionGroup(Start, Stop, Separator.getInstance, Configure)
+     val actions = Seq(Start, Stop, Separator.getInstance, Configure, Separator.getInstance()) ++ ServerWidgetEP.getAllWidgetEps.flatMap(_.getAdditionalActions)
+     val group = new DefaultActionGroup(actions: _*)
      val context = DataManager.getInstance.getDataContext(e.getComponent)
      val popup = JBPopupFactory.getInstance.createActionGroupPopup(title, group, context, mnemonics, true)
      val dimension = popup.getContent.getPreferredSize
