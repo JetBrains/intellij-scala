@@ -6,6 +6,7 @@
 .idea/.name
 .idea/*.xml
 !.idea/vcs.xml
+!.idea/uiDesigner.xml
 /classes
 /dist
 /out

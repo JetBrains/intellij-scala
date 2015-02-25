@@ -18,7 +18,7 @@ object ImplicitReferenceObject {
 
 class ImplicitReferenceClass {
   def foa: Int = 77
-  import goo.ImplicitReferenceObject._
+  import ImplicitReferenceObject._
   "".foa
 }
 */

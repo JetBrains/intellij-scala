@@ -75,7 +75,7 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
     }
 
     if (isIncludeSprayLibrary) {
-      rootModel = addLibrary(libVersion, rootModel, rootManager, libs, libModels, "scalaz",
+      rootModel = addLibrary(libVersion, rootModel, rootManager, libs, libModels, "spray",
         TestUtils.getMockSprayLib(libVersion), null)
     }
 
