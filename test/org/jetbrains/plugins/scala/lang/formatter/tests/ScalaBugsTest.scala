@@ -696,4 +696,39 @@ bars foreach {case (x, y) => list.add(x + y)}
 
     doTextTest(before, after)
   }
+
+  def testSCL6702() {
+    getCurrentCodeStyleSettings.FORMATTER_TAGS_ENABLED = true
+    val before =
+    """
+      |//@formatter:off
+      |class SCL6702 {
+      |  def foo(p: String ) {
+      |    println(p )
+      |  }
+      |
+      |  //@formatter:on
+      |  def foop(p: String ): Unit = {
+      |    println(p )
+      |  }
+      |}
+    """.stripMargin.replace("\r", "")
+
+    val after =
+    """
+      |//@formatter:off
+      |class SCL6702 {
+      |  def foo(p: String ) {
+      |    println(p )
+      |  }
+      |
+      |  //@formatter:on
+      |  def foop(p: String): Unit = {
+      |    println(p)
+      |  }
+      |}
+    """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
 }
