@@ -352,8 +352,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           case CommonCodeStyleSettings.NEXT_LINE_SHIFTED => return ON_NEW_LINE
           case CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => return ON_NEW_LINE
           case CommonCodeStyleSettings.END_OF_LINE =>
-            if (settings.SPACE_BEFORE_CLASS_LBRACE) return WITH_SPACING_NO_KEEP
-            else return WITHOUT_SPACING_NO_KEEP
+            val leftLineComment = leftNode.getElementType == tLINE_COMMENT
+            if (settings.SPACE_BEFORE_CLASS_LBRACE) return if (leftLineComment) WITH_SPACING else WITH_SPACING_NO_KEEP
+            else return if (leftLineComment) WITHOUT_SPACING else WITHOUT_SPACING_NO_KEEP
           case CommonCodeStyleSettings.NEXT_LINE_IF_WRAPPED =>
             val startOffset = extendsBlock.getParent.getParent match {
               case b: ScTypeDefinition => b.nameId.getTextRange.getStartOffset
