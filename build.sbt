@@ -6,11 +6,11 @@ organization :=  "JetBrains"
 
 scalaVersion :=  "2.11.2"
 
-resolvers in ThisBuild += "Apache snapshots" at "https://repository.apache.org/content/repositories/snapshots/"
+resolvers in ThisBuild += "bintray" at "http://dl.bintray.com/jetbrains/maven-patched/"
 
-libraryDependencies += "org.apache.maven.indexer" % "indexer-core" % "6.0-SNAPSHOT" % Compile
+libraryDependencies += "org.apache.maven.indexer" % "indexer-core" % "6.0"
 
-libraryDependencies += "org.apache.maven.indexer" % "indexer-artifact" % "5.1.2-SNAPSHOT" % Compile
+//libraryDependencies += "org.apache.maven.indexer" % "indexer-artifact" % "5.1.2" % Compile - was merged with core in 6.0
 
 libraryDependencies +=  "org.scalatest" % "scalatest-finders" % "0.9.6"
 
@@ -206,17 +206,16 @@ packageStructure in Compile := {
     libOf("org.scalatest" % "scalatest-finders" % "0.9.6"),
     libOf("org.scala-lang.modules" % "scala-xml_2.11" % "1.0.2"),
     libOf("org.scala-lang.modules" % "scala-parser-combinators_2.11" % "1.0.2"),
-    libOf("org.apache.maven.indexer" % "indexer-core" % "6.0-SNAPSHOT"),
-    libOf("org.apache.maven.indexer" % "indexer-artifact" % "5.1.2-SNAPSHOT"),
+    libOf("org.apache.maven.indexer" % "indexer-core" % "6.0"),
     libOf("org.apache.maven" % "maven-model" % "3.0.5"),
     libOf("org.codehaus.plexus" % "plexus-container-default" % "1.5.5"),
     libOf("org.codehaus.plexus" % "plexus-classworlds" % "2.4"),
     libOf("org.codehaus.plexus" % "plexus-utils" % "3.0.8"),
     libOf("org.codehaus.plexus" % "plexus-component-annotations" % "1.5.5"),
-    libOf("org.apache.lucene" % "lucene-core" % "4.8.1"),
-    libOf("org.apache.lucene" % "lucene-highlighter" % "4.8.1"),
-    libOf("org.apache.lucene" % "lucene-memory" % "4.8.1"),
-    libOf("org.apache.lucene" % "lucene-queries" % "4.8.1"),
+    libOf("org.apache.lucene" % "lucene-core" % "4.3.0"),
+    libOf("org.apache.lucene" % "lucene-highlighter" % "4.3.0"),
+    libOf("org.apache.lucene" % "lucene-memory" % "4.3.0"),
+    libOf("org.apache.lucene" % "lucene-queries" % "4.3.0"),
     libOf("org.eclipse.aether" % "aether-api" % "1.0.0.v20140518"),
     libOf("org.eclipse.aether" % "aether-util" % "1.0.0.v20140518"),
     libOf("org.sonatype.sisu" % "sisu-inject-plexus" % "2.2.3"),
