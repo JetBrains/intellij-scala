@@ -20,7 +20,10 @@ libraryDependencies ++= Seq(
   "org.typelevel" % "scodec-core_2.11" % "1.7.0-SNAPSHOT" % Compile,
   "org.scalatest" % "scalatest_2.11" % "2.1.7" % Compile,
   "org.scalatest" % "scalatest_2.10" % "2.1.7" % Compile,
-  "org.scalatest" % "scalatest_2.10" % "1.9.2" % Compile
+  "org.scalatest" % "scalatest_2.10" % "1.9.2" % Compile,
+  "com.github.julien-truffaut"  %%  "monocle-core"    % "1.0.1",
+  "com.github.julien-truffaut"  %%  "monocle-generic" % "1.0.1",
+  "com.github.julien-truffaut"  %%  "monocle-macro"   % "1.0.1"
 )
 
 dependencyOverrides += "org.scalatest" % "scalatest_2.10" % "2.1.7"
