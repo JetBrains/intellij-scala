@@ -4,21 +4,10 @@ package codeInspection.suppression
 import java.util.regex.Matcher
 
 import com.intellij.codeInsight.daemon.HighlightDisplayKey
-import com.intellij.codeInspection.{SuppressionUtil, SuppressQuickFix}
-import com.intellij.openapi.application.{ApplicationManager, AccessToken}
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.codeInspection.{SuppressQuickFix, SuppressionUtil}
 import com.intellij.psi.{PsiComment, PsiElement}
-import org.jetbrains.plugins.groovy.lang.groovydoc.psi.api.{GrDocCommentOwner, GrDocComment}
-import org.jetbrains.plugins.groovy.lang.psi.api.auxiliary.modifiers.GrModifierList
-import org.jetbrains.plugins.groovy.lang.psi.api.statements.typedef.members.GrMember
-import org.jetbrains.plugins.groovy.lang.psi.util.PsiUtil
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ObjectExt, Both}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScCommentOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 
 /**
  * @author Nikolay.Tropin
