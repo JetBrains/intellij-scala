@@ -451,7 +451,7 @@ object ScalaPsiUtil {
               case _ => None
             }
           }))
-      implicitMap = convertible.collect
+      implicitMap = convertible.collect()
     }
     //This logic is important to have to navigate to problematic method, in case of failed resolve.
     //That's why we need to have noApplicability parameter

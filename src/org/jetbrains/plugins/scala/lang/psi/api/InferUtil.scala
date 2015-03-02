@@ -3,6 +3,7 @@ package lang.psi.api
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.caches.ScalaRecursionManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -15,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
@@ -31,6 +33,7 @@ import scala.collection.mutable.ArrayBuffer
  */
 
 object InferUtil {
+  val notFoundParameterName = "NotFoundParameter239239239"
   val skipQualSet = Set("scala.reflect.ClassManifest", "scala.reflect.Manifest",
     "scala.reflect.ClassTag", "scala.reflect.api.TypeTags.TypeTag",
     "scala.reflect.api.TypeTags.WeakTypeTag")
@@ -51,16 +54,15 @@ object InferUtil {
    * @param check if true can throw SafeCheckException if it not found not ambiguous implicit parameters
    * @return updated type and sequence of implicit parameters
    */
-  def updateTypeWithImplicitParameters(res: ScType, element: PsiElement, coreElement: Option[ScNamedElement],
-                                       check: Boolean,
-                                       searchImplicitsRecursively: Int = 0): (ScType, Option[Seq[ScalaResolveResult]]) = {
+  def updateTypeWithImplicitParameters(res: ScType, element: PsiElement, coreElement: Option[ScNamedElement], check: Boolean,
+                                       searchImplicitsRecursively: Int = 0, fullInfo: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = {
     var resInner = res
     var implicitParameters: Option[Seq[ScalaResolveResult]] = None
     res match {
       case t@ScTypePolymorphicType(mt@ScMethodType(retType, params, impl), typeParams) if !impl =>
         // See SCL-3516
         val (updatedType, ps) = 
-          updateTypeWithImplicitParameters(t.copy(internalType = retType), element, coreElement, check)
+          updateTypeWithImplicitParameters(t.copy(internalType = retType), element, coreElement, check, fullInfo = fullInfo)
         implicitParameters = ps
         updatedType match {
           case tpt: ScTypePolymorphicType =>
@@ -88,7 +90,7 @@ object InferUtil {
                 val (paramsForInfer, exprs, resolveResults) =
                   findImplicits(paramsSingle, coreElement, element, check, searchImplicitsRecursively, abstractSubstitutor, polymorphicSubst)
                 resInner = ScalaPsiUtil.localTypeInference(retTypeSingle, paramsForInfer, exprs, typeParamsSingle,
-                  safeCheck = check)
+                  safeCheck = check || fullInfo)
                 paramsForInferBuffer ++= paramsForInfer
                 exprsBuffer ++= exprs
                 resolveResultsBuffer ++= resolveResults
@@ -109,7 +111,7 @@ object InferUtil {
         resInner = dependentSubst.subst(resInner)
       case mt@ScMethodType(retType, params, isImplicit) if !isImplicit =>
         // See SCL-3516
-        val (updatedType, ps) = updateTypeWithImplicitParameters(retType, element, coreElement, check)
+        val (updatedType, ps) = updateTypeWithImplicitParameters(retType, element, coreElement, check, fullInfo = fullInfo)
         implicitParameters = ps
         resInner = mt.copy(returnType = updatedType)(mt.project, mt.scope)
       case ScMethodType(retType, params, isImplicit) if isImplicit =>
@@ -147,16 +149,18 @@ object InferUtil {
     while (iterator.hasNext) {
       val param = iterator.next()
       val paramType = abstractSubstitutor.subst(param.paramType) //we should do all of this with information known before
-      val collector = new ImplicitCollector(place, paramType, paramType, coreElement, isImplicitConversion = false, false, searchImplicitsRecursively)
-      val results = collector.collect
+      val implicitState = ImplicitState(place, paramType, paramType, coreElement, isImplicitConversion = false,
+          isExtensionConversion = false, searchImplicitsRecursively, None, Some(ScalaRecursionManager.recursionMap.get()))
+      val collector = new ImplicitCollector(implicitState)
+      val results = collector.collect()
       if (results.length == 1) {
-        if (check && !results(0).isApplicable()) throw new SafeCheckException
-        resolveResults += results(0)
+        if (check && !results.head.isApplicable()) throw new SafeCheckException
+        resolveResults += results.head
         def updateExpr() {
-          exprs += new Expression(polymorphicSubst subst extractImplicitParameterType(results(0)))
+          exprs += new Expression(polymorphicSubst subst extractImplicitParameterType(results.head))
         }
         val evaluator = ScalaMacroEvaluator.getInstance(place.getProject)
-        evaluator.isMacro(results(0).getElement) match {
+        evaluator.isMacro(results.head.getElement) match {
           case Some(m) =>
             evaluator.checkMacro(m, MacroContext(place, Some(paramType))) match {
               case Some(tp) => exprs += new Expression(polymorphicSubst subst tp)
@@ -186,7 +190,10 @@ object InferUtil {
             //todo: what if paramInCode is null?
             resolveResults += new ScalaResolveResult(param.paramInCode.get)
           } else if (r == null && check) throw new SafeCheckException
-          else resolveResults += r
+          else if (r == null) {
+            val parameter = ScalaPsiElementFactory.createParameterFromText(s"$notFoundParameterName: Int", place.getManager)
+            resolveResults += new ScalaResolveResult(parameter, implicitSearchState = Some(implicitState))
+          } else resolveResults += r
         })
       }
     }
