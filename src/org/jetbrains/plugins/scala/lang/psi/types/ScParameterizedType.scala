@@ -345,8 +345,7 @@ case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
          ptp match {case tp: ScTypeParam =>
              new Suspension[ScType]({() => s.subst(tp.upperBound.getOrAny)})
            case _ => new Suspension[ScType]({() => s.subst(
-             ScCompoundType(ptp.getSuperTypes.map(ScType.create(_, ptp.getProject)).toSeq, Map.empty, Map.empty))
-         })}, ptp)
+             ScalaPsiManager.instance(ptp.getProject).psiTypeParameterUpperType(ptp))})}, ptp)
   }
 
   @volatile
