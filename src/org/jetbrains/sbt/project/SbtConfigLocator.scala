@@ -20,10 +20,9 @@ class SbtConfigLocator extends ExternalSystemConfigLocator {
 
   override def findAll(externalProjectSettings: ExternalProjectSettings): util.List[VirtualFile] = {
     val modules = externalProjectSettings.getModules.asScala
-    modules.foldLeft(List.empty[VirtualFile]) { (acc, path) =>
-      val root = Option(LocalFileSystem.getInstance.refreshAndFindFileByIoFile(new File(path)))
-      root.safeMap(adjust).map(acc :+ _).getOrElse(acc)
-    }.asJava
+    modules.flatMap { path =>
+      Option(LocalFileSystem.getInstance.refreshAndFindFileByIoFile(new File(path))).safeMap(adjust)
+    }.toList.asJava
   }
 
   override def adjust(configPath: VirtualFile): VirtualFile = {

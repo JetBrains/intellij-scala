@@ -9,11 +9,13 @@ import java.util
 
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.javadoc.PsiDocTag
+import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.IElementType
-import com.intellij.psi.{PsiDocCommentOwner, PsiElement, PsiElementVisitor}
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocTag}
@@ -37,7 +39,19 @@ class ScDocCommentImpl(text: CharSequence) extends LazyParseablePsiElement(Scala
     case owner: PsiDocCommentOwner if owner.getDocComment eq this => owner
     case _ => null
   }
-  
+
+  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
+                                   place: PsiElement): Boolean = {
+    super.processDeclarations(processor, state, lastParent, place) && !Option(getOwner).exists {
+      case owner: ScClass =>
+        owner.members.exists {
+          case named: PsiNamedElement => !processor.execute(named, state)
+          case _ => false
+        }
+      case _ => false
+    }
+  }
+
   def getTokenType: IElementType = ScalaDocElementTypes.SCALA_DOC_COMMENT
 
   override def toString: String = "DocComment"

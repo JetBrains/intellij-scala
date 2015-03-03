@@ -71,9 +71,10 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                 case Success(tp, _) if tp.conforms(expected) => defaultResult
                 case Success(tp, _) =>
                   val functionType = ScFunctionType(expected, Seq(tp))(getProject, getResolveScope)
-                  val results = new ImplicitCollector(this, functionType, functionType, None, isImplicitConversion = true, false).collect
+                  val results = new ImplicitCollector(this, functionType, functionType, None,
+                    isImplicitConversion = true, isExtensionConversion = false).collect()
                   if (results.length == 1) {
-                    val res = results(0)
+                    val res = results.head
                     val paramType = InferUtil.extractImplicitParameterType(res)
                     paramType match {
                       case ScFunctionType(rt, Seq(param)) =>
@@ -141,7 +142,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
 
               val checkImplicitParameters = ScalaPsiUtil.withEtaExpansion(this)
               if (checkImplicitParameters) {
-                val tuple = InferUtil.updateTypeWithImplicitParameters(res, this, None, checkExpectedType)
+                val tuple = InferUtil.updateTypeWithImplicitParameters(res, this, None, checkExpectedType, fullInfo = false)
                 res = tuple._1
                 if (fromUnderscore) implicitParametersFromUnder = tuple._2
                 else implicitParameters = tuple._2
