@@ -5,7 +5,7 @@ import java.util.regex.Matcher
 
 import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInspection.{SuppressQuickFix, SuppressionUtil}
-import com.intellij.psi.{PsiComment, PsiElement}
+import com.intellij.psi.{PsiComment, PsiDirectory, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScCommentOwner
 
@@ -37,7 +37,7 @@ object ScalaSuppressableInspectionTool {
 
   def commentsFor(elem: PsiElement): Seq[PsiComment] = {
     elem match {
-      case null => Seq.empty
+      case null | _: PsiFile | _: PsiDirectory => Seq.empty
       case co: ScCommentOwner => co.allComments
       case stmt =>
         val prev = stmt.getPrevSiblingNotWhitespace
