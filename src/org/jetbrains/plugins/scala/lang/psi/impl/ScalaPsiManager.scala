@@ -78,6 +78,9 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val compoundTypesSignatureNodes: ConcurrentMap[(ScCompoundType, Option[ScType]), SofterReference[SMap]] =
     new ConcurrentHashMap
 
+  private val psiTypeParameterUpperTypeMap: ConcurrentMap[PsiTypeParameter, SofterReference[ScType]] =
+    new ConcurrentHashMap
+
   def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
     if (ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes) return ParameterlessNodes.build(tp, compoundTypeThisType)
     val ref = compoundTypesParameterslessNodes.get(tp, compoundTypeThisType)
@@ -469,6 +472,22 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     p match {case synth : ScSyntheticPackage => synth case _ => null}
   }
 
+  def psiTypeParameterUpperType(tp: PsiTypeParameter): ScType = {
+    def calc: ScType = {
+      tp.getSuperTypes match {
+        case array: Array[PsiClassType] if array.length == 1 => ScType.create(array(0), project)
+        case many => new ScCompoundType(many.map { ScType.create(_, project) }, Map.empty, Map.empty)
+      }
+    }
+    val parameterType = psiTypeParameterUpperTypeMap.get(tp)
+    var res: ScType = if (parameterType == null) null else parameterType.get()
+    if (res == null) {
+      res = calc
+      psiTypeParameterUpperTypeMap.put(tp, new SofterReference[ScType](res))
+      res
+    } else res
+  }
+
   def typeVariable(tp: PsiTypeParameter) : ScTypeParameterType = {
     import org.jetbrains.plugins.scala.Misc.fun2suspension
     tp match {
@@ -481,10 +500,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         res
       case _ =>
         val lower = () => types.Nothing
-        val upper = () => tp.getSuperTypes match {
-          case array: Array[PsiClassType] if array.length == 1 => ScType.create(array(0), project)
-          case many => new ScCompoundType(many.map { ScType.create(_, project) }, Map.empty, Map.empty)
-        }
+        val upper = () => psiTypeParameterUpperType(tp)
         val res = new ScTypeParameterType(tp.name, Nil, lower, upper, tp)
         res
     }
