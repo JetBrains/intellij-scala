@@ -176,7 +176,7 @@ object ScalaPluginUpdater {
               notification.expire()
               event.getDescription match {
                 case "No" => // do nothing, will ask next time
-                case "Yes" => UpdateSettings.getInstance().UPDATE_CHANNEL_TYPE = ChannelStatus.EAP_CODE
+                case "Yes" => UpdateSettings.getInstance().setUpdateChannelType(ChannelStatus.EAP_CODE)
                 case "Ignore" => appSettings.ASK_PLATFORM_UPDATE = false
               }
             }
