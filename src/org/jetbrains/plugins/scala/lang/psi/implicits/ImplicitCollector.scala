@@ -197,7 +197,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
         case function: ScFunction if function.hasModifierProperty("implicit") =>
           placeCalculated = true
           if (isPredefPriority || (ScImplicitlyConvertible.checkFucntionIsEligible(function, place) &&
-            ResolveUtils.isAccessible(function, getPlace))) {
+              ResolveUtils.isAccessible(function, getPlace))) {
             addResult(new ScalaResolveResult(named, subst, getImports(state), implicitSearchState = Some(collectorState)))
           }
         case _ =>
@@ -343,11 +343,11 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                                         return reportWrong(CantFindExtensionMethodResult)
                                     //this is not a function, when we still need to pass implicit?..
                                     case _ =>
-                                      return reportWrong(UnhandledResult)
+                                      return reportWrong(UnhandledResult)                                  
                                   }
                                 case _ =>
                               }
-                              val (resType, results) =
+                              val (resType, results) = 
                                 try {
                                   InferUtil.updateTypeWithImplicitParameters(nonValueType.getOrElse(return reportWrong(BadTypeResult)),
                                     place, Some(fun), check = !fullInfo, searchImplicitsRecursively + 1, fullInfo)
@@ -374,7 +374,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
 
                           updateImplicitParameters()
                         } catch {
-                          case e: SafeCheckException =>
+                          case e: SafeCheckException => 
                             Some(c.copy(problems = Seq(WrongTypeParameterInferred), implicitReason = UnhandledResult), subst)
                         }
                       }
