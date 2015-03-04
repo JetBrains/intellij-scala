@@ -7,8 +7,7 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Ksenia.Sautina
@@ -25,7 +24,7 @@ import java.util.Map;
 public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProjectSettings>, ExportableComponent {
   private int IMPLICIT_PARAMETERS_SEARCH_DEPTH = -1;
 
-  private String BASE_PACKAGE = "";
+  private String[] BASE_PACKAGES = new String[0];
   private String SCALATEST_DEFAULT_SUPERCLASS = "org.scalatest.FunSuite";
   
   private boolean SEARCH_ALL_SYMBOLS = false;
@@ -223,8 +222,8 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     return INTERPOLATED_INJECTION_MAPPING;
   }
 
-  public String getBasePackage() {
-    return BASE_PACKAGE;
+  public List<String> getBasePackages() {
+    return new ArrayList<String>(Arrays.asList(BASE_PACKAGES));
   }
 
   public String getScalaTestDefaultSuperClass() {
@@ -235,8 +234,8 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     SCALATEST_DEFAULT_SUPERCLASS = superClassName;
   }
 
-  public void setBasePackage(String name) {
-    BASE_PACKAGE = name;
+  public void setBasePackages(List<String> packages) {
+    BASE_PACKAGES = packages.toArray(new String[packages.size()]);
   }
 
   public void setIntInjectionMapping(Map<String, String> intInjectionMapping) {

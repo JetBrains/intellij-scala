@@ -210,7 +210,7 @@ object ScalaPsiUtil {
       case Seq() =>
         // object A { def foo(a: Any) = ()}; A foo () ==>> A.foo(()), or A.foo() ==>> A.foo( () )
         val unitExpr = ScalaPsiElementFactory.createExpressionFromText("()", manager)
-        Some(Seq(Expression(unitExpr)))
+        Some(Seq(new Expression(types.Unit, place)))
       case _ =>
         val exprTypes: Seq[ScType] =
           s.map(_.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)).map {
@@ -451,7 +451,7 @@ object ScalaPsiUtil {
               case _ => None
             }
           }))
-      implicitMap = convertible.collect
+      implicitMap = convertible.collect()
     }
     //This logic is important to have to navigate to problematic method, in case of failed resolve.
     //That's why we need to have noApplicability parameter
@@ -1218,6 +1218,8 @@ object ScalaPsiUtil {
       case st: ScalaStubBasedElementImpl[_] if st.getStub != null =>
         val stub = st.getStub
         val parent = stub.getParentStub
+        if (parent == null) return null
+
         val children = parent.getChildrenStubs
         val index = children.indexOf(stub)
         if (index == -1) {

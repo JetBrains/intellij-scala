@@ -19,16 +19,9 @@ import scala.collection.JavaConverters._
 class ScalaCompilerConfiguration(project: Project) extends PersistentStateComponent[Element] {
   var incrementalityType: IncrementalityType = IncrementalityType.IDEA
 
-  var defaultProfile: ScalaCompilerSettingsProfile = _
+  var defaultProfile: ScalaCompilerSettingsProfile = new ScalaCompilerSettingsProfile("Default")
 
-  var customProfiles: Seq[ScalaCompilerSettingsProfile] = _
-
-  clearProfiles()
-
-  def clearProfiles() {
-    customProfiles = Seq.empty
-    defaultProfile = new ScalaCompilerSettingsProfile("Default")
-  }
+  var customProfiles: Seq[ScalaCompilerSettingsProfile] = Seq.empty
 
   def getSettingsForModule(module: Module): ScalaCompilerSettings = {
     val profile = customProfiles.find(_.getModuleNames.contains(module.getName)).getOrElse(defaultProfile)
@@ -36,6 +29,13 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
   }
 
   def configureSettingsForModule(module: Module, source: String, options: Seq[String]) {
+    customProfiles.foreach { profile =>
+      profile.removeModuleName(module.getName)
+      if (profile.getName.startsWith(source) && profile.getModuleNames.isEmpty) {
+        customProfiles = customProfiles.filterNot(_ == profile)
+      }
+    }
+
     val settings = new ScalaCompilerSettings()
     settings.initFrom(options)
 
