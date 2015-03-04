@@ -69,6 +69,9 @@ object getDummyBlocks {
       case _: ScExtendsBlock =>
         subBlocks.addAll(getExtendsSubBlocks(node, block))
         return subBlocks
+      case _: ScForStatement =>
+        subBlocks.addAll(getForSubBlocks(node, block, children))
+        return subBlocks
       case _: ScReferenceExpression =>
         subBlocks.addAll(getMethodCallOrRefExprSubBlocks(node, block))
         return subBlocks
@@ -454,6 +457,28 @@ object getDummyBlocks {
         val childWrap = arrangeSuggestedWrapForChild(block, x.getNode, settings, block.suggestedWrap)
         subBlocks.add(new ScalaBlock(block, x.getNode, null, null, indent, childWrap, block.getSettings))
       case _ =>
+    }
+    subBlocks
+  }
+
+  private def getForSubBlocks(node: ASTNode, block: ScalaBlock, children: Array[ASTNode]): util.ArrayList[Block] = {
+    var prevChild: ASTNode = null
+    val subBlocks = new util.ArrayList[Block]()
+    val scalaSettings = block.getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    for (child <- children if isCorrectBlock(child)) {
+      if (child.getElementType != ScalaTokenTypes.kYIELD) {
+        if (prevChild != null && prevChild.getElementType == ScalaTokenTypes.kYIELD) {
+          val indent = ScalaIndentProcessor.getChildIndent(block, prevChild)
+          val childWrap = arrangeSuggestedWrapForChild(block, prevChild, scalaSettings, block.suggestedWrap)
+          subBlocks.add(new ScalaBlock(block, prevChild, child, null, indent, childWrap, block.getSettings))
+        } else {
+          val indent = ScalaIndentProcessor.getChildIndent(block, child)
+          val childWrap = arrangeSuggestedWrapForChild(block, child, scalaSettings, block.suggestedWrap)
+          subBlocks.add(new ScalaBlock(block, child, null, null, indent, childWrap, block.getSettings))
+        }
+        prevChild = child
+      }
+      prevChild = child
     }
     subBlocks
   }

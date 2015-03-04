@@ -696,4 +696,151 @@ bars foreach {case (x, y) => list.add(x + y)}
 
     doTextTest(before, after)
   }
+
+  def testSCL6702() {
+    getCurrentCodeStyleSettings.FORMATTER_TAGS_ENABLED = true
+    val before =
+    """
+      |//@formatter:off
+      |class SCL6702 {
+      |  def foo(p: String ) {
+      |    println(p )
+      |  }
+      |
+      |  //@formatter:on
+      |  def foop(p: String ): Unit = {
+      |    println(p )
+      |  }
+      |}
+    """.stripMargin.replace("\r", "")
+
+    val after =
+    """
+      |//@formatter:off
+      |class SCL6702 {
+      |  def foo(p: String ) {
+      |    println(p )
+      |  }
+      |
+      |  //@formatter:on
+      |  def foop(p: String): Unit = {
+      |    println(p)
+      |  }
+      |}
+    """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL5488_1() {
+    getScalaSettings.SPACES_IN_ONE_LINE_BLOCKS = false
+    getScalaSettings.SPACE_INSIDE_CLOSURE_BRACES = false
+    getCommonSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
+
+    val before =
+      """
+        |class SCL5488 {
+        |  val foos = List[List[Integer]]()
+        |  foos map {t => t.toSeq sortBy {-_ } map { _ * 2} }
+        |  val f4: (Int, Int) => Int = { _ + _}
+        |  val f5: (Int, Int) => Int = {_ + _ }
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |class SCL5488 {
+        |  val foos = List[List[Integer]]()
+        |  foos map {t => t.toSeq sortBy {-_} map {_ * 2}}
+        |  val f4: (Int, Int) => Int = {_ + _}
+        |  val f5: (Int, Int) => Int = {_ + _}
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL5488_2() {
+    getScalaSettings.SPACES_IN_ONE_LINE_BLOCKS = true
+    getScalaSettings.SPACE_INSIDE_CLOSURE_BRACES = false
+    getCommonSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
+
+    val before =
+      """
+        |class SCL5488 {
+        |  val foos = List[List[Integer]]()
+        |  foos map {t => t.toSeq sortBy {-_ } map { _ * 2} }
+        |  val f4: (Int, Int) => Int = { _ + _}
+        |  val f5: (Int, Int) => Int = {_ + _ }
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |class SCL5488 {
+        |  val foos = List[List[Integer]]()
+        |  foos map { t => t.toSeq sortBy { -_ } map { _ * 2 } }
+        |  val f4: (Int, Int) => Int = { _ + _ }
+        |  val f5: (Int, Int) => Int = { _ + _ }
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL5488_3() {
+    getScalaSettings.SPACES_IN_ONE_LINE_BLOCKS = false
+    getScalaSettings.SPACE_INSIDE_CLOSURE_BRACES = true
+    getCommonSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
+
+    val before =
+      """
+        |class SCL5488 {
+        |  val foos = List[List[Integer]]()
+        |  foos map {t => t.toSeq sortBy {-_ } map { _ * 2} }
+        |  val f4: (Int, Int) => Int = { _ + _}
+        |  val f5: (Int, Int) => Int = {_ + _ }
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |class SCL5488 {
+        |  val foos = List[List[Integer]]()
+        |  foos map { t => t.toSeq sortBy {-_} map {_ * 2} }
+        |  val f4: (Int, Int) => Int = {_ + _}
+        |  val f5: (Int, Int) => Int = {_ + _}
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL5488_4() {
+    getScalaSettings.SPACES_IN_ONE_LINE_BLOCKS = true
+    getScalaSettings.SPACE_INSIDE_CLOSURE_BRACES = true
+    getCommonSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
+
+    val before =
+      """
+        |class SCL5488 {
+        |  val foos = List[List[Integer]]()
+        |  foos map {t => t.toSeq sortBy {-_ } map { _ * 2} }
+        |  val f4: (Int, Int) => Int = { _ + _}
+        |  val f5: (Int, Int) => Int = {_ + _ }
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |class SCL5488 {
+        |  val foos = List[List[Integer]]()
+        |  foos map { t => t.toSeq sortBy { -_ } map { _ * 2 } }
+        |  val f4: (Int, Int) => Int = { _ + _ }
+        |  val f5: (Int, Int) => Int = { _ + _ }
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
 }

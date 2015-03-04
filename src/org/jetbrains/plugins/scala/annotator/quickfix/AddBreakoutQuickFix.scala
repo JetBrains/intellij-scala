@@ -48,9 +48,9 @@ object AddBreakoutQuickFix {
   def isAvailable(expr: ScExpression): Boolean = {
     expr match {
       case MethodRepr(_, _, Some(ResolvesTo(fd: ScFunctionDefinition)), _) =>
-        val lastClause = fd.paramClauses.clauses.last
-        lastClause.parameters match {
-          case Seq(p: ScParameter) if isImplicitCanBuildFromParam(p) => true
+        val lastClause = fd.paramClauses.clauses.lastOption
+        lastClause.map(_.parameters) match {
+          case Some(Seq(p: ScParameter)) if isImplicitCanBuildFromParam(p) => true
           case _ => false
         }
       case forStmt: ScForStatement =>
