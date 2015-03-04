@@ -143,7 +143,7 @@ public class ScalaTestRunner {
     ArrayList<String> classes = new ArrayList<String>();
     ArrayList<String> failedTests = new ArrayList<String>();
     boolean failedUsed = false;
-    String testName = "";
+    List<String> testNames = new LinkedList<String>();
     boolean showProgressMessages = true;
     boolean useVersionFromOptions = false;
     boolean isOlderScalaVersionFromOptions = false;
@@ -162,7 +162,7 @@ public class ScalaTestRunner {
         }
       } else if (newArgs[i].equals("-testName")) {
         ++i;
-        testName = newArgs[i];
+        testNames.add(TestRunnerUtil.unescapeTestName(newArgs[i]));
         ++i;
       } else if (newArgs[i].equals("-showProgressMessages")) {
         ++i;
@@ -204,16 +204,17 @@ public class ScalaTestRunner {
         runSingleTest(failedTests.get(i + 1), failedTests.get(i), reporter);
         i += 2;
       }
-    } else if (testName.equals("")) {
+    } else if (testNames.isEmpty()) {
       for (String clazz : classes) {
         arga[classIndex] = clazz;
         TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
         Runner.run(arga);
       }
     } else {
-      String[] testNames = testName.split(";");
+      //'test' kind of run should only contain one class, better fail then try to run something irrelevant
+      assert(classes.size() == 1);
       for (String clazz : classes) {
-        for (String tn : Arrays.asList(testNames)) {
+        for (String tn : testNames) {
           TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
           runSingleTest(tn, clazz, reporter);
         }

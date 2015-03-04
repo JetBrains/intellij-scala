@@ -24,13 +24,14 @@ import com.intellij.ui.{ClickListener, ScrollPaneFactory}
 import com.intellij.util.ArrayUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -83,7 +84,7 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
           case Some(tp) =>
             val elements = tp.typeElements
             if (elements.length > 0) {
-              checkTypeElement(elements(0)) match {
+              checkTypeElement(elements.head) match {
                 case Some(x) => return x
                 case None =>
               }
@@ -126,8 +127,7 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
       opt match {
         case Some((expr, _)) =>
           forExpr(expr)
-          return
-        case _ => return
+        case _ =>
       }
     } else {
       val offset = editor.getCaretModel.getOffset
@@ -165,7 +165,6 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
       }
       if (expressions.length == 0) {
         ScalaActionUtil.showHint(editor, "No implicit parameters")
-        return
       } else if (expressions.length == 1) {
         chooseExpression(expressions(0))
       } else {
@@ -286,16 +285,43 @@ class ImplicitParametersTreeStructure(project: Project,
                                       results: Seq[ScalaResolveResult]) extends AbstractTreeStructure {
   private val manager = PsiManager.getInstance(project)
 
-  class ImplicitParametersNode(_value: ScalaResolveResult)
-    extends {
-      val value = if (_value == null) new ScalaResolveResult(ScalaPsiElementFactory.createParameterFromText("NotFoundParameter: Int", manager)) else _value
-    } with AbstractPsiBasedNode[ScalaResolveResult](project, value, ViewSettings.DEFAULT) {
+  class ImplicitParametersNode(value: ScalaResolveResult, implicitResult: Option[ImplicitResult] = None)
+    extends AbstractPsiBasedNode[ScalaResolveResult](project, value, ViewSettings.DEFAULT) {
     override def extractPsiFromValue(): PsiNamedElement = value.getElement
 
     override def getChildrenImpl: util.Collection[AbstractTreeNode[_]] = {
       val list = new util.ArrayList[AbstractTreeNode[_]]()
-      value.implicitParameters.foreach {
-        case result => list.add(new ImplicitParametersNode(result))
+      if (value.name == InferUtil.notFoundParameterName) {
+        def addErrorLeaf(errorText: String): Boolean = {
+          list.add(new AbstractTreeNode[String](project, errorText) {
+            override def getChildren: util.Collection[AbstractTreeNode[_]] = new util.ArrayList[AbstractTreeNode[_]]()
+
+            override def update(data: PresentationData): Unit = {
+              data.setPresentableText(errorText)
+              data.setAttributesKey(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES)
+            }
+          })
+        }
+        value.implicitSearchState match {
+          case Some(state) =>
+            val collector = new ImplicitCollector(state)
+            collector.collect(fullInfo = true).foreach { r =>
+              r.implicitReason match {
+                case TypeDoesntConformResult =>
+                case BadTypeResult =>
+                case CantFindExtensionMethodResult =>
+                case FunctionForParameterResult =>
+                case implicitResult => list.add(new ImplicitParametersNode(r, Some(implicitResult)))
+              }
+            }
+            if (list.isEmpty) addErrorLeaf("Applicable by type implicits were not found")
+          case _ =>
+            addErrorLeaf("No information for no reason")
+        }
+      } else {
+        value.implicitParameters.foreach {
+          case result => list.add(new ImplicitParametersNode(result))
+        }
       }
       list
     }
@@ -304,15 +330,33 @@ class ImplicitParametersTreeStructure(project: Project,
       val namedElement = extractPsiFromValue()
       if (namedElement != null) {
         val text: String = namedElement.name
-        if (text == "NotFoundParameter") {
+        if (text == InferUtil.notFoundParameterName) {
           data.setPresentableText("Parameter not found")
           data.setAttributesKey(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES)
         } else {
           namedElement match {
             case s: ScNamedElement =>
               val presentation = s.getPresentation
-              data.setLocationString(presentation.getLocationString.drop(1).dropRight(1))
-              data.setPresentableText(presentation.getPresentableText)
+
+              val presentationTextSuffix = implicitResult match {
+                case Some(OkResult) =>
+                  data.setTooltip("Implicit parameter is applicable")
+                  ": Applicable"
+                case Some(DivergedImplicitResult) =>
+                  data.setTooltip("Implicit is diverged")
+                  data.setAttributesKey(CodeInsightColors.ERRORS_ATTRIBUTES)
+                  ": Diverging implicit"
+                case Some(CantInferTypeParameterResult) =>
+                  data.setTooltip("Can't infer proper types for type parameters")
+                  data.setAttributesKey(CodeInsightColors.ERRORS_ATTRIBUTES)
+                  ": Type Parameter"
+                case Some(ImplicitParameterNotFoundResult) =>
+                  data.setTooltip("Can't find implicit parameter for this definition")
+                  data.setAttributesKey(CodeInsightColors.ERRORS_ATTRIBUTES)
+                  ": Implicit Parameter"
+                case _ =>
+              }
+              data.setPresentableText(presentation.getPresentableText + presentationTextSuffix)
             case _ => data.setPresentableText(text)
           }
         }

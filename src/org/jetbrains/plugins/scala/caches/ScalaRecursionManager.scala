@@ -3,8 +3,7 @@ package org.jetbrains.plugins.scala.caches
 import com.intellij.openapi.util.RecursionManager
 import com.intellij.psi.PsiElement
 
-import scala.collection.mutable
-import scala.collection.mutable.{ArrayBuffer, Map}
+import scala.collection.immutable.HashMap
 
 /**
  * @author Alexander Podkhalyuzin
@@ -16,40 +15,52 @@ object ScalaRecursionManager {
   val IMPLICIT_PARAM_TYPES_KEY = "implicit.param.types.key"
   val CYCLIC_HELPER_KEY = "cyclic.helper.key"
 
-  val recursionMap: ThreadLocal[Map[(PsiElement, String), ArrayBuffer[Object]]] =
-    new ThreadLocal[Map[(PsiElement, String), ArrayBuffer[Object]]] {
-      override def initialValue(): Map[(PsiElement, String), ArrayBuffer[Object]] =
-        new mutable.HashMap[(PsiElement, String), ArrayBuffer[Object]]
+  type RecursionMap = Map[(PsiElement, String), List[Object]]
+  val recursionMap: ThreadLocal[RecursionMap] =
+    new ThreadLocal[RecursionMap] {
+      override def initialValue(): RecursionMap =
+        new HashMap[(PsiElement, String), List[Object]]
     }
 
-  private def getSearches[Dom <: PsiElement](element: Dom, key: String): ArrayBuffer[Object] = {
+  def usingPreviousRecursionMap[T](m: RecursionMap)(body: => T): T = {
+    val currentMap = recursionMap.get()
+    try {
+      recursionMap.set(m)
+      body
+    } finally {
+      recursionMap.set(currentMap)
+    }
+  }
+
+  private def getSearches[Dom <: PsiElement](element: Dom, key: String): List[Object] = {
     recursionMap.get().get((element, key)) match {
-      case Some(buffer: ArrayBuffer[Object]) => buffer
-      case _ => ArrayBuffer.empty[Object]
+      case Some(buffer: List[Object]) => buffer
+      case _ => List.empty
     }
   }
 
   private def addLast[Dom <: PsiElement](element: Dom, key: String, obj: Object) {
     recursionMap.get().get((element, key)) match {
-      case Some(buffer) => buffer += obj
+      case Some(list) =>
+        recursionMap.set(recursionMap.get().updated((element, key), obj :: list))
       case _ =>
-        val buffer = ArrayBuffer.empty[Object]
-        buffer += obj
-        recursionMap.get().put((element, key), buffer)
+        recursionMap.set(recursionMap.get() + ((element, key) -> List(obj)))
     }
   }
 
   private def removeLast[Dom <: PsiElement](element: Dom, key: String) {
     recursionMap.get().get((element, key)) match {
-      case Some(buffer) =>
-        buffer.remove(buffer.length - 1)
-        if (buffer.isEmpty) recursionMap.get().remove((element, key))
+      case Some(list) =>
+        list match {
+          case hd :: tl => recursionMap.set(recursionMap.get().updated((element, key), tl))
+          case _ => recursionMap.set(recursionMap.get() - ((element, key)))
+        }
       case _ => throw new RuntimeException("Match is not exhaustive")
     }
   }
 
   /**
-   * Do compatations stopping infinite recursion.
+   * Do computations stopping infinite recursion.
    * @param element store information about recursion stack
    * @param checkAdd checks if element is recursive to elements from stack
    * @param addElement element, which to add to recursion stack
@@ -59,7 +70,7 @@ object ScalaRecursionManager {
   def doComputations[Dom <: PsiElement, Result](element: Dom, checkAdd: (Object, Seq[Object]) => Boolean,
                                                 addElement: Object,
                                                 compute: => Result, key: String): Option[Result] = {
-    val searches: ArrayBuffer[Object] = getSearches(element, key)
+    val searches: List[Object] = getSearches(element, key)
     if (checkAdd(addElement, searches)) {
       try {
         addLast(element, key, addElement)
@@ -78,8 +89,8 @@ object ScalaRecursionManager {
                                                               checkAdd: (Object, Seq[Object]) => Boolean,
                                                               addElement1: Object, addElement2: Object,
                                                               compute: => Result, key: String): Option[Result] = {
-    val searches1: ArrayBuffer[Object] = getSearches(element1, key)
-    val searches2: ArrayBuffer[Object] = getSearches(element2, key)
+    val searches1: List[Object] = getSearches(element1, key)
+    val searches2: List[Object] = getSearches(element2, key)
     if (checkAdd(addElement1, searches1) && checkAdd(addElement2, searches2)) {
       try {
         addLast(element1, key, addElement1)
