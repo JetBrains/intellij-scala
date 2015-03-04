@@ -17,7 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
  */
 
 trait ScTypeDefinition extends ScTemplateDefinition with ScMember
-    with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable with ScDocCommentOwner with ScAnnotationsHolder {
+    with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable with ScDocCommentOwner
+    with ScAnnotationsHolder with ScCommentOwner {
 
   def isCase : Boolean = false
 

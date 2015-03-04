@@ -31,11 +31,11 @@ class ScalaBlock (val myParentBlock: ScalaBlock,
         protected var myIndent: Indent,
         protected var myWrap: Wrap,
         protected val mySettings: CodeStyleSettings)
-extends Object with ScalaTokenTypes with Block {
+extends Object with ScalaTokenTypes with ASTBlock {
 
   protected var mySubBlocks: List[Block] = null
 
-  def getNode = myNode
+  override def getNode = myNode
 
   def getSettings = mySettings
 

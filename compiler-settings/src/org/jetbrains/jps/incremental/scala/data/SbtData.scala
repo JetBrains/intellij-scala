@@ -2,7 +2,10 @@ package org.jetbrains.jps.incremental.scala
 package data
 
 import java.io._
+import java.security.MessageDigest
+import javax.xml.bind.DatatypeConverter
 
+import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.scala._
 
 /**
@@ -14,7 +17,9 @@ case class SbtData(interfaceJar: File,
                    javaClassVersion: String)
 
 object SbtData {
-  def from(classLoader: ClassLoader, pluginRoot: File, systemRoot: File, javaClassVersion: String): Either[String, SbtData] = {
+  val dataRoot = new File(System.getProperty("user.home"), ".idea-build")
+
+  def from(classLoader: ClassLoader, pluginRoot: File, javaClassVersion: String): Either[String, SbtData] = {
     Either.cond(pluginRoot.exists, pluginRoot,
       "SBT home directory does not exist: " + pluginRoot).flatMap { sbtHome =>
 
@@ -34,58 +39,14 @@ object SbtData {
               .toRight("Unable to read SBT version from JVM classpath")
               .map { sbtVersion =>
 
-              val interfacesHome = new File(new File(systemRoot, "scala-compiler-interfaces"), sbtVersion + "-idea")
-
-              val sourcesTimestamp = new File(interfacesHome, "sourcesTimestamp.dat")
-              val currentTimestamp = sourceJar.lastModified()
-              if (readLong(sourcesTimestamp) != Some(currentTimestamp)) {
-                clean(interfacesHome)
-                writeLongTo(sourcesTimestamp, currentTimestamp)
-              }
+              val checksum = DatatypeConverter.printHexBinary(md5(sourceJar))
+              val interfacesHome = new File(new File(dataRoot, "scala-compiler-interfaces"), sbtVersion + "-idea-" + checksum)
 
               new SbtData(interfaceJar, sourceJar, interfacesHome, javaClassVersion)
             }
           }
         }
       }
-    }
-  }
-
-  private def readLong(file: File): Option[Long] = {
-    if (!file.exists()) None
-    else {
-      using(new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) { in =>
-        try {
-          Some(in.readLong())
-        } catch {
-          case _: IOException | _: IllegalArgumentException | _: NullPointerException => None
-        }
-      }
-    }
-  }
-
-  private def writeLongTo(file: File, long: Long): Unit = {
-    try {
-      if (!file.exists()) file.createNewFile()
-
-      using(new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
-        _.writeLong(long)
-      }
-    }
-    catch {
-      case _: IOException =>
-    }
-  }
-
-  private def clean(dir: File): Unit = {
-    try {
-      if (!dir.exists()) return
-      val files = dir.listFiles()
-      if (files != null)
-        files.foreach(_.delete())
-    }
-    catch {
-      case _: IOException =>
     }
   }
 
@@ -100,4 +61,16 @@ object SbtData {
       }
     }
   }
+
+  private def md5(file: File): Array[Byte] = {
+    val md = MessageDigest.getInstance("MD5")
+    val isSource = file.getName.endsWith(".java") || file.getName.endsWith(".scala")
+    if (isSource) {
+      val text = scala.io.Source.fromFile(file, "UTF-8").mkString.replace("\r", "")
+      md.digest(text.getBytes("UTF8"))
+    } else {
+      md.digest(FileUtil.loadBytes(new FileInputStream(file)))
+    }
+  }
+
 }
