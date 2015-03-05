@@ -62,7 +62,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val project = data.projects.headOption.getOrElse(throw new RuntimeException("No root project found"))
     val projectNode = new ProjectNode(project.name, root, root)
 
-    val basePackages = project.basePackages
+    val basePackages = projects.flatMap(_.basePackages).distinct
     val javacOptions = project.java.map(_.options).getOrElse(Seq.empty)
     val sbtVersion = data.sbtVersion
     val projectPath = FileUtil.toSystemIndependentName(root)
