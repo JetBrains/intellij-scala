@@ -10,10 +10,10 @@ import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollect
  */
 class FilterSizeInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(new FilterSize(this))
+    Array(FilterSize)
 }
 
-class FilterSize(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
+object FilterSize extends SimplificationType {
 
   def hint = InspectionBundle.message("filter.size.hint")
 

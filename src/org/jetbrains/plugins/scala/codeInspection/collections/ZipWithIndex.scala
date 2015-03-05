@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 /**
  * @author Nikolay.Tropin
  */
-class ZipWithIndex(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
+object ZipWithIndex extends SimplificationType() {
   override def hint: String = InspectionBundle.message("replace.with.zipWithIndex")
 
   override def getSimplification(single: MethodRepr): List[Simplification] = {
@@ -26,5 +26,5 @@ class ZipWithIndex(inspection: OperationOnCollectionInspection) extends Simplifi
 }
 
 class ZipWithIndexInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(new ZipWithIndex(this))
+  override def possibleSimplificationTypes: Array[SimplificationType] = Array(ZipWithIndex)
 }

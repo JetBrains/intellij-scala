@@ -10,10 +10,10 @@ import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollect
  */
 class FilterHeadOptionInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(new FilterHeadOption(this))
+    Array(FilterHeadOption)
 }
 
-class FilterHeadOption(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
+object FilterHeadOption extends SimplificationType {
 
   def hint = InspectionBundle.message("filter.headOption.hint")
 

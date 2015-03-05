@@ -10,10 +10,10 @@ import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollect
  */
 class NotIsEmptyInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(new NotIsEmpty(this))
+    Array(NotIsEmpty)
 }
 
-class NotIsEmpty(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
+object NotIsEmpty extends SimplificationType() {
   def hint = InspectionBundle.message("not.isEmpty.hint")
 
   override def getSimplification(last: MethodRepr, second: MethodRepr) = {

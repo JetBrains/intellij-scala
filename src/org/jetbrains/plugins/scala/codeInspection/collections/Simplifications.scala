@@ -5,6 +5,7 @@ import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import extensions.childOf
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /**
  * Nikolay.Tropin
@@ -12,14 +13,14 @@ import extensions.childOf
  */
 case class Simplification(replacementText: String, hint: String, rangeInParent: TextRange)
 
-abstract class SimplificationType(inspection: OperationOnCollectionInspection) {
+abstract class SimplificationType() {
   def hint: String
   def description: String = hint
   def getSimplification(single: MethodRepr): List[Simplification] = Nil
   def getSimplification(last: MethodRepr, second: MethodRepr): List[Simplification] = Nil
 
-  def likeOptionClasses = inspection.getLikeOptionClasses
-  def likeCollectionClasses = inspection.getLikeCollectionClasses
+  def likeOptionClasses = ScalaApplicationSettings.getInstance().getLikeOptionClasses
+  def likeCollectionClasses = ScalaApplicationSettings.getInstance().getLikeCollectionClasses
 
   def isCollectionMethod(expr: ScExpression) = OperationOnCollectionsUtil.checkResolve(expr, likeCollectionClasses)
   def isOptionMethod(expr: ScExpression) = OperationOnCollectionsUtil.checkResolve(expr, likeOptionClasses)

@@ -12,10 +12,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
  */
 class ExistsEqualsInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(new ExistsEquals(this))
+    Array(ExistsEquals)
 }
 
-class ExistsEquals(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
+object ExistsEquals extends SimplificationType {
   override def getSimplification(single: MethodRepr) = {
     single.itself match {
       case MethodRepr(_, Some(qual), Some(ref), Seq(arg))

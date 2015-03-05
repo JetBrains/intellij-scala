@@ -7,44 +7,19 @@ import java.util.Arrays;
  * 5/28/13
  */
 public abstract class OperationOnCollectionInspection extends OperationOnCollectionInspectionBase {
-  private final String[] likeOptionClassesDefault = {"scala.Option", "scala.Some", "scala.None"};
-  private final String[] likeCollectionClassesDefault = {"scala.collection._", "scala.Option"};
-  public String[] likeOptionClasses = likeOptionClassesDefault;
-  public String[] likeCollectionClasses = likeCollectionClassesDefault;
-  public Boolean[] simplificationTypeChecked = new Boolean[possibleSimplificationTypes().length];
+  public Boolean[] simplificationTypesEnabled = new Boolean[possibleSimplificationTypes().length];
 
   public OperationOnCollectionInspection() {
-    Arrays.fill(simplificationTypeChecked, true);
-  }
-
-
-  @Override
-  public String[] getLikeCollectionClasses() {
-    return likeCollectionClasses;
+    Arrays.fill(simplificationTypesEnabled, true);
   }
 
   @Override
-  public String[] getLikeOptionClasses() {
-    return likeOptionClasses;
+  public Boolean[] getSimplificationTypesEnabled() {
+    return simplificationTypesEnabled;
   }
 
   @Override
-  public void setLikeCollectionClasses(String[] values) {
-    likeCollectionClasses = values;
-  }
-
-  @Override
-  public void setLikeOptionClasses(String[] values) {
-    likeOptionClasses = values;
-  }
-
-  @Override
-  public Boolean[] getSimplificationTypeChecked() {
-    return simplificationTypeChecked;
-  }
-
-  @Override
-  public void setSimplificationTypeChecked(Boolean[] values) {
-    simplificationTypeChecked = values;
+  public void setSimplificationTypesEnabled(Boolean[] values) {
+    simplificationTypesEnabled = values;
   }
 }

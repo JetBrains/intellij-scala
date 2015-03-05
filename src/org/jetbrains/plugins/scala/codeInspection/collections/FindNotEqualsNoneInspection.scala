@@ -10,10 +10,10 @@ import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollect
  */
 class FindNotEqualsNoneInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(new FindNotEqualsNone(this))
+    Array(FindNotEqualsNone)
 }
 
-class FindNotEqualsNone(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection){
+object FindNotEqualsNone extends SimplificationType(){
 
   def hint = InspectionBundle.message("find.notEquals.none.hint")
 

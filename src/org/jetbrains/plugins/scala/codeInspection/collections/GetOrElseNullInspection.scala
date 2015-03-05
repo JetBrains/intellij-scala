@@ -10,10 +10,10 @@ import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollect
  */
 class GetOrElseNullInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(new GetOrElseNull(this))
+    Array(GetOrElseNull)
 }
 
-class GetOrElseNull(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
+object GetOrElseNull extends SimplificationType() {
   override def getSimplification(single: MethodRepr) = {
     single.itself match {
       case MethodRepr(itself, Some(base), Some(ref), args)

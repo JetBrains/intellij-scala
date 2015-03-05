@@ -8,10 +8,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScParameter
  * @author Nikolay.Tropin
  */
 class SizeToLengthInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(new SizeToLength(this))
+  override def possibleSimplificationTypes: Array[SimplificationType] = Array(SizeToLength)
 }
 
-class SizeToLength(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
+object SizeToLength extends SimplificationType {
   override def hint: String = InspectionBundle.message("size.to.length")
 
   override def getSimplification(single: MethodRepr): List[Simplification] = {

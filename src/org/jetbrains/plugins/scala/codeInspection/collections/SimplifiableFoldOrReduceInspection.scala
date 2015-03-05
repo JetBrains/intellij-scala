@@ -28,7 +28,7 @@ class FoldSimplificationType(inspection: OperationOnCollectionInspection,
                              keyPrefix: String,
                              startElem: String,
                              opName: String,
-                             methodName: String) extends SimplificationType(inspection){
+                             methodName: String) extends SimplificationType(){
 
   override def getSimplification(last: MethodRepr, second: MethodRepr): List[Simplification] = {
     (last.optionalMethodRef, second.optionalMethodRef) match {
@@ -52,7 +52,7 @@ class FoldSimplificationType(inspection: OperationOnCollectionInspection,
 class ReduceSimplificationType(inspection: OperationOnCollectionInspection,
                                keyPrefix: String,
                                opName: String,
-                               methodName: String) extends SimplificationType(inspection) {
+                               methodName: String) extends SimplificationType() {
 
   override def getSimplification(last: MethodRepr): List[Simplification] = {
     last.optionalMethodRef match {

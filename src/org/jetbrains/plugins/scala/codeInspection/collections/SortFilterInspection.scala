@@ -10,10 +10,10 @@ import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollect
  */
 class SortFilterInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(new SortFilter(this))
+    Array(SortFilter)
 }
 
-class SortFilter(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
+object SortFilter extends SimplificationType {
 
   def hint = InspectionBundle.message("sort.filter.hint")
 
