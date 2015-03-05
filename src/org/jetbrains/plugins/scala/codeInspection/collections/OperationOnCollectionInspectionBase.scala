@@ -14,7 +14,7 @@ import com.intellij.ui.{AnActionButton, AnActionButtonRunnable, ListScrollingUti
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspectionBase._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettingsUtil
+import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProjectSettingsUtil}
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
 /**
@@ -48,6 +48,8 @@ object OperationOnCollectionInspectionBase {
 }
 
 abstract class OperationOnCollectionInspectionBase extends AbstractInspection(inspectionId, inspectionName){
+  private val settings = ScalaApplicationSettings.getInstance()
+
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case expr: ScExpression  =>
       for (s <- simplifications(expr)) {
@@ -60,7 +62,7 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
   private def simplifications(expr: ScExpression): Array[Simplification] = {
     def simplificationTypes = for {
       (st, idx) <- possibleSimplificationTypes.zipWithIndex
-      if getSimplificationTypeChecked(idx)
+      if getSimplificationTypesEnabled(idx)
     } yield st
 
     val result = expr match {
@@ -74,13 +76,14 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
     result
   }
 
-  def getLikeCollectionClasses: Array[String]
-  def getLikeOptionClasses: Array[String]
-  def setLikeCollectionClasses(values: Array[String])
-  def setLikeOptionClasses(values: Array[String])
+  def getLikeCollectionClasses: Array[String] = settings.getLikeCollectionClasses
+  def getLikeOptionClasses: Array[String] = settings.getLikeOptionClasses
+  def setLikeCollectionClasses(values: Array[String]) = settings.setLikeCollectionClasses(values)
+  def setLikeOptionClasses(values: Array[String]) = settings.setLikeOptionClasses(values)
+
   def possibleSimplificationTypes: Array[SimplificationType]
-  def getSimplificationTypeChecked: Array[java.lang.Boolean]
-  def setSimplificationTypeChecked(values: Array[java.lang.Boolean])
+  def getSimplificationTypesEnabled: Array[java.lang.Boolean]
+  def setSimplificationTypesEnabled(values: Array[java.lang.Boolean])
 
   private val patternLists = Map(
     likeCollectionKey -> getLikeCollectionClasses _,
@@ -99,12 +102,12 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
       val innerPanel = new JPanel()
       innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.Y_AXIS))
       for (i <- 0 until possibleSimplificationTypes.length) {
-        val checked: Array[java.lang.Boolean] = getSimplificationTypeChecked
-        val checkBox = new JCheckBox(possibleSimplificationTypes(i).description, checked(i))
+        val enabled: Array[java.lang.Boolean] = getSimplificationTypesEnabled
+        val checkBox = new JCheckBox(possibleSimplificationTypes(i).description, enabled(i))
         checkBox.getModel.addChangeListener(new ChangeListener {
           def stateChanged(e: ChangeEvent) {
-            checked(i) = checkBox.isSelected
-            setSimplificationTypeChecked(checked)
+            enabled(i) = checkBox.isSelected
+            setSimplificationTypesEnabled(enabled)
           }
         })
         innerPanel.add(checkBox)

@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollect
 /**
  * @author Nikolay.Tropin
  */
-class ReverseIterator(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
+object ReverseIterator extends SimplificationType {
   override def hint: String = InspectionBundle.message("replace.reverse.iterator")
 
   override def getSimplification(last: MethodRepr, second: MethodRepr): List[Simplification] = {
@@ -21,5 +21,5 @@ class ReverseIterator(inspection: OperationOnCollectionInspection) extends Simpl
 }
 
 class ReverseIteratorInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(new ReverseIterator(this))
+  override def possibleSimplificationTypes: Array[SimplificationType] = Array(ReverseIterator)
 }

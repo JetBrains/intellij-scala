@@ -10,10 +10,10 @@ import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollect
  */
 class FoldTrueAndInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(new FoldTrueAnd(this))
+    Array(FoldTrueAnd)
 }
 
-class FoldTrueAnd(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection){
+object FoldTrueAnd extends SimplificationType(){
 
   def hint = InspectionBundle.message("fold.true.and.hint")
 

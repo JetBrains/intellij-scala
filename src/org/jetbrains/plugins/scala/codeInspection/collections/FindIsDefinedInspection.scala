@@ -10,10 +10,10 @@ import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollect
  */
 class FindIsDefinedInspection extends OperationOnCollectionInspection{
   override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(new FindIsDefined(this))
+    Array(FindIsDefined)
 }
 
-class FindIsDefined(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
+object FindIsDefined extends SimplificationType() {
   def hint = InspectionBundle.message("find.isDefined.hint")
 
   override def getSimplification(last: MethodRepr, second: MethodRepr): List[Simplification] = {

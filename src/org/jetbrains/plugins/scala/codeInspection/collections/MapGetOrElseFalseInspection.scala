@@ -10,10 +10,10 @@ import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollect
  */
 class MapGetOrElseFalseInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(new MapGetOrElseFalse(this))
+    Array(MapGetOrElseFalse)
 }
 
-class MapGetOrElseFalse(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
+object MapGetOrElseFalse extends SimplificationType() {
   def hint = InspectionBundle.message("map.getOrElse.false.hint")
   override def getSimplification(last: MethodRepr, second: MethodRepr): List[Simplification] = {
     val (lastArgs, secondArgs) = (last.args, second.args)

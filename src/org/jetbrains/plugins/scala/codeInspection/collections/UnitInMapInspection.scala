@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala.codeInspection.collections
 
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ChangeReferenceNameQuickFix}
+import org.jetbrains.plugins.scala.codeInspection.{ChangeReferenceNameQuickFix, InspectionBundle}
 import org.jetbrains.plugins.scala.extensions.ExpressionType
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScBlock, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScParameterizedType, Unit}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, Unit}
 
 /**
  * @author Nikolay.Tropin
@@ -17,7 +17,7 @@ class UnitInMapInspection extends OperationOnCollectionInspection {
 
   override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case MethodRepr(call, _, Some(ref), Seq(lambdaExpressionBody(body)))
-      if ref.refName == "map" && OperationOnCollectionsUtil.checkResolve(ref, likeCollectionClasses) =>
+      if ref.refName == "map" && OperationOnCollectionsUtil.checkResolve(ref, getLikeCollectionClasses) =>
 
       val isInBlock = call.getParent match {
         case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions => true

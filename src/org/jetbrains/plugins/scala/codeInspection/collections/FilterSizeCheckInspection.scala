@@ -11,10 +11,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
  */
 class FilterSizeCheckInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(new FilterSizeCheck(this))
+    Array(FilterSizeCheck)
 }
 
-class FilterSizeCheck(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
+object FilterSizeCheck extends SimplificationType {
   override def hint = InspectionBundle.message("filter.size.check.hint")
 
   override def getSimplification(single: MethodRepr): List[Simplification] = {
@@ -27,7 +27,7 @@ class FilterSizeCheck(inspection: OperationOnCollectionInspection) extends Simpl
       case MethodRepr(_, Some(lhs), Some(oper), Seq(arg)) =>
         lhs match {
           case MethodSeq(last, second, _*) =>
-            val innerSmpl = new FilterSize(inspection).getSimplification(last, second)
+            val innerSmpl = FilterSize.getSimplification(last, second)
 
             if (OperationOnCollectionsUtil.exprsWithSideEffect(second.itself).nonEmpty) return Nil
 

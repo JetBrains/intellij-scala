@@ -17,10 +17,10 @@ import org.jetbrains.plugins.scala.project._
  */
 class MapGetOrElseInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(new MapGetOrElse(this))
+    Array(MapGetOrElse)
 }
 
-class MapGetOrElse(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
+object MapGetOrElse extends SimplificationType() {
   def hint = InspectionBundle.message("map.getOrElse.hint")
 
   override def getSimplification(last: MethodRepr, second: MethodRepr): List[Simplification] = {

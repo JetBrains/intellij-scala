@@ -12,10 +12,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
  */
 class GetGetOrElseInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(new GetGetOrElse(this))
+    Array(GetGetOrElse)
 }
 
-class GetGetOrElse(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
+object GetGetOrElse extends SimplificationType() {
 
   def hint = InspectionBundle.message("get.getOrElse.hint")
 

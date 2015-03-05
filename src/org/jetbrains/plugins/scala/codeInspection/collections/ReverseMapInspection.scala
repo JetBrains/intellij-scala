@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollect
  * @author Nikolay.Tropin
  */
 
-class ReverseMap(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
+object ReverseMap extends SimplificationType() {
   override def hint: String = InspectionBundle.message("replace.reverse.map")
 
   override def getSimplification(last: MethodRepr, second: MethodRepr): List[Simplification] = {
@@ -22,5 +22,5 @@ class ReverseMap(inspection: OperationOnCollectionInspection) extends Simplifica
 }
 
 class ReverseMapInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(new ReverseMap(this))
+  override def possibleSimplificationTypes: Array[SimplificationType] = Array(ReverseMap)
 }

@@ -12,10 +12,10 @@ import scala.collection.GenSeq
  * @author Nikolay.Tropin
  */
 class ZeroIndexToHeadInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(new ZeroIndexToHead(this))
+  override def possibleSimplificationTypes: Array[SimplificationType] = Array(ZeroIndexToHead)
 }
 
-class ZeroIndexToHead(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
+object ZeroIndexToHead extends SimplificationType() {
   override def hint: String = InspectionBundle.message("replace.with.head")
 
   override def getSimplification(single: MethodRepr): List[Simplification] = {

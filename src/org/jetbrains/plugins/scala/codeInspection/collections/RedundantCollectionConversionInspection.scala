@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{Equivalence, ScType}
  * @author Nikolay.Tropin
  */
 
-class RedundantCollectionConversion(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
+object RedundantCollectionConversion extends SimplificationType {
   override def hint: String = InspectionBundle.message("redundant.collection.conversion")
 
   override def getSimplification(single: MethodRepr): List[Simplification] = {
@@ -37,5 +37,5 @@ class RedundantCollectionConversion(inspection: OperationOnCollectionInspection)
 class RedundantCollectionConversionInspection extends OperationOnCollectionInspection {
   override def highlightType = ProblemHighlightType.LIKE_UNUSED_SYMBOL
 
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(new RedundantCollectionConversion(this))
+  override def possibleSimplificationTypes: Array[SimplificationType] = Array(RedundantCollectionConversion)
 }
