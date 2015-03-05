@@ -8,6 +8,7 @@ import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys, ProjectSyste
  * @author Pavel Fatin
  */
 class ScalaProjectData(val owner: ProjectSystemId,
+                       val basePackages: Seq[String],
                        val jdk: Option[ScalaProjectData.Sdk],
                        val javacOptions: Seq[String],
                        val sbtVersion: String,

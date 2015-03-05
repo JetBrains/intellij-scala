@@ -62,15 +62,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val project = data.projects.headOption.getOrElse(throw new RuntimeException("No root project found"))
     val projectNode = new ProjectNode(project.name, root, root)
 
+    val basePackages = project.basePackages
     val javacOptions = project.java.map(_.options).getOrElse(Seq.empty)
     val sbtVersion = data.sbtVersion
-    val projectJdk =
-      if (project.android.isDefined)
-        Some(ScalaProjectData.Android(project.android.get.version))
-      else
-        jdk map ScalaProjectData.Jdk
+    val projectPath = FileUtil.toSystemIndependentName(root)
+    val projectJdk = project.android.map(android => ScalaProjectData.Android(android.version))
+            .orElse(jdk.map(ScalaProjectData.Jdk))
 
-    projectNode.add(new ScalaProjectNode(projectJdk, javacOptions, sbtVersion, FileUtil.toSystemIndependentName(root)))
+    projectNode.add(new ScalaProjectNode(basePackages, projectJdk, javacOptions, sbtVersion, projectPath))
 
     project.play2 map {
       case play2Data => projectNode.add(new Play2ProjectNode(play2Data.keys))
