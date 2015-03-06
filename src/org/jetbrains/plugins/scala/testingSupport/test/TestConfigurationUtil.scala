@@ -4,6 +4,9 @@ package testingSupport.test
 import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.execution.{JavaRunConfigurationExtensionManager, Location, RunManager, RunnerAndConfigurationSettings}
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 /**
  * @author Ksenia.Sautina
@@ -42,5 +45,11 @@ object TestConfigurationUtil {
                 configuration.getTestPackagePath == pack.getQualifiedName
       case _ => false
     }
+  }
+
+  def isInheritor(clazz: ScTemplateDefinition, fqn: String): Boolean = {
+    val suiteClazz = ScalaPsiManager.instance(clazz.getProject).getCachedClass(clazz.getResolveScope, fqn)
+    if (suiteClazz == null) return false
+    ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClazz)
   }
 }

@@ -140,7 +140,7 @@ class UTestConfigurationProducer extends {
       parent = PsiTreeUtil.getParentOfType(parent, classOf[ScTypeDefinition], true)
     }
     if (!parent.isInstanceOf[ScObject]) return (null, null)
-    if (!suitePaths.exists(suitePath => isInheritor(parent, suitePath))) return (null, null)
+    if (!suitePaths.exists(suitePath => TestConfigurationUtil.isInheritor(parent, suitePath))) return (null, null)
     val testClassPath = parent.qualifiedName
 
     //now get test name
