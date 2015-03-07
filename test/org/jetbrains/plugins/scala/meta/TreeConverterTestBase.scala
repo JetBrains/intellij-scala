@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala.meta
-import com.intellij.psi.{PsiFileFactory, PsiManager}
+import com.intellij.psi.{PsiComment, PsiFileFactory, PsiManager}
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -11,11 +11,9 @@ import scala.meta.internal.ast.Tree
 trait TreeConverterTestBase extends SimpleTestCase {
 
   implicit def psiFromText(text: String): ScalaPsiElement = {
-    val manager = PsiManager.getInstance(fixture.getProject)
-    val dummyFile: ScalaFile = PsiFileFactory.getInstance(manager.getProject).
-      createFileFromText("DUMMY" + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
-        ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    dummyFile.getFirstChild.asInstanceOf[ScalaPsiElement]
+    val file: ScalaFile = parseText(text)
+    val startPos = Option(file.getText.indexOf("//start")).map(pos => if (pos < 0) 0 else pos).get
+    file.findElementAt(startPos).getParent.asInstanceOf[ScalaPsiElement]
   }
 
   def structuralEquals(tree1: Tree, tree2: Tree): Boolean = {

@@ -99,4 +99,17 @@ class TreeConverterDefnTest extends  TreeConverterTestBase {
     )
   }
 
+  def testTypeAliasApply(): Unit = {
+    doTest(
+    """
+      |trait A[+T]
+      |//start
+      |type F[T] = A[T]
+    """.stripMargin,
+      Defn.Type(Nil, Type.Name("F"),
+        Type.Param(Nil, Type.Name("T"), Nil, Type.Bounds(None, None), Nil, Nil) :: Nil,
+        Type.Apply(Type.Name("A"), Type.Name("T") :: Nil))
+    )
+  }
+
 }
