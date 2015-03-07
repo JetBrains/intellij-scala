@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.meta.trees
 
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+
 import scala.meta.internal.ast.Term.Param
 import scala.{Seq => _}
 import scala.collection.immutable.Seq
@@ -21,7 +23,7 @@ object TreeAdapter {
       case t: p.statements.ScTypeAliasDeclaration =>
         m.Decl.Type(convertMods(t), m.Type.Name(t.name), t.typeParameters.toStream map {TypeAdapter(_)}, TypeAdapter.typeBounds(t))
       case t: p.statements.ScTypeAliasDefinition =>
-        m.Defn.Type(convertMods(t), Namer(t), t.typeParameters.toStream map {TypeAdapter(_)}, TypeAdapter(t.aliasedType.get))
+        m.Defn.Type(convertMods(t), Namer(t), t.typeParameters.toStream map {TypeAdapter(_)}, TypeAdapter(t.aliasedType))
       case t: p.statements.ScFunctionDeclaration =>
         m.Decl.Def(convertMods(t), m.Term.Name(t.name), t.typeParameters.toStream map {TypeAdapter(_)}, t.paramClauses.clauses.toStream.map(convertParams), returnType(t.returnType))
       case t: p.statements.ScPatternDefinition =>
@@ -131,10 +133,18 @@ object TypeAdapter {
     }
   }
 
+  def apply(tr: TypeResult[ptype.ScType]): m.Type = {
+    import org.jetbrains.plugins.scala.lang.psi.types.result._
+    tr match {
+      case Success(res, _) => TypeAdapter(res)
+      case Failure(cause, place) => throw new RuntimeException(s"Failed to convert type: $cause at $place")
+    }
+  }
+
   def apply(tp: ptype.ScType): m.Type = {
 
     tp match {
-      case t: ptype.ScParameterizedType => m.Type.Apply(m.Type.Name(t.canonicalText), t.typeArgs.toStream.map(TypeAdapter(_)))
+      case t: ptype.ScParameterizedType => m.Type.Apply(TypeAdapter(t.designator), t.typeArgs.toStream.map(TypeAdapter(_)))
       case t: ptype.ScType => m.Type.Name(t.canonicalText)
 
     }
