@@ -38,6 +38,7 @@ object TreeAdapter {
           t.definedReturnType.map(TypeAdapter(_)).toOption,
           expression(t.body).get
         )
+      case t: p.expr.ScExpression => expression(Some(t)).get
       case other => println(other.getClass); ???
     }
   }
@@ -45,6 +46,7 @@ object TreeAdapter {
   def expression(tree: Option[p.expr.ScExpression]): Option[m.Term] = {
     def stripped(e: p.expr.ScExpression): m.Term = e match {
       case t: p.base.ScLiteral    => literal(t)
+      case t: p.expr.ScUnitExpr   => m.Lit.Unit()
       case t: p.expr.ScReturnStmt => m.Term.Return(expression(t.expr).get)
       case t: p.expr.ScBlockExpr  => m.Term.Block(t.exprs.toStream.map(stripped))
       case t: p.expr.ScInfixExpr  => m.Term.ApplyInfix(stripped(t.getBaseExpr), Namer(t.getInvokedExpr), Nil, Seq(stripped(t.getArgExpr)))
@@ -69,6 +71,8 @@ object TreeAdapter {
       case ScLiteral(b: java.lang.Boolean)    => Lit.Bool(b)
       case ScLiteral(c: java.lang.Character)  => Lit.Char(c)
       case ScLiteral(s: String)               => Lit.String(s)
+      case ScLiteral(null)                    => Lit.Null()
+      case _ if l.isSymbol                    => Lit.Symbol(l.getValue.asInstanceOf[Symbol])
       case other => println(other.getClass); ???
     }
   }
