@@ -67,6 +67,7 @@ package object collections {
   private[collections] val `>` = invocation(">")
   private[collections] val `>=` = invocation(">=")
   private[collections] val `!` = invocation(Set("!", "unary_!"))
+  private[collections] val `-` = invocation("-")
 
   private[collections] val `.monadicMethod` = invocation(monadicMethods).from(likeCollectionClasses)
 

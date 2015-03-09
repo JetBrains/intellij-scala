@@ -956,6 +956,10 @@
                        displayName="Replace getting value by zero index with head" groupName="Scala: Collections"
                        shortName="ZeroIndexToHead" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.LastIndexToLastInspection"
+                       displayName="Replace getting value by last index with last" groupName="Scala: Collections"
+                       shortName="LastIndexToLast" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantCollectionConversionInspection"
                        displayName="Redundant collection conversion" groupName="Scala: Collections"
                        shortName="RedundantCollectionConversion" level="WARNING"
