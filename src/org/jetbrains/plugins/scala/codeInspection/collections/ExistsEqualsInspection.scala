@@ -11,13 +11,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
  */
 class ExistsEqualsInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(ExistsEquals)
+    Array(ExistsEquals, ForallNotEquals)
 }
 
 object ExistsEquals extends SimplificationType {
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
-      case qual`.exists`(equalsWith(e)) if canBeReplacedWithContains(qual, e) =>
+      case qual`.exists`(`x == `(e)) if canBeReplacedWithContains(qual, e) =>
         Some(replace(expr).withText(invocationText(qual, "contains", Seq(e))))
       case _ => None
     }
@@ -25,7 +25,7 @@ object ExistsEquals extends SimplificationType {
 
   override def hint = InspectionBundle.message("exists.equals.hint")
 
-  private def canBeReplacedWithContains(qual: ScExpression, arg: ScExpression) = {
+  def canBeReplacedWithContains(qual: ScExpression, arg: ScExpression) = {
     val exprText = s"(${qual.getText}).contains(${arg.getText})"
     ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, qual.getContext, qual) match {
       case ScMethodCall(ref: ScReferenceExpression, Seq(a)) =>
@@ -35,4 +35,16 @@ object ExistsEquals extends SimplificationType {
     }
 
   }
+}
+
+object ForallNotEquals extends SimplificationType {
+  override def getSimplification(expr: ScExpression): Option[Simplification] = {
+    expr match {
+      case qual`.forall`(`x != `(e)) if ExistsEquals.canBeReplacedWithContains(qual, e) =>
+        Some(replace(expr).withText("!" + invocationText(qual, "contains", Seq(e))))
+      case _ => None
+    }
+  }
+
+  override def hint: String = InspectionBundle.message("forall.notEquals.hint")
 }
