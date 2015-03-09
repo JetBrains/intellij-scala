@@ -19,8 +19,8 @@ object SortFilter extends SimplificationType {
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
-      case qual`.sort`()`.filter`(_) => swapLastTwoMethods(expr)
-      case qual`.sort`(_)`.filter`(_) => swapLastTwoMethods(expr)
+      case qual`.sort`()`.filter`(pred) if !hasSideEffects(pred) => swapLastTwoMethods(expr)
+      case qual`.sort`(_)`.filter`(pred) if !hasSideEffects(pred) => swapLastTwoMethods(expr)
       case _ => None
     }
   }

@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection
 
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.CachedValueProvider.Result
+import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
 import com.intellij.psi.{PsiElement, PsiMethod, PsiType}
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.extensions.{ExpressionType, PsiNamedElementExt, ResolvesTo, childOf}
@@ -49,6 +50,7 @@ package object collections {
   private[collections] val `.nonEmpty` = invocation("nonEmpty").from(likeCollectionClasses)
 
   private[collections] val `.fold` = invocation(foldMethodNames).from(likeCollectionClasses)
+  private[collections] val `.foldLeft` = invocation(Set("foldLeft", "/:")).from(likeCollectionClasses)
   private[collections] val `.reduce` = invocation(reduceMethodNames).from(likeCollectionClasses)
   private[collections] val `.getOrElse` = invocation("getOrElse").from(likeOptionClasses)
   private[collections] val `.getOnMap` = invocation("get").from(likeCollectionClasses).ref(checkResolveToMap)
@@ -265,56 +267,64 @@ package object collections {
     "push", "pushAll", "pop", "dequeue", "dequeueAll", "dequeueFirst", "enqueue",
     "next")
 
-  def exprsWithSideEffect(expr: ScExpression): Iterator[ScExpression] = {
+  private class SideEffectsProvider(expr: ScExpression) extends CachedValueProvider[Seq[ScExpression]] {
+    override def compute(): Result[Seq[ScExpression]] = Result.create(computeExprsWithSideEffects(expr), expr)
 
-    def isSideEffectCollectionMethod(ref: ScReferenceExpression): Boolean = {
-      val refName = ref.refName
-      (refName.endsWith("=") || refName.endsWith("=:") || sideEffectsCollectionMethods.contains(refName)) &&
-              checkResolve(ref, Array("scala.collection.mutable._", "scala.collection.Iterator"))
-    }
+    private def computeExprsWithSideEffects(expr: ScExpression): Seq[ScExpression] = {
 
-    def isSetter(ref: ScReferenceExpression): Boolean = {
-      ref.refName.startsWith("set") || ref.refName.endsWith("_=")
-    }
-
-    def hasUnitReturnType(ref: ScReferenceExpression): Boolean = {
-      ref match {
-        case MethodRepr(ExpressionType(ScFunctionType(_, _)), _, _, _) => false
-        case ResolvesTo(fun: ScFunction) => fun.hasUnitResultType
-        case ResolvesTo(m: PsiMethod) => m.getReturnType == PsiType.VOID
-        case _ => false
+      def isSideEffectCollectionMethod(ref: ScReferenceExpression): Boolean = {
+        val refName = ref.refName
+        (refName.endsWith("=") || refName.endsWith("=:") || sideEffectsCollectionMethods.contains(refName)) &&
+                checkResolve(ref, Array("scala.collection.mutable._", "scala.collection.Iterator"))
       }
-    }
 
-    object definedOutside {
-      def unapply(ref: ScReferenceElement): Option[PsiElement] = ref match {
-        case ResolvesTo(elem: PsiElement) if !PsiTreeUtil.isAncestor(expr, elem, false) => Some(elem)
-        case _ => None
+      def isSetter(ref: ScReferenceExpression): Boolean = {
+        ref.refName.startsWith("set") || ref.refName.endsWith("_=")
       }
-    }
 
-    val predicate: (PsiElement) => Boolean = {
-      case `expr` => true
-      case ScFunctionExpr(_, _) childOf `expr` => true
-      case (e: ScExpression) childOf `expr` if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
-      case fun: ScFunctionDefinition => false
-      case elem: PsiElement => !ScalaEvaluatorBuilderUtil.isGenerateClass(elem)
-    }
+      def hasUnitReturnType(ref: ScReferenceExpression): Boolean = {
+        ref match {
+          case MethodRepr(ExpressionType(ScFunctionType(_, _)), _, _, _) => false
+          case ResolvesTo(fun: ScFunction) => fun.hasUnitResultType
+          case ResolvesTo(m: PsiMethod) => m.getReturnType == PsiType.VOID
+          case _ => false
+        }
+      }
 
-    val sameLevelIterator = expr.depthFirst(predicate).filter(predicate)
+      object definedOutside {
+        def unapply(ref: ScReferenceElement): Option[PsiElement] = ref match {
+          case ResolvesTo(elem: PsiElement) if !PsiTreeUtil.isAncestor(expr, elem, false) => Some(elem)
+          case _ => None
+        }
+      }
 
-    sameLevelIterator.collect {
-      case assign @ ScAssignStmt(definedOutside(ScalaPsiUtil.inNameContext(_: ScVariable)), _) =>
-        assign
-      case assign @ ScAssignStmt(mc @ ScMethodCall(definedOutside(_), _), _) if mc.isUpdateCall =>
-        assign
-      case infix @ ScInfixExpr(definedOutside(ScalaPsiUtil.inNameContext(v: ScVariable)), _, _) if infix.isAssignmentOperator =>
-        infix
-      case MethodRepr(itself, Some(definedOutside(ScalaPsiUtil.inNameContext(v @ (_ : ScVariable | _: ScValue)))), Some(ref), _)
-        if isSideEffectCollectionMethod(ref) || isSetter(ref) || hasUnitReturnType(ref) => itself
-      case MethodRepr(itself, None, Some(ref @ definedOutside(_)), _) if hasUnitReturnType(ref) => itself
+      val predicate: (PsiElement) => Boolean = {
+        case `expr` => true
+        case ScFunctionExpr(_, _) childOf `expr` => true
+        case (e: ScExpression) childOf `expr` if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
+        case fun: ScFunctionDefinition => false
+        case elem: PsiElement => !ScalaEvaluatorBuilderUtil.isGenerateClass(elem)
+      }
+
+      val sameLevelIterator = expr.depthFirst(predicate).filter(predicate)
+
+      sameLevelIterator.collect {
+        case assign @ ScAssignStmt(definedOutside(ScalaPsiUtil.inNameContext(_: ScVariable)), _) =>
+          assign
+        case assign @ ScAssignStmt(mc @ ScMethodCall(definedOutside(_), _), _) if mc.isUpdateCall =>
+          assign
+        case infix @ ScInfixExpr(definedOutside(ScalaPsiUtil.inNameContext(v: ScVariable)), _, _) if infix.isAssignmentOperator =>
+          infix
+        case MethodRepr(itself, Some(definedOutside(ScalaPsiUtil.inNameContext(v @ (_ : ScVariable | _: ScValue)))), Some(ref), _)
+          if isSideEffectCollectionMethod(ref) || isSetter(ref) || hasUnitReturnType(ref) => itself
+        case MethodRepr(itself, None, Some(ref @ definedOutside(_)), _) if hasUnitReturnType(ref) => itself
+      }.toSeq
     }
   }
+
+  def exprsWithSideEffects(expr: ScExpression) = CachedValuesManager.getCachedValue(expr, new SideEffectsProvider(expr))
+
+  def hasSideEffects(expr: ScExpression) = exprsWithSideEffects(expr).nonEmpty
 
   def rightRangeInParent(expr: ScExpression, parent: ScExpression): TextRange = {
     val endOffset = parent.getTextRange.getEndOffset

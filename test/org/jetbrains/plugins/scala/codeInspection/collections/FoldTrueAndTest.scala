@@ -46,5 +46,48 @@ class FoldTrueAndTest extends OperationsOnCollectionInspectionTest {
     checkTextHasNoErrors(text, hint, inspectionClass)
   }
 
+  def testWithoutSideEffect(): Unit = {
+    doTest(
+      s"""
+         |List(0).${START}foldLeft(true) {(x, y) =>
+         |  x && {
+         |    var z = 1
+         |    z += 1
+         |    z + y % 2 == 1
+         |  }
+         |}$END
+       """.stripMargin,
+      """
+         |List(0).foldLeft(true) {(x, y) =>
+         |  x && {
+         |    var z = 1
+         |    z += 1
+         |    z + y % 2 == 1
+         |  }
+         |}
+       """.stripMargin,
+      """
+        |List(0).forall(y => {
+        |  var z = 1
+        |  z += 1
+        |  z + y % 2 == 1
+        |})
+      """.stripMargin)
+  }
+
+  def testWithSideEffect(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |var q = 1
+        |List(0).foldLeft(true) {(x, y) =>
+        |  x && {
+        |    var z = 1
+        |    q += 1
+        |    z + y % 2 == 1
+        |  }
+        |}
+      """.stripMargin)
+  }
+
   override val inspectionClass = classOf[FoldTrueAndInspection]
 }
