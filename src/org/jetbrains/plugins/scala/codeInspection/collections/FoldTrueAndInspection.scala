@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection.collections
 
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
-import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
  * Nikolay.Tropin
@@ -17,18 +17,11 @@ object FoldTrueAnd extends SimplificationType(){
 
   def hint = InspectionBundle.message("fold.true.and.hint")
 
-  override def getSimplification(last: MethodRepr, second: MethodRepr): List[Simplification] = {
-    (last.optionalMethodRef, second.optionalMethodRef) match {
-      case (None, Some(secondRef))
-        if foldMethodNames.contains(secondRef.refName) &&
-                isLiteral(second.args, "true") &&
-                last.args.size == 1 &&
-                checkResolve(secondRef, likeCollectionClasses) =>
-
-        andWithSomeFunction(last.args(0)).toList.flatMap { fun =>
-          createSimplification(second, last.itself, "forall", Seq(fun))
-        }
-      case _ => Nil
+  override def getSimplification(expr: ScExpression): Option[Simplification] = {
+    expr match {
+      case qual`.fold`(literal("true"), andCondition(cond)) =>
+        Some(replace(expr).withText(invocationText(qual, "forall", Seq(cond))).highlightFrom(qual))
+      case _ => None
     }
   }
 }

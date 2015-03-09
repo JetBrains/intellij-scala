@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection.collections
 
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
-import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
  * Nikolay.Tropin
@@ -30,23 +30,17 @@ class FoldSimplificationType(inspection: OperationOnCollectionInspection,
                              opName: String,
                              methodName: String) extends SimplificationType(){
 
-  override def getSimplification(last: MethodRepr, second: MethodRepr): List[Simplification] = {
-    (last.optionalMethodRef, second.optionalMethodRef) match {
-      case (None, Some(secondRef))
-        if foldMethodNames.contains(secondRef.refName) &&
-                isLiteral(second.args, startElem) &&
-                last.args.size == 1 &&
-                isBinaryOp(last.args(0), opName) &&
-                checkHasImplicitParameterFor(methodName, second.optionalBase) &&
-                checkResolve(secondRef, likeCollectionClasses) =>
-
-        createSimplification(second, last.itself, methodName, Nil)
-      case _ => Nil
-    }
-  }
-
   override def hint = InspectionBundle.message(keyPrefix + ".hint")
   override def description = InspectionBundle.message(keyPrefix + ".short")
+
+  override def getSimplification(expr: ScExpression): Option[Simplification] = {
+    expr match {
+      case qual`.fold`(literal(`startElem`), binaryOperation(`opName`)) if implicitParameterExistsFor(methodName, qual) =>
+        val simpl = replace(expr).withText(invocationText(qual, methodName, Seq.empty)).highlightFrom(qual)
+        Some(simpl)
+      case _ => None
+    }
+  }
 }
 
 class ReduceSimplificationType(inspection: OperationOnCollectionInspection,
@@ -54,20 +48,15 @@ class ReduceSimplificationType(inspection: OperationOnCollectionInspection,
                                opName: String,
                                methodName: String) extends SimplificationType() {
 
-  override def getSimplification(last: MethodRepr): List[Simplification] = {
-    last.optionalMethodRef match {
-      case Some(ref)
-        if reduceMethodNames.contains(ref.refName) &&
-                last.args.size == 1 &&
-                isBinaryOp(last.args(0), opName) &&
-                checkResolve(ref, likeCollectionClasses) &&
-                checkHasImplicitParameterFor(methodName, last.optionalBase) =>
-
-        createSimplification(last, last.itself, methodName, Nil)
-      case _ => Nil
-    }
-  }
-
   override def hint = InspectionBundle.message(keyPrefix + ".hint")
   override def description = InspectionBundle.message(keyPrefix + ".short")
+
+  override def getSimplification(expr: ScExpression): Option[Simplification] = {
+    expr match {
+      case qual`.reduce`(binaryOperation(`opName`)) if implicitParameterExistsFor(methodName, qual) =>
+        val simpl = replace(expr).withText(invocationText(qual, methodName, Seq.empty)).highlightFrom(qual)
+        Some(simpl)
+      case _ => None
+    }
+  }
 }

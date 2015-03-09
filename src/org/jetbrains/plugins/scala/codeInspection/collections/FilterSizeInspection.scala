@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection.collections
 
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
-import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
  * Nikolay.Tropin
@@ -17,16 +17,11 @@ object FilterSize extends SimplificationType {
 
   def hint = InspectionBundle.message("filter.size.hint")
 
-  override def getSimplification(last: MethodRepr, second: MethodRepr): List[Simplification] = {
-
-    (last.optionalMethodRef, second.optionalMethodRef) match {
-      case (Some(lastRef), Some(secondRef)) if List("size", "length").contains(lastRef.refName) &&
-              secondRef.refName == "filter" &&
-              checkResolve(lastRef, likeCollectionClasses) &&
-              checkResolve(secondRef, likeCollectionClasses) =>
-
-        createSimplification(second, last.itself, "count", second.args)
-      case _ => Nil
+  override def getSimplification(expr: ScExpression): Option[Simplification] = {
+   expr match {
+      case qual`.filter`(cond)`.sizeOrLength`() =>
+        Some(replace(expr).withText(invocationText(qual, "count", Seq(cond))).highlightFrom(qual))
+      case _ => None
     }
   }
 }
