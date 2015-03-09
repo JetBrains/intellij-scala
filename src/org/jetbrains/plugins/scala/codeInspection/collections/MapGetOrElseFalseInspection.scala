@@ -19,7 +19,7 @@ object MapGetOrElseFalse extends SimplificationType() {
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
       case qual`.map`(f @ returnsBoolean)`.getOrElse`(literal("false")) =>
-        Some(replace(expr).withText(invocationText(qual, "exists", Seq(f))).highlightFrom(qual))
+        Some(replace(expr).withText(invocationText(qual, "exists", f)).highlightFrom(qual))
       case _ => None
     }
   }

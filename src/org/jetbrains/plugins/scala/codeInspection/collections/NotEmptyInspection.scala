@@ -19,9 +19,9 @@ object NotIsEmpty extends SimplificationType() {
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
       case !(qual`.isEmptyOnOption`()) =>
-        Some(replace(expr).withText(invocationText(qual, "isDefined", Seq.empty)).highlightFrom(qual))
+        Some(replace(expr).withText(invocationText(qual, "isDefined")).highlightFrom(qual))
       case !(qual`.isEmpty`()) =>
-        Some(replace(expr).withText(invocationText(qual, "nonEmpty", Seq.empty)).highlightFrom(qual))
+        Some(replace(expr).withText(invocationText(qual, "nonEmpty")).highlightFrom(qual))
       case _ => None
     }
   }

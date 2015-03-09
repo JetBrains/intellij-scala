@@ -18,7 +18,7 @@ object ExistsEquals extends SimplificationType {
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
       case qual`.exists`(`x == `(e)) if canBeReplacedWithContains(qual, e) =>
-        Some(replace(expr).withText(invocationText(qual, "contains", Seq(e))))
+        Some(replace(expr).withText(invocationText(qual, "contains", e)))
       case _ => None
     }
   }
@@ -41,7 +41,7 @@ object ForallNotEquals extends SimplificationType {
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
       case qual`.forall`(`x != `(e)) if ExistsEquals.canBeReplacedWithContains(qual, e) =>
-        Some(replace(expr).withText("!" + invocationText(qual, "contains", Seq(e))))
+        Some(replace(expr).withText("!" + invocationText(qual, "contains", e)))
       case _ => None
     }
   }

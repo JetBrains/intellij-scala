@@ -20,7 +20,7 @@ object GetGetOrElse extends SimplificationType() {
   override def getSimplification(expr: ScExpression) = {
     expr match {
       case map`.getOnMap`(key)`.getOrElse`(default) =>
-        Some(replace(expr).withText(invocationText(map, "getOrElse", Seq(key, default))).highlightFrom(map))
+        Some(replace(expr).withText(invocationText(map, "getOrElse", key, default)).highlightFrom(map))
       case _ => None
     }
   }

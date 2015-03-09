@@ -20,7 +20,7 @@ object FilterHeadOption extends SimplificationType {
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
       case qual`.filter`(cond)`.headOption`() if !hasSideEffects(cond) =>
-        Some(replace(expr).withText(invocationText(qual, "find", Seq(cond))).highlightFrom(qual))
+        Some(replace(expr).withText(invocationText(qual, "find", cond)).highlightFrom(qual))
       case _ => None
     }
   }

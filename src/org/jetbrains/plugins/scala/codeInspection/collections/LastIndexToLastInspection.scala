@@ -21,7 +21,7 @@ object LastIndexToLast extends SimplificationType {
     expr match {
       case (qual @ ExpressionType(tp))`.apply`(qual2`.sizeOrLength`() `-` literal("1"))
         if PsiEquivalenceUtil.areElementsEquivalent(qual, qual2) && tp.conforms(genSeqType) =>
-        Some(replace(expr).withText(invocationText(qual, "last", Seq.empty)))
+        Some(replace(expr).withText(invocationText(qual, "last")))
       case _ => None
     }
   }

@@ -22,7 +22,7 @@ object FoldTrueAnd extends SimplificationType(){
       case qual`.foldLeft`(literal("true"), andCondition(cond)) if hasSideEffects(cond) =>
         None
       case qual`.fold`(literal("true"), andCondition(cond)) =>
-        Some(replace(expr).withText(invocationText(qual, "forall", Seq(cond))).highlightFrom(qual))
+        Some(replace(expr).withText(invocationText(qual, "forall", cond)).highlightFrom(qual))
       case _ => None
     }
   }

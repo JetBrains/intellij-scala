@@ -27,7 +27,7 @@ object FilterSizeCheck extends SimplificationType {
     }
   }
 
-  private def existsText(qual: ScExpression, pred: ScExpression): String = invocationText(qual, "exists", Seq(pred))
+  private def existsText(qual: ScExpression, pred: ScExpression): String = invocationText(qual, "exists", pred)
 
   private def notExistsText(qual: ScExpression, pred: ScExpression): String = {
     qual match {

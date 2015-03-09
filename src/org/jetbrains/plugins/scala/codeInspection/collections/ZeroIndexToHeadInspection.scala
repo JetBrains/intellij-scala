@@ -19,7 +19,7 @@ object ZeroIndexToHead extends SimplificationType() {
     val genSeqType = ScalaPsiElementFactory.createTypeElementFromText("scala.collection.GenSeq[_]", expr.getContext, expr).calcType
     expr match {
       case (qual @ ExpressionType(tp))`.apply`(literal("0")) if tp.conforms(genSeqType) =>
-        Some(replace(expr).withText(invocationText(qual, "head", Seq.empty)).highlightFrom(qual))
+        Some(replace(expr).withText(invocationText(qual, "head")).highlightFrom(qual))
       case _ => None
     }
   }
