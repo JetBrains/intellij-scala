@@ -38,6 +38,7 @@ package object collections {
   def invocation(methodNames: Set[String]) = new InvocationTemplate(methodNames.contains)
 
   private[collections] val `.exists` = invocation("exists").from(likeCollectionClasses)
+  private[collections] val `.forall` = invocation("forall").from(likeCollectionClasses)
   private[collections] val `.filter` = invocation("filter").from(likeCollectionClasses)
   private[collections] val `.map` = invocation("map").from(likeCollectionClasses)
   private[collections] val `.headOption` = invocation("headOption").from(likeCollectionClasses)
@@ -121,6 +122,33 @@ package object collections {
       operRef.map(_.refName)
     }
   }
+
+  class BinaryOperationOnParameterAndExprTemplate(operName: String) {
+    def unapply(expr: ScExpression): Option[ScExpression] = {
+      stripped(expr) match {
+        case ScFunctionExpr(Seq(x), Some(result)) =>
+          stripped(result) match {
+            case ScInfixExpr(left, oper, right) if oper.refName == operName =>
+              (stripped(left), stripped(right)) match {
+                case (leftRef: ScReferenceExpression, rightExpr)
+                  if leftRef.resolve() == x && isIndependentOf(rightExpr, x) =>
+                  Some(rightExpr)
+                case (leftExpr: ScExpression, rightRef: ScReferenceExpression)
+                  if rightRef.resolve() == x && isIndependentOf(leftExpr, x) =>
+                  Some(leftExpr)
+                case _ => None
+              }
+            case _ => None
+          }
+        case ScInfixExpr(underscore(), oper, right) if oper.refName == operName => Some(right)
+        case ScInfixExpr(left, oper, underscore()) if oper.refName == operName => Some(left)
+        case _ => None
+      }
+    }
+  }
+
+  private[collections] val `x == ` = new BinaryOperationOnParameterAndExprTemplate("==")
+  private[collections] val `x != ` = new BinaryOperationOnParameterAndExprTemplate("!=")
 
   object andCondition {
     def unapply(expr: ScExpression): Option[ScExpression] = {

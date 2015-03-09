@@ -1,12 +1,14 @@
 <html>
 <body>
-Replaces exists with contains if possible. <br/>
+Replaces exists or forall with contains if possible. <br/>
 Before:
 <p><code>set.exists(x => x == "a")</code></p>
+<p><code>set.forall(x => x != "a")</code></p>
 
 <p>After:</p>
 
 <p><code>set.contains("a")</code></p>
+<p><code>!set.contains("a")</code></p>
 
 </body>
 </html>
