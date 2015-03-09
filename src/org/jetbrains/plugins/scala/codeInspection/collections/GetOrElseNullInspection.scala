@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection.collections
 
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
-import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
  * Nikolay.Tropin
@@ -13,16 +13,12 @@ class GetOrElseNullInspection extends OperationOnCollectionInspection {
     Array(GetOrElseNull)
 }
 
-object GetOrElseNull extends SimplificationType() {
-  override def getSimplification(single: MethodRepr) = {
-    single.itself match {
-      case MethodRepr(itself, Some(base), Some(ref), args)
-        if ref.refName == "getOrElse" &&
-                isLiteral(args, text = "null") &&
-                checkResolve(ref, likeOptionClasses) =>
-
-        createSimplification(single, itself, "orNull", Nil)
-      case _ => Nil
+object GetOrElseNull extends SimplificationType {
+  override def getSimplification(expr: ScExpression) = {
+    expr match {
+      case qual`.getOrElse`(literal("null")) =>
+        Some(replace(expr).withText(invocationText(qual, "orNull", Seq.empty)))
+      case _ => None
     }
   }
 

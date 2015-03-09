@@ -59,7 +59,7 @@ class MapGetOrElseTest extends OperationsOnCollectionInspectionTest {
     val selected = s"None ${START}map {_ => 1} getOrElse {1}$END"
     check(selected)
     val text = "None map {_ => 1} getOrElse {1}"
-    val result = "None.fold(1)(_ => 1)"
+    val result = "None.fold(1) { _ => 1 }"
     testFix(text, result, hint)
   }
 

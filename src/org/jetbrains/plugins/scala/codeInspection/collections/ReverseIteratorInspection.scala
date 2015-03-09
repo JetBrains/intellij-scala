@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
-import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
  * @author Nikolay.Tropin
@@ -9,13 +9,11 @@ import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollect
 object ReverseIterator extends SimplificationType {
   override def hint: String = InspectionBundle.message("replace.reverse.iterator")
 
-  override def getSimplification(last: MethodRepr, second: MethodRepr): List[Simplification] = {
-    (last.optionalMethodRef, second.optionalMethodRef) match {
-      case (Some(lastRef), Some(secondRef))
-        if lastRef.refName == "iterator" && secondRef.refName == "reverse" &&
-                checkResolve(lastRef, likeCollectionClasses) && checkResolve(secondRef, likeCollectionClasses) =>
-        createSimplification(second, last.itself, "reverseIterator", last.args)
-      case _ => Nil
+  override def getSimplification(expr: ScExpression): Option[Simplification] = {
+    expr match {
+      case qual`.reverse`()`.iterator`() =>
+        Some(replace(expr).withText(invocationText(qual, "reverseIterator", Seq.empty)).highlightFrom(qual))
+      case _ => None
     }
   }
 }

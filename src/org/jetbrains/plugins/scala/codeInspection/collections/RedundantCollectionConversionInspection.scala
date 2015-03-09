@@ -2,11 +2,8 @@ package org.jetbrains.plugins.scala.codeInspection.collections
 
 import com.intellij.codeInspection.ProblemHighlightType
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
-import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
-import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.extensions.{ChildOf, ExpressionType}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
-import org.jetbrains.plugins.scala.lang.psi.types.{Equivalence, ScType}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScGenericCall}
 
 /**
  * @author Nikolay.Tropin
@@ -14,24 +11,21 @@ import org.jetbrains.plugins.scala.lang.psi.types.{Equivalence, ScType}
 
 object RedundantCollectionConversion extends SimplificationType {
   override def hint: String = InspectionBundle.message("redundant.collection.conversion")
+  val `.toCollection` = new InvocationTemplate(_.startsWith("to")).from(likeCollectionClasses)
 
-  override def getSimplification(single: MethodRepr): List[Simplification] = {
-    val expr = single.itself match {
+  override def getSimplification(expr: ScExpression) = {
+    val withGeneric = expr match {
       case ChildOf(gc: ScGenericCall) => gc
       case ref => ref
     }
-    val exprType = expr.getType().getOrAny
-
-    (single.optionalBase, single.optionalMethodRef) match {
-      case (Some(base @ ExpressionType(baseType)), Some(ref))
-        if ref.refName.startsWith("to") &&
-                checkResolve(ref, likeCollectionClasses) &&
-                baseType.equiv(exprType) =>
-        List(new Simplification(base.getText, hint, single.rightRangeInParent(single.itself)))
-      case _ => Nil
+    val typeAfterConversion = withGeneric.getType().getOrAny
+    withGeneric match {
+      case (base @ ExpressionType(baseType))`.toCollection`() if baseType.equiv(typeAfterConversion) =>
+        val simplification = replace(withGeneric).withText(base.getText).highlightFrom(base)
+        Some(simplification)
+      case _ => None
     }
   }
-
 }
 
 class RedundantCollectionConversionInspection extends OperationOnCollectionInspection {

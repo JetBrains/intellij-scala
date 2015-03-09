@@ -53,7 +53,7 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case expr: ScExpression  =>
       for (s <- simplifications(expr)) {
-        holder.registerProblem(expr, s.hint, highlightType, s.rangeInParent, new OperationOnCollectionQuickFix(expr, s))
+        holder.registerProblem(s.exprToReplace.getElement, s.hint, highlightType, s.rangeInParent, new OperationOnCollectionQuickFix(expr, s))
       }
   }
 
@@ -65,15 +65,7 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
       if getSimplificationTypesEnabled(idx)
     } yield st
 
-    val result = expr match {
-      case MethodSeq(single) => simplificationTypes.flatMap(_.getSimplification(single))
-      case MethodSeq(last, second, _*) =>
-        simplificationTypes.flatMap {
-          st => st.getSimplification(last, second) ::: st.getSimplification(last)
-        }
-      case _ => Array[Simplification]()
-    }
-    result
+    simplificationTypes.flatMap(_.getSimplification(expr))
   }
 
   def getLikeCollectionClasses: Array[String] = settings.getLikeCollectionClasses

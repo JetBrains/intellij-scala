@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection.collections
 
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
-import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
  * Nikolay.Tropin
@@ -15,20 +15,12 @@ class MapGetOrElseFalseInspection extends OperationOnCollectionInspection {
 
 object MapGetOrElseFalse extends SimplificationType() {
   def hint = InspectionBundle.message("map.getOrElse.false.hint")
-  override def getSimplification(last: MethodRepr, second: MethodRepr): List[Simplification] = {
-    val (lastArgs, secondArgs) = (last.args, second.args)
-    (last.optionalMethodRef, second.optionalMethodRef) match {
-      case (Some(lastRef), Some(secondRef))
-        if lastRef.refName == "getOrElse" &&
-                secondRef.refName == "map" &&
-                isLiteral(lastArgs, text = "false") &&
-                secondArgs.size == 1 &&
-                isFunctionWithBooleanReturn(secondArgs(0)) &&
-                checkResolve(lastRef, likeOptionClasses) &&
-                checkResolve(secondRef, likeOptionClasses) =>
 
-        createSimplification(second, last.itself, "exists", second.args)
-      case _ => Nil
+  override def getSimplification(expr: ScExpression): Option[Simplification] = {
+    expr match {
+      case qual`.map`(f @ returnsBoolean)`.getOrElse`(literal("false")) =>
+        Some(replace(expr).withText(invocationText(qual, "exists", Seq(f))).highlightFrom(qual))
+      case _ => None
     }
   }
 }

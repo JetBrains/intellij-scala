@@ -4,6 +4,7 @@ import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.{ChangeReferenceNameQuickFix, InspectionBundle}
 import org.jetbrains.plugins.scala.extensions.ExpressionType
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -16,11 +17,11 @@ class UnitInMapInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: Array[SimplificationType] = Array()
 
   override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case MethodRepr(call, _, Some(ref), Seq(lambdaExpressionBody(body)))
-      if ref.refName == "map" && OperationOnCollectionsUtil.checkResolve(ref, getLikeCollectionClasses) =>
+    case MethodRepr(call, _, Some(ref), Seq(lambdaWithBody(body)))
+      if ref.refName == "map" && checkResolve(ref, getLikeCollectionClasses) =>
 
       val isInBlock = call.getParent match {
-        case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions => true
+        case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions | _: ScalaFile => true
         case _ => false
       }
       val fixes =
@@ -35,7 +36,7 @@ class UnitInMapInspection extends OperationOnCollectionInspection {
       }
   }
 
-  object lambdaExpressionBody {
+  object lambdaWithBody {
     def unapply(expr: ScExpression): Option[ScExpression] = {
       expr match {
         case ScBlock(ScFunctionExpr(_, res)) => res

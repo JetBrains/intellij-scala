@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.collections
 
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ExpressionType}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScParameterizedType, ScType}
 
 /**
@@ -13,13 +14,13 @@ class SizeToLengthInspection extends OperationOnCollectionInspection {
 
 object SizeToLength extends SimplificationType {
   override def hint: String = InspectionBundle.message("size.to.length")
+  val `.size` = invocation("size").from(likeCollectionClasses)
 
-  override def getSimplification(single: MethodRepr): List[Simplification] = {
-    (single.optionalBase, single.optionalMethodRef) match {
-      case (Some(ExpressionType(tpe)), Some(ref))
-        if ref.refName == "size" && isCollectionMethod(ref) && (isArray(tpe) || isString(tpe)) =>
-        createSimplification(single, single.itself, "length", Seq.empty)
-      case _ => Nil
+  override def getSimplification(expr: ScExpression): Option[Simplification] = {
+    expr match {
+      case (qual @ ExpressionType(tpe))`.size`() if isArray(tpe) || isString(tpe) =>
+        Some(replace(expr).withText(invocationText(qual, "length", Seq.empty)).highlightFrom(qual))
+      case _ => None
     }
   }
   
