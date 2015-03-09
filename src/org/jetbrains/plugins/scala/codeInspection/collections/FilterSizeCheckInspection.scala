@@ -19,9 +19,9 @@ object FilterSizeCheck extends SimplificationType {
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
-      case checkNonEmpty(qual`.filter`(pred)) =>
+      case checkNonEmpty(qual`.filter`(pred)) if !hasSideEffects(pred) =>
         Some(replace(expr).withText(existsText(qual, pred)).highlightFrom(qual))
-      case checkIsEmpty(qual`.filter`(pred)) =>
+      case checkIsEmpty(qual`.filter`(pred)) if !hasSideEffects(pred) =>
         Some(replace(expr).withText(notExistsText(qual, pred)).highlightFrom(qual))
       case _ => None
     }
