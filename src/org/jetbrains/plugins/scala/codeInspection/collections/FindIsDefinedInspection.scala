@@ -19,7 +19,7 @@ object FindIsDefined extends SimplificationType() {
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
       case qual`.find`(cond)`.isDefined`() =>
-        Some(replace(expr).withText(invocationText(qual, "exists", Seq(cond))).highlightFrom(qual))
+        Some(replace(expr).withText(invocationText(qual, "exists", cond)).highlightFrom(qual))
       case _ => None
     }
   }

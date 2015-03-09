@@ -208,7 +208,7 @@ package object collections {
     }
   }
 
-  def invocationText(qual: ScExpression, methName: String, args: Seq[ScExpression]) = {
+  def invocationText(qual: ScExpression, methName: String, args: ScExpression*) = {
     val qualText = qual.getText
     val argsText = argListText(args)
     qual match {

@@ -13,7 +13,7 @@ object ReverseMap extends SimplificationType() {
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
       case qual`.reverse`()`.map`() =>
-        Some(replace(expr).withText(invocationText(qual, "reverseMap", Seq.empty)).highlightFrom(qual))
+        Some(replace(expr).withText(invocationText(qual, "reverseMap")).highlightFrom(qual))
       case _ => None
     }
   }
