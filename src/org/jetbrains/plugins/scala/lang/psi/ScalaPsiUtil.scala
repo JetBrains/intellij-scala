@@ -210,7 +210,7 @@ object ScalaPsiUtil {
       case Seq() =>
         // object A { def foo(a: Any) = ()}; A foo () ==>> A.foo(()), or A.foo() ==>> A.foo( () )
         val unitExpr = ScalaPsiElementFactory.createExpressionFromText("()", manager)
-        Some(Seq(Expression(unitExpr)))
+        Some(Seq(new Expression(types.Unit, place)))
       case _ =>
         val exprTypes: Seq[ScType] =
           s.map(_.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)).map {

@@ -147,6 +147,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
           try {
             val method = ScalaPsiElementFactory.createMethodWithContext(s, c.getContext, c)
             method.setSynthetic(this)
+            method.syntheticCaseClass = Some(c)
             res += method
           }
           catch {

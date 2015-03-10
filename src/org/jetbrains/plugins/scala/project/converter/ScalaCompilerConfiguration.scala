@@ -1,19 +1,17 @@
 package org.jetbrains.plugins.scala.project.converter
 
-import java.io.{StringReader, File}
+import java.io.File
 
 import com.google.common.io.Files
 import com.intellij.conversion.{CannotConvertException, ConversionContext}
 import com.intellij.openapi.components.StorageScheme
-import org.jdom.Element
-import org.jdom.input.SAXBuilder
 
-import scala.xml.{PrettyPrinter, Elem}
+import scala.xml.Elem
 
 /**
  * @author Pavel Fatin
  */
-class ScalaCompilerConfiguration(defaultSettings: ScalaCompilerSettings, profiles: Seq[ScalaCompilerSettingsProfile]) {
+class ScalaCompilerConfiguration(defaultSettings: ScalaCompilerSettings, profiles: Seq[ScalaCompilerSettingsProfile]) extends XmlConversion {
   def createIn(context: ConversionContext): Option[File] = {
     val optionsElement = createOptionsElement()
 
@@ -38,8 +36,7 @@ class ScalaCompilerConfiguration(defaultSettings: ScalaCompilerSettings, profile
 
   private def addProjectBasedOptions(options: Elem, context: ConversionContext) {
     val rootElement = context.getProjectSettings.getRootElement
-    val optionsElement = parseXml(formatXml(options))
-    rootElement.addContent(optionsElement)
+    rootElement.addContent(asJava(options))
   }
 
   private def createOptionsElement(): Elem = {
@@ -47,16 +44,5 @@ class ScalaCompilerConfiguration(defaultSettings: ScalaCompilerSettings, profile
       {defaultSettings.toXml}
       {profiles.map(_.toXml)}
     </component>
-  }
-
-  private def formatXml(element: Elem): String = {
-    val printer = new PrettyPrinter(180, 2)
-    printer.format(element)
-  }
-
-  private def parseXml(xml: String): Element = {
-    val builder = new SAXBuilder()
-    val document = builder.build(new StringReader(xml))
-    document.detachRootElement()
   }
 }

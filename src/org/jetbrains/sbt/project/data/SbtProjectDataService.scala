@@ -15,6 +15,7 @@ import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.android.sdk.{AndroidPlatform, AndroidSdkType}
 import org.jetbrains.plugins.scala.project.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.project.data.SbtProjectDataService._
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.settings.SbtSystemSettings
@@ -30,6 +31,8 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
   def doImportData(toImport: util.Collection[DataNode[ScalaProjectData]], project: Project) {
     toImport.asScala.foreach { node =>
       val data = node.getData
+
+      ScalaProjectSettings.getInstance(project).setBasePackages(data.basePackages.asJava)
 
       val existingJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
 

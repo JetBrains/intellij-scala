@@ -133,7 +133,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
         //tupling ok
         isShapeResolve = false
         val oldArg = argumentClauses
-        val tpl = ScalaPsiUtil.tuplizy(argumentClauses.apply(0), ref.getResolveScope, ref.getManager, ScalaPsiUtil.firstLeaf(ref))
+        val tpl = ScalaPsiUtil.tuplizy(argumentClauses.head, ref.getResolveScope, ref.getManager, ScalaPsiUtil.firstLeaf(ref))
         if (tpl == None) {
           return MethodResolveProcessor.candidates(this, input)
         }
@@ -223,7 +223,7 @@ object MethodResolveProcessor {
         case _ =>
           fun match {
             case fun: ScFunction if fun.paramClauses.clauses.length == 0 ||
-                    fun.paramClauses.clauses.apply(0).parameters.length == 0 ||
+                    fun.paramClauses.clauses.head.parameters.length == 0 ||
                     isUnderscore => ConformanceExtResult(problems)
             case fun: ScFun if fun.paramClauses == Seq() || fun.paramClauses == Seq(Seq()) || isUnderscore =>
               addExpectedTypeProblems()
@@ -286,7 +286,7 @@ object MethodResolveProcessor {
       case method: PsiMethod if method.isConstructor => javaConstructorCompatibility(method)
       case fun: ScFunction if (typeArgElements.length == 0 ||
               typeArgElements.length == fun.typeParameters.length) && fun.paramClauses.clauses.length == 1 &&
-              fun.paramClauses.clauses.apply(0).isImplicit &&
+              fun.paramClauses.clauses.head.isImplicit &&
               argumentClauses.length == 0 =>
         addExpectedTypeProblems()
         ConformanceExtResult(problems) //special case for cases like Seq.toArray
@@ -583,11 +583,11 @@ object MethodResolveProcessor {
           val filtered2 = input.filter(r => {
             r.element match {
               case fun: ScFun if fun.paramClauses.length > 0 =>
-                fun.paramClauses(0).length == 1
+                fun.paramClauses.head.length == 1
               case fun: ScFunction if fun.paramClauses.clauses.length > 0 =>
-                fun.paramClauses.clauses.apply(0).parameters.length == 1
+                fun.paramClauses.clauses.head.parameters.length == 1
               case p: ScPrimaryConstructor if p.parameterList.clauses.length > 0 =>
-                p.parameterList.clauses.apply(0).parameters.length == 1
+                p.parameterList.clauses.head.parameters.length == 1
               case m: PsiMethod => m.getParameterList.getParameters.length == 1
               case _ => false
             }
@@ -603,7 +603,7 @@ object MethodResolveProcessor {
     if (filtered.isEmpty && mapped.isEmpty) input.map(r => r.copy(notCheckedResolveResult = true))
     else if (filtered.isEmpty) mapped
     else {
-      val len = if (argumentClauses.isEmpty) 0 else argumentClauses(0).length
+      val len = if (argumentClauses.isEmpty) 0 else argumentClauses.head.length
       if (filtered.size == 1) return filtered
       MostSpecificUtil(ref, len).mostSpecificForResolveResult(filtered, hasTypeParametersCall = typeArgElements.nonEmpty) match {
         case Some(r) => HashSet(r)
