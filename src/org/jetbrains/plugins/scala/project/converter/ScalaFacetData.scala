@@ -13,9 +13,7 @@ private case class ScalaFacetData(languageLevel: String,
                                   compilerLibrary: Option[LibraryReference],
                                   maximumHeapSize: Int,
                                   vmOptions: Seq[String],
-                                  compileOrder: String,
-                                  compilerOptions: ScalaCompilerOptions,
-                                  compilerPlugins: Seq[String]) {
+                                  compilerSettings: ScalaCompilerSettings) {
   def removeFrom(module: ModuleSettings) {
     val facetElement = ScalaFacetData.scalaFacetElementIn(module).getOrElse(
       throw new IllegalStateException("Cannot remove Scala facet from module: " + module.getModuleName))
@@ -35,16 +33,7 @@ private object ScalaFacetData {
     scalaFacetElementIn(module).map(element => ScalaFacetData(new FacetProperties(element)))
 
   def apply(properties: FacetProperties): ScalaFacetData = {
-    val compilerOptions = new ScalaCompilerOptions(
-      warnings = properties.boolean("warnings", default = true),
-      deprecationWarnings = properties.boolean("deprecationWarnings"),
-      uncheckedWarnings = properties.boolean("uncheckedWarnings"),
-      optimiseBytecode = properties.boolean("optimiseBytecode"),
-      explainTypeErrors = properties.boolean("optimiseBytecode"),
-      continuations = properties.boolean("continuations"),
-      debuggingInfoLevel = properties.string("debuggingInfoLevel", "Vars"),
-      additionalCompilerOptions = properties.seq("compilerOptions")
-    )
+    val compilerSettings = ScalaCompilerSettings.from(properties)
 
     val compilerLibraryId = properties.option("compilerLibraryLevel").flatMap { level =>
       properties.option("compilerLibraryName").map(LibraryReference(Level.fromFacetTitle(level), _))
@@ -57,9 +46,6 @@ private object ScalaFacetData {
       compilerLibraryId,
       maximumHeapSize = properties.int("maximumHeapSize", 512),
       vmOptions = properties.seq("vmOptions", Seq("-Xss1m", "-server")),
-      compileOrder = properties.string("compileOrder", "Mixed"),
-      compilerOptions = compilerOptions,
-      compilerPlugins = properties.array("pluginPaths")
-    )
+      compilerSettings = compilerSettings)
   }
 }

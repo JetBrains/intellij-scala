@@ -13,6 +13,7 @@ import org.jetbrains.jps.incremental.scala.data.SbtData
 import org.jetbrains.plugin.scala.compiler.NameHashing
 import org.jetbrains.plugins.scala
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 
 /**
  * Nikolay.Tropin
@@ -30,7 +31,6 @@ abstract class RemoteServerConnectorBase(module: Module, fileToCompile: File, ou
   private val sbtData = SbtData.from(
     new URLClassLoader(Array(new URL("jar:file:" + (if (libCanonicalPath startsWith "/") "" else "/" ) + libCanonicalPath + "/jps/sbt-interface.jar!/")), getClass.getClassLoader),
     new File(libRoot, "jps"),
-    new File(System.getProperty("user.home"), ".idea-build"),
     System.getProperty("java.class.version")
   ) match {
     case Left(msg) => throw new IllegalArgumentException(msg)
@@ -116,7 +116,7 @@ abstract class RemoteServerConnectorBase(module: Module, fileToCompile: File, ou
 
   private def assemblyClasspath() = OrderEnumerator.orderEntries(module).compileOnly().getClassesRoots
 
-  private def compilerSettings = module.getProject.scalaCompilerSettigns
+  private def compilerSettings: ScalaCompilerSettings = module.scalaCompilerSettings
 
   private def scalaSdk = module.scalaSdk.getOrElse(
           configurationError("No Scala SDK configured for module: " + module.getName))

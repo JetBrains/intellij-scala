@@ -15,7 +15,7 @@ import com.intellij.openapi.vfs.{CharsetToolkit, VirtualFile, VirtualFileWithId}
 import com.intellij.reference.SoftReference
 
 import scala.reflect.internal.pickling.ByteCodecs
-import scala.tools.scalap.scalax.rules.scalasig.ClassFileParser.{Annotation, ArrayValue, ConstValueIndex}
+import scala.tools.scalap.scalax.rules.scalasig.ClassFileParser._
 import scala.tools.scalap.scalax.rules.scalasig._
 
 /**
@@ -23,13 +23,16 @@ import scala.tools.scalap.scalax.rules.scalasig._
  */
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil")
-  val DECOMPILER_VERSION = 258
-  private val SCALA_DECOMPILER_FILE_ATTRIBUTE = new FileAttribute("_is_scala_compiled_", DECOMPILER_VERSION, true)
+
+  val DECOMPILER_VERSION = 260
+  private val SCALA_DECOMPILER_FILE_ATTRIBUTE = new FileAttribute("_is_scala_compiled_new_key_", DECOMPILER_VERSION, true)
   private val SCALA_DECOMPILER_KEY = new Key[SoftReference[DecompilationResult]]("Is Scala File Key")
   
-  case class DecompilationResult(isScala: Boolean, sourceName: String, sourceText: String, timeStamp: Long)
+  class DecompilationResult(val isScala: Boolean, val sourceName: String, val timeStamp: Long) {
+    def sourceText: String = ""
+  }
   object DecompilationResult {
-    def empty: DecompilationResult = DecompilationResult(isScala = false, sourceName = "", sourceText = "", timeStamp = 0L)
+    def empty: DecompilationResult = new DecompilationResult(isScala = false, sourceName = "", timeStamp = 0L)
   }
 
   private def openedNotDisposedProjects: Array[Project] = {
@@ -63,7 +66,7 @@ object DecompilerUtil {
     val timeStamp = file.getTimeStamp
     var data = file.getUserData(SCALA_DECOMPILER_KEY)
     var res: DecompilationResult = if (data == null) null else data.get()
-    if (data == null || data.get() == null || data.get().timeStamp != timeStamp) {
+    if (res == null || res.timeStamp != timeStamp) {
       val readAttribute = SCALA_DECOMPILER_FILE_ATTRIBUTE.readAttribute(file)
       def updateAttributeAndData() {
         val writeAttribute = SCALA_DECOMPILER_FILE_ATTRIBUTE.writeAttribute(file)
@@ -71,7 +74,6 @@ object DecompilerUtil {
         try {
           writeAttribute.writeBoolean(decompilationResult.isScala)
           writeAttribute.writeUTF(decompilationResult.sourceName)
-          writeAttribute.writeUTF(decompilationResult.sourceText)
           writeAttribute.writeLong(decompilationResult.timeStamp)
           writeAttribute.close()
         } catch {
@@ -83,10 +85,13 @@ object DecompilerUtil {
         try {
           val isScala = readAttribute.readBoolean()
           val sourceName = readAttribute.readUTF()
-          val sourceText = readAttribute.readUTF()
           val attributeTimeStamp = readAttribute.readLong()
           if (attributeTimeStamp != timeStamp) updateAttributeAndData()
-          else res = DecompilationResult(isScala, sourceName, sourceText, attributeTimeStamp)
+          else res = new DecompilationResult(isScala, sourceName, attributeTimeStamp) {
+            override lazy val sourceText: String = {
+              decompileInner(file, bytes).sourceText
+            }
+          }
         }
         catch {
           case e: IOException => updateAttributeAndData()
@@ -133,8 +138,8 @@ object DecompilerUtil {
         case Some(other) => other
         case None => null
       }
-      if (scalaSig == null) return DecompilationResult(isScala = false, "", "", file.getTimeStamp)
-      val sourceText = {
+      if (scalaSig == null) return new DecompilationResult(isScala = false, "", file.getTimeStamp)
+      val decompiledSourceText = {
         val baos = new ByteArrayOutputStream
         val stream = new PrintStream(baos, true, CharsetToolkit.UTF8)
         if (scalaSig == null) {
@@ -186,13 +191,16 @@ object DecompilerUtil {
         }
       }
 
-      DecompilationResult(isScala = true, sourceFileName, sourceText, file.getTimeStamp)
+      new DecompilationResult(isScala = true, sourceFileName, file.getTimeStamp) {
+        override def sourceText: String = decompiledSourceText
+      }
     } catch {
-      // TODO Narrow the try block scope, catch only specific exception classes
-      case e: ClassNotFoundException => throw e
+      case m: MatchError =>
+        LOG.info(s"Error during decompiling ${file.getName}: ${m.getMessage()}. Stacktrace is suppressed.")
+        new DecompilationResult(isScala = false, "", file.getTimeStamp)
       case t: Throwable =>
-//        LOG.info(s"Error during decompiling ${file.getName}: ${t.getMessage}", t)
-        DecompilationResult(isScala = false, "", "", file.getTimeStamp)
+        LOG.info(s"Error during decompiling ${file.getName}: ${t.getMessage}", t)
+        new DecompilationResult(isScala = false, "", file.getTimeStamp)
     }
   }
 }

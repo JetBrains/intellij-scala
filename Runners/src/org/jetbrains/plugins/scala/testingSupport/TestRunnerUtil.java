@@ -84,7 +84,8 @@ public class TestRunnerUtil {
     String fileNameAndLine;
 
     public String toHint() {
-      String s = "locationHint='scala://" + escapeString(className);
+      if (className == null) return "";
+      String s = " locationHint='scala://" + escapeString(className);
       if (fileNameAndLine != null && !fileNameAndLine.isEmpty()) {
         s += "?filelocation=" + escapeString(fileNameAndLine);
       }
@@ -129,4 +130,11 @@ public class TestRunnerUtil {
     }
     return newArgs;
   }
+
+  public static String unescapeTestName(String testName) {
+    Pattern pattern = Pattern.compile("([^\\\\])\\\\n");
+    Matcher matcher = pattern.matcher(testName);
+    return matcher.replaceAll("$1\n").replace("\\\\", "\\");
+  }
+
 }

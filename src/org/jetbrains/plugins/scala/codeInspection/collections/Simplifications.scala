@@ -4,6 +4,7 @@ package codeInspection.collections
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import extensions.childOf
 
 /**
  * Nikolay.Tropin
@@ -19,6 +20,9 @@ abstract class SimplificationType(inspection: OperationOnCollectionInspection) {
 
   def likeOptionClasses = inspection.getLikeOptionClasses
   def likeCollectionClasses = inspection.getLikeCollectionClasses
+
+  def isCollectionMethod(expr: ScExpression) = OperationOnCollectionsUtil.checkResolve(expr, likeCollectionClasses)
+  def isOptionMethod(expr: ScExpression) = OperationOnCollectionsUtil.checkResolve(expr, likeOptionClasses)
 
   def createSimplification(methodToBuildFrom: MethodRepr,
                            parentExpr: ScExpression,
@@ -74,6 +78,7 @@ abstract class SimplificationType(inspection: OperationOnCollectionInspection) {
       case Seq(p: ScParenthesisedExpr) => p.getText
       case Seq(ScBlock(stmt: ScBlockStatement)) => s"(${stmt.getText})"
       case Seq(b: ScBlock) => b.getText
+      case Seq((fe: ScFunctionExpr) childOf (b: ScBlockExpr)) => b.getText
       case Seq(other) => s"(${other.getText})"
       case seq if seq.size > 1 => seq.map(_.getText).mkString("(", ", ", ")")
       case _ => ""

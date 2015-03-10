@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <idea-plugin version="2">
-  <depends optional="true" config-file="android-support.xml">org.jetbrains.android</depends>
-
-    <application-components>
-        <component>
-            <implementation-class>org.jetbrains.sbt.settings.SbtApplicationSettings</implementation-class>
-        </component>
-    </application-components>
+    <depends optional="true" config-file="android-support.xml">org.jetbrains.android</depends>
 
     <project-components>
         <component>
@@ -15,6 +9,9 @@
         </component>
         <component>
             <implementation-class>org.jetbrains.sbt.project.SbtImportNotifier</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.jetbrains.sbt.project.LegacyProjectFormatNotifier</implementation-class>
         </component>
     </project-components>
 
@@ -33,9 +30,10 @@
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtProjectDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtModuleDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.Play2StubDataService"/>
+        <externalSystemConfigLocator implementation="org.jetbrains.sbt.project.SbtConfigLocator"/>
         <!--<externalProjectDataService implementation="org.jetbrains.sbt.project.data.RunConfigurationDataService"/>-->
 
-        <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtSettings"/>
+        <projectService serviceImplementation="org.jetbrains.sbt.settings.SbtSystemSettings"/>
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtLocalSettings"/>
         <!--<projectService serviceImplementation="org.jetbrains.sbt.settings.SbtImportNotifier"/>-->
 
@@ -47,13 +45,14 @@
         <moduleType id="SBT_MODULE" implementationClass="org.jetbrains.sbt.project.module.SbtModuleType"/>
         <moduleConfigurationEditorProvider implementation="org.jetbrains.sbt.project.module.SbtModuleEditorProvider"/>
 
+        <moduleType id="SHARED_SOURCES_MODULE" implementationClass="org.jetbrains.sbt.project.sources.SharedSourcesModuleType"/>
+        <moduleConfigurationEditorProvider implementation="org.jetbrains.sbt.project.sources.SharedSourcesModuleEditorProvider"/>
+
         <applicationService serviceImplementation="org.jetbrains.sbt.resolvers.SbtResolverIndexesManager"/>
 
         <projectTemplatesFactory implementation="org.jetbrains.sbt.project.template.SbtProjectTemplateFactory"/>
 
-        <applicationConfigurable groupId="build.tools" displayName="SBT Runner" instance="org.jetbrains.sbt.settings.SbtConfigurable" />
-
-        <projectConfigurable groupId="build.tools" displayName="SBT" instance="org.jetbrains.sbt.project.settings.SbtExternalSystemConfigurable" />
+        <projectConfigurable groupId="build.tools" displayName="SBT" instance="org.jetbrains.sbt.settings.SbtExternalSystemConfigurable" />
 
         <toolWindow id="SBT" anchor="right" icon="/sbt.png"
                     factoryClass="org.jetbrains.sbt.project.ScalaToolWindowFactory"
@@ -76,13 +75,9 @@
                         displayName="Replace Project() with project.in()" groupName="SBT"
                         shortName="SbtReplaceProjectWithProjectIn"
                         level="WARNING" enabledByDefault="true" language="Scala"/>
-    </extensions>
 
-    <project-components>
-        <component>
-            <implementation-class>org.jetbrains.sbt.project.LegacyProjectFormatNotifier</implementation-class>
-        </component>
-    </project-components>
+        <configurationType implementation="org.jetbrains.sbt.runner.SbtConfigurationType"/>
+    </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">
         <scalaFileFactory implementation="org.jetbrains.sbt.language.SbtFileFactory" />

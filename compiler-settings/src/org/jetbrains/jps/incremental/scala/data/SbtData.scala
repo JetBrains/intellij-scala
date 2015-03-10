@@ -1,8 +1,11 @@
 package org.jetbrains.jps.incremental.scala
 package data
 
-import java.io.File
+import java.io._
+import java.security.MessageDigest
+import javax.xml.bind.DatatypeConverter
 
+import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.scala._
 
 /**
@@ -14,7 +17,9 @@ case class SbtData(interfaceJar: File,
                    javaClassVersion: String)
 
 object SbtData {
-  def from(classLoader: ClassLoader, pluginRoot: File, systemRoot: File, javaClassVersion: String): Either[String, SbtData] = {
+  val dataRoot = new File(System.getProperty("user.home"), ".idea-build")
+
+  def from(classLoader: ClassLoader, pluginRoot: File, javaClassVersion: String): Either[String, SbtData] = {
     Either.cond(pluginRoot.exists, pluginRoot,
       "SBT home directory does not exist: " + pluginRoot).flatMap { sbtHome =>
 
@@ -34,7 +39,8 @@ object SbtData {
               .toRight("Unable to read SBT version from JVM classpath")
               .map { sbtVersion =>
 
-              val interfacesHome = new File(new File(systemRoot, "scala-compiler-interfaces"), sbtVersion + "-idea")
+              val checksum = DatatypeConverter.printHexBinary(md5(sourceJar))
+              val interfacesHome = new File(new File(dataRoot, "scala-compiler-interfaces"), sbtVersion + "-idea-" + checksum)
 
               new SbtData(interfaceJar, sourceJar, interfacesHome, javaClassVersion)
             }
@@ -55,4 +61,16 @@ object SbtData {
       }
     }
   }
+
+  private def md5(file: File): Array[Byte] = {
+    val md = MessageDigest.getInstance("MD5")
+    val isSource = file.getName.endsWith(".java") || file.getName.endsWith(".scala")
+    if (isSource) {
+      val text = scala.io.Source.fromFile(file, "UTF-8").mkString.replace("\r", "")
+      md.digest(text.getBytes("UTF8"))
+    } else {
+      md.digest(FileUtil.loadBytes(new FileInputStream(file)))
+    }
+  }
+
 }

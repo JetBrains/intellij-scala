@@ -18,13 +18,14 @@ trait AbstractTestConfigurationProducer {
   private var myPsiElement: PsiElement = null
   def getSourceElement: PsiElement = myPsiElement
 
-  def suitePath: String
+  def suitePaths: List[String]
 
   def createConfigurationByElement(location: Location[_ <: PsiElement],
                                              context: ConfigurationContext): RunnerAndConfigurationSettingsImpl = {
     if (context.getModule == null) return null
     val scope: GlobalSearchScope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(context.getModule, true)
-    if (ScalaPsiManager.instance(context.getProject).getCachedClass(scope, suitePath) == null) return null
+    if (suitePaths.forall(
+      suitePath => ScalaPsiManager.instance(context.getProject).getCachedClass(scope, suitePath) == null)) return null
     myPsiElement = location.getPsiElement
     createConfigurationByLocation(location).asInstanceOf[RunnerAndConfigurationSettingsImpl]
   }
@@ -39,4 +40,11 @@ trait AbstractTestConfigurationProducer {
 
   def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean
 
+
+  protected def escapeAndConcatTestNames(testNames: List[String]) = {
+    val res = testNames.map(escapeTestName)
+    if (res.size > 0) res.tail.fold(res.head)(_+"\n"+_) else ""
+  }
+
+  protected def escapeTestName(testName: String) = testName.replace("\\", "\\\\").replace("\n", "\\n")
 }

@@ -7,8 +7,7 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Ksenia.Sautina
@@ -25,7 +24,8 @@ import java.util.Map;
 public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProjectSettings>, ExportableComponent {
   private int IMPLICIT_PARAMETERS_SEARCH_DEPTH = -1;
 
-  private String BASE_PACKAGE = "";
+  private String[] BASE_PACKAGES = new String[0];
+  private String SCALATEST_DEFAULT_SUPERCLASS = "org.scalatest.FunSuite";
   
   private boolean SEARCH_ALL_SYMBOLS = false;
 
@@ -44,6 +44,8 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean DONT_CACHE_COMPOUND_TYPES = false;
   private boolean AOT_COMPLETION = true;
   private boolean SCALA_CLASSES_PRIORITY = true;
+  private boolean GENERATE_TOSTRING_WITH_FIELD_NAMES = false;
+  private boolean USE_OLD_IMPLICIT_CONVERSION_ALG = false;
 
   //WORKSHEET
   private int OUTPUT_LIMIT = 35;
@@ -220,12 +222,20 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     return INTERPOLATED_INJECTION_MAPPING;
   }
 
-  public String getBasePackage() {
-    return BASE_PACKAGE;
+  public List<String> getBasePackages() {
+    return new ArrayList<String>(Arrays.asList(BASE_PACKAGES));
   }
 
-  public void setBasePackage(String name) {
-    BASE_PACKAGE = name;
+  public String getScalaTestDefaultSuperClass() {
+    return SCALATEST_DEFAULT_SUPERCLASS;
+  }
+
+  public void setScalaTestDefaultSuperClass(String superClassName) {
+    SCALATEST_DEFAULT_SUPERCLASS = superClassName;
+  }
+
+  public void setBasePackages(List<String> packages) {
+    BASE_PACKAGES = packages.toArray(new String[packages.size()]);
   }
 
   public void setIntInjectionMapping(Map<String, String> intInjectionMapping) {
@@ -252,5 +262,19 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setUseEclipseCompatibility(boolean USE_ECLIPSE_COMPATIBILITY) {
     this.USE_ECLIPSE_COMPATIBILITY = USE_ECLIPSE_COMPATIBILITY;
+  }
+
+  public boolean isGenerateToStringWithFieldNames() { return GENERATE_TOSTRING_WITH_FIELD_NAMES; }
+
+  public void setGenerateToStringWithFieldNames(boolean generateToStringWithFieldNames) {
+    this.GENERATE_TOSTRING_WITH_FIELD_NAMES = generateToStringWithFieldNames;
+  }
+
+  public boolean isUseOldImplicitConversionAlg() {
+    return USE_OLD_IMPLICIT_CONVERSION_ALG;
+  }
+
+  public void setUseOldImplicitConversionAlg(boolean useOldImplicitConversionAlg) {
+    USE_OLD_IMPLICIT_CONVERSION_ALG = useOldImplicitConversionAlg;
   }
 }

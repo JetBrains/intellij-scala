@@ -112,8 +112,8 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
                   if (item.prefixCompletion) {
                     val newRefText = clazz.qualifiedName.split('.').takeRight(2).mkString(".")
                     val newRef = ScalaPsiElementFactory.createReferenceFromText(newRefText, clazz.getManager)
-                    ref.replace(newRef)
-                    newRef.bindToElement(clazz)
+                    val replaced = ref.replace(newRef).asInstanceOf[ScStableCodeReferenceElement]
+                    replaced.bindToElement(clazz)
                   } else {
                     ref.bindToElement(clazz)
                   }

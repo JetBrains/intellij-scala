@@ -19,6 +19,7 @@ import com.intellij.openapi.wm.StatusBarWidget.PlatformType
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.util.Consumer
+import org.jetbrains.plugins.scala.compiler.CompileServerManager._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project._
 
@@ -120,11 +121,18 @@ class CompileServerManager(project: Project) extends ProjectComponent {
 
    private def toggleList(e: MouseEvent) {
      val mnemonics = JBPopupFactory.ActionSelectionAid.MNEMONICS
-     val group = new DefaultActionGroup(Start, Stop, Separator.getInstance, Configure)
+
+     val addActions = ServerWidgetEP.getAllWidgetEps.flatMap(_.getAdditionalActions(project))
+     val baseActions = Seq(Start, Stop, Separator.getInstance, Configure)
+     val actions = if (addActions.nonEmpty) (baseActions :+ Separator.getInstance()) ++ addActions else baseActions
+
+     val group = new DefaultActionGroup(actions: _*)
+
      val context = DataManager.getInstance.getDataContext(e.getComponent)
      val popup = JBPopupFactory.getInstance.createActionGroupPopup(title, group, context, mnemonics, true)
      val dimension = popup.getContent.getPreferredSize
      val at = new Point(0, -dimension.height)
+
      popup.show(new RelativePoint(e.getComponent, at))
    }
 
@@ -150,16 +158,12 @@ class CompileServerManager(project: Project) extends ProjectComponent {
 
   private object Configure extends AnAction("&Configure...", "Configure compile server", AllIcons.General.Settings) with DumbAware {
     def actionPerformed(e: AnActionEvent) {
-      ShowSettingsUtil.getInstance().showSettingsDialog(null, "Scala Compile Server")
+      showCompileServerSettingsDialog()
     }
   }
 
   private object ScalaListener extends ScalaProjectListener {
-    def onScalaAdded() {
-      configureWidget()
-    }
-
-    def onScalaRemoved() {
+    def onScalaProjectChanged() {
       configureWidget()
     }
   }
@@ -194,4 +198,8 @@ class CompileServerManager(project: Project) extends ProjectComponent {
 
 object CompileServerManager {
   def instance(project: Project) = project.getComponent(classOf[CompileServerManager])
+
+  def showCompileServerSettingsDialog(): Unit = {
+    ShowSettingsUtil.getInstance().showSettingsDialog(null, "Scala Compile Server")
+  }
 }

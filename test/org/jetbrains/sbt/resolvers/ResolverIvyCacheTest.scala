@@ -26,5 +26,7 @@ class ResolverIvyCacheTest extends ScalaFixtureTestCase {
     assertEquals(newIndex.groups(), groups)
     assertEquals(newIndex.artifacts(), artifacts)
     artifacts foreach { a => assertEquals(newIndex.versions(groups.head, a), versions) }
+
+    storingManager.dispose()
   }
 }

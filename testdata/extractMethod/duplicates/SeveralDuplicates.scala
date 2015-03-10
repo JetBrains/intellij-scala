@@ -21,7 +21,7 @@ object SeveralDuplicates {
     testMethodName(2)
   }
 
-  def testMethodName(i: Int) {
+  def testMethodName(i: Int): Unit = {
     println(i + 1)
   }
 

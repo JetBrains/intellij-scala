@@ -15,24 +15,16 @@ class ScalaProjectEvents(project: Project) extends AbstractProjectComponent(proj
 
   private val connection = project.getMessageBus.connect()
 
-  connection.subscribe(ProjectTopics.MODULES, new ModuleAdapter {
-    override def moduleRemoved(project: Project, module: Module) {
-      update()
-    }
+  override def projectOpened()= {
+    connection.subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootAdapter {
+      override def rootsChanged(event: ModuleRootEvent) {
+        listeners.foreach(_.onScalaProjectChanged())
+      }
+    })
+  }
 
-    override def moduleAdded(project: Project, module: Module) {
-      update()
-    }
-  })
-
-  connection.subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootAdapter {
-    override def rootsChanged(event: ModuleRootEvent) {
-      update()
-    }
-  })
-
-  private def update() {
-    if (project.hasScala) fireScalaAdded() else fireScalaRemoved()
+  override def projectClosed() {
+    connection.disconnect()
   }
 
   def addScalaProjectListener(listener: ScalaProjectListener) {
@@ -42,22 +34,8 @@ class ScalaProjectEvents(project: Project) extends AbstractProjectComponent(proj
   def removeScalaProjectListener(listener: ScalaProjectListener) {
     listeners = listeners.filterNot(_ == listener)
   }
-
-  private def fireScalaAdded() {
-    listeners.foreach(_.onScalaAdded())
-  }
-
-  private def fireScalaRemoved() {
-    listeners.foreach(_.onScalaRemoved())
-  }
-
-  override def disposeComponent() {
-    connection.disconnect()
-  }
 }
 
 trait ScalaProjectListener {
-  def onScalaAdded()
-
-  def onScalaRemoved()
+  def onScalaProjectChanged()
 }

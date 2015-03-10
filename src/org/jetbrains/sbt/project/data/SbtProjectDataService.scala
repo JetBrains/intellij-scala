@@ -7,13 +7,17 @@ import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
 import com.intellij.compiler.{CompilerConfiguration, CompilerConfigurationImpl}
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, ProjectStructureHelper}
+import com.intellij.openapi.module.{ModuleUtil, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.android.sdk.{AndroidPlatform, AndroidSdkType}
+import org.jetbrains.plugins.scala.project.IncrementalityType
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.sbt.project.data.SbtProjectDataService._
-import org.jetbrains.sbt.project.settings.SbtSettings
+import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
+import org.jetbrains.sbt.settings.SbtSystemSettings
 
 import scala.collection.JavaConverters._
 
@@ -26,7 +30,6 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
   def doImportData(toImport: util.Collection[DataNode[ScalaProjectData]], project: Project) {
     toImport.asScala.foreach { node =>
       val data = node.getData
-
 
       val existingJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
 
@@ -43,7 +46,14 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
 
       javaLanguageLevel.foreach(updateJavaLanguageLevelIn(project, _))
 
-      SbtSettings.getInstance(project).sbtVersion = data.sbtVersion
+      Option(SbtSystemSettings.getInstance(project).getLinkedProjectSettings(data.projectPath)).foreach { s =>
+        s.sbtVersion = data.sbtVersion
+      }
+
+      val modules = ModuleManager.getInstance(project).getModules
+      if (modules.exists(it => ModuleUtil.getModuleType(it) == SharedSourcesModuleType.instance)) {
+        ScalaCompilerConfiguration.instanceIn(project).incrementalityType = IncrementalityType.SBT
+      }
     }
   }
 

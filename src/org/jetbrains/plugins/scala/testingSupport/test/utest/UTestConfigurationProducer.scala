@@ -55,15 +55,15 @@ class UTestConfigurationProducer extends {
       return TestConfigurationUtil.packageSettings(element, location, confFactory, ScalaBundle.message("test.in.scope.utest.presentable.text", name))
     }
 
-    val (testClassPath, testClassName) = getLocationClassAndTest(location)
+    val (testClassPath, testName) = getLocationClassAndTest(location)
     if (testClassPath == null) return null
     val settings = RunManager.getInstance(location.getProject).
             createRunConfiguration(StringUtil.getShortName(testClassPath) +
-            (if (testClassName != null) "\\" + testClassName else ""), confFactory)
+            (if (testName != null) "\\" + testName else ""), confFactory)
     val runConfiguration = settings.getConfiguration.asInstanceOf[UTestRunConfiguration]
     runConfiguration.setTestClassPath(testClassPath)
-    if (testClassName != null) runConfiguration.setTestName(testClassName)
-    val kind = if (testClassName == null) TestKind.CLASS else TestKind.TEST_NAME
+    if (testName != null) runConfiguration.setTestName(testName)
+    val kind = if (testName == null) TestKind.CLASS else TestKind.TEST_NAME
     runConfiguration.setTestKind(kind)
     try {
       val module = ScalaPsiUtil.getModule(element)
@@ -78,7 +78,7 @@ class UTestConfigurationProducer extends {
     settings
   }
 
-  override def suitePath = "utest.framework.TestSuite"
+  override def suitePaths = List("utest.framework.TestSuite")
 
   private val testObjectPath = "utest.framework.TestSuite$"
 
@@ -140,7 +140,7 @@ class UTestConfigurationProducer extends {
       parent = PsiTreeUtil.getParentOfType(parent, classOf[ScTypeDefinition], true)
     }
     if (!parent.isInstanceOf[ScObject]) return (null, null)
-    if (!isInheritor(parent, suitePath)) return (null, null)
+    if (!suitePaths.exists(suitePath => isInheritor(parent, suitePath))) return (null, null)
     val testClassPath = parent.qualifiedName
 
     //now get test name

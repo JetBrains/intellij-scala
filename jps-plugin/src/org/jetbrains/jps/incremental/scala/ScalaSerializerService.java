@@ -1,5 +1,6 @@
 package org.jetbrains.jps.incremental.scala;
 
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.xmlb.XmlSerializer;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +14,9 @@ import org.jetbrains.jps.model.serialization.JpsProjectExtensionSerializer;
 import org.jetbrains.jps.model.serialization.library.JpsLibraryPropertiesSerializer;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Pavel Fatin
@@ -28,7 +31,7 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
   @NotNull
   @Override
   public List<? extends JpsProjectExtensionSerializer> getProjectExtensionSerializers() {
-    return Collections.singletonList(new ProjectSettingsSerializer());
+    return Collections.singletonList(new CompilerConfigurationSerializer());
   }
 
   @NotNull
@@ -55,16 +58,48 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
     }
   }
 
-  private static class ProjectSettingsSerializer extends JpsProjectExtensionSerializer {
-    private ProjectSettingsSerializer() {
+  private static class CompilerConfigurationSerializer extends JpsProjectExtensionSerializer {
+    private CompilerConfigurationSerializer() {
       super("scala_compiler.xml", "ScalaCompilerConfiguration");
     }
 
     @Override
     public void loadExtension(@NotNull JpsProject jpsProject, @NotNull Element componentTag) {
-      ProjectSettingsImpl.State state = XmlSerializer.deserialize(componentTag, ProjectSettingsImpl.State.class);
-      ProjectSettingsImpl settings = new ProjectSettingsImpl(state == null ? new ProjectSettingsImpl.State() : state);
-      SettingsManager.setProjectSettings(jpsProject, settings);
+      IncrementalityType incrementalityType = loadIncrementalityType(componentTag);
+
+      CompilerSettingsImpl defaultSetting = loadSettings(componentTag);
+
+      Map<String, String> moduleToProfile = new HashMap<String, String>();
+      Map<String, CompilerSettingsImpl> profileToSettings = new HashMap<String, CompilerSettingsImpl>();
+
+      for (Element profileElement : componentTag.getChildren("profile")) {
+        String profile = profileElement.getAttributeValue("name");
+        CompilerSettingsImpl settings = loadSettings(profileElement);
+        profileToSettings.put(profile, settings);
+
+        List<String> modules = StringUtil.split(profileElement.getAttributeValue("modules"), ",");
+        for (String module : modules) {
+          moduleToProfile.put(module, profile);
+        }
+      }
+
+      ProjectSettings configuration = new ProjectSettingsImpl(incrementalityType, defaultSetting, profileToSettings, moduleToProfile);
+
+      SettingsManager.setProjectSettings(jpsProject, configuration);
+    }
+
+    private static IncrementalityType loadIncrementalityType(Element componentTag) {
+      for (Element option : componentTag.getChildren("option")) {
+        if ("incrementalityType".equals(option.getAttributeValue("name"))) {
+          return IncrementalityType.valueOf(option.getAttributeValue("value"));
+        }
+      }
+      return IncrementalityType.IDEA;
+    }
+
+    private static CompilerSettingsImpl loadSettings(Element componentTag) {
+      CompilerSettingsImpl.State state = XmlSerializer.deserialize(componentTag, CompilerSettingsImpl.State.class);
+      return new CompilerSettingsImpl(state == null ? new CompilerSettingsImpl.State() : state);
     }
 
     @Override
@@ -80,8 +115,9 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
 
     @Override
     public LibrarySettings loadProperties(@Nullable Element propertiesElement) {
-      LibrarySettingsImpl.State state = XmlSerializer.deserialize(propertiesElement, LibrarySettingsImpl.State.class);
-      return state == null ? null : new LibrarySettingsImpl(state);
+      LibrarySettingsImpl.State state = propertiesElement == null? null :
+          XmlSerializer.deserialize(propertiesElement, LibrarySettingsImpl.State.class);
+      return new LibrarySettingsImpl(state == null? new LibrarySettingsImpl.State() : state);
     }
 
     @Override

@@ -22,12 +22,19 @@ class ScalaSdkDataService(platformFacade: PlatformFacade, helper: ProjectStructu
   private def doImport(sdkNode: DataNode[ScalaSdkData], project: Project) {
     val sdkData = sdkNode.getData
 
-    val compilerOptions = sdkData.compilerOptions
-    project.scalaCompilerSettigns.updateFrom(compilerOptions)
+    val module = {
+      val moduleData = sdkNode.getData(ProjectKeys.MODULE)
+      helper.findIdeModule(moduleData.getExternalName, project)
+    }
+
+    module.configureScalaCompilerSettingsFrom("SBT", sdkData.compilerOptions)
 
     val compilerVersion = sdkData.scalaVersion
 
     val scalaLibraries = project.libraries.filter(_.getName.contains("scala-library"))
+
+    if (scalaLibraries.isEmpty)
+      return
 
     // TODO Why SBT's scala-libary module version sometimes differs from SBT's declared scalaVersion?
     val scalaLibrary = scalaLibraries

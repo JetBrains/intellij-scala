@@ -52,13 +52,12 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
         if (getDebugProcess.getVirtualMachineProxy.versionHigher("1.4"))
           refType.locationsOfLine(DebugProcess.JAVA_STRATUM, null, line)
         else refType.locationsOfLine(line)
-      if (locations == null || locations.isEmpty) throw new NoDataException
+      if (locations == null || locations.isEmpty) throw NoDataException.INSTANCE
       locations
     }
     catch {
-      case e: AbsentInformationException => {
-        throw new NoDataException
-      }
+      case e: AbsentInformationException =>
+        throw NoDataException.INSTANCE
     }
   }
 
@@ -190,16 +189,16 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
       }
     })
 
-    if (qName.get == null || waitRequestor.get == null) throw new NoDataException
+    if (qName.get == null || waitRequestor.get == null) throw NoDataException.INSTANCE
     getDebugProcess.getRequestsManager.createClassPrepareRequest(waitRequestor.get, qName.get)
   }
 
   def getSourcePosition(location: Location): SourcePosition = {
-    if (location == null) throw new NoDataException
+    if (location == null) throw NoDataException.INSTANCE
     val psiFile: PsiFile = getPsiFileByLocation(getDebugProcess.getProject, location)
-    if (psiFile == null) throw new NoDataException
+    if (psiFile == null) throw NoDataException.INSTANCE
     val lineNumber: Int = calcLineIndex(location)
-    if (lineNumber < 0) throw new NoDataException
+    if (lineNumber < 0) throw NoDataException.INSTANCE
 
     val methodName = location.method().name()
     calcPosition(psiFile, lineNumber, methodName).getOrElse {
@@ -251,13 +250,14 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     val inMethodBody = exprs.find {
       case e =>
         val fun = PsiTreeUtil.getParentOfType(e, classOf[ScFunctionDefinition])
-        fun.body.exists(PsiTreeUtil.isAncestor(_, e, false))
+        fun != null && fun.body.exists(PsiTreeUtil.isAncestor(_, e, false))
     }
     inMethodBody.map(SourcePosition.createFromElement)
   }
 
   private def expressionsOnLine(file: ScalaFile, lineNumber: Int): Seq[ScExpression] = {
     val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
+    if (lineNumber >= document.getLineCount) throw NoDataException.INSTANCE
     val startLine = document.getLineStartOffset(lineNumber)
     val endLine = document.getLineEndOffset(lineNumber)
     val lineRange = new TextRange(startLine, endLine)
@@ -292,7 +292,10 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     val dollar: Int = originalQName.indexOf('$')
     val qName = if (dollar >= 0) originalQName.substring(0, dollar) else originalQName
     val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(qName, searchScope)
-    val clazz: PsiClass = if (classes.length == 1) classes.apply(0) else null
+    val clazz: PsiClass =
+      if (classes.length == 1) classes.apply(0)
+      else if (classes.length == 2 && ScalaPsiUtil.getCompanionModule(classes(0)) == Some(classes(1))) classes(0)
+      else null
     if (clazz != null && clazz.isValid && !ScalaMacroDebuggingUtil.isEnabled) {
       return clazz.getNavigationElement.getContainingFile
     }
@@ -364,7 +367,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
         }
       }
     })
-    if (result == null || result.isEmpty) throw new NoDataException
+    if (result == null || result.isEmpty) throw NoDataException.INSTANCE
     result
   }
 

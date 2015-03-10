@@ -24,7 +24,7 @@ object DifferentInterpolatedStringLiterals {
     }
   }
 
-  def testMethodName(level: Int, message: String) {
+  def testMethodName(level: Int, message: String): Unit = {
     println(s"info: $level")
     println(message)
   }

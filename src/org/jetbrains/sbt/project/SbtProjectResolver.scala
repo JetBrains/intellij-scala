@@ -9,6 +9,7 @@ import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemExcept
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
 import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
+import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
@@ -18,7 +19,7 @@ import org.jetbrains.sbt.resolvers.SbtResolver
 /**
  * @author Pavel Fatin
  */
-class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSettings] {
+class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSettings] with ExternalSourceRootResolution {
 
   private var runner: SbtRunner = null
 
@@ -28,7 +29,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       if (file.isDirectory) file.getPath else file.getParent
     }
 
-    runner = new SbtRunner(settings.vmOptions, settings.customLauncher, settings.customSbtStructureDir, settings.vmExecutable)
+    runner = new SbtRunner(settings.vmExecutable, settings.vmOptions, settings.environment,
+                           settings.customLauncher, settings.customSbtStructureDir)
 
     var warnings = new StringBuilder()
 
@@ -52,25 +54,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val data = StructureParser.parse(xml, new File(System.getProperty("user.home")))
 
-    val externalSourceRoots = data.projects.flatMap(externalSourceRootsIn)
-
-    if (externalSourceRoots.nonEmpty) {
-      val warning = externalSourceRoots.map(file => s"<li>${file.getPath}</li>").mkString(
-        "The following source roots are outside of the corresponding base directories:\n<ul>", "\n",
-        "\n</ul>\nThese source roots cannot be included in the IDEA project model." +
-                "<br>Please consider using shared SBT projects instead of shared source roots.")
-
-      listener.onTaskOutput(id, WarningMessage(warning), false)
-    }
-
     convert(root, data, settings.jdk).toDataNode
   }
 
   private def convert(root: String, data: Structure, jdk: Option[String]): Node[ProjectData] = {
     val projects = data.projects
-
     val project = data.projects.headOption.getOrElse(throw new RuntimeException("No root project found"))
-
     val projectNode = new ProjectNode(project.name, root, root)
 
     val javacOptions = project.java.map(_.options).getOrElse(Seq.empty)
@@ -81,51 +70,30 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       else
         jdk map ScalaProjectData.Jdk
 
-    projectNode.add(new ScalaProjectNode(projectJdk, javacOptions, sbtVersion))
+    projectNode.add(new ScalaProjectNode(projectJdk, javacOptions, sbtVersion, FileUtil.toSystemIndependentName(root)))
 
     project.play2 map {
       case play2Data => projectNode.add(new Play2ProjectNode(play2Data.keys))
     }
 
-    val libraries = {
-      val repositoryModules = data.repository.map(_.modules).getOrElse(Seq.empty)
-      val (modulesWithoutBinaries, modulesWithBinaries) = repositoryModules.partition(_.binaries.isEmpty)
-      val otherModuleIds = projects.flatMap(_.dependencies.modules.map(_.id)).toSet --
-              repositoryModules.map(_.id).toSet
+    val libraryNodes = createLibraries(data, projects)
+    projectNode.addAll(libraryNodes)
 
-      val libs = modulesWithBinaries.map(createResolvedLibrary) ++ otherModuleIds.map(createUnresolvedLibrary)
-
-      if (modulesWithoutBinaries.nonEmpty) {
-        val unmanagedSourceLibrary = new LibraryNode(Sbt.UnmanagedSourcesAndDocsName, true)
-        unmanagedSourceLibrary.addPaths(LibraryPathType.DOC, modulesWithoutBinaries.flatMap(_.docs).map(_.path))
-        unmanagedSourceLibrary.addPaths(LibraryPathType.SOURCE, modulesWithoutBinaries.flatMap(_.sources).map(_.path))
-        libs :+ unmanagedSourceLibrary
-      } else {
-        libs
-      }
-    }
-    projectNode.addAll(libraries)
-
-    val unmanagedSourcesAndDocsLibrary = libraries.map(_.data).find(_.getExternalName == Sbt.UnmanagedSourcesAndDocsName)
     val moduleFilesDirectory = new File(root + "/" + Sbt.ModulesDirectory)
-
-    val moduleNodes: Seq[ModuleNode] = projects.map { project =>
-      val moduleNode = createModule(project, moduleFilesDirectory)
-      moduleNode.add(createContentRoot(project))
-      moduleNode.addAll(createLibraryDependencies(project.dependencies.modules)(moduleNode, libraries.map(_.data)))
-      moduleNode.addAll(project.scala.map(createScalaSdk(project, _)).toSeq)
-      moduleNode.addAll(project.android.map(createFacet(project, _)).toSeq)
-      moduleNode.addAll(createUnmanagedDependencies(project.dependencies.jars)(moduleNode))
-      unmanagedSourcesAndDocsLibrary foreach { lib =>
-        val dependency = new LibraryDependencyNode(moduleNode, lib, LibraryLevel.MODULE)
-        dependency.setScope(DependencyScope.COMPILE)
-        moduleNode.add(dependency)
-      }
-      moduleNode
-    }
-
+    val moduleNodes = createModules(projects, libraryNodes, moduleFilesDirectory)
     projectNode.addAll(moduleNodes)
 
+    createModuleDependencies(projects, moduleNodes)
+
+    val projectToModuleNode: Map[Project, ModuleNode] = projects.zip(moduleNodes).toMap
+    val sharedSourceModules = createSharedSourceModules(projectToModuleNode, libraryNodes, moduleFilesDirectory)
+    projectNode.addAll(sharedSourceModules)
+
+    projectNode.addAll(projects.map(createBuildModule(_, moduleFilesDirectory, data.localCachePath)))
+    projectNode
+  }
+
+  def createModuleDependencies(projects: Seq[Project], moduleNodes: Seq[ModuleNode]): Unit = {
     projects.zip(moduleNodes).foreach { case (moduleProject, moduleNode) =>
       moduleProject.dependencies.projects.foreach { dependencyId =>
         val dependency = moduleNodes.find(_.getId == dependencyId.project).getOrElse(
@@ -136,11 +104,40 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         moduleNode.add(data)
       }
     }
+  }
 
-    val localCachePath = data.localCachePath
-    projectNode.addAll(projects.map(createBuildModule(_, moduleFilesDirectory, localCachePath)))
+  def createModules(projects: Seq[Project], libraryNodes: Seq[LibraryNode], moduleFilesDirectory: File): Seq[ModuleNode] = {
+    val unmanagedSourcesAndDocsLibrary = libraryNodes.map(_.data).find(_.getExternalName == Sbt.UnmanagedSourcesAndDocsName)
+    projects.map { project =>
+      val moduleNode = createModule(project, moduleFilesDirectory)
+      moduleNode.add(createContentRoot(project))
+      moduleNode.addAll(createLibraryDependencies(project.dependencies.modules)(moduleNode, libraryNodes.map(_.data)))
+      moduleNode.addAll(project.scala.map(createScalaSdk(project, _)).toSeq)
+      moduleNode.addAll(project.android.map(createFacet(project, _)).toSeq)
+      moduleNode.addAll(createUnmanagedDependencies(project.dependencies.jars)(moduleNode))
+      unmanagedSourcesAndDocsLibrary foreach { lib =>
+        val dependency = new LibraryDependencyNode(moduleNode, lib, LibraryLevel.MODULE)
+        dependency.setScope(DependencyScope.COMPILE)
+        moduleNode.add(dependency)
+      }
+      moduleNode
+    }
+  }
 
-    projectNode
+  def createLibraries(data: Structure, projects: Seq[Project]): Seq[LibraryNode] = {
+    val repositoryModules = data.repository.map(_.modules).getOrElse(Seq.empty)
+    val (modulesWithoutBinaries, modulesWithBinaries) = repositoryModules.partition(_.binaries.isEmpty)
+    val otherModuleIds = projects.flatMap(_.dependencies.modules.map(_.id)).toSet --
+            repositoryModules.map(_.id).toSet
+
+    val libs = modulesWithBinaries.map(createResolvedLibrary) ++ otherModuleIds.map(createUnresolvedLibrary)
+
+    if (modulesWithoutBinaries.isEmpty) return libs
+
+    val unmanagedSourceLibrary = new LibraryNode(Sbt.UnmanagedSourcesAndDocsName, true)
+    unmanagedSourceLibrary.addPaths(LibraryPathType.DOC, modulesWithoutBinaries.flatMap(_.docs).map(_.path))
+    unmanagedSourceLibrary.addPaths(LibraryPathType.SOURCE, modulesWithoutBinaries.flatMap(_.sources).map(_.path))
+    libs :+ unmanagedSourceLibrary
   }
 
   private def createScalaSdk(project: Project, scala: Scala): ScalaSdkNode = {
@@ -300,18 +297,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             .map(_.path)
   }
 
-  private def externalSourceRootsIn(project: Project): Seq[File] = {
-    val scopes = Set("compile", "test", "it")
-
-    val sourceRoots = project.configurations
-            .filter(it => scopes.contains(it.id))
-            .flatMap(it => it.sources ++ it.resources)
-            .map(_.file)
-
-    sourceRoots.filter(_.isOutsideOf(project.base))
-  }
-
-  private def createLibraryDependencies(dependencies: Seq[ModuleDependency])(moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyNode] = {
+  protected def createLibraryDependencies(dependencies: Seq[ModuleDependency])(moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyNode] = {
     dependencies.map { dependency =>
       val name = nameFor(dependency.id)
       val library = libraries.find(_.getExternalName == name).getOrElse(
@@ -346,7 +332,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  private def scopeFor(configurations: Seq[String]): DependencyScope = {
+  protected def scopeFor(configurations: Seq[String]): DependencyScope = {
     val ids = configurations.toSet
 
     if (ids.contains("compile"))

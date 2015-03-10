@@ -178,7 +178,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
         case None =>
       }
     }
-    buf.toSeq
+    SyntheticMembersInjector.inject(this) ++: buf.toSeq
   }
 
   private def copyMethodText: String = {
@@ -217,7 +217,12 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
     }).getOrElse("")
     val parametersText = constr.parameterList.clauses.map {
       case clause: ScParameterClause => clause.parameters.map {
-        case parameter: ScParameter => s"${parameter.name} : ${parameter.typeElement.map(_.getText).getOrElse("Nothing")}"
+        case parameter: ScParameter =>
+          val paramText = s"${parameter.name} : ${parameter.typeElement.map(_.getText).getOrElse("Nothing")}"
+          parameter.getDefaultExpression match {
+            case Some(expr) => s"$paramText = ${expr.getText}"
+            case _ => paramText
+          }
       }.mkString(if (clause.isImplicit) "(implicit " else "(", ", ", ")")
     }.mkString
     getModifierList.accessModifier.map(am => am.getText + " ").getOrElse("") + "implicit def " + name +

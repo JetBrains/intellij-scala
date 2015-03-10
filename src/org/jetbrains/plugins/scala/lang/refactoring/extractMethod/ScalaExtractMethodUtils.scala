@@ -9,6 +9,7 @@ import com.intellij.psi.{PsiElement, PsiNamedElement, ResolveState}
 import com.intellij.refactoring.util.VariableData
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
@@ -47,7 +48,11 @@ object ScalaExtractMethodUtils {
     val parameters = settings.parameters.filter(_.passAsParameter).map(paramText)
     val paramsText = if (parameters.nonEmpty) parameters.mkString("(", ", ",")") else ""
 
-    val retType = if (settings.calcReturnTypeIsUnit) "" else s": ${settings.calcReturnTypeText} ="
+    val project = settings.elements(0).getProject
+    val codeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
+    val retType =
+      if (settings.calcReturnTypeIsUnit && !codeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT) ""
+      else s": ${settings.calcReturnTypeText} ="
 
     val notPassedParams = settings.parameters.filter(p => !p.passAsParameter).map { p =>
       val nameAndType = typedName(p.oldName, p.tp.canonicalText, p.fromElement.getProject)
@@ -121,7 +126,6 @@ object ScalaExtractMethodUtils {
           }
           val retElem = ScalaPsiElementFactory.createExpressionFromText(s"return $newText", ret.getManager)
           ret.replace(retElem)
-          super.visitReturnStatement(ret)
         }
       }
       returnVisitor.visitElement(method: ScalaPsiElement)

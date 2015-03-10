@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.annotator
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
-import com.intellij.psi.{PsiElement, PsiMethod, PsiModifier}
+import com.intellij.psi.{PsiModifierListOwner, PsiElement, PsiMethod, PsiModifier}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.quickfix.modifiers.{AddModifierQuickFix, AddModifierWithValOrVarQuickFix, RemoveModifierQuickFix}
 import org.jetbrains.plugins.scala.extensions._
@@ -138,6 +138,25 @@ trait OverridingAnnotator {
             case _ =>
           }
         }
+      }
+      //fix for SCL-7831
+      var overridesFinal = false
+      for (signature <- superSignatures if !overridesFinal) {
+        val e =
+          signature match {
+            case signature: Signature => signature.namedElement
+            case _ => signature
+          }
+        e match {
+          case owner1: PsiModifierListOwner if owner1.hasFinalModifier =>
+            overridesFinal = true
+          case _ =>
+        }
+      }
+      if (overridesFinal) {
+        val annotation: Annotation = holder.createErrorAnnotation(member.nameId,
+          ScalaBundle.message("can.not.override.final", memberType, member.name))
+        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
     }
 

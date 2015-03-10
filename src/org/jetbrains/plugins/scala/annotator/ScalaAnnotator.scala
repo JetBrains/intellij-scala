@@ -937,6 +937,9 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                     val wrapInOptionFix = new WrapInOptionQuickFix(expr, expectedType, exprType)
                     annotation.registerFix(wrapInOptionFix)
                   }
+                  if (AddBreakoutQuickFix.isAvailable(expr)) {
+                    annotation.registerFix(new AddBreakoutQuickFix(expr))
+                  }
                   typeElement match {
                     case Some(te) if te.getContainingFile == expr.getContainingFile =>
                       val fix = new ChangeTypeFix(te, exprType.getOrNothing)
@@ -1179,6 +1182,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     val child = literal.getFirstChild.getNode
     val text = literal.getText
     val endsWithL = child.getText.endsWith('l') || child.getText.endsWith('L')
+    val textWithoutL = if (endsWithL) text.substring(0, text.length - 1) else text
     val parent = literal.getParent
     val scalaVersion = literal.scalaLanguageLevel
     val isNegative = parent match {
@@ -1186,10 +1190,10 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       case prefixExpr: ScPrefixExpr if prefixExpr.getChildren.size == 2 && prefixExpr.getFirstChild.getText == "-" => true
       case _ => false
     }
-    val (number, base) = text match {
+    val (number, base) = textWithoutL match {
       case t if t.startsWith("0x") || t.startsWith("0X") => (t.substring(2), 16)
       case t if t.startsWith("0") && t.length >= 2 => (t.substring(1), 8)
-      case _ => (text, 10)
+      case t => (t, 10)
     }
 
     // parse integer literal. the return is (Option(value), statusCode)
@@ -1205,20 +1209,20 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       val limit = java.lang.Long.MAX_VALUE
       val intLimit = java.lang.Integer.MAX_VALUE
       var i = 0
-      val len = text.length
-      while (i < len) {
-        val d = text.charAt(i).asDigit
+      for (d <- number.map(_.asDigit)) {
         if (value > intLimit ||
             intLimit / (base / divider) < value ||
             intLimit - (d / divider) < value * (base / divider) &&
+            // This checks for -2147483648, value is 214748364, base is 10, d is 8. This check returns false.
+            // base 8 and 16 won't have this check because the divider is 2        .
             !(isNegative && intLimit == value * base - 1 + d)) {
           statusCode = 1
         }
         if (value < 0 ||
             limit / (base / divider) < value ||
             limit - (d / divider) < value * (base / divider) &&
+            // This checks for Long.MinValue, same as the the previous Int.MinValue check.
             !(isNegative && limit == value * base - 1 + d)) {
-          statusCode = 2
           return (None, 2)
         }
         value = value * base + d
@@ -1245,8 +1249,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         case _ =>
       }
     }
-    val textWithoutL = if (endsWithL) number.substring(0, number.length - 1) else number
-    val (_, status) = parseIntegerNumber(textWithoutL, isNegative)
+    val (_, status) = parseIntegerNumber(number, isNegative)
     if (status == 2) { // the Integer number is out of range even for Long
       val error = "Integer number is out of range even for type Long"
       val annotation = holder.createErrorAnnotation(literal, error)

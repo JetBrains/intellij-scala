@@ -3,7 +3,7 @@ package project.gradle
 
 import java.util
 
-import com.intellij.openapi.externalSystem.model.{ProjectKeys, ExternalSystemException, DataNode}
+import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, ProjectStructureHelper}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
@@ -25,8 +25,12 @@ class ScalaGradleDataService(platformFacade: PlatformFacade, helper: ProjectStru
   private def doImport(scalaNode: DataNode[ScalaModelData], project: Project) {
     val scalaData = scalaNode.getData
 
-    val compilerOptions = ScalaGradleDataService.compilerOptionsFrom(scalaData)
-    project.scalaCompilerSettigns.updateFrom(compilerOptions)
+    val module = {
+      val moduleData = scalaNode.getData(ProjectKeys.MODULE)
+      helper.findIdeModule(moduleData.getExternalName, project)
+    }
+
+    module.configureScalaCompilerSettingsFrom("Gradle", ScalaGradleDataService.compilerOptionsFrom(scalaData))
 
     val compilerClasspath = scalaData.getScalaClasspath.asScala.toSeq
 

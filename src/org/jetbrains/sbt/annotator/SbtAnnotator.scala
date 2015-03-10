@@ -2,6 +2,7 @@ package org.jetbrains.sbt
 package annotator
 
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -12,7 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.sbt.language.SbtFileImpl
-import org.jetbrains.sbt.project.settings.SbtSettings
+import org.jetbrains.sbt.project.settings.SbtProjectSettings
+import org.jetbrains.sbt.settings.SbtSystemSettings
 
 /**
  * @author Pavel Fatin
@@ -23,18 +25,25 @@ class SbtAnnotator extends Annotator {
       case file: SbtFileImpl =>
         val children = file.children.toVector
         checkElements(children, holder)
-        val sbtVersion = SbtSettings.getInstance(element.getProject).sbtVersion
-        if (StringUtil.compareVersionNumbers(sbtVersion, "0.13.7") < 0)
-          checkBlankLines(children, holder, sbtVersion)
+        if (StringUtil.compareVersionNumbers(getSbtVersion(element), "0.13.7") < 0)
+          checkBlankLines(children, holder)
       case _ =>
     }
+  }
+
+  private def getSbtVersion(element: PsiElement): String = {
+    val projectFileIndex = ProjectRootManager.getInstance(element.getProject).getFileIndex
+    val module = Option(projectFileIndex.getModuleForFile(element.getContainingFile.getVirtualFile))
+    val settings = SbtSystemSettings.getInstance(element.getProject)
+    val projectSettings = module.safeMap(settings.getLinkedProjectSettings).getOrElse(SbtProjectSettings.default)
+    projectSettings.sbtVersion
   }
 
   private def checkElements(children: Seq[PsiElement], holder: AnnotationHolder) {
     if (children.isEmpty) return 
     
     val is13_+ = {
-      val sbtVersion = SbtSettings.getInstance(children.head.getProject).sbtVersion
+      val sbtVersion = getSbtVersion(children.head)
       StringUtil.compareVersionNumbers(sbtVersion, "0.13.0") >= 0
     }
 
@@ -68,10 +77,10 @@ class SbtAnnotator extends Annotator {
     }
   }
 
-  private def checkBlankLines(children: Seq[PsiElement], holder: AnnotationHolder, sbtVersion: String) {
+  private def checkBlankLines(children: Seq[PsiElement], holder: AnnotationHolder) {
     children.sliding(3).foreach {
       case Seq(_: ScExpression, space: PsiWhiteSpace, e: ScExpression) if space.getText.count(_ == '\n') == 1 =>
-        holder.createErrorAnnotation(e, SbtBundle("sbt.annotation.blankLineRequired", sbtVersion))
+        holder.createErrorAnnotation(e, SbtBundle("sbt.annotation.blankLineRequired", getSbtVersion(e)))
       case _ =>
     }
   }

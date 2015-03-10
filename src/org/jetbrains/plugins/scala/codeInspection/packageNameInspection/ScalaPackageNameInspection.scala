@@ -9,6 +9,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
  * User: Alexander Podkhalyuzin
@@ -22,7 +23,7 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
     file match {
-      case file: ScalaFile =>
+      case file: ScalaFile if IntentionAvailabilityChecker.checkInspection(this, file) =>
         if (file.isScriptFile()) return null
         if (file.typeDefinitions.length == 0) return null
 
@@ -32,7 +33,10 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
         if (pack == null) return null
 
         val packName = cleanKeywords(file.packageName)
-        val ranges: Seq[TextRange] = file.packagingRanges
+        val ranges: Seq[TextRange] = file.packagingRanges match {
+          case Seq() => file.typeDefinitions.map(_.nameId.getTextRange)
+          case seq => seq
+        }
 
         def problemDescriptors(buffer: Seq[LocalQuickFix]): Seq[ProblemDescriptor] = ranges.map { range =>
           manager.createProblemDescriptor(file, range,

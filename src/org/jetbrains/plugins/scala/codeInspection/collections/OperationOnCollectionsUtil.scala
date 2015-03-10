@@ -2,14 +2,20 @@ package org.jetbrains.plugins.scala
 package codeInspection.collections
 
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiType, PsiMethod}
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
+import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
+import org.jetbrains.plugins.scala.extensions.{ExpressionType, ResolvesTo, childOf}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValue, ScVariable, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
 import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -28,13 +34,18 @@ class MethodRepr private (val itself: ScExpression,
                                val args: Seq[ScExpression]) {
 
   def rightRangeInParent(parent: ScExpression): TextRange = {
-    optionalMethodRef match {
+    val endOffset = parent.getTextRange.getEndOffset
+
+    val startOffset = optionalMethodRef match {
       case Some(ref) =>
-        val startOffset = ref.nameId.getTextOffset
-        val endOffset = parent.getTextRange.getEndOffset
-        TextRange.create(startOffset, endOffset).shiftRight( - parent.getTextOffset)
-      case None => TextRange.create(0, parent.getTextLength)
+       ref.nameId.getTextOffset
+      case None =>
+        optionalBase match {
+          case Some(b) => b.getTextRange.getEndOffset
+          case _ => parent.getTextOffset
+        }
     }
+    TextRange.create(startOffset, endOffset).shiftRight( - parent.getTextOffset)
   }
 }
 
@@ -48,6 +59,8 @@ object MethodRepr {
           case _ => Nil
         }
         call.getEffectiveInvokedExpr match {
+          case baseExpr: ScExpression if call.isApplyOrUpdateCall && !call.isUpdateCall =>
+            Some(expr, Some(baseExpr), None, args)
           case ref: ScReferenceExpression => Some(expr, ref.qualifier, Some(ref), args)
           case genericCall: ScGenericCall =>
             genericCall.referencedExpr match {
@@ -68,7 +81,18 @@ object MethodRepr {
       case refExpr: ScReferenceExpression =>
         refExpr.getParent match {
           case _: ScMethodCall | _: ScGenericCall => None
+          case ScInfixExpr(_, `refExpr`, _) => None
+          case ScPostfixExpr(_, `refExpr`) => None
+          case ScPrefixExpr(`refExpr`, _) => None
           case _ => Some(expr, refExpr.qualifier, Some(refExpr), Seq())
+        }
+      case genCall: ScGenericCall =>
+        genCall.getParent match {
+          case _: ScMethodCall => None
+          case _ => genCall.referencedExpr match {
+            case ref: ScReferenceExpression => Some(genCall, ref.qualifier, Some(ref), Seq.empty)
+            case other => Some(genCall, None, None, Seq.empty)
+          }
         }
       case _ => None
     }
@@ -110,7 +134,7 @@ object OperationOnCollectionsUtil {
     baseExpr match {
       case None => false
       case Some(e) =>
-        val sumExpr = ScalaPsiElementFactory.createExpressionFromText(s"${e.getText}.$methodName", e.getManager)
+        val sumExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(s"${e.getText}.$methodName", e.getContext, e)
         sumExpr.findImplicitParameters match {
           case Some(Seq(srr: ScalaResolveResult, _*)) => true
           case _ => false
@@ -195,7 +219,7 @@ object OperationOnCollectionsUtil {
                 if leftRef.resolve() == x && isIndependentOf(right, x) =>
                 val secondArgName = y.getName
                 val funExprText = secondArgName + " => " + right.getText
-                Some(ScalaPsiElementFactory.createExpressionFromText(funExprText, expr.getManager))
+                Some(ScalaPsiElementFactory.createExpressionWithContextFromText(funExprText, expr.getContext, expr))
               case _ => None
             }
           case _ => None
@@ -257,4 +281,62 @@ object OperationOnCollectionsUtil {
       case _ => false
     }
   }
+
+  private val sideEffectsCollectionMethods = Set("append", "appendAll", "clear", "insert", "insertAll",
+    "prepend", "prependAll", "reduceToSize", "remove", "retain",
+    "transform", "trimEnd", "trimStart", "update",
+    "push", "pushAll", "pop", "dequeue", "dequeueAll", "dequeueFirst", "enqueue",
+    "next")
+
+  def exprsWithSideEffect(expr: ScExpression): Iterator[ScExpression] = {
+
+    def isSideEffectCollectionMethod(ref: ScReferenceExpression): Boolean = {
+      val refName = ref.refName
+      (refName.endsWith("=") || refName.endsWith("=:") || sideEffectsCollectionMethods.contains(refName)) &&
+              OperationOnCollectionsUtil.checkResolve(ref, Array("scala.collection.mutable._", "scala.collection.Iterator"))
+    }
+
+    def isSetter(ref: ScReferenceExpression): Boolean = {
+      ref.refName.startsWith("set") || ref.refName.endsWith("_=")
+    }
+
+    def hasUnitReturnType(ref: ScReferenceExpression): Boolean = {
+      ref match {
+        case MethodRepr(ExpressionType(ScFunctionType(_, _)), _, _, _) => false
+        case ResolvesTo(fun: ScFunction) => fun.hasUnitResultType
+        case ResolvesTo(m: PsiMethod) => m.getReturnType == PsiType.VOID
+        case _ => false
+      }
+    }
+
+    object definedOutside {
+      def unapply(ref: ScReferenceElement): Option[PsiElement] = ref match {
+        case ResolvesTo(elem: PsiElement) if !PsiTreeUtil.isAncestor(expr, elem, false) => Some(elem)
+        case _ => None
+      }
+    }
+
+    val predicate: (PsiElement) => Boolean = {
+      case `expr` => true
+      case ScFunctionExpr(_, _) childOf `expr` => true
+      case (e: ScExpression) childOf `expr` if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
+      case fun: ScFunctionDefinition => false
+      case elem: PsiElement => !ScalaEvaluatorBuilderUtil.isGenerateClass(elem)
+    }
+
+    val sameLevelIterator = expr.depthFirst(predicate).filter(predicate)
+
+    sameLevelIterator.collect {
+      case assign @ ScAssignStmt(definedOutside(ScalaPsiUtil.inNameContext(_: ScVariable)), _) =>
+        assign
+      case assign @ ScAssignStmt(mc @ ScMethodCall(definedOutside(_), _), _) if mc.isUpdateCall =>
+        assign
+      case infix @ ScInfixExpr(definedOutside(ScalaPsiUtil.inNameContext(v: ScVariable)), _, _) if infix.isAssignmentOperator =>
+        infix
+      case MethodRepr(itself, Some(definedOutside(ScalaPsiUtil.inNameContext(v @ (_ : ScVariable | _: ScValue)))), Some(ref), _)
+        if isSideEffectCollectionMethod(ref) || isSetter(ref) || hasUnitReturnType(ref) => itself
+      case MethodRepr(itself, None, Some(ref @ definedOutside(_)), _) if hasUnitReturnType(ref) => itself
+    }
+  }
+
 }

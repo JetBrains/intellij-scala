@@ -37,6 +37,8 @@ package object sbt {
 
     def `<<`(level: Int): File = RichFile.parent(file, level)
 
+    def name: String = file.getName
+
     def path: String = file.getPath
 
     def absolutePath: String = file.getAbsolutePath
@@ -44,6 +46,13 @@ package object sbt {
     def canonicalPath: String = ExternalSystemApiUtil.toCanonicalPath(file.getAbsolutePath)
 
     def canonicalFile: File = new File(canonicalPath)
+
+    def parent: Option[File] = Option(file.getParentFile)
+
+    def endsWith(parts: String*): Boolean = endsWith0(file, parts.reverse)
+
+    private def endsWith0(file: File, parts: Seq[String]): Boolean = if (parts.isEmpty) true else
+      parts.head == file.getName && Option(file.getParentFile).exists(endsWith0(_, parts.tail))
 
     def url: String = VfsUtil.getUrlForLibraryRoot(file)
     

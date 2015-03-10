@@ -1091,6 +1091,10 @@ object ScalaPsiElementFactory {
     }
   }
 
+  def createBlockCommentFromText(text: String, manager: PsiManager): PsiComment = {
+    createScalaFile("/*" + text + "*/" + " class a { }", manager).typeDefinitions(0).simpleComment.get
+  }
+
   def createDocCommentFromText(text: String, manager: PsiManager): ScDocComment = {
     createScalaFile("/**\n" + text + "\n*/" + " class a { }", manager).typeDefinitions(0).docComment.get
   }

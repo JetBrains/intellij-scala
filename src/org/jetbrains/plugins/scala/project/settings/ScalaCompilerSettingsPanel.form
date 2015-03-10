@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsPanel">
+  <grid id="27dc6" binding="myContentPanel" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="0" left="0" bottom="0" right="0"/>
+    <constraints>
+      <xy x="20" y="20" width="500" height="773"/>
+    </constraints>
+    <properties/>
+    <border type="none">
+      <size top="10" left="10" bottom="10" right="10"/>
+    </border>
+    <children>
+      <grid id="3a872" binding="myPluginsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children/>
+      </grid>
+      <grid id="fbd93" layout-manager="GridLayoutManager" row-count="13" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="10" right="0"/>
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="65368" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="12" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Additional compiler &amp;options:"/>
+            </properties>
+          </component>
+          <component id="6935" class="com.intellij.ui.RawCommandLineEditor" binding="myAdditionalCompilerOptions">
+            <constraints>
+              <grid row="12" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <minimum-size width="250" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <dialogCaption value="Additional command-line parameters for Scala compiler"/>
+            </properties>
+          </component>
+          <component id="9d633" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="11" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <labelFor value="6d369"/>
+              <text value="Debugging info &amp;level:"/>
+            </properties>
+          </component>
+          <component id="6a7f2" class="javax.swing.JComboBox" binding="myDebuggingInfoLevel">
+            <constraints>
+              <grid row="11" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="8b4f1" class="javax.swing.JCheckBox" binding="myWarnings">
+            <constraints>
+              <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Enable &amp;warnings"/>
+              <toolTipText value="Generate warnings"/>
+            </properties>
+          </component>
+          <component id="747de" class="javax.swing.JCheckBox" binding="myDeprecationWarnings">
+            <constraints>
+              <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&amp;Deprecation warnings"/>
+              <toolTipText value="Emit warning and location for usages of deprecated APIs."/>
+            </properties>
+          </component>
+          <component id="4fd68" class="javax.swing.JCheckBox" binding="myUncheckedWarnings">
+            <constraints>
+              <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&amp;Unchecked warnings"/>
+              <toolTipText value=" Enable additional warnings where generated code depends on assumptions. "/>
+            </properties>
+          </component>
+          <component id="b1551" class="javax.swing.JCheckBox" binding="myOptimiseBytecode">
+            <constraints>
+              <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&amp;Optimise bytecode (use with care*)"/>
+              <toolTipText value="Generates faster bytecode by applying optimisations to the program. May trigger various compilation problems. Use with care."/>
+            </properties>
+          </component>
+          <component id="ced9b" class="javax.swing.JCheckBox" binding="myExplainTypeErrors">
+            <constraints>
+              <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&amp;Explain type errors"/>
+              <toolTipText value="Explain type errors in more detail"/>
+            </properties>
+          </component>
+          <grid id="54c63" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="71309" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <labelFor value="b9b2"/>
+                  <text value="Compile &amp;order:"/>
+                </properties>
+              </component>
+              <component id="53647" class="javax.swing.JComboBox" binding="myCompileOrder">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+              </component>
+            </children>
+          </grid>
+          <component id="ec8b1" class="com.intellij.ui.TitledSeparator">
+            <constraints>
+              <grid row="6" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Options"/>
+            </properties>
+          </component>
+          <component id="f37ca" class="javax.swing.JCheckBox" binding="myDynamics">
+            <constraints>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&amp;Dynamics"/>
+            </properties>
+          </component>
+          <component id="e3735" class="javax.swing.JCheckBox" binding="myPostfixOps">
+            <constraints>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&amp;Postfix operator notation"/>
+            </properties>
+          </component>
+          <component id="77105" class="javax.swing.JCheckBox" binding="myHigherKinds">
+            <constraints>
+              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&amp;Higher-kinded types"/>
+            </properties>
+          </component>
+          <component id="5881a" class="javax.swing.JCheckBox" binding="myExistentials">
+            <constraints>
+              <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&amp;Existential types"/>
+            </properties>
+          </component>
+          <component id="2b540" class="com.intellij.ui.TitledSeparator">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Features"/>
+            </properties>
+          </component>
+          <component id="6a997" class="javax.swing.JCheckBox" binding="myFeatureWarnings">
+            <constraints>
+              <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&amp;Feature warnings"/>
+              <toolTipText value="Emit language feature warnings. "/>
+            </properties>
+          </component>
+          <component id="787ba" class="javax.swing.JCheckBox" binding="myImplicitConversions">
+            <constraints>
+              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&amp;Implicit conversions"/>
+            </properties>
+          </component>
+          <component id="edb7c" class="javax.swing.JCheckBox" binding="myMacros">
+            <constraints>
+              <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&amp;Macros"/>
+            </properties>
+          </component>
+          <component id="a0ff7" class="javax.swing.JCheckBox" binding="myReflectiveCalls">
+            <constraints>
+              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&amp;Reflective calls"/>
+            </properties>
+          </component>
+          <component id="a70f4" class="javax.swing.JCheckBox" binding="myContinuations">
+            <constraints>
+              <grid row="10" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Enable &amp;continuations"/>
+            </properties>
+          </component>
+          <component id="74733" class="javax.swing.JCheckBox" binding="mySpecialization" default-binding="true">
+            <constraints>
+              <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Enable &amp;specialization"/>
+              <toolTipText value="Respect @specialize annotations"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <component id="6d327" class="com.intellij.ui.TitledSeparator">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Compiler plugins"/>
+        </properties>
+      </component>
+    </children>
+  </grid>
+</form>

@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala
 package compiler
 
+import java.util.UUID
+
+import com.intellij.compiler.server.BuildManagerListener
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManager}
 import com.intellij.openapi.components.ProjectComponent
@@ -20,47 +23,38 @@ class ServerMediator(project: Project) extends ProjectComponent {
   private def isScalaProject = project.hasScala
   private val settings = ScalaCompileServerSettings.getInstance
 
-  CompilerManager.getInstance(project).addBeforeTask(new CompileTask {
+  private val connection = project.getMessageBus.connect
+  private val serverLauncher = new BuildManagerListener {
+    override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = {
+      if (settings.COMPILE_SERVER_ENABLED && isScalaProject && !ApplicationManager.getApplication.isUnitTestMode) {
+        invokeAndWait {
+          CompileServerManager.instance(project).configureWidget()
+        }
 
-    def execute(context: CompileContext): Boolean = {
-
-      val externalCompiler = true // TODO In-process build is now deprecated
-
-      if (isScalaProject) {
-
-        if (externalCompiler) {
-          if (!checkCompilationSettings()) {
-            return false
-          }
-
-          if (settings.COMPILE_SERVER_ENABLED && !ApplicationManager.getApplication.isUnitTestMode) {
-            invokeAndWait {
-              CompileServerManager.instance(project).configureWidget()
-            }
-
-            if (!CompileServerLauncher.instance.running) {
-              var started = false
-
-              invokeAndWait {
-                started = CompileServerLauncher.instance.tryToStart(project)
-              }
-
-              if (!started) {
-                return false
-              }
-            }
-          }
-        } else {
+        if (!CompileServerLauncher.instance.running) {
           invokeAndWait {
-            CompileServerLauncher.instance.stop(project)
-            CompileServerManager.instance(project).removeWidget()
+            CompileServerLauncher.instance.tryToStart(project)
           }
         }
       }
-
-      true
     }
-  })
+
+    override def buildFinished(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = {}
+  }
+
+  connection.subscribe(BuildManagerListener.TOPIC, serverLauncher)
+
+  private val checkSettingsTask = new CompileTask {
+    def execute(context: CompileContext): Boolean = {
+      if (isScalaProject) {
+        if (!checkCompilationSettings()) false
+        else true
+      }
+      else true
+    }
+  }
+
+  CompilerManager.getInstance(project).addBeforeTask(checkSettingsTask)
 
   private def checkCompilationSettings(): Boolean = {
     def hasClashes(module: Module) = module.hasScala && {
@@ -71,36 +65,45 @@ class ServerMediator(project: Project) extends ProjectComponent {
     }
     val modulesWithClashes = ModuleManager.getInstance(project).getModules.toSeq.filter(hasClashes)
 
+    var result = true
+
     if (modulesWithClashes.nonEmpty) {
-      val result = Messages.showYesNoDialog(project,
-        "Production and test output paths are shared in: " + modulesWithClashes.map(_.getName).mkString(" "),
-        "Shared compile output paths in Scala module(s)",
-        "Split output path(s) automatically", "Cancel compilation", Messages.getErrorIcon)
-
-      val splitAutomatically = result == Messages.YES
-
-      if (splitAutomatically) {
-        inWriteAction {
-          modulesWithClashes.foreach { module =>
-            val model = ModuleRootManager.getInstance(module).getModifiableModel
-            val extension = model.getModuleExtension(classOf[CompilerModuleExtension])
-
-            val name = if (extension.getCompilerOutputPath.getName == "classes") "test-classes" else "test"
-
-            extension.inheritCompilerOutputPath(false)
-            extension.setCompilerOutputPathForTests(extension.getCompilerOutputPath.getParent.getUrl + "/" + name)
-
-            model.commit()
+      invokeAndWait {
+        val choice =
+          if (!ApplicationManager.getApplication.isUnitTestMode) {
+            Messages.showYesNoDialog(project,
+              "Production and test output paths are shared in: " + modulesWithClashes.map(_.getName).mkString(" "),
+              "Shared compile output paths in Scala module(s)",
+              "Split output path(s) automatically", "Cancel compilation", Messages.getErrorIcon)
           }
+          else Messages.YES
 
-          project.save()
+        val splitAutomatically = choice == Messages.YES
+
+        if (splitAutomatically) {
+          inWriteAction {
+            modulesWithClashes.foreach { module =>
+              val model = ModuleRootManager.getInstance(module).getModifiableModel
+              val extension = model.getModuleExtension(classOf[CompilerModuleExtension])
+
+              val outputUrlParts = extension.getCompilerOutputUrl.split("/").toSeq
+              val nameForTests = if (outputUrlParts.last == "classes") "test-classes" else "test"
+
+              extension.inheritCompilerOutputPath(false)
+              extension.setCompilerOutputPathForTests((outputUrlParts.dropRight(1) :+ nameForTests).mkString("/"))
+
+              model.commit()
+            }
+
+            project.save()
+          }
         }
-      }
 
-      splitAutomatically
-    } else {
-      true
+        result = splitAutomatically
+      }
     }
+
+    result
   }
 
   def getComponentName = getClass.getSimpleName

@@ -3,6 +3,7 @@ package lang
 package resolve
 package processor
 
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -46,15 +47,15 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     }}, noImplicit = true).map(_.repr)
   }
 
-  def nextSpecificForImplicitParameters(filterRest: Option[ScalaResolveResult],
-                                        rest: Seq[ScalaResolveResult]): (Option[ScalaResolveResult], Seq[ScalaResolveResult]) = {
+  def nextLayerSpecificForImplicitParameters(filterRest: Option[ScalaResolveResult],
+                                             rest: Seq[ScalaResolveResult]): (Option[ScalaResolveResult], Seq[ScalaResolveResult]) = {
     def update(r: ScalaResolveResult): InnerScalaResolveResult[ScalaResolveResult] = {
       r.innerResolveResult match {
         case Some(rr) => new InnerScalaResolveResult(rr.element, rr.implicitConversionClass, r, ScSubstitutor.empty, implicitCase = true)
         case None => new InnerScalaResolveResult(r.element, r.implicitConversionClass, r, ScSubstitutor.empty, implicitCase = true)
       }
     }
-    val (next, r) = nextSpecificGeneric(filterRest.map(update), rest.map(update))
+    val (next, r) = nextLayerSpecificGeneric(filterRest.map(update), rest.map(update))
     (next.map(_.repr), r.map(_.repr))
   }
 
@@ -228,7 +229,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
   /**
    * c1 is a subclass of c2, or
    * c1 is a companion object of a class derived from c2, or
-   * c2 is a companion object of a class fromwhich c1 is derived.
+   * c2 is a companion object of a class from which c1 is derived.
    * @return true is c1 is derived from c2, false if c1 or c2 is None
    */
   def isDerived(c1: Option[PsiClass], c2: Option[PsiClass]): Boolean = {
@@ -253,6 +254,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
   }
 
   private def isMoreSpecific[T](r1: InnerScalaResolveResult[T], r2: InnerScalaResolveResult[T], checkImplicits: Boolean): Boolean = {
+    ProgressManager.checkCanceled()
     (r1.implicitConversionClass, r2.implicitConversionClass) match {
       case (Some(t1), Some(t2)) => if (ScalaPsiUtil.cachedDeepIsInheritor(t1, t2)) return true
       case _ =>
@@ -284,8 +286,8 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     else result
   }
 
-  private def nextSpecificGeneric[T](filterRest: Option[InnerScalaResolveResult[T]],
-                                     rest: Seq[InnerScalaResolveResult[T]]): (Option[InnerScalaResolveResult[T]], Seq[InnerScalaResolveResult[T]]) = {
+  private def nextLayerSpecificGeneric[T](filterRest: Option[InnerScalaResolveResult[T]],
+                                          rest: Seq[InnerScalaResolveResult[T]]): (Option[InnerScalaResolveResult[T]], Seq[InnerScalaResolveResult[T]]) = {
 
     val filteredRest = filterRest match {
       case Some(r) => rest.filter(!isMoreSpecific(r, _, checkImplicits = false))
@@ -299,7 +301,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
 
     while (iter.hasNext) {
       val res = iter.next()
-      if (isMoreSpecific(res, found, checkImplicits = false)) {
+      if (isDerived(getClazz(res), getClazz(found))) {
         out += found
         found = res
       } else out += res

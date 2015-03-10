@@ -892,6 +892,16 @@ object ScalaRefactoringUtil {
     elements
   }
 
+  @tailrec
+  def findEnclosingBlockStatement(place: PsiElement): Option[ScBlockStatement] = {
+    place match {
+      case null => None
+      case (bs: ScBlockStatement) childOf (_: ScBlock | _: ScEarlyDefinitions | _: ScalaFile | _: ScTemplateBody) =>
+        Some(bs)
+      case other => findEnclosingBlockStatement(other.getParent)
+    }
+  }
+
   private[refactoring] case class RevertInfo(fileText: String, caretOffset: Int)
 
   private[refactoring] class IntroduceException extends Exception

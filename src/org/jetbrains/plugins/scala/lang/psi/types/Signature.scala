@@ -197,12 +197,7 @@ object Signature {
     while (iterator1.hasNext && iterator2.hasNext) {
       val (tp1, tp2) = (iterator1.next(), iterator2.next())
 
-      def toTypeParameterType(tp: TypeParameter): ScTypeParameterType = {
-        new ScTypeParameterType(tp.name, tp.typeParams.map(toTypeParameterType).toList, new Suspension[ScType](tp.lowerType()),
-          new Suspension[ScType](tp.upperType()), tp.ptp)
-      }
-
-      res = res bindT ((tp2.name, ScalaPsiUtil.getPsiElementId(tp2.ptp)), toTypeParameterType(tp1))
+      res = res bindT ((tp2.name, ScalaPsiUtil.getPsiElementId(tp2.ptp)), ScTypeParameterType.toTypeParameterType(tp1))
     }
     res
   }

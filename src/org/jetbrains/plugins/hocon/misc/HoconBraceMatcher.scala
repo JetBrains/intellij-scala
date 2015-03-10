@@ -6,7 +6,7 @@ import com.intellij.psi.tree.IElementType
 
 class HoconBraceMatcher extends PairedBraceMatcher {
 
-  import org.jetbrains.plugins.hocon.Util._
+  import org.jetbrains.plugins.hocon.CommonUtil._
   import org.jetbrains.plugins.hocon.lexer.HoconTokenSets._
   import org.jetbrains.plugins.hocon.lexer.HoconTokenType._
 

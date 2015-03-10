@@ -17,7 +17,7 @@ abstract class GenericParamInput[T] {
     /*end*/
   }
 
-  def testMethodName(y: T) {
+  def testMethodName(y: T): Unit = {
     println(y)
   }
 }

@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypedDeclaration, ScValueDeclaration, ScVariableDeclaration}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /**
@@ -63,7 +64,7 @@ class ScalaAotCompletionContributor extends CompletionContributor {
     val text = element.getText
     val prefix = text.substring(0, text.length - CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED.length)
 
-    if (prefix.isEmpty) return
+    if (!isSuitableIdentifier(prefix)) return
 
     val identifier = factory(prefix + ": " + capitalize(text), element)
 
@@ -71,6 +72,8 @@ class ScalaAotCompletionContributor extends CompletionContributor {
     val result0 = result.withPrefixMatcher(result.getPrefixMatcher.cloneWithPrefix(capitalize(prefix)))
     result0.runRemainingContributors(parameters0, new MyConsumer(prefix, typed, result0), true)
   }
+
+  private def isSuitableIdentifier(s: String) = ScalaNamesUtil.isIdentifier(s) && s.forall(_.isLetterOrDigit)
 }
 
 private object ScalaAotCompletionContributor {

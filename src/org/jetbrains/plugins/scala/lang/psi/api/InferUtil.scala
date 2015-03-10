@@ -3,17 +3,20 @@ package lang.psi.api
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.caches.ScalaRecursionManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.macros.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitParametersCollector
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
@@ -30,6 +33,7 @@ import scala.collection.mutable.ArrayBuffer
  */
 
 object InferUtil {
+  val notFoundParameterName = "NotFoundParameter239239239"
   val skipQualSet = Set("scala.reflect.ClassManifest", "scala.reflect.Manifest",
     "scala.reflect.ClassTag", "scala.reflect.api.TypeTags.TypeTag",
     "scala.reflect.api.TypeTags.WeakTypeTag")
@@ -37,6 +41,7 @@ object InferUtil {
   private def isDebugImplicitParameters = LOG.isDebugEnabled
   def logInfo(searchLevel: Int, message: => String) {
     val indent = Seq.fill(searchLevel)("  ").mkString
+//    println(indent + message)
     if (isDebugImplicitParameters) {
       LOG.debug(indent + message)
     }
@@ -49,16 +54,15 @@ object InferUtil {
    * @param check if true can throw SafeCheckException if it not found not ambiguous implicit parameters
    * @return updated type and sequence of implicit parameters
    */
-  def updateTypeWithImplicitParameters(res: ScType, element: PsiElement, coreElement: Option[ScNamedElement],
-                                       check: Boolean,
-                                       searchImplicitsRecursively: Int = 0): (ScType, Option[Seq[ScalaResolveResult]]) = {
+  def updateTypeWithImplicitParameters(res: ScType, element: PsiElement, coreElement: Option[ScNamedElement], check: Boolean,
+                                       searchImplicitsRecursively: Int = 0, fullInfo: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = {
     var resInner = res
     var implicitParameters: Option[Seq[ScalaResolveResult]] = None
     res match {
       case t@ScTypePolymorphicType(mt@ScMethodType(retType, params, impl), typeParams) if !impl =>
         // See SCL-3516
         val (updatedType, ps) = 
-          updateTypeWithImplicitParameters(t.copy(internalType = retType), element, coreElement, check)
+          updateTypeWithImplicitParameters(t.copy(internalType = retType), element, coreElement, check, fullInfo = fullInfo)
         implicitParameters = ps
         updatedType match {
           case tpt: ScTypePolymorphicType =>
@@ -86,7 +90,7 @@ object InferUtil {
                 val (paramsForInfer, exprs, resolveResults) =
                   findImplicits(paramsSingle, coreElement, element, check, searchImplicitsRecursively, abstractSubstitutor, polymorphicSubst)
                 resInner = ScalaPsiUtil.localTypeInference(retTypeSingle, paramsForInfer, exprs, typeParamsSingle,
-                  safeCheck = check)
+                  safeCheck = check || fullInfo)
                 paramsForInferBuffer ++= paramsForInfer
                 exprsBuffer ++= exprs
                 resolveResultsBuffer ++= resolveResults
@@ -107,7 +111,7 @@ object InferUtil {
         resInner = dependentSubst.subst(resInner)
       case mt@ScMethodType(retType, params, isImplicit) if !isImplicit =>
         // See SCL-3516
-        val (updatedType, ps) = updateTypeWithImplicitParameters(retType, element, coreElement, check)
+        val (updatedType, ps) = updateTypeWithImplicitParameters(retType, element, coreElement, check, fullInfo = fullInfo)
         implicitParameters = ps
         resInner = mt.copy(returnType = updatedType)(mt.project, mt.scope)
       case ScMethodType(retType, params, isImplicit) if isImplicit =>
@@ -145,39 +149,20 @@ object InferUtil {
     while (iterator.hasNext) {
       val param = iterator.next()
       val paramType = abstractSubstitutor.subst(param.paramType) //we should do all of this with information known before
-      val collector = new ImplicitParametersCollector(place, paramType, coreElement, isImplicitConversion = false, searchImplicitsRecursively)
-      val results = collector.collect
+      val implicitState = ImplicitState(place, paramType, paramType, coreElement, isImplicitConversion = false,
+          isExtensionConversion = false, searchImplicitsRecursively, None, Some(ScalaRecursionManager.recursionMap.get()))
+      val collector = new ImplicitCollector(implicitState)
+      val results = collector.collect()
       if (results.length == 1) {
-        if (check && !results(0).isApplicable()) throw new SafeCheckException
-        resolveResults += results(0)
+        if (check && !results.head.isApplicable()) throw new SafeCheckException
+        resolveResults += results.head
         def updateExpr() {
-          results(0) match {
-            case r: ScalaResolveResult if r.implicitParameterType.isDefined =>
-              exprs += new Expression(polymorphicSubst subst r.implicitParameterType.get)
-            case ScalaResolveResult(o: ScObject, subst) =>
-              exprs += new Expression(polymorphicSubst subst subst.subst(o.getType(TypingContext.empty).get))
-            case ScalaResolveResult(param: ScParameter, subst) =>
-              exprs += new Expression(polymorphicSubst subst subst.subst(param.getType(TypingContext.empty).get))
-            case ScalaResolveResult(patt: ScBindingPattern, subst) =>
-              exprs += new Expression(polymorphicSubst subst subst.subst(patt.getType(TypingContext.empty).get))
-            case ScalaResolveResult(f: ScFieldId, subst) =>
-              exprs += new Expression(polymorphicSubst subst subst.subst(f.getType(TypingContext.empty).get))
-            case ScalaResolveResult(fun: ScFunction, subst) =>
-              val funType = {
-                if (fun.parameters.length == 0 || fun.paramClauses.clauses.apply(0).isImplicit) {
-                  subst.subst(fun.getType(TypingContext.empty).get) match {
-                    case ScFunctionType(ret, _) => ret
-                    case other => other
-                  }
-                }
-                else subst.subst(fun.getType(TypingContext.empty).get)
-              }
-              exprs += new Expression(polymorphicSubst subst funType)
-          }
+          exprs += new Expression(polymorphicSubst subst extractImplicitParameterType(results.head))
         }
-        MacroInferUtil.isMacro(results(0).getElement) match {
+        val evaluator = ScalaMacroEvaluator.getInstance(place.getProject)
+        evaluator.isMacro(results.head.getElement) match {
           case Some(m) =>
-            MacroInferUtil.checkMacro(m, Some(paramType), place) match {
+            evaluator.checkMacro(m, MacroContext(place, Some(paramType))) match {
               case Some(tp) => exprs += new Expression(polymorphicSubst subst tp)
               case None => updateExpr()
             }
@@ -205,7 +190,10 @@ object InferUtil {
             //todo: what if paramInCode is null?
             resolveResults += new ScalaResolveResult(param.paramInCode.get)
           } else if (r == null && check) throw new SafeCheckException
-          else resolveResults += r
+          else if (r == null) {
+            val parameter = ScalaPsiElementFactory.createParameterFromText(s"$notFoundParameterName: Int", place.getManager)
+            resolveResults += new ScalaResolveResult(parameter, implicitSearchState = Some(implicitState))
+          } else resolveResults += r
         })
       }
     }
@@ -284,6 +272,17 @@ object InferUtil {
       case tpt @ ScTypePolymorphicType(mt: ScMethodType, typeParams) => tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType))
       case mt: ScMethodType => applyImplicitViewToResult(mt, expectedType)
       case tp => tp
+    }
+  }
+
+  def extractImplicitParameterType(r: ScalaResolveResult): ScType = {
+    r match {
+      case r: ScalaResolveResult if r.implicitParameterType.isDefined => r.implicitParameterType.get
+      case ScalaResolveResult(o: ScObject, subst) => subst.subst(o.getType(TypingContext.empty).get)
+      case ScalaResolveResult(param: ScParameter, subst) => subst.subst(param.getType(TypingContext.empty).get)
+      case ScalaResolveResult(patt: ScBindingPattern, subst) => subst.subst(patt.getType(TypingContext.empty).get)
+      case ScalaResolveResult(f: ScFieldId, subst) => subst.subst(f.getType(TypingContext.empty).get)
+      case ScalaResolveResult(fun: ScFunction, subst) => subst.subst(fun.getTypeNoImplicits(TypingContext.empty).get)
     }
   }
 }

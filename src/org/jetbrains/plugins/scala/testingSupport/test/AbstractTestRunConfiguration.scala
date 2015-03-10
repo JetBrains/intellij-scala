@@ -8,10 +8,9 @@ import com.intellij.execution._
 import com.intellij.execution.configurations._
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.testframework.TestFrameworkRunningModel
-import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
+import com.intellij.execution.testframework.sm.{CompositeTestLocationProvider, SMTestRunnerConnectionUtil}
 import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
 import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
-import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.PathMacroManager
 import com.intellij.openapi.extensions.Extensions
@@ -39,7 +38,7 @@ import org.jetbrains.plugins.scala.util.ScalaUtil
 import scala.beans.BeanProperty
 import scala.collection.JavaConversions._
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.{ListBuffer, ArrayBuffer}
 import com.intellij.openapi.util.text.StringUtil
 
 /**
@@ -63,7 +62,12 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
   def currentConfiguration = AbstractTestRunConfiguration.this
 
-  def suitePath: String
+  def suitePaths: List[String]
+
+  final def javaSuitePaths = {
+    import scala.collection.JavaConverters._
+    suitePaths.asJava
+  }
 
   def mainClass: String
 
@@ -126,6 +130,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   var testKind = TestKind.CLASS
   @BeanProperty
   var showProgressMessages = true
+
+  def splitTests = testName.split("\n").filter(!_.isEmpty)
 
   private var generatedName: String = ""
 
@@ -236,14 +242,24 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     })
   }
 
+  private def getSuiteClass = {
+    val suiteClasses = suitePaths.map(suitePath => getClazz(suitePath, withDependencies = true)).filter(_ != null)
+
+    if (suiteClasses.isEmpty) {
+      throw new RuntimeConfigurationException(errorMessage)
+    }
+
+    if (suiteClasses.size > 1) {
+      throw new RuntimeConfigurationException("Multiple suite traits detected: " + suiteClasses)
+    }
+
+    suiteClasses.head
+  }
+
   override def checkConfiguration() {
     super.checkConfiguration()
 
-    val suiteClass = getClazz(suitePath, withDependencies = true)
-
-    if (suiteClass == null) {
-      throw new RuntimeConfigurationException(errorMessage)
-    }
+    val suiteClass = getSuiteClass
 
     testKind match {
       case TestKind.ALL_IN_PACKAGE =>
@@ -309,7 +325,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           clazz = getClazz(getTestClassPath, withDependencies = false)
           if (getTestName == null || getTestName == "") throw new ExecutionException("Test name not found.")
       }
-      suiteClass = getClazz(suitePath, withDependencies = true)
+      suiteClass = getSuiteClass
     }
     catch {
       case e if clazz == null => classNotFoundError()
@@ -373,7 +389,9 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 //          "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5010")
 
         val rtJarPath = ScalaUtil.runnersPath()
+        val integrationTestsPath = ScalaUtil.testingSupportTestPath()
         params.getClassPath.add(rtJarPath)
+        params.getClassPath.add(integrationTestsPath)
 
         searchTest match {
           case SearchForTest.IN_WHOLE_PROJECT =>
@@ -399,9 +417,13 @@ abstract class AbstractTestRunConfiguration(val project: Project,
                 printer.println(cl)
               }
               if (testKind == TestKind.TEST_NAME && testName != "") {
-                printer.println("-testName")
-                printer.println(testName)
-                params.getVMParametersList.addParametersString("-Dspecs2.ex=\"" + testName + "\"")
+                //this is a "by-name" test for single suite, better fail in a known manner then do something undefined
+                assert(getClasses.size == 1)
+                for (test <- splitTests) {
+                  printer.println("-testName")
+                  printer.println(test)
+                  params.getVMParametersList.addParametersString("-Dspecs2.ex=\"" + test + "\"")
+                }
               }
             } else {
               printer.println("-failedTests")
@@ -435,9 +457,13 @@ abstract class AbstractTestRunConfiguration(val project: Project,
             params.getProgramParametersList.add("-s")
             for (cl <- getClasses) params.getProgramParametersList.add(cl)
             if (testKind == TestKind.TEST_NAME && testName != "") {
-              params.getProgramParametersList.add("-testName")
-              params.getProgramParametersList.add(testName)
-              params.getVMParametersList.addParametersString("-Dspecs2.ex=\"" + testName + "\"")
+              //this is a "by-name" test for single suite, better fail in a known manner then do something undefined
+              assert(getClasses.size == 1)
+              for (test <- splitTests) {
+                params.getProgramParametersList.add("-testName")
+                params.getProgramParametersList.add(test)
+                params.getVMParametersList.addParametersString("-Dspecs2.ex=\"" + test + "\"")
+              }
             }
           } else {
             params.getProgramParametersList.add("-failedTests")
@@ -479,8 +505,12 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         }
 
         // console view
-        val consoleView: BaseTestsOutputConsoleView = SMTestRunnerConnectionUtil.createAndAttachConsole("Scala",
-          processHandler, consoleProperties, getEnvironment)
+//        val consoleView: BaseTestsOutputConsoleView = SMTestRunnerConnectionUtil.createAndAttachConsole("Scala",
+//          processHandler, consoleProperties, getEnvironment)
+        //init it in two steps since there is no way to init it in one call with idBasedTreeConstruction = true
+        val consoleView = SMTestRunnerConnectionUtil.createConsoleWithCustomLocator("Scala", consoleProperties,
+          getEnvironment, new CompositeTestLocationProvider(null), true, null)
+        consoleView.attachToProcess(processHandler)
 
         val res = new DefaultExecutionResult(consoleView, processHandler,
           createActions(consoleView, processHandler, executor): _*)

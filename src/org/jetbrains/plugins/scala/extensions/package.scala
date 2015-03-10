@@ -2,12 +2,14 @@ package org.jetbrains.plugins.scala
 
 import java.io.Closeable
 import java.lang.reflect.InvocationTargetException
+import java.util.concurrent.{Callable, Future}
 import javax.swing.SwingUtilities
 
 import com.intellij.openapi.application.{ApplicationManager, Result}
 import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
+import com.intellij.openapi.progress.{ProgressManager, ProgressIndicator}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Computable
+import com.intellij.openapi.util.{ThrowableComputable, Computable}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.util.Processor
@@ -15,7 +17,7 @@ import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions.implementation._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
@@ -31,6 +33,8 @@ import scala.collection.generic.CanBuildFrom
 import scala.language.higherKinds
 import scala.reflect.{ClassTag, classTag}
 import scala.runtime.NonLocalReturnControl
+import scala.util.control.Exception.catching
+import scala.util.{Failure, Success, Try}
 import scala.util.matching.Regex
 
 /**
@@ -42,7 +46,7 @@ package object extensions {
     import org.jetbrains.plugins.scala.extensions.PsiMethodExt._
 
     def isAccessor: Boolean = {
-      hasQueryLikeName && !hasVoidReturnType
+      hasNoParams && hasQueryLikeName && !hasVoidReturnType
     }
 
     def isMutator: Boolean = {
@@ -63,6 +67,8 @@ package object extensions {
     }
 
     def hasVoidReturnType = repr.getReturnType == PsiType.VOID
+
+    def hasNoParams = repr.getParameterList.getParameters.length == 0
   }
 
   object PsiMethodExt {
@@ -252,6 +258,18 @@ package object extensions {
         case _ =>
       }
     }
+
+    def namedElements: Seq[PsiNamedElement] = {
+      clazz match {
+        case td: ScTemplateDefinition =>
+          td.members.flatMap {
+            case holder: ScDeclaredElementsHolder => holder.declaredElements
+            case named: ScNamedElement => Seq(named)
+            case _ => Seq.empty
+          }
+        case _ => clazz.getFields ++ clazz.getMethods
+      }
+    }
   }
 
   implicit class PsiNamedElementExt(val named: PsiNamedElement) extends AnyVal {
@@ -331,6 +349,10 @@ package object extensions {
   implicit def toComputable[T](action: => T): Computable[T] = new Computable[T] {
     override def compute(): T = action
   }
+
+  implicit def toCallable[T](action: => T): Callable[T] = new Callable[T] {
+    override def call(): T = action
+  }
   
   def startCommand(project: Project, commandName: String)(body: => Unit): Unit = {
     CommandProcessor.getInstance.executeCommand(project, new Runnable {
@@ -363,6 +385,33 @@ package object extensions {
     ApplicationManager.getApplication.runReadAction(new Computable[T] {
       def compute: T = body
     })
+  }
+
+  def executeOnPooledThread[T](body: => T): Future[T] = {
+    ApplicationManager.getApplication.executeOnPooledThread(toCallable(body))
+  }
+
+  def withProgressSynchronously[T](title: String)(body: ((String => Unit) => T)): T = {
+    withProgressSynchronouslyTry[T](title)(body) match {
+      case Success(result) => result
+      case Failure(exception) => throw exception
+    }
+  }
+
+  def withProgressSynchronouslyTry[T](title: String)(body: ((String => Unit) => T)): Try[T] = {
+    val progressManager = ProgressManager.getInstance
+
+    val computable  = new ThrowableComputable[T, Exception] {
+      @throws(classOf[Exception])
+      def compute: T = {
+        val progressIndicator = progressManager.getProgressIndicator
+        body(progressIndicator.setText)
+      }
+    }
+
+    catching(classOf[Exception]).withTry {
+      progressManager.runProcessWithProgressSynchronously(computable, title, false, null)
+    }
   }
 
   def postponeFormattingWithin[T](project: Project)(body: => T): T = {

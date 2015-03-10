@@ -17,12 +17,12 @@ import com.intellij.util.Base64Converter
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.messages.BuildMessage
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.scala.Client
+import org.jetbrains.jps.incremental.scala.DummyClient
 import org.jetbrains.jps.incremental.scala.remote._
 import org.jetbrains.plugins.scala.compiler.{ErrorHandler, NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetSourceProcessor}
-import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.{DummyClient, OuterCompilerInterface}
+import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.{MyTranslatingClient, OuterCompilerInterface}
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 
 /**
@@ -44,7 +44,7 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File, works
     val project = module.getProject
     val worksheetHook = WorksheetFileHook.instance(project)
 
-    val client = new DummyClient(callback, project, originalFile, consumer)
+    val client = new MyTranslatingClient(callback, project, originalFile, consumer)
 
     try {
       val worksheetProcess = runType match {
@@ -97,23 +97,19 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File, works
 }
 
 object RemoteServerConnector {
-  class DummyClient(callback: Runnable, project: Project, worksheet: VirtualFile, consumer: OuterCompilerInterface) extends Client {
+  class MyTranslatingClient(callback: Runnable, project: Project, worksheet: VirtualFile, consumer: OuterCompilerInterface) extends DummyClient {
     private val length = WorksheetSourceProcessor.END_GENERATED_MARKER.length
     
     private var hasErrors = false
-    
-    override def isCanceled: Boolean = false
-    override def deleted(module: File) {}
-    override def processed(source: File) {}
-    override def generated(source: File, module: File, name: String) {}
-    override def debug(text: String) {}
 
     override def progress(text: String, done: Option[Float]) {
       consumer.progress(text, done)
     }
+
     override def trace(exception: Throwable) {
       consumer trace exception
     }
+
     override def message(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]) {
       val lines = text split "\n"
       val linesLength = lines.length
@@ -135,7 +131,7 @@ object RemoteServerConnector {
         buffer.toString()
       }
       
-      val line1 = line.map(i => i - 3).map(_.toInt)
+      val line1 = line.map(i => i - 4).map(_.toInt)
       val column1 = column.map(_ + 1 - differ).map(_.toInt)
 
       val category = kind match {

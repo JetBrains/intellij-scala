@@ -12,14 +12,12 @@ import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
-import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitParametersCollector, ScImplicitlyConvertible}
+import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
@@ -73,30 +71,11 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                 case Success(tp, _) if tp.conforms(expected) => defaultResult
                 case Success(tp, _) =>
                   val functionType = ScFunctionType(expected, Seq(tp))(getProject, getResolveScope)
-                  val results = new ImplicitParametersCollector(this, functionType, None, isImplicitConversion = true).collect
+                  val results = new ImplicitCollector(this, functionType, functionType, None,
+                    isImplicitConversion = true, isExtensionConversion = false).collect()
                   if (results.length == 1) {
-                    val res = results(0)
-                    val paramType = res match {
-                      case r: ScalaResolveResult if r.implicitParameterType.isDefined =>
-                        r.implicitParameterType.get
-                      case ScalaResolveResult(o: ScObject, subst) =>
-                        subst.subst(o.getType(TypingContext.empty).get)
-                      case ScalaResolveResult(param: ScParameter, subst) =>
-                        subst.subst(param.getType(TypingContext.empty).get)
-                      case ScalaResolveResult(patt: ScBindingPattern, subst) =>
-                        subst.subst(patt.getType(TypingContext.empty).get)
-                      case ScalaResolveResult(fun: ScFunction, subst) =>
-                        val funType = {
-                          if (fun.parameters.length == 0 || fun.paramClauses.clauses.apply(0).isImplicit) {
-                            subst.subst(fun.getType(TypingContext.empty).get) match {
-                              case ScFunctionType(ret, _) => ret
-                              case other => other
-                            }
-                          }
-                          else subst.subst(fun.getType(TypingContext.empty).get)
-                        }
-                        funType
-                    }
+                    val res = results.head
+                    val paramType = InferUtil.extractImplicitParameterType(res)
                     paramType match {
                       case ScFunctionType(rt, Seq(param)) =>
                         ExpressionTypeResult(Success(rt, Some(this)), res.importsUsed, Some(res.getElement))
@@ -163,7 +142,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
 
               val checkImplicitParameters = ScalaPsiUtil.withEtaExpansion(this)
               if (checkImplicitParameters) {
-                val tuple = InferUtil.updateTypeWithImplicitParameters(res, this, None, checkExpectedType)
+                val tuple = InferUtil.updateTypeWithImplicitParameters(res, this, None, checkExpectedType, fullInfo = false)
                 res = tuple._1
                 if (fromUnderscore) implicitParametersFromUnder = tuple._2
                 else implicitParameters = tuple._2

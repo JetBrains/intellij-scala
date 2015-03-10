@@ -72,7 +72,7 @@ trait ScFun extends ScTypeParametersOwner {
  * Represents Scala's internal function definitions and declarations
  */
 trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwner
-        with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition
+        with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition with ScCommentOwner
         with ScDeclaredElementsHolder with ScAnnotationsHolder with ScMethodLike with ScBlockStatement {
   private var synthNavElement: Option[PsiElement] = None
   var syntheticCaseClass: Option[ScClass] = None
@@ -671,26 +671,48 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
   }
 
-  def getTypeNoImplicits(ctx: TypingContext): TypeResult[ScType] = {
-    returnType match {
-      case Success(tp: ScType, _) =>
-        var res: TypeResult[ScType] = Success(tp, None)
-        var i = paramClauses.clauses.length - 1
-        while (i >= 0) {
-          val cl = paramClauses.clauses.apply(i)
-          if (!cl.isImplicit) {
-            val paramTypes = cl.parameters.map(_.getType(ctx))
-            res match {
-              case Success(t: ScType, _) =>
-                res = collectFailures(paramTypes, Nothing)(ScFunctionType(t, _)(getProject, getResolveScope))
-              case _ =>
-            }
-          }
-          i = i - 1
-        }
-        res
-      case failure => failure
+  //Why not to use default value? It's not working in Scala...
+  def getTypeNoImplicits(ctx: TypingContext): TypeResult[ScType] = getTypeNoImplicits(ctx, returnType)
+
+  def getTypeNoImplicits(ctx: TypingContext, rt: TypeResult[ScType]): TypeResult[ScType] = {
+    collectReverseParamTypesNoImplicits match {
+      case Some(params) =>
+        val project = getProject
+        val resolveScope = getResolveScope
+        rt.map(params.foldLeft(_)((res, params) => ScFunctionType(res, params)(project, resolveScope)))
+      case None => Failure("no params", Some(this))
     }
+  }
+
+  @volatile
+  private var collectReverseParamTypesNoImplicitsCache: Option[Seq[Seq[ScType]]] = null
+
+  @volatile
+  private var collectReverseParamTypesNoImplicitsModCount: Long = 0L
+
+  def collectReverseParamTypesNoImplicits: Option[Seq[Seq[ScType]]] = {
+    def calc: Option[Seq[Seq[ScType]]] = {
+      var i = paramClauses.clauses.length - 1
+      val res: ArrayBuffer[Seq[ScType]] = ArrayBuffer.empty
+      while (i >= 0) {
+        val cl = paramClauses.clauses.apply(i)
+        if (!cl.isImplicit) {
+          val paramTypes: Seq[TypeResult[ScType]] = cl.parameters.map(_.getType(TypingContext.empty))
+          if (paramTypes.exists(_.isEmpty)) return None
+          res += paramTypes.map(_.get)
+        }
+        i = i - 1
+      }
+      Some(res.toSeq)
+    }
+
+    val count = getManager.getModificationTracker.getModificationCount
+    var res = collectReverseParamTypesNoImplicitsCache
+    if (res != null && count == collectReverseParamTypesNoImplicitsModCount) return collectReverseParamTypesNoImplicitsCache
+    res = calc
+    collectReverseParamTypesNoImplicitsModCount = count
+    collectReverseParamTypesNoImplicitsCache = res
+    res
   }
 }
 

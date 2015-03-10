@@ -57,13 +57,13 @@ private[expr] object ExpectedTypes {
    */
   def expectedExprTypes(expr: ScExpression, withResolvedFunction: Boolean = false,
                         fromUnderscore: Boolean = true): Array[(ScType, Option[ScTypeElement])] = {
+    @tailrec
     def fromFunction(tp: (ScType, Option[ScTypeElement])): Array[(ScType, Option[ScTypeElement])] = {
       tp._1 match {
         case ScFunctionType(retType, _) => Array[(ScType, Option[ScTypeElement])]((retType, None))
-        case _ => ScType.extractPartialFunctionType(tp._1) match {
-          case Some((des, param, ret)) => Array[(ScType, Option[ScTypeElement])]((ret, None))
-          case None => Array[(ScType, Option[ScTypeElement])]()
-        }
+        case ScPartialFunctionType(retType, _) => Array[(ScType, Option[ScTypeElement])]((retType, None))
+        case ScAbstractType(_, _, upper) => fromFunction(upper, tp._2)
+        case _ => Array[(ScType, Option[ScTypeElement])]()
       }
     }
 

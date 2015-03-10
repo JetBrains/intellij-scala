@@ -23,7 +23,7 @@ class ScalaTestRunConfiguration(override val project: Project,
     extends AbstractTestRunConfiguration(project, configurationFactory, name)
     with ScalaTestingConfiguration {
 
-  override def suitePath = "org.scalatest.Suite"
+  override def suitePaths = List("org.scalatest.Suite")
 
   override def mainClass = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunner"
 

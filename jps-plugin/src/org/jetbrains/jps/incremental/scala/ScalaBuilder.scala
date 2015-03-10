@@ -163,10 +163,9 @@ object ScalaBuilder {
   private lazy val sbtData = {
     val classLoader = getClass.getClassLoader
     val pluginRoot = new File(PathManager.getJarPathForClass(getClass)).getParentFile
-    val systemRoot = Utils.getSystemRoot
     val javaClassVersion = System.getProperty("java.class.version")
 
-    SbtData.from(classLoader, pluginRoot, systemRoot, javaClassVersion)
+    SbtData.from(classLoader, pluginRoot, javaClassVersion)
   }
 
   private def scalaLibraryWarning(modules: Set[JpsModule], compilationData: CompilationData, client: Client) {

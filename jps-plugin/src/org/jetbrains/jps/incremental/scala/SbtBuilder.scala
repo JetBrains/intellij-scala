@@ -6,7 +6,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.Processor
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.impl.TargetOutputIndexImpl
-import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor
+import org.jetbrains.jps.builders.java.{ResourceRootDescriptor, ResourcesTargetType, JavaModuleBuildTargetType, JavaSourceRootDescriptor}
 import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget, DirtyFilesHolder}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental._
@@ -44,6 +44,8 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
     if (!hasDirtyFilesOrDependencies(context, chunk, dirtyFilesHolder))
       return ExitCode.NOTHING_DONE
 
+    updateSharedResources(context, chunk)
+
     context.processMessage(new ProgressMessage("Searching for compilable files..."))
 
     val filesToCompile = collectCompilableFiles(context, chunk)
@@ -70,6 +72,42 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
           client.progress("Compilation completed", Some(1.0F))
           code
         }
+    }
+  }
+
+  // TODO Mirror file deletion (either via the outputConsumer or a custom index)
+  private def updateSharedResources(context: CompileContext, chunk: ModuleChunk) {
+    val project = context.getProjectDescriptor
+
+    val resourceTargets: Seq[ResourcesTarget] = {
+      val sourceModules = SourceDependenciesProviderService.getSourceDependenciesFor(chunk)
+      val targetType = chunk.representativeTarget.getTargetType match {
+        case JavaModuleBuildTargetType.PRODUCTION => ResourcesTargetType.PRODUCTION
+        case JavaModuleBuildTargetType.TEST => ResourcesTargetType.TEST
+        case _ => ResourcesTargetType.PRODUCTION
+      }
+      sourceModules.map(new ResourcesTarget(_, targetType))
+    }
+
+    val resourceRoots: Seq[ResourceRootDescriptor] = {
+      val rootIndex = project.getBuildRootIndex
+      resourceTargets.flatMap(rootIndex.getTargetRoots(_, context).asScala)
+    }
+
+    val excludeIndex = project.getModuleExcludeIndex
+    val outputRoot: File = chunk.representativeTarget().getOutputDir
+
+    resourceRoots.foreach { root: ResourceRootDescriptor =>
+      val filter = root.createFileFilter()
+
+      FileUtil.processFilesRecursively(root.getRootFile, new Processor[File] {
+        def process(file: File) = {
+          if (file.isFile && filter.accept(file) && !excludeIndex.isExcluded(file)) {
+            ResourceUpdater.updateResource(context, root, file, outputRoot)
+          }
+          true
+        }
+      })
     }
   }
 
@@ -117,7 +155,16 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
     val rootIndex = project.getBuildRootIndex
     val excludeIndex = project.getModuleExcludeIndex
 
-    for (target <- chunk.getTargets.asScala;
+    val sourceTargets = {
+      val sourceModules = SourceDependenciesProviderService.getSourceDependenciesFor(chunk)
+      val targetType = chunk.representativeTarget.getTargetType match {
+        case javaBuildTarget: JavaModuleBuildTargetType => javaBuildTarget
+        case _ => JavaModuleBuildTargetType.PRODUCTION
+      }
+      sourceModules.map(new ModuleBuildTarget(_, targetType))
+    }
+
+    for (target <- chunk.getTargets.asScala ++ sourceTargets;
          root <- rootIndex.getTargetRoots(target, context).asScala) {
       FileUtil.processFilesRecursively(root.getRootFile, new Processor[File] {
         def process(file: File) = {

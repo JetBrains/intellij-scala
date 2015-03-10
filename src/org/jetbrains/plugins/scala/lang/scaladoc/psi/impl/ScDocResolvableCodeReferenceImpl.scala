@@ -5,16 +5,21 @@ package psi
 package impl
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.{JavaPsiFacade, ResolveState}
+import com.intellij.psi._
+import com.intellij.psi.impl.PsiClassImplUtil
+import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.util.PsiUtil
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 
 /**
  * User: Dmitry Naydanov
@@ -22,8 +27,19 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
  */
 
 class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeReferenceElementImpl(node) with ScDocResolvableCodeReference {
-  private def is2_10plus = this.languageLevel >= Scala_2_10
-  
+  private def is2_10plus: Boolean = this.scalaLanguageLevel.map(_ >= ScalaLanguageLevel.Scala_2_10).getOrElse(true)
+
+  override def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
+    val s = super.multiResolve(incomplete)
+    s.zipWithIndex.collect {
+      case (ScalaResolveResult(cstr: ScPrimaryConstructor, _), ind) if cstr.containingClass != null => (new ScalaResolveResult(cstr.containingClass), ind)
+    } foreach {
+      case (rr, idx) => s(idx) = rr
+    }
+
+    s
+  }
+
   override def getKinds(incomplete: Boolean, completion: Boolean) = stableImportSelector
 
   override def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport) = 

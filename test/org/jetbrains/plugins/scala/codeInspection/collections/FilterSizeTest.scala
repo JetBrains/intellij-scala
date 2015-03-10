@@ -33,5 +33,22 @@ class FilterSizeTest extends OperationsOnCollectionInspectionTest {
     testFix(text, result, hint)
   }
 
+  def test_4() {
+    val selected = s"List().${START}filter {x => true}.size$END"
+    check(selected)
+    val text =
+      """List().filter {
+        |  x => true
+        |}.size
+        |""".stripMargin
+    val result =
+      """List().count {
+        |  x => true
+        |}
+        |""".stripMargin
+    testFix(text, result, hint)
+  }
+
+
   override val inspectionClass = classOf[FilterSizeInspection]
 }
