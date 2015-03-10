@@ -1,0 +1,11 @@
+<html>
+<body>
+Replaces filter and check for emptiness with exists or forall. <br/>
+
+<p><code>seq.filter(predicate).size == 0  ->  !seq.exists(predicate)</code> <br/>
+    <code>seq.filter(predicate).length > 0  ->  seq.exists(predicate)</code>  <br/>
+    <code>seq.filterNot(predicate).isEmpty  ->  seq.forall(predicate)</code> <br/>
+    <code>seq.filterNot(predicate).nonEmpty  ->  !seq.forall(predicate)</code> <br/>
+</p>
+</body>
+</html>

@@ -1,12 +1,9 @@
 <html>
 <body>
-Replaces find and isDefined with exists. <br/>
-Before:
-<p><code>sequence.find(myValueIsGoodEnough).isDefined</code></p>
-
-<p>After:</p>
-
-<p><code>sequence.exists(myValueIsGoodEnough)</code></p>
+Replaces find and emptiness check with exists. <br/>
+<p><code>seq.find(pred).isDefined  ->  seq.exists(pred)</code></p>
+<p><code>seq.find(pred) != None  ->  seq.exists(pred)</code></p>
+<p><code>seq.find(pred).isEmpty  ->  !seq.exists(pred)</code></p>
 
 </body>
 </html>

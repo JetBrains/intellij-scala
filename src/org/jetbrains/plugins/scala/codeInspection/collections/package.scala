@@ -5,7 +5,8 @@ import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
 import com.intellij.psi.{PsiElement, PsiMethod, PsiType}
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
-import org.jetbrains.plugins.scala.extensions.{ExpressionType, PsiNamedElementExt, ResolvesTo, childOf}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings.nameFitToPatterns
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -13,8 +14,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
+import org.jetbrains.plugins.scala.lang.psi.types.ScType.ExtractClass
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
@@ -40,6 +42,7 @@ package object collections {
   private[collections] val `.exists` = invocation("exists").from(likeCollectionClasses)
   private[collections] val `.forall` = invocation("forall").from(likeCollectionClasses)
   private[collections] val `.filter` = invocation("filter").from(likeCollectionClasses)
+  private[collections] val `.filterNot` = invocation("filterNot").from(likeCollectionClasses)
   private[collections] val `.map` = invocation("map").from(likeCollectionClasses)
   private[collections] val `.headOption` = invocation("headOption").from(likeCollectionClasses)
   private[collections] val `.sizeOrLength` = invocation(Set("size", "length")).from(likeCollectionClasses)
@@ -208,7 +211,7 @@ package object collections {
     }
   }
 
-  def invocationText(qual: ScExpression, methName: String, args: ScExpression*) = {
+  def invocationText(qual: ScExpression, methName: String, args: ScExpression*): String = {
     val qualText = qual.getText
     val argsText = argListText(args)
     qual match {
@@ -219,7 +222,16 @@ package object collections {
     }
   }
 
-  def argListText(args: Seq[ScExpression]) = {
+  def invocationText(negation: Boolean, qual: ScExpression, methName: String, args: ScExpression*): String = {
+    val baseText = invocationText(qual, methName, args: _*)
+    qual match {
+      case _ if !negation => baseText
+      case _ childOf ScInfixExpr(`qual`, _, _) => s"!($baseText)"
+      case _ => s"!$baseText"
+    }
+  }
+
+  def argListText(args: Seq[ScExpression]): String = {
     args match {
       case Seq(p: ScParenthesisedExpr) => p.getText
       case Seq(b @ ScBlock(fe: ScFunctionExpr)) => b.getText
@@ -233,12 +245,12 @@ package object collections {
   }
 
 
-  private def checkResolveToMap(memberRef: ScReferenceElement) = memberRef.resolve() match {
+  private def checkResolveToMap(memberRef: ScReferenceElement): Boolean = memberRef.resolve() match {
     case m: ScMember => Option(m.containingClass).exists(_.name.toLowerCase.contains("map"))
     case _ => false
   }
 
-  private def checkScalaVersion(elem: PsiElement) = { //there is no Option.fold in Scala 2.9
+  private def checkScalaVersion(elem: PsiElement): Boolean = { //there is no Option.fold in Scala 2.9
     elem.scalaLanguageLevel.map(_ > Scala_2_9).getOrElse(true)
   }
 
@@ -276,7 +288,6 @@ package object collections {
   def checkResolve(expr: ScExpression, patterns: Array[String]): Boolean = {
     expr match {
       case ref: ScReferenceExpression =>
-        import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings.nameFitToPatterns
         ref.resolve() match {
           case obj: ScObject =>
             nameFitToPatterns(obj.qualifiedName, patterns)
@@ -289,6 +300,21 @@ package object collections {
       case _ => false
     }
   }
+
+  def isOfClassFrom(expr: ScExpression, patterns: Array[String]) = {
+    expr.getType() match {
+      case Success(tp, _) =>
+        ScType.extractDesignatorSingletonType(tp).getOrElse(tp) match {
+          case ExtractClass(cl) if nameFitToPatterns(cl.qualifiedName, patterns) => true
+          case _ => false
+        }
+      case _ => false
+    }
+  }
+
+  def isOption(expr: ScExpression) = isOfClassFrom(expr, likeOptionClasses)
+
+  def isArray(expr: ScExpression) = isOfClassFrom(expr, Array("scala.Array"))
 
   private val sideEffectsCollectionMethods = Set("append", "appendAll", "clear", "insert", "insertAll",
     "prepend", "prependAll", "reduceToSize", "remove", "retain",
