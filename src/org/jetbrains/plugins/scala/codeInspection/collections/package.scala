@@ -47,6 +47,7 @@ package object collections {
   private[collections] val `.headOption` = invocation("headOption").from(likeCollectionClasses)
   private[collections] val `.sizeOrLength` = invocation(Set("size", "length")).from(likeCollectionClasses)
   private[collections] val `.find` = invocation("find").from(likeCollectionClasses)
+  private[collections] val `.contains` = invocation("contains").from(likeCollectionClasses)
 
   private[collections] val `.isDefined` = invocation(Set("isDefined", "nonEmpty")).from(likeOptionClasses)
   private[collections] val `.isEmptyOnOption` = invocation("isEmpty").from(likeOptionClasses)
