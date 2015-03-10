@@ -146,9 +146,6 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
     previousRecursionState match {
       case Some(m) =>
         ScalaRecursionManager.usingPreviousRecursionMap(m) {
-          if (this.tp.toString == "String") {
-            "stop here"
-          }
           calc()
         }
       case _ => calc()

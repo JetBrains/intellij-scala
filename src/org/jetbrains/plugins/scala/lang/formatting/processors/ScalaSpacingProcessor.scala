@@ -40,11 +40,6 @@ import scala.annotation.tailrec
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.formatting.processors.ScalaSpacingProcessor")
-  val NO_SPACING_WITH_NEWLINE = Spacing.createSpacing(0, 0, 0, true, 1)
-  val NO_SPACING = Spacing.createSpacing(0, 0, 0, false, 0)
-  val COMMON_SPACING = Spacing.createSpacing(1, 1, 0, true, 100)
-  val IMPORT_BETWEEN_SPACING = Spacing.createSpacing(0, 0, 1, true, 100)
-  val IMPORT_OTHER_SPACING = Spacing.createSpacing(0, 0, 2, true, 100)
 
   val BLOCK_ELEMENT_TYPES = {
     import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
@@ -69,6 +64,24 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     prev
   }
 
+  private def spacesToPreventNewIds(leftNode: ASTNode, rightNode: ASTNode, leftString: String, rightString: String): Integer = {
+    var leftElement = leftNode
+    while (leftElement != null && leftElement.getLastChildNode != null) {
+      leftElement = leftElement.getLastChildNode
+    }
+    var rightElement = rightNode
+    while (rightElement != null && rightElement.getLastChildNode != null) {
+      rightElement = rightElement.getFirstChildNode
+    }
+    val concatString = leftString + rightString
+    val res = if (rightElement.getElementType == ScalaTokenTypes.tIDENTIFIER &&
+        ScalaNamesUtil.isIdentifier(leftString.charAt(leftString.length - 1) + rightString) ||
+        leftElement.getElementType == ScalaTokenTypes.tIDENTIFIER && Range(leftString.length() + 1, concatString.length - 1).
+            map(concatString.substring(0, _)).exists(ScalaNamesUtil.isIdentifier))
+     1 else 0
+    res
+  }
+
   def getSpacing(left: ScalaBlock, right: ScalaBlock): Spacing = {
     val settings = right.getCommonSettings
     val keepBlankLinesInCode = settings.KEEP_BLANK_LINES_IN_CODE
@@ -88,14 +101,6 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       if (keepLineBreaks) Spacing.createDependentLFSpacing(y, y, range, true, x)
       else Spacing.createDependentLFSpacing(y, y, range, false, 0)
     }
-    val WITHOUT_SPACING = getSpacing(keepBlankLinesInCode, 0, 0)
-    val WITHOUT_SPACING_NO_KEEP = Spacing.createSpacing(0, 0, 0, false, 0)
-    val WITHOUT_SPACING_DEPENDENT = (range: TextRange) => getDependentLFSpacing(keepBlankLinesInCode, 0, range)
-    val WITH_SPACING = getSpacing(keepBlankLinesInCode, 1, 0)
-    val WITH_SPACING_NO_KEEP = Spacing.createSpacing(1, 1, 0, false, 0)
-    val WITH_SPACING_DEPENDENT = (range: TextRange) => getDependentLFSpacing(keepBlankLinesInCode, 1, range)
-    val ON_NEW_LINE = getSpacing(keepBlankLinesInCode, 0, 1)
-    val DOUBLE_LINE = getSpacing(keepBlankLinesInCode, 0, 2)
     val leftNode = left.getNode
     val rightNode = right.getNode
     val fileText = leftNode.getPsi.getContainingFile.getText
@@ -118,6 +123,23 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         (leftPsi.getText, rightPsi.getText)
       } else (left.getTextRange.substring(fileText),
             right.getTextRange.substring(fileText))
+
+    val spacesMin: Integer = spacesToPreventNewIds(leftNode, rightNode, leftString, rightString)
+    val WITHOUT_SPACING = getSpacing(keepBlankLinesInCode, spacesMin, 0)
+    val WITHOUT_SPACING_NO_KEEP = Spacing.createSpacing(spacesMin, spacesMin, 0, false, 0)
+    val WITHOUT_SPACING_DEPENDENT = (range: TextRange) => getDependentLFSpacing(keepBlankLinesInCode, spacesMin, range)
+    val WITH_SPACING = getSpacing(keepBlankLinesInCode, 1, 0)
+    val WITH_SPACING_NO_KEEP = Spacing.createSpacing(1, 1, 0, false, 0)
+    val WITH_SPACING_DEPENDENT = (range: TextRange) => getDependentLFSpacing(keepBlankLinesInCode, 1, range)
+    val ON_NEW_LINE = getSpacing(keepBlankLinesInCode, 0, 1)
+    val DOUBLE_LINE = getSpacing(keepBlankLinesInCode, 0, 2)
+
+    val NO_SPACING_WITH_NEWLINE = Spacing.createSpacing(0, 0, 0, true, 1)
+    val NO_SPACING = Spacing.createSpacing(spacesMin, spacesMin, 0, false, 0)
+    val COMMON_SPACING = Spacing.createSpacing(1, 1, 0, true, 100)
+    val IMPORT_BETWEEN_SPACING = Spacing.createSpacing(0, 0, 1, true, 100)
+    val IMPORT_OTHER_SPACING = Spacing.createSpacing(0, 0, 2, true, 100)
+
     import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
     if ((leftPsi.isInstanceOf[PsiComment] || leftPsi.isInstanceOf[PsiDocComment]) &&
             (rightPsi.isInstanceOf[PsiComment] || rightPsi.isInstanceOf[PsiDocComment])) {
@@ -174,7 +196,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (XmlTokenType.XML_DATA_CHARACTERS, XmlTokenType.XML_DATA_CHARACTERS, _, _) =>
         if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
         return WITH_SPACING
-      case (XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN, XmlTokenType.XML_CHAR_ENTITY_REF, _, _) => 
+      case (XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN, XmlTokenType.XML_CHAR_ENTITY_REF, _, _) =>
         return Spacing.getReadOnlySpacing
       case (XmlTokenType.XML_CHAR_ENTITY_REF, XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN, _, _) =>
         return Spacing.getReadOnlySpacing

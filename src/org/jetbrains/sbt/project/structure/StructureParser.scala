@@ -31,6 +31,7 @@ object StructureParser {
     val organization = (node \ "organization").text
     val version = (node \ "version").text
     val base = new File((node \ "base").text)
+    val basePackages = (node \ "basePackage").map(_.text)
     val target = file((node \ "target").text)(fs.withBase(base))
     val build = parseBuild(node ! "build")(fs.withBase(base))
     val configurations = (node \ "configuration").map(parseConfiguration(_)(fs.withBase(base)))
@@ -41,8 +42,8 @@ object StructureParser {
     val resolvers = parseResolvers(node)
     val play2 = (node \ "playimps").headOption.map(parsePlay2(_)(fs.withBase(base)))
 
-    Project(id, name, organization, version, base, target, build, configurations, java, scala,
-      android, dependencies, resolvers, play2)
+    Project(id, name, organization, version, base, basePackages, target, build, configurations,
+      java, scala, android, dependencies, resolvers, play2)
   }
 
   private def parseBuild(node: Node)(implicit fs: FS): Build = {

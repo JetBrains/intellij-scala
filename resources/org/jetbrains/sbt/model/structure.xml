@@ -5,6 +5,8 @@
     <organization>some-organization</organization>
     <version>1.2.3</version>
     <base>$BASE</base>
+    <basePackage>org.jetbrains</basePackage>
+    <basePackage>org.intellij</basePackage>
     <build>
         <classes>~/.sbt/boot/scala-2.9.2/org.scala-sbt/sbt/0.12.2/api-0.12.2.jar</classes>
         <import>import sbt._, Process._, Keys._</import>

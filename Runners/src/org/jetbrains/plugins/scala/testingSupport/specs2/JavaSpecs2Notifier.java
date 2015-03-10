@@ -51,8 +51,9 @@ public class JavaSpecs2Notifier implements Notifier {
   }
 
   public void contextStart(String text, String location) {
+    if (text.trim().length() == 0) return;
     int parentId = descend();
-    System.out.println("##teamcity[testSuiteStarted name='" + escapeString(text) + "'" + TestRunnerUtil.parseLocation(location).toHint() +
+    System.out.println("\n##teamcity[testSuiteStarted name='" + escapeString(text) + "'" + TestRunnerUtil.parseLocation(location).toHint() +
         " nodeId='" + getCurrentId() + "' parentNodeId='" + parentId + "']");
     if (myShowProgressMessages) {
       String escapedMessage = escapeString(text.replaceFirst("\\s+$", ""));
@@ -63,6 +64,7 @@ public class JavaSpecs2Notifier implements Notifier {
   }
 
   public void contextEnd(String text, String location) {
+    if (text.trim().length() == 0) return;
     System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(text) + "'"+ TestRunnerUtil.parseLocation(location).toHint() +
         " nodeId='" + getCurrentId() + "']");
     ascend();

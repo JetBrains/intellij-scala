@@ -14,23 +14,34 @@ class ScalaProjectConverter(context: ConversionContext) extends ProjectConverter
   private val scalaModuleConverter = new ScalaModuleConversionProcessor(context)
 
   private val scalaCompilerSettings: Map[String, ScalaCompilerSettings] = scalaCompilerSettingsIn(context)
+  private val scalaProjectSettings: ScalaProjectSettings = new ScalaProjectSettings(basePackagesIn(context))
   private val obsoleteProjectLibraries: Set[LibraryReference] = obsoleteLibrariesIn(context).filter(_.level == ProjectLevel)
 
   private var createdSettingsFiles: Seq[File] = Seq.empty
 
-  override def getAdditionalAffectedFiles =
-    obsoleteProjectLibraries.flatMap(_.libraryStorageFileIn(context)).asJava
+  override def getAdditionalAffectedFiles = {
+    val filesToDelete = obsoleteProjectLibraries.flatMap(_.libraryStorageFileIn(context))
+    val filesToUpdate = scalaProjectSettings.getFilesToUpdate(context)
+    (filesToDelete ++ filesToUpdate).asJava
+  }
 
   override def createModuleFileConverter(): ConversionProcessor[ModuleSettings] = scalaModuleConverter
 
   override def processingFinished() {
     updateScalaCompilerSettings()
+    updateScalaProjectSettings()
     deleteObsoleteProjectLibraries()
   }
 
   private def updateScalaCompilerSettings() {
     val compilerConfiguration = merge(scalaCompilerSettings)
-    createdSettingsFiles = compilerConfiguration.createIn(context).toSeq
+    val createdFile = compilerConfiguration.createIn(context)
+    createdSettingsFiles ++= createdFile.toSeq
+  }
+
+  private def updateScalaProjectSettings() {
+    val createdFile = scalaProjectSettings.createOrUpdateIn(context)
+    createdSettingsFiles ++= createdFile.toSeq
   }
 
   private def deleteObsoleteProjectLibraries() {
@@ -50,6 +61,12 @@ private object ScalaProjectConverter {
   private def scalaCompilerSettingsIn(context: ConversionContext): Map[String, ScalaCompilerSettings] =
     modulesIn(context).flatMap(module => ScalaFacetData.findIn(module).toSeq
             .map(facet => (module.getModuleName, facet.compilerSettings)).toSeq).toMap
+
+  private def basePackagesIn(context: ConversionContext): Seq[String] =
+    scalaFacetsIn(context).flatMap(_.basePackage.toSeq)
+
+  private def scalaFacetsIn(context: ConversionContext): Seq[ScalaFacetData] =
+    modulesIn(context).flatMap(module => ScalaFacetData.findIn(module).toSeq)
 
   private def modulesIn(context: ConversionContext): Seq[ModuleSettings] =
     context.getModuleFiles.map(context.getModuleSettings).toSeq
