@@ -972,7 +972,10 @@
                        displayName="Expression with unit return type in the argument of map" groupName="Scala: Collections"
                        shortName="UnitInMap" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
-
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapToBooleanContainsInspection"
+                       displayName="Replace map(...).contains(true / false) with exists or !.forall" groupName="Scala: Collections"
+                       shortName="MapToBooleanContains" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
 
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
