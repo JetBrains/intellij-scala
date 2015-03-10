@@ -892,21 +892,21 @@
                        displayName="Simplifiable map and getOrElse(false)" groupName="Scala: Collections"
                        shortName="MapGetOrElseFalse" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FindIsDefinedInspection"
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.EmptyCheckInspection"
+                       displayName="Simplifiable empty check" groupName="Scala: Collections"
+                       shortName="EmptyCheck" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FindEmptyCheckInspection"
                        displayName="Simplifiable find and isDefined" groupName="Scala: Collections"
                        shortName="FindIsDefined" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterSizeCheckInspection"
-                       displayName="Simplifiable filter and size check" groupName="Scala: Collections"
-                       shortName="FilterSizeCheck" level="WARNING"
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterEmptyCheckInspection"
+                       displayName="Simplifiable filter and emptiness check" groupName="Scala: Collections"
+                       shortName="FilterEmptyCheck" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterSizeInspection"
                        displayName="Simplifiable filter and size" groupName="Scala: Collections"
                        shortName="FilterSize" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FindNotEqualsNoneInspection"
-                       displayName="Simplifiable find and notEquals None" groupName="Scala: Collections"
-                       shortName="FindNotEqualsNone" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SimplifiableFoldOrReduceInspection"
                        displayName="Simplifiable fold or reduce method" groupName="Scala: Collections"
@@ -935,10 +935,6 @@
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetGetOrElseInspection"
                        displayName="Simplifiable get and getOrElse on a map" groupName="Scala: Collections"
                        shortName="GetGetOrElse" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.NotIsEmptyInspection"
-                       displayName="isEmpty replaceable for nonEmpty" groupName="Scala: Collections"
-                       shortName="NotIsEmpty" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ReverseMapInspection"
                        displayName="reverse.map to reverseMap" groupName="Scala: Collections"
