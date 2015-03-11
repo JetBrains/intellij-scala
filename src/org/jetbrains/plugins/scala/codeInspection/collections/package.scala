@@ -66,12 +66,15 @@ package object collections {
   private[collections] val `.apply` = invocation("apply").from(likeCollectionClasses)
   private[collections] val `.zip` = invocation("zip").from(likeCollectionClasses)
   private[collections] val `.indices` = invocation("indices").from(likeCollectionClasses)
+  private[collections] val `.take` = invocation("take").from(likeCollectionClasses)
+  private[collections] val `.drop` = invocation("drop").from(likeCollectionClasses)
   private[collections] val `!=` = invocation("!=")
   private[collections] val `==` = invocation(Set("==", "equals"))
   private[collections] val `>` = invocation(">")
   private[collections] val `>=` = invocation(">=")
   private[collections] val `!` = invocation(Set("!", "unary_!"))
   private[collections] val `-` = invocation("-")
+  private[collections] val `+` = invocation("+")
 
   private[collections] val `.toCollection` = new InvocationTemplate(name => name.startsWith("to") && name != "toString").from(likeCollectionClasses)
 
