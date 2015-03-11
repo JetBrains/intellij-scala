@@ -1597,7 +1597,7 @@ object ScalaPsiUtil {
       }
       m.containingClass match {
         case null => false
-        case o: ScObject if o.hasPackageKeyword || o.qualifiedName == "scala.Predef" => true
+        case o: ScObject if o.isPackageObject || o.qualifiedName == "scala.Predef" => true
         case o: ScObject => hasStablePathInner(o)
         case j if j.getLanguage.isInstanceOf[JavaLanguage] => true
         case _ => false
