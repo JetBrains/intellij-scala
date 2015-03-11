@@ -112,6 +112,26 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     workingDirectory = ExternalizablePath.urlValue(s)
   }
 
+  def provideDefaultWorkingDir = {
+    val module = getModule
+    val mavenProject =
+      if (module != null) {
+        MavenProjectsManager.getInstance(project).findProject(module)
+      } else {
+        null
+      }
+    if (mavenProject != null) {
+      mavenProject.getDirectory
+    } else {
+      val base = getProject.getBaseDir
+      if (base != null) {
+        base.getPath
+      } else {
+        ""
+      }
+    }
+  }
+
   @BeanProperty
   var searchTest: SearchForTest = SearchForTest.ACCROSS_MODULE_DEPENDENCIES
   @BeanProperty
@@ -146,23 +166,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
       if (workDir != null && !workDir.trim.isEmpty) {
         workDir
       } else {
-        val module = getModule
-        val mavenProject =
-          if (module != null) {
-            MavenProjectsManager.getInstance(project).findProject(module)
-          } else {
-            null
-          }
-        if (mavenProject != null) {
-          mavenProject.getDirectory
-        } else {
-          val base = getProject.getBaseDir
-          if (base != null) {
-            base.getPath
-          } else {
-            ""
-          }
-        }
+        provideDefaultWorkingDir
       }
     )
 

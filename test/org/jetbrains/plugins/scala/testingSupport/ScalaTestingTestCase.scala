@@ -20,7 +20,7 @@ import com.intellij.psi.PsiManager
 import com.intellij.testFramework.{PsiTestUtil, UsefulTestCase}
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestBase
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, AbstractTestConfigurationProducer}
 import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
@@ -54,7 +54,10 @@ abstract class ScalaTestingTestCase(private val configurationProducer: AbstractT
     val location = new PsiLocation(project, myModule, psiFile.findElementAt(FileDocumentManager.getInstance().
         getDocument(file).getLineStartOffset(lineNumber) + offset))
 
-    configurationProducer.createConfigurationByLocation(location)
+    val res = configurationProducer.createConfigurationByLocation(location)
+    val config = res.getConfiguration.asInstanceOf[AbstractTestRunConfiguration]
+    config.setWorkingDirectory(config.provideDefaultWorkingDir)
+    res
   }
 
   override protected def runTestFromConfig(
