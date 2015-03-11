@@ -16,4 +16,6 @@ class UTestTestFramework extends AbstractTestFramework {
   def getMarkerClassFQName: String = "utest.framework.TestSuite"
 
   def getMnemonic: Char = 'm'
+
+  override def generateObjectTests = true
 }
