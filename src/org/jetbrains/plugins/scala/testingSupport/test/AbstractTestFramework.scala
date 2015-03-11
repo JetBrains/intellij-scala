@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 
 /**
  * @author Ksenia.Sautina
@@ -39,7 +40,10 @@ abstract class AbstractTestFramework extends JavaTestFramework {
   def findSetUpMethod(clazz: PsiClass): PsiMethod = null
 
   def isTestClass(clazz: PsiClass, canBePotential: Boolean): Boolean = {
-    val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(clazz, classOf[ScTypeDefinition], false)
+    val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(clazz match {
+      case wrapper: PsiClassWrapper => wrapper.definition
+      case _ => clazz
+    }, classOf[ScTypeDefinition], false)
     if (parent == null) return false
     val project = clazz.getProject
     val suiteClazz: PsiClass = ScalaPsiManager.instance(project).getCachedClass(getMarkerClassFQName,
@@ -51,4 +55,6 @@ abstract class AbstractTestFramework extends JavaTestFramework {
   }
 
   override def getLanguage: Language = ScalaFileType.SCALA_LANGUAGE
+
+  def generateObjectTests = false
 }
