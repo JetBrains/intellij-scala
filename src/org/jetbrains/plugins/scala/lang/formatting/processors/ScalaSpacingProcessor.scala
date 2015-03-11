@@ -64,22 +64,22 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     prev
   }
 
-  private def spacesToPreventNewIds(leftNode: ASTNode, rightNode: ASTNode, leftString: String, rightString: String): Integer = {
-    var leftElement = leftNode
-    while (leftElement != null && leftElement.getLastChildNode != null) {
-      leftElement = leftElement.getLastChildNode
+  private def spacesToPreventNewIds(left: ScalaBlock, right: ScalaBlock, fileText: String, textRange: TextRange): Integer = {
+    if (ScalaTokenTypes.XML_ELEMENTS.contains(left.getNode.getElementType) ||
+        ScalaTokenTypes.XML_ELEMENTS.contains(right.getNode.getElementType)) return 0
+    @tailrec
+    def dfsChildren(currentNode: ASTNode, getChildren: ASTNode => List[ASTNode]): ASTNode = {
+      getChildren(currentNode) find (_.getTextLength > 0) match {
+        case Some(next) => dfsChildren(next, getChildren)
+        case None => currentNode
+      }
     }
-    var rightElement = rightNode
-    while (rightElement != null && rightElement.getLastChildNode != null) {
-      rightElement = rightElement.getFirstChildNode
-    }
-    val concatString = leftString + rightString
-    val res = if (rightElement.getElementType == ScalaTokenTypes.tIDENTIFIER &&
-        ScalaNamesUtil.isIdentifier(leftString.charAt(leftString.length - 1) + rightString) ||
-        leftElement.getElementType == ScalaTokenTypes.tIDENTIFIER && Range(leftString.length() + 1, concatString.length - 1).
-            map(concatString.substring(0, _)).exists(ScalaNamesUtil.isIdentifier))
-     1 else 0
-    res
+    val leftElement = dfsChildren(left.myLastNode.getOrElse(left.getNode), _.getChildren(null).toList.reverse)
+    val rightElement = dfsChildren(right.getNode, _.getChildren(null).toList)
+    val concatString = if (textRange.contains(rightElement.getTextRange) && textRange.contains(leftElement.getTextRange)) {
+      leftElement.getTextRange.substring(fileText) + rightElement.getTextRange.substring(fileText)
+    } else return 0
+    if (ScalaNamesUtil.isIdentifier(concatString) || ScalaNamesUtil.isKeyword(concatString)) 1 else 0
   }
 
   def getSpacing(left: ScalaBlock, right: ScalaBlock): Spacing = {
@@ -124,7 +124,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       } else (left.getTextRange.substring(fileText),
             right.getTextRange.substring(fileText))
 
-    val spacesMin: Integer = spacesToPreventNewIds(leftNode, rightNode, leftString, rightString)
+    val spacesMin: Integer = spacesToPreventNewIds(left, right, fileText, fileTextRange)
     val WITHOUT_SPACING = getSpacing(keepBlankLinesInCode, spacesMin, 0)
     val WITHOUT_SPACING_NO_KEEP = Spacing.createSpacing(spacesMin, spacesMin, 0, false, 0)
     val WITHOUT_SPACING_DEPENDENT = (range: TextRange) => getDependentLFSpacing(keepBlankLinesInCode, spacesMin, range)
