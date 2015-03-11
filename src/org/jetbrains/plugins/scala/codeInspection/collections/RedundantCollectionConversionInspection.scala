@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScGenericCal
 
 object RedundantCollectionConversion extends SimplificationType {
   override def hint: String = InspectionBundle.message("redundant.collection.conversion")
-  val `.toCollection` = new InvocationTemplate(_.startsWith("to")).from(likeCollectionClasses)
 
   override def getSimplification(expr: ScExpression) = {
     val withGeneric = expr match {

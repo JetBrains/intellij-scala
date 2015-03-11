@@ -73,6 +73,8 @@ package object collections {
   private[collections] val `!` = invocation(Set("!", "unary_!"))
   private[collections] val `-` = invocation("-")
 
+  private[collections] val `.toCollection` = new InvocationTemplate(name => name.startsWith("to") && name != "toString").from(likeCollectionClasses)
+
   private[collections] val `.monadicMethod` = invocation(monadicMethods).from(likeCollectionClasses)
 
   object scalaNone {

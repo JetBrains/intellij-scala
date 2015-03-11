@@ -976,6 +976,10 @@
                        displayName="Replace map(...).contains(true / false) with exists or !.forall" groupName="Scala: Collections"
                        shortName="MapToBooleanContains" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ToSetAndBackInspection"
+                       displayName="Replace conversion to Set and back with .distinct" groupName="Scala: Collections"
+                       shortName="ToSetToSeq" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
 
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
