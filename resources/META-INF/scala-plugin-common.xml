@@ -984,6 +984,10 @@
                        displayName=".drop and .take to .slice" groupName="Scala: Collections"
                        shortName="TakeDropToSlice" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ReverseTakeReverseInspection"
+                       displayName=".reverse.take(...).reverse to .takeRight(...)" groupName="Scala: Collections"
+                       shortName="ReverseTakeReverse" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
 
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
