@@ -317,6 +317,16 @@ package object collections {
     expr.getType().getOrAny.conforms(genSetType)
   }
 
+  def isSeq(expr: ScExpression): Boolean = {
+    val genSeqType = collectionTypeFromClassName("scala.collection.GenSeq", expr.getProject)
+    expr.getType().getOrAny.conforms(genSeqType)
+  }
+
+  def isMap(expr: ScExpression): Boolean = {
+    val genMapType = collectionTypeFromClassName("scala.collection.GenMap", expr.getProject)
+    expr.getType().getOrAny.conforms(genMapType)
+  }
+
   private val sideEffectsCollectionMethods = Set("append", "appendAll", "clear", "insert", "insertAll",
     "prepend", "prependAll", "reduceToSize", "remove", "retain",
     "transform", "trimEnd", "trimStart", "update",

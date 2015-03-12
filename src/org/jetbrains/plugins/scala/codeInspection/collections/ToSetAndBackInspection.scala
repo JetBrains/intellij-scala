@@ -18,10 +18,9 @@ object ToSetAndBackToDistinct extends SimplificationType {
   private val `.toSet` = invocation("toSet").from(likeCollectionClasses)
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
-    val genSeqType = collectionTypeFromClassName("scala.collection.GenSeq", expr.getProject)
     expr match {
       case (qual @ ExpressionType(qualType))`.toSet`()`.toCollection`()
-        if sameCollectionType(qualType, expr.getType().getOrAny) && (qualType.conforms(genSeqType) || isArray(qual)) =>
+        if sameCollectionType(qualType, expr.getType().getOrAny) && (isSeq(qual) || isArray(qual)) =>
         Some(replace(expr).withText(invocationText(qual, "distinct")).highlightFrom(qual))
       case _ => None
     }
