@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.codeInspection
 
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
-import com.intellij.psi.{PsiElement, PsiMethod, PsiType}
+import com.intellij.psi.{JavaPsiFacade, PsiElement, PsiMethod, PsiType}
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings.nameFitToPatterns
@@ -15,8 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScOb
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType.ExtractClass
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
@@ -406,8 +408,13 @@ package object collections {
     TextRange.create(startOffset, endOffset).shiftRight( - parent.getTextOffset)
   }
 
-  def typeFromTextAt(text: String, context: PsiElement) = {
-    ScalaPsiElementFactory.createTypeFromText(text, context.getContext, context)
+  def collectionTypeFromClassName(fqn: String, project: Project) = {
+    val clazz = JavaPsiFacade.getInstance(project).findClass(fqn, GlobalSearchScope.allScope(project))
+    val designatorType = ScDesignatorType(clazz)
+    val undefines = clazz.getTypeParameters.toSeq.map(ptp =>
+      ScUndefinedType(new ScTypeParameterType(ptp, ScSubstitutor.empty))
+    )
+    ScParameterizedType(designatorType, undefines)
   }
 
 }

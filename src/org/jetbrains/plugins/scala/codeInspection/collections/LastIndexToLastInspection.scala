@@ -16,7 +16,7 @@ object LastIndexToLast extends SimplificationType {
   override def hint: String = InspectionBundle.message("replace.with.last")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
-    val genSeqType = typeFromTextAt("scala.collection.GenSeq[_]", expr)
+    val genSeqType = collectionTypeFromClassName("scala.collection.GenSeq", expr.getProject)
     expr match {
       case (qual @ ExpressionType(tp))`.apply`(qual2`.sizeOrLength`() `-` literal("1"))
         if PsiEquivalenceUtil.areElementsEquivalent(qual, qual2) && tp.conforms(genSeqType) =>
