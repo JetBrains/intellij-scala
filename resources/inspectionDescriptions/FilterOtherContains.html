@@ -1,0 +1,10 @@
+<html>
+<body>
+Replaces <code>filter/filterNot</code> on a Set with <code>intersect</code> or <code>diff</code> if possible. <br/>
+
+<p><code>set.filter(others.contains(_))  ->  set.intersect(others)</code></p>
+<p><code>set.filterNot(others.contains))  ->  set.diff(others)</code></p>
+<p><code>set.filter(x => !others.contains(x))  ->  set.diff(others)</code></p>
+<p><code>set.filterNot(x => !others.contains(x))  ->  set.intersect(others)</code></p>
+</body>
+</html>

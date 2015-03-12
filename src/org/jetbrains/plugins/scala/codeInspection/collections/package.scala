@@ -188,30 +188,6 @@ package object collections {
     }
   }
 
-  object equalsWith {
-    def unapply(expr: ScExpression): Option[ScExpression] = {
-      stripped(expr) match {
-        case ScFunctionExpr(Seq(x), Some(result)) =>
-          stripped(result) match {
-            case ScInfixExpr(left, oper, right) if oper.refName == "==" =>
-              (stripped(left), stripped(right)) match {
-                case (leftRef: ScReferenceExpression, rightExpr)
-                  if leftRef.resolve() == x && isIndependentOf(rightExpr, x) =>
-                  Some(rightExpr)
-                case (leftExpr: ScExpression, rightRef: ScReferenceExpression)
-                  if rightRef.resolve() == x && isIndependentOf(leftExpr, x) =>
-                  Some(leftExpr)
-                case _ => None
-              }
-            case _ => None
-          }
-        case ScInfixExpr(underscore(), oper, right) if oper.refName == "==" => Some(right)
-        case ScInfixExpr(left, oper, underscore()) if oper.refName == "==" => Some(left)
-        case _ => None
-      }
-    }
-  }
-
   object underscore {
     def unapply(expr: ScExpression): Boolean = {
       stripped(expr) match {
@@ -288,6 +264,10 @@ package object collections {
     }
   }
 
+  object stripped {
+    def unapply(expr: ScExpression): Option[ScExpression] = Some(stripped(expr))
+  }
+
   def isIndependentOf(expr: ScExpression, parameter: ScParameter): Boolean = {
     var result = true
     val name = parameter.getName
@@ -317,7 +297,7 @@ package object collections {
     }
   }
 
-  def isOfClassFrom(expr: ScExpression, patterns: Array[String]) = {
+  def isOfClassFrom(expr: ScExpression, patterns: Array[String]): Boolean = {
     expr.getType() match {
       case Success(tp, _) =>
         ScType.extractDesignatorSingletonType(tp).getOrElse(tp) match {
@@ -328,9 +308,14 @@ package object collections {
     }
   }
 
-  def isOption(expr: ScExpression) = isOfClassFrom(expr, likeOptionClasses)
+  def isOption(expr: ScExpression): Boolean = isOfClassFrom(expr, likeOptionClasses)
 
-  def isArray(expr: ScExpression) = isOfClassFrom(expr, Array("scala.Array"))
+  def isArray(expr: ScExpression): Boolean = isOfClassFrom(expr, Array("scala.Array"))
+
+  def isSet(expr: ScExpression): Boolean = {
+    val genSetType = collectionTypeFromClassName("scala.collection.GenSet", expr.getProject)
+    expr.getType().getOrAny.conforms(genSetType)
+  }
 
   private val sideEffectsCollectionMethods = Set("append", "appendAll", "clear", "insert", "insertAll",
     "prepend", "prependAll", "reduceToSize", "remove", "retain",

@@ -992,7 +992,10 @@
                        displayName=".map(...).flatten to .flatMap(...)" groupName="Scala: Collections"
                        shortName="MapFlatten" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
-
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterOtherContainsInspection"
+                       displayName=".filter with contains to intersect or diff" groupName="Scala: Collections"
+                       shortName="FilterOtherContains" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
        displayName="All Errors Tool" groupName="Scala: General"
        shortName="ScalaAllErrors" level="WARNING"
