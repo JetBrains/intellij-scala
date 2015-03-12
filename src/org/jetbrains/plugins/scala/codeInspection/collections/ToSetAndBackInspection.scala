@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.codeInspection.collections
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.extensions.ExpressionType
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 
 /**
@@ -19,7 +18,7 @@ object ToSetAndBackToDistinct extends SimplificationType {
   private val `.toSet` = invocation("toSet").from(likeCollectionClasses)
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
-    val genSeqType = ScalaPsiElementFactory.createTypeElementFromText("scala.collection.GenSeq[_]", expr.getContext, expr).calcType
+    val genSeqType = typeFromTextAt("scala.collection.GenSeq[_]", expr)
     expr match {
       case (qual @ ExpressionType(qualType))`.toSet`()`.toCollection`()
         if sameCollectionType(qualType, expr.getType().getOrAny) && (qualType.conforms(genSeqType) || isArray(qual)) =>

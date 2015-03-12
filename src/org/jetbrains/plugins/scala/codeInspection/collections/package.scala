@@ -48,6 +48,8 @@ package object collections {
   private[collections] val `.sizeOrLength` = invocation(Set("size", "length")).from(likeCollectionClasses)
   private[collections] val `.find` = invocation("find").from(likeCollectionClasses)
   private[collections] val `.contains` = invocation("contains").from(likeCollectionClasses)
+  private[collections] val `.flatten` = invocation("flatten").from(likeCollectionClasses)
+  private[collections] val `.flatMap` = invocation("flatMap").from(likeCollectionClasses)
 
   private[collections] val `.isDefined` = invocation(Set("isDefined", "nonEmpty")).from(likeOptionClasses)
   private[collections] val `.isEmptyOnOption` = invocation("isEmpty").from(likeOptionClasses)
@@ -98,18 +100,20 @@ package object collections {
     }
   }
 
-  object returnsBoolean {
+  class FunctionExpressionWithReturnTypeTemplate(tp: ScType) {
     def unapply(expr: ScExpression): Boolean = {
       expr.getType(TypingContext.empty) match {
         case Success(result, _) =>
           result match {
-            case ScFunctionType(returnType, _) => returnType.conforms(types.Boolean)
+            case ScFunctionType(returnType, _) => returnType.conforms(tp)
             case _ => false
           }
         case _ => false
       }
     }
   }
+
+  val returnsBoolean = new FunctionExpressionWithReturnTypeTemplate(types.Boolean)
 
   object binaryOperation {
     def unapply(expr: ScExpression): Option[String] = {
@@ -261,8 +265,12 @@ package object collections {
   }
 
   def implicitParameterExistsFor(methodName: String, baseExpr: ScExpression): Boolean = {
-    val sumExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(s"${baseExpr.getText}.$methodName", baseExpr.getContext, baseExpr)
-    sumExpr.findImplicitParameters match {
+    val expression = ScalaPsiElementFactory.createExpressionWithContextFromText(s"${baseExpr.getText}.$methodName", baseExpr.getContext, baseExpr)
+    implicitParameterExistsFor(expression)
+  }
+
+  def implicitParameterExistsFor(expr: ScExpression): Boolean = {
+    expr.findImplicitParameters match {
       case Some(Seq(srr: ScalaResolveResult)) if srr.element.name == InferUtil.notFoundParameterName => false
       case Some(Seq(srr: ScalaResolveResult, _*)) => true
       case _ => false
@@ -396,6 +404,10 @@ package object collections {
       case _ => expr.getTextRange.getEndOffset
     }
     TextRange.create(startOffset, endOffset).shiftRight( - parent.getTextOffset)
+  }
+
+  def typeFromTextAt(text: String, context: PsiElement) = {
+    ScalaPsiElementFactory.createTypeFromText(text, context.getContext, context)
   }
 
 }

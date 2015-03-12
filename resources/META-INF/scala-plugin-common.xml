@@ -988,7 +988,10 @@
                        displayName=".reverse.take(...).reverse to .takeRight(...)" groupName="Scala: Collections"
                        shortName="ReverseTakeReverse" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
-
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapFlattenInspection"
+                       displayName=".map(...).flatten to .flatMap(...)" groupName="Scala: Collections"
+                       shortName="MapFlatten" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
        displayName="All Errors Tool" groupName="Scala: General"
