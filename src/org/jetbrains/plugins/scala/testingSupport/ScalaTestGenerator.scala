@@ -15,12 +15,14 @@ import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.actions.NewScalaTypeDefinitionAction
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Def
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ExtractSuperUtil
-import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestFramework, TestConfigurationUtil}
 
 
 class ScalaTestGenerator extends TestGenerator {
@@ -49,7 +51,11 @@ class ScalaTestGenerator extends TestGenerator {
     IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
     val SCALA_EXTENSIOIN = "." + ScalaFileType.DEFAULT_EXTENSION
     val file = NewScalaTypeDefinitionAction.createFromTemplate(d.getTargetDirectory, d.getClassName, d.getClassName +
-        SCALA_EXTENSIOIN, "Scala Class")
+        SCALA_EXTENSIOIN,
+      d.getSelectedTestFrameworkDescriptor match {
+        case f: AbstractTestFramework if f.generateObjectTests => "Scala Object"
+        case _ => "Scala Class"
+      })
     val typeDefinition = file.depthFirst.filterByType(classOf[ScTypeDefinition]).next()
     val scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
     val fqName = d.getSuperClassName
@@ -60,7 +66,6 @@ class ScalaTestGenerator extends TestGenerator {
     }
     val positionElement = typeDefinition.extendsBlock.templateBody.map(_.getFirstChild).getOrElse(typeDefinition)
     var editor: Editor = CodeInsightUtil.positionCursor(project, file, positionElement)
-    // TODO add test methods?
     addTestMethods(editor, typeDefinition, d.getSelectedTestFrameworkDescriptor, d.getSelectedMethods, d
         .shouldGeneratedBefore, d.shouldGeneratedAfter, d.getClassName)
     file
@@ -131,6 +136,11 @@ class ScalaTestGenerator extends TestGenerator {
         } else if (isInheritor(typeDef, "org.specs2.mutable.SpecificationLike")) {
           ScalaTestGenerator.generateSpecs2BeforeAndAfter(generateBefore, generateAfter, typeDef, editor.getProject)
           ScalaTestGenerator.generateSpecs2MutableSpecificationMethods(methodsList, psiManager, body, className)
+        } else if (isInheritor(typeDef, "utest.framework.TestSuite")) {
+          val file = typeDef.getContainingFile
+          assert(file.isInstanceOf[ScalaFile])
+          file.asInstanceOf[ScalaFile].addImportForPath("utest._")
+          ScalaTestGenerator.generateUTestMethods(methodsList, psiManager, body, className, editor.getProject)
         }
       case _ =>
     }
@@ -326,6 +336,19 @@ object ScalaTestGenerator {
       templateBody.addBefore(ScalaPsiElementFactory.createExpressionFromText(methods.
           map("\""+ _.getMember.getName + "\" in {\nok\n}\n").
           fold("\"" + className + "\" should {")(_ + "\n" + _) + "\n}", psiManager), templateBody.getLastChild)
+    }
+  }
+
+  private def generateUTestMethods(methods: List[MemberInfo], psiManager: PsiManager, templateBody: ScTemplateBody,
+                                   className: String, project: Project) {
+    val normalIndentString = String.format("%1$" +
+        ScalaCodeStyleSettings.getInstance(project).getContainer.getIndentSize(ScalaFileType.SCALA_FILE_TYPE) + "s", " ")
+    templateBody.addBefore(ScalaPsiElementFactory.createElement("val tests = TestSuite{}", psiManager, Def.parse(_)),
+      templateBody.getLastChild)
+    if (methods.nonEmpty) {
+      templateBody.addBefore(ScalaPsiElementFactory.createElement(methods.map(normalIndentString + "\"" +
+          _.getMember.getName + "\" - {}\n").fold("val methodsTests = TestSuite{")(_ + "\n" + _) + "}", psiManager,
+        Def.parse(_)), templateBody.getLastChild)
     }
   }
 

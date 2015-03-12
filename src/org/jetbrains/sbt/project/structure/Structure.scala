@@ -15,7 +15,7 @@ case class Project(id: String, name: String, organization: String, version: Stri
 
 case class Build(imports: Seq[String], classes: Seq[File], docs: Seq[File], sources: Seq[File])
 
-case class Configuration(id: String, sources: Seq[Directory], resources: Seq[Directory], classes: File)
+case class Configuration(id: String, sources: Seq[Directory], resources: Seq[Directory], excludes: Seq[File], classes: File)
 
 case class Java(home: Option[File], options: Seq[String])
 

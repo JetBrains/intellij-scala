@@ -79,18 +79,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   private var testPackagePath = ""
   private var testArgs = ""
   private var javaOptions = ""
-  private var workingDirectory = {
-    val module = getModule
-    val mavenProject =
-      if (module != null) MavenProjectsManager.getInstance(project).findProject(module)
-      else null
-    if (mavenProject != null) mavenProject.getDirectory
-    else {
-      val base = getProject.getBaseDir
-      if (base != null) base.getPath
-      else ""
-    }
-  }
+  private var workingDirectory = ""
 
   def getTestClassPath = testClassPath
 
@@ -120,6 +109,26 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
   def setWorkingDirectory(s: String) {
     workingDirectory = ExternalizablePath.urlValue(s)
+  }
+
+  def provideDefaultWorkingDir = {
+    val module = getModule
+    val mavenProject =
+      if (module != null) {
+        MavenProjectsManager.getInstance(project).findProject(module)
+      } else {
+        null
+      }
+    if (mavenProject != null) {
+      mavenProject.getDirectory
+    } else {
+      val base = getProject.getBaseDir
+      if (base != null) {
+        base.getPath
+      } else {
+        ""
+      }
+    }
   }
 
   @BeanProperty
@@ -153,7 +162,15 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     setJavaOptions(configuration.getJavaOptions)
     setTestArgs(configuration.getTestArgs)
     setModule(configuration.getModule)
-    setWorkingDirectory(configuration.getWorkingDirectory)
+    val workDir = configuration.getWorkingDirectory
+    setWorkingDirectory(
+      if (workDir != null && !workDir.trim.isEmpty) {
+        workDir
+      } else {
+        provideDefaultWorkingDir
+      }
+    )
+
     setTestName(configuration.getTestName)
     setEnvVariables(configuration.getEnvironmentVariables)
     setShowProgressMessages(configuration.getShowProgressMessages)
