@@ -15,7 +15,7 @@ object MapContainsFalse extends SimplificationType {
   override def hint: String = InspectionBundle.message("replace.map.contains.false.with.not.forall")
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
-      case qual`.map`(pred @ returnsBoolean)`.contains`(literal("false")) =>
+      case qual`.map`(pred @ returnsBoolean())`.contains`(literal("false")) =>
         val notForallText = invocationText(negation = true, qual, "forall", pred)
         Some(replace(expr).withText(notForallText).highlightFrom(qual))
       case _ => None
@@ -26,7 +26,7 @@ object MapContainsFalse extends SimplificationType {
 object MapContainsTrue extends SimplificationType {
   override def hint: String = InspectionBundle.message("replace.map.contains.true.with.exists")
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
-    case qual`.map`(pred @ returnsBoolean)`.contains`(literal("true")) =>
+    case qual`.map`(pred @ returnsBoolean())`.contains`(literal("true")) =>
       val existsText = invocationText(qual, "exists", pred)
       Some(replace(expr).withText(existsText).highlightFrom(qual))
     case _ => None
