@@ -72,6 +72,8 @@ package object collections {
   private[collections] val `.indices` = invocation("indices").from(likeCollectionClasses)
   private[collections] val `.take` = invocation("take").from(likeCollectionClasses)
   private[collections] val `.drop` = invocation("drop").from(likeCollectionClasses)
+  private[collections] val `.sameElements` = invocation("sameElements").from(likeCollectionClasses)
+
   private[collections] val `!=` = invocation("!=")
   private[collections] val `==` = invocation(Set("==", "equals"))
   private[collections] val `>` = invocation(">")
@@ -312,20 +314,20 @@ package object collections {
 
   def isArray(expr: ScExpression): Boolean = isOfClassFrom(expr, Array("scala.Array"))
 
-  def isSet(expr: ScExpression): Boolean = {
-    val genSetType = collectionTypeFromClassName("scala.collection.GenSet", expr.getProject)
-    expr.getType().getOrAny.conforms(genSetType)
+  def isCollection(className: String, expr: ScExpression): Boolean = {
+    val collectionType = collectionTypeFromClassName(className, expr.getProject)
+    expr.getType().getOrAny.conforms(collectionType)
   }
 
-  def isSeq(expr: ScExpression): Boolean = {
-    val genSeqType = collectionTypeFromClassName("scala.collection.GenSeq", expr.getProject)
-    expr.getType().getOrAny.conforms(genSeqType)
-  }
+  def isSet(expr: ScExpression): Boolean = isCollection("scala.collection.GenSet", expr)
 
-  def isMap(expr: ScExpression): Boolean = {
-    val genMapType = collectionTypeFromClassName("scala.collection.GenMap", expr.getProject)
-    expr.getType().getOrAny.conforms(genMapType)
-  }
+  def isSeq(expr: ScExpression): Boolean = isCollection("scala.collection.GenSeq", expr)
+
+  def isMap(expr: ScExpression): Boolean = isCollection("scala.collection.GenMap", expr)
+
+  def isSortedSet(expr: ScExpression) = isCollection("scala.collection.SortedSet", expr)
+
+  def isSortedMap(expr: ScExpression) = isCollection("scala.collection.SortedMap", expr)
 
   private val sideEffectsCollectionMethods = Set("append", "appendAll", "clear", "insert", "insertAll",
     "prepend", "prependAll", "reduceToSize", "remove", "retain",
@@ -410,6 +412,11 @@ package object collections {
       ScUndefinedType(new ScTypeParameterType(ptp, ScSubstitutor.empty))
     )
     ScParameterizedType(designatorType, undefines)
+  }
+
+  def refNameId(expr: ScExpression) = stripped(expr) match {
+    case MethodRepr(_, _,Some(ref), _) => Some(ref.nameId)
+    case _ => None
   }
 
 }

@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 class ArrayEqualityTest extends OperationsOnCollectionInspectionTest {
   override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[ArrayEqualityInspection]
 
-  override def hint: String = InspectionBundle.message("replace.equals.with.sameElements.for.array")
+  override def hint: String = InspectionBundle.message("replace.equals.with.sameElements")
 
   def testArraysEquals(): Unit = {
     doTest(

@@ -32,6 +32,8 @@ class SimplificationBuilder private[collections] (val exprToReplace: ScExpressio
 
   def highlightAll: SimplificationBuilder = highlightElem(exprToReplace)
 
+  def highlightRef: SimplificationBuilder = highlightElem(refNameId(exprToReplace).getOrElse(exprToReplace))
+
   def highlightElem(elem: PsiElement) = {
     this.rangeInParent = elem.getTextRange.shiftRight( - exprToReplace.getTextOffset)
     this

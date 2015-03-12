@@ -11,13 +11,13 @@ class ArrayEqualityInspection extends OperationOnCollectionInspection {
 }
 
 object ArrayEquality extends SimplificationType {
-  override def hint: String = InspectionBundle.message("replace.equals.with.sameElements.for.array")
+  override def hint: String = InspectionBundle.message("replace.equals.with.sameElements")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
-    case MethodRepr(_, Some(left), Some(ref), Seq(right)) if Set("==", "equals").contains(ref.refName) && arraysOrSeqAndArray(left, right) =>
-      Some(replace(expr).withText(invocationText(left, "sameElements", right)).highlightElem(ref.nameId))
-    case MethodRepr(_, Some(left), Some(ref), Seq(right)) if ref.refName == "!=" && arraysOrSeqAndArray(left, right) =>
-      Some(replace(expr).withText(invocationText(negation = true, left, "sameElements", right)).highlightElem(ref.nameId))
+    case left `==` right if arraysOrSeqAndArray(left, right) =>
+      Some(replace(expr).withText(invocationText(left, "sameElements", right)).highlightRef)
+    case left `!=` right if arraysOrSeqAndArray(left, right) =>
+      Some(replace(expr).withText(invocationText(negation = true, left, "sameElements", right)).highlightRef)
     case _ => None
   }
 
