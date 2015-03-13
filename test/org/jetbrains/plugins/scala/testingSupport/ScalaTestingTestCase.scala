@@ -55,13 +55,8 @@ abstract class ScalaTestingTestCase(private val configurationProducer: AbstractT
         getDocument(file).getLineStartOffset(lineNumber) + offset))
   }
 
-  override protected def createTestFromLocation(lineNumber: Int, offset: Int, fileName: String): RunnerAndConfigurationSettings = {
-    
-    val res = configurationProducer.createConfigurationByLocation(createLocation(lineNumber, offset, fileName))
-    val config = res.getConfiguration.asInstanceOf[AbstractTestRunConfiguration]
-    config.setWorkingDirectory(config.provideDefaultWorkingDir)
-    res
-  }
+  override protected def createTestFromLocation(lineNumber: Int, offset: Int, fileName: String): RunnerAndConfigurationSettings =
+    configurationProducer.createConfigurationByLocation(createLocation(lineNumber, offset, fileName))
 
   override protected def runTestFromConfig(
                                    configurationCheck: RunnerAndConfigurationSettings => Boolean,
