@@ -73,6 +73,7 @@ package object collections {
   private[collections] val `.take` = invocation("take").from(likeCollectionClasses)
   private[collections] val `.drop` = invocation("drop").from(likeCollectionClasses)
   private[collections] val `.sameElements` = invocation("sameElements").from(likeCollectionClasses)
+  private[collections] val `.corresponds` = invocation("corresponds").from(likeCollectionClasses)
 
   private[collections] val `!=` = invocation("!=")
   private[collections] val `==` = invocation(Set("==", "equals"))
@@ -328,6 +329,8 @@ package object collections {
   def isSortedSet(expr: ScExpression) = isCollection("scala.collection.SortedSet", expr)
 
   def isSortedMap(expr: ScExpression) = isCollection("scala.collection.SortedMap", expr)
+
+  def isIterator(expr: ScExpression) = isCollection("scala.collection.Iterator", expr)
 
   private val sideEffectsCollectionMethods = Set("append", "appendAll", "clear", "insert", "insertAll",
     "prepend", "prependAll", "reduceToSize", "remove", "retain",
