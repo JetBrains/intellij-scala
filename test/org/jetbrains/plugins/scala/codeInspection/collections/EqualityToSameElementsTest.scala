@@ -5,8 +5,8 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 /**
  * @author Nikolay.Tropin
  */
-class ArrayEqualityTest extends OperationsOnCollectionInspectionTest {
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[ArrayEqualityInspection]
+class EqualityToSameElementsTest extends OperationsOnCollectionInspectionTest {
+  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[EqualityToSameElementsInspection]
 
   override def hint: String = InspectionBundle.message("replace.equals.with.sameElements")
 
@@ -53,4 +53,21 @@ class ArrayEqualityTest extends OperationsOnCollectionInspectionTest {
       "!(Array(1) sameElements Array(1))"
     )
   }
+
+  def testIteratorsEquals(): Unit = {
+    doTest(
+      s"Iterator(1) $START==$END Iterator(1)",
+      "Iterator(1) == Iterator(1)",
+      "Iterator(1) sameElements Iterator(1)"
+    )
+  }
+
+  def testIteratorsNotEquals(): Unit = {
+    doTest(
+      s"Iterator(1) $START!=$END Iterator(1)",
+      "Iterator(1) != Iterator(1)",
+      "!(Iterator(1) sameElements Iterator(1))"
+    )
+  }
+
 }

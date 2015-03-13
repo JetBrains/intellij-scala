@@ -996,9 +996,9 @@
                        displayName=".filter with contains to intersect or diff" groupName="Scala: Collections"
                        shortName="FilterOtherContains" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ArrayEqualityInspection"
-                       displayName="equals to sameElements for arrays" groupName="Scala: Collections"
-                       shortName="ArrayEquality" level="WARNING"
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.EqualityToSameElementsInspection"
+                       displayName="equals to sameElements for arrays and iterators" groupName="Scala: Collections"
+                       shortName="EqualityToSameElements" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SameElementsToEqualsInspection"
                        displayName="sameElements to equals" groupName="Scala: Collections"
