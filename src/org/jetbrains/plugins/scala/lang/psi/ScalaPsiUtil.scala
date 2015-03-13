@@ -397,7 +397,7 @@ object ScalaPsiUtil {
     val kinds = processor.kinds
     var implicitMap: Seq[ScalaResolveResult] = Seq.empty
     def checkImplicits(secondPart: Boolean, noApplicability: Boolean, withoutImplicitsForArgs: Boolean = noImplicitsForArgs) {
-      lazy val args = processor match {
+      def args = processor match {
         case _ if !noImplicitsForArgs => Seq.empty
         case m: MethodResolveProcessor => m.argumentClauses.flatMap(_.map(
           _.getTypeAfterImplicitConversion(checkImplicits = false, isShape = m.isShapeResolve, None)._1.getOrAny
