@@ -1,0 +1,13 @@
+<html>
+<body>
+Equals on arrays and iterators checks reference equality which is rarely useful.
+Inspection suggests to compare their content with <code>sameElements</code> method.
+<p><code>Array(1) == Array(1)  //false</code><br>
+<code>Iterator(1) == Iterator(1)  //false</code></p><br>
+is replaced with <br>
+<p><code>Array(1) sameElements Array(1) //true</code><br>
+<code>Iterator(1) sameElements Iterator(1) //true</code></p><br>
+
+Inspection also detects comparing arrays with scala sequences.
+</body>
+</html>
