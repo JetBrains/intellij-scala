@@ -1005,8 +1005,8 @@
                        shortName="SameElementsToEquals" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.CorrespondsUnsortedInspection"
-                       displayName="sameElements on unsorted collection" groupName="Scala: Collections"
-                       shortName="SameElementsUnsorted" level="WARNING"
+                       displayName="corresponds/sameElements on unsorted collection" groupName="Scala: Collections"
+                       shortName="CorrespondsUnsorted" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
        displayName="All Errors Tool" groupName="Scala: General"

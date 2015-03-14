@@ -67,5 +67,13 @@ class CorrespondsUnsortedTest extends OperationsOnCollectionInspectionTest {
   def testCorrespondsArray(): Unit = {
     checkTextHasNoErrors("Iterator(1).corresponds(Array(1))((x, y) => true)")
   }
+
+  def testSeqCorrespondsSeq(): Unit = {
+    checkTextHasNoErrors("Seq(1).corresponds(Seq(1))((x, y) => true)")
+  }
+
+  def testSeqCorrespondsSet(): Unit = {
+    checkTextHasNoErrors("Seq(1).corresponds(Seq(1))((x, y) => true)")
+  }
 }
 
