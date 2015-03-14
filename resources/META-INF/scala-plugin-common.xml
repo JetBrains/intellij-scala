@@ -1008,6 +1008,10 @@
                        displayName="corresponds/sameElements on unsorted collection" groupName="Scala: Collections"
                        shortName="CorrespondsUnsorted" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ComparingDiffCollectionKindsInspection"
+                       displayName="comparing different collection kinds" groupName="Scala: Collections"
+                       shortName="ComparingDiffCollectionKinds" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
        displayName="All Errors Tool" groupName="Scala: General"
        shortName="ScalaAllErrors" level="WARNING"
