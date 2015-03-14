@@ -47,3 +47,29 @@ class SameElementsToEqualsTest extends OperationsOnCollectionInspectionTest {
   }
 
 }
+
+class CorrespondsToEqualsTest extends OperationsOnCollectionInspectionTest {
+  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[SameElementsToEqualsInspection]
+
+  override def hint: String = InspectionBundle.message("replace.corresponds.with.equals")
+
+  def test1(): Unit = {
+    doTest(
+      s"Vector(1).${START}corresponds$END(Seq(1))((x, y) => x == y)",
+      "Vector(1).corresponds(Seq(1))((x, y) => x == y)",
+      "Vector(1) == Seq(1)"
+    )
+  }
+
+  def test2(): Unit = {
+    doTest(
+      s"Vector(1).${START}corresponds$END(Seq(1))(_ == _)",
+      "Vector(1).corresponds(Seq(1))(_ == _)",
+      "Vector(1) == Seq(1)"
+    )
+  }
+
+  def test3(): Unit = {
+    checkTextHasNoErrors("Vector(1).corresponds(Seq(1))((x, y) => x > y)")
+  }
+}

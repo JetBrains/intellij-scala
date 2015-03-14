@@ -417,7 +417,9 @@ package object collections {
     ScParameterizedType(designatorType, undefines)
   }
 
-  def refNameId(expr: ScExpression) = stripped(expr) match {
+  @tailrec
+  def refNameId(expr: ScExpression): Option[PsiElement] = stripped(expr) match {
+    case MethodRepr(itself: ScMethodCall, Some(base), None, _) => refNameId(base)
     case MethodRepr(_, _,Some(ref), _) => Some(ref.nameId)
     case _ => None
   }

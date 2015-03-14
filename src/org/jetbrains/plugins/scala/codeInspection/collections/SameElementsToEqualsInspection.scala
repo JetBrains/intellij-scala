@@ -7,7 +7,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
  * @author Nikolay.Tropin
  */
 class SameElementsToEqualsInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(SameElementsToEquals)
+  override def possibleSimplificationTypes: Array[SimplificationType] =
+    Array(SameElementsToEquals, CorrespondsToEquals)
 }
 
 object SameElementsToEquals extends SimplificationType {
@@ -27,6 +28,16 @@ object SameElementsToEquals extends SimplificationType {
 
   private def bothSortedSetsOrMaps(left: ScExpression, right: ScExpression) = {
     isSortedSet(left) && isSortedSet(right) || isSortedMap(left) && isSortedMap(right)
+  }
+}
+
+object CorrespondsToEquals extends SimplificationType {
+  override def hint: String = InspectionBundle.message("replace.corresponds.with.equals")
+
+  override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
+    case left`.corresponds`(right, binaryOperation("==")) if isSeq(left) && isSeq(right) =>
+      Some(replace(expr).withText(s"${left.getText} == ${right.getText}").highlightRef)
+    case _ => None
   }
 }
 
