@@ -64,7 +64,9 @@ abstract class SimplificationType {
   def hint: String
   def description: String = hint
 
-  def getSimplification(expr: ScExpression): Option[Simplification]
+  def getSimplification(expr: ScExpression): Option[Simplification] = None
+
+  def getSimplifications(expr: ScExpression): Seq[Simplification] = Seq.empty
 
   def replace(expr: ScExpression): SimplificationBuilder = {
     new SimplificationBuilder(expr).withHint(hint)
