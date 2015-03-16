@@ -24,4 +24,4 @@ abstract class D {
     case A(r) => r
   }
 }
-//D.this.type#global#analyzer.A[Int]
+//D.this.global.analyzer.A[Int]
