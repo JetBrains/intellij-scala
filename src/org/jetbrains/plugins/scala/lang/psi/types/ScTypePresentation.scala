@@ -121,6 +121,14 @@ trait ScTypePresentation {
           e.isInstanceOf[PsiModifierListOwner] &&
           e.asInstanceOf[PsiModifierListOwner].getModifierList.hasModifierProperty("static")
       }
+
+      projType.isAliasType match {
+        case Some(_) =>
+          val withoutAliases = ScType.removeAliasDefinitions(projType, implementationsOnly = true)
+          if (withoutAliases != projType) return innerTypeText(withoutAliases)
+        case None =>
+      }
+
       p match {
         case ScDesignatorType(pack: PsiPackage) =>
           nameWithPointFun(pack) + refName
