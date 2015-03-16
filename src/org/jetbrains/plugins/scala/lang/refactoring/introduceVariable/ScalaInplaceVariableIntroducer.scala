@@ -299,7 +299,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
           val declaration = getDeclaration
           myEditor.getCaretModel.moveToOffset(declaration.getTextRange.getEndOffset)
         }
-      } else if (getDeclaration != null) {
+      } else if (getDeclaration != null && !UndoManager.getInstance(myProject).isUndoInProgress) {
         val revertInfo = myEditor.getUserData(ScalaIntroduceVariableHandler.REVERT_INFO)
         if (revertInfo != null) {
           extensions.inWriteAction {
