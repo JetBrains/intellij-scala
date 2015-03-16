@@ -17,7 +17,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
  */
 class NoReturnTypeForImplicitDefInspection extends AbstractInspection(id, description){
   override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case fun: ScFunctionDefinition if fun.hasModifierProperty("implicit") && fun.returnTypeElement.isEmpty =>
+    case fun: ScFunctionDefinition if fun.hasModifierProperty("implicit") &&
+            fun.parameters.size == 1 &&
+            !fun.paramClauses.clauses.exists(_.isImplicit) &&
+            fun.returnTypeElement.isEmpty =>
       val descr = description
       val range = new TextRange(0, fun.parameterList.getTextRange.getEndOffset - fun.getModifierList.getTextRange.getStartOffset)
       holder.registerProblem(fun, range, descr, new AddReturnTypeQuickFix(fun))

@@ -39,7 +39,8 @@ class LanguageFeatureInspection extends AbstractInspection("LanguageFeature", "A
     },
     Feature("implicit conversion", "scala.language", "implicitConversions", _.implicitConversions, _.implicitConversions = true) {
       case e: ScFunctionDefinition if e.getModifierList.has(ScalaTokenTypes.kIMPLICIT) &&
-              e.getParameterList.getParametersCount == 1 =>
+              e.parameters.size == 1 &&
+              !e.parameterList.clauses.exists(_.isImplicit) =>
         Option(e.getModifierList.findFirstChildByType(ScalaTokenTypes.kIMPLICIT)).getOrElse(e)
     },
     Feature("higher-kinded type", "scala.language", "higherKinds", _.higherKinds, _.higherKinds = true) {
