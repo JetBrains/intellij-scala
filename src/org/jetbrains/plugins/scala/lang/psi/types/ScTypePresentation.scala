@@ -109,7 +109,7 @@ trait ScTypePresentation {
       val refName = e.name
       def checkIfStable(e: PsiElement): Boolean = {
         e match {
-          case _: ScObject | _: ScBindingPattern | _: ScParameter => true
+          case _: ScObject | _: ScBindingPattern | _: ScParameter | _: ScFieldId => true
           case _ => false
         }
       }

@@ -79,4 +79,4 @@ abstract class DefaultMacroCompiler extends Validators{
   Predef_???
   x
 }
-//Validators.this.type#global#Symbol
+//Validators.this.global.Symbol
