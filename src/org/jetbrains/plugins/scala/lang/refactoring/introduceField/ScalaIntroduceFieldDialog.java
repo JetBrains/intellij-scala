@@ -31,7 +31,7 @@ import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.EventListener;
-import java.util.HashMap;
+import java.util.TreeMap;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -62,7 +62,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     private ScalaVariableValidator validator;
     private IntroduceFieldSettings mySettings;
 
-    private HashMap<String, ScType> myTypeMap = null;
+    private TreeMap<String, ScType> myTypeMap = null;
     private EventListenerList myListenerList = new EventListenerList();
 
     private static final String REFACTORING_NAME = ScalaBundle.message("introduce.field.title");
