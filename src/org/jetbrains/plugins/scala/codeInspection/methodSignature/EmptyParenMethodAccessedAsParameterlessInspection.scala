@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
  * Pavel Fatin
@@ -32,7 +33,7 @@ class EmptyParenMethodAccessedAsParameterlessInspection extends AbstractMethodSi
   "ScalaEmptyParenMethodAccessedAsParameterless", "Empty-paren method accessed as parameterless") {
 
   def actionFor(holder: ProblemsHolder) = {
-    case e: ScReferenceExpression if e.isValid =>
+    case e: ScReferenceExpression if e.isValid && IntentionAvailabilityChecker.checkInspection(this, e) =>
       e.getParent match {
         case gc: ScGenericCall =>
           ScalaPsiUtil.findCall(gc) match {
