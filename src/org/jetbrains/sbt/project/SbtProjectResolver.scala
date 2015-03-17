@@ -216,7 +216,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   // We cannot always exclude the whole ./target/ directory because of
   // the generated sources, so we resort to an heuristics.
-  private def getExcludedTargetDirs(project: Project): List[File] = {
+  private def getExcludedTargetDirs(project: Project): Seq[File] = {
+    val extractedExcludes = project.configurations.flatMap(_.excludes)
+    if (extractedExcludes.nonEmpty)
+      return extractedExcludes.distinct
+
     val managedDirectories = project.configurations
             .flatMap(configuration => configuration.sources ++ configuration.resources)
             .filter(_.managed)

@@ -72,7 +72,7 @@ trait ScFun extends ScTypeParametersOwner {
  * Represents Scala's internal function definitions and declarations
  */
 trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwner
-        with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition
+        with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition with ScCommentOwner
         with ScDeclaredElementsHolder with ScAnnotationsHolder with ScMethodLike with ScBlockStatement {
   private var synthNavElement: Option[PsiElement] = None
   var syntheticCaseClass: Option[ScClass] = None

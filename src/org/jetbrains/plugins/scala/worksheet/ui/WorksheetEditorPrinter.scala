@@ -7,6 +7,7 @@ import java.util
 import javax.swing.{JComponent, JLayeredPane, Timer}
 
 import com.intellij.ide.DataManager
+import com.intellij.lang.Language
 import com.intellij.openapi.actionSystem.{CommonDataKeys, DataProvider}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
@@ -14,15 +15,18 @@ import com.intellij.openapi.diff.impl.EditingSides
 import com.intellij.openapi.diff.impl.util.SyncScrollSupport
 import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.event.{CaretAdapter, CaretEvent}
+import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
 import com.intellij.openapi.editor.impl.{EditorImpl, FoldingModelImpl}
 import com.intellij.openapi.editor.markup.TextAttributes
+import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Splitter
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.FileAttribute
-import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiManager, PsiWhiteSpace}
+import com.intellij.psi._
 import com.intellij.ui.JBSplitter
 import org.jetbrains.plugins.scala
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -31,6 +35,7 @@ import org.jetbrains.plugins.scala.worksheet.processor.{FileAttributeUtilCache, 
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
 
 import _root_.scala.collection.mutable.ArrayBuffer
+import _root_.scala.util.Random
 
 /**
  * User: Dmitry Naydanov
@@ -392,22 +397,26 @@ object WorksheetEditorPrinter {
     FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RESULT, file, "")
   }
 
-  def newWorksheetUiFor(editor: Editor, virtualFile: VirtualFile) =
-    new WorksheetEditorPrinter(editor,  createWorksheetViewer(editor, virtualFile),
+  def newWorksheetUiFor(editor: Editor, virtualFile: VirtualFile) = newUiFor(editor, virtualFile, true)
+
+  def newMacrosheetUiFor(editor: Editor, virtualFile: VirtualFile) = newUiFor(editor,  virtualFile, false)
+
+  def newUiFor(editor: Editor, virtualFile: VirtualFile, isPlain: Boolean) =
+    new WorksheetEditorPrinter(editor, createRightSideViewer(editor, virtualFile, getOrCreateViewerEditorFor(editor, isPlain)),
       PsiManager getInstance editor.getProject findFile virtualFile match {
         case scalaFile: ScalaFile => scalaFile
         case _ => null
       }
     )
 
-  def createWorksheetViewer(editor: Editor, virtualFile: VirtualFile, modelSync: Boolean = false): Editor = {
-    val editorComponent = editor.getComponent
-    val project = editor.getProject
+  def createWorksheetEditor(editor: Editor) = getOrCreateViewerEditorFor(editor, true)
 
-    val worksheetViewer = WorksheetViewerInfo getViewer editor match {
-      case editorImpl: EditorImpl => editorImpl
-      case _ => createBlankEditor(project).asInstanceOf[EditorImpl]
-    }
+  def createMacroEditor(editor: Editor) = getOrCreateViewerEditorFor(editor, false)
+
+  def createRightSideViewer(editor: Editor, virtualFile: VirtualFile, rightSideEditor: Editor, modelSync: Boolean = false): Editor = {
+    val editorComponent = editor.getComponent
+
+    val worksheetViewer = rightSideEditor.asInstanceOf[EditorImpl]
 
     val prop = if (editorComponent.getComponentCount > 0) editorComponent.getComponent(0) match {
       case splitter: JBSplitter => splitter.getProportion
@@ -458,6 +467,14 @@ object WorksheetEditorPrinter {
     worksheetViewer
   }
 
+  private def getOrCreateViewerEditorFor(editor: Editor, isPlain: Boolean) = {
+    WorksheetViewerInfo getViewer editor match {
+      case editorImpl: EditorImpl => editorImpl
+      case _ => if (isPlain) createBlankEditor(editor.getProject) else
+        createBlankEditorWithLang(editor.getProject, ScalaFileType.SCALA_LANGUAGE, ScalaFileType.SCALA_FILE_TYPE) 
+    }
+  }
+  
   private def createBlankEditor(project: Project): Editor = {
     val factory: EditorFactory = EditorFactory.getInstance
     val editor: Editor = factory.createViewer(factory createDocument "", project)
@@ -470,6 +487,16 @@ object WorksheetEditorPrinter {
           })
       case _ =>
     }
+    editor
+  }
+  
+  private def createBlankEditorWithLang(project: Project, lang: Language, fileType: LanguageFileType): Editor = {
+    val file = PsiFileFactory.getInstance(project).createFileFromText("dummy_" + Random.nextString(10), lang, "")
+    val editor = EditorFactory.getInstance.createViewer(PsiDocumentManager.getInstance(project).getDocument(file), project)
+    val editorHighlighter = EditorHighlighterFactory.getInstance.createEditorHighlighter(project, fileType)
+
+    editor.asInstanceOf[EditorEx].setHighlighter(editorHighlighter)
+    editor setBorder null
     editor
   }
 }

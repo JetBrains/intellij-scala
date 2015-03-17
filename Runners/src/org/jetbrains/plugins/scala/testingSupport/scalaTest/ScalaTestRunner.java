@@ -51,7 +51,7 @@ public class ScalaTestRunner {
     HashSet<String> classes = new HashSet<String>();
     HashMap<String, Set<String>> failedTestMap = new HashMap<String, Set<String>>();
     boolean failedUsed = false;
-    String testName = "";
+    List<String> testNames = new LinkedList<String>();
     boolean showProgressMessages = true;
     boolean useVersionFromOptions = false;
     boolean isOlderScalaVersionFromOptions = false;
@@ -66,7 +66,7 @@ public class ScalaTestRunner {
         }
       } else if (newArgs[i].equals("-testName")) {
         ++i;
-        testName = newArgs[i];
+        testNames.add(TestRunnerUtil.unescapeTestName(newArgs[i]));
         ++i;
       } else if (newArgs[i].equals("-showProgressMessages")) {
         ++i;
@@ -115,16 +115,17 @@ public class ScalaTestRunner {
         }
       }
 
-    } else if (testName.equals("")) {
+    } else if (testNames.isEmpty()) {
       for (String clazz : classes) {
         argsArray.add("-s");
         argsArray.add(clazz);
       }
 
     } else {
-      String[] testNames = testName.split(";");
+      //'test' kind of run should only contain one class, better fail then try to run something irrelevant
+      assert(classes.size() == 1);
       for (String clazz : classes) {
-          for (String tn : Arrays.asList(testNames)) {
+          for (String tn : testNames) {
           // Should encounter problem if the suite class does not have the specified test name.
           argsArray.add("-s");
           argsArray.add(clazz);
@@ -142,7 +143,7 @@ public class ScalaTestRunner {
     ArrayList<String> classes = new ArrayList<String>();
     ArrayList<String> failedTests = new ArrayList<String>();
     boolean failedUsed = false;
-    String testName = "";
+    List<String> testNames = new LinkedList<String>();
     boolean showProgressMessages = true;
     boolean useVersionFromOptions = false;
     boolean isOlderScalaVersionFromOptions = false;
@@ -161,7 +162,7 @@ public class ScalaTestRunner {
         }
       } else if (newArgs[i].equals("-testName")) {
         ++i;
-        testName = newArgs[i];
+        testNames.add(TestRunnerUtil.unescapeTestName(newArgs[i]));
         ++i;
       } else if (newArgs[i].equals("-showProgressMessages")) {
         ++i;
@@ -192,40 +193,41 @@ public class ScalaTestRunner {
       }
     }
     String[] arga = argsArray.toArray(new String[argsArray.size()]);
+    String reporterQualName = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter";
+    Class<?> reporterClass = ScalaTestRunner.class.getClassLoader().
+        loadClass(reporterQualName);
+    Reporter reporter = (Reporter) reporterClass.newInstance();
     if (failedUsed) {
       i = 0;
       while (i + 1 < failedTests.size()) {
         TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
-        runSingleTest(failedTests.get(i + 1), failedTests.get(i));
+        runSingleTest(failedTests.get(i + 1), failedTests.get(i), reporter);
         i += 2;
       }
-    } else if (testName.equals("")) {
+    } else if (testNames.isEmpty()) {
       for (String clazz : classes) {
         arga[classIndex] = clazz;
         TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
         Runner.run(arga);
       }
     } else {
-      String[] testNames = testName.split(";");
+      //'test' kind of run should only contain one class, better fail then try to run something irrelevant
+      assert(classes.size() == 1);
       for (String clazz : classes) {
-        for (String tn : Arrays.asList(testNames)) {
+        for (String tn : testNames) {
           TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
-          runSingleTest(tn, clazz);
+          runSingleTest(tn, clazz, reporter);
         }
       }
     }
   }
 
 
-  private static void runSingleTest(String testName, String clazz) throws IllegalAccessException,
+  private static void runSingleTest(String testName, String clazz, Reporter reporter) throws IllegalAccessException,
       InstantiationException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException {
     try {
     Class<?> aClass = ScalaTestRunner.class.getClassLoader().loadClass(clazz);
     Suite suite = (Suite) aClass.newInstance();
-    String reporterQualName = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter";
-    Class<?> reporterClass = ScalaTestRunner.class.getClassLoader().
-        loadClass(reporterQualName);
-    Reporter reporter = (Reporter) reporterClass.newInstance();
     Class<?> suiteClass = Class.forName("org.scalatest.Suite");
     Method method = suiteClass.getMethod("run", Option.class, Reporter.class, Stopper.class, org.scalatest.Filter.class,
         Map.class, Option.class, Tracker.class);
@@ -284,6 +286,8 @@ public class ScalaTestRunner {
           if (Integer.parseInt(nums[0]) == 1 && Integer.parseInt(nums[1]) >= 8) {
             return false;
           } else if (Integer.parseInt(nums[0]) == 2 && Integer.parseInt(nums[1]) >= 0) {
+            return false;
+          } else if (Integer.parseInt(nums[0]) == 3 && Integer.parseInt(nums[1]) >= 0) {
             return false;
           }
         }

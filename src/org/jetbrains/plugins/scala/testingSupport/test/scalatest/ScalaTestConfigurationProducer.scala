@@ -51,15 +51,15 @@ class ScalaTestConfigurationProducer extends {
       return TestConfigurationUtil.packageSettings(element, location, confFactory, ScalaBundle.message("test.in.scope.scalatest.presentable.text", name))
     }
 
-    val (testClassPath, testClassName) = getLocationClassAndTest(location)
+    val (testClassPath, testName) = getLocationClassAndTest(location)
     if (testClassPath == null) return null
     val settings = RunManager.getInstance(location.getProject).
       createRunConfiguration(StringUtil.getShortName(testClassPath) +
-      (if (testClassName != null) "." + testClassName else ""), confFactory)
+      (if (testName != null) "." + testName else ""), confFactory)
     val runConfiguration = settings.getConfiguration.asInstanceOf[ScalaTestRunConfiguration]
     runConfiguration.setTestClassPath(testClassPath)
-    if (testClassName != null) runConfiguration.setTestName(testClassName)
-    val kind = if (testClassName == null) TestKind.CLASS else TestKind.TEST_NAME
+    if (testName != null) runConfiguration.setTestName(testName)
+    val kind = if (testName == null) TestKind.CLASS else TestKind.TEST_NAME
     runConfiguration.setTestKind(kind)
     try {
       val module = ScalaPsiUtil.getModule(element)
@@ -81,15 +81,15 @@ class ScalaTestConfigurationProducer extends {
       if (!configuration.isInstanceOf[ScalaTestRunConfiguration]) return false
       return TestConfigurationUtil.isPackageConfiguration(element, configuration)
     }
-    val (testClassPath, testClassName) = getLocationClassAndTest(location)
+    val (testClassPath, testName) = getLocationClassAndTest(location)
     if (testClassPath == null) return false
     configuration match {
       case configuration: ScalaTestRunConfiguration if configuration.getTestKind == TestKind.CLASS &&
-        testClassName == null =>
+        testName == null =>
         testClassPath == configuration.getTestClassPath
       case configuration: ScalaTestRunConfiguration if configuration.getTestKind == TestKind.TEST_NAME =>
-        testClassPath == configuration.getTestClassPath && testClassName != null &&
-          testClassName == configuration.getTestName
+        testClassPath == configuration.getTestClassPath && testName != null &&
+          testName == configuration.getTestName
       case _ => false
     }
   }
@@ -694,7 +694,8 @@ class ScalaTestConfigurationProducer extends {
     val astTransformer = new ScalaTestAstTransformer()
     val selection = astTransformer.testSelection(location)
 
-    if (selection != null && selection.testNames().length > 0) (testClassPath, selection.testNames()(0))
+    if (selection != null) (testClassPath,
+          escapeAndConcatTestNames(selection.testNames().toList))
     else oldResult
   }
 }

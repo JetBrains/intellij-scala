@@ -5,24 +5,21 @@ package psi
 package impl
 
 import com.intellij.lang.ASTNode
+import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiUtil
-import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
-
-import scala.collection.immutable.HashMap
-import scala.collection.mutable
 
 /**
  * User: Dmitry Naydanov
@@ -30,22 +27,17 @@ import scala.collection.mutable
  */
 
 class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeReferenceElementImpl(node) with ScDocResolvableCodeReference {
-  private def is2_10plus: Boolean = {
-    if (getContainingFile.getVirtualFile == null) return true  //in case of synthetic elements
+  private def is2_10plus: Boolean = this.scalaLanguageLevel.map(_ >= ScalaLanguageLevel.Scala_2_10).getOrElse(true)
 
-    val module = ScalaPsiUtil.getModule(this)
-
-    if (module == null) return true // in case of worksheet
-
-    module.scalaSdk.flatMap(_.compilerVersion) exists {
-      case version =>
-        try {
-          val numbers = version.split('.').take(2).map(c => Integer parseInt c) //Will we ever see Scala 3.X ?
-          numbers.length > 1 && numbers(1) >= 10
-        } catch {
-          case _: NumberFormatException => false
-        }
+  override def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
+    val s = super.multiResolve(incomplete)
+    s.zipWithIndex.collect {
+      case (ScalaResolveResult(cstr: ScPrimaryConstructor, _), ind) if cstr.containingClass != null => (new ScalaResolveResult(cstr.containingClass), ind)
+    } foreach {
+      case (rr, idx) => s(idx) = rr
     }
+
+    s
   }
 
   override def getKinds(incomplete: Boolean, completion: Boolean) = stableImportSelector
@@ -62,21 +54,6 @@ class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeRefere
       case Some(q: ScDocResolvableCodeReference) =>
         q.multiResolve(true).foreach(processQualifierResolveResult(_, processor, ref))
       case _ =>
-    }
-  }
-
-  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
-    super.processDeclarations(processor, state, lastParent, place) && {
-      qualifier match {
-        case Some(ref: PsiReference) =>
-          val el = ref.resolve()
-          el match {
-            case clazz: ScClass =>
-              PsiClassImplUtil.processDeclarationsInClass(clazz, processor, state, null, lastParent, place, PsiUtil.getLanguageLevel(place), false)
-            case _ => true
-          }
-        case _ => true
-      }
     }
   }
 }

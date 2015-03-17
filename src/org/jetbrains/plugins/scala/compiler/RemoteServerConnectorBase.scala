@@ -31,7 +31,6 @@ abstract class RemoteServerConnectorBase(module: Module, fileToCompile: File, ou
   private val sbtData = SbtData.from(
     new URLClassLoader(Array(new URL("jar:file:" + (if (libCanonicalPath startsWith "/") "" else "/" ) + libCanonicalPath + "/jps/sbt-interface.jar!/")), getClass.getClassLoader),
     new File(libRoot, "jps"),
-    new File(System.getProperty("user.home"), ".idea-build"),
     System.getProperty("java.class.version")
   ) match {
     case Left(msg) => throw new IllegalArgumentException(msg)

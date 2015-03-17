@@ -65,40 +65,45 @@ class ServerMediator(project: Project) extends ProjectComponent {
     }
     val modulesWithClashes = ModuleManager.getInstance(project).getModules.toSeq.filter(hasClashes)
 
+    var result = true
+
     if (modulesWithClashes.nonEmpty) {
-      val result =
-        if (!ApplicationManager.getApplication.isUnitTestMode) {
-          Messages.showYesNoDialog(project,
-            "Production and test output paths are shared in: " + modulesWithClashes.map(_.getName).mkString(" "),
-            "Shared compile output paths in Scala module(s)",
-            "Split output path(s) automatically", "Cancel compilation", Messages.getErrorIcon)
-        }
-        else Messages.YES
-
-      val splitAutomatically = result == Messages.YES
-
-      if (splitAutomatically) {
-        inWriteAction {
-          modulesWithClashes.foreach { module =>
-            val model = ModuleRootManager.getInstance(module).getModifiableModel
-            val extension = model.getModuleExtension(classOf[CompilerModuleExtension])
-
-            val name = if (extension.getCompilerOutputPath.getName == "classes") "test-classes" else "test"
-
-            extension.inheritCompilerOutputPath(false)
-            extension.setCompilerOutputPathForTests(extension.getCompilerOutputPath.getParent.getUrl + "/" + name)
-
-            model.commit()
+      invokeAndWait {
+        val choice =
+          if (!ApplicationManager.getApplication.isUnitTestMode) {
+            Messages.showYesNoDialog(project,
+              "Production and test output paths are shared in: " + modulesWithClashes.map(_.getName).mkString(" "),
+              "Shared compile output paths in Scala module(s)",
+              "Split output path(s) automatically", "Cancel compilation", Messages.getErrorIcon)
           }
+          else Messages.YES
 
-          project.save()
+        val splitAutomatically = choice == Messages.YES
+
+        if (splitAutomatically) {
+          inWriteAction {
+            modulesWithClashes.foreach { module =>
+              val model = ModuleRootManager.getInstance(module).getModifiableModel
+              val extension = model.getModuleExtension(classOf[CompilerModuleExtension])
+
+              val outputUrlParts = extension.getCompilerOutputUrl.split("/").toSeq
+              val nameForTests = if (outputUrlParts.last == "classes") "test-classes" else "test"
+
+              extension.inheritCompilerOutputPath(false)
+              extension.setCompilerOutputPathForTests((outputUrlParts.dropRight(1) :+ nameForTests).mkString("/"))
+
+              model.commit()
+            }
+
+            project.save()
+          }
         }
-      }
 
-      splitAutomatically
-    } else {
-      true
+        result = splitAutomatically
+      }
     }
+
+    result
   }
 
   def getComponentName = getClass.getSimpleName

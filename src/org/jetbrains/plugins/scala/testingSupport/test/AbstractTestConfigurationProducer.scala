@@ -40,4 +40,11 @@ trait AbstractTestConfigurationProducer {
 
   def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean
 
+
+  protected def escapeAndConcatTestNames(testNames: List[String]) = {
+    val res = testNames.map(escapeTestName)
+    if (res.size > 0) res.tail.fold(res.head)(_+"\n"+_) else ""
+  }
+
+  protected def escapeTestName(testName: String) = testName.replace("\\", "\\\\").replace("\n", "\\n")
 }

@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor, ScReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -398,7 +398,22 @@ object DebuggerUtil {
     val extendsBlock = cl.extendsBlock //to exclude references from default parameters
     localParams(extendsBlock, cl, container, visited)
   }
-  
+
+  def localParamsForDefaultParam(param: ScParameter, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Seq[ScTypedDefinition] = {
+    val owner = param.owner
+    val container = ScalaEvaluatorBuilderUtil.getContextClass {
+      owner match {
+        case pc: ScPrimaryConstructor => pc.containingClass
+        case fun => fun
+      }
+    }
+    param.getDefaultExpression match {
+      case Some(expr) => localParams(expr, owner, container, visited)
+      case None => Seq.empty
+    }
+  }
+
+
   def localParams(block: PsiElement, excludeContext: PsiElement, container: PsiElement,
                   visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Seq[ScTypedDefinition] = {
     def atRightPlace(elem: PsiElement) = PsiTreeUtil.isContextAncestor(container, elem, false) &&
@@ -416,12 +431,12 @@ object DebuggerUtil {
           case null =>
           case fun: ScFunctionDefinition if fun.isLocal && !visited.contains(fun) =>
             visited += fun
-            buf ++= localParamsForFunDef(fun, visited)
+            buf ++= localParamsForFunDef(fun, visited).filter(atRightPlace)
           case fun: ScMethodLike if fun.isConstructor && !visited.contains(fun) =>
             fun.containingClass match {
               case c: ScClass if ScalaPsiUtil.isLocalClass(c) =>
                 visited += c
-                buf ++= localParamsForConstructor(c, visited)
+                buf ++= localParamsForConstructor(c, visited).filter(atRightPlace)
               case _ =>
             }
           case td: ScTypedDefinition if isLocalV(td) && atRightPlace(td) =>

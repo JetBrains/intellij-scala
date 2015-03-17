@@ -69,10 +69,10 @@ public class ScalaTestAstTransformer {
             }
             for (String rawUrl : rawUrls) {
                 File cpFile = new File(rawUrl);
-                if (cpFile.exists() && cpFile.isDirectory() && !rawUrl.toString().endsWith(File.separator)) {
-                    loaderUrls.add(new URL("file://" + rawUrl + "/"));
+                if (cpFile.exists() && cpFile.isDirectory() && !rawUrl.endsWith(File.separator)) {
+                    loaderUrls.add(new URL("file:/" + rawUrl + "/"));
                 } else {
-                    loaderUrls.add(new URL("file://" + rawUrl));
+                    loaderUrls.add(new URL("file:/" + rawUrl));
                 }
             }
         }
@@ -114,18 +114,29 @@ public class ScalaTestAstTransformer {
             }
         }
         PsiClass classWithStyle = null;
+        Option<ScAnnotation> annotationOption = null;
         for (PsiClass clazzz : newList) {
             if (clazzz instanceof ScClass) {
                 ScClass scClass = (ScClass) clazzz;
-                if (scClass.hasAnnotation("org.scalatest.Style").isDefined() &&
-                        scClass.hasAnnotation("org.scalatest.Style").get() != null) {
+                annotationOption = scClass.hasAnnotation("org.scalatest.Style");
+                if (annotationOption.isDefined() && annotationOption.get() != null) {
+                    classWithStyle = scClass;
+                    break;
+                }
+                annotationOption = scClass.hasAnnotation("org.scalatest.Finders");
+                if (annotationOption.isDefined() && annotationOption.get() != null) {
                     classWithStyle = scClass;
                     break;
                 }
             } else if (clazzz instanceof ScTrait) {
                 ScTrait scTrait = (ScTrait) clazzz;
-                if (scTrait.hasAnnotation("org.scalatest.Style").isDefined() &&
-                        scTrait.hasAnnotation("org.scalatest.Style").get() != null) {
+                annotationOption = scTrait.hasAnnotation("org.scalatest.Style");
+                if (annotationOption.isDefined() && annotationOption.get() != null) {
+                    classWithStyle = scTrait;
+                    break;
+                }
+                annotationOption = scTrait.hasAnnotation("org.scalatest.Finders");
+                if (annotationOption.isDefined() && annotationOption.get() != null) {
                     classWithStyle = scTrait;
                     break;
                 }
@@ -136,7 +147,7 @@ public class ScalaTestAstTransformer {
             ScTypeDefinition typeDef = (ScTypeDefinition) classWithStyle;
             try {
                 String finderClassName;
-                ScAnnotation styleAnnotation = typeDef.hasAnnotation("org.scalatest.Style").get();
+                ScAnnotation styleAnnotation = annotationOption.get();
                 if (styleAnnotation != null) {
                     String notFound = "NOT FOUND STYLE TEXT";
                     ScConstructor constructor = (ScConstructor) styleAnnotation.getClass().getMethod("constructor").invoke(styleAnnotation);
@@ -201,15 +212,19 @@ public class ScalaTestAstTransformer {
                 List<Annotation> annotations = Arrays.asList(suiteClass.getAnnotations());
                 Annotation styleOpt = null;
                 for (Annotation a : annotations) {
-                    if (a.annotationType().getName() == "org.scalatest.Style") {
+                    if (a.annotationType().getName().equals("org.scalatest.Style") ||
+                        a.annotationType().getName().equals("org.scalatest.Finders")) {
                         styleOpt = a;
                     }
                 }
                 if (styleOpt != null) {
                     Method valueMethod = styleOpt.annotationType().getMethod("value");
-                    String finderClassName = (String) valueMethod.invoke(styleOpt);
+                    String finderClassName = ((String[]) valueMethod.invoke(styleOpt))[0];
                     if (finderClassName != null) {
                         Class finderClass = loadClass(finderClassName, module);
+                        if (finderClass == null) {
+                          return null;
+                        }
                         Object instance = finderClass.newInstance();
                         if (instance instanceof Finder) {
                             return (Finder) instance;
@@ -520,7 +535,7 @@ public class ScalaTestAstTransformer {
         Finder finder = getFinder(clazz, location.getModule());
         if (finder != null) {
             AstNode selectedAst = getSelectedAstNode(clazz.qualifiedName(), element);
-            AstNode selectedAstOpt = selectedAst == null ? selectedAst : selectedAst.parent();
+            AstNode selectedAstOpt = (selectedAst == null) ? null : selectedAst;
             if (selectedAstOpt != null) {
                 //TODO add logging here
                 /*selectedAst match {
@@ -603,7 +618,7 @@ public class ScalaTestAstTransformer {
         List<PsiElement> nestedChildren = getElementNestedBlockChildren(element);
         List<AstNode> result = new ArrayList<AstNode>();
         for (PsiElement child : nestedChildren) {
-            AstNode parentOpt = transformNode(className, element.getParent());
+            AstNode parentOpt = transformNode(className, child);
             if (parentOpt != null) {
                 result.add(parentOpt);
             }

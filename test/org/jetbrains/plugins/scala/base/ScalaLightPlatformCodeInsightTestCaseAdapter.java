@@ -53,7 +53,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
   protected void setUp(TestUtils.ScalaSdkVersion libVersion) throws Exception {
     super.setUp();
     myLibraryLoader = new ScalaLibraryLoader(getProject(), getModule(), rootPath(),
-        isIncludeScalazLibrary(), isIncludeReflectLibrary(), ScalaLibraryLoader.getSdkNone());
+        isIncludeScalazLibrary(), isIncludeReflectLibrary(), isIncludeSprayLibrary(), ScalaLibraryLoader.getSdkNone());
     myLibraryLoader.loadLibrary(libVersion);
     //libLoader.clean();
   }
@@ -67,6 +67,10 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
   }
 
   protected boolean isIncludeScalazLibrary() {
+    return false;
+  }
+
+  protected boolean isIncludeSprayLibrary() {
     return false;
   }
 

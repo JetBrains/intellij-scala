@@ -21,7 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingCont
  * @author Alexander Podkhalyuzin
  */
 
-trait ScVariable extends ScBlockStatement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder with ScAnnotationsHolder {
+trait ScVariable extends ScBlockStatement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder
+                  with ScAnnotationsHolder with ScCommentOwner {
   self =>
   def varKeyword = findChildrenByType(ScalaTokenTypes.kVAR).apply(0)
 
