@@ -131,7 +131,8 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case arg: ScArgumentExprList if arg.isBraceArgs => Indent.getNoneIndent
       case _: ScIfStmt | _: ScWhileStmt | _: ScDoStmt | _: ScForStatement
               | _: ScFinallyBlock | _: ScCatchBlock | _: ScValue | _: ScVariable=>
-        child.getPsi match {
+        if (child.getElementType == ScalaTokenTypes.kYIELD) Indent.getNormalIndent
+        else child.getPsi match {
           case _: ScBlockExpr if settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED ||
               settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => Indent.getNormalIndent
           case _: ScBlockExpr => Indent.getNoneIndent

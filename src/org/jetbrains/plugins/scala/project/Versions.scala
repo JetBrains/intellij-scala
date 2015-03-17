@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.project
 
-import java.io.IOException
+import com.intellij.util.net.HttpConfigurable
 
 import scala.io.Source
-import scala.util.control.Exception._
+import scala.util.Try
 
 /**
  * @author Pavel Fatin
@@ -20,7 +20,7 @@ object Versions {
   def loadSbtVersions = loadVersionsOf(Sbt)
 
   private def loadVersionsOf(entity: Entity): Array[String] =
-    loadVersionsFrom(entity.url).right.toOption
+    loadVersionsFrom(entity.url)
             .getOrElse(entity.hardcodedVersions)
             .map(Version(_))
             .filter(_ >= entity.minVersion)
@@ -28,21 +28,22 @@ object Versions {
             .map(_.number)
             .toArray
 
-  private def loadVersionsFrom(url: String): Either[String, Seq[String]] = {
-    loadLinesFrom(url).right.map { lines =>
+  private def loadVersionsFrom(url: String): Try[Seq[String]] = {
+    loadLinesFrom(url).map { lines =>
       lines.collect {
         case ReleaseVersionLine(number) => number
       }
     }
   }
 
-  private def loadLinesFrom(url: String): Either[String, Seq[String]] = {
-    val source = Source.fromURL(url)
-
-    catching(classOf[IOException])
-            .andFinally(source.close())
-            .either(source.getLines().toVector)
-            .left.map(_.getMessage)
+  private def loadLinesFrom(url: String): Try[Seq[String]] = {
+    Try(HttpConfigurable.getInstance().openHttpConnection(url)).map { connection =>
+      try {
+        Source.fromInputStream(connection.getInputStream).getLines().toVector
+      } finally {
+        connection.disconnect()
+      }
+    }
   }
 }
 
@@ -51,7 +52,7 @@ private case class Entity(url: String, minVersion: Version, hardcodedVersions: S
 }
 
 private object Scala extends Entity("http://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
-  Version("2.8.0"), Seq("2.8.2", "2.9.3", "2.10.4", "2.11.4"))
+  Version("2.8.0"), Seq("2.8.2", "2.9.3", "2.10.4", "2.11.5"))
 
 private object Sbt extends Entity("http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/launcher/",
   Version("0.12.0"), Seq("0.12.4", "0.13.7"))

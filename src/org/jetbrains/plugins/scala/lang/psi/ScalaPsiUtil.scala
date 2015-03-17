@@ -210,7 +210,7 @@ object ScalaPsiUtil {
       case Seq() =>
         // object A { def foo(a: Any) = ()}; A foo () ==>> A.foo(()), or A.foo() ==>> A.foo( () )
         val unitExpr = ScalaPsiElementFactory.createExpressionFromText("()", manager)
-        Some(Seq(Expression(unitExpr)))
+        Some(Seq(new Expression(types.Unit, place)))
       case _ =>
         val exprTypes: Seq[ScType] =
           s.map(_.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)).map {
@@ -397,7 +397,7 @@ object ScalaPsiUtil {
     val kinds = processor.kinds
     var implicitMap: Seq[ScalaResolveResult] = Seq.empty
     def checkImplicits(secondPart: Boolean, noApplicability: Boolean, withoutImplicitsForArgs: Boolean = noImplicitsForArgs) {
-      lazy val args = processor match {
+      def args = processor match {
         case _ if !noImplicitsForArgs => Seq.empty
         case m: MethodResolveProcessor => m.argumentClauses.flatMap(_.map(
           _.getTypeAfterImplicitConversion(checkImplicits = false, isShape = m.isShapeResolve, None)._1.getOrAny
@@ -451,7 +451,7 @@ object ScalaPsiUtil {
               case _ => None
             }
           }))
-      implicitMap = convertible.collect
+      implicitMap = convertible.collect()
     }
     //This logic is important to have to navigate to problematic method, in case of failed resolve.
     //That's why we need to have noApplicability parameter
@@ -742,6 +742,7 @@ object ScalaPsiUtil {
           collectParts(lower)
           collectParts(upper)
         case ScExistentialType(quant, _) => collectParts(quant)
+        case ScTypeParameterType(_, _, _, upper, _) => collectParts(upper.v)
         case _                           =>
           ScType.extractClassType(tp, Some(project)) match {
             case Some((clazz, subst)) =>
@@ -988,16 +989,26 @@ object ScalaPsiUtil {
                 hasRecursiveTypeParameters
               }
               subst.lMap.get((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))) match {
-                case Some(addLower) =>
+                case Some(_addLower) =>
                   val substedLowerType = unSubst.subst(lower)
+                  val addLower =
+                    if (tp.typeParams.nonEmpty && !_addLower.isInstanceOf[ScParameterizedType] &&
+                      !tp.typeParams.exists(_.name == "_"))
+                      ScParameterizedType(_addLower, tp.typeParams.map(ScTypeParameterType.toTypeParameterType))
+                    else _addLower
                   if (hasRecursiveTypeParameters(substedLowerType)) lower = addLower
                   else lower = Bounds.lub(substedLowerType, addLower)
                 case None =>
                   lower = unSubst.subst(lower)
               }
               subst.rMap.get((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))) match {
-                case Some(addUpper) =>
+                case Some(_addUpper) =>
                   val substedUpperType = unSubst.subst(upper)
+                  val addUpper =
+                    if (tp.typeParams.nonEmpty && !_addUpper.isInstanceOf[ScParameterizedType] &&
+                      !tp.typeParams.exists(_.name == "_"))
+                      ScParameterizedType(_addUpper, tp.typeParams.map(ScTypeParameterType.toTypeParameterType))
+                    else _addUpper
                   if (hasRecursiveTypeParameters(substedUpperType)) upper = addUpper
                   else upper = Bounds.glb(substedUpperType, addUpper)
                 case None =>
@@ -1171,6 +1182,8 @@ object ScalaPsiUtil {
   def getPrevStubOrPsiElement(elem: PsiElement): PsiElement = {
     def workWithStub(stub: StubElement[_ <: PsiElement]): PsiElement = {
       val parent = stub.getParentStub
+      if (parent == null) return null
+
       val children = parent.getChildrenStubs
       val index = children.indexOf(stub)
       if (index == -1) {
@@ -1205,6 +1218,8 @@ object ScalaPsiUtil {
       case st: ScalaStubBasedElementImpl[_] if st.getStub != null =>
         val stub = st.getStub
         val parent = stub.getParentStub
+        if (parent == null) return null
+
         val children = parent.getChildrenStubs
         val index = children.indexOf(stub)
         if (index == -1) {

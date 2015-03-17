@@ -50,7 +50,7 @@ public class JavaSpecs2Runner {
         }
       } else if (newArgs[i].equals("-testName")) {
         ++i;
-        testName = newArgs[i];
+        testName = TestRunnerUtil.unescapeTestName(newArgs[i]);
         ++i;
       } else if (newArgs[i].equals("-showProgressMessages")) {
         ++i;
@@ -69,32 +69,34 @@ public class JavaSpecs2Runner {
       }
     }
 
+    JavaSpecs2Notifier notifier = new JavaSpecs2Notifier();
+
     if (failedUsed) {
       i = 0;
       while (i + 1 < failedTests.size()) {
         TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
-        runSingleTest(failedTests.get(i), failedTests.get(i + 1), isSpecs2_3, specialArgs);
+        runSingleTest(failedTests.get(i), failedTests.get(i + 1), isSpecs2_3, specialArgs, notifier);
         i += 2;
       }
     } else if (testName.equals("")) {
       for (String clazz : classes) {
         TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
-        runSingleTest(clazz, "", isSpecs2_3, specialArgs);
+        runSingleTest(clazz, "", isSpecs2_3, specialArgs, notifier);
       }
     } else {
       for (String clazz : classes) {
         TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
-        runSingleTest(clazz, testName, isSpecs2_3, specialArgs);
+        runSingleTest(clazz, testName, isSpecs2_3, specialArgs, notifier);
       }
     }
     System.exit(0);
   }
 
-  private static boolean runWithNotifierRunner(Object runnerArgsArray, boolean verbose) {
+  private static boolean runWithNotifierRunner(Object runnerArgsArray, boolean verbose, JavaSpecs2Notifier notifier) {
     final String runnerFQN = "org.specs2.NotifierRunner";
 
     try {
-      NotifierRunner runner = new NotifierRunner(new JavaSpecs2Notifier());
+      NotifierRunner runner = new NotifierRunner(notifier);
       Method method = runner.getClass().getMethod("main", String[].class);
       method.invoke(runner, runnerArgsArray);
     } catch (NoSuchMethodException e) {
@@ -119,11 +121,11 @@ public class JavaSpecs2Runner {
   /**
    *
    */
-  private static void runSpecs2_old(Object runnerArgsArray) throws NoSuchMethodException, IllegalAccessException {
+  private static void runSpecs2_old(Object runnerArgsArray, JavaSpecs2Notifier notifier) throws NoSuchMethodException, IllegalAccessException {
     boolean hasNoStartMethod = false;
     boolean startNotFound = false;
 
-    NotifierRunner runner = new NotifierRunner(new JavaSpecs2Notifier());
+    NotifierRunner runner = new NotifierRunner(notifier);
 
     try {
       Method method = runner.getClass().getMethod("start", String[].class);
@@ -182,13 +184,13 @@ public class JavaSpecs2Runner {
     }
   }
 
-  static void runSpecs2_new(Object runnerArgsArray) {
-    runWithNotifierRunner(runnerArgsArray, true);
+  static void runSpecs2_new(Object runnerArgsArray, JavaSpecs2Notifier notifier) {
+    runWithNotifierRunner(runnerArgsArray, true, notifier);
   }
 
   private final static String specInstantiationMessage = "can not create specification";
 
-  private static void runSingleTest(String className, String testName, boolean isSpecs2_3, ArrayList<String> argsArray)
+  private static void runSingleTest(String className, String testName, boolean isSpecs2_3, ArrayList<String> argsArray, JavaSpecs2Notifier notifier)
       throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
     List<String> runnerArgs = new ArrayList<String>();
     runnerArgs.add(className);
@@ -196,9 +198,9 @@ public class JavaSpecs2Runner {
     runnerArgs.addAll(argsArray);
     Object runnerArgsArray = runnerArgs.toArray(new String[runnerArgs.size()]);
     if (isSpecs2_3) {
-      runSpecs2_new(runnerArgsArray);
+      runSpecs2_new(runnerArgsArray, notifier);
     } else {
-      runSpecs2_old(runnerArgsArray);
+      runSpecs2_old(runnerArgsArray, notifier);
     }
   }
 }

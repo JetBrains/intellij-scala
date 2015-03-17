@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.testingSupport.scalaTest;
 
+import org.jetbrains.plugins.scala.testingSupport.scalaTest.treeBuilder.SequentialTreeBuilder;
 import org.scalatest.Reporter;
 import org.scalatest.events.*;
+import org.scalatest.exceptions.StackDepthException;
 import scala.Option;
 import scala.Some;
 
@@ -16,6 +18,9 @@ import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.formatTi
  * @author Alexander Podkhalyuzin
  */
 public class ScalaTestReporter implements Reporter {
+
+  private SequentialTreeBuilder treeBuilder = new SequentialTreeBuilder();
+
   public static boolean myShowProgressMessages = true;
 
   private String getStackTraceString(Throwable throwable) {
@@ -34,22 +39,26 @@ public class ScalaTestReporter implements Reporter {
   private String getLocationHint(Option<String> classNameOption, String testName) {
     if(classNameOption instanceof Some) {
       String className = classNameOption.get();
-      return " locationHint='scalatest://Class:" + className + "TestName:" + escapeString(testName) + "'";
+      return " locationHint='scalatest://TopOfClass:" + className + "TestName:" + escapeString(testName) + "'";
     }
     else
       return "";
   }
 
   public void apply(Event event) {
+    if (!treeBuilder.isInitialized()) treeBuilder.initRun(null);
+    Ordinal ordinal = event.ordinal();
     if (event instanceof RunStarting) {
       RunStarting r = (RunStarting) event;
+      treeBuilder.initRun(r);
       int testCount = r.testCount();
       System.out.println("##teamcity[testCount count='" + testCount + "']");
     } else if (event instanceof TestStarting) {
       String testName = ((TestStarting) event).testName();
       String locationHint = getLocationHint(((TestStarting) event).suiteClassName(), testName);
-      System.out.println("\n##teamcity[testStarted name='" + escapeString(testName) +
-            "'" + locationHint + " captureStandardOutput='true']");
+      String message = "testStarted name='" + escapeString(testName) + "'" + locationHint +
+          " captureStandardOutput='true'";
+      treeBuilder.openScope(message, ordinal, ((TestStarting) event).suiteName(), true);
     } else if (event instanceof TestSucceeded) {
       Option<Object> durationOption = ((TestSucceeded) event).duration();
       long duration = 0;
@@ -69,49 +78,65 @@ public class ScalaTestReporter implements Reporter {
         }
       }
 
-      System.out.println("\n##teamcity[testFinished name='" + escapeString(testName) +
-          "' duration='"+ duration +"']");
+      String message = "testFinished name='" + escapeString(testName) + "' duration='"+ duration + "'";
+      treeBuilder.closeScope(message, ordinal, ((TestSucceeded) event).suiteName(), true);
     } else if (event instanceof TestFailed) {
       boolean error = true;
+      TestFailed testFailed = ((TestFailed) event);
       Option<Throwable> throwableOption = ((TestFailed) event).throwable();
       String detail = "";
+      String failureLocation = "";
       if (throwableOption instanceof Some) {
-        if (throwableOption.get() instanceof AssertionError) error = false;
+        Throwable throwable = throwableOption.get();
+        if (throwable instanceof AssertionError) error = false;
         detail = getStackTraceString(throwableOption.get());
+        if (throwable instanceof StackDepthException) {
+          StackDepthException stackDepthException = (StackDepthException) throwable;
+          Option<String> fileNameAndLineNumber = stackDepthException.failedCodeFileNameAndLineNumberString();
+          if (fileNameAndLineNumber instanceof Some) {
+            failureLocation = " (" + fileNameAndLineNumber.get() + ")";
+          }
+        }
       }
-      Option<Object> durationOption = ((TestFailed) event).duration();
-      long duration = 0;
-      if (durationOption instanceof Some) {
-        duration = (Long) durationOption.get();
-      }
-      String testName = ((TestFailed) event).testName();
-      String message = ((TestFailed) event).message();
+//      Option<Object> durationOption = ((TestFailed) event).duration();
+//      long duration = 0;
+//      if (durationOption instanceof Some) {
+//        duration = (Long) durationOption.get();
+//      }
+      String testName = testFailed.testName();
+      String message = testFailed.message() + failureLocation;
       long timeStamp = event.timeStamp();
-      String res = "\n##teamcity[testFailed name='" + escapeString(testName) + "' message='" + escapeString(message) +
+      String res = "testFailed name='" + escapeString(testName) + "' message='" + escapeString(message) +
           "' details='" + escapeString(detail) + "'";
       if (error) res += "error = '" + error + "'";
-      res += "timestamp='" + escapeString(formatTimestamp(new Date(timeStamp))) + "']";
-      System.out.println(res);
-      System.out.println("\n##teamcity[testFinished name='" + escapeString(testName) +
-          "' duration='" + duration +"']");
+      res += "timestamp='" + escapeString(formatTimestamp(new Date(timeStamp))) +  "'";
+      treeBuilder.closeScope(res, ordinal, testFailed.suiteName(), true);
     } else if (event instanceof TestIgnored) {
-      String testName = ((TestIgnored) event).testName();
-      System.out.println("\n##teamcity[testIgnored name='" + escapeString(testName) + " (Ignored)' message='" +
-          escapeString("Test Ignored") + "']");
+      TestIgnored testIgnored = (TestIgnored) event;
+      final String ignoredTestSuffix = "!!! IGNORED !!!";
+      String testName = testIgnored.testName() + " " + ignoredTestSuffix;
+      String locationHint = getLocationHint(testIgnored.suiteClassName(), testName);
+      String openMessage = "testStarted name='" + escapeString(testName) + "'" + locationHint;
+      treeBuilder.openScope(openMessage, ordinal, testIgnored.suiteName(), true);
+      String closeMessage = "testIgnored name='" + escapeString(testName) + "' message='" +
+          escapeString("Test Ignored") + "'";
+      treeBuilder.closeScope(closeMessage, ordinal, testIgnored.suiteName(), true);
     } else if (event instanceof TestPending) {
       String testName = ((TestPending) event).testName();
-      System.out.println("\n##teamcity[testIgnored name='" + escapeString(testName) + "' message='" +
-          escapeString("Test Pending") + "']");
-      System.out.println("\n##teamcity[testFinished name='" + escapeString(testName) +
-          "' duration='" + 0 +"']");
+      String message = "testIgnored name='" + escapeString(testName) + "' message='" +
+        escapeString("Test Pending") + "'";
+      treeBuilder.closeScope(message, ordinal, ((TestPending) event).suiteName(), true);
+      //TODO: should there be TestCanceled processing? It is processed in ScalaTestReporterWithLocation.
     } else if (event instanceof SuiteStarting) {
       String suiteName = ((SuiteStarting) event).suiteName();
       String locationHint = getLocationHint(((SuiteStarting) event).suiteClassName(), suiteName);
-      System.out.println("\n##teamcity[testSuiteStarted name='" + escapeString(suiteName) + "'" + locationHint +
-          " captureStandardOutput='true']");
+      String message = "testSuiteStarted name='" + escapeString(suiteName) + "'" + locationHint +
+        " captureStandardOutput='true'";
+      treeBuilder.openSuite(message, ((SuiteStarting) event));
     } else if (event instanceof SuiteCompleted) {
       String suiteName = ((SuiteCompleted) event).suiteName();
-      System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(suiteName) + "']");
+      String message = "testSuiteFinished name='" + escapeString(suiteName) + "'";
+      treeBuilder.closeSuite(message, (SuiteCompleted) event);
     } else if (event instanceof SuiteAborted) {
       String message = ((SuiteAborted) event).message();
       Option<Throwable> throwableOption = ((SuiteAborted) event).throwable();

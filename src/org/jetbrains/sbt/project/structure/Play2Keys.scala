@@ -12,6 +12,7 @@ import scala.xml.Text
  */
 object Play2Keys {
   val GLOBAL_TAG = "$global$"
+  val ROOT_TAG = "root"
   private val ENTRY_SEQ_NAME = "entry"
 
   abstract class SettingKey[T] {

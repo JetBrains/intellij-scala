@@ -91,9 +91,10 @@ object StructureParser {
     val id = (node \ "@id").text
     val sources = (node \ "sources").map(parseDirectory)
     val resources = (node \ "resources").map(parseDirectory)
+    val excludes = (node \ "exclude").map(e => file(e.text))
     val classes = file((node ! "classes").text)
 
-    Configuration(id, sources, resources, classes)
+    Configuration(id, sources, resources, excludes, classes)
   }
 
   private def parseDirectory(node: Node)(implicit fs: FS): Directory = {
@@ -180,23 +181,24 @@ private case class FS(home: File, base: Option[File] = None) {
 }
 
 private object FS {
-  private val HomePrefix = "~/"
-  private val BasePrefix = "./"
-  private val Dots = "../"
+  private val HomePrefix = "~"
+  private val BasePrefix = "."
+  private val Dots = ".."
 
   def file(path: String)(implicit fs: FS): File = {
-    if (path.startsWith(HomePrefix)) {
+    if (path.startsWith(HomePrefix + "/") || path == HomePrefix) {
       new File(fs.home, path.substring(HomePrefix.length))
-    } else if (path.startsWith(BasePrefix)) {
+    } else if (path.startsWith(BasePrefix + "/") || path == BasePrefix) {
       val parent = fs.base.getOrElse(
         throw new IllegalArgumentException(SbtBundle("sbt.import.noBaseDirForRelativePath", path)))
       new File(parent, path.substring(BasePrefix.length))
-    } else if (path.startsWith(Dots)) {
+    } else if (path.startsWith(Dots + "/") || path == Dots) {
       var path0 = path
       var parent = fs.base.getOrElse(null.asInstanceOf[File])
       while (path0.startsWith(Dots) && parent != null) {
         parent = parent.getParentFile
         path0 = path0.substring(Dots.length)
+        path0 = if (path0.headOption == Some('/')) path0.tail else path0
       }
       if (parent == null)
         throw new IllegalArgumentException(SbtBundle("sbt.import.noBaseDirForRelativePath", path))

@@ -7,7 +7,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.externalSystem.service.project.{ProjectStructureHelper, PlatformFacade}
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import collection.JavaConverters._
 
 /**
@@ -17,8 +16,6 @@ class ScalaSdkDataService(platformFacade: PlatformFacade, helper: ProjectStructu
   extends AbstractDataService[ScalaSdkData, Library](ScalaSdkData.Key) {
 
   def doImportData(toImport: util.Collection[DataNode[ScalaSdkData]], project: Project) {
-    ScalaCompilerConfiguration.instanceIn(project).clearProfiles()
-
     toImport.asScala.foreach(doImport(_, project))
   }
 

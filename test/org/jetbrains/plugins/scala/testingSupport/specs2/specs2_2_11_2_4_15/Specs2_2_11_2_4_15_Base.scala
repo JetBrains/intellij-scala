@@ -11,9 +11,10 @@ trait Specs2_2_11_2_4_15_Base extends Specs2TestCase {
    * Intended for loading libraries different from scala-compiler.
    */
   override protected def addOtherLibraries(): Unit = {
-    addLibrary("specs2", "specs2", "specs2-common_2.11-2.4.15.jar", "specs2-core_2.11-2.4.15.jar", "specs2-matcher_2.11-2.4.15.jar")
-    addLibrary("scalaz", "scalaz", "scalaz-core_2.11-7.1.0.jar", "scalaz-concurrent_2.11-7.1.0.jar", "scalaz-effect_2.11-7.1.0.jar", "scalaz-stream_2.11-0.6a.jar")
-    addLibrary("scala-xml", "scala-xml", "scala-xml_2.11-1.0.1.jar")
+    addIvyCacheLibrary("specs2", "org.specs2/specs2_2.11/jars", "specs2_2.11-2.4.15.jar")
+    addIvyCacheLibrary("scalaz-core", "org.scalaz/scalaz-core_2.11/bundles", "scalaz-core_2.11-7.1.0.jar")
+    addIvyCacheLibrary("scalaz-concurrent", "org.scalaz/scalaz-concurrent_2.11/bundles", "scalaz-concurrent_2.11-7.1.0.jar")
+    addIvyCacheLibrary("scala-xml", "org.scala-lang.modules/scala-xml_2.11/bundles", "scala-xml_2.11-1.0.1.jar")
   }
 
   override protected val compilerDirectorySuffix: String = "2.11"

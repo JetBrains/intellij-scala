@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
  */
 class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
                          isIncludeScalazLibrary: Boolean = false, isIncludeReflectLibrary: Boolean = false,
-                         javaSdk: Option[Sdk] = None) {
+                         isIncludeSprayLibrary: Boolean = false, javaSdk: Option[Sdk] = None) {
 
   var contentEntry: ContentEntry = null
 
@@ -72,6 +72,11 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
     if (isIncludeScalazLibrary) {
       rootModel = addLibrary(libVersion, rootModel, rootManager, libs, libModels, "scalaz",
         TestUtils.getMockScalazLib(libVersion), null)
+    }
+
+    if (isIncludeSprayLibrary) {
+      rootModel = addLibrary(libVersion, rootModel, rootManager, libs, libModels, "spray",
+        TestUtils.getMockSprayLib(libVersion), null)
     }
 
     javaSdk.foreach {
@@ -171,11 +176,13 @@ object ScalaLibraryLoader {
   def getSdkNone: Option[Sdk] = None
 
   def withMockJdk(project: Project, module: Module, rootPath: String,
-                  isIncludeScalazLibrary: Boolean = false, isIncludeReflectLibrary: Boolean = false): ScalaLibraryLoader = {
+                  isIncludeScalazLibrary: Boolean = false, isIncludeReflectLibrary: Boolean = false,
+                  isIncludeSprayLibrary: Boolean = false): ScalaLibraryLoader = {
 
     val mockJdk = TestUtils.getMockJdk
     VfsRootAccess.allowRootAccess(mockJdk)
     val javaSdk = Some(JavaSdk.getInstance.createJdk("java sdk", mockJdk, false))
-    new ScalaLibraryLoader(project, module, rootPath, isIncludeScalazLibrary, isIncludeReflectLibrary, javaSdk)
+    new ScalaLibraryLoader(project, module, rootPath, isIncludeScalazLibrary, isIncludeReflectLibrary,
+      isIncludeSprayLibrary, javaSdk)
   }
 }

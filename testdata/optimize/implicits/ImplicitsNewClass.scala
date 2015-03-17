@@ -24,7 +24,7 @@ object ImplicitsNewClass {
     implicit def a2b(x: A): B = new B
   }
   object Test {
-    import overloaded.ImplicitsNewClass.Implicits.a2b
+    import Implicits.a2b
     new C(new A)
   }
 }*/

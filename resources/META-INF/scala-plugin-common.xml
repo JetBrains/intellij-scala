@@ -12,6 +12,7 @@
         <extensionPoint name="scalaElementToRenameContributor" interface="org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaElementToRenameContributor"/>
         <extensionPoint name="scalaSyntheticClassProducer" interface="org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer"/>
         <extensionPoint name="evaluatorCompileHelper" interface="org.jetbrains.plugins.scala.debugger.evaluation.EvaluatorCompileHelper"/>
+        <extensionPoint name="serverWidgetEP" interface="org.jetbrains.plugins.scala.compiler.ServerWidgetEP"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -21,6 +22,7 @@
                 implementation="org.jetbrains.plugins.scala.statistics.ScalaApplicationUsagesCollector" />
         <codeStyle.ReferenceAdjuster language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.template.ScalaReferenceAdjuster"/>
         <lang.rearranger language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger"/>
+        <exceptionFilter implementation="org.jetbrains.plugins.scala.testingSupport.util.scalatest.ScalaTestFailureLocationFilterFactory"/>
         <compileServer.plugin classpath="scala-library.jar;compiler-settings.jar;jps/nailgun.jar;jps/scala-jps-plugin.jar;jps/sbt-interface.jar;jps/incremental-compiler.jar;jps/jline.jar"/>
         <projectTemplatesFactory implementation="org.jetbrains.plugins.scala.project.template.ScalaProjectTemplatesFactory"/>
         <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveClassesOrPackagesHandler" order="first"/>
@@ -36,6 +38,7 @@
         <debugger.syntheticProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaSyntheticProvider"/>
         <debugger.frameExtraVarsProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaFrameExtraVariablesProvider"/>
         <debugger.extraSteppingFilter implementation="org.jetbrains.plugins.scala.debugger.ScalaSyntheticSteppingFilter"/>
+        <debugger.sourcePositionProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaSourcePositionProvider"/>
         <generation.topLevelFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.impl.ScalaFactoryProvider"/>
         <generation.toStringClassFilter implementation="org.jetbrains.plugins.scala.codeInsight.generation.GenerateToStringScalaClassFilter"/>
         <treeCopyHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeUtilSupport"/>
@@ -78,7 +81,9 @@
         <joinLinesHandler implementation="org.jetbrains.plugins.scala.editor.joinlines.PackageJoinLinesHandler"/>
         <lang.smartEnterProcessor language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor"/>
         <lang.smartEnterProcessor language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.smartEnter.PackageSplitLinesProcessor"/>
-        <framework.type implementation="org.jetbrains.plugins.scala.project.template.ScalaFrameworkType"/>
+        <lang.inspectionSuppressor language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInspection.suppression.ScalaInspectionSuppressor"/>
+
+      <framework.type implementation="org.jetbrains.plugins.scala.project.template.ScalaFrameworkType"/>
         <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaKeywordCompletionContributor"/>
         <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContributor"/>
         <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaMemberNameCompletionContributor"/>
@@ -815,10 +820,6 @@
                          displayName="Suspicious forward reference" groupName="Scala: General"
                          shortName="ForwardReference" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.arraySize.ArraySizeCallInspection"
-                         displayName="Call to Array.size" groupName="Scala: General"
-                         shortName="ArraySizeCall" level="WARNING"
-                         enabledByDefault="false" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeAnnotation.TypeAnnotationInspection"
                          displayName="Type annotation required" groupName="Scala: General"
                          shortName="TypeAnnotation" level="WARNING"
@@ -843,6 +844,46 @@
                        <!--displayName="Simplifiable operation on collection" groupName="Scala: General"-->
                        <!--shortName="OperationOnCollection" level="WARNING"-->
                        <!--enabledByDefault="true" language="Scala"/>-->
+
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.etaExpansion.ConvertibleToMethodValueInspection"
+                       displayName="Anonymous function convertible to a method value" groupName="Scala: General"
+                       shortName="ConvertibleToMethodValue" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeChecking.ComparingUnrelatedTypesInspection"
+                       displayName="Comparing unrelated types" groupName="Scala: General"
+                       shortName="ComparingUnrelatedTypes" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.functionExpressions.MatchToPartialFunctionInspection"
+                       displayName="Match statement convertible to pattern matching anonymous function" groupName="Scala: General"
+                       shortName="MatchToPartialFunction" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUnreachableCodeInspection"
+                       displayName="Unreachable code" groupName="Scala: General"
+                       shortName="ScalaUnreachableCode" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUselessExpressionInspection"
+                       displayName="Useless expression" groupName="Scala: General"
+                       shortName="ScalaUselessExpression" level="WEAK WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.implicits.NoReturnTypeForImplicitDefInspection"
+                       displayName="No return type for implicit function" groupName="Scala: General"
+                       shortName="NoReturnTypeForImplicitDef" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parameters.AutoTuplingInspection"
+                       displayName="Auto-tupling" groupName="Scala: General"
+                       shortName="AutoTupling" level="WARNING"
+                       enabledByDefault="false" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.implicits.DeprecatedViewBoundInspection"
+                       displayName="View bounds are deprecated" groupName="Scala: General"
+                       shortName="DeprecatedViewBound" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <!--Scalastyle inspection-->
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection"
+                       displayName="Scala style inspection" groupName="Scala: Code Style"
+                       shortName="ScalaStyle"
+                       enabledByDefault="true" language="Scala"/>
+
+      <!--collection inspections-->
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterHeadOptionInspection"
                        displayName="Simplifiable filter and headOption" groupName="Scala: Collections"
                        shortName="FilterHeadOption" level="WARNING"
@@ -899,43 +940,39 @@
                        displayName="isEmpty replaceable for nonEmpty" groupName="Scala: Collections"
                        shortName="NotIsEmpty" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.etaExpansion.ConvertibleToMethodValueInspection"
-                       displayName="Anonymous function convertible to a method value" groupName="Scala: General"
-                       shortName="ConvertibleToMethodValue" level="WARNING"
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ReverseMapInspection"
+                       displayName="reverse.map to reverseMap" groupName="Scala: Collections"
+                       shortName="ReverseMap" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeChecking.ComparingUnrelatedTypesInspection"
-                       displayName="Comparing unrelated types" groupName="Scala: General"
-                       shortName="ComparingUnrelatedTypes" level="WARNING"
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ReverseIteratorInspection"
+                       displayName="reverse.iterator to reverseIterator" groupName="Scala: Collections"
+                       shortName="ReverseIterator" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.functionExpressions.MatchToPartialFunctionInspection"
-                       displayName="Match statement convertible to pattern matching anonymous function" groupName="Scala: General"
-                       shortName="MatchToPartialFunction" level="WARNING"
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ZipWithIndexInspection"
+                       displayName="Replace xs.zip(xs.indices) with xs.zipWithIndex" groupName="Scala: Collections"
+                       shortName="ZipWithIndex" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUnreachableCodeInspection"
-                       displayName="Unreachable code" groupName="Scala: General"
-                       shortName="ScalaUnreachableCode" level="WARNING"
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ZeroIndexToHeadInspection"
+                       displayName="Replace getting value by zero index with head" groupName="Scala: Collections"
+                       shortName="ZeroIndexToHead" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUselessExpressionInspection"
-                       displayName="Useless expression" groupName="Scala: General"
-                       shortName="ScalaUselessExpression" level="WEAK WARNING"
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantCollectionConversionInspection"
+                       displayName="Redundant collection conversion" groupName="Scala: Collections"
+                       shortName="RedundantCollectionConversion" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.implicits.NoReturnTypeForImplicitDefInspection"
-                       displayName="No return type for implicit function" groupName="Scala: General"
-                       shortName="NoReturnTypeForImplicitDef" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parameters.AutoTuplingInspection"
-                       displayName="Auto-tupling" groupName="Scala: General"
-                       shortName="AutoTupling" level="WARNING"
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SideEffectsInMonadicTransformationInspection"
+                       displayName="Side effects in a monadic transformation" groupName="Scala: Collections"
+                       shortName="SideEffectsInMonadicTransformation" level="WARNING"
                        enabledByDefault="false" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.implicits.DeprecatedViewBoundInspection"
-                       displayName="View bounds are deprecated" groupName="Scala: General"
-                       shortName="DeprecatedViewBound" level="WARNING"
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SizeToLengthInspection"
+                       displayName="Replace .size to .length on arrays and strings" groupName="Scala: Collections"
+                       shortName="SizeToLength" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
-      <!--Scalastyle inspection-->
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection"
-                       displayName="Scala style inspection" groupName="Scala: Code Style"
-                       shortName="ScalaStyle"
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.UnitInMapInspection"
+                       displayName="Expression with unit return type in the argument of map" groupName="Scala: Collections"
+                       shortName="UnitInMap" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
+
 
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
@@ -1036,6 +1073,9 @@
         <component>
           <implementation-class>org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper</implementation-class>
         </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.util.macroDebug.MacrosheetFileHook</implementation-class>
+        </component>
     </project-components>
 
     <actions>
@@ -1135,6 +1175,15 @@
                 class="org.jetbrains.plugins.scala.codeInsight.generation.ScalaGenerateEqualsAction" text="equals() and hashCode()"
                 description="Generate equals() and hashCode() methods">
           <add-to-group group-id="GenerateGroup"/>
+        </action>
+        <action id="Scala.RunMacrosheet" class="org.jetbrains.plugins.scala.util.macroDebug.RunMacrosheetAction"
+                text="Expand All Macros" description="Expand All Macros">
+          <!-- TODO: what group do I use here? so far I've just customized the popup menu and am done with it -->
+          <!-- <add-to-group group-id="FoldingPopupGroup" anchor="last"/> -->
+        </action>
+        <action id="Scala.CleanMacrosheet" class="org.jetbrains.plugins.scala.util.macroDebug.CleanMacrosheetAction"
+                text="Hide Macro Expansions" description="Hide Macro Expansions">
+          <!-- <add-to-group group-id="FoldingPopupGroup" anchor="last"/> -->
         </action>
         <action id="Scala.GenerateToString"
                 class="org.jetbrains.plugins.scala.codeInsight.generation.ScalaGenerateToStringAction" text="toString()"
