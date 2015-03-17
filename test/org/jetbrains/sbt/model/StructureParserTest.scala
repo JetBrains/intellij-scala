@@ -25,13 +25,14 @@ class StructureParserTest {
 
 object StructureParserTest {
   def createExpectedStructure: Structure = {
-    val moduleId = ModuleId("org.scala-lang", "scala-library", "2.10.1", "jar", None)
+    val moduleId = ModuleId("org.scala-lang", "scala-library", "2.10.1", "", None)
 
     val configuration = Configuration(
       id = "compile",
-      sources = Seq(Directory(new File("$BASE/src/main/scala"), managed = false), Directory(new File("$BASE/src/main/java"), managed = true)),
-      resources = Seq(Directory(new File("$BASE/src/main/resources"), managed = false)),
-      classes = new File("$BASE/target/scala-2.10/classes"))
+      sources = Seq(Directory(new File("src/main/scala"), managed = false), Directory(new File("src/main/java"), managed = true)),
+      resources = Seq(Directory(new File("src/main/resources"), managed = false)),
+      excludes = Seq.empty,
+      classes = new File("target/scala-2.10/classes"))
 
     val build = Build(
       imports = Seq("import sbt._, Process._, Keys._"),
@@ -40,7 +41,7 @@ object StructureParserTest {
       sources = Seq.empty)
 
     val java = Java(
-      home = Some(new File("$BASE/some/home")),
+      home = Some(new File("some/home")),
       options = Seq("-j1", "-j2"))
 
     val scala = Scala(
@@ -61,7 +62,7 @@ object StructureParserTest {
       organization = "some-organization",
       version = "1.2.3",
       base = new File("$BASE"),
-      target = new File(new File("$BASE"), "target"),
+      target = new File(""),
       build,
       configurations = Seq(configuration),
       java = Some(java),

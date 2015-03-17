@@ -21,13 +21,13 @@ import scala.collection.JavaConversions
 
 object JConversions {
   def foo1 {
-    import scala.collection.JavaConversions._
+    import JavaConversions._
     val a: ArrayList[Int] = new ArrayList[Int]
     a.foreach(p => p)
   }
 
   def foo2 {
-    import scala.collection.JavaConversions._
+    import JavaConversions._
     val a: ArrayList[Int] = new ArrayList[Int]
     for (z <- a) {}
   }

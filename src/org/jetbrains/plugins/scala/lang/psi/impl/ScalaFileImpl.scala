@@ -38,6 +38,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScContr
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 
 class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType = ScalaFileType.SCALA_FILE_TYPE)
@@ -189,9 +190,10 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
 
 
   def setPackageName(name: String) {
+    // TODO support multiple base packages simultaneously
     val basePackageName = {
-      val scalaProjectSettings = ScalaProjectSettings.getInstance(getProject)
-      Option(scalaProjectSettings.getBasePackage).getOrElse("")
+      val basePackages = ScalaProjectSettings.getInstance(getProject).getBasePackages.asScala
+      basePackages.find(name.startsWith).getOrElse("")
     }
 
     this match {

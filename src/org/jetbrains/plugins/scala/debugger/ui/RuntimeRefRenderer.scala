@@ -30,13 +30,13 @@ class RuntimeRefRenderer extends NodeRendererImpl {
   
   override def buildChildren(value: Value, builder: ChildrenBuilder, context: EvaluationContext): Unit = {
     val descr = unwrappedDescriptor(value, context.getProject)
-    delegateRenderer(context.getDebugProcess, descr).buildChildren(value, builder, context)
+    delegateRenderer(context.getDebugProcess, descr).buildChildren(descr.getValue, builder, context)
   }
 
   override def isExpandable(value: Value, evaluationContext: EvaluationContext, parentDescriptor: NodeDescriptor): Boolean = {
     val descr = unwrappedDescriptor(value, evaluationContext.getProject)
     val renderer = delegateRenderer(evaluationContext.getDebugProcess, descr)
-    renderer.isExpandable(value, evaluationContext, parentDescriptor)
+    renderer.isExpandable(descr.getValue, evaluationContext, parentDescriptor)
   }
 
   override def getChildValueExpression(node: DebuggerTreeNode, context: DebuggerContext): PsiExpression = {

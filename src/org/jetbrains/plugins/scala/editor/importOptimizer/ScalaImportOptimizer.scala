@@ -124,8 +124,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
     }
 
     def collectRanges(rangeStarted: ScImportStmt => Set[String],
-                            createInfo: ScImportStmt => Seq[ImportInfo]): ConcurrentHashMap[TextRange, (Set[String], Seq[ImportInfo])] = {
-      val importsInfo = new ConcurrentHashMap[TextRange, (Set[String], Seq[ImportInfo])]
+                      createInfo: ScImportStmt => Seq[ImportInfo]): ConcurrentHashMap[TextRange, (Set[String], Seq[ImportInfo], Boolean)] = {
+      val importsInfo = new ConcurrentHashMap[TextRange, (Set[String], Seq[ImportInfo], Boolean)]
       JobLauncher.getInstance().invokeConcurrentlyUnderProgress(list, indicator, true, true, new Processor[PsiElement] {
         override def process(element: PsiElement): Boolean = {
           val count: Int = i.getAndIncrement
@@ -135,11 +135,15 @@ class ScalaImportOptimizer extends ImportOptimizer {
               var rangeStart = -1
               var rangeEnd = -1
               var rangeNames: Set[String] = Set.empty
+              val isLocalRange = imp match {
+                case _: ScalaFile | _: ScPackaging => false
+                case _ => true
+              }
               val infos = new ArrayBuffer[ImportInfo]
 
               def addRange(): Unit = {
                 if (rangeStart != -1) {
-                  importsInfo.put(new TextRange(rangeStart, rangeEnd), (rangeNames, Seq(infos: _*)))
+                  importsInfo.put(new TextRange(rangeStart, rangeEnd), (rangeNames, Seq(infos: _*), isLocalRange))
                   rangeStart = -1
                   rangeEnd = -1
                   rangeNames = Set.empty
@@ -229,6 +233,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
     val settings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
     val addFullQualifiedImports = settings.isAddFullQualifiedImports
+    val isLocalImportsCanBeRelative = settings.isDoNotChangeLocalImportsOnOptimize
     val sortImports = settings.isSortImports
     val collectImports = settings.isCollectImports
     val groups = settings.getImportLayout
@@ -236,10 +241,10 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val spacesInImports = settings.SPACES_IN_IMPORTS
 
     val sortedImportsInfo: mutable.Map[TextRange, Seq[ImportInfo]] =
-      for ((range, (names, _importInfos)) <- importsInfo) yield {
+      for ((range, (names, _importInfos, isLocalRange)) <- importsInfo) yield {
         var importInfos = _importInfos
 
-        if (addFullQualifiedImports) {
+        if (addFullQualifiedImports && !(isLocalRange && isLocalImportsCanBeRelative)) {
           val holderNames = new mutable.HashSet[String]()
           holderNames ++= names
           importInfos = _importInfos.map { info =>
@@ -483,7 +488,7 @@ object ScalaImportOptimizer {
   }
 
   class ImportTextCreator {
-    def getImportText(importInfo: ImportInfo, isUnicodeArrow: Boolean, spacesInImports: Boolean, 
+    def getImportText(importInfo: ImportInfo, isUnicodeArrow: Boolean, spacesInImports: Boolean,
                       sortLexicografically: Boolean): String = {
       import importInfo._
 

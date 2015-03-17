@@ -139,6 +139,7 @@ class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponen
       def run() {
         ScalaPluginUpdater.upgradeRepo()
         checkVersion()
+        ScalaPluginUpdater.postCheckIdeaCompatibility()
       }
     })
   }

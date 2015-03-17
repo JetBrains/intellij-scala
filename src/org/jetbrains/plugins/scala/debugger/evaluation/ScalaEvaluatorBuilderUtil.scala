@@ -17,11 +17,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitParametersOwner, ScPackage}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ImplicitParametersOwner, ScPackage}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -546,6 +546,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
                          call: ScExpression, ref: ScReferenceExpression, arguments: Seq[ScExpression]): Seq[Evaluator] = {
 
     val clauses = fun.effectiveParameterClauses
+    val parameters = clauses.flatMap(_.effectiveParameters).map(new Parameter(_))
 
     def addForNextClause(previousClausesEvaluators: Seq[Evaluator], clause: ScParameterClause): Seq[Evaluator] = {
       previousClausesEvaluators ++ clause.effectiveParameters.map {
@@ -564,9 +565,13 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             }
             else if (param.isImplicitParameter) implicitArgEvaluator(fun, param, call)
             else if (p.isDefault) {
-              val parameters = clauses.flatMap(_.effectiveParameters).map(new Parameter(_))
-              val methodName = defaultParameterMethodName(fun, p, parameters)
-              functionEvaluator(ref.qualifier, ref, methodName, previousClausesEvaluators)
+              val paramIndex = parameters.indexOf(p) + 1
+              val methodName = defaultParameterMethodName(fun, paramIndex)
+              val localParams = p.paramInCode.toSeq.flatMap(DebuggerUtil.localParamsForDefaultParam(_))
+              val localParamRefs =
+                localParams.map(td => ScalaPsiElementFactory.createExpressionWithContextFromText(td.name, call.getContext, call))
+              val localEvals = localParamRefs.map(ScalaEvaluator(_))
+              functionEvaluator(ref.qualifier, ref, methodName, previousClausesEvaluators ++ localEvals)
             }
             else throw EvaluationException(s"Cannot evaluate parameter ${p.name}")
 
@@ -675,6 +680,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
               case _ => throw EvaluationException("Cannot evaluate parameter")
             }
           case caseCl: ScCaseClause => patternEvaluator(caseCl, namedElement)
+          case LazyVal(_) => localLazyValEvaluator(namedElement)
           case _ => new ScalaLocalVariableEvaluator(name, fileName)
         }
 
@@ -995,6 +1001,18 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(string, context.getContext, context)
     ScalaEvaluator(expr)
   }
+
+  def localLazyValEvaluator(named: PsiNamedElement): Evaluator = {
+    val name = named.name
+    val localRefName = s"$name$$lzy"
+    val localRefEval = new ScalaLocalVariableEvaluator(localRefName, fileName)
+    val lzyIndex = lazyValIndex(named)
+    val bitmapName = "bitmap$" + (lzyIndex / 8)
+    val bitmapEval = new ScalaLocalVariableEvaluator(bitmapName, fileName)
+    val localFunIndex = localFunctionIndex(named)
+    val methodName = s"$name$$$localFunIndex"
+    new ScalaMethodEvaluator(new ScalaThisEvaluator(), methodName, null, Seq(localRefEval, bitmapEval))
+  }
 }
 
 object ScalaEvaluatorBuilderUtil {
@@ -1147,20 +1165,14 @@ object ScalaEvaluatorBuilderUtil {
   }
 
   def getContextClass(elem: PsiElement): PsiElement = {
-    var element = elem.getContext
-    var child = elem
-    while (element != null && !isGenerateClass(element, child)) {
-      element = element.getContext
-      child = child.getContext
-    }
-    element
+    elem.contexts.find(isGenerateClass).orNull
   }
 
-  def isGenerateClass(elem: PsiElement, child: PsiElement): Boolean = {
+  def isGenerateClass(elem: PsiElement): Boolean = {
     elem match {
       case clazz: PsiClass => true
       case f: ScFunctionExpr => true
-      case f: ScForStatement if f.body == Some(child) => true
+      case (_: ScExpression) childOf (_: ScForStatement) => true
       case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).length > 0 => true
       case b: ScBlockExpr if b.isAnonymousFunction => true
       case (g: ScGuard) childOf (_: ScEnumerators) => true
@@ -1180,31 +1192,42 @@ object ScalaEvaluatorBuilderUtil {
   }
 
   def getContainingClass(elem: PsiElement): PsiElement = {
-    var element = elem.getParent
-    var child = elem
-    while (element != null && !isGenerateClass(element, child)) {
-      element = element.getParent
-      child = child.getParent
-    }
-    if (element == null) getContextClass(elem) else element
+    elem.parentsInFile.find(isGenerateClass).getOrElse(getContextClass(elem))
   }
 
-  def localFunctionIndex(fun: ScFunction): Int = {
-    val containingClass = getContainingClass(fun)
-    val sameNameLocalFunctions = containingClass.depthFirst.collect{
-      case f: ScFunction if f.isLocal && f.name == fun.name => f
-    }.toList
-    sameNameLocalFunctions.indexOf(fun) + 1
+  def localFunctionIndex(named: PsiNamedElement): Int = {
+    elementsWithSameNameIndex(named, {
+      case f: ScFunction if f.isLocal && f.name == named.name => true
+      case Both(ScalaPsiUtil.inNameContext(LazyVal(_)), lzy: ScBindingPattern) if lzy.name == named.name => true
+      case _ => false
+    })
   }
 
-  def defaultParameterMethodName(method: ScMethodLike, p: Parameter, parameters: Seq[Parameter]): String = {
-    val paramIndex = parameters.indexOf(p) + 1
+  def lazyValIndex(named: PsiNamedElement): Int = {
+    elementsWithSameNameIndex(named, {
+      case Both(ScalaPsiUtil.inNameContext(LazyVal(_)), lzy: ScBindingPattern) if lzy.name == named.name => true
+      case _ => false
+    })
+  }
+
+  def defaultParameterMethodName(method: ScMethodLike, paramIndex: Int): String = {
     method match {
       case fun: ScFunction if !fun.isConstructor =>
         val suffix: String = if (!fun.isLocal) "" else "$" + localFunctionIndex(fun)
         fun.name + "$default$" + paramIndex + suffix
       case _ if method.isConstructor =>  "$lessinit$greater$default$" + paramIndex + "()"
     }
+  }
+  
+  def elementsWithSameNameIndex(named: PsiNamedElement, condition: PsiElement => Boolean): Int = {
+    val containingClass = getContainingClass(named)
+    val depthFirstIterator = containingClass.depthFirst {
+      case `containingClass` => true
+      case elem if isGenerateClass(elem) => false
+      case _ => true
+    }
+    val sameNameElements = depthFirstIterator.filter(condition).toList
+    sameNameElements.indexOf(named) + 1
   }
 
   def traitImplementation(elem: PsiElement): Option[JVMName] = {

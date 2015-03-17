@@ -246,7 +246,7 @@ class ScalaLocalMethodEvaluationTest extends ScalaDebuggerTestCase {
       evalEquals("inner(\"aa\", c = \"cc\")", "aadefaultcc")
     }
   }
-
+//
 //  def testLocalMethodsWithSameName() {
 //    addFileToProject("Sample.scala",
 //      """
@@ -287,33 +287,75 @@ class ScalaLocalMethodEvaluationTest extends ScalaDebuggerTestCase {
 //  }
 
   //todo this test should work, but it doesn't (last two assertions)
-  //  def testClojureWithDefaultParameter() {
-  //    addFileToProject("Sample.scala",
-  //      """
-  //        |object Sample {
-  //        |  def main(args: Array[String]) {
-  //        |    def outer() {
-  //        |      val s = "start"
-  //        |      val d = "default"
-  //        |      def inner(a: String, b: String = d): String = {
-  //        |        "stop here"
-  //        |        s + a + b
-  //        |      }
-  //        |      inner("aa")
-  //        |    }
-  //        |    outer()
-  //        |  }
-  //        |}
-  //      """.stripMargin.trim()
-  //    )
-  //    addBreakpoint("Sample.scala", 6)
-  //    runDebugger("Sample") {
-  //      waitForBreakpoint()
-  //      evalEquals("a", "aa")
-  //      evalEquals("b", "default")
-  //      evalEquals("s", "start")
-  //      evalEquals("inner(\"aa\", \"bb\")", "startaabb")
-  //      evalEquals("inner(\"aa\")", "startaadefault")
-  //    }
-  //  }
+  def testClojureWithDefaultParameter() {
+    addFileToProject("Sample.scala",
+      """
+        |object Sample {
+        |  def main(args: Array[String]) {
+        |    def outer() {
+        |      val s = "start"
+        |      val d = "default"
+        |      def inner(a: String, b: String = d): String = {
+        |        "stop here"
+        |        s + a + b
+        |      }
+        |      inner("aa")
+        |    }
+        |    outer()
+        |  }
+        |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 6)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("a", "aa")
+      evalEquals("b", "default")
+      evalEquals("s", "start")
+      evalEquals("inner(\"aa\", \"bb\")", "startaabb")
+      evalEquals("inner(\"aa\")", "startaadefault")
+    }
+  }
+
+  def testFunctionsWithLocalParameters(): Unit = {
+    addFileToProject("Sample.scala",
+      """
+        |object Sample {
+        |  def main(args: Array[String]) {
+        |    val x = 1
+        |    val y = 2
+        |    def outer() = {
+        |      val s = "start"
+        |      val d = "default"
+        |      def inner(a: String, b: String = d): String = {
+        |        val z = s + a + b + y
+        |        def inInner() = {
+        |          z + x
+        |        }
+        |        inInner()
+        |        "stop here"
+        |        z
+        |      }
+        |      inner("aa")
+        |    }
+        |    outer()
+        |  }
+        |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 13)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("a", "aa")
+      evalEquals("b", "default")
+      evalEquals("x", "1")
+      evalEquals("y", "2")
+      evalEquals("s", "start")
+      evalEquals("z", "startaadefault2")
+      evalEquals("inInner()", "startaadefault21")
+      evalEquals("inner(\"aa\", \"bb\")", "startaabb2")
+      evalEquals("inner(\"aa\")", "startaadefault2")
+      evalEquals("outer()", "startaadefault2")
+    }
+  }
 }

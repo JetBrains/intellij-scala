@@ -291,7 +291,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     //Implicit parameters
     val checkImplicitParameters = withEtaExpansion(this)
     if (checkImplicitParameters) {
-      val tuple = InferUtil.updateTypeWithImplicitParameters(res, this, None, useExpectedType)
+      val tuple = InferUtil.updateTypeWithImplicitParameters(res, this, None, useExpectedType, fullInfo = false)
       res = tuple._1
       implicitParameters = tuple._2
     }

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.base.{TestScalaProjectSettings, ScalaLightPlatformCodeInsightTestCaseAdapter}
 import org.jetbrains.plugins.scala.highlighter.AnnotatorHighlighter
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
  * Date: 3/26/12
  */
 
-class TypeCollectionAnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+class TypeCollectionAnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter with TestScalaProjectSettings {
   private val immutableCollectionMessage = ScalaBundle.message("scala.immutable.collection")
   private val mutableCollectionMessage = ScalaBundle.message("scala.mutable.collection")
   private val javaCollectionMessage = ScalaBundle.message("java.collection")
@@ -20,7 +20,7 @@ class TypeCollectionAnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAd
   protected override def setUp() {
     super.setUp()
 
-    ScalaProjectSettings.getInstance(getProjectAdapter).
+    scalaProjectSettings.
       setCollectionTypeHighlightingLevel(ScalaProjectSettings.COLLECTION_TYPE_HIGHLIGHTING_ALL)
   }
 

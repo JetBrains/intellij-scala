@@ -46,8 +46,13 @@ trait PsiElementExtTrait {
     if (f == null) None else Some(f)
   }
 
-  def parentsInFile: Iterator[PsiElement] =
-    new ParentsIterator(repr).takeWhile(!_.isInstanceOf[PsiFile])
+  def parentsInFile: Iterator[PsiElement] = {
+    repr match {
+      case _: PsiFile | _: PsiDirectory => Iterator.empty
+      case _ => new ParentsIterator(repr).takeWhile(!_.isInstanceOf[PsiFile])
+    }
+  }
+
 
   def contexts: Iterator[PsiElement] = new ContextsIterator(repr)
 

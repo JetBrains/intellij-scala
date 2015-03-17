@@ -23,7 +23,7 @@ object ImplicitApply {
     implicit def a2b(x: A): B = new B
   }
   object Test {
-    import apply.ImplicitApply.Implicits.a2b
+    import Implicits.a2b
     val a = new A
     a(1)
   }

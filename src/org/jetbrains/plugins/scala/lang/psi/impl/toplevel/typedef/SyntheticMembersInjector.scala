@@ -30,7 +30,7 @@ object SyntheticMembersInjector {
           buf += method
         } catch { case  e: Exception => Seq()}
       // Monocle lenses generation
-      case obj:ScObject if obj.isSyntheticObject =>
+      case obj:ScObject =>
         obj.fakeCompanionClassOrCompanionClass match {
           case clazz:ScClass if clazz.findAnnotation("monocle.macros.Lenses") != null =>
             buf ++= mkLens(obj)
