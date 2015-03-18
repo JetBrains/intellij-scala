@@ -15,4 +15,4 @@ trait SCL6605C {
   val u = if (true) x else h
   /*start*/u/*end*/
 }
-//SCL6605C.this.type#Z
+//SCL6605C.this.Z

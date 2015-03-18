@@ -17,4 +17,4 @@ trait SCL7008 {
     }
   }
 }
-//NM.this.type#Name
+//NM.this.Name

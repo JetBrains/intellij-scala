@@ -8,4 +8,4 @@ class SCL6198 {
     cell => println(/*start*/cell/*end*/.value)
   }
 }
-//SCL6198.this.type#Cell[_]
+//SCL6198.this.Cell[_]

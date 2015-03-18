@@ -15,4 +15,4 @@ class StateClass extends StateTrait {
     /*start*/x.copy(1)/*end*/
   }
 }
-//StateClass.this.type#State
+//StateClass.this.State

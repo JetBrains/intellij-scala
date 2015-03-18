@@ -6,4 +6,4 @@ class SCL2292 {
 
   /*start*/(new self.Inner, self.x)/*end*/
 }
-//(SCL2292.this.type#Inner, SCL2292.this.type#Inner)
+//(SCL2292.this.Inner, SCL2292.this.Inner)
