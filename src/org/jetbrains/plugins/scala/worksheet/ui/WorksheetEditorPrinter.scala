@@ -194,7 +194,8 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, fi
     scala.extensions.inReadAction {
       PsiDocumentManager.getInstance(project).getPsiFile(originalEditor.getDocument) match {
         case scalaFile: ScalaFile =>
-          WorksheetEditorPrinter.saveWorksheetEvaluation(scalaFile, str)
+          WorksheetEditorPrinter.saveWorksheetEvaluation(scalaFile, str,
+            worksheetViewer.getUserData(WorksheetEditorPrinter.DIFF_SPLITTER_KEY).getProportion)
         case _ =>
       }
     }
@@ -315,6 +316,7 @@ object WorksheetEditorPrinter {
   val DIFF_SYNC_SUPPORT = Key.create[SyncScrollSupport]("WorksheetSyncScrollSupport")
 
   private val LAST_WORKSHEET_RUN_RESULT = new FileAttribute("LastWorksheetRunResult", 2, false)
+  private val LAST_WORKSHEET_RUN_RATIO = new FileAttribute("ScalaWorksheetLastRatio", 1, false)
 
   private val patched = new util.WeakHashMap[Editor, String]()
 
@@ -375,7 +377,7 @@ object WorksheetEditorPrinter {
 
             originalEditor.putUserData(DIFF_SYNC_SUPPORT, syncSupport)
 
-            diffSplitter map {
+            diffSplitter foreach {
               case splitter =>
                 viewerImpl.getScrollPane.getVerticalScrollBar.addAdjustmentListener(new AdjustmentListener {
                   override def adjustmentValueChanged(e: AdjustmentEvent): Unit = splitter.redrawDiffs()
@@ -387,14 +389,31 @@ object WorksheetEditorPrinter {
     }
   }
 
-  def saveWorksheetEvaluation(file: ScalaFile, result: String) {
+  def saveWorksheetEvaluation(file: ScalaFile, result: String, ratio: Float = 0.5f) {
     FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RESULT, file, result)
+    FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RATIO, file, ratio.toString)
+  }
+
+  def saveOnlyRatio(file: ScalaFile, ratio: Float = 0.5f) {
+    FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RATIO, file, ratio.toString)
   }
   
-  def loadWorksheetEvaluation(file: ScalaFile): Option[String] = FileAttributeUtilCache.readAttribute(LAST_WORKSHEET_RUN_RESULT, file)
+  def loadWorksheetEvaluation(file: ScalaFile): Option[(String, Float)] = {
+    val ratio = FileAttributeUtilCache.readAttribute(LAST_WORKSHEET_RUN_RATIO, file) map {
+      case rr =>
+        try {
+          java.lang.Float.parseFloat(rr)
+        } catch {
+          case _: NumberFormatException => 0.5f
+        }
+    } getOrElse 0.5f
+
+    FileAttributeUtilCache.readAttribute(LAST_WORKSHEET_RUN_RESULT, file).map(s => (s, ratio))
+  }
   
   def deleteWorksheetEvaluation(file: ScalaFile) {
     FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RESULT, file, "")
+    FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RESULT, file, 0.5f.toString)
   }
 
   def newWorksheetUiFor(editor: Editor, virtualFile: VirtualFile) = newUiFor(editor, virtualFile, true)
