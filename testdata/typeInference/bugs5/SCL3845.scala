@@ -8,4 +8,4 @@ trait T { this: A =>
     /*start*/value/*end*/
   }
 }
-//T.this.type#B
+//T.this.B
