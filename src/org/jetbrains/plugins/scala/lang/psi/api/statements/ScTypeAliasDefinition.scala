@@ -88,4 +88,8 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
       typeParameters.isEmpty && Equivalence.equiv(aliasedType.getOrElse(return false), clsType)
     }
   }
+
+  def isImplementation: Boolean = {
+    ScalaPsiUtil.superTypeMembers(this).exists(_.isInstanceOf[ScTypeAliasDeclaration])
+  }
 }

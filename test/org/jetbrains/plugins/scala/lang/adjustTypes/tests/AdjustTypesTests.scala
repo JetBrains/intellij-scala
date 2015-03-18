@@ -24,4 +24,8 @@ class AdjustTypesTests extends AdjustTypesTestBase {
   def testSeveralLevelImports() = doTest()
 
   def testTypeAlias() = doTest()
+
+  def testTypeProjection() = doTest()
+
+  def testThisType() = doTest()
 }
