@@ -57,14 +57,16 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
             val tpeWithoutImplicits = expr.getTypeWithoutImplicits(TypingContext.empty).toOption
             val tpeWithoutImplicitsText = tpeWithoutImplicits.map(_.presentableText)
             val expectedTypeText = expr.expectedType().map(_.presentableText)
+            val nonSingletonTypeText = ScType.extractDesignatorSingletonType(tpe).map(_.presentableText)
 
             val mainText = Seq("Type: " + tpeText)
             def additionalTypeText(typeText: Option[String], label: String) = typeText.filter(_ != tpeText).map(s"$label: " + _)
 
+            val nonSingleton = additionalTypeText(nonSingletonTypeText, "Non-singleton")
             val simplified = additionalTypeText(withoutAliases, "Simplified")
             val orig = additionalTypeText(tpeWithoutImplicitsText, "Original")
             val expected = additionalTypeText(expectedTypeText, "Expected")
-            val types = mainText ++ simplified ++ orig ++ expected
+            val types = mainText ++ simplified.orElse(nonSingleton) ++ orig ++ expected
 
             if (types.size == 1) tpeText
             else types.mkString("\n")
