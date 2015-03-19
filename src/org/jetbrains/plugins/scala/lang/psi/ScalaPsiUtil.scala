@@ -1388,21 +1388,11 @@ object ScalaPsiUtil {
     def useUnqualifiedIfPossible(ref: ScReferenceElement): Unit = {
       ref.resolve() match {
         case named: PsiNamedElement =>
-          val dummyText = named match {
-            case _: ScObject => named.name + ".type"
-            case _: PsiClass | _: ScTypeAlias => named.name
-            case _ => named.name + ".type"
-          }
-          val newTypeElement = ScalaPsiElementFactory.createTypeElementFromText(dummyText, ref.getContext, ref)
-          val newRef = newTypeElement.getFirstChild.asInstanceOf[ScReferenceElement]
+          val newRef = ScalaPsiElementFactory.createReferenceFromText(named.name, ref.getContext, ref)
           val resolved = newRef.resolve()
           if (resolved != null && PsiEquivalenceUtil.areElementsEquivalent(resolved, named)) {
-            //cannot use newTypeElement because of bug with indentation
-            val refToReplace = ref match {
-              case proj: ScTypeProjection => ScalaPsiElementFactory.createTypeElementFromText(named.name, ref.getManager)
-              case stable: ScStableCodeReferenceElement => ScalaPsiElementFactory.createReferenceFromText(named.name, ref.getManager)
-              case _ => return
-            }
+            //cannot use newRef because of bug with indentation
+            val refToReplace = ScalaPsiElementFactory.createReferenceFromText(named.name, ref.getManager)
             adjustTypes(ref.replace(refToReplace), addImports)
           }
           else adjustTypesChildren()
