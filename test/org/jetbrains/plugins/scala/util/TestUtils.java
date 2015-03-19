@@ -139,7 +139,7 @@ public class TestUtils {
   }
 
   public static String getMockSprayLib(ScalaSdkVersion version) {
-    return getIvyCachePath() + "/io.spray/spray-routing_2.11/jars/spray-routing_2.11-1.3.1.jar" ;
+    return getIvyCachePath() + "/io.spray/spray-routing_2.11/bundles/spray-routing_2.11-1.3.1.jar" ;
   }
 
   public static String getMockScalaSrc(ScalaSdkVersion version) {
