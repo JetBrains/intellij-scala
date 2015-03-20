@@ -5,6 +5,7 @@ import scala.collection.immutable.Seq
 import scala.meta._
 
 class Context extends macros.Context {
+  override def tpe(param : scala.meta.Term.Param) = ???
   override def dialect: Dialect = ???
   override def warning(msg: String) = ???
   override def error(msg: String) = ???
@@ -25,4 +26,5 @@ class Context extends macros.Context {
 
   override def parents(member: Member): Seq[Member] = ???
   override def children(member: Member): Seq[Member] = ???
+
 }

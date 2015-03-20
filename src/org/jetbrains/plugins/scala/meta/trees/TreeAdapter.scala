@@ -91,8 +91,8 @@ object TreeAdapter {
 
   def convertMods(t: p.toplevel.ScModifierListOwner): Seq[m.Mod] = {
     Stream(
-      if (t.hasModifierProperty("private")) Some(m.Mod.Private()) else None,
-      if (t.hasModifierProperty("protected")) Some(m.Mod.Protected()) else None
+//      if (t.hasModifierProperty("private")) Some(m.Mod.Private()) else None,
+//      if (t.hasModifierProperty("protected")) Some(m.Mod.Protected()) else None
     ).flatten
   }
 
