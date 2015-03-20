@@ -130,11 +130,13 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
             def run() {
               val file = context.getFile
               val element = file.findElementAt(editor.getCaretModel.getOffset)
+              if (element == null) return
+
               element.getParent match {
                 case (_: ScTemplateBody) childOf ((_: ScExtendsBlock) childOf (newTemplateDef: ScNewTemplateDefinition)) =>
                   val members = ScalaOIUtil.getMembersToImplement(newTemplateDef)
                   ScalaOIUtil.runAction(members.toSeq, isImplement = true, newTemplateDef, editor)
-                case _ => return
+                case _ => 
               }
             }
           })
