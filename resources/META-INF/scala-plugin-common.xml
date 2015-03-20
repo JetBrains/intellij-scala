@@ -1024,6 +1024,10 @@
                        displayName="emulated headOption or lastOption" groupName="Scala: Collections"
                        shortName="HeadOrLastOption" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantHeadOrLastOptionInspection"
+                       displayName="redundant headOption or lastOption" groupName="Scala: Collections"
+                       shortName="RedundantHeadOrLastOption" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
        displayName="All Errors Tool" groupName="Scala: General"
        shortName="ScalaAllErrors" level="WARNING"
