@@ -189,13 +189,15 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
       case _ =>
     }
 
-    element match {
-      case function: ScFunction if !function.isLocal =>
-        for (elem <- ScalaOverridingMemberSearcher.search(function, deep = true)) {
-          val processed = inReadAction(super.processElementUsages(elem, processor, options))
-          if (!processed) return false
-        }
-      case _ =>
+    inReadAction {
+      element match {
+        case function: ScFunction if !function.isLocal =>
+          for (elem <- ScalaOverridingMemberSearcher.search(function, deep = true)) {
+            val processed = super.processElementUsages(elem, processor, options)
+            if (!processed) return false
+          }
+        case _ =>
+      }
     }
     true
   }
