@@ -84,6 +84,9 @@ package object collections {
   private[collections] val `+` = invocation("+")
 
   private[collections] val `.toCollection` = new InvocationTemplate(name => name.startsWith("to") && name != "toString").from(likeCollectionClasses)
+  private[collections] val `.toSet` = invocation("toSet").from(likeCollectionClasses)
+  private[collections] val `.toIterator` = invocation("toIterator").from(likeCollectionClasses)
+
 
   private[collections] val `.monadicMethod` = invocation(monadicMethods).from(likeCollectionClasses)
 
@@ -190,6 +193,23 @@ package object collections {
       }
     }
   }
+
+  class ParameterlessCallOnParameterTemplate(name: String) {
+    def unapply(expr: ScExpression): Boolean = {
+      stripped(expr) match {
+        case ScFunctionExpr(Seq(x), Some(result)) =>
+          stripped(result) match {
+            case MethodRepr(_, Some(ResolvesTo(`x`)), Some(ref), Seq()) if ref.refName == name => true
+            case _ => false
+          }
+        case MethodRepr(_, Some(underscore()), Some(ref), Seq()) if ref.refName == name => true
+        case _ => false
+      }
+    }
+  }
+
+  private[collections] val `_._1` = new ParameterlessCallOnParameterTemplate("_1")
+  private[collections] val `_._2` = new ParameterlessCallOnParameterTemplate("_2")
 
   object underscore {
     def unapply(expr: ScExpression): Boolean = {
