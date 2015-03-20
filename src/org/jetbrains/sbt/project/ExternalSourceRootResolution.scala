@@ -21,13 +21,19 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
     val (sharedRoots, externalRoots) = sharedAndExternalRootsIn(projects).partition(_.projects.length > 1)
 
-    externalRoots.foreach {
-      case SharedRoot(Root(scope, kind, dir), Seq(project)) =>
-        projectToModuleNode.get(project).foreach { moduleNode =>
-          val node = new ContentRootNode(dir.path)
-          node.storePath(scopeAndKindToSourceType(scope, kind), dir.path)
-          moduleNode.add(node)
-        }
+    if (externalRoots.nonEmpty) {
+      val externalRootsStr = externalRoots.map(_.root.directory).distinct.mkString("<ul><li>", "</li><li>", "</li></ul>")
+      val msg =
+        s"""
+          | <p>
+          | The following source roots are outside of the corresponding base directories:
+          | $externalRootsStr
+          | These source roots cannot be included in the IDEA project model.
+          | </p><p>
+          | <strong>Solution:</strong> declare an SBT project for these sources and include the project in dependencies.
+          | </p>
+        """.stripMargin
+      self.taskListener.onTaskOutput(WarningMessage(msg), false)
     }
 
     groupSharedRoots(sharedRoots).map { group =>
