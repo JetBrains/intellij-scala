@@ -14,27 +14,40 @@ class DropTakeToSliceInspection extends OperationOnCollectionInspection {
 
 object DropTakeToSlice extends SimplificationType {
   override def hint: String = InspectionBundle.message("replace.drop.take.with.slice")
+  val takeDropHint = InspectionBundle.message("replace.take.drop.with.slice")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case qual`.drop`(m)`.take`(n) =>
-      Some(replace(expr).withText(invocationText(qual, "slice", m, plusOne(n))).highlightFrom(qual))
+      Some(replace(expr).withText(invocationText(qual, "slice", m, sum(m, n))).highlightFrom(qual))
+    case qual`.take`(n)`.drop`(m) =>
+      Some(replace(expr).withText(invocationText(qual, "slice", m, n)).highlightFrom(qual).withHint(takeDropHint))
     case _ => None
   }
 
-  private def plusOne(expr: ScExpression): ScExpression = {
-    def plusOneText(lit: ScLiteral) = {
-      lit.getValue match {
-        case int: java.lang.Integer => (int.intValue() + 1).toString
-        case long: java.lang.Long => (long.longValue() + 1).toString
-        case _ => s"${expr.getText} + 1"
+  private def sum(left: ScExpression, right: ScExpression): ScExpression = {
+    val sumText = (left, right) match {
+      case (intLiteral(l), intLiteral(r)) => s"${l + r}"
+      case (intLiteral(a) `+` q, intLiteral(b)) => s"${q.getText} + ${a + b}"
+      case (intLiteral(a), intLiteral(b) `+` q) => s"${q.getText} + ${a + b}"
+      case (q `+` intLiteral(a), intLiteral(b)) => s"${q.getText} + ${a + b}"
+      case (intLiteral(a), q `+` intLiteral(b)) => s"${q.getText} + ${a + b}"
+      case (q, intLiteral(b)) => s"${q.getText} + $b"
+      case (intLiteral(a), q) => s"${q.getText} + $a"
+      case _ => s"${left.getText} + ${right.getText}"
+    }
+    ScalaPsiElementFactory.createExpressionFromText(sumText, left.getManager)
+  }
+
+  object intLiteral {
+    def unapply(expr: ScExpression): Option[Int] = {
+      expr match {
+        case l: ScLiteral =>
+          l.getValue match {
+            case int: java.lang.Integer => Some(int)
+            case _ => None
+          }
+        case _ => None
       }
     }
-    val text = expr match {
-      case lit: ScLiteral => plusOneText(lit)
-      case x`+`(y: ScLiteral) => s"${x.getText} + ${plusOneText(y)}"
-      case (x: ScLiteral)`+`y=> s"${plusOneText(x)} + ${y.getText}"
-      case _ => s"${expr.getText} + 1"
-    }
-    ScalaPsiElementFactory.createExpressionFromText(text, expr).asInstanceOf[ScExpression]
   }
 }
