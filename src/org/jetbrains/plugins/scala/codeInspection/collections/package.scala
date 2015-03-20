@@ -47,6 +47,7 @@ package object collections {
   private[collections] val `.filterNot` = invocation("filterNot").from(likeCollectionClasses)
   private[collections] val `.map` = invocation("map").from(likeCollectionClasses)
   private[collections] val `.headOption` = invocation("headOption").from(likeCollectionClasses)
+  private[collections] val `.lastOption` = invocation("lastOption").from(likeCollectionClasses)
   private[collections] val `.head` = invocation("head").from(likeCollectionClasses)
   private[collections] val `.last` = invocation("last").from(likeCollectionClasses)
   private[collections] val `.sizeOrLength` = invocation(Set("size", "length")).from(likeCollectionClasses)
