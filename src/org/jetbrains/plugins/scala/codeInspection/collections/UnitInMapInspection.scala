@@ -30,7 +30,8 @@ class UnitInMapInspection extends OperationOnCollectionInspection {
       val unitTypeReturns = body.calculateReturns().collect {
         case expr @ ExpressionType(ft @ ScFunctionType(Unit, _)) if body.getType().getOrAny.equiv(ft) => expr
         case expr @ ExpressionType(Unit) => expr
-      }
+      }.filter(_.getTextLength > 0)
+
       unitTypeReturns.foreach { e =>
         holder.registerProblem(e, InspectionBundle.message("expression.unit.return.in.map"), highlightType, fixes: _*)
       }
