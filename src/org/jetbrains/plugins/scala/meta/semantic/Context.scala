@@ -9,6 +9,7 @@ class Context extends semantic.Context {
 
   override def desugar(term: Term): Term = ???
   override def tpe(term: Term): Type = ???
+  override def tpe(param : scala.meta.Term.Param) = ???
   override def defns(ref: Ref): Seq[Member] = ???
   override def members(tpe: Type): Seq[Member] = ???
 
