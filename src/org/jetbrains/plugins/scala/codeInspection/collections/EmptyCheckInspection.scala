@@ -17,7 +17,7 @@ object CheckIsEmpty extends SimplificationType {
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case _`.isEmpty`() => None
     case CheckIsEmpty(qual) if !isArray(qual) =>
-      Some(replace(expr).withText(invocationText(qual, "isEmpty")).highlightFrom(qual))
+      Some(replace(expr).withText(invocationText(qual, "isEmpty")).highlightAll)
     case _ => None
   }
 
@@ -28,6 +28,7 @@ object CheckIsEmpty extends SimplificationType {
       case `!`(CheckNonEmpty(coll)) => Some(coll)
       case `!`(CheckIsDefined(coll)) => Some(coll)
       case coll `==` scalaNone() if isOption(coll) => Some(coll)
+      case scalaNone() `==` coll if isOption(coll) => Some(coll)
       case _ => None
     }
   }
@@ -39,7 +40,7 @@ object CheckNonEmpty extends SimplificationType {
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case qual`.nonEmpty`() => None
     case CheckNonEmpty(qual) if !isOption(qual) && !isArray(qual) =>
-      Some(replace(expr).withText(invocationText(qual, "nonEmpty")).highlightFrom(qual))
+      Some(replace(expr).withText(invocationText(qual, "nonEmpty")).highlightAll)
     case _ => None
   }
 
@@ -51,6 +52,7 @@ object CheckNonEmpty extends SimplificationType {
       case (qual`.sizeOrLength`()) `>=` literal("1") => Some(qual)
       case `!`(CheckIsEmpty(qual)) => Some(qual)
       case qual `!=` scalaNone() if isOption(qual) => Some(qual)
+      case scalaNone() `!=` qual if isOption(qual) => Some(qual)
       case qual`.isDefined`() if isOption(qual) => Some(qual)
       case _ => None
     }
@@ -63,7 +65,7 @@ object CheckIsDefined extends SimplificationType {
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case _`.isDefined`() => None
     case CheckIsDefined(qual) =>
-      Some(replace(expr).withText(invocationText(qual, "isDefined")).highlightFrom(qual))
+      Some(replace(expr).withText(invocationText(qual, "isDefined")).highlightAll)
     case _ => None
   }
 

@@ -15,7 +15,7 @@ class EmptyCheckTest extends OperationsOnCollectionInspectionTest {
   val nonEmptyHint = InspectionBundle.message("replace.with.nonEmpty")
 
   def testNotIsEmpty() {
-    val selected = s"!Seq().${START}isEmpty$END"
+    val selected = s"$START!Seq().isEmpty$END"
     checkTextHasError(selected, nonEmptyHint, inspectionClass)
     val text = "!Seq().isEmpty"
     val result = "Seq().nonEmpty"
@@ -23,7 +23,7 @@ class EmptyCheckTest extends OperationsOnCollectionInspectionTest {
   }
 
   def testNotNonEmpty() {
-    val selected = s"!Seq().${START}nonEmpty$END"
+    val selected = s"$START!Seq().nonEmpty$END"
     checkTextHasError(selected, isEmptyHint, inspectionClass)
     val text = "!Seq().nonEmpty"
     val result = "Seq().isEmpty"
@@ -31,7 +31,7 @@ class EmptyCheckTest extends OperationsOnCollectionInspectionTest {
   }
 
   def testNotIsDefined() {
-    val selected = s"!Option(1).${START}isDefined$END"
+    val selected = s"$START!Option(1).isDefined$END"
     checkTextHasError(selected, isEmptyHint, inspectionClass)
     val text = "!Option(1).isDefined"
     val result = "Option(1).isEmpty"
@@ -39,7 +39,7 @@ class EmptyCheckTest extends OperationsOnCollectionInspectionTest {
   }
 
   def testSizeEqualsZero(): Unit = {
-    val selected = s"Seq().${START}size == 0$END"
+    val selected = s"${START}Seq().size == 0$END"
     checkTextHasError(selected, isEmptyHint, inspectionClass)
     val text = "Seq().size == 0"
     val result = "Seq().isEmpty"
@@ -47,7 +47,7 @@ class EmptyCheckTest extends OperationsOnCollectionInspectionTest {
   }
 
   def testSizeGreaterZero(): Unit = {
-    val selected = s"Seq().${START}size > 0$END"
+    val selected = s"${START}Seq().size > 0$END"
     checkTextHasError(selected, nonEmptyHint, inspectionClass)
     val text = "Seq().size > 0"
     val result = "Seq().nonEmpty"
@@ -55,7 +55,7 @@ class EmptyCheckTest extends OperationsOnCollectionInspectionTest {
   }
 
   def testLengthGrEqOne(): Unit = {
-    val selected = s"Seq().${START}length >= 1$END"
+    val selected = s"${START}Seq().length >= 1$END"
     checkTextHasError(selected, nonEmptyHint, inspectionClass)
     val text = "Seq().size >= 1"
     val result = "Seq().nonEmpty"
@@ -63,7 +63,7 @@ class EmptyCheckTest extends OperationsOnCollectionInspectionTest {
   }
 
   def testEqualsNone(): Unit = {
-    val selected = s"Option(1) $START== None$END"
+    val selected = s"${START}Option(1) == None$END"
     checkTextHasError(selected, isEmptyHint, inspectionClass)
     val text = "Option(1) == None"
     val result = "Option(1).isEmpty"
@@ -71,15 +71,23 @@ class EmptyCheckTest extends OperationsOnCollectionInspectionTest {
   }
 
   def testNotEqualsNone(): Unit = {
-    val selected = s"Option(1) $START!= None$END"
+    val selected = s"${START}Option(1) != None$END"
     checkTextHasError(selected, isDefinedHint, inspectionClass)
     val text = "Option(1) != None"
     val result = "Option(1).isDefined"
     testFix(text, result, isDefinedHint)
   }
 
+  def testNoneNotEquals(): Unit = {
+    val selected = s"${START}None != Option(1)$END"
+    checkTextHasError(selected, isDefinedHint, inspectionClass)
+    val text = "None != Option(1)"
+    val result = "Option(1).isDefined"
+    testFix(text, result, isDefinedHint)
+  }
+
   def testSizeNotEqualsZero(): Unit = {
-    val selected = s"Seq().${START}size != 0$END"
+    val selected = s"${START}Seq().size != 0$END"
     checkTextHasError(selected, nonEmptyHint, inspectionClass)
     val text = "Seq().size != 0"
     val result = "Seq().nonEmpty"
@@ -87,7 +95,7 @@ class EmptyCheckTest extends OperationsOnCollectionInspectionTest {
   }
 
   def testNotSizeNotEqualsZero(): Unit = {
-    val selected = s"!(Seq().${START}size != 0)$END"
+    val selected = s"$START!(Seq().size != 0)$END"
     checkTextHasError(selected, isEmptyHint, inspectionClass)
     val text = "!(Seq().size != 0)"
     val result = "Seq().isEmpty"
