@@ -47,6 +47,8 @@ package object collections {
   private[collections] val `.filterNot` = invocation("filterNot").from(likeCollectionClasses)
   private[collections] val `.map` = invocation("map").from(likeCollectionClasses)
   private[collections] val `.headOption` = invocation("headOption").from(likeCollectionClasses)
+  private[collections] val `.head` = invocation("head").from(likeCollectionClasses)
+  private[collections] val `.last` = invocation("last").from(likeCollectionClasses)
   private[collections] val `.sizeOrLength` = invocation(Set("size", "length")).from(likeCollectionClasses)
   private[collections] val `.find` = invocation("find").from(likeCollectionClasses)
   private[collections] val `.contains` = invocation("contains").from(likeCollectionClasses)
@@ -87,6 +89,7 @@ package object collections {
   private[collections] val `.toSet` = invocation("toSet").from(likeCollectionClasses)
   private[collections] val `.toIterator` = invocation("toIterator").from(likeCollectionClasses)
 
+  private[collections] val `.lift` = invocation("lift").from(Array("scala.PartialFunction"))
 
   private[collections] val `.monadicMethod` = invocation(monadicMethods).from(likeCollectionClasses)
 
@@ -95,6 +98,26 @@ package object collections {
       expr match {
         case ResolvesTo(obj: ScObject) if obj.qualifiedName == "scala.None" => true
         case _ => false
+      }
+    }
+  }
+
+  object scalaSome {
+    def unapply(expr: ScExpression): Option[ScExpression] = expr match {
+      case MethodRepr(_, _, Some(ref), Seq(e)) if ref.refName == "Some" =>
+        ref.resolve() match {
+          case m: ScMember if m.containingClass.qualifiedName == "scala.Some" => Some(e)
+          case _ => None
+        }
+      case _ => None
+    }
+  }
+
+  object IfStmt {
+    def unapply(expr: ScExpression): Option[(ScExpression, ScExpression, ScExpression)] = {
+      expr match {
+        case ScIfStmt(Some(c), Some(tb), Some(eb)) => Some(c, tb, eb)
+        case _ => None
       }
     }
   }
