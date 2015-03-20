@@ -1,0 +1,17 @@
+<html>
+<body>
+Checking equality of the instance of Option and Some(x) can be replaced with contains or !.contains:
+
+<p>
+    Before: <br>
+    <code>option == Some(x)</code><br>
+    <code>Some(x) != option</code>
+</p>
+<p>
+    After: <br>
+    <code>option.contains(x)</code><br/>
+    <code>!option.contains(x)</code>
+</p>
+
+</body>
+</html>
