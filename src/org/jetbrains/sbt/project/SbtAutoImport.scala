@@ -11,7 +11,9 @@ import com.intellij.openapi.vfs.VfsUtilCore._
  * @author Pavel Fatin
  */
 class SbtAutoImport extends ExternalSystemAutoImportAware {
-  def getAffectedExternalProjectPath(changedFileOrDirPath: String, project: Project) = {
+  def getAffectedExternalProjectPath(changedFileOrDirPath: String, project: Project) = null
+
+  def getRealAffectedExternalProjectPath(changedFileOrDirPath: String, project: Project) = {
     val changed = new File(changedFileOrDirPath)
     val name = changed.getName
 
