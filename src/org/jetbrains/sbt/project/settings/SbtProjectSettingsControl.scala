@@ -1,16 +1,17 @@
 package org.jetbrains.sbt
 package project.settings
 
-import java.awt.FlowLayout
+import java.awt.{Component, FlowLayout}
 import javax.swing._
 
 import com.intellij.openapi.externalSystem.service.settings.AbstractExternalProjectSettingsControl
 import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
-import com.intellij.openapi.externalSystem.util.PaintAwarePanel
+import com.intellij.openapi.externalSystem.util.{ExternalSystemUiUtil, ExternalSystemBundle, PaintAwarePanel}
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
 import com.intellij.openapi.util.Condition
+import com.intellij.ui.components.JBCheckBox
 import org.jetbrains.annotations.NotNull
 
 /**
@@ -18,7 +19,9 @@ import org.jetbrains.annotations.NotNull
  */
 class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSettings)
         extends AbstractExternalProjectSettingsControl[SbtProjectSettings](initialSettings) {
-  
+
+  hideUseAutoImportBox()
+
   private val jdkComboBox: JdkComboBox = {
     val model = new ProjectSdksModel()
     model.reset(null)
@@ -46,7 +49,16 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
   private val resolveSbtClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveSbtClassifiers"))
 
+  private val useOurOwnAutoImportCheckBox = new JCheckBox(ExternalSystemBundle.message("settings.label.use.auto.import"))
+
+  private var oldAutoImportBox: Option[Component] = None
+
   def fillExtraControls(@NotNull content: PaintAwarePanel, indentLevel: Int) {
+    oldAutoImportBox = Some(content.getComponent(content.getComponentCount-2))
+    content.add(useOurOwnAutoImportCheckBox,
+      ExternalSystemUiUtil.getFillLineConstraints(indentLevel),
+      content.getComponentCount-2)
+
     val label = new JLabel("Project \u001BSDK:")
     label.setLabelFor(jdkComboBox)
 
@@ -67,12 +79,16 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     val settings = getInitialSettings
 
     selectedJdkName != settings.jdkName ||
-            resolveClassifiersCheckBox.isSelected != settings.resolveClassifiers ||
-            resolveSbtClassifiersCheckBox.isSelected != settings.resolveClassifiers
+      useOurOwnAutoImportCheckBox.isSelected != settings.useOurOwnAutoImport ||
+      resolveClassifiersCheckBox.isSelected != settings.resolveClassifiers ||
+      resolveSbtClassifiersCheckBox.isSelected != settings.resolveClassifiers
   }
 
   protected def resetExtraSettings(isDefaultModuleCreation: Boolean) {
     val settings = getInitialSettings
+
+    oldAutoImportBox.foreach(_.setVisible(false))
+    useOurOwnAutoImportCheckBox.setSelected(settings.useOurOwnAutoImport)
     
     val jdk = settings.jdkName.flatMap(name => Option(ProjectJdkTable.getInstance.findJdk(name)))
     jdkComboBox.setSelectedJdk(jdk.orNull)
@@ -86,6 +102,8 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
   }
 
   protected def applyExtraSettings(settings: SbtProjectSettings) {
+    settings.setUseAutoImport(false)
+    settings.useOurOwnAutoImport = useOurOwnAutoImportCheckBox.isSelected
     settings.jdk = selectedJdkName.orNull
     settings.resolveClassifiers = resolveClassifiersCheckBox.isSelected
     settings.resolveSbtClassifiers = resolveSbtClassifiersCheckBox.isSelected
