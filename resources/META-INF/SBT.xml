@@ -13,6 +13,9 @@
         <component>
             <implementation-class>org.jetbrains.sbt.project.LegacyProjectFormatNotifier</implementation-class>
         </component>
+        <component>
+          <implementation-class>org.jetbrains.sbt.project.autoimport.SbtAutoImportComponent</implementation-class>
+        </component>
     </project-components>
 
     <extensionPoints>
