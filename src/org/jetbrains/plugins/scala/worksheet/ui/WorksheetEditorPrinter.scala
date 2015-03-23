@@ -434,6 +434,7 @@ object WorksheetEditorPrinter {
 
   def createRightSideViewer(editor: Editor, virtualFile: VirtualFile, rightSideEditor: Editor, modelSync: Boolean = false): Editor = {
     val editorComponent = editor.getComponent
+    val editorContentComponent = editor.getContentComponent
 
     val worksheetViewer = rightSideEditor.asInstanceOf[EditorImpl]
 
@@ -452,7 +453,7 @@ object WorksheetEditorPrinter {
     worksheetViewer.getComponent setPreferredSize prefDim
 
     if (modelSync) synch(editor, worksheetViewer)
-    editor.getContentComponent.setPreferredSize(prefDim)
+    editorContentComponent.setPreferredSize(prefDim)
 
     if (!ApplicationManager.getApplication.isUnitTestMode) {
       val child = editorComponent.getParent
@@ -462,7 +463,15 @@ object WorksheetEditorPrinter {
 
       worksheetViewer.putUserData(DIFF_SPLITTER_KEY, diffPane)
 
-      @inline def patchEditor() {
+      @inline def preserveFocus(body: => Unit) {
+        val hadFocus = editorContentComponent.hasFocus
+
+        body
+
+        if (hadFocus && !editorContentComponent.hasFocus) editorContentComponent.requestFocusInWindow()
+      }
+
+      @inline def patchEditor(): Unit = preserveFocus {
         (parent, child) match {
           case (parentPane: JLayeredPane, _) =>
             parentPane remove child
@@ -476,8 +485,10 @@ object WorksheetEditorPrinter {
 
       if (parent.getComponentCount > 1) parent.getComponent(1) match {
         case splitter: Splitter =>
-          parent.remove(1)
-          parent.add(diffPane, 1)
+          preserveFocus {
+            parent.remove(1)
+            parent.add(diffPane, 1)
+          }
         case _ => patchEditor()
       } else patchEditor()
     }
