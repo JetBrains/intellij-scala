@@ -468,5 +468,9 @@ package object collections {
     case _ => None
   }
 
+  implicit class PsiElementRange(val elem: PsiElement) extends AnyVal {
+    def start: Int = elem.getTextRange.getStartOffset
+    def end: Int = elem.getTextRange.getEndOffset
+  }
 }
 

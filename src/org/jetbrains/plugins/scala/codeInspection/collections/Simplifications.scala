@@ -39,6 +39,11 @@ class SimplificationBuilder private[collections] (val exprToReplace: ScExpressio
     this
   }
 
+  def highlightRange(start: Int, end: Int) = {
+    this.rangeInParent = new TextRange(start, end).shiftRight( - exprToReplace.getTextOffset)
+    this
+  }
+
   def withText(s: String): SimplificationBuilder = {
     this.replacementText = s
     this
