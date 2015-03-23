@@ -49,7 +49,9 @@ object ComparingUtil {
   def isNeverSubType(tp1: ScType, tp2: ScType, sameType: Boolean = false): Boolean = {
     if (tp2.weakConforms(tp1) || tp1.weakConforms(tp2)) return false
 
-    val Seq(clazzOpt1, clazzOpt2) = Seq(tp1, tp2).map(ScType.extractClass(_))
+    val Seq(clazzOpt1, clazzOpt2) =
+      Seq(tp1, tp2).map(t => ScType.extractDesignatorSingletonType(t).getOrElse(t))
+        .map(ScType.extractClass(_))
     if (clazzOpt1.isEmpty || clazzOpt2.isEmpty) return false
     val (clazz1, clazz2) = (clazzOpt1.get, clazzOpt2.get)
 
