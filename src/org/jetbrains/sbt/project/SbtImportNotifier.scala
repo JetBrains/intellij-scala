@@ -162,7 +162,7 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
   }
   
   private def getExternalProject(filePath: String) =
-    if (project.isDisposed) null else myExternalProjectPathProvider.getAffectedExternalProjectPath(filePath, project)
+    if (project.isDisposed) null else myExternalProjectPathProvider.getRealAffectedExternalProjectPath(filePath, project)
   
   private def builder(message: String) = NotificationUtil.builder(project, message).setGroup(SbtImportNotifier.groupName)
   
