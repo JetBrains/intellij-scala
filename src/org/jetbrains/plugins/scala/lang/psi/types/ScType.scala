@@ -234,6 +234,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
           extractClassType(proj.actualSubst.subst(result.get), project, visitedAlias + t)
         case _ => None
       }
+      case ScExistentialType(quantified, _) => extractClassType(quantified, project, visitedAlias)
       case p@ScParameterizedType(t1, _) =>
         extractClassType(t1, project, visitedAlias) match {
           case Some((c, s)) => Some((c, s.followed(p.substitutor)))
