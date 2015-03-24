@@ -2,7 +2,7 @@ package org.jetbrains.sbt
 package project
 
 import com.intellij.notification.{Notification, NotificationType, Notifications}
-import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListenerAdapter}
+import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskType, ExternalSystemTaskId, ExternalSystemTaskNotificationListenerAdapter}
 import org.jetbrains.sbt.project.settings.SbtLocalSettings
 
 /**
@@ -21,6 +21,7 @@ class SbtNotificationListener extends ExternalSystemTaskNotificationListenerAdap
     for {
       project  <- Option(id.findProject())
       settings <- Option(SbtLocalSettings.getInstance(project))
+      if id.getType == ExternalSystemTaskType.RESOLVE_PROJECT
     } {
       settings.lastUpdateTimestamp = System.currentTimeMillis()
     }
