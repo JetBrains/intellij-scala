@@ -1,4 +1,5 @@
-package org.jetbrains.sbt.project
+package org.jetbrains.sbt
+package project.notifications
 
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.{ActionManager, ActionPlaces}
@@ -7,7 +8,7 @@ import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.playback.commands.ActionCommand
 import org.jetbrains.plugins.scala.util.NotificationUtil
-import org.jetbrains.sbt.project.LegacyProjectFormatNotifier._
+import LegacyProjectFormatNotifier._
 import org.jetbrains.sbt.project.settings.SbtLocalSettings
 
 /**
