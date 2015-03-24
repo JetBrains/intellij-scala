@@ -31,7 +31,6 @@ class SbtAutoImportListener(project: Project) extends VirtualFileAdapter {
         .getLinkedProjectSettings(project.getBasePath))
 
     if (settings.fold(false)(_.useOurOwnAutoImport) && isBuildFile(file)) {
-      // FIXME: maybe invoke with a little delay?
       ApplicationManager.getApplication.invokeLater(new Runnable() {
         override def run(): Unit =
           ExternalSystemUtil.refreshProjects(
@@ -50,7 +49,8 @@ class SbtAutoImportListener(project: Project) extends VirtualFileAdapter {
     val base = new File(project.getBasePath)
     val build = base / Sbt.ProjectDirectory
 
-    name.endsWith(s".${Sbt.FileExtension}") && isAncestor(base, changed, true) ||
-      name.endsWith(".scala") && isAncestor(build, changed, true)
+    (name == Sbt.BuildFile && isAncestor(base, changed, true) ||
+      name.endsWith(s".${Sbt.FileExtension}") && isAncestor(build, changed, true) ||
+      name.endsWith(".scala") && isAncestor(build, changed, true))
   }
 }

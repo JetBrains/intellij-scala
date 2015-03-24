@@ -50,10 +50,10 @@ abstract class SbtImportNotificationProvider(project: Project, notifications: Ed
 
   protected def importProject(file: VirtualFile): Unit = {
     val externalProjectPath = {
-      if (file.getName.endsWith(".scala"))
-        file.getParent.getParent.getCanonicalPath
-      else
+      if (file.getName == Sbt.BuildFile)
         file.getParent.getCanonicalPath
+      else
+        file.getParent.getParent.getCanonicalPath
     }
 
     val projectSettings = SbtProjectSettings.default
@@ -99,9 +99,10 @@ abstract class SbtImportNotificationProvider(project: Project, notifications: Ed
     val base = new File(project.getBasePath)
     val build = base / Sbt.ProjectDirectory
 
-    (name.endsWith(s".${Sbt.FileExtension}") && isAncestor(base, changed, true) ||
-            name.endsWith(".scala") && isAncestor(build, changed, true))
-            .option(base.canonicalPath).orNull
+    (name == Sbt.BuildFile && isAncestor(base, changed, true) ||
+      name.endsWith(s".${Sbt.FileExtension}") && isAncestor(build, changed, true) ||
+      name.endsWith(".scala") && isAncestor(build, changed, true))
+      .option(base.canonicalPath).orNull
   }
 
   protected def getProjectSettings(file: VirtualFile): Option[SbtProjectSettings] =
@@ -121,16 +122,8 @@ abstract class SbtImportNotificationProvider(project: Project, notifications: Ed
     ignoredFiles.contains(file)
   }
 
-  private def isSbtFile(file: VirtualFile): Boolean = {
-    val name = file.getName
-
-    if (name == "plugins.sbt" || name == null) return false //process only build.sbt and Build.scala
-    if (file.getFileType == SbtFileType) return true
-    if (name != "Build.scala") return false
-
-    val parent = file.getParent
-    parent != null && parent.getName == "project"
-  }
+  private def isSbtFile(file: VirtualFile): Boolean =
+    getExternalProject(file.getCanonicalPath).isDefined
 }
 
 
