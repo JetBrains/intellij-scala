@@ -34,127 +34,137 @@ import org.jetbrains.sbt.settings.SbtSystemSettings
  */
 class SbtImportNotifier(private val project: Project, private val fileEditorManager: FileEditorManager)
         extends AbstractProjectComponent(project) {
-  private var myReImportIgnored = false
-  private var myNoImportIgnored = false
+  private var shouldIgnoreReImport = false
+  private var shouldIgnoreNoImport = false
 
-  val myMap = new ConcurrentHashMap[Document, DocumentAdapter]()
+  val listenedDocuments = new ConcurrentHashMap[Document, DocumentAdapter]()
 
-  private var myNotification: Option[(Notification, String)] = None
+  private var currentNotification: Option[(Notification, String)] = None
 
-  override def projectOpened() {
+  override def projectOpened(): Unit = {
     NotificationsConfiguration.getNotificationsConfiguration.register(SbtImportNotifier.groupName,
       NotificationDisplayType.STICKY_BALLOON)
     project.getMessageBus.connect(project).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, MyFileEditorListener)
   }
 
-  private def expireNotification() {
-    myNotification map (_._1.expire())
-    myNotification = None
+  private def expireNotification(): Unit = {
+    currentNotification map (_._1.expire())
+    currentNotification = None
   }
 
-  private def showReImportNotification(forFile: String) {
-    myNotification map {
-      case (n, oldFile) if oldFile == forFile => return
-      case _ =>
-    }
+  private def isNotificationShownFor(forFile: String): Boolean =
+    currentNotification.fold(false){ case (_, oldFile) => oldFile == forFile }
 
-    expireNotification()
 
-    val externalProjectPath = getExternalProject(forFile)
-    if (externalProjectPath == null) return
-
-    val sbtSettings = getSbtSettings getOrElse { return }
-    val projectSettings = sbtSettings.getLinkedProjectSettings(externalProjectPath)
-    if (projectSettings == null || projectSettings.useOurOwnAutoImport) return
-    
-    def refresh() {
-      FileDocumentManager.getInstance.saveAllDocuments()
-      ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, SbtProjectSystem.Id))
-    }
-
-    if (externalProjectPath == null) return
-
-    val build = builder(SbtImportNotifier reimportMessage forFile).setTitle("Re-import project?").setHandler{
-      case "reimport" =>
-        refresh()
-        myNotification = None
-      case "autoimport" =>
-        val projectSettings = sbtSettings.getLinkedProjectSettings(externalProjectPath)
-        projectSettings.setUseOurOwnAutoImport(true)
-        refresh()
-        myNotification = None
-      case "ignore" => myReImportIgnored = true
-      case _ =>
-    }.setNotificationType(NotificationType.INFORMATION)
-    val notification = build.notification
-
-    myNotification = Some((notification, forFile))
-    build show notification
+  private def doRefreshProject() {
+    FileDocumentManager.getInstance.saveAllDocuments()
+    ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, SbtProjectSystem.Id))
   }
-  
-  private def checkNoImport(forFile: String) {
-    val sbtSettings = getSbtSettings getOrElse { return }
 
-    myNotification map {
-      case (n, oldFile) if oldFile == forFile => return
-      case _ =>
-    }
+  private def reImportNotificationHandler(projectSettings: Settings)(msg: String): Unit = msg match {
+    case "reimport" =>
+      doRefreshProject()
+      currentNotification = None
+    case "autoimport" =>
+      projectSettings.setUseOurOwnAutoImport(true)
+      doRefreshProject()
+      currentNotification = None
+    case "ignore" =>
+      shouldIgnoreReImport = true
+    case _ =>
+  }
 
+  private def showReImportNotification(forFile: String): Unit = {
+    if (isNotificationShownFor(forFile))
+      return
     expireNotification()
 
-    val myExternalProject = getExternalProject(forFile)
-    if (myExternalProject == null || sbtSettings.getLinkedProjectSettings(myExternalProject) != null) return
+    for {
+      externalProjectPath <- getExternalProject(forFile)
+      sbtSettings <- Option(SbtSystemSettings.getInstance(project))
+      projectSettings <- Option(sbtSettings.getLinkedProjectSettings(externalProjectPath))
+      if !projectSettings.useOurOwnAutoImport
+    } {
+      val build = builder(SbtImportNotifier reimportMessage forFile)
+              .setTitle("Re-import project?")
+              .setNotificationType(NotificationType.INFORMATION)
+              .setHandler(reImportNotificationHandler(projectSettings))
+      val notification = build.notification
+      currentNotification = Some((notification, forFile))
+      build.show(notification)
+    }
+  }
 
-    val build = builder(SbtImportNotifier noImportMessage forFile).setTitle("Import project").setHandler {
-      case "import" =>
-        val projectSettings = new Settings
-        projectSettings.setUseOurOwnAutoImport(true)
-        projectSettings setExternalProjectPath (
-          if (forFile.endsWith(".scala")) new File(forFile).getParentFile.getParent else new File(forFile).getParent
-        )
+  private def noImportNotificationHandler(forFile: String,
+                                          sbtSystemSettings: SbtSystemSettings)
+                                         (msg: String): Unit = msg match {
+    case "import" =>
+      val projectSettings = new Settings
+      val externalProjectPath =
+        if (forFile.endsWith(".scala"))
+          new File(forFile).getParentFile.getParent
+        else
+          new File(forFile).getParent
+      projectSettings.setUseOurOwnAutoImport(true)
+      projectSettings.setExternalProjectPath(externalProjectPath)
 
-        val callback = new ExternalProjectRefreshCallback() {
-          def onFailure(errorMessage: String, errorDetails: String) { }
+      val callback = new ExternalProjectRefreshCallback() {
+        def onFailure(errorMessage: String, errorDetails: String) {}
 
-          def onSuccess(externalProject: DataNode[ProjectData]) {
-            if (externalProject == null) return
+        def onSuccess(externalProject: DataNode[ProjectData]) {
+          if (externalProject == null) return
 
-            val projects = ContainerUtilRt.newHashSet(sbtSettings.getLinkedProjectsSettings)
-            projects add projectSettings
-            sbtSettings setLinkedProjectsSettings projects
+          val projects = ContainerUtilRt.newHashSet(sbtSystemSettings.getLinkedProjectsSettings)
+          projects.add(projectSettings)
+          sbtSystemSettings.setLinkedProjectsSettings(projects)
 
-            ExternalSystemApiUtil executeProjectChangeAction new DisposeAwareProjectChange(project) {
-              def execute() {
-                ProjectRootManagerEx.getInstanceEx(project) mergeRootsChangesDuring new Runnable {
-                  def run() {
-                    val dataManager: ProjectDataManager = ServiceManager.getService(classOf[ProjectDataManager])
-                    dataManager.importData[ProjectData](externalProject.getKey, Collections.singleton(externalProject), project, false)
-                  }
+          ExternalSystemApiUtil.executeProjectChangeAction(new DisposeAwareProjectChange(project) {
+            def execute() {
+              ProjectRootManagerEx.getInstanceEx(project) mergeRootsChangesDuring new Runnable {
+                def run() {
+                  val dataManager: ProjectDataManager = ServiceManager.getService(classOf[ProjectDataManager])
+                  dataManager.importData[ProjectData](externalProject.getKey, Collections.singleton(externalProject), project, false)
                 }
               }
             }
-
-          }
+          })
         }
+      }
 
-        FileDocumentManager.getInstance.saveAllDocuments()
-
-        ExternalSystemUtil.refreshProject(project, SbtProjectSystem.Id, projectSettings.getExternalProjectPath, callback,
-          false, ProgressExecutionMode.IN_BACKGROUND_ASYNC)
-        myNotification = None
-      case "ignore" => myNoImportIgnored = false
-      case _ =>
-    }.setNotificationType(NotificationType.INFORMATION)
-
-    val notification = build.notification
-    myNotification = Some((notification, forFile))
-    build show notification
+      FileDocumentManager.getInstance.saveAllDocuments()
+      ExternalSystemUtil.refreshProject(project,
+        SbtProjectSystem.Id, projectSettings.getExternalProjectPath, callback,
+        false, ProgressExecutionMode.IN_BACKGROUND_ASYNC)
+      currentNotification = None
+    case "ignore" =>
+      shouldIgnoreNoImport = true
+    case _ =>
   }
   
-  private def getExternalProject(filePath: String) = {
-    def getAffectedExternalProjectPath(changedFileOrDirPath: String, project: Project) = {
+  private def checkNoImport(forFile: String): Unit = {
+    if (isNotificationShownFor(forFile))
+      return
+    expireNotification()
+
+    for {
+      sbtSettings <- Option(SbtSystemSettings.getInstance(project))
+      myExternalProject <- getExternalProject(forFile)
+      if sbtSettings.getLinkedProjectSettings(myExternalProject) == null
+    } {
+      val build = builder(SbtImportNotifier noImportMessage forFile)
+              .setTitle("Import project")
+              .setNotificationType(NotificationType.INFORMATION)
+              .setHandler(noImportNotificationHandler(forFile, sbtSettings))
+
+      val notification = build.notification
+      currentNotification = Some((notification, forFile))
+      build show notification
+    }
+  }
+  
+  private def getExternalProject(filePath: String): Option[String] = (!project.isDisposed).option {
       import com.intellij.openapi.vfs.VfsUtilCore._
-      val changed = new File(changedFileOrDirPath)
+      val changed = new File(filePath)
       val name = changed.getName
 
       val base = new File(project.getBasePath)
@@ -163,17 +173,9 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
       (name.endsWith(s".${Sbt.FileExtension}") && isAncestor(base, changed, true) ||
               name.endsWith(".scala") && isAncestor(build, changed, true))
               .option(base.canonicalPath).orNull
-    }
-
-    if (project.isDisposed) null else getAffectedExternalProjectPath(filePath, project)
   }
 
   private def builder(message: String) = NotificationUtil.builder(project, message).setGroup(SbtImportNotifier.groupName)
-  
-  private def getSbtSettings: Option[SbtSystemSettings] = ExternalSystemApiUtil.getSettings(project, SbtProjectSystem.Id) match {
-    case sbta: SbtSystemSettings => Some(sbta)
-    case _ => None 
-  }
   
   private def checkCanBeSbtFile(file: VirtualFile): Boolean = {
     val name = file.getName
@@ -186,58 +188,44 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
     parent != null && parent.getName == "project"
   }
 
-  object MyFileEditorListener extends FileEditorManagerListener {
-    def selectionChanged(event: FileEditorManagerEvent) {}
+  object MyFileEditorListener extends FileEditorManagerAdapter {
+    override def fileClosed(source: FileEditorManager, file: VirtualFile) {
+      if (isNotificationShownFor(file.getCanonicalPath))
+        expireNotification()
 
-    def fileClosed(source: FileEditorManager, file: VirtualFile) {
+      if (!file.isValid)
+        return
+
       val project = source.getProject
-
-      val path = file.getCanonicalPath
-
-      if (myNotification.exists {
-        case (_, p) if p == path => true
-        case _ => false
-      }) expireNotification()
-
-      if (!file.isValid) return
-      val psiFile = PsiManager.getInstance(project).findFile(file)
-      if (psiFile == null) return
-
-      val document = PsiDocumentManager.getInstance(project).getDocument(psiFile)
-      if (document == null) return
-
-      val listener = myMap.remove(document)
-      if (listener != null) {
+      for {
+        psiFile  <- Option(PsiManager.getInstance(project).findFile(file))
+        document <- Option(PsiDocumentManager.getInstance(project)).safeMap(_.getDocument(psiFile))
+        listener <- Option(listenedDocuments.remove(document))
+      } {
         document.removeDocumentListener(listener)
       }
     }
 
-    def fileOpened(source: FileEditorManager, file: VirtualFile) {
-      if (!file.isValid) return
-      if (!checkCanBeSbtFile(file)) return
-      
-      if (!myNoImportIgnored) checkNoImport(file.getCanonicalPath)
+    override def fileOpened(source: FileEditorManager, file: VirtualFile) {
+      if (!file.isValid || !checkCanBeSbtFile(file))
+        return
+      if (!shouldIgnoreNoImport)
+        checkNoImport(file.getCanonicalPath)
 
       source getSelectedEditor file match {
         case txt: TextEditor => txt.getEditor match {
-          case ext: EditorEx =>
-            if (myReImportIgnored) return
-
+          case ext: EditorEx if !shouldIgnoreReImport =>
             val path = file.getCanonicalPath
-
             val listener: DocumentAdapter = new DocumentAdapter {
               override def documentChanged(e: DocumentEvent) {
-                if (myNotification exists {
-                  case (_, p) => p == path
-                }) return
-
+                if (isNotificationShownFor(path))
+                  return
                 showReImportNotification(path)
               }
             }
-
             val document = ext.getDocument
             document.addDocumentListener(listener)
-            myMap.put(document, listener)
+            listenedDocuments.put(document, listener)
           case _ =>
         }
         case _ => 
