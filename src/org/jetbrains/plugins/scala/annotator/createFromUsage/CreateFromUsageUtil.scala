@@ -112,7 +112,11 @@ object CreateFromUsageUtil {
     FileEditorManager.getInstance(project).openTextEditor(descriptor, true)
   }
 
-  def unapplyMethodText(pattern: ScPattern) = s"def unapply(x: Any): ${unapplyMethodTypeText(pattern)} = ???"
+  def unapplyMethodText(pattern: ScPattern) = {
+    val pType = pattern.expectedType.getOrElse(scTypeAny)
+    val pName = nameByType(pType)
+    s"def unapply($pName: ${pType.canonicalText}): ${unapplyMethodTypeText(pattern)} = ???"
+  }
 
   def unapplyMethodTypeText(pattern: ScPattern) = {
     val types = CreateFromUsageUtil.patternArgs(pattern).map(_.getType(TypingContext.empty).getOrAny)
