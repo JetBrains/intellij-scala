@@ -8,9 +8,6 @@
             <implementation-class>org.jetbrains.sbt.language.SbtProjectComponent</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.sbt.project.SbtImportNotifier</implementation-class>
-        </component>
-        <component>
             <implementation-class>org.jetbrains.sbt.project.notifications.LegacyProjectFormatNotifier</implementation-class>
         </component>
         <component>
@@ -78,6 +75,8 @@
                         level="WARNING" enabledByDefault="true" language="Scala"/>
 
         <configurationType implementation="org.jetbrains.sbt.runner.SbtConfigurationType"/>
+        <editorNotificationProvider implementation="org.jetbrains.sbt.project.notifications.SbtReImportNotificationProvider"/>
+        <editorNotificationProvider implementation="org.jetbrains.sbt.project.notifications.SbtNoImportNotificationProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">
