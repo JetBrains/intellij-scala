@@ -3,11 +3,11 @@
 Two scala collections cannot be equal if they are of different categories (Set, Seq, Map or Iterator).
 Comparing them with arrays is also pointless.
 Inspection suggests to convert one of the collection to make them of same kind.
-<p><code>Seq(1) == Iterator(1)</code><br>
-<code>Seq(1) != Array(1)</code></p><br>
+<p><code>seq == iterator</code><br>
+<code>seq != array</code></p><br>
 is replaced with <br>
-<p><code>Seq(1).toIterator == Iterator(1)</code> or <code>Seq(1) == Iterator(1).toSeq</code> <br>
-<code>Seq(1) != Array(1).toSeq </code></p><br>
+<p><code>seq.toIterator == iterator</code> or <code>seq == iterator.toSeq</code> <br>
+<code>seq != array.toSeq </code></p><br>
 
 </body>
 </html>
