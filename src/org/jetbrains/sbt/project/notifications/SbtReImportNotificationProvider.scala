@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.{EditorNotifications, EditorNotificationPanel}
+import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.settings.SbtLocalSettings
 
 /**
@@ -28,21 +29,21 @@ class SbtReImportNotificationProvider(project: Project, notifications: EditorNot
 
   override def createPanel(file: VirtualFile): EditorNotificationPanel = {
     val panel = new EditorNotificationPanel()
-    panel.setText(s"Build file '${file.getName}' was changed")
-    panel.createActionLabel("Refresh project", new Runnable {
+    panel.setText(SbtBundle("sbt.notification.reimport.msg", file.getName))
+    panel.createActionLabel(SbtBundle("sbt.notification.refreshProject"), new Runnable {
       override def run() = {
         refreshProject()
         notifications.updateAllNotifications()
       }
     })
-    panel.createActionLabel("Enable auto-import", new Runnable {
+    panel.createActionLabel(SbtBundle("sbt.notification.enableAutoImport"), new Runnable {
       override def run() = {
         getProjectSettings(file).foreach(_.setUseOurOwnAutoImport(true))
         refreshProject()
         notifications.updateAllNotifications()
       }
     })
-    panel.createActionLabel("Ignore", new Runnable {
+    panel.createActionLabel(SbtBundle("sbt.notification.ignore"), new Runnable {
       override def run() = {
         ignoreFile(file)
         notifications.updateAllNotifications()

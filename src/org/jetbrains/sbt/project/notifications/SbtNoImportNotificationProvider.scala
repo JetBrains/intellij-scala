@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.{EditorNotifications, EditorNotificationPanel}
+import org.jetbrains.sbt.SbtBundle
 
 /**
  * @author Nikolay Obedin
@@ -24,14 +25,14 @@ class SbtNoImportNotificationProvider(project: Project, notifications: EditorNot
 
   override def createPanel(file: VirtualFile): EditorNotificationPanel = {
     val panel = new EditorNotificationPanel()
-    panel.setText(s"'${file.getName}' is SBT build file")
-    panel.createActionLabel("Import project", new Runnable {
+    panel.setText(SbtBundle("sbt.notification.noimport.msg", file.getName))
+    panel.createActionLabel(SbtBundle("sbt.notification.importProject"), new Runnable {
       override def run() = {
         importProject(file)
         notifications.updateAllNotifications()
       }
     })
-    panel.createActionLabel("Ignore", new Runnable {
+    panel.createActionLabel(SbtBundle("sbt.notification.ignore"), new Runnable {
       override def run() = {
         ignoreFile(file)
         notifications.updateAllNotifications()
