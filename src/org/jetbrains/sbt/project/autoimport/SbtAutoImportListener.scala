@@ -30,7 +30,7 @@ class SbtAutoImportListener(project: Project) extends VirtualFileAdapter {
       SbtSystemSettings.getInstance(project)
         .getLinkedProjectSettings(project.getBasePath))
 
-    if (settings.fold(false)(_.useOurOwnAutoImport) && isBuildFile(file, project)) {
+    if (settings.fold(false)(_.useOurOwnAutoImport) && isBuildFile(file)) {
       // FIXME: maybe invoke with a little delay?
       ApplicationManager.getApplication.invokeLater(new Runnable() {
         override def run(): Unit =
@@ -43,8 +43,8 @@ class SbtAutoImportListener(project: Project) extends VirtualFileAdapter {
     }
   }
 
-  private def isBuildFile(changedFile: VirtualFile, project: Project): Boolean = {
-    val changed = new File(changedFile.getCanonicalPath)
+  private def isBuildFile(file: VirtualFile): Boolean = {
+    val changed = new File(file.getCanonicalPath)
     val name = changed.getName
 
     val base = new File(project.getBasePath)
