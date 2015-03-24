@@ -880,160 +880,169 @@
                          enabledByDefault="false" language="Scala"/>
 
         <!--Scalastyle inspection-->
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection"
-                       displayName="Scala style inspection" groupPath="Scala" groupName="Code Style"
-                       shortName="ScalaStyle"
-                       enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection"
+                         displayName="Scala style inspection" groupPath="Scala" groupName="Code Style"
+                         shortName="ScalaStyle"
+                         enabledByDefault="true" language="Scala"/>
 
-      <!--collection inspections-->
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterHeadOptionInspection"
-                       displayName=".filter and .headOption to .find" groupPath="Scala" groupName="Collections"
-                       shortName="FilterHeadOption" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapGetOrElseFalseInspection"
-                       displayName=".map and .getOrElse(false) to .exists" groupPath="Scala" groupName="Collections"
-                       shortName="MapGetOrElseFalse" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.EmptyCheckInspection"
-                       displayName="Simplifiable empty check" groupPath="Scala" groupName="Collections"
-                       shortName="EmptyCheck" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FindEmptyCheckInspection"
-                       displayName=".find and emptiness check to .exists" groupPath="Scala" groupName="Collections"
-                       shortName="FindIsDefined" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterEmptyCheckInspection"
-                       displayName=".filter/.filterNot and emptiness check to .exists/.forall" groupPath="Scala" groupName="Collections"
-                       shortName="FilterEmptyCheck" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterSizeInspection"
-                       displayName=".filter and .size to .count" groupPath="Scala" groupName="Collections"
-                       shortName="FilterSize" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SimplifiableFoldOrReduceInspection"
-                       displayName="Simplifiable fold or reduce method" groupPath="Scala" groupName="Collections"
-                       shortName="SimplifiableFoldOrReduce" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FoldTrueAndInspection"
-                       displayName="Fold simplifiable to forall" groupPath="Scala" groupName="Collections"
-                       shortName="FoldTrueAnd" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SortFilterInspection"
-                       displayName="Filter after sort" groupPath="Scala" groupName="Collections"
-                       shortName="SortFilter" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapGetOrElseInspection"
-                       displayName=".map and .getOrElse on Option to .fold" groupPath="Scala" groupName="Collections"
-                       shortName="MapGetOrElse" level="WARNING"
-                       enabledByDefault="false" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ExistsEqualsInspection"
-                       displayName="Exists simplifiable to contains" groupPath="Scala" groupName="Collections"
-                       shortName="ExistsEquals" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetOrElseNullInspection"
-                       displayName=".getOrElse(null) to .orNull" groupPath="Scala" groupName="Collections"
-                       shortName="GetOrElseNull" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetGetOrElseInspection"
-                       displayName=".get and .getOrElse on a map to .getOrElse" groupPath="Scala" groupName="Collections"
-                       shortName="GetGetOrElse" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ReverseMapInspection"
-                       displayName=".reverse and .map to .reverseMap" groupPath="Scala" groupName="Collections"
-                       shortName="ReverseMap" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ReverseIteratorInspection"
-                       displayName=".reverse and .iterator to reverseIterator" groupPath="Scala" groupName="Collections"
-                       shortName="ReverseIterator" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ZipWithIndexInspection"
-                       displayName="xs.zip(xs.indices) to xs.zipWithIndex" groupPath="Scala" groupName="Collections"
-                       shortName="ZipWithIndex" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ZeroIndexToHeadInspection"
-                       displayName="xs(0) to xs.head" groupPath="Scala" groupName="Collections"
-                       shortName="ZeroIndexToHead" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.LastIndexToLastInspection"
-                       displayName="xs(xs.size - 1) to xs.last" groupPath="Scala" groupName="Collections"
-                       shortName="LastIndexToLast" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantCollectionConversionInspection"
-                       displayName="Redundant collection conversion" groupPath="Scala" groupName="Collections"
-                       shortName="RedundantCollectionConversion" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SideEffectsInMonadicTransformationInspection"
-                       displayName="Side effects in a monadic transformation" groupPath="Scala" groupName="Collections"
-                       shortName="SideEffectsInMonadicTransformation" level="WARNING"
-                       enabledByDefault="false" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SizeToLengthInspection"
-                       displayName=".size to .length on arrays and strings" groupPath="Scala" groupName="Collections"
-                       shortName="SizeToLength" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.UnitInMapInspection"
-                       displayName="Unit return type in the argument of map" groupPath="Scala" groupName="Collections"
-                       shortName="UnitInMap" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapToBooleanContainsInspection"
-                       displayName=".map(...).contains(true / false) to exists or !.forall" groupPath="Scala" groupName="Collections"
-                       shortName="MapToBooleanContains" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ToSetAndBackInspection"
-                       displayName="conversion to Set and back to .distinct" groupPath="Scala" groupName="Collections"
-                       shortName="ToSetAndBack" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.DropTakeToSliceInspection"
-                       displayName=".drop and .take to .slice" groupPath="Scala" groupName="Collections"
-                       shortName="DropTakeToSlice" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ReverseTakeReverseInspection"
-                       displayName=".reverse.take(...).reverse to .takeRight(...)" groupPath="Scala" groupName="Collections"
-                       shortName="ReverseTakeReverse" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapFlattenInspection"
-                       displayName=".map(...).flatten to .flatMap(...)" groupPath="Scala" groupName="Collections"
-                       shortName="MapFlatten" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterOtherContainsInspection"
-                       displayName=".filter with contains to intersect or diff" groupPath="Scala" groupName="Collections"
-                       shortName="FilterOtherContains" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.EqualityToSameElementsInspection"
-                       displayName="equals to sameElements for arrays and iterators" groupPath="Scala" groupName="Collections"
-                       shortName="EqualityToSameElements" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SameElementsToEqualsInspection"
-                       displayName="sameElements to equals" groupPath="Scala" groupName="Collections"
-                       shortName="SameElementsToEquals" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.CorrespondsUnsortedInspection"
-                       displayName="corresponds/sameElements on unsorted collection" groupPath="Scala" groupName="Collections"
-                       shortName="CorrespondsUnsorted" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ComparingDiffCollectionKindsInspection"
-                       displayName="comparing different collection kinds" groupPath="Scala" groupName="Collections"
-                       shortName="ComparingDiffCollectionKinds" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapKeysInspection"
-                       displayName="extracting keys manually" groupPath="Scala" groupName="Collections"
-                       shortName="MapKeys" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapValuesInspection"
-                       displayName="extracting values manually" groupPath="Scala" groupName="Collections"
-                       shortName="MapValues" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.HeadOrLastOptionInspection"
-                       displayName="emulated headOption or lastOption" groupPath="Scala" groupName="Collections"
-                       shortName="HeadOrLastOption" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantHeadOrLastOptionInspection"
-                       displayName="redundant headOption or lastOption" groupPath="Scala" groupName="Collections"
-                       shortName="RedundantHeadOrLastOption" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.OptionEqualsSomeToContainsInspection"
-                       displayName="equals Some(x) to .contains(x)" groupPath="Scala" groupName="Collections"
-                       shortName="OptionEqualsSome" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
+        <!--collection inspections-->
+        <!--size-->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.EmptyCheckInspection"
+                         displayName="Simplifiable empty check" groupPath="Scala, Collections" groupName="Size"
+                         shortName="EmptyCheck" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SizeToLengthInspection"
+                         displayName="Size to length on arrays and strings" groupPath="Scala, Collections" groupName="Size"
+                         shortName="SizeToLength" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <!--comparing-->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.EqualityToSameElementsInspection"
+                         displayName="Equals on arrays and iterators" groupPath="Scala, Collections" groupName="Comparing"
+                         shortName="EqualityToSameElements" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SameElementsToEqualsInspection"
+                         displayName="SameElements on collections of a same kind" groupPath="Scala, Collections" groupName="Comparing"
+                         shortName="SameElementsToEquals" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.CorrespondsUnsortedInspection"
+                         displayName="Corresponds/sameElements on unsorted collection" groupPath="Scala, Collections" groupName="Comparing"
+                         shortName="CorrespondsUnsorted" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ComparingDiffCollectionKindsInspection"
+                         displayName="Equals on collections of different kinds" groupPath="Scala, Collections" groupName="Comparing"
+                         shortName="ComparingDiffCollectionKinds" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <!--indices-->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ZipWithIndexInspection"
+                         displayName="Manually zipping with indices" groupPath="Scala, Collections" groupName="Indices"
+                         shortName="ZipWithIndex" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ZeroIndexToHeadInspection"
+                         displayName="Access to first element by index" groupPath="Scala, Collections" groupName="Indices"
+                         shortName="ZeroIndexToHead" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.LastIndexToLastInspection"
+                         displayName="Access to last element by index" groupPath="Scala, Collections" groupName="Indices"
+                         shortName="LastIndexToLast" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <!--simplifications: filter and exists-->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterHeadOptionInspection"
+                         displayName="Filter and headOption to find" groupPath="Scala, Collections" groupName="Simplifications: filter and exists"
+                         shortName="FilterHeadOption" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FindEmptyCheckInspection"
+                         displayName="Find and emptiness check to exists" groupPath="Scala, Collections" groupName="Simplifications: filter and exists"
+                         shortName="FindEmptyCheck" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterEmptyCheckInspection"
+                         displayName="Filter and emptiness check to exists/forall" groupPath="Scala, Collections" groupName="Simplifications: filter and exists"
+                         shortName="FilterEmptyCheck" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterSizeInspection"
+                         displayName="Filter and size to count" groupPath="Scala, Collections" groupName="Simplifications: filter and exists"
+                         shortName="FilterSize" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ExistsEqualsInspection"
+                         displayName="Exists simplifiable to contains" groupPath="Scala, Collections" groupName="Simplifications: filter and exists"
+                         shortName="ExistsEquals" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapToBooleanContainsInspection"
+                         displayName="Map and contains(true/false) to exists or !forall" groupPath="Scala, Collections" groupName="Simplifications: filter and exists"
+                         shortName="MapToBooleanContains" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterOtherContainsInspection"
+                         displayName="Filter and contains to intersect or diff" groupPath="Scala, Collections" groupName="Simplifications: filter and exists"
+                         shortName="FilterOtherContains" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <!--simplifications: other-->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SimplifiableFoldOrReduceInspection"
+                         displayName="Simplifiable fold or reduce method" groupPath="Scala, Collections" groupName="Simplifications: other"
+                         shortName="SimplifiableFoldOrReduce" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FoldTrueAndInspection"
+                         displayName="Fold simplifiable to forall" groupPath="Scala, Collections" groupName="Simplifications: other"
+                         shortName="FoldTrueAnd" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ReverseMapInspection"
+                         displayName="Reverse and map to reverseMap" groupPath="Scala, Collections" groupName="Simplifications: other"
+                         shortName="ReverseMap" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ReverseIteratorInspection"
+                         displayName="Reverse and iterator to reverseIterator" groupPath="Scala, Collections" groupName="Simplifications: other"
+                         shortName="ReverseIterator" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ToSetAndBackInspection"
+                         displayName="Conversion to Set and back to distinct" groupPath="Scala, Collections" groupName="Simplifications: other"
+                         shortName="ToSetAndBack" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.DropTakeToSliceInspection"
+                         displayName="Drop and take to slice" groupPath="Scala, Collections" groupName="Simplifications: other"
+                         shortName="DropTakeToSlice" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ReverseTakeReverseInspection"
+                         displayName="Reverse, take and reverse to takeRight" groupPath="Scala, Collections" groupName="Simplifications: other"
+                         shortName="ReverseTakeReverse" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapFlattenInspection"
+                         displayName="Map and flatten to flatMap" groupPath="Scala, Collections" groupName="Simplifications: other"
+                         shortName="MapFlatten" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.HeadOrLastOptionInspection"
+                         displayName="Emulated headOption or lastOption" groupPath="Scala, Collections" groupName="Simplifications: other"
+                         shortName="HeadOrLastOption" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <!--maps-->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetGetOrElseInspection"
+                         displayName="Get and getOrElse to getOrElse" groupPath="Scala, Collections" groupName="Maps"
+                         shortName="GetGetOrElse" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapKeysInspection"
+                         displayName="Extracting keys manually" groupPath="Scala, Collections" groupName="Maps"
+                         shortName="MapKeys" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapValuesInspection"
+                         displayName="Extracting values manually" groupPath="Scala, Collections" groupName="Maps"
+                         shortName="MapValues" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <!--options-->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantHeadOrLastOptionInspection"
+                         displayName="Redundant headOption or lastOption" groupPath="Scala, Collections" groupName="Options"
+                         shortName="RedundantHeadOrLastOption" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.OptionEqualsSomeToContainsInspection"
+                         displayName="Equals Some(x) to contains(x)" groupPath="Scala, Collections" groupName="Options"
+                         shortName="OptionEqualsSome" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapGetOrElseInspection"
+                         displayName="Map and getOrElse to fold" groupPath="Scala, Collections" groupName="Options"
+                         shortName="MapGetOrElse" level="WARNING"
+                         enabledByDefault="false" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapGetOrElseFalseInspection"
+                         displayName="Map and getOrElse(false) to exists" groupPath="Scala, Collections" groupName="Options"
+                         shortName="MapGetOrElseFalse" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetOrElseNullInspection"
+                         displayName="GetOrElse(null) to orNull" groupPath="Scala, Collections" groupName="Options"
+                         shortName="GetOrElseNull" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <!--other-->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SortFilterInspection"
+                         displayName="Filter after sort" groupPath="Scala, Collections" groupName="Other"
+                         shortName="SortFilter" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantCollectionConversionInspection"
+                         displayName="Redundant collection conversion" groupPath="Scala, Collections" groupName="Other"
+                         shortName="RedundantCollectionConversion" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SideEffectsInMonadicTransformationInspection"
+                         displayName="Side effects in a monadic transformation" groupPath="Scala, Collections" groupName="Other"
+                         shortName="SideEffectsInMonadicTransformation" level="WARNING"
+                         enabledByDefault="false" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.UnitInMapInspection"
+                         displayName="Unit return type in the argument of map" groupPath="Scala, Collections" groupName="Other"
+                         shortName="UnitInMap" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+
 
         <!-- scaladoc inspections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnclosedTagWithoutParserInspection"
@@ -1057,7 +1066,7 @@
         <!-- end of scaladoc inspections -->
         <!-- end of inspections -->
 
-      <library.type implementation="org.jetbrains.plugins.scala.project.ScalaLibraryType" />
+        <library.type implementation="org.jetbrains.plugins.scala.project.ScalaLibraryType" />
     </extensions>
 
 
