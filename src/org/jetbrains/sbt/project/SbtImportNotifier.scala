@@ -161,9 +161,23 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
     build show notification
   }
   
-  private def getExternalProject(filePath: String) =
-    if (project.isDisposed) null else myExternalProjectPathProvider.getRealAffectedExternalProjectPath(filePath, project)
-  
+  private def getExternalProject(filePath: String) = {
+    def getAffectedExternalProjectPath(changedFileOrDirPath: String, project: Project) = {
+      import com.intellij.openapi.vfs.VfsUtilCore._
+      val changed = new File(changedFileOrDirPath)
+      val name = changed.getName
+
+      val base = new File(project.getBasePath)
+      val build = base / Sbt.ProjectDirectory
+
+      (name.endsWith(s".${Sbt.FileExtension}") && isAncestor(base, changed, true) ||
+              name.endsWith(".scala") && isAncestor(build, changed, true))
+              .option(base.canonicalPath).orNull
+    }
+
+    if (project.isDisposed) null else getAffectedExternalProjectPath(filePath, project)
+  }
+
   private def builder(message: String) = NotificationUtil.builder(project, message).setGroup(SbtImportNotifier.groupName)
   
   private def getSbtSettings: Option[SbtSystemSettings] = ExternalSystemApiUtil.getSettings(project, SbtProjectSystem.Id) match {
@@ -243,7 +257,6 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
 }
 
 object SbtImportNotifier {
-  def getInstance(project: Project) = ServiceManager.getService(project, classOf[SbtImportNotifier])
 
   private def getProjectName(path: String) = new File(path).getParentFile.getName
 
