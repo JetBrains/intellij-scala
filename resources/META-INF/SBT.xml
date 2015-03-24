@@ -11,7 +11,7 @@
             <implementation-class>org.jetbrains.sbt.project.SbtImportNotifier</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.sbt.project.LegacyProjectFormatNotifier</implementation-class>
+            <implementation-class>org.jetbrains.sbt.project.notifications.LegacyProjectFormatNotifier</implementation-class>
         </component>
         <component>
           <implementation-class>org.jetbrains.sbt.project.autoimport.SbtAutoImportComponent</implementation-class>
