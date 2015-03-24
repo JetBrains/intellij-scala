@@ -6,7 +6,7 @@ import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
 
 import com.intellij.notification.{Notification, NotificationDisplayType, NotificationType, NotificationsConfiguration}
-import com.intellij.openapi.components.{ProjectComponent, ServiceManager}
+import com.intellij.openapi.components.{AbstractProjectComponent, ProjectComponent, ServiceManager}
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent}
 import com.intellij.openapi.editor.ex.EditorEx
@@ -32,9 +32,8 @@ import org.jetbrains.sbt.settings.SbtSystemSettings
  * User: Dmitry Naydanov
  * Date: 11/27/13
  */
-class SbtImportNotifier(private val project: Project, private val fileEditorManager: FileEditorManager) extends ProjectComponent {
-  private val myExternalProjectPathProvider = new SbtAutoImport
-  
+class SbtImportNotifier(private val project: Project, private val fileEditorManager: FileEditorManager)
+        extends AbstractProjectComponent(project) {
   private var myReImportIgnored = false
   private var myNoImportIgnored = false
 
@@ -42,19 +41,11 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
 
   private var myNotification: Option[(Notification, String)] = None
 
-  def disposeComponent() {}
-
-  def initComponent() {}
-
-  def projectClosed() {}
-
-  def projectOpened() {
+  override def projectOpened() {
     NotificationsConfiguration.getNotificationsConfiguration.register(SbtImportNotifier.groupName,
       NotificationDisplayType.STICKY_BALLOON)
     project.getMessageBus.connect(project).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, MyFileEditorListener)
   }
-
-  def getComponentName: String = "SBT Notifier"
 
   private def expireNotification() {
     myNotification map (_._1.expire())
@@ -74,11 +65,10 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
 
     val sbtSettings = getSbtSettings getOrElse { return }
     val projectSettings = sbtSettings.getLinkedProjectSettings(externalProjectPath)
-    if (projectSettings == null || projectSettings.isUseAutoImport) return 
+    if (projectSettings == null || projectSettings.useOurOwnAutoImport) return
     
     def refresh() {
       FileDocumentManager.getInstance.saveAllDocuments()
-
       ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, SbtProjectSystem.Id))
     }
 
@@ -90,7 +80,7 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
         myNotification = None
       case "autoimport" =>
         val projectSettings = sbtSettings.getLinkedProjectSettings(externalProjectPath)
-        projectSettings setUseAutoImport true
+        projectSettings.setUseOurOwnAutoImport(true)
         refresh()
         myNotification = None
       case "ignore" => myReImportIgnored = true
@@ -118,7 +108,7 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
     val build = builder(SbtImportNotifier noImportMessage forFile).setTitle("Import project").setHandler {
       case "import" =>
         val projectSettings = new Settings
-        projectSettings setUseAutoImport true
+        projectSettings.setUseOurOwnAutoImport(true)
         projectSettings setExternalProjectPath (
           if (forFile.endsWith(".scala")) new File(forFile).getParentFile.getParent else new File(forFile).getParent
         )
