@@ -88,7 +88,7 @@ final class HBareObjectField(ast: ASTNode) extends HoconPsiElement(ast) {
 
   def value = findChild[HValue]
 
-  def separator = Option(findChildByType(HoconTokenSets.PathValueSeparator))
+  def separator = Option(findChildByType[PsiElement](HoconTokenSets.PathValueSeparator))
           .map(_.getNode.getElementType.asInstanceOf[HoconTokenType])
 
   override def accept(visitor: HoconElementVisitor) = visitor.visitHBareObjectField(this)

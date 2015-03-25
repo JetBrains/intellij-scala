@@ -31,11 +31,11 @@ class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
   override def navigate(requestFocus: Boolean) {
-    val descriptor = EditSourceUtil.getDescriptor(nameId);
+    val descriptor = EditSourceUtil.getDescriptor(nameId)
     if (descriptor != null) descriptor.navigate(requestFocus)
   }
 
-  def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
+  def nameId = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
     case null => ScalaPsiElementFactory.createIdentifier(getStub.asInstanceOf[ScTypeAliasStub].getName, getManager).getPsi
     case n => n
   }
@@ -58,7 +58,7 @@ class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] 
     if (stub != null) {
       return stub.asInstanceOf[ScTypeAliasStub].getUpperBoundTypeElement.toOption
     }
-    val tUpper = findLastChildByType(ScalaTokenTypes.tUPPER_BOUND)
+    val tUpper = findLastChildByType[PsiElement](ScalaTokenTypes.tUPPER_BOUND)
     if (tUpper != null) {
       PsiTreeUtil.getNextSiblingOfType(tUpper, classOf[ScTypeElement]) match {
         case null => None
@@ -73,7 +73,7 @@ class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] 
     if (stub != null) {
       return stub.asInstanceOf[ScTypeAliasStub].getLowerBoundTypeElement.toOption
     }
-    val tLower = findLastChildByType(ScalaTokenTypes.tLOWER_BOUND)
+    val tLower = findLastChildByType[PsiElement](ScalaTokenTypes.tLOWER_BOUND)
     if (tLower != null) {
       PsiTreeUtil.getNextSiblingOfType(tLower, classOf[ScTypeElement]) match {
         case null => None

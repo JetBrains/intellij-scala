@@ -87,9 +87,14 @@ object SbtExternalSystemManager {
       case str => Some(str)
     }
 
-    val vmOptions = Seq(s"-Xmx${settings.getMaximumHeapSize}M") ++
-      settings.getVmParameters.split("\\s+").toSeq ++
-      proxyOptionsFor(HttpConfigurable.getInstance)
+    val vmOptions = {
+      val userOptions = settings.getVmParameters.split("\\s+").toSeq
+      val ideaProxyOptions = proxyOptionsFor(HttpConfigurable.getInstance).filterNot { opt =>
+        val optName = opt.split('=').head + "="
+        userOptions.exists(_.startsWith(optName))
+      }
+      Seq(s"-Xmx${settings.getMaximumHeapSize}M") ++ userOptions ++ ideaProxyOptions
+    }
 
     val customVmFile = new File(settings.getCustomVMPath) / "bin" / "java"
     val customVmExecutable = settings.customVMEnabled.option(customVmFile)

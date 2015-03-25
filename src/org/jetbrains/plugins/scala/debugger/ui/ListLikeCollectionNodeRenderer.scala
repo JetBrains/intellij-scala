@@ -225,8 +225,6 @@ object ListLikeCollectionNodeRenderer {
   private class CollectionElementNodeDescriptor(name: String, project: Project, value: Value) extends ValueDescriptorImpl(project, value) {
     def calcValue(evaluationContext: EvaluationContextImpl) = value
 
-    def calcValueName() = name
-
     def getDescriptorEvaluation(context: DebuggerContext): PsiExpression = {
       try {
         JavaPsiFacade.getInstance(project).getElementFactory.createExpressionFromText(name, PositionUtil getContextElement context)
