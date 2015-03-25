@@ -51,7 +51,7 @@ class ChangesConfirmationDialog private (val project: IJProject, private val cha
     }, VcsChangeDetailsManager.getInstance(project))
     diffDetails.setParent(changesBrowser)
 
-    changesBrowser.setDiffExtendUIFactory(changesBrowser.getExtendUIFactory)
+//    changesBrowser.setDiffExtendUIFactory(changesBrowser.getExtendUIFactory)
 
     rootPane
   }
