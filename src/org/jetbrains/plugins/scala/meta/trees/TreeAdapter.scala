@@ -39,25 +39,56 @@ object TreeAdapter {
           expression(t.body).get
         )
       case t: p.expr.ScExpression => expression(Some(t)).get
+      case t: p.toplevel.imports.ScImportStmt => m.Import(t.importExprs.toStream.map(imports))
       case other => println(other.getClass); ???
     }
   }
 
+  def expression(e: p.expr.ScExpression): m.Term = e match {
+    case t: p.base.ScLiteral    => literal(t)
+    case t: p.expr.ScUnitExpr   => m.Lit.Unit()
+    case t: p.expr.ScReturnStmt => m.Term.Return(expression(t.expr).get)
+    case t: p.expr.ScBlockExpr  => m.Term.Block(t.exprs.toStream.map(expression))
+    case t: p.expr.ScInfixExpr  => m.Term.ApplyInfix(expression(t.getBaseExpr), Namer(t.getInvokedExpr), Nil, Seq(expression(t.getArgExpr)))
+    case t: p.expr.ScReferenceExpression => Namer(t)
+    case other => println(other.getClass); ???
+  }
+
   def expression(tree: Option[p.expr.ScExpression]): Option[m.Term] = {
-    def stripped(e: p.expr.ScExpression): m.Term = e match {
-      case t: p.base.ScLiteral    => literal(t)
-      case t: p.expr.ScUnitExpr   => m.Lit.Unit()
-      case t: p.expr.ScReturnStmt => m.Term.Return(expression(t.expr).get)
-      case t: p.expr.ScBlockExpr  => m.Term.Block(t.exprs.toStream.map(stripped))
-      case t: p.expr.ScInfixExpr  => m.Term.ApplyInfix(stripped(t.getBaseExpr), Namer(t.getInvokedExpr), Nil, Seq(stripped(t.getArgExpr)))
-      case t: p.expr.ScReferenceExpression => Namer(t)
-      case other => println(other.getClass); ???
-    }
     tree match {
       case Some(_: p.expr.ScUnderscoreSection) => None
-      case Some(expr) => Some(stripped(expr))
+      case Some(expr) => Some(expression(expr))
       case None => None
     }
+  }
+
+  def imports(t: p.toplevel.imports.ScImportExpr):m.Import.Clause = {
+    def qual(q: p.base.ScStableCodeReferenceElement): m.Term.Ref = {
+      q.pathQualifier match {
+        case Some(parent: p.expr.ScSuperReference) =>
+          m.Term.Select(m.Term.Super(m.Name.Anonymous(), m.Name.Anonymous()), Namer.ref(q))
+        case Some(parent: p.expr.ScThisReference) =>
+          m.Term.Select(m.Term.This(m.Name.Anonymous()), Namer.ref(q))
+        case Some(parent:p.base.ScStableCodeReferenceElement) =>
+          m.Term.Select(qual(parent), Namer.ref(q))
+        case Some(other) => ???
+        case None         => Namer.ref(q)
+      }
+    }
+    def selector(sel: p.toplevel.imports.ScImportSelector): m.Import.Selector = {
+      if (sel.isAliasedImport && sel.importedName == "_")
+        m.Import.Selector.Unimport(Namer.ind(sel.reference))
+      else if (sel.isAliasedImport)
+        m.Import.Selector.Rename(m.Name.Indeterminate(sel.reference.qualName), m.Name.Indeterminate(sel.importedName))
+      else
+        m.Import.Selector.Name(m.Name.Indeterminate(sel.importedName))
+    }
+    if (!t.selectors.isEmpty)
+      m.Import.Clause(qual(t.qualifier), Seq(t.selectors.map(selector):_*) ++ (if (t.singleWildcard) Seq(m.Import.Selector.Wildcard()) else Seq.empty))
+    else if (t.singleWildcard)
+      m.Import.Clause(qual(t.qualifier), Seq(m.Import.Selector.Wildcard()))
+    else
+      m.Import.Clause(qual(t.qualifier), Seq(m.Import.Selector.Name(m.Name.Indeterminate(t.getNames.head))))
   }
 
   def literal(l: p.base.ScLiteral): m.Lit = {
@@ -196,5 +227,13 @@ object Namer { // TODO: denotaions
 
   def apply(e: p.statements.ScTypeAlias): m.Type.Name = {
     m.Type.Name(e.name)
+  }
+
+  def ind(cr: p.base.ScStableCodeReferenceElement): m.Name.Indeterminate = {
+    m.Name.Indeterminate(cr.getCanonicalText)
+  }
+
+  def ref(cr: p.base.ScStableCodeReferenceElement): m.Term.Name = {
+    m.Term.Name(cr.getCanonicalText)
   }
 }
