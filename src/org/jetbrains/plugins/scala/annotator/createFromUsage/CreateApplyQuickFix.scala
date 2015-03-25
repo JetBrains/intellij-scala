@@ -18,7 +18,7 @@ class CreateApplyQuickFix(td: ScTypeDefinition, call: ScMethodCall)
   val methodType = call.expectedType().map(_.canonicalText)
 
   val methodText = {
-    val argsText = CreateFromUsageUtil.argsText(call.argumentExpressions)
+    val argsText = CreateFromUsageUtil.paramsText(call.argumentExpressions)
     val dummyTypeText = methodType.fold("")(_ => ": Int")
     s"def apply$argsText$dummyTypeText = ???"
   }

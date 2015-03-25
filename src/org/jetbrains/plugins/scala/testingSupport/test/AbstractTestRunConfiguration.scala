@@ -111,7 +111,9 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     workingDirectory = ExternalizablePath.urlValue(s)
   }
 
-  def provideDefaultWorkingDir = {
+  def initWorkingDir = if (workingDirectory == null || workingDirectory.trim.isEmpty) setWorkingDirectory(provideDefaultWorkingDir)
+
+  private def provideDefaultWorkingDir = {
     val module = getModule
     val mavenProject =
       if (module != null) {

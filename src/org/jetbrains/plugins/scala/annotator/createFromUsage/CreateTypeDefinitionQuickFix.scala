@@ -196,7 +196,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description
     clazz match {
       case cl: ScClass =>
         val constr = cl.constructor.get
-        val text = argumentsText(ref)
+        val text = parametersText(ref)
         val parameters = ScalaPsiElementFactory.createParamClausesWithContext(text, constr, constr.getFirstChild)
         constr.parameterList.replace(parameters)
       case _ =>
@@ -211,7 +211,7 @@ class CreateTraitQuickFix(ref: ScReferenceElement)
         extends CreateTypeDefinitionQuickFix(ref, "trait", Trait) {
   
   override def isAvailable(project: Project, editor: Editor, file: PsiFile) = {
-    super.isAvailable(project, editor, file) && argumentsText(ref).isEmpty
+    super.isAvailable(project, editor, file) && parametersText(ref).isEmpty
   }
 }
 

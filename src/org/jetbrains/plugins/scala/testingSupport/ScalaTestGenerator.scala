@@ -14,7 +14,7 @@ import com.intellij.testIntegration.createTest.{CreateTestDialog, TestGenerator}
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.actions.NewScalaTypeDefinitionAction
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.formatting.FormatterUtil
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Def
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
@@ -289,8 +289,7 @@ object ScalaTestGenerator {
   private def addSpecs2SpecificationMethods(methods: List[MemberInfo], psiManager: PsiManager,
                                             templateBody: ScTemplateBody, className: String, project: Project) {
     val testNames = methods.map("test" + _.getMember.getName.capitalize)
-    val normalIndentString = String.format("%1$" +
-        ScalaCodeStyleSettings.getInstance(project).getContainer.getIndentSize(ScalaFileType.SCALA_FILE_TYPE) + "s", " ")
+    val normalIndentString = FormatterUtil.getNormalIndentString(project)
     val doubleIndent = normalIndentString + normalIndentString
 
     val checkMethodsString = if (methods.nonEmpty) testNames.map(testName => doubleIndent + testName + " $" + testName).
@@ -313,8 +312,7 @@ object ScalaTestGenerator {
         ExtractSuperUtil.addExtendsTo(typeDef, groupsTypeDef.asInstanceOf[ScTypeDefinition])
         val testNames = methods.map("test" + _.getMember.getName.capitalize)
         val closingBrace = templateBody.getLastChild
-        val normalIndentString = String.format("%1$" + ScalaCodeStyleSettings.getInstance(project).getContainer.
-            getIndentSize(ScalaFileType.SCALA_FILE_TYPE) + "s", " ")
+        val normalIndentString = FormatterUtil.getNormalIndentString(project)
         val doubleIndent = normalIndentString + normalIndentString
         val checkMethodsString = if (methods.nonEmpty) testNames.map(doubleIndent + "+ " + _).
             fold("\n" + normalIndentString + "Methods of " + className + " should pass tests:")(_ + "\n" + _)
@@ -341,8 +339,7 @@ object ScalaTestGenerator {
 
   private def generateUTestMethods(methods: List[MemberInfo], psiManager: PsiManager, templateBody: ScTemplateBody,
                                    className: String, project: Project) {
-    val normalIndentString = String.format("%1$" +
-        ScalaCodeStyleSettings.getInstance(project).getContainer.getIndentSize(ScalaFileType.SCALA_FILE_TYPE) + "s", " ")
+    val normalIndentString = FormatterUtil.getNormalIndentString(project)
     templateBody.addBefore(ScalaPsiElementFactory.createElement("val tests = TestSuite{}", psiManager, Def.parse(_)),
       templateBody.getLastChild)
     if (methods.nonEmpty) {

@@ -47,6 +47,9 @@ package object collections {
   private[collections] val `.filterNot` = invocation("filterNot").from(likeCollectionClasses)
   private[collections] val `.map` = invocation("map").from(likeCollectionClasses)
   private[collections] val `.headOption` = invocation("headOption").from(likeCollectionClasses)
+  private[collections] val `.lastOption` = invocation("lastOption").from(likeCollectionClasses)
+  private[collections] val `.head` = invocation("head").from(likeCollectionClasses)
+  private[collections] val `.last` = invocation("last").from(likeCollectionClasses)
   private[collections] val `.sizeOrLength` = invocation(Set("size", "length")).from(likeCollectionClasses)
   private[collections] val `.find` = invocation("find").from(likeCollectionClasses)
   private[collections] val `.contains` = invocation("contains").from(likeCollectionClasses)
@@ -72,6 +75,9 @@ package object collections {
   private[collections] val `.indices` = invocation("indices").from(likeCollectionClasses)
   private[collections] val `.take` = invocation("take").from(likeCollectionClasses)
   private[collections] val `.drop` = invocation("drop").from(likeCollectionClasses)
+  private[collections] val `.sameElements` = invocation("sameElements").from(likeCollectionClasses)
+  private[collections] val `.corresponds` = invocation("corresponds").from(likeCollectionClasses)
+
   private[collections] val `!=` = invocation("!=")
   private[collections] val `==` = invocation(Set("==", "equals"))
   private[collections] val `>` = invocation(">")
@@ -81,6 +87,10 @@ package object collections {
   private[collections] val `+` = invocation("+")
 
   private[collections] val `.toCollection` = new InvocationTemplate(name => name.startsWith("to") && name != "toString").from(likeCollectionClasses)
+  private[collections] val `.toSet` = invocation("toSet").from(likeCollectionClasses)
+  private[collections] val `.toIterator` = invocation("toIterator").from(likeCollectionClasses)
+
+  private[collections] val `.lift` = invocation("lift").from(Array("scala.PartialFunction"))
 
   private[collections] val `.monadicMethod` = invocation(monadicMethods).from(likeCollectionClasses)
 
@@ -89,6 +99,26 @@ package object collections {
       expr match {
         case ResolvesTo(obj: ScObject) if obj.qualifiedName == "scala.None" => true
         case _ => false
+      }
+    }
+  }
+
+  object scalaSome {
+    def unapply(expr: ScExpression): Option[ScExpression] = expr match {
+      case MethodRepr(_, _, Some(ref), Seq(e)) if ref.refName == "Some" =>
+        ref.resolve() match {
+          case m: ScMember if m.containingClass.qualifiedName == "scala.Some" => Some(e)
+          case _ => None
+        }
+      case _ => None
+    }
+  }
+
+  object IfStmt {
+    def unapply(expr: ScExpression): Option[(ScExpression, ScExpression, ScExpression)] = {
+      expr match {
+        case ScIfStmt(Some(c), Some(tb), Some(eb)) => Some(c, tb, eb)
+        case _ => None
       }
     }
   }
@@ -188,29 +218,22 @@ package object collections {
     }
   }
 
-  object equalsWith {
-    def unapply(expr: ScExpression): Option[ScExpression] = {
+  class ParameterlessCallOnParameterTemplate(name: String) {
+    def unapply(expr: ScExpression): Boolean = {
       stripped(expr) match {
         case ScFunctionExpr(Seq(x), Some(result)) =>
           stripped(result) match {
-            case ScInfixExpr(left, oper, right) if oper.refName == "==" =>
-              (stripped(left), stripped(right)) match {
-                case (leftRef: ScReferenceExpression, rightExpr)
-                  if leftRef.resolve() == x && isIndependentOf(rightExpr, x) =>
-                  Some(rightExpr)
-                case (leftExpr: ScExpression, rightRef: ScReferenceExpression)
-                  if rightRef.resolve() == x && isIndependentOf(leftExpr, x) =>
-                  Some(leftExpr)
-                case _ => None
-              }
-            case _ => None
+            case MethodRepr(_, Some(ResolvesTo(`x`)), Some(ref), Seq()) if ref.refName == name => true
+            case _ => false
           }
-        case ScInfixExpr(underscore(), oper, right) if oper.refName == "==" => Some(right)
-        case ScInfixExpr(left, oper, underscore()) if oper.refName == "==" => Some(left)
-        case _ => None
+        case MethodRepr(_, Some(underscore()), Some(ref), Seq()) if ref.refName == name => true
+        case _ => false
       }
     }
   }
+
+  private[collections] val `_._1` = new ParameterlessCallOnParameterTemplate("_1")
+  private[collections] val `_._2` = new ParameterlessCallOnParameterTemplate("_2")
 
   object underscore {
     def unapply(expr: ScExpression): Boolean = {
@@ -288,6 +311,10 @@ package object collections {
     }
   }
 
+  object stripped {
+    def unapply(expr: ScExpression): Option[ScExpression] = Some(stripped(expr))
+  }
+
   def isIndependentOf(expr: ScExpression, parameter: ScParameter): Boolean = {
     var result = true
     val name = parameter.getName
@@ -317,7 +344,7 @@ package object collections {
     }
   }
 
-  def isOfClassFrom(expr: ScExpression, patterns: Array[String]) = {
+  def isOfClassFrom(expr: ScExpression, patterns: Array[String]): Boolean = {
     expr.getType() match {
       case Success(tp, _) =>
         ScType.extractDesignatorSingletonType(tp).getOrElse(tp) match {
@@ -328,9 +355,26 @@ package object collections {
     }
   }
 
-  def isOption(expr: ScExpression) = isOfClassFrom(expr, likeOptionClasses)
+  def isOption(expr: ScExpression): Boolean = isOfClassFrom(expr, likeOptionClasses)
 
-  def isArray(expr: ScExpression) = isOfClassFrom(expr, Array("scala.Array"))
+  def isArray(expr: ScExpression): Boolean = isOfClassFrom(expr, Array("scala.Array"))
+
+  def isCollection(className: String, expr: ScExpression): Boolean = {
+    val collectionType = collectionTypeFromClassName(className, expr.getProject)
+    expr.getType().getOrAny.conforms(collectionType)
+  }
+
+  def isSet(expr: ScExpression): Boolean = isCollection("scala.collection.GenSet", expr)
+
+  def isSeq(expr: ScExpression): Boolean = isCollection("scala.collection.GenSeq", expr)
+
+  def isMap(expr: ScExpression): Boolean = isCollection("scala.collection.GenMap", expr)
+
+  def isSortedSet(expr: ScExpression) = isCollection("scala.collection.SortedSet", expr)
+
+  def isSortedMap(expr: ScExpression) = isCollection("scala.collection.SortedMap", expr)
+
+  def isIterator(expr: ScExpression) = isCollection("scala.collection.Iterator", expr)
 
   private val sideEffectsCollectionMethods = Set("append", "appendAll", "clear", "insert", "insertAll",
     "prepend", "prependAll", "reduceToSize", "remove", "retain",
@@ -417,5 +461,16 @@ package object collections {
     ScParameterizedType(designatorType, undefines)
   }
 
+  @tailrec
+  def refNameId(expr: ScExpression): Option[PsiElement] = stripped(expr) match {
+    case MethodRepr(itself: ScMethodCall, Some(base), None, _) => refNameId(base)
+    case MethodRepr(_, _,Some(ref), _) => Some(ref.nameId)
+    case _ => None
+  }
+
+  implicit class PsiElementRange(val elem: PsiElement) extends AnyVal {
+    def start: Int = elem.getTextRange.getStartOffset
+    def end: Int = elem.getTextRange.getEndOffset
+  }
 }
 

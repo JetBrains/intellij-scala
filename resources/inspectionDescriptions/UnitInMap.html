@@ -4,10 +4,10 @@ Detects using <code>map</code> with expressions which produce no result.
 If possible, this inspection suggest to replace such <code>map</code> call with <code>foreach</code> one.
 
 <p>Before:</p>
-<p><code>List(0, 1).map(println(_))</code></p>
+<p><code>seq.map(println(_))</code></p>
 
 <p>After:</p>
 
-<p><code>List(0, 1).foreach(println(_))</code></p>
+<p><code>seq.foreach(println(_))</code></p>
 </body>
 </html>

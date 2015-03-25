@@ -37,9 +37,12 @@ class ComparingUnrelatedTypesInspectionTest extends ScalaLightInspectionFixtureT
                  |val b = 0.0
                  |${START}a != b$END"""
     val text3 = s"${START}true != 0$END"
+    val text4: String = s"${START}1.isInstanceOf[Boolean]$END"
     checkTextHasError(text1)
     checkTextHasError(text2)
     checkTextHasError(text3)
+    checkTextHasError(text4)
+
   }
 
   def testString() {
@@ -69,8 +72,12 @@ class ComparingUnrelatedTypesInspectionTest extends ScalaLightInspectionFixtureT
                    |val a: A = A(0)
                    |val b: B = new B
                    |${START}a == b$END"""
+    val text3 = """trait A
+                  |object B extends A
+                  |B.isInstanceOf[A]"""
     checkTextHasNoErrors(text1)
     checkTextHasNoErrors(text2)
+    checkTextHasNoErrors(text3)
   }
 
   def testFinal() {
@@ -84,8 +91,13 @@ class ComparingUnrelatedTypesInspectionTest extends ScalaLightInspectionFixtureT
                   |val a: A = new A
                   |val b: B = new B
                   |${START}a == b$END"""
+    val text3 = s"""final class A extends Serializable
+                   |final class B extends Serializable
+                   |val a: A = new A
+                   |${START}a.isInstanceOf[B]$END"""
     checkTextHasNoErrors(text1)
     checkTextHasError(text2)
+    checkTextHasError(text3)
   }
 
   def testTraits() {
@@ -126,5 +138,12 @@ class ComparingUnrelatedTypesInspectionTest extends ScalaLightInspectionFixtureT
     checkTextHasNoErrors(text1)
     checkTextHasNoErrors(text2)
     checkTextHasNoErrors(text3)
+  }
+
+  def testExistential(): Unit = {
+    checkTextHasNoErrors("Seq(1).isInstanceOf[List[_])")
+    checkTextHasError(s"${START}Some(1).isInstanceOf[List[_]]$END")
+    checkTextHasNoErrors("def foo(x: Some[_]) { x == Some(1) }")
+    checkTextHasError(s"def foo(x: Some[_]) { ${START}x == Seq(1)$END }")
   }
 }

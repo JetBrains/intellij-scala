@@ -8,4 +8,4 @@ class A {
   class A
   type R = Int
 }
-//A.this.type#R
+//A.this.R

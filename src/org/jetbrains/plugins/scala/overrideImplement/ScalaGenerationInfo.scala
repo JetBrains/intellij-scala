@@ -18,13 +18,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.overrideImplement.ScalaGenerationInfo._
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
+import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /**
  * Nikolay.Tropin
@@ -47,7 +46,7 @@ class ScalaGenerationInfo(classMember: ClassMember)
       case member: ScMethodMember => myMember = insertMethod(member, templDef, anchor)
       case member: ScAliasMember =>
         val alias = member.getElement
-        val substitutor = addUpdateThisType(member.substitutor, templDef)
+        val substitutor = member.substitutor
         val needsOverride = member.isOverride || toAddOverrideToImplemented
         val m = ScalaPsiElementFactory.createOverrideImplementType(alias, substitutor, alias.getManager, needsOverride)
         val added = templDef.addMember(m, Option(anchor))
@@ -56,11 +55,10 @@ class ScalaGenerationInfo(classMember: ClassMember)
       case _: ScValueMember | _: ScVariableMember =>
         val isVal = classMember match {case _: ScValueMember => true case _: ScVariableMember => false}
         val value = classMember match {case x: ScValueMember => x.element case x: ScVariableMember => x.element}
-        val (origSubstitutor, needsOverride) = classMember match {
+        val (substitutor, needsOverride) = classMember match {
           case x: ScValueMember => (x.substitutor, x.isOverride)
           case x: ScVariableMember => (x.substitutor, x.isOverride)
         }
-        val substitutor = addUpdateThisType(origSubstitutor, templDef)
         val addOverride = needsOverride || toAddOverrideToImplemented
         val m = ScalaPsiElementFactory.createOverrideImplementVariable(value, substitutor, value.getManager,
           addOverride, isVal, needsInferType)
@@ -168,7 +166,7 @@ object ScalaGenerationInfo {
     }
 
     val method: PsiMethod = member.getElement
-    val sign = member.sign.updateSubst(addUpdateThisType(_, td))
+    val sign = member.sign
 
     val isImplement = !member.isOverride
     val templateName =
@@ -196,11 +194,6 @@ object ScalaGenerationInfo {
     val added = td.addMember(m, Option(anchor))
     ScalaPsiUtil.adjustTypes(added)
     added.asInstanceOf[ScFunction]
-  }
-
-  def addUpdateThisType(subst: ScSubstitutor, clazz: ScTemplateDefinition) = clazz.getType(TypingContext.empty) match {
-    case Success(tpe, _) => subst.addUpdateThisType(tpe)
-    case Failure(_, _) => subst
   }
 
   def toAddOverrideToImplemented =

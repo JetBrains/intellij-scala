@@ -2,11 +2,11 @@
 <body>
 Replaces map and getOrElse(false) with exists. <br/>
 Before:
-<p><code>option.map(myValueIsGoodEnough).getOrElse(false)</code></p>
+<p><code>option.map(p).getOrElse(false)</code></p>
 
 <p>After:</p>
 
-<p><code>option.exists(myValueIsGoodEnough)</code></p>
+<p><code>option.exists(p)</code></p>
 
 </body>
 </html>

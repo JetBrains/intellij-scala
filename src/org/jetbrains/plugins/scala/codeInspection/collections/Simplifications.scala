@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection.collections
 
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{SmartPointerManager, SmartPsiElementPointer}
+import com.intellij.psi.{PsiElement, SmartPointerManager, SmartPsiElementPointer}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 import scala.language.implicitConversions
@@ -14,15 +14,33 @@ import scala.language.implicitConversions
 case class Simplification(exprToReplace: SmartPsiElementPointer[ScExpression], replacementText: String, hint: String, rangeInParent: TextRange)
 
 class SimplificationBuilder private[collections] (val exprToReplace: ScExpression) {
-  private var exprToHighlightFrom: ScExpression = exprToReplace match {
-    case MethodRepr(_, Some(base), _, _) => base
-    case _ => exprToReplace
+  private var rangeInParent: TextRange = {
+    val exprToHighlightFrom: ScExpression = exprToReplace match {
+      case MethodRepr(_, Some(base), _, _) => base
+      case _ => exprToReplace
+    }
+    rightRangeInParent(exprToHighlightFrom, exprToReplace)
   }
+
   private var replacementText: String = ""
   private var hint: String = ""
 
   def highlightFrom(expr: ScExpression): SimplificationBuilder = {
-    this.exprToHighlightFrom = expr
+    this.rangeInParent = rightRangeInParent(expr, exprToReplace)
+    this
+  }
+
+  def highlightAll: SimplificationBuilder = highlightElem(exprToReplace)
+
+  def highlightRef: SimplificationBuilder = highlightElem(refNameId(exprToReplace).getOrElse(exprToReplace))
+
+  def highlightElem(elem: PsiElement) = {
+    this.rangeInParent = elem.getTextRange.shiftRight( - exprToReplace.getTextOffset)
+    this
+  }
+
+  def highlightRange(start: Int, end: Int) = {
+    this.rangeInParent = new TextRange(start, end).shiftRight( - exprToReplace.getTextOffset)
     this
   }
 
@@ -35,8 +53,6 @@ class SimplificationBuilder private[collections] (val exprToReplace: ScExpressio
     this.hint = s
     this
   }
-
-  def rangeInParent = rightRangeInParent(exprToHighlightFrom, exprToReplace)
 
   def toSimplification = {
     val smartPointer = SmartPointerManager.getInstance(exprToReplace.getProject).createSmartPsiElementPointer(exprToReplace)
@@ -53,7 +69,9 @@ abstract class SimplificationType {
   def hint: String
   def description: String = hint
 
-  def getSimplification(expr: ScExpression): Option[Simplification]
+  def getSimplification(expr: ScExpression): Option[Simplification] = None
+
+  def getSimplifications(expr: ScExpression): Seq[Simplification] = Seq.empty
 
   def replace(expr: ScExpression): SimplificationBuilder = {
     new SimplificationBuilder(expr).withHint(hint)

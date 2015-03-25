@@ -8,4 +8,4 @@ trait IJTest {
 trait MySub extends IJTest {
   type FooType = Long
 }
-//IJTest.this.type#FooType
+//IJTest.this.FooType

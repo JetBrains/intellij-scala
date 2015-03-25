@@ -62,6 +62,7 @@ class UTestConfigurationProducer extends {
             (if (testName != null) "\\" + testName else ""), confFactory)
     val runConfiguration = settings.getConfiguration.asInstanceOf[UTestRunConfiguration]
     runConfiguration.setTestClassPath(testClassPath)
+    runConfiguration.initWorkingDir
     if (testName != null) runConfiguration.setTestName(testName)
     val kind = if (testName == null) TestKind.CLASS else TestKind.TEST_NAME
     runConfiguration.setTestKind(kind)

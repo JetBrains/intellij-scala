@@ -6,11 +6,11 @@ import com.intellij.find.findUsages.{FindUsagesHandler, FindUsagesHandlerFactory
 import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
-import com.intellij.psi.{PsiNamedElement, PsiElement}
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light._
 import org.jetbrains.plugins.scala.lang.refactoring.rename.RenameSuperMembersUtil
@@ -72,12 +72,20 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
     replacedElement match {
       case function: ScFunction if function.isLocal => Array(function)
       case named: ScNamedElement if !forHighlightUsages =>
-        val supers = RenameSuperMembersUtil.allSuperMembers(named, withSelfType = true)
+        val supers = RenameSuperMembersUtil.allSuperMembers(named, withSelfType = true).filter(needToAsk)
         if (supers.length != 0) chooseSuper(named.name, supers)
       case _ =>
     }
     if (replacedElement == null) return FindUsagesHandler.NULL_HANDLER
     new ScalaFindUsagesHandler(replacedElement, this)
+  }
+
+  private def needToAsk(named: PsiNamedElement): Boolean = {
+    named match {
+      case fun: ScFunction
+        if fun.containingClass.qualifiedName.startsWith("scala.Function") && fun.name == "apply" => false
+      case _ => true
+    }
   }
 }
 

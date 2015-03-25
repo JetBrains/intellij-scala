@@ -32,7 +32,7 @@ import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.EventListener;
-import java.util.HashMap;
+import java.util.TreeMap;
 
 /**
  * @author Alexander Podkhalyuzin
@@ -54,7 +54,7 @@ public class ScalaIntroduceParameterDialog extends RefactoringDialog implements 
     private EventListenerList myListenerList = new EventListenerList();
 
     private static final String REFACTORING_NAME = ScalaBundle.message("introduce.parameter.title");
-    private HashMap<String, ScType> myTypeMap;
+    private TreeMap<String, ScType> myTypeMap;
     private ItemListener listener;
     private DocumentListener documentListener;
     private PsiMethod methodToSearchFor;
