@@ -90,10 +90,21 @@ object TreeAdapter {
   }
 
   def convertMods(t: p.toplevel.ScModifierListOwner): Seq[m.Mod] = {
-    Stream(
-//      if (t.hasModifierProperty("private")) Some(m.Mod.Private()) else None,
-//      if (t.hasModifierProperty("protected")) Some(m.Mod.Protected()) else None
-    ).flatten
+    import p.base.ScAccessModifier.Type._
+    val name = t.getModifierList.accessModifier match {
+      case Some(mod) => mod.idText match {
+        case Some(qual) => m.Name.Indeterminate(qual)
+        case None       => m.Name.Anonymous()
+      }
+      case None => m.Name.Anonymous()
+    }
+    t.getModifierList.accessModifier match {
+      case Some(mod) if mod.access == PRIVATE   => Seq(m.Mod.Private(name))
+      case Some(mod) if mod.access == PROTECTED => Seq(m.Mod.Protected(name))
+      case Some(mod) if mod.access == THIS_PRIVATE   => Seq(m.Mod.Private(m.Term.This(name)))
+      case Some(mod) if mod.access == THIS_PROTECTED => Seq(m.Mod.Protected(m.Term.This(name)))
+      case None                         => Seq.empty
+    }
   }
 
   def convertParams(params: p.statements.params.ScParameterClause): Seq[Param] = {

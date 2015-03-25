@@ -1,0 +1,49 @@
+package org.jetbrains.plugins.scala.meta
+
+import scala.meta.internal.ast._
+
+class TreeConverterModsTest extends TreeConverterTestBase {
+
+def testPrivateUnqual() {
+  doTest(
+    "private val a = 42",
+     Defn.Val(List(Mod.Private(Name.Anonymous())), List(Pat.Var.Term(Term.Name("a"))), None, Lit.Int(42))
+  )
+}
+  
+  def testPrivateThis() {
+    doTest(
+      "private[this] val a = 42",
+      Defn.Val(List(Mod.Private(Term.This(Name.Anonymous()))), List(Pat.Var.Term(Term.Name("a"))), None, Lit.Int(42))
+    )
+  }
+  
+  def testPrivatePackage() {
+    doTest(
+      "private[scala] val a = 42",
+      Defn.Val(List(Mod.Private(Name.Indeterminate("scala"))), List(Pat.Var.Term(Term.Name("a"))), None, Lit.Int(42))
+    )
+  }
+
+  def testProtectedUnqual() {
+    doTest(
+      "protected val a = 42",
+      Defn.Val(List(Mod.Protected(Name.Anonymous())), List(Pat.Var.Term(Term.Name("a"))), None, Lit.Int(42))
+    )
+  }
+
+  def testProtectedThis() {
+    doTest(
+      "protected[this] val a = 42",
+      Defn.Val(List(Mod.Protected(Term.This(Name.Anonymous()))), List(Pat.Var.Term(Term.Name("a"))), None, Lit.Int(42))
+    )
+  }
+
+  def testProtectedPackage() {
+    doTest(
+      "protected[scala] val a = 42",
+      Defn.Val(List(Mod.Protected(Name.Indeterminate("scala"))), List(Pat.Var.Term(Term.Name("a"))), None, Lit.Int(42))
+    )
+  }
+
+}
