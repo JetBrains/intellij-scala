@@ -12,8 +12,11 @@ trait TreeConverterTestBase extends SimpleTestCase {
 
   implicit def psiFromText(text: String): ScalaPsiElement = {
     val file: ScalaFile = parseText(text)
-    val startPos = Option(file.getText.indexOf("//start")).map(pos => if (pos < 0) 0 else pos).get
-    file.findElementAt(startPos).getParent.asInstanceOf[ScalaPsiElement]
+    val startPos = file.getText.indexOf("//start")
+    if (startPos < 0)
+      file.firstChild.get.asInstanceOf[ScalaPsiElement]
+    else
+      file.findElementAt(startPos).getParent.asInstanceOf[ScalaPsiElement]
   }
 
   def structuralEquals(tree1: Tree, tree2: Tree): Boolean = {
