@@ -45,7 +45,7 @@ abstract class SbtImportNotificationProvider(project: Project, notifications: Ed
 
   protected def refreshProject(): Unit = {
     FileDocumentManager.getInstance.saveAllDocuments()
-    ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, SbtProjectSystem.Id))
+    ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, SbtProjectSystem.Id).forceWhenUptodate(true))
   }
 
   protected def importProject(file: VirtualFile): Unit = {
