@@ -59,7 +59,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
   }
 
   def bindToElement(p1: PsiElement) = throw new IncorrectOperationException("NYI")
-  def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+  def nameId = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
   def qualifier = None
 
   object MyResolver extends ResolveCache.PolyVariantResolver[ScTypeProjectionImpl] {

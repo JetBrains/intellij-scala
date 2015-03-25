@@ -75,9 +75,9 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
     }
   }
 
-  def nameId = {
-    val id = findChildByType(ScalaTokenTypes.tIDENTIFIER)
-    if (id == null) findChildByType(ScalaTokenTypes.tUNDER) else id
+  def nameId: PsiElement = {
+    val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
+    if (id == null) findChildByType[PsiElement](ScalaTokenTypes.tUNDER) else id
   }
 
   def getTypeElement = null
@@ -130,7 +130,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
     if (stub != null) {
       return stub.asInstanceOf[ScParameterStub].isDefaultParam
     }
-    findChildByType(ScalaTokenTypes.tASSIGN) != null
+    findChildByType[PsiElement](ScalaTokenTypes.tASSIGN) != null
   }
 
   def isRepeatedParameter: Boolean = {

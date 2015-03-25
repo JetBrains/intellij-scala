@@ -28,11 +28,11 @@ class ScImportSelectorsImpl extends ScalaStubBasedElementImpl[ScImportSelectors]
     if (stub != null) {
       return stub.asInstanceOf[ScImportSelectorsStub].hasWildcard
     }
-    findChildByType(ScalaTokenTypes.tUNDER) != null
+    findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
   }
 
   def wildcardElement: Option[PsiElement] = {
-    if (hasWildcard) Some(findChildByType(ScalaTokenTypes.tUNDER))
+    if (hasWildcard) Some(findChildByType[PsiElement](ScalaTokenTypes.tUNDER))
     else None
   }
 

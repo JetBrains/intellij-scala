@@ -76,7 +76,7 @@ class ScAccessModifierImpl extends ScalaStubBasedElementImpl[ScAccessModifier] w
     if (text == None) null else new PsiReference {
       def getElement = ScAccessModifierImpl.this
       def getRangeInElement = {
-        val id = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+        val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
         new TextRange(0, id.getTextLength).shiftRight(id.getStartOffsetInParent)
       }
       def getCanonicalText = resolve match {
@@ -94,7 +94,7 @@ class ScAccessModifierImpl extends ScalaStubBasedElementImpl[ScAccessModifier] w
       }
 
       private def doRename(newName : String) = {
-        val id = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+        val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
         val parent = id.getNode.getTreeParent
         parent.replaceChild(id.getNode, ScalaPsiElementFactory.createIdentifier(newName, getManager))
         ScAccessModifierImpl.this

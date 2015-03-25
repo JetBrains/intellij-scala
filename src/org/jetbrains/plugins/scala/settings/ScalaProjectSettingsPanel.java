@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.settings;
 
 import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.EnumComboBoxModel;
@@ -11,6 +12,7 @@ import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings;
+import org.jetbrains.plugins.scala.components.InvalidRepoException;
 import org.jetbrains.plugins.scala.components.ScalaPluginUpdater;
 import org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings;
 import org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency;
@@ -81,7 +83,7 @@ public class ScalaProjectSettingsPanel {
     return ScalaFileType.SCALA_FILE_TYPE;
   }
 
-  public void apply() {
+  public void apply() throws ConfigurationException {
     if (!isModified()) return;
 
     final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
@@ -90,7 +92,11 @@ public class ScalaProjectSettingsPanel {
     compileServerSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER = showTypeInfoOnCheckBox.isSelected();
     compileServerSettings.SHOW_TYPE_TOOLTIP_DELAY = (Integer) delaySpinner.getValue();
 
-    ScalaPluginUpdater.doUpdatePluginHostsAndCheck((ScalaApplicationSettings.pluginBranch) updateChannel.getModel().getSelectedItem());
+    try {
+      ScalaPluginUpdater.doUpdatePluginHostsAndCheck((ScalaApplicationSettings.pluginBranch) updateChannel.getModel().getSelectedItem());
+    } catch (InvalidRepoException e) {
+      throw new ConfigurationException(e.getMessage());
+    }
 
     scalaProjectSettings.setBasePackages(getBasePackages());
     scalaProjectSettings.setScalaTestDefaultSuperClass(scalaTestDefaultSuperClass.getText());
