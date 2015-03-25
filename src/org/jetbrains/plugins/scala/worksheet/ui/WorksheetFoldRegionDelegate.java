@@ -26,7 +26,7 @@ public class WorksheetFoldRegionDelegate implements FoldRegion {
     String placeholder = editor.getDocument().getText(new TextRange(start, start + Math.min(end - start, PLACEHOLDER_LIMIT)));
 
     delegate = ((FoldingModelImpl) editor.getFoldingModel()).createFoldRegion(start, end, placeholder, null, false);
-//todo:    ((FoldRegionImpl) delegate).setExpandedInternal(false);  //No, it can't >___<
+    delegate.setExpanded(false);  //No, it can't >___<
     this.worksheetGroup = worksheetGroup;
     worksheetGroup.addRegion(this, leftStart, spaces, leftSideLength);
   }
