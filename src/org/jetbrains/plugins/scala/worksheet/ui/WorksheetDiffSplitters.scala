@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package worksheet.ui
 
 import java.awt._
+import java.awt.event.{MouseWheelEvent, MouseEvent, MouseAdapter}
 import java.lang.ref.WeakReference
 import java.util
 import javax.swing.JComponent
@@ -14,6 +15,8 @@ import com.intellij.openapi.editor.event.{VisibleAreaEvent, VisibleAreaListener}
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Splitter
+import com.intellij.psi.PsiDocumentManager
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 import scala.collection.convert.wrapAsJava
 
@@ -61,6 +64,18 @@ object WorksheetDiffSplitters {
     setFirstComponent(editor1.getComponent)
     setSecondComponent(editor2.getComponent)
     setHonorComponentsMinimumSize(false)
+
+    getDivider.addMouseListener(new MouseAdapter {
+      override def mouseReleased(mouseEvent: MouseEvent) {
+        val f = getProportion
+
+        Option(PsiDocumentManager.getInstance(editor1.getProject) getCachedPsiFile editor1.getDocument) foreach {
+          case file: ScalaFile =>
+            WorksheetEditorPrinter.saveOnlyRatio(file, f)
+          case _ =>
+        }
+      }
+    })
 
     private val visibleAreaListener = new VisibleAreaListener {
       override def visibleAreaChanged(e: VisibleAreaEvent): Unit = redrawDiffs()

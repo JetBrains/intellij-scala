@@ -65,7 +65,7 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
       if getSimplificationTypesEnabled(idx)
     } yield st
 
-    simplificationTypes.flatMap(_.getSimplification(expr))
+    simplificationTypes.flatMap(st => st.getSimplifications(expr) ++ st.getSimplification(expr))
   }
 
   def getLikeCollectionClasses: Array[String] = settings.getLikeCollectionClasses

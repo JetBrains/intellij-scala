@@ -187,7 +187,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
 
             PsiDocumentManager getInstance project getPsiFile ext.getDocument match {
               case scalaFile: ScalaFile => WorksheetEditorPrinter.loadWorksheetEvaluation(scalaFile) foreach {
-                case result if !result.isEmpty =>
+                case (result, ratio) if !result.isEmpty =>
                   val viewer = WorksheetEditorPrinter.createRightSideViewer(ext, file, WorksheetEditorPrinter.createWorksheetEditor(ext), true)
                   val document = viewer.getDocument
 
@@ -197,7 +197,10 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
                     document setText result
                     PsiDocumentManager.getInstance(project).commitDocument(document)
 
-                    if (splitter != null) WorksheetFoldGroup.load(viewer, ext, project, splitter, scalaFile)
+                    if (splitter != null) {
+                      splitter setProportion ratio
+                      WorksheetFoldGroup.load(viewer, ext, project, splitter, scalaFile)
+                    }
                   }
                 case _ =>
               }

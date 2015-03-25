@@ -44,6 +44,19 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
         val message = s"$inspectionName: ${elemType.presentableText} and ${argType.presentableText}"
         holder.registerProblem(arg, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
+    case IsInstanceOfCall(call)  =>
+      val qualType = call.referencedExpr match {
+        case ScReferenceExpression.withQualifier(q) => q.getType().toOption
+        case _ => None
+      }
+      val argType = call.arguments.headOption.flatMap(_.getType().toOption)
+      for {
+        t1 <- qualType
+        t2 <- argType
+        if cannotBeCompared(t1, t2)
+      } {
+        holder.registerProblem(call, inspectionName, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+      }
   }
 
   def cannotBeCompared(type1: ScType, type2: ScType): Boolean = {

@@ -4,7 +4,7 @@ name :=  "ScalaCommunity"
 
 organization :=  "JetBrains"
 
-scalaVersion :=  "2.11.2"
+scalaVersion in Global :=  "2.11.2"
 
 resolvers in ThisBuild += "bintray" at "http://dl.bintray.com/jetbrains/maven-patched/"
 

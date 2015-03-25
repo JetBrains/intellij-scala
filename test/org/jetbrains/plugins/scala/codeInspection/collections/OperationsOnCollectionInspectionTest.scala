@@ -13,7 +13,7 @@ abstract class OperationsOnCollectionInspectionTest extends ScalaLightCodeInsigh
   def hint: String
   def description: String = hint
 
-  protected def check(text: String) {
+  protected def check(text: String, description: String = description) {
     checkTextHasError(text, description, inspectionClass)
   }
 

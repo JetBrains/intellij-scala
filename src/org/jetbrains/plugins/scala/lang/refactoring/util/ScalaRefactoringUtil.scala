@@ -98,9 +98,11 @@ object ScalaRefactoringUtil {
     if (scType != null) types += scType
     expr.getTypeWithoutImplicits(TypingContext.empty).foreach(types += _)
     expr.getTypeIgnoreBaseType(TypingContext.empty).foreach(types += _)
+    expr.expectedType().foreach(types += _)
     if (types.isEmpty) types += psi.types.Any
     val unit = psi.types.Unit
-    val result = if (types.contains(unit)) (types.distinct - unit) :+ unit else types.distinct
+    val sorted = types.distinct.sortWith((t1, t2) => t1.conforms(t2))
+    val result = if (sorted.contains(unit)) (sorted - unit) :+ unit else sorted
     result.toArray
   }
 
@@ -329,8 +331,8 @@ object ScalaRefactoringUtil {
     map
   }
 
-  def getCompatibleTypeNames(myTypes: Array[ScType]): util.HashMap[String, ScType] = {
-    val map = new util.HashMap[String, ScType]
+  def getCompatibleTypeNames(myTypes: Array[ScType]): util.TreeMap[String, ScType] = {
+    val map = new util.TreeMap[String, ScType]
     myTypes.foreach(myType => map.put(ScType.presentableText(myType), myType))
     map
   }

@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, T
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 import scala.annotation.tailrec
-import scala.collection.immutable.{HashSet, HashMap}
+import scala.collection.immutable.{HashMap, HashSet}
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -234,6 +234,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
           extractClassType(proj.actualSubst.subst(result.get), project, visitedAlias + t)
         case _ => None
       }
+      case ScExistentialType(quantified, _) => extractClassType(quantified, project, visitedAlias)
       case p@ScParameterizedType(t1, _) =>
         extractClassType(t1, project, visitedAlias) match {
           case Some((c, s)) => Some((c, s.followed(p.substitutor)))
@@ -371,19 +372,19 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
   }
 
   @tailrec
-  def removeAliasDefinitions(tp: ScType, visited: HashSet[ScType] = HashSet.empty): ScType = {
+  def removeAliasDefinitions(tp: ScType, visited: HashSet[ScType] = HashSet.empty, implementationsOnly: Boolean = false): ScType = {
     if (visited.contains(tp)) return tp
     var updated = false
     val res = tp.recursiveUpdate { t =>
       t.isAliasType match {
-        case Some(AliasType(ta, _, upper)) if ta.isInstanceOf[ScTypeAliasDefinition] =>
+        case Some(AliasType(ta: ScTypeAliasDefinition, _, upper)) if !implementationsOnly || ta.isImplementation =>
           updated = true
           (true, upper.getOrAny)
         case _ => (false, t)
       }
     }
     if (!updated) tp
-    else removeAliasDefinitions(res, visited + tp)
+    else removeAliasDefinitions(res, visited + tp, implementationsOnly)
   }
   
   /**

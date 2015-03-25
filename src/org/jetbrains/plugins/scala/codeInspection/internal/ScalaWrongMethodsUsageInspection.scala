@@ -22,7 +22,9 @@ class ScalaWrongMethodsUsageInspection extends LocalInspectionTool {
 
   override def getID: String = "ScalaWrongMethodsUsage"
 
-  override def getGroupDisplayName: String = "Scala: Internal"
+  override def getGroupDisplayName: String = "Internal"
+
+  override def getGroupPath: Array[String] = Array("Scala", "Internal")
 
   override def getDefaultLevel: HighlightDisplayLevel = HighlightDisplayLevel.WARNING
 

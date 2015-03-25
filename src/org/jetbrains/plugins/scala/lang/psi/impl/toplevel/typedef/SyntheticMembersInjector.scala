@@ -51,7 +51,12 @@ object SyntheticMembersInjector {
     }
     fields.foreach({ i =>
       try {
-        val template = s"def $prefix${i.name}: monocle.Lens[${clazz.getQualifiedName}, ${i.typeElement.get.calcType}] = ???"
+        val template = if (clazz.typeParameters.isEmpty)
+          s"def $prefix${i.name}: monocle.Lens[${clazz.qualifiedName}, ${i.typeElement.get.calcType}] = ???"
+        else {
+          val tparams = s"[${clazz.typeParameters.map(_.getText).mkString(",")}]"
+          s"def $prefix${i.name}$tparams: monocle.Lens[${clazz.qualifiedName}$tparams, ${i.typeElement.get.calcType}] = ???"
+        }
         val method = ScalaPsiElementFactory.createMethodWithContext(template, clazz, obj)
         method.setSynthetic(clazz)
         buf += method

@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticNamedElement}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticNamedElement
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.{InplaceRenameHelper, ScalaVariableValidator}
@@ -379,24 +379,6 @@ object TypeCheckToMatchUtil {
       }
     }
     PsiEquivalenceUtil.areElementsEquivalent(elem1, elem2, comparator, false)
-  }
-
-  object IsInstanceOfCall {
-    def unapply(expression: ScExpression): Option[ScGenericCall] = {
-      expression match {
-        case ScParenthesisedExpr(IsInstanceOfCall(call)) => Some(call)
-        case call: ScGenericCall =>
-          call.referencedExpr match {
-            case ref: ScReferenceExpression if ref.refName == "isInstanceOf" =>
-              ref.resolve() match {
-                case synth: ScSyntheticFunction => Some(call)
-                case _ => None
-              }
-            case _ => None
-          }
-        case _ => None
-      }
-    }
   }
 
   def separateConditions(expr: ScExpression): List[ScExpression] = {

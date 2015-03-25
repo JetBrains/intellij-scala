@@ -190,8 +190,8 @@ object CreateEntityQuickFix {
 
   private def parametersFor(ref: ScReferenceExpression): Option[String] = {
     ref.parent.collect {
-      case MethodRepr(_, _, Some(`ref`), args) => argsText(args)
-      case (_: ScGenericCall) childOf (MethodRepr(_, _, Some(`ref`), args)) => argsText(args)
+      case MethodRepr(_, _, Some(`ref`), args) => paramsText(args)
+      case (_: ScGenericCall) childOf (MethodRepr(_, _, Some(`ref`), args)) => paramsText(args)
     }
   }
 

@@ -10,6 +10,7 @@ import com.intellij.openapi.externalSystem.service.project.ExternalSystemProject
 import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.sbt.project.SbtProjectResolver._
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
@@ -23,7 +24,13 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private var runner: SbtRunner = null
 
-  def resolveProjectInfo(id: ExternalSystemTaskId, projectPath: String, isPreview: Boolean, settings: SbtExecutionSettings, listener: ExternalSystemTaskNotificationListener): DataNode[ProjectData] = {
+  protected var taskListener: TaskListener = SilentTaskListener
+
+  def resolveProjectInfo(id: ExternalSystemTaskId,
+                         projectPath: String,
+                         isPreview: Boolean,
+                         settings: SbtExecutionSettings,
+                         listener: ExternalSystemTaskNotificationListener): DataNode[ProjectData] = {
     val root = {
       val file = new File(projectPath)
       if (file.isDirectory) file.getPath else file.getParent
@@ -31,6 +38,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     runner = new SbtRunner(settings.vmExecutable, settings.vmOptions, settings.environment,
                            settings.customLauncher, settings.customSbtStructureDir)
+    
+    taskListener = new ExternalTaskListener(listener, id)
 
     var warnings = new StringBuilder()
 
@@ -354,5 +363,23 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     if (runner != null)
       runner.cancel()
     false
+  }
+}
+
+object SbtProjectResolver {
+  trait TaskListener {
+    def onTaskOutput(message: String, stdOut: Boolean): Unit
+  }
+
+  object SilentTaskListener extends TaskListener {
+    override def onTaskOutput(message: String, stdOut: Boolean): Unit = {}
+  }
+
+  class ExternalTaskListener(
+    val listener: ExternalSystemTaskNotificationListener,
+    val taskId: ExternalSystemTaskId)
+      extends TaskListener {
+    def onTaskOutput(message: String, stdOut: Boolean): Unit =
+      listener.onTaskOutput(taskId, message, stdOut)
   }
 }

@@ -2,11 +2,13 @@
 <body>
 Swaps sort and filter for better performance.<br/>
 Before:
-<p><code>List(0, 1).sortWith((x, y) => x &lt y).filter(_ => true)</code></p>
+<p><code>seq.sortWith(lessThan).filter(p)</code></p>
+<p><code>seq.sortBy(f).filter(p)</code></p>
 
 <p>After:</p>
 
-<p><code>List(0, 1).filter(_ => true).sortWith((x, y) => x &lt y)</code></p>
+<p><code>seq.filter(p).sortWith(lessThan)</code></p>
+<p><code>seq.filter(p).sortBy(f)</code></p>
 
 </body>
 </html>
