@@ -21,42 +21,48 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranc
 
 import scala.xml.transform.{RewriteRule, RuleTransformer}
 
+class InvalidRepoException(what: String) extends Exception(what)
+
 object ScalaPluginUpdater {
   private val LOG = Logger.getInstance(getClass)
 
   val baseUrl = "http://www.jetbrains.com/idea/plugins"
 
-  case class RepoHolder(eap: String, nightly: String)
-
   val CASSIOPEIA = "cassiopeia"
   val FOURTEEN_ONE = "14.1"
 
   val knownVersions = Map(
-    CASSIOPEIA  -> RepoHolder(s"$baseUrl/scala-eap-$CASSIOPEIA.xml", s"$baseUrl/scala-nightly-$CASSIOPEIA.xml"),
-    FOURTEEN_ONE -> RepoHolder(s"$baseUrl/scala-eap-$FOURTEEN_ONE.xml", "")
+    CASSIOPEIA   -> Map(Release -> "DUMMY", EAP -> s"$baseUrl/scala-eap-$CASSIOPEIA.xml", Nightly -> s"$baseUrl/scala-nightly-$CASSIOPEIA.xml"),
+    FOURTEEN_ONE -> Map(Release -> "DUMMY", EAP -> s"$baseUrl/scala-eap-$FOURTEEN_ONE.xml",Nightly -> "")
   )
 
   val currentVersion = FOURTEEN_ONE
 
+  def currentRepo = knownVersions(currentVersion)
 
   val updGroupId = "ScalaPluginUpdate"
   val GROUP = new NotificationGroup(updGroupId, NotificationDisplayType.STICKY_BALLOON, true)
 
+  @throws(classOf[InvalidRepoException])
   def doUpdatePluginHosts(branch: ScalaApplicationSettings.pluginBranch) = {
+    if(currentRepo(branch).isEmpty)
+      throw new InvalidRepoException(s"Branch $branch is unavailable for IDEA version $currentVersion")
+
     // update hack - set plugin version to 0 when downgrading
     if (getScalaPluginBranch.compareTo(branch) > 0) ScalaPluginUpdater.patchPluginVersion()
 
     val updateSettings = UpdateSettings.getInstance()
-    updateSettings.getStoredPluginHosts.remove(knownVersions(currentVersion).eap)
-    updateSettings.getStoredPluginHosts.remove(knownVersions(currentVersion).nightly)
+    updateSettings.getStoredPluginHosts.remove(currentRepo(EAP))
+    updateSettings.getStoredPluginHosts.remove(currentRepo(Nightly))
 
     branch match {
       case Release => // leave default plugin repository
-      case EAP     => updateSettings.getStoredPluginHosts.add(knownVersions(currentVersion).eap)
-      case Nightly => updateSettings.getStoredPluginHosts.add(knownVersions(currentVersion).nightly)
+      case EAP     => updateSettings.getStoredPluginHosts.add(currentRepo(EAP))
+      case Nightly => updateSettings.getStoredPluginHosts.add(currentRepo(Nightly))
     }
   }
 
+  @throws(classOf[InvalidRepoException])
   def doUpdatePluginHostsAndCheck(branch: ScalaApplicationSettings.pluginBranch) = {
     doUpdatePluginHosts(branch)
     UpdateChecker.updateAndShowResult()
@@ -71,12 +77,12 @@ object ScalaPluginUpdater {
 
   def pluginIsEap = {
     val updateSettings = UpdateSettings.getInstance()
-    updateSettings.getStoredPluginHosts.contains(knownVersions(currentVersion).eap)
+    updateSettings.getStoredPluginHosts.contains(currentRepo(EAP))
   }
 
   def pluginIsNightly = {
     val updateSettings = UpdateSettings.getInstance()
-    updateSettings.getStoredPluginHosts.contains(knownVersions(currentVersion).nightly)
+    updateSettings.getStoredPluginHosts.contains(currentRepo(Nightly))
   }
 
   def pluginIsRelease = !pluginIsEap && !pluginIsNightly
@@ -106,13 +112,17 @@ object ScalaPluginUpdater {
       (version, repo) <- knownVersions
       if version != currentVersion
     } {
-      if (updateSettings.getStoredPluginHosts.contains(repo.eap)) {
-        updateSettings.getStoredPluginHosts.remove(repo.eap)
-        updateSettings.getStoredPluginHosts.add(knownVersions(currentVersion).eap)
+      if (updateSettings.getStoredPluginHosts.contains(repo(EAP))) {
+        updateSettings.getStoredPluginHosts.remove(repo(EAP))
+        if (!currentRepo(EAP).isEmpty)
+          updateSettings.getStoredPluginHosts.add(currentRepo(EAP))
       }
-      if (updateSettings.getStoredPluginHosts.contains(repo.nightly)) {
-        updateSettings.getStoredPluginHosts.remove(repo.nightly)
-        updateSettings.getStoredPluginHosts.add(knownVersions(currentVersion).nightly)
+      if (updateSettings.getStoredPluginHosts.contains(repo(Nightly))) {
+        updateSettings.getStoredPluginHosts.remove(repo(Nightly))
+        if (!currentRepo(Nightly).isEmpty)
+          updateSettings.getStoredPluginHosts.add(currentRepo(Nightly))
+        else if (!currentRepo(EAP).isEmpty)
+          updateSettings.getStoredPluginHosts.add(currentRepo(EAP))
       }
     }
   }
@@ -123,8 +133,8 @@ object ScalaPluginUpdater {
     val localBuildNumber = infoImpl.getBuild
     val url = branch match {
       case Release => None
-      case EAP     => Some(knownVersions(currentVersion).eap)
-      case Nightly => Some(knownVersions(currentVersion).nightly)
+      case EAP     => Some(currentRepo(EAP))
+      case Nightly => Some(currentRepo(Nightly))
     }
 
     url.foreach(u => invokeLater {
