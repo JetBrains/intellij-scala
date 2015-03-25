@@ -468,7 +468,7 @@ object WorksheetEditorPrinter {
 
         body
 
-        if (hadFocus && !editorContentComponent.hasFocus) editorContentComponent.requestFocusInWindow()
+        if (hadFocus) editorContentComponent.requestFocusInWindow()
       }
 
       @inline def patchEditor(): Unit = preserveFocus {
