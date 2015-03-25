@@ -6,14 +6,17 @@ import java.awt.datatransfer.StringSelection
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.editor._
+import com.intellij.openapi.editor.impl.FoldingModelImpl
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldRegionDelegate
 
 /**
+ * @author Dmitry.Naydanov
  * @author Ksenia.Sautina
  * @since 12/6/12
  */
@@ -26,7 +29,7 @@ class CopyWorksheetAction extends AnAction with TopComponentAction {
     val viewer = WorksheetViewerInfo.getViewer(editor)
     if (psiFile == null || viewer == null) return
 
-    var s = mergeDocuments(editor, viewer)
+    var s = createMerged(editor, viewer)
     s = StringUtil.convertLineSeparators(s)
     val contents: StringSelection = new StringSelection(s)
     CopyPasteManager.getInstance.setContents(contents)
@@ -39,54 +42,92 @@ class CopyWorksheetAction extends AnAction with TopComponentAction {
     updateInner(presentation, e.getProject)
   }
 
+  private def createMerged(editor: Editor, viewer: Editor): String = {
+    val result = new StringBuilder
+    val fullShift = StringUtil.repeat(" ", CopyWorksheetAction.COPY_BORDER)
+    val lineSeparator = Option(System.getProperty("line.separator")) getOrElse "\n"
 
-  def mergeDocuments(editor: Editor, viewer: Editor): String =  {
     val leftDocument = editor.getDocument
     val rightDocument = viewer.getDocument
-    val shift = 80
-    val lineCountsMin = Math.min(leftDocument.getLineCount, rightDocument.getLineCount)
-    val lineCountsMax = Math.max(leftDocument.getLineCount, rightDocument.getLineCount)
-    val buffer = new StringBuilder()
-    for (i <- 0 to lineCountsMin - 1) {
-      val leftText = leftDocument.getText(new TextRange(leftDocument.getLineStartOffset(i), leftDocument.getLineEndOffset(i))).trim
-      val rightText = rightDocument.getText(new TextRange(rightDocument.getLineStartOffset(i), rightDocument.getLineEndOffset(i))).trim
-      val spaceCount = shift - leftText.length
-      buffer.append(leftText)
 
-      if (spaceCount > 0) {
-        for (i  <- 1 to spaceCount) {
-          buffer.append(" ")
-        }
-      } else {
-        buffer.append("  ")
-      }
-
-      val prefix = if (rightText.startsWith(">")) "//" else "//|"
-      if (rightText != "") buffer.append(prefix)
-      buffer.append(rightText)
-      if (i < lineCountsMin - 1) buffer.append("\n")
+    def append2Result(textLeft: String, textRight: String, sym: String) {
+      result append ( if (textLeft.length < CopyWorksheetAction.COPY_BORDER) textLeft else textLeft.substring(0, CopyWorksheetAction.COPY_BORDER))
+      for (_ <- 1 to (CopyWorksheetAction.COPY_BORDER - textLeft.length)) result append sym
+      result append "//"
+      result append textRight
+      result append lineSeparator
     }
 
-    for (i <- lineCountsMin to lineCountsMax - 1) {
-      if (leftDocument.getLineCount > rightDocument.getLineCount) {
-        val leftText = leftDocument.getText(new TextRange(leftDocument.getLineStartOffset(i), leftDocument.getLineEndOffset(i)))
-        buffer.append(leftText).append("\n")
-      } else {
-        val rightText = rightDocument.getText(new TextRange(rightDocument.getLineStartOffset(i), rightDocument.getLineEndOffset(i)))
-          for (i  <- 1 to shift) {
-            buffer.append(" ")
+    def getFromDoc(lineNumber: Int, document: Document) = document getText {
+      new TextRange(document getLineStartOffset lineNumber, document getLineEndOffset lineNumber)
+    }
+
+    def getFromLeft(lineNumber: Int) = getFromDoc(lineNumber, leftDocument)
+
+    def getFromRight(lineNumber: Int) = getFromDoc(lineNumber, rightDocument)
+
+    val marker = viewer.getFoldingModel.asInstanceOf[FoldingModelImpl].getAllFoldRegions find {
+      case r: WorksheetFoldRegionDelegate => true
+      case _ => false
+    }
+
+    var lastLeftEnd  = 0
+    var lastRightEnd = 0
+
+    marker map {
+      case m: WorksheetFoldRegionDelegate => (0 /: m.getWorksheetGroup.getCorrespondInfo) {
+        case (lastEnd, (rightStartOffset, rightEndOffset, leftOffset, spaces, leftLength)) =>
+          val leftStart = {
+            var j = lastEnd
+
+            while (getFromLeft(j).trim.length == 0 && j < leftDocument.getLineCount) j += 1
+            if (j == leftDocument.getLineCount) return result.toString() else j
+          }
+          val currentLeftStart = leftDocument getLineNumber leftOffset
+          val leftEnd = leftDocument getLineNumber leftOffset // + spaces
+
+          val rightStart = rightDocument getLineNumber rightStartOffset
+          val rightEnd = rightDocument getLineNumber rightEndOffset
+
+          for (k <- lastEnd until leftStart) {
+            append2Result(" ", " ", " ")
           }
 
-        val prefix = if (rightText.startsWith(">")) "//" else "//|"
-        if (rightText.trim != "")
-          buffer.append(prefix).append(rightText).append("\n")
+          for (i <- leftStart to leftEnd) {
+            val txt = getFromLeft(i)
+
+            append2Result(txt, getFromRight(rightStart + i - currentLeftStart), " ")
+          }
+
+          if (spaces > 0) for (j <- (spaces - 1).to(0, -1)) {
+            result append fullShift
+            result append "//"
+            result append {
+              rightDocument getText {
+                new TextRange(rightDocument getLineStartOffset (rightEnd - j), rightDocument getLineEndOffset (rightEnd - j))
+              }
+            }
+            result append lineSeparator
+          }
+
+          lastLeftEnd = leftEnd + 1
+          lastRightEnd = rightEnd + 1
+
+          (leftDocument getLineNumber leftOffset) + leftLength
       }
     }
 
-    buffer.toString()
+    for (i <- 0 until (leftDocument.getLineCount - lastLeftEnd))
+      append2Result(getFromLeft(lastLeftEnd + i), getFromRight(lastRightEnd + i), " ")
+
+    result.toString()
   }
 
   override def actionIcon = AllIcons.Actions.Copy
 
   override def bundleKey = "worksheet.copy.button"
+}
+
+object CopyWorksheetAction {
+  private val COPY_BORDER = 80
 }

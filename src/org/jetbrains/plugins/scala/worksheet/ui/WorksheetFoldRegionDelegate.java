@@ -31,6 +31,15 @@ public class WorksheetFoldRegionDelegate implements FoldRegion {
     worksheetGroup.addRegion(this, leftStart, spaces, leftSideLength);
   }
 
+
+  public FoldRegion getDelegate() {
+    return delegate;
+  }
+
+  public WorksheetFoldGroup getWorksheetGroup() {
+    return worksheetGroup;
+  }
+
   @Override
   public boolean isExpanded() {
     return delegate.isExpanded();
