@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.processor.FileAttributeUtilCache
 
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Dmitry.Naydanov
@@ -45,6 +46,11 @@ class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalE
 
   def onCollapse(collapsedRegion: WorksheetFoldRegionDelegate): Boolean = {
     traverseAndChange(collapsedRegion, expand = false)
+  }
+
+  def getCorrespondInfo = regions map {
+    case FoldRegionInfo(region: WorksheetFoldRegionDelegate, _, leftStart, spaces, lsLength) =>
+      (region.getStartOffset, region.getEndOffset, leftStart, spaces, lsLength)
   }
 
   private def traverseAndChange(target: WorksheetFoldRegionDelegate, expand: Boolean): Boolean = {
