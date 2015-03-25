@@ -20,7 +20,7 @@ ChangesBrowser(project, null, changes, null, canExcludeChanges, true, null, Chan
 
   val getExtendUIFactory: DiffExtendUIFactory =
     new DiffExtendUIFactory() {
-      override def createActions(change: Change) = createDiffActions(change)
+      override def createActions(change: Change) = createDiffActions(/*change*/)
 
       override def createBottomComponent() = null
     }
