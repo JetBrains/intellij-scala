@@ -20,8 +20,6 @@ import org.jetbrains.annotations.NotNull
 class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSettings)
         extends AbstractExternalProjectSettingsControl[SbtProjectSettings](initialSettings) {
 
-  hideUseAutoImportBox()
-
   private val jdkComboBox: JdkComboBox = {
     val model = new ProjectSdksModel()
     model.reset(null)
@@ -89,7 +87,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
     oldAutoImportBox.foreach(_.setVisible(false))
     useOurOwnAutoImportCheckBox.setSelected(settings.useOurOwnAutoImport)
-    
+
     val jdk = settings.jdkName.flatMap(name => Option(ProjectJdkTable.getInstance.findJdk(name)))
     jdkComboBox.setSelectedJdk(jdk.orNull)
 
