@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceParameter
 
-import java.util.{Arrays, Comparator}
+import java.util
+import java.util.Comparator
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -90,8 +91,8 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
   def getCommandName: String = "Introduce Parameter"
 
   def performRefactoring(usages: Array[UsageInfo]) {
-    val sortedUsages = Arrays.copyOf(usages, usages.length)
-    Arrays.sort(sortedUsages, new Comparator[UsageInfo] {
+    val sortedUsages = util.Arrays.copyOf(usages, usages.length)
+    util.Arrays.sort(sortedUsages, new Comparator[UsageInfo] {
       def compare(o1: UsageInfo, o2: UsageInfo): Int =
         if (o1.getRangeInElement.getStartOffset != o2.getRangeInElement.getStartOffset)
           o1.getRangeInElement.getStartOffset - o2.getRangeInElement.getStartOffset
@@ -99,7 +100,7 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
     })
     val iter = sortedUsages.reverseIterator
     while (iter.hasNext) {
-      val usage = iter.next
+      val usage = iter.next()
       usage match {
         case IPUsageInfo(method) =>
           changeMethodSignatureAndResolveFieldConflicts(usage, usages)
@@ -120,8 +121,8 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
             case _ =>
               ScalaRefactoringUtil.replaceOccurence(range, paramName, file, editor)
           }
-        case FileRangeUsageInfo(file, range) =>
-          ScalaRefactoringUtil.replaceOccurence(range, paramName, file, editor)
+        case FileRangeUsageInfo(psiFile, range) =>
+          ScalaRefactoringUtil.replaceOccurence(range, paramName, psiFile, editor)
       }
     }
   }

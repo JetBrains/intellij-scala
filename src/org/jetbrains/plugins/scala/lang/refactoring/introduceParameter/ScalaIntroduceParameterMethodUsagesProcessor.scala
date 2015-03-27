@@ -65,7 +65,7 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
     val paramsToRemove = data.getParametersToRemove
     val params = fun.parameters
     for (i <- paramsToRemove.toNativeArray.reverseIterator) {
-      params(i).remove
+      params(i).remove()
     }
 
     //add parameter
@@ -86,7 +86,7 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
         case _ =>
       }
     }
-    return false
+    false
   }
 
   def processChangeMethodUsage(data: IntroduceParameterData, usage: UsageInfo, usages: Array[UsageInfo]): Boolean = {
@@ -109,7 +109,7 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
               )
               newCall match {
                 case c: ScMethodCall =>
-                  call.replaceExpression(c, true).asInstanceOf[ScMethodCall]
+                  call.replaceExpression(c, removeParenthesis = true).asInstanceOf[ScMethodCall]
                 case _ => return false
               }
             } else call
@@ -119,7 +119,7 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
             )
             newPostf match {
               case call: ScMethodCall =>
-                postf.replaceExpression(call, true).asInstanceOf[ScMethodCall]
+                postf.replaceExpression(call, removeParenthesis = true).asInstanceOf[ScMethodCall]
               case _ => return false
             }
           case pref: ScPrefixExpr =>
@@ -128,7 +128,7 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
             )
             newPref match {
               case call: ScMethodCall =>
-                pref.replaceExpression(call, true).asInstanceOf[ScMethodCall]
+                pref.replaceExpression(call, removeParenthesis = true).asInstanceOf[ScMethodCall]
               case _ => return false
             }
           case inf: ScInfixExpr =>
@@ -137,7 +137,7 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
             )
             newInf match {
               case call: ScMethodCall =>
-                inf.replaceExpression(call, true).asInstanceOf[ScMethodCall]
+                inf.replaceExpression(call, removeParenthesis = true).asInstanceOf[ScMethodCall]
               case _ => return false
             }
           case _ =>
@@ -146,7 +146,7 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
             )
             newCall match {
               case call: ScMethodCall =>
-                ref.replaceExpression(call, true).asInstanceOf[ScMethodCall]
+                ref.replaceExpression(call, removeParenthesis = true).asInstanceOf[ScMethodCall]
               case _ => return false
             }
         }
@@ -246,16 +246,15 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
   def isMethodUsage(usage: UsageInfo): Boolean = {
     val elem = usage.getElement
     elem match {
-      case ref: ScReferenceExpression => {
+      case ref: ScReferenceExpression =>
         ref.getParent match {
-          case _: ScMethodCall => return true
-          case _ => ref.bind match {
-            case Some(ScalaResolveResult(_: ScFunction, _)) => return true
-            case _ => return false
+          case _: ScMethodCall => true
+          case _ => ref.bind() match {
+            case Some(ScalaResolveResult(_: ScFunction, _)) => true
+            case _ => false
           }
         }
-      }
-      case _ => return false
+      case _ => false
     }
   }
 }
