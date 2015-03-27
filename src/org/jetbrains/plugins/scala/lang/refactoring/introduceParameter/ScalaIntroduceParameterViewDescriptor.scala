@@ -10,6 +10,6 @@ import com.intellij.refactoring.ui.UsageViewDescriptorAdapter
 class ScalaIntroduceParameterViewDescriptor(methodToSearchFor: PsiMethod) extends UsageViewDescriptorAdapter {
   def getElements: Array[PsiElement] = Array(methodToSearchFor)
   def getProcessedElementsHeader: String = {
-    return RefactoringBundle.message("introduce.parameter.elements.header")
+    RefactoringBundle.message("introduce.parameter.elements.header")
   }
 }

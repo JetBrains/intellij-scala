@@ -55,7 +55,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
       chooseEnclosingMethod(project, editor, file, startOffset, endOffset, expr, types)
     }
     catch {
-      case _: IntroduceException => return
+      case _: IntroduceException =>
     }
   }
 
@@ -84,7 +84,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
       dialog.show()
     }
     catch {
-      case _: IntroduceException => return
+      case _: IntroduceException =>
     }
   }
 
