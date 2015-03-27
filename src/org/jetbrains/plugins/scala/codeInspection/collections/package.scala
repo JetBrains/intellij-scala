@@ -361,7 +361,9 @@ package object collections {
 
   def isCollection(className: String, expr: ScExpression): Boolean = {
     val collectionType = collectionTypeFromClassName(className, expr.getProject)
-    expr.getType().getOrAny.conforms(collectionType)
+    if (collectionType.isEmpty) false
+    else expr.getType().getOrAny.conforms(collectionType.get)
+    collectionType.exists(expr.getType().getOrAny.conforms(_))
   }
 
   def isSet(expr: ScExpression): Boolean = isCollection("scala.collection.GenSet", expr)
@@ -452,13 +454,15 @@ package object collections {
     TextRange.create(startOffset, endOffset).shiftRight( - parent.getTextOffset)
   }
 
-  def collectionTypeFromClassName(fqn: String, project: Project) = {
+  def collectionTypeFromClassName(fqn: String, project: Project): Option[ScType] = {
     val clazz = JavaPsiFacade.getInstance(project).findClass(fqn, GlobalSearchScope.allScope(project))
-    val designatorType = ScDesignatorType(clazz)
-    val undefines = clazz.getTypeParameters.toSeq.map(ptp =>
-      ScUndefinedType(new ScTypeParameterType(ptp, ScSubstitutor.empty))
-    )
-    ScParameterizedType(designatorType, undefines)
+    Option(clazz).map { c =>
+      val designatorType = ScDesignatorType(c)
+      val undefines = c.getTypeParameters.toSeq.map(ptp =>
+        ScUndefinedType(new ScTypeParameterType(ptp, ScSubstitutor.empty))
+      )
+      ScParameterizedType(designatorType, undefines)
+    }
   }
 
   @tailrec
