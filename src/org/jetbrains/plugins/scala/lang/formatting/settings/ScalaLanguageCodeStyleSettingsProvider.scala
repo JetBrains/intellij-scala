@@ -186,8 +186,6 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 
   override def getDisplayPriority = DisplayPriority.COMMON_SETTINGS
 
-  override def usesSharedPreview() = false
-
   override def getIndentOptionsEditor = new SmartIndentOptionsEditor
 
   private val GENERAL_CODE_SAMPLE =

@@ -3,7 +3,7 @@ package org.jetbrains.sbt.project.modifier.ui
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.changes.Change
-import com.intellij.openapi.vcs.changes.actions.{ShowDiffAction, ShowDiffUIContext, DiffExtendUIFactory}
+import com.intellij.openapi.vcs.changes.actions.{ShowDiffAction, ShowDiffUIContext}
 import com.intellij.openapi.vcs.changes.ui.ChangesBrowser
 import com.intellij.openapi.vfs.VirtualFile
 import scala.collection.JavaConversions._
@@ -17,13 +17,6 @@ class BuildFileChangeBrowser(val project: Project, val changes: java.util.List[C
                              val fileChangesMap: mutable.Map[VirtualFile, (BuildFileModifiedStatus, Long)]) extends
 ChangesBrowser(project, null, changes, null, canExcludeChanges, true, null, ChangesBrowser.MyUseCase.LOCAL_CHANGES,
   null) {
-
-  val getExtendUIFactory: DiffExtendUIFactory =
-    new DiffExtendUIFactory() {
-      override def createActions(change: Change) = createDiffActions(change)
-
-      override def createBottomComponent() = null
-    }
 
   override def afterDiffRefresh() {
     val updatedChanges = new java.util.ArrayList[Change]
@@ -52,7 +45,6 @@ ChangesBrowser(project, null, changes, null, canExcludeChanges, true, null, Chan
 
   override protected def showDiffForChanges(changesArray: Array[Change], indexInSelection: Int) {
     val context: ShowDiffUIContext = new ShowDiffUIContext(false)
-    context.setActionsFactory(getExtendUIFactory)
     val changesArraySwapped: Array[Change] = for (change <- changesArray)
     yield BuildFileChange.swap(change.asInstanceOf[BuildFileChange])
 

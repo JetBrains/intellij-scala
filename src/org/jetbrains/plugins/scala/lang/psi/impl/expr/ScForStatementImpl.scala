@@ -34,7 +34,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   override def toString: String = "ForStatement"
 
-  def isYield: Boolean = findChildByType(ScalaTokenTypes.kYIELD) != null
+  def isYield: Boolean = findChildByType[PsiElement](ScalaTokenTypes.kYIELD) != null
 
   def enumerators: Option[ScEnumerators] = findChild(classOf[ScEnumerators])
 
@@ -348,12 +348,12 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   }
 
   def getLeftParenthesis = {
-    val leftParenthesis = findChildByType(ScalaTokenTypes.tLPARENTHESIS)
+    val leftParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS)
     if (leftParenthesis == null) None else Some(leftParenthesis)
   }
 
   def getRightParenthesis = {
-    val rightParenthesis = findChildByType(ScalaTokenTypes.tRPARENTHESIS)
+    val rightParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)
     if (rightParenthesis == null) None else Some(rightParenthesis)
   }
 

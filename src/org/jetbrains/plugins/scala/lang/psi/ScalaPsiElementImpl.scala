@@ -54,7 +54,7 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
     }
   }
 
-  override def findLastChildByType(t: IElementType) = {
+  override def findLastChildByType[T <: PsiElement](t: IElementType): T = {
     super[ScalaPsiElement].findLastChildByType(t)
   }
 
@@ -150,7 +150,7 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement]
     getLastChild
   }
 
-  override def findLastChildByType(t: IElementType) = {
+  override def findLastChildByType[T <: PsiElement](t: IElementType): T = {
     super[ScalaPsiElement].findLastChildByType(t)
   }
 

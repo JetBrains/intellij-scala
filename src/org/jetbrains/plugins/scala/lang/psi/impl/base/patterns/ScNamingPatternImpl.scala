@@ -28,9 +28,9 @@ class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
 
   override def toString: String = "NamingPattern: " + name
 
-  def nameId = findChildByType(TokenSets.ID_SET)
+  def nameId = findChildByType[PsiElement](TokenSets.ID_SET)
 
-  def isWildcard: Boolean = findChildByType(ScalaTokenTypes.tUNDER) != null
+  def isWildcard: Boolean = findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
 
   override def getType(ctx: TypingContext): TypeResult[ScType] = {
     if (getLastChild.isInstanceOf[ScSeqWildcard]) {
