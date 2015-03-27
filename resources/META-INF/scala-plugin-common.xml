@@ -1025,6 +1025,10 @@
                          displayName="GetOrElse(null) to orNull" groupPath="Scala, Collections" groupName="Options"
                          shortName="GetOrElseNull" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.IfElseToOptionInspection"
+                       displayName="Emulated Option(x)" groupPath="Scala, Collections" groupName="Options"
+                       shortName="IfElseToOption" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
         <!--other-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SortFilterInspection"
                          displayName="Filter after sort" groupPath="Scala, Collections" groupName="Other"

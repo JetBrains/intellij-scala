@@ -1,0 +1,13 @@
+<html>
+<body>
+Don't emulate <code>Option.apply(x)</code> method
+<p>Before:</p>
+<code>if (x == null) None else Some(x)</code><br>
+<code>if (x != null) Some(x) else None</code><br>
+
+<p>After:</p>
+
+<code>Option(x)</code><br>
+
+</body>
+</html>
