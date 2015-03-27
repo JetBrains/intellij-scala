@@ -136,7 +136,6 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
         invokeDialog(project, editor, array, hasReturn, lastReturn, selectedValue,
           siblings(siblings.length - 1) == selectedValue, isLastExpressionMeaningful)
       }, "Choose level for Extract Method", getTextForElement, true)
-      return
     }
     else if (siblings.length == 1) {
       invokeDialog(project, editor, array, hasReturn, lastReturn, siblings(0), smallestScope = true, isLastExpressionMeaningful)
@@ -284,12 +283,12 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
           case v: ScVariableDefinition if v.bindings.nonEmpty => local(s"var ${v.bindings(0).name}")
           case _: ScCaseClause => local("case clause")
           case ifStmt: ScIfStmt =>
-            if (ifStmt.thenBranch.exists(_ == b)) local("if block")
+            if (ifStmt.thenBranch.contains(b)) local("if block")
             else "Extract local method in else block"
-          case forStmt: ScForStatement if forStmt.body.exists(_ == b) => local("for statement")
-          case whileStmt: ScWhileStmt if whileStmt.body.exists(_ == b) => local("while statement")
-          case doSttm: ScDoStmt if doSttm.getExprBody.exists(_ == b) => local("do statement")
-          case funExpr: ScFunctionExpr if funExpr.result.exists(_ == b) => local("function expression")
+          case forStmt: ScForStatement if forStmt.body.contains(b) => local("for statement")
+          case whileStmt: ScWhileStmt if whileStmt.body.contains(b) => local("while statement")
+          case doSttm: ScDoStmt if doSttm.getExprBody.contains(b) => local("do statement")
+          case funExpr: ScFunctionExpr if funExpr.result.contains(b) => local("function expression")
           case _ => local("code block")
         }
       case _: ScalaFile => "Extract file method"
