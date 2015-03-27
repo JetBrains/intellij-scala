@@ -18,9 +18,10 @@ import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.options.{SettingsEditor, SettingsEditorGroup}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JdkUtil, Sdk}
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Computable, Getter, JDOMExternalizer}
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi._
+import com.intellij.psi.search.GlobalSearchScope
 import org.jdom.Element
 import org.jetbrains.idea.maven.project.MavenProjectsManager
 import org.jetbrains.plugins.scala.extensions._
@@ -38,8 +39,7 @@ import org.jetbrains.plugins.scala.util.ScalaUtil
 import scala.beans.BeanProperty
 import scala.collection.JavaConversions._
 import scala.collection.mutable
-import scala.collection.mutable.{ListBuffer, ArrayBuffer}
-import com.intellij.openapi.util.text.StringUtil
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Ksenia.Sautina
@@ -59,6 +59,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   val SCALA_HOME = "-Dscala.home="
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
   val EMACS = "-Denv.emacs=\"%EMACS%\""
+
+  def getAdditionalTestParams(testName: String): Seq[String] = Seq()
 
   def currentConfiguration = AbstractTestRunConfiguration.this
 
@@ -111,7 +113,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     workingDirectory = ExternalizablePath.urlValue(s)
   }
 
-  def initWorkingDir = if (workingDirectory == null || workingDirectory.trim.isEmpty) setWorkingDirectory(provideDefaultWorkingDir)
+  def initWorkingDir() = if (workingDirectory == null || workingDirectory.trim.isEmpty) setWorkingDirectory(provideDefaultWorkingDir)
 
   private def provideDefaultWorkingDir = {
     val module = getModule
@@ -146,15 +148,13 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
   private var generatedName: String = ""
 
-  override def getGeneratedName = generatedName
-
   def setGeneratedName(name: String) {
     generatedName = name
   }
 
   override def isGeneratedName = getName == null || getName.equals(suggestedName)
 
-  override def suggestedName = getGeneratedName
+  override def suggestedName = generatedName
 
   def apply(configuration: TestRunConfigurationForm) {
     testKind = configuration.getSelectedKind
@@ -441,7 +441,9 @@ abstract class AbstractTestRunConfiguration(val project: Project,
                 for (test <- splitTests) {
                   printer.println("-testName")
                   printer.println(test)
-                  params.getVMParametersList.addParametersString("-Dspecs2.ex=\"" + test + "\"")
+                  for (testParam <- getAdditionalTestParams(test)) {
+                    params.getVMParametersList.addParametersString(testParam)
+                  }
                 }
               }
             } else {
@@ -449,7 +451,9 @@ abstract class AbstractTestRunConfiguration(val project: Project,
               for (failed <- getFailedTests) {
                 printer.println(failed._1)
                 printer.println(failed._2)
-                params.getVMParametersList.addParametersString("-Dspecs2.ex=\"" + failed._2 + "\"")
+                for (testParam <- getAdditionalTestParams(failed._2)) {
+                  params.getVMParametersList.addParametersString(testParam)
+                }
               }
             }
 
@@ -481,7 +485,9 @@ abstract class AbstractTestRunConfiguration(val project: Project,
               for (test <- splitTests) {
                 params.getProgramParametersList.add("-testName")
                 params.getProgramParametersList.add(test)
-                params.getVMParametersList.addParametersString("-Dspecs2.ex=\"" + test + "\"")
+                for (testParam <- getAdditionalTestParams(test)) {
+                  params.getVMParametersList.addParametersString(testParam)
+                }
               }
             }
           } else {
@@ -489,7 +495,9 @@ abstract class AbstractTestRunConfiguration(val project: Project,
             for (failed <- getFailedTests) {
               params.getProgramParametersList.add(failed._1)
               params.getProgramParametersList.add(failed._2)
-              params.getVMParametersList.addParametersString("-Dspecs2.ex=\"" + failed._2 + "\"")
+              for (testParam <- getAdditionalTestParams(failed._2)) {
+                params.getVMParametersList.addParametersString(testParam)
+              }
             }
           }
 

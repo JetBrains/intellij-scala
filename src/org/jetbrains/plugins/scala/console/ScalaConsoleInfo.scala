@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.console
 
-import com.intellij.execution.process.{ConsoleHistoryModel, ProcessHandler}
+import com.intellij.execution.console.ConsoleHistoryController
+import com.intellij.execution.process.ProcessHandler
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
@@ -14,23 +15,23 @@ import com.intellij.util.containers.WeakHashMap
 object ScalaConsoleInfo {
   private val NULL = (null, null, null)
   private val allConsoles =
-    new WeakHashMap[Project, List[(ScalaLanguageConsole, ConsoleHistoryModel, ProcessHandler)]]()
+    new WeakHashMap[Project, List[(ScalaLanguageConsole, ConsoleHistoryController, ProcessHandler)]]()
 
   def getConsole(file: PsiFile): ScalaLanguageConsole = get(file)._1
   def getConsole(project: Project): ScalaLanguageConsole = get(project)._1
-  def getModel(project: Project): ConsoleHistoryModel = get(project)._2
+  def getController(project: Project): ConsoleHistoryController = get(project)._2
   def getProcessHandler(project: Project): ProcessHandler = get(project)._3
   def getConsole(editor: Editor): ScalaLanguageConsole = get(editor)._1
-  def getModel(editor: Editor): ConsoleHistoryModel = get(editor)._2
+  def getController(editor: Editor): ConsoleHistoryController = get(editor)._2
   def getProcessHandler(editor: Editor): ProcessHandler = get(editor)._3
 
-  def addConsole(console: ScalaLanguageConsole, model: ConsoleHistoryModel, processHandler: ProcessHandler) {
+  def addConsole(console: ScalaLanguageConsole, model: ConsoleHistoryController, processHandler: ProcessHandler) {
     val project = console.getProject
     synchronized {
       allConsoles.get(project) match {
         case null =>
           allConsoles.put(project, (console, model, processHandler) :: Nil)
-        case list: List[(ScalaLanguageConsole, ConsoleHistoryModel, ProcessHandler)] =>
+        case list: List[(ScalaLanguageConsole, ConsoleHistoryController, ProcessHandler)] =>
           allConsoles.put(project, (console, model, processHandler) :: list)
       }
     }
@@ -41,7 +42,7 @@ object ScalaConsoleInfo {
     synchronized {
       allConsoles.get(project) match {
         case null =>
-        case list: List[(ScalaLanguageConsole, ConsoleHistoryModel, ProcessHandler)] =>
+        case list: List[(ScalaLanguageConsole, ConsoleHistoryController, ProcessHandler)] =>
           allConsoles.put(project, list.filter {
             case (sConsole, _, _) => sConsole != console
           })
@@ -49,7 +50,7 @@ object ScalaConsoleInfo {
     }
   }
 
-  private def get(project: Project): (ScalaLanguageConsole, ConsoleHistoryModel, ProcessHandler) = {
+  private def get(project: Project): (ScalaLanguageConsole, ConsoleHistoryController, ProcessHandler) = {
     synchronized {
       allConsoles.get(project) match {
         case null => NULL
@@ -64,7 +65,7 @@ object ScalaConsoleInfo {
         case null => NULL
         case list =>
           list.find {
-            case (console: ScalaLanguageConsole, model: ConsoleHistoryModel, handler: ProcessHandler) =>
+            case (console: ScalaLanguageConsole, model: ConsoleHistoryController, handler: ProcessHandler) =>
               console.getConsoleEditor == editor
           } match {
             case Some(res) => res
@@ -80,7 +81,7 @@ object ScalaConsoleInfo {
         case null => NULL
         case list =>
           list.find {
-            case (console: ScalaLanguageConsole, model: ConsoleHistoryModel, handler: ProcessHandler) =>
+            case (console: ScalaLanguageConsole, model: ConsoleHistoryController, handler: ProcessHandler) =>
               console.getFile == file
           } match {
             case Some(res) => res

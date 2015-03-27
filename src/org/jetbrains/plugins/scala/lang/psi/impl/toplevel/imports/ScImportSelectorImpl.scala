@@ -6,6 +6,7 @@ package toplevel
 package imports
 
 import com.intellij.lang.ASTNode
+import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -30,7 +31,7 @@ class ScImportSelectorImpl extends ScalaStubBasedElementImpl[ScImportSelector] w
     if (stub != null) {
       return stub.asInstanceOf[ScImportSelectorStub].importedName
     }
-    val id = findChildByType(TokenSets.ID_SET)
+    val id = findChildByType[PsiElement](TokenSets.ID_SET)
     if (id == null) reference.refName else id.getText
   }
 

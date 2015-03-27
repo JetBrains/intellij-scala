@@ -49,12 +49,13 @@ trait ScalaPsiElement extends PsiElement with PsiElementExtTrait with MonadTrans
     case e => Some(e)
   }
 
-  def findLastChildByType(t: IElementType) = {
+  def findLastChildByType[T <: PsiElement](t: IElementType): T = {
     var node = getNode.getLastChildNode
     while (node != null && node.getElementType != t) {
       node = node.getTreePrev
     }
-    if (node == null) null else node.getPsi
+    if (node == null) null.asInstanceOf[T]
+    else node.getPsi.asInstanceOf[T]
   }
 
   def findFirstChildByType(t: IElementType) = {

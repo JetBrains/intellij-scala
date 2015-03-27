@@ -71,11 +71,11 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   override def addBefore(element: PsiElement, anchor: PsiElement): PsiElement = {
     if (anchor == null) {
       if (exprs.length == 0) {
-        val par: PsiElement = findChildByType(ScalaTokenTypes.tLPARENTHESIS)
+        val par: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS)
         if (par == null) return super.addBefore(element, anchor)
         super.addAfter(element, par)
       } else {
-        val par: PsiElement = findChildByType(ScalaTokenTypes.tLPARENTHESIS)
+        val par: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS)
         if (par == null) return super.addBefore(element, anchor)
         val comma = ScalaPsiElementFactory.createComma(getManager)
         super.addAfter(par, comma)
@@ -87,7 +87,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   }
 
   def addExpr(expr: ScExpression): ScArgumentExprList = {
-    val par = findChildByType(ScalaTokenTypes.tLPARENTHESIS)
+    val par = findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS)
     val nextNode = par.getNode.getTreeNext
     val node = getNode
     val needCommaAndSpace = exprs.nonEmpty
