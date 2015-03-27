@@ -925,7 +925,11 @@
                          displayName="Access to last element by index" groupPath="Scala, Collections" groupName="Indices"
                          shortName="LastIndexToLast" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <!--simplifications: filter and exists-->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RangeToIndicesInspection"
+                         displayName="Constructing range for seq indices" groupPath="Scala, Collections" groupName="Indices"
+                         shortName="RangeToIndices" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+      <!--simplifications: filter and exists-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterHeadOptionInspection"
                          displayName="Filter and headOption to find" groupPath="Scala, Collections" groupName="Simplifications: filter and exists"
                          shortName="FilterHeadOption" level="WARNING"
