@@ -138,7 +138,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
       ScalaRefactoringUtil.showChooser[ScFunctionDefinition](editor, validEnclosingMethods.toArray, {selectedValue =>
         runDialog(project, editor, file, startOffset, endOffset,
           selectedValue.asInstanceOf[ScFunctionDefinition], expr, types)
-      }, "Choose level for Extract Method", getTextForElement, false)
+      }, s"Choose function for $REFACTORING_NAME", getTextForElement, false)
     }
     else if (validEnclosingMethods.size == 1) {
       runDialog(project, editor, file, startOffset, endOffset, validEnclosingMethods(0), expr, types)
