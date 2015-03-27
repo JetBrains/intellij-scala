@@ -10,6 +10,9 @@ import scala.beans.BeanProperty
  * @author Pavel Fatin
  */
 class SbtProjectSettings extends ExternalProjectSettings {
+
+  super.setUseAutoImport(false)
+
   def jdkName: Option[String] = Option(jdk)
 
   def jdkName_=(name: Option[String]) = jdk = name.orNull
@@ -41,6 +44,12 @@ class SbtProjectSettings extends ExternalProjectSettings {
     result.useOurOwnAutoImport = useOurOwnAutoImport
     result
   }
+
+  override def setUseAutoImport(useAutoImport: Boolean): Unit =
+    useOurOwnAutoImport = useAutoImport
+
+  override def isUseAutoImport: Boolean =
+    useOurOwnAutoImport
 }
 
 object SbtProjectSettings {

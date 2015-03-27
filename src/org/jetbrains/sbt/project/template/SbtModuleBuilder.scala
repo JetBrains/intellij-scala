@@ -84,8 +84,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
         getExternalProjectSettings.setResolveClassifiers(resolveClassifiersCheckBox.isSelected)
         getExternalProjectSettings.setResolveSbtClassifiers(resolveSbtClassifiersCheckBox.isSelected)
-        getExternalProjectSettings.setUseAutoImport(false)
-        getExternalProjectSettings.setUseOurOwnAutoImport(useAutoImportCheckBox.isSelected)
+        getExternalProjectSettings.setUseAutoImport(useAutoImportCheckBox.isSelected)
         getExternalProjectSettings.setCreateEmptyContentRootDirectories(createContentDirsCheckBox.isSelected)
       }
     }
@@ -144,7 +143,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     externalProjectSettings.setExternalProjectPath(getContentEntryPath)
     settings.linkProject(externalProjectSettings)
 
-    if (!externalProjectSettings.useOurOwnAutoImport) {
+    if (!externalProjectSettings.isUseAutoImport) {
       FileDocumentManager.getInstance.saveAllDocuments()
       ApplicationManager.getApplication.invokeLater(new Runnable() {
         override def run(): Unit =
