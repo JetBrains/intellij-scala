@@ -4,6 +4,7 @@ package org.jetbrains.plugins.scala.lang.refactoring.extractMethod;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.refactoring.ui.MethodSignatureComponent;
 import com.intellij.refactoring.util.ParameterTablePanel;
@@ -137,7 +138,8 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
 
       @Override
       public void documentChanged(com.intellij.openapi.editor.event.DocumentEvent event) {
-
+        if (isDefaultClassName) updateClassName(StringUtil.capitalize(editorTextField.getText()));
+        updateSignature();
       }
     });
 
