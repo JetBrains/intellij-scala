@@ -337,7 +337,7 @@ abstract class MixinNodes {
           clazz match {
             case template: ScTypeDefinition =>
               if (template.qualifiedName == "scala.Predef") isPredef = true
-              place = Some(template.extendsBlock)
+              place = Option(template.extendsBlock)
               processScala(template, ScSubstitutor.empty, map, place, base = true)
               val lin = MixinNodes.linearization(template)
               var zSubst = new ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(template)))
@@ -353,7 +353,7 @@ abstract class MixinNodes {
               }
               (if (!lin.isEmpty) lin.tail else lin, Bounds.putAliases(template, ScSubstitutor.empty), zSubst)
             case template: ScTemplateDefinition =>
-              place = Some(template.asInstanceOf[ScalaStubBasedElementImpl[_]].getLastChildStub)
+              place = Option(template.asInstanceOf[ScalaStubBasedElementImpl[_]].getLastChildStub)
               processScala(template, ScSubstitutor.empty, map, place, base = true)
               var zSubst = new ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(template)))
               var placer = template.getContext
@@ -372,7 +372,7 @@ abstract class MixinNodes {
               (syn.getSuperTypes.map{psiType => ScType.create(psiType, syn.getProject)} : Seq[ScType],
                 ScSubstitutor.empty, ScSubstitutor.empty)
             case clazz: PsiClass =>
-              place = Some(clazz.getLastChild)
+              place = Option(clazz.getLastChild)
               processJava(clazz, ScSubstitutor.empty, map, place)
               val lin = MixinNodes.linearization(clazz)
               (if (!lin.isEmpty) lin.tail else lin,
