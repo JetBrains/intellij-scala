@@ -7,6 +7,8 @@ class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
 
   def testAnnotated() = doTest()
 
+  def testAnonymousClass() = doTest()
+
   def testDeprecated() = doTest()
 
   def testEnum() = doTest()
