@@ -570,10 +570,12 @@ object JavaToScala {
           context.get().push((false, c.getQualifiedName))
           try {
             c match {
-              case clazz: PsiAnonymousClass if clazz.getArgumentList.getExpressions.length > 0 =>
+              case clazz: PsiAnonymousClass =>
                 val tp = ScType.create(c.asInstanceOf[PsiAnonymousClass].getBaseClassType, c.getProject)
                 res.append(ScType.presentableText(tp))
-                res.append("(").append(convertPsiToText(clazz.getArgumentList)).append(")")
+                if (clazz.getArgumentList.getExpressions.length > 0)
+                  res.append("(").append(convertPsiToText(clazz.getArgumentList)).append(")")
+                else res.append("()")
               case _ =>
                 res.append(convertPsiToText(c.getModifierList)).append(" ")
                 if (c.isInterface) res.append("trait ") else res.append("class ")

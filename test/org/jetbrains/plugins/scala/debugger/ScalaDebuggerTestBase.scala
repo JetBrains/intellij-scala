@@ -81,6 +81,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
   }
 
   override protected def addFileToProject(fileName: String, fileText: String) {
+    if (!srcDir.exists()) srcDir.mkdir()
     val file = new File(srcDir, fileName)
     if (needMake || !checkSourceFile(file, fileText)) {
       needMake = true
