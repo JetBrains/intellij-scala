@@ -39,6 +39,7 @@ object TreeAdapter {
           expression(t.body).get
         )
       case t: p.toplevel.typedef.ScTrait => toTrait(t)
+      case t: p.toplevel.typedef.ScClass => toClass(t)
       case t: p.expr.ScExpression => expression(Some(t)).get
       case t: p.toplevel.imports.ScImportStmt => m.Import(t.importExprs.toStream.map(imports))
       case other => println(other.getClass); ???
@@ -53,6 +54,24 @@ object TreeAdapter {
       m.Ctor.Primary(Nil, m.Ctor.Ref.Name("this"), Nil),
       template(t.extendsBlock)
     )
+  }
+
+  def toClass(c: p.toplevel.typedef.ScClass) = {
+    c.constructor
+    m.Defn.Class(
+      convertMods(c),
+      Namer(c),
+      c.typeParameters.toStream map {TypeAdapter(_)},
+      ctor(c.constructor),
+      template(c.extendsBlock)
+    )
+  }
+
+  def ctor(pc: Option[p.base.ScPrimaryConstructor]): m.Ctor.Primary = {
+    pc match {
+      case None => throw new RuntimeException("no primary constructor in class")
+      case Some(ctor) => m.Ctor.Primary(convertMods(ctor), Namer(ctor), ctor.parameterList.clauses.toStream.map(convertParams))
+    }
   }
 
   def template(t: p.toplevel.templates.ScExtendsBlock): m.Template = {
@@ -266,6 +285,10 @@ object Namer { // TODO: denotaions
 
   def apply(td: p.toplevel.typedef.ScTypeDefinition) = {
     m.Type.Name(td.name)
+  }
+
+  def apply(t: p.base.ScPrimaryConstructor) = {
+    m.Ctor.Ref.Name("this")
   }
 
   def ind(cr: p.base.ScStableCodeReferenceElement): m.Name.Indeterminate = {
