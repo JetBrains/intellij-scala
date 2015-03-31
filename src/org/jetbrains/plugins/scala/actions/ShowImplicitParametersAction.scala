@@ -331,7 +331,12 @@ class ImplicitParametersTreeStructure(project: Project,
       if (namedElement != null) {
         val text: String = namedElement.name
         if (text == InferUtil.notFoundParameterName) {
-          data.setPresentableText("Parameter not found")
+          value.implicitSearchState match {
+            case Some(state) =>
+              data.setPresentableText(s"Parameter not found for type: ${state.tp}")
+            case _ =>
+              data.setPresentableText("Parameter not found")
+          }
           data.setAttributesKey(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES)
         } else {
           namedElement match {
