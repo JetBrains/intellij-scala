@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Block, Expr}
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ImplicitParamClause, ParamClauses, TypeParamClause}
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{Dcl, Def}
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.{ClassParamClauses, ClassParamClause, ImplicitClassParamClause}
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.{ClassParamClause, ClassParamClauses, ImplicitClassParamClause}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -41,7 +41,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBody, ScTemplateParents}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -243,6 +243,16 @@ object ScalaPsiElementFactory {
     val fun = dummyFile.getFirstChild.asInstanceOf[ScFunction]
     fun.parameters(0)
   }
+
+  def createClassParameterFromText(paramText: String, manager: PsiManager): ScParameter = {
+    val text = "class A(" + paramText + ")"
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
+              ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+    val clazz = dummyFile.getFirstChild.asInstanceOf[ScClass]
+    clazz.parameters(0)
+  }
+
 
   def createCaseClauseFromText(clauseText: String, manager: PsiManager): ScCaseClause= {
     val text = "x match { " + clauseText + "}"
