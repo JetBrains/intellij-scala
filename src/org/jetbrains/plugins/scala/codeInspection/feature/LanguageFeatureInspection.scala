@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScExistentialClause, ScRefinement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScPostfixExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScMacroDefinition, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScMacroDefinition, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScClassParents
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
@@ -45,7 +45,7 @@ class LanguageFeatureInspection extends AbstractInspection("LanguageFeature", "A
     },
     Feature("higher-kinded type", "scala.language", "higherKinds", _.higherKinds, _.higherKinds = true) {
       case (e: ScTypeParamClause) && Parent(Parent(_: ScTypeParamClause)) => e
-      case (e: ScTypeParamClause) && Parent(_: ScTypeAlias) => e
+      case (e: ScTypeParamClause) && Parent(_: ScTypeAliasDeclaration) => e
     },
     Feature("existential type", "scala.language", "existentials", _.existentials, _.existentials = true) {
       case e: ScExistentialClause => e.firstChild.getOrElse(e) // TODO Exclude reducible existential types
