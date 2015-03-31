@@ -11,7 +11,7 @@ import scala.meta.internal.ast.Tree
 trait TreeConverterTestBase extends SimpleTestCase {
 
   implicit def psiFromText(text: String): ScalaPsiElement = {
-    val file: ScalaFile = parseText(text)
+    val file: ScalaFile = parseText(text + "\n42") //HACK: force file to be a scala script to ease resolving
     val startPos = file.getText.indexOf("//start")
     if (startPos < 0)
       file.firstChild.get.asInstanceOf[ScalaPsiElement]
