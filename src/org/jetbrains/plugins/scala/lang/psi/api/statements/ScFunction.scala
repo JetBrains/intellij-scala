@@ -379,17 +379,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     })
   }
 
-  def addParameter(param: ScParameter): ScFunction = {
-    if (paramClauses.clauses.length > 0)
-      paramClauses.clauses.apply(0).addParameter(param)
-    else {
-      val clause: ScParameterClause = ScalaPsiElementFactory.createClauseFromText("()", getManager)
-      val newClause = clause.addParameter(param)
-      paramClauses.addClause(newClause)
-    }
-    this
-  }
-
   def getTypeParameters: Array[PsiTypeParameter] = {
     val params = typeParameters
     val size = params.length
