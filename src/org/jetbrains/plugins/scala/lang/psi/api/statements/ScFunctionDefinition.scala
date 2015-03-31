@@ -108,6 +108,12 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
   }
 }
 
+object ScFunctionDefinition {
+  object withBody {
+    def unapply(fun: ScFunctionDefinition): Option[ScExpression] = fun.body
+  }
+}
+
 case class RecursiveReference(element: ScReferenceElement, isTailCall: Boolean)
 
 trait RecursionType
