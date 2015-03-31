@@ -14,8 +14,8 @@ import com.intellij.refactoring.BaseRefactoringProcessor
 import com.intellij.refactoring.introduceParameter.{IntroduceParameterData, IntroduceParameterMethodUsagesProcessor, JavaExpressionWrapper}
 import com.intellij.usageView.{UsageInfo, UsageViewDescriptor, UsageViewUtil}
 import gnu.trove.TIntArrayList
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
@@ -27,15 +27,15 @@ import scala.collection.mutable.ArrayBuffer
  */
 
 class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodToSearchFor: PsiMethod,
-                                       function: ScFunctionDefinition, replaceAllOccurences: Boolean,
+                                       methodLike: ScMethodLike, replaceAllOccurences: Boolean,
                                        occurrences: Array[TextRange], startOffset: Int, endOffset: Int,
                                        paramName: String, isDefaultParam: Boolean, tp: ScType, expression: ScExpression)
         extends BaseRefactoringProcessor(project) with IntroduceParameterData {
   private val document = editor.getDocument
-  private val file = function.getContainingFile
+  private val file = methodLike.getContainingFile
 
   val (hasDefaults, hasRep, posNumber) = {
-    val clauses = function.paramClauses.clauses
+    val clauses = methodLike.parameterList.clauses
     if (clauses.length == 0) (false, false, 0)
     else {
       val hasDef = clauses.apply(0).parameters.exists(p => p.isDefaultParam)
@@ -169,7 +169,7 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
 
   def getParametersToRemove: TIntArrayList = new TIntArrayList() //todo:
 
-  def getForcedType: PsiType = ScType.toPsi(tp, project, function.getResolveScope)
+  def getForcedType: PsiType = ScType.toPsi(tp, project, methodLike.getResolveScope)
 
   def getScalaForcedType: ScType = tp
 
@@ -192,16 +192,16 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
   def getScalaExpressionToSearch: ScExpression = expression
 
   def getExpressionToSearch: PsiExpression =
-    JavaPsiFacade.getElementFactory(function.getProject).createExpressionFromText(getParameterName, expression.getContext)
+    JavaPsiFacade.getElementFactory(methodLike.getProject).createExpressionFromText(getParameterName, expression.getContext)
 
   def getParameterInitializer =
     new JavaExpressionWrapper(
-      JavaPsiFacade.getElementFactory(function.getProject).createExpressionFromText(getParameterName, expression.getContext)
+      JavaPsiFacade.getElementFactory(methodLike.getProject).createExpressionFromText(getParameterName, expression.getContext)
     )
 
   def getMethodToSearchFor: PsiMethod = methodToSearchFor
 
-  def getMethodToReplaceIn: PsiMethod = function
+  def getMethodToReplaceIn: PsiMethod = methodLike
 
   def getProject: Project = project
 }
