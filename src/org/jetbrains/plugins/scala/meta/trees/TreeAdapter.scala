@@ -38,10 +38,44 @@ object TreeAdapter {
           t.definedReturnType.map(TypeAdapter(_)).toOption,
           expression(t.body).get
         )
+      case t: p.toplevel.typedef.ScTrait => toTrait(t)
       case t: p.expr.ScExpression => expression(Some(t)).get
       case t: p.toplevel.imports.ScImportStmt => m.Import(t.importExprs.toStream.map(imports))
       case other => println(other.getClass); ???
     }
+  }
+
+  def toTrait(t: p.toplevel.typedef.ScTrait) = {
+    m.Defn.Trait(
+      convertMods(t),
+      Namer(t),
+      t.typeParameters.toStream map {TypeAdapter(_)},
+      m.Ctor.Primary(Nil, m.Ctor.Ref.Name("this"), Nil),
+      template(t.extendsBlock)
+    )
+  }
+
+  def template(t: p.toplevel.templates.ScExtendsBlock): m.Template = {
+    def ctor(tpe: p.base.types.ScTypeElement) = m.Ctor.Ref.Name(tpe.calcType.canonicalText)
+    val exprs   = t.templateBody map (it => Seq(it.exprs.map(expression): _*))
+    val holders = t.templateBody map (it => Seq(it.holders.map(ideaToMeta(_).asInstanceOf[m.Stat]): _*))
+    val early   = t.earlyDefinitions map (it => it.members.toStream.map(ideaToMeta(_).asInstanceOf[m.Stat])) getOrElse Seq.empty
+    val parents = t.templateParents map (it => it.typeElements.toStream map ctor) getOrElse Seq.empty
+    val self    = t.selfType match {
+      case Some(tpe: ptype.ScType) => m.Term.Param(Nil, m.Term.Name("self"), Some(TypeAdapter(tpe)), None)
+      case None => m.Term.Param(Nil, m.Name.Anonymous(), None, None)
+    }
+    val stats = (exprs, holders) match {
+      case (Some(exp), Some(hld)) => Some(hld ++ exp)
+      case (Some(exp), None)  => Some(exp)
+      case (None, Some(hld))  => Some(hld)
+      case (None, None)       => None
+    }
+    m.Template(early, parents, self, stats)
+  }
+
+  def member(t: p.toplevel.typedef.ScMember): m.Stat = {
+    m.Ctor.Ref.Name("B")
   }
 
   def expression(e: p.expr.ScExpression): m.Term = e match {
@@ -49,6 +83,7 @@ object TreeAdapter {
     case t: p.expr.ScUnitExpr   => m.Lit.Unit()
     case t: p.expr.ScReturnStmt => m.Term.Return(expression(t.expr).get)
     case t: p.expr.ScBlockExpr  => m.Term.Block(t.exprs.toStream.map(expression))
+    case t: p.expr.ScMethodCall => m.Term.Apply(Namer(t.getInvokedExpr), t.args.exprs.toStream.map(expression))
     case t: p.expr.ScInfixExpr  => m.Term.ApplyInfix(expression(t.getBaseExpr), Namer(t.getInvokedExpr), Nil, Seq(expression(t.getArgExpr)))
     case t: p.expr.ScReferenceExpression => Namer(t)
     case other => println(other.getClass); ???
@@ -83,7 +118,7 @@ object TreeAdapter {
       else
         m.Import.Selector.Name(m.Name.Indeterminate(sel.importedName))
     }
-    if (!t.selectors.isEmpty)
+    if (t.selectors.nonEmpty)
       m.Import.Clause(qual(t.qualifier), Seq(t.selectors.map(selector):_*) ++ (if (t.singleWildcard) Seq(m.Import.Selector.Wildcard()) else Seq.empty))
     else if (t.singleWildcard)
       m.Import.Clause(qual(t.qualifier), Seq(m.Import.Selector.Wildcard()))
@@ -227,6 +262,10 @@ object Namer { // TODO: denotaions
 
   def apply(e: p.statements.ScTypeAlias): m.Type.Name = {
     m.Type.Name(e.name)
+  }
+
+  def apply(td: p.toplevel.typedef.ScTypeDefinition) = {
+    m.Type.Name(td.name)
   }
 
   def ind(cr: p.base.ScStableCodeReferenceElement): m.Name.Indeterminate = {
