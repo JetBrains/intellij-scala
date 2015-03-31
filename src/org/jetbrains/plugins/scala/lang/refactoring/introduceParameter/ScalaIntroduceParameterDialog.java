@@ -20,9 +20,9 @@ import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.*;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
@@ -61,7 +61,7 @@ public class ScalaIntroduceParameterDialog extends RefactoringDialog implements 
     private TextRange[] occurrences;
     private int startOffset;
     private int endOffset;
-    private ScFunctionDefinition function;
+    private ScMethodLike methodLike;
     private Editor editor;
     private ScExpression expression;
 
@@ -72,7 +72,7 @@ public class ScalaIntroduceParameterDialog extends RefactoringDialog implements 
                                             ScalaVariableValidator validator,
                                             String[] possibleNames, PsiMethod methodToSearchFor,
                                             int startOffset, int endOffset,
-                                            ScFunctionDefinition function,
+                                            ScMethodLike methodLike,
                                             ScExpression expression) {
         super(project, true);
         this.project = project;
@@ -84,7 +84,7 @@ public class ScalaIntroduceParameterDialog extends RefactoringDialog implements 
         this.methodToSearchFor = methodToSearchFor;
         this.startOffset = startOffset;
         this.endOffset = endOffset;
-        this.function = function;
+        this.methodLike = methodLike;
         this.editor = editor;
         this.expression = expression;
 
@@ -323,7 +323,7 @@ public class ScalaIntroduceParameterDialog extends RefactoringDialog implements 
             ScalaApplicationSettings.getInstance().INTRODUCE_PARAMETER_CREATE_DEFAULT = makeWithDefaultValueCheckBox.isSelected();
         }
         ScalaIntroduceParameterProcessor scalaIntroduceParameterProcessor =
-                new ScalaIntroduceParameterProcessor(project, editor, methodToSearchFor, function,
+                new ScalaIntroduceParameterProcessor(project, editor, methodToSearchFor, methodLike,
                         isReplaceAllOccurrences(), occurrences, startOffset, endOffset, getEnteredName(), isDeclareDefault(),
                         getSelectedType(), expression);
         invokeRefactoring(scalaIntroduceParameterProcessor);

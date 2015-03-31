@@ -14,6 +14,7 @@ import com.intellij.usageView.UsageInfo
 import com.intellij.util.containers.MultiMap
 import org.jetbrains.plugins.scala.conversion.JavaToScala
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -45,8 +46,10 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
 
   def processChangeMethodSignature(data: IntroduceParameterData, usage: UsageInfo,
                                    usages: Array[UsageInfo]): Boolean = {
-    if (!usage.getElement.isInstanceOf[ScFunction]) return true
-    val fun: ScFunction = usage.getElement.asInstanceOf[ScFunction]
+    val methodLike = usage.getElement match {
+      case ml: ScMethodLike => ml
+      case _ => return true
+    }
     val paramName = data.getParameterName
     val paramType: ScType = data match {
       case proc: ScalaIntroduceParameterProcessor => proc.getScalaForcedType
@@ -54,7 +57,7 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
     }
     val defaultTail: String = data match {
       case proc: ScalaIntroduceParameterProcessor if proc.isDeclareDefault &&
-        fun == data.getMethodToSearchFor =>
+        methodLike == data.getMethodToSearchFor =>
         " = " + proc.getScalaExpressionToSearch.getText
       case _ => ""
     }
@@ -63,7 +66,7 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
 
     //remove parameters
     val paramsToRemove = data.getParametersToRemove
-    val params = fun.parameters
+    val params = methodLike.parameterList.params
     for (i <- paramsToRemove.toNativeArray.reverseIterator) {
       params(i).remove()
     }
@@ -71,9 +74,12 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
     //add parameter
     val needSpace = ScalaNamesUtil.isIdentifier(paramName + ":")
     val paramText = paramName + (if (needSpace) " : " else ": ") + ScType.canonicalText(paramType) + defaultTail
-    val param = ScalaPsiElementFactory.createParameterFromText(paramText, fun.getManager)
+    val param = methodLike match {
+      case f: ScFunction => ScalaPsiElementFactory.createParameterFromText(paramText, methodLike.getManager)
+      case pc: ScPrimaryConstructor => ScalaPsiElementFactory.createClassParameterFromText(paramText, methodLike.getManager)
+    }
     ScalaPsiUtil.adjustTypes(param)
-    fun.addParameter(param)
+    methodLike.addParameter(param)
 
     false
   }
