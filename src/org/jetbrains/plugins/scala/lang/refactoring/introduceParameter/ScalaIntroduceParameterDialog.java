@@ -7,6 +7,7 @@ import com.intellij.openapi.help.HelpManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
 import com.intellij.refactoring.HelpID;
 import com.intellij.refactoring.ui.RefactoringDialog;
@@ -21,11 +22,11 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike;
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.*;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
+import scala.collection.Seq;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -63,20 +64,23 @@ public class ScalaIntroduceParameterDialog extends RefactoringDialog implements 
     private int endOffset;
     private ScMethodLike methodLike;
     private Editor editor;
-    private ScExpression expression;
+    private Seq<PsiElement> elems;
 
     protected ScalaIntroduceParameterDialog(Project project,
                                             Editor editor,
                                             ScType[] myTypes,
                                             TextRange[] occurrences,
                                             ScalaVariableValidator validator,
-                                            String[] possibleNames, PsiMethod methodToSearchFor,
-                                            int startOffset, int endOffset,
+                                            String[] possibleNames,
+                                            PsiMethod methodToSearchFor,
+                                            int startOffset,
+                                            int endOffset,
                                             ScMethodLike methodLike,
-                                            ScExpression expression) {
+                                            Seq<PsiElement> elems) {
         super(project, true);
         this.project = project;
         this.myTypes = myTypes;
+        this.elems = elems;
         this.occurrencesCount = occurrences.length;
         this.occurrences = occurrences;
         this.validator = validator;
@@ -86,7 +90,6 @@ public class ScalaIntroduceParameterDialog extends RefactoringDialog implements 
         this.endOffset = endOffset;
         this.methodLike = methodLike;
         this.editor = editor;
-        this.expression = expression;
 
         setTitle(REFACTORING_NAME);
         init();
@@ -325,7 +328,7 @@ public class ScalaIntroduceParameterDialog extends RefactoringDialog implements 
         ScalaIntroduceParameterProcessor scalaIntroduceParameterProcessor =
                 new ScalaIntroduceParameterProcessor(project, editor, methodToSearchFor, methodLike,
                         isReplaceAllOccurrences(), occurrences, startOffset, endOffset, getEnteredName(), isDeclareDefault(),
-                        getSelectedType(), expression);
+                        getSelectedType(), elems);
         invokeRefactoring(scalaIntroduceParameterProcessor);
     }
 }
