@@ -209,4 +209,49 @@ class TreeConverterTemplateTest extends TreeConverterTestBase {
     )
   }
   
+  def testObjectSimple() {
+    doTest(
+      "object A",
+      Defn.Object(Nil, Term.Name("A"), Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil), 
+        Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None), None))
+    )
+  }
+
+  def testObjectExtends() {
+    doTest(
+      """
+        |trait B
+        |//start
+        |object A extends B
+      """.stripMargin,
+      Defn.Object(Nil, Term.Name("A"), Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil), 
+        Template(Nil, List(Ctor.Ref.Name("B")), Term.Param(Nil, Name.Anonymous(), None, None), None))
+    )
+  }
+  
+  def testObjectEarlyDefns() {
+    doTest(
+      """
+        |trait B
+        |//start
+        |object A extends { val x: Int = 2 } with B
+      """.stripMargin,
+       Defn.Object(Nil, Term.Name("A"), Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
+         Template(List(Defn.Val(Nil, List(Pat.Var.Term(Term.Name("x"))), Some(Type.Name("Int")), Lit.Int(2))),
+           List(Ctor.Ref.Name("B")), Term.Param(Nil, Name.Anonymous(), None, None), None))
+    )
+  }
+
+  def testObjectSelfType() {
+    doTest(
+      """
+        |trait B
+        |//start
+        |object A { self: B => }
+      """.stripMargin,
+      Defn.Object(Nil, Term.Name("A"), Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
+        Template(Nil, Nil, Term.Param(Nil, Term.Name("self"), Some(Type.Name("B")), None), Some(Nil)))
+    )
+  }
+  
 }

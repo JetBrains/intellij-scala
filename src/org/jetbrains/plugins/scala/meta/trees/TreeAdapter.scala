@@ -40,6 +40,7 @@ object TreeAdapter {
         )
       case t: p.toplevel.typedef.ScTrait => toTrait(t)
       case t: p.toplevel.typedef.ScClass => toClass(t)
+      case t: p.toplevel.typedef.ScObject => toObject(t)
       case t: p.expr.ScExpression => expression(Some(t)).get
       case t: p.toplevel.imports.ScImportStmt => m.Import(t.importExprs.toStream.map(imports))
       case other => println(other.getClass); ???
@@ -57,7 +58,6 @@ object TreeAdapter {
   }
 
   def toClass(c: p.toplevel.typedef.ScClass) = {
-    c.constructor
     m.Defn.Class(
       convertMods(c),
       Namer(c),
@@ -65,6 +65,15 @@ object TreeAdapter {
       ctor(c.constructor),
       template(c.extendsBlock)
     )
+  }
+
+  def toObject(o: p.toplevel.typedef.ScObject) = {
+      m.Defn.Object(
+        convertMods(o),
+        Namer(o),
+        m.Ctor.Primary(Nil, m.Ctor.Ref.Name("this"), Nil),
+        template(o.extendsBlock)
+      )
   }
 
   def ctor(pc: Option[p.base.ScPrimaryConstructor]): m.Ctor.Primary = {
@@ -296,6 +305,10 @@ object Namer { // TODO: denotaions
 
   def apply(td: p.toplevel.typedef.ScTypeDefinition) = {
     m.Type.Name(td.name)
+  }
+
+  def apply(o: p.toplevel.typedef.ScObject) = {
+    m.Term.Name(o.name)
   }
 
   def apply(t: p.base.ScPrimaryConstructor) = {
