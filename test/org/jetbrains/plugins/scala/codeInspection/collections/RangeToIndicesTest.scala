@@ -18,24 +18,24 @@ class RangeToIndicesTest extends OperationsOnCollectionInspectionTest {
 
   def testUntil() = {
     doTest(
-      s"val seq = Seq(1); ${START}0 until seq.size)$END",
-      "val seq = Seq(1); 0 until seq.size)",
+      s"val seq = Seq(1); ${START}0 until seq.size$END",
+      "val seq = Seq(1); 0 until seq.size",
       "val seq = Seq(1); seq.indices"
     )
   }
 
   def testUntil2() = {
     doTest(
-      s"val seq = Seq(1); ${START}0.until(seq.size))$END",
-      "val seq = Seq(1); 0.until(seq.size))",
+      s"val seq = Seq(1); ${START}0.until(seq.size)$END",
+      "val seq = Seq(1); 0.until(seq.size)",
       "val seq = Seq(1); seq.indices"
     )
   }
 
   def testTo() = {
     doTest(
-      s"val seq = Seq(1); ${START}0 to (seq.length - 1))$END",
-      "val seq = Seq(1); 0 to (seq.length - 1))",
+      s"val seq = Seq(1); ${START}0 to (seq.length - 1)$END",
+      "val seq = Seq(1); 0 to (seq.length - 1)",
       "val seq = Seq(1); seq.indices"
     )
   }
