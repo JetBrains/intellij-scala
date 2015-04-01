@@ -101,7 +101,7 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
             val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr),
               function.body.getOrElse(function))
             val processor = new ScalaIntroduceParameterProcessor(project, editor, methodToSearchFor, function,
-              replaceAllOccurrences, occurrences, startOffset, endOffset, paramName, isDefaultParam, types(0), expr)
+              replaceAllOccurrences, occurrences, startOffset, endOffset, paramName, isDefaultParam, types(0), Seq(expr))
             processor.run()
           }
         }
