@@ -200,4 +200,13 @@ class TreeConverterTemplateTest extends TreeConverterTestBase {
     )
   }
   
+  def testClassParamOverride() {
+    doTest(
+      "class C(override val x: Int)",
+      Defn.Class(Nil, Type.Name("C"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"),
+        List(List(Term.Param(List(Mod.Override(), Mod.ValParam()), Term.Name("x"), Some(Type.Name("Int")), None)))),
+        Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None), None))
+    )
+  }
+  
 }

@@ -199,7 +199,8 @@ object TreeAdapter {
       case Some(mod) if mod.access == THIS_PROTECTED => Seq(m.Mod.Protected(m.Term.This(name)))
       case None => Seq.empty
     }
-    classParam ++ common
+    val overrideMod = if (t.hasModifierProperty("override")) Seq(m.Mod.Override()) else Nil
+    overrideMod ++ classParam ++ common
   }
 
   def convertParams(params: p.statements.params.ScParameterClause): Seq[Param] = {
