@@ -29,7 +29,7 @@ import scala.collection.mutable.ArrayBuffer
 class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodToSearchFor: PsiMethod,
                                        methodLike: ScMethodLike, replaceAllOccurences: Boolean,
                                        occurrences: Array[TextRange], startOffset: Int, endOffset: Int,
-                                       paramName: String, isDefaultParam: Boolean, tp: ScType, expression: ScExpression)
+                                       paramName: String, isDefaultParam: Boolean, tp: ScType, elems: Seq[PsiElement])
         extends BaseRefactoringProcessor(project) with IntroduceParameterData {
   private val document = editor.getDocument
   private val file = methodLike.getContainingFile
@@ -189,14 +189,19 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
 
   def getLocalVariable: PsiLocalVariable = null //todo:
 
-  def getScalaExpressionToSearch: ScExpression = expression
+  def getScalaExpressionToSearch: ScExpression = elems match {
+    case Seq(expr: ScExpression) => expr
+    case _ =>
+      val text = elems.map(_.getText).mkString("{\n", "", "\n}")
+      ScalaPsiElementFactory.createExpressionFromText(text, PsiManager.getInstance(project))
+  }
 
   def getExpressionToSearch: PsiExpression =
-    JavaPsiFacade.getElementFactory(methodLike.getProject).createExpressionFromText(getParameterName, expression.getContext)
+    JavaPsiFacade.getElementFactory(methodLike.getProject).createExpressionFromText(getParameterName, elems.head.getContext)
 
   def getParameterInitializer =
     new JavaExpressionWrapper(
-      JavaPsiFacade.getElementFactory(methodLike.getProject).createExpressionFromText(getParameterName, expression.getContext)
+      JavaPsiFacade.getElementFactory(methodLike.getProject).createExpressionFromText(getParameterName, elems.head.getContext)
     )
 
   def getMethodToSearchFor: PsiMethod = methodToSearchFor
