@@ -28,7 +28,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBase {
     )
   }
 
-  def testExtends() {
+  def testTraitExtends() {
     doTest(
     """
       |trait B
@@ -40,7 +40,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBase {
     )
   }
 
-  def testExtendsEarly() {
+  def testTraitExtendsEarly() {
     doTest(
       """
         |trait B
@@ -53,7 +53,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBase {
     )
   }
   
-  def testSelf() {
+  def testTraitSelf() {
     doTest(
       """
         |trait B
@@ -65,7 +65,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBase {
     )
   }
 
-  def testTemplateBody() {
+  def testTraitTemplateBody() {
     doTest(
       "trait T { def x: Int }",
       Defn.Trait(Nil, Type.Name("T"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
@@ -74,10 +74,12 @@ class TreeConverterTemplateTest extends TreeConverterTestBase {
     )
   }
   
-  def testTemplateExprs() {
+  def testTraitTemplateExprs() {
     doTest(
       "trait T { def f = 1 ; f()}",
-      Defn.Trait(Nil, Type.Name("T"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil), Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None), Some(List(Defn.Def(Nil, Term.Name("f"), Nil, Nil, None, Lit.Int(1)), Term.Apply(Term.Name("f"), Nil)))))
+      Defn.Trait(Nil, Type.Name("T"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil), 
+        Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None), 
+          Some(List(Defn.Def(Nil, Term.Name("f"), Nil, Nil, None, Lit.Int(1)), Term.Apply(Term.Name("f"), Nil)))))
     )
   }
   
@@ -88,5 +90,114 @@ class TreeConverterTemplateTest extends TreeConverterTestBase {
         Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None), None))
     )
   }
+  
+  def testClassParametrized() {
+    doTest(
+      "class C[T]",
+      Defn.Class(Nil, Type.Name("C"), List(Type.Param(Nil, Type.Name("T"), Nil, Type.Bounds(None, None), Nil, Nil)), 
+        Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil), Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None), None))
+    )
+  }
 
+  def testClassExtends() {
+    doTest(
+      """
+        |class B
+        |//start
+        |class A extends B
+      """.stripMargin,
+      Defn.Class(Nil, Type.Name("A"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil), 
+        Template(Nil, List(Ctor.Ref.Name("B")), Term.Param(Nil, Name.Anonymous(), None, None), None))
+    )
+  }
+
+
+  def testClassEarlyDefn() {
+    doTest(
+      """
+        |class B
+        |//start
+        |class A extends { val x: Int = 42 } with B
+      """.stripMargin,
+      Defn.Class(Nil, Type.Name("A"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil), 
+        Template(List(Defn.Val(Nil, List(Pat.Var.Term(Term.Name("x"))),
+          Some(Type.Name("Int")), Lit.Int(42))), List(Ctor.Ref.Name("B")), Term.Param(Nil, Name.Anonymous(), None, None), None))
+    
+    )
+  }
+  
+  def testClassSelf() {
+    doTest(
+      """
+        |class B
+        |//start
+        |class A { self: B => }
+      """.stripMargin,
+       Defn.Class(Nil, Type.Name("A"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
+         Template(Nil, Nil, Term.Param(Nil, Term.Name("self"), Some(Type.Name("B")), None), Some(Nil)))
+    )
+  }
+
+//  def testClassThisSelf() {
+//    doTest(
+//      "class A { this => }",
+//      Defn.Class(Nil, Type.Name("A"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
+//        Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None), Some(Nil)))
+//    )
+//  }
+  
+  def testClassTemplate() {
+    doTest(
+      "class C { def x: Int }",
+       Defn.Class(Nil, Type.Name("C"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
+         Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None),
+           Some(List(Decl.Def(Nil, Term.Name("x"), Nil, Nil, Type.Name("Int"))))))
+    )
+  }
+  
+  def testClassCtor() {
+    doTest(
+      "class C(x: Int)",
+       Defn.Class(Nil, Type.Name("C"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"),
+         List(List(Term.Param(Nil, Term.Name("x"), Some(Type.Name("Int")), None)))),
+         Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None), None))
+    )
+  }
+
+  def testClassCtorPrivate() {
+    doTest(
+      "class C private(x: Int)",
+      Defn.Class(Nil, Type.Name("C"), Nil, Ctor.Primary(List(Mod.Private(Name.Anonymous())),
+        Ctor.Ref.Name("this"), List(List(Term.Param(Nil, Term.Name("x"), Some(Type.Name("Int")), None)))),
+        Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None), None))
+    )
+  }
+
+  def testClassValParam() {
+    doTest(
+      "class C(val x: Int)",
+      Defn.Class(Nil, Type.Name("C"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"),
+        List(List(Term.Param(List(Mod.ValParam()), Term.Name("x"), Some(Type.Name("Int")), None)))),
+        Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None), None))
+    )
+  }
+
+  def testClassVarParam() {
+    doTest(
+      "class C(var x: Int)",
+      Defn.Class(Nil, Type.Name("C"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"),
+        List(List(Term.Param(List(Mod.VarParam()), Term.Name("x"), Some(Type.Name("Int")), None)))), 
+        Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None), None))
+    )
+  }
+  
+  def testClassImplicitParam() {
+    doTest(
+      "class C(implicit x: Int)",
+      Defn.Class(Nil, Type.Name("C"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), 
+        List(List(Term.Param(List(Mod.Implicit()), Term.Name("x"), Some(Type.Name("Int")), None)))),
+        Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None), None))
+    )
+  }
+  
 }
