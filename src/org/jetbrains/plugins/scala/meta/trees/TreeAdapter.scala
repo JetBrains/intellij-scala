@@ -176,6 +176,11 @@ object TreeAdapter {
 
   def convertMods(t: p.toplevel.ScModifierListOwner): Seq[m.Mod] = {
     import p.base.ScAccessModifier.Type._
+    def extractClassParameter(param: p.statements.params.ScClassParameter): Seq[m.Mod] = {
+      if      (param.isVar) Seq(m.Mod.VarParam())
+      else if (param.isVal) Seq(m.Mod.ValParam())
+      else Seq.empty
+    }
     val name = t.getModifierList.accessModifier match {
       case Some(mod) => mod.idText match {
         case Some(qual) => m.Name.Indeterminate(qual)
@@ -183,13 +188,18 @@ object TreeAdapter {
       }
       case None => m.Name.Anonymous()
     }
-    t.getModifierList.accessModifier match {
+    val classParam = t match {
+      case param: p.statements.params.ScClassParameter => extractClassParameter(param)
+      case _ => Seq.empty
+    }
+    val common = t.getModifierList.accessModifier match {
       case Some(mod) if mod.access == PRIVATE   => Seq(m.Mod.Private(name))
       case Some(mod) if mod.access == PROTECTED => Seq(m.Mod.Protected(name))
       case Some(mod) if mod.access == THIS_PRIVATE   => Seq(m.Mod.Private(m.Term.This(name)))
       case Some(mod) if mod.access == THIS_PROTECTED => Seq(m.Mod.Protected(m.Term.This(name)))
-      case None                         => Seq.empty
+      case None => Seq.empty
     }
+    classParam ++ common
   }
 
   def convertParams(params: p.statements.params.ScParameterClause): Seq[Param] = {
