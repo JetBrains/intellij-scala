@@ -16,6 +16,8 @@ class ScalaCompletionConfidence extends CompletionConfidence {
       val elementType: IElementType = psiFile.findElementAt(offset - 1).getNode.getElementType
       elementType match {
         case ScalaTokenTypes.tINTEGER | ScalaTokenTypes.tFLOAT => return ThreeState.YES
+        case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING if psiFile.getText.charAt(offset - 1) == '$' =>
+          return ThreeState.NO
         case _ =>
       }
     }
