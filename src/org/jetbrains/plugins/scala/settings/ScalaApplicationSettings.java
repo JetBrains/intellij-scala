@@ -52,6 +52,8 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
 
   public boolean MOVE_COMPANION = true;
 
+  public boolean UPGRADE_TO_INTERPOLATED = true;
+
   //MISC
   public boolean ASK_USE_LATEST_PLUGIN_BUILDS = true;
   public boolean ASK_PLATFORM_UPDATE = true;

@@ -146,7 +146,7 @@ object ScalaPsiElementFactory {
     try {
       createExpressionWithContextFromText(text, context, context)
     } catch {
-      case e: Throwable => throw new IncorrectOperationException(s"Cannot create expression from text $text")
+      case e: Throwable => throw new IncorrectOperationException(s"Cannot create expression from text $text", e)
     }
   }
 

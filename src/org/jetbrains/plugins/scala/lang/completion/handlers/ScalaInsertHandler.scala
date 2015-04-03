@@ -7,6 +7,7 @@ import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.{AutoPopupController, CodeInsightSettings}
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.codeInspection.redundantBlock.RedundantBlockInspection
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -29,8 +30,8 @@ object ScalaInsertHandler {
       case fun: ScFunction =>
         val clauses = fun.paramClauses.clauses
         if (clauses.length == 0) (-1, null, false)
-        else if (clauses.apply(0).isImplicit) (-1, null, false)
-        else (clauses(0).parameters.length, fun.name, false)
+        else if (clauses.head.isImplicit) (-1, null, false)
+        else (clauses.head.parameters.length, fun.name, false)
       case method: PsiMethod =>
         def isStringSpecialMethod: Boolean = {
           Set("hashCode", "length", "trim").contains(method.getName) &&
@@ -54,18 +55,31 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
   override def handleInsert(context: InsertionContext, _item: LookupElement) {
     if (!_item.isInstanceOf[ScalaLookupItem]) return
     val item = _item.asInstanceOf[ScalaLookupItem]
+
     val editor = context.getEditor
     val document = editor.getDocument
+
+    var (startOffset, lookupStringLength) = 
+      if (item.isInSimpleString) {
+        val literal = context.getFile.findElementAt(context.getStartOffset).getParent
+        val startOffset = context.getStartOffset
+        val tailOffset = context.getTailOffset
+        val literalOffset = literal.getTextRange.getStartOffset
+        document.insertString(tailOffset, "}")
+        document.insertString(startOffset, "{")
+        document.insertString(literalOffset, "s")
+        context.commitDocument()
+        (startOffset + 2, tailOffset - startOffset)
+      } else (context.getStartOffset, context.getTailOffset - context.getStartOffset)
+    var endOffset = startOffset + lookupStringLength
+    
+
     val completionChar: Char = context.getCompletionChar
     def disableParenthesesCompletionChar() {
       if (completionChar == '(' || completionChar == '{') {
         context.setAddCompletionChar(false)
       }
     }
-    var startOffset = context.getStartOffset
-    val lookupStringLength = context.getTailOffset - context.getStartOffset
-
-    var endOffset = startOffset + lookupStringLength
 
     val some = item.someSmartCompletion
     val someNum = if (some) 1 else 0
@@ -138,7 +152,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
         else 0.toChar
       if (!withSpace && nextChar != openChar) {
         if (CodeInsightSettings.getInstance().AUTOINSERT_PAIR_BRACKET) {
-          document.insertString(endOffset, s"${openChar}$closeChar")
+          document.insertString(endOffset, s"$openChar$closeChar")
           if (placeInto) {
             shiftEndOffset(1)
           } else {
@@ -281,6 +295,25 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
       document.insertString(endOffset, ",")
       endOffset += 1
       editor.getCaretModel.moveToOffset(endOffset)
+    }
+
+    if (item.isInSimpleString) {
+      context.commitDocument()
+      val index = context.getStartOffset + 2
+      val elem = context.getFile.findElementAt(index)
+      elem.getNode.getElementType match {
+        case ScalaTokenTypes.tIDENTIFIER =>
+          val reference = elem.getParent
+          reference.getParent match {
+            case block: ScBlock if RedundantBlockInspection.isRedundantBlock(block) =>
+              val blockEndOffset = block.getTextRange.getEndOffset
+              val blockStartOffset = block.getTextRange.getStartOffset
+              document.replaceString(blockEndOffset - 1, blockEndOffset, "")
+              document.replaceString(blockStartOffset, blockStartOffset + 1, "")
+              item.isInSimpleStringNoBraces = true
+            case _ =>
+          }
+      }
     }
   }
 }
