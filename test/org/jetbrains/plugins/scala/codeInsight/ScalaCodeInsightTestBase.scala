@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAda
 abstract class ScalaCodeInsightTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   protected override def setUp() {
     super.setUp()
-    (StatisticsManager.getInstance.asInstanceOf[StatisticsManagerImpl]).enableStatistics(getTestRootDisposable)
+    StatisticsManager.getInstance.asInstanceOf[StatisticsManagerImpl].enableStatistics(getTestRootDisposable)
   }
 
   protected def getActiveLookup: LookupImpl = {
