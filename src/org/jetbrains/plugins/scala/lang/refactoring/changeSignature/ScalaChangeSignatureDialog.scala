@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
-import com.intellij.refactoring.changeSignature.{ChangeSignatureDialogBase, CallerChooserBase}
+import com.intellij.refactoring.changeSignature.{CallerChooserBase, ChangeSignatureDialogBase}
 import com.intellij.refactoring.ui.VisibilityPanelBase
 import com.intellij.refactoring.{BaseRefactoringProcessor, RefactoringBundle}
 import com.intellij.ui.treeStructure.Tree
@@ -185,6 +185,7 @@ class ScalaChangeSignatureDialog(val project: Project, method: ScalaMethodDescri
     val panel = super.createOptionsPanel() //to initialize fields in base class
     defaultValuesUsagePanel = new DefaultValuesUsagePanel
     panel.add(defaultValuesUsagePanel)
+    myPropagateParamChangesButton.setVisible(false)
     panel
   }
 
