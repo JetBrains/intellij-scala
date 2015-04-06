@@ -1,5 +1,6 @@
 package org.jetbrains.jps.incremental.scala
 
+import _root_.java.util
 import java.io.File
 
 import com.intellij.openapi.util.io.FileUtil
@@ -13,7 +14,7 @@ import org.jetbrains.jps.incremental.scala.ScalaBuilder._
 import org.jetbrains.jps.incremental.scala.local.IdeClientIdea
 import org.jetbrains.jps.incremental.scala.model.{CompileOrder, IncrementalityType}
 
-import scala.collection.JavaConverters._
+import _root_.scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import org.jetbrains.jps.incremental._
@@ -83,6 +84,8 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
         }
     }
   }
+
+  override def getCompilableFileExtensions: util.List[String] = util.Arrays.asList("scala", "java")
 
   private def isDisabled(context: CompileContext, chunk: ModuleChunk): Boolean = {
     val settings = projectSettings(context)
