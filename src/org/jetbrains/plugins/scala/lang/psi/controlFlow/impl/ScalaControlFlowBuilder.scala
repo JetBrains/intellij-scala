@@ -185,8 +185,8 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       }
       stmt.condition map {c =>
         c.accept(this)
-        checkPendingEdges(myHead)
         if (myHead != null) {
+          checkPendingEdges(myHead)
           addEdge(myHead, doStmtInstr)
           addPendingEdge(stmt, myHead)
         }
@@ -341,11 +341,11 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
           tb.accept(this)
           advancePendingEdges(tb, stmt)
           addPendingEdge(stmt, myHead)
+          myHead = head
         case None =>
       }
       stmt.elseBranch match {
         case Some(eb) =>
-          myHead = head
           eb.accept(this)
           advancePendingEdges(eb, stmt)
           addPendingEdge(stmt, myHead)
@@ -534,7 +534,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       }
 
       if (fBlock == null) {
-        processCatch(null)
+        processCatch((null))
       } else {
         startNode(Some(fBlock)) {finInstr =>
           for (p@(instr, info) <- myTransitionInstructions; if info.elem eq fBlock) {
