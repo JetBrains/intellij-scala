@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.console
 
-import com.intellij.execution.console.LanguageConsoleImpl
+import com.intellij.execution.console.{ConsoleHistoryController, LanguageConsoleImpl}
+import com.intellij.execution.process.ProcessHandler
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
@@ -23,6 +24,14 @@ class ScalaLanguageConsole(project: Project, title: String)
   private var scalaFile = ScalaPsiElementFactory.createScalaFileFromText("1", project)
   myFile.asInstanceOf[ScalaFile].setContext(scalaFile, scalaFile.getLastChild)
   def getHistory = textBuffer.toString()
+
+  override def attachToProcess(processHandler: ProcessHandler): Unit = {
+    super.attachToProcess(processHandler)
+    val controller = new ConsoleHistoryController(ScalaLanguageConsoleView.SCALA_CONSOLE_ROOT_TYPE, null, this)
+    controller.install()
+
+    ScalaConsoleInfo.addConsole(this, controller, processHandler)
+  }
 
   private[console] def textSent(text: String) {
     textBuffer.append(text)
