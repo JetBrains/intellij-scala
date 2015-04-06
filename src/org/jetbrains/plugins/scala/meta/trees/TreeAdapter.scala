@@ -113,6 +113,8 @@ object TreeAdapter {
     case t: p.expr.ScBlockExpr  => m.Term.Block(t.exprs.toStream.map(expression))
     case t: p.expr.ScMethodCall => m.Term.Apply(Namer(t.getInvokedExpr), t.args.exprs.toStream.map(expression))
     case t: p.expr.ScInfixExpr  => m.Term.ApplyInfix(expression(t.getBaseExpr), Namer(t.getInvokedExpr), Nil, Seq(expression(t.getArgExpr)))
+    case t: p.expr.ScIfStmt     => m.Term.If(expression(t.condition.get),
+      t.thenBranch.map(expression).getOrElse(m.Lit.Unit()), t.elseBranch.map(expression).getOrElse(m.Lit.Unit()))
     case t: p.expr.ScReferenceExpression => Namer(t)
     case other => println(other.getClass); ???
   }
@@ -209,7 +211,7 @@ object TreeAdapter {
       case None => Seq.empty
     }
     val overrideMod = if (t.hasModifierProperty("override")) Seq(m.Mod.Override()) else Nil
-    overrideMod ++ classParam ++ common
+    overrideMod ++ common ++ classParam
   }
 
   def convertParams(params: p.statements.params.ScParameterClause): Seq[Param] = {
