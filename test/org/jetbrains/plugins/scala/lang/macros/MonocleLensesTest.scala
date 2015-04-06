@@ -22,9 +22,9 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   override def setUp() {
     super.setUp()
-    addIvyCacheLibrary("monocle-core","com.github.julien-truffaut/monocle-core_2.11/jars", "monocle-core_2.11-1.0.1.jar")
-    addIvyCacheLibrary("monocle-macro","com.github.julien-truffaut/monocle-macro_2.11/jars", "monocle-macro_2.11-1.0.1.jar")
-    addIvyCacheLibrary("monocle-generic", "com.github.julien-truffaut/monocle-generic_2.11/jars", "monocle-generic_2.11-1.0.1.jar")
+    addIvyCacheLibrary("monocle-core","com.github.julien-truffaut/monocle-core_2.11/jars", "monocle-core_2.11-1.2.0-SNAPSHOT.jar")
+    addIvyCacheLibrary("monocle-macro","com.github.julien-truffaut/monocle-macro_2.11/jars", "monocle-macro_2.11-1.2.0-SNAPSHOT.jar")
+    addIvyCacheLibrary("monocle-generic", "com.github.julien-truffaut/monocle-generic_2.11/jars", "monocle-generic_2.11-1.2.0-SNAPSHOT.jar")
     VirtualFilePointerManager.getInstance.asInstanceOf[VirtualFilePointerManagerImpl].storePointers()
   }
 
