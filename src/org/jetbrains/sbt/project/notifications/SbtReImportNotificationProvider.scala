@@ -3,8 +3,8 @@ package org.jetbrains.sbt.project.notifications
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.ui.{EditorNotifications, EditorNotificationPanel}
+import com.intellij.openapi.vfs._
+import com.intellij.ui.{EditorNotificationPanel, EditorNotifications}
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.settings.SbtLocalSettings
 
@@ -18,6 +18,13 @@ object SbtReImportNotificationProvider {
 
 class SbtReImportNotificationProvider(project: Project, notifications: EditorNotifications)
         extends SbtImportNotificationProvider(project, notifications) {
+
+  private val fileChangeListener = new VirtualFileAdapter {
+    override def contentsChanged(event: VirtualFileEvent): Unit =
+      notifications.updateNotifications(event.getFile)
+  }
+
+  VirtualFileManager.getInstance().addVirtualFileListener(fileChangeListener, project)
 
   override def getKey: Key[EditorNotificationPanel] = SbtReImportNotificationProvider.ProviderKey
 
