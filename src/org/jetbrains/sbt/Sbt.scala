@@ -1,5 +1,8 @@
 package org.jetbrains.sbt
 
+import java.io.File
+
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.IconLoader
 
 /**
@@ -47,4 +50,19 @@ object Sbt {
   lazy val Icon = IconLoader.getIcon("/sbt.png")
 
   lazy val FileIcon = IconLoader.getIcon("/sbt-file.png")
+
+  // FIXME: find apropriate place for this function (some `util` module maybe)
+  def getProjectBaseByBuildFile(project: Project, buildFilePath: String): Option[String] = {
+    import com.intellij.openapi.vfs.VfsUtilCore._
+    val changed = new File(buildFilePath)
+    val name = changed.getName
+
+    val base = new File(project.getBasePath)
+    val build = base / Sbt.ProjectDirectory
+
+    (name == Sbt.BuildFile && isAncestor(base, changed, true) ||
+      name.endsWith(s".${Sbt.FileExtension}") && isAncestor(build, changed, true) ||
+      name.endsWith(".scala") && isAncestor(build, changed, true))
+      .option(base.canonicalPath)
+  }
 }

@@ -10,6 +10,9 @@ import scala.beans.BeanProperty
  * @author Pavel Fatin
  */
 class SbtProjectSettings extends ExternalProjectSettings {
+
+  super.setUseAutoImport(false)
+
   def jdkName: Option[String] = Option(jdk)
 
   def jdkName_=(name: Option[String]) = jdk = name.orNull
@@ -28,6 +31,9 @@ class SbtProjectSettings extends ExternalProjectSettings {
   @BeanProperty
   var sbtVersion: String = null
 
+  @BeanProperty
+  var useOurOwnAutoImport: Boolean = false
+
   override def clone() = {
     val result = new SbtProjectSettings()
     copyTo(result)
@@ -35,8 +41,15 @@ class SbtProjectSettings extends ExternalProjectSettings {
     result.resolveClassifiers = resolveClassifiers
     result.resolveSbtClassifiers = resolveSbtClassifiers
     result.sbtVersion = sbtVersion
+    result.useOurOwnAutoImport = useOurOwnAutoImport
     result
   }
+
+  override def setUseAutoImport(useAutoImport: Boolean): Unit =
+    useOurOwnAutoImport = useAutoImport
+
+  override def isUseAutoImport: Boolean =
+    useOurOwnAutoImport
 }
 
 object SbtProjectSettings {

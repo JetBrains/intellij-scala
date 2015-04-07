@@ -8,10 +8,10 @@
             <implementation-class>org.jetbrains.sbt.language.SbtProjectComponent</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.sbt.project.SbtImportNotifier</implementation-class>
+            <implementation-class>org.jetbrains.sbt.project.notifications.LegacyProjectFormatNotifier</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.sbt.project.LegacyProjectFormatNotifier</implementation-class>
+            <implementation-class>org.jetbrains.sbt.project.autoimport.SbtAutoImportComponent</implementation-class>
         </component>
     </project-components>
 
@@ -31,11 +31,9 @@
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtModuleDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.Play2StubDataService"/>
         <externalSystemConfigLocator implementation="org.jetbrains.sbt.project.SbtConfigLocator"/>
-        <!--<externalProjectDataService implementation="org.jetbrains.sbt.project.data.RunConfigurationDataService"/>-->
 
         <projectService serviceImplementation="org.jetbrains.sbt.settings.SbtSystemSettings"/>
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtLocalSettings"/>
-        <!--<projectService serviceImplementation="org.jetbrains.sbt.settings.SbtImportNotifier"/>-->
 
         <projectImportProvider implementation="org.jetbrains.sbt.project.SbtProjectImportProvider"/>
         <projectImportBuilder implementation="org.jetbrains.sbt.project.SbtProjectImportBuilder"/>
@@ -77,6 +75,8 @@
                         level="WARNING" enabledByDefault="true" language="Scala"/>
 
         <configurationType implementation="org.jetbrains.sbt.runner.SbtConfigurationType"/>
+        <editorNotificationProvider implementation="org.jetbrains.sbt.project.notifications.SbtReImportNotificationProvider"/>
+        <editorNotificationProvider implementation="org.jetbrains.sbt.project.notifications.SbtNoImportNotificationProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">
