@@ -18,8 +18,6 @@ import com.intellij.openapi.roots.ex.ProjectRootManagerEx
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.{EditorNotificationPanel, EditorNotifications}
 import com.intellij.util.containers.ContainerUtilRt
-import org.jetbrains.sbt.Sbt
-import org.jetbrains.sbt.language.SbtFileType
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSystemSettings
@@ -125,11 +123,3 @@ abstract class SbtImportNotificationProvider(project: Project, notifications: Ed
   private def isSbtFile(file: VirtualFile): Boolean =
     getExternalProject(file.getCanonicalPath).isDefined
 }
-
-
-
-
-
-
-
-

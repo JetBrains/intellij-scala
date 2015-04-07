@@ -8,7 +8,7 @@ import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.playback.commands.ActionCommand
 import org.jetbrains.plugins.scala.util.NotificationUtil
-import LegacyProjectFormatNotifier._
+import org.jetbrains.sbt.project.notifications.LegacyProjectFormatNotifier._
 import org.jetbrains.sbt.project.settings.SbtLocalSettings
 
 /**
