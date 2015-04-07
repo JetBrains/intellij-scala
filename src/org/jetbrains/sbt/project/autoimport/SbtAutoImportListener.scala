@@ -42,15 +42,6 @@ class SbtAutoImportListener(project: Project) extends VirtualFileAdapter {
     }
   }
 
-  private def isBuildFile(file: VirtualFile): Boolean = {
-    val changed = new File(file.getCanonicalPath)
-    val name = changed.getName
-
-    val base = new File(project.getBasePath)
-    val build = base / Sbt.ProjectDirectory
-
-    (name == Sbt.BuildFile && isAncestor(base, changed, true) ||
-      name.endsWith(s".${Sbt.FileExtension}") && isAncestor(build, changed, true) ||
-      name.endsWith(".scala") && isAncestor(build, changed, true))
-  }
+  private def isBuildFile(file: VirtualFile): Boolean =
+    Sbt.getProjectBaseByBuildFile(project, file.getCanonicalPath).isDefined
 }
