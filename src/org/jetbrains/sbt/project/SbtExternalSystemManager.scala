@@ -29,13 +29,11 @@ import scala.collection.mutable
  */
 class SbtExternalSystemManager
   extends ExternalSystemManager[SbtProjectSettings, SbtProjectSettingsListener, SbtSystemSettings, SbtLocalSettings, SbtExecutionSettings]
-  with ExternalSystemAutoImportAware with ExternalSystemConfigurableAware {
+  with ExternalSystemConfigurableAware {
 
   def enhanceLocalProcessing(urls: util.List[URL]) {
     urls.add(jarWith[scala.App].toURI.toURL)
   }
-
-  private val delegate = new CachingExternalSystemAutoImportAware(new SbtAutoImport())
 
   def enhanceRemoteProcessing(parameters: SimpleJavaParameters) {
     val classpath = parameters.getClassPath
@@ -65,9 +63,6 @@ class SbtExternalSystemManager
   def getProjectResolverClass = classOf[SbtProjectResolver]
 
   def getTaskManagerClass = classOf[SbtTaskManager]
-
-  def getAffectedExternalProjectPath(changedFileOrDirPath: String, project: Project) =
-    delegate.getAffectedExternalProjectPath(changedFileOrDirPath, project)
 
   def getExternalProjectDescriptor = new SbtOpenProjectDescriptor()
 
