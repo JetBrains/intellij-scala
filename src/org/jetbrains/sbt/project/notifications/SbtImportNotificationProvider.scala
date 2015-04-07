@@ -89,19 +89,8 @@ abstract class SbtImportNotificationProvider(project: Project, notifications: Ed
       false, ProgressExecutionMode.IN_BACKGROUND_ASYNC)
   }
 
-  protected def getExternalProject(filePath: String): Option[String] = (!project.isDisposed).option {
-    import com.intellij.openapi.vfs.VfsUtilCore._
-    val changed = new File(filePath)
-    val name = changed.getName
-
-    val base = new File(project.getBasePath)
-    val build = base / Sbt.ProjectDirectory
-
-    (name == Sbt.BuildFile && isAncestor(base, changed, true) ||
-      name.endsWith(s".${Sbt.FileExtension}") && isAncestor(build, changed, true) ||
-      name.endsWith(".scala") && isAncestor(build, changed, true))
-      .option(base.canonicalPath)
-  }.flatten
+  protected def getExternalProject(filePath: String): Option[String] =
+    (!project.isDisposed).option(Sbt.getProjectBaseByBuildFile(project, filePath)).flatten
 
   protected def getProjectSettings(file: VirtualFile): Option[SbtProjectSettings] =
     for {
