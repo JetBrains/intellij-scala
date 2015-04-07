@@ -482,7 +482,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), HashSet[ScType]
 
   def addLower(name: Name, _lower: ScType, additional: Boolean = false, variance: Int = -1): ScUndefinedSubstitutor = {
     var index = 0
-    val lower = _lower match {
+    val lower = (_lower match {
       case ScAbstractType(_, absLower, upper) =>
         if (absLower.equiv(Nothing)) return this
         absLower //upper will be added separately
@@ -504,7 +504,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), HashSet[ScType]
             case _ => (false, tp)
           }
         }, variance)
-    }
+    }).unpackedType
     val lMap = if (additional) lowerAdditionalMap else lowerMap
     lMap.get(name) match {
       case Some(set: HashSet[ScType]) =>
