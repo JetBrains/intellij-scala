@@ -83,6 +83,30 @@ object TreeAdapter {
     }
   }
 
+  def caseClause(c: p.base.patterns.ScCaseClause): m.Case = {
+    m.Case(pattern(c.pattern.get), c.guard.map(it => expression(it.expr.get)), expression(c.expr.get).asInstanceOf[m.Term.Block])
+  }
+
+  def pattern(pt: p.base.patterns.ScPattern): m.Pat = {
+    import p.base.patterns._
+    import m.Pat._
+    def compose(lst: Seq[ScPattern]): m.Pat = lst match {
+      case x :: Nil => pattern(x)
+      case x :: xs  => Alternative(pattern(x), compose(xs))
+    }
+    pt match {
+      case t: ScReferencePattern  =>  Var.Term(Namer(t))
+      case t: ScConstructorPattern=>  Extract(Namer.ref(t.ref), Nil, t.args.patterns.toStream.map(pattern))
+      case t: ScNamingPattern     =>  Bind(Var.Term(Namer(t)), pattern(t.named))
+      case t: ScTypedPattern      =>  Typed(Var.Term(Namer(t)), TypeAdapter(t.typePattern.get.typeElement).asInstanceOf[m.Pat.Type])
+      case t: ScLiteralPattern    =>  literal(t.getLiteral)
+      case t: ScTuplePattern      =>  Tuple(t.patternList.get.patterns.toStream.map(pattern))
+      case t: ScWildcardPattern   =>  Wildcard()
+      case t: ScCompositePattern  =>  compose(Seq(t.subpatterns : _*))
+      case t: ScPattern => println(s"unknown pattern: ${t.getClass}"); ???
+    }
+  }
+
   def template(t: p.toplevel.templates.ScExtendsBlock): m.Template = {
     def ctor(tpe: p.base.types.ScTypeElement) = m.Ctor.Ref.Name(tpe.calcType.canonicalText)
     val exprs   = t.templateBody map (it => Seq(it.exprs.map(expression): _*))
@@ -110,11 +134,12 @@ object TreeAdapter {
     case t: p.base.ScLiteral    => literal(t)
     case t: p.expr.ScUnitExpr   => m.Lit.Unit()
     case t: p.expr.ScReturnStmt => m.Term.Return(expression(t.expr).get)
-    case t: p.expr.ScBlockExpr  => m.Term.Block(t.exprs.toStream.map(expression))
+    case t: p.expr.ScBlock      => m.Term.Block(t.exprs.toStream.map(expression))
     case t: p.expr.ScMethodCall => m.Term.Apply(Namer(t.getInvokedExpr), t.args.exprs.toStream.map(expression))
     case t: p.expr.ScInfixExpr  => m.Term.ApplyInfix(expression(t.getBaseExpr), Namer(t.getInvokedExpr), Nil, Seq(expression(t.getArgExpr)))
     case t: p.expr.ScIfStmt     => m.Term.If(expression(t.condition.get),
       t.thenBranch.map(expression).getOrElse(m.Lit.Unit()), t.elseBranch.map(expression).getOrElse(m.Lit.Unit()))
+    case t: p.expr.ScMatchStmt  => m.Term.Match(expression(t.expr.get), t.caseClauses.toStream.map(caseClause))
     case t: p.expr.ScReferenceExpression => Namer(t)
     case other => println(other.getClass); ???
   }
@@ -311,6 +336,10 @@ object Namer { // TODO: denotaions
 
   def apply(o: p.toplevel.typedef.ScObject) = {
     m.Term.Name(o.name)
+  }
+
+  def apply(n: p.toplevel.ScNamedElement) = {
+    m.Term.Name(n.name)
   }
 
   def apply(t: p.base.ScPrimaryConstructor) = {
