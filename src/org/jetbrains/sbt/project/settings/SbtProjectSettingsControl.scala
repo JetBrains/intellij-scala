@@ -1,17 +1,16 @@
 package org.jetbrains.sbt
 package project.settings
 
-import java.awt.{Component, FlowLayout}
+import java.awt.FlowLayout
 import javax.swing._
 
 import com.intellij.openapi.externalSystem.service.settings.AbstractExternalProjectSettingsControl
 import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
-import com.intellij.openapi.externalSystem.util.{ExternalSystemUiUtil, ExternalSystemBundle, PaintAwarePanel}
+import com.intellij.openapi.externalSystem.util.PaintAwarePanel
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
 import com.intellij.openapi.util.Condition
-import com.intellij.ui.components.JBCheckBox
 import org.jetbrains.annotations.NotNull
 
 /**

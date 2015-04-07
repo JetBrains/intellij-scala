@@ -4,7 +4,7 @@ import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.ui.{EditorNotifications, EditorNotificationPanel}
+import com.intellij.ui.{EditorNotificationPanel, EditorNotifications}
 import org.jetbrains.sbt.SbtBundle
 
 /**
