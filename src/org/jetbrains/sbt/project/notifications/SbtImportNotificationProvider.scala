@@ -102,8 +102,8 @@ abstract class SbtImportNotificationProvider(project: Project, notifications: Ed
     (name == Sbt.BuildFile && isAncestor(base, changed, true) ||
       name.endsWith(s".${Sbt.FileExtension}") && isAncestor(build, changed, true) ||
       name.endsWith(".scala") && isAncestor(build, changed, true))
-      .option(base.canonicalPath).orNull
-  }
+      .option(base.canonicalPath)
+  }.flatten
 
   protected def getProjectSettings(file: VirtualFile): Option[SbtProjectSettings] =
     for {
