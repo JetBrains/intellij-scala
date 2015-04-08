@@ -13,6 +13,7 @@ object HoconConstants {
   final val IntegerPattern = """-?(0|[1-9][0-9]*)""".r
   final val DecimalPartPattern = """([0-9]+)((e|E)(\+|-)?[0-9]+)?""".r
   final val ProperlyClosedQuotedString = ".*[^\\\\](\\\\\\\\)*\"".r
+  final val MultilineStringEnd = "\"{3,}".r
 
   final val ConfExt = "." + HoconFileType.DefaultExtension
   final val JsonExt = "." + JsonFileType.DEFAULT_EXTENSION
