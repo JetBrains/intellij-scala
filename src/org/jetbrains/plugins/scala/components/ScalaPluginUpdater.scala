@@ -26,14 +26,31 @@ class InvalidRepoException(what: String) extends Exception(what)
 object ScalaPluginUpdater {
   private val LOG = Logger.getInstance(getClass)
 
-  val baseUrl = "http://www.jetbrains.com/idea/plugins"
+  val baseUrl = "https://plugins.jetbrains.com/plugins/%s/1347"
 
-  val CASSIOPEIA = "cassiopeia"
-  val FOURTEEN_ONE = "14.1"
+  // *_OLD versions are for legacy repository format.
+  // Need to keep track of them to upgrade to new repository format automatically
+  // Remove eventually, when no significant amount of users will have older ones.
+  val CASSIOPEIA_OLD    = "cassiopeia_old"
+  val FOURTEEN_ONE_OLD  = "14.1_old"
+  val FOURTEEN_ONE      = "14.1"
 
   val knownVersions = Map(
-    CASSIOPEIA   -> Map(Release -> "DUMMY", EAP -> s"$baseUrl/scala-eap-$CASSIOPEIA.xml", Nightly -> s"$baseUrl/scala-nightly-$CASSIOPEIA.xml"),
-    FOURTEEN_ONE -> Map(Release -> "DUMMY", EAP -> s"$baseUrl/scala-eap-$FOURTEEN_ONE.xml",Nightly -> "")
+    CASSIOPEIA_OLD   -> Map(
+      Release -> "DUMMY",
+      EAP     -> "http://www.jetbrains.com/idea/plugins/scala-eap-cassiopeia.xml",
+      Nightly -> "http://www.jetbrains.com/idea/plugins/scala-nightly-cassiopeia.xml"
+    ),
+    FOURTEEN_ONE_OLD -> Map(
+      Release -> "DUMMY",
+      EAP     -> "http://www.jetbrains.com/idea/plugins/scala-eap-14.1.xml",
+      Nightly -> ""
+    ),
+    FOURTEEN_ONE -> Map(
+      Release -> "DUMMY",
+      EAP     -> baseUrl.format("eap"),
+      Nightly -> baseUrl.format("nightly")
+    )
   )
 
   val currentVersion = FOURTEEN_ONE
