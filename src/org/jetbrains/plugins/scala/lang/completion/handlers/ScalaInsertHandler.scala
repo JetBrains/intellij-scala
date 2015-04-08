@@ -29,7 +29,7 @@ object ScalaInsertHandler {
     item.element match {
       case fun: ScFunction =>
         val clauses = fun.paramClauses.clauses
-        if (clauses.length == 0) (-1, null, false)
+        if (clauses.isEmpty) (-1, null, false)
         else if (clauses.head.isImplicit) (-1, null, false)
         else (clauses.head.parameters.length, fun.name, false)
       case method: PsiMethod =>
