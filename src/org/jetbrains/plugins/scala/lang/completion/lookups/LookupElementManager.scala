@@ -26,7 +26,8 @@ object LookupElementManager {
                        shouldImport: Boolean = false,
                        isInStableCodeReference: Boolean = false,
                        containingClass: Option[PsiClass] = None,
-                       isInSimpleString: Boolean = false): Seq[ScalaLookupItem] = {
+                       isInSimpleString: Boolean = false,
+                       isInInterpolatedString: Boolean = false): Seq[ScalaLookupItem] = {
     val element = resolveResult.element
     val substitutor = resolveResult.substitutor
     val isRenamed: Option[String] = resolveResult.isRenamed match {

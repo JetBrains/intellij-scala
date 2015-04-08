@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -76,6 +77,8 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       myTask = startAutopopupCompletion(file, editor)
     } else if (c == '{') {
       myTask = convertToInterpolated(file, editor)
+    } else if (c == '.') {
+      myTask = startAutopopupCompletionInInterpolatedString(file, editor)
     }
 
     if (myTask == null) return Result.CONTINUE
@@ -285,12 +288,32 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
         case l: ScLiteral =>
           element.getNode.getElementType match {
             case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING =>
-              if (l.getText.filter(_ == '$').length == 1) {
-                AutoPopupController.getInstance(project).scheduleAutoPopup(
-                  editor, new Condition[PsiFile] {
-                    def value(t: PsiFile): Boolean = t == file
-                  }
-                )
+              if (l.getText.filter(_ == '$').length == 1) scheduleAutopopup(file, editor, project)
+            case _ =>
+          }
+        case _ =>
+      }
+    }
+  }
+
+  private def scheduleAutopopup(file: PsiFile, editor: Editor, project: Project): Unit = {
+    AutoPopupController.getInstance(project).scheduleAutoPopup(
+      editor, new Condition[PsiFile] {
+        def value(t: PsiFile): Boolean = t == file
+      }
+    )
+  }
+
+  private def startAutopopupCompletionInInterpolatedString(file: PsiFile, editor: Editor)
+                                                          (document: Document, project: Project, element: PsiElement, offset: Int) {
+    if (CodeInsightSettings.getInstance().AUTO_POPUP_COMPLETION_LOOKUP) {
+      element.getParent match {
+        case l: ScLiteral =>
+          element.getNode.getElementType match {
+            case ScalaTokenTypes.tINTERPOLATED_STRING | ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING =>
+              file.findElementAt(offset).getPrevSibling match {
+                case ref: ScReferenceExpression => scheduleAutopopup(file, editor, project)
+                case _ =>
               }
             case _ =>
           }

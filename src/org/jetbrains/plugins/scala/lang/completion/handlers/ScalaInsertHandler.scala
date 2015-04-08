@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -59,10 +59,11 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
     val editor = context.getEditor
     val document = editor.getDocument
 
-    var (startOffset, lookupStringLength) = 
+    val contextStartOffset = context.getStartOffset
+    var (startOffset, lookupStringLength) =
       if (item.isInSimpleString) {
-        val literal = context.getFile.findElementAt(context.getStartOffset).getParent
-        val startOffset = context.getStartOffset
+        val literal = context.getFile.findElementAt(contextStartOffset).getParent
+        val startOffset = contextStartOffset
         val tailOffset = context.getTailOffset
         val literalOffset = literal.getTextRange.getStartOffset
         document.insertString(tailOffset, "}")
@@ -70,7 +71,19 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
         document.insertString(literalOffset, "s")
         context.commitDocument()
         (startOffset + 2, tailOffset - startOffset)
-      } else (context.getStartOffset, context.getTailOffset - context.getStartOffset)
+      } else if (item.isInInterpolatedString) {
+        val literal = context.getFile.findElementAt(contextStartOffset).getParent
+        if (!literal.isInstanceOf[ScInterpolated]) return
+        val res = ScalaCompletionContributor.getStartEndPointForInterpolatedString(literal.asInstanceOf[ScInterpolated],
+          contextStartOffset, contextStartOffset - literal.getTextRange.getStartOffset)
+        if (res.isEmpty) return
+        val (startOffset, _) = res.get
+        val tailOffset = context.getTailOffset
+        document.insertString(tailOffset, "}")
+        document.insertString(startOffset + literal.getTextRange.getStartOffset, "{")
+        context.commitDocument()
+        (startOffset + 1, tailOffset - startOffset)
+      } else (contextStartOffset, context.getTailOffset - contextStartOffset)
     var endOffset = startOffset + lookupStringLength
     
 
@@ -299,7 +312,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
 
     if (item.isInSimpleString) {
       context.commitDocument()
-      val index = context.getStartOffset + 2
+      val index = contextStartOffset + 2
       val elem = context.getFile.findElementAt(index)
       elem.getNode.getElementType match {
         case ScalaTokenTypes.tIDENTIFIER =>
