@@ -17,11 +17,11 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.lookups.{LookupElementManager, ScalaLookupItem}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScNewTemplateDefinition, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFun
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -50,14 +50,28 @@ class ScalaCompletionContributor extends CompletionContributor {
   private val addedElements = collection.mutable.Set[String]()
   extend(CompletionType.BASIC, PlatformPatterns.psiElement(), new CompletionProvider[CompletionParameters] {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
-      val (position, inString) = parameters.getPosition.getNode.getElementType match {
-        case ScalaTokenTypes.tIDENTIFIER | ScalaDocTokenType.DOC_TAG_VALUE_TOKEN => (parameters.getPosition, false)
+      val (position, inString, inInterpolatedString) = parameters.getPosition.getNode.getElementType match {
+        case ScalaTokenTypes.tIDENTIFIER | ScalaDocTokenType.DOC_TAG_VALUE_TOKEN => (parameters.getPosition, false, false)
         case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING =>
           val position = parameters.getPosition
           val offsetInString = parameters.getOffset - position.getTextRange.getStartOffset + 1
           val interpolated =
             ScalaPsiElementFactory.createExpressionFromText("s" + position.getText, position.getContext.getContext)
-          (interpolated.findElementAt(offsetInString), true)
+          (interpolated.findElementAt(offsetInString), true, false)
+        case ScalaTokenTypes.tINTERPOLATED_STRING | ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING =>
+          val position = parameters.getPosition.getParent
+          if (!position.isInstanceOf[ScInterpolated]) return
+          val interpolated = position.asInstanceOf[ScInterpolated]
+          val offset = parameters.getOffset
+          val offsetInString = offset - interpolated.getTextRange.getStartOffset
+          val res = ScalaCompletionContributor.getStartEndPointForInterpolatedString(interpolated, offset, offsetInString)
+          val (exprStartInString, endPoint) = res.get
+          val stringText = interpolated.getText
+          val newInterpolated =
+            ScalaPsiElementFactory.createExpressionFromText(stringText.substring(0, exprStartInString) + "{" +
+              stringText.substring(exprStartInString, endPoint) + "}" +
+              stringText.substring(endPoint), position.getContext.getContext)
+          (newInterpolated.findElementAt(offsetInString + 1), false, true)
         case _ => return
       }
       result.restartCompletionWhenNothingMatches()
@@ -73,7 +87,7 @@ class ScalaCompletionContributor extends CompletionContributor {
       //if prefix is capitalized, class name completion is enabled
       val classNameCompletion = shouldRunClassNameCompletion(parameters, result.getPrefixMatcher)
       val insertedElement: PsiElement = position
-      if (!inString && !insertedElement.getContainingFile.isInstanceOf[ScalaFile]) return
+      if (!inString && !inInterpolatedString && !insertedElement.getContainingFile.isInstanceOf[ScalaFile]) return
       val lookingForAnnotations: Boolean =
         Option(insertedElement.getContainingFile findElementAt (insertedElement.getTextOffset - 1)) exists {
           _.getNode.getElementType == ScalaTokenTypes.tAT
@@ -94,6 +108,7 @@ class ScalaCompletionContributor extends CompletionContributor {
             variant match {
               case el: ScalaLookupItem =>
                 if (inString) el.isInSimpleString = true
+                if (inInterpolatedString) el.isInInterpolatedString = true
                 val elem = el.element
                 elem match {
                   case clazz: PsiClass =>
@@ -197,7 +212,8 @@ class ScalaCompletionContributor extends CompletionContributor {
                 isInImport = isInImport,
                 qualifierType = runtimeQualifierType,
                 isInStableCodeReference = ref.isInstanceOf[ScStableCodeReferenceElement],
-                isInSimpleString = inString
+                isInSimpleString = inString,
+                isInInterpolatedString = inInterpolatedString
               )
               val decorator = castDecorator(runtimeQualifierType.canonicalText)
               lookupItems.foreach(item => applyVariant(item, addElementWithDecorator(_, decorator)))
@@ -313,5 +329,33 @@ class ScalaCompletionContributor extends CompletionContributor {
       }
       item.getDelegate.handleInsert(context)
     }
+  }
+}
+
+object ScalaCompletionContributor {
+  def getStartEndPointForInterpolatedString(interpolated: ScInterpolated, offset: Int, offsetInString: Int): Option[(Int, Int)] = {
+    val injections = interpolated.getInjections
+    val index = injections.lastIndexWhere { expr =>
+      expr.getTextRange.getEndOffset <= offset
+    }
+    if (index != -1) {
+      val expr = injections(index)
+      if (expr.isInstanceOf[ScBlock]) return None
+      val stringText = interpolated.getText
+      val pointPosition = expr.getTextRange.getEndOffset - interpolated.getTextRange.getStartOffset
+      if (stringText.charAt(pointPosition) == '.') {
+        val restString = stringText.substring(pointPosition + 1)
+        val lexer = new ScalaLexer()
+        val noQuotes = if (interpolated.isMultiLineString) 3 else 1
+        lexer.start(restString, 0, restString.length - noQuotes)
+        if (lexer.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
+          val endPoint = lexer.getTokenEnd + pointPosition + 1
+          if (endPoint >= offsetInString) {
+            val exprStartInString = expr.getTextRange.getStartOffset - interpolated.getTextRange.getStartOffset
+            Some(exprStartInString, endPoint)
+          } else None
+        } else None
+      } else None
+    } else None
   }
 }

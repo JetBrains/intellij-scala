@@ -64,6 +64,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
   var isSbtLookupItem: Boolean = false
   var isInSimpleString: Boolean = false
   var isInSimpleStringNoBraces: Boolean = false
+  var isInInterpolatedString: Boolean = false
 
   def isNamedParameterOrAssignment = isNamedParameter || isAssignment
 
@@ -202,7 +203,8 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
       val smartAdd = if (someSmartCompletion) 5 else 0
       val simpleStringAdd =
         if (isInSimpleString && isInSimpleStringNoBraces) 1
-        else if (isInSimpleString) 1
+        else if (isInSimpleString) 2
+        else if (isInInterpolatedString) 1
         else 0
       smartAdd + simpleStringAdd
     }

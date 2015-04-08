@@ -1052,4 +1052,28 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
 
     checkResultByText(resultText)
   }
+
+  def testInterpolatedStringDotCompletion() {
+    val fileText =
+      """
+        |object Z {
+        |  def xxx: String = "abc"
+        |  s"$xxx.<caret>"
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |object Z {
+        |  def xxx: String = "abc"
+        |  s"${xxx.substring(<caret>)}"
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "substring").get)
+
+    checkResultByText(resultText)
+  }
 }
