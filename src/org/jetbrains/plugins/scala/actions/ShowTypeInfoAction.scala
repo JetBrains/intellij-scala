@@ -10,10 +10,7 @@ import org.jetbrains.plugins.scala.actions.ShowTypeInfoAction._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
@@ -87,13 +84,13 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
 object ShowTypeInfoAction {
   def getTypeInfoHint(editor: Editor, file: PsiFile, offset: Int): Option[String] = {
     val typeInfoFromRef = file.findReferenceAt(offset) match {
-      case ResolvedWithSubst(e, subst) => typeOf(e, subst)
+      case ResolvedWithSubst(e, subst) => typeTextOf(e, subst)
       case _ =>
         val element = file.findElementAt(offset)
         if (element == null) return None
         if (element.getNode.getElementType != ScalaTokenTypes.tIDENTIFIER) return None
         element match {
-          case Parent(p) => typeOf(p, ScSubstitutor.empty)
+          case Parent(p) => typeTextOf(p, ScSubstitutor.empty)
           case _ => None
         }
     }
@@ -104,39 +101,18 @@ object ShowTypeInfoAction {
   def typeInfoFromPattern(p: ScBindingPattern): Option[String] = {
     p match {
       case null => None
-      case _ => typeOf(p, ScSubstitutor.empty)
+      case _ => typeTextOf(p, ScSubstitutor.empty)
     }
   }
 
   val NO_TYPE: String = "No type was inferred"
 
-  private[this] val typeOf: (PsiElement, ScSubstitutor) => Option[String] = {
-    case (p: ScPrimaryConstructor, _) => None
-    case (e: ScFunction, _) if e.isConstructor => None
-    case (e: ScFunction, s) =>
-      typeText(e.returnType.toOption, s)
-    case (e: ScBindingPattern, s) =>
-      typeText(e.getType(TypingContext.empty).toOption, s)
-    case (e: ScFieldId, s) =>
-      typeText(e.getType(TypingContext.empty).toOption, s)
-    case (e: ScParameter, s) =>
-      typeText(e.getRealParameterType(TypingContext.empty).toOption, s)
-    case (e: PsiMethod, _) if e.isConstructor => None
-    case (e: PsiMethod, s) =>
-      typeText(e.getReturnType, e, s)
-    case (e: PsiVariable, s) =>
-      typeText(e.getType, e, s)
-    case _ => None
+  private[this] def typeTextOf(elem: PsiElement, subst: ScSubstitutor): Option[String] = {
+    typeText(ScType.ofNamedElement(elem, subst))
   }
 
   private[this] def typeText(optType: Option[ScType], s: ScSubstitutor = ScSubstitutor.empty): Option[String] = {
-    val subst = optType.map(s.subst)
-    subst.map(withoutAliasesText)
-  }
-
-  private[this] def typeText(psiType: PsiType, e: PsiElement, s: ScSubstitutor): Option[String] = {
-    val optScType = psiType.toOption.map(ScType.create(_, e.getProject, e.getResolveScope))
-    typeText(optScType, s)
+    optType.map(withoutAliasesText)
   }
 
   private def withoutAliasesText(tpe: ScType): String = {
