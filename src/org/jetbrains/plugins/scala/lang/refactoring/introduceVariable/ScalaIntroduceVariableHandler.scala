@@ -237,7 +237,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
     val fastDefinition = occCount == 1 && isOneLiner
 
     //changes document directly
-    val replacedOccurences = ScalaRefactoringUtil.replaceOccurences(occurrences, varName, file, editor)
+    val replacedOccurences = ScalaRefactoringUtil.replaceOccurences(occurrences, varName, file)
 
     //only Psi-operations after this moment
     var firstRange = replacedOccurences(0)
