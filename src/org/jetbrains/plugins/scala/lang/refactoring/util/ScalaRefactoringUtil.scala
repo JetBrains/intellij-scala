@@ -20,6 +20,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.ReadonlyStatusHandler
 import com.intellij.psi._
+import com.intellij.psi.search.LocalSearchScope
+import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.HelpID
 import com.intellij.refactoring.util.CommonRefactoringUtil
@@ -33,8 +35,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
@@ -355,8 +357,8 @@ object ScalaRefactoringUtil {
     }), editor)
   }
 
-  def showChooser[T <: PsiElement](editor: Editor, elements: Array[T], pass: PsiElement => Unit, title: String,
-                                   elementName: T => String, highlightParent: Boolean = false) {
+  def showChooser[T <: PsiElement](editor: Editor, elements: Array[T], pass: T => Unit, title: String,
+                                   elementName: T => String, toHighlight: T => PsiElement = (t: T) => t.asInstanceOf[PsiElement]) {
     class Selection {
       val selectionModel = editor.getSelectionModel
       val (start, end) = (selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
@@ -400,14 +402,14 @@ object ScalaRefactoringUtil {
         if (index < 0) return
         val element: T = model.get(index).asInstanceOf[T]
         val toExtract: util.ArrayList[PsiElement] = new util.ArrayList[PsiElement]
-        toExtract.add(if (highlightParent) element.getParent else element)
-        highlighter.highlight(if (highlightParent) element.getParent else element, toExtract)
+        toExtract.add(toHighlight(element))
+        highlighter.highlight(toHighlight(element), toExtract)
       }
     })
 
     JBPopupFactory.getInstance.createListPopupBuilder(list).setTitle(title).setMovable(false).setResizable(false).setRequestFocus(true).setItemChoosenCallback(new Runnable {
       def run() {
-        pass(list.getSelectedValue.asInstanceOf[PsiElement])
+        pass(list.getSelectedValue.asInstanceOf[T])
       }
     }).addListener(new JBPopupAdapter {
       override def beforeShown(event: LightweightWindowEvent): Unit = {
@@ -589,8 +591,8 @@ object ScalaRefactoringUtil {
         chooseExpression(expressions(0))
         return
       } else {
-        showChooser(editor, expressions, elem =>
-          chooseExpression(elem.asInstanceOf[ScExpression]), ScalaBundle.message("choose.expression.for", refactoringName), (expr: ScExpression) => {
+        showChooser(editor, expressions, (elem: ScExpression) =>
+          chooseExpression(elem), ScalaBundle.message("choose.expression.for", refactoringName), (expr: ScExpression) => {
           getShortText(expr)
         })
         return
@@ -692,9 +694,9 @@ object ScalaRefactoringUtil {
     errorMessage == null
   }
 
-  def replaceOccurence(textRange: TextRange, newString: String, file: PsiFile, editor: Editor): RangeMarker = {
-    val document = editor.getDocument
-    val documentManager = PsiDocumentManager.getInstance(editor.getProject)
+  def replaceOccurence(textRange: TextRange, newString: String, file: PsiFile): RangeMarker = {
+    val documentManager = PsiDocumentManager.getInstance(file.getProject)
+    val document = documentManager.getDocument(file)
     var shift = 0
     val start = textRange.getStartOffset
     document.replaceString(start, textRange.getEndOffset, newString)
@@ -759,8 +761,8 @@ object ScalaRefactoringUtil {
   }
 
 
-  def replaceOccurences(occurences: Array[TextRange], newString: String, file: PsiFile, editor: Editor): Array[TextRange] = {
-    val revercedRangeMarkers = occurences.reverseMap(replaceOccurence(_, newString, file, editor))
+  def replaceOccurences(occurences: Array[TextRange], newString: String, file: PsiFile): Array[TextRange] = {
+    val revercedRangeMarkers = occurences.reverseMap(replaceOccurence(_, newString, file))
     revercedRangeMarkers.reverseMap(rm => new TextRange(rm.getStartOffset, rm.getEndOffset))
   }
 
@@ -892,6 +894,45 @@ object ScalaRefactoringUtil {
       case elems => elems
     }
     elements
+  }
+
+  def showNotPossibleWarnings(elements: Seq[PsiElement], project: Project, editor: Editor, refactoringName: String): Boolean = {
+    def errors(elem: PsiElement): Option[String] = elem match {
+      case _: ScBlockStatement => None
+      case comm: PsiComment if !comm.getParent.isInstanceOf[ScMember] => None
+      case _: PsiWhiteSpace => None
+      case _ if ScalaTokenTypes.tSEMICOLON == elem.getNode.getElementType => None
+      case typeDef: ScTypeDefinition if hasOutsideUsages(typeDef) => ScalaBundle.message("cannot.extract.used.type.definition").toOption
+      case funDef: ScFunctionDefinition if hasOutsideUsages(funDef) => ScalaBundle.message("cannot.extract.used.function.definition").toOption
+      case _: ScSelfInvocation => ScalaBundle.message("cannot.extract.self.invocation").toOption
+      case _ => ScalaBundle.message("cannot.extract.empty.message").toOption
+    }
+
+    def hasOutsideUsages(elem: PsiElement): Boolean = {
+      val scope = new LocalSearchScope(PsiTreeUtil.getParentOfType(elem, classOf[ScControlFlowOwner], true))
+      val refs = ReferencesSearch.search(elem, scope).findAll()
+      import scala.collection.JavaConverters.collectionAsScalaIterableConverter
+      for {
+        ref <- refs.asScala
+        if !elements.exists(PsiTreeUtil.isAncestor(_, ref.getElement, false))
+      } {
+        return true
+      }
+      false
+    }
+
+    val messages = elements.flatMap(errors).distinct
+    if (messages.nonEmpty) {
+      showErrorMessage(messages.mkString("\n"), project, editor, refactoringName)
+      return true
+    }
+
+    if (elements.isEmpty || !elements.exists(_.isInstanceOf[ScBlockStatement])) {
+      showErrorMessage(ScalaBundle.message("cannot.extract.empty.message"), project, editor, refactoringName)
+      return true
+    }
+
+    false
   }
 
   @tailrec

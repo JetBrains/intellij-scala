@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.presentation.ScImplicitFunctionListCellRenderer
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
-import org.jetbrains.plugins.scala.util.{JListCompatibility, IntentionUtils}
+import org.jetbrains.plugins.scala.util.{IntentionUtils, JListCompatibility}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -199,8 +199,8 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
       else if (expressions.length == 1) {
         chooseExpression(expressions(0))
       } else {
-        ScalaRefactoringUtil.showChooser(editor, expressions, elem =>
-          chooseExpression(elem.asInstanceOf[ScExpression]), "Expressions", (expr: ScExpression) => {
+        ScalaRefactoringUtil.showChooser(editor, expressions, (elem: ScExpression)=>
+          chooseExpression(elem), "Expressions", (expr: ScExpression) => {
           ScalaRefactoringUtil.getShortText(expr)
         })
       }
