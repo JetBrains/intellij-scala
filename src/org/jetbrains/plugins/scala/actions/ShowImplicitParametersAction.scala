@@ -168,7 +168,7 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
       } else if (expressions.length == 1) {
         chooseExpression(expressions(0))
       } else {
-        ScalaRefactoringUtil.showChooser(editor, expressions, elem =>
+        ScalaRefactoringUtil.showChooser(editor, expressions, (elem: PsiElement) =>
           chooseExpression(elem), "Expressions", (expr: PsiElement) => {
           expr match {
             case expr: ScExpression =>
