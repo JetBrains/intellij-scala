@@ -350,6 +350,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       val oldIdx = paramInfo.getOldIndex
       if (oldIdx >= 0) usage.defaultValues(oldIdx)
       else change match {
+        case sc: ScalaChangeInfo if sc.function != usage.namedElement => None
         case sc: ScalaChangeInfo if sc.isAddDefaultArgs =>
           paramInfo.getDefaultValue match {
             case "" | null => Some(" ")
