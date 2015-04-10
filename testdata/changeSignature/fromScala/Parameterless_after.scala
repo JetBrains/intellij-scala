@@ -8,19 +8,19 @@ class Parameterless {
 }
 
 class Child1 extends Parameterless {
-  override def bar(i: Int = 1) = 2
+  override def bar(i: Int) = 2
 
   bar()
 }
 
 class Child2 extends Parameterless {
-  override def bar(i: Int = 1) = 3
+  override def bar(i: Int) = 3
 
   bar()
 }
 
 class Child3 extends Parameterless {
-  override def bar(i: Int = 1) = 4
+  override def bar(i: Int) = 4
 
   bar()
 }
