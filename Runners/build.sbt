@@ -1,9 +1,3 @@
-name := "Runners"
-
-organization := "JetBrains"
-
-scalaVersion := "2.11.2"
-
 unmanagedSourceDirectories in Compile += baseDirectory.value / "src"
 
 libraryDependencies ++= Seq(
