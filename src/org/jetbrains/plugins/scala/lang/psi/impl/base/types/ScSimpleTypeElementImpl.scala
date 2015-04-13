@@ -87,26 +87,24 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     def getConstructorParams(constr: PsiMethod, subst: ScSubstitutor): (Seq[Seq[Parameter]], Boolean) = {
       constr match {
         case fun: ScFunction =>
-          (fun.effectiveParameterClauses.map(_.effectiveParameters.mapWithIndex {
-            case (p, index) =>
-              val paramType: ScType = subst.subst(p.getType(TypingContext.empty).getOrAny)
-              new Parameter(p.name, p.deprecatedName,
-                paramType, paramType, p.isDefaultParam,
-                p.isRepeatedParameter, p.isCallByNameParameter, index, Some(p))
+          (fun.effectiveParameterClauses.map(_.effectiveParameters.map { p =>
+            val paramType: ScType = subst.subst(p.getType(TypingContext.empty).getOrAny)
+            new Parameter(p.name, p.deprecatedName,
+              paramType, paramType, p.isDefaultParam,
+              p.isRepeatedParameter, p.isCallByNameParameter, p.index, Some(p))
           }),
             fun.parameterList.clauses.lastOption.exists(_.isImplicit))
         case f: ScPrimaryConstructor =>
-          (f.effectiveParameterClauses.map(_.effectiveParameters.mapWithIndex {
-            case (p, index) =>
-              val paramType: ScType = subst.subst(p.getType(TypingContext.empty).getOrAny)
-              new Parameter(p.name, p.deprecatedName,
-                paramType, paramType, p.isDefaultParam,
-                p.isRepeatedParameter, p.isCallByNameParameter, index, Some(p))
+          (f.effectiveParameterClauses.map(_.effectiveParameters.map { p =>
+            val paramType: ScType = subst.subst(p.getType(TypingContext.empty).getOrAny)
+            new Parameter(p.name, p.deprecatedName,
+              paramType, paramType, p.isDefaultParam,
+              p.isRepeatedParameter, p.isCallByNameParameter, p.index, Some(p))
           }),
             f.parameterList.clauses.lastOption.exists(_.isImplicit))
         case m: PsiMethod =>
-          (Seq(m.getParameterList.getParameters.toSeq.mapWithIndex {
-            case (p, index) => new Parameter("", None, p.exactParamType(), false, p.isVarArgs, false, index)
+          (Seq(m.getParameterList.getParameters.map { p =>
+            new Parameter("", None, p.exactParamType(), false, p.isVarArgs, false, p.index)
           }), false)
       }
     }
