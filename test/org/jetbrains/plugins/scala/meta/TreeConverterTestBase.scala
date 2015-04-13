@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.meta
-import com.intellij.psi.{PsiComment, PsiFileFactory, PsiManager}
-import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.meta.trees.TreeAdapter
+import org.jetbrains.plugins.scala.meta.trees.ConverterImpl
 
 import scala.meta.internal.ast.Tree
 
@@ -34,7 +32,7 @@ trait TreeConverterTestBase extends SimpleTestCase {
   }
 
   def doTest(text: String, tree: Tree) = {
-    val converted = TreeAdapter.ideaToMeta(text)
+    val converted = ConverterImpl.ideaToMeta(text)
     assert(structuralEquals(converted, tree), s"$converted <=> $tree")
     assert(converted.toString() == tree.toString(), s"TEXT: $converted <=> $tree")
   }
