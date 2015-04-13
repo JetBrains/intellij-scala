@@ -6,7 +6,7 @@ organization :=  "JetBrains"
 
 scalaVersion in Global :=  "2.11.2"
 
-resolvers in ThisBuild += "bintray" at "http://dl.bintray.com/jetbrains/maven-patched/"
+resolvers in ThisBuild ++= bintrayJetbrains.allResolvers
 
 libraryDependencies += "org.apache.maven.indexer" % "indexer-core" % "6.0"
 
@@ -29,6 +29,8 @@ libraryDependencies ++= Seq(
   "org.sonatype.sisu" % "sisu-inject-plexus" % "2.2.3" % Compile,
   "org.apache.maven.wagon" % "wagon-http" % "2.6" % Compile
 )
+
+libraryDependencies ++= Dependencies.sbtStructure
 
 lazy val testDownloader = project.in(file("testJarsDownloader"))
 
@@ -203,6 +205,8 @@ packageStructure in Compile := {
     file("SDK/sbt") -> "lib/jps/",
     file("SDK/scalap") -> "lib/",
     file("SDK/scalastyle") -> "lib/",
+    libOf(Dependencies.sbtStructureExtractor012)._1 -> "launcher/sbt-structure-0.12.jar",
+    libOf(Dependencies.sbtStructureExtractor013)._1 -> "launcher/sbt-structure-0.13.jar",
     (artifactPath in (jps_plugin, Compile, packageBin)).value -> "lib/jps/scala-jps-plugin.jar",
     libOf("org.atteo" % "evo-inflector" % "1.2"),
     libOf("org.scala-lang" % "scala-library" % "2.11.2")._1 -> "lib/scala-library.jar",
