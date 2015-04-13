@@ -9,5 +9,23 @@
         </move>
     </target>
 
-    <target name="idea.postbuild" depends="rename.scala.library"/>
+    <target name="rename.sbt.structure.0.12">
+        <move todir="out/plugin/Scala/launcher">
+            <fileset dir="out/plugin/Scala/launcher">
+                <include name="sbt-structure-extractor-0-12*.jar"/>
+            </fileset>
+            <mapper type="glob" from="*" to="sbt-structure-0.12.jar"/>
+        </move>
+    </target>
+
+    <target name="rename.sbt.structure.0.13">
+        <move todir="out/plugin/Scala/launcher">
+            <fileset dir="out/plugin/Scala/launcher">
+                <include name="sbt-structure-extractor-0-13*.jar"/>
+            </fileset>
+            <mapper type="glob" from="*" to="sbt-structure-0.13.jar"/>
+        </move>
+    </target>
+
+    <target name="idea.postbuild" depends="rename.scala.library,rename.sbt.structure.0.12,rename.sbt.structure.0.13"/>
 </project>

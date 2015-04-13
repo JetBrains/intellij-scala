@@ -10,12 +10,16 @@ import com.intellij.openapi.externalSystem.service.project.ExternalSystemProject
 import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.SbtProjectResolver._
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.project.structure._
 import org.jetbrains.sbt.resolvers.SbtResolver
+
+import XmlSerializer._
+import org.jetbrains.sbt.{ProjectData => SbtProjectData, ModuleData => SbtModuleData, ModuleDependencyData => SbtModuleDependencyData}
 
 /**
  * @author Pavel Fatin
@@ -38,7 +42,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     runner = new SbtRunner(settings.vmExecutable, settings.vmOptions, settings.environment,
                            settings.customLauncher, settings.customSbtStructureDir)
-    
+
     taskListener = new ExternalTaskListener(listener, id)
 
     var warnings = new StringBuilder()
@@ -61,12 +65,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       listener.onTaskOutput(id, WarningMessage(warnings.toString), false)
     }
 
-    val data = StructureParser.parse(xml, new File(System.getProperty("user.home")))
+    val data = xml.deserialize[StructureData].right.get
 
     convert(root, data, settings.jdk).toDataNode
   }
 
-  private def convert(root: String, data: Structure, jdk: Option[String]): Node[ProjectData] = {
+  private def convert(root: String, data: StructureData, jdk: Option[String]): Node[ProjectData] = {
     val projects = data.projects
     val project = data.projects.find(_.base == root)
       .orElse(data.projects.headOption)
@@ -82,7 +86,16 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectNode.add(new SbtProjectNode(basePackages, projectJdk, javacOptions, sbtVersion, root))
 
     project.play2 map {
-      case play2Data => projectNode.add(new Play2ProjectNode(play2Data.keys))
+      case play2Data =>
+        import Play2Keys.AllKeys._
+        val oldPlay2Data = play2Data.keys.map { case Play2Key(name, values) =>
+          val newVals = values.mapValues {
+            case PlayString(str) => new StringParsedValue(str)
+            case PlaySeqString(strs) => new SeqStringParsedValue(strs)
+          }
+          (name, newVals)
+        }
+        projectNode.add(new Play2ProjectNode(oldPlay2Data.toMap))
     }
 
     val libraryNodes = createLibraries(data, projects)
@@ -94,7 +107,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     createModuleDependencies(projects, moduleNodes)
 
-    val projectToModuleNode: Map[Project, ModuleNode] = projects.zip(moduleNodes).toMap
+    val projectToModuleNode: Map[SbtProjectData, ModuleNode] = projects.zip(moduleNodes).toMap
     val sharedSourceModules = createSharedSourceModules(projectToModuleNode, libraryNodes, moduleFilesDirectory)
     projectNode.addAll(sharedSourceModules)
 
@@ -102,20 +115,20 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectNode
   }
 
-  def createModuleDependencies(projects: Seq[Project], moduleNodes: Seq[ModuleNode]): Unit = {
+  def createModuleDependencies(projects: Seq[SbtProjectData], moduleNodes: Seq[ModuleNode]): Unit = {
     projects.zip(moduleNodes).foreach { case (moduleProject, moduleNode) =>
       moduleProject.dependencies.projects.foreach { dependencyId =>
         val dependency = moduleNodes.find(_.getId == dependencyId.project).getOrElse(
           throw new ExternalSystemException("Cannot find project dependency: " + dependencyId.project))
         val data = new ModuleDependencyNode(moduleNode, dependency)
-        data.setScope(scopeFor(dependencyId.configurations))
+        data.setScope(scopeFor(dependencyId.configuration))
         data.setExported(true)
         moduleNode.add(data)
       }
     }
   }
 
-  def createModules(projects: Seq[Project], libraryNodes: Seq[LibraryNode], moduleFilesDirectory: File): Seq[ModuleNode] = {
+  def createModules(projects: Seq[SbtProjectData], libraryNodes: Seq[LibraryNode], moduleFilesDirectory: File): Seq[ModuleNode] = {
     val unmanagedSourcesAndDocsLibrary = libraryNodes.map(_.data).find(_.getExternalName == Sbt.UnmanagedSourcesAndDocsName)
     projects.map { project =>
       val moduleNode = createModule(project, moduleFilesDirectory)
@@ -133,7 +146,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
   }
 
-  def createLibraries(data: Structure, projects: Seq[Project]): Seq[LibraryNode] = {
+  def createLibraries(data: StructureData, projects: Seq[SbtProjectData]): Seq[LibraryNode] = {
     val repositoryModules = data.repository.map(_.modules).getOrElse(Seq.empty)
     val (modulesWithoutBinaries, modulesWithBinaries) = repositoryModules.partition(_.binaries.isEmpty)
     val otherModuleIds = projects.flatMap(_.dependencies.modules.map(_.id)).toSet --
@@ -149,41 +162,43 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     libs :+ unmanagedSourceLibrary
   }
 
-  private def createScalaSdk(project: Project, scala: Scala): ScalaSdkNode = {
+  private def createScalaSdk(project: SbtProjectData, scala: ScalaData): ScalaSdkNode = {
     val basePackage = Some(project.organization).filter(_.contains(".")).mkString
 
     val compilerClasspath = scala.compilerJar +: scala.libraryJar +: scala.extraJars
 
-    new ScalaSdkNode(scala.version, basePackage, compilerClasspath, scala.options)
+    new ScalaSdkNode(Version(scala.version), basePackage, compilerClasspath, scala.options)
   }
 
-  private def createFacet(project: Project, android: Android): AndroidFacetNode = {
-    new AndroidFacetNode(android.version, android.manifestFile, android.apkPath,
+  private def createFacet(project: SbtProjectData, android: AndroidData): AndroidFacetNode = {
+    new AndroidFacetNode(android.targetVersion, android.manifestPath, android.apkPath,
                          android.resPath, android.assetsPath, android.genPath, android.libsPath,
                          android.isLibrary, android.proguardConfig)
   }
 
-  private def createUnresolvedLibrary(moduleId: ModuleId): LibraryNode = {
-    val module = Module(moduleId, Seq.empty, Seq.empty, Seq.empty)
+  private def createUnresolvedLibrary(moduleId: ModuleIdentifier): LibraryNode = {
+    val module = SbtModuleData(moduleId, Set.empty, Set.empty, Set.empty)
     createLibrary(module, resolved = false)
   }
 
-  private def createResolvedLibrary(module: Module): LibraryNode = {
+  private def createResolvedLibrary(module: SbtModuleData): LibraryNode = {
     createLibrary(module, resolved = true)
   }
-  
-  private def createLibrary(module: Module, resolved: Boolean): LibraryNode = {
+
+  private def createLibrary(module: SbtModuleData, resolved: Boolean): LibraryNode = {
     val result = new LibraryNode(nameFor(module.id), resolved)
-    result.addPaths(LibraryPathType.BINARY, module.binaries.map(_.path))
-    result.addPaths(LibraryPathType.DOC, module.docs.map(_.path))
-    result.addPaths(LibraryPathType.SOURCE, module.sources.map(_.path))
+    result.addPaths(LibraryPathType.BINARY, module.binaries.map(_.path).toSeq)
+    result.addPaths(LibraryPathType.DOC, module.docs.map(_.path).toSeq)
+    result.addPaths(LibraryPathType.SOURCE, module.sources.map(_.path).toSeq)
     result
   }
 
-  private def nameFor(id: ModuleId) =
-    s"${id.organization}:${id.name}:${id.revision}" + id.classifier.map(":"+_).getOrElse("") + s":${id.artifactType}"
+  private def nameFor(id: ModuleIdentifier) = {
+    val classifierOption = if (id.classifier.isEmpty) None else Some(id.classifier)
+    s"${id.organization}:${id.name}:${id.revision}" + classifierOption.map(":"+_).getOrElse("") + s":${id.artifactType}"
+  }
 
-  private def createModule(project: Project, moduleFilesDirectory: File): ModuleNode = {
+  private def createModule(project: SbtProjectData, moduleFilesDirectory: File): ModuleNode = {
     // TODO use both ID and Name when related flaws in the External System will be fixed
     // TODO explicit canonical path is needed until IDEA-126011 is fixed
     val result = new ModuleNode(StdModuleTypes.JAVA.getId, project.id, project.id,
@@ -202,7 +217,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  private def createContentRoot(project: Project): ContentRootNode = {
+  private def createContentRoot(project: SbtProjectData): ContentRootNode = {
     val productionSources = validRootPathsIn(project, "compile")(_.sources)
     val productionResources = validRootPathsIn(project, "compile")(_.resources)
     val testSources = validRootPathsIn(project, "test")(_.sources) ++ validRootPathsIn(project, "it")(_.sources)
@@ -225,7 +240,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   // We cannot always exclude the whole ./target/ directory because of
   // the generated sources, so we resort to an heuristics.
-  private def getExcludedTargetDirs(project: Project): Seq[File] = {
+  private def getExcludedTargetDirs(project: SbtProjectData): Seq[File] = {
     val extractedExcludes = project.configurations.flatMap(_.excludes)
     if (extractedExcludes.nonEmpty)
       return extractedExcludes.distinct
@@ -248,7 +263,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     } else List(project.target)
   }
 
-  private def createBuildModule(project: Project, moduleFilesDirectory: File, localCachePath: Option[String]): ModuleNode = {
+  private def createBuildModule(project: SbtProjectData, moduleFilesDirectory: File, localCachePath: Option[String]): ModuleNode = {
     val id = project.id + Sbt.BuildModuleSuffix
     val name = project.name + Sbt.BuildModuleSuffix
     val buildRoot = project.base / Sbt.ProjectDirectory
@@ -293,14 +308,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  def createSbtModuleData(project: Project, localCachePath: Option[String]): SbtModuleNode = {
+  def createSbtModuleData(project: SbtProjectData, localCachePath: Option[String]): SbtModuleNode = {
     val imports = project.build.imports.flatMap(_.trim.substring(7).split(", "))
     val resolvers = project.resolvers map { r => new SbtResolver(SbtResolver.Kind.Maven, r.name, r.root) }
     new SbtModuleNode(imports, resolvers + SbtResolver.localCacheResolver(localCachePath))
   }
 
-  private def validRootPathsIn(project: Project, scope: String)
-                              (selector: Configuration => Seq[Directory]): Seq[String] = {
+  private def validRootPathsIn(project: SbtProjectData, scope: String)
+                              (selector: ConfigurationData => Seq[DirectoryData]): Seq[String] = {
     project.configurations
             .find(_.id == scope)
             .map(selector)
@@ -310,7 +325,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             .map(_.path)
   }
 
-  protected def createLibraryDependencies(dependencies: Seq[ModuleDependency])(moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyNode] = {
+  protected def createLibraryDependencies(dependencies: Seq[SbtModuleDependencyData])(moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyNode] = {
     dependencies.map { dependency =>
       val name = nameFor(dependency.id)
       val library = libraries.find(_.getExternalName == name).getOrElse(
@@ -321,7 +336,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
   }
 
-  private def createUnmanagedDependencies(dependencies: Seq[JarDependency])(moduleData: ModuleData): Seq[LibraryDependencyNode] = {
+  private def createUnmanagedDependencies(dependencies: Seq[JarDependencyData])(moduleData: ModuleData): Seq[LibraryDependencyNode] = {
     dependencies.groupBy(it => scopeFor(it.configurations)).toSeq.map { case (scope, dependency) =>
       val name = scope match {
         case DependencyScope.COMPILE => Sbt.UnmanagedLibraryName
@@ -345,16 +360,16 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  protected def scopeFor(configurations: Seq[String]): DependencyScope = {
+  protected def scopeFor(configurations: Seq[Configuration]): DependencyScope = {
     val ids = configurations.toSet
 
-    if (ids.contains("compile"))
+    if (ids.contains(Configuration.Compile))
       DependencyScope.COMPILE
-    else if (ids.contains("runtime"))
+    else if (ids.contains(Configuration.Runtime))
       DependencyScope.RUNTIME
-    else if (ids.contains("test"))
+    else if (ids.contains(Configuration.Test))
       DependencyScope.TEST
-    else if (ids.contains("provided"))
+    else if (ids.contains(Configuration.Provided))
       DependencyScope.PROVIDED
     else
       DependencyScope.COMPILE
