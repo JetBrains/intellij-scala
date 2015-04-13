@@ -54,4 +54,15 @@ object common extends Build {
       }
     }).headOption
   }
+
+  def newProject(projectName: String, basePath: String)(customSettings: Setting[_]*): Project = {
+    Project(projectName, file(basePath)).settings(
+      name := projectName,
+      organization := "JetBrains",
+      scalaVersion := Versions.scalaVersion
+    ).settings(customSettings:_*)
+  }
+
+  def newProject(projectName: String)(customSettings: Setting[_]*): Project =
+    newProject(projectName, projectName)(customSettings:_*)
 }

@@ -1,9 +1,3 @@
-name := "idea-runner"
-
-organization := "JetBrains"
-
-scalaVersion := "2.11.2"
-
 unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar"
 
 // run configuration
