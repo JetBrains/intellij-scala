@@ -94,15 +94,23 @@ object TreeAdapter {
       case x :: Nil => pattern(x)
       case x :: xs  => Alternative(pattern(x), compose(xs))
     }
+    // WHY??(((
+    def arg(pt: p.base.patterns.ScPattern): m.Pat.Arg = pt match {
+      case t: ScSeqWildcard       =>  Arg.SeqWildcard()
+      case t: ScWildcardPattern   =>  Wildcard()
+      case t: ScPattern           => pattern(t)
+    }
     pt match {
       case t: ScReferencePattern  =>  Var.Term(Namer(t))
-      case t: ScConstructorPattern=>  Extract(Namer.ref(t.ref), Nil, t.args.patterns.toStream.map(pattern))
-      case t: ScNamingPattern     =>  Bind(Var.Term(Namer(t)), pattern(t.named))
-      case t: ScTypedPattern      =>  Typed(Var.Term(Namer(t)), TypeAdapter(t.typePattern.get.typeElement).asInstanceOf[m.Pat.Type])
+      case t: ScConstructorPattern=>  Extract(Namer.ref(t.ref), Nil, t.args.patterns.toStream.map(arg))
+      case t: ScNamingPattern     =>  Bind(Var.Term(Namer(t)), arg(t.named))
+      case t@ ScTypedPattern(te: p.base.types.ScWildcardTypeElement) => Typed(if (t.isWildcard) Wildcard() else Var.Term(Namer(t)), Type.Wildcard())
+      case t@ ScTypedPattern(te)  =>  Typed(if (t.isWildcard) Wildcard() else Var.Term(Namer(t)), TypeAdapter(te).patTpe)
       case t: ScLiteralPattern    =>  literal(t.getLiteral)
       case t: ScTuplePattern      =>  Tuple(t.patternList.get.patterns.toStream.map(pattern))
       case t: ScWildcardPattern   =>  Wildcard()
       case t: ScCompositePattern  =>  compose(Seq(t.subpatterns : _*))
+      case t: ScInfixPattern      =>  ExtractInfix(pattern(t.leftPattern), Namer.ref(t.refernece), t.rightPattern.map(pt=>Seq(pattern(pt))).getOrElse(Nil))
       case t: ScPattern => println(s"unknown pattern: ${t.getClass}"); ???
     }
   }
@@ -258,6 +266,30 @@ object TreeAdapter {
       case Failure(cause, place)    => m.Type.Name("Unit")
     }
   }
+
+  implicit class RichPatTpeTree(ptpe: m.Type) {
+    def patTpe: m.Pat.Type = {
+      def loop(ptpe: m.Type): m.Pat.Type = {
+        ptpe match {
+          case ptpe: m.Type.Name => ptpe
+          case ptpe: m.Type.Select => ptpe
+          case m.Type.Project(pqual, pname) => m.Pat.Type.Project(loop(pqual), pname)
+          case ptpe: m.Type.Singleton => ptpe
+          case m.Type.Apply(ptpe, args) => m.Pat.Type.Apply(loop(ptpe), args.map(loop))
+          case m.Type.ApplyInfix(plhs, pop, prhs) => m.Pat.Type.ApplyInfix(loop(plhs), pop, loop(prhs))
+          case m.Type.Function(pparams, pres) => m.Pat.Type.Function(pparams.map(param => loop(param.asInstanceOf[m.Type])), loop(pres))
+          case m.Type.Tuple(pelements) => m.Pat.Type.Tuple(pelements.map(loop))
+          case m.Type.Compound(ptpes, prefinement) => m.Pat.Type.Compound(ptpes.map(loop), prefinement)
+          case m.Type.Existential(ptpe, pquants) => m.Pat.Type.Existential(loop(ptpe), pquants)
+          case m.Type.Annotate(ptpe, pannots) => m.Pat.Type.Annotate(loop(ptpe), pannots)
+          case m.Type.Placeholder(_) => m.Pat.Type.Wildcard() // FIXME: wtf? is it supposed to convert this way?
+          case ptpe: m.Type.Placeholder => ptpe
+          case ptpe: m.Lit => ptpe
+        }
+      }
+      loop(ptpe)
+    }
+  } 
 }
 
 object TypeAdapter {
@@ -276,7 +308,16 @@ object TypeAdapter {
         m.Type.Apply(m.Type.Name(t.typeElement.calcType.canonicalText), t.typeArgList.typeArgs.toStream.map(TypeAdapter(_)))
       case t: p.base.types.ScTupleTypeElement =>
         m.Type.Tuple(Seq(t.components.map(TypeAdapter(_)):_*))
-      case _ => ???
+      case t: p.base.types.ScWildcardTypeElement =>
+        m.Type.Placeholder(typeBounds(t))
+      case t: p.base.types.ScParenthesisedTypeElement =>
+        t.typeElement match {
+          case Some(t: p.base.types.ScInfixTypeElement) => m.Type.ApplyInfix(TypeAdapter(t.lOp), m.Type.Name(t.ref.refName), TypeAdapter(t.rOp.get))
+          case _ => ???
+        }
+      case t: p.base.types.ScTypeVariableTypeElement =>
+        println("i cannot into type variables"); ???
+      case _ => println(tp.getClass); ???
     }
   }
 

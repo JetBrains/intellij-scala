@@ -2,6 +2,9 @@ package org.jetbrains.plugins.scala.meta
 
 import scala.meta.internal.ast._
 
+import scala.{Seq => _}
+import scala.collection.immutable.Seq
+
 class TreeConverterMatchTest extends TreeConverterTestBase {
 
   def testMatchRef() {
@@ -69,4 +72,57 @@ class TreeConverterMatchTest extends TreeConverterTestBase {
     )
   }
 
+  def testMatchTypedWildCard() {
+    doTest(
+      "a match { case _: Int => }",
+      Term.Match(Term.Name("a"), List(Case(Pat.Typed(Pat.Wildcard(), Type.Name("Int")), None, Term.Block(Nil))))
+    )
+  }
+
+  // TODO: type variables
+  def testMatchWildCardTypeVar() {
+    doTest(
+      "a match { case _: Any[t] => }",
+      Term.Match(Term.Name("a"), List(Case(Pat.Typed(Pat.Wildcard(), Pat.Type.Apply(Type.Name("Any"), List(Pat.Var.Type(Type.Name("t"))))), None, Term.Block(Nil))))
+    )
+  }
+  
+  def testMatchWildCardTypeApplyWildCard() {
+    doTest(
+      "a match { case _: Any[_] => }",
+      Term.Match(Term.Name("a"), List(Case(Pat.Typed(Pat.Wildcard(), Pat.Type.Apply(Type.Name("Any"), List(Pat.Type.Wildcard()))), None, Term.Block(Nil))))
+    )
+  }
+
+  def testMatchTypeApplyInfix() {
+    doTest(
+      """
+        |def f[T,U] = {
+        |//start
+        |a match { case _: (T Map U) => }}
+      """.stripMargin,
+      Term.Block(Seq(Term.Match(Term.Name("a"), List(Case(Pat.Typed(Pat.Wildcard(), Pat.Type.ApplyInfix(Type.Name("T"), Type.Name("Map"), Type.Name("U"))), None, Term.Block(Nil))))))
+    )
+  }
+  
+  def testMatchExtractorWildCardSeq() {
+    doTest(
+      "a match { case foo(_*) => }",
+      Term.Match(Term.Name("a"), List(Case(Pat.Extract(Term.Name("foo"), Nil, List(Pat.Arg.SeqWildcard())), None, Term.Block(Nil))))
+    )
+  }
+
+  def testMatchExtractorBoundWildCardSeq() {
+    doTest(
+      "a match { case foo(x @ _*) => }",
+      Term.Match(Term.Name("a"), List(Case(Pat.Extract(Term.Name("foo"), Nil, List(Pat.Bind(Pat.Var.Term(Term.Name("x")), Pat.Arg.SeqWildcard()))), None, Term.Block(Nil))))
+    )
+  }
+  
+  def testMatchInfix() {
+    doTest(
+      "a match { case a :: b => }",
+      Term.Match(Term.Name("a"), List(Case(Pat.ExtractInfix(Pat.Var.Term(Term.Name("a")), Term.Name("::"), List(Pat.Var.Term(Term.Name("b")))), None, Term.Block(Nil))))
+    )
+  }
 }

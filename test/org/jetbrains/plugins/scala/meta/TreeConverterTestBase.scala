@@ -30,7 +30,7 @@ trait TreeConverterTestBase extends SimpleTestCase {
     }
     def tagsEqual = tree1.internalTag == tree2.internalTag
     def fieldsEqual = tree1.productIterator.toList.zip(tree2.productIterator.toList).forall { case (x1, x2) => loop(x1, x2)}
-    tagsEqual && fieldsEqual
+    (tagsEqual && fieldsEqual) || {println(s"${tree1.show[scala.meta.Raw]} <=> ${tree2.show[scala.meta.Raw]}"); false}
   }
 
   def doTest(text: String, tree: Tree) = {
