@@ -5,7 +5,7 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElementVisitor
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -29,13 +29,13 @@ class ScIfStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIfStm
   override def toString: String = "IfStatement"
 
   def condition = {
-    val rpar = findChildByType(ScalaTokenTypes.tRPARENTHESIS)
+    val rpar = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)
     val c = if (rpar != null) PsiTreeUtil.getPrevSiblingOfType(rpar, classOf[ScExpression]) else null
     if (c == null) None else Some(c)
   }
 
   def thenBranch = {
-    val kElse = findChildByType(ScalaTokenTypes.kELSE)
+    val kElse = findChildByType[PsiElement](ScalaTokenTypes.kELSE)
     val t =
       if (kElse != null) PsiTreeUtil.getPrevSiblingOfType(kElse, classOf[ScExpression])
       else getLastChild match {
@@ -50,18 +50,18 @@ class ScIfStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIfStm
   }
 
   def elseBranch = {
-    val kElse = findChildByType(ScalaTokenTypes.kELSE)
+    val kElse = findChildByType[PsiElement](ScalaTokenTypes.kELSE)
     val e = if (kElse != null) PsiTreeUtil.getNextSiblingOfType(kElse, classOf[ScExpression]) else null
     if (e == null) None else Some(e)
   }
 
   def getLeftParenthesis = {
-    val leftParenthesis = findChildByType(ScalaTokenTypes.tLPARENTHESIS)
+    val leftParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS)
     if (leftParenthesis == null) None else Some(leftParenthesis)
   }
 
   def getRightParenthesis = {
-    val rightParenthesis = findChildByType(ScalaTokenTypes.tRPARENTHESIS)
+    val rightParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)
     if (rightParenthesis == null) None else Some(rightParenthesis)
   }
 

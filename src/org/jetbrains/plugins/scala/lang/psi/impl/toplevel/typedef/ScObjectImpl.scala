@@ -90,10 +90,10 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
     val stub = getStub
     if (stub != null) {
       stub.asInstanceOf[ScTemplateDefinitionStub].isPackageObject
-    } else findChildByType(ScalaTokenTypes.kPACKAGE) != null || name == "`package`"
+    } else findChildByType[PsiElement](ScalaTokenTypes.kPACKAGE) != null || name == "`package`"
   }
 
-  def hasPackageKeyword: Boolean = findChildByType(ScalaTokenTypes.kPACKAGE) != null
+  def hasPackageKeyword: Boolean = findChildByType[PsiElement](ScalaTokenTypes.kPACKAGE) != null
 
   override def isCase = hasModifierProperty("case")
 

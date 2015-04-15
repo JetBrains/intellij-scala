@@ -194,7 +194,8 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, fi
     scala.extensions.inReadAction {
       PsiDocumentManager.getInstance(project).getPsiFile(originalEditor.getDocument) match {
         case scalaFile: ScalaFile =>
-          WorksheetEditorPrinter.saveWorksheetEvaluation(scalaFile, str)
+          WorksheetEditorPrinter.saveWorksheetEvaluation(scalaFile, str,
+            worksheetViewer.getUserData(WorksheetEditorPrinter.DIFF_SPLITTER_KEY).getProportion)
         case _ =>
       }
     }
@@ -315,6 +316,7 @@ object WorksheetEditorPrinter {
   val DIFF_SYNC_SUPPORT = Key.create[SyncScrollSupport]("WorksheetSyncScrollSupport")
 
   private val LAST_WORKSHEET_RUN_RESULT = new FileAttribute("LastWorksheetRunResult", 2, false)
+  private val LAST_WORKSHEET_RUN_RATIO = new FileAttribute("ScalaWorksheetLastRatio", 1, false)
 
   private val patched = new util.WeakHashMap[Editor, String]()
 
@@ -375,7 +377,7 @@ object WorksheetEditorPrinter {
 
             originalEditor.putUserData(DIFF_SYNC_SUPPORT, syncSupport)
 
-            diffSplitter map {
+            diffSplitter foreach {
               case splitter =>
                 viewerImpl.getScrollPane.getVerticalScrollBar.addAdjustmentListener(new AdjustmentListener {
                   override def adjustmentValueChanged(e: AdjustmentEvent): Unit = splitter.redrawDiffs()
@@ -387,14 +389,31 @@ object WorksheetEditorPrinter {
     }
   }
 
-  def saveWorksheetEvaluation(file: ScalaFile, result: String) {
+  def saveWorksheetEvaluation(file: ScalaFile, result: String, ratio: Float = 0.5f) {
     FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RESULT, file, result)
+    FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RATIO, file, ratio.toString)
+  }
+
+  def saveOnlyRatio(file: ScalaFile, ratio: Float = 0.5f) {
+    FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RATIO, file, ratio.toString)
   }
   
-  def loadWorksheetEvaluation(file: ScalaFile): Option[String] = FileAttributeUtilCache.readAttribute(LAST_WORKSHEET_RUN_RESULT, file)
+  def loadWorksheetEvaluation(file: ScalaFile): Option[(String, Float)] = {
+    val ratio = FileAttributeUtilCache.readAttribute(LAST_WORKSHEET_RUN_RATIO, file) map {
+      case rr =>
+        try {
+          java.lang.Float.parseFloat(rr)
+        } catch {
+          case _: NumberFormatException => 0.5f
+        }
+    } getOrElse 0.5f
+
+    FileAttributeUtilCache.readAttribute(LAST_WORKSHEET_RUN_RESULT, file).map(s => (s, ratio))
+  }
   
   def deleteWorksheetEvaluation(file: ScalaFile) {
     FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RESULT, file, "")
+    FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RESULT, file, 0.5f.toString)
   }
 
   def newWorksheetUiFor(editor: Editor, virtualFile: VirtualFile) = newUiFor(editor, virtualFile, true)
@@ -415,6 +434,7 @@ object WorksheetEditorPrinter {
 
   def createRightSideViewer(editor: Editor, virtualFile: VirtualFile, rightSideEditor: Editor, modelSync: Boolean = false): Editor = {
     val editorComponent = editor.getComponent
+    val editorContentComponent = editor.getContentComponent
 
     val worksheetViewer = rightSideEditor.asInstanceOf[EditorImpl]
 
@@ -433,7 +453,7 @@ object WorksheetEditorPrinter {
     worksheetViewer.getComponent setPreferredSize prefDim
 
     if (modelSync) synch(editor, worksheetViewer)
-    editor.getContentComponent.setPreferredSize(prefDim)
+    editorContentComponent.setPreferredSize(prefDim)
 
     if (!ApplicationManager.getApplication.isUnitTestMode) {
       val child = editorComponent.getParent
@@ -443,7 +463,15 @@ object WorksheetEditorPrinter {
 
       worksheetViewer.putUserData(DIFF_SPLITTER_KEY, diffPane)
 
-      @inline def patchEditor() {
+      @inline def preserveFocus(body: => Unit) {
+        val hadFocus = editorContentComponent.hasFocus
+
+        body
+
+        if (hadFocus) editorContentComponent.requestFocusInWindow()
+      }
+
+      @inline def patchEditor(): Unit = preserveFocus {
         (parent, child) match {
           case (parentPane: JLayeredPane, _) =>
             parentPane remove child
@@ -457,8 +485,10 @@ object WorksheetEditorPrinter {
 
       if (parent.getComponentCount > 1) parent.getComponent(1) match {
         case splitter: Splitter =>
-          parent.remove(1)
-          parent.add(diffPane, 1)
+          preserveFocus {
+            parent.remove(1)
+            parent.add(diffPane, 1)
+          }
         case _ => patchEditor()
       } else patchEditor()
     }

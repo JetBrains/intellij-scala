@@ -2,10 +2,12 @@ package org.jetbrains.plugins.scala.editor.typedHandler
 
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate.Result
+import com.intellij.codeInsight.{AutoPopupController, CodeInsightSettings}
 import com.intellij.lexer.XmlLexer
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Condition
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.xml.XmlTokenType
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiWhiteSpace}
@@ -15,8 +17,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -70,6 +73,12 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       myTask = completeInterpolatedStringBraces
     } else if (c == '>' || c == '-') {
       myTask = replaceArrowTask(file, editor)
+    } else if (c == '$') {
+      myTask = startAutopopupCompletion(file, editor)
+    } else if (c == '{') {
+      myTask = convertToInterpolated(file, editor)
+    } else if (c == '.') {
+      myTask = startAutopopupCompletionInInterpolatedString(file, editor)
     }
 
     if (myTask == null) return Result.CONTINUE
@@ -270,6 +279,68 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       case ScalaTokenTypes.tCHOOSE if settings.REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR =>
         replaceElement(ScalaTypedHandler.unicodeForGeneratorArrow)
       case _ =>
+    }
+  }
+
+  private def startAutopopupCompletion(file: PsiFile, editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int) {
+    if (CodeInsightSettings.getInstance().AUTO_POPUP_COMPLETION_LOOKUP) {
+      element.getParent match {
+        case l: ScLiteral =>
+          element.getNode.getElementType match {
+            case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING =>
+              if (l.getText.filter(_ == '$').length == 1) scheduleAutopopup(file, editor, project)
+            case _ =>
+          }
+        case _ =>
+      }
+    }
+  }
+
+  private def scheduleAutopopup(file: PsiFile, editor: Editor, project: Project): Unit = {
+    AutoPopupController.getInstance(project).scheduleAutoPopup(
+      editor, new Condition[PsiFile] {
+        def value(t: PsiFile): Boolean = t == file
+      }
+    )
+  }
+
+  private def startAutopopupCompletionInInterpolatedString(file: PsiFile, editor: Editor)
+                                                          (document: Document, project: Project, element: PsiElement, offset: Int) {
+    if (CodeInsightSettings.getInstance().AUTO_POPUP_COMPLETION_LOOKUP) {
+      element.getParent match {
+        case l: ScLiteral =>
+          element.getNode.getElementType match {
+            case ScalaTokenTypes.tINTERPOLATED_STRING | ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING =>
+              file.findElementAt(offset).getPrevSibling match {
+                case ref: ScReferenceExpression => scheduleAutopopup(file, editor, project)
+                case _ =>
+              }
+            case _ =>
+          }
+        case _ =>
+      }
+    }
+  }
+
+  private def convertToInterpolated(file: PsiFile, editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int) {
+    if (ScalaApplicationSettings.getInstance().UPGRADE_TO_INTERPOLATED) {
+      element.getParent match {
+        case l: ScLiteral =>
+          element.getNode.getElementType match {
+            case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING =>
+              if (l.getText.filter(_ == '$').length == 1 && file.getText.charAt(offset - 2) == '$') {
+                extensions.inWriteAction {
+                  if (file.getText.charAt(offset) != '}' && CodeInsightSettings.getInstance().AUTOINSERT_PAIR_BRACKET) {
+                    document.insertString(offset, "}")
+                  }
+                  document.insertString(l.getTextRange.getStartOffset, "s")
+                  PsiDocumentManager.getInstance(project).commitDocument(document)
+                }
+              }
+            case _ =>
+          }
+        case _ =>
+      }
     }
   }
 

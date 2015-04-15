@@ -54,6 +54,7 @@ class Specs2ConfigurationProducer extends {
     if (testClassPath == null) return null
     runConfiguration.setTestClassPath(testClassPath)
     runConfiguration.setTestKind(TestKind.CLASS)
+    runConfiguration.initWorkingDir()
 
     // If the selected element is a non-empty string literal, we assume that this
     // is the name of an example to be filtered.

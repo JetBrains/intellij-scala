@@ -19,13 +19,56 @@ import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
 
 import scala.collection.JavaConversions
 
 class ScalaReferenceContributor extends PsiReferenceContributor {
-
   def registerReferenceProviders(registrar: PsiReferenceRegistrar) {
     registrar.registerReferenceProvider(PlatformPatterns.psiElement(classOf[ScLiteral]), new FilePathReferenceProvider())
+    registrar.registerReferenceProvider(PlatformPatterns.psiElement(classOf[ScLiteral]), new InterpolatedStringReferenceProvider())
+  }
+}
+
+class InterpolatedStringReferenceProvider extends PsiReferenceProvider {
+  override def getReferencesByElement(element: PsiElement, context: ProcessingContext): Array[PsiReference] = {
+    element match {
+      case l: ScLiteral if (l.isString || l.isMultiLineString) && l.getText.contains("$") =>
+        val interpolated = ScalaPsiElementFactory.createExpressionFromText("s" + l.getText, l.getContext)
+        interpolated.getChildren.filter {
+          case r: ScInterpolatedStringPartReference => false
+          case ref: ScReferenceExpression => true
+          case _ => false
+        }.map {
+          case ref: ScReferenceExpression =>
+            new PsiReference {
+              override def getVariants: Array[AnyRef] = Array.empty
+
+              override def getCanonicalText: String = ref.getCanonicalText
+
+              override def getElement: PsiElement = l
+
+              override def isReferenceTo(element: PsiElement): Boolean = ref.isReferenceTo(element)
+
+              override def bindToElement(element: PsiElement): PsiElement = ref
+
+              override def handleElementRename(newElementName: String): PsiElement = ref
+
+              override def isSoft: Boolean = true
+
+              override def getRangeInElement: TextRange = {
+                val range = ref.getTextRange
+                val startOffset = interpolated.getTextRange.getStartOffset + 1
+                new TextRange(range.getStartOffset - startOffset, range.getEndOffset - startOffset)
+              }
+
+              override def resolve(): PsiElement = null
+            }
+        }
+      case _ => Array.empty
+    }
   }
 }
 

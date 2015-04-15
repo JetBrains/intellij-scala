@@ -1,0 +1,13 @@
+<html>
+<body>
+Replace different ways of checking emptiness of collections and options with <code>.isEmpty</code>, <code>.nonEmpty</code> or <code>.isDefined.</code> <br/>
+<p><code>!seq.isEmpty  ->  seq.nonEmpty</code></p>
+<p><code>seq.size == 0  -> seq.isEmpty</code></p>
+<p><code>seq.size != 0  ->  seq.nonEmpty</code></p>
+<p><code>!(seq.length > 1)  ->  seq.isEmpty</code></p>
+<p><code>!option.isEmpty  ->  option.isDefined</code></p>
+<p><code>option == None  ->  option.isEmpty</code></p>
+<p><code>option != None  ->  option.isDefined</code></p>
+
+</body>
+</html>

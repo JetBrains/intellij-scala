@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.codeInspection.typeChecking.IsInstanceOfCall
 import org.jetbrains.plugins.scala.codeInspection.typeChecking.TypeCheckToMatchUtil._
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScIfStmt, ScMatchStmt}

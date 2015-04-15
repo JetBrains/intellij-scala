@@ -10,6 +10,7 @@ import com.intellij.openapi.externalSystem.service.project.ExternalSystemProject
 import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.sbt.project.SbtProjectResolver._
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
@@ -23,7 +24,13 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private var runner: SbtRunner = null
 
-  def resolveProjectInfo(id: ExternalSystemTaskId, projectPath: String, isPreview: Boolean, settings: SbtExecutionSettings, listener: ExternalSystemTaskNotificationListener): DataNode[ProjectData] = {
+  protected var taskListener: TaskListener = SilentTaskListener
+
+  def resolveProjectInfo(id: ExternalSystemTaskId,
+                         projectPath: String,
+                         isPreview: Boolean,
+                         settings: SbtExecutionSettings,
+                         listener: ExternalSystemTaskNotificationListener): DataNode[ProjectData] = {
     val root = {
       val file = new File(projectPath)
       if (file.isDirectory) file.getPath else file.getParent
@@ -31,6 +38,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     runner = new SbtRunner(settings.vmExecutable, settings.vmOptions, settings.environment,
                            settings.customLauncher, settings.customSbtStructureDir)
+    
+    taskListener = new ExternalTaskListener(listener, id)
 
     var warnings = new StringBuilder()
 
@@ -62,15 +71,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val project = data.projects.headOption.getOrElse(throw new RuntimeException("No root project found"))
     val projectNode = new ProjectNode(project.name, root, root)
 
+    val basePackages = projects.flatMap(_.basePackages).distinct
     val javacOptions = project.java.map(_.options).getOrElse(Seq.empty)
     val sbtVersion = data.sbtVersion
-    val projectJdk =
-      if (project.android.isDefined)
-        Some(ScalaProjectData.Android(project.android.get.version))
-      else
-        jdk map ScalaProjectData.Jdk
+    val projectPath = FileUtil.toSystemIndependentName(root)
+    val projectJdk = project.android.map(android => ScalaProjectData.Android(android.version))
+            .orElse(jdk.map(ScalaProjectData.Jdk))
 
-    projectNode.add(new ScalaProjectNode(projectJdk, javacOptions, sbtVersion, FileUtil.toSystemIndependentName(root)))
+    projectNode.add(new ScalaProjectNode(basePackages, projectJdk, javacOptions, sbtVersion, projectPath))
 
     project.play2 map {
       case play2Data => projectNode.add(new Play2ProjectNode(play2Data.keys))
@@ -216,7 +224,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   // We cannot always exclude the whole ./target/ directory because of
   // the generated sources, so we resort to an heuristics.
-  private def getExcludedTargetDirs(project: Project): List[File] = {
+  private def getExcludedTargetDirs(project: Project): Seq[File] = {
+    val extractedExcludes = project.configurations.flatMap(_.excludes)
+    if (extractedExcludes.nonEmpty)
+      return extractedExcludes.distinct
+
     val managedDirectories = project.configurations
             .flatMap(configuration => configuration.sources ++ configuration.resources)
             .filter(_.managed)
@@ -351,5 +363,23 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     if (runner != null)
       runner.cancel()
     false
+  }
+}
+
+object SbtProjectResolver {
+  trait TaskListener {
+    def onTaskOutput(message: String, stdOut: Boolean): Unit
+  }
+
+  object SilentTaskListener extends TaskListener {
+    override def onTaskOutput(message: String, stdOut: Boolean): Unit = {}
+  }
+
+  class ExternalTaskListener(
+    val listener: ExternalSystemTaskNotificationListener,
+    val taskId: ExternalSystemTaskId)
+      extends TaskListener {
+    def onTaskOutput(message: String, stdOut: Boolean): Unit =
+      listener.onTaskOutput(taskId, message, stdOut)
   }
 }

@@ -54,4 +54,4 @@ abstract class D {
   /*start*/Predef_???/*end*/
   x
 }
-//D.this.type#global#TermSymbol
+//D.this.global.TermSymbol

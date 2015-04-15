@@ -52,7 +52,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
 
   private var myVarCheckbox: JCheckBox = null
   private var mySpecifyTypeChb: JCheckBox = null
-  private var myPointer: SmartPsiElementPointer[PsiElement] = null
+  private var myDeclarationStartOffset: Int = 0
   private val newDeclaration = ScalaPsiUtil.getParentOfType(namedElement, classOf[ScEnumerator], classOf[ScDeclaredElementsHolder])
   private var myCheckIdentifierListener: DocumentListener = null
   private val myFile: PsiFile = namedElement.getContainingFile
@@ -77,8 +77,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
       else {
         val input = myCaretRangeMarker.getDocument.getText(range)
         val numberOfSpaces = input.lastIndexOf(' ') + 1
-        val element = myFile.findElementAt(range.getStartOffset + numberOfSpaces)
-        val declaration = ScalaPsiUtil.getParentOfType(element, classOf[ScEnumerator], classOf[ScDeclaredElementsHolder])
+        val declaration = findDeclaration(range.getStartOffset + numberOfSpaces)
         val named: Option[ScNamedElement] = namedElement(declaration)
         if (named.isDefined) {
           setDeclaration(declaration)
@@ -102,11 +101,15 @@ class ScalaInplaceVariableIntroducer(project: Project,
     case _ => None
   }
 
-  private def getDeclaration: PsiElement = myPointer.getElement
+  private def findDeclaration(offset: Int): PsiElement = {
+    val elem = myFile.findElementAt(offset)
+    ScalaPsiUtil.getParentOfType(elem, classOf[ScEnumerator], classOf[ScDeclaredElementsHolder])
+  }
+
+  private def getDeclaration: PsiElement = findDeclaration(myDeclarationStartOffset)
 
   private def setDeclaration(declaration: PsiElement): Unit = {
-    myPointer = if (declaration != null) SmartPointerManager.getInstance(myProject).createSmartPsiElementPointer(declaration)
-    else myPointer
+    myDeclarationStartOffset = declaration.getTextRange.getStartOffset
   }
 
   private def commitDocument(): Unit = {
@@ -296,7 +299,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
           val declaration = getDeclaration
           myEditor.getCaretModel.moveToOffset(declaration.getTextRange.getEndOffset)
         }
-      } else if (getDeclaration != null) {
+      } else if (getDeclaration != null && !UndoManager.getInstance(myProject).isUndoInProgress) {
         val revertInfo = myEditor.getUserData(ScalaIntroduceVariableHandler.REVERT_INFO)
         if (revertInfo != null) {
           extensions.inWriteAction {

@@ -31,6 +31,7 @@ object StructureParserTest {
       id = "compile",
       sources = Seq(Directory(new File("src/main/scala"), managed = false), Directory(new File("src/main/java"), managed = true)),
       resources = Seq(Directory(new File("src/main/resources"), managed = false)),
+      excludes = Seq.empty,
       classes = new File("target/scala-2.10/classes"))
 
     val build = Build(
@@ -61,6 +62,7 @@ object StructureParserTest {
       organization = "some-organization",
       version = "1.2.3",
       base = new File("$BASE"),
+      basePackages = Seq("org.jetbrains", "org.intellij"),
       target = new File(""),
       build,
       configurations = Seq(configuration),

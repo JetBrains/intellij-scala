@@ -1,52 +1,85 @@
+
 package org.jetbrains.plugins.scala.components
 
 import java.io.{File, IOException}
 import java.lang.reflect.Field
 import javax.swing.event.HyperlinkEvent
 
-import com.intellij.ide.IdeBundle
-import com.intellij.ide.plugins.{IdeaPluginDescriptorImpl, PluginInstaller, PluginManagerMain, PluginManagerUISettings}
+import com.intellij.ide.plugins._
 import com.intellij.notification._
 import com.intellij.openapi.application.ex.ApplicationInfoEx
 import com.intellij.openapi.application.impl.ApplicationInfoImpl
-import com.intellij.openapi.application.{Application, ApplicationInfo, ApplicationManager}
+import com.intellij.openapi.application.{ApplicationInfo, ApplicationManager}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.updateSettings.impl._
-import com.intellij.openapi.util.{JDOMUtil, BuildNumber, JDOMExternalizableStringList}
+import com.intellij.openapi.util.{BuildNumber, JDOMUtil}
 import com.intellij.util.io.HttpRequests
-import com.intellij.util.ui.UIUtil
-import org.jdom.{JDOMException, Document}
+import org.jdom.JDOMException
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch._
 
 import scala.xml.transform.{RewriteRule, RuleTransformer}
 
+class InvalidRepoException(what: String) extends Exception(what)
+
 object ScalaPluginUpdater {
   private val LOG = Logger.getInstance(getClass)
 
-  val baseUrl = "http://www.jetbrains.com/idea/plugins"
-  val eapRepo = s"$baseUrl/scala-eap-cassiopeia.xml"
-  val nightlyRepo = s"$baseUrl/scala-nightly-cassiopeia.xml"
+  val baseUrl = "https://plugins.jetbrains.com/plugins/%s/1347"
+
+  // *_OLD versions are for legacy repository format.
+  // Need to keep track of them to upgrade to new repository format automatically
+  // Remove eventually, when no significant amount of users will have older ones.
+  val CASSIOPEIA_OLD    = "cassiopeia_old"
+  val FOURTEEN_ONE_OLD  = "14.1_old"
+  val FOURTEEN_ONE      = "14.1"
+
+  val knownVersions = Map(
+    CASSIOPEIA_OLD   -> Map(
+      Release -> "DUMMY",
+      EAP     -> "http://www.jetbrains.com/idea/plugins/scala-eap-cassiopeia.xml",
+      Nightly -> "http://www.jetbrains.com/idea/plugins/scala-nightly-cassiopeia.xml"
+    ),
+    FOURTEEN_ONE_OLD -> Map(
+      Release -> "DUMMY",
+      EAP     -> "http://www.jetbrains.com/idea/plugins/scala-eap-14.1.xml",
+      Nightly -> ""
+    ),
+    FOURTEEN_ONE -> Map(
+      Release -> "DUMMY",
+      EAP     -> baseUrl.format("eap"),
+      Nightly -> baseUrl.format("nightly")
+    )
+  )
+
+  val currentVersion = FOURTEEN_ONE
+
+  def currentRepo = knownVersions(currentVersion)
 
   val updGroupId = "ScalaPluginUpdate"
   val GROUP = new NotificationGroup(updGroupId, NotificationDisplayType.STICKY_BALLOON, true)
 
+  @throws(classOf[InvalidRepoException])
   def doUpdatePluginHosts(branch: ScalaApplicationSettings.pluginBranch) = {
+    if(currentRepo(branch).isEmpty)
+      throw new InvalidRepoException(s"Branch $branch is unavailable for IDEA version $currentVersion")
+
     // update hack - set plugin version to 0 when downgrading
     if (getScalaPluginBranch.compareTo(branch) > 0) ScalaPluginUpdater.patchPluginVersion()
 
     val updateSettings = UpdateSettings.getInstance()
-    updateSettings.myPluginHosts.remove(eapRepo)
-    updateSettings.myPluginHosts.remove(nightlyRepo)
+    updateSettings.getStoredPluginHosts.remove(currentRepo(EAP))
+    updateSettings.getStoredPluginHosts.remove(currentRepo(Nightly))
 
     branch match {
       case Release => // leave default plugin repository
-      case EAP     => updateSettings.myPluginHosts.add(eapRepo)
-      case Nightly => updateSettings.myPluginHosts.add(nightlyRepo)
+      case EAP     => updateSettings.getStoredPluginHosts.add(currentRepo(EAP))
+      case Nightly => updateSettings.getStoredPluginHosts.add(currentRepo(Nightly))
     }
   }
 
+  @throws(classOf[InvalidRepoException])
   def doUpdatePluginHostsAndCheck(branch: ScalaApplicationSettings.pluginBranch) = {
     doUpdatePluginHosts(branch)
     UpdateChecker.updateAndShowResult()
@@ -61,12 +94,12 @@ object ScalaPluginUpdater {
 
   def pluginIsEap = {
     val updateSettings = UpdateSettings.getInstance()
-    updateSettings.myPluginHosts.contains(eapRepo)
+    updateSettings.getStoredPluginHosts.contains(currentRepo(EAP))
   }
 
   def pluginIsNightly = {
     val updateSettings = UpdateSettings.getInstance()
-    updateSettings.myPluginHosts.contains(nightlyRepo)
+    updateSettings.getStoredPluginHosts.contains(currentRepo(Nightly))
   }
 
   def pluginIsRelease = !pluginIsEap && !pluginIsNightly
@@ -78,14 +111,36 @@ object ScalaPluginUpdater {
 
     try {
       PluginInstaller.prepareToUninstall(pluginId)
-      val installedPlugins: JDOMExternalizableStringList = PluginManagerUISettings.getInstance.getInstalledPlugins
+      val installedPlugins = InstalledPluginsState.getInstance().getInstalledPlugins
       val pluginIdString: String = pluginId.getIdString
-      while (installedPlugins.contains(pluginIdString)) {
+      import scala.collection.JavaConversions._
+      while (installedPlugins.exists(_.getPluginId.getIdString == pluginIdString)) {
         installedPlugins.remove(pluginIdString)
       }
     }
     catch {
       case e1: IOException => PluginManagerMain.LOG.error(e1)
+    }
+  }
+
+  def upgradeRepo() = {
+    val updateSettings = UpdateSettings.getInstance()
+    for {
+      (version, repo) <- knownVersions
+      if version != currentVersion
+    } {
+      if (updateSettings.getStoredPluginHosts.contains(repo(EAP))) {
+        updateSettings.getStoredPluginHosts.remove(repo(EAP))
+        if (!currentRepo(EAP).isEmpty)
+          updateSettings.getStoredPluginHosts.add(currentRepo(EAP))
+      }
+      if (updateSettings.getStoredPluginHosts.contains(repo(Nightly))) {
+        updateSettings.getStoredPluginHosts.remove(repo(Nightly))
+        if (!currentRepo(Nightly).isEmpty)
+          updateSettings.getStoredPluginHosts.add(currentRepo(Nightly))
+        else if (!currentRepo(EAP).isEmpty)
+          updateSettings.getStoredPluginHosts.add(currentRepo(EAP))
+      }
     }
   }
 
@@ -95,8 +150,8 @@ object ScalaPluginUpdater {
     val localBuildNumber = infoImpl.getBuild
     val url = branch match {
       case Release => None
-      case EAP     => Some(eapRepo)
-      case Nightly => Some(nightlyRepo)
+      case EAP     => Some(currentRepo(EAP))
+      case Nightly => Some(currentRepo(Nightly))
     }
 
     url.foreach(u => invokeLater {
@@ -148,7 +203,7 @@ object ScalaPluginUpdater {
               notification.expire()
               event.getDescription match {
                 case "No" => // do nothing, will ask next time
-                case "Yes" => UpdateSettings.getInstance().UPDATE_CHANNEL_TYPE = ChannelStatus.EAP_CODE
+                case "Yes" => UpdateSettings.getInstance().setUpdateChannelType(ChannelStatus.EAP_CODE)
                 case "Ignore" => appSettings.ASK_PLATFORM_UPDATE = false
               }
             }

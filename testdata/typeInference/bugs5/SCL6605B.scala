@@ -12,4 +12,4 @@ trait SCL6605B {
   val zz = if (true) a2 else a3
   /*start*/zz/*end*/
 }
-//SCL6605B.this.type#A2
+//SCL6605B.this.A2

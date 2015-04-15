@@ -3,10 +3,10 @@ package actions
 
 import _root_.com.intellij.codeInsight.TargetElementUtilBase
 import _root_.com.intellij.psi._
-import com.intellij.psi.util.{PsiTreeUtil, PsiUtilBase}
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.editor.Editor
+import com.intellij.psi.util.{PsiTreeUtil, PsiUtilBase}
+import org.jetbrains.plugins.scala.actions.ShowTypeInfoAction._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -14,8 +14,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstr
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+
 
 /**
  * Pavel.Fatin, 16.04.2010
@@ -49,27 +51,25 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
           ScalaRefactoringUtil.getExpression(file.getProject, editor, file, getSelectionStart, getSelectionEnd)
 
         exprWithTypes.map {
-          case (expr, arr) if arr.nonEmpty =>
-            val tpe = arr.head
+          case (expr @ ExpressionType(tpe), _) =>
+            val tpeText = tpe.presentableText
+            val withoutAliases = Some(withoutAliasesText(tpe))
             val tpeWithoutImplicits = expr.getTypeWithoutImplicits(TypingContext.empty).toOption
             val tpeWithoutImplicitsText = tpeWithoutImplicits.map(_.presentableText)
-
-            val tpeText = tpe.presentableText
             val expectedTypeText = expr.expectedType().map(_.presentableText)
+            val nonSingletonTypeText = ScType.extractDesignatorSingletonType(tpe).map(_.presentableText)
 
-            (tpeWithoutImplicitsText, expectedTypeText) match {
-              case (None, Some(expectedText)) =>
-                """|Type: %s
-                  |Expected Type: %s""".format(tpeText, expectedText).stripMargin
-              case (None | Some(`tpeText`), None) => tpeText
-              case (Some(originalTypeText), None) =>
-                """|Type:  %s
-                  |Original Type: %s""".format(tpeText, originalTypeText).stripMargin
-              case (Some(withoutImplicitsText), Some(expectedText)) =>
-                """|Type: %s
-                  |Original Type: %s
-                  |Expected Type: %s""".format(tpeText, withoutImplicitsText, expectedText).stripMargin
-            }
+            val mainText = Seq("Type: " + tpeText)
+            def additionalTypeText(typeText: Option[String], label: String) = typeText.filter(_ != tpeText).map(s"$label: " + _)
+
+            val nonSingleton = additionalTypeText(nonSingletonTypeText, "Non-singleton")
+            val simplified = additionalTypeText(withoutAliases, "Simplified")
+            val orig = additionalTypeText(tpeWithoutImplicitsText, "Original")
+            val expected = additionalTypeText(expectedTypeText, "Expected")
+            val types = mainText ++ simplified.orElse(nonSingleton) ++ orig ++ expected
+
+            if (types.size == 1) tpeText
+            else types.mkString("\n")
           case _ => "Could not find type for selection"
         }
       }
@@ -114,21 +114,34 @@ object ShowTypeInfoAction {
     case (p: ScPrimaryConstructor, _) => None
     case (e: ScFunction, _) if e.isConstructor => None
     case (e: ScFunction, s) =>
-      Some(e.returnType.toOption.map(s.subst).map(_.presentableText).getOrElse(NO_TYPE))
+      typeText(e.returnType.toOption, s)
     case (e: ScBindingPattern, s) =>
-      Some(e.getType(TypingContext.empty).toOption.map(s.subst).map(_ .presentableText).getOrElse(NO_TYPE))
+      typeText(e.getType(TypingContext.empty).toOption, s)
     case (e: ScFieldId, s) =>
-      Some(e.getType(TypingContext.empty).toOption.map(s.subst).map(_ .presentableText).getOrElse(NO_TYPE))
+      typeText(e.getType(TypingContext.empty).toOption, s)
     case (e: ScParameter, s) =>
-      Some(e.getRealParameterType(TypingContext.empty).toOption.map(s.subst).map(_ .presentableText).getOrElse(NO_TYPE))
+      typeText(e.getRealParameterType(TypingContext.empty).toOption, s)
     case (e: PsiMethod, _) if e.isConstructor => None
     case (e: PsiMethod, s) =>
-      Some(e.getReturnType.toOption.map(p => s.subst(ScType.create(p, e.getProject, e.getResolveScope))).
-        map(_.presentableText).getOrElse(NO_TYPE))
+      typeText(e.getReturnType, e, s)
     case (e: PsiVariable, s) =>
-      Some(e.getType.toOption.map(p => s.subst(ScType.create(p, e.getProject, e.getResolveScope))).
-        map(_.presentableText).getOrElse(NO_TYPE))
+      typeText(e.getType, e, s)
     case _ => None
+  }
+
+  private[this] def typeText(optType: Option[ScType], s: ScSubstitutor = ScSubstitutor.empty): Option[String] = {
+    val subst = optType.map(s.subst)
+    subst.map(withoutAliasesText)
+  }
+
+  private[this] def typeText(psiType: PsiType, e: PsiElement, s: ScSubstitutor): Option[String] = {
+    val optScType = psiType.toOption.map(ScType.create(_, e.getProject, e.getResolveScope))
+    typeText(optScType, s)
+  }
+
+  private def withoutAliasesText(tpe: ScType): String = {
+    val withoutAliases = ScType.removeAliasDefinitions(tpe, implementationsOnly = true)
+    withoutAliases.presentableText
   }
 }
 

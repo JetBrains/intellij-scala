@@ -5,7 +5,6 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.FoldRegion;
 import com.intellij.openapi.editor.FoldingGroup;
-import com.intellij.openapi.editor.impl.FoldRegionImpl;
 import com.intellij.openapi.editor.impl.FoldingModelImpl;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.TextRange;
@@ -27,9 +26,18 @@ public class WorksheetFoldRegionDelegate implements FoldRegion {
     String placeholder = editor.getDocument().getText(new TextRange(start, start + Math.min(end - start, PLACEHOLDER_LIMIT)));
 
     delegate = ((FoldingModelImpl) editor.getFoldingModel()).createFoldRegion(start, end, placeholder, null, false);
-    ((FoldRegionImpl) delegate).setExpandedInternal(false);  //No, it can't >___<
+    delegate.setExpanded(false);  //No, it can't >___<
     this.worksheetGroup = worksheetGroup;
     worksheetGroup.addRegion(this, leftStart, spaces, leftSideLength);
+  }
+
+
+  public FoldRegion getDelegate() {
+    return delegate;
+  }
+
+  public WorksheetFoldGroup getWorksheetGroup() {
+    return worksheetGroup;
   }
 
   @Override

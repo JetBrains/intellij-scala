@@ -6,6 +6,7 @@ package base
 package types
 
 import com.intellij.lang.ASTNode
+import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -26,7 +27,7 @@ class ScSelfTypeElementImpl extends ScalaStubBasedElementImpl[ScSelfTypeElement]
 
   override def toString: String = "SelfType: " + name
 
-  def nameId = findChildByType(TokenSets.SELF_TYPE_ID)
+  def nameId: PsiElement = findChildByType[PsiElement](TokenSets.SELF_TYPE_ID)
 
   def getType(ctx: TypingContext): TypeResult[ScType] = {
     val parent = PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition])

@@ -22,9 +22,9 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   override def setUp() {
     super.setUp()
-    addIvyCacheLibrary("monocle-core","com.github.julien-truffaut/monocle-core_2.11/jars", "monocle-core_2.11-1.0.1.jar")
-    addIvyCacheLibrary("monocle-macro","com.github.julien-truffaut/monocle-macro_2.11/jars", "monocle-macro_2.11-1.0.1.jar")
-    addIvyCacheLibrary("monocle-generic", "com.github.julien-truffaut/monocle-generic_2.11/jars", "monocle-generic_2.11-1.0.1.jar")
+    addIvyCacheLibrary("monocle-core","com.github.julien-truffaut/monocle-core_2.11/jars", "monocle-core_2.11-1.2.0-SNAPSHOT.jar")
+    addIvyCacheLibrary("monocle-macro","com.github.julien-truffaut/monocle-macro_2.11/jars", "monocle-macro_2.11-1.2.0-SNAPSHOT.jar")
+    addIvyCacheLibrary("monocle-generic", "com.github.julien-truffaut/monocle-generic_2.11/jars", "monocle-generic_2.11-1.2.0-SNAPSHOT.jar")
     VirtualFilePointerManager.getInstance.asInstanceOf[VirtualFilePointerManagerImpl].storePointers()
   }
 
@@ -51,11 +51,11 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     }
   }
 
-  val data1 =
+  val lensesSimple =
     """
       |import monocle.macros.Lenses
       |
-      |object Main extends App {
+      |object Main {
       |  @Lenses
       |  case class Person(name: String, age: Int, address: Address)
       |  @Lenses
@@ -69,6 +69,20 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
       |}
     """.stripMargin
 
+  val lensesTypeParams =
+  """
+    |import monocle.macros.Lenses
+    |import monocle.syntax._
+    |
+    |object Main {
+    |
+    |  @Lenses
+    |  case class Foo[A,B](q: Map[(A,B),Double], default: Double)
+    |  object <caret>Foo {}
+    |}
+  """.stripMargin
 
-  def testMonocle() = doTest(data1, "age", "monocle.Lens[Main.Person, Int]")
+
+  def testSimple()   = doTest(lensesSimple, "age", "monocle.Lens[Main.Person, Int]")
+  def testTypeArgs() = doTest(lensesTypeParams, "q","monocle.Lens[Main.Foo[A, B], Map[(A, B), Double]]")
 }

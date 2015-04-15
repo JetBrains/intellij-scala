@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull
  */
 class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSettings)
         extends AbstractExternalProjectSettingsControl[SbtProjectSettings](initialSettings) {
-  
+
   private val jdkComboBox: JdkComboBox = {
     val model = new ProjectSdksModel()
     model.reset(null)
@@ -67,13 +67,13 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     val settings = getInitialSettings
 
     selectedJdkName != settings.jdkName ||
-            resolveClassifiersCheckBox.isSelected != settings.resolveClassifiers ||
-            resolveSbtClassifiersCheckBox.isSelected != settings.resolveClassifiers
+      resolveClassifiersCheckBox.isSelected != settings.resolveClassifiers ||
+      resolveSbtClassifiersCheckBox.isSelected != settings.resolveClassifiers
   }
 
   protected def resetExtraSettings(isDefaultModuleCreation: Boolean) {
     val settings = getInitialSettings
-    
+
     val jdk = settings.jdkName.flatMap(name => Option(ProjectJdkTable.getInstance.findJdk(name)))
     jdkComboBox.setSelectedJdk(jdk.orNull)
 

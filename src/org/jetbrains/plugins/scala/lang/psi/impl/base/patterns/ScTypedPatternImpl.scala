@@ -30,9 +30,9 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     }
   }
 
-  def nameId = findChildByType(TokenSets.ID_SET)
+  def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
 
-  def isWildcard: Boolean = findChildByType(ScalaTokenTypes.tUNDER) != null
+  def isWildcard: Boolean = findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
 
   override def isIrrefutableFor(t: Option[ScType]): Boolean = {
     t match {

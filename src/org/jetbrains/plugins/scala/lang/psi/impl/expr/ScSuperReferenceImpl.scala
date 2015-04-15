@@ -30,7 +30,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
   override def toString = "SuperReference"
 
   def isHardCoded: Boolean = {
-    val id = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+    val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
     if (id == null) false else {
       ScalaPsiUtil.fileContext(id) match {
         case file: ScalaFile if file.isCompiled =>
@@ -69,12 +69,12 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
   }
 
   def staticSuper: Option[ScType] = {
-    val id = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+    val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
     if (id == null) None else findSuper(id)
   }
 
   override def getReference = {
-    val id = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+    val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
     if (id == null) null else new PsiReference {
       def getElement = ScSuperReferenceImpl.this
       def getRangeInElement = new TextRange(0, id.getTextLength).shiftRight(id.getStartOffsetInParent)

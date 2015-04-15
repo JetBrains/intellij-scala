@@ -2,11 +2,11 @@
 <body>
 Replaces map and getOrElse on Option by fold. <br/>
 Before:
-<p><code>Some(0) map (_ => true) getOrElse false</code></p>
+<p><code>option.map(f)getOrElse(default)</code></p>
 
 <p>After:</p>
 
-<p><code>Some(0).fold(false)(_ => true)</code></p>
+<p><code>option.fold(default)(f)</code></p>
 
 </body>
 </html>

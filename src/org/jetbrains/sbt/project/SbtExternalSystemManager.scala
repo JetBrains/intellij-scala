@@ -29,13 +29,11 @@ import scala.collection.mutable
  */
 class SbtExternalSystemManager
   extends ExternalSystemManager[SbtProjectSettings, SbtProjectSettingsListener, SbtSystemSettings, SbtLocalSettings, SbtExecutionSettings]
-  with ExternalSystemAutoImportAware with ExternalSystemConfigurableAware {
+  with ExternalSystemConfigurableAware {
 
   def enhanceLocalProcessing(urls: util.List[URL]) {
     urls.add(jarWith[scala.App].toURI.toURL)
   }
-
-  private val delegate = new CachingExternalSystemAutoImportAware(new SbtAutoImport())
 
   def enhanceRemoteProcessing(parameters: SimpleJavaParameters) {
     val classpath = parameters.getClassPath
@@ -66,9 +64,6 @@ class SbtExternalSystemManager
 
   def getTaskManagerClass = classOf[SbtTaskManager]
 
-  def getAffectedExternalProjectPath(changedFileOrDirPath: String, project: Project) =
-    delegate.getAffectedExternalProjectPath(changedFileOrDirPath, project)
-
   def getExternalProjectDescriptor = new SbtOpenProjectDescriptor()
 
   def getConfigurable(project: Project): Configurable = new SbtExternalSystemConfigurable(project)
@@ -87,9 +82,14 @@ object SbtExternalSystemManager {
       case str => Some(str)
     }
 
-    val vmOptions = Seq(s"-Xmx${settings.getMaximumHeapSize}M") ++
-      settings.getVmParameters.split("\\s+").toSeq ++
-      proxyOptionsFor(HttpConfigurable.getInstance)
+    val vmOptions = {
+      val userOptions = settings.getVmParameters.split("\\s+").toSeq
+      val ideaProxyOptions = proxyOptionsFor(HttpConfigurable.getInstance).filterNot { opt =>
+        val optName = opt.split('=').head + "="
+        userOptions.exists(_.startsWith(optName))
+      }
+      Seq(s"-Xmx${settings.getMaximumHeapSize}M") ++ userOptions ++ ideaProxyOptions
+    }
 
     val customVmFile = new File(settings.getCustomVMPath) / "bin" / "java"
     val customVmExecutable = settings.customVMEnabled.option(customVmFile)

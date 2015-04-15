@@ -20,7 +20,7 @@ import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.testFramework.{PsiTestUtil, UsefulTestCase}
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestBase
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, AbstractTestConfigurationProducer}
 import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
@@ -55,10 +55,8 @@ abstract class ScalaTestingTestCase(private val configurationProducer: AbstractT
         getDocument(file).getLineStartOffset(lineNumber) + offset))
   }
 
-  override protected def createTestFromLocation(lineNumber: Int, offset: Int, fileName: String): RunnerAndConfigurationSettings = {
-
+  override protected def createTestFromLocation(lineNumber: Int, offset: Int, fileName: String): RunnerAndConfigurationSettings =
     configurationProducer.createConfigurationByLocation(createLocation(lineNumber, offset, fileName))
-  }
 
   override protected def runTestFromConfig(
                                    configurationCheck: RunnerAndConfigurationSettings => Boolean,
