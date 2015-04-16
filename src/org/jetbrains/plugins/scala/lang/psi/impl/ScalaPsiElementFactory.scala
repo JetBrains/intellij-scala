@@ -216,6 +216,14 @@ object ScalaPsiElementFactory {
     }
   }
 
+  def createConstructorFromText(text: String, context: PsiElement, child: PsiElement): ScConstructor = {
+    createElementWithContext(text, context, child, Constructor.parse(_)) match {
+      case c: ScConstructor => c
+      case _ => null
+    }
+  }
+
+
   def createParamClausesWithContext(text: String, context: PsiElement, child: PsiElement): ScParameters = {
     createElementWithContext(text, context, child, ParamClauses.parse(_)) match {
       case parameters: ScParameters => parameters
