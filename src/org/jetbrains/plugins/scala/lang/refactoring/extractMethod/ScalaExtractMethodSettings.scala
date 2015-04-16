@@ -22,7 +22,7 @@ class ScalaExtractMethodSettings(
         val elements: Array[PsiElement],
         val returnType: Option[ScType],
         val lastReturn: Boolean,
-        val lastMeaningful: Option[ScType],
+        val lastExprType: Option[ScType],
         val innerClassSettings: InnerClassSettings) {
 
   lazy val (calcReturnTypeIsUnit, calcReturnTypeText) = ScalaExtractMethodUtils.calcReturnTypeExt(this)
