@@ -13,6 +13,7 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerConnectorBase, RemoteServerRunner, ScalaCompileServerSettings}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -33,7 +34,7 @@ class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectCompo
     DebuggerManagerEx.getInstanceEx(project).addDebuggerManagerListener(
       new DebuggerManagerAdapter {
         override def sessionAttached(session: DebuggerSession): Unit = {
-          if (EvaluatorCompileHelper.needCompileServer) {
+          if (EvaluatorCompileHelper.needCompileServer && project.hasScala) {
             CompileServerLauncher.ensureServerRunning(project)
           }
         }
