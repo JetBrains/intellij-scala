@@ -94,4 +94,10 @@ class ChangeSignatureFromScalaTest extends ChangeSignatureTestBase {
     val params = Seq(parameterInfo("newName", 0, types.Int))
     doTest(null, "foo", null, Seq(params))
   }
+
+  def testPrimConstructorDefault() = {
+    isAddDefaultValue = true
+    val params = Seq(parameterInfo("i", 0, types.Int), parameterInfo("b", -1, types.Boolean, "true"))
+    doTest("protected", "Constructor", null, Seq(params))
+  }
 }

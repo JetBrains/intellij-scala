@@ -16,10 +16,11 @@ import scala.collection.mutable.ListBuffer
  */
 class ScalaParameterTableModelItem(parameter: ScalaParameterInfo,
                                    typeCodeFragment: ScalaCodeFragment,
-                                   defaultValue: ScalaCodeFragment)
+                                   defaultValue: ScalaCodeFragment,
+                                   var startsNewClause: Boolean = false)
         extends ParameterTableModelItemBase[ScalaParameterInfo](parameter, typeCodeFragment, defaultValue) {
 
-  var typeText: String = typeCodeFragment.getText
+  var typeText: String = Option(typeCodeFragment).map(_.getText).getOrElse("")
 
   def keywordsAndAnnotations = parameter.keywordsAndAnnotations
 

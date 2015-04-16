@@ -7,7 +7,8 @@ import com.intellij.psi.codeStyle.JavaCodeStyleManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.refactoring.changeSignature.JavaParameterInfo
 import com.intellij.refactoring.util.CanonicalTypes
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
@@ -24,7 +25,8 @@ class ScalaParameterInfo(@BeanProperty var name: String,
                          var isRepeatedParameter: Boolean,
                          var isByName: Boolean,
                          @BeanProperty var defaultValue: String = "",
-                         var keywordsAndAnnotations: String = "")
+                         var keywordsAndAnnotations: String = "",
+                         val isIntroducedParameter: Boolean = false)
         extends JavaParameterInfo {
 
   def this(p: ScParameter) {
@@ -44,7 +46,7 @@ class ScalaParameterInfo(@BeanProperty var name: String,
 
   val isVarargType = false //overriders in java of method with repeated parameters are not varargs
 
-  private def psiType: PsiType = {
+  protected def psiType: PsiType = {
     if (scType == null) return null
 
     val allScope = GlobalSearchScope.allScope(project)
@@ -91,5 +93,10 @@ object ScalaParameterInfo {
     val nameId = p.nameId
     val elems = p.children.takeWhile(_ != nameId)
     elems.map(_.getText).mkString
+  }
+  
+  def allForMethod(methodLike: ScMethodLike): Seq[Seq[ScalaParameterInfo]] = {
+    def infos(clause: ScParameterClause): Seq[ScalaParameterInfo] = clause.parameters.map(new ScalaParameterInfo(_))
+    methodLike.parameterList.clauses.map(infos)
   }
 }
