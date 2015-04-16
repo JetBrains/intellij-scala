@@ -60,11 +60,11 @@ public class ScalaIntroduceParameterDialog extends RefactoringDialog implements 
     private DocumentListener documentListener;
     private PsiMethod methodToSearchFor;
     private TextRange[] occurrences;
-    private int startOffset;
-    private int endOffset;
     private ScMethodLike methodLike;
     private Editor editor;
     private Seq<PsiElement> elems;
+    private String argText;
+    private String argClauseText;
 
     protected ScalaIntroduceParameterDialog(Project project,
                                             Editor editor,
@@ -73,21 +73,21 @@ public class ScalaIntroduceParameterDialog extends RefactoringDialog implements 
                                             ScalaVariableValidator validator,
                                             String[] possibleNames,
                                             PsiMethod methodToSearchFor,
-                                            int startOffset,
-                                            int endOffset,
                                             ScMethodLike methodLike,
-                                            Seq<PsiElement> elems) {
+                                            Seq<PsiElement> elems,
+                                            String argText,
+                                            String argClauseText) {
         super(project, true);
         this.project = project;
         this.myTypes = myTypes;
         this.elems = elems;
+        this.argText = argText;
+        this.argClauseText = argClauseText;
         this.occurrencesCount = occurrences.length;
         this.occurrences = occurrences;
         this.validator = validator;
         this.possibleNames = possibleNames;
         this.methodToSearchFor = methodToSearchFor;
-        this.startOffset = startOffset;
-        this.endOffset = endOffset;
         this.methodLike = methodLike;
         this.editor = editor;
 
@@ -327,8 +327,8 @@ public class ScalaIntroduceParameterDialog extends RefactoringDialog implements 
         }
         ScalaIntroduceParameterProcessor scalaIntroduceParameterProcessor =
                 new ScalaIntroduceParameterProcessor(project, editor, methodToSearchFor, methodLike,
-                        isReplaceAllOccurrences(), occurrences, startOffset, endOffset, getEnteredName(), isDeclareDefault(),
-                        getSelectedType(), elems);
+                        isReplaceAllOccurrences(), occurrences, getEnteredName(), isDeclareDefault(),
+                        getSelectedType(), elems, argText, argClauseText);
         invokeRefactoring(scalaIntroduceParameterProcessor);
     }
 }
