@@ -6,9 +6,9 @@ package introduceParameter
 
 import java.util.Collections
 
-import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.refactoring.introduceParameter.{IntroduceParameterData, IntroduceParameterMethodUsagesProcessor}
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.containers.MultiMap
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -46,6 +46,7 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
 
   def processChangeMethodSignature(data: IntroduceParameterData, usage: UsageInfo,
                                    usages: Array[UsageInfo]): Boolean = {
+    val psiManager = PsiManager.getInstance(data.getProject)
     val methodLike = usage.getElement match {
       case ml: ScMethodLike => ml
       case _ => return true
@@ -58,7 +59,7 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
     val defaultTail: String = data match {
       case proc: ScalaIntroduceParameterProcessor if proc.isDeclareDefault &&
         methodLike == data.getMethodToSearchFor =>
-        " = " + proc.getScalaExpressionToSearch.getText
+        " = " + proc.argText
       case _ => ""
     }
 
@@ -75,8 +76,8 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
     val needSpace = ScalaNamesUtil.isIdentifier(paramName + ":")
     val paramText = paramName + (if (needSpace) " : " else ": ") + ScType.canonicalText(paramType) + defaultTail
     val param = methodLike match {
-      case f: ScFunction => ScalaPsiElementFactory.createParameterFromText(paramText, methodLike.getManager)
-      case pc: ScPrimaryConstructor => ScalaPsiElementFactory.createClassParameterFromText(paramText, methodLike.getManager)
+      case f: ScFunction => createParameterFromText(paramText, psiManager)
+      case pc: ScPrimaryConstructor => createClassParameterFromText(paramText, psiManager)
     }
     ScalaPsiUtil.adjustTypes(param)
     methodLike.addParameter(param)
@@ -102,94 +103,48 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
       case data: ScalaIntroduceParameterProcessor if data.isDeclareDefault => return true //shouldn't do anything
       case _ =>
     }
-
+    val psiManager: PsiManager = PsiManager.getInstance(data.getProject)
 
     element match {
       case ref: ScReferenceExpression =>
-        val call: ScMethodCall = ref.getParent match {
+        val (callCandidate: ScExpression, needToReplace: Option[ScExpression]) = ref.getParent match {
           case u: ScUnderscoreSection => return false
           case call: ScMethodCall =>
             if (call.args.isBraceArgs) {
-              val newCall = ScalaPsiElementFactory.createExpressionFromText(
-                ref.getText + "(" + call.args.getText + ")", element.getManager
-              )
-              newCall match {
-                case c: ScMethodCall =>
-                  call.replaceExpression(c, removeParenthesis = true).asInstanceOf[ScMethodCall]
-                case _ => return false
-              }
-            } else call
+              val text: String = s"${ref.getText}(${call.args.getText})"
+              (createExpressionFromText(text, psiManager), Some(call))
+            }
+            else (call, None)
           case postf: ScPostfixExpr =>
-            val newPostf = ScalaPsiElementFactory.createExpressionFromText(
-              postf.operand.getText + "." + postf.operation.getText + "()", element.getManager
-            )
-            newPostf match {
-              case call: ScMethodCall =>
-                postf.replaceExpression(call, removeParenthesis = true).asInstanceOf[ScMethodCall]
-              case _ => return false
-            }
+            val text: String = s"${postf.operand.getText}.${postf.operation.getText}()"
+            (createExpressionFromText(text, psiManager), Some(postf))
           case pref: ScPrefixExpr =>
-            val newPref = ScalaPsiElementFactory.createExpressionFromText(
-              pref.operand.getText + ".unary_" + pref.operand.getText + "()", element.getManager
-            )
-            newPref match {
-              case call: ScMethodCall =>
-                pref.replaceExpression(call, removeParenthesis = true).asInstanceOf[ScMethodCall]
-              case _ => return false
-            }
+            val text: String = s"${pref.operand.getText}.unary_${pref.operand.getText}()"
+            (createExpressionFromText(text, psiManager), Some(pref))
           case inf: ScInfixExpr =>
-            val newInf = ScalaPsiElementFactory.createExpressionFromText(
-              inf.getBaseExpr.getText + "." + inf.operation.getText + "(" + inf.getArgExpr.getText + ")", element.getManager
-            )
-            newInf match {
-              case call: ScMethodCall =>
-                inf.replaceExpression(call, removeParenthesis = true).asInstanceOf[ScMethodCall]
-              case _ => return false
-            }
+            (createEquivMethodCall(inf), Some(inf))
           case _ =>
-            val newCall = ScalaPsiElementFactory.createExpressionFromText(
-              ref.getText + "()", element.getManager
-            )
-            newCall match {
-              case call: ScMethodCall =>
-                ref.replaceExpression(call, removeParenthesis = true).asInstanceOf[ScMethodCall]
-              case _ => return false
-            }
+            (createExpressionFromText(s"${ref.getText}()", psiManager), Some(ref))
         }
+        val call = needToReplace.map(_.replaceExpression(callCandidate, removeParenthesis = true))
+                .getOrElse(callCandidate).asInstanceOf[ScMethodCall]
         val isInUsages = isElementInUsages(data, element.getParent, usages)
         val expression: ScExpression =
-          if (isInUsages) {
-            ScalaPsiElementFactory.createExpressionFromText(data.getParameterName, element.getManager)
-          }
+          if (isInUsages) createExpressionFromText(data.getParameterName, psiManager)
           else {
             data match {
               case proc: ScalaIntroduceParameterProcessor =>
                 if (!proc.hasDefaults) {
-                  val text = proc.getScalaExpressionToSearch.getText
-                  try {
-                    ScalaPsiElementFactory.createExpressionFromText(text, element.getManager)
-                  } catch {
-                    case e: Exception =>
-                      proc.getScalaExpressionToSearch
-                  }
+                  val text = proc.argText
+                  createExpressionFromText(text, psiManager)
                 }
                 else {
-                  val text = proc.getParameterName + " = " + proc.getScalaExpressionToSearch.getText
-                  try {
-                    ScalaPsiElementFactory.createExpressionFromText(text, element.getManager)
-                  } catch {
-                    case e: Exception =>
-                      proc.getScalaExpressionToSearch
-                  }
+                  val text = proc.getParameterName + " = " + proc.argText
+                  createExpressionFromText(text, psiManager)
                 }
               case _ =>
                 val text = JavaToScala.convertPsiToText(data.getParameterInitializer.getExpression)
-                try {
-                  ScalaPsiElementFactory.createExpressionFromText(text, element.getManager)
-                } catch {
-                  case e: Exception =>
-                    ScalaPsiElementFactory.createExpressionFromText(data.getParameterName, element.getManager)
-                }
+                createExpressionFromText(text, psiManager)
             }
           }
         CodeEditUtil.setNodeGenerated(expression.getNode, true)
@@ -213,12 +168,7 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
                       case _: ScAssignStmt => args.addExprAfter(expression, anchor)
                       case _ =>
                         val text = data.getParameterName + " = " + expression.getText
-                        val newExpr = try {
-                          ScalaPsiElementFactory.createExpressionFromText(text, element.getManager)
-                        } catch {
-                          case e: Exception =>
-                            expression
-                        }
+                        val newExpr = createExpressionFromText(text, psiManager)
                         CodeEditUtil.setNodeGenerated(newExpr.getNode, true)
                         args.addExprAfter(newExpr, anchor)
                     }
