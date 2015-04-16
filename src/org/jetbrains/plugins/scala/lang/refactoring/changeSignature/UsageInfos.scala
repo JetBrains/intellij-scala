@@ -91,7 +91,14 @@ private[changeSignature] case class MethodCallUsageInfo(ref: ScReferenceExpressi
   private val resolveResult = Option(ref).flatMap(_.bind())
   val substitutor = resolveResult.map(_.substitutor)
   val expr = call
-  val argsInfo = OldArgsInfo(call.argumentExpressions, method)
+  val argsInfo = OldArgsInfo(allArgs(call), method)
+
+  private def allArgs(call: ScMethodCall): Seq[ScExpression] = {
+    call.getInvokedExpr match {
+      case mc: ScMethodCall => allArgs(mc) ++ call.argumentExpressions
+      case _ => call.argumentExpressions
+    }
+  }
 }
 
 private[changeSignature] case class RefExpressionUsage(refExpr: ScReferenceExpression)
