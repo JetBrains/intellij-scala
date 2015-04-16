@@ -898,12 +898,12 @@ object ScalaRefactoringUtil {
 
   def showNotPossibleWarnings(elements: Seq[PsiElement], project: Project, editor: Editor, refactoringName: String): Boolean = {
     def errors(elem: PsiElement): Option[String] = elem match {
+      case funDef: ScFunctionDefinition if hasOutsideUsages(funDef) => ScalaBundle.message("cannot.extract.used.function.definition").toOption
       case _: ScBlockStatement => None
       case comm: PsiComment if !comm.getParent.isInstanceOf[ScMember] => None
       case _: PsiWhiteSpace => None
       case _ if ScalaTokenTypes.tSEMICOLON == elem.getNode.getElementType => None
       case typeDef: ScTypeDefinition if hasOutsideUsages(typeDef) => ScalaBundle.message("cannot.extract.used.type.definition").toOption
-      case funDef: ScFunctionDefinition if hasOutsideUsages(funDef) => ScalaBundle.message("cannot.extract.used.function.definition").toOption
       case _: ScSelfInvocation => ScalaBundle.message("cannot.extract.self.invocation").toOption
       case _ => ScalaBundle.message("cannot.extract.empty.message").toOption
     }
