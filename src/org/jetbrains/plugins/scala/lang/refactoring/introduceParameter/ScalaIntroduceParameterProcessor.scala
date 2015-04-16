@@ -27,23 +27,26 @@ import scala.collection.mutable.ArrayBuffer
  */
 
 class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodToSearchFor: PsiMethod,
-                                       methodLike: ScMethodLike, replaceAllOccurences: Boolean,
-                                       occurrences: Array[TextRange], startOffset: Int, endOffset: Int,
-                                       paramName: String, isDefaultParam: Boolean, tp: ScType, elems: Seq[PsiElement])
+                                       methodLike: ScMethodLike, replaceAllOccurences: Boolean, occurrences: Array[TextRange],
+                                       paramName: String, isDefaultParam: Boolean, tp: ScType, elems: Seq[PsiElement], 
+                                       val argText: String, 
+                                       argClauseText: String)
         extends BaseRefactoringProcessor(project) with IntroduceParameterData {
-  private val document = editor.getDocument
   private val file = methodLike.getContainingFile
 
   val (hasDefaults, hasRep, posNumber) = {
     val clauses = methodLike.parameterList.clauses
     if (clauses.length == 0) (false, false, 0)
     else {
-      val hasDef = clauses.apply(0).parameters.exists(p => p.isDefaultParam)
-      val hasRep = clauses.apply(0).parameters.exists(p => p.isRepeatedParameter)
-      val num = clauses.apply(0).parameters.length - (if (hasRep) 1 else 0)
+      val params = clauses.head.parameters
+      val hasDef = params.exists(p => p.isDefaultParam)
+      val hasRep = params.exists(p => p.isRepeatedParameter)
+      val num = params.length - (if (hasRep) 1 else 0)
       (hasDef, hasRep, num)
     }
   }
+
+  val paramUsageText = paramName + argClauseText
 
   private def getRangeElementOrFile(range: TextRange): PsiElement = {
     val startElement = file.findElementAt(range.getStartOffset)
@@ -116,13 +119,13 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
         case ElementRangeUsageInfo(element, range) =>
           element match {
             case expr: ScExpression =>
-              val refExpr = ScalaPsiElementFactory.createExpressionFromText(paramName, element.getManager)
+              val refExpr = ScalaPsiElementFactory.createExpressionFromText(paramUsageText, element.getManager)
               expr.replaceExpression(refExpr, removeParenthesis = true)
             case _ =>
-              ScalaRefactoringUtil.replaceOccurence(range, paramName, file, editor)
+              ScalaRefactoringUtil.replaceOccurence(range, paramUsageText, file)
           }
         case FileRangeUsageInfo(psiFile, range) =>
-          ScalaRefactoringUtil.replaceOccurence(range, paramName, psiFile, editor)
+          ScalaRefactoringUtil.replaceOccurence(range, paramUsageText, psiFile)
       }
     }
   }
@@ -152,7 +155,8 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
       }
     }
     else {
-      val range = new TextRange(startOffset, endOffset)
+      val selModel = editor.getSelectionModel
+      val range = new TextRange(selModel.getSelectionStart, selModel.getSelectionEnd)
       val element = getRangeElementOrFile(range)
       element match {
         case file: PsiFile => result += FileRangeUsageInfo(file, range)
@@ -181,23 +185,7 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
 
   def getReplaceFieldsWithGetters: Int = 0 //todo:
 
-  def isReplaceAllOccurences: Boolean = replaceAllOccurences
-
   def getParameterName: String = paramName
-
-  def isRemoveLocalVariable: Boolean = false //todo:
-
-  def getLocalVariable: PsiLocalVariable = null //todo:
-
-  def getScalaExpressionToSearch: ScExpression = elems match {
-    case Seq(expr: ScExpression) => expr
-    case _ =>
-      val text = elems.map(_.getText).mkString("{\n", "", "\n}")
-      ScalaPsiElementFactory.createExpressionFromText(text, PsiManager.getInstance(project))
-  }
-
-  def getExpressionToSearch: PsiExpression =
-    JavaPsiFacade.getElementFactory(methodLike.getProject).createExpressionFromText(getParameterName, elems.head.getContext)
 
   def getParameterInitializer =
     new JavaExpressionWrapper(

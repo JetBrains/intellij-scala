@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryCon
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaParameterInfo
+import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterData
 
 import scala.beans.BeanProperty
 
@@ -32,6 +33,9 @@ case class ScalaChangeInfo(newVisibility: String,
     if (newType != null) ScType.toPsi(newType, project, GlobalSearchScope.allScope(project))
     else null
   }
+
+  //used in introduce parameter refactoring
+  var introducedParameterData: Option[ScalaIntroduceParameterData] = None
 
   override def getValue(i: Int, callExpression: PsiCallExpression): PsiExpression =
     getNewParameters()(i).getValue(callExpression)
