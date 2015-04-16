@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSea
 import org.jetbrains.plugins.scala.lang.psi.light._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 
+import _root_.scala.annotation.tailrec
 import _root_.scala.collection.JavaConverters._
 import _root_.scala.collection.mutable.ArrayBuffer
 
@@ -175,19 +176,29 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
   }
 
   private def findMethodRefUsages(named: PsiNamedElement, results: ArrayBuffer[UsageInfo]): Unit = {
-    ReferencesSearch.search(named).forEach { ref: PsiReference =>
-      val refElem = ref.getElement
-      refElem match {
-        case isAnonFunUsage(anonFunUsageInfo) => results += anonFunUsageInfo
-        case (scRef: ScReferenceElement) childOf(_: ScImportSelector | _: ScImportExpr) => results += ImportUsageInfo(scRef)
-        case (refExpr: ScReferenceExpression) childOf (mc: ScMethodCall) => results += MethodCallUsageInfo(refExpr, mc)
-        case ChildOf(infix @ ScInfixExpr(_, `refElem`, _)) => results += InfixExprUsageInfo(infix)
-        case ChildOf(postfix @ ScPostfixExpr(_, `refElem`)) => results += PostfixExprUsageInfo(postfix)
-        case ref @ ScConstructor.byReference(constr) => results += ConstructorUsageInfo(ref, constr)
-        case refExpr: ScReferenceExpression => results += RefExpressionUsage(refExpr)
-        case _ =>
-      }
-      true
+    val process = { ref: PsiReference =>
+        val refElem = ref.getElement
+        refElem match {
+          case isAnonFunUsage(anonFunUsageInfo) => results += anonFunUsageInfo
+          case (scRef: ScReferenceElement) childOf(_: ScImportSelector | _: ScImportExpr) => results += ImportUsageInfo(scRef)
+          case (refExpr: ScReferenceExpression) childOf (mc: ScMethodCall) => results += MethodCallUsageInfo(refExpr, fullCall(mc))
+          case ChildOf(infix @ ScInfixExpr(_, `refElem`, _)) => results += InfixExprUsageInfo(infix)
+          case ChildOf(postfix @ ScPostfixExpr(_, `refElem`)) => results += PostfixExprUsageInfo(postfix)
+          case ref @ ScConstructor.byReference(constr) => results += ConstructorUsageInfo(ref, constr)
+          case refExpr: ScReferenceExpression => results += RefExpressionUsage(refExpr)
+          case _ =>
+        }
+        true
+    }
+
+    ReferencesSearch.search(named).forEach(process)
+  }
+
+  @tailrec
+  private def fullCall(mc: ScMethodCall): ScMethodCall = {
+    mc.getParent match {
+      case p: ScMethodCall if !mc.isApplyOrUpdateCall => fullCall(p)
+      case _ => mc
     }
   }
 
@@ -211,7 +222,7 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
 
   private def addParameterUsages(param: PsiParameter, oldIndex: Int, newName: String, results: ArrayBuffer[UsageInfo]) {
     val scope: SearchScope = param.getUseScope
-    ReferencesSearch.search(param, scope, false).forEach { ref: PsiReference =>
+    val process = (ref: PsiReference) => {
       ref.getElement match {
         case refElem: ScReferenceElement =>
           results += ParameterUsageInfo(oldIndex, newName, refElem)
@@ -221,5 +232,6 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
       }
       true
     }
+    ReferencesSearch.search(param, scope, false).forEach(process)
   }
 }

@@ -1,8 +1,8 @@
 class GenericTest extends Generic[String, String] {
 
-  override def foo(t: String, s: String): String = super.foo(t,)
+  override def foo(t: String, s: String): String = super.foo(t, )
 
-  foo("1",)
+  foo("1", )
 
-  this.foo("",)
+  this.foo("", )
 }

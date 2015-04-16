@@ -36,10 +36,6 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler {
     }
     def isSupportedFor(fun: ScMethodLike): Boolean = {
       fun match {
-        case fun: ScFunction if fun.paramClauses.clauses.length > 1 =>
-          val message = ScalaBundle.message("change.signature.not.supported.multiple.parameter.clauses")
-          showErrorHint(message)
-          false
         case fun: ScFunction if fun.paramClauses.clauses.exists(_.isImplicit) =>
           val message = ScalaBundle.message("change.signature.not.supported.implicit.parameters")
           showErrorHint(message)

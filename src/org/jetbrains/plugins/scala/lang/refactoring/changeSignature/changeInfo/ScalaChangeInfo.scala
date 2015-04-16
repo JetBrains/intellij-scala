@@ -17,12 +17,12 @@ import scala.beans.BeanProperty
  * Nikolay.Tropin
  * 2014-08-28
  */
-class ScalaChangeInfo(val newVisibility: String,
-                      val function: ScMethodLike,
-                      @BeanProperty val newName: String,
-                      val newType: ScType,
-                      val newParams: Seq[Seq[ScalaParameterInfo]],
-                      val isAddDefaultArgs: Boolean)
+case class ScalaChangeInfo(newVisibility: String,
+                           function: ScMethodLike,
+                           @BeanProperty newName: String,
+                           newType: ScType,
+                           newParams: Seq[Seq[ScalaParameterInfo]],
+                           isAddDefaultArgs: Boolean)
         extends ScalaChangeInfoBase(newParams.flatten.toArray)
         with UnsupportedJavaInfo with VisibilityChangeInfo with ParametersChangeInfo {
 
@@ -60,7 +60,7 @@ class ScalaChangeInfo(val newVisibility: String,
 
   override val getLanguage: Language = ScalaFileType.SCALA_LANGUAGE
 
-  override def isReturnTypeChanged: Boolean = function match {
+  override val isReturnTypeChanged: Boolean = function match {
     case f: ScFunction => f.returnType.toOption.map(_.canonicalText) != Option(newType).map(_.canonicalText)
     case _ => false
   }
