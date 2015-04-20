@@ -36,6 +36,10 @@ trait Namer {
     m.Ctor.Ref.Name("this")
   }
 
+  def toName(t: p.base.ScConstructor) = {
+    m.Ctor.Ref.Name(t.reference.get.qualName)
+  }
+
   def ind(cr: p.base.ScStableCodeReferenceElement): m.Name.Indeterminate = {
     m.Name.Indeterminate(cr.getCanonicalText)
   }

@@ -112,4 +112,10 @@ class TreeConverterDefnTest extends  TreeConverterTestBase {
     )
   }
 
+  def testManyStatements() {
+    doTest(
+      "def f = {foo(); bar(); 42}",
+      Defn.Def(Nil, Term.Name("f"), Nil, Nil, None, Term.Block(List(Term.Apply(Term.Name("foo"), Nil), Term.Apply(Term.Name("bar"), Nil), Lit.Int(42))))
+    )
+  }
 }

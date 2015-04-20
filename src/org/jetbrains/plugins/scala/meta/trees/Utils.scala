@@ -12,6 +12,8 @@ import scala.meta.internal.{hygiene => h}
 trait Utils {
   self: Converter =>
 
+  class UnmatchedTree extends RuntimeException
+
   implicit class RichPatTpeTree(ptpe: m.Type) {
     def patTpe: m.Pat.Type = {
       def loop(ptpe: m.Type): m.Pat.Type = {
@@ -35,5 +37,10 @@ trait Utils {
       loop(ptpe)
     }
   }
+
+  implicit class RichPSI(psi: ScalaPsiElement) {
+    def ?! = {println(s"${psi.getClass} @\n${psi.getText}"); throw new UnmatchedTree}
+  }
+
 
 }
