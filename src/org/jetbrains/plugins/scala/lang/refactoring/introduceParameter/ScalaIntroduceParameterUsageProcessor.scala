@@ -35,22 +35,24 @@ class ScalaIntroduceParameterUsageProcessor extends ChangeSignatureUsageProcesso
   }
 
   override def processUsage(changeInfo: ChangeInfo, usageInfo: UsageInfo, beforeMethodChange: Boolean, usages: Array[UsageInfo]): Boolean = {
+    if (!beforeMethodChange) return false
+
     changeInfo match {
       case isIntroduceParameter(data) =>
+        val textRangeUsages = usages.collect {case t: TextRangeUsageInfo => t}
+        if (textRangeUsages.headOption.forall(_.processed)) return false
+
         val pName = data.paramName
         val args = data.functionalArgParams.getOrElse("")
         val text = s"$pName$args"
-        val manager = PsiDocumentManager.getInstance(data.getProject)
-        usageInfo match {
-          case TextRangeUsageInfo(file, range) =>
-            val doc = manager.getDocument(file)
-            manager.doPostponedOperationsAndUnblockDocument(doc)
-            val textRange = new TextRange(range.getStartOffset, range.getEndOffset)
-            ScalaRefactoringUtil.replaceOccurence(textRange, text, file)
-            Seq(1, 2).takeRight(2)
-            true
-          case _ => false
-        }
+        val file = textRangeUsages.head.file
+
+        val manager = PsiDocumentManager.getInstance(file.getProject)
+        manager.doPostponedOperationsAndUnblockDocument(manager.getDocument(file))
+
+        ScalaRefactoringUtil.replaceOccurences(textRangeUsages.map(usage => TextRange.create(usage.range)), text, file)
+        textRangeUsages.foreach(_.processed = true)
+        true
       case _ => false
     }
   }
@@ -70,4 +72,6 @@ class ScalaIntroduceParameterUsageProcessor extends ChangeSignatureUsageProcesso
 
 }
 
-private case class TextRangeUsageInfo(file: PsiFile, range: RangeMarker) extends UsageInfo(file, range.getStartOffset, range.getEndOffset)
+private case class TextRangeUsageInfo(file: PsiFile, range: RangeMarker) extends UsageInfo(file, range.getStartOffset, range.getEndOffset) {
+  var processed = false
+}
