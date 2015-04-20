@@ -76,7 +76,7 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
 
   override def createOptionsPanel(): JComponent = {
     val panel = super.createOptionsPanel() //to initialize fields in base class
-    defaultValuesUsagePanel = new DefaultValuesUsagePanel
+    defaultValuesUsagePanel = new DefaultValuesUsagePanel()
     panel.add(defaultValuesUsagePanel)
     myPropagateParamChangesButton.setVisible(false)
     panel
@@ -245,8 +245,10 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
   override def updateSignatureAlarmFired(): Unit = {
     super.updateSignatureAlarmFired()
 
-    if (parameterItems.exists(_.typeText.endsWith("*"))) defaultValuesUsagePanel.forceIsModifyCalls()
-    else defaultValuesUsagePanel.release()
+    if (getDefaultValuesPanel != null) {
+      if (parameterItems.exists(_.typeText.endsWith("*"))) getDefaultValuesPanel.forceIsModifyCalls()
+      else getDefaultValuesPanel.release()
+    }
   }
 
   override def dispose(): Unit = {
@@ -278,7 +280,9 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
 
   def parametersTable = Option(myParametersList).map(_.getTable).orNull
 
-  protected def isAddDefaultArgs = defaultValuesUsagePanel.isAddDefaultArgs
+  protected def getDefaultValuesPanel = defaultValuesUsagePanel
+
+  protected def isAddDefaultArgs = getDefaultValuesPanel.isAddDefaultArgs
 
   protected def returnTypeText: String = Option(myReturnTypeCodeFragment).fold("")(_.getText)
 
