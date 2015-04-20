@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{DefinitionInstruction, ExtractMethodControlFlowPolicy, ReadWriteVariableInstruction}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.DfaEngine
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefinitions._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticNamedElement
 
 import scala.collection.mutable
@@ -30,7 +29,7 @@ object ReachingDefintionsCollector {
   def collectVariableInfo(fragment: Seq[PsiElement], place: ScalaPsiElement): FragmentVariableInfos = {
     // CFG -> DFA
     val commonParent = findCommonParent(fragment: _*)
-    val cfowner = getParentOfType(commonParent, classOf[ScControlFlowOwner])
+    val cfowner = getParentOfType(commonParent.getContext, classOf[ScControlFlowOwner], false)
     if (cfowner == null) {
       val message = "cfowner == null: " + fragment.map(_.getText).mkString("(", ", ", ")") + "\n" + "files: " +
               fragment.map(_.getContainingFile.getName).mkString("(", ", ", ")")
