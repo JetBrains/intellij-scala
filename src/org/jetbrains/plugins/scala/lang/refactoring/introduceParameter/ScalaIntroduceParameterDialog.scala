@@ -32,6 +32,7 @@ class ScalaIntroduceParameterDialog(project: Project,
   private var typeCombobox: JComboBox = _
   private var typeMap: util.TreeMap[String, ScType] = _
   private var replaceOccurrencesChb: JCheckBox = _
+  private var defaultValuesUsagePanel: DefaultValuesUsagePanel = _
 
   override def init(): Unit = {
     super.init()
@@ -76,11 +77,7 @@ class ScalaIntroduceParameterDialog(project: Project,
 
   override def createOptionsPanel(): JComponent = {
     val panel = super.createOptionsPanel()
-    replaceOccurrencesChb = new JCheckBox("Replace all occurrences")
-    replaceOccurrencesChb.setMnemonic('a')
-    replaceOccurrencesChb.setSelected(false)
-    replaceOccurrencesChb.setVisible(introduceData.occurrences.length > 1)
-    panel.add(replaceOccurrencesChb)
+    panel.setVisible(false)
     panel
   }
 
@@ -174,7 +171,16 @@ class ScalaIntroduceParameterDialog(project: Project,
     textField.setOneLineMode(false)
     textField.setEnabled(false)
     IJSwingUtilities.adjustComponentsOnMac(label, textField)
-    panel.add(textField, BorderLayout.SOUTH)
+    panel.add(textField, BorderLayout.CENTER)
+    val optionsPanel = new JPanel(new BorderLayout())
+    replaceOccurrencesChb = new JCheckBox("Replace all occurrences")
+    replaceOccurrencesChb.setMnemonic('a')
+    replaceOccurrencesChb.setSelected(false)
+    replaceOccurrencesChb.setVisible(introduceData.occurrences.length > 1)
+    optionsPanel.add(replaceOccurrencesChb, BorderLayout.NORTH)
+    defaultValuesUsagePanel = new DefaultValuesUsagePanel("")
+    optionsPanel.add(defaultValuesUsagePanel, BorderLayout.CENTER)
+    panel.add(optionsPanel, BorderLayout.SOUTH)
     panel
   }
 
@@ -182,4 +188,5 @@ class ScalaIntroduceParameterDialog(project: Project,
     parameterItems.find(_.parameter.isIntroducedParameter)
   }
 
+  override protected def getDefaultValuesPanel: DefaultValuesUsagePanel = defaultValuesUsagePanel
 }
