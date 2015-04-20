@@ -6,5 +6,7 @@ public class SimpleMethodJava extends SimpleMethodScala {
 
   public void test() {
     foo(1, foo$default$2(), true);
+    SimpleMethodJava smj = new SimpleMethodJava();
+    smj.foo(1, smj.foo$default$2(), true);
   }
 }

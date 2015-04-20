@@ -65,7 +65,21 @@ class ScalaParameterInfo(@BeanProperty var name: String,
 
   override def getValue(expr: PsiCallExpression): PsiExpression = {
     if (defaultForJava.isEmpty) return null
-    val expression = JavaPsiFacade.getElementFactory(project).createExpressionFromText(defaultForJava, expr)
+    val defaultText =
+      if (defaultForJava.contains("$default$")) {
+        val qual = expr match {
+          case mc: PsiMethodCallExpression =>
+            mc.getMethodExpression.getQualifierExpression match {
+              case s: PsiSuperExpression => ""
+              case null => ""
+              case q => q.getText + "."
+            }
+          case _ => ""
+        }
+        qual + defaultForJava
+      } else defaultForJava
+
+    val expression = JavaPsiFacade.getElementFactory(project).createExpressionFromText(defaultText, expr)
     JavaCodeStyleManager.getInstance(project).shortenClassReferences(expression).asInstanceOf[PsiExpression]
   }
 
