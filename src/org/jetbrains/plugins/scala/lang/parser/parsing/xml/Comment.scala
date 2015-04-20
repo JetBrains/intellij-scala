@@ -4,7 +4,7 @@ package parser
 package parsing
 package xml
 
-import com.intellij.psi.xml.XmlTokenType
+import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
@@ -20,21 +20,20 @@ object Comment {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val commentMarker = builder.mark
     builder.getTokenType match {
-      case XmlTokenType.XML_COMMENT_START => builder.advanceLexer()
-      case _ => {
-        commentMarker.drop
+      case ScalaXmlTokenTypes.XML_COMMENT_START => builder.advanceLexer()
+      case _ =>
+        commentMarker.drop()
         return false
-      }
     }
-    while (builder.getTokenType!=XmlTokenType.XML_COMMENT_END && builder.getTokenType != null) {
-      if (builder.getTokenType == XmlTokenType.XML_BAD_CHARACTER) builder error ErrMsg("xml.wrong.character")
+    while (builder.getTokenType!=ScalaXmlTokenTypes.XML_COMMENT_END && builder.getTokenType != null) {
+      if (builder.getTokenType == ScalaXmlTokenTypes.XML_BAD_CHARACTER) builder error ErrMsg("xml.wrong.character")
       builder.advanceLexer()
     }
     builder.getTokenType match {
-      case XmlTokenType.XML_COMMENT_END => builder.advanceLexer()
+      case ScalaXmlTokenTypes.XML_COMMENT_END => builder.advanceLexer()
       case _ => builder error ErrMsg("xml.comment.end.expected")
     }
     commentMarker.done(ScalaElementTypes.XML_COMMENT)
-    return true
+    true
   }
 }
