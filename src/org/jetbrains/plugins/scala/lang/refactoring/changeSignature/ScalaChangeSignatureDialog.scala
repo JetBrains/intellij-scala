@@ -19,10 +19,11 @@ import com.intellij.psi.{util => _, _}
 import com.intellij.refactoring.changeSignature.{CallerChooserBase, ChangeSignatureDialogBase, ParameterTableModelItemBase}
 import com.intellij.refactoring.ui.{CodeFragmentTableCellEditorBase, StringTableCellEditor, VisibilityPanelBase}
 import com.intellij.refactoring.{BaseRefactoringProcessor, RefactoringBundle}
-import com.intellij.ui.table.TableView
+import com.intellij.ui.table.{JBTable, TableView}
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.ui.{util => _, _}
 import com.intellij.util.Consumer
+import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.table.{JBListTable, JBTableRowEditor, JBTableRowRenderer}
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.icons.Icons
@@ -52,7 +53,6 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
                                           ScalaMethodDescriptor,
                                           ScalaParameterTableModelItem,
                                           ScalaParameterTableModel](project, method, false, method.fun) {
-  
   override def getFileType: LanguageFileType = ScalaFileType.SCALA_FILE_TYPE
 
   override def createCallerChooser(title: String, treeToReuse: Tree, callback: Consumer[util.Set[ScFunction]]): CallerChooserBase[ScFunction] = null
@@ -89,7 +89,13 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
   }
 
   override protected def createParametersPanel(hasTabsInDialog: Boolean): JPanel = {
-    myParametersTable = new TableView[ScalaParameterTableModelItem](myParametersTableModel) {
+    myParametersTable = createParametersTable()
+    myParametersList = createParametersListTable()
+    decorateParameterTable(myParametersList.getTable)
+  }
+
+  protected def createParametersTable(): TableView[ScalaParameterTableModelItem] = {
+    new TableView[ScalaParameterTableModelItem](myParametersTableModel) {
       override def removeEditor() {
         clearEditorListeners()
         super.removeEditor()
@@ -140,134 +146,6 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
         super.editingCanceled(e)
       }
     }
-
-    def finishAndRestoreEditing(editedColumn: Option[Int]): Unit = {
-      val table = parametersTable
-      TableUtil.updateScroller(table)
-      table.requestFocus()
-      editedColumn.foreach { col =>
-        val row = table.getSelectedRow
-        table.setRowHeight(row, table.getRowHeight)
-        table.editCellAt(row, col)
-      }
-    }
-
-    def editingColumn(table: JTable) = if (table.isEditing) Some(table.getEditingColumn) else None
-
-    val upAction: AnActionButtonRunnable = new AnActionButtonRunnable {
-      override def run(t: AnActionButton): Unit = {
-        val table = parametersTable
-        val selected = table.getSelectedRow
-        if (selected <= 0 || selected >= table.getModel.getRowCount) return
-        val editedColumn = editingColumn(table)
-        TableUtil.stopEditing(table)
-        val item = myParametersTableModel.getItem(selected)
-        if (item.startsNewClause) {
-          item.startsNewClause = false
-          if (selected != table.getModel.getRowCount - 1) {
-            val itemBelow = myParametersTableModel.getItem(selected + 1)
-            itemBelow.startsNewClause = true
-          }
-          myParametersTableModel.fireTableDataChanged()
-        }
-        else {
-          val itemAbove = myParametersTableModel.getItem(selected - 1)
-          if (itemAbove.startsNewClause) {
-            itemAbove.startsNewClause = false
-            item.startsNewClause = true
-          }
-          myParametersTableModel.exchangeRows(selected, selected - 1)
-          table.setRowSelectionInterval(selected - 1, selected - 1)
-        }
-        finishAndRestoreEditing(editedColumn)
-      }
-    }
-
-    val downAction: AnActionButtonRunnable = new AnActionButtonRunnable {
-      override def run(t: AnActionButton): Unit = {
-        val table = parametersTable
-        val selected = table.getSelectedRow
-        if (selected < 0 || selected >= table.getModel.getRowCount - 1) return
-        val editedColumn = editingColumn(table)
-        TableUtil.stopEditing(table)
-
-        val itemBelow = myParametersTableModel.getItem(selected + 1)
-        val item = myParametersTableModel.getItem(selected)
-        if (itemBelow.startsNewClause) {
-          itemBelow.startsNewClause = false
-          if (selected > 0) item.startsNewClause = true
-          myParametersTableModel.fireTableDataChanged()
-        }
-        else {
-          if (item.startsNewClause) {
-            item.startsNewClause = false
-            itemBelow.startsNewClause = true
-          }
-          myParametersTableModel.exchangeRows(selected, selected + 1)
-          table.setRowSelectionInterval(selected + 1, selected + 1)
-        }
-        finishAndRestoreEditing(editedColumn)
-      }
-    }
-
-    val addClauseButton = new AnActionButton("Add parameter clause", null, Icons.ADD_CLAUSE) {
-      override def actionPerformed(e: AnActionEvent): Unit = {
-        val table = parametersTable
-        val editedColumn = editingColumn(table)
-        TableUtil.stopEditing(table)
-        val selected = table.getSelectedRow
-        if (selected > 0) {
-          val item = myParametersTableModel.getItem(selected)
-          item.startsNewClause = true
-          myParametersTableModel.fireTableDataChanged()
-        }
-        finishAndRestoreEditing(editedColumn)
-      }
-    }
-    addClauseButton.addCustomUpdater(new AnActionButtonUpdater {
-      override def isEnabled(e: AnActionEvent): Boolean = {
-        val selected = parametersTable.getSelectedRow
-        selected > 0 && !myParametersTableModel.getItem(selected).startsNewClause
-      }
-    })
-    addClauseButton.setShortcut(CustomShortcutSet.fromString("alt EQUALS"))
-
-    val removeClauseButton = new AnActionButton("Remove parameter clause", null, Icons.REMOVE_CLAUSE) {
-      override def actionPerformed(e: AnActionEvent): Unit = {
-        val table = parametersTable
-        val editedColumn = editingColumn(table)
-        TableUtil.stopEditing(table)
-        val selected = table.getSelectedRow
-        if (selected > 0) {
-          val item = myParametersTableModel.getItem(selected)
-          item.startsNewClause = false
-          myParametersTableModel.fireTableDataChanged()
-        }
-        finishAndRestoreEditing(editedColumn)
-      }
-    }
-    removeClauseButton.addCustomUpdater(new AnActionButtonUpdater {
-      override def isEnabled(e: AnActionEvent): Boolean = {
-        val selected = parametersTable.getSelectedRow
-        selected > 0 && myParametersTableModel.getItem(selected).startsNewClause
-      }
-    })
-    removeClauseButton.setShortcut(CustomShortcutSet.fromString("alt MINUS"))
-
-    myParametersList = createParametersListTable()
-    val table = myParametersList.getTable
-    table.setCellSelectionEnabled(true)
-    table.getSelectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
-    table.getSelectionModel.setSelectionInterval(0, 0)
-    table.setSurrendersFocusOnKeystroke(true)
-    val buttonsPanel: JPanel =
-      ToolbarDecorator.createDecorator(table)
-              .setMoveUpAction(upAction)
-              .setMoveDownAction(downAction)
-              .addExtraActions(addClauseButton, removeClauseButton)
-              .createPanel
-    myParametersTableModel.addTableModelListener(mySignatureUpdater)
-    buttonsPanel
   }
 
   override def createReturnTypeCodeFragment(): PsiCodeFragment = {
@@ -278,41 +156,7 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
     fragment
   }
 
-  override protected def createParametersListTable: ParametersListTable = {
-    new this.ParametersListTable() {
-      protected def getRowRenderer(row: Int): JBTableRowRenderer = {
-        new JBTableRowRenderer() {
-          def getRowRendererComponent(table: JTable, row: Int, selected: Boolean, focused: Boolean): JComponent = {
-            val item = getRowItem(row)
-            val name = {
-              val name1 = item.parameter.getName
-              name1 + StringUtil.repeat(" ", ScalaChangeSignatureDialog.this.getNamesMaxLength - name1.length)
-            }
-            val typeText: String = {
-              val text = item.asInstanceOf[ScalaParameterTableModelItem].typeText
-              text + StringUtil.repeat(" ", ScalaChangeSignatureDialog.this.getTypesMaxLength - text.length)
-            }
-            val nameAndType =
-              if (name == "" && typeText == "") ""
-              else ScalaExtractMethodUtils.typedName(name, typeText, project, byName/*already in type text*/ = false)
-            val defaultValue: String = item.defaultValueCodeFragment.getText
-            val defValue = if (StringUtil.isNotEmpty(defaultValue)) " = " + defaultValue else ""
-            val text = s"$nameAndType $defValue"
-            val comp = JBListTable.createEditorTextFieldPresentation(project, getFileType, " " + text, selected, focused)
-            val color = if (item.startsNewClause) getContentPane.getBackground.darker() else parametersTable.getBackground
-            comp.setBorder(new MatteBorder(2, 0, 0, 0, color))
-            comp
-          }
-        }
-      }
-
-      override protected def isRowEmpty(row: Int): Boolean = false
-
-      override def getRowItem(row: Int): ScalaParameterTableModelItem = myParametersTableModel.getRowValue(row)
-
-      override def getRowEditor(item: ParameterTableModelItemBase[ScalaParameterInfo]): JBTableRowEditor = getTableEditor(getTable, item)
-    }
-  }
+  override protected def createParametersListTable: ParametersListTable = new ScalaParametersListTable()
 
   protected override def getTableEditor(t: JTable, item: ParameterTableModelItemBase[ScalaParameterInfo]): JBTableRowEditor = {
     val scalaItem = item match {
@@ -462,6 +306,201 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
 
   protected def parameterItems: Seq[ScalaParameterTableModelItem] = {
     myParametersTableModel.getItems.asScala
+  }
+
+  protected def createAddClauseButton() = {
+    val addClauseButton = new AnActionButton("Add parameter clause", null, Icons.ADD_CLAUSE) {
+      override def actionPerformed(e: AnActionEvent): Unit = {
+        val table = parametersTable
+        val editedColumn = editingColumn(table)
+        TableUtil.stopEditing(table)
+        val selected = table.getSelectedRow
+        if (selected > 0) {
+          val item = myParametersTableModel.getItem(selected)
+          item.startsNewClause = true
+          myParametersTableModel.fireTableDataChanged()
+        }
+        finishAndRestoreEditing(editedColumn)
+      }
+    }
+    addClauseButton.addCustomUpdater(new AnActionButtonUpdater {
+      override def isEnabled(e: AnActionEvent): Boolean = {
+        val selected = parametersTable.getSelectedRow
+        selected > 0 && !myParametersTableModel.getItem(selected).startsNewClause
+      }
+    })
+    addClauseButton.setShortcut(CustomShortcutSet.fromString("alt EQUALS"))
+    addClauseButton
+  }
+
+  protected def createRemoveClauseButton() = {
+    val removeClauseButton = new AnActionButton("Remove parameter clause", null, Icons.REMOVE_CLAUSE) {
+      override def actionPerformed(e: AnActionEvent): Unit = {
+        val table = parametersTable
+        val editedColumn = editingColumn(table)
+        TableUtil.stopEditing(table)
+        val selected = table.getSelectedRow
+        if (selected > 0) {
+          val item = myParametersTableModel.getItem(selected)
+          item.startsNewClause = false
+          myParametersTableModel.fireTableDataChanged()
+        }
+        finishAndRestoreEditing(editedColumn)
+      }
+    }
+    removeClauseButton.addCustomUpdater(new AnActionButtonUpdater {
+      override def isEnabled(e: AnActionEvent): Boolean = {
+        val selected = parametersTable.getSelectedRow
+        selected > 0 && myParametersTableModel.getItem(selected).startsNewClause
+      }
+    })
+    removeClauseButton.setShortcut(CustomShortcutSet.fromString("alt MINUS"))
+    removeClauseButton
+  }
+
+  protected def downAction = new AnActionButtonRunnable {
+    override def run(t: AnActionButton): Unit = {
+      val table = parametersTable
+      val selected = table.getSelectedRow
+      if (selected < 0 || selected >= table.getModel.getRowCount - 1) return
+      val editedColumn = editingColumn(table)
+      TableUtil.stopEditing(table)
+
+      val itemBelow = myParametersTableModel.getItem(selected + 1)
+      val item = myParametersTableModel.getItem(selected)
+      if (itemBelow.startsNewClause) {
+        itemBelow.startsNewClause = false
+        if (selected > 0) item.startsNewClause = true
+        myParametersTableModel.fireTableDataChanged()
+      }
+      else {
+        if (item.startsNewClause) {
+          item.startsNewClause = false
+          itemBelow.startsNewClause = true
+        }
+        myParametersTableModel.exchangeRows(selected, selected + 1)
+        table.setRowSelectionInterval(selected + 1, selected + 1)
+      }
+      finishAndRestoreEditing(editedColumn)
+    }
+  }
+
+  protected def upAction = new AnActionButtonRunnable {
+    override def run(t: AnActionButton): Unit = {
+      val table = parametersTable
+      val selected = table.getSelectedRow
+      if (selected <= 0 || selected >= table.getModel.getRowCount) return
+      val editedColumn = editingColumn(table)
+      TableUtil.stopEditing(table)
+      val item = myParametersTableModel.getItem(selected)
+      if (item.startsNewClause) {
+        item.startsNewClause = false
+        if (selected != table.getModel.getRowCount - 1) {
+          val itemBelow = myParametersTableModel.getItem(selected + 1)
+          itemBelow.startsNewClause = true
+        }
+        myParametersTableModel.fireTableDataChanged()
+      }
+      else {
+        val itemAbove = myParametersTableModel.getItem(selected - 1)
+        if (itemAbove.startsNewClause) {
+          itemAbove.startsNewClause = false
+          item.startsNewClause = true
+        }
+        myParametersTableModel.exchangeRows(selected, selected - 1)
+        table.setRowSelectionInterval(selected - 1, selected - 1)
+      }
+      finishAndRestoreEditing(editedColumn)
+    }
+  }
+
+  protected def decorateParameterTable(table: JBTable): JPanel = {
+    table.setCellSelectionEnabled(true)
+    table.getSelectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
+    table.getSelectionModel.setSelectionInterval(0, 0)
+    table.setSurrendersFocusOnKeystroke(true)
+    val buttonsPanel: JPanel =
+      ToolbarDecorator.createDecorator(table)
+              .setMoveUpAction(upAction)
+              .setMoveDownAction(downAction)
+              .addExtraActions(createAddClauseButton(), createRemoveClauseButton())
+              .createPanel
+    myParametersTableModel.addTableModelListener(mySignatureUpdater)
+    buttonsPanel
+  }
+
+  private def finishAndRestoreEditing(editedColumn: Option[Int]): Unit = {
+    val table = parametersTable
+    TableUtil.updateScroller(table)
+    table.requestFocus()
+    editedColumn.foreach { col =>
+      val row = table.getSelectedRow
+      table.setRowHeight(row, table.getRowHeight)
+      table.editCellAt(row, col)
+    }
+  }
+
+  private def editingColumn(table: JTable) = if (table.isEditing) Some(table.getEditingColumn) else None
+
+  class ScalaParametersListTable extends ParametersListTable {
+    protected def getRowRenderer(row: Int): JBTableRowRenderer = {
+      new JBTableRowRenderer() {
+        def getRowRendererComponent(table: JTable, row: Int, selected: Boolean, focused: Boolean): JComponent = {
+          val item = getRowItem(row)
+          val name = nameText(item)
+          val typeTxt = typeText(item)
+          val nameAndType =
+            if (name == "" && typeTxt == "") ""
+            else ScalaExtractMethodUtils.typedName(name, typeTxt, project, byName /*already in type text*/ = false)
+          val defText = defaultText(item)
+          val text = s"$nameAndType $defText"
+          val comp = JBListTable.createEditorTextFieldPresentation(project, getFileType, " " + text, selected, focused)
+
+          if (item.parameter.isIntroducedParameter) {
+            val fields = UIUtil.findComponentsOfType(comp, classOf[EditorTextField]).asScala
+            fields.foreach { f =>
+              f.setFont(f.getFont.deriveFont(Font.BOLD))
+            }
+          }
+
+          val color =
+            if (item.startsNewClause) getContentPane.getBackground.darker()
+            else if (selected && focused) parametersTable.getSelectionBackground else parametersTable.getBackground
+
+          comp.setBorder(new MatteBorder(2, 0, 0, 0, color))
+          comp
+        }
+      }
+    }
+
+    protected def nameText(item: ScalaParameterTableModelItem) = {
+      val maxLength = parameterItems.map(_.parameter.getName.length) match {
+        case Seq() => 0
+        case seq => seq.max
+      }
+      val name = item.parameter.getName
+      name + StringUtil.repeat(" ", maxLength - name.length)
+    }
+
+    protected def typeText(item: ScalaParameterTableModelItem) = {
+      val maxLength = parameterItems.map(_.parameter.typeText.length) match {
+        case Seq() => 0
+        case seq => seq.max
+      }
+      val typeText = item.parameter.typeText
+      typeText + StringUtil.repeat(" ", maxLength - typeText.length)
+    }
+
+    protected def defaultText(item: ScalaParameterTableModelItem) = {
+      val defaultValue: String = item.defaultValueCodeFragment.getText
+      if (StringUtil.isNotEmpty(defaultValue)) " = " + defaultValue else ""
+    }
+
+    override protected def isRowEmpty(row: Int): Boolean = false
+
+    override def getRowItem(row: Int): ScalaParameterTableModelItem = myParametersTableModel.getRowValue(row)
+
+    override def getRowEditor(item: ParameterTableModelItemBase[ScalaParameterInfo]): JBTableRowEditor = getTableEditor(getTable, item)
   }
 
 }

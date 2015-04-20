@@ -9,12 +9,10 @@ import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{ComboBox, ValidationInfo}
 import com.intellij.refactoring.BaseRefactoringProcessor
-import com.intellij.ui.table.TableView
-import com.intellij.ui.{CommonActionsPanel, EditorTextField}
+import com.intellij.ui.table.{JBTable, TableView}
+import com.intellij.ui.{EditorTextField, ToolbarDecorator}
 import com.intellij.util.IJSwingUtilities
-import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
@@ -25,7 +23,7 @@ import scala.collection.JavaConverters._
 /**
  * @author Nikolay.Tropin
  */
-class ScalaAddParameterDialog(project: Project,
+class ScalaIntroduceParameterDialog(project: Project,
                               method: ScalaMethodDescriptor,
                               introduceData: ScalaIntroduceParameterData)
         extends ScalaChangeSignatureDialog(project, method) {
@@ -38,7 +36,6 @@ class ScalaAddParameterDialog(project: Project,
   override def init(): Unit = {
     super.init()
     setTitle(ScalaIntroduceParameterHandler.REFACTORING_NAME)
-    hideAddAndRemoveButtons()
   }
 
   override def createNorthPanel(): JComponent = {
@@ -87,19 +84,38 @@ class ScalaAddParameterDialog(project: Project,
     panel
   }
 
-  override def createParametersInfoModel(method: ScalaMethodDescriptor): ScalaParameterTableModel = {
-    new ScalaIntroduceParameterTableModel(method.fun, method.fun, method)
+  override def customizeParametersTable(table: TableView[ScalaParameterTableModelItem]): Unit = {
+    table.setSelection(util.Collections.emptyList())
   }
 
-  override def customizeParametersTable(table: TableView[ScalaParameterTableModelItem]): Unit = {
-    table.setCellSelectionEnabled(false)
-    table.setRowSelectionAllowed(true)
-    table.setSelection(util.Collections.emptyList())
+  override protected def createParametersListTable: ParametersListTable = {
+    new ScalaParametersListTable() {
+      override def isRowEditable(row: Int): Boolean = false
+
+      override protected def defaultText(item: ScalaParameterTableModelItem): String = ""
+    }
   }
 
   override def getPreferredFocusedComponent: JComponent = paramNameField
 
   protected override def doValidate(): ValidationInfo = null
+
+  override protected def decorateParameterTable(table: JBTable): JPanel = {
+    table.setCellSelectionEnabled(false)
+    table.setRowSelectionAllowed(true)
+    table.getSelectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
+    table.setSurrendersFocusOnKeystroke(true)
+    val buttonsPanel: JPanel =
+      ToolbarDecorator.createDecorator(table)
+              .setMoveUpAction(upAction)
+              .setMoveDownAction(downAction)
+              .disableAddAction()
+              .disableRemoveAction()
+              .addExtraActions(createAddClauseButton(), createRemoveClauseButton())
+              .createPanel
+    myParametersTableModel.addTableModelListener(mySignatureUpdater)
+    buttonsPanel
+  }
 
   private def createParamNamePanel(): JComponent = {
     paramNameField = new EditorTextField(introduceData.paramName)
@@ -109,6 +125,7 @@ class ScalaAddParameterDialog(project: Project,
         val newText: String = paramNameField.getText
         introducedParamTableItem.foreach(_.parameter.setName(newText))
         myParametersTableModel.fireTableDataChanged()
+        parametersTable.updateUI()
         updateSignatureAlarmFired()
       }
     })
@@ -136,6 +153,7 @@ class ScalaAddParameterDialog(project: Project,
         val scType = typeMap.get(typeCombobox.getSelectedItem)
         introducedParamTableItem.foreach(_.parameter.scType = scType)
         myParametersTableModel.fireTableDataChanged()
+        parametersTable.updateUI()
         updateSignatureAlarmFired()
       }
     })
@@ -158,14 +176,6 @@ class ScalaAddParameterDialog(project: Project,
     IJSwingUtilities.adjustComponentsOnMac(label, textField)
     panel.add(textField, BorderLayout.SOUTH)
     panel
-  }
-
-  private def hideAddAndRemoveButtons(): Unit = {
-    val actionsPanel = UIUtil.findComponentOfType(getContentPanel, classOf[CommonActionsPanel]).toOption
-    actionsPanel.foreach { p =>
-      p.getAnActionButton(CommonActionsPanel.Buttons.ADD).setVisible(false)
-      p.getAnActionButton(CommonActionsPanel.Buttons.REMOVE).setVisible(false)
-    }
   }
 
   private def introducedParamTableItem: Option[ScalaParameterTableModelItem] = {
