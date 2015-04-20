@@ -4,7 +4,7 @@ package parser
 package parsing
 package xml.pattern
 
-import com.intellij.psi.xml.XmlTokenType
+import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.xml._
 
@@ -28,9 +28,8 @@ object ContentP {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val contentMarker = builder.mark()
     builder.getTokenType match {
-      case XmlTokenType.XML_DATA_CHARACTERS => {
+      case ScalaXmlTokenTypes.XML_DATA_CHARACTERS =>
         builder.advanceLexer()
-      }
       case _ =>
     }
     def subparse() {
@@ -42,17 +41,15 @@ object ContentP {
         !ScalaPatterns.parse(builder) &&
         !XmlPattern.parse(builder)) isReturn = true
       builder.getTokenType match {
-        case XmlTokenType.XML_DATA_CHARACTERS => {
+        case ScalaXmlTokenTypes.XML_DATA_CHARACTERS =>
           builder.advanceLexer()
-        }
-        case _ => {
+        case _ =>
           if (isReturn) return
-        }
       }
       subparse()
     }
     subparse()
-    contentMarker.drop
-    return true
+    contentMarker.drop()
+    true
   }
 }
