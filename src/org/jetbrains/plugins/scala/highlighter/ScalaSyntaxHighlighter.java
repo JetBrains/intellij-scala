@@ -313,7 +313,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
       myLayeredTagStack.clear();
       myXmlState = 0;
       myBuffer = buffer;
-      myBufferEnd = buffer.length();
+      myBufferEnd = endOffset;
       myTokenType = null;
       openingTags = new Stack<String>();
       tagMatch = false;
