@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.meta.trees
 
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScClassParents
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
+import scala.language.postfixOps
 import scala.meta.internal.ast.Term.Param
 import scala.{Seq => _}
 import scala.collection.immutable.Seq
@@ -44,7 +46,7 @@ trait TreeAdapter {
       case t: p.toplevel.typedef.ScObject => toObject(t)
       case t: p.expr.ScExpression => expression(Some(t)).get
       case t: p.toplevel.imports.ScImportStmt => m.Import(t.importExprs.toStream.map(imports))
-      case other => println(other.getClass); ???
+      case other => other ?!
     }
   }
 
@@ -64,14 +66,12 @@ trait TreeAdapter {
     template(c.extendsBlock)
   )
 
-  def toObject(o: p.toplevel.typedef.ScObject) = {
-      m.Defn.Object(
-        convertMods(o),
-        toName(o),
-        m.Ctor.Primary(Nil, m.Ctor.Ref.Name("this"), Nil),
-        template(o.extendsBlock)
-      )
-  }
+  def toObject(o: p.toplevel.typedef.ScObject) = m.Defn.Object(
+    convertMods(o),
+    toName(o),
+    m.Ctor.Primary(Nil, m.Ctor.Ref.Name("this"), Nil),
+    template(o.extendsBlock)
+  )
 
   def ctor(pc: Option[p.base.ScPrimaryConstructor]): m.Ctor.Primary = {
     pc match {
@@ -108,7 +108,7 @@ trait TreeAdapter {
       case t: ScWildcardPattern   =>  Wildcard()
       case t: ScCompositePattern  =>  compose(Seq(t.subpatterns : _*))
       case t: ScInfixPattern      =>  ExtractInfix(pattern(t.leftPattern), ref(t.refernece), t.rightPattern.map(pt=>Seq(pattern(pt))).getOrElse(Nil))
-      case t: ScPattern => println(s"unknown pattern: ${t.getClass}"); ???
+      case t: ScPattern => t ?!
     }
   }
 
@@ -131,22 +131,54 @@ trait TreeAdapter {
     m.Template(early, parents, self, stats)
   }
 
+  def template(t: p.toplevel.typedef.ScTemplateDefinition): m.Template = {
+    val early   = t.extendsBlock.earlyDefinitions map (it => it.members.toStream.map(ideaToMeta(_).asInstanceOf[m.Stat])) getOrElse Seq.empty
+    val ctor = t.extendsBlock.templateParents match {
+      case Some(parents: p.toplevel.templates.ScClassParents) => toCtor(parents.constructor.get)
+    }
+    val self    = t.selfType match {
+      case Some(tpe: ptype.ScType) => m.Term.Param(Nil, m.Term.Name("self"), Some(toType(tpe)), None)
+      case None => m.Term.Param(Nil, m.Name.Anonymous(), None, None)
+    }
+    m.Template(early, Seq(ctor), self, None)
+  }
+
+  def toCtor(c: p.base.ScConstructor) = {
+    if (c.arguments.isEmpty)
+      toName(c)
+    else
+      m.Term.Apply(toName(c), c.args.get.exprs.toStream.map(callArgs(_)))
+  }
+
   def member(t: p.toplevel.typedef.ScMember): m.Stat = {
     m.Ctor.Ref.Name("B") // FIXME: what
   }
 
-  def expression(e: p.expr.ScExpression): m.Term = e match {
-    case t: p.base.ScLiteral    => literal(t)
-    case t: p.expr.ScUnitExpr   => m.Lit.Unit()
-    case t: p.expr.ScReturnStmt => m.Term.Return(expression(t.expr).get)
-    case t: p.expr.ScBlock      => m.Term.Block(t.exprs.toStream.map(expression))
-    case t: p.expr.ScMethodCall => m.Term.Apply(toName(t.getInvokedExpr), t.args.exprs.toStream.map(expression))
-    case t: p.expr.ScInfixExpr  => m.Term.ApplyInfix(expression(t.getBaseExpr), toName(t.getInvokedExpr), Nil, Seq(expression(t.getArgExpr)))
-    case t: p.expr.ScIfStmt     => m.Term.If(expression(t.condition.get),
-      t.thenBranch.map(expression).getOrElse(m.Lit.Unit()), t.elseBranch.map(expression).getOrElse(m.Lit.Unit()))
-    case t: p.expr.ScMatchStmt  => m.Term.Match(expression(t.expr.get), t.caseClauses.toStream.map(caseClause))
-    case t: p.expr.ScReferenceExpression => toName(t)
-    case other => println(other.getClass); ???
+  def expression(e: p.expr.ScExpression): m.Term = {
+    import p.expr._
+    e match {
+      case t: p.base.ScLiteral => literal(t)
+      case t: ScUnitExpr => m.Lit.Unit()
+      case t: ScReturnStmt => m.Term.Return(expression(t.expr).get)
+      case t: ScBlock => m.Term.Block(t.statements.toStream.map(ideaToMeta(_).asInstanceOf[m.Stat]))
+      case t: ScMethodCall => m.Term.Apply(toName(t.getInvokedExpr), t.args.exprs.toStream.map(callArgs))
+      case t: ScInfixExpr => m.Term.ApplyInfix(expression(t.getBaseExpr), toName(t.getInvokedExpr), Nil, Seq(expression(t.getArgExpr)))
+      case t: ScPrefixExpr => m.Term.ApplyUnary(toName(t.operation), expression(t.operand))
+      case t: ScIfStmt => m.Term.If(expression(t.condition.get),
+        t.thenBranch.map(expression).getOrElse(m.Lit.Unit()), t.elseBranch.map(expression).getOrElse(m.Lit.Unit()))
+      case t: ScMatchStmt => m.Term.Match(expression(t.expr.get), t.caseClauses.toStream.map(caseClause))
+      case t: ScReferenceExpression => toName(t)
+      case t: ScNewTemplateDefinition => m.Term.New(template(t))
+      case other: ScalaPsiElement => other ?!
+    }
+  }
+
+  def callArgs(e: p.expr.ScExpression) = {
+    e match {
+      case t: p.expr.ScAssignStmt => m.Term.Arg.Named(toName(t.getLExpression), expression(t.getRExpression).get)
+      case t: p.expr.ScUnderscoreSection => m.Term.Placeholder()
+      case other => expression(e)
+    }
   }
 
   def expression(tree: Option[p.expr.ScExpression]): Option[m.Term] = {
@@ -166,7 +198,7 @@ trait TreeAdapter {
           m.Term.Select(m.Term.This(m.Name.Anonymous()), ref(q))
         case Some(parent:p.base.ScStableCodeReferenceElement) =>
           m.Term.Select(qual(parent), ref(q))
-        case Some(other) => ???
+        case Some(other) => other ?!
         case None         => ref(q)
       }
     }
@@ -199,7 +231,7 @@ trait TreeAdapter {
       case ScLiteral(s: String)               => Lit.String(s)
       case ScLiteral(null)                    => Lit.Null()
       case _ if l.isSymbol                    => Lit.Symbol(l.getValue.asInstanceOf[Symbol])
-      case other => println(other.getClass); ???
+      case other => other ?!
     }
   }
 
@@ -234,8 +266,8 @@ trait TreeAdapter {
       case _ => Seq.empty
     }
     val common = t.getModifierList.accessModifier match {
-      case Some(mod) if mod.access == PRIVATE   => Seq(m.Mod.Private(name))
-      case Some(mod) if mod.access == PROTECTED => Seq(m.Mod.Protected(name))
+      case Some(mod) if mod.access == PRIVATE        => Seq(m.Mod.Private(name))
+      case Some(mod) if mod.access == PROTECTED      => Seq(m.Mod.Protected(name))
       case Some(mod) if mod.access == THIS_PRIVATE   => Seq(m.Mod.Private(m.Term.This(name)))
       case Some(mod) if mod.access == THIS_PROTECTED => Seq(m.Mod.Protected(m.Term.This(name)))
       case None => Seq.empty
@@ -247,7 +279,6 @@ trait TreeAdapter {
   def convertParams(params: p.statements.params.ScParameterClause): Seq[Param] = {
     params.parameters.toStream.map {
         param =>
-
           val mods = convertMods(param) ++ (if(param.isImplicitParameter) Seq(m.Mod.Implicit()) else Seq.empty)
           if(param.isVarArgs)
            m.Term.Param(mods, m.Term.Name(param.name),  param.typeElement.map(tp=>m.Type.Arg.Repeated(toType(tp))), None)

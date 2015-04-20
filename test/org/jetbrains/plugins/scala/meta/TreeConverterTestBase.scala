@@ -32,8 +32,12 @@ trait TreeConverterTestBase extends SimpleTestCase {
   }
 
   def doTest(text: String, tree: Tree) = {
-    val converted = ConverterImpl.ideaToMeta(text)
+    val converted = convert(text)
     assert(structuralEquals(converted, tree), s"$converted <=> $tree")
     assert(converted.toString() == tree.toString(), s"TEXT: $converted <=> $tree")
+  }
+
+  protected def convert(text: String): Tree = {
+    ConverterImpl.ideaToMeta(text)
   }
 }
