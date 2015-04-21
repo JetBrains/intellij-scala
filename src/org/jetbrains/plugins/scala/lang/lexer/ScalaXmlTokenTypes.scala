@@ -23,6 +23,8 @@ object ScalaXmlTokenTypes {
   }
   
   def getByName(name: String) = allTypes.get(name)
+
+  def isSubstituted(name: String) = allTypes.get(name).isDefined
   
   val XML_EQ = create("XML_EQ")
 
