@@ -77,7 +77,9 @@ object ScalaXmlTokenTypes {
 
   val XML_COMMENTS = TokenSet.create(XML_COMMENT_START, XML_COMMENT_CHARACTERS, XML_COMMENT_END)
 
-  val XML_TOKENS_TO_MERGE = TokenSet.create(XML_DATA_CHARACTERS, XML_TAG_CHARACTERS, XML_ATTRIBUTE_VALUE_TOKEN, XML_COMMENT_CHARACTERS, XmlTokenType.XML_PI_TARGET)
+  val XML_TOKENS_TO_MERGE = TokenSet.create(XML_DATA_CHARACTERS, XML_TAG_CHARACTERS, // merging can be performed in locateToken() => we need to merge both types of tokens
+    XML_ATTRIBUTE_VALUE_TOKEN, XML_COMMENT_CHARACTERS, XmlTokenType.XML_DATA_CHARACTERS,
+    XmlTokenType.XML_TAG_CHARACTERS, XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN, XmlTokenType.XML_PI_TARGET, XmlTokenType.XML_COMMENT_CHARACTERS)
 
   class PatchedXmlLexer extends MergingLexerAdapter(new _XmlLexer(new __XmlLexer(null.asInstanceOf[Reader]), false), XML_TOKENS_TO_MERGE) {
     override def getTokenType: IElementType = {
