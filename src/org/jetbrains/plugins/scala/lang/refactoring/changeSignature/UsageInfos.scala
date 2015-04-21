@@ -131,7 +131,7 @@ private[changeSignature] case class ConstructorUsageInfo(ref: ScReferenceElement
     val newText = s"new ${constr.getText}"
     ScalaPsiElementFactory.createExpressionFromText(newText, constr.getManager)
   }
-  val argsInfo = OldArgsInfo(constr.args.toSeq.flatMap(_.exprs), method)
+  val argsInfo = OldArgsInfo(constr.arguments.flatMap(_.exprs), method)
 }
 
 private[changeSignature] case class AnonFunUsageInfo(expr: ScExpression, ref: ScReferenceExpression)
