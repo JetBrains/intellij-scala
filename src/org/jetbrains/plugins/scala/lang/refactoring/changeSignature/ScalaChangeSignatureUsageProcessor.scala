@@ -8,7 +8,7 @@ import com.intellij.openapi.util.Ref
 import com.intellij.psi._
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.search.searches.{OverridingMethodsSearch, ReferencesSearch}
-import com.intellij.refactoring.changeSignature._
+import com.intellij.refactoring.changeSignature.{MethodCallUsageInfo => JavaCallUsageInfo, _}
 import com.intellij.refactoring.rename.ResolveSnapshotProvider
 import com.intellij.refactoring.rename.ResolveSnapshotProvider.ResolveSnapshot
 import com.intellij.usageView.UsageInfo
@@ -86,30 +86,59 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
                             beforeMethodChange: Boolean,
                             usages: Array[UsageInfo]): Boolean = {
 
-    def updateNamedElementsIfLastUsage(): Unit = {
-      if (!beforeMethodChange && usageInfo == usages.last) {
-        usages.foreach {
-          case namedInfo: ScalaNamedElementUsageInfo =>
-            val element = ScalaPsiUtil.nameContext(namedInfo.namedElement)
-            val text = element.getText
-            element match {
-              case _: ScVariableDefinition | _: ScPatternDefinition =>
-                val newElement = ScalaPsiElementFactory.createDefinitionWithContext(text, element.getContext, element)
-                element.getParent.addAfter(newElement, element)
-                element.delete()
-              case _: ScVariableDeclaration | _: ScValueDeclaration =>
-                val newElement = ScalaPsiElementFactory.createDeclarationFromText(text, element.getContext, element)
-                element.getParent.addAfter(newElement, element)
-                element.delete()
-              case _ =>
-            }
-          case _ =>
-        }
+    def isLastUsage = !beforeMethodChange && usageInfo == usages.last
+
+    def updateNamedElements(): Unit = {
+      usages.foreach {
+        case namedInfo: ScalaNamedElementUsageInfo =>
+          val element = ScalaPsiUtil.nameContext(namedInfo.namedElement)
+          val text = element.getText
+          element match {
+            case _: ScVariableDefinition | _: ScPatternDefinition =>
+              val newElement = ScalaPsiElementFactory.createDefinitionWithContext(text, element.getContext, element)
+              element.getParent.addAfter(newElement, element)
+              element.delete()
+            case _: ScVariableDeclaration | _: ScValueDeclaration =>
+              val newElement = ScalaPsiElementFactory.createDeclarationFromText(text, element.getContext, element)
+              element.getParent.addAfter(newElement, element)
+              element.delete()
+            case _ =>
+          }
+        case _ =>
+      }
+    }
+
+    //need to add arguments from previous clauses as parameters to default argument function
+    def addArgumentsToDefaultParamInJava(): Unit = {
+      val newParams = changeInfo match {
+        case sc: ScalaChangeInfo => sc.newParams
+        case _ => return
+      }
+
+      if (newParams.size <= 1) return
+
+      val cumulSize = newParams.scanLeft(0)(_ + _.size)
+      def numberOfParamsToAdd(idx: Int) = cumulSize(cumulSize.indexWhere(_ > idx) - 1)
+
+      for {
+        jc @ (_u: JavaCallUsageInfo) <- usages
+        call @ (_c: PsiMethodCallExpression) <- jc.getElement.toOption.map(_.getParent)
+        exprs = call.getArgumentList.getExpressions
+        (defaultArg @ (_d: PsiMethodCallExpression), idx) <- exprs.zipWithIndex
+        if defaultArg.getText.contains("$default$")
+      } {
+        val exprsToAdd = exprs.take(numberOfParamsToAdd(idx))
+        val text = defaultArg.getMethodExpression.getText + exprsToAdd.map(_.getText).mkString("(", ", ", ")")
+        val newDefaultArg = JavaPsiFacade.getElementFactory(call.getProject).createExpressionFromText(text, defaultArg.getContext)
+        defaultArg.replace(newDefaultArg)
       }
     }
 
     if (!UsageUtil.scalaUsage(usageInfo)) {
-      updateNamedElementsIfLastUsage()
+      if (isLastUsage) {
+        updateNamedElements()
+        addArgumentsToDefaultParamInJava()
+      }
       return false
     }
 
@@ -126,7 +155,10 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
       }
     }
 
-    updateNamedElementsIfLastUsage()
+    if (isLastUsage) {
+      updateNamedElements()
+      addArgumentsToDefaultParamInJava()
+    }
     true
   }
 
