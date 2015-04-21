@@ -487,11 +487,11 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
     }
 
     protected def typeText(item: ScalaParameterTableModelItem) = {
-      val maxLength = parameterItems.map(_.parameter.typeText.length) match {
+      val maxLength = parameterItems.map(_.typeText.length) match {
         case Seq() => 0
         case seq => seq.max
       }
-      val typeText = item.parameter.typeText
+      val typeText = item.typeText
       typeText + StringUtil.repeat(" ", maxLength - typeText.length)
     }
 
