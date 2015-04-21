@@ -13,7 +13,6 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.ui.{EditorNotificationPanel, EditorNotifications}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.notification.SetupScalaSdkNotificationProvider._
 import org.jetbrains.plugins.scala.project.template.ScalaSupportProvider
@@ -36,7 +35,7 @@ class SetupScalaSdkNotificationProvider(project: Project, notifications: EditorN
     val hasSdk = Option(PsiManager.getInstance(project).findFile(file))
             .filter(_.getLanguage == ScalaLanguage.Instance)
             .filter(!_.getName.endsWith(".sbt")) // root SBT files belong to main (not *-build) modules
-            .filter(psiFile => !isCompiled(psiFile))
+            .filter(_.isWritable)
             .flatMap(psiFile => Option(ModuleUtilCore.findModuleForPsiElement(psiFile)))
             .filter(module => ModuleUtil.getModuleType(module) == JavaModuleType.getModuleType)
             .filter(!_.getName.endsWith("-build")) // gen-idea doesn't use the SBT module type
@@ -48,11 +47,6 @@ class SetupScalaSdkNotificationProvider(project: Project, notifications: EditorN
 
 object SetupScalaSdkNotificationProvider {
   private val ProviderKey = Key.create[EditorNotificationPanel]("Setup Scala SDK")
-
-  private def isCompiled(file: PsiFile): Boolean = file match {
-    case f: ScalaFile => f.isCompiled
-    case f => false
-  }
 
   private def createPanel(project: Project, file: PsiFile): EditorNotificationPanel = {
     val panel = new EditorNotificationPanel()
