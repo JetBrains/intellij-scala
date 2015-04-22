@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.changeSignature
 
 import java.awt.event.MouseEvent
-import java.awt.{BorderLayout, Font, Toolkit}
+import java.awt.{BorderLayout, Color, Font, Toolkit}
 import javax.swing.border.MatteBorder
 import javax.swing.{JComponent, JPanel, JTable}
 
@@ -23,20 +23,22 @@ class ScalaChangeSignatureRowEditor(item: ScalaParameterTableModelItem, dialog: 
   private val fileType = dialog.getFileType
   private val signatureUpdater = dialog.signatureUpdater
   private val backgroundColor = dialog.getContentPane.getBackground
-  private val table = dialog.parametersTable
+  private val separatorColor: Color = dialog.clauseSeparatorColor
 
+  private val table = dialog.parametersTable
   val typeDoc = PsiDocumentManager.getInstance(project).getDocument(item.typeCodeFragment)
   val myTypeEditor: EditorTextField = new EditorTextField(typeDoc, project, fileType)
-  val myNameEditor: EditorTextField = new EditorTextField(item.parameter.getName, project, fileType)
 
+  val myNameEditor: EditorTextField = new EditorTextField(item.parameter.getName, project, fileType)
   val defaultValueDoc = PsiDocumentManager.getInstance(project).getDocument(item.defaultValueCodeFragment)
+
   val myDefaultValueEditor = new EditorTextField(defaultValueDoc, project, fileType)
 
   def prepareEditor(table: JTable, row: Int) {
     setLayout(new BorderLayout)
     addNameEditor()
     addTypeEditor()
-    val color = if (item.startsNewClause) backgroundColor.darker() else backgroundColor
+    val color = if (item.startsNewClause) separatorColor else backgroundColor
     setBorder(new MatteBorder(2, 0, 0, 0, color))
 
     if (!item.isEllipsisType && item.parameter.getOldIndex == -1) {

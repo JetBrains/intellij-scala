@@ -444,6 +444,11 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
     }
   }
 
+  def clauseSeparatorColor = {
+    val background = getContentPane.getBackground
+    if (UIUtil.isUnderDarcula) background.brighter.brighter else background.darker()
+  }
+
   private def editingColumn(table: JTable) = if (table.isEditing) Some(table.getEditingColumn) else None
 
   class ScalaParametersListTable extends ParametersListTable {
@@ -468,7 +473,7 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
           }
 
           val color =
-            if (item.startsNewClause) getContentPane.getBackground.darker()
+            if (item.startsNewClause) clauseSeparatorColor
             else if (selected && focused) parametersTable.getSelectionBackground else parametersTable.getBackground
 
           comp.setBorder(new MatteBorder(2, 0, 0, 0, color))
