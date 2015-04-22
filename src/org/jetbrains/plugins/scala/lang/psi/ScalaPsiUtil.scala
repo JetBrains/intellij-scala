@@ -1118,6 +1118,7 @@ object ScalaPsiUtil {
   }
 
   def getElementsRange(start: PsiElement, end: PsiElement): Seq[PsiElement] = {
+    if (start == null || end == null) return Nil
     val file = start.getContainingFile
     if (file == null || file != end.getContainingFile) return Nil
 
