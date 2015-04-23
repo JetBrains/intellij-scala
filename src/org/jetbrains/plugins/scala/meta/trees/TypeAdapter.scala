@@ -18,7 +18,14 @@ trait TypeAdapter {
 
     tp match {
       case t: p.base.types.ScSimpleTypeElement =>
-        m.Type.Name(t.calcType.canonicalText)
+        t.reference match {
+          case Some(reference) =>
+            reference.bind() match {
+              case Some(result) => m.Type.Name(result.name)
+              case None => m.Type.Placeholder(m.Type.Bounds(None, None))
+            }
+          case None =>  m.Type.Placeholder(m.Type.Bounds(None, None))
+        }
       case t: p.base.types.ScFunctionalTypeElement =>
         toType(t.paramTypeElement) match {
           case m.Type.Tuple(elements) => m.Type.Function(elements, toType(t.returnTypeElement.get))
