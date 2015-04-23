@@ -47,6 +47,10 @@
         </element>
         <element id="library" level="project" name="SBT: org.scalatest:scalatest-finders-patched:0.9.8:jar" />
         <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-core_2.11:6.0.2:jar" />
+
+        <element id="library" level="project" name="SBT: org.scalameta:interpreter_2.11:0.1.0-SNAPSHOT:jar" />
+        <element id="library" level="project" name="SBT: org.scalameta:scalameta-foundation_2.11:0.1.0-SNAPSHOT:jar" />
+        <element id="library" level="project" name="SBT: org.scalameta:scalameta_2.11:0.1.0-SNAPSHOT:jar" />
       </element>
       <element id="directory" name="launcher">
         <element id="library" level="project" name="SBT: org.scala-sbt:sbt-launch:0.13.11:jar" />
