@@ -6,6 +6,7 @@ package statements
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Block
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Qual_Id
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Type, TypeArgs}
 
@@ -16,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Type, TypeArgs}
  */
 object MacroDef {
   def parse(builder: ScalaPsiBuilder): Boolean = {
+    builder.setDebugMode(true)
     val marker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kDEF => builder.advanceLexer()
@@ -36,15 +38,25 @@ object MacroDef {
                   builder.getTokenType match {
                     case ScalaTokenTypes.kMACRO =>
                       builder.advanceLexer() //Ate `macro`
-                      if (Qual_Id.parse(builder)) {
-                        if (builder.getTokenType == ScalaTokenTypes.tLSQBRACKET) {
-                          TypeArgs.parse(builder, isPattern = false)
-                        }
-                        marker.drop()
-                        true
-                      } else {
-                        marker.drop()
-                        false
+                      builder.getTokenType match {
+                        case ScalaTokenTypes.tLBRACE => // scalameta style - embedded macro body
+                          if (builder.twoNewlinesBeforeCurrentToken) {
+                            return false
+                          }
+                          Block.parse(builder, hasBrace = true)
+                          marker.drop()
+                          true
+                        case _ =>
+                          if (Qual_Id.parse(builder)) {
+                            if (builder.getTokenType == ScalaTokenTypes.tLSQBRACKET) {
+                              TypeArgs.parse(builder, isPattern = false)
+                            }
+                            marker.drop()
+                            true
+                          } else {
+                            marker.drop()
+                            false
+                          }
                       }
                     case _ =>
                       marker.rollbackTo()
@@ -64,15 +76,25 @@ object MacroDef {
             builder.getTokenType match {
               case ScalaTokenTypes.kMACRO =>
                 builder.advanceLexer() //Ate `macro`
-                if (Qual_Id.parse(builder)) {
-                  if (builder.getTokenType == ScalaTokenTypes.tLSQBRACKET) {
-                    TypeArgs.parse(builder, isPattern = false)
-                  }
-                  marker.drop()
-                  true
-                } else {
-                  marker.drop()
-                  false
+                builder.getTokenType match {
+                  case ScalaTokenTypes.tLBRACE =>  // scalameta style - embedded macro body
+                    if (builder.twoNewlinesBeforeCurrentToken) {
+                      return false
+                    }
+                    Block.parse(builder, hasBrace = true)
+                    marker.drop()
+                    true
+                  case _ =>
+                    if (Qual_Id.parse(builder)) {
+                      if (builder.getTokenType == ScalaTokenTypes.tLSQBRACKET) {
+                        TypeArgs.parse(builder, isPattern = false)
+                      }
+                      marker.drop()
+                      true
+                    } else {
+                      marker.drop()
+                      false
+                    }
                 }
               case _ =>
                 marker.rollbackTo()
