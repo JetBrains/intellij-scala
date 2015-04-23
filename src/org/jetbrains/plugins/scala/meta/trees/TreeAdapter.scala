@@ -28,7 +28,7 @@ trait TreeAdapter {
       case t: p.statements.ScTypeAliasDefinition =>
         m.Defn.Type(convertMods(t), toName(t), t.typeParameters.toStream map toType, toType(t.aliasedType))
       case t: p.statements.ScFunctionDeclaration =>
-        m.Decl.Def(convertMods(t), m.Term.Name(t.name), t.typeParameters.toStream map toType, t.paramClauses.clauses.toStream.map(convertParams), returnType(t.returnType))
+        m.Decl.Def(convertMods(t), m.Term.Name(t.name), t.typeParameters.toStream map toType, t.paramClauses.clauses.toStream.map(convertParamClause), returnType(t.returnType))
       case t: p.statements.ScPatternDefinition =>
         patternDefinition(t)
       case t: p.statements.ScVariableDefinition =>
@@ -37,7 +37,7 @@ trait TreeAdapter {
       case t: p.statements.ScFunctionDefinition =>
         m.Defn.Def(convertMods(t), m.Term.Name(t.name),
           t.typeParameters.toStream map toType,
-          t.paramClauses.clauses.toStream.map(convertParams),
+          t.paramClauses.clauses.toStream.map(convertParamClause),
           t.definedReturnType.map(toType).toOption,
           expression(t.body).get
         )
@@ -76,7 +76,7 @@ trait TreeAdapter {
   def ctor(pc: Option[p.base.ScPrimaryConstructor]): m.Ctor.Primary = {
     pc match {
       case None => throw new RuntimeException("no primary constructor in class")
-      case Some(ctor) => m.Ctor.Primary(convertMods(ctor), toName(ctor), ctor.parameterList.clauses.toStream.map(convertParams))
+      case Some(ctor) => m.Ctor.Primary(convertMods(ctor), toName(ctor), ctor.parameterList.clauses.toStream.map(convertParamClause))
     }
   }
 
@@ -169,6 +169,7 @@ trait TreeAdapter {
       case t: ScMatchStmt => m.Term.Match(expression(t.expr.get), t.caseClauses.toStream.map(caseClause))
       case t: ScReferenceExpression => toName(t)
       case t: ScNewTemplateDefinition => m.Term.New(template(t))
+      case t: ScFunctionExpr => m.Term.Function(t.parameters.toStream.map(convertParam), expression(t.result).get)
       case other: ScalaPsiElement => other ?!
     }
   }
@@ -254,6 +255,7 @@ trait TreeAdapter {
       else if (param.isVal) Seq(m.Mod.ValParam())
       else Seq.empty
     }
+    if (t.getModifierList == null) return Nil // workaround for 9ec0b8a44
     val name = t.getModifierList.accessModifier match {
       case Some(mod) => mod.idText match {
         case Some(qual) => m.Name.Indeterminate(qual)
@@ -276,15 +278,15 @@ trait TreeAdapter {
     overrideMod ++ common ++ classParam
   }
 
-  def convertParams(params: p.statements.params.ScParameterClause): Seq[Param] = {
-    params.parameters.toStream.map {
-        param =>
-          val mods = convertMods(param) ++ (if(param.isImplicitParameter) Seq(m.Mod.Implicit()) else Seq.empty)
-          if(param.isVarArgs)
-           m.Term.Param(mods, m.Term.Name(param.name),  param.typeElement.map(tp=>m.Type.Arg.Repeated(toType(tp))), None)
-          else
-            m.Term.Param(mods, m.Term.Name(param.name), param.typeElement.map(toType), None)
-      }
+  def convertParamClause(params: p.statements.params.ScParameterClause): Seq[Param] = {
+    params.parameters.toStream.map(convertParam)
   }
 
+  protected def convertParam(param: p.statements.params.ScParameter): m.Term.Param = {
+      val mods = convertMods(param) ++ (if (param.isImplicitParameter) Seq(m.Mod.Implicit()) else Seq.empty)
+      if (param.isVarArgs)
+        m.Term.Param(mods, m.Term.Name(param.name), param.typeElement.map(tp => m.Type.Arg.Repeated(toType(tp))), None)
+      else
+        m.Term.Param(mods, m.Term.Name(param.name), param.typeElement.map(toType), None)
+  }
 }
