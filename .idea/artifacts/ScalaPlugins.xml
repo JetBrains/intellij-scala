@@ -74,6 +74,10 @@
           <element id="module-output" name="scalap" />
         </element>
         <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-core_2.11:4.2.1:jar" />
+
+        <element id="library" level="project" name="SBT: org.scalameta:interpreter_2.11:0.1.0-SNAPSHOT:jar" />
+        <element id="library" level="project" name="SBT: org.scalameta:scalameta-foundation_2.11:0.1.0-SNAPSHOT:jar" />
+        <element id="library" level="project" name="SBT: org.scalameta:scalameta_2.11:0.1.0-SNAPSHOT:jar" />
       </element>
       <element id="directory" name="launcher">
         <element id="library" level="project" name="SBT: org.scala-sbt:sbt-launch:0.13.8:jar" />

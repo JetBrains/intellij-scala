@@ -70,6 +70,7 @@ object Dependencies {
   val scalariform_2_11 = "org.scalariform" % "scalariform_2.11" % "0.1.7"
   val macroParadise = "org.scalamacros" % "paradise" % "2.1.0-M5" cross CrossVersion.full
   val scalaMetaCore = "org.scalameta" % "scalameta_2.11" % "0.1.0-SNAPSHOT"
+  val scalaMetaInterpreter = "org.scalameta" %% "interpreter" % "0.1.0-SNAPSHOT"
 
 }
 
@@ -129,7 +130,8 @@ object DependencyGroups {
   ) ++ plexusContainer ++ lucene ++ aether ++ sisu ++ wagon
 
   val scalaMeta = Seq(
-    scalaMetaCore
+    scalaMetaCore,
+    scalaMetaInterpreter
   )
 
   val scalaCommunity = Seq(
