@@ -221,7 +221,7 @@ public class ScalaLexer extends Lexer {
           type == XmlTokenType.TAG_WHITE_SPACE) &&
           tokenText.matches("\\s*\n(\n|\\s)*")) {
         type = ScalaTokenTypes.tWHITE_SPACE_IN_LINE;
-      } else if (!(type instanceof IXmlLeafElementType)) {
+      } else if (type == null || !(type instanceof IXmlLeafElementType) && !ScalaXmlTokenTypes.isSubstituted(type.toString())) {
         ++xmlSteps;
       }
       if (myTokenType == null) {
@@ -379,7 +379,6 @@ public class ScalaLexer extends Lexer {
       step = 0;
 
       boolean isCdata = valLexer.getTokenType() == ScalaXmlTokenTypes.XML_CDATA_START();
-      int state = valLexer.getState();
 
       advanceLexer();
       step = 1;
@@ -392,7 +391,6 @@ public class ScalaLexer extends Lexer {
           } else {
             advanceLexer();
           }
-          state = valLexer.getState();
         }
 
         return validStopTokens.contains(valLexer.getTokenType());
