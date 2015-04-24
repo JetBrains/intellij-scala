@@ -16,11 +16,11 @@ import org.jetbrains.plugins.scala.lang.psi.controlFlow.{Instruction, ScControlF
 trait ScBlockExpr extends ScExpression with ScBlock with ScControlFlowOwner {
   def caseClauses: Option[ScCaseClauses] = findChild(classOf[ScCaseClauses])
 
-  override def getControlFlow(cached: Boolean, policy: ScControlFlowPolicy): Seq[Instruction] = {
-    if (isAnonymousFunction) super.getControlFlow(cached, policy)
+  override def getControlFlow(policy: ScControlFlowPolicy): Seq[Instruction] = {
+    if (isAnonymousFunction) super.getControlFlow(policy)
     else {
       val parent = PsiTreeUtil.getParentOfType(this, classOf[ScControlFlowOwner])
-      parent.getControlFlow(cached, policy)
+      parent.getControlFlow(policy)
     }
   }
 

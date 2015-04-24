@@ -22,7 +22,7 @@ import scala.annotation.tailrec
 class ScalaUnreachableCodeInspection extends AbstractInspection("ScalaUnreachableCode", "Unreachable code"){
   override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case funDef: ScFunctionDefinition =>
-      val cfg = funDef.getControlFlow(cached = false)
+      val cfg = funDef.getControlFlow()
       val components = ControlFlowUtil.detectConnectedComponents(cfg)
       if (components.length > 1) {
         for {
