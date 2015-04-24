@@ -327,14 +327,8 @@ object ScalaRefactoringUtil {
     hasNlToken
   }
 
-  def getCompatibleTypeNames(myType: ScType): util.HashMap[String, ScType] = {
-    val map = new util.HashMap[String, ScType]
-    map.put(ScType.presentableText(myType), myType)
-    map
-  }
-
-  def getCompatibleTypeNames(myTypes: Array[ScType]): util.TreeMap[String, ScType] = {
-    val map = new util.TreeMap[String, ScType]
+  def getCompatibleTypeNames(myTypes: Array[ScType]): util.LinkedHashMap[String, ScType] = {
+    val map = new util.LinkedHashMap[String, ScType]
     myTypes.foreach(myType => map.put(ScType.presentableText(myType), myType))
     map
   }

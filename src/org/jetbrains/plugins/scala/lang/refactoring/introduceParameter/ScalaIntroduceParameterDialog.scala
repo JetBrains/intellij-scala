@@ -30,7 +30,7 @@ class ScalaIntroduceParameterDialog(project: Project,
 
   private var paramNameField: EditorTextField = _
   private var typeCombobox: JComboBox = _
-  private var typeMap: util.TreeMap[String, ScType] = _
+  private var typeMap: util.LinkedHashMap[String, ScType] = _
   private var replaceOccurrencesChb: JCheckBox = _
   private var defaultValuesUsagePanel: DefaultValuesUsagePanel = _
 
@@ -148,7 +148,10 @@ class ScalaIntroduceParameterDialog(project: Project,
     typeCombobox.addItemListener(new ItemListener {
       override def itemStateChanged(e: ItemEvent): Unit = {
         val scType = typeMap.get(typeCombobox.getSelectedItem)
-        introducedParamTableItem.foreach(_.parameter.scType = scType)
+        introducedParamTableItem.foreach {item =>
+          item.parameter.scType = scType
+          item.typeText = scType.presentableText
+        }
         myParametersTableModel.fireTableDataChanged()
         parametersTable.updateUI()
         updateSignatureAlarmFired()
