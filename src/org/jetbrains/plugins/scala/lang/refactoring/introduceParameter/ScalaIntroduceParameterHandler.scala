@@ -8,6 +8,7 @@ import com.intellij.ide.util.SuperMethodWarningUtil
 import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.{Editor, SelectionModel}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -40,6 +41,8 @@ import scala.collection.mutable.ArrayBuffer
  * Date: 11.06.2009
  */
 class ScalaIntroduceParameterHandler extends RefactoringActionHandler with DialogConflictsReporter {
+
+  private var occurrenceHighlighters = Seq.empty[RangeHighlighter]
 
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
     if (!file.isInstanceOf[ScalaFile]) return
@@ -103,13 +106,15 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
             if (editor != null && !editor.isDisposed)
               editor.getSelectionModel.removeSelection()
           }
+        } else {
+          occurrenceHighlighters.foreach(_.dispose())
+          occurrenceHighlighters = Seq.empty
         }
       }
     }
   }
 
   private type ExprWithTypes = Option[(ScExpression, Array[ScType])]
-
   def selectedElements(file: PsiFile, project: Project, editor: Editor): Option[(ExprWithTypes, Seq[PsiElement])] = {
     try {
       val selModel: SelectionModel = editor.getSelectionModel
@@ -136,6 +141,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
       case _: IntroduceException => None
     }
   }
+
 
   def collectData(exprWithTypes: ExprWithTypes, elems: Seq[PsiElement], methodLike: ScMethodLike, editor: Editor): Option[ScalaIntroduceParameterData] = {
     val project = methodLike.getProject
@@ -184,7 +190,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
 
         val occurrences = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), occurrencesScope)
         if (occurrences.length > 1)
-          ScalaRefactoringUtil.highlightOccurrences(project, occurrences, editor)
+          occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(project, occurrences, editor)
 
         (occurrences, expr.getTextRange)
       case _ => (Array.empty[TextRange], elems.head.getTextRange.union(elems.last.getTextRange))
