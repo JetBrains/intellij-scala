@@ -16,12 +16,13 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import com.intellij.refactoring.{HelpID, RefactoringActionHandler, RefactoringBundle}
+import org.jetbrains.plugins.scala.codeInsight.intention.expression.IntroduceImplicitParameterIntention
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.{ReachingDefintionsCollector, VariableInfo}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -54,10 +55,13 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
     }
   }
 
-  def functionalArg(elems: Seq[PsiElement], input: Iterable[VariableInfo], method: ScMethodLike): ScExpression = {
+  def functionalArg(elems: Seq[PsiElement], input: Iterable[VariableInfo], method: ScMethodLike): (ScExpression, ScType) = {
     val namesAndTypes = input.map { v =>
       val elem = v.element
-      val typeText = ScType.ofNamedElement(v.element).getOrElse(scTypeAny).canonicalText
+      val typeText = elem match {
+        case fun: ScFunction => fun.getType().getOrAny.canonicalText
+        case named => ScType.ofNamedElement(v.element).getOrElse(scTypeAny).canonicalText
+      }
       s"${elem.name}: $typeText"
     }
     val project = method.getProject
@@ -71,8 +75,13 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
         val bodyText = elems.map(_.getText).mkString
         s"$paramsText $arrow {\n$bodyText\n}"
     }
-    val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(funText, elems.head.getContext, elems.head)
-    CodeStyleManager.getInstance(project).reformat(expr).asInstanceOf[ScExpression]
+    val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(funText, elems.head.getContext, elems.head).asInstanceOf[ScFunctionExpr]
+    val toReturn = IntroduceImplicitParameterIntention.createExpressionToIntroduce(expr, withoutParameterTypes = true) match {
+      case Left(e) => e
+      case _ => expr
+    }
+    ScalaPsiUtil.adjustTypes(toReturn, addImports = false)
+    (CodeStyleManager.getInstance(project).reformat(toReturn).asInstanceOf[ScExpression], expr.getNonValueType().getOrAny)
   }
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
@@ -135,9 +144,9 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
     val input = info.inputVariables
     val (types, argText, argClauseText) =
       if (input.nonEmpty || exprWithTypes.isEmpty) {
-        val funExpr = functionalArg(elems, input, methodLike)
+        val (funExpr, funType) = functionalArg(elems, input, methodLike)
         val argClauseText = input.map(_.element.name).mkString("(", ", ", ")")
-        (Array(funExpr.getNonValueType().getOrAny, scTypeUnit), funExpr.getText, argClauseText)
+        (Array(funType, scTypeUnit), funExpr.getText, argClauseText)
       }
       else (exprWithTypes.get._2, exprWithTypes.get._1.getText, "")
 
