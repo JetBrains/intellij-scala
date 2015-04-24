@@ -38,8 +38,8 @@ object Dependencies {
   val scalastyle_2_11: ModuleID = "org.scalastyle" % "scalastyle_2.11" % "0.8.0"
   val scalariform_2_11: ModuleID = "org.scalariform" % "scalariform_2.11" % "0.1.7"
   val macroParadise: ModuleID = "org.scalamacros" % "paradise" % "2.1.0-M5" cross CrossVersion.full
-  val scalaMetaCore: ModuleID = "org.scalameta" % "scalameta_2.11" % "0.1.0-SNAPSHOT"
-  val scalaMetaInterpreter: ModuleID = "org.scalameta" %% "interpreter" % "0.1.0-SNAPSHOT"
+  val scalaMetaCore: ModuleID = "org.scalameta" % "scalameta_2.11" % "0.1.0-SNAPSHOT" withSources()
+  val scalaMetaInterpreter: ModuleID = "org.scalameta" %% "interpreter" % "0.1.0-SNAPSHOT" withSources()
 
   val nailgun: ModuleID = "org.jetbrains" % "nailgun-patched" % "1.0.0"
   val compilerInterfaceSources: ModuleID = "org.jetbrains" % "compiler-interface-sources" % "1.0.0"

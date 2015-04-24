@@ -147,7 +147,7 @@ trait TreeAdapter {
     if (c.arguments.isEmpty)
       toName(c)
     else
-      m.Term.Apply(toName(c), c.args.get.exprs.toStream.map(callArgs(_)))
+      m.Term.Apply(toName(c), c.args.get.exprs.toStream.map(callArgs))
   }
 
   def member(t: p.toplevel.typedef.ScMember): m.Stat = {
