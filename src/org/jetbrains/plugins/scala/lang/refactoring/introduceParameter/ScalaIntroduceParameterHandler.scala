@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.{ReachingDefintionsCollector, VariableInfo}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.{Any => scTypeAny, ScType, Unit => scTypeUnit}
+import org.jetbrains.plugins.scala.lang.psi.types.{Any => scTypeAny, ScFunctionType, ScType, StdType, Unit => scTypeUnit}
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaMethodDescriptor, ScalaParameterInfo}
 import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterHandler._
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
@@ -146,7 +146,11 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
       if (input.nonEmpty || exprWithTypes.isEmpty) {
         val (funExpr, funType) = functionalArg(elems, input, methodLike)
         val argClauseText = input.map(_.element.name).mkString("(", ", ", ")")
-        (Array(funType, scTypeUnit), funExpr.getText, argClauseText)
+        val allTypes = funType match {
+          case ScFunctionType(retType, _) => Array(funType, retType, StdType.ANY)
+          case _ => Array(funType, StdType.ANY)
+        }
+        (allTypes, funExpr.getText, argClauseText)
       }
       else (exprWithTypes.get._2, exprWithTypes.get._1.getText, "")
 

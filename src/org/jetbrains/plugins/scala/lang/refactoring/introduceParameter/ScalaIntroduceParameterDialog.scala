@@ -33,6 +33,7 @@ class ScalaIntroduceParameterDialog(project: Project,
   private var typeMap: util.LinkedHashMap[String, ScType] = _
   private var replaceOccurrencesChb: JCheckBox = _
   private var defaultValuesUsagePanel: DefaultValuesUsagePanel = _
+  private var defaultForIntroducedTextField: EditorTextField = _
 
   override def init(): Unit = {
     super.init()
@@ -69,7 +70,7 @@ class ScalaIntroduceParameterDialog(project: Project,
       new ScalaChangeInfo(getVisibility, method.fun, getMethodName, returnType, parameters, isAddDefaultArgs)
 
     val newData = introduceData.copy(paramName = paramNameField.getText, tp = typeMap.get(typeCombobox.getSelectedItem),
-      replaceAll = replaceOccurrencesChb.isSelected)
+      replaceAll = replaceOccurrencesChb.isSelected, defaultArg = defaultForIntroducedTextField.getText)
 
     changeInfo.introducedParameterData = Some(newData)
     new ScalaChangeSignatureProcessor(project, changeInfo)
@@ -167,14 +168,19 @@ class ScalaIntroduceParameterDialog(project: Project,
 
   private def createDefaultArgumentPanel(): JComponent = {
     val panel = new JPanel(new BorderLayout())
-    val textField = new EditorTextField(introduceData.defaultArg, project, ScalaFileType.SCALA_FILE_TYPE)
+    defaultForIntroducedTextField = new EditorTextField(introduceData.defaultArg, project, ScalaFileType.SCALA_FILE_TYPE)
     val label = new JLabel("Default value:")
-    label.setLabelFor(textField)
+    label.setLabelFor(defaultForIntroducedTextField)
     panel.add(label, BorderLayout.NORTH)
-    textField.setOneLineMode(false)
-    textField.setEnabled(false)
-    IJSwingUtilities.adjustComponentsOnMac(label, textField)
-    panel.add(textField, BorderLayout.CENTER)
+    defaultForIntroducedTextField.setOneLineMode(false)
+    defaultForIntroducedTextField.setEnabled(true)
+    defaultForIntroducedTextField.addDocumentListener(new DocumentAdapter {
+      override def documentChanged(e: DocumentEvent): Unit = {
+        introducedParamTableItem.foreach(_.parameter.defaultValue = defaultForIntroducedTextField.getText.trim)
+      }
+    })
+    IJSwingUtilities.adjustComponentsOnMac(label, defaultForIntroducedTextField)
+    panel.add(defaultForIntroducedTextField, BorderLayout.CENTER)
     val optionsPanel = new JPanel(new BorderLayout())
     replaceOccurrencesChb = new JCheckBox("Replace all occurrences")
     replaceOccurrencesChb.setMnemonic('a')
