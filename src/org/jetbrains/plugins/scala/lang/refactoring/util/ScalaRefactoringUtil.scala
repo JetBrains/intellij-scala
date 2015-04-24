@@ -45,6 +45,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
 import scala.annotation.tailrec
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -333,7 +334,7 @@ object ScalaRefactoringUtil {
     map
   }
 
-  def highlightOccurrences(project: Project, occurrences: Array[TextRange], editor: Editor) {
+  def highlightOccurrences(project: Project, occurrences: Array[TextRange], editor: Editor): Seq[RangeHighlighter] = {
     val highlighters = new java.util.ArrayList[RangeHighlighter]
     var highlightManager: HighlightManager = null
     if (editor != null) {
@@ -343,9 +344,10 @@ object ScalaRefactoringUtil {
       for (occurence <- occurrences)
         highlightManager.addRangeHighlight(editor, occurence.getStartOffset, occurence.getEndOffset, attributes, true, highlighters)
     }
+    highlighters.asScala
   }
 
-  def highlightOccurrences(project: Project, occurrences: Array[PsiElement], editor: Editor) {
+  def highlightOccurrences(project: Project, occurrences: Array[PsiElement], editor: Editor): Seq[RangeHighlighter] = {
     highlightOccurrences(project, occurrences.map({
       el: PsiElement => el.getTextRange
     }), editor)

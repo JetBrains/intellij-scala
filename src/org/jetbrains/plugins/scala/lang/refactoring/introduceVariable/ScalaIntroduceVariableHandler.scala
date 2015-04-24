@@ -11,6 +11,7 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util._
 import com.intellij.openapi.wm.WindowManager
@@ -44,7 +45,9 @@ import scala.collection.JavaConverters._
  */
 
 class ScalaIntroduceVariableHandler extends RefactoringActionHandler with DialogConflictsReporter {
+
   val REFACTORING_NAME = ScalaBundle.message("introduce.variable.title")
+  private var occurrenceHighlighters = Seq.empty[RangeHighlighter]
 
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
     val canBeIntroduced: ScExpression => Boolean = ScalaRefactoringUtil.checkCanBeIntroduced(_)
@@ -73,7 +76,11 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
 
       def runWithDialog() {
         val dialog = getDialog(project, editor, expr, types, occurrences, declareVariable = false, validator)
-        if (!dialog.isOK) return
+        if (!dialog.isOK) {
+          occurrenceHighlighters.foreach(_.dispose())
+          occurrenceHighlighters = Seq.empty
+          return
+        }
         val varName: String = dialog.getEnteredName
         val varType: ScType = dialog.getSelectedType
         val isVariable: Boolean = dialog.isDeclareVariable
@@ -281,7 +288,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
       }
       result
     }
-    
+
     def createVariableDefinition(): PsiElement = {
       val created = ScalaPsiElementFactory.createDeclaration(varName, typeName, isVariable,
         ScalaRefactoringUtil.unparExpr(expression), file.getManager)
@@ -362,7 +369,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
                           validator: ScalaVariableValidator): ScalaIntroduceVariableDialog = {
     // Add occurrences highlighting
     if (occurrences.length > 1)
-      ScalaRefactoringUtil.highlightOccurrences(project, occurrences, editor)
+      occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(project, occurrences, editor)
 
     val possibleNames = NameSuggester.suggestNames(expr, validator)
     val dialog = new ScalaIntroduceVariableDialog(project, typez, occurrences.length, validator, possibleNames)
