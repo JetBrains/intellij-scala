@@ -64,13 +64,14 @@ object Dependencies {
   val mavenIndexerCore = "org.apache.maven.indexer" % "indexer-core" % "6.0"
   val mavenModel = "org.apache.maven" % "maven-model" % "3.0.5"
 
+  val scalaMetaCore = "org.scalameta" % "scalameta_2.11" % "0.1.0-SNAPSHOT" withSources()
+  val scalaMetaInterpreter = "org.scalameta" %% "interpreter" % "0.1.0-SNAPSHOT" withSources()
+
   val junitInterface = "com.novocode" % "junit-interface" % "0.11" % "test"
 
   val scalastyle_2_11 = "org.scalastyle" % "scalastyle_2.11" % "0.7.0"
   val scalariform_2_11 = "org.scalariform" % "scalariform_2.11" % "0.1.7"
   val macroParadise = "org.scalamacros" % "paradise" % "2.1.0-M5" cross CrossVersion.full
-  val scalaMetaCore = "org.scalameta" % "scalameta_2.11" % "0.1.0-SNAPSHOT"
-  val scalaMetaInterpreter = "org.scalameta" %% "interpreter" % "0.1.0-SNAPSHOT"
 
 }
 

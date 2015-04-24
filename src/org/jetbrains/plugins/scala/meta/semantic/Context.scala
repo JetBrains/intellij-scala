@@ -3,14 +3,15 @@ package org.jetbrains.plugins.scala.meta.semantic
 import scala.meta._
 import scala.{Seq => _}
 import scala.collection.immutable.Seq
+import scala.meta.internal.{ast=>m}
 
 class Context extends semantic.Context {
   override def dialect: Dialect = ???
 
   override def desugar(term: Term): Term = ???
-  override def tpe(term: Term): Type = ???
+  override def tpe(term: Term): Type = m.Type.Name("Any")
   override def tpe(param : scala.meta.Term.Param) = ???
-  override def defns(ref: Ref): Seq[Member] = ???
+  override def defns(ref: Ref): Seq[Member] = Seq()
   override def members(tpe: Type): Seq[Member] = ???
 
   override def isSubType(tpe1: Type, tpe2: Type): Boolean = ???
