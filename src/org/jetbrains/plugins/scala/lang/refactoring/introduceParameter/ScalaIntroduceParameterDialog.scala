@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+import org.jetbrains.plugins.scala.util.JListCompatibility
 
 import scala.collection.JavaConverters._
 
@@ -29,7 +30,7 @@ class ScalaIntroduceParameterDialog(project: Project,
         extends ScalaChangeSignatureDialog(project, method) {
 
   private var paramNameField: EditorTextField = _
-  private var typeCombobox: JComboBox = _
+  private var typeCombobox: ComboBox = _
   private var typeMap: util.LinkedHashMap[String, ScType] = _
   private var replaceOccurrencesChb: JCheckBox = _
   private var defaultValuesUsagePanel: DefaultValuesUsagePanel = _
@@ -143,7 +144,7 @@ class ScalaIntroduceParameterDialog(project: Project,
     typeLabel.setLabelFor(typeCombobox)
     typeMap = ScalaRefactoringUtil.getCompatibleTypeNames(introduceData.possibleTypes)
     for (typeName <- typeMap.keySet.asScala) {
-      typeCombobox.addItem(typeName)
+      JListCompatibility.addItem(typeCombobox, typeName)
     }
     typeLabel.setDisplayedMnemonic('T')
     typeCombobox.addItemListener(new ItemListener {
