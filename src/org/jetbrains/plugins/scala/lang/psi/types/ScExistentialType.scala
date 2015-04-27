@@ -290,7 +290,7 @@ case class ScExistentialType(quantified : ScType,
           case (s, sctype) =>
             val pTypes: List[Seq[() => ScType]] =
               s.substitutedTypes.map(_.map(f => () => updateRecursive(f(), newSet, variance)))
-            val tParams: Array[TypeParameter] = s.typeParams.map(updateTypeParam)
+            val tParams: Array[TypeParameter] = if (s.typeParams.length == 0) TypeParameter.EMPTY_ARRAY else s.typeParams.map(updateTypeParam)
             val rt: ScType = updateRecursive(sctype, newSet, -variance)
             (new Signature(s.name, pTypes, s.paramLength, tParams,
               ScSubstitutor.empty, s.namedElement match {

@@ -407,7 +407,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
         val middleRes = ScCompoundType(comps.map(substInternal), signatureMap.map {
           case (s: Signature, tp: ScType) =>
             val pTypes: List[Seq[() => ScType]] = s.substitutedTypes.map(_.map(f => () => substInternal(f())))
-            val tParams: Array[TypeParameter] = s.typeParams.map(substTypeParam)
+            val tParams: Array[TypeParameter] = if (s.typeParams.length == 0) TypeParameter.EMPTY_ARRAY else s.typeParams.map(substTypeParam)
             val rt: ScType = substInternal(tp)
             (new Signature(s.name, pTypes, s.paramLength, tParams,
               ScSubstitutor.empty, s.namedElement match {
