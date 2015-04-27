@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
+import java.lang.ref.WeakReference
+
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.diagnostic.Logger
@@ -888,12 +890,25 @@ object ScalaPsiUtil {
     res
   }
 
-  private val idMap = new ConcurrentWeakHashMap[(String, String), String](1000003)
+  private val idMap = new ConcurrentWeakHashMap[String, WeakReference[String]](10009)
+
+  def getFromMap[T](map: ConcurrentWeakHashMap[T, WeakReference[T]], s: T): T = {
+    val res = {
+      val weak = map.get(s)
+      if (weak != null) weak.get()
+      else null.asInstanceOf[T]
+    }
+    if (res != null) res
+    else {
+      map.put(s, new WeakReference(s))
+      s
+    }
+  }
 
   def getPsiElementId(elem: PsiElement): String = {
     if (elem == null) return "NullElement"
     try {
-      elem match {
+      val res = elem match {
         case tp: ScTypeParam => tp.getPsiElementId
         case p: PsiTypeParameter =>
           val containingFile = Option(p.getContainingFile).map(_.getName).getOrElse("NoFile")
@@ -903,12 +918,14 @@ object ScalaPsiUtil {
               clazz <- Option(owner.getContainingClass)
               name <- Option(clazz.getName)
             } yield name).getOrElse("NoClass")
-          (" in:" + containingFile + ":" + containingClass).intern() //Two parameters from Java can't be used with same name in same place
+          (" in:" + containingFile + ":" + containingClass) //Two parameters from Java can't be used with same name in same place
         case _ =>
           val containingFile: PsiFile = elem.getContainingFile
           " in:" + (if (containingFile != null) containingFile.name else "NoFile") + ":" +
             (if (elem.getTextRange != null) elem.getTextRange.getStartOffset else "NoRange")
       }
+
+      getFromMap(idMap, res)
     }
     catch {
       case pieae: PsiInvalidElementAccessException => "NotValidElement"
