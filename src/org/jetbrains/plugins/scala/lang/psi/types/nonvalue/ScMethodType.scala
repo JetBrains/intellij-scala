@@ -115,6 +115,13 @@ object TypeParameter {
   def unapply(t: TypeParameter): Option[(String, Seq[TypeParameter], () => ScType, () => ScType, PsiTypeParameter)] = {
     Some(t.name, t.typeParams, t.lowerType, t.upperType, t.ptp)
   }
+
+  def fromArray(ptps: Array[PsiTypeParameter]): Array[TypeParameter] = {
+    if (ptps.length == 0) EMPTY_ARRAY
+    else ptps.map(new TypeParameter(_))
+  }
+
+  val EMPTY_ARRAY: Array[TypeParameter] = Array.empty
 }
 
 case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean)
