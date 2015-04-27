@@ -41,6 +41,14 @@ trait TreeAdapter {
           t.definedReturnType.map(toType).toOption,
           expression(t.body).get
         )
+      case t: p.statements.ScMacroDefinition =>
+        m.Defn.Macro(
+          convertMods(t), m.Term.Name(t.name),
+          t.typeParameters.toStream map toType,
+          t.paramClauses.clauses.toStream.map(convertParamClause),
+          t.definedReturnType.map(toType).get,
+          expression(t.body).get
+        )
       case t: p.toplevel.typedef.ScTrait => toTrait(t)
       case t: p.toplevel.typedef.ScClass => toClass(t)
       case t: p.toplevel.typedef.ScObject => toObject(t)

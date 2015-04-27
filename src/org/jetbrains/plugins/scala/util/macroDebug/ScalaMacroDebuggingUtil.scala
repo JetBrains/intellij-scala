@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala
 package util.macroDebug
 
 import java.io.File
+import scala.meta.internal.{ast => m}
+import scala.meta.eval._
 
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.{Document, Editor}
@@ -15,12 +17,15 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiFileFactory, _}
 import com.intellij.testFramework.LightVirtualFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScMacroDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScMethodCallImpl
+import org.jetbrains.plugins.scala.meta.trees.ConverterImpl
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+import scala.meta.internal.ast
 
 /**
  * User: Dmitry Naydanov
@@ -31,7 +36,7 @@ object ScalaMacroDebuggingUtil {
 
   val MACRO_SIGN_PREFIX = "<[[macro:" //=\
   val needFixCarriageReturn = SystemInfo.isWindows
-  val isEnabled = System.getProperty(MACRO_DEBUG_ENABLE_PROPERTY) != null
+  val isEnabled = true
 
   private[this] val SOURCE_FILE_NAME = new FileAttribute("PreimageFileName", 1, false)
   private[this] val SYNTHETIC_SOURCE_ATTRIBUTE = new FileAttribute("SyntheticMacroCode", 1, false)
@@ -131,10 +136,25 @@ object ScalaMacroDebuggingUtil {
     case None => MARKERS_CACHE += (fileName -> markersCount); true
   }
 
-  def isMacroCall(element: PsiElement) = element match {
+  def isMacroCall(element: PsiElement) = {
+    val sres = element match {
+      case methodInvocation: MethodInvocation => methodInvocation.getEffectiveInvokedExpr match {
+        case ref: ScReferenceExpression => ref.resolve() match {
+          case _: ScMacroDefinition => true
+          case _ => false
+        }
+        case _ => false
+      }
+      case _ => false
+    }
+    sres || isImplicitMacro(element)
+  }
+
+  def isImplicitMacro(element: PsiElement) = element match {
     case methodInvocation: MethodInvocation => methodInvocation.getEffectiveInvokedExpr match {
       case ref: ScReferenceExpression => ref.resolve() match {
-        case _: ScMacroDefinition => true
+        case fun: ScFunctionDefinition
+          if fun.name.endsWith("apply") && fun.paramClauses.clauses.exists(_.parameters.exists(_.isImplicitParameter)) => true
         case _ => false
       }
       case _ => false
@@ -167,6 +187,27 @@ object ScalaMacroDebuggingUtil {
         //        extensions.inWriteAction {
         WriteCommandAction.runWriteCommandAction(project, new Runnable {
           override def run() {
+            implicit val context = new org.jetbrains.plugins.scala.meta.semantic.Context(macroCall.getProject)
+            val callImpl = macroCall.asInstanceOf[ScMethodCallImpl]
+            val body = callImpl.getEffectiveInvokedExpr match {
+              case e: ScReferenceExpression => e.resolve().asInstanceOf[ScMacroDefinition]
+            }
+            val macroBody = ConverterImpl.ideaToMeta(body)
+            val macroArgs = callImpl.args.exprs.toStream.map(ConverterImpl.ideaToMeta)
+            val macroApplication = m.Term.Apply(m.Term.Name(body.name), macroArgs.asInstanceOf[scala.collection.immutable.Seq[m.Term]])
+            val mMacroEnv = scala.collection.mutable.Map[m.Term.Name, Any]()
+            try {
+              val result = macroApplication.eval(mMacroEnv.toMap)
+            } catch {
+              case ex: Exception =>
+                val v = ex.getMessage
+                ex.printStackTrace()
+                ""
+              case ex: Throwable =>
+                val v = ex.getMessage
+                ex.printStackTrace()
+                ""
+            }
             val macroExpansion =
               """
                 |val eval$1: String = "world"
