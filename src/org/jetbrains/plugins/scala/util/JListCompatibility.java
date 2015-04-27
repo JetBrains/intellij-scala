@@ -102,4 +102,8 @@ public class JListCompatibility {
   public static ListCellRenderer getGotoFileCellRenderer(int maxSize) {
     return new GotoFileCellRenderer(maxSize);
   }
+
+  public static void addItem(JComboBox comboBox, Object item) {
+    comboBox.addItem(item);
+  }
 }
