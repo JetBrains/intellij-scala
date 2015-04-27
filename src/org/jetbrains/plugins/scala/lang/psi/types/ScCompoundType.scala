@@ -61,7 +61,7 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
         }
 
         val pTypes: List[Seq[() => ScType]] = s.substitutedTypes.map(_.map(f => () => f().removeAbstracts))
-        val tParams: Array[TypeParameter] = s.typeParams.map(updateTypeParam)
+        val tParams: Array[TypeParameter] = if (s.typeParams.length == 0) TypeParameter.EMPTY_ARRAY else s.typeParams.map(updateTypeParam)
         val rt: ScType = tp.removeAbstracts
         (new Signature(s.name, pTypes, s.paramLength, tParams,
           ScSubstitutor.empty, s.namedElement match {
@@ -101,7 +101,7 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
 
             val pTypes: List[Seq[() => ScType]] =
               s.substitutedTypes.map(_.map(f => () => f().recursiveUpdate(update, visited + this)))
-            val tParams: Array[TypeParameter] = s.typeParams.map(updateTypeParam)
+            val tParams: Array[TypeParameter] = if (s.typeParams.length == 0) TypeParameter.EMPTY_ARRAY else s.typeParams.map(updateTypeParam)
             val rt: ScType = tp.recursiveUpdate(update, visited + this)
             (new Signature(
               s.name, pTypes, s.paramLength, tParams, ScSubstitutor.empty, s.namedElement match {
@@ -133,9 +133,11 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
           }, tp.ptp)
         }
         new ScCompoundType(components.map(_.recursiveVarianceUpdateModifiable(newData, update, variance)), signatureMap.map {
-          case (s: Signature, tp) => (new Signature(
+          case (s: Signature, tp) =>
+            val tParams = if (s.typeParams.length == 0) TypeParameter.EMPTY_ARRAY else s.typeParams.map(updateTypeParam)
+            (new Signature(
             s.name, s.substitutedTypes.map(_.map(f => () => f().recursiveVarianceUpdateModifiable(newData, update, 1))),
-            s.paramLength, s.typeParams.map(updateTypeParam), ScSubstitutor.empty, s.namedElement, s.hasRepeatedParam
+            s.paramLength, tParams, ScSubstitutor.empty, s.namedElement, s.hasRepeatedParam
           ), tp.recursiveVarianceUpdateModifiable(newData, update, 1))
         }, typesMap.map {
           case (s, sign) => (s, sign.updateTypes(_.recursiveVarianceUpdateModifiable(newData, update, 1)))
@@ -233,7 +235,7 @@ object ScCompoundType {
       decl match {
         case fun: ScFunction =>
           signatureMapVal += ((new Signature(fun.name, PhysicalSignature.typesEval(fun), PhysicalSignature.paramLength(fun),
-            fun.getTypeParameters.map(new TypeParameter(_)), subst, fun, PhysicalSignature.hasRepeatedParam(fun)),
+            TypeParameter.fromArray(fun.getTypeParameters), subst, fun, PhysicalSignature.hasRepeatedParam(fun)),
             fun.returnType.getOrAny))
         case varDecl: ScVariable =>
           for (e <- varDecl.declaredElements) {

@@ -888,6 +888,8 @@ object ScalaPsiUtil {
     res
   }
 
+  private val idMap = new ConcurrentWeakHashMap[(String, String), String](1000003)
+
   def getPsiElementId(elem: PsiElement): String = {
     if (elem == null) return "NullElement"
     try {
@@ -901,7 +903,7 @@ object ScalaPsiUtil {
               clazz <- Option(owner.getContainingClass)
               name <- Option(clazz.getName)
             } yield name).getOrElse("NoClass")
-          " in:" + containingFile + ":" + containingClass //Two parameters from Java can't be used with same name in same place
+          (" in:" + containingFile + ":" + containingClass).intern() //Two parameters from Java can't be used with same name in same place
         case _ =>
           val containingFile: PsiFile = elem.getContainingFile
           " in:" + (if (containingFile != null) containingFile.name else "NoFile") + ":" +
